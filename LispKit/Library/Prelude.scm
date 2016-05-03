@@ -1,0 +1,46 @@
+;;; Prelude for LispKit
+;;;
+;;; Author: Matthias Zenger
+;;; Copyright © 2015 ObjectHub. All rights reserved.
+;;;
+;;; Licensed under the Apache License, Version 2.0 (the "License");
+;;; you may not use this file except in compliance with the License.
+;;; You may obtain a copy of the License at
+;;;
+;;;      http://www.apache.org/licenses/LICENSE-2.0
+;;;
+;;; Unless required by applicable law or agreed to in writing, software
+;;; distributed under the License is distributed on an "AS IS" BASIS,
+;;; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+;;; See the License for the specific language governing permissions and
+;;; limitations under the License.
+
+
+(define-syntax for
+  (syntax-rules (in from)
+    ((for element in list body ...) (map (lambda (element) body ...) list))
+    ((for element from (x ...) body ...) (map (lambda (element) body ...) (list x ...)))))
+
+(define-syntax while
+  (syntax-rules ()
+    ((while condition body ...)
+      (let loop ()
+        (if condition
+            (begin
+              body ...
+              (loop))
+            #f)))))
+
+(define-syntax myor
+  (syntax-rules ()
+    ((myor) #f)
+    ((myor e) e)
+    ((myor e1 e2 ...) (let ((temp e1)) (if temp temp (myor e2 ...))))))
+
+(define first car)
+
+
+;;; Scratch (for testing)
+
+(define (fib n)
+  (if (< n 2) n (+ (fib (- n 1)) (fib (- n 2)))))
