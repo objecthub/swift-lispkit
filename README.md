@@ -23,8 +23,8 @@ From an architectural perspective, _LispKit_ consists of:
 ## Current state
 
 As of May 2016, _LispKit_ is incomplete and work in progress. _LispKit_ relies on
-[NumberKit](http://github/objecthub/swift-numberkit) for its support of numeric datatypes like
-rationals, complex numbers, and big integers. The _LispKit_ compiler does not perform
+[NumberKit](http://github.com/objecthub/swift-numberkit) for its support of numeric datatypes
+like rationals, complex numbers, and big integers. The _LispKit_ compiler does not perform
 any code optimizations and the performance of the system is significantly below state
 of the art Scheme implementations.
 
@@ -37,4 +37,4 @@ displays the result.
 
 - XCode 7.3
 - Swift 2.2
-- [NumberKit](http://github/objecthub/swift-numberkit)
+- [NumberKit](http://github.com/objecthub/swift-numberkit)
