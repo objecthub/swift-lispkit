@@ -102,7 +102,9 @@ public final class VirtualMachine: TrackedObject {
       let compiler = Compiler(self.context, .Interaction)
       try compiler.compileBody(.List(exprs))
       let code = compiler.bundle()
-      print(code.description)
+      if DEBUG_OUTPUT {
+        print(code.description)
+      }
       return try self.execute(code)
     } catch let error as LispError { // handle Lisp-related issues
       return .Error(AnyError(error))
@@ -392,7 +394,6 @@ public final class VirtualMachine: TrackedObject {
     let initialFp = fp
     while true {
       if ip < 0 || ip >= code.instructions.count {
-        self.context.console.print(self.stackFragmentDescr(ip, fp))
         return .Null
       }
       self.collectGarbageIfNeeded()

@@ -68,6 +68,8 @@ public enum Instruction: CustomStringConvertible {
   /// variable in this location is pushed on the stack.
   case PushLocal(Int)
   
+  /// SetLocal(stackref): stackref refers to the offset from the framepointer. The value of the
+  /// variable in this location is set to the top value on the stack.
   case SetLocal(Int)
   
   case SetLocalVariable(Int)
@@ -134,8 +136,6 @@ public enum Instruction: CustomStringConvertible {
   case PushClosure(Int, Int)
   
   case MakePromise(Int, Int)
-  
-  case MakeSyntax
   
   case Compile
   
@@ -324,8 +324,6 @@ public enum Instruction: CustomStringConvertible {
         return "push_closure \(n),\(index)"
       case MakePromise(let n, let index):
         return "make_promise \(n),\(index)"
-      case MakeSyntax:
-        return "make_syntax"
       case Compile:
         return "compile"
       case Apply(let n):
