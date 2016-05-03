@@ -273,7 +273,7 @@ public class Compiler {
       case .Sym(let sym):
         try self.pushValueOf(sym, in: env)
       case .Pair(.Sym(let sym), let cdr):
-        let pushFrameIp = self.emit(.PushFrame)
+        let pushFrameIp = self.emit(.MakeFrame)
         // Try to push the function if locally defined
         switch self.pushLocalValueOf(sym, in: env) {
           case .Success:
@@ -295,7 +295,9 @@ public class Compiler {
                     case .Macro(let transformer):
                       let expanded = try self.context.machine.apply(
                         .Proc(transformer), to: .Pair(cdr, .Null), in: env)
-                      print("expanded = \(expanded)")
+                      if DEBUG_OUTPUT {
+                        print("expanded = \(expanded)")
+                      }
                       return try self.compile(expanded, in: env, inTailPos: tail)
                   }
                 default:
@@ -312,17 +314,17 @@ public class Compiler {
         }
         // Push arguments and call function
         if self.call(try self.compileList(cdr, in: env), tail) {
-          // Remove PushFrame if this was a tail call
+          // Remove MakeFrame if this was a tail call
           self.patch(.NoOp, at: pushFrameIp)
           return true
         }
       case .Pair(let car, let cdr):
-        let pushFrameIp = self.emit(.PushFrame)
+        let pushFrameIp = self.emit(.MakeFrame)
         // Push function
         try self.compile(car, in: env, inTailPos: false)
         // Push arguments and call function
         if self.call(try self.compileList(cdr, in: env), tail) {
-          // Remove PushFrame if this was a tail call
+          // Remove MakeFrame if this was a tail call
           self.patch(.NoOp, at: pushFrameIp)
           return true
         }

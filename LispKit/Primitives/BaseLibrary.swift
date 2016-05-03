@@ -79,7 +79,7 @@ public final class BaseLibrary: Library {
     guard case .Pair(_, .Pair(let arg, .Null)) = expr else {
       throw EvalError.ArgumentCountError(formals: 1, args: expr)
     }
-    compiler.emit(.PushFrame)
+    compiler.emit(.MakeFrame)
     try compiler.compile(arg, in: env, inTailPos: false)
     compiler.emit(.Compile)
     return compiler.call(0, tail)
@@ -102,7 +102,7 @@ public final class BaseLibrary: Library {
     guard case .Pair(_, .Pair(let fun, let arglist)) = expr else {
       throw EvalError.LeastArgumentCountError(formals: 2, args: expr)
     }
-    compiler.emit(.PushFrame)
+    compiler.emit(.MakeFrame)
     try compiler.compile(fun, in: env, inTailPos: false)
     var next = arglist
     var n = 0
@@ -263,7 +263,7 @@ public final class BaseLibrary: Library {
     if promise {
       return .MakePromise(closureCompiler.captures.count, codeIndex)
     } else {
-      return .PushClosure(closureCompiler.captures.count, codeIndex)
+      return .MakeClosure(closureCompiler.captures.count, codeIndex)
     }
   }
   
@@ -300,18 +300,6 @@ public final class BaseLibrary: Library {
       default:
         throw EvalError.MalformedDefinition(.Pair(sig, Expr.List(def)))
     }
-  }
-  
-  func compileSyntax(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Symbol {
-    guard case .Pair(let kword, .Pair(let transformer, .Null)) = expr else {
-      throw EvalError.MalformedDefinition(expr)
-    }
-    guard case .Sym(let sym) = kword else {
-      throw EvalError.TypeError(kword, [.SymbolType])
-    }
-    try compiler.compile(transformer, in: env, inTailPos: false)
-    compiler.emit(.MakeSyntax)
-    return sym
   }
   
   func compileDefineSyntax(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {

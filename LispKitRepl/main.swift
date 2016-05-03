@@ -43,12 +43,14 @@ let context = Context(console: console, library: SchemeLibrary.self)
 // Load standard Prelude
 if let preludePath = NSBundle(identifier: "net.objecthub.LispKit")?.pathForResource(
   "Prelude", ofType: "scm", inDirectory: "LispKit/Library") {
-  let res = context.machine.evalFile(preludePath)
-  console.print(res.description + "\n")
+  context.machine.evalFile(preludePath)
 }
 
+// Print header
+console.print("LispKit REPL, © 2016 Matthias Zenger\n")
+
 // Enter read-eval-print loop
-console.print("> ")
+console.print("▷ ")
 while let line = console.read() {
   guard line != "exit" else {
     break
@@ -57,5 +59,5 @@ while let line = console.read() {
   if res != Expr.Void {
     console.print(res.description + "\n")
   }
-  console.print("> ")
+  console.print("▷ ")
 }

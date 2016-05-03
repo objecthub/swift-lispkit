@@ -31,19 +31,20 @@ import Darwin
 /// The stack is segmented into frames, each representing the invocation of a closure. The
 /// layout of each stack frame looks like this:
 ///
-///    | ...              |
-///    | Intermed. val. 0 |
-///    +==================+
-///    | Local variable 1 |
-///    | Local variable 0 | <- fp + args
-///    | Argument 1       |
-///    | Argument 0       | <- fp
-///    | Program          | <- fp - 1
-///    +------------------+                 | PushFrame |
-///    | Return address   | <- fp - 2       v           v
-///    | Dynamic link     | <- fp - 3
-///    +==================+
-///    |                  |
+///    │        ...        │
+///    ╞═══════════════════╡
+///    │        ...        │
+///    │ Stack value 0     │
+///    │ Local variable 1  │
+///    │ Local variable 0  │  ⟸ fp + args
+///    │ Argument 1        │
+///    │ Argument 0        │  ⟸ fp
+///    │ Closure           │  ⟸ fp - 1
+///    ├───────────────────┤                 ⥥ MakeFrame ⥥
+///    │ Return address    │  ⟸ fp - 2
+///    │ Dynamic link      │  ⟸ fp - 3
+///    ╞═══════════════════╡
+///    │        ...        │
 ///
 public final class VirtualMachine: TrackedObject {
   
@@ -513,7 +514,7 @@ public final class VirtualMachine: TrackedObject {
           self.push(.Complexnum(num))
         case .PushChar(let char):
           self.push(.Char(char))
-        case .PushClosure(let n, let index):
+        case .MakeClosure(let n, let index):
           self.push(.Proc(Procedure(self.captureVariables(n), code.fragments[index])))
         case .MakePromise(let n, let index):
           let future = Future(Procedure(self.captureVariables(n), code.fragments[index]))
@@ -551,7 +552,7 @@ public final class VirtualMachine: TrackedObject {
             ip = 0
             fp = self.sp - n
           }
-        case .PushFrame:
+        case .MakeFrame:
           // Push frame pointer
           self.push(.Fixnum(Int64(fp)))
           // Reserve space for instruction pointer

@@ -133,9 +133,11 @@ public enum Instruction: CustomStringConvertible {
   
   /// MakeClosure(n, code): creates a closure on the stack consisting of `n` captured variables
   /// (on the stack), and the code at index `code`
-  case PushClosure(Int, Int)
+  case MakeClosure(Int, Int)
   
   case MakePromise(Int, Int)
+  
+  case MakeSyntax
   
   case Compile
   
@@ -144,7 +146,7 @@ public enum Instruction: CustomStringConvertible {
   // Calling instructions
   
   /// Pushes a new stack frame onto the stack
-  case PushFrame
+  case MakeFrame
   
   /// Call(n): Calls a procedure with `n` arguments.
   case Call(Int)
@@ -320,15 +322,17 @@ public enum Instruction: CustomStringConvertible {
         return "push_complex \(num)"
       case PushChar(let char):
         return "push_char \(char)"
-      case PushClosure(let n, let index):
-        return "push_closure \(n),\(index)"
+      case MakeClosure(let n, let index):
+        return "make_closure \(n),\(index)"
       case MakePromise(let n, let index):
         return "make_promise \(n),\(index)"
+      case MakeSyntax:
+        return "make_syntax"
       case Compile:
         return "compile"
       case Apply(let n):
         return "apply \(n)"
-      case PushFrame:
+      case MakeFrame:
         return "push_frame"
       case Call(let n):
         return "call \(n)"
