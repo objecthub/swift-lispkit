@@ -18,7 +18,7 @@
 
 ## Library
 
-– [ ] Adopt text + binary ports from R7RS
+- [ ] Adopt text + binary ports from R7RS
 - [ ] Adopt bytevectors from R7RS
 
 
