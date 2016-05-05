@@ -21,6 +21,8 @@
 import Darwin
 import LispKit
 
+let appInfo = AppInfo()
+
 // Simple terminal-based console implementation
 public struct CommandLineConsole: Console {
   /// Prints the given string into the console window.
@@ -47,7 +49,8 @@ if let preludePath = NSBundle(identifier: "net.objecthub.LispKit")?.pathForResou
 }
 
 // Print header
-console.print("LispKit REPL, © 2016 Matthias Zenger\n")
+console.print("\(appInfo.name) \(appInfo.version) (\(appInfo.buildDate) \(appInfo.buildTime))\n")
+console.print("\(appInfo.copyright)\n")
 
 // Enter read-eval-print loop
 console.print("▷ ")

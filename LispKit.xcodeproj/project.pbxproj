@@ -19,6 +19,8 @@
 		CC2E6A911C486AB30046E680 /* Prelude.scm in CopyFiles */ = {isa = PBXBuildFile; fileRef = CCAD52D51C48467D00DBD8EE /* Prelude.scm */; };
 		CC35FD0D1C6FA4B700C8B992 /* VirtualMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */; };
 		CC35FD0F1C711FEA00C8B992 /* BindingGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35FD0E1C711FEA00C8B992 /* BindingGroup.swift */; };
+		CC502A951CDABF1E00875D9F /* BuildMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = CC502A941CDABF1E00875D9F /* BuildMetadata.m */; };
+		CC5033AF1CDB9A440045A8FA /* AppInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5033AE1CDB9A440045A8FA /* AppInfo.swift */; };
 		CC55A8291C50D35C00772B02 /* Procedure.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55A8281C50D35C00772B02 /* Procedure.swift */; };
 		CC55A82B1C5175B000772B02 /* SpecialForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55A82A1C5175B000772B02 /* SpecialForm.swift */; };
 		CC5696771CBCFA9900F6803E /* Instruction.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5696761CBCFA9900F6803E /* Instruction.swift */; };
@@ -114,6 +116,10 @@
 		CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VirtualMachine.swift; sourceTree = "<group>"; };
 		CC35FD0E1C711FEA00C8B992 /* BindingGroup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BindingGroup.swift; sourceTree = "<group>"; };
 		CC3C4E051CD81C5E00C78F89 /* TODO.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = TODO.md; sourceTree = "<group>"; };
+		CC502A931CDABF1E00875D9F /* LispKitRepl-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "LispKitRepl-Bridging-Header.h"; sourceTree = "<group>"; };
+		CC502A941CDABF1E00875D9F /* BuildMetadata.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BuildMetadata.m; sourceTree = "<group>"; };
+		CC502A961CDABF6B00875D9F /* BuildMetadata.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BuildMetadata.h; sourceTree = "<group>"; };
+		CC5033AE1CDB9A440045A8FA /* AppInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppInfo.swift; sourceTree = "<group>"; };
 		CC55A8281C50D35C00772B02 /* Procedure.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Procedure.swift; sourceTree = "<group>"; };
 		CC55A82A1C5175B000772B02 /* SpecialForm.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpecialForm.swift; sourceTree = "<group>"; };
 		CC5696761CBCFA9900F6803E /* Instruction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Instruction.swift; sourceTree = "<group>"; };
@@ -195,7 +201,11 @@
 			isa = PBXGroup;
 			children = (
 				CC1227381CBFE74500821EB7 /* main.swift */,
+				CC5033AE1CDB9A440045A8FA /* AppInfo.swift */,
+				CC502A941CDABF1E00875D9F /* BuildMetadata.m */,
+				CC502A961CDABF6B00875D9F /* BuildMetadata.h */,
 				CC12273A1CBFE74500821EB7 /* Info.plist */,
+				CC502A931CDABF1E00875D9F /* LispKitRepl-Bridging-Header.h */,
 			);
 			path = LispKitRepl;
 			sourceTree = "<group>";
@@ -460,6 +470,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				CC1227391CBFE74500821EB7 /* main.swift in Sources */,
+				CC502A951CDABF1E00875D9F /* BuildMetadata.m in Sources */,
+				CC5033AF1CDB9A440045A8FA /* AppInfo.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -540,24 +552,29 @@
 		CC12273B1CBFE74500821EB7 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
 				INFOPLIST_FILE = LispKitRepl/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispKitRepl;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "LispKitRepl/LispKitRepl-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
 		};
 		CC12273C1CBFE74500821EB7 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
 				INFOPLIST_FILE = LispKitRepl/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispKitRepl;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "LispKitRepl/LispKitRepl-Bridging-Header.h";
 			};
 			name = Release;
 		};

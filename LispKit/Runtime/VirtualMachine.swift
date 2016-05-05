@@ -168,14 +168,14 @@ public final class VirtualMachine: TrackedObject {
   }
   
   /// Pushes the given expression onto the stack.
-  private func push(expr: Expr) {
+  @inline(__always) private func push(expr: Expr) {
     self.stack[self.sp] = expr
     self.sp += 1
   }
   
   /// Pushes the given list of arguments onto the stack and returns the number of arguments pushed
   /// onto the stack.
-  private func pushArguments(arglist: Expr) throws -> Int {
+  @inline(__always) private func pushArguments(arglist: Expr) throws -> Int {
     var args = arglist
     var n = 0
     while case .Pair(let arg, let rest) = args {
@@ -191,7 +191,7 @@ public final class VirtualMachine: TrackedObject {
   }
   
   /// Removes the top `n` elements from the stack.
-  private func pop(n: Int) {
+  @inline(__always) private func pop(n: Int) {
     var i = n
     while i > 0 {
       self.sp -= 1
@@ -201,14 +201,14 @@ public final class VirtualMachine: TrackedObject {
   }
   
   /// Removes the top element from the stack and returns it.
-  private func pop() -> Expr {
+  @inline(__always) private func pop() -> Expr {
     self.sp -= 1
     let res = self.stack[self.sp]
     self.stack[self.sp] = .Undef
     return res
   }
   
-  private func popAsList(n: Int) -> Expr {
+  @inline(__always) private func popAsList(n: Int) -> Expr {
     var res = Expr.Null
     var i = n
     while i > 0 {
@@ -218,7 +218,7 @@ public final class VirtualMachine: TrackedObject {
     return res
   }
   
-  private func popAsArray(n: Int) -> Exprs {
+  @inline(__always) private func popAsArray(n: Int) -> Exprs {
     var res = Exprs()
     var i = n
     while i > 0 {
