@@ -54,8 +54,9 @@ public final class VirtualMachine: TrackedObject {
   /// The stack used by this virtual machine
   private var stack: [Expr]
   
-  /// The stack pointer (pointing at the next available position on the stack)
-  private var sp: Int {
+  /// The stack pointer (pointing at the next available position on the stack); this variable
+  /// should be private, but since it's needed in tests, it remains internal.
+  internal var sp: Int {
     didSet {
       if sp > self.maxSp {
         self.maxSp = self.sp
@@ -103,9 +104,7 @@ public final class VirtualMachine: TrackedObject {
       let compiler = Compiler(self.context, .Interaction)
       try compiler.compileBody(.List(exprs))
       let code = compiler.bundle()
-      if DEBUG_OUTPUT {
-        print(code.description)
-      }
+      log(code.description)
       return try self.execute(code)
     } catch let error as LispError { // handle Lisp-related issues
       return .Error(AnyError(error))
@@ -119,9 +118,15 @@ public final class VirtualMachine: TrackedObject {
   /// Compiles the given expression in the interaction environment and executes it using this
   /// virtual machine.
   public func evalExpr(expr: Expr) -> Expr {
+    return self.evalExprs(.List(expr))
+  }
+  
+  /// Compiles the given list of expressions in the interaction environment and executes
+  /// it using this virtual machine.
+  public func evalExprs(exprs: Expr) -> Expr {
     do {
       let compiler = Compiler(self.context, .Interaction)
-      try compiler.compileBody(.List(expr))
+      try compiler.compileBody(exprs)
       let code = compiler.bundle()
       // context.console.printStr(code.description)
       return try self.execute(code)
@@ -131,7 +136,7 @@ public final class VirtualMachine: TrackedObject {
       return .Error(AnyError(OsError(error)))
     } catch { // handle internal issues
       // TODO: Figure out what needs to be logged here
-      print("UNKNOWN ERROR in Evaluator.evalExpr")
+      print("UNKNOWN ERROR in Evaluator.evalExprs")
       return .Undef
     }
   }
@@ -371,13 +376,11 @@ public final class VirtualMachine: TrackedObject {
     return proc
   }
   
-  private func collectGarbageIfNeeded() {
+  @inline(__always) private func collectGarbageIfNeeded() {
     self.execInstr = self.execInstr &+ 1
     if self.execInstr % 0b0111111111111111111 == 0 {
       let res = self.context.objects.collectGarbage()
-      if DEBUG_OUTPUT {
-        print("[collect garbage; freed up objects: \(res)]")
-      }
+      log("[collect garbage; freed up objects: \(res)]")
     }
   }
   

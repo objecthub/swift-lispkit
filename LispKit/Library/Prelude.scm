@@ -1,7 +1,7 @@
 ;;; Prelude for LispKit
 ;;;
 ;;; Author: Matthias Zenger
-;;; Copyright © 2015 ObjectHub. All rights reserved.
+;;; Copyright © 2016 ObjectHub. All rights reserved.
 ;;;
 ;;; Licensed under the Apache License, Version 2.0 (the "License");
 ;;; you may not use this file except in compliance with the License.

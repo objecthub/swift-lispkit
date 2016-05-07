@@ -13,6 +13,10 @@
 		CC0980A91C67E81C006B7FB1 /* Code.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0980A81C67E81C006B7FB1 /* Code.swift */; };
 		CC0980AB1C67E84C006B7FB1 /* Variable.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0980AA1C67E84C006B7FB1 /* Variable.swift */; };
 		CC1227391CBFE74500821EB7 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1227381CBFE74500821EB7 /* main.swift */; };
+		CC131C4C1CDE0C3D006C030C /* SyntaxRules.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC131C4B1CDE0C3D006C030C /* SyntaxRules.scm */; };
+		CC131C4E1CDE0DCA006C030C /* RegressionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC131C4D1CDE0DCA006C030C /* RegressionTests.swift */; };
+		CC131C501CDE0E01006C030C /* LispKitTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC131C4F1CDE0E01006C030C /* LispKitTestCase.swift */; };
+		CC131C521CDE840C006C030C /* LocalSyntaxRules.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC131C511CDE840C006C030C /* LocalSyntaxRules.scm */; };
 		CC1AAE3B1CC3CF0F00D1806F /* LispKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCAD52BA1C48403800DBD8EE /* LispKit.framework */; };
 		CC1AAE3C1CC3CF0F00D1806F /* LispKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CCAD52BA1C48403800DBD8EE /* LispKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CC26069C1C61760C0047A3D3 /* Box.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC26069B1C61760C0047A3D3 /* Box.swift */; };
@@ -21,6 +25,7 @@
 		CC35FD0F1C711FEA00C8B992 /* BindingGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35FD0E1C711FEA00C8B992 /* BindingGroup.swift */; };
 		CC502A951CDABF1E00875D9F /* BuildMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = CC502A941CDABF1E00875D9F /* BuildMetadata.m */; };
 		CC5033AF1CDB9A440045A8FA /* AppInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5033AE1CDB9A440045A8FA /* AppInfo.swift */; };
+		CC5033B11CDBE4CD0045A8FA /* Console.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5033B01CDBE4CD0045A8FA /* Console.swift */; };
 		CC55A8291C50D35C00772B02 /* Procedure.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55A8281C50D35C00772B02 /* Procedure.swift */; };
 		CC55A82B1C5175B000772B02 /* SpecialForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55A82A1C5175B000772B02 /* SpecialForm.swift */; };
 		CC5696771CBCFA9900F6803E /* Instruction.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5696761CBCFA9900F6803E /* Instruction.swift */; };
@@ -46,7 +51,7 @@
 		CC9065B51C5557E4004A88B7 /* ObjectPool.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC9065B41C5557E4004A88B7 /* ObjectPool.swift */; };
 		CCAD52BE1C48403900DBD8EE /* LispKit.h in Headers */ = {isa = PBXBuildFile; fileRef = CCAD52BD1C48403900DBD8EE /* LispKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		CCAD52C51C48403900DBD8EE /* LispKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCAD52BA1C48403800DBD8EE /* LispKit.framework */; };
-		CCAD52CA1C48403900DBD8EE /* LispKitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCAD52C91C48403900DBD8EE /* LispKitTests.swift */; };
+		CCAD52CA1C48403900DBD8EE /* SmallTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCAD52C91C48403900DBD8EE /* SmallTests.swift */; };
 		CCAD52E01C48468F00DBD8EE /* Env.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCAD52D81C48468F00DBD8EE /* Env.swift */; };
 		CCAD52E11C48468F00DBD8EE /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCAD52D91C48468F00DBD8EE /* Errors.swift */; };
 		CCAD52E21C48468F00DBD8EE /* Expr.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCAD52DA1C48468F00DBD8EE /* Expr.swift */; };
@@ -112,6 +117,10 @@
 		CC1227361CBFE74500821EB7 /* LispKitRepl.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LispKitRepl.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CC1227381CBFE74500821EB7 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		CC12273A1CBFE74500821EB7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		CC131C4B1CDE0C3D006C030C /* SyntaxRules.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SyntaxRules.scm; sourceTree = "<group>"; };
+		CC131C4D1CDE0DCA006C030C /* RegressionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RegressionTests.swift; sourceTree = "<group>"; };
+		CC131C4F1CDE0E01006C030C /* LispKitTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LispKitTestCase.swift; sourceTree = "<group>"; };
+		CC131C511CDE840C006C030C /* LocalSyntaxRules.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LocalSyntaxRules.scm; sourceTree = "<group>"; };
 		CC26069B1C61760C0047A3D3 /* Box.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Box.swift; sourceTree = "<group>"; };
 		CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VirtualMachine.swift; sourceTree = "<group>"; };
 		CC35FD0E1C711FEA00C8B992 /* BindingGroup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BindingGroup.swift; sourceTree = "<group>"; };
@@ -120,6 +129,7 @@
 		CC502A941CDABF1E00875D9F /* BuildMetadata.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BuildMetadata.m; sourceTree = "<group>"; };
 		CC502A961CDABF6B00875D9F /* BuildMetadata.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BuildMetadata.h; sourceTree = "<group>"; };
 		CC5033AE1CDB9A440045A8FA /* AppInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppInfo.swift; sourceTree = "<group>"; };
+		CC5033B01CDBE4CD0045A8FA /* Console.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Console.swift; sourceTree = "<group>"; };
 		CC55A8281C50D35C00772B02 /* Procedure.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Procedure.swift; sourceTree = "<group>"; };
 		CC55A82A1C5175B000772B02 /* SpecialForm.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpecialForm.swift; sourceTree = "<group>"; };
 		CC5696761CBCFA9900F6803E /* Instruction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Instruction.swift; sourceTree = "<group>"; };
@@ -148,7 +158,7 @@
 		CCAD52BD1C48403900DBD8EE /* LispKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LispKit.h; sourceTree = "<group>"; };
 		CCAD52BF1C48403900DBD8EE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CCAD52C41C48403900DBD8EE /* LispKitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LispKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		CCAD52C91C48403900DBD8EE /* LispKitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LispKitTests.swift; sourceTree = "<group>"; };
+		CCAD52C91C48403900DBD8EE /* SmallTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmallTests.swift; sourceTree = "<group>"; };
 		CCAD52CB1C48403900DBD8EE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CCAD52D51C48467D00DBD8EE /* Prelude.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Prelude.scm; sourceTree = "<group>"; };
 		CCAD52D81C48468F00DBD8EE /* Env.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Env.swift; sourceTree = "<group>"; };
@@ -210,6 +220,15 @@
 			path = LispKitRepl;
 			sourceTree = "<group>";
 		};
+		CC131C4A1CDE0C3D006C030C /* Code */ = {
+			isa = PBXGroup;
+			children = (
+				CC131C4B1CDE0C3D006C030C /* SyntaxRules.scm */,
+				CC131C511CDE840C006C030C /* LocalSyntaxRules.scm */,
+			);
+			path = Code;
+			sourceTree = "<group>";
+		};
 		CCAD52B01C48403800DBD8EE = {
 			isa = PBXGroup;
 			children = (
@@ -253,8 +272,11 @@
 		CCAD52C81C48403900DBD8EE /* LispKitTests */ = {
 			isa = PBXGroup;
 			children = (
-				CCAD52C91C48403900DBD8EE /* LispKitTests.swift */,
+				CC131C4F1CDE0E01006C030C /* LispKitTestCase.swift */,
+				CCAD52C91C48403900DBD8EE /* SmallTests.swift */,
+				CC131C4D1CDE0DCA006C030C /* RegressionTests.swift */,
 				CCAD52CB1C48403900DBD8EE /* Info.plist */,
+				CC131C4A1CDE0C3D006C030C /* Code */,
 			);
 			path = LispKitTests;
 			sourceTree = "<group>";
@@ -330,6 +352,7 @@
 				CC5696761CBCFA9900F6803E /* Instruction.swift */,
 				CC6AB0861C5C28FE008E9460 /* Equality.swift */,
 				CCAD52F71C48474500DBD8EE /* Context.swift */,
+				CC5033B01CDBE4CD0045A8FA /* Console.swift */,
 				CC78BF6B1C56C87500876D54 /* Scope.swift */,
 				CC6A3B6F1C53F2CF00E962E2 /* SymbolTable.swift */,
 				CCAD52DE1C48468F00DBD8EE /* SyntaxRules.swift */,
@@ -459,6 +482,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CC131C521CDE840C006C030C /* LocalSyntaxRules.scm in Resources */,
+				CC131C4C1CDE0C3D006C030C /* SyntaxRules.scm in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -510,6 +535,7 @@
 				CC6A3B601C52EBD700E962E2 /* StringLibrary.swift in Sources */,
 				CC55A8291C50D35C00772B02 /* Procedure.swift in Sources */,
 				CC6A3B701C53F2CF00E962E2 /* SymbolTable.swift in Sources */,
+				CC5033B11CDBE4CD0045A8FA /* Console.swift in Sources */,
 				CCF529981CBC73F7000C2959 /* StringBuilder.swift in Sources */,
 				CC6A3B661C52F06C00E962E2 /* IOLibrary.swift in Sources */,
 				CC882C921C9E93A600D20039 /* Timer.swift in Sources */,
@@ -529,7 +555,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CCAD52CA1C48403900DBD8EE /* LispKitTests.swift in Sources */,
+				CC131C501CDE0E01006C030C /* LispKitTestCase.swift in Sources */,
+				CC131C4E1CDE0DCA006C030C /* RegressionTests.swift in Sources */,
+				CCAD52CA1C48403900DBD8EE /* SmallTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -557,6 +585,7 @@
 				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
 				INFOPLIST_FILE = LispKitRepl/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../Frameworks";
+				"OTHER_SWIFT_FLAGS[arch=*]" = "-D DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispKitRepl;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "LispKitRepl/LispKitRepl-Bridging-Header.h";
@@ -678,6 +707,7 @@
 				INFOPLIST_FILE = LispKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				"OTHER_SWIFT_FLAGS[arch=*]" = "-D DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispKit;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;

@@ -18,23 +18,8 @@
 //  limitations under the License.
 //
 
-import Darwin
 import LispKit
 
-let appInfo = AppInfo()
-
-// Simple terminal-based console implementation
-public struct CommandLineConsole: Console {
-  /// Prints the given string into the console window.
-  public func print(str: String) {
-    Swift.print(str, separator: "", terminator: "")
-  }
-  
-  /// Reads a string from the console window.
-  public func read() -> String? {
-    return Swift.readLine()
-  }
-}
 
 // Create console
 let console = CommandLineConsole()
@@ -49,8 +34,9 @@ if let preludePath = NSBundle(identifier: "net.objecthub.LispKit")?.pathForResou
 }
 
 // Print header
-console.print("\(appInfo.name) \(appInfo.version) (\(appInfo.buildDate) \(appInfo.buildTime))\n")
-console.print("\(appInfo.copyright)\n")
+console.print("\(AppInfo.name) \(AppInfo.version) (\(AppInfo.buildDate) " +
+              "\(AppInfo.buildTime))\n")
+console.print("\(AppInfo.copyright)\n")
 
 // Enter read-eval-print loop
 console.print("▷ ")

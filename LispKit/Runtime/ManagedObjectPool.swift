@@ -100,13 +100,9 @@ public final class ManagedObjectPool: CustomStringConvertible {
     // Compute next tag
     self.tag = self.tag &+ 1
     // Mark
-    if DEBUG_OUTPUT {
-      print("MARK \(self.rootSet.count) OBJECTS")
-    }
+    log("MARK \(self.rootSet.count) OBJECTS")
     for root in self.rootSet {
-      if DEBUG_OUTPUT {
-        print("marking \(root)")
-      }
+      log("marking \(root)")
       root.mark(self.tag)
     }
     // Sweep

@@ -1,8 +1,8 @@
 //
-//  Global.swift
-//  LispKit
+//  MacroTests.swift
+//  LispKitTests
 //
-//  Created by Matthias Zenger on 12/04/2016.
+//  Created by Matthias Zenger on 07/05/2016.
 //  Copyright © 2016 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,8 +18,20 @@
 //  limitations under the License.
 //
 
-internal func log(str: String) {
-  #if LOG
-    print(str)
-  #endif
+import XCTest
+
+///
+/// This test case class implements all regression tests stored in group
+/// `LispKitTests/Code`. Standard out contains information about the progress of the
+/// regression test.
+///
+class RegressionTests: LispKitTestCase {
+
+  func testSyntaxRules() {
+    self.executeTests("SyntaxRules")
+  }
+
+  func testLocalSyntaxRules() {
+    self.executeTests("LocalSyntaxRules")
+  }
 }

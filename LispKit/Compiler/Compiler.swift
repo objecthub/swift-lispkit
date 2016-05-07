@@ -295,9 +295,7 @@ public class Compiler {
                     case .Macro(let transformer):
                       let expanded = try self.context.machine.apply(
                         .Proc(transformer), to: .Pair(cdr, .Null), in: env)
-                      if DEBUG_OUTPUT {
-                        print("expanded = \(expanded)")
-                      }
+                      log("expanded = \(expanded)")
                       return try self.compile(expanded, in: env, inTailPos: tail)
                   }
                 default:
@@ -309,7 +307,7 @@ public class Compiler {
           case .MacroExpansionRequired(let transformer):
             let expanded = try self.context.machine.apply(
               .Proc(transformer), to: .Pair(cdr, .Null), in: env)
-            print("expanded = \(expanded)")
+            log("expanded = \(expanded)")
             return try self.compile(expanded, in: env, inTailPos: tail)
         }
         // Push arguments and call function

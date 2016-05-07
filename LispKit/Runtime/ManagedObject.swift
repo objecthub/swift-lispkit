@@ -41,9 +41,7 @@ public class ManagedObject: Reference {
     
     public func dealloc() {
       self.allocated -= 1
-      if DEBUG_OUTPUT {
-        print("[releasing \(self.entityName)]")
-      }
+      log("[releasing \(self.entityName)]")
     }
   }
   
@@ -51,9 +49,7 @@ public class ManagedObject: Reference {
   public init(_ stats: Stats) {
     stats.created += 1
     stats.allocated += 1
-    if DEBUG_OUTPUT {
-      print("[allocating \(stats.entityName), alive = \(stats.allocated), total = \(stats.created)]")
-    }
+    log("[allocating \(stats.entityName), alive = \(stats.allocated), total = \(stats.created)]")
   }
   
   /// Mark the managed object with the given tag.

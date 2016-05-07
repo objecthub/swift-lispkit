@@ -42,9 +42,7 @@ public class SyntaxRules {
   }
   
   public func expand(input: Expr) throws -> Expr {
-    if DEBUG_OUTPUT {
-      print("---- EXPAND: \(input)") //DEBUG
-    }
+    log("---- EXPAND: \(input)") //DEBUG
     for index in self.patterns.indices {
       if let matches = self.match(self.patterns[index], with: input) {
         return try self.instantiate(self.templates[index], with: matches)

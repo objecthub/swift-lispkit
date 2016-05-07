@@ -19,19 +19,6 @@
 //
 
 ///
-/// `Console` defines the protocol for interacting with the console window. It provides
-/// methods to set the console window status, to write strings as well as to read strings.
-///
-public protocol Console {
-  
-  /// Prints the given string into the console window.
-  func print(str: String)
-  
-  /// Reads a string from the console window.
-  func read() -> String?
-}
-
-///
 /// Represents a Scheme evaluation context. Evaluation contexts provide
 /// access to components shared by all environments.
 ///
