@@ -391,6 +391,7 @@ public final class BaseLibrary: Library {
     let sym = try symbol.asSymbol()
     try compiler.compile(value, in: env, inTailPos: false)
     compiler.setValueOf(sym, in: env)
+    compiler.emit(.PushVoid)
     return false
   }
   
