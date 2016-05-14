@@ -247,16 +247,15 @@ public final class BaseLibrary: Library {
     // Compile body
     try closureCompiler.compileBody(body)
     // Link compiled closure in the current compiler
-    let codeIndex = compiler.code.count
+    let codeIndex = compiler.fragments.count
     let code = closureCompiler.bundle()
-    compiler.code.append(code)
+    compiler.fragments.append(code)
     // Generate code for pushing captured bindings onto the stack
-    for def in closureCompiler.captures.definitions {
-      let capture = closureCompiler.captures.captures[def!]!
+    for (def, capture) in closureCompiler.captures.captures {
       if capture.origin.owner === compiler {
-        compiler.emit(.PushLocal(def!.index))
+        compiler.emit(.PushLocal(def.index))
       } else {
-        compiler.emit(.PushCaptured(compiler.captures.capture(def!, from: capture.origin)))
+        compiler.emit(.PushCaptured(compiler.captures.capture(def, from: capture.origin)))
       }
     }
     // Return captured binding count and index of compiled closure
@@ -273,7 +272,7 @@ public final class BaseLibrary: Library {
     }
     return .False
   }
-
+  
   
   //-------- MARK: - Definition primitives
   

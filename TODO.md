@@ -1,5 +1,7 @@
 # Todo
 
+Last update: 2016-05-08
+
 
 ## Compiler
 
@@ -24,7 +26,7 @@
 
 ## Testing
 
-- [ ] Build regression testing framework
+- [X] Build regression testing framework
 - [ ] Add unit tests
 
 

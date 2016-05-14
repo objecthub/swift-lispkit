@@ -18,7 +18,6 @@
 //  limitations under the License.
 //
 
-
 public class Definition: Reference, CustomStringConvertible {
   
   public enum Kind {
@@ -30,12 +29,12 @@ public class Definition: Reference, CustomStringConvertible {
   public let index: Int
   public var kind: Kind
   
-  public init(index: Int) {
+  private init(index: Int, forValue: Bool = false) {
     self.index = index
-    self.kind = .Variable
+    self.kind = forValue ? .Value : .Variable
   }
   
-  public init(proc: Procedure) {
+  private init(proc: Procedure) {
     self.index = 0
     self.kind = .Macro(proc)
   }
@@ -74,11 +73,11 @@ public final class BindingGroup: Reference, CustomStringConvertible {
     return def
   }
   
-  public func allocBindingFor(sym: Symbol) -> Definition {
+  public func allocBindingFor(sym: Symbol, forValue: Bool = false) -> Definition {
     if let binding = self.bindings[sym] {
       return binding
     }
-    let binding = Definition(index: self.nextIndex())
+    let binding = Definition(index: self.nextIndex(), forValue: forValue)
     self.bindings[sym] = binding
     return binding
   }

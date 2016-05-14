@@ -78,7 +78,7 @@ public final class ListLibrary: Library {
     guard case .Pair(_, let cdr) = expr else {
       preconditionFailure()
     }
-    switch try compiler.compileList(cdr, in: env) {
+    switch try compiler.compileExprs(cdr, in: env) {
       case 0:
         compiler.emit(.PushNull)
       case 1:

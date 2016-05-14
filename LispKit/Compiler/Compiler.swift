@@ -24,19 +24,21 @@ import NumberKit
 /// Instances of class `Compiler` are used to either compile functions or expressions.
 /// 
 public class Compiler {
-  let context: Context
-  var env: Env
-  let rulesEnv: Env
-  var captures: CaptureGroup!
-  var numLocals: Int = 0
-  var maxLocals: Int = 0
-  var arguments: BindingGroup?
-  var constants: [Expr] = []
-  var code: [Code] = []
-  var instructions: [Instruction] = []
+  public let context: Context
+  public let checkpointer: Checkpointer
+  private var env: Env
+  internal let rulesEnv: Env
+  internal var captures: CaptureGroup!
+  internal var numLocals: Int = 0
+  private var maxLocals: Int = 0
+  private var arguments: BindingGroup?
+  private var constants: [Expr] = []
+  internal var fragments: [Code] = []
+  private var instructions: [Instruction] = []
   
   public init(_ context: Context, _ env: Env, _ rulesEnv: Env? = nil) {
     self.context = context
+    self.checkpointer = env.bindingGroup?.owner.checkpointer ?? Checkpointer()
     self.env = env
     self.rulesEnv = rulesEnv ?? env
     self.captures = CaptureGroup(owner: self, parent: env.bindingGroup?.owner.captures)
@@ -269,6 +271,7 @@ public class Compiler {
   /// Compile expression `expr` in environment `env`. Parameter `tail` specifies if `expr`
   /// is located in a tail position. This allows compile to generate code with tail calls.
   public func compile(expr: Expr, in env: Env, inTailPos tail: Bool) throws -> Bool {
+    self.checkpointer.checkpoint()
     switch expr {
       case .Sym(let sym):
         try self.pushValueOf(sym, in: env)
@@ -280,7 +283,9 @@ public class Compiler {
             break // Nothing to do
           case .GlobalLookupRequired(let lexicalSym, let global):
             // Is there a special compiler plugin for this global binding
-            if let value = global.scope(self.context)[lexicalSym] {
+            if let value = self.checkpointer.fromGlobalEnv ??
+                           global.scope(self.context)[lexicalSym] {
+              self.checkpointer.associateWith(.FromGlobalEnv(value))
               switch value {
                 case .Proc(let proc):
                   if case .Primitive(_, .Some(let formCompiler)) = proc.kind {
@@ -293,8 +298,10 @@ public class Compiler {
                     case .Primitive(let formCompiler):
                       return try formCompiler(self, expr, env, tail)
                     case .Macro(let transformer):
-                      let expanded = try self.context.machine.apply(
-                        .Proc(transformer), to: .Pair(cdr, .Null), in: env)
+                      let expanded = try
+                        self.checkpointer.expansion ??
+                        self.context.machine.apply(.Proc(transformer), to: .Pair(cdr, .Null), in: env)
+                      self.checkpointer.associateWith(.Expansion(expanded))
                       log("expanded = \(expanded)")
                       return try self.compile(expanded, in: env, inTailPos: tail)
                   }
@@ -305,13 +312,15 @@ public class Compiler {
             // Push function from global binding
             self.emit(.PushGlobal(self.registerConstant(.Sym(lexicalSym))))
           case .MacroExpansionRequired(let transformer):
-            let expanded = try self.context.machine.apply(
-              .Proc(transformer), to: .Pair(cdr, .Null), in: env)
+            let expanded = try
+              self.checkpointer.expansion ??
+              self.context.machine.apply(.Proc(transformer), to: .Pair(cdr, .Null), in: env)
+            self.checkpointer.associateWith(.Expansion(expanded))
             log("expanded = \(expanded)")
             return try self.compile(expanded, in: env, inTailPos: tail)
         }
         // Push arguments and call function
-        if self.call(try self.compileList(cdr, in: env), tail) {
+        if self.call(try self.compileExprs(cdr, in: env), tail) {
           // Remove MakeFrame if this was a tail call
           self.patch(.NoOp, at: pushFrameIp)
           return true
@@ -321,7 +330,7 @@ public class Compiler {
         // Push function
         try self.compile(car, in: env, inTailPos: false)
         // Push arguments and call function
-        if self.call(try self.compileList(cdr, in: env), tail) {
+        if self.call(try self.compileExprs(cdr, in: env), tail) {
           // Remove MakeFrame if this was a tail call
           self.patch(.NoOp, at: pushFrameIp)
           return true
@@ -336,45 +345,42 @@ public class Compiler {
   /// specifies if `expr` is located in a tail position. This allows compile to generate
   /// code with tail calls.
   public func compileSeq(expr: Expr, in env: Env, inTailPos tail: Bool) throws -> Bool {
-    var n = 0
+    var first = true
     var exit = false
     var next = expr
     while case .Pair(let car, let cdr) = next {
-      if n > 0 {
+      if !first {
         self.emit(.Pop)
       }
       exit = try self.compile(car, in: env, inTailPos: tail && cdr.isNull)
-      n += 1
+      first = false
       next = cdr
     }
     guard next.isNull else {
-      throw EvalError.IllegalFormalRestParameter(expr)
+      throw EvalError.TypeError(expr, [.ProperListType])
     }
     return exit
   }
   
-  public func compileList(expr: Expr,
-                          in env: Env,
-                          returnlast: Bool = false,
-                          drop: Bool = false) throws -> Int {
+  /// Compile the given list of expressions `expr` in environment `env` and push each result
+  /// onto the stack. This method returns the number of expressions that were evaluated and
+  /// whose result has been stored on the stack.
+  public func compileExprs(expr: Expr, in env: Env) throws -> Int {
     var n = 0
     var next = expr
     while case .Pair(let car, let cdr) = next {
-      if drop && n > 0 {
-        self.emit(.Pop)
-      }
-      try self.compile(car, in: env, inTailPos: returnlast && cdr.isNull)
+      try self.compile(car, in: env, inTailPos: false)
       n += 1
       next = cdr
     }
     guard next.isNull else {
-      throw EvalError.IllegalFormalRestParameter(expr)
+      throw EvalError.TypeError(expr, [.ProperListType])
     }
     return n
   }
   
   /// Bundle the generated code into a `Code` object.
   public func bundle() -> Code {
-    return Code(self.instructions, self.constants, self.code)
+    return Code(self.instructions, self.constants, self.fragments)
   }
 }

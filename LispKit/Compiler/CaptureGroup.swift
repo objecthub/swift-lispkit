@@ -19,20 +19,20 @@
 //
 
 
-public class Capture {
-  public let index: Int
-  public unowned var origin: BindingGroup
-  
-  public required init(index: Int, origin: BindingGroup) {
-    self.index = index
-    self.origin = origin
-  }
-}
-
 public class CaptureGroup: CustomStringConvertible {
-  unowned let owner: Compiler
-  let parent: CaptureGroup?
-  var captures: [Definition: Capture]
+  public unowned let owner: Compiler
+  public let parent: CaptureGroup?
+  public private(set) var captures: [Definition: Capture]
+  
+  public class Capture {
+    public let index: Int
+    public unowned var origin: BindingGroup
+    
+    private init(index: Int, origin: BindingGroup) {
+      self.index = index
+      self.origin = origin
+    }
+  }
   
   public init(owner: Compiler, parent: CaptureGroup? = nil) {
     self.owner = owner

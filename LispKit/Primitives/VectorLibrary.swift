@@ -73,7 +73,7 @@ public final class VectorLibrary: Library {
     guard case .Pair(_, let cdr) = expr else {
       preconditionFailure()
     }
-    compiler.emit(.Vector(try compiler.compileList(cdr, in: env)))
+    compiler.emit(.Vector(try compiler.compileExprs(cdr, in: env)))
     return false
   }
   
