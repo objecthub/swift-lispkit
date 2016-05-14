@@ -62,38 +62,20 @@ public class CaptureGroup: CustomStringConvertible {
     return seq
   }
   
-  private func indexToStr(index: Int) -> String {
-    switch index {
-    case 0...9:
-      return "    \(index)"
-    case 10...99:
-      return "   \(index)"
-    case 100...999:
-      return "  \(index)"
-    case 1000...9999:
-      return " \(index)"
-    default:
-      return "\(index)"
-    }
-  }
-  
   public var description: String {
     var seq = self.definitions
-    var res = ""
+    var builder = StringBuilder()
     for index in seq.indices {
-      res += "\(indexToStr(index)): "
+      builder.append(index, width: 5, alignRight: true)
+      builder.append(": ")
       if let def = seq[index], capture = self.captures[def] {
-        if let sym = capture.origin.symbolAtIndex(def.index) {
-          res += sym.description
-        } else {
-          res += "<unknown symbol>"
-        }
-        res += " (\(def))"
+        builder.append(capture.origin.symbolAtIndex(def.index)?.description ?? "<unknown symbol>")
+        builder.append(" (\(def))")
       } else {
-        res += "<undef>"
+        builder.append("<undef>")
       }
-      res += "\n"
+      builder.appendNewline()
     }
-    return res
+    return builder.description
   }
 }

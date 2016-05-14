@@ -29,14 +29,34 @@ public class Definition: Reference, CustomStringConvertible {
   public let index: Int
   public var kind: Kind
   
-  private init(index: Int, forValue: Bool = false) {
+  private init(index: Int, forVar: Bool = false) {
     self.index = index
-    self.kind = forValue ? .Value : .Variable
+    self.kind = forVar ? .Variable : .Value
   }
   
   private init(proc: Procedure) {
     self.index = 0
     self.kind = .Macro(proc)
+  }
+  
+  public var isVariable: Bool {
+    switch self.kind {
+      case .Variable:
+        return true
+      default:
+        return false
+    }
+  }
+  
+  public func declareMutable() {
+    switch self.kind {
+      case .Value:
+        self.kind = .Variable
+      case .Variable:
+        break
+      case .Macro(_):
+        preconditionFailure("cannot declare macro mutable")
+    }
   }
   
   public var description: String {
@@ -73,11 +93,11 @@ public final class BindingGroup: Reference, CustomStringConvertible {
     return def
   }
   
-  public func allocBindingFor(sym: Symbol, forValue: Bool = false) -> Definition {
+  public func allocBindingFor(sym: Symbol, forVar: Bool = false) -> Definition {
     if let binding = self.bindings[sym] {
       return binding
     }
-    let binding = Definition(index: self.nextIndex(), forValue: forValue)
+    let binding = Definition(index: self.nextIndex(), forVar: forVar)
     self.bindings[sym] = binding
     return binding
   }
@@ -109,22 +129,7 @@ public final class BindingGroup: Reference, CustomStringConvertible {
   public var count: Int {
     return self.bindings.count
   }
-  
-  private func indexToStr(index: Int) -> String {
-    switch index {
-      case 0...9:
-        return "    \(index)"
-      case 10...99:
-        return "   \(index)"
-      case 100...999:
-        return "  \(index)"
-      case 1000...9999:
-        return " \(index)"
-      default:
-        return "\(index)"
-    }
-  }
-  
+    
   public var symbols: [Symbol?] {
     var seq = [Symbol?](count: self.bindings.count, repeatedValue: nil)
     for (sym, bind) in self.bindings {
@@ -158,16 +163,13 @@ public final class BindingGroup: Reference, CustomStringConvertible {
   
   public var description: String {
     var seq = self.symbols
-    var res = ""
+    var builder = StringBuilder()
     for index in seq.indices {
-      res += "\(indexToStr(index)): "
-      if let sym = seq[index] {
-        res += sym.description
-      } else {
-        res += "<undef>"
-      }
-      res += "\n"
+      builder.append(index, width: 5, alignRight: true)
+      builder.append(": ")
+      builder.append(seq[index]?.description ?? "<undef>")
+      builder.appendNewline()
     }
-    return res
+    return builder.description
   }
 }
