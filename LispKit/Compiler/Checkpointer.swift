@@ -81,11 +81,11 @@ public enum CheckpointData: Hashable, CustomStringConvertible {
   public var hashValue: Int {
     switch self {
       case FromGlobalEnv(let expr):
-        return expr.hashValue &* 31 + 1
+        return expr.hashValue &* 31 &+ 1
       case ValueBinding(let sym):
-        return sym.hashValue &* 31 + 2
+        return sym.hashValue &* 31 &+ 2
       case Expansion(let expr):
-        return expr.hashValue &* 31 + 3
+        return expr.hashValue &* 31 &+ 3
     }
   }
   

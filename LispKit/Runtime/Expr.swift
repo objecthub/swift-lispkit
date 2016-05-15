@@ -240,7 +240,7 @@ public enum Expr: Trackable, Hashable {
         case Str(let str):
           res = str.value.hashValue
         case Pair(let car, let cdr):
-          res = (hash(car) &* 31) + hash(cdr)
+          res = (hash(car) &* 31) &+ hash(cdr)
         case Vec(let vector):
           if visited.contains(vector) {
             return 0
@@ -248,7 +248,7 @@ public enum Expr: Trackable, Hashable {
           visited.insert(vector)
           res = 0
           for expr in vector.exprs {
-            res = res &* 31 + hash(expr)
+            res = res &* 31 &+ hash(expr)
           }
           visited.remove(vector)
         case Promise(let promise):
@@ -264,7 +264,7 @@ public enum Expr: Trackable, Hashable {
         default:
           res = 0
       }
-      return res &* 31 + expr.type.hashValue
+      return res &* 31 &+ expr.type.hashValue
     }
     
     return hash(self)

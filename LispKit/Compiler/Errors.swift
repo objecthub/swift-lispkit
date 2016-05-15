@@ -54,11 +54,11 @@ public extension LispError {
   public var hashValue: Int {
     var res = 0
     for irritant in self.irritants {
-      res = res &* 31 + irritant.hashValue
+      res = res &* 31 &+ irritant.hashValue
     }
-    res = res &* 31 + self.message.hashValue
-    res = res &* 31 + self.kind.hashValue
-    return res &* 31 + self.type.hashValue
+    res = res &* 31 &+ self.message.hashValue
+    res = res &* 31 &+ self.kind.hashValue
+    return res &* 31 &+ self.type.hashValue
   }
   
   public var description: String {
