@@ -71,7 +71,7 @@ public final class VirtualMachine: TrackedObject {
   private var execInstr: UInt64
   
   /// Constant representing an empty capture set
-  private static let NO_CAPTURES = [Variable]()
+  private static let NO_CAPTURES = [Expr]()
   
   /// Initializes a new virtual machine for the given context
   public init(_ context: Context) {
@@ -101,9 +101,7 @@ public final class VirtualMachine: TrackedObject {
       while !parser.finished {
         exprs.append(try parser.parse())
       }
-      let compiler = Compiler(self.context, .Interaction)
-      try compiler.compileBody(.List(exprs))
-      let code = compiler.bundle()
+      let code = try Compiler.compile(self.context, .List(exprs), true)
       log(code.description)
       return try self.execute(code)
     } catch let error as LispError { // handle Lisp-related issues
@@ -125,9 +123,7 @@ public final class VirtualMachine: TrackedObject {
   /// it using this virtual machine.
   public func evalExprs(exprs: Expr) -> Expr {
     do {
-      let compiler = Compiler(self.context, .Interaction)
-      try compiler.compileBody(exprs)
-      let code = compiler.bundle()
+      let code = try Compiler.compile(self.context, exprs, false)
       // context.console.printStr(code.description)
       return try self.execute(code)
     } catch let error as LispError { // handle Lisp-related issues
@@ -234,14 +230,14 @@ public final class VirtualMachine: TrackedObject {
     return res
   }
   
-  private func captureVariables(n: Int) -> [Variable] {
-    var captures = [Variable]()
+  private func captureExprs(n: Int) -> [Expr] {
+    var captures = [Expr]()
     var i = n
     while i > 0 {
-      guard case .Var(let variable) = self.stack[self.sp - i] else {
+      /* guard case .Var(let variable) = self.stack[self.sp - i] else {
         preconditionFailure("pushed as capture: \(self.stack[self.sp - i])")
-      }
-      captures.append(variable)
+      } */
+      captures.append(self.stack[self.sp - i])
       self.stack[self.sp - i] = .Undef
       i -= 1
     }
@@ -390,7 +386,7 @@ public final class VirtualMachine: TrackedObject {
     return try self.execute(code, args: 0, captured: VirtualMachine.NO_CAPTURES)
   }
   
-  private func execute(code: Code, args: Int, captured: [Variable]) throws -> Expr {
+  private func execute(code: Code, args: Int, captured: [Expr]) throws -> Expr {
     var code = code
     var captured = captured
     var ip = 0
@@ -455,21 +451,30 @@ public final class VirtualMachine: TrackedObject {
           }
           context.userScope[sym] = self.pop()
         case .PushCaptured(let index):
-          self.push(.Var(captured[index]))
+          self.push(captured[index])
         case .PushCapturedValue(let index):
-          let value = captured[index].value
-          if case .Undef = value {
+          guard case .Var(let variable) = captured[index] else {
+            preconditionFailure("PushCapturedValue cannot push \(captured[index])")
+          }
+          if case .Undef = variable.value {
             throw EvalError.VariableNotYetInitialized(nil)
           }
-          self.push(value)
+          self.push(variable.value)
         case .SetCapturedValue(let index):
-          captured[index].value = self.pop()
+          guard case .Var(let variable) = captured[index] else {
+            preconditionFailure("SetCapturedValue cannot set value of \(captured[index])")
+          }
+          variable.value = self.pop()
         case .PushLocal(let index):
           self.push(self.stack[fp + index])
         case .SetLocal(let index):
           self.stack[fp + index] = self.pop()
         case .SetLocalVariable(let index):
           let variable = Variable(self.pop())
+          self.context.objects.manage(variable)
+          self.stack[fp + index] = .Var(variable)
+        case .MakeArgVariable(let index):
+          let variable = Variable(self.stack[fp + index])
           self.context.objects.manage(variable)
           self.stack[fp + index] = .Var(variable)
         case .PushLocalValue(let index):
@@ -482,15 +487,11 @@ public final class VirtualMachine: TrackedObject {
           self.push(variable.value)
         case .SetLocalValue(let index):
           guard case .Var(let variable) = self.stack[fp + index] else {
-            preconditionFailure("SetLocalValue cannot set value of \(captured[index])")
+            preconditionFailure("SetLocalValue cannot set value of \(self.stack[fp + index])")
           }
           variable.value = self.pop()
         case .PushConstant(let index):
           self.push(code.constants[index])
-        case .MakeLocalVariable(let index):
-          let variable = Variable(self.stack[fp + index])
-          self.context.objects.manage(variable)
-          self.stack[fp + index] = .Var(variable)
         case .PushUndef:
           self.push(.Undef)
         case .PushVoid:
@@ -518,9 +519,9 @@ public final class VirtualMachine: TrackedObject {
         case .PushChar(let char):
           self.push(.Char(char))
         case .MakeClosure(let n, let index):
-          self.push(.Proc(Procedure(self.captureVariables(n), code.fragments[index])))
+          self.push(.Proc(Procedure(self.captureExprs(n), code.fragments[index])))
         case .MakePromise(let n, let index):
-          let future = Future(Procedure(self.captureVariables(n), code.fragments[index]))
+          let future = Future(Procedure(self.captureExprs(n), code.fragments[index]))
           self.context.objects.manage(future)
           self.push(.Promise(future))
         case .MakeSyntax:

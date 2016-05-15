@@ -23,11 +23,12 @@ import NumberKit
 ///
 /// Instances of class `Compiler` are used to either compile functions or expressions.
 /// 
-public class Compiler {
+public final class Compiler {
   public let context: Context
-  public let checkpointer: Checkpointer
   private var env: Env
   internal let rulesEnv: Env
+  internal let checkpointer: Checkpointer
+  private var argCp: UInt?
   internal var captures: CaptureGroup!
   internal var numLocals: Int = 0
   private var maxLocals: Int = 0
@@ -36,11 +37,27 @@ public class Compiler {
   internal var fragments: [Code] = []
   private var instructions: [Instruction] = []
   
-  public init(_ context: Context, _ env: Env, _ rulesEnv: Env? = nil) {
+  
+  public static func compile(context: Context, _ expr: Expr, _ opt: Bool = false) throws -> Code {
+    let checkpointer = Checkpointer()
+    var compiler = Compiler(context, .Interaction, .Interaction, checkpointer)
+    try compiler.compileBody(expr)
+    if opt {
+      log(checkpointer.description)
+      checkpointer.reset()
+      compiler = Compiler(context, .Interaction, .Interaction, checkpointer)
+      try compiler.compileBody(expr)
+      log(checkpointer.description)
+    }
+    return compiler.bundle()
+  }
+  
+  public init(_ context: Context, _ env: Env, _ rulesEnv: Env? = nil, _ cp: Checkpointer? = nil) {
     self.context = context
-    self.checkpointer = env.bindingGroup?.owner.checkpointer ?? Checkpointer()
     self.env = env
     self.rulesEnv = rulesEnv ?? env
+    self.checkpointer = cp ?? env.bindingGroup?.owner.checkpointer ?? Checkpointer()
+    self.argCp = nil
     self.captures = CaptureGroup(owner: self, parent: env.bindingGroup?.owner.captures)
     self.arguments = nil
   }
@@ -50,12 +67,14 @@ public class Compiler {
   }
   
   public func compileArgList(arglist: Expr) throws {
+    self.argCp = self.checkpointer.checkpoint()
     let arguments = BindingGroup(owner: self, parent: self.env, nextIndex: self.nextLocalIndex)
     var next = arglist
     loop: while case .Pair(let arg, let cdr) = next {
       switch arg {
         case .Sym(let sym):
-          arguments.allocBindingFor(sym)
+          arguments.allocBindingFor(sym,
+                                    isVar: !self.checkpointer.isValueBinding(sym, at: self.argCp!))
         default:
           break loop
       }
@@ -86,8 +105,10 @@ public class Compiler {
       let reserveLocalIp = self.emit(.NoOp)
       // Turn arguments into local variables
       if let arguments = self.arguments {
-        for i in 0..<arguments.count {
-          self.emit(.MakeLocalVariable(i))
+        for sym in arguments.symbols {
+          if let sym = sym, binding = arguments.bindingFor(sym) where !binding.isValue {
+            self.emit(.MakeArgVariable(binding.index))
+          }
         }
       }
       // Compile body
@@ -96,7 +117,16 @@ public class Compiler {
       }
       // Insert instruction to reserve local variables
       if self.maxLocals > self.arguments?.count ?? 0 {
-        self.patch(.ReserveLocals(self.maxLocals - (self.arguments?.count ?? 0)), at: reserveLocalIp)
+        self.patch(
+          .ReserveLocals(self.maxLocals - (self.arguments?.count ?? 0)), at: reserveLocalIp)
+      }
+      // Checkpoint argument mutability
+      if let arguments = self.arguments {
+        for sym in arguments.symbols {
+          if let sym = sym where arguments.bindingFor(sym)?.isImmutableVariable ?? false {
+            self.checkpointer.associate(.ValueBinding(sym), with: self.argCp!)
+          }
+        }
       }
     }
   }
@@ -187,9 +217,18 @@ public class Compiler {
         if case .Macro(let proc) = binding.kind {
           return .MacroExpansionRequired(proc)
         } else if group.owner === self {
-          self.emit(.PushLocalValue(binding.index))
+          if binding.isValue {
+            self.emit(.PushLocal(binding.index))
+          } else {
+            self.emit(.PushLocalValue(binding.index))
+          }
         } else {
-          self.emit(.PushCapturedValue(self.captures.capture(binding, from: group)))
+          let capturedIndex = self.captures.capture(binding, from: group)
+          if binding.isValue {
+            self.emit(.PushCaptured(capturedIndex))
+          } else {
+            self.emit(.PushCapturedValue(capturedIndex))
+          }
         }
         return .Success
       }
@@ -257,6 +296,7 @@ public class Compiler {
         } else {
           self.emit(.SetCapturedValue(self.captures.capture(binding, from: group)))
         }
+        binding.wasMutated()
         return nil
       }
       env = group.parent
@@ -271,7 +311,7 @@ public class Compiler {
   /// Compile expression `expr` in environment `env`. Parameter `tail` specifies if `expr`
   /// is located in a tail position. This allows compile to generate code with tail calls.
   public func compile(expr: Expr, in env: Env, inTailPos tail: Bool) throws -> Bool {
-    self.checkpointer.checkpoint()
+    let cp = self.checkpointer.checkpoint()
     switch expr {
       case .Sym(let sym):
         try self.pushValueOf(sym, in: env)
@@ -283,9 +323,9 @@ public class Compiler {
             break // Nothing to do
           case .GlobalLookupRequired(let lexicalSym, let global):
             // Is there a special compiler plugin for this global binding
-            if let value = self.checkpointer.fromGlobalEnv ??
+            if let value = self.checkpointer.fromGlobalEnv(cp) ??
                            global.scope(self.context)[lexicalSym] {
-              self.checkpointer.associateWith(.FromGlobalEnv(value))
+              self.checkpointer.associate(.FromGlobalEnv(value), with: cp)
               switch value {
                 case .Proc(let proc):
                   if case .Primitive(_, .Some(let formCompiler)) = proc.kind {
@@ -299,9 +339,9 @@ public class Compiler {
                       return try formCompiler(self, expr, env, tail)
                     case .Macro(let transformer):
                       let expanded = try
-                        self.checkpointer.expansion ??
+                        self.checkpointer.expansion(cp) ??
                         self.context.machine.apply(.Proc(transformer), to: .Pair(cdr, .Null), in: env)
-                      self.checkpointer.associateWith(.Expansion(expanded))
+                      self.checkpointer.associate(.Expansion(expanded), with: cp)
                       log("expanded = \(expanded)")
                       return try self.compile(expanded, in: env, inTailPos: tail)
                   }
@@ -313,9 +353,9 @@ public class Compiler {
             self.emit(.PushGlobal(self.registerConstant(.Sym(lexicalSym))))
           case .MacroExpansionRequired(let transformer):
             let expanded = try
-              self.checkpointer.expansion ??
+              self.checkpointer.expansion(cp) ??
               self.context.machine.apply(.Proc(transformer), to: .Pair(cdr, .Null), in: env)
-            self.checkpointer.associateWith(.Expansion(expanded))
+            self.checkpointer.associate(.Expansion(expanded), with: cp)
             log("expanded = \(expanded)")
             return try self.compile(expanded, in: env, inTailPos: tail)
         }

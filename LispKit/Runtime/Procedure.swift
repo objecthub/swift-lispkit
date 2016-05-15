@@ -30,7 +30,7 @@ public final class Procedure: Reference, CustomStringConvertible {
   ///    3. Transformers: These are user-defined macro transformers defined via `syntax-rules`
   public enum Kind {
     case Primitive(Implementation, FormCompiler?)
-    case Closure([Variable], Code)
+    case Closure([Expr], Code)
     case Transformer(SyntaxRules)
   }
   
@@ -101,7 +101,7 @@ public final class Procedure: Reference, CustomStringConvertible {
   }
   
   /// Initializer for compiled closures
-  public init(_ captured: [Variable], _ code: Code) {
+  public init(_ captured: [Expr], _ code: Code) {
     self.kind = .Closure(captured, code)
   }
   

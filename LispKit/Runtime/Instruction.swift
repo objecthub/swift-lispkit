@@ -58,7 +58,7 @@ public enum Instruction: CustomStringConvertible {
   /// PushCaptured: pushes the captured variable onto the stack
   case PushCaptured(Int)
   
-  /// PushCaptured: pushes the captured variable onto the stack
+  /// PushCapturedValue: pushes the value of the captured variable onto the stack
   case PushCapturedValue(Int)
   
   /// SetCaptured: sets the captured variable to the value on top of the stack
@@ -72,8 +72,6 @@ public enum Instruction: CustomStringConvertible {
   /// variable in this location is set to the top value on the stack.
   case SetLocal(Int)
   
-  case SetLocalVariable(Int)
-  
   /// PushLocal(stackref): stackref refers to the offset from the framepointer. The value of the
   /// variable in this location is pushed on the stack.
   case PushLocalValue(Int)
@@ -82,11 +80,13 @@ public enum Instruction: CustomStringConvertible {
   /// variable in this location to the value on top of the stack.
   case SetLocalValue(Int)
   
+  case SetLocalVariable(Int)
+  
   /// PushConstant(n): Pushes the constant at index `n` of the constant pool onto the stack
   case PushConstant(Int)
   
   /// Turn the value on the stack at index `fp + n` into a variable.
-  case MakeLocalVariable(Int)
+  case MakeArgVariable(Int)
   
   case ReserveLocals(Int)
   
@@ -178,6 +178,7 @@ public enum Instruction: CustomStringConvertible {
   /// Jump to offset if the value on the stack is not false.
   case BranchIf(Int)
   
+  /// Jump to offset if the value on the stack is false.
   case BranchIfNot(Int)
   
   case And(Int)
@@ -236,7 +237,7 @@ public enum Instruction: CustomStringConvertible {
         return nil
       case PushConstant(let index):
         return code.constants[index].description
-      case MakeLocalVariable(_):
+      case MakeArgVariable(_):
         return nil
       case PushChar(let char):
         var res = "'"
@@ -294,8 +295,8 @@ public enum Instruction: CustomStringConvertible {
         return "set_local_value \(index)"
       case PushConstant(let index):
         return "push_constant \(index)"
-      case MakeLocalVariable(let index):
-        return "make_local_variable \(index)"
+      case MakeArgVariable(let index):
+        return "make_arg_variable \(index)"
       case PushUndef:
         return "push_undef"
       case PushVoid:

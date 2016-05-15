@@ -23,15 +23,16 @@ public class Definition: Reference, CustomStringConvertible {
   public enum Kind {
     case Value
     case Variable
+    case MutatedVariable
     case Macro(Procedure)
   }
   
   public let index: Int
   public var kind: Kind
   
-  private init(index: Int, forVar: Bool = false) {
+  private init(index: Int, isVar: Bool = true) {
     self.index = index
-    self.kind = forVar ? .Variable : .Value
+    self.kind = isVar ? .Variable : .Value
   }
   
   private init(proc: Procedure) {
@@ -39,7 +40,25 @@ public class Definition: Reference, CustomStringConvertible {
     self.kind = .Macro(proc)
   }
   
+  public var isValue: Bool {
+    switch self.kind {
+      case .Value:
+        return true
+      default:
+        return false
+    }
+  }
+  
   public var isVariable: Bool {
+    switch self.kind {
+      case .Variable, .MutatedVariable:
+        return true
+      default:
+        return false
+    }
+  }
+  
+  public var isImmutableVariable: Bool {
     switch self.kind {
       case .Variable:
         return true
@@ -48,11 +67,13 @@ public class Definition: Reference, CustomStringConvertible {
     }
   }
   
-  public func declareMutable() {
+  public func wasMutated() {
     switch self.kind {
       case .Value:
-        self.kind = .Variable
+        preconditionFailure("cannot declare value mutable")
       case .Variable:
+        self.kind = .MutatedVariable
+      case .MutatedVariable:
         break
       case .Macro(_):
         preconditionFailure("cannot declare macro mutable")
@@ -65,6 +86,8 @@ public class Definition: Reference, CustomStringConvertible {
         return "value at index \(self.index)"
       case .Variable:
         return "variable at index \(self.index)"
+      case .MutatedVariable:
+        return "mutated variable at index \(self.index)"
       case .Macro(let proc):
         return "macro \(proc)"
     }
@@ -93,11 +116,11 @@ public final class BindingGroup: Reference, CustomStringConvertible {
     return def
   }
   
-  public func allocBindingFor(sym: Symbol, forVar: Bool = false) -> Definition {
+  public func allocBindingFor(sym: Symbol, isVar: Bool = true) -> Definition {
     if let binding = self.bindings[sym] {
       return binding
     }
-    let binding = Definition(index: self.nextIndex(), forVar: forVar)
+    let binding = Definition(index: self.nextIndex(), isVar: isVar)
     self.bindings[sym] = binding
     return binding
   }
@@ -142,7 +165,7 @@ public final class BindingGroup: Reference, CustomStringConvertible {
     }
     return seq
   }
-  
+    
   public func macroGroup() -> BindingGroup {
     var env = self.parent
     while case .Local(let group) = env {

@@ -241,7 +241,7 @@ public final class BaseLibrary: Library {
                           _ env: Env,
                           _ promise: Bool) throws -> Instruction {
     // Create closure compiler as child of the current compiler
-    let closureCompiler = Compiler(compiler.context, env)
+    let closureCompiler = Compiler(compiler.context, env, nil, compiler.checkpointer)
     // Compile arguments
     try closureCompiler.compileArgList(arglist)
     // Compile body
@@ -583,13 +583,11 @@ public final class BaseLibrary: Library {
   }
   
   func compile(exprs: Arguments) throws -> Expr {
-    let compiler = Compiler(self.context, .Interaction)
     var seq = Expr.Null
     for expr in exprs.reverse() {
       seq = .Pair(expr, seq)
     }
-    try compiler.compileBody(seq)
-    let code = compiler.bundle()
+    let code = try Compiler.compile(self.context, seq, false)
     context.console.print(code.description)
     return .Void
   }
