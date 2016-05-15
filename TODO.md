@@ -1,10 +1,11 @@
 # Todo
 
-Last update: 2016-05-08
+Last update: 2016-05-16
 
 
 ## Compiler
 
+- [X] Optimization/checkpointing framework
 - [ ] Use values instead of variables for all immutable bindings (do this by compiling
       forms with bindings twice, if the first run shows that a binding is mutable)
 - [ ] Refactor creation of compiler; checkpointer needs to be always passed explicitly
@@ -28,6 +29,7 @@ Last update: 2016-05-08
 ## Testing
 
 - [X] Build regression testing framework
+- [X] Add simple regression tests 
 - [ ] Add unit tests
 
 
