@@ -53,7 +53,7 @@ private func compileBindings(compiler: Compiler,
   if predef {
     while case .Pair(.Pair(.Sym(let sym), _), let rest) = bindings {
       compiler.emit(.PushUndef)
-      compiler.emit(.SetLocalVariable(group.allocBindingFor(sym).index))
+      compiler.emit(.MakeLocalVariable(group.allocBindingFor(sym).index))
       bindings = rest
     }
     bindings = bindingList
@@ -68,7 +68,7 @@ private func compileBindings(compiler: Compiler,
     guard index > prevIndex else {
       throw EvalError.DuplicateBinding(sym, bindingList)
     }
-    compiler.emit(predef ? .SetLocalValue(index) : .SetLocalVariable(index))
+    compiler.emit(predef ? .SetLocalValue(index) : .MakeLocalVariable(index))
     prevIndex = index
     bindings = rest
   }
@@ -149,7 +149,7 @@ func compileLet(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> 
       let group = BindingGroup(owner: compiler, parent: env, nextIndex: compiler.nextLocalIndex)
       let index = group.allocBindingFor(sym).index
       compiler.emit(.PushUndef)
-      compiler.emit(.SetLocalVariable(index))
+      compiler.emit(.MakeLocalVariable(index))
       compiler.emit(try BaseLibrary.compileProc(compiler, params, rest, Env(group), false))
       compiler.emit(.SetLocalValue(index))
       res = try compiler.compile(.Pair(first, exprs), in: Env(group), inTailPos: tail)
@@ -261,7 +261,7 @@ func compileDo(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> B
     guard index > prevIndex else {
       throw EvalError.DuplicateBinding(sym, bindingList)
     }
-    compiler.emit(.SetLocalVariable(index))
+    compiler.emit(.MakeLocalVariable(index))
     switch optStep {
       case .Pair(let step, .Null):
         doBindings.append(index)

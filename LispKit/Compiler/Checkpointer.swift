@@ -34,7 +34,7 @@ public class Checkpointer: CustomStringConvertible {
     }
   }
   
-  public func associations(address: UInt) -> Set<CheckpointData> {
+  private func associations(address: UInt) -> Set<CheckpointData> {
     if let res = self.checkpoints[address] {
       return res
     }

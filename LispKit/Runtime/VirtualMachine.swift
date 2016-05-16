@@ -467,13 +467,16 @@ public final class VirtualMachine: TrackedObject {
           variable.value = self.pop()
         case .PushLocal(let index):
           self.push(self.stack[fp + index])
-        case .SetLocal(let index):
-          self.stack[fp + index] = self.pop()
-        case .SetLocalVariable(let index):
+        case .SetLocalValue(let index):
+          guard case .Var(let variable) = self.stack[fp + index] else {
+            preconditionFailure("SetLocalValue cannot set value of \(self.stack[fp + index])")
+          }
+          variable.value = self.pop()
+        case .MakeLocalVariable(let index):
           let variable = Variable(self.pop())
           self.context.objects.manage(variable)
           self.stack[fp + index] = .Var(variable)
-        case .MakeArgVariable(let index):
+        case .MakeVariableArgument(let index):
           let variable = Variable(self.stack[fp + index])
           self.context.objects.manage(variable)
           self.stack[fp + index] = .Var(variable)
@@ -485,11 +488,6 @@ public final class VirtualMachine: TrackedObject {
             throw EvalError.VariableNotYetInitialized(nil)
           }
           self.push(variable.value)
-        case .SetLocalValue(let index):
-          guard case .Var(let variable) = self.stack[fp + index] else {
-            preconditionFailure("SetLocalValue cannot set value of \(self.stack[fp + index])")
-          }
-          variable.value = self.pop()
         case .PushConstant(let index):
           self.push(code.constants[index])
         case .PushUndef:
@@ -615,7 +613,7 @@ public final class VirtualMachine: TrackedObject {
           guard self.sp - n == fp else {
             throw EvalError.ArgumentCountError(formals: n, args: self.popAsList(self.sp - fp))
           }
-        case .AssertMinArgs(let n):
+        case .AssertMinArgCount(let n):
           guard self.sp - n >= fp else {
             throw EvalError.ArgumentCountError(formals: n, args: self.popAsList(self.sp - fp))
           }
@@ -625,7 +623,7 @@ public final class VirtualMachine: TrackedObject {
             rest = .Pair(self.pop(), rest)
           }
           self.push(rest)
-        case .ReserveLocals(let n):
+        case .AllocLocals(let n):
           self.sp += n
         case .ResetLocals(let index, let n):
           for i in fp+index..<fp+index+n {

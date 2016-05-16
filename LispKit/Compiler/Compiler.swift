@@ -85,7 +85,7 @@ public final class Compiler {
         self.emit(.AssertArgCount(arguments.count))
       case .Sym(let sym):
         if arguments.count > 0 {
-          self.emit(.AssertMinArgs(arguments.count))
+          self.emit(.AssertMinArgCount(arguments.count))
         }
         self.emit(.CollectRest(arguments.count))
         arguments.allocBindingFor(sym)
@@ -102,12 +102,12 @@ public final class Compiler {
       self.emit(.Return)
     } else {
       // Reserve instruction for reserving local variables
-      let reserveLocalIp = self.emit(.NoOp)
+      let reserveLocalIp = self.emitPlaceholder()
       // Turn arguments into local variables
       if let arguments = self.arguments {
         for sym in arguments.symbols {
           if let sym = sym, binding = arguments.bindingFor(sym) where !binding.isValue {
-            self.emit(.MakeArgVariable(binding.index))
+            self.emit(.MakeVariableArgument(binding.index))
           }
         }
       }
@@ -118,7 +118,7 @@ public final class Compiler {
       // Insert instruction to reserve local variables
       if self.maxLocals > self.arguments?.count ?? 0 {
         self.patch(
-          .ReserveLocals(self.maxLocals - (self.arguments?.count ?? 0)), at: reserveLocalIp)
+          .AllocLocals(self.maxLocals - (self.arguments?.count ?? 0)), at: reserveLocalIp)
       }
       // Checkpoint argument mutability
       if let arguments = self.arguments {
@@ -421,6 +421,34 @@ public final class Compiler {
   
   /// Bundle the generated code into a `Code` object.
   public func bundle() -> Code {
+    self.optimize()
     return Code(self.instructions, self.constants, self.fragments)
+  }
+  
+  /// This is just a placeholder for now. Will add a peephole optimizer eventually. For now,
+  /// only NOOPs at the beginning of a code block are removed.
+  private func optimize() {
+    var ip = 0
+    switch self.instructions[ip] {
+      case .AssertArgCount(_), .AssertMinArgCount(_):
+        ip += 1
+      default:
+        break
+    }
+    self.eliminateNoOpsAt(ip)
+    if case .MakeVariableArgument(_) = self.instructions[ip] {
+      ip += 1
+    }
+    self.eliminateNoOpsAt(ip)
+  }
+  
+  /// Remove sequences of NoOp at instruction position `ip`.
+  private func eliminateNoOpsAt(ip: Int) {
+    while ip < self.instructions.count {
+      guard case .NoOp = self.instructions[ip] else {
+        return
+      }
+      self.instructions.removeAtIndex(ip)
+    }
   }
 }

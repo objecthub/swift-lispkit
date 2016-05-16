@@ -33,7 +33,7 @@ public struct Code: CustomStringConvertible {
     self.constants = constants
     self.fragments = fragments
   }
-  
+    
   public func mark(tag: UInt8) {
     for constant in self.constants {
       constant.mark(tag)

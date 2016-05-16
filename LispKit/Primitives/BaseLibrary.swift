@@ -606,7 +606,7 @@ public final class BaseLibrary: Library {
           }
         }
       default:
-        context.console.print("cannot disassemble \(expr)")
+        context.console.print("cannot disassemble \(expr)\n")
     }
     return .Void
   }
