@@ -1,6 +1,12 @@
 # Changelog
 
 
+## 0.2 (2016-05-16)
+- Revised bytecode instruction set. Added documentation to the
+  [LispKit Wiki](https://github.com/objecthub/swift-lispkit/wiki).
+- Implemented compiler optimization framework. Turned compiler into a two-phase compiler.
+- Optimized usage of variables for function arguments.
+
 ## 0.1 (2016-05-02)
 
 - Initial version consisting of the framework and a very simple read-eval-print loop
