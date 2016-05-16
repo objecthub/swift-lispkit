@@ -157,7 +157,7 @@ func compileLet(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> 
       throw EvalError.TypeError(first, [.ListType, .SymbolType])
   }
   if !res && compiler.numLocals > initialLocals {
-    compiler.emit(.ResetLocals(initialLocals, compiler.numLocals - initialLocals))
+    compiler.emit(.Reset(initialLocals, compiler.numLocals - initialLocals))
   }
   compiler.numLocals = initialLocals
   return res
@@ -175,7 +175,7 @@ func compileLetStar(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws
       let group = try compileBindings(compiler, bindingList: first, in: env, atomic: false, predef: false)
       let res = try compiler.compileSeq(body, in: Env(group), inTailPos: tail)
       if !res && compiler.numLocals > initialLocals {
-        compiler.emit(.ResetLocals(initialLocals, compiler.numLocals - initialLocals))
+        compiler.emit(.Reset(initialLocals, compiler.numLocals - initialLocals))
       }
       compiler.numLocals = initialLocals
       return res
@@ -196,7 +196,7 @@ func compileLetRec(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws 
       let group = try compileBindings(compiler, bindingList: first, in: env, atomic: true, predef: true)
       let res = try compiler.compileSeq(body, in: Env(group), inTailPos: tail)
       if !res && compiler.numLocals > initialLocals {
-        compiler.emit(.ResetLocals(initialLocals, compiler.numLocals - initialLocals))
+        compiler.emit(.Reset(initialLocals, compiler.numLocals - initialLocals))
       }
       compiler.numLocals = initialLocals
       return res
@@ -299,7 +299,7 @@ func compileDo(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> B
   let res = try compiler.compileSeq(terminal, in: Env(group), inTailPos: tail)
   // Remove bindings from stack
   if !res && compiler.numLocals > initialLocals {
-    compiler.emit(.ResetLocals(initialLocals, compiler.numLocals - initialLocals))
+    compiler.emit(.Reset(initialLocals, compiler.numLocals - initialLocals))
   }
   compiler.numLocals = initialLocals
   return res

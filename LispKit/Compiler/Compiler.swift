@@ -117,8 +117,7 @@ public final class Compiler {
       }
       // Insert instruction to reserve local variables
       if self.maxLocals > self.arguments?.count ?? 0 {
-        self.patch(
-          .AllocLocals(self.maxLocals - (self.arguments?.count ?? 0)), at: reserveLocalIp)
+        self.patch(.Alloc(self.maxLocals - (self.arguments?.count ?? 0)), at: reserveLocalIp)
       }
       // Checkpoint argument mutability
       if let arguments = self.arguments {

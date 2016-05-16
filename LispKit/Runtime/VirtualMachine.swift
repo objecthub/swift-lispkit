@@ -623,9 +623,9 @@ public final class VirtualMachine: TrackedObject {
             rest = .Pair(self.pop(), rest)
           }
           self.push(rest)
-        case .AllocLocals(let n):
+        case .Alloc(let n):
           self.sp += n
-        case .ResetLocals(let index, let n):
+        case .Reset(let index, let n):
           for i in fp+index..<fp+index+n {
             self.stack[i] = .Undef
           }

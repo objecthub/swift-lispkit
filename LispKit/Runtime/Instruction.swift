@@ -138,12 +138,12 @@ public enum Instruction: CustomStringConvertible {
   /// stack.
   case MakeVariableArgument(Int)
   
-  /// AllocLocals(n): Pushes `n` undefined values onto the stack.
-  case AllocLocals(Int)
+  /// Alloc(n): Pushes `n` undefined values onto the stack.
+  case Alloc(Int)
   
-  /// ResetLocals(frameref, n): frameref is an offset relative to the frame pointer.
-  /// ResetLocals clears the next `n` values on the stack starting from this location.
-  case ResetLocals(Int, Int)
+  /// Reset(frameref, n): frameref is an offset relative to the frame pointer.
+  /// Reset clears the next `n` values on the stack starting from this location.
+  case Reset(Int, Int)
   
   // Create containers ------------------------------------------------------------------------
   
@@ -371,10 +371,10 @@ public enum Instruction: CustomStringConvertible {
       return "assert_min_arg_count \(n)"
     case CollectRest(let n):
       return "collect_rest \(n)"
-    case AllocLocals(let n):
-      return "alloc_locals \(n)"
-    case ResetLocals(let index, let n):
-      return "reset_locals \(index), \(n)"
+    case Alloc(let n):
+      return "alloc \(n)"
+    case Reset(let index, let n):
+      return "reset \(index), \(n)"
     case Return:
       return "return"
     case Branch(let offset):
