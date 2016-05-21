@@ -467,6 +467,8 @@ public final class VirtualMachine: TrackedObject {
           variable.value = self.pop()
         case .PushLocal(let index):
           self.push(self.stack[fp + index])
+        case .SetLocal(let index):
+          self.stack[fp + index] = self.pop()
         case .SetLocalValue(let index):
           guard case .Var(let variable) = self.stack[fp + index] else {
             preconditionFailure("SetLocalValue cannot set value of \(self.stack[fp + index])")
@@ -518,8 +520,12 @@ public final class VirtualMachine: TrackedObject {
           self.push(.Char(char))
         case .MakeClosure(let n, let index):
           self.push(.Proc(Procedure(self.captureExprs(n), code.fragments[index])))
-        case .MakePromise(let n, let index):
-          let future = Future(Procedure(self.captureExprs(n), code.fragments[index]))
+        case .MakePromise:
+          let top = self.pop()
+          guard case .Proc(let proc) = top else {
+            preconditionFailure("MakePromise cannot create promise from \(top)")
+          }
+          let future = Future(proc)
           self.context.objects.manage(future)
           self.push(.Promise(future))
         case .MakeSyntax:

@@ -20,9 +20,9 @@
 
 
 public class CaptureGroup: CustomStringConvertible {
-  public unowned let owner: Compiler
-  public let parent: CaptureGroup?
-  public private(set) var captures: [Definition: Capture]
+  internal unowned let owner: Compiler
+  internal let parent: CaptureGroup?
+  private var captures: [Definition: Capture]
   
   public class Capture {
     public let index: Int
@@ -48,6 +48,10 @@ public class CaptureGroup: CustomStringConvertible {
       self.captures[def] = capture
       return capture.index
     }
+  }
+  
+  public func captureFor(def: Definition) -> Capture? {
+    return self.captures[def]
   }
   
   public var count: Int {

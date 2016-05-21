@@ -28,5 +28,13 @@ class SmallTests: LispKitTestCase {
     XCTAssertEqual(self.eval("(+ 1 2 3 4)"), self.value("10"))
     assertStackEmpty()
   }
+  
+  func testCapturesInLetrec() {
+    XCTAssertEqual(
+      self.eval("(define (foo x) " +
+                "  (letrec ((mult (lambda (n) (* n x y))) (y (+ x x))) (+ x y (mult 3))))" +
+                "(foo 12)"), self.value("900"))
+    assertStackEmpty()
+  }
 
 }

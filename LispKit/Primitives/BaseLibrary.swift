@@ -231,41 +231,10 @@ public final class BaseLibrary: Library {
     guard case .Pair(_, .Pair(let arglist, let body)) = expr else {
       throw EvalError.LeastArgumentCountError(formals: 1, args: expr)
     }
-    compiler.emit(try BaseLibrary.compileProc(compiler, arglist, body, env, false))
+    try compiler.compileProc(arglist, body, env)
     return false
   }
-  
-  static func compileProc(compiler: Compiler,
-                          _ arglist: Expr,
-                          _ body: Expr,
-                          _ env: Env,
-                          _ promise: Bool) throws -> Instruction {
-    // Create closure compiler as child of the current compiler
-    let closureCompiler = Compiler(compiler.context, env, nil, compiler.checkpointer)
-    // Compile arguments
-    try closureCompiler.compileArgList(arglist)
-    // Compile body
-    try closureCompiler.compileBody(body)
-    // Link compiled closure in the current compiler
-    let codeIndex = compiler.fragments.count
-    let code = closureCompiler.bundle()
-    compiler.fragments.append(code)
-    // Generate code for pushing captured bindings onto the stack
-    for (def, capture) in closureCompiler.captures.captures {
-      if capture.origin.owner === compiler {
-        compiler.emit(.PushLocal(def.index))
-      } else {
-        compiler.emit(.PushCaptured(compiler.captures.capture(def, from: capture.origin)))
-      }
-    }
-    // Return captured binding count and index of compiled closure
-    if promise {
-      return .MakePromise(closureCompiler.captures.count, codeIndex)
-    } else {
-      return .MakeClosure(closureCompiler.captures.count, codeIndex)
-    }
-  }
-  
+    
   func isProcedure(expr: Expr) -> Expr {
     if case .Proc(_) = expr {
       return .True
@@ -292,7 +261,7 @@ public final class BaseLibrary: Library {
         return false
       case .Pair(.Sym(let sym), let arglist):
         let index = compiler.registerConstant(.Sym(sym))
-        compiler.emit(try BaseLibrary.compileProc(compiler, arglist, def, env, false))
+        try compiler.compileProc(arglist, def, env)
         compiler.emit(.DefineGlobal(index))
         compiler.emit(.PushConstant(index))
         return false
@@ -415,7 +384,8 @@ public final class BaseLibrary: Library {
     guard case .Pair(_, .Pair(let delayed, .Null)) = expr else {
       throw EvalError.ArgumentCountError(formals: 1, args: expr)
     }
-    compiler.emit(try BaseLibrary.compileProc(compiler, .Null, .Pair(delayed, .Null), env, true))
+    try compiler.compileProc(.Null, .Pair(delayed, .Null), env)
+    compiler.emit(.MakePromise)
     return false
   }
   

@@ -99,6 +99,7 @@ public final class BindingGroup: Reference, CustomStringConvertible {
   public let parent: Env
   private var bindings: [Symbol : Definition]
   private let nextIndex: () -> Int
+  internal let checkpoint: UInt
   public private(set) var box: WeakBox<BindingGroup>!
   
   public init(owner: Compiler, parent: Env, nextIndex: () -> Int) {
@@ -106,6 +107,7 @@ public final class BindingGroup: Reference, CustomStringConvertible {
     self.parent = parent
     self.bindings = [Symbol: Definition]()
     self.nextIndex = nextIndex
+    self.checkpoint = owner.checkpointer.checkpoint()
     super.init()
     self.box = WeakBox(self)
   }
@@ -116,11 +118,12 @@ public final class BindingGroup: Reference, CustomStringConvertible {
     return def
   }
   
-  public func allocBindingFor(sym: Symbol, isVar: Bool = true) -> Definition {
+  public func allocBindingFor(sym: Symbol) -> Definition {
+    let variable = !owner.checkpointer.isValueBinding(sym, at: self.checkpoint)
     if let binding = self.bindings[sym] {
       return binding
     }
-    let binding = Definition(index: self.nextIndex(), isVar: isVar)
+    let binding = Definition(index: self.nextIndex(), isVar: variable)
     self.bindings[sym] = binding
     return binding
   }
@@ -152,7 +155,7 @@ public final class BindingGroup: Reference, CustomStringConvertible {
   public var count: Int {
     return self.bindings.count
   }
-    
+  
   public var symbols: [Symbol?] {
     var seq = [Symbol?](count: self.bindings.count, repeatedValue: nil)
     for (sym, bind) in self.bindings {
@@ -182,6 +185,14 @@ public final class BindingGroup: Reference, CustomStringConvertible {
       env = group.parent
     }
     return macroGroup
+  }
+  
+  public func finalize() {
+    for (sym, binding) in self.bindings {
+      if binding.isImmutableVariable {
+        owner.checkpointer.associate(.ValueBinding(sym), with: self.checkpoint)
+      }
+    }
   }
   
   public var description: String {

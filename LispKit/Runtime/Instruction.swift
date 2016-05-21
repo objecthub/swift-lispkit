@@ -119,6 +119,10 @@ public enum Instruction: CustomStringConvertible {
   /// the variable in this location is pushed onto the stack.
   case PushLocalValue(Int)
   
+  /// SetLocal(frameref): frameref is an offset relative to the frame pointer.
+  /// SetLocal overwrites the value in this location with the value on top of the stack.
+  case SetLocal(Int)
+  
   /// SetLocalValue(frameref): frameref is an offset relative to the frame pointer.
   /// SetLocalValue sets the variable in this location to the value on top of the stack.
   case SetLocalValue(Int)
@@ -151,10 +155,9 @@ public enum Instruction: CustomStringConvertible {
   /// variables (on the stack), and the code at index `code`
   case MakeClosure(Int, Int)
   
-  /// MakePromise(n, code): Creates a promise on the stack whose value can be computed by
-  /// executing a closure that consists of `n` captured variables (on the stack), and the
-  /// code at index `code`.
-  case MakePromise(Int, Int)
+  /// MakePromise: Pops an initialization procedure off the stack and creates a promise on the
+  /// stack whose value can be computed by executing the procedure.
+  case MakePromise
   
   /// MakeSyntax: Pops a syntax transformer off the stack, creates a macro special form
   /// from it and pushes this onto the stack.
@@ -261,6 +264,8 @@ public enum Instruction: CustomStringConvertible {
       return nil
     case PushLocalValue(_):
       return nil
+    case SetLocal(_):
+      return nil
     case SetLocalValue(_):
       return nil
     case PushConstant(let index):
@@ -317,6 +322,8 @@ public enum Instruction: CustomStringConvertible {
       return "make_local_variable \(index)"
     case PushLocalValue(let index):
       return "push_local_value \(index)"
+    case SetLocal(let index):
+      return "set_local \(index)"
     case SetLocalValue(let index):
       return "set_local_value \(index)"
     case PushConstant(let index):
@@ -351,8 +358,8 @@ public enum Instruction: CustomStringConvertible {
       return "push_char \(char)"
     case MakeClosure(let n, let index):
       return "make_closure \(n),\(index)"
-    case MakePromise(let n, let index):
-      return "make_promise \(n),\(index)"
+    case MakePromise:
+      return "make_promise"
     case MakeSyntax:
       return "make_syntax"
     case Compile:

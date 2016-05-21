@@ -28,7 +28,6 @@ public final class Compiler {
   private var env: Env
   internal let rulesEnv: Env
   internal let checkpointer: Checkpointer
-  private var argCp: UInt?
   internal var captures: CaptureGroup!
   internal var numLocals: Int = 0
   private var maxLocals: Int = 0
@@ -57,7 +56,6 @@ public final class Compiler {
     self.env = env
     self.rulesEnv = rulesEnv ?? env
     self.checkpointer = cp ?? env.bindingGroup?.owner.checkpointer ?? Checkpointer()
-    self.argCp = nil
     self.captures = CaptureGroup(owner: self, parent: env.bindingGroup?.owner.captures)
     self.arguments = nil
   }
@@ -67,14 +65,12 @@ public final class Compiler {
   }
   
   public func compileArgList(arglist: Expr) throws {
-    self.argCp = self.checkpointer.checkpoint()
     let arguments = BindingGroup(owner: self, parent: self.env, nextIndex: self.nextLocalIndex)
     var next = arglist
     loop: while case .Pair(let arg, let cdr) = next {
       switch arg {
         case .Sym(let sym):
-          arguments.allocBindingFor(sym,
-                                    isVar: !self.checkpointer.isValueBinding(sym, at: self.argCp!))
+          arguments.allocBindingFor(sym)
         default:
           break loop
       }
@@ -119,15 +115,9 @@ public final class Compiler {
       if self.maxLocals > self.arguments?.count ?? 0 {
         self.patch(.Alloc(self.maxLocals - (self.arguments?.count ?? 0)), at: reserveLocalIp)
       }
-      // Checkpoint argument mutability
-      if let arguments = self.arguments {
-        for sym in arguments.symbols {
-          if let sym = sym where arguments.bindingFor(sym)?.isImmutableVariable ?? false {
-            self.checkpointer.associate(.ValueBinding(sym), with: self.argCp!)
-          }
-        }
-      }
     }
+    // Checkpoint argument mutability
+    self.arguments?.finalize()
   }
   
   public func nextLocalIndex() -> Int {
@@ -416,6 +406,112 @@ public final class Compiler {
       throw EvalError.TypeError(expr, [.ProperListType])
     }
     return n
+  }
+  
+  /// Compiles the given binding list of the form
+  /// ```((ident init) ...)```
+  /// and returns a `BindingGroup` with information about the established local bindings.
+  public func compileBindings(bindingList: Expr,
+                              in lenv: Env,
+                              atomic: Bool,
+                              predef: Bool) throws -> BindingGroup {
+    let group = BindingGroup(owner: self, parent: lenv, nextIndex: self.nextLocalIndex)
+    let env = atomic && !predef ? lenv : .Local(group)
+    var bindings = bindingList
+    if predef {
+      while case .Pair(.Pair(.Sym(let sym), _), let rest) = bindings {
+        let binding = group.allocBindingFor(sym)
+        // This is a hack for now; we need to make sure forward references work, e.g. in
+        // lambda expressions. A way to do this is to allocate variables for all bindings that
+        // are predefined.
+        binding.wasMutated()
+        self.emit(.PushUndef)
+        self.emit(binding.isValue ? .SetLocal(binding.index) : .MakeLocalVariable(binding.index))
+        bindings = rest
+      }
+      bindings = bindingList
+    }
+    var prevIndex = -1
+    while case .Pair(let binding, let rest) = bindings {
+      guard case .Pair(.Sym(let sym), .Pair(let expr, .Null)) = binding else {
+        throw EvalError.MalformedBindings(binding, bindingList)
+      }
+      try self.compile(expr, in: env, inTailPos: false)
+      let binding = group.allocBindingFor(sym)
+      guard binding.index > prevIndex else {
+        throw EvalError.DuplicateBinding(sym, bindingList)
+      }
+      if binding.isValue {
+        self.emit(.SetLocal(binding.index))
+      } else if predef {
+        self.emit(.SetLocalValue(binding.index))
+      } else {
+        self.emit(.MakeLocalVariable(binding.index))
+      }
+      prevIndex = binding.index
+      bindings = rest
+    }
+    guard bindings.isNull else {
+      throw EvalError.MalformedBindings(nil, bindingList)
+    }
+    return group
+  }
+  
+  public func compileMacros(bindingList: Expr,
+                            in lenv: Env,
+                            recursive: Bool) throws -> BindingGroup {
+    var numMacros = 0
+    let group = BindingGroup(owner: self, parent: lenv, nextIndex: {
+      numMacros += 1
+      return numMacros - 1
+    })
+    let env = recursive ? Env(group) : lenv
+    var bindings = bindingList
+    while case .Pair(let binding, let rest) = bindings {
+      guard case .Pair(.Sym(let sym), .Pair(let transformer, .Null)) = binding else {
+        throw EvalError.MalformedBindings(binding, bindingList)
+      }
+      let procExpr = try self.context.machine.eval(transformer,
+                                                   in: env.syntacticalEnv,
+                                                   usingRulesEnv: env)
+      guard case .Proc(let proc) = procExpr else {
+        throw EvalError.MalformedTransformer(transformer) //FIXME: Find better error message
+      }
+      guard group.bindingFor(sym) == nil else {
+        throw EvalError.DuplicateBinding(sym, bindingList)
+      }
+      group.defineMacro(sym, proc: proc)
+      bindings = rest
+    }
+    guard bindings.isNull else {
+      throw EvalError.MalformedBindings(nil, bindingList)
+    }
+    return group
+  }
+  
+  public func compileProc(arglist: Expr, _ body: Expr, _ env: Env) throws {
+    // Create closure compiler as child of the current compiler
+    let closureCompiler = Compiler(self.context, env, nil, self.checkpointer)
+    // Compile arguments
+    try closureCompiler.compileArgList(arglist)
+    // Compile body
+    try closureCompiler.compileBody(body)
+    // Link compiled closure in the current compiler
+    let codeIndex = self.fragments.count
+    let code = closureCompiler.bundle()
+    self.fragments.append(code)
+    // Generate code for pushing captured bindings onto the stack
+    for def in closureCompiler.captures.definitions {
+      if let def = def, capture = closureCompiler.captures.captureFor(def) {
+        if capture.origin.owner === self {
+          self.emit(.PushLocal(def.index))
+        } else {
+          self.emit(.PushCaptured(self.captures.capture(def, from: capture.origin)))
+        }
+      }
+    }
+    // Return captured binding count and index of compiled closure
+    self.emit(.MakeClosure(closureCompiler.captures.count, codeIndex))
   }
   
   /// Bundle the generated code into a `Code` object.

@@ -42,75 +42,6 @@ func compileBegin(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -
   return try compiler.compileSeq(exprs, in: env, inTailPos: tail)
 }
 
-private func compileBindings(compiler: Compiler,
-                             bindingList: Expr,
-                             in lenv: Env,
-                             atomic: Bool,
-                             predef: Bool) throws -> BindingGroup {
-  let group = BindingGroup(owner: compiler, parent: lenv, nextIndex: compiler.nextLocalIndex)
-  let env = atomic && !predef ? lenv : .Local(group)
-  var bindings = bindingList
-  if predef {
-    while case .Pair(.Pair(.Sym(let sym), _), let rest) = bindings {
-      compiler.emit(.PushUndef)
-      compiler.emit(.MakeLocalVariable(group.allocBindingFor(sym).index))
-      bindings = rest
-    }
-    bindings = bindingList
-  }
-  var prevIndex = -1
-  while case .Pair(let binding, let rest) = bindings {
-    guard case .Pair(.Sym(let sym), .Pair(let expr, .Null)) = binding else {
-      throw EvalError.MalformedBindings(binding, bindingList)
-    }
-    try compiler.compile(expr, in: env, inTailPos: false)
-    let index = group.allocBindingFor(sym).index
-    guard index > prevIndex else {
-      throw EvalError.DuplicateBinding(sym, bindingList)
-    }
-    compiler.emit(predef ? .SetLocalValue(index) : .MakeLocalVariable(index))
-    prevIndex = index
-    bindings = rest
-  }
-  guard bindings.isNull else {
-    throw EvalError.MalformedBindings(nil, bindingList)
-  }
-  return group
-}
-
-private func compileMacros(compiler: Compiler,
-                           bindingList: Expr,
-                           in lenv: Env,
-                           recursive: Bool) throws -> BindingGroup {
-  var numMacros = 0
-  let group = BindingGroup(owner: compiler, parent: lenv, nextIndex: {
-    numMacros += 1
-    return numMacros - 1
-  })
-  let env = recursive ? Env(group) : lenv
-  var bindings = bindingList
-  while case .Pair(let binding, let rest) = bindings {
-    guard case .Pair(.Sym(let sym), .Pair(let transformer, .Null)) = binding else {
-      throw EvalError.MalformedBindings(binding, bindingList)
-    }
-    let procExpr = try compiler.context.machine.eval(transformer,
-                                                     in: env.syntacticalEnv,
-                                                     usingRulesEnv: env)
-    guard case .Proc(let proc) = procExpr else {
-      throw EvalError.MalformedTransformer(transformer) //FIXME: Find better error message
-    }
-    guard group.bindingFor(sym) == nil else {
-      throw EvalError.DuplicateBinding(sym, bindingList)
-    }
-    group.defineMacro(sym, proc: proc)
-    bindings = rest
-  }
-  guard bindings.isNull else {
-    throw EvalError.MalformedBindings(nil, bindingList)
-  }
-  return group
-}
-
 func splitBindings(bindingList: Expr) throws -> (Expr, Expr) {
   var symbols = Exprs()
   var exprs = Exprs()
@@ -139,8 +70,9 @@ func compileLet(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> 
     case .Null:
       return try compiler.compileSeq(body, in: env, inTailPos: tail)
     case .Pair(_, _):
-      let group = try compileBindings(compiler, bindingList: first, in: env, atomic: true, predef: false)
+      let group = try compiler.compileBindings(first, in: env, atomic: true, predef: false)
       res = try compiler.compileSeq(body, in: Env(group), inTailPos: tail)
+      group.finalize()
     case .Sym(let sym):
       guard case .Pair(let bindings, let rest) = body else {
         throw EvalError.LeastArgumentCountError(formals: 2, args: expr)
@@ -150,7 +82,7 @@ func compileLet(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> 
       let index = group.allocBindingFor(sym).index
       compiler.emit(.PushUndef)
       compiler.emit(.MakeLocalVariable(index))
-      compiler.emit(try BaseLibrary.compileProc(compiler, params, rest, Env(group), false))
+      try compiler.compileProc(params, rest, Env(group))
       compiler.emit(.SetLocalValue(index))
       res = try compiler.compile(.Pair(first, exprs), in: Env(group), inTailPos: tail)
     default:
@@ -172,8 +104,9 @@ func compileLetStar(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws
     case .Null:
       return try compiler.compileSeq(body, in: env, inTailPos: tail)
     case .Pair(_, _):
-      let group = try compileBindings(compiler, bindingList: first, in: env, atomic: false, predef: false)
+      let group = try compiler.compileBindings(first, in: env, atomic: false, predef: false)
       let res = try compiler.compileSeq(body, in: Env(group), inTailPos: tail)
+      group.finalize()
       if !res && compiler.numLocals > initialLocals {
         compiler.emit(.Reset(initialLocals, compiler.numLocals - initialLocals))
       }
@@ -193,8 +126,9 @@ func compileLetRec(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws 
     case .Null:
       return try compiler.compileSeq(body, in: env, inTailPos: tail)
     case .Pair(_, _):
-      let group = try compileBindings(compiler, bindingList: first, in: env, atomic: true, predef: true)
+      let group = try compiler.compileBindings(first, in: env, atomic: true, predef: true)
       let res = try compiler.compileSeq(body, in: Env(group), inTailPos: tail)
+      group.finalize()
       if !res && compiler.numLocals > initialLocals {
         compiler.emit(.Reset(initialLocals, compiler.numLocals - initialLocals))
       }
@@ -213,7 +147,7 @@ func compileLetSyntax(compiler: Compiler, expr: Expr, env: Env, tail: Bool) thro
     case .Null:
       return try compiler.compileSeq(body, in: env, inTailPos: tail)
     case .Pair(_, _):
-      let group = try compileMacros(compiler, bindingList: first, in: env, recursive: false)
+      let group = try compiler.compileMacros(first, in: env, recursive: false)
       return try compiler.compileSeq(body, in: Env(group), inTailPos: tail)
     default:
       throw EvalError.TypeError(first, [.ListType])
@@ -228,7 +162,7 @@ func compileLetRecSyntax(compiler: Compiler, expr: Expr, env: Env, tail: Bool) t
     case .Null:
       return try compiler.compileSeq(body, in: env, inTailPos: tail)
     case .Pair(_, _):
-      let group = try compileMacros(compiler, bindingList: first, in: env, recursive: true)
+      let group = try compiler.compileMacros(first, in: env, recursive: true)
       return try compiler.compileSeq(body, in: Env(group), inTailPos: tail)
     default:
       throw EvalError.TypeError(first, [.ListType])
