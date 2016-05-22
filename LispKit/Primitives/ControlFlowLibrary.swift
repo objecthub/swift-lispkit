@@ -35,13 +35,6 @@ public final class ControlFlowLibrary: Library {
   }
 }
 
-func compileBegin(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
-  guard case .Pair(_, let exprs) = expr else {
-    preconditionFailure()
-  }
-  return try compiler.compileSeq(exprs, in: env, inTailPos: tail)
-}
-
 func splitBindings(bindingList: Expr) throws -> (Expr, Expr) {
   var symbols = Exprs()
   var exprs = Exprs()
@@ -58,6 +51,13 @@ func splitBindings(bindingList: Expr) throws -> (Expr, Expr) {
     throw EvalError.MalformedBindings(nil, bindingList)
   }
   return (Expr.List(symbols), Expr.List(exprs))
+}
+
+func compileBegin(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  guard case .Pair(_, let exprs) = expr else {
+    preconditionFailure()
+  }
+  return try compiler.compileSeq(exprs, in: env, inTailPos: tail)
 }
 
 func compileLet(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
@@ -78,7 +78,7 @@ func compileLet(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> 
         throw EvalError.LeastArgumentCountError(formals: 2, args: expr)
       }
       let (params, exprs) = try splitBindings(bindings)
-      let group = BindingGroup(owner: compiler, parent: env, nextIndex: compiler.nextLocalIndex)
+      let group = BindingGroup(owner: compiler, parent: env)
       let index = group.allocBindingFor(sym).index
       compiler.emit(.PushUndef)
       compiler.emit(.MakeLocalVariable(index))
@@ -180,7 +180,7 @@ func compileDo(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> B
   }
   let initialLocals = compiler.numLocals
   // Setup bindings
-  let group = BindingGroup(owner: compiler, parent: env, nextIndex: compiler.nextLocalIndex)
+  let group = BindingGroup(owner: compiler, parent: env)
   var bindings = bindingList
   var prevIndex = -1
   var doBindings = [Int]()

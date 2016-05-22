@@ -101,7 +101,7 @@ public final class VirtualMachine: TrackedObject {
       while !parser.finished {
         exprs.append(try parser.parse())
       }
-      let code = try Compiler.compile(self.context, .List(exprs), true)
+      let code = try Compiler.compile(self.context, expr: .List(exprs), optimize: true)
       log(code.description)
       return try self.execute(code)
     } catch let error as LispError { // handle Lisp-related issues
@@ -123,7 +123,7 @@ public final class VirtualMachine: TrackedObject {
   /// it using this virtual machine.
   public func evalExprs(exprs: Expr) -> Expr {
     do {
-      let code = try Compiler.compile(self.context, exprs, false)
+      let code = try Compiler.compile(self.context, expr: exprs, optimize: false)
       // context.console.printStr(code.description)
       return try self.execute(code)
     } catch let error as LispError { // handle Lisp-related issues
@@ -142,9 +142,8 @@ public final class VirtualMachine: TrackedObject {
   public func eval(expr: Expr,
                    in env: Env = .Interaction,
                    usingRulesEnv renv: Env? = nil) throws -> Expr {
-    let compiler = Compiler(self.context, env, renv)
-    try compiler.compileBody(.List(expr))
-    let code = compiler.bundle()
+    let code =
+      try Compiler.compile(self.context, expr: .List(expr), in: env, and: renv, optimize: true)
     return try self.apply(.Proc(Procedure(code)), to: .Null)
   }
   
@@ -535,9 +534,8 @@ public final class VirtualMachine: TrackedObject {
           }
           self.push(.Special(SpecialForm(proc)))
         case .Compile:
-          let compiler = Compiler(self.context, .Interaction)
-          try compiler.compileBody(.List(self.pop()))
-          self.push(.Proc(Procedure(compiler.bundle())))
+          let code = try Compiler.compile(self.context, expr: .List(self.pop()), optimize: true)
+          self.push(.Proc(Procedure(code)))
         case .Apply(let m):
           let arglist = self.pop()
           var args = arglist

@@ -557,7 +557,7 @@ public final class BaseLibrary: Library {
     for expr in exprs.reverse() {
       seq = .Pair(expr, seq)
     }
-    let code = try Compiler.compile(self.context, seq, false)
+    let code = try Compiler.compile(self.context, expr: seq, optimize: true)
     context.console.print(code.description)
     return .Void
   }

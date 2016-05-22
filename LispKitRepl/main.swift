@@ -34,8 +34,7 @@ if let preludePath = NSBundle(identifier: "net.objecthub.LispKit")?.pathForResou
 }
 
 // Print header
-console.print("\(AppInfo.name) \(AppInfo.version) (\(AppInfo.buildDate) " +
-              "\(AppInfo.buildTime))\n")
+console.print("\(AppInfo.name) \(AppInfo.version) (\(AppInfo.buildDate) \(AppInfo.buildTime))\n")
 console.print("\(AppInfo.copyright)\n")
 
 // Enter read-eval-print loop

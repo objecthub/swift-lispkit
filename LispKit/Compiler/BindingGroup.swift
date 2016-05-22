@@ -102,11 +102,11 @@ public final class BindingGroup: Reference, CustomStringConvertible {
   internal let checkpoint: UInt
   public private(set) var box: WeakBox<BindingGroup>!
   
-  public init(owner: Compiler, parent: Env, nextIndex: () -> Int) {
+  public init(owner: Compiler, parent: Env, nextIndex: (() -> Int)? = nil) {
     self.owner = owner
     self.parent = parent
     self.bindings = [Symbol: Definition]()
-    self.nextIndex = nextIndex
+    self.nextIndex = nextIndex == nil ? owner.nextLocalIndex : nextIndex!
     self.checkpoint = owner.checkpointer.checkpoint()
     super.init()
     self.box = WeakBox(self)

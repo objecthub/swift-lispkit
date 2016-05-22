@@ -21,51 +21,88 @@
 import NumberKit
 
 ///
-/// Instances of class `Compiler` are used to either compile functions or expressions.
+/// Class `Compiler` provides a framework for compiling LispKit expressions. Static method
+/// `compile` invokes the compiler in a given environment and returns a `Code` object
+/// which encapsulates the generated code.
 /// 
 public final class Compiler {
+  
+  /// Context of the compiler
   public let context: Context
-  private var env: Env
+  
+  /// Environment in which expressions should be compiled
+  internal var env: Env
+  
+  /// Meta-environment in which macro expressions are evaluated
   internal let rulesEnv: Env
+  
+  /// Checkpointer for attaching information to help optimize the code in the second
+  /// compilation phase.
   internal let checkpointer: Checkpointer
-  internal var captures: CaptureGroup!
+  
+  /// Capture list
+  private var captures: CaptureGroup!
+  
+  /// Current number of local values/variables
   internal var numLocals: Int = 0
+  
+  /// Maximum number of local values/variables
   private var maxLocals: Int = 0
+  
+  /// List of arguments
   private var arguments: BindingGroup?
+  
+  /// Constant pool
   private var constants: [Expr] = []
-  internal var fragments: [Code] = []
+  
+  /// List of code fragments
+  private var fragments: [Code] = []
+  
+  /// Instruction sequence
   private var instructions: [Instruction] = []
   
+  /// Returns the parent compiler (since `Compiler` objects are nested, e.g. if nested
+  /// functions get compiled)
+  public var parent: Compiler? {
+    return self.captures.parent?.owner
+  }
   
-  public static func compile(context: Context, _ expr: Expr, _ opt: Bool = false) throws -> Code {
+  /// Initializes a compiler object from the given context, environments, and checkpointer.
+  private init(_ context: Context, _ env: Env, _ rulesEnv: Env, _ cp: Checkpointer? = nil) {
+    self.context = context
+    self.env = env
+    self.rulesEnv = rulesEnv
+    self.checkpointer = cp ?? env.bindingGroup?.owner.checkpointer ?? Checkpointer()
+    self.captures = CaptureGroup(owner: self, parent: env.bindingGroup?.owner.captures)
+    self.arguments = nil
+  }
+
+  /// Compiles the given expression `expr` in the environment `env` and the rules environment
+  /// `rulesEnv`. If `optimize` is set to true, the compiler will be invoked twice. The
+  /// information collected in the first phase will be used to optimize the code in the second
+  /// phase.
+  public static func compile(context: Context,
+                             expr: Expr,
+                             in env: Env = .Interaction,
+                             and rulesEnv: Env? = nil,
+                             optimize: Bool = false) throws -> Code {
     let checkpointer = Checkpointer()
-    var compiler = Compiler(context, .Interaction, .Interaction, checkpointer)
+    var compiler = Compiler(context, env, rulesEnv ?? env, checkpointer)
     try compiler.compileBody(expr)
-    if opt {
+    if optimize {
       log(checkpointer.description)
       checkpointer.reset()
-      compiler = Compiler(context, .Interaction, .Interaction, checkpointer)
+      compiler = Compiler(context, env, rulesEnv ?? env, checkpointer)
       try compiler.compileBody(expr)
       log(checkpointer.description)
     }
     return compiler.bundle()
   }
   
-  public init(_ context: Context, _ env: Env, _ rulesEnv: Env? = nil, _ cp: Checkpointer? = nil) {
-    self.context = context
-    self.env = env
-    self.rulesEnv = rulesEnv ?? env
-    self.checkpointer = cp ?? env.bindingGroup?.owner.checkpointer ?? Checkpointer()
-    self.captures = CaptureGroup(owner: self, parent: env.bindingGroup?.owner.captures)
-    self.arguments = nil
-  }
-  
-  public var parent: Compiler? {
-    return self.captures.parent?.owner
-  }
-  
-  public func compileArgList(arglist: Expr) throws {
-    let arguments = BindingGroup(owner: self, parent: self.env, nextIndex: self.nextLocalIndex)
+  /// Compiles the given list of arguments (if this `Compiler` object is used for compiling
+  /// a function).
+  private func compileArgList(arglist: Expr) throws {
+    let arguments = BindingGroup(owner: self, parent: self.env)
     var next = arglist
     loop: while case .Pair(let arg, let cdr) = next {
       switch arg {
@@ -92,9 +129,11 @@ public final class Compiler {
     self.env = .Local(arguments)
   }
   
-  public func compileBody(expr: Expr) throws {
+  /// Compiles the given body of a function (or expression, if this compiler is not used to
+  /// compile a function).
+  private func compileBody(expr: Expr) throws {
     if expr.isNull {
-      self.emit(.PushNull)
+      self.emit(.PushVoid)
       self.emit(.Return)
     } else {
       // Reserve instruction for reserving local variables
@@ -120,6 +159,7 @@ public final class Compiler {
     self.arguments?.finalize()
   }
   
+  /// Allocates a new local value/variable.
   public func nextLocalIndex() -> Int {
     self.numLocals += 1
     if self.numLocals > self.maxLocals {
@@ -128,24 +168,30 @@ public final class Compiler {
     return self.numLocals - 1
   }
   
+  /// Removes the last instruction from the instruction sequence.
   public func removeLastInstr() -> Int {
     self.instructions.removeLast()
     return self.instructions.count - 1
   }
   
+  /// Appends the given instruction to the instruction sequence.
   public func emit(instr: Instruction) -> Int {
     self.instructions.append(instr)
     return self.instructions.count - 1
   }
   
+  /// Replaces the instruction at the position `at` with the instruction `instr`.
   public func patch(instr: Instruction, at: Int) {
     self.instructions[at] = instr
   }
   
+  /// Appends a placeholder instruction to the instruction sequence.
   public func emitPlaceholder() -> Int {
     return self.emit(.NoOp)
   }
   
+  /// Calls a procedure on the stack with `n` arguments. Uses a tail call if `tail` is set
+  /// to true.
   public func call(n: Int, _ tail: Bool) -> Bool {
     if tail {
       self.emit(.TailCall(n))
@@ -156,15 +202,18 @@ public final class Compiler {
     }
   }
   
+  /// Computes the offset between the next instruction and the given instruction pointer `ip`.
   public func offsetToNext(ip: Int) -> Int {
     return self.instructions.count - ip
   }
   
-  /// Push the given expression onto the stack
+  /// Pushes the given expression onto the stack.
   public func pushConstant(expr: Expr) {
     self.emit(.PushConstant(self.registerConstant(expr)))
   }
   
+  /// Attaches the given expression to the constant pool and returns the index into the constant
+  /// pool. `registerConstant` makes sure that expressions are not added twice.
   public func registerConstant(expr: Expr) -> Int {
     for i in self.constants.indices {
       if self.constants[i] == expr {
@@ -175,7 +224,7 @@ public final class Compiler {
     return self.constants.count - 1
   }
   
-  /// Push the value of the given symbol in the given environment onto the stack
+  /// Push the value of the given symbol in the given environment onto the stack.
   public func pushValueOf(sym: Symbol, in env: Env) throws {
     switch self.pushLocalValueOf(sym, in: env) {
       case .Success:
@@ -192,12 +241,25 @@ public final class Compiler {
     }
   }
   
+  /// Result type of `pushLocalValueOf` method.
   public enum LocalLookupResult {
+    
+    /// `Success` indicates that a local value/variable was successfully pushed onto the stack
     case Success
+    
+    /// `MacroExpansionRequired(proc)` indicates that the binding refers to a macro and the
+    /// compiler needs to expand the expression with the macro expander procedure `proc`.
     case MacroExpansionRequired(Procedure)
+    
+    /// `GlobalLookupRequired(gsym, genv)` indicates that a suitable binding wasn't found in the
+    /// local environment and thus a lookup in the global environment `genv` needs to be made via
+    /// symbol `gsym`. Note that `gsym` and `sym` do not necessarily need to be the same due to
+    /// the way how hygienic macro expansion is implemented.
     case GlobalLookupRequired(Symbol, Env)
   }
   
+  /// Pushes the value/variable bound to symbol `sym` in the local environment `env`. If this
+  /// wasn't possible, the method returns an instruction on how to proceed.
   public func pushLocalValueOf(sym: Symbol, in env: Env) -> LocalLookupResult {
     var env = env
     // Iterate through the local binding groups until `sym` is found
@@ -231,51 +293,60 @@ public final class Compiler {
     return .GlobalLookupRequired(sym, env)
   }
   
+  /// Generates instructions to push the given expression onto the stack.
   public func pushValue(expr: Expr) throws {
     switch expr {
-    case .Undef:
-    break // TODO
-    case .Void:
-      self.emit(.PushVoid)
-    case .Eof:
-      self.emit(.PushEof)
-    case .Null:
-      self.emit(.PushNull)
-    case .True:
-      self.emit(.PushTrue)
-    case .False:
-      self.emit(.PushFalse)
-    case .Fixnum(let num):
-      self.emit(.PushFixnum(num))
-    case .Bignum(let num):
-      self.emit(.PushBignum(num))
-    case .Rat(let num):
-      self.emit(.PushRat(num))
-    case .Bigrat(let num):
-      self.emit(.PushBigrat(num))
-    case .Flonum(let num):
-      self.emit(.PushFlonum(num))
-    case .Complexnum(let num):
-      self.emit(.PushComplex(num))
-    case .Char(let char):
-      self.emit(.PushChar(char))
-    case .Sym(_), .Str(_), .Vec(_), .Promise(_), .Proc(_), .Error(_), .Pair(_, _):
-      self.pushConstant(expr)
-    case .Special(_):
-      throw EvalError.IllegalKeywordUsage(expr)
-    case .Var(_):
-      preconditionFailure("cannot compile variables")
+      case .Undef:
+        self.emit(.PushUndef)
+      case .Void:
+        self.emit(.PushVoid)
+      case .Eof:
+        self.emit(.PushEof)
+      case .Null:
+        self.emit(.PushNull)
+      case .True:
+        self.emit(.PushTrue)
+      case .False:
+        self.emit(.PushFalse)
+      case .Fixnum(let num):
+        self.emit(.PushFixnum(num))
+      case .Bignum(let num):
+        self.emit(.PushBignum(num))
+      case .Rat(let num):
+        self.emit(.PushRat(num))
+      case .Bigrat(let num):
+        self.emit(.PushBigrat(num))
+      case .Flonum(let num):
+        self.emit(.PushFlonum(num))
+      case .Complexnum(let num):
+        self.emit(.PushComplex(num))
+      case .Char(let char):
+        self.emit(.PushChar(char))
+      case .Sym(_), .Str(_), .Vec(_), .Promise(_), .Proc(_), .Error(_), .Pair(_, _):
+        self.pushConstant(expr)
+      case .Special(_):
+        throw EvalError.IllegalKeywordUsage(expr)
+      case .Var(_):
+        preconditionFailure("cannot push variables as values")
     }
   }
   
-  /// Set the value of the given symbol in the given environment
+  /// Bind symbol `sym` to the value on top of the stack in environment `env`.
   public func setValueOf(sym: Symbol, in env: Env) {
-    if let _ = self.setLocalValueOf(sym, in: env) {
-      self.emit(.SetGlobal(self.registerConstant(.Sym(sym))))
+    switch self.setLocalValueOf(sym, in: env) {
+      case .Success:
+        break; // Nothing to do
+      case .GlobalLookupRequired(let lexicalSym, _):
+        self.emit(.SetGlobal(self.registerConstant(.Sym(lexicalSym))))
+      case .MacroExpansionRequired(_):
+        preconditionFailure("setting bindings should never trigger macro expansion")
     }
   }
   
-  public func setLocalValueOf(sym: Symbol, in lenv: Env) -> Env? {
+  /// Bind symbol `sym` to the value on top of the stack assuming `lenv` is a local
+  /// environment (i.e. the bindings are located on the stack). If this
+  /// wasn't possible, the method returns an instruction on how to proceed.
+  public func setLocalValueOf(sym: Symbol, in lenv: Env) -> LocalLookupResult {
     var env = lenv
     // Iterate through the local binding groups until `sym` is found
     while case .Local(let group) = env {
@@ -286,7 +357,7 @@ public final class Compiler {
           self.emit(.SetCapturedValue(self.captures.capture(binding, from: group)))
         }
         binding.wasMutated()
-        return nil
+        return .Success
       }
       env = group.parent
     }
@@ -294,7 +365,7 @@ public final class Compiler {
     if let (lexicalSym, lexicalEnv) = sym.lexical {
       return self.setLocalValueOf(lexicalSym, in: lexicalEnv)
     }
-    return env
+    return .GlobalLookupRequired(sym, lenv)
   }
   
   /// Compile expression `expr` in environment `env`. Parameter `tail` specifies if `expr`
@@ -374,6 +445,10 @@ public final class Compiler {
   /// specifies if `expr` is located in a tail position. This allows compile to generate
   /// code with tail calls.
   public func compileSeq(expr: Expr, in env: Env, inTailPos tail: Bool) throws -> Bool {
+    guard !expr.isNull else {
+      self.emit(.PushVoid)
+      return false
+    }
     var first = true
     var exit = false
     var next = expr
@@ -415,7 +490,7 @@ public final class Compiler {
                               in lenv: Env,
                               atomic: Bool,
                               predef: Bool) throws -> BindingGroup {
-    let group = BindingGroup(owner: self, parent: lenv, nextIndex: self.nextLocalIndex)
+    let group = BindingGroup(owner: self, parent: lenv)
     let env = atomic && !predef ? lenv : .Local(group)
     var bindings = bindingList
     if predef {
@@ -457,6 +532,9 @@ public final class Compiler {
     return group
   }
   
+  /// Binds a list of keywords to macro transformers in the given local environment `lenv`.
+  /// If `recursive` is set to true, the macro transformers are evaluated in an environment that
+  /// includes their own definition.
   public func compileMacros(bindingList: Expr,
                             in lenv: Env,
                             recursive: Bool) throws -> BindingGroup {
@@ -489,9 +567,12 @@ public final class Compiler {
     return group
   }
   
+  /// Compiles a closure consisting of a list of formal arguments `arglist`, a list of
+  /// expressions `body`, and a local environment `env`. It puts the closure on top of the
+  /// stack.
   public func compileProc(arglist: Expr, _ body: Expr, _ env: Env) throws {
     // Create closure compiler as child of the current compiler
-    let closureCompiler = Compiler(self.context, env, nil, self.checkpointer)
+    let closureCompiler = Compiler(self.context, env, env, self.checkpointer)
     // Compile arguments
     try closureCompiler.compileArgList(arglist)
     // Compile body
@@ -514,9 +595,11 @@ public final class Compiler {
     self.emit(.MakeClosure(closureCompiler.captures.count, codeIndex))
   }
   
-  /// Bundle the generated code into a `Code` object.
+  /// Bundles the code generated by this compiler into a `Code` object.
   public func bundle() -> Code {
+    // Performce peephole optimization
     self.optimize()
+    // Create code object
     return Code(self.instructions, self.constants, self.fragments)
   }
   
