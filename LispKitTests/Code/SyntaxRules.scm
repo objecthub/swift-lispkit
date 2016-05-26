@@ -103,3 +103,15 @@
   (define (square x) (* x x))
   (cond1 10 => square)
 )
+
+(
+  "Multi recursion"
+  2
+  (define-syntax reverse-form
+    (syntax-rules ()
+      ((_ (e ...)) (reverse-form (e ...) ()))
+      ((_ e) e)
+      ((_ (h . t) r) (reverse-form t ((reverse-form h) . r)))
+      ((_ () r) r)))
+  (reverse-form ((3 8 -) 7 -))
+)

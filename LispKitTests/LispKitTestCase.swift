@@ -127,10 +127,10 @@ class LispKitTestCase: XCTestCase {
     for test in tests {
       print("-----------------------")
       print("source: \(test.source)")
-      print("result: \(self.context!.machine.evalExprs(test.source))")
-      XCTAssertEqual(self.context!.machine.evalExprs(test.source),
-                     test.target,
-                     test.description)
+      print("target: \(test.target)")
+      let res = self.context!.machine.evalExprs(test.source)
+      print("result: \(res)")
+      XCTAssertEqual(res, test.target, test.description)
       assertStackEmpty(test.description)
     }
   }

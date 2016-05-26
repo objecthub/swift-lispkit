@@ -45,7 +45,7 @@ public class SyntaxRules {
     log("---- EXPAND: \(input)") //DEBUG
     for index in self.patterns.indices {
       if let matches = self.match(self.patterns[index], with: input) {
-        return try self.instantiate(self.templates[index], with: matches)
+        return try self.instantiate(self.templates[index], with: matches, at: 0)
       }
     }
     return input // TODO: should we throw an error instead?
@@ -93,7 +93,7 @@ public class SyntaxRules {
           }
           pat = rest
         }
-        return inp.isNull
+        return self.match(pat, with: inp, in: matches, at: depth)
       case .Vec(let patVector):
         guard case .Vec(let inpVector) = input else {
           return false
@@ -123,8 +123,8 @@ public class SyntaxRules {
     }
   }
   
-  private func instantiate(template: Expr, with matches: Matches, at depth: Int = 0) throws -> Expr {
-    // print("INSTANTIATE: \(template) USING: \(matches) DEPTH: \(depth) IGNORE: \(ignoreEllipses)")
+  private func instantiate(template: Expr, with matches: Matches, at depth: Int) throws -> Expr {
+    // print("INSTANTIATE: \(template) USING: \(matches) DEPTH: \(depth)")
     switch template {
       case .Sym(let sym):
         return matches.get(sym, in: self.lexicalEnv)
@@ -309,7 +309,12 @@ private final class Matches: CustomStringConvertible {
 private final class MatchTree: CustomStringConvertible {
   var root: Node = Node()
   var depth: Int = 0
-  lazy var pos: [Int] = [Int](count: self.depth + 1, repeatedValue: 0)
+  var complete: Bool = false
+  lazy var pos: [Int] = {
+    [unowned self] in
+      self.complete = true
+      return [Int](count: self.depth + 1, repeatedValue: 0)
+  }()
   
   private enum Node: CustomStringConvertible {
     case Leaf(Expr)
@@ -414,10 +419,12 @@ private final class MatchTree: CustomStringConvertible {
   }
   
   private var description: String {
-    var res = "<\(self.depth); \(self.root); "
-    for idx in pos {
-      res += " \(idx)"
+    var res = "(\(self.depth); \(self.root); "
+    if self.complete {
+      for idx in self.pos {
+        res += " \(idx)"
+      }
     }
-    return res + ">"
+    return res + ")"
   }
 }

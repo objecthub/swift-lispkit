@@ -412,10 +412,8 @@ public final class Compiler {
             // Push function from global binding
             self.emit(.PushGlobal(self.registerConstant(.Sym(lexicalSym))))
           case .MacroExpansionRequired(let transformer):
-            let expanded = try
-              self.checkpointer.expansion(cp) ??
-              self.context.machine.apply(.Proc(transformer), to: .Pair(cdr, .Null), in: env)
-            self.checkpointer.associate(.Expansion(expanded), with: cp)
+            let expanded =
+              try self.context.machine.apply(.Proc(transformer), to: .Pair(cdr, .Null), in: env)
             log("expanded = \(expanded)")
             return try self.compile(expanded, in: env, inTailPos: tail)
         }

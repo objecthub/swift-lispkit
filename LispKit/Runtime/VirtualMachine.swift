@@ -84,7 +84,7 @@ public final class VirtualMachine: TrackedObject {
   
   /// Loads the file at file patch `path`, compiles it in the interaction environment, and
   /// executes it using this virtual machine.
-  public func evalFile(path: String) -> Expr {
+  public func evalFile(path: String, optimize: Bool = true) -> Expr {
     do {
       return self.evalStr(try String(contentsOfFile: path, encoding: NSUTF8StringEncoding))
     } catch let error as NSError {
@@ -94,38 +94,45 @@ public final class VirtualMachine: TrackedObject {
   
   /// Parses the given string, compiles it in the interaction environment, and executes it using
   /// this virtual machine.
-  public func evalStr(str: String) -> Expr {
+  public func evalStr(str: String, optimize: Bool = true) -> Expr {
     do {
       let parser = Parser(symbols: self.context.symbols, src: str)
       var exprs = Exprs()
       while !parser.finished {
         exprs.append(try parser.parse())
       }
-      let code = try Compiler.compile(self.context, expr: .List(exprs), optimize: true)
-      log(code.description)
-      return try self.execute(code)
+      return self.evalExprs(.List(exprs), optimize: optimize)
     } catch let error as LispError { // handle Lisp-related issues
       return .Error(AnyError(error))
     } catch { // handle internal issues
       // TODO: Figure out what needs to be logged here
-      print("UNKNOWN ERROR in Evaluator.evalExprProvidedBy")
+      print("UNKNOWN ERROR in Evaluator.evalStr")
       return .Undef
     }
   }
   
   /// Compiles the given expression in the interaction environment and executes it using this
   /// virtual machine.
-  public func evalExpr(expr: Expr) -> Expr {
-    return self.evalExprs(.List(expr))
+  public func evalExpr(expr: Expr, optimize: Bool = true) -> Expr {
+    return self.evalExprs(.List(expr), optimize: optimize)
   }
   
   /// Compiles the given list of expressions in the interaction environment and executes
   /// it using this virtual machine.
-  public func evalExprs(exprs: Expr) -> Expr {
+  public func evalExprs(exprs: Expr, optimize: Bool = true) -> Expr {
     do {
-      let code = try Compiler.compile(self.context, expr: exprs, optimize: false)
-      // context.console.printStr(code.description)
-      return try self.execute(code)
+      var exprlist = exprs
+      var res = Expr.Void
+      while case .Pair(let expr, let rest) = exprlist {
+        let code = try Compiler.compile(self.context, expr: .List(expr), optimize: optimize)
+        log(code.description)
+        res = try self.execute(code)
+        exprlist = rest
+      }
+      guard exprlist.isNull else {
+        throw EvalError.TypeError(exprs, [.ProperListType])
+      }
+      return res
     } catch let error as LispError { // handle Lisp-related issues
       return .Error(AnyError(error))
     } catch let error as NSError { // handle OS-related issues

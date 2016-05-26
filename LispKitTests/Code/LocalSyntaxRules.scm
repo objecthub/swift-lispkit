@@ -1,6 +1,6 @@
-;;; SyntaxRules.scm
+;;; LocalSyntaxRules.scm
 ;;; Regression test data
-;;;
+;;; 
 ;;; Author: Matthias Zenger
 ;;; Copyright © 2016 ObjectHub. All rights reserved.
 ;;;
