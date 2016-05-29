@@ -246,9 +246,15 @@ public final class BaseLibrary: Library {
   //-------- MARK: - Definition primitives
   
   func compileDefine(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    // Extract signature and definition
     guard case .Pair(_, .Pair(let sig, let def)) = expr else {
       throw EvalError.LeastArgumentCountError(formals: 2, args: expr)
     }
+    // Check that define is not executed in a local environment
+    if case .Local(let group) = env {
+      throw EvalError.DefineInLocalEnv(signature: sig, definition: def, group: group)
+    }
+    // Compile definition and store result in global environment
     switch sig {
       case .Sym(_):
         guard case .Pair(let value, .Null) = def else {
@@ -271,12 +277,19 @@ public final class BaseLibrary: Library {
   }
   
   func compileDefineSyntax(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    // Extract keyword and transformer definition
     guard case .Pair(_, .Pair(let kword, .Pair(let transformer, .Null))) = expr else {
       throw EvalError.ArgumentCountError(formals: 2, args: expr)
     }
-    guard case .Sym(_) = kword else {
+    // Check that the keyword is a symbol
+    guard case .Sym(let sym) = kword else {
       throw EvalError.TypeError(kword, [.SymbolType])
     }
+    // Check that define is not executed in a local environment
+    if case .Local(let group) = env {
+      throw EvalError.DefineSyntaxInLocalEnv(keyword: sym, definition: transformer, group: group)
+    }
+    // Compile transformer and store it as global keyword
     let index = compiler.registerConstant(kword)
     try compiler.compile(transformer, in: env, inTailPos: false)
     compiler.emit(.MakeSyntax)

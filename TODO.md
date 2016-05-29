@@ -10,7 +10,7 @@ Last update: 2016-05-21
       forms with bindings twice, if the first run shows that a binding is mutable)
 - [ ] Optimize letrec; only use variables if bindings are mutable or if there is a forward
       reference.
-- [ ] Support (define ...) in control flow special forms
+- [X] Support (define ...) in control flow special forms
 - [ ] Refactor creation of compiler; checkpointer needs to be always passed explicitly
 
 

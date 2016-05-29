@@ -26,6 +26,14 @@ import XCTest
 /// regression test.
 ///
 class RegressionTests: LispKitTestCase {
+  
+  func testDefinitions() {
+    self.executeTests("Definitions")
+  }
+  
+  func testControlFlow() {
+    self.executeTests("ControlFlow")
+  }
 
   func testSyntaxRules() {
     self.executeTests("SyntaxRules")

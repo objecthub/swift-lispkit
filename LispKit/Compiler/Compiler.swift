@@ -147,7 +147,7 @@ public final class Compiler {
         }
       }
       // Compile body
-      if !(try compileSeq(expr, in: self.env, inTailPos: true)) {
+      if !(try compileSeq(expr, in: self.env, inTailPos: true, localDefine: false)) {
         self.emit(.Return)
       }
       // Insert instruction to reserve local variables
@@ -293,6 +293,28 @@ public final class Compiler {
     return .GlobalLookupRequired(sym, env)
   }
   
+  /// Pushes the value/variable bound to symbol `sym` in the local environment `env`. If this
+  /// wasn't possible, the method returns an instruction on how to proceed.
+  public func lookupLocalValueOf(sym: Symbol, in env: Env) -> LocalLookupResult {
+    var env = env
+    // Iterate through the local binding groups until `sym` is found
+    while case .Local(let group) = env {
+      if let binding = group.bindingFor(sym) {
+        if case .Macro(let proc) = binding.kind {
+          return .MacroExpansionRequired(proc)
+        }
+        return .Success
+      }
+      env = group.parent
+    }
+    // If `sym` wasn't found, look into the lexical environment
+    if let (lexicalSym, lexicalEnv) = sym.lexical {
+      return self.lookupLocalValueOf(lexicalSym, in: lexicalEnv)
+    }
+    // Return global scope
+    return .GlobalLookupRequired(sym, env)
+  }
+  
   /// Generates instructions to push the given expression onto the stack.
   public func pushValue(expr: Expr) throws {
     switch expr {
@@ -370,6 +392,49 @@ public final class Compiler {
   
   /// Compile expression `expr` in environment `env`. Parameter `tail` specifies if `expr`
   /// is located in a tail position. This allows compile to generate code with tail calls.
+  public func expand(expr: Expr, in env: Env) throws -> Expr {
+    switch expr {
+      case .Pair(.Sym(let sym), let cdr):
+        let cp = self.checkpointer.checkpoint()
+        switch self.lookupLocalValueOf(sym, in: env) {
+          case .Success:
+            return expr
+          case .GlobalLookupRequired(let lexicalSym, let global):
+            if let value = self.checkpointer.fromGlobalEnv(cp) ??
+                           global.scope(self.context)[lexicalSym] {
+              self.checkpointer.associate(.FromGlobalEnv(value), with: cp)
+              switch value {
+                case .Special(let special):
+                  switch special.kind {
+                    case .Primitive(_):
+                      return expr
+                    case .Macro(let transformer):
+                      let expanded = try
+                        self.checkpointer.expansion(cp) ??
+                        self.context.machine.apply(.Proc(transformer), to: .Pair(cdr, .Null), in: env)
+                      self.checkpointer.associate(.Expansion(expanded), with: cp)
+                      log("expanded = \(expanded)")
+                      return expanded
+                  }
+                default:
+                  return expr
+              }
+            } else {
+              return expr
+            }
+          case .MacroExpansionRequired(let transformer):
+            let expanded =
+              try self.context.machine.apply(.Proc(transformer), to: .Pair(cdr, .Null), in: env)
+            log("expanded = \(expanded)")
+            return expanded
+        }
+      default:
+        return expr
+    }
+  }
+  
+  /// Compile expression `expr` in environment `env`. Parameter `tail` specifies if `expr`
+  /// is located in a tail position. This allows compile to generate code with tail calls.
   public func compile(expr: Expr, in env: Env, inTailPos tail: Bool) throws -> Bool {
     let cp = self.checkpointer.checkpoint()
     switch expr {
@@ -439,31 +504,6 @@ public final class Compiler {
     return false
   }
   
-  /// Compile the sequence of expressions `expr` in environment `env`. Parameter `tail`
-  /// specifies if `expr` is located in a tail position. This allows compile to generate
-  /// code with tail calls.
-  public func compileSeq(expr: Expr, in env: Env, inTailPos tail: Bool) throws -> Bool {
-    guard !expr.isNull else {
-      self.emit(.PushVoid)
-      return false
-    }
-    var first = true
-    var exit = false
-    var next = expr
-    while case .Pair(let car, let cdr) = next {
-      if !first {
-        self.emit(.Pop)
-      }
-      exit = try self.compile(car, in: env, inTailPos: tail && cdr.isNull)
-      first = false
-      next = cdr
-    }
-    guard next.isNull else {
-      throw EvalError.TypeError(expr, [.ProperListType])
-    }
-    return exit
-  }
-  
   /// Compile the given list of expressions `expr` in environment `env` and push each result
   /// onto the stack. This method returns the number of expressions that were evaluated and
   /// whose result has been stored on the stack.
@@ -479,6 +519,87 @@ public final class Compiler {
       throw EvalError.TypeError(expr, [.ProperListType])
     }
     return n
+  }
+  
+  /// Compile the sequence of expressions `expr` in environment `env`. Parameter `tail`
+  /// specifies if `expr` is located in a tail position. This allows the compiler to generate
+  /// code with tail calls.
+  public func compileSeq(expr: Expr,
+                         in env: Env, inTailPos tail: Bool,
+                         localDefine: Bool = true) throws -> Bool {
+    // Return void for empty sequences
+    guard !expr.isNull else {
+      self.emit(.PushVoid)
+      return false
+    }
+    // Partially expand expressions in the sequence
+    var next = expr
+    var exprs = Exprs()
+    while case .Pair(let car, let cdr) = next {
+      exprs.append(localDefine ? try self.expand(car, in: env) : car)
+      next = cdr
+    }
+    // Throw error if the sequence is not a proper list
+    guard next.isNull else {
+      throw EvalError.TypeError(expr, [.ProperListType])
+    }
+    // Identify internal definitions
+    var i = 0
+    var bindings = Exprs()
+    if localDefine {
+      loop: while i < exprs.count {
+        guard case .Pair(.Sym(let fun), let binding) = exprs[i]
+              where fun.interned == self.context.symbols.DEFINE &&
+                    env.systemDefined(fun, in: self.context) else {
+          break loop
+        }
+        // Distinguish value definitions from function definitions
+        switch binding {
+          case .Pair(.Sym(let sym), .Pair(let def, .Null)):
+            bindings.append(.Pair(.Sym(sym), .Pair(def, .Null)))
+          case .Pair(.Pair(.Sym(let sym), let args), .Pair(let def, .Null)):
+            bindings.append(
+              .Pair(.Sym(sym), .Pair(.Pair(.Sym(Symbol(self.context.symbols.LAMBDA, .System)),
+                                           .Pair(args, .Pair(def, .Null))),
+                                     .Null)))
+          default:
+            break loop
+        }
+        i += 1
+      }
+    }
+    // Compile the sequence
+    var exit = false
+    if i == 0 {
+      // Compilation with no internal definitions
+      while i < exprs.count {
+        if i > 0 {
+          self.emit(.Pop)
+        }
+        exit = try self.compile(exprs[i], in: env, inTailPos: tail && (i == exprs.count - 1))
+        i += 1
+      }
+      return exit
+    } else {
+      // Compilation with internal definitions
+      let initialLocals = self.numLocals
+      let group = try self.compileBindings(.List(bindings), in: env, atomic: true, predef: true)
+      let lenv = Env(group)
+      var first = true
+      while i < exprs.count {
+        if !first {
+          self.emit(.Pop)
+        }
+        exit = try self.compile(exprs[i], in: lenv, inTailPos: tail && (i == exprs.count - 1))
+        first = false
+        i += 1
+      }
+      // Push void in case there is no non-define expression left
+      if first {
+        self.emit(.PushVoid)
+      }
+      return self.finalizeBindings(group, exit: exit, initialLocals: initialLocals)
+    }
   }
   
   /// Compiles the given binding list of the form
@@ -528,6 +649,18 @@ public final class Compiler {
       throw EvalError.MalformedBindings(nil, bindingList)
     }
     return group
+  }
+  
+  /// This function should be used for finalizing the compilation of blocks with local
+  /// bindings. It finalizes the binding group and resets the local bindings so that the
+  /// garbage collector can deallocate the objects that are not used anymore.
+  public func finalizeBindings(group: BindingGroup, exit: Bool, initialLocals: Int) -> Bool {
+    group.finalize()
+    if !exit && self.numLocals > initialLocals {
+      self.emit(.Reset(initialLocals, self.numLocals - initialLocals))
+    }
+    self.numLocals = initialLocals
+    return exit
   }
   
   /// Binds a list of keywords to macro transformers in the given local environment `lenv`.

@@ -41,6 +41,10 @@ public final class Symbol: Reference, CustomStringConvertible {
     self.kind = .Generated(sym, env.weakEnv)
   }
   
+  public var identifier: String {
+    return self.interned.description
+  }
+  
   public var isGenerated: Bool {
     switch self.kind {
       case .Interned(_):

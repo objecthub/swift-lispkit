@@ -32,6 +32,7 @@ public enum Env: CustomStringConvertible {
   case Interaction
   case Local(BindingGroup)
   
+  /// Initializes a local environment
   public init(_ group: BindingGroup?) {
     if group == nil {
       self = Interaction
@@ -40,6 +41,7 @@ public enum Env: CustomStringConvertible {
     }
   }
   
+  /// Is this an environment for the system scope?
   public var isSystem: Bool {
     if case System = self {
       return true
@@ -47,13 +49,16 @@ public enum Env: CustomStringConvertible {
     return false
   }
   
+  /// Is this an environment for the interaction scope?
   public var isInteraction: Bool {
-    if case System = self {
+    if case Interaction = self {
       return true
     }
     return false
   }
   
+  /// Is this an expired environment? Expired environments play a role for environments
+  /// derived from weak environments (which are needed for making the macro mechanism work).
   public var isExpired: Bool {
     if case Expired = self {
       return true
@@ -61,6 +66,7 @@ public enum Env: CustomStringConvertible {
     return false
   }
   
+  /// Is this a local environment?
   public var isLocal: Bool {
     if case Local(_) = self {
       return true
@@ -68,6 +74,24 @@ public enum Env: CustomStringConvertible {
     return false
   }
   
+  /// Is this symbol defined in the system scope?
+  public func systemDefined(sym: Symbol, in context: Context) -> Bool {
+    var env = self
+    while case .Local(let group) = env {
+      if group.bindingFor(sym) != nil {
+        return false
+      }
+      env = group.parent
+    }
+    if let (lexicalSym, lexicalEnv) = sym.lexical {
+      return lexicalEnv.systemDefined(lexicalSym, in: context)
+    }
+    return env.scope(context).scopeWithBindingFor(sym) === context.systemScope
+  }
+  
+  /// Is this environment in scope of environment `env`? An environment is in scope of
+  /// another environment is an "outer" environment for the other environment. As a consequence,
+  /// the system environment is in scope of all other environments.
   public func inScopeOf(env: Env) -> Bool {
     switch (self, env) {
       case (System, _):
@@ -81,6 +105,7 @@ public enum Env: CustomStringConvertible {
     }
   }
   
+  /// Returns the binding group of a local environment.
   public var bindingGroup: BindingGroup? {
     guard case .Local(let group) = self else {
       return nil
@@ -88,6 +113,7 @@ public enum Env: CustomStringConvertible {
     return group
   }
   
+  /// Returns the scope for global environments.
   public func scope(context: Context) -> Scope {
     switch self {
       case Expired, Local(_):
@@ -99,6 +125,11 @@ public enum Env: CustomStringConvertible {
     }
   }
   
+  /// Returns a weak environment that matches this environment. Only weak environments can be
+  /// used for persisting an environment, e.g. in an expression or a generated symbol.
+  /// Converting weak environments back into regular environments is possible, but is subject
+  /// to expirations if the binding group of a local environment gets out of scope (i.e.
+  /// compilation has passed on).
   public var weakEnv: WeakEnv {
     switch self {
       case Expired:
@@ -112,6 +143,8 @@ public enum Env: CustomStringConvertible {
     }
   }
   
+  /// Creates a "meta environment" from a compilation environment for executing syntax
+  /// transformers.
   public var syntacticalEnv: Env {
     switch self {
       case Expired:
@@ -125,19 +158,23 @@ public enum Env: CustomStringConvertible {
     }
   }
   
+  /// Returns a unique identifier for this symbol in the given environment. This can,
+  /// for instance, be used to print symbols such that generated and interned symbols
+  /// can be distinguished.
   public func rename(sym: Symbol) -> String {
     switch self {
       case Expired:
-        return sym.description + "@x"
+        return sym.identifier + "@x"
       case System:
-        return sym.description + "@s"
+        return sym.identifier + "@s"
       case Interaction:
-        return sym.description + "@i"
+        return sym.identifier + "@i"
       case Local(let group):
-        return sym.description + "@" + String(ObjectIdentifier(group).uintValue, radix: 16)
+        return sym.identifier + "@" + String(ObjectIdentifier(group).uintValue, radix: 16)
     }
   }
   
+  /// Returns a string representation of this environment.
   public var description: String {
     switch self {
       case Expired:
@@ -152,11 +189,16 @@ public enum Env: CustomStringConvertible {
   }
 }
 
+/// Weak environments are used to persist environments during the macro expansion process,
+/// for instance in generated symbols. They can be mapped back to regular environments via the
+/// `env` method. If this happens outside of the compilation context, the original environment
+/// has expired and `env` returns an expired environment.
 public enum WeakEnv: Hashable {
   case System
   case Interaction
   case Local(WeakBox<BindingGroup>)
   
+  /// Returns a regular environment for this weak environment.
   public var env: Env {
     switch self {
       case System:
@@ -168,6 +210,7 @@ public enum WeakEnv: Hashable {
     }
   }
   
+  /// Hash value of this weak environment
   public var hashValue: Int {
     switch self {
       case System:
@@ -180,6 +223,9 @@ public enum WeakEnv: Hashable {
   }
 }
 
+/// Compares two weak environments. Two weak environments are the same if they have the same
+/// type (i.e. same enumeration case) and for local environments, the bindings groups are
+/// identical (same object).
 public func ==(lhs: WeakEnv, rhs: WeakEnv) -> Bool {
   switch (lhs, rhs) {
     case (.System, .System):

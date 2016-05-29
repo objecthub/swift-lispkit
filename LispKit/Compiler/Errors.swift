@@ -89,16 +89,16 @@ public enum LispErrorType: Int, Hashable, CustomStringConvertible {
   
   public var description: String {
     switch self {
-    case LexicalError:
-      return "lexical error"
-    case SyntaxError:
-      return "syntax error"
-    case EvalError:
-      return "eval error"
-    case OsError:
-      return "os error"
-    case CustomError:
-      return "custom error"
+      case LexicalError:
+        return "lexical error"
+      case SyntaxError:
+        return "syntax error"
+      case EvalError:
+        return "eval error"
+      case OsError:
+        return "os error"
+      case CustomError:
+        return "custom error"
     }
   }
 }
@@ -252,6 +252,8 @@ public enum EvalError: LispError {
   case ArgumentCountError(formals: Int, args: Expr)
   case LeastArgumentCountError(formals: Int, args: Expr)
   case OutOfScope(Expr)
+  case DefineInLocalEnv(signature: Expr, definition: Expr, group: BindingGroup)
+  case DefineSyntaxInLocalEnv(keyword: Symbol, definition: Expr, group: BindingGroup)
   
   public var kind: String {
     return "eval error"
@@ -343,6 +345,10 @@ public enum EvalError: LispError {
         return "expected at least \(formals), but received only \(exprs.count) arguments: \(args)"
       case OutOfScope(let syntax):
         return "out of scope evaluation of \(syntax)"
+      case DefineInLocalEnv(let sig, _, _):
+        return "definition of \(sig) in local environment"
+      case DefineSyntaxInLocalEnv(let sym, _, _):
+        return "syntax definition of \(sym) in local environment"
     }
   }
   
@@ -368,7 +374,7 @@ public enum EvalError: LispError {
         case (UnboundVariable(let sym1), UnboundVariable(let sym2)):
           return sym1 == sym2
         case (VariableNotYetInitialized(let sym1), VariableNotYetInitialized(let sym2)):
-        return sym1 == sym2
+          return sym1 == sym2
         case (MalformedArgumentList(let a1), MalformedArgumentList(let a2)):
           return a1 == a2
         case (MalformedDefinition(let def1), MalformedDefinition(let def2)):
@@ -419,6 +425,12 @@ public enum EvalError: LispError {
           return fml1 == fml2 && a1 == a2
         case (OutOfScope(let e1), OutOfScope(let e2)):
           return e1 == e2
+        case (DefineInLocalEnv(let sig1, let def1, let g1),
+              DefineInLocalEnv(let sig2, let def2, let g2)):
+          return sig1 == sig2 && def1 == def2 && g1 == g2
+        case (DefineSyntaxInLocalEnv(let sym1, let def1, let g1),
+              DefineSyntaxInLocalEnv(let sym2, let def2, let g2)):
+          return sym1 == sym2 && def1 == def2 && g1 == g2
         default:
           return false
       }

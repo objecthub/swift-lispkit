@@ -106,12 +106,7 @@ func compileLetStar(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws
     case .Pair(_, _):
       let group = try compiler.compileBindings(first, in: env, atomic: false, predef: false)
       let res = try compiler.compileSeq(body, in: Env(group), inTailPos: tail)
-      group.finalize()
-      if !res && compiler.numLocals > initialLocals {
-        compiler.emit(.Reset(initialLocals, compiler.numLocals - initialLocals))
-      }
-      compiler.numLocals = initialLocals
-      return res
+      return compiler.finalizeBindings(group, exit: res, initialLocals: initialLocals)
     default:
       throw EvalError.TypeError(first, [.ListType])
   }
@@ -128,12 +123,7 @@ func compileLetRec(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws 
     case .Pair(_, _):
       let group = try compiler.compileBindings(first, in: env, atomic: true, predef: true)
       let res = try compiler.compileSeq(body, in: Env(group), inTailPos: tail)
-      group.finalize()
-      if !res && compiler.numLocals > initialLocals {
-        compiler.emit(.Reset(initialLocals, compiler.numLocals - initialLocals))
-      }
-      compiler.numLocals = initialLocals
-      return res
+      return compiler.finalizeBindings(group, exit: res, initialLocals: initialLocals)
     default:
       throw EvalError.TypeError(first, [.ListType])
   }

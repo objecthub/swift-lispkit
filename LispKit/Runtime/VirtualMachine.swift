@@ -34,6 +34,7 @@ import Darwin
 ///    │        ...        │
 ///    ╞═══════════════════╡
 ///    │        ...        │
+///    │ Stack value 1     │
 ///    │ Stack value 0     │
 ///    │ Local variable 1  │
 ///    │ Local variable 0  │  ⟸ fp + args

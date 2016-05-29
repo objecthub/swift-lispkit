@@ -1,4 +1,5 @@
-;;; Prelude for LispKit
+;;; Definitions.scm
+;;; Regression test data
 ;;;
 ;;; Author: Matthias Zenger
 ;;; Copyright © 2016 ObjectHub. All rights reserved.
@@ -15,26 +16,25 @@
 ;;; See the License for the specific language governing permissions and
 ;;; limitations under the License.
 
+(
+  "Mixed global local definitions"
+  111
+  (define bar 1)
+  (+ (begin (define (foo n) (+ n bar))
+            (define bar 100)
+            (foo 10))
+     bar)
+)
 
-(define-syntax for
-  (syntax-rules (in from)
-    ((for element in list body ...) (map (lambda (element) body ...) list))
-    ((for element from (x ...) body ...) (map (lambda (element) body ...) (list x ...)))))
-
-(define-syntax while
-  (syntax-rules ()
-    ((while condition body ...)
-      (let loop ()
-        (if condition
-            (begin
-              body ...
-              (loop))
-            #f)))))
-
-(define first car)
-
-
-;;; Scratch (for testing)
-
-(define (fib n)
-  (if (< n 2) n (+ (fib (- n 1)) (fib (- n 2)))))
+(
+  "Definitions via syntax rules"
+  111
+  (define-syntax declare
+    (syntax-rules ()
+      ((_ f e) (define f e))))
+  (declare baz 1)
+  (+ (begin (define (foo n) (+ n baz))
+            (declare baz 100)
+            (foo 10))
+     baz)
+)
