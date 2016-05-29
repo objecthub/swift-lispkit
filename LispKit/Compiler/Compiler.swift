@@ -68,11 +68,14 @@ public final class Compiler {
   }
   
   /// Initializes a compiler object from the given context, environments, and checkpointer.
-  private init(_ context: Context, _ env: Env, _ rulesEnv: Env, _ cp: Checkpointer? = nil) {
+  private init(_ context: Context,
+               in env: Env,
+               and rulesEnv: Env,
+               usingCheckpointer cp: Checkpointer) {
     self.context = context
     self.env = env
     self.rulesEnv = rulesEnv
-    self.checkpointer = cp ?? env.bindingGroup?.owner.checkpointer ?? Checkpointer()
+    self.checkpointer = cp
     self.captures = CaptureGroup(owner: self, parent: env.bindingGroup?.owner.captures)
     self.arguments = nil
   }
@@ -87,12 +90,12 @@ public final class Compiler {
                              and rulesEnv: Env? = nil,
                              optimize: Bool = false) throws -> Code {
     let checkpointer = Checkpointer()
-    var compiler = Compiler(context, env, rulesEnv ?? env, checkpointer)
+    var compiler = Compiler(context, in: env, and: rulesEnv ?? env, usingCheckpointer: checkpointer)
     try compiler.compileBody(expr)
     if optimize {
       log(checkpointer.description)
       checkpointer.reset()
-      compiler = Compiler(context, env, rulesEnv ?? env, checkpointer)
+      compiler = Compiler(context, in: env, and: rulesEnv ?? env, usingCheckpointer: checkpointer)
       try compiler.compileBody(expr)
       log(checkpointer.description)
     }
@@ -703,7 +706,10 @@ public final class Compiler {
   /// stack.
   public func compileProc(arglist: Expr, _ body: Expr, _ env: Env) throws {
     // Create closure compiler as child of the current compiler
-    let closureCompiler = Compiler(self.context, env, env, self.checkpointer)
+    let closureCompiler = Compiler(self.context,
+                                   in: env,
+                                   and: env,
+                                   usingCheckpointer: self.checkpointer)
     // Compile arguments
     try closureCompiler.compileArgList(arglist)
     // Compile body

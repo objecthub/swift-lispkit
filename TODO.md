@@ -1,6 +1,6 @@
 # Todo
 
-Last update: 2016-05-21
+Last update: 2016-05-29
 
 
 ## Compiler
@@ -11,7 +11,7 @@ Last update: 2016-05-21
 - [ ] Optimize letrec; only use variables if bindings are mutable or if there is a forward
       reference.
 - [X] Support (define ...) in control flow special forms
-- [ ] Refactor creation of compiler; checkpointer needs to be always passed explicitly
+- [X] Refactor creation of compiler; checkpointer needs to be always passed explicitly
 
 
 ## Runtime
