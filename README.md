@@ -1,5 +1,9 @@
 # Swift LispKit
 
+<p>
+<a href="https://developer.apple.com/swift"><img src="https://img.shields.io/badge/Swift%202.2-compatible-orange.svg?style=flat" alt="Swift 2 compatible" /></a>
+<a href="https://raw.githubusercontent.com/objecthub/swift-lispkit/master/LICENSE"><img src="http://img.shields.io/badge/License-Apache-blue.svg?style=flat" alt="License: Apache" /></a>
+</p>
 
 ## Overview
 
