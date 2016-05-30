@@ -23,8 +23,13 @@
 /// equality and the hash value.
 ///
 public class Reference: Hashable {
+  
+  public var identity: UInt {
+    return ObjectIdentifier(self).uintValue
+  }
+  
   public var hashValue: Int {
-    return unsafeAddressOf(self).hashValue
+    return ObjectIdentifier(self).hashValue
   }
 }
 

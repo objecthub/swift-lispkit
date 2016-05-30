@@ -40,5 +40,5 @@ Last update: 2016-05-29
 
 - [ ] Document architecture of framework
 - [ ] Document components of virtual machine
-- [ ] Document bytecode instructions
+- [X] Document bytecode instructions
 - [ ] Document supported Scheme procedures and special forms

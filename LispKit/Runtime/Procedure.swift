@@ -129,7 +129,7 @@ public final class Procedure: Reference, CustomStringConvertible {
   
   /// A textual description
   public var description: String {
-    return "proc#" + String(unsafeAddressOf(self).hashValue, radix: 16)
+    return "proc#" + String(self.identity, radix: 16)
   }
 }
 

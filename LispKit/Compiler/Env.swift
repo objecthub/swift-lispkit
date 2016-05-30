@@ -170,7 +170,7 @@ public enum Env: CustomStringConvertible {
       case Interaction:
         return sym.identifier + "@i"
       case Local(let group):
-        return sym.identifier + "@" + String(ObjectIdentifier(group).uintValue, radix: 16)
+        return sym.identifier + "@" + String(group.identity, radix: 16)
     }
   }
   
@@ -184,7 +184,7 @@ public enum Env: CustomStringConvertible {
       case Interaction:
         return "interaction"
       case Local(let group):
-        return "local " + String(group.hashValue, radix: 16)
+        return "local " + String(group.identity, radix: 16)
     }
   }
 }
@@ -218,7 +218,7 @@ public enum WeakEnv: Hashable {
       case Interaction:
         return 1
       case Local(let box):
-        return unsafeAddressOf(box).hashValue
+        return ObjectIdentifier(box).hashValue
     }
   }
 }

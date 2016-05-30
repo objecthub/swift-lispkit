@@ -583,17 +583,17 @@ extension Expr: CustomStringConvertible {
             return res + ")"
           }
         case .Promise(let promise):
-          return "#<promise \(String(promise.hashValue, radix: 16))>"
+          return "#<promise \(String(promise.identity, radix: 16))>"
         case .Special(let special):
-          return "#<special \(String(special.hashValue, radix: 16))>"
+          return "#<special \(String(special.identity, radix: 16))>"
         case .Proc(let proc):
-          return "#<procedure \(String(proc.hashValue, radix: 16))>"
+          return "#<procedure \(String(proc.identity, radix: 16))>"
         case .Var(let v):
           if enclVariables.contains(v) {
-            return "#<variable \(String(v.hashValue, radix: 16))"
+            return "#<variable \(String(v.identity, radix: 16))"
           } else {
             enclVariables.insert(v)
-            let res = "#<variable \(String(v.hashValue, radix: 16)): \(stringReprOf(v.value))>"
+            let res = "#<variable \(String(v.identity, radix: 16)): \(stringReprOf(v.value))>"
             enclVariables.remove(v)
             return res
           }
