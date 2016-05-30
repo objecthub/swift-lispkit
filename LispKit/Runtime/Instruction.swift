@@ -23,231 +23,327 @@ import NumberKit
 
 ///
 /// Enumeration `Instruction` defines the bytecode instruction set supported by the LispKit
-/// virtual machine.
+/// compiler and virtual machine.
 ///
 public enum Instruction: CustomStringConvertible {
   
-  /// Empty instruction.
-  case NoOp
+  // Stack ------------------------------------------------------------------------------------
   
-  // Stack modifications ----------------------------------------------------------------------
-  
-  /// Drop top element on stack.
+  /// **`pop`**: Drops the top element from stack.
   case Pop
   
-  /// Duplicate top element on stack.
+  /// **`dup`**: Duplicates the top element on the stack.
   case Dup
   
-  /// Swap the top two entries on the stack.
+  /// **`swap`**: Swaps the top two elements on the stack.
   case Swap
   
-  // Pushing constant values onto the stack ---------------------------------------------------
+  /// **`alloc` _n_**: Pushes `n` undefined values onto the stack.
+  case Alloc(Int)
   
+  /// **`reset` _o_,_n_**: Replaces `n` values on the stack with the undefined value starting
+  /// from frame pointer offset `o`.
+  case Reset(Int, Int)
+  
+  
+  // Constants --------------------------------------------------------------------------------
+  
+  /// **`push_undef`**: Pushes the _undefined value_ onto the stack.
   case PushUndef
   
-  /// Push void onto the stack.
+  /// **`push_void`**: Pushes the _void value_ onto the stack.
   case PushVoid
   
-  /// Push Eof onto the stack.
+  /// **`push_eof`**: Pushes the _EOF value_ onto the stack.
   case PushEof
   
-  /// Push the empty list onto the stack.
+  /// **`push_null`**: Pushes value _null_ (empty list) onto the stack.
   case PushNull
   
-  /// Push true onto the stack.
+  /// **`push_true`**: Pushes value `#true` onto the stack.
   case PushTrue
   
-  /// Push false onto the stack.
+  /// **`push_false`**: Pushes value `#false` onto the stack.
   case PushFalse
   
-  /// Push the given fixnum onto the stack.
+  /// **`push_fixnum` _n_**: Pushes the fixnum _n_ onto the stack.
   case PushFixnum(Int64)
   
-  /// Push the given bignum onto the stack.
+  /// **`push_bignum` _bn_**: Pushes the bignum _bn_ onto the stack.
   case PushBignum(BigInt)
   
-  /// Push the given rational number onto the stack.
+  /// **`push_rat` _r_**: Pushes the rational number _r_ onto the stack.
   case PushRat(Rational<Int64>)
   
-  /// Push the given rational number onto the stack.
+  /// **`push_bigrat` _br_**: Pushes the given bigrat number _br_ onto the stack.
   case PushBigrat(Rational<BigInt>)
   
-  /// Push the given flonum onto the stack.
+  /// **`push_flonum` _x_**: Pushes the flonum _x_ onto the stack.
   case PushFlonum(Double)
   
-  /// Push the given complex number onto the stack.
+  /// **`push_complex` _cx_**: Pushes the complex number _cx_ onto the stack.
   case PushComplex(Complex<Double>)
   
-  /// Push the given character literal onto the stack.
+  /// **`push_char` _ch_**: Pushes the character _ch_ onto the stack.
   case PushChar(UniChar)
   
-  /// PushConstant(n): Pushes the constant at index `n` of the constant pool onto the stack
+  /// **`push_constant` _c_**: Pushes the constant from the constant pool at index _c_ onto
+  /// the stack.
   case PushConstant(Int)
   
-  // Handle bindings: global, local, captured -------------------------------------------------
   
-  /// PushGlobal(constref): constref refers to a symbol in the constant table. PushGlobal
-  /// pushes the value to which this symbol is bound on the top-level onto the stack
+  // Functions --------------------------------------------------------------------------------
+  
+  /// **`make_closure` _n_,_f_**: Creates a new closure from a capture list and a code
+  /// fragment. The capture list is created from the top _n_ elements on the stack. _f_ is
+  /// an index into the list of code fragments of the currently executed code.
+  case MakeClosure(Int, Int)
+
+  /// **`make_frame`**: Pushes a new stack frame onto the stack.
+  case MakeFrame
+  
+  /// **`call` _n_**: Calls a procedure with _n_ arguments.
+  case Call(Int)
+  
+  /// **`tail_call` _n_**: Calls a procedure with _n_ arguments. This instruction is used
+  /// for tail calls and does not require a new frame to be pushed.
+  case TailCall(Int)
+  
+  /// **`apply` _n_**: This instruction expects on the stack a function, _n - 1_ individual
+  /// arguments and an additional list of arguments. apply pushes the elements of the list
+  /// onto the stack as well and then applies the function to all arguments on the stack.
+  /// The instruction puts the result of the function application onto the stack.
+  case Apply(Int)
+  
+  /// **`return`**: Returns from the currently executed procedure.
+  case Return
+  
+  /// **`assert_arg_count` _n_**: Checks that there are exactly _n_ arguments on the stack.
+  case AssertArgCount(Int)
+  
+  /// **`assert_min_arg_count` _n_**: Checks that there are at least _n_ arguments on the
+  /// stack.
+  case AssertMinArgCount(Int)
+  
+  /// **`collect_rest` _n_**: Collects the arguments exceeding _n_ into a list.
+  case CollectRest(Int)
+  
+  /// **`compile`**: Compiles the expression on top of the stack creating a thunk (a
+  /// procedure without arguments) which is left on top of the stack.
+  case Compile
+  
+  
+  // Macros -----------------------------------------------------------------------------------
+  
+  /// **`make_syntax`**: Pops a syntax transformer function off the stack, creates a special
+  /// form from it and pushes it onto the stack.
+  case MakeSyntax
+  
+  
+  // Promises ---------------------------------------------------------------------------------
+  
+  /// **`make_promise`**: Creates a new promise on the stack whose value will be computed
+  /// by executing the closure on top of the stack.
+  case MakePromise
+  
+  /// **`force`**: Forces the value of the promise on top of the stack. If the promise has
+  /// been evaluated already, push the value onto the stack and skip the next instruction
+  /// (which is typically a `store_in_promise` instruction).
+  case Force
+  
+  /// **`store_in_promise`**: Stores the value on top of the stack in the promise to which
+  /// the second top-most entry on the stack The promise gets removed from the stack.
+  case StoreInPromise
+  
+  // Variables --------------------------------------------------------------------------------
+  
+  /// **`make_local_variable` _o_**: Creates a new variable, pops an expression from the
+  /// stack and assignes the variable this expression as its initial value. The variable
+  /// is then stored at the location specified by the frame pointer offset _o_.
+  case MakeLocalVariable(Int)
+  
+  /// **`make_variable_argument` _o_**: Creates a new variable and assignes the variable the
+  /// expression at the location specified by the frame pointer offset _o_. The variable is
+  /// then stored at the location specified by the frame pointer offset _o_, i.e. this
+  /// instruction swaps a value on the stack with a variable with the same value.
+  case MakeVariableArgument(Int)
+  
+  
+  // Bindings ---------------------------------------------------------------------------------
+  
+  /// **`push_global` _c_**: _c_ is an index into the constant pool referring to a symbol.
+  /// `push_global` pushes the value to which this symbol is bound in the global environment
+  /// onto the stack.
   case PushGlobal(Int)
   
-  /// SetGlobal(constref): constref refers to a symbol in the constant table. SetGlobal sets
-  /// the value of this symbol globally to the value on top of the stack, assuming the binding
-  /// has been created previously already. SetGlobal pops the value off the stack.
+  /// **`set_global` _c_**: _c_ is an index into the constant pool referring to a symbol.
+  /// `set_global` binds the symbol in the global environment to the value on top of the
+  /// stack. `set_global` fails if the symbol has not previously been bound in the global
+  /// environment.
   case SetGlobal(Int)
   
-  /// DefineGlobal(constref): constref refers to a symbol in the constant table. SetGlobal
-  /// sets the value of this symbol globally to the value on top of the stack.
+  /// **`define_global` _c_**: _c_ is an index into the constant pool referring to a symbol.
+  /// `define_global` binds the symbol in the global environment to the value on top of the
+  /// stack. As opposed to `set_global`, the symbol does not have to be bound previously.
   case DefineGlobal(Int)
   
-  /// PushCaptured(captref): pushes the captured value to which captref refers to onto the
-  /// stack
+  /// **`push_captured` _d_**: _d_ is an index into the capture list. `push_captured` pushes
+  /// the value _d_ refers to onto the stack.
   case PushCaptured(Int)
   
-  /// PushCapturedValue(captref): pushes the value of the captured variable to which captref
+  /// **`push_captured_value` _d_**: _d_ is an index into the capture list referring to
+  /// a variable. `push_captured_value` pushes the value of the variable to which _d_
   /// refers to onto the stack.
   case PushCapturedValue(Int)
   
-  /// SetCapturedValue(captref): sets the captured variable to which captref refers to the
-  /// value on top of the stack. SetCapturedValue pops the value off the stack.
+  /// **`set_captured_value` _d_**: _d_ is an index into the capture list referring to
+  /// a variable. `set_captured_value` stores the value on top of the stack in the variable
+  /// to which _d_ refers to.
   case SetCapturedValue(Int)
   
-  /// PushLocal(frameref): frameref is an offset relative to the frame pointer. The expression
-  /// in this location is pushed onto the stack.
+  /// **`push_local` _o_**: is an offset relative to the frame pointer. `push_local` pushes
+  /// the value in this location onto the stack.
   case PushLocal(Int)
   
-  /// PushLocal(frameref): frameref is an offset relative to the frame pointer. The value of
-  /// the variable in this location is pushed onto the stack.
+  /// **`push_local_value` _o_**: _o_ is an offset relative to the frame pointer referring
+  /// to a variable. `push_local_value` pushes the value of this variable onto the stack.
   case PushLocalValue(Int)
   
-  /// SetLocal(frameref): frameref is an offset relative to the frame pointer.
-  /// SetLocal overwrites the value in this location with the value on top of the stack.
+  /// **`set_local` _o_**: _o_ is an offset relative to the frame pointer. `set_local`
+  /// stores the value on top of the stack in this stack location overwriting the previous
+  /// value.
   case SetLocal(Int)
   
-  /// SetLocalValue(frameref): frameref is an offset relative to the frame pointer.
-  /// SetLocalValue sets the variable in this location to the value on top of the stack.
+  /// **`set_local_value` _o_**: _o_ is an offset relative to the frame pointer referring
+  /// to a variable. `set_local_value` stores the value on top of the stack in this variable.
   case SetLocalValue(Int)
   
-  // Create variables -------------------------------------------------------------------------
   
-  /// MakeLocalVariable(frameref): frameref is an offset relative to the frame pointer.
-  /// MakeLocalVariable creates a new variable, pops an expression from the stack and assignes
-  /// the variable this expression as its initial value. The variable is then stored at the
-  /// location specified by frameref.
-  case MakeLocalVariable(Int)
+  // Control flow -----------------------------------------------------------------------------
   
-  /// MakeVariableArgument(frameref): frameref is an offset relative to the frame pointer.
-  /// MakeVariableArgument creates a new variable and assignes the variable the expression at
-  /// the location specified by frameref. The variable is then stored at the location specified
-  /// by frameref. This instruction swaps a value with a variable with the same value on the
-  /// stack.
-  case MakeVariableArgument(Int)
-  
-  /// Alloc(n): Pushes `n` undefined values onto the stack.
-  case Alloc(Int)
-  
-  /// Reset(frameref, n): frameref is an offset relative to the frame pointer.
-  /// Reset clears the next `n` values on the stack starting from this location.
-  case Reset(Int, Int)
-  
-  // Create containers ------------------------------------------------------------------------
-  
-  /// MakeClosure(n, code): Creates a closure on the stack consisting of `n` captured
-  /// variables (on the stack), and the code at index `code`
-  case MakeClosure(Int, Int)
-  
-  /// MakePromise: Pops an initialization procedure off the stack and creates a promise on the
-  /// stack whose value can be computed by executing the procedure.
-  case MakePromise
-  
-  /// MakeSyntax: Pops a syntax transformer off the stack, creates a macro special form
-  /// from it and pushes this onto the stack.
-  case MakeSyntax
-  
-  // Calling instructions ---------------------------------------------------------------------
-  
-  /// Pushes a new stack frame onto the stack
-  case MakeFrame
-  
-  /// Call(n): Calls a procedure with `n` arguments.
-  case Call(Int)
-  
-  /// TailCall(n): Calls a procedure with `n` arguments. This instruction is used for tail calls
-  /// and does not require a new frame to be pushed.
-  case TailCall(Int)
-  
-  /// Apply(n): Apply expects on the stack a function, `n - 1` individual arguments and an
-  /// additional list of arguments. Apply pushes the elements of the list onto the stack as
-  /// well and then applies the function to all arguments on the stack. The instruction puts
-  /// the result of the function application onto the stack.
-  case Apply(Int)
-  
-  // Procedure prologue instructions ----------------------------------------------------------
-  
-  /// AssertArgCount(n): Checks that there are exactly `n` arguments on the stack.
-  case AssertArgCount(Int)
-  
-  /// AssertMinArgs(n): Checks that there are at least `n` arguments on the stack.
-  case AssertMinArgCount(Int)
-  
-  /// CollectRest(n): Collects the arguments exceeding `n` into a list
-  case CollectRest(Int)
-  
-  // Branching and return instructions --------------------------------------------------------
-  
-  /// Returns from the current function
-  case Return
-  
-  /// Jump to offset
+  /// **`branch` _i_**: _i_ is an offset relative to the current instruction pointer.
+  /// `branch` jumps to the instruction to which _i_ refers to.
   case Branch(Int)
   
-  /// Jump to offset if the value on the stack is not false.
+  /// **`branch_if` _i_**: _i_ is an offset relative to the current instruction pointer.
+  /// `branch_if` jumps to the instruction to which _i_ refers to if the value on the stack
+  /// is not `#false`.
   case BranchIf(Int)
   
-  /// Jump to offset if the value on the stack is false.
+  /// **`branch_if_not` _i_**: _i_ is an offset relative to the current instruction
+  /// pointer. `branch_if` jumps to the instruction to which _i_ refers to if the value
+  /// on the stack is `#false`.
   case BranchIfNot(Int)
   
-  case And(Int)
-  
+  /// **`or` _i_**: _i_ is an offset relative to the current instruction pointer. `or`
+  /// jumps to the instruction to which _i_ refers to if the value on the stack is not
+  /// `#false`. As opposed to `branch_if`, the value on top of the stack will remain there.
+  /// Only if the value on top of the stack is `#false`, `or` will pop this value off the
+  /// stack.
   case Or(Int)
   
-  case Force
+  /// **`and` _i_**: _i_ is an offset relative to the current instruction pointer. `or`
+  /// jumps to the instruction to which _i_ refers to if the value on the stack is `#false`.
+  /// As opposed to `branch_if_not`, the value on top of the stack will remain there. Only
+  /// if the value on top of the stack is not `#false`, `and` will pop this value off the
+  /// stack.
+  case And(Int)
   
-  case StoreInPromise
   
-  case PushCurrentTime
+  // Equivalences -----------------------------------------------------------------------------
   
-  case Display
-  
-  case Newline
-
-  /// Compile
-  case Compile
-
-  // Basic operations -------------------------------------------------------------------------
-  
+  /// **`eq`**: Compares the top two values on the stack via `eq?` and pushes the result
+  /// onto the stack.
   case Eq
+  
+  /// **`eqv`**: Compares the top two values on the stack via `eqv?` and pushes the result
+  /// onto the stack.
   case Eqv
+  
+  /// **`equal`**: Compares the top two values on the stack via `equal?` and pushes the
+  /// result onto the stack.
   case Equal
-  case Cons
-  case Car
-  case Cdr
+  
+  
+  // Containers -------------------------------------------------------------------------------
+
+  /// **`list` _n_**: Pops the top _n_ values off the stack and constructs a list out of
+  /// them on top of the stack.
   case List(Int)
+  
+  /// **`cons`**: Pops the head and the tail of a new pair off the stack and pushes a
+  /// new pair with this head and tail onto the stack.
+  case Cons
+  
+  /// **`car`**: Pops a pair off the stack and pushes its head onto the stack.
+  case Car
+  
+  /// **`cdr`**: Pops a pair off the stack and pushes its tail onto the stack.
+  case Cdr
+  
+  /// **`vector` _n_**: Pops the top _n_ values off the stack and constructs a vector
+  /// out of them on top of the stack.
   case Vector(Int)
+  
+  /// **`list_to_vector`**: Converts a list to a vector.
   case ListToVector
+  
+  /// **`vector_append` _n_**: Pops the top _n_ vectors off the stack and constructs a
+  /// new vector by concatenating the individual vectors.
   case VectorAppend(Int)
+  
+  /// **`is_vector`**: Pushes `#false` onto the stack if the current value on top of
+  /// the stack is not a vector.
   case IsVector
   
+  
+  // Math -------------------------------------------------------------------------------------
+  
+  /// **`fx_plus`**: Computes the sum of two fixnum values on the stack.
   case FxPlus
+  
+  /// **`fx_minus`**: Computes the difference of two fixnum values on the stack.
   case FxMinus
+  
+  /// **`fx_mult`**: Multiplies two fixnum values on the stack.
   case FxMult
+  
+  /// **`fx_div`**: Divides a fixnum value by another fixnum value on the stack.
   case FxDiv
+  
+  /// **`fl_plus`**: Computes the sum of two flonum values on the stack.
   case FlPlus
+  
+  /// **`fl_minus`**: Computes the difference of two flonum values on the stack.
   case FlMinus
+  
+  /// **`fl_mult`**: Multiplies two flonum values on the stack.
   case FlMult
+  
+  /// **`fl_div`**: Divides a flonum value by another flonum value on the stack.
   case FlDiv
+  
+  
+  // Miscellaneous ----------------------------------------------------------------------------
+
+  /// **`push_current_time`**: Pushes the current time as a flonum onto the stack. The time
+  /// is expressed as seconds since January 1, 1970 at 00:00.
+  case PushCurrentTime
+  
+  /// **`display`**: Displays the value on top of the stack on the console.
+  case Display
+  
+  /// **`newline`**: Displays a newline character on the console.
+  case Newline
+  
+  /// **`noop`**: Empty instruction; proceeds to the next instruction.
+  case NoOp
+  
   
   // ------------------------------------------------------------------------------------------
   
+  
+  /// Provides supplemental information about this instruction in a given code context.
   public func commentFor(code: Code, _ ip: Int) -> String? {
     switch self {
     case PushGlobal(let index):
@@ -296,6 +392,7 @@ public enum Instruction: CustomStringConvertible {
     }
   }
   
+  /// Returns a textual description of this instruction.
   public var description: String {
     switch self {
     case NoOp:

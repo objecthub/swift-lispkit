@@ -21,21 +21,27 @@
 
 public class AnyError: LispError, CustomStringConvertible {
   var error: LispError
+  
   public init(_ error: LispError) {
     self.error = error
   }
+  
   public var type: LispErrorType {
     return error.type
   }
+  
   public var kind: String {
     return error.kind
   }
+  
   public var message: String {
     return error.message
   }
+  
   public var irritants: Exprs {
     return error.irritants
   }
+  
   public func equals(other: LispError) -> Bool {
     return error.equals(other)
   }
