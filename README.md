@@ -1,4 +1,5 @@
-# Swift LispKit
+<img src="Assets/lispkit_logo_small.png" alt="LispKit" width="100" height="100" /> Swift LispKit
+======================================
 
 <p>
 <a href="https://developer.apple.com/osx/"><img src="https://img.shields.io/badge/Platform-OS X-blue.svg?style=flat" alt="Platform: OS X" /></a>
