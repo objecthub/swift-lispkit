@@ -23,6 +23,7 @@
 		CC2E6A911C486AB30046E680 /* Prelude.scm in CopyFiles */ = {isa = PBXBuildFile; fileRef = CCAD52D51C48467D00DBD8EE /* Prelude.scm */; };
 		CC35FD0D1C6FA4B700C8B992 /* VirtualMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */; };
 		CC35FD0F1C711FEA00C8B992 /* BindingGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35FD0E1C711FEA00C8B992 /* BindingGroup.swift */; };
+		CC48055D1CFE366100D608B6 /* lispkit_logo_small.png in Resources */ = {isa = PBXBuildFile; fileRef = CC48055C1CFE366100D608B6 /* lispkit_logo_small.png */; };
 		CC502A951CDABF1E00875D9F /* BuildMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = CC502A941CDABF1E00875D9F /* BuildMetadata.m */; };
 		CC5033AF1CDB9A440045A8FA /* AppInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5033AE1CDB9A440045A8FA /* AppInfo.swift */; };
 		CC5033B11CDBE4CD0045A8FA /* Console.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5033B01CDBE4CD0045A8FA /* Console.swift */; };
@@ -128,6 +129,7 @@
 		CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VirtualMachine.swift; sourceTree = "<group>"; };
 		CC35FD0E1C711FEA00C8B992 /* BindingGroup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BindingGroup.swift; sourceTree = "<group>"; };
 		CC3C4E051CD81C5E00C78F89 /* TODO.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = TODO.md; sourceTree = "<group>"; };
+		CC48055C1CFE366100D608B6 /* lispkit_logo_small.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lispkit_logo_small.png; sourceTree = "<group>"; };
 		CC502A931CDABF1E00875D9F /* LispKitRepl-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "LispKitRepl-Bridging-Header.h"; sourceTree = "<group>"; };
 		CC502A941CDABF1E00875D9F /* BuildMetadata.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BuildMetadata.m; sourceTree = "<group>"; };
 		CC502A961CDABF6B00875D9F /* BuildMetadata.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BuildMetadata.h; sourceTree = "<group>"; };
@@ -237,6 +239,14 @@
 			path = Code;
 			sourceTree = "<group>";
 		};
+		CC48055B1CFE366100D608B6 /* Assets */ = {
+			isa = PBXGroup;
+			children = (
+				CC48055C1CFE366100D608B6 /* lispkit_logo_small.png */,
+			);
+			path = Assets;
+			sourceTree = "<group>";
+		};
 		CCAD52B01C48403800DBD8EE = {
 			isa = PBXGroup;
 			children = (
@@ -245,6 +255,7 @@
 				CCC937471C4F02DF00A5608F /* CHANGELOG.md */,
 				CC3C4E051CD81C5E00C78F89 /* TODO.md */,
 				CCC937451C4F02AF00A5608F /* LICENSE */,
+				CC48055B1CFE366100D608B6 /* Assets */,
 				CCAD52BC1C48403800DBD8EE /* LispKit */,
 				CCAD52C81C48403900DBD8EE /* LispKitTests */,
 				CC1227371CBFE74500821EB7 /* LispKitRepl */,
@@ -484,6 +495,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CC48055D1CFE366100D608B6 /* lispkit_logo_small.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
