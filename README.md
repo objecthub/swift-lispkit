@@ -1,4 +1,4 @@
-<img src="Assets/lispkit_logo_small.png" alt="LispKit" width="80" height="80" align="middle" /> &nbsp; Swift LispKit
+<img src="Assets/lispkit_logo_small.png" alt="LispKit" width="80" height="80" align="middle" />&nbsp;Swift LispKit
 ======================================================
 
 <p>
