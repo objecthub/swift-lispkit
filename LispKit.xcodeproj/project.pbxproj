@@ -23,7 +23,6 @@
 		CC2E6A911C486AB30046E680 /* Prelude.scm in CopyFiles */ = {isa = PBXBuildFile; fileRef = CCAD52D51C48467D00DBD8EE /* Prelude.scm */; };
 		CC35FD0D1C6FA4B700C8B992 /* VirtualMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */; };
 		CC35FD0F1C711FEA00C8B992 /* BindingGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35FD0E1C711FEA00C8B992 /* BindingGroup.swift */; };
-		CC48055D1CFE366100D608B6 /* lispkit_logo_small.png in Resources */ = {isa = PBXBuildFile; fileRef = CC48055C1CFE366100D608B6 /* lispkit_logo_small.png */; };
 		CC502A951CDABF1E00875D9F /* BuildMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = CC502A941CDABF1E00875D9F /* BuildMetadata.m */; };
 		CC5033AF1CDB9A440045A8FA /* AppInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5033AE1CDB9A440045A8FA /* AppInfo.swift */; };
 		CC5033B11CDBE4CD0045A8FA /* Console.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5033B01CDBE4CD0045A8FA /* Console.swift */; };
@@ -495,7 +494,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CC48055D1CFE366100D608B6 /* lispkit_logo_small.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
