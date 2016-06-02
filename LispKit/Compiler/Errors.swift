@@ -114,6 +114,7 @@ public enum LispErrorType: Int, Hashable, CustomStringConvertible {
 /// scanner.
 public enum LexicalError: Int, LispError {
   case Empty
+  case MalformedIdentifier
   case BrokenIdentifierEncoding
   case BrokenNumberEncoding
   case NumberExpected
@@ -124,8 +125,9 @@ public enum LexicalError: Int, LispError {
   case UnknownCharacterLiteral
   case IncompleteCharacterLiteral
   case IllegalCharacter
+  case IllegalHexCharacter
   case IllegalEscapeSequence
-  case EndOfLineInString
+  case IllegalEndOfLine
   case TokenNotYetSupported
   case DivisionByZero
   case ExactComplexNumbersUnsupported
@@ -138,6 +140,8 @@ public enum LexicalError: Int, LispError {
     switch self {
       case Empty:
         return "no input available"
+      case MalformedIdentifier:
+        return "malformed identifier"
       case BrokenIdentifierEncoding:
         return "broken identifier encoding"
       case BrokenNumberEncoding:
@@ -158,10 +162,12 @@ public enum LexicalError: Int, LispError {
         return "incomplete character literal"
       case IllegalCharacter:
         return "illegal character"
+      case IllegalHexCharacter:
+        return "illegal hex character"
       case IllegalEscapeSequence:
         return "illegal escape sequence"
-      case EndOfLineInString:
-        return "end of line in string"
+      case IllegalEndOfLine:
+        return "illegal end of line"
       case TokenNotYetSupported:
         return "token not yet supported"
       case DivisionByZero:

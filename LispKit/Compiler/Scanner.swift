@@ -134,8 +134,7 @@ public class Scanner {
       // handle others
       switch self.ch {
         case BAR_CH:
-          self.nextCh()
-          self.signal(.TokenNotYetSupported)
+          self.scanDelimitedIdent()
           return
         case DOT_CH:
           self.nextCh()
@@ -163,7 +162,7 @@ public class Scanner {
           self.token.kind = .BACKQUOTE
           self.nextCh()
           return
-        case DQ_CH, OPENDQ_CH:
+        case DQ_CH:
           self.scanString()
           return
         case COMMA_CH:
@@ -392,6 +391,7 @@ public class Scanner {
     }
   }
   
+  /// Scans a hex number with a given number of digits.
   private func scanHexNumber(maxDigits: Int) -> Int64? {
     guard isDigitForRadix(self.ch, 16) else {
       return nil
@@ -399,7 +399,11 @@ public class Scanner {
     var i = maxDigits
     var res: Int64 = 0
     while i > 0 && isDigitForRadix(self.ch, 16) {
-      res = res * 16 + digitVal(self.ch)
+      guard case (let x, false) = Int64.multiplyWithOverflow(res, 16),
+            case (let y, false) = Int64.addWithOverflow(x, Int64(digitVal(self.ch))) else {
+        return nil
+      }
+      res = y
       self.nextCh()
       i -= 1
     }
@@ -617,12 +621,60 @@ public class Scanner {
   
   /// Scans the next characters as a string literal.
   private func scanString() {
+    switch self.scanCharSequenceUntil(DQ_CH) {
+      case .Success(let str):
+        self.token.kind = .STRING
+        self.token.strVal = str
+      case .Malformed:
+        self.signal(.MalformedStringLiteral)
+      case .IllegalEscapeSequence:
+        self.signal(.IllegalEscapeSequence)
+      case .IllegalEndOfLine:
+        self.signal(.IllegalEndOfLine)
+      case .IllegalHexChar:
+        self.signal(.IllegalHexCharacter)
+      case .Unsupported:
+        self.signal(.TokenNotYetSupported)
+    }
+  }
+  
+  /// Scans the next characters as an identifier.
+  private func scanDelimitedIdent() {
+    switch self.scanCharSequenceUntil(BAR_CH) {
+      case .Success(let str):
+        self.token.kind = .IDENT
+        self.token.strVal = str.lowercaseString
+      case .Malformed:
+        self.signal(.MalformedIdentifier)
+      case .IllegalEscapeSequence:
+        self.signal(.IllegalEscapeSequence)
+      case .IllegalEndOfLine:
+        self.signal(.IllegalEndOfLine)
+      case .IllegalHexChar:
+        self.signal(.IllegalHexCharacter)
+      case .Unsupported:
+        self.signal(.TokenNotYetSupported)
+    }
+  }
+  
+  /// Result type of `scanCharSequenceUntil`.
+  private enum CharSequenceResult {
+    case Success(String)
+    case Malformed
+    case IllegalEscapeSequence
+    case IllegalEndOfLine
+    case IllegalHexChar
+    case Unsupported
+  }
+  
+  /// Scans the next characters until the given terminator character and returns the character
+  /// sequence as a string.
+  private func scanCharSequenceUntil(terminator: UniChar) -> CharSequenceResult {
     var uniChars: [UniChar] = []
     self.nextCh()
-    while self.ch != DQ_CH && self.ch != CLOSEDQ_CH {
+    while self.ch != terminator {
       if self.ch == EOF_CH {
-        self.signal(.MalformedStringLiteral)
-        return
+        return .Malformed
       } else if self.ch == BS_CH {
         self.nextCh()
         switch self.ch {
@@ -633,8 +685,11 @@ public class Scanner {
             self.nextCh();
             uniChars.append(DQ_CH)
           case X_CH:
-            self.signal(.TokenNotYetSupported)
-            return
+            self.nextCh();
+            guard let ch = self.scanHexChar() else {
+              return .IllegalHexChar
+            }
+            uniChars.append(ch)
           case LA_CH: // alarm
             self.nextCh();
             uniChars.append(7)
@@ -667,21 +722,39 @@ public class Scanner {
               self.nextCh()
             }
           default:
-            self.signal(.IllegalEscapeSequence)
-            return
+            return .IllegalEscapeSequence
         }
       } else if self.ch == EOL_CH || self.ch == RET_CH {
         self.nextCh()
-        self.signal(.EndOfLineInString)
-        return
+        return .IllegalEndOfLine
       } else {
         uniChars.append(self.ch)
         self.nextCh()
       }
     }
     self.nextCh()
-    self.token.kind = .STRING
-    self.token.strVal = String(utf16CodeUnits: uniChars, count: uniChars.count)
+    return .Success(String(utf16CodeUnits: uniChars, count: uniChars.count))
+  }
+  
+  /// Scans a hex number with a given number of digits.
+  private func scanHexChar() -> UniChar? {
+    guard isDigitForRadix(self.ch, 16) else {
+      return nil
+    }
+    var res: UInt16 = 0
+    while isDigitForRadix(self.ch, 16) {
+      guard case (let x, false) = UInt16.multiplyWithOverflow(res, 16),
+            case (let y, false) = UInt16.addWithOverflow(x, UInt16(digitVal(self.ch))) else {
+        return nil
+      }
+      res = y
+      self.nextCh()
+    }
+    guard self.ch == SEMI_CH else {
+      return nil
+    }
+    self.nextCh()
+    return res
   }
 }
 
@@ -840,8 +913,6 @@ let UA_CH              = UniChar("A")
 let LZ_CH              = UniChar("z")
 let UZ_CH              = UniChar("Z")
 let DQ_CH              = UniChar("\"")
-let OPENDQ_CH: UniChar = 8220
-let CLOSEDQ_CH: UniChar = 8221
 let BQ_CH              = UniChar("`")
 let Q_CH               = UniChar("\'")
 let OPENQ_CH: UniChar  = 8216

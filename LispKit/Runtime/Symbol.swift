@@ -72,10 +72,21 @@ public final class Symbol: Reference, CustomStringConvertible {
     }
   }
   
+  private static let ESCAPE_CHARS = { () -> NSCharacterSet in
+    let mcs = NSMutableCharacterSet()
+    mcs.formUnionWithCharacterSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
+    mcs.formUnionWithCharacterSet(NSCharacterSet.controlCharacterSet())
+    return mcs.copy() as! NSCharacterSet
+  }()
+  
   public var description: String {
     switch self.kind {
       case .Interned(let ident):
-        return ident
+        if ident.rangeOfCharacterFromSet(Symbol.ESCAPE_CHARS) != nil {
+          return "|\(Expr.escapeStr(ident))|"
+        } else {
+          return ident
+        }
       case .Generated(let sym, let weakEnv):
         return "[\(sym.interned.description) \(weakEnv.env.description)]"
     }

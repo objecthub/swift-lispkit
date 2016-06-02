@@ -466,7 +466,7 @@ extension Expr {
 ///
 extension Expr: CustomStringConvertible {
   
-  private static func escapeStr(str: String) -> String {
+  internal static func escapeStr(str: String) -> String {
     var res = ""
     for c in str.characters {
       switch c {
