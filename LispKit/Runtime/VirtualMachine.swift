@@ -375,6 +375,17 @@ public final class VirtualMachine: TrackedObject {
         } else {
           throw EvalError.LeastArgumentCountError(formals: 2, args: self.popAsList(n))
         }
+      case .Impl3R(let proc):
+        if n >= 2 {
+          let res = try proc(self.stack[self.sp - n],
+                             self.stack[self.sp - n + 1],
+                             self.stack[self.sp - n + 2],
+                             self.stack[self.sp-n+3..<self.sp])
+          self.pop(n + overhead)
+          self.push(res)
+        } else {
+          throw EvalError.LeastArgumentCountError(formals: 2, args: self.popAsList(n))
+        }
     }
     return proc
   }

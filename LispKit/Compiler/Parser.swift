@@ -66,7 +66,7 @@ public class Parser {
       case .CHAR:
         res = .Char(UInt16(token.intVal))
       case .STRING:
-        res = .Str(Box(token.strVal))
+        res = .Str(MutableBox(token.strVal))
       case .LPAREN:
         self.scanner.next()
         var exprs = Exprs()
@@ -91,13 +91,25 @@ public class Parser {
         while !self.scanner.hasToken(.EOF_TOKEN, .RPAREN) {
           exprs.append(try self.parse())
         }
-        if !self.scanner.hasToken(.RPAREN) {
+        guard self.scanner.hasToken(.RPAREN) else {
           throw SyntaxError.ClosingParenthesisMissing
         }
         res = .Vec(Vector(exprs))
       case .U8LPAREN:
         self.scanner.next()
-        throw SyntaxError.SyntaxNotYetSupported
+        var bytes = [UInt8]()
+        while self.scanner.hasToken(.INT) {
+          let number = self.scanner.token.intVal
+          guard number >= 0 && number <= 255 else {
+            throw SyntaxError.NotAByteValue
+          }
+          bytes.append(UInt8(number))
+          self.scanner.next()
+        }
+        guard self.scanner.hasToken(.RPAREN) else {
+          throw SyntaxError.ClosingParenthesisMissing
+        }
+        res = .ByteVec(MutableBox(bytes))
       case .QUOTE:
         self.scanner.next()
         return Expr.List(.Sym(symbols.QUOTE), try self.parse())

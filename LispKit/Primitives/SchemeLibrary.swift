@@ -26,6 +26,7 @@ public final class SchemeLibrary: Library {
     include(ControlFlowLibrary)
     include(ListLibrary)
     include(VectorLibrary)
+    include(BytevectorLibrary)
     include(StringLibrary)
     include(CharacterLibrary)
     include(MathLibrary)

@@ -85,6 +85,16 @@ func equalExpr(this: Expr, _ that: Expr) -> Bool {
           }
         }
         return true
+      case (.ByteVec(let bvector1), .ByteVec(let bvector2)):
+        guard bvector1.value.count == bvector2.value.count else {
+          return false
+        }
+        for i in bvector1.value.indices {
+          guard bvector1.value[i] == bvector2.value[i] else {
+            return false
+          }
+        }
+        return true
       case (.Promise(let promise1), .Promise(let promise2)):
         return promise1 == promise2
       case (.Special(let e1), .Special(let e2)):
@@ -127,19 +137,21 @@ func eqvExpr(lhs: Expr, _ rhs: Expr) -> Bool {
     case (.Char(let ch1), .Char(let ch2)):
       return ch1 == ch2
     case (.Str(let str1), .Str(let str2)):
-      return str1.value == str2.value
+      return str1 === str2
     case (.Pair(let car1, let cdr1), .Pair(let car2, let cdr2)):
       return eqvExpr(car1, car2) && eqvExpr(cdr1, cdr2)
     case (.Vec(let vector1), .Vec(let vector2)):
-      return vector1 == vector2
+      return vector1 === vector2
+    case (.ByteVec(let bvector1), .ByteVec(let bvector2)):
+      return bvector1 === bvector2
     case (.Promise(let promise1), .Promise(let promise2)):
-      return promise1 == promise2
+      return promise1 === promise2
     case (.Special(let e1), .Special(let e2)):
-      return e1 == e2
+      return e1 === e2
     case (.Proc(let e1), .Proc(let e2)):
-      return e1 == e2
+      return e1 === e2
     case (.Error(let e1), .Error(let e2)):
-      return e1 == e2
+      return e1 === e2
     default:
       return false
   }
@@ -178,15 +190,17 @@ func eqExpr(lhs: Expr, _ rhs: Expr) -> Bool {
     case (.Pair(let car1, let cdr1), .Pair(let car2, let cdr2)):
       return eqvExpr(car1, car2) && eqvExpr(cdr1, cdr2)
     case (.Vec(let vector1), .Vec(let vector2)):
-      return vector1 == vector2
+      return vector1 === vector2
+    case (.ByteVec(let bvector1), .ByteVec(let bvector2)):
+      return bvector1 === bvector2
     case (.Promise(let promise1), .Promise(let promise2)):
-      return promise1 == promise2
+      return promise1 === promise2
     case (.Special(let e1), .Special(let e2)):
-      return e1 == e2
+      return e1 === e2
     case (.Proc(let e1), .Proc(let e2)):
-      return e1 == e2
+      return e1 === e2
     case (.Error(let e1), .Error(let e2)):
-      return e1 == e2
+      return e1 === e2
     default:
       return false
   }

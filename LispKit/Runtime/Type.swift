@@ -29,6 +29,7 @@ public enum Type: Int, CustomStringConvertible {
   case NullType
   case SymbolType
   case BooleanType
+  case ByteType
   case IntegerType
   case RationalType
   case FloatType
@@ -38,6 +39,7 @@ public enum Type: Int, CustomStringConvertible {
   case StrType
   case PairType
   case VectorType
+  case ByteVectorType
   case PromiseType
   case SpecialType
   case ProcedureType
@@ -65,6 +67,8 @@ public enum Type: Int, CustomStringConvertible {
         return "symbol"
       case BooleanType:
         return "boolean"
+      case ByteType:
+        return "byte"
       case IntegerType:
         return "integer"
       case RationalType:
@@ -81,6 +85,8 @@ public enum Type: Int, CustomStringConvertible {
         return "pair"
       case VectorType:
         return "vector"
+      case ByteVectorType:
+        return "bytevector"
       case PromiseType:
         return "promise"
       case SpecialType:
@@ -145,8 +151,10 @@ public enum Type: Int, CustomStringConvertible {
   }
 }
 
-private let NUMBER_SUBTYPES: Set<Type> = [.IntegerType, .RationalType, .FloatType, .ComplexType]
-private let EXACT_NUMBER_SUBTYPES: Set<Type> = [.IntegerType, .RationalType]
+private let NUMBER_SUBTYPES: Set<Type> = [
+  .ByteType, .IntegerType, .RationalType, .FloatType, .ComplexType
+]
+private let EXACT_NUMBER_SUBTYPES: Set<Type> = [.ByteType, .IntegerType, .RationalType]
 private let REAL_SUBTYPES: Set<Type> = [.IntegerType, .RationalType, .FloatType]
 private let LIST_SUBTYPES: Set<Type> = [.PairType, .NullType]
 private let PROPERLIST_SUBTYPES = LIST_SUBTYPES

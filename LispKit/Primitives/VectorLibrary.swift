@@ -37,10 +37,10 @@ public final class VectorLibrary: Library {
   
   func isVector(expr: Expr) -> Expr {
     switch expr {
-    case .Vec(_):
-      return .True
-    default:
-      return .False
+      case .Vec(_):
+        return .True
+      default:
+        return .False
     }
   }
   

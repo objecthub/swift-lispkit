@@ -195,6 +195,19 @@ public class Scanner {
             case X_CH:
               self.nextCh()
               self.scanSignedNumber(16)
+            case U_CH:
+              self.nextCh()
+              guard self.ch == EIGHT_CH else {
+                self.signal(.IncompleteCharacterLiteral)
+                return
+              }
+              self.nextCh()
+              guard self.ch == LPAREN_CH else {
+                self.signal(.IncompleteCharacterLiteral)
+                return
+              }
+              self.nextCh()
+              self.token.kind = .U8LPAREN
             case BAR_CH:
               self.nextCh()
               var bar = false
@@ -330,7 +343,7 @@ public class Scanner {
           self.token.kind = .CHAR
           self.token.intVal = Int64(X_CH)
         }
-      case LU_CH:
+      case U_CH:
         self.nextCh()
         if let ch = self.scanHexNumber(4) {
           self.token.kind = .CHAR
@@ -339,7 +352,7 @@ public class Scanner {
           self.signal(.UnknownCharacterLiteral)
         } else {
           self.token.kind = .CHAR
-          self.token.intVal = Int64(LU_CH)
+          self.token.intVal = Int64(U_CH)
         }
       case LA_CH...LZ_CH, UA_CH...UZ_CH:
         self.nextCh()
@@ -937,8 +950,8 @@ let R_CH               = UniChar("r")
 let N_CH               = UniChar("n")
 let V_CH               = UniChar("v")
 let F_CH               = UniChar("f")
-let LU_CH              = UniChar("u")
-let UU_CH              = UniChar("U")
+let U_CH               = UniChar("u")
+let EIGHT_CH           = UniChar("8")
 let LPAREN_CH          = UniChar("(")
 let RPAREN_CH          = UniChar(")")
 

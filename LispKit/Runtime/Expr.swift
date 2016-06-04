@@ -38,8 +38,9 @@ public enum Expr: Trackable, Hashable {
   case Flonum(Double)
   case Complexnum(Complex<Double>)
   case Char(UniChar)
-  case Str(Box<String>)
+  case Str(MutableBox<String>)
   case Vec(Vector)
+  case ByteVec(MutableBox<[UInt8]>)
   indirect case Pair(Expr, Expr)
   case Promise(Future)
   case Proc(Procedure)
@@ -84,6 +85,8 @@ public enum Expr: Trackable, Hashable {
         return .PairType
       case Vec(_):
         return .VectorType
+      case ByteVec(_):
+        return .ByteVectorType
       case Promise(_):
         return .PromiseType
       case Special(_):
@@ -251,6 +254,11 @@ public enum Expr: Trackable, Hashable {
             res = res &* 31 &+ hash(expr)
           }
           visited.remove(vector)
+        case ByteVec(let bvector):
+          res = 0
+          for byte in bvector.value {
+            res = res &* 31 &+ byte.hashValue
+          }
         case Promise(let promise):
           res = promise.hashValue
         case Special(let special):
@@ -316,6 +324,10 @@ extension Expr {
     return Expr.Stack(exprs.reverse(), append: append)
   }
   
+  public static func List(exprs: Arguments, append: Expr = Expr.Null) -> Expr {
+    return Expr.Stack(exprs.reverse(), append: append)
+  }
+  
   public static func Stack(exprs: Exprs, append: Expr = Expr.Null) -> Expr {
     var res = append
     for expr in exprs {
@@ -355,6 +367,13 @@ extension Expr {
       throw EvalError.IndexOutOfBounds(res, Int64(Int.max), self)
     }
     return Int(res)
+  }
+  
+  public func asByte() throws -> UInt8 {
+    guard case Fixnum(let number) = self where number >= 0 && number <= 255 else {
+      throw EvalError.TypeError(self, [.ByteType])
+    }
+    return UInt8(number)
   }
   
   public func asFloat(coerce coerce: Bool = false) throws -> Double {
@@ -442,6 +461,13 @@ extension Expr {
       throw EvalError.TypeError(self, [.VectorType])
     }
     return res
+  }
+  
+  public func asBytevector() throws -> MutableBox<[UInt8]> {
+    guard case ByteVec(let box) = self else {
+      throw EvalError.TypeError(self, [.ByteVectorType])
+    }
+    return box
   }
   
   public func asSymbol() throws -> Symbol {
@@ -582,6 +608,14 @@ extension Expr: CustomStringConvertible {
           } else {
             return res + ")"
           }
+        case .ByteVec(let boxedVec):
+          var res = "#u8("
+          var sep = ""
+          for byte in boxedVec.value {
+            res = res + sep + String(byte)
+            sep = " "
+          }
+          return res + ")"
         case .Promise(let promise):
           return "#<promise \(String(promise.identity, radix: 16))>"
         case .Special(let special):

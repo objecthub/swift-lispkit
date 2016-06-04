@@ -45,6 +45,7 @@ public final class Procedure: Reference, CustomStringConvertible {
     case Impl0R((Arguments) throws -> Expr)
     case Impl1R((Expr, Arguments) throws -> Expr)
     case Impl2R((Expr, Expr, Arguments) throws -> Expr)
+    case Impl3R((Expr, Expr, Expr, Arguments) throws -> Expr)
   }
   
   /// Procedure kind
@@ -100,6 +101,11 @@ public final class Procedure: Reference, CustomStringConvertible {
     self.kind = .Primitive(.Impl2R(proc), compiler)
   }
   
+  /// Initializer for primitive procedures
+  public init(_ proc: (Expr, Expr, Expr, Arguments) throws -> Expr, _ compiler: FormCompiler? = nil) {
+    self.kind = .Primitive(.Impl3R(proc), compiler)
+  }
+  
   /// Initializer for compiled closures
   public init(_ captured: [Expr], _ code: Code) {
     self.kind = .Closure(captured, code)
@@ -134,6 +140,36 @@ public final class Procedure: Reference, CustomStringConvertible {
 }
 
 public typealias Arguments = ArraySlice<Expr>
+
+public extension ArraySlice {
+  public func optional(fst: Element, _ snd: Element) -> (Element, Element)? {
+    switch self.count {
+      case 0:
+        return (fst, snd)
+      case 1:
+        return (self[self.startIndex], snd)
+      case 2:
+        return (self[self.startIndex], self[self.startIndex + 1])
+      default:
+        return nil
+    }
+  }
+  
+  public func optional(fst: Element, _ snd: Element, trd: Element) -> (Element, Element, Element)? {
+    switch self.count {
+      case 0:
+        return (fst, snd, trd)
+      case 1:
+        return (self[self.startIndex], snd, trd)
+      case 2:
+        return (self[self.startIndex], self[self.startIndex + 1], trd)
+      case 3:
+        return (self[self.startIndex], self[self.startIndex + 1], self[self.startIndex + 2])
+      default:
+        return nil
+    }
+  }
+}
 
 ///
 /// A `FormCompiler` is a function that compiles an expression for a given compiler in a

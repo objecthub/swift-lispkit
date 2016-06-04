@@ -198,6 +198,7 @@ public enum SyntaxError: Int, LispError {
   case ClosingParenthesisMissing
   case UnexpectedClosingParenthesis
   case UnexpectedDot
+  case NotAByteValue
   case SyntaxNotYetSupported
   
   public var kind: String {
@@ -214,6 +215,8 @@ public enum SyntaxError: Int, LispError {
         return "unexpected closing parenthesis"
       case UnexpectedDot:
         return "unexpected dot"
+      case NotAByteValue:
+        return "bytevector element not a byte"
       case SyntaxNotYetSupported:
         return "syntax not yet supported"
     }
@@ -266,6 +269,7 @@ public enum EvalError: LispError {
   case OutOfScope(Expr)
   case DefineInLocalEnv(signature: Expr, definition: Expr, group: BindingGroup)
   case DefineSyntaxInLocalEnv(keyword: Symbol, definition: Expr, group: BindingGroup)
+  case TargetBytevectorTooSmall(Expr)
   
   public var kind: String {
     return "eval error"
@@ -361,6 +365,8 @@ public enum EvalError: LispError {
         return "definition of \(sig) in local environment"
       case DefineSyntaxInLocalEnv(let sym, _, _):
         return "syntax definition of \(sym) in local environment"
+      case .TargetBytevectorTooSmall(let bvec):
+        return "target bytevector too small: \(bvec)"
     }
   }
   
@@ -443,6 +449,8 @@ public enum EvalError: LispError {
         case (DefineSyntaxInLocalEnv(let sym1, let def1, let g1),
               DefineSyntaxInLocalEnv(let sym2, let def2, let g2)):
           return sym1 == sym2 && def1 == def2 && g1 == g2
+        case (TargetBytevectorTooSmall(let bvec1), TargetBytevectorTooSmall(let bvec2)):
+          return bvec1 == bvec2
         default:
           return false
       }

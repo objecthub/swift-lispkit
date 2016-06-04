@@ -1,6 +1,6 @@
 # Todo
 
-Last update: 2016-05-29
+Last update: 2016-06-03
 
 
 ## Compiler
@@ -26,7 +26,9 @@ Last update: 2016-05-29
 ## Library
 
 - [ ] Adopt text + binary ports from R7RS
-- [ ] Adopt bytevectors from R7RS
+- [X] Adopt bytevectors from R7RS
+- [X] Implement bytevector library
+- [ ] Implement library functions supporting mutable strings
 
 
 ## Tests

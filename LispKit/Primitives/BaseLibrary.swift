@@ -451,7 +451,7 @@ public final class BaseLibrary: Library {
   }
   
   func symbolToString(expr: Expr) throws -> Expr {
-    return .Str(Box(try expr.asSymbol().description))
+    return .Str(MutableBox(try expr.asSymbol().description))
   }
   
   func symtable() -> Expr {
@@ -558,7 +558,7 @@ public final class BaseLibrary: Library {
     compiler.emit(.PushCurrentTime)
     compiler.emit(.Swap)
     compiler.emit(.FlMinus)
-    try compiler.pushValue(.Str(Box("elapsed time = ")))
+    try compiler.pushValue(.Str(MutableBox("elapsed time = ")))
     compiler.emit(.Display)
     compiler.emit(.Display)
     compiler.emit(.Newline)

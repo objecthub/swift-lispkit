@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		CC01903B1C89D02200DB8BF9 /* CaptureGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC01903A1C89D02200DB8BF9 /* CaptureGroup.swift */; };
 		CC01903D1C8C7D8600DB8BF9 /* Reference.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC01903C1C8C7D8600DB8BF9 /* Reference.swift */; };
+		CC050F141D017D3400D32132 /* BytevectorLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC050F131D017D3400D32132 /* BytevectorLibrary.swift */; };
 		CC0980A71C62BDBC006B7FB1 /* Compiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0980A61C62BDBC006B7FB1 /* Compiler.swift */; };
 		CC0980A91C67E81C006B7FB1 /* Code.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0980A81C67E81C006B7FB1 /* Code.swift */; };
 		CC0980AB1C67E84C006B7FB1 /* Variable.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0980AA1C67E84C006B7FB1 /* Variable.swift */; };
@@ -114,6 +115,7 @@
 /* Begin PBXFileReference section */
 		CC01903A1C89D02200DB8BF9 /* CaptureGroup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptureGroup.swift; sourceTree = "<group>"; };
 		CC01903C1C8C7D8600DB8BF9 /* Reference.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reference.swift; sourceTree = "<group>"; };
+		CC050F131D017D3400D32132 /* BytevectorLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BytevectorLibrary.swift; sourceTree = "<group>"; };
 		CC0980A61C62BDBC006B7FB1 /* Compiler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Compiler.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC0980A81C67E81C006B7FB1 /* Code.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Code.swift; sourceTree = "<group>"; };
 		CC0980AA1C67E84C006B7FB1 /* Variable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Variable.swift; sourceTree = "<group>"; };
@@ -331,6 +333,7 @@
 				CC5A47241C52E08900EFCF76 /* ControlFlowLibrary.swift */,
 				CC6A3B5B1C52E71F00E962E2 /* ListLibrary.swift */,
 				CC6A3B5D1C52E8EF00E962E2 /* VectorLibrary.swift */,
+				CC050F131D017D3400D32132 /* BytevectorLibrary.swift */,
 				CC6A3B5F1C52EBD700E962E2 /* StringLibrary.swift */,
 				CC6A3B611C52ED7D00E962E2 /* CharacterLibrary.swift */,
 				CC6A3B631C52EED400E962E2 /* MathLibrary.swift */,
@@ -551,6 +554,7 @@
 				CCD81AD21CE75823009EB087 /* Checkpointer.swift in Sources */,
 				CC01903B1C89D02200DB8BF9 /* CaptureGroup.swift in Sources */,
 				CCAD52F81C48474500DBD8EE /* Context.swift in Sources */,
+				CC050F141D017D3400D32132 /* BytevectorLibrary.swift in Sources */,
 				CC5696771CBCFA9900F6803E /* Instruction.swift in Sources */,
 				CCE0429E1C9E8C8B00CA7BC4 /* ManagedObject.swift in Sources */,
 				CC01903D1C8C7D8600DB8BF9 /* Reference.swift in Sources */,

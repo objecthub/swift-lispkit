@@ -347,7 +347,7 @@ public final class Compiler {
         self.emit(.PushComplex(num))
       case .Char(let char):
         self.emit(.PushChar(char))
-      case .Sym(_), .Str(_), .Vec(_), .Promise(_), .Proc(_), .Error(_), .Pair(_, _):
+      case .Sym(_), .Str(_), .Vec(_), .ByteVec(_), .Promise(_), .Proc(_), .Error(_), .Pair(_, _):
         self.pushConstant(expr)
       case .Special(_):
         throw EvalError.IllegalKeywordUsage(expr)

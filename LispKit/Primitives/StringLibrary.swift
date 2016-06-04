@@ -57,7 +57,7 @@ public final class StringLibrary: Library {
     for expr in exprs {
       uniChars.append(try expr.asChar())
     }
-    return .Str(Box(String(utf16CodeUnits: uniChars, count: uniChars.count)))
+    return .Str(MutableBox(String(utf16CodeUnits: uniChars, count: uniChars.count)))
   }
   
   func stringLength(expr: Expr) throws -> Expr {
@@ -79,7 +79,7 @@ public final class StringLibrary: Library {
     for expr in exprs {
       res.appendContentsOf(try expr.asStr())
     }
-    return .Str(Box(res))
+    return .Str(MutableBox(res))
   }
   
   func stringEquals(fst: Expr, _ snd: Expr) throws -> Expr {
@@ -127,11 +127,11 @@ public final class StringLibrary: Library {
   }
   
   func stringUpcase(expr: Expr) throws -> Expr {
-    return .Str(Box(try expr.asStr().uppercaseString))
+    return .Str(MutableBox(try expr.asStr().uppercaseString))
   }
   
   func stringDowncase(expr: Expr) throws -> Expr {
-    return .Str(Box(try expr.asStr().lowercaseString))
+    return .Str(MutableBox(try expr.asStr().lowercaseString))
   }
   
   func stringToList(expr: Expr) throws -> Expr {
@@ -153,7 +153,7 @@ public final class StringLibrary: Library {
     guard list.isNull else {
       throw EvalError.TypeError(expr, [.ProperListType])
     }
-    return .Str(Box(String(utf16CodeUnits: uniChars, count: uniChars.count)))
+    return .Str(MutableBox(String(utf16CodeUnits: uniChars, count: uniChars.count)))
   }
   
   func substring(expr: Expr, _ start: Expr, _ end: Expr?) throws -> Expr {
@@ -171,6 +171,6 @@ public final class StringLibrary: Library {
     for ch in str[s..<e] {
       uniChars.append(ch)
     }
-    return .Str(Box(String(utf16CodeUnits: uniChars, count: uniChars.count)))
+    return .Str(MutableBox(String(utf16CodeUnits: uniChars, count: uniChars.count)))
   }
 }

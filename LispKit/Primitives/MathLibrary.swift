@@ -685,25 +685,25 @@ public final class MathLibrary: Library {
     }
     switch expr {
       case .Fixnum(let num):
-        return .Str(Box(String(num, radix: radix)))
+        return .Str(MutableBox(String(num, radix: radix)))
       case .Bignum(let num):
-        return .Str(Box(num.toString(base: BigInt.base(radix))))
+        return .Str(MutableBox(num.toString(base: BigInt.base(radix))))
       case .Rat(let num):
-        return .Str(Box(String(num.numerator, radix: radix) + "/" +
-                          String(num.denominator, radix: radix)))
+        return .Str(MutableBox(String(num.numerator, radix: radix) + "/" +
+                               String(num.denominator, radix: radix)))
       case .Bigrat(let num):
-        return .Str(Box(num.numerator.toString(base: BigInt.base(radix)) + "/" +
-                          num.denominator.toString(base: BigInt.base(radix))))
+        return .Str(MutableBox(num.numerator.toString(base: BigInt.base(radix)) + "/" +
+                               num.denominator.toString(base: BigInt.base(radix))))
       case .Flonum(let num):
         if radix != 10 {
           throw EvalError.IllegalRadix(rad!)
         }
-        return .Str(Box(String(num)))
+        return .Str(MutableBox(String(num)))
       case .Complexnum(let num):
         if radix != 10 {
           throw EvalError.IllegalRadix(rad!)
         }
-        return .Str(Box(num.description))
+        return .Str(MutableBox(num.description))
       default:
         throw EvalError.TypeError(expr, [.NumberType])
     }
