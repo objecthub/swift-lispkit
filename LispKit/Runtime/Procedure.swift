@@ -29,7 +29,7 @@ public final class Procedure: Reference, CustomStringConvertible {
   ///    2. Closures: These are user-defined procedures, e.g. via `lambda`
   ///    3. Transformers: These are user-defined macro transformers defined via `syntax-rules`
   public enum Kind {
-    case Primitive(Implementation, FormCompiler?)
+    case Primitive(String, Implementation, FormCompiler?)
     case Closure([Expr], Code)
     case Transformer(SyntaxRules)
   }
@@ -52,58 +52,71 @@ public final class Procedure: Reference, CustomStringConvertible {
   public let kind: Kind
   
   /// Initializer for primitive procedures
-  public init(_ proc: () throws -> Expr, _ compiler: FormCompiler? = nil) {
-    self.kind = .Primitive(.Impl0(proc), compiler)
+  public init(_ name: String, _ proc: () throws -> Expr, _ compiler: FormCompiler? = nil) {
+    self.kind = .Primitive(name, .Impl0(proc), compiler)
   }
   
   /// Initializer for primitive procedures
-  public init(_ proc: (Expr) throws -> Expr, _ compiler: FormCompiler? = nil) {
-    self.kind = .Primitive(.Impl1(proc), compiler)
+  public init(_ name: String, _ proc: (Expr) throws -> Expr, _ compiler: FormCompiler? = nil) {
+    self.kind = .Primitive(name, .Impl1(proc), compiler)
   }
   
   /// Initializer for primitive procedures
-  public init(_ proc: (Expr, Expr) throws -> Expr, _ compiler: FormCompiler? = nil) {
-    self.kind = .Primitive(.Impl2(proc), compiler)
+  public init(_ name: String,
+              _ proc: (Expr, Expr) throws -> Expr,
+              _ compiler: FormCompiler? = nil) {
+    self.kind = .Primitive(name, .Impl2(proc), compiler)
   }
   
   /// Initializer for primitive procedures
-  public init(_ proc: (Expr, Expr, Expr) throws -> Expr, _ compiler: FormCompiler? = nil) {
-    self.kind = .Primitive(.Impl3(proc), compiler)
+  public init(_ name: String,
+              _ proc: (Expr, Expr, Expr) throws -> Expr,
+              _ compiler: FormCompiler? = nil) {
+    self.kind = .Primitive(name, .Impl3(proc), compiler)
   }
   
   /// Initializer for primitive procedures
-  public init(_ proc: (Expr?) throws -> Expr, _ compiler: FormCompiler? = nil) {
-    self.kind = .Primitive(.Impl0O(proc), compiler)
+  public init(_ name: String, _ proc: (Expr?) throws -> Expr, _ compiler: FormCompiler? = nil) {
+    self.kind = .Primitive(name, .Impl0O(proc), compiler)
   }
 
   /// Initializer for primitive procedures
-  public init(_ proc: (Expr, Expr?) throws -> Expr, _ compiler: FormCompiler? = nil) {
-    self.kind = .Primitive(.Impl1O(proc), compiler)
+  public init(_ name: String,
+              _ proc: (Expr, Expr?) throws -> Expr, _ compiler: FormCompiler? = nil) {
+    self.kind = .Primitive(name, .Impl1O(proc), compiler)
   }
   
   /// Initializer for primitive procedures
-  public init(_ proc: (Expr, Expr, Expr?) throws -> Expr, _ compiler: FormCompiler? = nil) {
-    self.kind = .Primitive(.Impl2O(proc), compiler)
+  public init(_ name: String,
+              _ proc: (Expr, Expr, Expr?) throws -> Expr, _ compiler: FormCompiler? = nil) {
+    self.kind = .Primitive(name, .Impl2O(proc), compiler)
   }
   
   /// Initializer for primitive procedures
-  public init(_ proc: (Arguments) throws -> Expr, _ compiler: FormCompiler? = nil) {
-    self.kind = .Primitive(.Impl0R(proc), compiler)
+  public init(_ name: String,
+              _ proc: (Arguments) throws -> Expr, _ compiler: FormCompiler? = nil) {
+    self.kind = .Primitive(name, .Impl0R(proc), compiler)
   }
   
   /// Initializer for primitive procedures
-  public init(_ proc: (Expr, Arguments) throws -> Expr, _ compiler: FormCompiler? = nil) {
-    self.kind = .Primitive(.Impl1R(proc), compiler)
+  public init(_ name: String,
+              _ proc: (Expr, Arguments) throws -> Expr,
+              _ compiler: FormCompiler? = nil) {
+    self.kind = .Primitive(name, .Impl1R(proc), compiler)
   }
   
   /// Initializer for primitive procedures
-  public init(_ proc: (Expr, Expr, Arguments) throws -> Expr, _ compiler: FormCompiler? = nil) {
-    self.kind = .Primitive(.Impl2R(proc), compiler)
+  public init(_ name: String,
+              _ proc: (Expr, Expr, Arguments) throws -> Expr,
+              _ compiler: FormCompiler? = nil) {
+    self.kind = .Primitive(name, .Impl2R(proc), compiler)
   }
   
   /// Initializer for primitive procedures
-  public init(_ proc: (Expr, Expr, Expr, Arguments) throws -> Expr, _ compiler: FormCompiler? = nil) {
-    self.kind = .Primitive(.Impl3R(proc), compiler)
+  public init(_ name: String,
+              _ proc: (Expr, Expr, Expr, Arguments) throws -> Expr,
+              _ compiler: FormCompiler? = nil) {
+    self.kind = .Primitive(name, .Impl3R(proc), compiler)
   }
   
   /// Initializer for compiled closures
@@ -120,7 +133,16 @@ public final class Procedure: Reference, CustomStringConvertible {
   public init(_ rules: SyntaxRules) {
     self.kind = .Transformer(rules)
   }
-    
+  
+  /// Returns the name of this procedure. This method either returns the name of a primitive
+  /// procedure or the identity as a hex string.
+  public var name: String {
+    guard case .Primitive(let str, _, _) = self.kind else {
+      return String(self.identity, radix: 16)
+    }
+    return str
+  }
+  
   public func mark(tag: UInt8) {
     switch self.kind {
       case .Closure(let captures, let code):
@@ -135,7 +157,7 @@ public final class Procedure: Reference, CustomStringConvertible {
   
   /// A textual description
   public var description: String {
-    return "proc#" + String(self.identity, radix: 16)
+    return "proc#" + self.name
   }
 }
 

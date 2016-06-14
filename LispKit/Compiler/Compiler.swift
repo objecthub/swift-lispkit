@@ -233,9 +233,10 @@ public final class Compiler {
       case .Success:
         break // Nothing to do
       case .GlobalLookupRequired(let lexicalSym, let global):
-        if global.isSystem {
+        if global.systemDefined(lexicalSym, in: self.context) {
           if let value = self.context.systemScope[lexicalSym] {
             try self.pushValue(value)
+            return
           }
         }
         self.emit(.PushGlobal(self.registerConstant(.Sym(lexicalSym))))
@@ -347,7 +348,8 @@ public final class Compiler {
         self.emit(.PushComplex(num))
       case .Char(let char):
         self.emit(.PushChar(char))
-      case .Sym(_), .Str(_), .Vec(_), .ByteVec(_), .Promise(_), .Proc(_), .Error(_), .Pair(_, _):
+      case .Sym(_), .Str(_), .Vec(_), .ByteVec(_), .Promise(_), .Proc(_), .Prt(_),
+           .Error(_), .Pair(_, _):
         self.pushConstant(expr)
       case .Special(_):
         throw EvalError.IllegalKeywordUsage(expr)
@@ -456,9 +458,13 @@ public final class Compiler {
               self.checkpointer.associate(.FromGlobalEnv(value), with: cp)
               switch value {
                 case .Proc(let proc):
-                  if case .Primitive(_, .Some(let formCompiler)) = proc.kind {
-                    self.removeLastInstr()
-                    return try formCompiler(self, expr, env, tail)
+                  if case .Primitive(_, _, .Some(let formCompiler)) = proc.kind {
+                    if self.checkpointer.systemDefined(cp) ||
+                       global.systemDefined(lexicalSym, in: self.context) {
+                      self.checkpointer.associate(.SystemDefined, with: cp)
+                      self.removeLastInstr()
+                      return try formCompiler(self, expr, env, tail)
+                    }
                   }
                 case .Special(let special):
                   self.removeLastInstr()
@@ -478,7 +484,15 @@ public final class Compiler {
               }
             }
             // Push function from global binding
-            self.emit(.PushGlobal(self.registerConstant(.Sym(lexicalSym))))
+            if global.systemDefined(lexicalSym, in: self.context) {
+              if let value = self.context.systemScope[lexicalSym] {
+                try self.pushValue(value)
+              } else {
+                self.emit(.PushGlobal(self.registerConstant(.Sym(lexicalSym))))
+              }
+            } else {
+              self.emit(.PushGlobal(self.registerConstant(.Sym(lexicalSym))))
+            }
           case .MacroExpansionRequired(let transformer):
             let expanded =
               try self.context.machine.apply(.Proc(transformer), to: .Pair(cdr, .Null), in: env)

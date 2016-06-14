@@ -20,11 +20,11 @@
 
 #import <Foundation/Foundation.h>
 
+// In this header, you should import all the public headers of your
+// framework using statements like #import <LispKit/PublicHeader.h>
+
 //! Project version number for LispKit.
 FOUNDATION_EXPORT double LispKitVersionNumber;
 
 //! Project version string for LispKit.
 FOUNDATION_EXPORT const unsigned char LispKitVersionString[];
-
-// In this header, you should import all the public headers of your
-// framework using statements like #import <LispKit/PublicHeader.h>

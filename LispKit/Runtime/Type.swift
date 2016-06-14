@@ -43,8 +43,7 @@ public enum Type: Int, CustomStringConvertible {
   case PromiseType
   case SpecialType
   case ProcedureType
-  case ThunkType
-  case SyntaxType
+  case PortType
   case NumberType
   case ExactNumberType
   case ListType
@@ -93,10 +92,8 @@ public enum Type: Int, CustomStringConvertible {
         return "special"
       case ProcedureType:
         return "procedure"
-      case ThunkType:
-        return "thunk"
-      case SyntaxType:
-        return "syntax"
+      case PortType:
+        return "port"
       case NumberType:
         return "number"
       case ExactNumberType:

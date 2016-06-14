@@ -24,12 +24,12 @@ public final class SchemeLibrary: Library {
   public override func export() {
     include(BaseLibrary)
     include(ControlFlowLibrary)
+    include(MathLibrary)
     include(ListLibrary)
     include(VectorLibrary)
     include(BytevectorLibrary)
-    include(StringLibrary)
     include(CharacterLibrary)
-    include(MathLibrary)
-    include(IOLibrary)
+    include(StringLibrary)
+    include(PortLibrary)
   }
 }

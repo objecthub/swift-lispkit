@@ -40,12 +40,38 @@ public class Library {
     // This method needs to be overridden for concrete primitive libraries
   }
   
-  public func define(name: String, _ proc: Procedure) {
-    self.context.systemScope[self.context.symbols.intern(name)] = .Proc(proc)
+  public func define(proc: Procedure) {
+    self.context.systemScope[self.context.symbols.intern(proc.name)] = .Proc(proc)
   }
-  
+    
   public func define(name: String, _ special: SpecialForm) {
     self.context.systemScope[self.context.symbols.intern(name)] = .Special(special)
+  }
+  
+  public func define(name: String, compile sourcecode: String) {
+    let expr = self.context.machine.evalStr(sourcecode, in: .System)
+    if case .Error(let error) = expr {
+      preconditionFailure("compilation failure: " + error.description)
+    }
+    self.context.systemScope[self.context.symbols.intern(name)] = expr
+  }
+  
+  public func compile(sourcecode: String) {
+    if case .Error(let error) = self.context.machine.evalStr(sourcecode, in: .System) {
+      preconditionFailure("compilation failure: " + error.description)
+    }
+  }
+  
+  public func invoke(instr: Instruction,
+                     with expr: Expr,
+                     in env: Env,
+                     for compiler: Compiler) throws -> Bool {
+    guard case .Pair(_, .Pair(let arg, .Null)) = expr else {
+      throw EvalError.ArgumentCountError(formals: 1, args: expr)
+    }
+    try compiler.compile(arg, in: env, inTailPos: false)
+    compiler.emit(instr)
+    return false
   }
   
   // Sublibrary declaration

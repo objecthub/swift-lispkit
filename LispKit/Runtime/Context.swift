@@ -44,6 +44,15 @@ public class Context {
     return self.userScope.outer!
   }
   
+  /// The current input port.
+  public var inputPort: Port
+  
+  /// The current output port.
+  public var outputPort: Port
+  
+  /// The current error port.
+  public var errorPort: Port
+  
   /// Initializes a new object
   public init(console: Console, library: Library.Type? = nil) {
     // Initialize global components
@@ -51,14 +60,17 @@ public class Context {
     self.objects = ManagedObjectPool()
     self.symbols = SymbolTable()
     self.userScope = Scope(Scope())
+    self.inputPort = Port.consoleInput
+    self.outputPort = Port.consoleOutput
+    self.errorPort = Port.consoleOutput
     self.machine = VirtualMachine(self)
+    // Register tracked objects
+    self.objects.track(self.machine)
+    self.objects.track(self.userScope)
     // Import libraries
     if let lib = library {
       self.use(lib)
     }
-    // Register tracked objects
-    self.objects.track(self.machine)
-    self.objects.track(self.userScope)
   }
   
   /// Import an instantiation of the given library type.

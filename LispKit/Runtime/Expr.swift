@@ -45,6 +45,7 @@ public enum Expr: Trackable, Hashable {
   case Promise(Future)
   case Proc(Procedure)
   case Special(SpecialForm)
+  case Prt(Port)
   case Var(Variable)
   case Error(AnyError)
   
@@ -93,6 +94,8 @@ public enum Expr: Trackable, Hashable {
         return .SpecialType
       case Proc(_):
         return .ProcedureType
+      case Prt(_):
+        return .PortType
       case Var(let v):
         return v.value.type
       case Error(_):
@@ -265,6 +268,8 @@ public enum Expr: Trackable, Hashable {
           res = special.hashValue
         case Proc(let proc):
           res = proc.hashValue
+        case Prt(let port):
+          res = port.hashValue
         case Var(let variable):
           res = variable.hashValue
         case Error(let err):
@@ -470,6 +475,13 @@ extension Expr {
     return box
   }
   
+  public func asPort() throws -> Port {
+    guard case Prt(let port) = self else {
+      throw EvalError.TypeError(self, [.PortType])
+    }
+    return port
+  }
+  
   public func asSymbol() throws -> Symbol {
     guard let symid = self.toSymbol() else {
       throw EvalError.TypeError(self, [.SymbolType])
@@ -621,7 +633,9 @@ extension Expr: CustomStringConvertible {
         case .Special(let special):
           return "#<special \(String(special.identity, radix: 16))>"
         case .Proc(let proc):
-          return "#<procedure \(String(proc.identity, radix: 16))>"
+          return "#<procedure \(proc.name)>"
+        case .Prt(let port):
+          return "#<\(port.typeDescription) \(port.identDescription)>"
         case .Var(let v):
           if enclVariables.contains(v) {
             return "#<variable \(String(v.identity, radix: 16))"

@@ -22,17 +22,17 @@
 public final class BytevectorLibrary: Library {
   
   public override func export() {
-    define("bytevector?", Procedure(isBytevector))
-    define("bytevector", Procedure(bytevector))
-    define("make-bytevector", Procedure(makeBytevector))
-    define("bytevector-length", Procedure(bytevectorLength))
-    define("bytevector-u8-ref", Procedure(bytevectorU8Ref))
-    define("bytevector-u8-set!", Procedure(bytevectorU8Set))
-    define("bytevector-copy", Procedure(bytevectorCopy))
-    define("bytevector-copy!", Procedure(bytevectorCopyInto))
-    define("bytevector-append", Procedure(bytevectorAppend))
-    define("utf8->string", Procedure(utf8ToString))
-    define("string->utf8", Procedure(stringToUtf8))
+    define(Procedure("bytevector?", isBytevector))
+    define(Procedure("bytevector", bytevector))
+    define(Procedure("make-bytevector", makeBytevector))
+    define(Procedure("bytevector-length", bytevectorLength))
+    define(Procedure("bytevector-u8-ref", bytevectorU8Ref))
+    define(Procedure("bytevector-u8-set!", bytevectorU8Set))
+    define(Procedure("bytevector-copy", bytevectorCopy))
+    define(Procedure("bytevector-copy!", bytevectorCopyInto))
+    define(Procedure("bytevector-append", bytevectorAppend))
+    define(Procedure("utf8->string", utf8ToString))
+    define(Procedure("string->utf8", stringToUtf8))
   }
   
   func isBytevector(expr: Expr) -> Expr {
@@ -153,21 +153,13 @@ public final class BytevectorLibrary: Library {
       throw EvalError.ParameterOutOfBounds(
         "utf8->string", 3, Int64(end), Int64(start), Int64(bvector.value.count))
     }
-    var encodedString = ""
+    var str = ""
     var decoder = UTF8()
     var generator = bvector.value.generate()
-    loop: while true {
-      let decodingResult = decoder.decode(&generator)
-      switch decodingResult {
-        case .Result(let char):
-          encodedString.append(char)
-        case .EmptyInput:
-          break loop
-        case .Error:
-          break loop
-      }
+    while case .Result(let scalar) = decoder.decode(&generator) {
+      str.append(scalar)
     }
-    return .Str(MutableBox(encodedString))
+    return .Str(MutableBox(str))
   }
   
   func stringToUtf8(string: Expr, args: Arguments) throws -> Expr {

@@ -33,14 +33,7 @@ public class Scope: TrackedObject {
   
   public subscript(sym: Symbol) -> Expr? {
     get {
-      var scope: Scope? = self
-      while let sc = scope {
-        if let res = sc.bindings[sym] {
-          return res
-        }
-        scope = sc.outer
-      }
-      return nil
+      return self.bindingFor(sym)?.0
     }
     set {
       self.bindings[sym] = newValue
@@ -52,10 +45,14 @@ public class Scope: TrackedObject {
   }
   
   public func scopeWithBindingFor(sym: Symbol) -> Scope? {
+    return self.bindingFor(sym)?.1
+  }
+  
+  public func bindingFor(sym: Symbol) -> (Expr, Scope)? {
     var scope: Scope? = self
     while let sc = scope {
-      if let _ = sc.bindings[sym] {
-        return sc
+      if let res = sc.bindings[sym] {
+        return (res, sc)
       }
       scope = sc.outer
     }

@@ -26,8 +26,11 @@ import NumberKit
 /// 
 public class Scanner {
   
-  /// Source code representation
-  private let src: String.UTF16View
+  /// Input of source code
+  private let input: TextInput
+  
+  /// Buffer for characters read during one invocation of `next`
+  private var buffer: ScanBuffer
   
   /// Last scanned character
   internal var ch: UniChar
@@ -42,13 +45,19 @@ public class Scanner {
   internal var token: Token
   
   /// Creates a new scanner for the given string.
-  public init(_ str: String, prescan: Bool = true) {
-    self.src = str.utf16
-    self.pos = Position(self.src.startIndex, 1, 1)
-    self.lpos = Position(self.src.startIndex, 0, 0)
+  public convenience init(string: String, prescan: Bool = true) {
+    self.init(input: TextInput(string: string), prescan: prescan)
+  }
+  
+  /// Creates a new scanner for the given string.
+  public init(input: TextInput, prescan: Bool = true) {
+    self.input = input
+    self.buffer = ScanBuffer()
+    self.pos = Position(1, 1)
+    self.lpos = Position(0, 0)
     self.ch = SPACE_CH
     self.token = Token(
-      pos: Position(self.src.startIndex, 0, 0),
+      pos: Position(0, 0),
       kind: .ERROR,
       strVal: "",
       intVal: 0,
@@ -89,6 +98,8 @@ public class Scanner {
       if self.ch == EOF_CH {
         break
       }
+      // reset buffer
+      self.buffer.reset()
       // handle identifiers
       if isInitialIdent(self.ch) {
         self.scanIdent()
@@ -108,21 +119,13 @@ public class Scanner {
             self.scanNumber(10, neg: neg, dot: true)
           } else {
             self.token.kind = .IDENT
-            if let s = String(self.src[self.token.pos.index..<self.lpos.index]) {
-              self.token.strVal = s
-            } else {
-              self.signal(.BrokenIdentifierEncoding)
-            }
+            self.token.strVal = self.buffer.stringValue
           }
         } else if isSubsequentIdent(self.ch) || self.ch == PLUS_CH || self.ch == MINUS_CH {
           self.scanIdent()
         } else {
           self.token.kind = .IDENT
-          if let s = String(self.src[self.token.pos.index..<self.lpos.index]) {
-            self.token.strVal = s
-          } else {
-            self.signal(.BrokenIdentifierEncoding)
-          }
+          self.token.strVal = self.buffer.stringValue
         }
         return
       }
@@ -232,21 +235,19 @@ public class Scanner {
               while self.ch >= LA_CH && self.ch <= LZ_CH || self.ch >= UA_CH && self.ch <= UZ_CH {
                 self.nextCh()
               }
-              let start = self.token.pos.index.successor()
-              if let s = String(self.src[start..<self.lpos.index]) {
-                switch s.lowercaseString {
-                  case "t":
-                    self.token.kind = .TRUELIT
-                  case "true":
-                    self.token.kind = .TRUELIT
-                  case "f":
-                    self.token.kind = .FALSELIT
-                  case "false":
-                    self.token.kind = .FALSELIT
-                  default:
-                    self.signal(.UnknownCharacterLiteral)
-                    return
-                }
+              let s = self.buffer.stringStartingAt(1)
+              switch s.lowercaseString {
+                case "t":
+                  self.token.kind = .TRUELIT
+                case "true":
+                  self.token.kind = .TRUELIT
+                case "f":
+                  self.token.kind = .FALSELIT
+                case "false":
+                  self.token.kind = .FALSELIT
+                default:
+                  self.signal(.UnknownCharacterLiteral)
+                  return
               }
           }
           return
@@ -266,20 +267,26 @@ public class Scanner {
   
   /// Reads the next character and makes it available via the `ch` property.
   private func nextCh() {
-    self.lpos = self.pos
-    guard self.pos.index < self.src.endIndex else {
-      self.ch = EOF_CH
+    // Check if we reached EOF already
+    guard self.ch != EOF_CH else {
       return
     }
-    let c = self.src[self.pos.index]
-    self.pos.index = self.pos.index.successor()
+    // Store last position
+    self.lpos = self.pos
+    // Read next character and terminate if there is none available
+    guard let c = self.input.read() else {
+      self.ch = EOF_CH
+      self.buffer.append(self.ch)
+      return
+    }
+    // Handle potential line breaks
     switch c {
       case RET_CH:
         self.ch = EOL_CH
         self.pos.col = 1
         self.pos.line += 1
-        if self.pos.index < self.src.endIndex && self.src[self.pos.index] == EOL_CH {
-          self.pos.index = self.pos.index.successor()
+        if let next = self.input.peek() where next == EOL_CH {
+          self.input.read()
         }
       case EOL_CH:
         self.ch = EOL_CH
@@ -289,6 +296,8 @@ public class Scanner {
         self.ch = c
         self.pos.col += 1
     }
+    // Write new character into buffer
+    self.buffer.append(self.ch)
   }
   
   /// Finds the next non-whitespace character.
@@ -319,12 +328,8 @@ public class Scanner {
     while isSubsequentIdent(self.ch) {
       self.nextCh()
     }
-    if let s = String(self.src[self.token.pos.index..<self.lpos.index]) {
-      self.token.kind = .IDENT
-      self.token.strVal = s.lowercaseString
-    } else {
-      self.signal(LexicalError.BrokenIdentifierEncoding)
-    }
+    self.token.kind = .IDENT
+    self.token.strVal = self.buffer.stringValue.lowercaseString
   }
   
   /// Scans a character literal
@@ -359,38 +364,36 @@ public class Scanner {
         while self.ch >= LA_CH && self.ch <= LZ_CH || self.ch >= UA_CH && self.ch <= UZ_CH {
           self.nextCh()
         }
-        let start = self.token.pos.index.successor().successor()
-        if let s = String(self.src[start..<self.lpos.index]) {
-          self.token.kind = .CHAR
-          if (s.utf16.count == 1) {
-            self.token.intVal = Int64(s.utf16.first!)
-          } else {
-            switch s {
-              case "alarm":
-                self.token.intVal = 7
-              case "backspace":
-                self.token.intVal = 8
-              case "delete":
-                self.token.intVal = 127
-              case "escape":
-                self.token.intVal = 27
-              case "newline":
-                self.token.intVal = 10
-              case "null":
-                self.token.intVal = 0
-              case "page":
-                self.token.intVal = 12
-              case "return":
-                self.token.intVal = 13
-              case "space":
-                self.token.intVal = 32
-              case "tab":
-                self.token.intVal = 9
-              case "vtab":
-                self.token.intVal = 11
-              default:
-                self.signal(.UnknownCharacterLiteral)
-            }
+        let s = self.buffer.stringStartingAt(2)
+        self.token.kind = .CHAR
+        if (s.utf16.count == 1) {
+          self.token.intVal = Int64(s.utf16.first!)
+        } else {
+          switch s {
+            case "alarm":
+              self.token.intVal = 7
+            case "backspace":
+              self.token.intVal = 8
+            case "delete":
+              self.token.intVal = 127
+            case "escape":
+              self.token.intVal = 27
+            case "newline":
+              self.token.intVal = 10
+            case "null":
+              self.token.intVal = 0
+            case "page":
+              self.token.intVal = 12
+            case "return":
+              self.token.intVal = 13
+            case "space":
+              self.token.intVal = 32
+            case "tab":
+              self.token.intVal = 9
+            case "vtab":
+              self.token.intVal = 11
+            default:
+              self.signal(.UnknownCharacterLiteral)
           }
         }
       default:
@@ -503,7 +506,7 @@ public class Scanner {
   private func scanNumber(radix: Int, neg: Bool, dot: Bool) {
     var digits: [UInt8] = []
     var isFloat = dot
-    let start = self.lpos.index
+    let start = self.buffer.index - 1
     if !isFloat {
       if radix != 10 || self.ch != DOT_CH {
         while isDigitForRadix(self.ch, radix) {
@@ -529,24 +532,21 @@ public class Scanner {
           self.nextCh()
         }
       }
-      if let s = String(self.src[start..<self.lpos.index]) {
-        if let dbl = Double(dot ? "." + s : s) {
-          switch self.ch {
-            case PLUS_CH:
-              self.nextCh()
-              return scanImaginaryPart(neg ? -dbl : dbl, neg: false)
-            case MINUS_CH:
-              self.nextCh()
-              return scanImaginaryPart(neg ? -dbl : dbl, neg: true)
-            default:
-              self.token.kind = .FLOAT
-              self.token.floatVal = neg ? -dbl : dbl
-          }
-        } else {
-          self.signal(.MalformedFloatLiteral)
+      let s = self.buffer.stringStartingAt(start)
+      if let dbl = Double(dot ? "." + s : s) {
+        switch self.ch {
+          case PLUS_CH:
+            self.nextCh()
+            return scanImaginaryPart(neg ? -dbl : dbl, neg: false)
+          case MINUS_CH:
+            self.nextCh()
+            return scanImaginaryPart(neg ? -dbl : dbl, neg: true)
+          default:
+            self.token.kind = .FLOAT
+            self.token.floatVal = neg ? -dbl : dbl
         }
       } else {
-        self.signal(.BrokenNumberEncoding)
+        self.signal(.MalformedFloatLiteral)
       }
     } else {
       let numer = BigInt(digits, negative: neg, base: BigInt.base(radix))
@@ -595,7 +595,7 @@ public class Scanner {
   /// Scans the next characters as an unsigned floating point number representing the
   /// imaginary part of a complex number
   private func scanImaginaryPart(realPart: Double, neg: Bool) {
-    let start = self.lpos.index
+    let start = self.buffer.index - 1
     while isDigitForRadix(self.ch, 10) {
       self.nextCh()
     }
@@ -615,17 +615,13 @@ public class Scanner {
       }
     }
     if self.ch == LI_CH || self.ch == UI_CH {
-      if let s = String(self.src[start..<self.lpos.index]) {
-        self.nextCh()
-        if let dbl = Double(s) {
-          self.token.kind = .COMPLEX
-          self.token.complexVal = Complex(realPart, neg ? -dbl : dbl)
-        } else {
-          self.signal(.MalformedFloatLiteral)
-        }
+      let s = self.buffer.stringStartingAt(start)
+      self.nextCh()
+      if let dbl = Double(s) {
+        self.token.kind = .COMPLEX
+        self.token.complexVal = Complex(realPart, neg ? -dbl : dbl)
       } else {
-        self.nextCh()
-        self.signal(.BrokenNumberEncoding)
+        self.signal(.MalformedFloatLiteral)
       }
     } else {
       self.signal(.MalformedComplexLiteral)
@@ -771,15 +767,13 @@ public class Scanner {
   }
 }
 
-/// Struct `Position` represents a position in the scanned string in terms of an index into the
-/// string, a line and column number.
+/// Struct `Position` represents a position in the scanned string in terms of a line and
+/// column number.
 public struct Position: CustomStringConvertible {
-  public var index: String.UTF16View.Index
   public var line: UInt
   public var col: UInt
   
-  init(_ index: String.UTF16View.Index, _ line: UInt, _ col: UInt) {
-    self.index = index
+  init(_ line: UInt, _ col: UInt) {
     self.line = line
     self.col = col
   }

@@ -22,25 +22,35 @@
 public final class ListLibrary: Library {
   
   public override func export() {
-    define("pair?", Procedure(isPair))
-    define("list?", Procedure(isList))
-    define("null?", Procedure(isNull))
-    define("list", Procedure(list, compileList))
-    define("cons", Procedure(cons, compileCons))
-    define("car", Procedure(ListLibrary.car))
-    define("cdr", Procedure(cdr))
-    define("length", Procedure(length))
-    define("append", Procedure(append))
-    define("reverse", Procedure(reverse))
-    define("list-tail", Procedure(listTail))
-    define("map", Procedure(map))
-    define("for-each", Procedure(forEach))
-    define("memq", Procedure(memq))
-    define("memv", Procedure(memv))
-    define("member", Procedure(member))
-    define("assq", Procedure(assq))
-    define("assv", Procedure(assv))
-    define("assoc", Procedure(assoc))
+    define(Procedure("pair?", isPair, compileIsPair))
+    define(Procedure("list?", isList))
+    define(Procedure("null?", isNull, compileIsNull))
+    define(Procedure("list", list, compileList))
+    define(Procedure("cons", cons, compileCons))
+    define(Procedure("car", car, compileCar))
+    define(Procedure("cdr", cdr, compileCdr))
+    define(Procedure("length", length))
+    define(Procedure("append", append))
+    define(Procedure("reverse", reverse))
+    define(Procedure("list-tail", listTail))
+    define(Procedure("memq", memq))
+    define(Procedure("memv", memv))
+    define(Procedure("member", member))
+    define(Procedure("assq", assq))
+    define(Procedure("assv", assv))
+    define(Procedure("assoc", assoc))
+    define(Procedure("decons", decons))
+    define("map",
+           compile: "(lambda (f list1 . lists)" +
+                    "  (let ((res '()))" +
+                    "       (do ((pair (decons (cons list1 lists)) (decons (cdr pair))))" +
+                    "           ((null? pair) (reverse res))" +
+                    "           (set! res (cons (apply f (car pair)) res)))))")
+    define("for-each",
+           compile: "(lambda (f list1 . lists)" +
+                    "  (do ((pair (decons (cons list1 lists)) (decons (cdr pair))))" +
+                    "      ((null? pair))" +
+                    "        (apply f (car pair))))")
   }
   
   //---------MARK: - List predicates
@@ -50,6 +60,10 @@ public final class ListLibrary: Library {
       return .True
     }
     return .False
+  }
+  
+  func compileIsPair(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    return try self.invoke(.IsPair, with: expr, in: env, for: compiler)
   }
   
   func isList(expr: Expr) -> Expr {
@@ -62,6 +76,10 @@ public final class ListLibrary: Library {
   
   func isNull(expr: Expr) -> Expr {
     return Expr.Boolean(expr.isNull)
+  }
+  
+  func compileIsNull(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    return try self.invoke(.IsNull, with: expr, in: env, for: compiler)
   }
   
   //-------- MARK: - Construction and deconstruction
@@ -104,11 +122,15 @@ public final class ListLibrary: Library {
     return false
   }
   
-  static func car(expr: Expr) throws -> Expr {
+  func car(expr: Expr) throws -> Expr {
     guard case .Pair(let car, _) = expr else {
       throw EvalError.TypeError(expr, [.PairType])
     }
     return car
+  }
+  
+  func compileCar(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    return try self.invoke(.Car, with: expr, in: env, for: compiler)
   }
   
   func cdr(expr: Expr) throws -> Expr {
@@ -116,6 +138,10 @@ public final class ListLibrary: Library {
       throw EvalError.TypeError(expr, [.PairType])
     }
     return cdr
+  }
+  
+  func compileCdr(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    return try self.invoke(.Cdr, with: expr, in: env, for: compiler)
   }
   
   //-------- MARK: - Basic list functions
@@ -303,6 +329,27 @@ public final class ListLibrary: Library {
     }
     return .False
   }
-}
-
   
+  func decons(expr: Expr) throws -> Expr {
+    guard case (let lists, .Null) = expr.toExprs() else {
+      throw EvalError.TypeError(expr, [.ProperListType])
+    }
+    guard lists.count > 0 else {
+      return .Null
+    }
+    var cars: Expr = .Null
+    var cdrs: Expr = .Null
+    for i in lists.indices.reverse() {
+      switch lists[i] {
+        case .Null:
+          return .Null
+        case .Pair(let car, let cdr):
+          cars = .Pair(car, cars)
+          cdrs = .Pair(cdr, cdrs)
+        default:
+          throw EvalError.TypeError(lists[i], [.ProperListType])
+      }
+    }
+    return .Pair(cars, cdrs)
+  }
+}

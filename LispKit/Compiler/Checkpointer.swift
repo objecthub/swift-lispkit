@@ -53,6 +53,15 @@ public class Checkpointer: CustomStringConvertible {
     return []
   }
   
+  public func systemDefined(address: UInt) -> Bool {
+    for assoc in self.associations(address) {
+      if assoc == .SystemDefined {
+        return true
+      }
+    }
+    return false
+  }
+  
   public func fromGlobalEnv(address: UInt) -> Expr? {
     for assoc in self.associations(address) {
       if case .FromGlobalEnv(let expr) = assoc {
@@ -86,23 +95,28 @@ public class Checkpointer: CustomStringConvertible {
 }
 
 public enum CheckpointData: Hashable, CustomStringConvertible {
+  case SystemDefined
   case FromGlobalEnv(Expr)
   case ValueBinding(Symbol)
   case Expansion(Expr)
   
   public var hashValue: Int {
     switch self {
+      case SystemDefined:
+        return 1
       case FromGlobalEnv(let expr):
-        return expr.hashValue &* 31 &+ 1
+        return expr.hashValue &* 31 &+ 2
       case ValueBinding(let sym):
-        return sym.hashValue &* 31 &+ 2
+        return sym.hashValue &* 31 &+ 3
       case Expansion(let expr):
-        return expr.hashValue &* 31 &+ 3
+        return expr.hashValue &* 31 &+ 4
     }
   }
   
   public var description: String {
     switch self {
+      case SystemDefined:
+        return "SystemDefined"
       case FromGlobalEnv(let expr):
         return "FromGlobalEnv(\(expr.description))"
       case ValueBinding(let sym):
@@ -115,6 +129,8 @@ public enum CheckpointData: Hashable, CustomStringConvertible {
 
 public func ==(left: CheckpointData, right: CheckpointData) -> Bool {
   switch (left, right) {
+    case (.SystemDefined, .SystemDefined):
+      return true
     case (.FromGlobalEnv(let lexpr), .FromGlobalEnv(let rexpr)):
       return lexpr == rexpr
     case (.ValueBinding(let lsym), .ValueBinding(let rsym)):

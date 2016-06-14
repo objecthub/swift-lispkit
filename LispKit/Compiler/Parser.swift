@@ -28,7 +28,7 @@ public class Parser {
   
   public init(symbols: SymbolTable, src: String) {
     self.symbols = symbols
-    self.scanner = Scanner(src)
+    self.scanner = Scanner(string: src)
   }
   
   public var finished: Bool {

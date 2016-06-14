@@ -101,6 +101,8 @@ func equalExpr(this: Expr, _ that: Expr) -> Bool {
         return e1 == e2
       case (.Proc(let e1), .Proc(let e2)):
         return e1 == e2
+      case (.Prt(let p1), .Prt(let p2)):
+        return p1 == p2
       case (.Var(let v1), .Var(let v2)):
         return v1 === v2
       case (.Error(let e1), .Error(let e2)):

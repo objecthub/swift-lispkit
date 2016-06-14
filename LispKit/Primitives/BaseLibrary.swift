@@ -25,47 +25,47 @@ public final class BaseLibrary: Library {
   
   public override func export() {
     // Basic primitives
-    define("eval", Procedure(eval, compileEval))
-    define("apply", Procedure(apply, compileApply))
-    define("equal?", Procedure(isEqual))
-    define("eqv?", Procedure(isEqv))
-    define("eq?", Procedure(isEq))
+    define(Procedure("procedure?", isProcedure))
+    define(Procedure("eval", eval, compileEval))
+    define(Procedure("apply", apply, compileApply))
+    define(Procedure("equal?", isEqual))
+    define(Procedure("eqv?", isEqv))
+    define(Procedure("eq?", isEq))
     define("quote", SpecialForm(compileQuote))
     define("quasiquote", SpecialForm(compileQuasiquote))
     define("lambda", SpecialForm(compileLambda))
-    define("procedure?", Procedure(isProcedure))
     
     // Definition primitives
     define("define", SpecialForm(compileDefine))
     define("define-syntax", SpecialForm(compileDefineSyntax))
     define("syntax-rules", SpecialForm(compileSyntaxRules))
     define("set!", SpecialForm(compileSet))
-    define("load", Procedure(load))
+    define(Procedure("load", load))
     
     // Delayed execution
-    define("promise?", Procedure(isPromise))
+    define(Procedure("promise?", isPromise))
+    define(Procedure("force", force, compileForce))
     define("delay", SpecialForm(compileDelay))
-    define("force", Procedure(force, compileForce))
     
     // Symbol primitives
-    define("symbol?", Procedure(isSymbol))
-    define("gensym", Procedure(gensym))
-    define("string->symbol", Procedure(stringToSymbol))
-    define("symbol->string", Procedure(symbolToString))
-    define("symtable", Procedure(symtable))
+    define(Procedure("symbol?", isSymbol))
+    define(Procedure("gensym", gensym))
+    define(Procedure("string->symbol", stringToSymbol))
+    define(Procedure("symbol->string", symbolToString))
+    define(Procedure("symtable", symtable))
     
     // Boolean primitives
-    define("boolean?", Procedure(isBoolean))
+    define(Procedure("boolean?", isBoolean))
     define("and", SpecialForm(compileAnd))
     define("or", SpecialForm(compileOr))
-    define("not", Procedure(not))
+    define(Procedure("not", not))
     
     // System primitives
-    define("gc", Procedure(gc))
-    define("exit", Procedure(exit))
+    define(Procedure("gc", gc))
+    define(Procedure("exit", exit))
+    define(Procedure("compile", compile))
+    define(Procedure("disassemble", disassemble))
     define("time", SpecialForm(compileTime))
-    define("compile", Procedure(compile))
-    define("disassemble", Procedure(disassemble))
   }
   
   

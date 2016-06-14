@@ -267,6 +267,14 @@ public enum Instruction: CustomStringConvertible {
   
   // Containers -------------------------------------------------------------------------------
 
+  /// **`is_pair`**: Pushes `#false` onto the stack if the current value on top of
+  /// the stack is not a pair.
+  case IsPair
+  
+  /// **`is_null`**: Pushes `#false` onto the stack if the current value on top of
+  /// the stack is not null.
+  case IsNull
+  
   /// **`list` _n_**: Pops the top _n_ values off the stack and constructs a list out of
   /// them on top of the stack.
   case List(Int)
@@ -509,6 +517,10 @@ public enum Instruction: CustomStringConvertible {
       return "eqv"
     case Equal:
       return "equal"
+    case IsPair:
+      return "is_pair"
+    case IsNull:
+      return "is_null"
     case Cons:
       return "cons"
     case Car:

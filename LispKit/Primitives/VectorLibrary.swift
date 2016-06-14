@@ -22,17 +22,17 @@
 public final class VectorLibrary: Library {
   
   public override func export() {
-    define("vector?", Procedure(isVector, compileIsVector))
-    define("vector", Procedure(vector, compileVector))
-    define("make-vector", Procedure(makeVector))
-    define("vector-append", Procedure(vectorAppend))
-    define("vector-ref", Procedure(vectorRef))
-    define("vector-set!", Procedure(vectorSet))
-    define("list->vector", Procedure(listToVector))
-    define("vector->list", Procedure(vectorToList))
-    define("vector-fill!", Procedure(vectorFill))
+    define(Procedure("vector?", isVector, compileIsVector))
+    define(Procedure("vector", vector, compileVector))
+    define(Procedure("make-vector", makeVector))
+    define(Procedure("vector-append", vectorAppend))
+    define(Procedure("vector-ref", vectorRef))
+    define(Procedure("vector-set!", vectorSet))
+    define(Procedure("list->vector", listToVector))
+    define(Procedure("vector->list", vectorToList))
+    define(Procedure("vector-fill!", vectorFill))
   }
-
+  
   //-------- MARK: - Vector primitives
   
   func isVector(expr: Expr) -> Expr {

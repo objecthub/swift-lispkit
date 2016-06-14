@@ -85,9 +85,11 @@ public final class VirtualMachine: TrackedObject {
   
   /// Loads the file at file patch `path`, compiles it in the interaction environment, and
   /// executes it using this virtual machine.
-  public func evalFile(path: String, optimize: Bool = true) -> Expr {
+  public func evalFile(path: String, in env: Env = .Interaction, optimize: Bool = true) -> Expr {
     do {
-      return self.evalStr(try String(contentsOfFile: path, encoding: NSUTF8StringEncoding))
+      return self.evalStr(try String(contentsOfFile: path, encoding: NSUTF8StringEncoding),
+                          in: env,
+                          optimize: optimize)
     } catch let error as NSError {
       return .Error(AnyError(OsError(error)))
     }
@@ -95,14 +97,14 @@ public final class VirtualMachine: TrackedObject {
   
   /// Parses the given string, compiles it in the interaction environment, and executes it using
   /// this virtual machine.
-  public func evalStr(str: String, optimize: Bool = true) -> Expr {
+  public func evalStr(str: String, in env: Env = .Interaction, optimize: Bool = true) -> Expr {
     do {
       let parser = Parser(symbols: self.context.symbols, src: str)
       var exprs = Exprs()
       while !parser.finished {
         exprs.append(try parser.parse())
       }
-      return self.evalExprs(.List(exprs), optimize: optimize)
+      return self.evalExprs(.List(exprs), in: env, optimize: optimize)
     } catch let error as LispError { // handle Lisp-related issues
       return .Error(AnyError(error))
     } catch { // handle internal issues
@@ -114,18 +116,19 @@ public final class VirtualMachine: TrackedObject {
   
   /// Compiles the given expression in the interaction environment and executes it using this
   /// virtual machine.
-  public func evalExpr(expr: Expr, optimize: Bool = true) -> Expr {
-    return self.evalExprs(.List(expr), optimize: optimize)
+  public func evalExpr(expr: Expr, in env: Env = .Interaction, optimize: Bool = true) -> Expr {
+    return self.evalExprs(.List(expr), in: env, optimize: optimize)
   }
   
   /// Compiles the given list of expressions in the interaction environment and executes
   /// it using this virtual machine.
-  public func evalExprs(exprs: Expr, optimize: Bool = true) -> Expr {
+  public func evalExprs(exprs: Expr, in env: Env = .Interaction, optimize: Bool = true) -> Expr {
     do {
       var exprlist = exprs
       var res = Expr.Void
       while case .Pair(let expr, let rest) = exprlist {
-        let code = try Compiler.compile(self.context, expr: .List(expr), optimize: optimize)
+        let code =
+          try Compiler.compile(self.context, expr: .List(expr), in: env, optimize: optimize)
         log(code.description)
         res = try self.execute(code)
         exprlist = rest
@@ -279,7 +282,7 @@ public final class VirtualMachine: TrackedObject {
       throw EvalError.NonApplicativeValue(self.stack[self.sp - n - 1])
     }
     // Return non-primitive procedures
-    guard case .Primitive(let impl, _) = proc.kind else {
+    guard case .Primitive(_, let impl, _) = proc.kind else {
       return proc
     }
     // Invoke primitive
@@ -750,6 +753,14 @@ public final class VirtualMachine: TrackedObject {
           self.push(.Boolean(eqvExpr(self.pop(), self.pop())))
         case .Equal:
           self.push(.Boolean(equalExpr(self.pop(), self.pop())))
+        case .IsPair:
+          if case .Pair(_, _) = self.pop() {
+            self.push(.True)
+          } else {
+            self.push(.False)
+          }
+        case .IsNull:
+          self.push(.Boolean(self.pop() == .Null))
         case .Cons:
           let cdr = self.pop()
           self.push(.Pair(self.pop(), cdr))
