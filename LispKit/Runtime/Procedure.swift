@@ -177,7 +177,9 @@ public extension ArraySlice {
     }
   }
   
-  public func optional(fst: Element, _ snd: Element, trd: Element) -> (Element, Element, Element)? {
+  public func optional(fst: Element,
+                       _ snd: Element,
+                       _ trd: Element) -> (Element, Element, Element)? {
     switch self.count {
       case 0:
         return (fst, snd, trd)

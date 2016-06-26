@@ -270,6 +270,8 @@ public enum EvalError: LispError {
   case DefineInLocalEnv(signature: Expr, definition: Expr, group: BindingGroup)
   case DefineSyntaxInLocalEnv(keyword: Symbol, definition: Expr, group: BindingGroup)
   case TargetBytevectorTooSmall(Expr)
+  case CannotOpenFile(String)
+  case CannotWriteToPort(Expr)
   
   public var kind: String {
     return "eval error"
@@ -367,6 +369,10 @@ public enum EvalError: LispError {
         return "syntax definition of \(sym) in local environment"
       case .TargetBytevectorTooSmall(let bvec):
         return "target bytevector too small: \(bvec)"
+      case .CannotOpenFile(let filename):
+        return "cannot open file '\(filename)'"
+      case .CannotWriteToPort(let port):
+        return "cannot write to port \(port)"
     }
   }
   
@@ -451,6 +457,10 @@ public enum EvalError: LispError {
           return sym1 == sym2 && def1 == def2 && g1 == g2
         case (TargetBytevectorTooSmall(let bvec1), TargetBytevectorTooSmall(let bvec2)):
           return bvec1 == bvec2
+        case (CannotOpenFile(let f1), CannotOpenFile(let f2)):
+          return f1 == f2
+        case (CannotWriteToPort(let p1), CannotWriteToPort(let p2)):
+          return p1 == p2
         default:
           return false
       }

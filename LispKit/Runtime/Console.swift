@@ -22,13 +22,41 @@
 /// `Console` defines the protocol for interacting with the console window. It provides
 /// methods to set the console window status, to write strings as well as to read strings.
 ///
-public protocol Console {
+public protocol Console: TextInputSource, TextOutputTarget {
   
   /// Prints the given string into the console window.
   func print(str: String)
   
   /// Reads a string from the console window.
   func read() -> String?
+}
+
+///
+/// Implement `TextInputSource` and `TextOutputTarget` functionality via the `Console`
+/// methods.
+///
+extension Console {
+  
+  /// The console always blocks before providing a new string.
+  public var nextReadMightBlock: Bool {
+    return true
+  }
+  
+  /// Read the next string from the console. This operation always blocks.
+  public func readString() -> String? {
+    return self.read()
+  }
+  
+  /// `flush` always succeeds.
+  public func flush(completely: Bool = false) -> Bool {
+    return true
+  }
+  
+  /// Print the given string to the console.
+  public func writeString(str: String) -> Bool {
+    self.print(str)
+    return true
+  }
 }
 
 ///
@@ -46,7 +74,7 @@ public struct CommandLineConsole: Console {
   
   /// Reads a string from the console window.
   public func read() -> String? {
-    return Swift.readLine()
+    return Swift.readLine(stripNewline: false)
   }
 }
 

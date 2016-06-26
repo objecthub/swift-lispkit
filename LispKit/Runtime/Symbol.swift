@@ -45,6 +45,13 @@ public final class Symbol: Reference, CustomStringConvertible {
     return self.interned.description
   }
   
+  public var rawIdentifier: String {
+    guard case .Interned(let ident) = self.interned.kind else {
+      preconditionFailure("no interned symbol")
+    }
+    return ident
+  }
+  
   public var isGenerated: Bool {
     switch self.kind {
       case .Interned(_):

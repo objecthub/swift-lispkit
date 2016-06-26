@@ -60,9 +60,9 @@ public class Context {
     self.objects = ManagedObjectPool()
     self.symbols = SymbolTable()
     self.userScope = Scope(Scope())
-    self.inputPort = Port.consoleInput
-    self.outputPort = Port.consoleOutput
-    self.errorPort = Port.consoleOutput
+    self.inputPort = Port(input: TextInput(source: console))
+    self.outputPort = Port(output: TextOutput(target: console, threshold: 0))
+    self.errorPort = self.inputPort
     self.machine = VirtualMachine(self)
     // Register tracked objects
     self.objects.track(self.machine)

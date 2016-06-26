@@ -49,6 +49,12 @@ public enum Type: Int, CustomStringConvertible {
   case ListType
   case ProperListType
   case AssocListType
+  case TextInputPortType
+  case TextOutputPortType
+  case BinaryInputPortType
+  case BinaryOutputPortType
+  case InputPortType
+  case OutputPortType
   
   public var description: String {
     switch self {
@@ -106,6 +112,18 @@ public enum Type: Int, CustomStringConvertible {
         return "proper list"
       case AssocListType:
         return "association list"
+      case TextInputPortType:
+        return "textual input port"
+      case TextOutputPortType:
+        return "textual output port"
+      case BinaryInputPortType:
+        return "binary input port"
+      case BinaryOutputPortType:
+        return "binary output port"
+      case InputPortType:
+        return "input port"
+      case OutputPortType:
+        return "output port"
     }
   }
   
@@ -123,37 +141,35 @@ public enum Type: Int, CustomStringConvertible {
         return PROPERLIST_SUBTYPES
       case AssocListType:
         return ASSOCLIST_SUBTYPES
+      case PortType:
+        return PORT_SUBTYPES
+      case .InputPortType:
+        return INPUT_PORT_SUBTYPES
+      case .OutputPortType:
+        return OUTPUT_PORT_SUBTYPES
       default:
         return [self]
     }
   }
   
   public func includes(type: Type) -> Bool {
-    switch self {
-      case NumberType:
-        return NUMBER_SUBTYPES.contains(type)
-      case ExactNumberType:
-        return EXACT_NUMBER_SUBTYPES.contains(type)
-      case RealType:
-        return REAL_SUBTYPES.contains(type)
-      case ListType:
-        return LIST_SUBTYPES.contains(type)
-      case ProperListType:
-        return PROPERLIST_SUBTYPES.contains(type)
-      case AssocListType:
-        return ASSOCLIST_SUBTYPES.contains(type)
-      default:
-        return self == type
-    }
+    return self.included.contains(type)
   }
 }
 
-private let NUMBER_SUBTYPES: Set<Type> = [
-  .ByteType, .IntegerType, .RationalType, .FloatType, .ComplexType
-]
-private let EXACT_NUMBER_SUBTYPES: Set<Type> = [.ByteType, .IntegerType, .RationalType]
-private let REAL_SUBTYPES: Set<Type> = [.IntegerType, .RationalType, .FloatType]
-private let LIST_SUBTYPES: Set<Type> = [.PairType, .NullType]
-private let PROPERLIST_SUBTYPES = LIST_SUBTYPES
-private let ASSOCLIST_SUBTYPES = LIST_SUBTYPES
-
+private let NUMBER_SUBTYPES: Set<Type> = [.NumberType, .ByteType, .IntegerType, .RationalType,
+                                          .FloatType, .ComplexType, .ExactNumberType, .RealType]
+private let EXACT_NUMBER_SUBTYPES: Set<Type> = [.ExactNumberType, .ByteType,
+                                                .IntegerType, .RationalType]
+private let REAL_SUBTYPES: Set<Type> = [.RealType, .IntegerType, .RationalType, .FloatType]
+private let LIST_SUBTYPES: Set<Type> = [.ListType, .PairType, .NullType, .ProperListType,
+                                        .AssocListType]
+private let PROPERLIST_SUBTYPES: Set<Type> = [.ProperListType, .PairType, .NullType]
+private let ASSOCLIST_SUBTYPES: Set<Type> = [.AssocListType, .PairType, .NullType]
+private let PORT_SUBTYPES: Set<Type> = [.PortType, .InputPortType, .OutputPortType,
+                                        .TextInputPortType, .TextOutputPortType,
+                                        .BinaryInputPortType, .BinaryOutputPortType]
+private let INPUT_PORT_SUBTYPES: Set<Type> = [.InputPortType, .TextInputPortType,
+                                              .BinaryInputPortType]
+private let OUTPUT_PORT_SUBTYPES: Set<Type> = [.OutputPortType, .TextOutputPortType,
+                                               .BinaryOutputPortType]

@@ -38,7 +38,7 @@ console.print("\(AppInfo.name) \(AppInfo.version) (\(AppInfo.buildDate) \(AppInf
 console.print("\(AppInfo.copyright)\n")
 
 // Enter read-eval-print loop
-console.print("▷ ")
+console.print("⟹ ")
 while let line = console.read() {
   guard line != "exit" else {
     break
@@ -47,5 +47,5 @@ while let line = console.read() {
   if res != Expr.Void {
     console.print(res.description + "\n")
   }
-  console.print("▷ ")
+  console.print("⟹ ")
 }

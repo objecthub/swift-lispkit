@@ -104,31 +104,6 @@ public class BinaryInput: GeneratorType {
     }
   }
   
-  /// Guarantees that there is at least one byte to read from the buffer. Returns false if the
-  /// end of file is reached or there has been a read error.
-  private func readable() -> Bool {
-    if self.eof {
-      return false
-    } else if self.index >= self.buffer.count {
-      if let input = self.input where input.hasBytesAvailable {
-        let result = input.read(&self.buffer, maxLength: self.buffer.count * sizeof(UInt8))
-        guard result >= 0 else {
-          return false
-        }
-        self.index = 0
-        if result == 0 {
-          self.eof = true
-          return false
-        }
-      } else {
-        self.index = 0
-        self.eof = true
-        return false
-      }
-    }
-    return true
-  }
-  
   /// Reads the next byte. Returns nil if all input is consumed or an error was encountered.
   /// Clients can disambiguate the current state by checking property `eof`.
   public func read() -> UInt8? {
@@ -192,8 +167,59 @@ public class BinaryInput: GeneratorType {
     return to - start
   }
   
-  /// Returns a generator for all the bytes of this `BinaryInput` object.
-  public func generate() -> AnyGenerator<UInt8> {
-    return AnyGenerator(body: self.read)
+  public var readMightBlock: Bool {
+    if self.eof {
+      return false
+    } else if self.index >= self.buffer.count {
+      return self.input?.hasBytesAvailable ?? false
+    } else {
+      return false
+    }
+  }
+  
+  /// Guarantees that there is at least one byte to read from the buffer. Returns false if the
+  /// end of file is reached or there has been a read error.
+  private func readable() -> Bool {
+    if self.eof {
+      return false
+    } else if self.index >= self.buffer.count {
+      if let input = self.input where input.hasBytesAvailable {
+        let result = input.read(&self.buffer, maxLength: self.buffer.count * sizeof(UInt8))
+        guard result >= 0 else {
+          return false
+        }
+        self.index = 0
+        if result == 0 {
+          self.eof = true
+          return false
+        }
+      } else {
+        self.index = 0
+        self.eof = true
+        return false
+      }
+    }
+    return true
+  }
+  
+  /// Returns a function that decodes the binary input as UTF8 and returns strings of at most
+  /// `length` characters (where a character is a unicode scalar).
+  public func textProvider(length: Int) -> () -> String? {
+    var codec = UTF8()
+    var this = self
+    return {
+      var str = ""
+      for _ in 0..<length {
+        switch codec.decode(&this) {
+          case .Result (let scalar):
+            str.append(scalar)
+          case .EmptyInput:
+            return str
+          case .Error:
+            return nil
+        }
+      }
+      return str
+    }
   }
 }

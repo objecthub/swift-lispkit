@@ -12,20 +12,22 @@ Last update: 2016-06-03
       reference.
 - [X] Support (define ...) in control flow special forms
 - [X] Refactor creation of compiler; checkpointer needs to be always passed explicitly
+- [X] Support compiled system functions
 
 
 ## Runtime
 
-- [ ] Go through procedures that call back into the VM to check that all expressions are tracked
-      by the managed object pool
+- [ ] Go through procedures that call back into the VM to check that all expressions are
+      tracked by the managed object pool
 - [ ] Redesign error data model
 - [ ] Evaluate what it takes to support `call/cc`
 - [ ] Profile virtual machine
-
+- [ ] Implement new primitive procedure type that returns closures for execution instead
+      of results
 
 ## Library
 
-- [ ] Adopt text + binary ports from R7RS
+- [X] Adopt text + binary ports from R7RS
 - [X] Adopt bytevectors from R7RS
 - [X] Implement bytevector library
 - [ ] Implement library functions supporting mutable strings

@@ -33,13 +33,14 @@ public class TextOutput {
   /// Index of the next character to write.
   private var next: Int
   
-  /// Binary output object to which text is written as a UTF8 encoded stream of bytes.
-  private var output: BinaryOutput?
+  /// Soft threshold for triggering a `flush`. Invariant: `threshold` <= `buffer.count`.
+  private let threshold: Int
+  
+  /// Text output target object to which the character sequences are written as a stream of bytes.
+  private var target: TextOutputTarget?
   
   /// The URL of this text output.
-  public var url: NSURL? {
-    return self.output?.url
-  }
+  public var url: NSURL?
   
   /// Returns the characters that are currently in the buffer as a string.
   public var currentBuffer: String {
@@ -49,13 +50,30 @@ public class TextOutput {
   internal init() {
     self.buffer = []
     self.next = 0
-    self.output = nil
+    self.threshold = 0
+    self.target = nil
+    self.url = nil
   }
   
-  public init?(output: BinaryOutput, capacity: Int = 4096) {
+  public convenience init(output: BinaryOutput, capacity: Int = 4096) {
+    self.init(target: UTF8EncodedTarget(output: output),
+              url: output.url,
+              capacity: capacity,
+              threshold: capacity)
+  }
+  
+  public init(target: TextOutputTarget,
+              url: NSURL? = nil,
+              capacity: Int = 4096,
+              threshold: Int = 4096) {
+    guard threshold <= capacity else {
+      preconditionFailure("TextOutput threshold above capacity")
+    }
     self.buffer = Array<UniChar>(count: capacity, repeatedValue: 0)
     self.next = 0
-    self.output = output
+    self.threshold = threshold
+    self.target = target
+    self.url = url
   }
   
   /// Closes the output object at garbage collection time.
@@ -67,49 +85,55 @@ public class TextOutput {
   /// possible and will be accumulated in the internal buffer.
   public func close() {
     self.flush()
-    self.output = nil
+    self.target = nil
   }
   
-  private func writeable() -> Bool {
-    guard self.output == nil || self.next < self.buffer.count else {
-      return self.flush()
-    }
-    return true
-  }
-  
-  public func flush() -> Bool {
-    if let output = self.output where self.next > 0 {
+  public func flush(completely: Bool = false) -> Bool {
+    if self.target != nil && self.next > 0 {
       let str = String(utf16CodeUnits: self.buffer, count: self.next)
-      for byte in str.utf8 {
-        guard output.write(byte) else {
-          return false
-        }
+      guard self.target!.writeString(str) else {
+        return false
       }
       self.next = 0
     }
     return true
   }
-
+  
   public func write(ch: UniChar) -> Bool {
-    guard self.writeable() else {
+    guard self.writeToBuffer(ch) else {
       return false
     }
+    guard self.target == nil || self.next < self.threshold else {
+      return self.flush()
+    }
+    return true
+  }
+  
+  public func writeString(str: String) -> Bool {
+    for ch in str.utf16 {
+      guard self.writeToBuffer(ch) else {
+        return false
+      }
+    }
+    guard self.target == nil || self.next < self.threshold else {
+      return self.flush()
+    }
+    return true
+  }
+  
+  private func writeToBuffer(ch: UniChar) -> Bool {
     if self.next < self.buffer.count {
+      self.buffer[self.next] = ch
+    } else if self.target != nil {
+      guard self.flush() else {
+        return false
+      }
       self.buffer[self.next] = ch
     } else {
       // This happens only for `TextOutput` objects that are not backed by an output stream
       self.buffer.append(ch)
     }
     self.next += 1
-    return true
-  }
-  
-  public func writeString(str: String) -> Bool {
-    for ch in str.utf16 {
-      guard self.write(ch) else {
-        return false
-      }
-    }
     return true
   }
 }

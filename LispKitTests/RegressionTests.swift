@@ -42,4 +42,8 @@ class RegressionTests: LispKitTestCase {
   func testLocalSyntaxRules() {
     self.executeTests("LocalSyntaxRules")
   }
+  
+  func testPorts() {
+    self.executeTests("Ports")
+  }
 }

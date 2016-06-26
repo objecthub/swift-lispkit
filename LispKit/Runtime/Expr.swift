@@ -340,6 +340,10 @@ extension Expr {
     }
     return res
   }
+  
+  public static func StringFor(str: String) -> Expr {
+    return .Str(MutableBox(str))
+  }
 }
 
 
@@ -504,31 +508,18 @@ extension Expr {
 ///
 extension Expr: CustomStringConvertible {
   
-  internal static func escapeStr(str: String) -> String {
-    var res = ""
-    for c in str.characters {
-      switch c {
-        case "\u{7}":  res += "\\a"
-        case "\u{8}":  res += "\\b"
-        case "\t":     res += "\\t"
-        case "\n":     res += "\\n"
-        case "\u{11}": res += "\\v"
-        case "\u{12}": res += "\\f"
-        case "\r":     res += "\\r"
-        case "\u{27}": res += "\\e"
-        case "\"":     res += "\\\""
-        case "\\":     res += "\\\\"
-        default:       res.append(c)
-      }
-    }
-    return res
+  public var description: String {
+    return self.toString()
   }
   
-  public var description: String {
+  public var unescapedDescription: String {
+    return self.toString(escape: false)
+  }
+  
+  public func toString(escape escape: Bool = true) -> String {
     var enclVectors = Set<Vector>()
     var vectorIdMap = [Vector: Int]()
     var enclVariables = Set<Variable>()
-    
     func stringReprOf(expr: Expr) -> String {
       switch expr {
         case .Undef:
@@ -544,6 +535,9 @@ extension Expr: CustomStringConvertible {
         case .False:
           return "#f"
         case .Sym(let sym):
+          guard escape else {
+            return sym.rawIdentifier
+          }
           return sym.description
         case .Fixnum(let val):
           return String(val)
@@ -564,6 +558,9 @@ extension Expr: CustomStringConvertible {
         case .Complexnum(let val):
           return val.description
         case .Char(let ch):
+          guard escape else {
+            return String(UnicodeScalar(ch))
+          }
           switch ch {
             case   7: return "#\\alarm"
             case   8: return "#\\backspace"
@@ -588,6 +585,9 @@ extension Expr: CustomStringConvertible {
               }
           }
         case .Str(let str):
+          guard escape else {
+            return str.value
+          }
           return "\"\(Expr.escapeStr(str.value))\""
         case .Pair(let head, let tail):
           var res = "(" + stringReprOf(head)
@@ -649,8 +649,27 @@ extension Expr: CustomStringConvertible {
           return error.description
       }
     }
-    
     return stringReprOf(self)
+  }
+  
+  internal static func escapeStr(str: String) -> String {
+    var res = ""
+    for c in str.characters {
+      switch c {
+      case "\u{7}":  res += "\\a"
+      case "\u{8}":  res += "\\b"
+      case "\t":     res += "\\t"
+      case "\n":     res += "\\n"
+      case "\u{11}": res += "\\v"
+      case "\u{12}": res += "\\f"
+      case "\r":     res += "\\r"
+      case "\u{27}": res += "\\e"
+      case "\"":     res += "\\\""
+      case "\\":     res += "\\\\"
+      default:       res.append(c)
+      }
+    }
+    return res
   }
 }
 

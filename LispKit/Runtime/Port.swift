@@ -10,20 +10,15 @@ import Foundation
 
 public class Port: Reference, CustomStringConvertible {
   
-  private enum Kind {
-    case ConsoleInputPort
-    case ConsoleOutputPort
+  public enum Kind {
     case TextInputPort(TextInput)
     case TextOutputPort(TextOutput)
     case BinaryInputPort(BinaryInput)
     case BinaryOutputPort(BinaryOutput)
   }
   
-  private let kind: Kind
-  var isOpen: Bool = true
-  
-  public static let consoleInput: Port = Port(.ConsoleInputPort)
-  public static let consoleOutput: Port = Port(.ConsoleOutputPort)
+  public let kind: Kind
+  public var isOpen: Bool = true
   
   public init(input: TextInput) {
     self.kind = .TextInputPort(input)
@@ -56,7 +51,7 @@ public class Port: Reference, CustomStringConvertible {
   
   public var isTextualPort: Bool {
     switch self.kind {
-      case .TextInputPort(_), .TextOutputPort(_), .ConsoleInputPort, .ConsoleOutputPort:
+      case .TextInputPort(_), .TextOutputPort(_):
         return true
       default:
         return false
@@ -65,7 +60,7 @@ public class Port: Reference, CustomStringConvertible {
   
   public var isInputPort: Bool {
     switch self.kind {
-      case .ConsoleInputPort, .TextInputPort, .BinaryInputPort:
+      case .TextInputPort(_), .BinaryInputPort(_):
         return true
       default:
         return false
@@ -74,26 +69,29 @@ public class Port: Reference, CustomStringConvertible {
   
   public var isOutputPort: Bool {
     switch self.kind {
-      case .ConsoleOutputPort, .TextOutputPort(_), .BinaryOutputPort(_):
+      case .TextOutputPort(_), .BinaryOutputPort(_):
         return true
       default:
         return false
     }
   }
   
-  public var isConsolePort: Bool {
-    switch self.kind {
-      case .ConsoleInputPort, .ConsoleOutputPort:
-        return true
-      default:
-        return false
+  public var outputString: String? {
+    guard case .TextOutputPort(let output) = self.kind else {
+      return nil
     }
+    return output.currentBuffer
+  }
+  
+  public var outputBinary: [UInt8]? {
+    guard case .BinaryOutputPort(let output) = self.kind else {
+      return nil
+    }
+    return output.currentBuffer
   }
   
   public var url: NSURL? {
     switch self.kind {
-      case .ConsoleInputPort, .ConsoleOutputPort:
-        return nil
       case .TextInputPort(let input):
         return input.url
       case .TextOutputPort(let output):
@@ -111,9 +109,7 @@ public class Port: Reference, CustomStringConvertible {
   }
   
   public var identDescription: String {
-    if self.isConsolePort {
-      return "console"
-    } else if let url = self.url {
+    if let url = self.url {
       return url.path ?? url.absoluteString
     } else {
       return self.isBinaryPort ? "bytevector" : "string"
@@ -122,6 +118,19 @@ public class Port: Reference, CustomStringConvertible {
   
   public var description: String {
     return self.typeDescription + ":" + self.identDescription
+  }
+  
+  public func close() {
+    switch self.kind {
+      case .TextInputPort(let input):
+        input.close()
+      case .TextOutputPort(let output):
+        output.close()
+      case .BinaryInputPort(let input):
+        input.close()
+      case .BinaryOutputPort(let output):
+        output.close()
+    }
   }
 }
 

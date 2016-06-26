@@ -26,16 +26,24 @@ public class Parser {
   private var symbols: SymbolTable
   private var scanner: Scanner
   
-  public init(symbols: SymbolTable, src: String) {
+  public convenience init(symbols: SymbolTable, src: String) {
+    self.init(symbols: symbols, scanner: Scanner(string: src))
+  }
+  
+  public convenience init(symbols: SymbolTable, input: TextInput) {
+    self.init(symbols: symbols, scanner: Scanner(input: input))
+  }
+  
+  public init(symbols: SymbolTable, scanner: Scanner) {
     self.symbols = symbols
-    self.scanner = Scanner(string: src)
+    self.scanner = scanner
   }
   
   public var finished: Bool {
     return !self.scanner.hasNext()
   }
   
-  public func parse() throws -> Expr {
+  public func parse(prescan: Bool = true) throws -> Expr {
     var res: Expr
     let token = self.scanner.token
     switch token.kind {
@@ -126,7 +134,9 @@ public class Parser {
         self.scanner.next()
         throw SyntaxError.UnexpectedDot
     }
-    self.scanner.next()
+    if prescan {
+      self.scanner.next()
+    }
     return res
   }
 }

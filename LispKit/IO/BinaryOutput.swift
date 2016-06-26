@@ -109,7 +109,7 @@ public class BinaryOutput {
   
   /// Flushes the buffer by writing it into the output steam. For `BinaryOutput` objects that
   /// are not backed by an output stream, flush does nothing.
-  public func flush() -> Bool {
+  public func flush(completely: Bool = false) -> Bool {
     if let output = self.output where self.next > 0 {
       let result = output.write(&self.buffer, maxLength: self.next * sizeof(UInt8))
       if result < 0 {

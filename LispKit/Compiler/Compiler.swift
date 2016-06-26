@@ -458,13 +458,12 @@ public final class Compiler {
               self.checkpointer.associate(.FromGlobalEnv(value), with: cp)
               switch value {
                 case .Proc(let proc):
-                  if case .Primitive(_, _, .Some(let formCompiler)) = proc.kind {
-                    if self.checkpointer.systemDefined(cp) ||
-                       global.systemDefined(lexicalSym, in: self.context) {
-                      self.checkpointer.associate(.SystemDefined, with: cp)
-                      self.removeLastInstr()
-                      return try formCompiler(self, expr, env, tail)
-                    }
+                  if case .Primitive(_, _, .Some(let formCompiler)) = proc.kind
+                     where self.checkpointer.systemDefined(cp) ||
+                           global.systemDefined(lexicalSym, in: self.context) {
+                    self.checkpointer.associate(.SystemDefined, with: cp)
+                    self.removeLastInstr()
+                    return try formCompiler(self, expr, env, tail)
                   }
                 case .Special(let special):
                   self.removeLastInstr()

@@ -2,7 +2,7 @@
 //  TextInput.swift
 //  LispKit
 //
-//  Created by Matthias Zenger on 07/06/2016.
+//  Created by Matthias Zenger on 18/06/2016.
 //  Copyright © 2016 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,9 +21,9 @@
 import Foundation
 
 ///
-/// `TextInput` represents a textual input port. Textual input ports are not stream-based. They
-/// either get initialized with a string, or their content is read from a file when the
-/// `TextInput` object is initialized.
+/// `TextInput` implements a buffered textual input port. Textual input ports are
+/// not stream-based. They either get initialized with a string, or their content is read
+/// from a file when the `TextInput` object is initialized.
 ///
 public class TextInput {
   
@@ -36,35 +36,30 @@ public class TextInput {
   /// Eof is true if all bytes have been consumed.
   public private(set) var eof: Bool = false
   
-  /// Input stream. If this property is nil, only the content in the buffer is relevant.
-  private var input: BinaryInput?
-  
-  /// Codec to decode bytes into unicode scalars.
-  private var codec: UTF8?
-  
-  /// The capacity of the internal string buffer in terms of UTF16 characters.
-  private let capacity: Int
+  /// Text provider. If this property is nil, only the content in the buffer is relevant.
+  private var source: TextInputSource?
   
   /// The URL of this text input object.
-  public var url: NSURL? {
-    return self.input?.url
-  }
+  public var url: NSURL?
   
-  internal init(string: String) {
+  public init(string: String) {
     self.buffer = string.utf16
     self.next = self.buffer.startIndex
-    self.input = nil
-    self.codec = nil
-    self.capacity = self.buffer.count
+    self.source = nil
+    self.url = nil
   }
   
-  internal init(input: BinaryInput, capacity: Int = 4096) {
+  public convenience init(input: BinaryInput, capacity: Int = 4096) {
+    self.init(source: UTF8EncodedSource(input: input, length: capacity), url: input.url)
+    self.eof = input.eof
+  }
+  
+  public init(source: TextInputSource, url: NSURL? = nil) {
     self.buffer = "".utf16
     self.next = self.buffer.startIndex
-    self.eof = input.eof
-    self.input = input
-    self.codec = UTF8()
-    self.capacity = capacity
+    self.eof = false
+    self.source = source
+    self.url = url
   }
   
   /// Makes sure that the input object is closed at garbage collection time.
@@ -74,7 +69,7 @@ public class TextInput {
   
   /// Closes the `TextInput` object.
   public func close() {
-    self.input = nil
+    self.source = nil
   }
   
   public func read() -> UniChar? {
@@ -126,31 +121,32 @@ public class TextInput {
     return self.eof ? String(utf16CodeUnits: res, count: res.count) : nil
   }
   
+  public var readMightBlock: Bool {
+    if self.eof {
+      return false
+    } else if self.next >= self.buffer.endIndex {
+      return self.source?.nextReadMightBlock ?? false
+    } else {
+      return false
+    }
+  }
+  
   private func readable() -> Bool {
     if self.eof {
       return false
     } else if self.next >= self.buffer.endIndex {
-      if self.input != nil {
-        var str = ""
-        loop: for _ in 0..<self.capacity {
-          switch self.codec!.decode(&self.input!) {
-          case .Result (let scalar):
-            str.append(scalar)
-          case .EmptyInput:
-            break loop
-          case .Error:
-            return false
-          }
-        }
-        self.buffer = str.utf16
-        self.next = self.buffer.startIndex
-        if self.next >= self.buffer.endIndex {
-          self.eof = true
-          return false
-        }
-      } else {
+      guard self.source != nil else {
         self.buffer = "".utf16
         self.next = self.buffer.startIndex
+        self.eof = true
+        return false
+      }
+      guard let str = self.source!.readString() else {
+        return false
+      }
+      self.buffer = str.utf16
+      self.next = self.buffer.startIndex
+      if self.next >= self.buffer.endIndex {
         self.eof = true
         return false
       }
