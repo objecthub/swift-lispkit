@@ -208,44 +208,7 @@ public final class ListLibrary: Library {
       throw EvalError.IndexOutOfBounds(try count.asInteger(), len, expr)
     }
   }
-  
-  func map(fun: Expr, _ expr: Expr, _ arglists: Arguments) throws -> Expr {
-    var argFor = Exprs()
-    argFor.append(expr)
-    argFor.appendContentsOf(arglists)
-    var res = Exprs()
-    while true {
-      var args = Expr.Null
-      for i in 1...argFor.count {
-        if case .Pair(let car, let cdr) = argFor[argFor.count - i] {
-          args = .Pair(car, args)
-          argFor[argFor.count - i] = cdr
-        } else {
-          return Expr.List(res)
-        }
-      }
-      res.append(try context.machine.apply(fun, to: args))
-    }
-  }
-  
-  func forEach(fun: Expr, _ expr: Expr, _ arglists: Arguments) throws -> Expr {
-    var argFor = Exprs()
-    argFor.append(expr)
-    argFor.appendContentsOf(arglists)
-    while true {
-      var args = Expr.Null
-      for i in 1...argFor.count {
-        if case .Pair(let car, let cdr) = argFor[argFor.count - i] {
-          args = .Pair(car, args)
-          argFor[argFor.count - i] = cdr
-        } else {
-          return .Void
-        }
-      }
-      try context.machine.apply(fun, to: args)
-    }
-  }
-  
+    
   func memq(obj: Expr, expr: Expr) throws -> Expr {
     var list = expr
     while case .Pair(let car, let cdr) = list {

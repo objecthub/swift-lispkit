@@ -161,8 +161,8 @@ public final class VirtualMachine: TrackedObject {
   /// Applies `args` to the function `fun` in environment `env`.
   public func apply(fun: Expr, to args: Expr, in env: Env = .Interaction) throws -> Expr {
     self.push(fun)
-    let n = try self.pushArguments(args)
-    let proc = try self.invoke(n, 1)
+    var n = try self.pushArguments(args)
+    let proc = try self.invoke(&n, 1)
     switch proc.kind {
       case .Closure(let captured, let code):
         return try self.execute(code, args: n, captured: captured)
@@ -276,7 +276,7 @@ public final class VirtualMachine: TrackedObject {
     return proc
   }
   
-  private func invoke(n: Int, _ overhead: Int) throws -> Procedure {
+  private func invoke(inout n: Int, _ overhead: Int) throws -> Procedure {
     // Get procedure to call
     guard case .Proc(let proc) = self.stack[self.sp - n - 1] else {
       throw EvalError.NonApplicativeValue(self.stack[self.sp - n - 1])
@@ -287,6 +287,12 @@ public final class VirtualMachine: TrackedObject {
     }
     // Invoke primitive
     switch impl {
+      case .Gen(let gen):
+        let generated = Procedure(try gen(self.stack[self.sp-n..<self.sp]))
+        self.pop(n + 1)
+        self.push(.Proc(generated))
+        n = 0
+        return generated
       case .Impl0(let proc):
         guard n == 0 else {
           throw EvalError.ArgumentCountError(formals: 0, args: self.popAsList(n))
@@ -573,7 +579,7 @@ public final class VirtualMachine: TrackedObject {
           // Store instruction pointer
           self.stack[self.sp - n - 2] = .Fixnum(Int64(ip))
           // Invoke native function
-          if case .Closure(let newcaptured, let newcode) = try self.invoke(n, 3).kind {
+          if case .Closure(let newcaptured, let newcode) = try self.invoke(&n, 3).kind {
             // Invoke compiled closure
             code = newcode
             captured = newcaptured
@@ -589,16 +595,18 @@ public final class VirtualMachine: TrackedObject {
           // Store instruction pointer
           self.stack[self.sp - n - 2] = .Fixnum(Int64(ip))
           // Invoke native function
-          if case .Closure(let newcaptured, let newcode) = try self.invoke(n, 3).kind {
+          var m = n
+          if case .Closure(let newcaptured, let newcode) = try self.invoke(&m, 3).kind {
             // Invoke compiled closure
             code = newcode
             captured = newcaptured
             ip = 0
             fp = self.sp - n
           }
-        case .TailCall(let n):
+        case .TailCall(let m):
           // Invoke native function
-          if case .Closure(let newcaptured, let newcode) = try self.invoke(n, 1).kind {
+          var n = m
+          if case .Closure(let newcaptured, let newcode) = try self.invoke(&n, 1).kind {
             // Invoke compiled closure
             code = newcode
             captured = newcaptured
@@ -711,7 +719,8 @@ public final class VirtualMachine: TrackedObject {
                 // Push procedure that yields the forced result
                 self.push(.Proc(proc))
                 // Invoke native function
-                if case .Closure(let newcaptured, let newcode) = try self.invoke(0, 3).kind {
+                var n = 0
+                if case .Closure(let newcaptured, let newcode) = try self.invoke(&n, 3).kind {
                   // Invoke compiled closure
                   code = newcode
                   captured = newcaptured

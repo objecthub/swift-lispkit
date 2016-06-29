@@ -44,7 +44,8 @@ public final class BaseLibrary: Library {
     
     // Delayed execution
     define(Procedure("promise?", isPromise))
-    define(Procedure("force", force, compileForce))
+    define(Procedure("force", compileForce, in: self.context))
+    define(Procedure("make-promise", makePromise))
     define("delay", SpecialForm(compileDelay))
     
     // Symbol primitives
@@ -71,8 +72,17 @@ public final class BaseLibrary: Library {
   
   //-------- MARK: - Basic primitives
   
-  func eval(expr: Expr) throws -> Expr {
-    return try context.machine.eval(expr)
+  func eval(args: Arguments) throws -> Code {
+    guard args.count > 0 else {
+      throw EvalError.LeastArgumentCountError(formals: 1, args: .List(args))
+    }
+    guard args.count < 3 else {
+      throw EvalError.ArgumentCountError(formals: 2, args: .List(args))
+    }
+    return try Compiler.compile(self.context,
+                                expr: .Pair(args.first!, .Null),
+                                in: .Interaction,
+                                optimize: true)
   }
   
   func compileEval(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
@@ -85,17 +95,20 @@ public final class BaseLibrary: Library {
     return compiler.call(0, tail)
   }
   
-  func apply(fun: Expr, _ args: Expr, _ arglist: Arguments) throws -> Expr {
-    guard arglist.count > 0 else {
-      return try self.context.machine.apply(fun, to: args)
+  func apply(args: Arguments) throws -> Code {
+    guard args.count > 1 else {
+      throw EvalError.LeastArgumentCountError(formals: 2, args: .List(args))
     }
     var exprs = Exprs()
-    var next = args
-    for arg in arglist {
+    var next = args.first!
+    for arg in args[args.startIndex+1..<args.endIndex] {
       exprs.append(next)
       next = arg
     }
-    return try context.machine.apply(fun, to: .List(exprs, append: next))
+    return try Compiler.compile(self.context,
+                                expr: .Pair(.List(exprs, append: next), .Null),
+                                in: .Interaction,
+                                optimize: false)
   }
   
   func compileApply(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
@@ -392,7 +405,11 @@ public final class BaseLibrary: Library {
     }
     return .False
   }
-    
+  
+  func makePromise(expr: Expr) -> Expr {
+    return .Promise(Future(expr))
+  }
+  
   func compileDelay(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .Pair(_, .Pair(let delayed, .Null)) = expr else {
       throw EvalError.ArgumentCountError(formals: 1, args: expr)
@@ -401,28 +418,7 @@ public final class BaseLibrary: Library {
     compiler.emit(.MakePromise)
     return false
   }
-  
-  func force(expr: Expr) throws -> Expr {
-    guard case .Promise(let future) = expr else {
-      return expr
-    }
-    switch future.state {
-      case .Unevaluated(let proc):
-        do {
-          let res = try context.machine.apply(.Proc(proc), to: .Null)
-          future.state = .Value(res)
-          return res
-        } catch let error {
-          future.state = .Thrown(error)
-          throw error
-        }
-      case .Value(let value):
-        return value
-      case .Thrown(let error):
-        throw error
-    }
-  }
-  
+    
   func compileForce(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .Pair(_, .Pair(let promise, .Null)) = expr else {
       throw EvalError.ArgumentCountError(formals: 1, args: expr)

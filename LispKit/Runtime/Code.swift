@@ -20,8 +20,8 @@
 
 ///
 /// Struct `Code` represents an executable that bundles a list of instructions, a constant
-/// pool and code referenced from the instructions. `Code` objects are used to construct closures,
-/// which combine a `Code` object with a list of captured variables.
+/// pool and code referenced from the instructions. `Code` objects are used to construct
+/// closures, which combine a `Code` object with a list of captured variables.
 ///
 public struct Code: CustomStringConvertible {
   public let instructions: [Instruction]

@@ -405,14 +405,14 @@
 				CC55A8281C50D35C00772B02 /* Procedure.swift */,
 				CC55A82A1C5175B000772B02 /* SpecialForm.swift */,
 				CC8EDE4B1D0317AD004E0636 /* Port.swift */,
-				CC0980A81C67E81C006B7FB1 /* Code.swift */,
-				CC5696761CBCFA9900F6803E /* Instruction.swift */,
 				CC6AB0861C5C28FE008E9460 /* Equality.swift */,
 				CCAD52F71C48474500DBD8EE /* Context.swift */,
 				CC5033B01CDBE4CD0045A8FA /* Console.swift */,
 				CC78BF6B1C56C87500876D54 /* Scope.swift */,
 				CC6A3B6F1C53F2CF00E962E2 /* SymbolTable.swift */,
 				CCAD52DE1C48468F00DBD8EE /* SyntaxRules.swift */,
+				CC5696761CBCFA9900F6803E /* Instruction.swift */,
+				CC0980A81C67E81C006B7FB1 /* Code.swift */,
 				CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */,
 			);
 			path = Runtime;

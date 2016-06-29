@@ -45,6 +45,12 @@ public final class Future: ManagedObject, CustomStringConvertible {
     super.init(Future.stats)
   }
   
+  /// Initializes a future with a given value; no future evaluation will happen
+  public init(_ value: Expr) {
+    self.state = .Value(value)
+    super.init(Future.stats)
+  }
+  
   public var description: String {
     switch self.state {
       case .Unevaluated(let proc):

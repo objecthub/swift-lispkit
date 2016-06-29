@@ -1,6 +1,6 @@
 # Todo
 
-Last update: 2016-06-03
+Last update: 2016-06-26
 
 
 ## Compiler
@@ -22,7 +22,7 @@ Last update: 2016-06-03
 - [ ] Redesign error data model
 - [ ] Evaluate what it takes to support `call/cc`
 - [ ] Profile virtual machine
-- [ ] Implement new primitive procedure type that returns closures for execution instead
+- [X] Implement new primitive procedure type that returns closures for execution instead
       of results
 
 ## Library
@@ -31,7 +31,7 @@ Last update: 2016-06-03
 - [X] Adopt bytevectors from R7RS
 - [X] Implement bytevector library
 - [ ] Implement library functions supporting mutable strings
-
+- [ ] Implement delay-force
 
 ## Tests
 
