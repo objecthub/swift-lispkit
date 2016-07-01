@@ -711,7 +711,7 @@ public final class VirtualMachine: TrackedObject {
         case .Force:
           if case .Promise(let future) = self.stack[self.sp - 1] {
             switch future.state {
-              case .Unevaluated(let proc):
+              case .Lazy(let proc):
                 // Push frame pointer
                 self.push(.Fixnum(Int64(fp)))
                 // Push instruction pointer
@@ -727,6 +727,11 @@ public final class VirtualMachine: TrackedObject {
                   ip = 0
                   fp = self.sp
                 }
+              case .Shared(let future):
+                // Replace the promise with the shared promise on the stack
+                self.stack[self.sp - 1] = .Promise(future)
+                // Execute force with the new promise on the stack
+                ip -= 1
               case .Value(let value):
                 // Replace the promise with the value on the stack
                 self.stack[self.sp - 1] = value
@@ -740,10 +745,21 @@ public final class VirtualMachine: TrackedObject {
           guard case .Promise(let future) = self.stack[self.sp - 2] else {
             preconditionFailure()
           }
-          future.state = .Value(self.stack[self.sp - 1])
-          self.stack[self.sp - 2] = self.stack[self.sp - 1]
+          switch future.state {
+            case .Lazy(_), .Shared(_):
+              guard case .Promise(let result) = self.stack[self.sp - 1] else {
+                throw EvalError.TypeError(self.stack[self.sp - 1], [.PromiseType])
+              }
+              future.state = result.state
+              result.state = .Shared(future)
+            default:
+              break
+          }
+          // Pop result of execution of thunk from stack
           self.sp -= 1
           self.stack[self.sp] = .Undef
+          // Re-execute force
+          ip -= 2
         case .PushCurrentTime:
           self.push(.Flonum(Timer.currentTimeInSec))
         case .Display:

@@ -46,6 +46,7 @@ public class SymbolTable: SequenceType {
   public let LETSTAR         = Symbol("let*")
   public let LETREC          = Symbol("letrec")
   public let DEFINE          = Symbol("define")
+  public let MAKEPROMISE     = Symbol("make-promise")
   
   public init() {
     func register(sym: Symbol) {
@@ -69,6 +70,7 @@ public class SymbolTable: SequenceType {
     register(self.LETSTAR)
     register(self.LETREC)
     register(self.DEFINE)
+    register(self.MAKEPROMISE)
   }
   
   public func exists(ident: String) -> Bool {

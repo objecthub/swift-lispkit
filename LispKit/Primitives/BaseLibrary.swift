@@ -47,6 +47,7 @@ public final class BaseLibrary: Library {
     define(Procedure("force", compileForce, in: self.context))
     define(Procedure("make-promise", makePromise))
     define("delay", SpecialForm(compileDelay))
+    define("delay-force", SpecialForm(compileDelayForce))
     
     // Symbol primitives
     define(Procedure("symbol?", isSymbol))
@@ -410,7 +411,7 @@ public final class BaseLibrary: Library {
     return .Promise(Future(expr))
   }
   
-  func compileDelay(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  func compileDelayForce(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .Pair(_, .Pair(let delayed, .Null)) = expr else {
       throw EvalError.ArgumentCountError(formals: 1, args: expr)
     }
@@ -418,7 +419,17 @@ public final class BaseLibrary: Library {
     compiler.emit(.MakePromise)
     return false
   }
-    
+  
+  func compileDelay(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    guard case .Pair(_, .Pair(let delayed, .Null)) = expr else {
+      throw EvalError.ArgumentCountError(formals: 1, args: expr)
+    }
+    try compiler.compileProc(
+      .Null, .Pair(.List(.Sym(compiler.context.symbols.MAKEPROMISE), delayed), .Null), env)
+    compiler.emit(.MakePromise)
+    return false
+  }
+  
   func compileForce(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .Pair(_, .Pair(let promise, .Null)) = expr else {
       throw EvalError.ArgumentCountError(formals: 1, args: expr)

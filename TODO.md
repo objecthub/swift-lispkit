@@ -1,6 +1,6 @@
 # Todo
 
-Last update: 2016-06-26
+Last update: 2016-07-01
 
 
 ## Compiler
@@ -31,7 +31,7 @@ Last update: 2016-06-26
 - [X] Adopt bytevectors from R7RS
 - [X] Implement bytevector library
 - [ ] Implement library functions supporting mutable strings
-- [ ] Implement delay-force
+- [X] Implement delay-force; provide full support for R7RS delayed evaluation primitives
 
 ## Tests
 

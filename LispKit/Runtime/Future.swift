@@ -24,11 +24,13 @@
 public final class Future: ManagedObject, CustomStringConvertible {
   
   public indirect enum State {
-    case Unevaluated(Procedure)
-    case Value(Expr)
-    case Thrown(ErrorType)
+    case Lazy(Procedure)       // Thunk of promises
+    case Shared(Future)        // Shared future
+    case Value(Expr)           // Evaluated future
+    case Thrown(ErrorType)     // Failed evaluation of future
   }
   
+  /// State of the future; this state is modified externally.
   public var state: State
   
   /// Maintain object statistics.
@@ -39,22 +41,26 @@ public final class Future: ManagedObject, CustomStringConvertible {
     Future.stats.dealloc()
   }
   
-  /// Initializes a future with a `thunk` that yields the result of the future once executed.
+  /// Initializes a future with a `thunk` that yields a promise; this promise's state is
+  /// copied over into this future as part of the protocol to force a promise.
   public init(_ thunk: Procedure) {
-    self.state = .Unevaluated(thunk)
+    self.state = .Lazy(thunk)
     super.init(Future.stats)
   }
   
-  /// Initializes a future with a given value; no future evaluation will happen
+  /// Initializes a future with a given value; no evaluation will happen.
   public init(_ value: Expr) {
     self.state = .Value(value)
     super.init(Future.stats)
   }
   
+  /// String representation of the future.
   public var description: String {
     switch self.state {
-      case .Unevaluated(let proc):
-        return "future#unevaluated(\(proc))"
+      case .Lazy(let proc):
+        return "future#lazy(\(proc))"
+      case .Shared(let future):
+        return "future#shared(\(future))"
       case .Value(let value):
         return "future#value(\(value))"
       case .Thrown(let error):
@@ -62,12 +68,15 @@ public final class Future: ManagedObject, CustomStringConvertible {
     }
   }
   
+  /// Mark the expressions referenced from this future.
   public override func mark(tag: UInt8) {
     if self.tag != tag {
       self.tag = tag
       switch self.state {
-        case .Unevaluated(_):
-          break
+        case .Lazy(let proc):
+          proc.mark(tag)
+        case .Shared(let future):
+          future.mark(tag)
         case .Value(let expr):
           expr.mark(tag)
         case .Thrown(_):
@@ -77,6 +86,7 @@ public final class Future: ManagedObject, CustomStringConvertible {
     }
   }
   
+  /// Remove references to expressions from this future.
   public override func clean() {
     self.state = .Value(.Null)
   }
