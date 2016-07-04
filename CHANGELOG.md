@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3 (2016-07-05)
+- Implemented [R7RS](http://www.r7rs.org)-compliant promises
+- Implemented [R7RS](http://www.r7rs.org)-compliant port library, supporting both textual
+  ports and binary ports; built on top of Foundation API (not using low-level C port
+  abstractions) 
+- Fixed a few cases where the runtime didn't do proper tail calls
+- Implemented full support for `call/cc`
 
 ## 0.2 (2016-05-16)
 - Revised bytecode instruction set. Added documentation to the

@@ -72,6 +72,8 @@
 		CCAD52E71C48468F00DBD8EE /* Type.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCAD52DF1C48468F00DBD8EE /* Type.swift */; };
 		CCAD52F81C48474500DBD8EE /* Context.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCAD52F71C48474500DBD8EE /* Context.swift */; };
 		CCC41DC41D2649E9003CB4D0 /* DelayedEvaluation.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCC41DC31D2649E9003CB4D0 /* DelayedEvaluation.scm */; };
+		CCC41DC61D2851FB003CB4D0 /* VirtualMachineState.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC41DC51D2851FB003CB4D0 /* VirtualMachineState.swift */; };
+		CCC41DC81D2B14AD003CB4D0 /* CallCC.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCC41DC71D2B14AD003CB4D0 /* CallCC.scm */; };
 		CCC5319E1D16E40D00FAED6E /* TextInputSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC5319D1D16E40D00FAED6E /* TextInputSource.swift */; };
 		CCC531A01D18595500FAED6E /* TextOutputTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC5319F1D18595500FAED6E /* TextOutputTarget.swift */; };
 		CCC62D921CA9ED6A00E2C43F /* TrackedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC62D911CA9ED6A00E2C43F /* TrackedObject.swift */; };
@@ -196,6 +198,8 @@
 		CCAD52DF1C48468F00DBD8EE /* Type.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Type.swift; sourceTree = "<group>"; };
 		CCAD52F71C48474500DBD8EE /* Context.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Context.swift; sourceTree = "<group>"; };
 		CCC41DC31D2649E9003CB4D0 /* DelayedEvaluation.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = DelayedEvaluation.scm; sourceTree = "<group>"; };
+		CCC41DC51D2851FB003CB4D0 /* VirtualMachineState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VirtualMachineState.swift; sourceTree = "<group>"; };
+		CCC41DC71D2B14AD003CB4D0 /* CallCC.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CallCC.scm; sourceTree = "<group>"; };
 		CCC5319D1D16E40D00FAED6E /* TextInputSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextInputSource.swift; sourceTree = "<group>"; };
 		CCC5319F1D18595500FAED6E /* TextOutputTarget.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextOutputTarget.swift; sourceTree = "<group>"; };
 		CCC62D911CA9ED6A00E2C43F /* TrackedObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TrackedObject.swift; sourceTree = "<group>"; };
@@ -256,6 +260,7 @@
 				CC8C6EC71CFA65F200126BDD /* ControlFlow.scm */,
 				CC131C4B1CDE0C3D006C030C /* SyntaxRules.scm */,
 				CC131C511CDE840C006C030C /* LocalSyntaxRules.scm */,
+				CCC41DC71D2B14AD003CB4D0 /* CallCC.scm */,
 				CCC41DC31D2649E9003CB4D0 /* DelayedEvaluation.scm */,
 				CC8169261D1FADE2003FADEA /* Ports.scm */,
 			);
@@ -417,6 +422,7 @@
 				CC5696761CBCFA9900F6803E /* Instruction.swift */,
 				CC0980A81C67E81C006B7FB1 /* Code.swift */,
 				CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */,
+				CCC41DC51D2851FB003CB4D0 /* VirtualMachineState.swift */,
 			);
 			path = Runtime;
 			sourceTree = "<group>";
@@ -546,6 +552,7 @@
 				CC131C521CDE840C006C030C /* LocalSyntaxRules.scm in Resources */,
 				CC8C6EC81CFA65F200126BDD /* ControlFlow.scm in Resources */,
 				CC97FA161CFA515E0008596E /* Definitions.scm in Resources */,
+				CCC41DC81D2B14AD003CB4D0 /* CallCC.scm in Resources */,
 				CC131C4C1CDE0C3D006C030C /* SyntaxRules.scm in Resources */,
 				CC8169271D1FADEC003FADEA /* Ports.scm in Resources */,
 			);
@@ -594,6 +601,7 @@
 				CC8EDE701D07265E004E0636 /* TextInput.swift in Sources */,
 				CCAD52E51C48468F00DBD8EE /* Symbol.swift in Sources */,
 				CC26069C1C61760C0047A3D3 /* Box.swift in Sources */,
+				CCC41DC61D2851FB003CB4D0 /* VirtualMachineState.swift in Sources */,
 				CCAD52E41C48468F00DBD8EE /* Scanner.swift in Sources */,
 				CCD81AD21CE75823009EB087 /* Checkpointer.swift in Sources */,
 				CC01903B1C89D02200DB8BF9 /* CaptureGroup.swift in Sources */,

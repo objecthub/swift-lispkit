@@ -272,6 +272,7 @@ public enum EvalError: LispError {
   case TargetBytevectorTooSmall(Expr)
   case CannotOpenFile(String)
   case CannotWriteToPort(Expr)
+  case IllegalContinuationApplication(Procedure, Int)
   
   public var kind: String {
     return "eval error"
@@ -373,6 +374,8 @@ public enum EvalError: LispError {
         return "cannot open file '\(filename)'"
       case .CannotWriteToPort(let port):
         return "cannot write to port \(port)"
+      case .IllegalContinuationApplication(let proc, let rid):
+        return "continuation application in wrong context (\(proc) in \(rid))"
     }
   }
   
@@ -461,6 +464,9 @@ public enum EvalError: LispError {
           return f1 == f2
         case (CannotWriteToPort(let p1), CannotWriteToPort(let p2)):
           return p1 == p2
+        case (IllegalContinuationApplication(let p1, let rid1),
+              IllegalContinuationApplication(let p2, let rid2)):
+          return p1 == p2 && rid1 == rid2
         default:
           return false
       }

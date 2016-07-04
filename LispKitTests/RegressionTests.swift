@@ -43,6 +43,10 @@ class RegressionTests: LispKitTestCase {
     self.executeTests("LocalSyntaxRules")
   }
   
+  func testCallCC() {
+    self.executeTests("CallCC")
+  }
+  
   func testDelayedEvaluation() {
     self.executeTests("DelayedEvaluation")
   }

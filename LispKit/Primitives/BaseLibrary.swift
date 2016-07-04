@@ -23,11 +23,15 @@ import Cocoa
 
 public final class BaseLibrary: Library {
   
+  internal static let idProc = Procedure("identity", BaseLibrary.identity)
+  
   public override func export() {
     // Basic primitives
+    define(BaseLibrary.idProc)
     define(Procedure("procedure?", isProcedure))
     define(Procedure("eval", eval, compileEval))
     define(Procedure("apply", apply, compileApply))
+    define(Procedure("call-with-current-continuation", callWithCurrentContinuation))
     define(Procedure("equal?", isEqual))
     define(Procedure("eqv?", isEqv))
     define(Procedure("eq?", isEq))
@@ -73,6 +77,10 @@ public final class BaseLibrary: Library {
   
   //-------- MARK: - Basic primitives
   
+  static func identity(expr: Expr) -> Expr {
+    return expr
+  }
+  
   func eval(args: Arguments) throws -> Code {
     guard args.count > 0 else {
       throw EvalError.LeastArgumentCountError(formals: 1, args: .List(args))
@@ -96,20 +104,26 @@ public final class BaseLibrary: Library {
     return compiler.call(0, tail)
   }
   
-  func apply(args: Arguments) throws -> Code {
+  func apply(args: Arguments) throws -> (Procedure, [Expr]) {
     guard args.count > 1 else {
       throw EvalError.LeastArgumentCountError(formals: 2, args: .List(args))
     }
-    var exprs = Exprs()
-    var next = args.first!
-    for arg in args[args.startIndex+1..<args.endIndex] {
-      exprs.append(next)
-      next = arg
+    guard case .Proc(let proc) = args.first! else {
+      throw EvalError.TypeError(args.first!, [.ProcedureType])
     }
-    return try Compiler.compile(self.context,
-                                expr: .Pair(.List(exprs, append: next), .Null),
-                                in: .Interaction,
-                                optimize: false)
+    var exprs = Exprs()
+    for arg in args[args.startIndex+1..<args.endIndex-1] {
+      exprs.append(arg)
+    }
+    var next = args.last!
+    while case .Pair(let arg, let rest) = next {
+      exprs.append(arg)
+      next = rest
+    }
+    guard next.isNull else {
+      throw EvalError.TypeError(args.last!, [.ProperListType])
+    }
+    return (proc, exprs)
   }
   
   func compileApply(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
@@ -130,6 +144,21 @@ public final class BaseLibrary: Library {
       next = rest
     }
     throw EvalError.LeastArgumentCountError(formals: 2, args: expr)
+  }
+  
+  func callWithCurrentContinuation(args: Arguments) throws -> (Procedure, [Expr]) {
+    guard args.count == 1 else {
+      throw EvalError.ArgumentCountError(formals: 1, args: .List(args))
+    }
+    guard case .Proc(let proc) = args.first! else {
+      throw EvalError.TypeError(args.first!, [.ProcedureType])
+    }
+    // Create continuation, removing current argument and the call/cc procedure from the
+    // stack of the continuation
+    let vmstate = self.context.machine.getState()
+    let cont = Procedure(vmstate)
+    // Return procedure to call with continuation as argument
+    return (proc, [.Proc(cont)])
   }
   
   func isEqual(this: Expr, that: Expr) -> Expr {
@@ -593,6 +622,15 @@ public final class BaseLibrary: Library {
           context.console.print("CAPTURED:\n")
           for i in captured.indices {
             context.console.print("  \(i): \(captured[i])\n")
+          }
+        }
+      case .Continuation(let vmState):
+        context.console.print(vmState.description + "\n")
+        context.console.print(vmState.registers.code.description)
+        if vmState.registers.captured.count > 0 {
+          context.console.print("CAPTURED:\n")
+          for i in vmState.registers.captured.indices {
+            context.console.print("  \(i): \(vmState.registers.captured[i])\n")
           }
         }
       default:

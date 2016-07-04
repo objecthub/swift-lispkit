@@ -49,6 +49,47 @@ import Darwin
 ///
 public final class VirtualMachine: TrackedObject {
   
+  /// Collects all registers in a single struct
+  internal struct Registers {
+    let rid: Int
+    var code: Code
+    var captured: [Expr]
+    var ip: Int
+    var fp: Int
+    let initialFp: Int
+    
+    init(code: Code, captured: [Expr], fp: Int, root: Bool) {
+      if root {
+        self.rid = 0
+      } else {
+        VirtualMachine.nextRid += 1
+        self.rid = VirtualMachine.nextRid
+      }
+      self.code = code
+      self.captured = captured
+      self.ip = 0
+      self.fp = fp
+      self.initialFp = fp
+    }
+    
+    mutating func use(code code: Code, captured: [Expr], fp: Int) {
+      self.code = code
+      self.captured = captured
+      self.ip = 0
+      self.fp = fp
+    }
+    
+    var topLevel: Bool {
+      return self.fp == self.initialFp
+    }
+    
+    var isInitialized: Bool {
+      return self.rid == 0 && self.code.instructions.count > 0
+    }
+  }
+  
+  private static var nextRid: Int = 0
+  
   /// The context of this virtual machine
   private let context: Context
   
@@ -68,6 +109,9 @@ public final class VirtualMachine: TrackedObject {
   /// The maximum value of the stack pointer so far (used for debugging)
   private var maxSp: Int
   
+  /// Registers
+  private var registers: Registers
+  
   /// Internal counter used for triggering the garbage collector
   private var execInstr: UInt64
   
@@ -80,7 +124,17 @@ public final class VirtualMachine: TrackedObject {
     self.stack = [Expr](count: 1024, repeatedValue: .Undef)
     self.sp = 0
     self.maxSp = 0
+    registers = Registers(code: Code([], [], []), captured: [], fp: 0, root: true)
     self.execInstr = 0
+  }
+  
+  /// Returns a copy of the current virtual machine state
+  public func getState() -> VirtualMachineState {
+    return VirtualMachineState(stack: self.stack,
+                               sp: self.sp,
+                               spDelta: -2,
+                               ipDelta: -1,
+                               registers: self.registers)
   }
   
   /// Loads the file at file patch `path`, compiles it in the interaction environment, and
@@ -166,6 +220,8 @@ public final class VirtualMachine: TrackedObject {
     switch proc.kind {
       case .Closure(let captured, let code):
         return try self.execute(code, args: n, captured: captured)
+      case .Continuation(_):
+        return try self.execute()
       case .Transformer(let rules):
         if n != 1 {
           throw EvalError.ArgumentCountError(formals: 1, args: args)
@@ -255,146 +311,196 @@ public final class VirtualMachine: TrackedObject {
     return captures
   }
   
-  private func exitFrame(inout fp: Int) -> Procedure {
+  private func exitFrame() {
+    // Determine former ip
+    guard case .Fixnum(let newip) = self.stack[self.registers.fp - 2] else {
+      preconditionFailure()
+    }
+    self.registers.ip = Int(newip)
     // Determine former fp
-    guard case .Fixnum(let newfp) = self.stack[fp - 3] else {
+    guard case .Fixnum(let newfp) = self.stack[self.registers.fp - 3] else {
       preconditionFailure()
     }
     // Shift result down
-    self.stack[fp - 3] = self.stack[self.sp - 1]
+    self.stack[self.registers.fp - 3] = self.stack[self.sp - 1]
     // Clean up stack that is freed up
-    for i in fp-2..<self.sp {
+    for i in self.registers.fp-2..<self.sp {
       self.stack[i] = .Undef
     }
     // Set new fp and sp
-    self.sp = fp - 2
-    fp = Int(newfp)
+    self.sp = self.registers.fp - 2
+    self.registers.fp = Int(newfp)
     // Determine closure to which execution returns to
     guard case .Proc(let proc) = self.stack[newfp - 1] else {
       preconditionFailure()
     }
-    return proc
+    // Extract code and capture list
+    guard case .Closure(let newcaptured, let newcode) = proc.kind else {
+      preconditionFailure()
+    }
+    // Set new code and capture list
+    self.registers.captured = newcaptured
+    self.registers.code = newcode
   }
   
   private func invoke(inout n: Int, _ overhead: Int) throws -> Procedure {
     // Get procedure to call
-    guard case .Proc(let proc) = self.stack[self.sp - n - 1] else {
+    guard case .Proc(let p) = self.stack[self.sp - n - 1] else {
       throw EvalError.NonApplicativeValue(self.stack[self.sp - n - 1])
     }
-    // Return non-primitive procedures
-    guard case .Primitive(_, let impl, _) = proc.kind else {
-      return proc
-    }
-    // Invoke primitive
-    switch impl {
-      case .Gen(let gen):
-        let generated = Procedure(try gen(self.stack[self.sp-n..<self.sp]))
-        self.pop(n + 1)
-        self.push(.Proc(generated))
-        n = 0
-        return generated
-      case .Impl0(let proc):
-        guard n == 0 else {
-          throw EvalError.ArgumentCountError(formals: 0, args: self.popAsList(n))
-        }
-        self.pop(overhead)
-        self.push(try proc())
-      case .Impl1(let proc):
-        guard n == 1 else {
-          throw EvalError.ArgumentCountError(formals: 1, args: self.popAsList(n))
-        }
-        let a0 = self.pop()
-        self.pop(overhead)
-        self.push(try proc(a0))
-      case .Impl2(let proc):
-        guard n == 2 else {
-          throw EvalError.ArgumentCountError(formals: 2, args: self.popAsList(n))
-        }
-        let a1 = self.pop()
-        let a0 = self.pop()
-        self.pop(overhead)
-        self.push(try proc(a0, a1))
-      case .Impl3(let proc):
-        guard n == 3 else {
-          throw EvalError.ArgumentCountError(formals: 3, args: self.popAsList(n))
-        }
-        let a2 = self.pop()
-        let a1 = self.pop()
-        let a0 = self.pop()
-        self.pop(overhead)
-        self.push(try proc(a0, a1, a2))
-      case .Impl0O(let proc):
-        if n == 0 {
+    // Handle primitive procedures; this is required to loop because of applicators
+    var proc = p
+    loop: while case .Primitive(_, let impl, _) = proc.kind {
+      switch impl {
+        case .Eval(let eval):
+          let generated = Procedure(try eval(self.stack[self.sp-n..<self.sp]))
+          self.pop(n + 1)
+          self.push(.Proc(generated))
+          n = 0
+          return generated
+        case .Apply(let apply):
+          let (next, args) = try apply(self.stack[self.sp-n..<self.sp])
+          self.pop(n + 1)
+          self.push(.Proc(next))
+          for arg in args {
+            self.push(arg)
+          }
+          n = args.count
+          proc = next
+        case .Native0(let exec):
+          guard n == 0 else {
+            throw EvalError.ArgumentCountError(formals: 0, args: self.popAsList(n))
+          }
           self.pop(overhead)
-          self.push(try proc(nil))
-        } else if n == 1 {
+          self.push(try exec())
+          return proc
+        case .Native1(let exec):
+          guard n == 1 else {
+            throw EvalError.ArgumentCountError(formals: 1, args: self.popAsList(n))
+          }
           let a0 = self.pop()
           self.pop(overhead)
-          self.push(try proc(a0))
-        } else {
-          throw EvalError.ArgumentCountError(formals: 1, args: self.popAsList(n))
-        }
-      case .Impl1O(let proc):
-        if n == 1 {
-          let a0 = self.pop()
-          self.pop(overhead)
-          self.push(try proc(a0, nil))
-        } else if n == 2 {
+          self.push(try exec(a0))
+          return proc
+        case .Native2(let exec):
+          guard n == 2 else {
+            throw EvalError.ArgumentCountError(formals: 2, args: self.popAsList(n))
+          }
           let a1 = self.pop()
           let a0 = self.pop()
           self.pop(overhead)
-          self.push(try proc(a0, a1))
-        } else {
-          throw EvalError.ArgumentCountError(formals: 2, args: self.popAsList(n))
-        }
-      case .Impl2O(let proc):
-        if n == 2 {
-          let a1 = self.pop()
-          let a0 = self.pop()
-          self.pop(overhead)
-          self.push(try proc(a0, a1, nil))
-        } else if n == 3 {
+          self.push(try exec(a0, a1))
+          return proc
+        case .Native3(let exec):
+          guard n == 3 else {
+            throw EvalError.ArgumentCountError(formals: 3, args: self.popAsList(n))
+          }
           let a2 = self.pop()
           let a1 = self.pop()
           let a0 = self.pop()
           self.pop(overhead)
-          self.push(try proc(a0, a1, a2))
-        } else {
-          throw EvalError.ArgumentCountError(formals: 3, args: self.popAsList(n))
-        }
-      case .Impl0R(let proc):
-        let res = try proc(self.stack[self.sp-n..<self.sp])
-        self.pop(n + overhead)
-        self.push(res)
-      case .Impl1R(let proc):
-        if n >= 1 {
-          let res = try proc(self.stack[self.sp - n], self.stack[self.sp-n+1..<self.sp])
+          self.push(try exec(a0, a1, a2))
+          return proc
+        case .Native0O(let exec):
+          if n == 0 {
+            self.pop(overhead)
+            self.push(try exec(nil))
+          } else if n == 1 {
+            let a0 = self.pop()
+            self.pop(overhead)
+            self.push(try exec(a0))
+          } else {
+            throw EvalError.ArgumentCountError(formals: 1, args: self.popAsList(n))
+          }
+          return proc
+        case .Native1O(let exec):
+          if n == 1 {
+            let a0 = self.pop()
+            self.pop(overhead)
+            self.push(try exec(a0, nil))
+          } else if n == 2 {
+            let a1 = self.pop()
+            let a0 = self.pop()
+            self.pop(overhead)
+            self.push(try exec(a0, a1))
+          } else {
+            throw EvalError.ArgumentCountError(formals: 2, args: self.popAsList(n))
+          }
+          return proc
+        case .Native2O(let exec):
+          if n == 2 {
+            let a1 = self.pop()
+            let a0 = self.pop()
+            self.pop(overhead)
+            self.push(try exec(a0, a1, nil))
+          } else if n == 3 {
+            let a2 = self.pop()
+            let a1 = self.pop()
+            let a0 = self.pop()
+            self.pop(overhead)
+            self.push(try exec(a0, a1, a2))
+          } else {
+            throw EvalError.ArgumentCountError(formals: 3, args: self.popAsList(n))
+          }
+          return proc
+        case .Native0R(let exec):
+          let res = try exec(self.stack[self.sp-n..<self.sp])
           self.pop(n + overhead)
           self.push(res)
-        } else {
-          throw EvalError.LeastArgumentCountError(formals: 1, args: self.popAsList(n))
-        }
-      case .Impl2R(let proc):
-        if n >= 2 {
-          let res = try proc(self.stack[self.sp - n],
-            self.stack[self.sp - n + 1],
-            self.stack[self.sp-n+2..<self.sp])
-          self.pop(n + overhead)
-          self.push(res)
-        } else {
-          throw EvalError.LeastArgumentCountError(formals: 2, args: self.popAsList(n))
-        }
-      case .Impl3R(let proc):
-        if n >= 2 {
-          let res = try proc(self.stack[self.sp - n],
-                             self.stack[self.sp - n + 1],
-                             self.stack[self.sp - n + 2],
-                             self.stack[self.sp-n+3..<self.sp])
-          self.pop(n + overhead)
-          self.push(res)
-        } else {
-          throw EvalError.LeastArgumentCountError(formals: 2, args: self.popAsList(n))
-        }
+          return proc
+        case .Native1R(let exec):
+          if n >= 1 {
+            let res = try exec(self.stack[self.sp - n], self.stack[self.sp-n+1..<self.sp])
+            self.pop(n + overhead)
+            self.push(res)
+          } else {
+            throw EvalError.LeastArgumentCountError(formals: 1, args: self.popAsList(n))
+          }
+          return proc
+        case .Native2R(let exec):
+          if n >= 2 {
+            let res = try exec(self.stack[self.sp - n],
+                               self.stack[self.sp - n + 1],
+                               self.stack[self.sp-n+2..<self.sp])
+            self.pop(n + overhead)
+            self.push(res)
+          } else {
+            throw EvalError.LeastArgumentCountError(formals: 2, args: self.popAsList(n))
+          }
+          return proc
+        case .Native3R(let exec):
+          if n >= 2 {
+            let res = try exec(self.stack[self.sp - n],
+                               self.stack[self.sp - n + 1],
+                               self.stack[self.sp - n + 2],
+                               self.stack[self.sp-n+3..<self.sp])
+            self.pop(n + overhead)
+            self.push(res)
+          } else {
+            throw EvalError.LeastArgumentCountError(formals: 2, args: self.popAsList(n))
+          }
+          return proc
+      }
+    }
+    // Handle continuations
+    if case .Continuation(let vmState) = proc.kind {
+      // Check that we apply the continuation in the right context
+      guard vmState.registers.rid == self.registers.rid else {
+        throw EvalError.IllegalContinuationApplication(proc, self.registers.rid)
+      }
+      // Continuations accept exactly one argument
+      guard n == 1 else {
+        throw EvalError.ArgumentCountError(formals: 1, args: self.popAsList(n))
+      }
+      // Retrieve argument
+      let arg = self.pop()
+      // Restore virtual machine from state encapsulated in continuation
+      self.stack = vmState.stack
+      self.sp = vmState.sp
+      self.registers = vmState.registers
+      // Push identity function and argument onto restored virtual machine stack
+      self.push(.Proc(BaseLibrary.idProc))
+      self.push(arg)
     }
     return proc
   }
@@ -414,29 +520,35 @@ public final class VirtualMachine: TrackedObject {
   }
   
   private func execute(code: Code, args: Int, captured: [Expr]) throws -> Expr {
-    var code = code
-    var captured = captured
-    var ip = 0
-    var fp = self.sp - args
-    let initialFp = fp
-    while true {
-      if ip < 0 || ip >= code.instructions.count {
-        return .Null
-      }
+    // Use new registers
+    let savedRegisters = self.registers
+    self.registers = Registers(code: code,
+                               captured: captured,
+                               fp: self.sp - args,
+                               root: !savedRegisters.isInitialized)
+    // Restore old registers when leaving `execute`
+    defer {
+      self.registers = savedRegisters
+    }
+    return try self.execute()
+  }
+  
+  private func execute() throws -> Expr {
+    while self.registers.ip >= 0 && self.registers.ip < self.registers.code.instructions.count {
       self.collectGarbageIfNeeded()
       /*
       print("╔══════════════════════════════════════════════════════")
-      if ip > 0 {
-        print("║     \(ip - 1)  \(code.instructions[ip - 1])")
+      if self.registers.ip > 0 {
+        print("║     \(self.registers.ip - 1)  \(self.registers.code.instructions[self.registers.ip - 1])")
       }
-      print("║    [\(ip)] \(code.instructions[ip])")
-      if ip < code.instructions.count - 1 {
-        print("║     \(ip + 1)  \(code.instructions[ip + 1])")
+      print("║    [\(self.registers.ip)] \(self.registers.code.instructions[self.registers.ip])")
+      if self.registers.ip < self.registers.code.instructions.count - 1 {
+        print("║     \(self.registers.ip + 1)  \(self.registers.code.instructions[self.registers.ip + 1])")
       }
-      print(stackFragmentDescr(ip, fp, header: "╟──────────────────────────────────────────────────────\n"))
+      print(stackFragmentDescr(self.registers.ip, self.registers.fp, header: "╟──────────────────────────────────────────────────────\n"))
       */
-      ip += 1
-      switch code.instructions[ip - 1] {
+      self.registers.ip += 1
+      switch self.registers.code.instructions[self.registers.ip - 1] {
         case .NoOp:
           break
         case .Pop:
@@ -449,7 +561,7 @@ public final class VirtualMachine: TrackedObject {
           self.stack[self.sp - 1] = self.stack[self.sp - 2]
           self.stack[self.sp - 2] = top
         case .PushGlobal(let index):
-          guard case .Sym(let sym) = code.constants[index] else {
+          guard case .Sym(let sym) = self.registers.code.constants[index] else {
             preconditionFailure("PushGlobal expects a symbol at index \(index)")
           }
           guard let symval = context.userScope[sym] else {
@@ -464,7 +576,7 @@ public final class VirtualMachine: TrackedObject {
               self.push(symval)
           }
         case .SetGlobal(let index):
-          guard case .Sym(let sym) = code.constants[index] else {
+          guard case .Sym(let sym) = self.registers.code.constants[index] else {
             preconditionFailure("SetGlobal expects a symbol at index \(index)")
           }
           if let scope = context.userScope.scopeWithBindingFor(sym) {
@@ -473,52 +585,52 @@ public final class VirtualMachine: TrackedObject {
             throw EvalError.UnboundVariable(sym)
           }
         case .DefineGlobal(let index):
-          guard case .Sym(let sym) = code.constants[index] else {
+          guard case .Sym(let sym) = self.registers.code.constants[index] else {
             preconditionFailure("DefineGlobal expects a symbol at index \(index)")
           }
           context.userScope[sym] = self.pop()
         case .PushCaptured(let index):
-          self.push(captured[index])
+          self.push(self.registers.captured[index])
         case .PushCapturedValue(let index):
-          guard case .Var(let variable) = captured[index] else {
-            preconditionFailure("PushCapturedValue cannot push \(captured[index])")
+          guard case .Var(let variable) = self.registers.captured[index] else {
+            preconditionFailure("PushCapturedValue cannot push \(self.registers.captured[index])")
           }
           if case .Undef = variable.value {
             throw EvalError.VariableNotYetInitialized(nil)
           }
           self.push(variable.value)
         case .SetCapturedValue(let index):
-          guard case .Var(let variable) = captured[index] else {
-            preconditionFailure("SetCapturedValue cannot set value of \(captured[index])")
+          guard case .Var(let variable) = self.registers.captured[index] else {
+            preconditionFailure("SetCapturedValue cannot set value of \(self.registers.captured[index])")
           }
           variable.value = self.pop()
         case .PushLocal(let index):
-          self.push(self.stack[fp + index])
+          self.push(self.stack[self.registers.fp + index])
         case .SetLocal(let index):
-          self.stack[fp + index] = self.pop()
+          self.stack[self.registers.fp + index] = self.pop()
         case .SetLocalValue(let index):
-          guard case .Var(let variable) = self.stack[fp + index] else {
-            preconditionFailure("SetLocalValue cannot set value of \(self.stack[fp + index])")
+          guard case .Var(let variable) = self.stack[self.registers.fp + index] else {
+            preconditionFailure("SetLocalValue cannot set value of \(self.stack[self.registers.fp + index])")
           }
           variable.value = self.pop()
         case .MakeLocalVariable(let index):
           let variable = Variable(self.pop())
           self.context.objects.manage(variable)
-          self.stack[fp + index] = .Var(variable)
+          self.stack[self.registers.fp + index] = .Var(variable)
         case .MakeVariableArgument(let index):
-          let variable = Variable(self.stack[fp + index])
+          let variable = Variable(self.stack[self.registers.fp + index])
           self.context.objects.manage(variable)
-          self.stack[fp + index] = .Var(variable)
+          self.stack[self.registers.fp + index] = .Var(variable)
         case .PushLocalValue(let index):
-          guard case .Var(let variable) = self.stack[fp + index] else {
-            preconditionFailure("PushLocalValue cannot push \(captured[index])")
+          guard case .Var(let variable) = self.stack[self.registers.fp + index] else {
+            preconditionFailure("PushLocalValue cannot push \(self.stack[self.registers.fp + index])")
           }
           if case .Undef = variable.value {
             throw EvalError.VariableNotYetInitialized(nil)
           }
           self.push(variable.value)
         case .PushConstant(let index):
-          self.push(code.constants[index])
+          self.push(self.registers.code.constants[index])
         case .PushUndef:
           self.push(.Undef)
         case .PushVoid:
@@ -546,7 +658,7 @@ public final class VirtualMachine: TrackedObject {
         case .PushChar(let char):
           self.push(.Char(char))
         case .MakeClosure(let n, let index):
-          self.push(.Proc(Procedure(self.captureExprs(n), code.fragments[index])))
+          self.push(.Proc(Procedure(self.captureExprs(n), self.registers.code.fragments[index])))
         case .MakePromise:
           let top = self.pop()
           guard case .Proc(let proc) = top else {
@@ -577,134 +689,108 @@ public final class VirtualMachine: TrackedObject {
             throw EvalError.MalformedArgumentList(arglist)
           }
           // Store instruction pointer
-          self.stack[self.sp - n - 2] = .Fixnum(Int64(ip))
+          self.stack[self.sp - n - 2] = .Fixnum(Int64(self.registers.ip))
           // Invoke native function
           if case .Closure(let newcaptured, let newcode) = try self.invoke(&n, 3).kind {
-            // Invoke compiled closure
-            code = newcode
-            captured = newcaptured
-            ip = 0
-            fp = self.sp - n
+            self.registers.use(code: newcode, captured: newcaptured, fp: self.sp - n)
           }
         case .MakeFrame:
           // Push frame pointer
-          self.push(.Fixnum(Int64(fp)))
+          self.push(.Fixnum(Int64(self.registers.fp)))
           // Reserve space for instruction pointer
           self.push(.Undef)
         case .Call(let n):
           // Store instruction pointer
-          self.stack[self.sp - n - 2] = .Fixnum(Int64(ip))
+          self.stack[self.sp - n - 2] = .Fixnum(Int64(self.registers.ip))
           // Invoke native function
           var m = n
           if case .Closure(let newcaptured, let newcode) = try self.invoke(&m, 3).kind {
-            // Invoke compiled closure
-            code = newcode
-            captured = newcaptured
-            ip = 0
-            fp = self.sp - n
+            self.registers.use(code: newcode, captured: newcaptured, fp: self.sp - n)
           }
         case .TailCall(let m):
           // Invoke native function
           var n = m
-          if case .Closure(let newcaptured, let newcode) = try self.invoke(&n, 1).kind {
-            // Invoke compiled closure
-            code = newcode
-            captured = newcaptured
-            ip = 0
+          let proc = try self.invoke(&n, 1)
+          if case .Closure(let newcaptured, let newcode) = proc.kind {
+            // Execute closure
+            self.registers.use(code: newcode, captured: newcaptured, fp: self.registers.fp)
             // Shift stack frame down to next stack frame
             for i in 0...n {
-              self.stack[fp - 1 + i] = self.stack[self.sp - n - 1 + i]
+              self.stack[self.registers.fp - 1 + i] = self.stack[self.sp - n - 1 + i]
             }
             // Wipe the now empty part of the stack
-            for i in fp+n..<self.sp {
+            for i in self.registers.fp+n..<self.sp {
               self.stack[i] = .Undef
             }
             // Adjust the stack pointer
-            self.sp = fp + n
-          } else if fp == initialFp {
+            self.sp = self.registers.fp + n
+          } else if case .Continuation(_) = proc.kind {
+            break
+          } else if self.registers.topLevel {
             // Return to interactive environment
             let res = self.pop()
             // Wipe the stack
-            for i in initialFp-1..<self.sp {
+            for i in self.registers.initialFp-1..<self.sp {
               self.stack[i] = .Undef
             }
-            self.sp = initialFp - 1
+            self.sp = self.registers.initialFp - 1
             return res
           } else {
-            // Determine former ip
-            guard case .Fixnum(let newip) = self.stack[fp - 2] else {
-              preconditionFailure()
-            }
-            ip = Int(newip)
-            // Determine former closure and frame pointer
-            guard case .Closure(let newcaptured, let newcode) = self.exitFrame(&fp).kind else {
-              preconditionFailure()
-            }
-            captured = newcaptured
-            code = newcode
+            self.exitFrame()
           }
         case .AssertArgCount(let n):
-          guard self.sp - n == fp else {
-            throw EvalError.ArgumentCountError(formals: n, args: self.popAsList(self.sp - fp))
+          guard self.sp - n == self.registers.fp else {
+            throw EvalError.ArgumentCountError(formals: n, args: self.popAsList(self.sp - self.registers.fp))
           }
         case .AssertMinArgCount(let n):
-          guard self.sp - n >= fp else {
-            throw EvalError.ArgumentCountError(formals: n, args: self.popAsList(self.sp - fp))
+          guard self.sp - n >= self.registers.fp else {
+            throw EvalError.ArgumentCountError(formals: n, args: self.popAsList(self.sp - self.registers.fp))
           }
         case .CollectRest(let n):
           var rest = Expr.Null
-          while self.sp > fp + n {
+          while self.sp > self.registers.fp + n {
             rest = .Pair(self.pop(), rest)
           }
           self.push(rest)
         case .Alloc(let n):
           self.sp += n
         case .Reset(let index, let n):
-          for i in fp+index..<fp+index+n {
+          for i in self.registers.fp+index..<self.registers.fp+index+n {
             self.stack[i] = .Undef
           }
         case .Return:
           // Return to interactive environment
-          guard fp > initialFp else {
+          if self.registers.topLevel {
             let res = self.pop()
             // Wipe the stack
-            for i in initialFp-1..<self.sp {
+            for i in self.registers.initialFp-1..<self.sp {
               self.stack[i] = .Undef
             }
             // Reset stack and frame pointer
-            self.sp = initialFp - 1
+            self.sp = self.registers.initialFp - 1
             return res
+          } else {
+            self.exitFrame()
           }
-          // Determine former ip
-          guard case .Fixnum(let newip) = self.stack[fp - 2] else {
-            preconditionFailure()
-          }
-          ip = Int(newip)
-          // Determine former closure and frame pointer
-          guard case .Closure(let newcaptured, let newcode) = self.exitFrame(&fp).kind else {
-            preconditionFailure()
-          }
-          captured = newcaptured
-          code = newcode
         case .Branch(let offset):
-          ip += offset - 1
+          self.registers.ip += offset - 1
         case .BranchIf(let offset):
           if self.pop().isTrue {
-            ip += offset - 1
+            self.registers.ip += offset - 1
           }
         case .BranchIfNot(let offset):
           if self.pop().isFalse {
-            ip += offset - 1
+            self.registers.ip += offset - 1
           }
         case .And(let offset):
           if self.stack[self.sp - 1].isFalse {
-            ip += offset - 1
+            self.registers.ip += offset - 1
           } else {
             self.pop()
           }
         case .Or(let offset):
           if self.stack[self.sp - 1].isTrue {
-            ip += offset - 1
+            self.registers.ip += offset - 1
           } else {
             self.pop()
           }
@@ -713,30 +799,26 @@ public final class VirtualMachine: TrackedObject {
             switch future.state {
               case .Lazy(let proc):
                 // Push frame pointer
-                self.push(.Fixnum(Int64(fp)))
+                self.push(.Fixnum(Int64(self.registers.fp)))
                 // Push instruction pointer
-                self.push(.Fixnum(Int64(ip)))
+                self.push(.Fixnum(Int64(self.registers.ip)))
                 // Push procedure that yields the forced result
                 self.push(.Proc(proc))
                 // Invoke native function
                 var n = 0
                 if case .Closure(let newcaptured, let newcode) = try self.invoke(&n, 3).kind {
-                  // Invoke compiled closure
-                  code = newcode
-                  captured = newcaptured
-                  ip = 0
-                  fp = self.sp
+                  self.registers.use(code: newcode, captured: newcaptured, fp: self.sp)
                 }
               case .Shared(let future):
                 // Replace the promise with the shared promise on the stack
                 self.stack[self.sp - 1] = .Promise(future)
                 // Execute force with the new promise on the stack
-                ip -= 1
+                self.registers.ip -= 1
               case .Value(let value):
                 // Replace the promise with the value on the stack
                 self.stack[self.sp - 1] = value
                 // Jump over StoreInPromise operation
-                ip += 1
+                self.registers.ip += 1
               case .Thrown(let error):
                 throw error
             }
@@ -759,7 +841,7 @@ public final class VirtualMachine: TrackedObject {
           self.sp -= 1
           self.stack[self.sp] = .Undef
           // Re-execute force
-          ip -= 2
+          self.registers.ip -= 2
         case .PushCurrentTime:
           self.push(.Flonum(Timer.currentTimeInSec))
         case .Display:
@@ -869,6 +951,7 @@ public final class VirtualMachine: TrackedObject {
           self.push(.Flonum(try self.pop().asFloat() / rhs.asFloat()))
       }
     }
+    return .Null
   }
   
   public override func mark(tag: UInt8) {

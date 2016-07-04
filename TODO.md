@@ -20,10 +20,11 @@ Last update: 2016-07-01
 - [ ] Go through procedures that call back into the VM to check that all expressions are
       tracked by the managed object pool
 - [ ] Redesign error data model
-- [ ] Evaluate what it takes to support `call/cc`
 - [ ] Profile virtual machine
 - [X] Implement new primitive procedure type that returns closures for execution instead
       of results
+- [X] Evaluate what it takes to support `call/cc`
+- [X] Implement full support for `call/cc`
 
 ## Library
 
