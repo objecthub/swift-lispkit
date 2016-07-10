@@ -67,7 +67,7 @@ func equalExpr(this: Expr, _ that: Expr) -> Bool {
       case (.Char(let ch1), .Char(let ch2)):
         return ch1 == ch2
       case (.Str(let str1), .Str(let str2)):
-        return str1.value == str2.value
+        return str1 == str2
       case (.Pair(let car1, let cdr1), .Pair(let car2, let cdr2)):
         return equals(car1, car2) && equals(cdr1, cdr2)
       case (.Vec(let vector1), .Vec(let vector2)):

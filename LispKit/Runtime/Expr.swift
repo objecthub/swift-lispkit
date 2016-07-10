@@ -38,7 +38,7 @@ public enum Expr: Trackable, Hashable {
   case Flonum(Double)
   case Complexnum(Complex<Double>)
   case Char(UniChar)
-  case Str(MutableBox<String>)
+  case Str(NSMutableString)
   case Vec(Vector)
   case ByteVec(MutableBox<[UInt8]>)
   indirect case Pair(Expr, Expr)
@@ -244,7 +244,7 @@ public enum Expr: Trackable, Hashable {
         case Char(let char):
           res = char.hashValue
         case Str(let str):
-          res = str.value.hashValue
+          res = str.hashValue
         case Pair(let car, let cdr):
           res = (hash(car) &* 31) &+ hash(cdr)
         case Vec(let vector):
@@ -342,7 +342,7 @@ extension Expr {
   }
   
   public static func StringFor(str: String) -> Expr {
-    return .Str(MutableBox(str))
+    return .Str(NSMutableString(string: str))
   }
 }
 
@@ -455,7 +455,14 @@ extension Expr {
     guard case Str(let res) = self else {
       throw EvalError.TypeError(self, [.StrType])
     }
-    return res.value
+    return res as String
+  }
+  
+  public func asMutableStr() throws -> NSMutableString {
+    guard case Str(let res) = self else {
+      throw EvalError.TypeError(self, [.StrType])
+    }
+    return res
   }
   
   public func asPair() throws -> (Expr, Expr) {
@@ -477,6 +484,13 @@ extension Expr {
       throw EvalError.TypeError(self, [.ByteVectorType])
     }
     return box
+  }
+  
+  public func asProc() throws -> Procedure {
+    guard case Proc(let proc) = self else {
+      throw EvalError.TypeError(self, [.ProcedureType])
+    }
+    return proc
   }
   
   public func asPort() throws -> Port {
@@ -586,9 +600,9 @@ extension Expr: CustomStringConvertible {
           }
         case .Str(let str):
           guard escape else {
-            return str.value
+            return str as String
           }
-          return "\"\(Expr.escapeStr(str.value))\""
+          return "\"\(Expr.escapeStr(str as String))\""
         case .Pair(let head, let tail):
           var res = "(" + stringReprOf(head)
           var expr = tail

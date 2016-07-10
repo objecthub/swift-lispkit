@@ -88,6 +88,56 @@ public final class VirtualMachine: TrackedObject {
     }
   }
   
+  internal class Winder: Reference {
+    let before: Procedure
+    let after: Procedure
+    let next: Winder?
+    
+    init(before: Procedure, after: Procedure, next: Winder?) {
+      self.before = before
+      self.after = after
+      self.next = next
+    }
+    
+    var id: Int64 {
+      return Int64(bitPattern: UInt64(self.identity))
+    }
+    
+    var count: Int {
+      var ws: Winder? = self
+      var n = 0
+      while let next = ws {
+        n += 1
+        ws = next.next
+      }
+      return n
+    }
+    
+    func commonPrefix(with: Winder?) -> Winder? {
+      guard with != nil else {
+        return self
+      }
+      var this: Winder? = self
+      var that: Winder? = with!
+      let thisLen = self.count
+      let thatLen = with!.count
+      if thisLen > thatLen {
+        for _ in thatLen..<thisLen {
+          this = this!.next
+        }
+      } else if thatLen > thisLen {
+        for _ in thisLen..<thatLen {
+          that = that!.next
+        }
+      }
+      while let thisWinder = this, thatWinder = that where thisWinder !== thatWinder {
+        this = thisWinder.next
+        that = thatWinder.next
+      }
+      return this
+    }
+  }
+  
   private static var nextRid: Int = 0
   
   /// The context of this virtual machine
@@ -112,6 +162,9 @@ public final class VirtualMachine: TrackedObject {
   /// Registers
   private var registers: Registers
   
+  /// Winders
+  internal private(set) var winders: Winder?
+  
   /// Internal counter used for triggering the garbage collector
   private var execInstr: UInt64
   
@@ -124,7 +177,8 @@ public final class VirtualMachine: TrackedObject {
     self.stack = [Expr](count: 1024, repeatedValue: .Undef)
     self.sp = 0
     self.maxSp = 0
-    registers = Registers(code: Code([], [], []), captured: [], fp: 0, root: true)
+    self.registers = Registers(code: Code([], [], []), captured: [], fp: 0, root: true)
+    self.winders = nil
     self.execInstr = 0
   }
   
@@ -134,7 +188,8 @@ public final class VirtualMachine: TrackedObject {
                                sp: self.sp,
                                spDelta: -2,
                                ipDelta: -1,
-                               registers: self.registers)
+                               registers: self.registers,
+                               winders: self.winders)
   }
   
   /// Loads the file at file patch `path`, compiles it in the interaction environment, and
@@ -296,6 +351,18 @@ public final class VirtualMachine: TrackedObject {
     return res
   }
   
+  internal func windUp(before before: Procedure, after: Procedure) {
+    self.winders = Winder(before: before, after: after, next: self.winders)
+  }
+  
+  internal func windDown() -> Winder? {
+    guard let res = self.winders else {
+      return nil
+    }
+    self.winders = res.next
+    return res
+  }
+  
   private func captureExprs(n: Int) -> [Expr] {
     var captures = [Expr]()
     var i = n
@@ -310,7 +377,7 @@ public final class VirtualMachine: TrackedObject {
     self.sp -= n
     return captures
   }
-  
+    
   private func exitFrame() {
     // Determine former ip
     guard case .Fixnum(let newip) = self.stack[self.registers.fp - 2] else {
@@ -848,7 +915,7 @@ public final class VirtualMachine: TrackedObject {
           let obj = self.pop()
           switch obj {
             case .Str(let str):
-              context.console.print(str.value)
+              context.console.print(str as String)
             default:
               context.console.print(obj.description)
           }

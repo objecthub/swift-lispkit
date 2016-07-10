@@ -159,7 +159,7 @@ public final class BytevectorLibrary: Library {
     while case .Result(let scalar) = decoder.decode(&generator) {
       str.append(scalar)
     }
-    return .Str(MutableBox(str))
+    return .Str(NSMutableString(string: str))
   }
   
   func stringToUtf8(string: Expr, args: Arguments) throws -> Expr {

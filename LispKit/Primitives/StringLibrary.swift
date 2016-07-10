@@ -23,6 +23,7 @@ public final class StringLibrary: Library {
   
   public override func export() {
     define(Procedure("string?", isString))
+    define(Procedure("make-string", makeString))
     define(Procedure("string", string))
     define(Procedure("string-ref", stringRef))
     define(Procedure("string-length", stringLength))
@@ -44,7 +45,7 @@ public final class StringLibrary: Library {
     define(Procedure("string->list", stringToList))
     define(Procedure("substring", substring))
   }
-
+  
   func isString(expr: Expr) -> Expr {
     if case .Str(_) = expr {
       return .True
@@ -52,12 +53,18 @@ public final class StringLibrary: Library {
     return .False
   }
   
+  func makeString(k: Expr, ch: Expr?) throws -> Expr {
+    let uniChars = Array<UniChar>(count: try k.asInt(),
+                                  repeatedValue: try ch?.asChar() ?? UniChar(" "))
+    return .Str(NSMutableString(string: String(utf16CodeUnits: uniChars, count: uniChars.count)))
+  }
+  
   func string(exprs: Arguments) throws -> Expr {
     var uniChars: [UniChar] = []
     for expr in exprs {
       uniChars.append(try expr.asChar())
     }
-    return .Str(MutableBox(String(utf16CodeUnits: uniChars, count: uniChars.count)))
+    return .Str(NSMutableString(string: String(utf16CodeUnits: uniChars, count: uniChars.count)))
   }
   
   func stringLength(expr: Expr) throws -> Expr {
@@ -79,7 +86,7 @@ public final class StringLibrary: Library {
     for expr in exprs {
       res.appendContentsOf(try expr.asStr())
     }
-    return .Str(MutableBox(res))
+    return .Str(NSMutableString(string: res))
   }
   
   func stringEquals(fst: Expr, _ snd: Expr) throws -> Expr {
@@ -127,11 +134,11 @@ public final class StringLibrary: Library {
   }
   
   func stringUpcase(expr: Expr) throws -> Expr {
-    return .Str(MutableBox(try expr.asStr().uppercaseString))
+    return .Str(NSMutableString(string: try expr.asMutableStr().uppercaseString))
   }
   
   func stringDowncase(expr: Expr) throws -> Expr {
-    return .Str(MutableBox(try expr.asStr().lowercaseString))
+    return .Str(NSMutableString(string: try expr.asStr().lowercaseString))
   }
   
   func stringToList(expr: Expr) throws -> Expr {
@@ -153,7 +160,7 @@ public final class StringLibrary: Library {
     guard list.isNull else {
       throw EvalError.TypeError(expr, [.ProperListType])
     }
-    return .Str(MutableBox(String(utf16CodeUnits: uniChars, count: uniChars.count)))
+    return .Str(NSMutableString(string: String(utf16CodeUnits: uniChars, count: uniChars.count)))
   }
   
   func substring(expr: Expr, _ start: Expr, _ end: Expr?) throws -> Expr {
@@ -171,6 +178,6 @@ public final class StringLibrary: Library {
     for ch in str[s..<e] {
       uniChars.append(ch)
     }
-    return .Str(MutableBox(String(utf16CodeUnits: uniChars, count: uniChars.count)))
+    return .Str(NSMutableString(string: String(utf16CodeUnits: uniChars, count: uniChars.count)))
   }
 }

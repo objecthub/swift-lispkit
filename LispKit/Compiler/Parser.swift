@@ -74,7 +74,7 @@ public class Parser {
       case .CHAR:
         res = .Char(UInt16(token.intVal))
       case .STRING:
-        res = .Str(MutableBox(token.strVal))
+        res = .Str(NSMutableString(string: token.strVal))
       case .LPAREN:
         self.scanner.next()
         var exprs = Exprs()

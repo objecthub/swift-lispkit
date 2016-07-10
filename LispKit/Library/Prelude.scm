@@ -44,3 +44,4 @@
        (do ((pair (decons (cons list1 lists)) (decons (cdr pair))))
            ((null? pair) (reverse res))
            (set! res (cons (apply f (car pair)) res)))))
+

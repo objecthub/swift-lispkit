@@ -22,8 +22,10 @@
 public final class SchemeLibrary: Library {
   
   public override func export() {
-    include(BaseLibrary)
+    // The current library mechanism requires ControlFlowLibrary to come first (as it's used
+    // by native implementations of some functions in other libraries)
     include(ControlFlowLibrary)
+    include(BaseLibrary)
     include(MathLibrary)
     include(ListLibrary)
     include(VectorLibrary)

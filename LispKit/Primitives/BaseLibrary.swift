@@ -31,13 +31,37 @@ public final class BaseLibrary: Library {
     define(Procedure("procedure?", isProcedure))
     define(Procedure("eval", eval, compileEval))
     define(Procedure("apply", apply, compileApply))
-    define(Procedure("call-with-current-continuation", callWithCurrentContinuation))
     define(Procedure("equal?", isEqual))
     define(Procedure("eqv?", isEqv))
     define(Procedure("eq?", isEq))
     define("quote", SpecialForm(compileQuote))
     define("quasiquote", SpecialForm(compileQuasiquote))
     define("lambda", SpecialForm(compileLambda))
+    
+    // Continuations
+    define(Procedure("_call-with-unprotected-continuation", callWithUnprotectedContinuation))
+    define(Procedure("_wind-down", windDown))
+    define(Procedure("_wind-up", windUp))
+    define(Procedure("_dynamic-wind-base", dynamicWindBase))
+    define(Procedure("_dynamic-wind-current", dynamicWindCurrent))
+    define(Procedure("_dynamic-winders", dynamicWinders))
+    define("call-with-current-continuation",
+           compile: "(lambda (f)" +
+                    "  (_call-with-unprotected-continuation" +
+                    "     (lambda (cont)" +
+                    "       (f (lambda (x)" +
+                    "            (do ((base (_dynamic-wind-base cont)))" +
+                    "                ((eqv? (_dynamic-wind-current) base))" +
+                    "              ((cdr (_wind-down))))" +
+                    "            (do ((winders (_dynamic-winders cont) (cdr winders)))" +
+                    "                ((null? winders) (cont x))" +
+                    "              ((car (car winders)))" +
+                    "              (_wind-up (car (car winders)) (cdr (car winders)))))))))")
+    define("dynamic-wind",
+           compile: "(lambda (before during after)" +
+                    "  (before)" +
+                    "  (_wind-up before after)" +
+                    "  (let ((res (during))) ((cdr (_wind-down))) res))")
     
     // Definition primitives
     define("define", SpecialForm(compileDefine))
@@ -50,8 +74,10 @@ public final class BaseLibrary: Library {
     define(Procedure("promise?", isPromise))
     define(Procedure("force", compileForce, in: self.context))
     define(Procedure("make-promise", makePromise))
+    define(Procedure("eager", makePromise))
     define("delay", SpecialForm(compileDelay))
     define("delay-force", SpecialForm(compileDelayForce))
+    define("lazy", SpecialForm(compileDelayForce))
     
     // Symbol primitives
     define(Procedure("symbol?", isSymbol))
@@ -144,21 +170,6 @@ public final class BaseLibrary: Library {
       next = rest
     }
     throw EvalError.LeastArgumentCountError(formals: 2, args: expr)
-  }
-  
-  func callWithCurrentContinuation(args: Arguments) throws -> (Procedure, [Expr]) {
-    guard args.count == 1 else {
-      throw EvalError.ArgumentCountError(formals: 1, args: .List(args))
-    }
-    guard case .Proc(let proc) = args.first! else {
-      throw EvalError.TypeError(args.first!, [.ProcedureType])
-    }
-    // Create continuation, removing current argument and the call/cc procedure from the
-    // stack of the continuation
-    let vmstate = self.context.machine.getState()
-    let cont = Procedure(vmstate)
-    // Return procedure to call with continuation as argument
-    return (proc, [.Proc(cont)])
   }
   
   func isEqual(this: Expr, that: Expr) -> Expr {
@@ -285,6 +296,60 @@ public final class BaseLibrary: Library {
     return .False
   }
   
+  //-------- MARK: - Continuations
+  
+  func callWithUnprotectedContinuation(args: Arguments) throws -> (Procedure, [Expr]) {
+    guard args.count == 1 else {
+      throw EvalError.ArgumentCountError(formals: 1, args: .List(args))
+    }
+    guard case .Proc(let proc) = args.first! else {
+      throw EvalError.TypeError(args.first!, [.ProcedureType])
+    }
+    // Create continuation, removing current argument and the call/cc procedure from the
+    // stack of the continuation
+    let vmstate = self.context.machine.getState()
+    let cont = Procedure(vmstate)
+    // Return procedure to call with continuation as argument
+    return (proc, [.Proc(cont)])
+  }
+  
+  func windUp(before: Expr, after: Expr) throws -> Expr {
+    self.context.machine.windUp(before: try before.asProc(), after: try after.asProc())
+    return .Void
+  }
+  
+  func windDown() -> Expr {
+    guard let winder = self.context.machine.windDown() else {
+      return .Null
+    }
+    return .Pair(.Proc(winder.before), .Proc(winder.after))
+  }
+  
+  func dynamicWindBase(cont: Expr) throws -> Expr {
+    guard case .Continuation(let vmState) = try cont.asProc().kind else {
+      preconditionFailure("_dynamic-wind-base(\(cont))")
+    }
+    let base = self.context.machine.winders?.commonPrefix(vmState.winders)
+    return .Fixnum(base?.id ?? 0)
+  }
+  
+  func dynamicWindCurrent() -> Expr {
+    return .Fixnum(self.context.machine.winders?.id ?? 0)
+  }
+  
+  func dynamicWinders(cont: Expr) throws -> Expr {
+    guard case .Continuation(let vmState) = try cont.asProc().kind else {
+      preconditionFailure("_dynamic-winders(\(cont))")
+    }
+    let base = self.context.machine.winders
+    var res: Expr = .Null
+    var next = vmState.winders
+    while let winder = next where (base == nil) || winder !== base! {
+      res = .Pair(.Pair(.Proc(winder.before), .Proc(winder.after)), res)
+      next = winder.next
+    }
+    return res
+  }
   
   //-------- MARK: - Definition primitives
   
@@ -487,7 +552,7 @@ public final class BaseLibrary: Library {
   }
   
   func symbolToString(expr: Expr) throws -> Expr {
-    return .Str(MutableBox(try expr.asSymbol().description))
+    return .Str(NSMutableString(string: try expr.asSymbol().description))
   }
   
   func symtable() -> Expr {
@@ -594,7 +659,7 @@ public final class BaseLibrary: Library {
     compiler.emit(.PushCurrentTime)
     compiler.emit(.Swap)
     compiler.emit(.FlMinus)
-    try compiler.pushValue(.Str(MutableBox("elapsed time = ")))
+    try compiler.pushValue(.Str(NSMutableString(string: "elapsed time = ")))
     compiler.emit(.Display)
     compiler.emit(.Display)
     compiler.emit(.Newline)

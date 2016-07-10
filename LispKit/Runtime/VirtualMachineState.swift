@@ -23,12 +23,14 @@ public class VirtualMachineState: TrackedObject, CustomStringConvertible {
   internal let stack: [Expr]
   internal let sp: Int
   internal let registers: VirtualMachine.Registers
+  internal let winders: VirtualMachine.Winder?
   
   internal init(stack: [Expr],
                 sp: Int,
                 spDelta: Int,
                 ipDelta: Int,
-                registers: VirtualMachine.Registers) {
+                registers: VirtualMachine.Registers,
+                winders: VirtualMachine.Winder?) {
     var adjustedStack = stack
     self.sp = sp + spDelta
     for i in self.sp..<sp {
@@ -38,6 +40,7 @@ public class VirtualMachineState: TrackedObject, CustomStringConvertible {
     var adjustedRegisters = registers
     adjustedRegisters.ip += ipDelta
     self.registers = adjustedRegisters
+    self.winders = winders
   }
   
   public var description: String {
@@ -56,6 +59,7 @@ public class VirtualMachineState: TrackedObject, CustomStringConvertible {
     builder.append(", ip = \(self.registers.ip)")
     builder.append(", fp = \(self.registers.fp)")
     builder.append(", initialFp = \(self.registers.initialFp)")
+    builder.append(", numWinders = \(self.winders?.count ?? 0)")
     builder.append("}")
     return builder.description
   }
