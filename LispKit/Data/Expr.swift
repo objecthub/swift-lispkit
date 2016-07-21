@@ -39,14 +39,16 @@ public enum Expr: Trackable, Hashable {
   case Complexnum(Complex<Double>)
   case Char(UniChar)
   case Str(NSMutableString)
-  case Vec(Vector)
-  case ByteVec(MutableBox<[UInt8]>)
+  case Bytes(ByteVector)
   indirect case Pair(Expr, Expr)
+  case Box(Cell)
+  case MPair(Tuple)
+  case Vec(Vector)
+  case Map(HashTable)
   case Promise(Future)
   case Proc(Procedure)
   case Special(SpecialForm)
   case Prt(Port)
-  case Var(Variable)
   case Error(AnyError)
   
   /// Returns the type of this expression.
@@ -82,22 +84,26 @@ public enum Expr: Trackable, Hashable {
         return .CharType
       case Str(_):
         return .StrType
+      case Bytes(_):
+        return .ByteVectorType
       case Pair(_, _):
         return .PairType
+      case Box(_):
+        return .BoxType
+      case MPair(_):
+        return .MPairType
       case Vec(_):
         return .VectorType
-      case ByteVec(_):
-        return .ByteVectorType
+      case Map(_):
+        return .MapType
       case Promise(_):
         return .PromiseType
-      case Special(_):
-        return .SpecialType
       case Proc(_):
         return .ProcedureType
+      case Special(_):
+        return .SpecialType
       case Prt(_):
         return .PortType
-      case Var(let v):
-        return v.value.type
       case Error(_):
         return .ErrorType
     }
@@ -165,6 +171,9 @@ public enum Expr: Trackable, Hashable {
           }
           return Bignum(bn)
         }
+        if let fnnumer = num.numerator.intValue, fndenom = num.denominator.intValue {
+          return Rat(Rational(fnnumer, fndenom)).normalized
+        }
         return self
       case Complexnum(let num):
         return num.isReal ? Flonum(num.re) : self
@@ -198,10 +207,10 @@ public enum Expr: Trackable, Hashable {
   
   public var requiresTracking: Bool {
     switch self {
-      case Vec(_), Promise(_), Proc(_), Special(_), Var(_), Error(_):
-        return true
       case Pair(let car, let cdr):
         return car.requiresTracking || cdr.requiresTracking
+      case Box(_), MPair(_), Vec(_), Map(_), Promise(_), Proc(_), Special(_), Error(_):
+        return true
       default:
         return false
     }
@@ -209,19 +218,23 @@ public enum Expr: Trackable, Hashable {
   
   public func mark(tag: UInt8) {
     switch self {
-      case Vec(let vector):
-        vector.mark(tag)
       case Pair(let car, let cdr):
         car.mark(tag)
         cdr.mark(tag)
+      case Box(let cell):
+        cell.mark(tag)
+      case MPair(let tuple):
+        tuple.mark(tag)
+      case Vec(let vector):
+        vector.mark(tag)
+      case Map(let map):
+        map.mark(tag)
       case Promise(let future):
         future.mark(tag)
       case Proc(let proc):
         proc.mark(tag)
       case Special(let special):
         special.mark(tag)
-      case Var(let variable):
-        variable.mark(tag)
       case Error(_):
         break
       default:
@@ -230,57 +243,7 @@ public enum Expr: Trackable, Hashable {
   }
   
   public var hashValue: Int {
-    var visited = Set<Vector>()
-    
-    func hash(expr: Expr) -> Int {
-      var res: Int
-      switch expr  {
-        case Sym(let sym):
-          res = sym.description.hashValue
-        case Fixnum(let value):
-          res = value.hashValue
-        case Flonum(let value):
-          res = value.hashValue
-        case Char(let char):
-          res = char.hashValue
-        case Str(let str):
-          res = str.hashValue
-        case Pair(let car, let cdr):
-          res = (hash(car) &* 31) &+ hash(cdr)
-        case Vec(let vector):
-          if visited.contains(vector) {
-            return 0
-          }
-          visited.insert(vector)
-          res = 0
-          for expr in vector.exprs {
-            res = res &* 31 &+ hash(expr)
-          }
-          visited.remove(vector)
-        case ByteVec(let bvector):
-          res = 0
-          for byte in bvector.value {
-            res = res &* 31 &+ byte.hashValue
-          }
-        case Promise(let promise):
-          res = promise.hashValue
-        case Special(let special):
-          res = special.hashValue
-        case Proc(let proc):
-          res = proc.hashValue
-        case Prt(let port):
-          res = port.hashValue
-        case Var(let variable):
-          res = variable.hashValue
-        case Error(let err):
-          res = err.hashValue
-        default:
-          res = 0
-      }
-      return res &* 31 &+ expr.type.hashValue
-    }
-    
-    return hash(self)
+    return equalHash(self)
   }
 }
 
@@ -368,12 +331,12 @@ extension Expr {
     return res
   }
   
-  public func asInt() throws -> Int {
+  public func asInt(below below: Int = Int.max) throws -> Int {
     guard case Fixnum(let res) = self else {
       throw EvalError.TypeError(self, [.IntegerType])
     }
-    guard res >= 0 && res <= Int64(Int.max) else {
-      throw EvalError.IndexOutOfBounds(res, Int64(Int.max), self)
+    guard res >= 0 && res < Int64(below) else {
+      throw EvalError.IndexOutOfBounds(res, Int64(below), self)
     }
     return Int(res)
   }
@@ -437,6 +400,22 @@ extension Expr {
     }
   }
   
+  public func asSymbol() throws -> Symbol {
+    guard let symid = self.toSymbol() else {
+      throw EvalError.TypeError(self, [.SymbolType])
+    }
+    return symid
+  }
+  
+  public func toSymbol() -> Symbol? {
+    switch self {
+    case Sym(let sym):
+      return sym
+    default:
+      return nil
+    }
+  }
+  
   public func asChar() throws -> UniChar {
     guard case Char(let res) = self else {
       throw EvalError.TypeError(self, [.CharType])
@@ -465,6 +444,13 @@ extension Expr {
     return res
   }
   
+  public func asByteVector() throws -> ByteVector {
+    guard case Bytes(let bvector) = self else {
+      throw EvalError.TypeError(self, [.ByteVectorType])
+    }
+    return bvector
+  }
+  
   public func asPair() throws -> (Expr, Expr) {
     guard case Pair(let res) = self else {
       throw EvalError.TypeError(self, [.PairType])
@@ -479,11 +465,11 @@ extension Expr {
     return res
   }
   
-  public func asBytevector() throws -> MutableBox<[UInt8]> {
-    guard case ByteVec(let box) = self else {
-      throw EvalError.TypeError(self, [.ByteVectorType])
+  public func asMap() throws -> HashTable {
+    guard case Map(let map) = self else {
+      throw EvalError.TypeError(self, [.MapType])
     }
-    return box
+    return map
   }
   
   public func asProc() throws -> Procedure {
@@ -498,22 +484,6 @@ extension Expr {
       throw EvalError.TypeError(self, [.PortType])
     }
     return port
-  }
-  
-  public func asSymbol() throws -> Symbol {
-    guard let symid = self.toSymbol() else {
-      throw EvalError.TypeError(self, [.SymbolType])
-    }
-    return symid
-  }
-  
-  public func toSymbol() -> Symbol? {
-    switch self {
-      case Sym(let sym):
-        return sym
-      default:
-        return nil
-    }
   }
 }
 
@@ -531,9 +501,28 @@ extension Expr: CustomStringConvertible {
   }
   
   public func toString(escape escape: Bool = true) -> String {
-    var enclVectors = Set<Vector>()
-    var vectorIdMap = [Vector: Int]()
-    var enclVariables = Set<Variable>()
+    var enclObjs = Set<Reference>()
+    var objId = [Reference: Int]()
+    
+    func objIdString(ref: Reference) -> String? {
+      if let id = objId[ref] {
+        return "#\(id)#"
+      } else if enclObjs.contains(ref) {
+        objId[ref] = objId.count
+        return "#\(objId.count - 1)#"
+      } else {
+        return nil
+      }
+    }
+    
+    func fixString(ref: Reference, _ str: String) -> String {
+      if let id = objId[ref] {
+        return "#\(id)=\(str)"
+      } else {
+        return str
+      }
+    }
+    
     func stringReprOf(expr: Expr) -> String {
       switch expr {
         case .Undef:
@@ -603,6 +592,14 @@ extension Expr: CustomStringConvertible {
             return str as String
           }
           return "\"\(Expr.escapeStr(str as String))\""
+        case .Bytes(let boxedVec):
+          var res = "#u8("
+          var sep = ""
+          for byte in boxedVec.value {
+            res = res + sep + String(byte)
+            sep = " "
+          }
+          return res + ")"
         case .Pair(let head, let tail):
           var res = "(" + stringReprOf(head)
           var expr = tail
@@ -612,53 +609,65 @@ extension Expr: CustomStringConvertible {
             expr = cdr
           }
           return res + (expr.isNull ? ")" : " . \(expr))")
+        case .Box(let cell):
+          if let res = objIdString(cell) {
+            return res
+          } else {
+            enclObjs.insert(cell)
+            let res = "#<box \(String(cell.identity, radix: 16)): \(stringReprOf(cell.value))>"
+            enclObjs.remove(cell)
+            return fixString(cell, res)
+          }
+        case .MPair(let tuple):
+          if let res = objIdString(tuple) {
+            return res
+          } else {
+            enclObjs.insert(tuple)
+            let res = "#<tuple \(String(tuple.identity, radix: 16)): " +
+                      "\(stringReprOf(tuple.fst)), \(stringReprOf(tuple.snd))>"
+            enclObjs.remove(tuple)
+            return fixString(tuple, res)
+          }
         case .Vec(let vector):
-          if let vectorId = vectorIdMap[vector] {
-            return "#\(vectorId)#"
-          } else if enclVectors.contains(vector) {
-            vectorIdMap[vector] = vectorIdMap.count
-            return "#\(vectorIdMap.count - 1)#"
+          if let res = objIdString(vector) {
+            return res
           } else if vector.exprs.count == 0 {
             return "#()"
-          }
-          enclVectors.insert(vector)
-          var res = ""
-          var sep = "#("
-          for expr in vector.exprs {
-            res = res + sep + stringReprOf(expr)
-            sep = " "
-          }
-          enclVectors.remove(vector)
-          if let vectorId = vectorIdMap[vector] {
-            return "#\(vectorId)=\(res))"
           } else {
-            return res + ")"
+            enclObjs.insert(vector)
+            var res = ""
+            var sep = "#("
+            for expr in vector.exprs {
+              res = res + sep + stringReprOf(expr)
+              sep = " "
+            }
+            res += ")"
+            enclObjs.remove(vector)
+            return fixString(vector, res)
           }
-        case .ByteVec(let boxedVec):
-          var res = "#u8("
-          var sep = ""
-          for byte in boxedVec.value {
-            res = res + sep + String(byte)
-            sep = " "
+        case .Map(let map):
+          if let res = objIdString(map) {
+            return res
+          } else {
+            enclObjs.insert(map)
+            var res = "#<hashtable \(String(map.identity, radix: 16)):"
+            var sep = " "
+            for (key, value) in map.mappings {
+              res = res + sep + stringReprOf(key) + " -> " + stringReprOf(value)
+              sep = ", "
+            }
+            res += ">"
+            enclObjs.remove(map)
+            return fixString(map, res)
           }
-          return res + ")"
         case .Promise(let promise):
           return "#<promise \(String(promise.identity, radix: 16))>"
-        case .Special(let special):
-          return "#<special \(String(special.identity, radix: 16))>"
         case .Proc(let proc):
           return "#<procedure \(proc.name)>"
+        case .Special(let special):
+          return "#<special \(String(special.identity, radix: 16))>"
         case .Prt(let port):
           return "#<\(port.typeDescription) \(port.identDescription)>"
-        case .Var(let v):
-          if enclVariables.contains(v) {
-            return "#<variable \(String(v.identity, radix: 16))"
-          } else {
-            enclVariables.insert(v)
-            let res = "#<variable \(String(v.identity, radix: 16)): \(stringReprOf(v.value))>"
-            enclVariables.remove(v)
-            return res
-          }
         case .Error(let error):
           return error.description
       }
@@ -690,3 +699,6 @@ extension Expr: CustomStringConvertible {
 public func ==(lhs: Expr, rhs: Expr) -> Bool {
   return equalExpr(lhs, rhs)
 }
+
+public typealias ByteVector = MutableBox<[UInt8]>
+

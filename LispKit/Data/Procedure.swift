@@ -52,9 +52,11 @@ public final class Procedure: Reference, CustomStringConvertible {
     case Native1((Expr) throws -> Expr)
     case Native2((Expr, Expr) throws -> Expr)
     case Native3((Expr, Expr, Expr) throws -> Expr)
+    case Native4((Expr, Expr, Expr, Expr) throws -> Expr)
     case Native0O((Expr?) throws -> Expr)
     case Native1O((Expr, Expr?) throws -> Expr)
     case Native2O((Expr, Expr, Expr?) throws -> Expr)
+    case Native3O((Expr, Expr, Expr, Expr?) throws -> Expr)
     case Native0R((Arguments) throws -> Expr)
     case Native1R((Expr, Arguments) throws -> Expr)
     case Native2R((Expr, Expr, Arguments) throws -> Expr)
@@ -123,6 +125,13 @@ public final class Procedure: Reference, CustomStringConvertible {
   
   /// Initializer for primitive procedures
   public init(_ name: String,
+              _ proc: (Expr, Expr, Expr, Expr) throws -> Expr,
+              _ compiler: FormCompiler? = nil) {
+    self.kind = .Primitive(name, .Native4(proc), compiler)
+  }
+  
+  /// Initializer for primitive procedures
+  public init(_ name: String,
               _ proc: (Expr?) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
     self.kind = .Primitive(name, .Native0O(proc), compiler)
@@ -140,6 +149,13 @@ public final class Procedure: Reference, CustomStringConvertible {
               _ proc: (Expr, Expr, Expr?) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
     self.kind = .Primitive(name, .Native2O(proc), compiler)
+  }
+  
+  /// Initializer for primitive procedures
+  public init(_ name: String,
+              _ proc: (Expr, Expr, Expr, Expr?) throws -> Expr,
+              _ compiler: FormCompiler? = nil) {
+    self.kind = .Primitive(name, .Native3O(proc), compiler)
   }
   
   /// Initializer for primitive procedures
@@ -220,6 +236,7 @@ public final class Procedure: Reference, CustomStringConvertible {
 public typealias Arguments = ArraySlice<Expr>
 
 public extension ArraySlice {
+    
   public func optional(fst: Element, _ snd: Element) -> (Element, Element)? {
     switch self.count {
       case 0:

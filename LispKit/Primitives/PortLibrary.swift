@@ -207,7 +207,7 @@ public final class PortLibrary: Library {
   }
   
   func openInputBytevector(expr: Expr) throws -> Expr {
-    return .Prt(Port(input: BinaryInput(data: try expr.asBytevector().value)))
+    return .Prt(Port(input: BinaryInput(data: try expr.asByteVector().value)))
   }
   
   func openOutputBytevector() -> Expr {
@@ -225,7 +225,7 @@ public final class PortLibrary: Library {
     guard let buffer = try expr.asPort().outputBinary else {
       throw EvalError.TypeError(expr, [.BinaryOutputPortType])
     }
-    return .ByteVec(MutableBox(buffer))
+    return .Bytes(MutableBox(buffer))
   }
   
   func closePort(expr: Expr) throws -> Expr {
@@ -348,11 +348,11 @@ public final class PortLibrary: Library {
     guard let bytes = input.readMany(try nbytes.asInt()) else {
       return .Eof
     }
-    return .ByteVec(MutableBox(bytes))
+    return .Bytes(MutableBox(bytes))
   }
   
   func readBytevectorSet(bvec: Expr, args: Arguments) throws -> Expr {
-    let bvector = try bvec.asBytevector()
+    let bvector = try bvec.asByteVector()
     guard let (pexpr, s, e) = args.optional(.Prt(self.context.inputPort),
                                             .Number(0),
                                             .Number(bvector.value.count)) else {
@@ -465,7 +465,7 @@ public final class PortLibrary: Library {
   }
   
   func writeBytevector(expr: Expr, args: Arguments) throws -> Expr {
-    let bvector = try expr.asBytevector().value
+    let bvector = try expr.asByteVector().value
     if args.count < 2 {
       guard try self.binaryOutputFrom(args.first)
                     .writeFrom(bvector, start: 0, end: bvector.count) else {

@@ -19,7 +19,7 @@
 //
 
 /// 
-/// Represents a type of an expression/value
+/// `Type` represents a type of an expression/value
 ///
 public enum Type: Int, CustomStringConvertible {
   case UndefinedType
@@ -37,24 +37,27 @@ public enum Type: Int, CustomStringConvertible {
   case ComplexType
   case CharType
   case StrType
-  case PairType
-  case VectorType
   case ByteVectorType
+  case PairType
+  case BoxType
+  case MPairType
+  case VectorType
+  case MapType
   case PromiseType
-  case SpecialType
   case ProcedureType
+  case SpecialType
   case PortType
   case NumberType
   case ExactNumberType
   case ListType
   case ProperListType
   case AssocListType
+  case InputPortType
+  case OutputPortType
   case TextInputPortType
   case TextOutputPortType
   case BinaryInputPortType
   case BinaryOutputPortType
-  case InputPortType
-  case OutputPortType
   
   public var description: String {
     switch self {
@@ -92,6 +95,8 @@ public enum Type: Int, CustomStringConvertible {
         return "vector"
       case ByteVectorType:
         return "bytevector"
+      case MapType:
+        return "map"
       case PromiseType:
         return "promise"
       case SpecialType:
@@ -124,6 +129,10 @@ public enum Type: Int, CustomStringConvertible {
         return "input port"
       case OutputPortType:
         return "output port"
+      case BoxType:
+        return "box"
+      case MPairType:
+        return "mpair"
     }
   }
   

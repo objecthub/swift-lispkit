@@ -219,7 +219,7 @@ public final class Compiler {
   /// pool. `registerConstant` makes sure that expressions are not added twice.
   public func registerConstant(expr: Expr) -> Int {
     for i in self.constants.indices {
-      if self.constants[i] == expr {
+      if eqExpr(self.constants[i], expr) {
         return i
       }
     }
@@ -348,13 +348,11 @@ public final class Compiler {
         self.emit(.PushComplex(num))
       case .Char(let char):
         self.emit(.PushChar(char))
-      case .Sym(_), .Str(_), .Vec(_), .ByteVec(_), .Promise(_), .Proc(_), .Prt(_),
-           .Error(_), .Pair(_, _):
+      case .Sym(_), .Str(_), .Bytes(_), .Pair(_, _), .Box(_), .MPair(_), .Vec(_), .Map(_),
+           .Promise(_), .Proc(_), .Prt(_), .Error(_):
         self.pushConstant(expr)
       case .Special(_):
         throw EvalError.IllegalKeywordUsage(expr)
-      case .Var(_):
-        preconditionFailure("cannot push variables as values")
     }
   }
   

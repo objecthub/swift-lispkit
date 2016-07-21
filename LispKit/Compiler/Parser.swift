@@ -117,7 +117,7 @@ public class Parser {
         guard self.scanner.hasToken(.RPAREN) else {
           throw SyntaxError.ClosingParenthesisMissing
         }
-        res = .ByteVec(MutableBox(bytes))
+        res = .Bytes(MutableBox(bytes))
       case .QUOTE:
         self.scanner.next()
         return Expr.List(.Sym(symbols.QUOTE), try self.parse())

@@ -24,27 +24,27 @@ import NumberKit
 
 //-------- MARK: - Equals
 
-struct Equality<T: Hashable>: Hashable {
-  let vec1: T
-  let vec2: T
+struct Equality: Hashable {
+  let ref1: Reference
+  let ref2: Reference
   
-  init(_ vec1: T, _ vec2: T) {
-    self.vec1 = vec1
-    self.vec2 = vec2
+  init(_ ref1: Reference, _ ref2: Reference) {
+    self.ref1 = ref1
+    self.ref2 = ref2
   }
   
   var hashValue: Int {
-    return vec1.hashValue &+ vec2.hashValue
+    return ref1.hashValue &+ ref2.hashValue
   }
 }
 
-func ==<T: Hashable>(lhs: Equality<T>, rhs: Equality<T>) -> Bool {
-  return lhs.vec1 == rhs.vec1 && lhs.vec2 == rhs.vec2 ||
-         lhs.vec1 == rhs.vec2 && lhs.vec2 == rhs.vec1
+func ==(lhs: Equality, rhs: Equality) -> Bool {
+  return lhs.ref1 == rhs.ref1 && lhs.ref2 == rhs.ref2 ||
+         lhs.ref1 == rhs.ref2 && lhs.ref2 == rhs.ref1
 }
 
 func equalExpr(this: Expr, _ that: Expr) -> Bool {
-  var vectorEqualities = Set<Equality<Vector>>()
+  var equalities = Set<Equality>()
   
   func equals(lhs: Expr, _ rhs: Expr) -> Bool {
     switch (lhs, rhs) {
@@ -68,24 +68,7 @@ func equalExpr(this: Expr, _ that: Expr) -> Bool {
         return ch1 == ch2
       case (.Str(let str1), .Str(let str2)):
         return str1 == str2
-      case (.Pair(let car1, let cdr1), .Pair(let car2, let cdr2)):
-        return equals(car1, car2) && equals(cdr1, cdr2)
-      case (.Vec(let vector1), .Vec(let vector2)):
-        let equality = Equality(vector1, vector2)
-        guard !vectorEqualities.contains(equality) else {
-          return true
-        }
-        guard vector1.exprs.count == vector2.exprs.count else {
-          return false
-        }
-        vectorEqualities.insert(Equality(vector1, vector2))
-        for i in vector1.exprs.indices {
-          guard equals(vector1.exprs[i], vector2.exprs[i]) else {
-            return false
-          }
-        }
-        return true
-      case (.ByteVec(let bvector1), .ByteVec(let bvector2)):
+      case (.Bytes(let bvector1), .Bytes(let bvector2)):
         guard bvector1.value.count == bvector2.value.count else {
           return false
         }
@@ -95,16 +78,75 @@ func equalExpr(this: Expr, _ that: Expr) -> Bool {
           }
         }
         return true
+      case (.Pair(let car1, let cdr1), .Pair(let car2, let cdr2)):
+        return equals(car1, car2) && equals(cdr1, cdr2)
+      case (.Box(let cell1), .Box(let cell2)):
+        guard cell1 !== cell2 else {
+          return true
+        }
+        let equality = Equality(cell1, cell2)
+        guard !equalities.contains(equality) else {
+          return true
+        }
+        equalities.insert(equality)
+        return cell1.value == cell2.value
+      case (.MPair(let tuple1), .MPair(let tuple2)):
+        guard tuple1 !== tuple2 else {
+          return true
+        }
+        let equality = Equality(tuple1, tuple2)
+        guard !equalities.contains(equality) else {
+          return true
+        }
+        equalities.insert(equality)
+        return tuple1.fst == tuple2.fst && tuple1.snd == tuple2.snd
+      case (.Vec(let vector1), .Vec(let vector2)):
+        guard vector1 !== vector2 else {
+          return true
+        }
+        let equality = Equality(vector1, vector2)
+        guard !equalities.contains(equality) else {
+          return true
+        }
+        guard vector1.exprs.count == vector2.exprs.count else {
+          return false
+        }
+        equalities.insert(equality)
+        for i in vector1.exprs.indices {
+          guard equals(vector1.exprs[i], vector2.exprs[i]) else {
+            return false
+          }
+        }
+        return true
+      case (.Map(let map1), .Map(let map2)):
+        guard map1 !== map2 else {
+          return true
+        }
+        guard case .Equal = map1.equiv, .Equal = map2.equiv else {
+          return false
+        }
+        let equality = Equality(map1, map2)
+        guard !equalities.contains(equality) else {
+          return true
+        }
+        equalities.insert(equality)
+        for (key, value) in map1.mappings {
+          guard let cell = map2.getCell(key, equalHash(key), equals) else {
+            return false
+          }
+          guard equals(value, cell.value) else {
+            return false
+          }
+        }
+        return true
       case (.Promise(let promise1), .Promise(let promise2)):
         return promise1 == promise2
-      case (.Special(let e1), .Special(let e2)):
-        return e1 == e2
       case (.Proc(let e1), .Proc(let e2)):
+        return e1 == e2
+      case (.Special(let e1), .Special(let e2)):
         return e1 == e2
       case (.Prt(let p1), .Prt(let p2)):
         return p1 == p2
-      case (.Var(let v1), .Var(let v2)):
-        return v1 === v2
       case (.Error(let e1), .Error(let e2)):
         return e1 == e2
       default:
@@ -140,17 +182,23 @@ func eqvExpr(lhs: Expr, _ rhs: Expr) -> Bool {
       return ch1 == ch2
     case (.Str(let str1), .Str(let str2)):
       return str1 === str2
+    case (.Bytes(let bvector1), .Bytes(let bvector2)):
+      return bvector1 === bvector2
     case (.Pair(let car1, let cdr1), .Pair(let car2, let cdr2)):
       return eqvExpr(car1, car2) && eqvExpr(cdr1, cdr2)
+    case (.Box(let c1), .Box(let c2)):
+      return c1 === c2
+    case (.MPair(let t1), .MPair(let t2)):
+      return t1 === t2
     case (.Vec(let vector1), .Vec(let vector2)):
       return vector1 === vector2
-    case (.ByteVec(let bvector1), .ByteVec(let bvector2)):
-      return bvector1 === bvector2
+    case (.Map(let map1), .Map(let map2)):
+      return map1 === map2
     case (.Promise(let promise1), .Promise(let promise2)):
       return promise1 === promise2
-    case (.Special(let e1), .Special(let e2)):
-      return e1 === e2
     case (.Proc(let e1), .Proc(let e2)):
+      return e1 === e2
+    case (.Special(let e1), .Special(let e2)):
       return e1 === e2
     case (.Error(let e1), .Error(let e2)):
       return e1 === e2
@@ -189,17 +237,23 @@ func eqExpr(lhs: Expr, _ rhs: Expr) -> Bool {
       return ch1 == ch2
     case (.Str(let str1), .Str(let str2)):
       return str1 === str2
+    case (.Bytes(let bvector1), .Bytes(let bvector2)):
+      return bvector1 === bvector2
     case (.Pair(let car1, let cdr1), .Pair(let car2, let cdr2)):
       return eqvExpr(car1, car2) && eqvExpr(cdr1, cdr2)
+    case (.Box(let c1), .Box(let c2)):
+      return c1 === c2
+    case (.MPair(let t1), .MPair(let t2)):
+      return t1 === t2
     case (.Vec(let vector1), .Vec(let vector2)):
       return vector1 === vector2
-    case (.ByteVec(let bvector1), .ByteVec(let bvector2)):
-      return bvector1 === bvector2
+    case (.Map(let map1), .Map(let map2)):
+      return map1 === map2
     case (.Promise(let promise1), .Promise(let promise2)):
       return promise1 === promise2
-    case (.Special(let e1), .Special(let e2)):
-      return e1 === e2
     case (.Proc(let e1), .Proc(let e2)):
+      return e1 === e2
+    case (.Special(let e1), .Special(let e2)):
       return e1 === e2
     case (.Error(let e1), .Error(let e2)):
       return e1 === e2

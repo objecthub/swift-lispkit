@@ -468,6 +468,17 @@ public final class VirtualMachine: TrackedObject {
           self.pop(overhead)
           self.push(try exec(a0, a1, a2))
           return proc
+        case .Native4(let exec):
+          guard n == 4 else {
+            throw EvalError.ArgumentCountError(formals: 4, args: self.popAsList(n))
+          }
+          let a3 = self.pop()
+          let a2 = self.pop()
+          let a1 = self.pop()
+          let a0 = self.pop()
+          self.pop(overhead)
+          self.push(try exec(a0, a1, a2, a3))
+          return proc
         case .Native0O(let exec):
           if n == 0 {
             self.pop(overhead)
@@ -506,6 +517,24 @@ public final class VirtualMachine: TrackedObject {
             let a0 = self.pop()
             self.pop(overhead)
             self.push(try exec(a0, a1, a2))
+          } else {
+            throw EvalError.ArgumentCountError(formals: 3, args: self.popAsList(n))
+          }
+          return proc
+        case .Native3O(let exec):
+          if n == 3 {
+            let a2 = self.pop()
+            let a1 = self.pop()
+            let a0 = self.pop()
+            self.pop(overhead)
+            self.push(try exec(a0, a1, a2, nil))
+          } else if n == 4 {
+            let a3 = self.pop()
+            let a2 = self.pop()
+            let a1 = self.pop()
+            let a0 = self.pop()
+            self.pop(overhead)
+            self.push(try exec(a0, a1, a2, a3))
           } else {
             throw EvalError.ArgumentCountError(formals: 3, args: self.popAsList(n))
           }
@@ -659,43 +688,43 @@ public final class VirtualMachine: TrackedObject {
         case .PushCaptured(let index):
           self.push(self.registers.captured[index])
         case .PushCapturedValue(let index):
-          guard case .Var(let variable) = self.registers.captured[index] else {
+          guard case .Box(let cell) = self.registers.captured[index] else {
             preconditionFailure("PushCapturedValue cannot push \(self.registers.captured[index])")
           }
-          if case .Undef = variable.value {
+          if case .Undef = cell.value {
             throw EvalError.VariableNotYetInitialized(nil)
           }
-          self.push(variable.value)
+          self.push(cell.value)
         case .SetCapturedValue(let index):
-          guard case .Var(let variable) = self.registers.captured[index] else {
+          guard case .Box(let cell) = self.registers.captured[index] else {
             preconditionFailure("SetCapturedValue cannot set value of \(self.registers.captured[index])")
           }
-          variable.value = self.pop()
+          cell.value = self.pop()
         case .PushLocal(let index):
           self.push(self.stack[self.registers.fp + index])
         case .SetLocal(let index):
           self.stack[self.registers.fp + index] = self.pop()
         case .SetLocalValue(let index):
-          guard case .Var(let variable) = self.stack[self.registers.fp + index] else {
+          guard case .Box(let cell) = self.stack[self.registers.fp + index] else {
             preconditionFailure("SetLocalValue cannot set value of \(self.stack[self.registers.fp + index])")
           }
-          variable.value = self.pop()
+          cell.value = self.pop()
         case .MakeLocalVariable(let index):
-          let variable = Variable(self.pop())
-          self.context.objects.manage(variable)
-          self.stack[self.registers.fp + index] = .Var(variable)
+          let cell = Cell(self.pop())
+          self.context.objects.manage(cell)
+          self.stack[self.registers.fp + index] = .Box(cell)
         case .MakeVariableArgument(let index):
-          let variable = Variable(self.stack[self.registers.fp + index])
-          self.context.objects.manage(variable)
-          self.stack[self.registers.fp + index] = .Var(variable)
+          let cell = Cell(self.stack[self.registers.fp + index])
+          self.context.objects.manage(cell)
+          self.stack[self.registers.fp + index] = .Box(cell)
         case .PushLocalValue(let index):
-          guard case .Var(let variable) = self.stack[self.registers.fp + index] else {
+          guard case .Box(let cell) = self.stack[self.registers.fp + index] else {
             preconditionFailure("PushLocalValue cannot push \(self.stack[self.registers.fp + index])")
           }
-          if case .Undef = variable.value {
+          if case .Undef = cell.value {
             throw EvalError.VariableNotYetInitialized(nil)
           }
-          self.push(variable.value)
+          self.push(cell.value)
         case .PushConstant(let index):
           self.push(self.registers.code.constants[index])
         case .PushUndef:

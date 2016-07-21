@@ -132,7 +132,7 @@ public func ==(left: CheckpointData, right: CheckpointData) -> Bool {
     case (.SystemDefined, .SystemDefined):
       return true
     case (.FromGlobalEnv(let lexpr), .FromGlobalEnv(let rexpr)):
-      return lexpr == rexpr
+      return eqExpr(lexpr, rexpr)
     case (.ValueBinding(let lsym), .ValueBinding(let rsym)):
       return lsym == rsym
     case (.Expansion(let lexpr), .Expansion(let rexpr)):

@@ -1,6 +1,6 @@
 # Todo
 
-Last update: 2016-07-01
+Last update: 2016-07-11
 
 
 ## Compiler
@@ -25,6 +25,7 @@ Last update: 2016-07-01
       of results
 - [X] Evaluate what it takes to support `call/cc`
 - [X] Implement full support for `call/cc`
+- [X] Implement full support for `dynamic-wind`
 
 ## Library
 

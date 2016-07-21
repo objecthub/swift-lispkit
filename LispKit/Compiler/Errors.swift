@@ -473,6 +473,12 @@ public enum EvalError: LispError {
     }
     return false
   }
+  
+  public static func assert(args: Arguments, count: Int) throws {
+    guard args.count == count else {
+      throw EvalError.ArgumentCountError(formals: count, args: .List(args))
+    }
+  }
 }
 
 public class OsError: LispError {

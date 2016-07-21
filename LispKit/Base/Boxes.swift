@@ -1,5 +1,5 @@
 //
-//  Boxed.swift
+//  Boxes.swift
 //  LispKit
 //
 //  Created by Matthias Zenger on 03/02/2016.
@@ -21,7 +21,7 @@
 ///
 /// Generic box for value and reference types.
 ///
-public final class Box<T> {
+public final class ImmutableBox<T>: Reference {
   public let value: T
   
   public init(_ value: T) {
@@ -32,7 +32,7 @@ public final class Box<T> {
 ///
 /// Generic mutable box for value and reference types.
 ///
-public final class MutableBox<T> {
+public final class MutableBox<T>: Reference {
   public var value: T
   
   public init(_ value: T) {
@@ -43,7 +43,7 @@ public final class MutableBox<T> {
 ///
 /// Generic weak, mutable box for reference types.
 ///
-public final class WeakBox<T: AnyObject> {
+public final class WeakBox<T: AnyObject>: Reference {
   public weak var value: T?
   
   public init(_ value: T?) {
