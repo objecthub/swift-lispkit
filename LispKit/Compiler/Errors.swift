@@ -273,6 +273,7 @@ public enum EvalError: LispError {
   case CannotOpenFile(String)
   case CannotWriteToPort(Expr)
   case IllegalContinuationApplication(Procedure, Int)
+  case AttemptToModifyImmutableData(Expr)
   
   public var kind: String {
     return "eval error"
@@ -376,6 +377,8 @@ public enum EvalError: LispError {
         return "cannot write to port \(port)"
       case .IllegalContinuationApplication(let proc, let rid):
         return "continuation application in wrong context (\(proc) in \(rid))"
+      case .AttemptToModifyImmutableData(let expr):
+        return "illegal attempt to modify immutable data structure: \(expr)"
     }
   }
   
@@ -467,6 +470,8 @@ public enum EvalError: LispError {
         case (IllegalContinuationApplication(let p1, let rid1),
               IllegalContinuationApplication(let p2, let rid2)):
           return p1 == p2 && rid1 == rid2
+        case (AttemptToModifyImmutableData(let e1), AttemptToModifyImmutableData(let e2)):
+          return e1 == e2
         default:
           return false
       }

@@ -197,8 +197,13 @@ public final class HashTableLibrary: Library {
     let map = try args.first!.asMap()
     let key = args[args.startIndex + 1]
     let value = args[args.startIndex + 2]
+    guard map.mutable else {
+      throw EvalError.AttemptToModifyImmutableData(.Map(map))
+    }
     guard case .Custom(let procs) = map.equiv else {
-      map.set(key, value)
+      guard map.set(key, value) else {
+        preconditionFailure("trying to set mapping in immutable hash map")
+      }
       return (BaseLibrary.idProc, [.Void])
     }
     // TODO: Deal with immutable hashtables
@@ -215,9 +220,14 @@ public final class HashTableLibrary: Library {
     let key = args[args.startIndex + 1]
     let proc = args[args.startIndex + 2]
     let def = args[args.startIndex + 3]
+    guard map.mutable else {
+      throw EvalError.AttemptToModifyImmutableData(.Map(map))
+    }
     guard case .Custom(let procs) = map.equiv else {
       let hashValue = map.hash(key)
-      let cell = map.getCell(key, hashValue) ?? map.setCell(key, def, hashValue)
+      guard let cell = map.getCell(key, hashValue) ?? map.addCell(key, def, hashValue) else {
+        preconditionFailure("trying to update mapping in immutable hash map")
+      }
       return (self.updateBoxProc, [.Box(cell), proc])
     }
     // TODO: Deal with immutable hashtables
@@ -233,8 +243,13 @@ public final class HashTableLibrary: Library {
     try EvalError.assert(args, count: 2)
     let map = try args.first!.asMap()
     let key = args[args.startIndex + 1]
+    guard map.mutable else {
+      throw EvalError.AttemptToModifyImmutableData(.Map(map))
+    }
     guard case .Custom(let procs) = map.equiv else {
-      map.remove(key)
+      guard map.remove(key) else {
+        preconditionFailure("trying to delete mapping in immutable hash map")
+      }
       return (BaseLibrary.idProc, [.Void])
     }
     return (procs.del, [.Map(map),
@@ -248,7 +263,13 @@ public final class HashTableLibrary: Library {
   }
   
   func hashTableClear(expr: Expr, k: Expr?) throws -> Expr {
-    try expr.asMap().clear(k?.asInt())
+    let map = try expr.asMap()
+    guard map.mutable else {
+      throw EvalError.AttemptToModifyImmutableData(.Map(map))
+    }
+    guard try map.clear(k?.asInt()) else {
+      preconditionFailure("trying to clear immutable hash map")
+    }
     return .Void
   }
   
@@ -360,7 +381,7 @@ public final class HashTableLibrary: Library {
     guard case .Map(let map) = expr else {
       throw EvalError.TypeError(expr, [.MapType])
     }
-    return map.alist(Int(try hval.asInteger() % Int64(map.bucketCount)))
+    return map.bucketList(Int(try hval.asInteger() % Int64(map.bucketCount)))
   }
   
   private static func hashBucketAdd(expr: Expr,

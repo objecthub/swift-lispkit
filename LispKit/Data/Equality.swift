@@ -119,15 +119,29 @@ func equalExpr(this: Expr, _ that: Expr) -> Bool {
         }
         return true
       case (.Map(let map1), .Map(let map2)):
+        // Identical maps are also equals
         guard map1 !== map2 else {
           return true
         }
+        // Maps with incompatible hashing and equality functions are not equals
+        switch (map1.equiv, map2.equiv) {
+          case (.Eq, .Eq), (.Eqv, .Eqv), (.Equal, .Equal):
+            break;
+          case (.Custom(let procs1), .Custom(let procs2)):
+            guard procs1.eql == procs2.eql && procs1.hsh == procs2.hsh else {
+              return false
+            }
+          default:
+            return false
+        }
+        // Assume equality (to handle recursive dependencies)
         let equality = Equality(map1, map2)
         guard !equalities.contains(equality) else {
           return true
         }
         equalities.insert(equality)
-        // TODO: Consider optimizing this; this currently has complexity O(n*n)
+        // Check for structural equality of all mappings
+        // TODO: Consider optimizing this; the algorithm currently has complexity O(n*n)
         let mappings1 = map1.mappings
         var count2 = 0
         outer:

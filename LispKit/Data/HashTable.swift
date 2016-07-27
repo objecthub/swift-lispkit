@@ -75,6 +75,9 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
   /// The hash buckets.
   private var buckets: [Bucket]
   
+  /// Number of mappings in this hash table
+  public private(set) var count: Int
+  
   /// Is this `HashTable` object mutable?
   public let mutable: Bool
   
@@ -91,6 +94,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
               mutable: Bool = true,
               equiv: Equivalence) {
     self.buckets = [Bucket](count: capacity, repeatedValue: .Empty)
+    self.count = 0
     self.mutable = mutable
     self.equiv = equiv
     super.init(HashTable.stats)
@@ -102,13 +106,17 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
     for i in 0..<other.buckets.count {
       self.buckets.append(Bucket(copy: other.buckets[i]))
     }
+    self.count = other.count
     self.mutable = mutable
     self.equiv = other.equiv
     super.init(HashTable.stats)
   }
   
   /// Clear entries in hash table and resize if capacity is supposed to change
-  public func clear(capacity: Int? = nil) {
+  public func clear(capacity: Int? = nil) -> Bool {
+    guard self.mutable else {
+      return false
+    }
     if let capacity = capacity {
       self.buckets = [Bucket](count: capacity, repeatedValue: .Empty)
     } else {
@@ -116,24 +124,13 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
         self.buckets[i] = .Empty
       }
     }
+    self.count = 0
+    return true
   }
   
   /// Returns the number of hash buckets in the hash table.
   public var bucketCount: Int {
     return self.buckets.count
-  }
-  
-  /// Returns the number of mappings/keys in the hash table.
-  public var count: Int {
-    var res = 0
-    for bucket in self.buckets {
-      var current = bucket
-      while case .Mapping(_, _, let next) = current {
-        res += 1
-        current = next
-      }
-    }
-    return res
   }
   
   /// Returns a list of all keys in the hash table
@@ -175,22 +172,22 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
     return res
   }
   
-  /// Returns the mappings in the hash table as an association list
-  public func alist(bid: Int) -> Expr {
-    var res: Expr = .Null
-    var current = self.buckets[bid]
-    while case .Mapping(let key, let cell, let next) = current {
-      res = .Pair(.Pair(key, .Box(cell)), res)
-      current = next
+  /// Adds a new mapping to bucket at index `bid`
+  public func add(bid: Int, _ key: Expr, _ value: Expr) -> Cell? {
+    guard self.mutable else {
+      return nil
     }
-    return res
+    let cell = Cell(value)
+    self.buckets[bid] = Bucket(key: key, cell: cell, next: self.buckets[bid])
+    self.count += 1
+    return cell
   }
   
-  public func add(bid: Int, _ key: Expr, _ value: Expr) {
-    self.buckets[bid] = .Mapping(key, Cell(value), self.buckets[bid])
-  }
-  
-  public func remove(bid: Int, _ delete: Cell) {
+  /// Removes a mapping identified by the boxed value `delete` in bucket at index `bid`
+  public func remove(bid: Int, _ delete: Cell) -> Bool {
+    guard self.mutable else {
+      return false
+    }
     var stack = [(Expr, Cell)]()
     var current = self.buckets[bid]
     while case .Mapping(let key, let cell, let next) = current {
@@ -198,14 +195,27 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
         var res = next
         for i in 0..<stack.count {
           let pair = stack[stack.count - i - 1]
-          res = .Mapping(pair.0, pair.1, res)
+          res = Bucket(key: pair.0, cell: pair.1, next: res)
         }
         self.buckets[bid] = res
-        return
+        self.count -= 1
+        return true
       }
       stack.append((key, cell))
       current = next
     }
+    return true
+  }
+  
+  /// Returns the mappings in the hash table as an association list with boxed values
+  public func bucketList(bid: Int) -> Expr {
+    var res: Expr = .Null
+    var current = self.buckets[bid]
+    while case .Mapping(let key, let cell, let next) = current {
+      res = .Pair(.Pair(key, .Box(cell)), res)
+      current = next
+    }
+    return res
   }
   
   /// Array of mappings
@@ -266,32 +276,33 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
     return nil
   }
   
-  internal func setCell(key: Expr, _ value: Expr, _ hashValue: Int) -> Cell {
-    let bid = hashValue % self.buckets.count
-    let cell = Cell(value)
-    self.buckets[bid] = Bucket(key: key, cell: cell, next: self.buckets[bid])
-    return cell
+  internal func addCell(key: Expr, _ value: Expr, _ hashValue: Int) -> Cell? {
+    return self.add(hashValue % self.buckets.count, key, value)
   }
   
   public func get(key: Expr) -> Expr? {
     return self.getCell(key)?.value
   }
   
-  public func set(key: Expr, _ value: Expr) {
+  public func set(key: Expr, _ value: Expr) -> Bool {
     let hashValue = self.hash(key)
     if let cell = self.getCell(key, hashValue) {
+      guard self.mutable else {
+        return false
+      }
       cell.value = value
+      return true
     } else {
-      self.setCell(key, value, hashValue)
+      return self.addCell(key, value, hashValue) != nil
     }
   }
   
-  public func remove(key: Expr) {
+  public func remove(key: Expr) -> Bool {
     let hashValue = self.hash(key)
     if let cell = self.getCell(key, hashValue) {
-      let bid = hashValue % self.buckets.count
-      self.remove(bid, cell)
+      return self.remove(hashValue % self.buckets.count, cell)
     }
+    return true
   }
   
   /// Mark hash table content.
@@ -321,6 +332,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
   /// Clear variable value
   public override func clean() {
     self.buckets = [Bucket](count: 1, repeatedValue: .Empty)
+    self.count = 0
     self.equiv = .Eq
   }
   
