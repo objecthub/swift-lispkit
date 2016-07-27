@@ -801,7 +801,7 @@ public final class VirtualMachine: TrackedObject {
           // Invoke native function
           var m = n
           if case .Closure(let newcaptured, let newcode) = try self.invoke(&m, 3).kind {
-            self.registers.use(code: newcode, captured: newcaptured, fp: self.sp - n)
+            self.registers.use(code: newcode, captured: newcaptured, fp: self.sp - m)
           }
         case .TailCall(let m):
           // Invoke native function

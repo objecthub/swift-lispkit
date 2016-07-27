@@ -153,7 +153,7 @@ public func eqvHash(expr: Expr) -> Int {
     case .Char(let char):
       return char.hashValue &* 31 &+ 13
     case .Str(let str):
-      return str.hashValue &* 31 &+ 14
+      return ObjectIdentifier(str).hashValue &* 31 &+ 14
     case .Bytes(let bvector):
       return bvector.hashValue &* 31 &+ 15
     case .Pair(let car, let cdr):
@@ -210,7 +210,7 @@ public func eqHash(expr: Expr) -> Int {
     case .Char(let char):
       return char.hashValue &* 31 &+ 13
     case .Str(let str):
-      return str.hashValue &* 31 &+ 14
+      return ObjectIdentifier(str).hashValue &* 31 &+ 14
     case .Bytes(let bvector):
       return bvector.hashValue &* 31 &+ 15
     case .Pair(let car, let cdr):

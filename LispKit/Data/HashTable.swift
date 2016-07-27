@@ -23,11 +23,21 @@
 ///
 public final class HashTable: ManagedObject, CustomStringConvertible {
   
+  public struct CustomProcedures {
+    let eql: Procedure
+    let hsh: Procedure
+    let has: Procedure
+    let get: Procedure
+    let set: Procedure
+    let upd: Procedure
+    let del: Procedure
+  }
+  
   public enum Equivalence {
     case Eq
     case Eqv
     case Equal
-    case Custom(has: Procedure, get: Procedure, set: Procedure?, del: Procedure?)
+    case Custom(CustomProcedures)
   }
   
   private enum Bucket {
@@ -38,15 +48,31 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
       self = Empty
     }
     
-    init(key: Expr, value: Expr, next: Bucket? = nil) {
-      self = Mapping(key, Cell(value), next ?? Empty)
+    init(key: Expr, cell: Cell, next: Bucket? = nil) {
+      self = Mapping(key, cell, next ?? Empty)
+    }
+    
+    init(copy other: Bucket) {
+      self = Empty
+      if case Mapping(_, _, _) = other {
+        var mappings = [(Expr, Expr)]()
+        var bucket = other
+        while case Mapping(let key, let cell, let next) = bucket {
+          mappings.append((key, cell.value))
+          bucket = next
+        }
+        for i in 0..<mappings.count {
+          let (key, value) = mappings[mappings.count - i - 1]
+          self = Mapping(key, Cell(value), self)
+        }
+      }
     }
   }
   
   /// Maintain object statistics.
   internal static let stats = Stats("HashTable")
   
-  /// The hash buckets
+  /// The hash buckets.
   private var buckets: [Bucket]
   
   /// Is this `HashTable` object mutable?
@@ -60,7 +86,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
     HashTable.stats.dealloc()
   }
   
-  /// Create a new empty hash table with the given size
+  /// Create a new empty hash table with the given size.
   public init(capacity: Int = 499,
               mutable: Bool = true,
               equiv: Equivalence) {
@@ -70,9 +96,44 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
     super.init(HashTable.stats)
   }
   
-  /// Returns the number of hash buckets in the hash table
-  public var count: Int {
+  /// Create a copy of another hash table. Make it immutable if `mutable` is set to false.
+  public init(copy other: HashTable, mutable: Bool = true) {
+    self.buckets = [Bucket]()
+    for i in 0..<other.buckets.count {
+      self.buckets.append(Bucket(copy: other.buckets[i]))
+    }
+    self.mutable = mutable
+    self.equiv = other.equiv
+    super.init(HashTable.stats)
+  }
+  
+  /// Clear entries in hash table and resize if capacity is supposed to change
+  public func clear(capacity: Int? = nil) {
+    if let capacity = capacity {
+      self.buckets = [Bucket](count: capacity, repeatedValue: .Empty)
+    } else {
+      for i in self.buckets.indices {
+        self.buckets[i] = .Empty
+      }
+    }
+  }
+  
+  /// Returns the number of hash buckets in the hash table.
+  public var bucketCount: Int {
     return self.buckets.count
+  }
+  
+  /// Returns the number of mappings/keys in the hash table.
+  public var count: Int {
+    var res = 0
+    for bucket in self.buckets {
+      var current = bucket
+      while case .Mapping(_, _, let next) = current {
+        res += 1
+        current = next
+      }
+    }
+    return res
   }
   
   /// Returns a list of all keys in the hash table
@@ -107,7 +168,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
     for bucket in self.buckets {
       var current = bucket
       while case .Mapping(let key, let cell, let next) = current {
-        res = .Pair(.Pair(key, .Box(cell)), res)
+        res = .Pair(.Pair(key, cell.value), res)
         current = next
       }
     }
@@ -160,7 +221,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
     return res
   }
   
-  private func eq(left: Expr, _ right: Expr) -> Bool {
+  internal func eq(left: Expr, _ right: Expr) -> Bool {
     switch self.equiv {
       case .Eq:
         return eqExpr(left, right)
@@ -168,12 +229,12 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
         return eqvExpr(left, right)
       case .Equal:
         return equalExpr(left, right)
-      case .Custom(_, _, _, _):
+      case .Custom(_):
         preconditionFailure("cannot access custom hashtable internally")
     }
   }
   
-  private func hash(expr: Expr) -> Int {
+  internal func hash(expr: Expr) -> Int {
     switch self.equiv {
       case .Eq:
         return eqHash(expr)
@@ -181,7 +242,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
         return eqvHash(expr)
       case .Equal:
         return equalHash(expr)
-      case .Custom(_, _, _, _):
+      case .Custom(_):
         preconditionFailure("cannot access custom hashtable internally")
     }
   }
@@ -205,8 +266,15 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
     return nil
   }
   
+  internal func setCell(key: Expr, _ value: Expr, _ hashValue: Int) -> Cell {
+    let bid = hashValue % self.buckets.count
+    let cell = Cell(value)
+    self.buckets[bid] = Bucket(key: key, cell: cell, next: self.buckets[bid])
+    return cell
+  }
+  
   public func get(key: Expr) -> Expr? {
-    return self.getCell(key, self.hash(key))?.value
+    return self.getCell(key)?.value
   }
   
   public func set(key: Expr, _ value: Expr) {
@@ -214,8 +282,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
     if let cell = self.getCell(key, hashValue) {
       cell.value = value
     } else {
-      let bid = hashValue % self.buckets.count
-      self.buckets[bid] = Bucket(key: key, value: value, next: self.buckets[bid])
+      self.setCell(key, value, hashValue)
     }
   }
   
@@ -239,11 +306,14 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
           current = next
         }
       }
-      if case .Custom(let has, let get, let set, let del) = self.equiv {
-        has.mark(tag)
-        get.mark(tag)
-        set?.mark(tag)
-        del?.mark(tag)
+      if case .Custom(let procs) = self.equiv {
+        procs.eql.mark(tag)
+        procs.hsh.mark(tag)
+        procs.has.mark(tag)
+        procs.get.mark(tag)
+        procs.set.mark(tag)
+        procs.upd.mark(tag)
+        procs.del.mark(tag)
       }
     }
   }

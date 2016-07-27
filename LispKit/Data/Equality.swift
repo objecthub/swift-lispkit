@@ -122,23 +122,25 @@ func equalExpr(this: Expr, _ that: Expr) -> Bool {
         guard map1 !== map2 else {
           return true
         }
-        guard case .Equal = map1.equiv, .Equal = map2.equiv else {
-          return false
-        }
         let equality = Equality(map1, map2)
         guard !equalities.contains(equality) else {
           return true
         }
         equalities.insert(equality)
-        for (key, value) in map1.mappings {
-          guard let cell = map2.getCell(key, equalHash(key), equals) else {
-            return false
+        // TODO: Consider optimizing this; this currently has complexity O(n*n)
+        let mappings1 = map1.mappings
+        var count2 = 0
+        outer:
+        for (key2, value2) in map2.mappings {
+          count2 += 1
+          for (key1, value1) in mappings1 {
+            if equals(key1, key2) && equals(value1, value2) {
+              continue outer
+            }
           }
-          guard equals(value, cell.value) else {
-            return false
-          }
+          return false
         }
-        return true
+        return count2 == mappings1.count
       case (.Promise(let promise1), .Promise(let promise2)):
         return promise1 == promise2
       case (.Proc(let e1), .Proc(let e2)):

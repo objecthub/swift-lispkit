@@ -84,6 +84,7 @@
 		CCC62D921CA9ED6A00E2C43F /* TrackedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC62D911CA9ED6A00E2C43F /* TrackedObject.swift */; };
 		CCD81AD21CE75823009EB087 /* Checkpointer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD81AD11CE75823009EB087 /* Checkpointer.swift */; };
 		CCDA62C91CC429A800D77A49 /* NumberKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCDA62C81CC429A800D77A49 /* NumberKit.framework */; };
+		CCDAD5521D4813E900A7EE4F /* HashTables.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCDAD5511D4813E900A7EE4F /* HashTables.scm */; };
 		CCDF99FC1D3D7A3100FD2A57 /* BoxLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDF99FB1D3D7A3100FD2A57 /* BoxLibrary.swift */; };
 		CCDF99FE1D3D7B2E00FD2A57 /* HashTableLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDF99FD1D3D7B2E00FD2A57 /* HashTableLibrary.swift */; };
 		CCE0429E1C9E8C8B00CA7BC4 /* ManagedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE0429D1C9E8C8B00CA7BC4 /* ManagedObject.swift */; };
@@ -220,6 +221,7 @@
 		CCC937491C4F031700A5608F /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		CCD81AD11CE75823009EB087 /* Checkpointer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Checkpointer.swift; sourceTree = "<group>"; };
 		CCDA62C81CC429A800D77A49 /* NumberKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NumberKit.framework; path = "../../../Library/Developer/Xcode/DerivedData/LispKit-askykrywvmmpsrffaqpyxjptjich/Build/Products/Debug/NumberKit.framework"; sourceTree = "<group>"; };
+		CCDAD5511D4813E900A7EE4F /* HashTables.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = HashTables.scm; sourceTree = "<group>"; };
 		CCDF99FB1D3D7A3100FD2A57 /* BoxLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BoxLibrary.swift; sourceTree = "<group>"; };
 		CCDF99FD1D3D7B2E00FD2A57 /* HashTableLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HashTableLibrary.swift; sourceTree = "<group>"; };
 		CCE0429D1C9E8C8B00CA7BC4 /* ManagedObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ManagedObject.swift; path = ../Runtime/ManagedObject.swift; sourceTree = "<group>"; };
@@ -277,6 +279,7 @@
 				CCC41DC71D2B14AD003CB4D0 /* CallCC.scm */,
 				CCC41DC91D330439003CB4D0 /* DynamicWind.scm */,
 				CCC41DC31D2649E9003CB4D0 /* DelayedEvaluation.scm */,
+				CCDAD5511D4813E900A7EE4F /* HashTables.scm */,
 				CC8169261D1FADE2003FADEA /* Ports.scm */,
 			);
 			path = Code;
@@ -585,6 +588,7 @@
 				CC131C4C1CDE0C3D006C030C /* SyntaxRules.scm in Resources */,
 				CC8169271D1FADEC003FADEA /* Ports.scm in Resources */,
 				CCC41DCA1D330439003CB4D0 /* DynamicWind.scm in Resources */,
+				CCDAD5521D4813E900A7EE4F /* HashTables.scm in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

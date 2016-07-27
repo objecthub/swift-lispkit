@@ -40,6 +40,16 @@ public class Library {
     // This method needs to be overridden for concrete primitive libraries
   }
   
+  public static func importProc(from context: Context,
+                                name: String,
+                                lib: String = #file) -> Procedure {
+    let sym = context.symbols.intern(name)
+    guard case .Some(.Proc(let proc)) = context.systemScope[sym] else {
+      preconditionFailure("cannot import \(name) in library \(lib)")
+    }
+    return proc
+  }
+  
   public func define(proc: Procedure) {
     self.context.systemScope[self.context.symbols.intern(proc.name)] = .Proc(proc)
   }
@@ -54,6 +64,14 @@ public class Library {
       preconditionFailure("compilation failure: " + error.description)
     }
     self.context.systemScope[self.context.symbols.intern(name)] = expr
+  }
+  
+  public func procedure(sourcecode: String) -> Procedure {
+    let expr = self.context.machine.evalStr(sourcecode, in: .System)
+    guard case .Proc(let proc) = expr else {
+      preconditionFailure("predefined procedure not a procedure")
+    }
+    return proc
   }
   
   public func compile(sourcecode: String) {

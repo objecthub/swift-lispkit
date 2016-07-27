@@ -55,6 +55,10 @@ class RegressionTests: LispKitTestCase {
     self.executeTests("DelayedEvaluation")
   }
   
+  func testHashTables() {
+    self.executeTests("HashTables")
+  }
+  
   func testPorts() {
     self.executeTests("Ports")
   }

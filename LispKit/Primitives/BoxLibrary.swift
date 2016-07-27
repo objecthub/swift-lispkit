@@ -23,18 +23,19 @@ public final class BoxLibrary: Library {
   
   public override func export() {
     // Boxes
+    define(Procedure("box?", isBox))
     define(Procedure("box", box))
     define(Procedure("unbox", unbox))
     define(Procedure("set-box!", setBox))
-    define(Procedure("box?", isBox))
+    define("update-box!", compile: "(lambda (box proc) (set-box! box (proc (unbox box))))")
     
     // Mutable pairs
+    define(Procedure("mpair?", isMpair))
     define(Procedure("mcons", mcons))
     define(Procedure("mcar", mcar))
     define(Procedure("mcdr", mcdr))
     define(Procedure("set-mcar!", setMcar))
     define(Procedure("set-mcdr!", setMcdr))
-    define(Procedure("mpair?", isMpair))
   }
   
   //-------- MARK: - Boxes
