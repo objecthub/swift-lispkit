@@ -20,7 +20,8 @@
   "Eq hash tables"
   (3 #t #t 1 2 3 0)
   (define eqh (make-eq-hashtable))
-  (define key1 "one")
+  (define firstkey "one")
+  (define key1 firstkey)
   (define key2a "two")
   (define key2b (list->string '(#\t #\w #\o)))
   (hashtable-set! eqh key1 1)
@@ -39,7 +40,7 @@
   "Eqv hash tables"
   (3 #t #t 1 4 3 0)
   (define eqvh (make-eqv-hashtable 101))
-  (define key1 "one")
+  (define key1 firstkey)
   (define key2a "two")
   (define key2b (list->string '(#\t #\w #\o)))
   (hashtable-set! eqvh key1 1)
@@ -59,7 +60,7 @@
   "Equal hash tables"
   (2 #t #t 4 3 3 0)
   (define equalh (make-equal-hashtable 51))
-  (define key1 "one")
+  (define key1 firstkey)
   (define key2a "two")
   (define key2b (list->string '(#\t #\w #\o)))
   (hashtable-set! equalh key1 1)
@@ -79,7 +80,7 @@
   "Custom hash tables"
   (2 #t #t #t (("one" . 4) ("two" . 3)) 4 3 3 0)
   (define h (make-hashtable equal-hash equal?))
-  (define key1 "one")
+  (define key1 firstkey)
   (define key2a "two")
   (define key2b (list->string '(#\t #\w #\o)))
   (hashtable-set! h key1 1)
@@ -97,3 +98,30 @@
         (hashtable-ref h "three" 0))
 )
 
+(
+  "Eq hash table update"
+  101
+  (hashtable-update! eqh firstkey (lambda (n) (+ n 100)) 0)
+  (hashtable-ref eqh firstkey 0)
+)
+
+(
+  "Eq hash table second update"
+  (3 #t #f 201)
+  (hashtable-update! eqh firstkey (lambda (n) (+ n 100)) 0)
+  (list (hashtable-size eqh)
+        (hashtable-contains eqh firstkey)
+        (hashtable-contains eqh "four")
+        (hashtable-ref eqh firstkey 0))
+)
+
+(
+  "Custom hash table update"
+  (2 (("one" . 104) ("two" . 3)) #t #f 104)
+  (hashtable-update! h firstkey (lambda (n) (+ n 100)) 0)
+  (list (hashtable-size h)
+        (hashtable->alist h)
+        (hashtable-contains h firstkey)
+        (hashtable-contains h "three")
+        (hashtable-ref h firstkey 0))
+)

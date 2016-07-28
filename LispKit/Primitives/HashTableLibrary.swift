@@ -61,7 +61,14 @@ public final class HashTableLibrary: Library {
       "      (lambda (ht buckets add key value)" +
       "        (let* ((h (hash key))" +
       "               (b (find key (buckets ht h))))" +
-      "          (if b (set-box! (cdr b) value) (add ht h key value))))" +
+      "          (if b (set-box! (cdr b) value)" +
+      "                (begin (add ht h key value)" +
+      "                       (if (> (hashtable-load ht) 0.75)" +
+      "                           (let ((ms (buckets ht)))" +
+      "                             (hashtable-clear! ht (+ (* (hashtable-size ht) 3) 1))" +
+      "                             (for-each (lambda (m)" +
+      "                               (add ht (hash (car m)) (car m) (unbox (cdr m))))" +
+      "                               ms)))))))" +
       "      (lambda (ht buckets add key proc def)" +
       "        (let* ((h (hash key))" +
       "               (b (find key (buckets ht h))))" +
@@ -77,6 +84,7 @@ public final class HashTableLibrary: Library {
     define(Procedure("equal-hashtable?", isEqualHashTable))
     define(Procedure("hashtable-mutable?", isHashTableMutable))
     define(Procedure("hashtable-size", hashTableSize))
+    define(Procedure("hashtable-load", hashTableLoad))
     define(Procedure("hashtable-contains", hashTableContains))
     define(Procedure("hashtable-ref", hashTableRef))
     define(Procedure("hashtable-set!", hashTableSet))
@@ -166,6 +174,11 @@ public final class HashTableLibrary: Library {
   
   func hashTableSize(expr: Expr) throws -> Expr {
     return .Fixnum(Int64(try expr.asMap().count))
+  }
+  
+  func hashTableLoad(expr: Expr) throws -> Expr {
+    let map = try expr.asMap()
+    return .Number(Double(map.count) / Double(map.bucketCount))
   }
   
   func hashTableContains(args: Arguments) throws -> (Procedure, [Expr]) {
@@ -377,11 +390,13 @@ public final class HashTableLibrary: Library {
     return .Fixnum(Int64(expr.hashValue))
   }
   
-  private static func hashBuckets(expr: Expr, hval: Expr) throws -> Expr {
-    guard case .Map(let map) = expr else {
-      throw EvalError.TypeError(expr, [.MapType])
+  private static func hashBuckets(expr: Expr, hval: Expr?) throws -> Expr {
+    let map = try expr.asMap()
+    if let hashValue = try hval?.asInteger() {
+      return map.bucketList(Int(hashValue % Int64(map.bucketCount)))
+    } else {
+      return map.bucketList()
     }
-    return map.bucketList(Int(try hval.asInteger() % Int64(map.bucketCount)))
   }
   
   private static func hashBucketAdd(expr: Expr,
