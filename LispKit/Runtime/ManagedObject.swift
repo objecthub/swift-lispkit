@@ -25,9 +25,11 @@
 /// references.
 ///
 /// Managed objects are currently:
+///    - Cells
+///    - Tuples
 ///    - Vectors
+///    - Hashtables
 ///    - Futures
-///    - Variables
 ///
 public class ManagedObject: Reference {
   

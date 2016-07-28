@@ -1,6 +1,6 @@
 # Todo
 
-Last update: 2016-07-11
+Last update: 2016-07-29
 
 
 ## Compiler
@@ -29,9 +29,9 @@ Last update: 2016-07-11
 
 ## Library
 
-- [X] Adopt text + binary ports from R7RS
-- [X] Adopt bytevectors from R7RS
-- [X] Implement bytevector library
+- [X] Implement text + binary ports based on the R7RS standard
+- [X] Implement bytevector library based on the R7RS standard
+- [X] Implement hash table library based on the R6RS standard
 - [ ] Implement library functions supporting mutable strings
 - [X] Implement delay-force; provide full support for R7RS delayed evaluation primitives
 

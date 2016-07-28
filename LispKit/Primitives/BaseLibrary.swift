@@ -73,6 +73,7 @@ public final class BaseLibrary: Library {
     define(Procedure("exit", exit))
     define(Procedure("compile", compile))
     define(Procedure("disassemble", disassemble))
+    define(Procedure("inspect", inspect))
     define("time", SpecialForm(compileTime))
   }
   
@@ -627,5 +628,9 @@ public final class BaseLibrary: Library {
         context.console.print("cannot disassemble \(expr)\n")
     }
     return .Void
+  }
+  
+  func inspect(expr: Expr) -> Expr {
+    return expr
   }
 }
