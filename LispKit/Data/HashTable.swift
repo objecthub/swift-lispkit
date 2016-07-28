@@ -180,8 +180,23 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
     }
   }
   
+  // Key/value accessors
+  
   /// Returns a list of all keys in the hash table
-  public func keys() -> Expr {
+  public var keys: [Expr] {
+    var res = [Expr]()
+    for bucket in self.buckets {
+      var current = bucket
+      while case .Pair(.Pair(let key, _), let next) = current {
+        res.append(key)
+        current = next
+      }
+    }
+    return res
+  }
+  
+  /// Returns a list of all keys in the hash table
+  public func keyList() -> Expr {
     var res: Expr = .Null
     for bucket in self.buckets {
       var current = bucket
@@ -194,7 +209,20 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
   }
   
   /// Returns a list of all values in the hash table
-  public func values() -> Expr {
+  public var values: [Expr] {
+    var res = [Expr]()
+    for bucket in self.buckets {
+      var current = bucket
+      while case .Pair(.Pair(_, .Box(let cell)), let next) = current {
+        res.append(cell.value)
+        current = next
+      }
+    }
+    return res
+  }
+  
+  /// Returns a list of all values in the hash table
+  public func valueList() -> Expr {
     var res: Expr = .Null
     for bucket in self.buckets {
       var current = bucket
@@ -206,8 +234,17 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
     return res
   }
   
+  /// Array of mappings
+  public var entries: [(Expr, Expr)] {
+    var res = [(Expr, Expr)]()
+    for bucket in self.buckets {
+      HashTable.insertMappings(into: &res, from: bucket)
+    }
+    return res
+  }
+  
   /// Returns the mappings in the hash table as an association list
-  public func alist() -> Expr {
+  public func entryList() -> Expr {
     var res: Expr = .Null
     for bucket in self.buckets {
       var current = bucket
