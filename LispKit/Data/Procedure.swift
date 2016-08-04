@@ -36,7 +36,7 @@ public final class Procedure: Reference, CustomStringConvertible {
   ///    4. Transformers: These are user-defined macro transformers defined via `syntax-rules`
   public enum Kind {
     case Primitive(String, Implementation, FormCompiler?)
-    case Closure([Expr], Code)
+    case Closure(String?, [Expr], Code)
     case Continuation(VirtualMachineState)
     case Transformer(SyntaxRules)
   }
@@ -187,13 +187,13 @@ public final class Procedure: Reference, CustomStringConvertible {
   }
   
   /// Initializer for closures
-  public init(_ captured: [Expr], _ code: Code) {
-    self.kind = .Closure(captured, code)
+  public init(_ name: String?, _ captured: [Expr], _ code: Code) {
+    self.kind = .Closure(name, captured, code)
   }
   
   /// Initializer for closures
   public init(_ code: Code) {
-    self.kind = .Closure([], code)
+    self.kind = .Closure(nil, [], code)
   }
   
   /// Initializer for continuations
@@ -209,15 +209,19 @@ public final class Procedure: Reference, CustomStringConvertible {
   /// Returns the name of this procedure. This method either returns the name of a primitive
   /// procedure or the identity as a hex string.
   public var name: String {
-    guard case .Primitive(let str, _, _) = self.kind else {
-      return String(self.identity, radix: 16)
+    switch self.kind {
+      case .Primitive(let str, _, _):
+        return str
+      case .Closure(.Some(let str), _, _):
+        return "\(str)@\(String(self.identity, radix: 16))"
+      default:
+        return String(self.identity, radix: 16)
     }
-    return str
   }
   
   public func mark(tag: UInt8) {
     switch self.kind {
-      case .Closure(let captures, let code):
+      case .Closure(_, let captures, let code):
         for capture in captures {
           capture.mark(tag)
         }

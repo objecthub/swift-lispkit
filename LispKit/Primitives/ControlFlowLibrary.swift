@@ -82,7 +82,8 @@ func compileLet(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> 
       let index = group.allocBindingFor(sym).index
       compiler.emit(.PushUndef)
       compiler.emit(.MakeLocalVariable(index))
-      try compiler.compileProc(params, rest, Env(group))
+      let nameIdx = compiler.registerConstant(first)
+      try compiler.compileProc(nameIdx, params, rest, Env(group))
       compiler.emit(.SetLocalValue(index))
       res = try compiler.compile(.Pair(first, exprs), in: Env(group), inTailPos: tail)
     default:

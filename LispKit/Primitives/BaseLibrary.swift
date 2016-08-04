@@ -262,7 +262,7 @@ public final class BaseLibrary: Library {
     guard case .Pair(_, .Pair(let arglist, let body)) = expr else {
       throw EvalError.LeastArgumentCountError(formals: 1, args: expr)
     }
-    try compiler.compileProc(arglist, body, env)
+    try compiler.compileProc(nil, arglist, body, env)
     return false
   }
     
@@ -292,12 +292,13 @@ public final class BaseLibrary: Library {
         }
         let index = compiler.registerConstant(sig)
         try compiler.compile(value, in: env, inTailPos: false)
+        compiler.patchMakeClosure(index)
         compiler.emit(.DefineGlobal(index))
         compiler.emit(.PushConstant(index))
         return false
-      case .Pair(.Sym(let sym), let arglist):
-        let index = compiler.registerConstant(.Sym(sym))
-        try compiler.compileProc(arglist, def, env)
+      case .Pair(let symSig, let arglist):
+        let index = compiler.registerConstant(symSig)
+        try compiler.compileProc(index, arglist, def, env)
         compiler.emit(.DefineGlobal(index))
         compiler.emit(.PushConstant(index))
         return false
@@ -431,7 +432,7 @@ public final class BaseLibrary: Library {
     guard case .Pair(_, .Pair(let delayed, .Null)) = expr else {
       throw EvalError.ArgumentCountError(formals: 1, args: expr)
     }
-    try compiler.compileProc(.Null, .Pair(delayed, .Null), env)
+    try compiler.compileProc(nil, .Null, .Pair(delayed, .Null), env)
     compiler.emit(.MakePromise)
     return false
   }
@@ -441,7 +442,7 @@ public final class BaseLibrary: Library {
       throw EvalError.ArgumentCountError(formals: 1, args: expr)
     }
     try compiler.compileProc(
-      .Null, .Pair(.List(.Sym(compiler.context.symbols.MAKEPROMISE), delayed), .Null), env)
+      nil, .Null, .Pair(.List(.Sym(compiler.context.symbols.MAKEPROMISE), delayed), .Null), env)
     compiler.emit(.MakePromise)
     return false
   }
@@ -607,7 +608,7 @@ public final class BaseLibrary: Library {
       throw EvalError.TypeError(expr, [.ProcedureType])
     }
     switch proc.kind {
-      case .Closure(let captured, let code):
+      case .Closure(_, let captured, let code):
         context.console.print(code.description)
         if captured.count > 0 {
           context.console.print("CAPTURED:\n")

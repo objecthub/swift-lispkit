@@ -44,7 +44,7 @@ public enum Expr: Trackable, Hashable {
   case Box(Cell)
   case MPair(Tuple)
   case Vec(Vector)
-  case Map(HashTable)
+  case Map(HashMap)
   case Promise(Future)
   case Proc(Procedure)
   case Special(SpecialForm)
@@ -203,6 +203,17 @@ public enum Expr: Trackable, Hashable {
       expr = cdr
     }
     return (exprs, expr)
+  }
+  
+  /// The length of this expression (all non-pair expressions have length 1)
+  var length: Int {
+    var expr = self
+    var len: Int = 0
+    while case .Pair(_, let cdr) = expr {
+      len += 1
+      expr = cdr
+    }
+    return len
   }
   
   public var requiresTracking: Bool {
@@ -465,7 +476,7 @@ extension Expr {
     return res
   }
   
-  public func asMap() throws -> HashTable {
+  public func asMap() throws -> HashMap {
     guard case Map(let map) = self else {
       throw EvalError.TypeError(self, [.MapType])
     }

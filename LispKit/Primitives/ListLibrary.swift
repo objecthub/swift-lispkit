@@ -33,6 +33,8 @@ public final class ListLibrary: Library {
     define(Procedure("append", append))
     define(Procedure("reverse", reverse))
     define(Procedure("list-tail", listTail))
+    define(Procedure("key", key))
+    define(Procedure("value", value))
     define(Procedure("memq", memq))
     define(Procedure("memv", memv))
     define(Procedure("member", member))
@@ -208,7 +210,21 @@ public final class ListLibrary: Library {
       throw EvalError.IndexOutOfBounds(try count.asInteger(), len, expr)
     }
   }
-    
+  
+  func key(expr: Expr, def: Expr?) throws -> Expr {
+    guard case .Pair(let car, _) = expr else {
+      return def ?? .False
+    }
+    return car
+  }
+  
+  func value(expr: Expr, def: Expr?) throws -> Expr {
+    guard case .Pair(_, let cdr) = expr else {
+      return def ?? .False
+    }
+    return cdr
+  }
+  
   func memq(obj: Expr, expr: Expr) throws -> Expr {
     var list = expr
     while case .Pair(let car, let cdr) = list {

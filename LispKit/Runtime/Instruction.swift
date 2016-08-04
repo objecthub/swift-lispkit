@@ -94,11 +94,13 @@ public enum Instruction: CustomStringConvertible {
   
   // Functions --------------------------------------------------------------------------------
   
-  /// **`make_closure` _n_,_f_**: Creates a new closure from a capture list and a code
+  /// **`make_closure` _i_,_n_,_f_**: Creates a new closure from a name, capture list and a code
   /// fragment. The capture list is created from the top _n_ elements on the stack. _f_ is
-  /// an index into the list of code fragments of the currently executed code.
-  case MakeClosure(Int, Int)
-
+  /// an index into the list of code fragments of the currently executed code. _i_ is a
+  /// reference into the constant pool referring to the name of the closure (-1 indicates that
+  /// the closure is anonymous)
+  case MakeClosure(Int, Int, Int)
+  
   /// **`make_frame`**: Pushes a new stack frame onto the stack.
   case MakeFrame
   
@@ -354,205 +356,207 @@ public enum Instruction: CustomStringConvertible {
   /// Provides supplemental information about this instruction in a given code context.
   public func commentFor(code: Code, _ ip: Int) -> String? {
     switch self {
-    case PushGlobal(let index):
-      return code.constants[index].description
-    case SetGlobal(let index):
-      return code.constants[index].description
-    case PushCaptured(_):
-      return nil
-    case PushCapturedValue(_):
-      return nil
-    case SetCapturedValue(_):
-      return nil
-    case PushLocal(_):
-      return nil
-    case PushLocalValue(_):
-      return nil
-    case SetLocal(_):
-      return nil
-    case SetLocalValue(_):
-      return nil
-    case PushConstant(let index):
-      return code.constants[index].description
-    case MakeVariableArgument(_):
-      return nil
-    case PushChar(let char):
-      var res = "'"
-      res.append(Character(UnicodeScalar(char)))
-      res.append(Character("'"))
-      return res
-    case Call(_):
-      return nil
-    case TailCall(_):
-      return nil
-    case Branch(let offset):
-      return "jump to \(ip + offset - 1)"
-    case BranchIf(let offset):
-      return "jump to \(ip + offset - 1)"
-    case BranchIfNot(let offset):
-      return "jump to \(ip + offset - 1)"
-    case And(let offset):
-      return "pop or jump to \(ip + offset - 1) if false"
-    case Or(let offset):
-      return "pop or jump to \(ip + offset - 1) if true"
-    default:
-      return nil
+      case PushGlobal(let index):
+        return code.constants[index].description
+      case SetGlobal(let index):
+        return code.constants[index].description
+      case PushCaptured(_):
+        return nil
+      case PushCapturedValue(_):
+        return nil
+      case SetCapturedValue(_):
+        return nil
+      case PushLocal(_):
+        return nil
+      case PushLocalValue(_):
+        return nil
+      case SetLocal(_):
+        return nil
+      case SetLocalValue(_):
+        return nil
+      case PushConstant(let index):
+        return code.constants[index].description
+      case MakeClosure(let i, _, _):
+        return i >= 0 ? code.constants[i].description : nil
+      case MakeVariableArgument(_):
+        return nil
+      case PushChar(let char):
+        var res = "'"
+        res.append(Character(UnicodeScalar(char)))
+        res.append(Character("'"))
+        return res
+      case Call(_):
+        return nil
+      case TailCall(_):
+        return nil
+      case Branch(let offset):
+        return "jump to \(ip + offset - 1)"
+      case BranchIf(let offset):
+        return "jump to \(ip + offset - 1)"
+      case BranchIfNot(let offset):
+        return "jump to \(ip + offset - 1)"
+      case And(let offset):
+        return "pop or jump to \(ip + offset - 1) if false"
+      case Or(let offset):
+        return "pop or jump to \(ip + offset - 1) if true"
+      default:
+        return nil
     }
   }
   
   /// Returns a textual description of this instruction.
   public var description: String {
     switch self {
-    case NoOp:
-      return "noop"
-    case Pop:
-      return "pop"
-    case Dup:
-      return "dup"
-    case PushGlobal(let index):
-      return "push_global \(index)"
-    case SetGlobal(let index):
-      return "set_global \(index)"
-    case DefineGlobal(let index):
-      return "define_global \(index)"
-    case PushCaptured(let index):
-      return "push_captured \(index)"
-    case PushCapturedValue(let index):
-      return "push_captured_value \(index)"
-    case SetCapturedValue(let index):
-      return "set_captured_value \(index)"
-    case PushLocal(let index):
-      return "push_local \(index)"
-    case MakeLocalVariable(let index):
-      return "make_local_variable \(index)"
-    case PushLocalValue(let index):
-      return "push_local_value \(index)"
-    case SetLocal(let index):
-      return "set_local \(index)"
-    case SetLocalValue(let index):
-      return "set_local_value \(index)"
-    case PushConstant(let index):
-      return "push_constant \(index)"
-    case MakeVariableArgument(let index):
-      return "make_variable_argument \(index)"
-    case PushUndef:
-      return "push_undef"
-    case PushVoid:
-      return "push_void"
-    case PushEof:
-      return "push_eof"
-    case PushNull:
-      return "push_null"
-    case PushTrue:
-      return "push_true"
-    case PushFalse:
-      return "push_false"
-    case PushFixnum(let num):
-      return "push_fixnum \(num)"
-    case PushBignum(let num):
-      return "push_bignum \(num)"
-    case PushRat(let num):
-      return "push_rat \(num)"
-    case PushBigrat(let num):
-      return "push_bigrat \(num)"
-    case PushFlonum(let num):
-      return "push_flonum \(num)"
-    case PushComplex(let num):
-      return "push_complex \(num)"
-    case PushChar(let char):
-      return "push_char \(char)"
-    case MakeClosure(let n, let index):
-      return "make_closure \(n),\(index)"
-    case MakePromise:
-      return "make_promise"
-    case MakeSyntax:
-      return "make_syntax"
-    case Compile:
-      return "compile"
-    case Apply(let n):
-      return "apply \(n)"
-    case MakeFrame:
-      return "make_frame"
-    case Call(let n):
-      return "call \(n)"
-    case TailCall(let n):
-      return "tail_call \(n)"
-    case AssertArgCount(let n):
-      return "assert_arg_count \(n)"
-    case AssertMinArgCount(let n):
-      return "assert_min_arg_count \(n)"
-    case CollectRest(let n):
-      return "collect_rest \(n)"
-    case Alloc(let n):
-      return "alloc \(n)"
-    case Reset(let index, let n):
-      return "reset \(index), \(n)"
-    case Return:
-      return "return"
-    case Branch(let offset):
-      return "branch \(offset)"
-    case BranchIf(let offset):
-      return "branch_if \(offset)"
-    case BranchIfNot(let offset):
-      return "branch_if_not \(offset)"
-    case And(let offset):
-      return "and \(offset)"
-    case Or(let offset):
-      return "or \(offset)"
-    case Force:
-      return "force"
-    case StoreInPromise:
-      return "store_in_promise"
-    case Swap:
-      return "swap"
-    case PushCurrentTime:
-      return "push_current_time"
-    case Display:
-      return "display"
-    case Newline:
-      return "newline"
-    case Eq:
-      return "eq"
-    case Eqv:
-      return "eqv"
-    case Equal:
-      return "equal"
-    case IsPair:
-      return "is_pair"
-    case IsNull:
-      return "is_null"
-    case Cons:
-      return "cons"
-    case Car:
-      return "car"
-    case Cdr:
-      return "cdr"
-    case List(let n):
-      return "list \(n)"
-    case Vector(let n):
-      return "vector \(n)"
-    case ListToVector:
-      return "list_to_vector"
-    case VectorAppend(let n):
-      return "vector_append \(n)"
-    case IsVector:
-      return "is_vector"
-    case FxPlus:
-      return "fx_plus"
-    case FxMinus:
-      return "fx_minus"
-    case FxMult:
-      return "fx_mult"
-    case FxDiv:
-      return "fx_div"
-    case FlPlus:
-      return "fl_plus"
-    case FlMinus:
-      return "fl_minus"
-    case FlMult:
-      return "fl_mult"
-    case FlDiv:
-      return "fl_div"
+      case NoOp:
+        return "noop"
+      case Pop:
+        return "pop"
+      case Dup:
+        return "dup"
+      case PushGlobal(let index):
+        return "push_global \(index)"
+      case SetGlobal(let index):
+        return "set_global \(index)"
+      case DefineGlobal(let index):
+        return "define_global \(index)"
+      case PushCaptured(let index):
+        return "push_captured \(index)"
+      case PushCapturedValue(let index):
+        return "push_captured_value \(index)"
+      case SetCapturedValue(let index):
+        return "set_captured_value \(index)"
+      case PushLocal(let index):
+        return "push_local \(index)"
+      case MakeLocalVariable(let index):
+        return "make_local_variable \(index)"
+      case PushLocalValue(let index):
+        return "push_local_value \(index)"
+      case SetLocal(let index):
+        return "set_local \(index)"
+      case SetLocalValue(let index):
+        return "set_local_value \(index)"
+      case PushConstant(let index):
+        return "push_constant \(index)"
+      case MakeVariableArgument(let index):
+        return "make_variable_argument \(index)"
+      case PushUndef:
+        return "push_undef"
+      case PushVoid:
+        return "push_void"
+      case PushEof:
+        return "push_eof"
+      case PushNull:
+        return "push_null"
+      case PushTrue:
+        return "push_true"
+      case PushFalse:
+        return "push_false"
+      case PushFixnum(let num):
+        return "push_fixnum \(num)"
+      case PushBignum(let num):
+        return "push_bignum \(num)"
+      case PushRat(let num):
+        return "push_rat \(num)"
+      case PushBigrat(let num):
+        return "push_bigrat \(num)"
+      case PushFlonum(let num):
+        return "push_flonum \(num)"
+      case PushComplex(let num):
+        return "push_complex \(num)"
+      case PushChar(let char):
+        return "push_char \(char)"
+      case MakeClosure(let i, let n, let index):
+        return "make_closure \(i),\(n),\(index)"
+      case MakePromise:
+        return "make_promise"
+      case MakeSyntax:
+        return "make_syntax"
+      case Compile:
+        return "compile"
+      case Apply(let n):
+        return "apply \(n)"
+      case MakeFrame:
+        return "make_frame"
+      case Call(let n):
+        return "call \(n)"
+      case TailCall(let n):
+        return "tail_call \(n)"
+      case AssertArgCount(let n):
+        return "assert_arg_count \(n)"
+      case AssertMinArgCount(let n):
+        return "assert_min_arg_count \(n)"
+      case CollectRest(let n):
+        return "collect_rest \(n)"
+      case Alloc(let n):
+        return "alloc \(n)"
+      case Reset(let index, let n):
+        return "reset \(index), \(n)"
+      case Return:
+        return "return"
+      case Branch(let offset):
+        return "branch \(offset)"
+      case BranchIf(let offset):
+        return "branch_if \(offset)"
+      case BranchIfNot(let offset):
+        return "branch_if_not \(offset)"
+      case And(let offset):
+        return "and \(offset)"
+      case Or(let offset):
+        return "or \(offset)"
+      case Force:
+        return "force"
+      case StoreInPromise:
+        return "store_in_promise"
+      case Swap:
+        return "swap"
+      case PushCurrentTime:
+        return "push_current_time"
+      case Display:
+        return "display"
+      case Newline:
+        return "newline"
+      case Eq:
+        return "eq"
+      case Eqv:
+        return "eqv"
+      case Equal:
+        return "equal"
+      case IsPair:
+        return "is_pair"
+      case IsNull:
+        return "is_null"
+      case Cons:
+        return "cons"
+      case Car:
+        return "car"
+      case Cdr:
+        return "cdr"
+      case List(let n):
+        return "list \(n)"
+      case Vector(let n):
+        return "vector \(n)"
+      case ListToVector:
+        return "list_to_vector"
+      case VectorAppend(let n):
+        return "vector_append \(n)"
+      case IsVector:
+        return "is_vector"
+      case FxPlus:
+        return "fx_plus"
+      case FxMinus:
+        return "fx_minus"
+      case FxMult:
+        return "fx_mult"
+      case FxDiv:
+        return "fx_div"
+      case FlPlus:
+        return "fl_plus"
+      case FlMinus:
+        return "fl_minus"
+      case FlMult:
+        return "fl_mult"
+      case FlDiv:
+        return "fl_div"
     }
   }
 }

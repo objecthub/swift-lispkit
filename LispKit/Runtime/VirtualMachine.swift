@@ -273,7 +273,7 @@ public final class VirtualMachine: TrackedObject {
     var n = try self.pushArguments(args)
     let proc = try self.invoke(&n, 1)
     switch proc.kind {
-      case .Closure(let captured, let code):
+      case .Closure(_, let captured, let code):
         return try self.execute(code, args: n, captured: captured)
       case .Continuation(_):
         return try self.execute()
@@ -402,7 +402,7 @@ public final class VirtualMachine: TrackedObject {
       preconditionFailure()
     }
     // Extract code and capture list
-    guard case .Closure(let newcaptured, let newcode) = proc.kind else {
+    guard case .Closure(_, let newcaptured, let newcode) = proc.kind else {
       preconditionFailure()
     }
     // Set new code and capture list
@@ -753,8 +753,20 @@ public final class VirtualMachine: TrackedObject {
           self.push(.Complexnum(num))
         case .PushChar(let char):
           self.push(.Char(char))
-        case .MakeClosure(let n, let index):
-          self.push(.Proc(Procedure(self.captureExprs(n), self.registers.code.fragments[index])))
+        case .MakeClosure(let i, let n, let index):
+          if i >= 0 {
+            guard case .Sym(let sym) = self.registers.code.constants[i] else {
+              preconditionFailure(
+                "MakeClosure has broken closure name \(self.registers.code.constants[i])")
+            }
+            self.push(.Proc(Procedure(sym.description,
+                                      self.captureExprs(n),
+                                      self.registers.code.fragments[index])))
+          } else {
+            self.push(.Proc(Procedure(nil,
+                                      self.captureExprs(n),
+                                      self.registers.code.fragments[index])))
+        }
         case .MakePromise:
           let top = self.pop()
           guard case .Proc(let proc) = top else {
@@ -787,7 +799,7 @@ public final class VirtualMachine: TrackedObject {
           // Store instruction pointer
           self.stack[self.sp - n - 2] = .Fixnum(Int64(self.registers.ip))
           // Invoke native function
-          if case .Closure(let newcaptured, let newcode) = try self.invoke(&n, 3).kind {
+          if case .Closure(_, let newcaptured, let newcode) = try self.invoke(&n, 3).kind {
             self.registers.use(code: newcode, captured: newcaptured, fp: self.sp - n)
           }
         case .MakeFrame:
@@ -800,14 +812,14 @@ public final class VirtualMachine: TrackedObject {
           self.stack[self.sp - n - 2] = .Fixnum(Int64(self.registers.ip))
           // Invoke native function
           var m = n
-          if case .Closure(let newcaptured, let newcode) = try self.invoke(&m, 3).kind {
+          if case .Closure(_, let newcaptured, let newcode) = try self.invoke(&m, 3).kind {
             self.registers.use(code: newcode, captured: newcaptured, fp: self.sp - m)
           }
         case .TailCall(let m):
           // Invoke native function
           var n = m
           let proc = try self.invoke(&n, 1)
-          if case .Closure(let newcaptured, let newcode) = proc.kind {
+          if case .Closure(_, let newcaptured, let newcode) = proc.kind {
             // Execute closure
             self.registers.use(code: newcode, captured: newcaptured, fp: self.registers.fp)
             // Shift stack frame down to next stack frame
@@ -902,7 +914,7 @@ public final class VirtualMachine: TrackedObject {
                 self.push(.Proc(proc))
                 // Invoke native function
                 var n = 0
-                if case .Closure(let newcaptured, let newcode) = try self.invoke(&n, 3).kind {
+                if case .Closure(_, let newcaptured, let newcode) = try self.invoke(&n, 3).kind {
                   self.registers.use(code: newcode, captured: newcaptured, fp: self.sp)
                 }
               case .Shared(let future):

@@ -23,21 +23,19 @@ public final class HashTableLibrary: Library {
   
   private static let bucketsProc   = Procedure("_buckets", HashTableLibrary.hBuckets)
   private static let bucketAddProc = Procedure("_bucket-add!", HashTableLibrary.hBucketAdd)
-  private static let bucketDelProc = Procedure("_bucket-del!", HashTableLibrary.hBucketDel)
+  private static let bucketDelProc = Procedure("_bucket-repl!", HashTableLibrary.hBucketRepl)
   private static let equalHashProc = Procedure("equal-hash", HashTableLibrary.equalHashVal)
   private static let eqvHashProc   = Procedure("eqv-hash", HashTableLibrary.eqvHashVal)
   private static let eqHashProc    = Procedure("eq-hash", HashTableLibrary.eqHashVal)
   
   private static let defaultCapacity = 127
   
-  private let updateBoxProc: Procedure
   private let equalProc: Procedure
   private let eqvProc: Procedure
   private let eqProc: Procedure
   
   /// Import
   public required init(_ context: Context) {
-    self.updateBoxProc = Library.importProc(from: context, name: "update-box!")
     self.equalProc = Library.importProc(from: context, name: "equal?")
     self.eqvProc = Library.importProc(from: context, name: "eqv?")
     self.eqProc = Library.importProc(from: context, name: "eq?")
@@ -55,34 +53,27 @@ public final class HashTableLibrary: Library {
       "  (letrec ((k (if (pair? size) (car size) \(HashTableLibrary.defaultCapacity)))" +
       "           (find (lambda (key bs)" +
       "                   (if (pair? bs)" +
-      "                         (if (eql (car (car bs)) key) (car bs) (find key (cdr bs)))" +
-      "                         #f))))" +
+      "                     (if (eql (car (car bs)) key) (car bs) (find key (cdr bs))) #f)))" +
+      "           (drop (lambda (key bs)" +  // TODO: Use a built-in filter function for this
+      "                   (if (pair? bs)" +
+      "                     (if (eql (car (car bs)) key)" +
+      "                       bs" +
+      "                       (let ((res (drop key (cdr bs))))" +
+      "                         (cons (car res) (cons (car bs) (cdr res)))))" +
+      "                     (cons #f bs)))))" +
       "    (_make-hashtable k eql hash" +
       "      (lambda (ht buckets key)" +
-      "        (if (find key (buckets ht (hash key))) #t #f))" +
-      "      (lambda (ht buckets key def)" +
-      "        (let ((b (find key (buckets ht (hash key)))))" +
-      "          (if b (unbox (cdr b)) def)))" +
+      "        (find key (buckets ht (hash key))))" +
       "      (lambda (ht buckets add key value)" +
+      "        (add ht (hash key) key value)" +
+      "        (if (> (hashtable-load ht) 0.75)" +
+      "          (let ((ms (buckets ht)))" +
+      "            (hashtable-clear! ht (+ (* (hashtable-size ht) 3) 1))" +
+      "            (for-each (lambda (m) (add ht (hash (car m)) (car m) (cdr m))) ms))))" +
+      "      (lambda (ht buckets replace key)" +
       "        (let* ((h (hash key))" +
-      "               (b (find key (buckets ht h))))" +
-      "          (if b (set-box! (cdr b) value)" +
-      "                (begin (add ht h key value)" +
-      "                       (if (> (hashtable-load ht) 0.75)" +
-      "                           (let ((ms (buckets ht)))" +
-      "                             (hashtable-clear! ht (+ (* (hashtable-size ht) 3) 1))" +
-      "                             (for-each (lambda (m)" +
-      "                               (add ht (hash (car m)) (car m) (unbox (cdr m))))" +
-      "                               ms)))))))" +
-      "      (lambda (ht buckets add key proc def)" +
-      "        (let* ((h (hash key))" +
-      "               (b (find key (buckets ht h))))" +
-      "          (if b (set-box! (cdr b) (proc (unbox (cdr b))))" +
-      "                (add ht h key (proc def)))))" +
-      "      (lambda (ht buckets del key)" +
-      "        (let* ((h (hash key))" +
-      "               (b (find key (buckets ht h))))" +
-      "          (if b (del ht h (cdr b)) (void)))))))")
+      "               (res (drop key (buckets ht h))))" +
+      "          (replace ht h (cdr res)) (car res))))))")
     define(Procedure("hashtable?", isHashTable))
     define(Procedure("eq-hashtable?", isEqHashTable))
     define(Procedure("eqv-hashtable?", isEqvHashTable))
@@ -90,20 +81,24 @@ public final class HashTableLibrary: Library {
     define(Procedure("hashtable-mutable?", isHashTableMutable))
     define(Procedure("hashtable-size", hashTableSize))
     define(Procedure("hashtable-load", hashTableLoad))
-    define(Procedure("hashtable-contains", hashTableContains))
-    define(Procedure("hashtable-ref", hashTableRef))
-    define(Procedure("hashtable-set!", hashTableSet))
-    define("hashtable-add!", compile:
-      "(lambda (ht alist) (for-each (lambda (m) (hashtable-set! ht (car m) (cdr m))) alist))")
-    define(Procedure("hashtable-update!", hashTableUpdate))
+    define(Procedure("hashtable-get", hashTableGet))
+    define(Procedure("hashtable-add!", hashTableAdd))
+    define("hashtable-include!", compile:
+      "(lambda (hm alist) (for-each (lambda (m) (hashtable-add! hm (car m) (cdr m))) alist))")
+    define("hashtable-contains", compile:
+      "(lambda (map key) (pair? (hashtable-get map key)))")
+    define("hashtable-ref", compile:
+      "(lambda (map key default) (value (hashtable-get map key) default))")
+    define("hashtable-set!", compile:
+      "(lambda (map key value) (hashtable-delete! map key)(hashtable-add! map key value))")
+    define("hashtable-update!", compile:
+      "(lambda (map key proc default)" +
+      "  (hashtable-add! map key (proc (value (hashtable-delete! map key) default))))")
     define(Procedure("hashtable-delete!", hashTableDelete))
     define(Procedure("hashtable-clear!", hashTableClear))
     define(Procedure("hashtable-copy", hashTableCopy))
     define(Procedure("hashtable-keys", hashTableKeys))
     define(Procedure("hashtable-values", hashTableValues))
-    // TODO: enable hashtable-entries once there is support for multiple return values
-    // define(Procedure("hashtable-entries", hashTableEntries))
-    // define(Procedure("hashtable-entry-list", hashTableEntryList))
     define(Procedure("hashtable-key-list", hashTableKeyList))
     define(Procedure("hashtable-value-list", hashTableValueList))
     define(Procedure("hashtable->alist", hashTableToAlist))
@@ -120,48 +115,43 @@ public final class HashTableLibrary: Library {
     define(Procedure("symbol-hash", symbolHashVal))
   }
   
-  func makeHashTable(capacity: Expr,
-                     _ eql: Expr,
-                     _ hsh: Expr,
-                     _ args: Arguments) throws -> Expr {
-    guard args.count == 5 else {
+  func makeHashTable(capacity: Expr, _ eql: Expr, _ hsh: Expr, _ args: Arguments) throws -> Expr {
+    guard args.count == 3 else {
       throw EvalError.ArgumentCountError(
-        formals: 8, args: .Pair(capacity, .Pair(eql, .Pair(hsh, .List(args)))))
+        formals: 6, args: .Pair(capacity, .Pair(eql, .Pair(hsh, .List(args)))))
     }
     let numBuckets = try capacity.asInt()
     let eqlProc = try eql.asProc()
     let hshProc = try hsh.asProc()
     if eqlProc == self.equalProc && hshProc == HashTableLibrary.equalHashProc {
-      return .Map(HashTable(capacity: numBuckets, mutable: true, equiv: .Equal))
+      return .Map(HashMap(capacity: numBuckets, mutable: true, equiv: .Equal))
     } else if eqlProc == self.eqvProc && hshProc == HashTableLibrary.eqvHashProc {
-      return .Map(HashTable(capacity: numBuckets, mutable: true, equiv: .Eqv))
+      return .Map(HashMap(capacity: numBuckets, mutable: true, equiv: .Eqv))
     } else if eqlProc == self.eqProc && hshProc == HashTableLibrary.eqHashProc {
-      return .Map(HashTable(capacity: numBuckets, mutable: true, equiv: .Eq))
+      return .Map(HashMap(capacity: numBuckets, mutable: true, equiv: .Eq))
     } else {
-      let procs = HashTable.CustomProcedures(eql: eqlProc,
-                                             hsh: hshProc,
-                                             has: try args[args.startIndex].asProc(),
-                                             get: try args[args.startIndex + 1].asProc(),
-                                             set: try args[args.startIndex + 2].asProc(),
-                                             upd: try args[args.startIndex + 3].asProc(),
-                                             del: try args[args.startIndex + 4].asProc())
-      return .Map(HashTable(capacity: numBuckets, mutable: true, equiv: .Custom(procs)))
+      let procs = HashMap.CustomProcedures(eql: eqlProc,
+                                           hsh: hshProc,
+                                           get: try args[args.startIndex].asProc(),
+                                           add: try args[args.startIndex + 1].asProc(),
+                                           del: try args[args.startIndex + 2].asProc())
+      return .Map(HashMap(capacity: numBuckets, mutable: true, equiv: .Custom(procs)))
     }
   }
   
   func makeEqHashTable(capacity: Expr?) throws -> Expr {
     let numBuckets = try capacity?.asInt() ?? HashTableLibrary.defaultCapacity
-    return .Map(HashTable(capacity: numBuckets, mutable: true, equiv: .Eq))
+    return .Map(HashMap(capacity: numBuckets, mutable: true, equiv: .Eq))
   }
   
   func makeEqvHashTable(capacity: Expr?) throws -> Expr {
     let numBuckets = try capacity?.asInt() ?? HashTableLibrary.defaultCapacity
-    return .Map(HashTable(capacity: numBuckets, mutable: true, equiv: .Eqv))
+    return .Map(HashMap(capacity: numBuckets, mutable: true, equiv: .Eqv))
   }
   
   func makeEqualHashTable(capacity: Expr?) throws -> Expr {
     let numBuckets = try capacity?.asInt() ?? HashTableLibrary.defaultCapacity
-    return .Map(HashTable(capacity: numBuckets, mutable: true, equiv: .Equal))
+    return .Map(HashMap(capacity: numBuckets, mutable: true, equiv: .Equal))
   }
   
   func isHashTable(expr: Expr) -> Expr {
@@ -208,31 +198,21 @@ public final class HashTableLibrary: Library {
     return .Number(Double(map.count) / Double(map.bucketCount))
   }
   
-  func hashTableContains(args: Arguments) throws -> (Procedure, [Expr]) {
+  func hashTableGet(args: Arguments) throws -> (Procedure, [Expr]) {
     try EvalError.assert(args, count: 2)
-    let map = try args.first!.asMap()
-    let key = args[args.startIndex + 1]
-    guard case .Custom(let procs) = map.equiv else {
-      return (BaseLibrary.idProc, [.Boolean(map.get(key) != nil)])
-    }
-    return (procs.has, [.Map(map), .Proc(HashTableLibrary.bucketsProc), key])
-  }
-  
-  func hashTableRef(args: Arguments) throws -> (Procedure, [Expr]) {
-    try EvalError.assert(args, count: 3)
     let map = try args[args.startIndex].asMap()
     let key = args[args.startIndex + 1]
-    let def = args[args.startIndex + 2]
     guard case .Custom(let procs) = map.equiv else {
-      return (BaseLibrary.idProc, [map.get(key) ?? def])
+      if let value = map.get(key) {
+        return (BaseLibrary.idProc, [.Pair(key, value)])
+      } else {
+        return (BaseLibrary.idProc, [.False])
+      }
     }
-    return (procs.get, [.Map(map),
-                        .Proc(HashTableLibrary.bucketsProc),
-                        key,
-                        def])
+    return (procs.get, [.Map(map), .Proc(HashTableLibrary.bucketsProc), key])
   }
   
-  func hashTableSet(args: Arguments) throws -> (Procedure, [Expr]) {
+  func hashTableAdd(args: Arguments) throws -> (Procedure, [Expr]) {
     try EvalError.assert(args, count: 3)
     let map = try args.first!.asMap()
     let key = args[args.startIndex + 1]
@@ -241,40 +221,16 @@ public final class HashTableLibrary: Library {
       throw EvalError.AttemptToModifyImmutableData(.Map(map))
     }
     guard case .Custom(let procs) = map.equiv else {
-      guard map.set(key, value) else {
+      guard map.add(key, value) else {
         preconditionFailure("trying to set mapping in immutable hash map")
       }
       return (BaseLibrary.idProc, [.Void])
     }
-    return (procs.set, [.Map(map),
-                        .Proc(HashTableLibrary.bucketsProc),
-                        .Proc(HashTableLibrary.bucketAddProc),
-                        key,
-                        value])
-  }
-  
-  func hashTableUpdate(args: Arguments) throws -> (Procedure, [Expr]) {
-    try EvalError.assert(args, count: 4)
-    let map = try args.first!.asMap()
-    let key = args[args.startIndex + 1]
-    let proc = args[args.startIndex + 2]
-    let def = args[args.startIndex + 3]
-    guard map.mutable else {
-      throw EvalError.AttemptToModifyImmutableData(.Map(map))
-    }
-    guard case .Custom(let procs) = map.equiv else {
-      let hashValue = map.hash(key)
-      guard let cell = map.getCell(key, hashValue) ?? map.addCell(key, def, hashValue) else {
-        preconditionFailure("trying to update mapping in immutable hash map")
-      }
-      return (self.updateBoxProc, [.Box(cell), proc])
-    }
-    return (procs.upd, [.Map(map),
-                        .Proc(HashTableLibrary.bucketsProc),
-                        .Proc(HashTableLibrary.bucketAddProc),
-                        key,
-                        proc,
-                        def])
+    return (procs.add, [.Map(map),
+      .Proc(HashTableLibrary.bucketsProc),
+      .Proc(HashTableLibrary.bucketAddProc),
+      key,
+      value])
   }
   
   func hashTableDelete(args: Arguments) throws -> (Procedure, [Expr]) {
@@ -285,10 +241,10 @@ public final class HashTableLibrary: Library {
       throw EvalError.AttemptToModifyImmutableData(.Map(map))
     }
     guard case .Custom(let procs) = map.equiv else {
-      guard map.remove(key) else {
+      guard let res = map.remove(key) else {
         preconditionFailure("trying to delete mapping in immutable hash map")
       }
-      return (BaseLibrary.idProc, [.Void])
+      return (BaseLibrary.idProc, [res])
     }
     return (procs.del, [.Map(map),
                         .Proc(HashTableLibrary.bucketsProc),
@@ -297,7 +253,8 @@ public final class HashTableLibrary: Library {
   }
   
   func hashTableCopy(expr: Expr, mutable: Expr?) throws -> Expr {
-    return .Map(HashTable(copy: try expr.asMap(), mutable: mutable == .True))
+    let map = try expr.asMap()
+    return .Map(HashMap(copy: map, mutable: mutable == .True))
   }
   
   func hashTableClear(expr: Expr, k: Expr?) throws -> Expr {
@@ -339,15 +296,15 @@ public final class HashTableLibrary: Library {
     return try expr.asMap().entryList()
   }
   
-  private func newHashTable(equiv: HashTable.Equivalence, capacity: Int?) -> HashTable {
+  private func newHashTable(equiv: HashMap.Equivalence, capacity: Int?) -> HashMap {
     let numBuckets = capacity ?? HashTableLibrary.defaultCapacity
-    return HashTable(capacity: numBuckets, mutable: true, equiv: equiv)
+    return HashMap(capacity: numBuckets, mutable: true, equiv: equiv)
   }
   
-  private func enterAlist(expr: Expr, into table: HashTable) throws {
+  private func enterAlist(expr: Expr, into map: HashMap) throws {
     var list = expr
     while case .Pair(.Pair(let key, let value), let cdr) = list {
-      table.set(key, value)
+      map.add(key, value)
       list = cdr
     }
     guard list.isNull else {
@@ -375,23 +332,23 @@ public final class HashTableLibrary: Library {
   
   func hashTableEquivalenceFunction(expr: Expr) throws -> Expr {
     switch try expr.asMap().equiv {
-      case .Eq:
-        return .Proc(self.eqProc)
-      case .Eqv:
-        return .Proc(self.eqvProc)
-      case .Equal:
-        return .Proc(self.equalProc)
-      case .Custom(let procs):
-        return .Proc(procs.eql)
+    case .Eq:
+      return .Proc(self.eqProc)
+    case .Eqv:
+      return .Proc(self.eqvProc)
+    case .Equal:
+      return .Proc(self.equalProc)
+    case .Custom(let procs):
+      return .Proc(procs.eql)
     }
   }
   
   func hashTableHashFunction(expr: Expr) throws -> Expr {
     switch try expr.asMap().equiv {
-      case .Eq, .Eqv, .Equal:
-        return .False
-      case .Custom(let procs):
-        return .Proc(procs.hsh)
+    case .Eq, .Eqv, .Equal:
+      return .False
+    case .Custom(let procs):
+      return .Proc(procs.hsh)
     }
   }
   
@@ -448,14 +405,11 @@ public final class HashTableLibrary: Library {
     return .Void
   }
   
-  private static func hBucketDel(expr: Expr, hval: Expr, value: Expr) throws -> Expr {
+  private static func hBucketRepl(expr: Expr, hval: Expr, bucket: Expr) throws -> Expr {
     guard case .Map(let map) = expr else {
       throw EvalError.TypeError(expr, [.MapType])
     }
-    guard case .Box(let cell) = value else {
-      throw EvalError.TypeError(expr, [.BoxType])
-    }
-    map.remove(Int(try hval.asInteger() % Int64(map.bucketCount)), cell)
+    map.replace(Int(try hval.asInteger() % Int64(map.bucketCount)), bucket)
     return .Void
   }
 }
