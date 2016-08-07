@@ -51,6 +51,10 @@ class RegressionTests: LispKitTestCase {
     self.executeTests("DynamicWind")
   }
   
+  func testParameters() {
+    self.executeTests("Parameters")
+  }
+  
   func testDelayedEvaluation() {
     self.executeTests("DelayedEvaluation")
   }

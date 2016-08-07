@@ -203,11 +203,7 @@ public final class HashTableLibrary: Library {
     let map = try args[args.startIndex].asMap()
     let key = args[args.startIndex + 1]
     guard case .Custom(let procs) = map.equiv else {
-      if let value = map.get(key) {
-        return (BaseLibrary.idProc, [.Pair(key, value)])
-      } else {
-        return (BaseLibrary.idProc, [.False])
-      }
+      return (BaseLibrary.idProc, [map.get(key) ?? .False])
     }
     return (procs.get, [.Map(map), .Proc(HashTableLibrary.bucketsProc), key])
   }

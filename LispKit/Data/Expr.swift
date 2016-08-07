@@ -674,7 +674,21 @@ extension Expr: CustomStringConvertible {
         case .Promise(let promise):
           return "#<promise \(String(promise.identity, radix: 16))>"
         case .Proc(let proc):
-          return "#<procedure \(proc.name)>"
+          switch proc.kind {
+            case .Parameter(let tuple):
+              if let res = objIdString(proc) {
+                return res
+              } else {
+                enclObjs.insert(proc)
+                let res = "#<parameter \(proc.name): \(stringReprOf(tuple.snd))>"
+                enclObjs.remove(proc)
+                return fixString(proc, res)
+              }
+            case .Continuation(_):
+              return "#<continuation \(proc.name)>"
+            default:
+              return "#<procedure \(proc.name)>"
+          }
         case .Special(let special):
           return "#<special \(String(special.identity, radix: 16))>"
         case .Prt(let port):

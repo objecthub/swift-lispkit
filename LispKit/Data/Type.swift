@@ -45,6 +45,7 @@ public enum Type: Int, CustomStringConvertible {
   case MapType
   case PromiseType
   case ProcedureType
+  case ParameterType
   case SpecialType
   case PortType
   case NumberType
@@ -103,6 +104,8 @@ public enum Type: Int, CustomStringConvertible {
         return "special"
       case ProcedureType:
         return "procedure"
+      case ParameterType:
+        return "parameter"
       case PortType:
         return "port"
       case NumberType:
@@ -138,6 +141,8 @@ public enum Type: Int, CustomStringConvertible {
   
   public var included: Set<Type> {
     switch self {
+      case ProcedureType:
+        return PROCEDURE_SUBTYPES
       case NumberType:
         return NUMBER_SUBTYPES
       case ExactNumberType:
@@ -166,6 +171,7 @@ public enum Type: Int, CustomStringConvertible {
   }
 }
 
+private let PROCEDURE_SUBTYPES: Set<Type> = [.ProcedureType, .ParameterType]
 private let NUMBER_SUBTYPES: Set<Type> = [.NumberType, .ByteType, .IntegerType, .RationalType,
                                           .FloatType, .ComplexType, .ExactNumberType, .RealType]
 private let EXACT_NUMBER_SUBTYPES: Set<Type> = [.ExactNumberType, .ByteType,

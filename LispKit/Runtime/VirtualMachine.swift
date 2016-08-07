@@ -86,6 +86,13 @@ public final class VirtualMachine: TrackedObject {
     var isInitialized: Bool {
       return self.rid == 0 && self.code.instructions.count > 0
     }
+    
+    func mark(tag: UInt8) {
+      self.code.mark(tag)
+      for expr in self.captured {
+        expr.mark(tag)
+      }
+    }
   }
   
   internal class Winder: Reference {
@@ -136,8 +143,15 @@ public final class VirtualMachine: TrackedObject {
       }
       return this
     }
+    
+    func mark(tag: UInt8) {
+      self.before.mark(tag)
+      self.after.mark(tag)
+      self.next?.mark(tag)
+    }
   }
   
+  /// Counter for managing register ids
   private static var nextRid: Int = 0
   
   /// The context of this virtual machine
@@ -165,6 +179,11 @@ public final class VirtualMachine: TrackedObject {
   /// Winders
   internal private(set) var winders: Winder?
   
+  /// Parameters
+  internal var parameters: HashMap
+  
+  private var setParameterProc: Procedure!
+  
   /// Internal counter used for triggering the garbage collector
   private var execInstr: UInt64
   
@@ -179,7 +198,10 @@ public final class VirtualMachine: TrackedObject {
     self.maxSp = 0
     self.registers = Registers(code: Code([], [], []), captured: [], fp: 0, root: true)
     self.winders = nil
+    self.parameters = HashMap(equiv: .Eq)
     self.execInstr = 0
+    super.init()
+    self.setParameterProc = Procedure("_set-parameter", self.setParameter, nil)
   }
   
   /// Returns a copy of the current virtual machine state
@@ -351,6 +373,21 @@ public final class VirtualMachine: TrackedObject {
     return res
   }
   
+  private func captureExprs(n: Int) -> [Expr] {
+    var captures = [Expr]()
+    var i = n
+    while i > 0 {
+      /* guard case .Var(let variable) = self.stack[self.sp - i] else {
+       preconditionFailure("pushed as capture: \(self.stack[self.sp - i])")
+       } */
+      captures.append(self.stack[self.sp - i])
+      self.stack[self.sp - i] = .Undef
+      i -= 1
+    }
+    self.sp -= n
+    return captures
+  }
+  
   internal func windUp(before before: Procedure, after: Procedure) {
     self.winders = Winder(before: before, after: after, next: self.winders)
   }
@@ -363,21 +400,50 @@ public final class VirtualMachine: TrackedObject {
     return res
   }
   
-  private func captureExprs(n: Int) -> [Expr] {
-    var captures = [Expr]()
-    var i = n
-    while i > 0 {
-      /* guard case .Var(let variable) = self.stack[self.sp - i] else {
-        preconditionFailure("pushed as capture: \(self.stack[self.sp - i])")
-      } */
-      captures.append(self.stack[self.sp - i])
-      self.stack[self.sp - i] = .Undef
-      i -= 1
-    }
-    self.sp -= n
-    return captures
+  internal func getParam(param: Procedure) -> Expr? {
+    return self.getParameter(.Proc(param))
   }
-    
+  
+  internal func getParameter(param: Expr) -> Expr? {
+    guard case .Some(.Pair(_, .Box(let cell))) = self.parameters.get(param) else {
+      guard case .Proc(let proc) = param, .Parameter(let tuple) = proc.kind else {
+        return nil
+      }
+      return tuple.snd
+    }
+    return cell.value
+  }
+  
+  internal func setParam(param: Procedure, to value: Expr) -> Expr {
+    return self.setParameter(.Proc(param), to: value)
+  }
+  
+  internal func setParameter(param: Expr, to value: Expr) -> Expr {
+    guard case .Some(.Pair(_, .Box(let cell))) = self.parameters.get(param) else {
+      guard case .Proc(let proc) = param, .Parameter(let tuple) = proc.kind else {
+        preconditionFailure("cannot set parameter \(param)")
+      }
+      tuple.snd = value
+      return .Void
+    }
+    cell.value = value
+    return .Void
+  }
+  
+  internal func bindParameter(param: Expr, to value: Expr) -> Expr {
+    self.parameters.add(param, .Box(Cell(value)))
+    return .Void
+  }
+  
+  internal func bindParameters(alist: Expr) {
+    self.parameters = HashMap(copy: self.parameters, mutable: true)
+    var current = alist
+    while case .Pair(.Pair(let param, let value), let next) = current {
+      self.parameters.add(param, .Box(Cell(value)))
+      current = next
+    }
+  }
+  
   private func exitFrame() {
     // Determine former ip
     guard case .Fixnum(let newip) = self.stack[self.registers.fp - 2] else {
@@ -415,8 +481,33 @@ public final class VirtualMachine: TrackedObject {
     guard case .Proc(let p) = self.stack[self.sp - n - 1] else {
       throw EvalError.NonApplicativeValue(self.stack[self.sp - n - 1])
     }
-    // Handle primitive procedures; this is required to loop because of applicators
     var proc = p
+    // Handle parameter procedures
+    if case .Parameter(let tuple) = proc.kind {
+      switch n {
+        case 0:                             // Return parameter value
+          self.pop(overhead)
+          self.push(self.getParam(proc)!)
+          return proc
+        case 1 where tuple.fst.isNull:      // Set parameter value without setter
+          let a0 = self.pop()
+          self.pop(overhead)
+          self.push(self.setParam(proc, to: a0))
+          return proc
+        case 1:                             // Set parameter value with setter
+          let a0 = self.pop()
+          self.pop()
+          self.push(tuple.fst)
+          self.push(.Proc(proc))
+          self.push(a0)
+          self.push(.Proc(self.setParameterProc))
+          n = 3
+          proc = try tuple.fst.asProc()
+        default:
+          throw EvalError.ArgumentCountError(formals: 1, args: self.popAsList(n))
+      }
+    }
+    // Handle primitive procedures; this is required to loop because of applicators
     loop: while case .Primitive(_, let impl, _) = proc.kind {
       switch impl {
         case .Eval(let eval):
@@ -1067,6 +1158,9 @@ public final class VirtualMachine: TrackedObject {
     for i in 0..<self.sp {
       self.stack[i].mark(tag)
     }
+    self.registers.mark(tag)
+    self.winders?.mark(tag)
+    self.parameters.mark(tag)
   }
   
   /// Debugging output

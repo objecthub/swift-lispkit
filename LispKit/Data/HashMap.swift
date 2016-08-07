@@ -244,9 +244,9 @@ public final class HashMap: ManagedObject, CustomStringConvertible {
   /// Returns the value associated with `key` in bucket `bid`.
   public func get(bid: Int, _ key: Expr, _ eql: (Expr, Expr) -> Bool) -> Expr? {
     var current = self.buckets[bid]
-    while case .Pair(.Pair(let k, let value), let next) = current {
+    while case .Pair(.Pair(let k, let v), let next) = current {
       if eql(key, k) {
-        return value
+        return .Pair(k, v)
       }
       current = next
     }
@@ -312,6 +312,10 @@ public final class HashMap: ManagedObject, CustomStringConvertible {
   
   public func get(key: Expr) -> Expr? {
     return self.get(self.hash(key) % self.buckets.count, key, self.eql)
+  }
+  
+  public func set(key: Expr, value: Expr) -> Bool {
+    return self.remove(key) != nil && self.add(key, value)
   }
   
   public func add(key: Expr, _ value: Expr) -> Bool {

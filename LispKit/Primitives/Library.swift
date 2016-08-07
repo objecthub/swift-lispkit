@@ -66,6 +66,17 @@ public class Library {
     self.context.systemScope[self.context.symbols.intern(name)] = expr
   }
   
+  public func define(name: String, syntax sourcecode: String) {
+    switch self.context.machine.evalStr(sourcecode, in: .System) {
+      case .Error(let error):
+        preconditionFailure("compilation failure: " + error.description)
+      case .Proc(let proc):
+        self.context.systemScope[self.context.symbols.intern(name)] = .Special(SpecialForm(proc))
+      case let expr:
+        preconditionFailure("broken syntax transformer: " + expr.description)
+    }
+  }
+  
   public func procedure(sourcecode: String) -> Procedure {
     let expr = self.context.machine.evalStr(sourcecode, in: .System)
     guard case .Proc(let proc) = expr else {
