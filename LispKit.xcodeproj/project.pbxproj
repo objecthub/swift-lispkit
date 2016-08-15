@@ -25,6 +25,7 @@
 		CC31A6981D3AC223008D7728 /* Hash.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC31A6971D3AC223008D7728 /* Hash.swift */; };
 		CC35FD0D1C6FA4B700C8B992 /* VirtualMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */; };
 		CC35FD0F1C711FEA00C8B992 /* BindingGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35FD0E1C711FEA00C8B992 /* BindingGroup.swift */; };
+		CC4D2C9F1D5EDA2A00A02256 /* RecordLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC4D2C9E1D5EDA2A00A02256 /* RecordLibrary.swift */; };
 		CC4E2D371D09691000D77159 /* PortLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC4E2D361D09691000D77159 /* PortLibrary.swift */; };
 		CC502A951CDABF1E00875D9F /* BuildMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = CC502A941CDABF1E00875D9F /* BuildMetadata.m */; };
 		CC5033AF1CDB9A440045A8FA /* AppInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5033AE1CDB9A440045A8FA /* AppInfo.swift */; };
@@ -46,12 +47,13 @@
 		CC6A3B681C52F17200E962E2 /* SchemeLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B671C52F17200E962E2 /* SchemeLibrary.swift */; };
 		CC6A3B6A1C539DCA00E962E2 /* ManagedObjectPool.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B691C539DCA00E962E2 /* ManagedObjectPool.swift */; };
 		CC6A3B6C1C53EE3200E962E2 /* Future.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B6B1C53EE3200E962E2 /* Future.swift */; };
-		CC6A3B6E1C53F0F600E962E2 /* Vector.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B6D1C53F0F600E962E2 /* Vector.swift */; };
+		CC6A3B6E1C53F0F600E962E2 /* Collection.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B6D1C53F0F600E962E2 /* Collection.swift */; };
 		CC6A3B701C53F2CF00E962E2 /* SymbolTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B6F1C53F2CF00E962E2 /* SymbolTable.swift */; };
 		CC6A3B721C54DF7F00E962E2 /* Exprs.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B711C54DF7F00E962E2 /* Exprs.swift */; };
 		CC6AB0871C5C28FE008E9460 /* Equality.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6AB0861C5C28FE008E9460 /* Equality.swift */; };
 		CC78BF6C1C56C87500876D54 /* Scope.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC78BF6B1C56C87500876D54 /* Scope.swift */; };
 		CC8169271D1FADEC003FADEA /* Ports.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC8169261D1FADE2003FADEA /* Ports.scm */; };
+		CC8213661D614A8600C1BE57 /* Records.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC8213651D614A8600C1BE57 /* Records.scm */; };
 		CC882C921C9E93A600D20039 /* Timer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC882C911C9E93A600D20039 /* Timer.swift */; };
 		CC8C6EC81CFA65F200126BDD /* ControlFlow.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC8C6EC71CFA65F200126BDD /* ControlFlow.scm */; };
 		CC8EDE4C1D0317AD004E0636 /* Port.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8EDE4B1D0317AD004E0636 /* Port.swift */; };
@@ -153,6 +155,7 @@
 		CC35FD0E1C711FEA00C8B992 /* BindingGroup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BindingGroup.swift; sourceTree = "<group>"; };
 		CC3C4E051CD81C5E00C78F89 /* TODO.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = TODO.md; sourceTree = "<group>"; };
 		CC48055C1CFE366100D608B6 /* lispkit_logo_small.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lispkit_logo_small.png; sourceTree = "<group>"; };
+		CC4D2C9E1D5EDA2A00A02256 /* RecordLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecordLibrary.swift; sourceTree = "<group>"; };
 		CC4E2D361D09691000D77159 /* PortLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PortLibrary.swift; sourceTree = "<group>"; };
 		CC502A931CDABF1E00875D9F /* LispKitReplBridgingHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LispKitReplBridgingHeader.h; sourceTree = "<group>"; };
 		CC502A941CDABF1E00875D9F /* BuildMetadata.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BuildMetadata.m; sourceTree = "<group>"; };
@@ -176,13 +179,14 @@
 		CC6A3B671C52F17200E962E2 /* SchemeLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SchemeLibrary.swift; sourceTree = "<group>"; };
 		CC6A3B691C539DCA00E962E2 /* ManagedObjectPool.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ManagedObjectPool.swift; path = ../Runtime/ManagedObjectPool.swift; sourceTree = "<group>"; };
 		CC6A3B6B1C53EE3200E962E2 /* Future.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Future.swift; sourceTree = "<group>"; };
-		CC6A3B6D1C53F0F600E962E2 /* Vector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Vector.swift; sourceTree = "<group>"; };
+		CC6A3B6D1C53F0F600E962E2 /* Collection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Collection.swift; sourceTree = "<group>"; };
 		CC6A3B6F1C53F2CF00E962E2 /* SymbolTable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SymbolTable.swift; sourceTree = "<group>"; };
 		CC6A3B711C54DF7F00E962E2 /* Exprs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Exprs.swift; sourceTree = "<group>"; };
 		CC6AB0861C5C28FE008E9460 /* Equality.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Equality.swift; sourceTree = "<group>"; };
 		CC6F6C5A1C501F4300522507 /* SCRATCH */ = {isa = PBXFileReference; lastKnownFileType = text; path = SCRATCH; sourceTree = "<group>"; };
 		CC78BF6B1C56C87500876D54 /* Scope.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Scope.swift; sourceTree = "<group>"; };
 		CC8169261D1FADE2003FADEA /* Ports.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Ports.scm; sourceTree = "<group>"; };
+		CC8213651D614A8600C1BE57 /* Records.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Records.scm; sourceTree = "<group>"; };
 		CC882C911C9E93A600D20039 /* Timer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Timer.swift; sourceTree = "<group>"; };
 		CC8C6EC71CFA65F200126BDD /* ControlFlow.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ControlFlow.scm; sourceTree = "<group>"; };
 		CC8EDE4B1D0317AD004E0636 /* Port.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Port.swift; sourceTree = "<group>"; };
@@ -283,6 +287,7 @@
 				CCB91C971D57E784001A95DC /* Parameters.scm */,
 				CCC41DC31D2649E9003CB4D0 /* DelayedEvaluation.scm */,
 				CCDAD5511D4813E900A7EE4F /* HashTables.scm */,
+				CC8213651D614A8600C1BE57 /* Records.scm */,
 				CC8169261D1FADE2003FADEA /* Ports.scm */,
 			);
 			path = Code;
@@ -307,7 +312,7 @@
 				CCAD52DD1C48468F00DBD8EE /* Symbol.swift */,
 				CC0980AA1C67E84C006B7FB1 /* Cell.swift */,
 				CC90500E1D384C4E008CE60A /* Tuple.swift */,
-				CC6A3B6D1C53F0F600E962E2 /* Vector.swift */,
+				CC6A3B6D1C53F0F600E962E2 /* Collection.swift */,
 				CC5BBC781D5268D000367E8F /* HashMap.swift */,
 				CC6A3B6B1C53EE3200E962E2 /* Future.swift */,
 				CC55A8281C50D35C00772B02 /* Procedure.swift */,
@@ -420,6 +425,7 @@
 				CCDF99FB1D3D7A3100FD2A57 /* BoxLibrary.swift */,
 				CC6A3B5B1C52E71F00E962E2 /* ListLibrary.swift */,
 				CC6A3B5D1C52E8EF00E962E2 /* VectorLibrary.swift */,
+				CC4D2C9E1D5EDA2A00A02256 /* RecordLibrary.swift */,
 				CC5BBC7A1D52724800367E8F /* HashTableLibrary.swift */,
 				CC050F131D017D3400D32132 /* BytevectorLibrary.swift */,
 				CC6A3B611C52ED7D00E962E2 /* CharacterLibrary.swift */,
@@ -591,6 +597,7 @@
 				CCB91C981D57E785001A95DC /* Parameters.scm in Resources */,
 				CC131C4C1CDE0C3D006C030C /* SyntaxRules.scm in Resources */,
 				CC8169271D1FADEC003FADEA /* Ports.scm in Resources */,
+				CC8213661D614A8600C1BE57 /* Records.scm in Resources */,
 				CCC41DCA1D330439003CB4D0 /* DynamicWind.scm in Resources */,
 				CCDAD5521D4813E900A7EE4F /* HashTables.scm in Resources */,
 			);
@@ -635,10 +642,11 @@
 				CC9065B51C5557E4004A88B7 /* ObjectPool.swift in Sources */,
 				CC6AB0871C5C28FE008E9460 /* Equality.swift in Sources */,
 				CCAD52E01C48468F00DBD8EE /* Env.swift in Sources */,
-				CC6A3B6E1C53F0F600E962E2 /* Vector.swift in Sources */,
+				CC6A3B6E1C53F0F600E962E2 /* Collection.swift in Sources */,
 				CC6A3B5E1C52E8EF00E962E2 /* VectorLibrary.swift in Sources */,
 				CC8EDE701D07265E004E0636 /* TextInput.swift in Sources */,
 				CCAD52E51C48468F00DBD8EE /* Symbol.swift in Sources */,
+				CC4D2C9F1D5EDA2A00A02256 /* RecordLibrary.swift in Sources */,
 				CC26069C1C61760C0047A3D3 /* Boxes.swift in Sources */,
 				CCC41DC61D2851FB003CB4D0 /* VirtualMachineState.swift in Sources */,
 				CCAD52E41C48468F00DBD8EE /* Scanner.swift in Sources */,

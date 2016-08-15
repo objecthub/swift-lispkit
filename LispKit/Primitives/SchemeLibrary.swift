@@ -32,6 +32,7 @@ public final class SchemeLibrary: Library {
     include(MathLibrary)
     include(ListLibrary)
     include(VectorLibrary)
+    include(RecordLibrary)
     include(BytevectorLibrary)
     include(CharacterLibrary)
     include(StringLibrary)

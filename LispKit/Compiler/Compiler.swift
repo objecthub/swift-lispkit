@@ -348,15 +348,15 @@ public final class Compiler {
       case .Rat(let num):
         self.emit(.PushRat(num))
       case .Bigrat(let num):
-        self.emit(.PushBigrat(num))
+        self.emit(.PushBigrat(num.value))
       case .Flonum(let num):
         self.emit(.PushFlonum(num))
       case .Complexnum(let num):
         self.emit(.PushComplex(num))
       case .Char(let char):
         self.emit(.PushChar(char))
-      case .Sym(_), .Str(_), .Bytes(_), .Pair(_, _), .Box(_), .MPair(_), .Vec(_), .Map(_),
-           .Promise(_), .Proc(_), .Prt(_), .Error(_):
+      case .Sym(_), .Str(_), .Bytes(_), .Pair(_, _), .Box(_), .MutablePair(_),
+           .Vector(_), .Record(_), .Map(_), .Promise(_), .Proc(_), .Prt(_), .Error(_):
         self.pushConstant(expr)
       case .Special(_):
         throw EvalError.IllegalKeywordUsage(expr)
@@ -546,7 +546,8 @@ public final class Compiler {
   /// specifies if `expr` is located in a tail position. This allows the compiler to generate
   /// code with tail calls.
   public func compileSeq(expr: Expr,
-                         in env: Env, inTailPos tail: Bool,
+                         in env: Env,
+                         inTailPos tail: Bool,
                          localDefine: Bool = true) throws -> Bool {
     // Return void for empty sequences
     guard !expr.isNull else {

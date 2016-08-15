@@ -274,6 +274,8 @@ public enum EvalError: LispError {
   case CannotWriteToPort(Expr)
   case IllegalContinuationApplication(Procedure, Int)
   case AttemptToModifyImmutableData(Expr)
+  case UnknownFieldOfRecordType(Expr, Symbol)
+  case FieldCountError(Int, Expr)
   
   public var kind: String {
     return "eval error"
@@ -379,6 +381,10 @@ public enum EvalError: LispError {
         return "continuation application in wrong context (\(proc) in \(rid))"
       case .AttemptToModifyImmutableData(let expr):
         return "illegal attempt to modify immutable data structure: \(expr)"
+      case .UnknownFieldOfRecordType(let type, let field):
+        return "unknown field \(field) of record type \(type)"
+      case FieldCountError(let expected, let values):
+        return "expected values for \(expected) fields, received: \(values)"
     }
   }
   
@@ -472,6 +478,10 @@ public enum EvalError: LispError {
           return p1 == p2 && rid1 == rid2
         case (AttemptToModifyImmutableData(let e1), AttemptToModifyImmutableData(let e2)):
           return e1 == e2
+        case (UnknownFieldOfRecordType(let t1, let f1), UnknownFieldOfRecordType(let t2, let f2)):
+          return t1 == t2 && f1 == f2
+        case (FieldCountError(let e1, let v1), FieldCountError(let e2, let v2)):
+          return e1 == e2 && v1 == v2
         default:
           return false
       }

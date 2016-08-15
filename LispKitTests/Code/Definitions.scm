@@ -20,9 +20,9 @@
   "Mixed global local definitions"
   111
   (define bar 1)
-  (+ (begin (define (foo n) (+ n bar))
-            (define bar 100)
-            (foo 10))
+  (+ (let () (define (foo n) (+ n bar))
+             (define bar 100)
+             (foo 10))
      bar)
 )
 
@@ -33,8 +33,8 @@
     (syntax-rules ()
       ((_ f e) (define f e))))
   (declare baz 1)
-  (+ (begin (define (foo n) (+ n baz))
-            (declare baz 100)
-            (foo 10))
+  (+ (let () (define (foo n) (+ n baz))
+             (declare baz 100)
+             (foo 10))
      baz)
 )

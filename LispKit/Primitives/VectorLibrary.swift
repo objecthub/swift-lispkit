@@ -37,7 +37,7 @@ public final class VectorLibrary: Library {
   
   func isVector(expr: Expr) -> Expr {
     switch expr {
-      case .Vec(_):
+      case .Vector(_):
         return .True
       default:
         return .False
@@ -58,15 +58,16 @@ public final class VectorLibrary: Library {
     guard k >= 0 && k <= Int64(Int.max) else {
       throw EvalError.ParameterOutOfBounds("make-vector", 1, k, 0, Int64(Int.max))
     }
-    return .Vec(self.context.objects.manage(Vector(count: Int(k), repeatedValue: fill ?? .Null)))
+    return .Vector(self.context.objects.manage(
+      Collection(kind: .Vector, count: Int(k), repeatedValue: fill ?? .Null)))
   }
   
   func vector(args: Arguments) -> Expr {
-    let res = Vector()
+    let res = Collection(kind: .Vector)
     for arg in args {
       res.exprs.append(arg)
     }
-    return .Vec(self.context.objects.manage(res))
+    return .Vector(self.context.objects.manage(res))
   }
   
   func compileVector(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
@@ -78,11 +79,11 @@ public final class VectorLibrary: Library {
   }
   
   func vectorAppend(exprs: Arguments) throws -> Expr {
-    let res = Vector()
+    let res = Collection(kind: .Vector)
     for expr in exprs {
       res.exprs.appendContentsOf(try expr.asVector().exprs)
     }
-    return .Vec(self.context.objects.manage(res))
+    return .Vector(self.context.objects.manage(res))
   }
   
   func vectorRef(vec: Expr, _ index: Expr) throws -> Expr {
@@ -111,7 +112,7 @@ public final class VectorLibrary: Library {
     guard case (let exprs, .Null) = expr.toExprs() else {
       throw EvalError.TypeError(expr, [.ProperListType])
     }
-    return .Vec(self.context.objects.manage(Vector(exprs)))
+    return .Vector(self.context.objects.manage(Collection(kind: .Vector, exprs: exprs)))
   }
   
   func vectorToList(vec: Expr) throws -> Expr {

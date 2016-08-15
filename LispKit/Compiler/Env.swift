@@ -170,7 +170,7 @@ public enum Env: CustomStringConvertible {
       case Interaction:
         return sym.identifier + "@i"
       case Local(let group):
-        return sym.identifier + "@" + String(group.identity, radix: 16)
+        return sym.identifier + "@" + group.identityString
     }
   }
   
@@ -184,7 +184,7 @@ public enum Env: CustomStringConvertible {
       case Interaction:
         return "interaction"
       case Local(let group):
-        return "local " + String(group.identity, radix: 16)
+        return "local " + group.identityString
     }
   }
 }

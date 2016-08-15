@@ -55,9 +55,9 @@ func splitBindings(bindingList: Expr) throws -> (Expr, Expr) {
 
 func compileBegin(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
   guard case .Pair(_, let exprs) = expr else {
-    preconditionFailure()
+    preconditionFailure("malformed begin")
   }
-  return try compiler.compileSeq(exprs, in: env, inTailPos: tail)
+  return try compiler.compileSeq(exprs, in: env, inTailPos: tail, localDefine: false)
 }
 
 func compileLet(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {

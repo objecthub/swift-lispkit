@@ -221,9 +221,9 @@ public final class Procedure: Reference, CustomStringConvertible {
       case .Primitive(let str, _, _):
         return str
       case .Closure(.Some(let str), _, _):
-        return "\(str)@\(String(self.identity, radix: 16))"
+        return "\(str)@\(self.identityString)"
       default:
-        return String(self.identity, radix: 16)
+        return self.identityString
     }
   }
   
@@ -241,7 +241,7 @@ public final class Procedure: Reference, CustomStringConvertible {
   
   /// A textual description
   public var description: String {
-    return "proc#" + self.name
+    return "proc:" + self.name
   }
 }
 

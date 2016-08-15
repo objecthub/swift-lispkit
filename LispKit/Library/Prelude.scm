@@ -31,17 +31,7 @@
               (loop))
             #f)))))
 
-(define first car)
-
-
 ;;; Scratch (for testing)
 
 (define (fib n)
   (if (< n 2) n (+ (fib (- n 1)) (fib (- n 2)))))
-
-(define (my-map f list1 . lists)
-  (let ((res '()))
-       (do ((pair (decons (cons list1 lists)) (decons (cdr pair))))
-           ((null? pair) (reverse res))
-           (set! res (cons (apply f (car pair)) res)))))
-

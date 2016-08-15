@@ -265,11 +265,11 @@ public final class HashTableLibrary: Library {
   }
   
   func hashTableKeys(expr: Expr) throws -> Expr {
-    return .Vec(Vector(try expr.asMap().keys))
+    return .Vector(Collection(kind: .ImmutableVector, exprs: try expr.asMap().keys))
   }
   
   func hashTableValues(expr: Expr) throws -> Expr {
-    return .Vec(Vector(try expr.asMap().values))
+    return .Vector(Collection(kind: .ImmutableVector, exprs: try expr.asMap().values))
   }
   
   func hashTableEntries(expr: Expr) throws -> Expr {

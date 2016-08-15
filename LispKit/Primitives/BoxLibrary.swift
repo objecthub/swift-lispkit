@@ -69,25 +69,25 @@ public final class BoxLibrary: Library {
   //-------- MARK: - Mutable pairs
   
   func mcons(car: Expr, cdr: Expr) throws -> Expr {
-    return .MPair(Tuple(car, cdr))
+    return .MutablePair(Tuple(car, cdr))
   }
   
   func mcar(expr: Expr) throws -> Expr {
-    guard case .MPair(let tuple) = expr else {
+    guard case .MutablePair(let tuple) = expr else {
       throw EvalError.TypeError(expr, [.MPairType])
     }
     return tuple.fst
   }
   
   func mcdr(expr: Expr) throws -> Expr {
-    guard case .MPair(let tuple) = expr else {
+    guard case .MutablePair(let tuple) = expr else {
       throw EvalError.TypeError(expr, [.MPairType])
     }
     return tuple.snd
   }
   
   func setMcar(expr: Expr, value: Expr) throws -> Expr {
-    guard case .MPair(let tuple) = expr else {
+    guard case .MutablePair(let tuple) = expr else {
       throw EvalError.TypeError(expr, [.MPairType])
     }
     tuple.fst = value
@@ -95,7 +95,7 @@ public final class BoxLibrary: Library {
   }
   
   func setMcdr(expr: Expr, value: Expr) throws -> Expr {
-    guard case .MPair(let tuple) = expr else {
+    guard case .MutablePair(let tuple) = expr else {
       throw EvalError.TypeError(expr, [.MPairType])
     }
     tuple.snd = value
@@ -103,7 +103,7 @@ public final class BoxLibrary: Library {
   }
   
   func isMpair(expr: Expr) -> Expr {
-    guard case .MPair(_) = expr else {
+    guard case .MutablePair(_) = expr else {
       return .False
     }
     return .True

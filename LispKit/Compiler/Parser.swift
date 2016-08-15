@@ -66,7 +66,7 @@ public class Parser {
       case .RAT:
         res = Expr.Rat(token.ratVal).normalized
       case .BIGRAT:
-        res = Expr.Bigrat(token.bigRatVal).normalized
+        res = Expr.Bigrat(ImmutableBox(token.bigRatVal)).normalized
       case .FLOAT:
         res = Expr.Flonum(token.floatVal)
       case .COMPLEX:
@@ -102,7 +102,7 @@ public class Parser {
         guard self.scanner.hasToken(.RPAREN) else {
           throw SyntaxError.ClosingParenthesisMissing
         }
-        res = .Vec(Vector(exprs))
+        res = .Vector(Collection(kind: .ImmutableVector, exprs: exprs))
       case .U8LPAREN:
         self.scanner.next()
         var bytes = [UInt8]()

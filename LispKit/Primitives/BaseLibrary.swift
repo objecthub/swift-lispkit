@@ -176,7 +176,7 @@ public final class BaseLibrary: Library {
     switch arg {
       case .Pair(_, _):
         return try compiler.compile(reduceQQ(arg), in: env, inTailPos: tail)
-      case .Vec(let vector):
+      case .Vector(let vector):
         var nvec = 0
         var nelem = 0
         for expr in vector.exprs {
@@ -384,7 +384,7 @@ public final class BaseLibrary: Library {
         } else {
           return nil
         }
-      case .Vec(let vector):
+      case .Vector(let vector):
         for pat in vector.exprs {
           if let errExpr = checkPattern(pat) {
             return errExpr

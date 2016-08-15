@@ -28,6 +28,10 @@ public class Reference: Hashable {
     return ObjectIdentifier(self).uintValue
   }
   
+  public var identityString: String {
+    return String(self.identity, radix: 16)
+  }
+  
   public var hashValue: Int {
     return ObjectIdentifier(self).hashValue
   }

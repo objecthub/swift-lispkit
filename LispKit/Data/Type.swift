@@ -43,6 +43,7 @@ public enum Type: Int, CustomStringConvertible {
   case MPairType
   case VectorType
   case MapType
+  case RecordType
   case PromiseType
   case ProcedureType
   case ParameterType
@@ -98,6 +99,8 @@ public enum Type: Int, CustomStringConvertible {
         return "bytevector"
       case MapType:
         return "map"
+      case RecordType:
+        return "record"
       case PromiseType:
         return "promise"
       case SpecialType:

@@ -94,8 +94,8 @@ public class SyntaxRules {
           pat = rest
         }
         return self.match(pat, with: inp, in: matches, at: depth)
-      case .Vec(let patVector):
-        guard case .Vec(let inpVector) = input else {
+      case .Vector(let patVector):
+        guard case .Vector(let inpVector) = input else {
           return false
         }
         var inpIndex = 0
@@ -155,7 +155,7 @@ public class SyntaxRules {
           templ = rest
         }
         return Expr.List(res, append: try self.instantiate(templ, with: matches, at: depth))
-      case .Vec(let vector):
+      case .Vector(let vector):
         var res = Exprs()
         for i in vector.exprs.indices {
           if (i < vector.exprs.count - 1) && vector.exprs[i + 1] == self.ellipsis {
@@ -171,7 +171,7 @@ public class SyntaxRules {
             res.append(try self.instantiate(vector.exprs[i], with: matches, at: depth).datum)
           }
         }
-        return .Vec(self.context.objects.manage(Vector(res)))
+        return .Vector(self.context.objects.manage(Collection(kind: .ImmutableVector, exprs: res)))
       default:
         return template
     }
@@ -189,12 +189,12 @@ public class SyntaxRules {
           templ = rest
         }
         return Expr.List(res, append: self.instantiateRaw(templ, with: matches))
-      case .Vec(let vector):
+      case .Vector(let vector):
         var res = Exprs()
         for i in vector.exprs.indices {
           res.append(self.instantiateRaw(vector.exprs[i], with: matches))
         }
-        return .Vec(self.context.objects.manage(Vector(res)))
+        return .Vector(self.context.objects.manage(Collection(kind: .ImmutableVector, exprs: res)))
       default:
         return template
     }
@@ -211,7 +211,7 @@ public class SyntaxRules {
         case .Pair(let car, let cdr):
           traverse(car)
           traverse(cdr)
-        case .Vec(let vector):
+        case .Vector(let vector):
           for expr in vector.exprs {
             traverse(expr)
           }
@@ -279,17 +279,19 @@ private final class Matches: CustomStringConvertible {
   }
   
   private func numChildrenOf(syms: Set<Symbol>, at depth: Int) throws -> Int {
-    var res: Int? = nil
+    var res = 0
     for sym in syms {
       if let tree = self.matchedVal[sym] {
         let s = tree.numChildren(depth)
-        guard res == nil || res! == s else {
-          throw EvalError.MacroMismatchedRepetitionPatterns(sym)
+        if s > 0 {
+          guard res == 0 || res == s else {
+            throw EvalError.MacroMismatchedRepetitionPatterns(sym)
+          }
+          res = s
         }
-        res = s
       }
     }
-    return res!
+    return res
   }
   
   private var description: String {

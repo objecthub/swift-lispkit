@@ -837,7 +837,7 @@ public final class VirtualMachine: TrackedObject {
         case .PushRat(let num):
           self.push(.Rat(num))
         case .PushBigrat(let num):
-          self.push(.Bigrat(num))
+          self.push(.Bigrat(ImmutableBox(num)))
         case .PushFlonum(let num):
           self.push(.Flonum(num))
         case .PushComplex(let num):
@@ -1089,17 +1089,17 @@ public final class VirtualMachine: TrackedObject {
           }
           self.push(res)
         case .Vector(let n):
-          let vector = Vector()
+          let vector = Collection(kind: .Vector)
           var i = self.sp - n
           while i < self.sp {
             vector.exprs.append(self.stack[i])
             i += 1
           }
           self.pop(n)
-          self.push(.Vec(vector))
+          self.push(.Vector(vector))
         case .ListToVector:
           let expr = self.pop()
-          let vector = Vector()
+          let vector = Collection(kind: .Vector)
           var list = expr
           while case .Pair(let car, let cdr) = list {
             vector.exprs.append(car)
@@ -1108,18 +1108,18 @@ public final class VirtualMachine: TrackedObject {
           guard list.isNull else {
             throw EvalError.TypeError(expr, [.ProperListType])
           }
-          self.push(.Vec(vector))
+          self.push(.Vector(vector))
         case .VectorAppend(let n):
-          let vector = Vector()
+          let vector = Collection(kind: .Vector)
           var i = self.sp - n
           while i < self.sp {
             vector.exprs.appendContentsOf(try self.stack[i].asVector().exprs)
             i += 1
           }
           self.pop(n)
-          self.push(.Vec(vector))
+          self.push(.Vector(vector))
         case .IsVector:
-          if case .Vec(_) = self.pop() {
+          if case .Vector(_) = self.pop() {
             self.push(.True)
           } else {
             self.push(.False)

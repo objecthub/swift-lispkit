@@ -90,7 +90,7 @@ func equalExpr(this: Expr, _ that: Expr) -> Bool {
         }
         equalities.insert(equality)
         return cell1.value == cell2.value
-      case (.MPair(let tuple1), .MPair(let tuple2)):
+      case (.MutablePair(let tuple1), .MutablePair(let tuple2)):
         guard tuple1 !== tuple2 else {
           return true
         }
@@ -100,7 +100,7 @@ func equalExpr(this: Expr, _ that: Expr) -> Bool {
         }
         equalities.insert(equality)
         return tuple1.fst == tuple2.fst && tuple1.snd == tuple2.snd
-      case (.Vec(let vector1), .Vec(let vector2)):
+      case (.Vector(let vector1), .Vector(let vector2)):
         guard vector1 !== vector2 else {
           return true
         }
@@ -114,6 +114,24 @@ func equalExpr(this: Expr, _ that: Expr) -> Bool {
         equalities.insert(equality)
         for i in vector1.exprs.indices {
           guard equals(vector1.exprs[i], vector2.exprs[i]) else {
+            return false
+          }
+        }
+        return true
+      case (.Record(let record1), .Record(let record2)):
+        guard record1 !== record2 else {
+          return true
+        }
+        let equality = Equality(record1, record2)
+        guard !equalities.contains(equality) else {
+          return true
+        }
+        guard record1.sameKindAs(record2) && record1.exprs.count == record2.exprs.count else {
+          return false
+        }
+        equalities.insert(equality)
+        for i in record1.exprs.indices {
+          guard equals(record1.exprs[i], record2.exprs[i]) else {
             return false
           }
         }
@@ -204,10 +222,12 @@ func eqvExpr(lhs: Expr, _ rhs: Expr) -> Bool {
       return eqvExpr(car1, car2) && eqvExpr(cdr1, cdr2)
     case (.Box(let c1), .Box(let c2)):
       return c1 === c2
-    case (.MPair(let t1), .MPair(let t2)):
+    case (.MutablePair(let t1), .MutablePair(let t2)):
       return t1 === t2
-    case (.Vec(let vector1), .Vec(let vector2)):
+    case (.Vector(let vector1), .Vector(let vector2)):
       return vector1 === vector2
+    case (.Record(let record1), .Record(let record2)):
+      return record1 === record2
     case (.Map(let map1), .Map(let map2)):
       return map1 === map2
     case (.Promise(let promise1), .Promise(let promise2)):
@@ -259,10 +279,12 @@ func eqExpr(lhs: Expr, _ rhs: Expr) -> Bool {
       return eqvExpr(car1, car2) && eqvExpr(cdr1, cdr2)
     case (.Box(let c1), .Box(let c2)):
       return c1 === c2
-    case (.MPair(let t1), .MPair(let t2)):
+    case (.MutablePair(let t1), .MutablePair(let t2)):
       return t1 === t2
-    case (.Vec(let vector1), .Vec(let vector2)):
+    case (.Vector(let vector1), .Vector(let vector2)):
       return vector1 === vector2
+    case (.Record(let record1), .Vector(let record2)):
+      return record1 === record2
     case (.Map(let map1), .Map(let map2)):
       return map1 === map2
     case (.Promise(let promise1), .Promise(let promise2)):
@@ -307,7 +329,7 @@ enum NumberPair {
       case (.Fixnum(let lhs), .Rat(let rhs)):
         self = RationalPair(Rational(lhs), rhs)
       case (.Fixnum(let lhs), .Bigrat(let rhs)):
-        self = BigRationalPair(Rational(BigInt(lhs)), rhs)
+        self = BigRationalPair(Rational(BigInt(lhs)), rhs.value)
       case (.Fixnum(let lhs), .Flonum(let rhs)):
         self = FlonumPair(Double(lhs), rhs)
       case (.Fixnum(let lhs), .Complexnum(let rhs)):
@@ -320,7 +342,7 @@ enum NumberPair {
         self = BigRationalPair(Rational(lhs),
                                Rational(BigInt(rhs.numerator), BigInt(rhs.denominator)))
       case (.Bignum(let lhs), .Bigrat(let rhs)):
-        self = BigRationalPair(Rational(lhs), rhs)
+        self = BigRationalPair(Rational(lhs), rhs.value)
       case (.Bignum(let lhs), .Flonum(let rhs)):
         self = FlonumPair(lhs.doubleValue, rhs)
       case (.Bignum(let lhs), .Complexnum(let rhs)):
@@ -333,23 +355,24 @@ enum NumberPair {
       case (.Rat(let lhs), .Rat(let rhs)):
         self = RationalPair(lhs, rhs)
       case (.Rat(let lhs), .Bigrat(let rhs)):
-        self = BigRationalPair(Rational(BigInt(lhs.numerator), BigInt(lhs.denominator)), rhs)
+        self = BigRationalPair(Rational(BigInt(lhs.numerator), BigInt(lhs.denominator)), rhs.value)
       case (.Rat(let lhs), .Flonum(let rhs)):
         self = FlonumPair(Double(lhs.numerator) / Double(lhs.numerator), rhs)
       case (.Rat(let lhs), .Complexnum(let rhs)):
         self = ComplexPair(Complex(Double(lhs.numerator) / Double(lhs.numerator)), rhs)
       case (.Bigrat(let lhs), .Fixnum(let rhs)):
-        self = BigRationalPair(lhs, Rational(BigInt(rhs)))
+        self = BigRationalPair(lhs.value, Rational(BigInt(rhs)))
       case (.Bigrat(let lhs), .Bignum(let rhs)):
-        self = BigRationalPair(lhs, Rational(rhs))
+        self = BigRationalPair(lhs.value, Rational(rhs))
       case (.Bigrat(let lhs), .Rat(let rhs)):
-        self = BigRationalPair(lhs, Rational(BigInt(rhs.numerator), BigInt(rhs.denominator)))
+        self = BigRationalPair(lhs.value, Rational(BigInt(rhs.numerator), BigInt(rhs.denominator)))
       case (.Bigrat(let lhs), .Bigrat(let rhs)):
-        self = BigRationalPair(lhs, rhs)
+        self = BigRationalPair(lhs.value, rhs.value)
       case (.Bigrat(let lhs), .Flonum(let rhs)):
-        self = FlonumPair(lhs.numerator.doubleValue / lhs.denominator.doubleValue, rhs)
+        self = FlonumPair(lhs.value.numerator.doubleValue / lhs.value.denominator.doubleValue, rhs)
       case (.Bigrat(let lhs), .Complexnum(let rhs)):
-        self = ComplexPair(Complex(lhs.numerator.doubleValue / lhs.denominator.doubleValue), rhs)
+        self = ComplexPair(
+          Complex(lhs.value.numerator.doubleValue / lhs.value.denominator.doubleValue), rhs)
       case (.Flonum(let lhs), .Fixnum(let rhs)):
         self = FlonumPair(lhs, Double(rhs))
       case (.Flonum(let lhs), .Bignum(let rhs)):
@@ -357,7 +380,7 @@ enum NumberPair {
       case (.Flonum(let lhs), .Rat(let rhs)):
         self = FlonumPair(lhs, Double(rhs.numerator) / Double(rhs.denominator))
       case (.Flonum(let lhs), .Bigrat(let rhs)):
-        self = FlonumPair(lhs, rhs.numerator.doubleValue / rhs.denominator.doubleValue)
+        self = FlonumPair(lhs, rhs.value.numerator.doubleValue / rhs.value.denominator.doubleValue)
       case (.Flonum(let lhs), .Flonum(let rhs)):
         self = FlonumPair(lhs, rhs)
       case (.Flonum(let lhs), .Complexnum(let rhs)):
@@ -369,7 +392,8 @@ enum NumberPair {
       case (.Complexnum(let lhs), .Rat(let rhs)):
         self = ComplexPair(lhs, Complex(Double(rhs.numerator) / Double(rhs.denominator)))
       case (.Complexnum(let lhs), .Bigrat(let rhs)):
-        self = ComplexPair(lhs, Complex(rhs.numerator.doubleValue / rhs.denominator.doubleValue))
+        self = ComplexPair(lhs,
+          Complex(rhs.value.numerator.doubleValue / rhs.value.denominator.doubleValue))
       case (.Complexnum(let lhs), .Flonum(let rhs)):
         self = ComplexPair(lhs, Complex(rhs))
       case (.Complexnum(let lhs), .Complexnum(let rhs)):
