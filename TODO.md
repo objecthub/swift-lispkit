@@ -1,6 +1,6 @@
 # Todo
 
-Last update: 2016-07-29
+Last update: 2016-08-14
 
 
 ## Compiler
@@ -27,13 +27,17 @@ Last update: 2016-07-29
 - [X] Implement full support for `call/cc`
 - [X] Implement full support for `dynamic-wind`
 
+
 ## Library
 
 - [X] Implement text + binary ports based on the R7RS standard
 - [X] Implement bytevector library based on the R7RS standard
 - [X] Implement hash table library based on the R6RS standard
-- [ ] Implement library functions supporting mutable strings
+- [X] Implement record library based on the R7RS standard
 - [X] Implement delay-force; provide full support for R7RS delayed evaluation primitives
+- [ ] Implement libraries based on the R7RS standard
+- [ ] Support mutable strings
+
 
 ## Tests
 
