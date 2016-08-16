@@ -945,6 +945,9 @@ public final class VirtualMachine: TrackedObject {
           guard self.sp - n >= self.registers.fp else {
             throw EvalError.ArgumentCountError(formals: n, args: self.popAsList(self.sp - self.registers.fp))
           }
+        case .NoMatchingArgCount:
+          throw EvalError.NoMatchingCase(
+            args: self.popAsList(self.sp - self.registers.fp), proc: self.pop())
         case .CollectRest(let n):
           var rest = Expr.Null
           while self.sp > self.registers.fp + n {
@@ -979,6 +982,14 @@ public final class VirtualMachine: TrackedObject {
           }
         case .BranchIfNot(let offset):
           if self.pop().isFalse {
+            self.registers.ip += offset - 1
+          }
+        case .BranchIfArgMismatch(let n, let offset):
+          if self.sp - n != self.registers.fp {
+            self.registers.ip += offset - 1
+          }
+        case .BranchIfMinArgMismatch(let n, let offset):
+          if self.sp - n < self.registers.fp {
             self.registers.ip += offset - 1
           }
         case .And(let offset):

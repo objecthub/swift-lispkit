@@ -127,6 +127,10 @@ public enum Instruction: CustomStringConvertible {
   /// stack.
   case AssertMinArgCount(Int)
   
+  /// **`no_matching_arg_count`**: Fails with an error signaling the lack of a matching case
+  /// (in a `case-lambda`).
+  case NoMatchingArgCount
+  
   /// **`collect_rest` _n_**: Collects the arguments exceeding _n_ into a list.
   case CollectRest(Int)
   
@@ -156,6 +160,7 @@ public enum Instruction: CustomStringConvertible {
   /// **`store_in_promise`**: Stores the value on top of the stack in the promise to which
   /// the second top-most entry on the stack The promise gets removed from the stack.
   case StoreInPromise
+  
   
   // Variables --------------------------------------------------------------------------------
   
@@ -236,6 +241,16 @@ public enum Instruction: CustomStringConvertible {
   /// pointer. `branch_if` jumps to the instruction to which _i_ refers to if the value
   /// on the stack is `#false`.
   case BranchIfNot(Int)
+  
+  /// **`branch_if_arg_mismatch` _n_,_i_**: _i_ is an offset relative to the current instruction
+  /// pointer. `branch_if_arg_mismatch` jumps to the instruction to which _i_ refers to if
+  /// there are not exactly _n_ arguments on the stack.
+  case BranchIfArgMismatch(Int, Int)
+  
+  /// **`branch_if_min_arg_mismatch` _n_,_i_**: _i_ is an offset relative to the current
+  /// instruction pointer. `branch_if_min_arg_mismatch` jumps to the instruction to which _i_
+  /// refers to if there are not at least _n_ arguments on the stack.
+  case BranchIfMinArgMismatch(Int, Int)
   
   /// **`or` _i_**: _i_ is an offset relative to the current instruction pointer. `or`
   /// jumps to the instruction to which _i_ refers to if the value on the stack is not
@@ -395,6 +410,10 @@ public enum Instruction: CustomStringConvertible {
         return "jump to \(ip + offset - 1)"
       case BranchIfNot(let offset):
         return "jump to \(ip + offset - 1)"
+      case BranchIfArgMismatch(_, let offset):
+        return "jump to \(ip + offset - 1)"
+      case BranchIfMinArgMismatch(_, let offset):
+        return "jump to \(ip + offset - 1)"
       case And(let offset):
         return "pop or jump to \(ip + offset - 1) if false"
       case Or(let offset):
@@ -485,6 +504,8 @@ public enum Instruction: CustomStringConvertible {
         return "assert_arg_count \(n)"
       case AssertMinArgCount(let n):
         return "assert_min_arg_count \(n)"
+      case NoMatchingArgCount:
+        return "no_matching_arg_count"
       case CollectRest(let n):
         return "collect_rest \(n)"
       case Alloc(let n):
@@ -499,6 +520,10 @@ public enum Instruction: CustomStringConvertible {
         return "branch_if \(offset)"
       case BranchIfNot(let offset):
         return "branch_if_not \(offset)"
+      case BranchIfArgMismatch(let n, let offset):
+        return "branch_if_arg_mismatch \(n), \(offset)"
+      case BranchIfMinArgMismatch(let n, let offset):
+        return "branch_if_min_arg_mismatch \(n), \(offset)"
       case And(let offset):
         return "and \(offset)"
       case Or(let offset):

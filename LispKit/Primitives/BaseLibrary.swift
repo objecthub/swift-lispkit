@@ -37,6 +37,7 @@ public final class BaseLibrary: Library {
     define("quote", SpecialForm(compileQuote))
     define("quasiquote", SpecialForm(compileQuasiquote))
     define("lambda", SpecialForm(compileLambda))
+    define("case-lambda", SpecialForm(compileCaseLambda))
     
     // Definition primitives
     define("define", SpecialForm(compileDefine))
@@ -262,10 +263,18 @@ public final class BaseLibrary: Library {
     guard case .Pair(_, .Pair(let arglist, let body)) = expr else {
       throw EvalError.LeastArgumentCountError(formals: 1, args: expr)
     }
-    try compiler.compileProc(nil, arglist, body, env)
+    try compiler.compileLambda(nil, arglist, body, env)
     return false
   }
-    
+  
+  func compileCaseLambda(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    guard case .Pair(_, let cases) = expr else {
+      preconditionFailure("broken case-lambda invocation")
+    }
+    try compiler.compileCaseLambda(nil, cases, env)
+    return false
+  }
+  
   func isProcedure(expr: Expr) -> Expr {
     if case .Proc(_) = expr {
       return .True
@@ -298,7 +307,7 @@ public final class BaseLibrary: Library {
         return false
       case .Pair(let symSig, let arglist):
         let index = compiler.registerConstant(symSig)
-        try compiler.compileProc(index, arglist, def, env)
+        try compiler.compileLambda(index, arglist, def, env)
         compiler.emit(.DefineGlobal(index))
         compiler.emit(.PushConstant(index))
         return false
@@ -432,7 +441,7 @@ public final class BaseLibrary: Library {
     guard case .Pair(_, .Pair(let delayed, .Null)) = expr else {
       throw EvalError.ArgumentCountError(formals: 1, args: expr)
     }
-    try compiler.compileProc(nil, .Null, .Pair(delayed, .Null), env)
+    try compiler.compileLambda(nil, .Null, .Pair(delayed, .Null), env)
     compiler.emit(.MakePromise)
     return false
   }
@@ -441,7 +450,7 @@ public final class BaseLibrary: Library {
     guard case .Pair(_, .Pair(let delayed, .Null)) = expr else {
       throw EvalError.ArgumentCountError(formals: 1, args: expr)
     }
-    try compiler.compileProc(
+    try compiler.compileLambda(
       nil, .Null, .Pair(.List(.Sym(compiler.context.symbols.MAKEPROMISE), delayed), .Null), env)
     compiler.emit(.MakePromise)
     return false

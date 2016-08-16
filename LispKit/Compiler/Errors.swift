@@ -245,6 +245,7 @@ public enum EvalError: LispError {
   case DivisionByZero
   case UnboundVariable(Symbol)
   case VariableNotYetInitialized(Symbol?)
+  case MalformedCaseLambda(Expr)
   case MalformedArgumentList(Expr)
   case MalformedDefinition(Expr)
   case MalformedTransformer(Expr)
@@ -265,6 +266,7 @@ public enum EvalError: LispError {
   case TypeError(Expr, Set<Type>)
   case ArgumentError(f: Expr, args: Expr)
   case ArgumentCountError(formals: Int, args: Expr)
+  case NoMatchingCase(args: Expr, proc: Expr)
   case LeastArgumentCountError(formals: Int, args: Expr)
   case OutOfScope(Expr)
   case DefineInLocalEnv(signature: Expr, definition: Expr, group: BindingGroup)
@@ -295,6 +297,8 @@ public enum EvalError: LispError {
         return "unbound variable: \(sym)"
       case VariableNotYetInitialized(let sym):
         return "variable \(sym?.description ?? "") not yet initialized"
+      case MalformedCaseLambda(let expr):
+        return "malformed lambda case list: \(expr)"
       case MalformedArgumentList(let args):
         return "malformed argument list: \(args)"
       case MalformedDefinition(let def):
@@ -362,6 +366,8 @@ public enum EvalError: LispError {
       case ArgumentCountError(let formals, let args):
         let (exprs, _) = args.toExprs()
         return "expected \(formals), but received \(exprs.count) arguments: \(args)"
+      case NoMatchingCase(let args, let proc):
+        return "arguments \(args) not matching any case of \(proc)"
       case LeastArgumentCountError(let formals, let args):
         let (exprs, _) = args.toExprs()
         return "expected at least \(formals), but received only \(exprs.count) arguments: \(args)"
@@ -411,6 +417,8 @@ public enum EvalError: LispError {
           return sym1 == sym2
         case (VariableNotYetInitialized(let sym1), VariableNotYetInitialized(let sym2)):
           return sym1 == sym2
+        case (MalformedCaseLambda(let e1), MalformedCaseLambda(let e2)):
+          return e1 == e2
         case (MalformedArgumentList(let a1), MalformedArgumentList(let a2)):
           return a1 == a2
         case (MalformedDefinition(let def1), MalformedDefinition(let def2)):
@@ -456,6 +464,8 @@ public enum EvalError: LispError {
           return f1 == f2 && a1 == a2
         case (ArgumentCountError(let fml1, let a1), ArgumentCountError(let fml2, let a2)):
           return fml1 == fml2 && a1 == a2
+        case (NoMatchingCase(let a1, let p1), NoMatchingCase(let a2, let p2)):
+          return a1 == a2 && p1 == p2
         case (LeastArgumentCountError(let fml1, let a1),
               LeastArgumentCountError(let fml2, let a2)):
           return fml1 == fml2 && a1 == a2

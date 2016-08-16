@@ -102,9 +102,9 @@ public final class Compiler {
     return compiler.bundle()
   }
   
-  /// Compiles the given list of arguments (if this `Compiler` object is used for compiling
-  /// a function).
-  private func compileArgList(arglist: Expr) throws {
+  /// Compiles the given list of arguments and returns the corresponding binding group as well
+  /// as the remaining argument list
+  private func collectArguments(arglist: Expr) -> (BindingGroup, Expr) {
     let arguments = BindingGroup(owner: self, parent: self.env)
     var next = arglist
     loop: while case .Pair(let arg, let cdr) = next {
@@ -116,20 +116,7 @@ public final class Compiler {
       }
       next = cdr
     }
-    switch next {
-      case .Null:
-        self.emit(.AssertArgCount(arguments.count))
-      case .Sym(let sym):
-        if arguments.count > 0 {
-          self.emit(.AssertMinArgCount(arguments.count))
-        }
-        self.emit(.CollectRest(arguments.count))
-        arguments.allocBindingFor(sym)
-      default:
-        throw EvalError.MalformedArgumentList(arglist)
-    }
-    self.arguments = arguments
-    self.env = .Local(arguments)
+    return (arguments, next)
   }
   
   /// Compiles the given body of a function (or expression, if this compiler is not used to
@@ -723,16 +710,110 @@ public final class Compiler {
   /// Compiles a closure consisting of a list of formal arguments `arglist`, a list of
   /// expressions `body`, and a local environment `env`. It puts the closure on top of the
   /// stack.
-  public func compileProc(nameIdx: Int?, _ arglist: Expr, _ body: Expr, _ env: Env) throws {
+  public func compileLambda(nameIdx: Int?, _ arglist: Expr, _ body: Expr, _ env: Env) throws {
     // Create closure compiler as child of the current compiler
     let closureCompiler = Compiler(self.context,
                                    in: env,
                                    and: env,
                                    usingCheckpointer: self.checkpointer)
     // Compile arguments
-    try closureCompiler.compileArgList(arglist)
+    let (arguments, next) = closureCompiler.collectArguments(arglist)
+    switch next {
+      case .Null:
+        closureCompiler.emit(.AssertArgCount(arguments.count))
+      case .Sym(let sym):
+        if arguments.count > 0 {
+          closureCompiler.emit(.AssertMinArgCount(arguments.count))
+        }
+        closureCompiler.emit(.CollectRest(arguments.count))
+        arguments.allocBindingFor(sym)
+      default:
+        throw EvalError.MalformedArgumentList(arglist)
+    }
+    closureCompiler.arguments = arguments
+    closureCompiler.env = .Local(arguments)
     // Compile body
     try closureCompiler.compileBody(body)
+    // Link compiled closure in the current compiler
+    let codeIndex = self.fragments.count
+    let code = closureCompiler.bundle()
+    self.fragments.append(code)
+    // Generate code for pushing captured bindings onto the stack
+    for def in closureCompiler.captures.definitions {
+      if let def = def, capture = closureCompiler.captures.captureFor(def) {
+        if capture.origin.owner === self {
+          self.emit(.PushLocal(def.index))
+        } else {
+          self.emit(.PushCaptured(self.captures.capture(def, from: capture.origin)))
+        }
+      }
+    }
+    // Return captured binding count and index of compiled closure
+    self.emit(.MakeClosure(nameIdx ?? -1,
+                           closureCompiler.captures.count,
+                           codeIndex))
+  }
+  
+  /// Compiles a closure consisting of a list of formal arguments `arglist`, a list of
+  /// expressions `body`, and a local environment `env`. It puts the closure on top of the
+  /// stack.
+  public func compileCaseLambda(nameIdx: Int?, _ cases: Expr, _ env: Env) throws {
+    // Create closure compiler as child of the current compiler
+    let closureCompiler = Compiler(self.context,
+                                   in: env,
+                                   and: env,
+                                   usingCheckpointer: self.checkpointer)
+    // Iterate through all cases
+    var current = cases
+    loop: while case .Pair(.Pair(let args, let body), let nextCase) = current {
+      // Reset compiler
+      closureCompiler.env = env
+      closureCompiler.numLocals = 0
+      closureCompiler.maxLocals = 0
+      closureCompiler.arguments = nil
+      // Compile arguments
+      let (arguments, next) = closureCompiler.collectArguments(args)
+      var exactIp = -1
+      var minIp = -1
+      let numArgs = arguments.count
+      switch next {
+        case .Null:
+          exactIp = closureCompiler.emitPlaceholder()
+        case .Sym(let sym):
+          if arguments.count > 0 {
+            minIp = closureCompiler.emitPlaceholder()
+          }
+          closureCompiler.emit(.CollectRest(arguments.count))
+          arguments.allocBindingFor(sym)
+        default:
+          throw EvalError.MalformedArgumentList(args)
+      }
+      closureCompiler.arguments = arguments
+      closureCompiler.env = .Local(arguments)
+      // Compile body
+      try closureCompiler.compileBody(body)
+      // Fix jumps
+      if exactIp >= 0 {
+        closureCompiler.patch(
+          .BranchIfArgMismatch(numArgs, closureCompiler.offsetToNext(exactIp)), at: exactIp)
+      } else if minIp >= 0 {
+        closureCompiler.patch(
+          .BranchIfMinArgMismatch(numArgs, closureCompiler.offsetToNext(minIp)), at: minIp)
+      } else {
+        break loop
+      }
+      // Move to next case
+      current = nextCase
+    }
+    // Compile final "else" case
+    switch current {
+      case .Pair(.Pair(_, _), _):
+        break // early exit
+      case .Null:
+        closureCompiler.emit(.NoMatchingArgCount)
+      default:
+        throw EvalError.MalformedCaseLambda(current)
+    }
     // Link compiled closure in the current compiler
     let codeIndex = self.fragments.count
     let code = closureCompiler.bundle()
