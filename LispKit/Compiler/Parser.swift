@@ -64,13 +64,13 @@ public class Parser {
       case .BIGINT:
         res = Expr.Bignum(token.bigIntVal).normalized
       case .RAT:
-        res = Expr.Rat(token.ratVal).normalized
+        res = Expr.Rat(ImmutableBox(token.ratVal)).normalized
       case .BIGRAT:
         res = Expr.Bigrat(ImmutableBox(token.bigRatVal)).normalized
       case .FLOAT:
         res = Expr.Flonum(token.floatVal)
       case .COMPLEX:
-        res = Expr.Complexnum(token.complexVal).normalized
+        res = Expr.Complexnum(ImmutableBox(token.complexVal)).normalized
       case .CHAR:
         res = .Char(UInt16(token.intVal))
       case .STRING:

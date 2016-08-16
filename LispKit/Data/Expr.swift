@@ -33,10 +33,10 @@ public enum Expr: Trackable, Hashable {
   case Sym(Symbol)
   case Fixnum(Int64)
   case Bignum(BigInt)
-  case Rat(Rational<Int64>)
+  case Rat(ImmutableBox<Rational<Int64>>)
   case Bigrat(ImmutableBox<Rational<BigInt>>)
   case Flonum(Double)
-  case Complexnum(Complex<Double>)
+  case Complexnum(ImmutableBox<Complex<Double>>)
   case Char(UniChar)
   case Str(NSMutableString)
   case Bytes(ByteVector)
@@ -163,7 +163,7 @@ public enum Expr: Trackable, Hashable {
         }
         return self
       case Rat(let num):
-        if let fn = num.intValue {
+        if let fn = num.value.intValue {
           return Fixnum(fn)
         }
         return self
@@ -175,11 +175,11 @@ public enum Expr: Trackable, Hashable {
           return Bignum(bn)
         }
         if let fnnumer = num.value.numerator.intValue, fndenom = num.value.denominator.intValue {
-          return Rat(Rational(fnnumer, fndenom)).normalized
+          return Rat(ImmutableBox(Rational(fnnumer, fndenom))).normalized
         }
         return self
       case Complexnum(let num):
-        return num.isReal ? Flonum(num.re) : self
+        return num.value.isReal ? Flonum(num.value.re) : self
       default:
         return self
     }
@@ -286,7 +286,7 @@ extension Expr {
   }
   
   public static func Number(num: Rational<Int64>) -> Expr {
-    return Rat(num).normalized
+    return Rat(ImmutableBox(num)).normalized
   }
   
   public static func Number(num: Rational<BigInt>) -> Expr {
@@ -298,7 +298,7 @@ extension Expr {
   }
   
   public static func Number(num: Complex<Double>) -> Expr {
-    return Complexnum(num).normalized
+    return Complexnum(ImmutableBox(num)).normalized
   }
   
   public static func List(expr: Expr...) -> Expr {
@@ -378,7 +378,7 @@ extension Expr {
       case .Bignum(let num):
         return num.doubleValue
       case .Rat(let num):
-        return Double(num.numerator) / Double(num.denominator)
+        return Double(num.value.numerator) / Double(num.value.denominator)
       case .Bigrat(let num):
         return num.value.numerator.doubleValue / num.value.denominator.doubleValue
       case .Flonum(let num):
@@ -394,7 +394,7 @@ extension Expr {
         case Flonum(let num):
           return Complex(num, 0.0)
         case Complexnum(let complex):
-          return complex
+          return complex.value
         default:
           throw EvalError.TypeError(self, [.ComplexType])
       }
@@ -405,13 +405,13 @@ extension Expr {
       case .Bignum(let num):
         return Complex(num.doubleValue, 0.0)
       case .Rat(let num):
-        return Complex(Double(num.numerator) / Double(num.denominator), 0.0)
+        return Complex(Double(num.value.numerator) / Double(num.value.denominator), 0.0)
       case .Bigrat(let num):
         return Complex(num.value.numerator.doubleValue / num.value.denominator.doubleValue, 0.0)
       case .Flonum(let num):
         return Complex(num, 0.0)
       case .Complexnum(let num):
-        return num
+        return num.value
       default:
         throw EvalError.TypeError(self, [.ComplexType])
     }
@@ -571,7 +571,7 @@ extension Expr: CustomStringConvertible {
         case .Bignum(let val):
           return val.description
         case .Rat(let val):
-          return val.description
+          return val.value.description
         case .Bigrat(let val):
           return val.value.description
         case .Flonum(let val):
@@ -583,7 +583,7 @@ extension Expr: CustomStringConvertible {
             return String(val)
           }
         case .Complexnum(let val):
-          return val.description
+          return val.value.description
         case .Char(let ch):
           guard escape else {
             return String(UnicodeScalar(ch))

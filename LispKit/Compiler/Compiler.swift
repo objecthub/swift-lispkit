@@ -333,13 +333,13 @@ public final class Compiler {
       case .Bignum(let num):
         self.emit(.PushBignum(num))
       case .Rat(let num):
-        self.emit(.PushRat(num))
+        self.emit(.PushRat(num.value))
       case .Bigrat(let num):
         self.emit(.PushBigrat(num.value))
       case .Flonum(let num):
         self.emit(.PushFlonum(num))
       case .Complexnum(let num):
-        self.emit(.PushComplex(num))
+        self.emit(.PushComplex(num.value))
       case .Char(let char):
         self.emit(.PushChar(char))
       case .Sym(_), .Str(_), .Bytes(_), .Pair(_, _), .Box(_), .MutablePair(_),

@@ -177,7 +177,7 @@
 		CC6A3B611C52ED7D00E962E2 /* CharacterLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CharacterLibrary.swift; sourceTree = "<group>"; };
 		CC6A3B631C52EED400E962E2 /* MathLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MathLibrary.swift; sourceTree = "<group>"; };
 		CC6A3B671C52F17200E962E2 /* SchemeLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SchemeLibrary.swift; sourceTree = "<group>"; };
-		CC6A3B691C539DCA00E962E2 /* ManagedObjectPool.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ManagedObjectPool.swift; path = ../Runtime/ManagedObjectPool.swift; sourceTree = "<group>"; };
+		CC6A3B691C539DCA00E962E2 /* ManagedObjectPool.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManagedObjectPool.swift; sourceTree = "<group>"; };
 		CC6A3B6B1C53EE3200E962E2 /* Future.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Future.swift; sourceTree = "<group>"; };
 		CC6A3B6D1C53F0F600E962E2 /* Collection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Collection.swift; sourceTree = "<group>"; };
 		CC6A3B6F1C53F2CF00E962E2 /* SymbolTable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SymbolTable.swift; sourceTree = "<group>"; };
@@ -190,8 +190,8 @@
 		CC882C911C9E93A600D20039 /* Timer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Timer.swift; sourceTree = "<group>"; };
 		CC8C6EC71CFA65F200126BDD /* ControlFlow.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ControlFlow.scm; sourceTree = "<group>"; };
 		CC8EDE4B1D0317AD004E0636 /* Port.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Port.swift; sourceTree = "<group>"; };
-		CC8EDE6D1D07263D004E0636 /* BinaryInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BinaryInput.swift; path = ../Base/BinaryInput.swift; sourceTree = "<group>"; };
-		CC8EDE6F1D07265E004E0636 /* TextInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TextInput.swift; path = ../Base/TextInput.swift; sourceTree = "<group>"; };
+		CC8EDE6D1D07263D004E0636 /* BinaryInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BinaryInput.swift; sourceTree = "<group>"; };
+		CC8EDE6F1D07265E004E0636 /* TextInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextInput.swift; sourceTree = "<group>"; };
 		CC8EDE711D0727A4004E0636 /* ScanBuffer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScanBuffer.swift; sourceTree = "<group>"; };
 		CC90500A1D36F52F008CE60A /* DynamicControlLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DynamicControlLibrary.swift; sourceTree = "<group>"; };
 		CC90500E1D384C4E008CE60A /* Tuple.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tuple.swift; sourceTree = "<group>"; };
@@ -230,7 +230,7 @@
 		CCDA62C81CC429A800D77A49 /* NumberKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NumberKit.framework; path = "../../../Library/Developer/Xcode/DerivedData/LispKit-askykrywvmmpsrffaqpyxjptjich/Build/Products/Debug/NumberKit.framework"; sourceTree = "<group>"; };
 		CCDAD5511D4813E900A7EE4F /* HashTables.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = HashTables.scm; sourceTree = "<group>"; };
 		CCDF99FB1D3D7A3100FD2A57 /* BoxLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BoxLibrary.swift; sourceTree = "<group>"; };
-		CCE0429D1C9E8C8B00CA7BC4 /* ManagedObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ManagedObject.swift; path = ../Runtime/ManagedObject.swift; sourceTree = "<group>"; };
+		CCE0429D1C9E8C8B00CA7BC4 /* ManagedObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManagedObject.swift; sourceTree = "<group>"; };
 		CCF529971CBC73F7000C2959 /* StringBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringBuilder.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 

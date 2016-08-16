@@ -327,77 +327,81 @@ enum NumberPair {
       case (.Fixnum(let lhs), .Bignum(let rhs)):
         self = BignumPair(BigInt(lhs), rhs)
       case (.Fixnum(let lhs), .Rat(let rhs)):
-        self = RationalPair(Rational(lhs), rhs)
+        self = RationalPair(Rational(lhs), rhs.value)
       case (.Fixnum(let lhs), .Bigrat(let rhs)):
         self = BigRationalPair(Rational(BigInt(lhs)), rhs.value)
       case (.Fixnum(let lhs), .Flonum(let rhs)):
         self = FlonumPair(Double(lhs), rhs)
       case (.Fixnum(let lhs), .Complexnum(let rhs)):
-        self = ComplexPair(Complex(Double(lhs)), rhs)
+        self = ComplexPair(Complex(Double(lhs)), rhs.value)
       case (.Bignum(let lhs), .Fixnum(let rhs)):
         self = BignumPair(lhs, BigInt(rhs))
       case (.Bignum(let lhs), .Bignum(let rhs)):
         self = BignumPair(lhs, rhs)
       case (.Bignum(let lhs), .Rat(let rhs)):
         self = BigRationalPair(Rational(lhs),
-                               Rational(BigInt(rhs.numerator), BigInt(rhs.denominator)))
+                               Rational(BigInt(rhs.value.numerator), BigInt(rhs.value.denominator)))
       case (.Bignum(let lhs), .Bigrat(let rhs)):
         self = BigRationalPair(Rational(lhs), rhs.value)
       case (.Bignum(let lhs), .Flonum(let rhs)):
         self = FlonumPair(lhs.doubleValue, rhs)
       case (.Bignum(let lhs), .Complexnum(let rhs)):
-        self = ComplexPair(Complex(lhs.doubleValue), rhs)
+        self = ComplexPair(Complex(lhs.doubleValue), rhs.value)
       case (.Rat(let lhs), .Fixnum(let rhs)):
-        self = RationalPair(lhs, Rational(rhs))
+        self = RationalPair(lhs.value, Rational(rhs))
       case (.Rat(let lhs), .Bignum(let rhs)):
-        self = BigRationalPair(Rational(BigInt(lhs.numerator), BigInt(lhs.denominator)),
+        self = BigRationalPair(Rational(BigInt(lhs.value.numerator), BigInt(lhs.value.denominator)),
                                Rational(rhs))
       case (.Rat(let lhs), .Rat(let rhs)):
-        self = RationalPair(lhs, rhs)
+        self = RationalPair(lhs.value, rhs.value)
       case (.Rat(let lhs), .Bigrat(let rhs)):
-        self = BigRationalPair(Rational(BigInt(lhs.numerator), BigInt(lhs.denominator)), rhs.value)
+        self = BigRationalPair(Rational(BigInt(lhs.value.numerator),
+                                        BigInt(lhs.value.denominator)), rhs.value)
       case (.Rat(let lhs), .Flonum(let rhs)):
-        self = FlonumPair(Double(lhs.numerator) / Double(lhs.numerator), rhs)
+        self = FlonumPair(Double(lhs.value.numerator) / Double(lhs.value.denominator), rhs)
       case (.Rat(let lhs), .Complexnum(let rhs)):
-        self = ComplexPair(Complex(Double(lhs.numerator) / Double(lhs.numerator)), rhs)
+        self = ComplexPair(Complex(Double(lhs.value.numerator) / Double(lhs.value.denominator)),
+                           rhs.value)
       case (.Bigrat(let lhs), .Fixnum(let rhs)):
         self = BigRationalPair(lhs.value, Rational(BigInt(rhs)))
       case (.Bigrat(let lhs), .Bignum(let rhs)):
         self = BigRationalPair(lhs.value, Rational(rhs))
       case (.Bigrat(let lhs), .Rat(let rhs)):
-        self = BigRationalPair(lhs.value, Rational(BigInt(rhs.numerator), BigInt(rhs.denominator)))
+        self = BigRationalPair(lhs.value, Rational(BigInt(rhs.value.numerator),
+                                                   BigInt(rhs.value.denominator)))
       case (.Bigrat(let lhs), .Bigrat(let rhs)):
         self = BigRationalPair(lhs.value, rhs.value)
       case (.Bigrat(let lhs), .Flonum(let rhs)):
         self = FlonumPair(lhs.value.numerator.doubleValue / lhs.value.denominator.doubleValue, rhs)
       case (.Bigrat(let lhs), .Complexnum(let rhs)):
         self = ComplexPair(
-          Complex(lhs.value.numerator.doubleValue / lhs.value.denominator.doubleValue), rhs)
+          Complex(lhs.value.numerator.doubleValue / lhs.value.denominator.doubleValue), rhs.value)
       case (.Flonum(let lhs), .Fixnum(let rhs)):
         self = FlonumPair(lhs, Double(rhs))
       case (.Flonum(let lhs), .Bignum(let rhs)):
         self = FlonumPair(lhs, rhs.doubleValue)
       case (.Flonum(let lhs), .Rat(let rhs)):
-        self = FlonumPair(lhs, Double(rhs.numerator) / Double(rhs.denominator))
+        self = FlonumPair(lhs, Double(rhs.value.numerator) / Double(rhs.value.denominator))
       case (.Flonum(let lhs), .Bigrat(let rhs)):
         self = FlonumPair(lhs, rhs.value.numerator.doubleValue / rhs.value.denominator.doubleValue)
       case (.Flonum(let lhs), .Flonum(let rhs)):
         self = FlonumPair(lhs, rhs)
       case (.Flonum(let lhs), .Complexnum(let rhs)):
-        self = ComplexPair(Complex(lhs), rhs)
+        self = ComplexPair(Complex(lhs), rhs.value)
       case (.Complexnum(let lhs), .Fixnum(let rhs)):
-        self = ComplexPair(lhs, Complex(Double(rhs)))
+        self = ComplexPair(lhs.value, Complex(Double(rhs)))
       case (.Complexnum(let lhs), .Bignum(let rhs)):
-        self = ComplexPair(lhs, Complex(rhs.doubleValue))
+        self = ComplexPair(lhs.value, Complex(rhs.doubleValue))
       case (.Complexnum(let lhs), .Rat(let rhs)):
-        self = ComplexPair(lhs, Complex(Double(rhs.numerator) / Double(rhs.denominator)))
+        self = ComplexPair(lhs.value,
+                           Complex(Double(rhs.value.numerator) / Double(rhs.value.denominator)))
       case (.Complexnum(let lhs), .Bigrat(let rhs)):
-        self = ComplexPair(lhs,
+        self = ComplexPair(lhs.value,
           Complex(rhs.value.numerator.doubleValue / rhs.value.denominator.doubleValue))
       case (.Complexnum(let lhs), .Flonum(let rhs)):
-        self = ComplexPair(lhs, Complex(rhs))
+        self = ComplexPair(lhs.value, Complex(rhs))
       case (.Complexnum(let lhs), .Complexnum(let rhs)):
-        self = ComplexPair(lhs, rhs)
+        self = ComplexPair(lhs.value, rhs.value)
       default:
         return nil
     }

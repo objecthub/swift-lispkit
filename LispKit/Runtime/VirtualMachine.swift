@@ -835,13 +835,13 @@ public final class VirtualMachine: TrackedObject {
         case .PushBignum(let num):
           self.push(.Bignum(num))
         case .PushRat(let num):
-          self.push(.Rat(num))
+          self.push(.Rat(ImmutableBox(num)))
         case .PushBigrat(let num):
           self.push(.Bigrat(ImmutableBox(num)))
         case .PushFlonum(let num):
           self.push(.Flonum(num))
         case .PushComplex(let num):
-          self.push(.Complexnum(num))
+          self.push(.Complexnum(ImmutableBox(num)))
         case .PushChar(let char):
           self.push(.Char(char))
         case .MakeClosure(let i, let n, let index):

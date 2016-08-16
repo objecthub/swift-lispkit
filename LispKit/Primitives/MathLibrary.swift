@@ -146,13 +146,13 @@ public final class MathLibrary: Library {
       case .Bignum(let num):
         return .Boolean(!num.isNegative)
       case .Rat(let num):
-        return .Boolean(!num.isNegative)
+        return .Boolean(!num.value.isNegative)
       case .Bigrat(let num):
         return .Boolean(!num.value.isNegative)
       case .Flonum(let num):
         return .Boolean(!num.isSignMinus)
       case .Complexnum(let num):
-        return num.isReal ? .Boolean(num.re >= 0) : .False
+        return num.value.isReal ? .Boolean(num.value.re >= 0) : .False
       default:
         throw EvalError.TypeError(expr, [.NumberType])
     }
@@ -165,13 +165,13 @@ public final class MathLibrary: Library {
       case .Bignum(let num):
         return .Boolean(num.isNegative)
       case .Rat(let num):
-        return .Boolean(num.isNegative)
+        return .Boolean(num.value.isNegative)
       case .Bigrat(let num):
         return .Boolean(num.value.isNegative)
       case .Flonum(let num):
         return .Boolean(num.isSignMinus)
       case .Complexnum(let num):
-        return num.isReal ? .Boolean(num.re < 0) : .False
+        return num.value.isReal ? .Boolean(num.value.re < 0) : .False
       default:
         throw EvalError.TypeError(expr, [.NumberType])
     }
@@ -184,13 +184,13 @@ public final class MathLibrary: Library {
       case .Bignum(let num):
         return .Boolean(num.isZero)
       case .Rat(let num):
-        return .Boolean(num.isZero)
+        return .Boolean(num.value.isZero)
       case .Bigrat(let num):
         return .Boolean(num.value.isZero)
       case .Flonum(let num):
         return .Boolean(num.isZero)
       case .Complexnum(let num):
-        return num.isReal ? .Boolean(num.re >= 0) : .False
+        return num.value.isReal ? .Boolean(num.value.re >= 0) : .False
       default:
         throw EvalError.TypeError(expr, [.NumberType])
     }
@@ -228,7 +228,7 @@ public final class MathLibrary: Library {
       case .Bignum(let num):
         return .Number(num.doubleValue)
       case .Rat(let num):
-        return .Number(Double(num.numerator) / Double(num.denominator))
+        return .Number(Double(num.value.numerator) / Double(num.value.denominator))
       case .Bigrat(let num):
         return .Number(num.value.numerator.doubleValue / num.value.denominator.doubleValue)
       case .Flonum(_),
@@ -275,7 +275,8 @@ public final class MathLibrary: Library {
       case .Fixnum(_), .Bignum(_):
         return expr
       case .Rat(let num):
-        return .Number(Int64(Foundation.floor(Double(num.numerator) / Double(num.denominator))))
+        return .Number(Int64(Foundation.floor(Double(num.value.numerator) /
+                       Double(num.value.denominator))))
       case .Bigrat(let num):
         return .Number(Int64(Foundation.floor(num.value.numerator.doubleValue /
                        num.value.denominator.doubleValue)))
@@ -291,7 +292,7 @@ public final class MathLibrary: Library {
       case .Fixnum(_), .Bignum(_):
         return expr
       case .Rat(let num):
-        return .Number(Int64(ceil(Double(num.numerator) / Double(num.denominator))))
+        return .Number(Int64(ceil(Double(num.value.numerator) / Double(num.value.denominator))))
       case .Bigrat(let num):
         return .Number(Int64(ceil(num.value.numerator.doubleValue /
                        num.value.denominator.doubleValue)))
@@ -307,7 +308,7 @@ public final class MathLibrary: Library {
       case .Fixnum(_), .Bignum(_):
         return expr
       case .Rat(let num):
-        return .Number(Int64(trunc(Double(num.numerator) / Double(num.denominator))))
+        return .Number(Int64(trunc(Double(num.value.numerator) / Double(num.value.denominator))))
       case .Bigrat(let num):
         return .Number(Int64(trunc(num.value.numerator.doubleValue /
                        num.value.denominator.doubleValue)))
@@ -323,7 +324,8 @@ public final class MathLibrary: Library {
       case .Fixnum(_), .Bignum(_):
         return expr
       case .Rat(let num):
-        return .Number(Int64(Foundation.round(Double(num.numerator) / Double(num.denominator))))
+        return .Number(Int64(Foundation.round(Double(num.value.numerator) /
+                       Double(num.value.denominator))))
       case .Bigrat(let num):
         return .Number(Int64(Foundation.round(num.value.numerator.doubleValue /
                        num.value.denominator.doubleValue)))
@@ -371,13 +373,13 @@ public final class MathLibrary: Library {
         case .Bignum(let res):
           return .Number(res.negate)
         case .Rat(let res):
-          return .Number(res.negate)
+          return .Number(res.value.negate)
         case .Bigrat(let res):
           return .Number(res.value.negate)
         case .Flonum(let res):
           return .Number(-res)
         case .Complexnum(let res):
-          return .Number(res.negate)
+          return .Number(res.value.negate)
         default:
           throw EvalError.TypeError(first, [.NumberType])
       }
@@ -445,10 +447,10 @@ public final class MathLibrary: Library {
           }
           return .Number(Rational(BigInt(1), res))
         case .Rat(let res):
-          guard !res.isZero else {
+          guard !res.value.isZero else {
             throw EvalError.DivisionByZero
           }
-          return .Number(Rational(res.denominator, res.numerator))
+          return .Number(Rational(res.value.denominator, res.value.numerator))
         case .Bigrat(let res):
           guard !res.value.isZero else {
             throw EvalError.DivisionByZero
@@ -457,7 +459,7 @@ public final class MathLibrary: Library {
         case .Flonum(let res):
           return .Number(1.0 / res)
         case .Complexnum(let res):
-          return .Number(1.0 / res)
+          return .Number(1.0 / res.value)
         default:
           throw EvalError.TypeError(first, [.NumberType])
       }
@@ -583,7 +585,7 @@ public final class MathLibrary: Library {
       case .Bignum(let num):
         return .Number(num.isNegative ? -num : num)
       case .Rat(let num):
-        return .Number(num.isNegative ? -num : num)
+        return .Number(num.value.isNegative ? -num.value : num.value)
       case .Bigrat(let num):
         return .Number(num.value.isNegative ? -num.value : num.value)
       case .Flonum(let num):
@@ -600,7 +602,7 @@ public final class MathLibrary: Library {
         let res = Foundation.sqrt(dbl)
         return res.isNaN ? .Number(Complex(dbl).sqrt) : .Number(res)
       case .Complexnum(let num):
-        return .Number(num.sqrt)
+        return .Number(num.value.sqrt)
       default:
         throw EvalError.TypeError(expr, [.NumberType])
     }
@@ -630,7 +632,7 @@ public final class MathLibrary: Library {
         let res = Foundation.exp(dbl)
         return res.isNaN ? .Number(Complex(dbl).exp) : .Number(res)
       case .Complexnum(let num):
-        return .Number(num.exp)
+        return .Number(num.value.exp)
       default:
         throw EvalError.TypeError(expr, [.NumberType])
     }
@@ -643,7 +645,7 @@ public final class MathLibrary: Library {
         let res = Foundation.log(dbl)
         return res.isNaN ? .Number(Complex(dbl).log) : .Number(res)
       case .Complexnum(let num):
-        return .Number(num.log)
+        return .Number(num.value.log)
       default:
         throw EvalError.TypeError(expr, [.NumberType])
     }
@@ -693,8 +695,8 @@ public final class MathLibrary: Library {
       case .Bignum(let num):
         return .Str(NSMutableString(string: num.toString(base: BigInt.base(radix))))
       case .Rat(let num):
-        return .Str(NSMutableString(string: String(num.numerator, radix: radix) + "/" +
-                                            String(num.denominator, radix: radix)))
+        return .Str(NSMutableString(string: String(num.value.numerator, radix: radix) + "/" +
+                                            String(num.value.denominator, radix: radix)))
       case .Bigrat(let num):
         return .Str(
           NSMutableString(string: num.value.numerator.toString(base: BigInt.base(radix)) + "/" +
@@ -708,7 +710,7 @@ public final class MathLibrary: Library {
         if radix != 10 {
           throw EvalError.IllegalRadix(rad!)
         }
-        return .Str(NSMutableString(string: num.description))
+        return .Str(NSMutableString(string: num.value.description))
       default:
         throw EvalError.TypeError(expr, [.NumberType])
     }
@@ -740,13 +742,13 @@ public final class MathLibrary: Library {
       case .BIGINT:
         return .Bignum(token.bigIntVal)
       case .RAT:
-        return .Rat(token.ratVal)
+        return .Rat(ImmutableBox(token.ratVal))
       case .BIGRAT:
         return .Bigrat(ImmutableBox(token.bigRatVal))
       case .FLOAT:
         return .Flonum(token.floatVal)
       case .COMPLEX:
-        return .Complexnum(token.complexVal)
+        return .Complexnum(ImmutableBox(token.complexVal))
       default:
         throw EvalError.TypeError(expr, [.NumberType])
     }
@@ -786,16 +788,17 @@ public final class MathLibrary: Library {
       l_curr *= 10
       (actual, n, d) = MathLibrary.findBestRat(t, l_curr)
     }
-    return .Rat(Rational(n, d))
+    return .Rat(ImmutableBox(Rational(n, d)))
   }
   
   func makeRectangular(re: Expr, _ imag: Expr) throws -> Expr {
-    return .Complexnum(Complex(try re.asFloat(coerce: true), try imag.asFloat(coerce: true)))
+    return .Complexnum(ImmutableBox(Complex(try re.asFloat(coerce: true),
+                                            try imag.asFloat(coerce: true))))
   }
   
   func makePolar(abs: Expr, _ arg: Expr) throws -> Expr {
-    return .Complexnum(Complex(abs: try abs.asFloat(coerce: true),
-                               arg: try arg.asFloat(coerce: true)))
+    return .Complexnum(ImmutableBox(Complex(abs: try abs.asFloat(coerce: true),
+                                            arg: try arg.asFloat(coerce: true))))
   }
   
   func realPart(expr: Expr) throws -> Expr {
@@ -819,7 +822,7 @@ public final class MathLibrary: Library {
       case .Fixnum(_), .Bignum(_):
         return expr
       case .Rat(let num):
-        return .Fixnum(num.numerator)
+        return .Fixnum(num.value.numerator)
       case .Bigrat(let num):
         return .Number(num.value.numerator)
       case .Flonum(let num):
@@ -834,7 +837,7 @@ public final class MathLibrary: Library {
       case .Fixnum(_), .Bignum(_):
         return .Fixnum(1)
       case .Rat(let num):
-        return .Fixnum(num.denominator)
+        return .Fixnum(num.value.denominator)
       case .Bigrat(let num):
         return .Number(num.value.denominator)
       case .Flonum(let num):
