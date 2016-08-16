@@ -102,9 +102,12 @@ public final class VectorLibrary: Library {
     guard i >= 0 && i <= vector.exprs.count else {
       throw EvalError.IndexOutOfBounds(Int64(i), Int64(vector.exprs.count), vec)
     }
+    guard case .Vector = vector.kind else {
+      throw EvalError.AttemptToModifyImmutableData(vec)
+    }
     // Set value at index `i`. Guarantee that vectors for which `vector-set!` is
     // called are managed by a managed object pool.
-    self.context.objects.manage(vector).exprs[i] = expr
+    (expr.isSimple ? vector : self.context.objects.manage(vector)).exprs[i] = expr
     return .Void
   }
   

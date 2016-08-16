@@ -60,6 +60,9 @@ public final class Procedure: Reference, CustomStringConvertible {
     case Native1O((Expr, Expr?) throws -> Expr)
     case Native2O((Expr, Expr, Expr?) throws -> Expr)
     case Native3O((Expr, Expr, Expr, Expr?) throws -> Expr)
+    case Native1OO((Expr, Expr?, Expr?) throws -> Expr)
+    case Native2OO((Expr, Expr, Expr?, Expr?) throws -> Expr)
+    case Native3OO((Expr, Expr, Expr, Expr?, Expr?) throws -> Expr)
     case Native0R((Arguments) throws -> Expr)
     case Native1R((Expr, Arguments) throws -> Expr)
     case Native2R((Expr, Expr, Arguments) throws -> Expr)
@@ -159,6 +162,27 @@ public final class Procedure: Reference, CustomStringConvertible {
               _ proc: (Expr, Expr, Expr, Expr?) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
     self.kind = .Primitive(name, .Native3O(proc), compiler)
+  }
+  
+  /// Initializer for primitive procedures
+  public init(_ name: String,
+              _ proc: (Expr, Expr?, Expr?) throws -> Expr,
+              _ compiler: FormCompiler? = nil) {
+    self.kind = .Primitive(name, .Native1OO(proc), compiler)
+  }
+  
+  /// Initializer for primitive procedures
+  public init(_ name: String,
+              _ proc: (Expr, Expr, Expr?, Expr?) throws -> Expr,
+              _ compiler: FormCompiler? = nil) {
+    self.kind = .Primitive(name, .Native2OO(proc), compiler)
+  }
+  
+  /// Initializer for primitive procedures
+  public init(_ name: String,
+              _ proc: (Expr, Expr, Expr, Expr?, Expr?) throws -> Expr,
+              _ compiler: FormCompiler? = nil) {
+    self.kind = .Primitive(name, .Native3OO(proc), compiler)
   }
   
   /// Initializer for primitive procedures

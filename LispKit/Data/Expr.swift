@@ -219,6 +219,16 @@ public enum Expr: Trackable, Hashable {
     return len
   }
   
+  public var isSimple: Bool {
+    switch self {
+      case Undef, Void, Eof, Null, True, False, Sym(_), Fixnum(_), Bignum(_), Rat(_),
+           Bigrat(_), Flonum(_), Complexnum(_), Char(_), Str(_), Bytes(_), Prt(_):
+        return true
+      default:
+        return false
+    }
+  }
+  
   public var requiresTracking: Bool {
     switch self {
       case Pair(let car, let cdr):

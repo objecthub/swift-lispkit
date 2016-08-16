@@ -204,8 +204,11 @@ public final class RecordLibrary: Library {
         guard idx >= 0 && idx < Int64(record.exprs.count) else {
           throw EvalError.IndexOutOfBounds(idx, Int64(record.exprs.count - 1), expr)
         }
-        record.exprs[Int(idx)] = value
+        // Set record field value. Guarantee that cells for which `record-set!` is called are
+        // managed by a managed object pool.
+        (value.isSimple ? record : self.context.objects.manage(record)).exprs[Int(idx)] = value
       case .Pair(_, _):
+        var allSimple = true
         var numFields = 0
         var currentIndex = index
         var currentValue = value
@@ -221,6 +224,12 @@ public final class RecordLibrary: Library {
             throw EvalError.FieldCountError(numFields, value)
           }
           record.exprs[Int(idx)] = v
+          // Guarantee that we manage this record by a managed object pool if there was at least
+          // one field value which was not simple
+          if allSimple && !v.isSimple {
+            self.context.objects.manage(record)
+            allSimple = false
+          }
           numFields += 1
           currentIndex = nextIndex
           currentValue = nextValue

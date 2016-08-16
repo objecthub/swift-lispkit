@@ -630,6 +630,75 @@ public final class VirtualMachine: TrackedObject {
             throw EvalError.ArgumentCountError(formals: 3, args: self.popAsList(n))
           }
           return proc
+        case .Native1OO(let exec):
+          if n == 1 {
+            let a0 = self.pop()
+            self.pop(overhead)
+            self.push(try exec(a0, nil, nil))
+          } else if n == 2 {
+            let a1 = self.pop()
+            let a0 = self.pop()
+            self.pop(overhead)
+            self.push(try exec(a0, a1, nil))
+          } else if n == 3 {
+            let a2 = self.pop()
+            let a1 = self.pop()
+            let a0 = self.pop()
+            self.pop(overhead)
+            self.push(try exec(a0, a1, a2))
+          } else {
+            throw EvalError.ArgumentCountError(formals: 3, args: self.popAsList(n))
+          }
+          return proc
+        case .Native2OO(let exec):
+          if n == 2 {
+            let a1 = self.pop()
+            let a0 = self.pop()
+            self.pop(overhead)
+            self.push(try exec(a0, a1, nil, nil))
+          } else if n == 3 {
+            let a2 = self.pop()
+            let a1 = self.pop()
+            let a0 = self.pop()
+            self.pop(overhead)
+            self.push(try exec(a0, a1, a2, nil))
+          } else if n == 4 {
+            let a3 = self.pop()
+            let a2 = self.pop()
+            let a1 = self.pop()
+            let a0 = self.pop()
+            self.pop(overhead)
+            self.push(try exec(a0, a1, a2, a3))
+          } else {
+            throw EvalError.ArgumentCountError(formals: 4, args: self.popAsList(n))
+          }
+          return proc
+        case .Native3OO(let exec):
+          if n == 3 {
+            let a2 = self.pop()
+            let a1 = self.pop()
+            let a0 = self.pop()
+            self.pop(overhead)
+            self.push(try exec(a0, a1, a2, nil, nil))
+          } else if n == 4 {
+            let a3 = self.pop()
+            let a2 = self.pop()
+            let a1 = self.pop()
+            let a0 = self.pop()
+            self.pop(overhead)
+            self.push(try exec(a0, a1, a2, a3, nil))
+          } else if n == 5 {
+            let a4 = self.pop()
+            let a3 = self.pop()
+            let a2 = self.pop()
+            let a1 = self.pop()
+            let a0 = self.pop()
+            self.pop(overhead)
+            self.push(try exec(a0, a1, a2, a3, a4))
+          } else {
+            throw EvalError.ArgumentCountError(formals: 5, args: self.popAsList(n))
+          }
+          return proc
         case .Native0R(let exec):
           let res = try exec(self.stack[self.sp-n..<self.sp])
           self.pop(n + overhead)

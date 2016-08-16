@@ -55,7 +55,9 @@ public final class BoxLibrary: Library {
     guard case .Box(let cell) = expr else {
       throw EvalError.TypeError(expr, [.BoxType])
     }
-    cell.value = value
+    // Set cell value. Guarantee that cells for which `set-box!` is called are managed
+    // by a managed object pool.
+    (value.isSimple ? cell : self.context.objects.manage(cell)).value = value
     return .Void
   }
   
@@ -68,6 +70,13 @@ public final class BoxLibrary: Library {
   
   //-------- MARK: - Mutable pairs
   
+  func isMpair(expr: Expr) -> Expr {
+    guard case .MutablePair(_) = expr else {
+      return .False
+    }
+    return .True
+  }
+
   func mcons(car: Expr, cdr: Expr) throws -> Expr {
     return .MutablePair(Tuple(car, cdr))
   }
@@ -90,7 +99,9 @@ public final class BoxLibrary: Library {
     guard case .MutablePair(let tuple) = expr else {
       throw EvalError.TypeError(expr, [.MPairType])
     }
-    tuple.fst = value
+    // Set car of tuple. Guarantee that tuples for which `set-mcar!` is called are managed
+    // by a managed object pool.
+    (value.isSimple ? tuple : self.context.objects.manage(tuple)).fst = value
     return .Void
   }
   
@@ -98,14 +109,9 @@ public final class BoxLibrary: Library {
     guard case .MutablePair(let tuple) = expr else {
       throw EvalError.TypeError(expr, [.MPairType])
     }
-    tuple.snd = value
+    // Set cdr of tuple. Guarantee that tuples for which `set-mcdr!` is called are managed
+    // by a managed object pool.
+    (value.isSimple ? tuple : self.context.objects.manage(tuple)).snd = value
     return .Void
-  }
-  
-  func isMpair(expr: Expr) -> Expr {
-    guard case .MutablePair(_) = expr else {
-      return .False
-    }
-    return .True
   }
 }
