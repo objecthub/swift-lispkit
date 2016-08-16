@@ -1,5 +1,5 @@
 //
-//  CharacterBuffer.swift
+//  ScanBuffer.swift
 //  LispKit
 //
 //  Created by Matthias Zenger on 07/06/2016.
