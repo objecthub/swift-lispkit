@@ -28,6 +28,7 @@
 ///    - Cells
 ///    - Tuples
 ///    - Vectors
+///    - Records
 ///    - Hashtables
 ///    - Futures
 ///

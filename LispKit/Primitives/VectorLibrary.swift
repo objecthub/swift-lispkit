@@ -30,10 +30,12 @@ public final class VectorLibrary: Library {
     define(Procedure("vector-set!", vectorSet))
     define(Procedure("list->vector", listToVector))
     define(Procedure("vector->list", vectorToList))
+    define(Procedure("string->vector", stringToVector))
+    define(Procedure("vector->string", vectorToString))
+    define(Procedure("vector-copy", vectorCopy))
+    define(Procedure("vector-copy!", vectorOverwrite))
     define(Procedure("vector-fill!", vectorFill))
   }
-  
-  //-------- MARK: - Vector primitives
   
   func isVector(expr: Expr) -> Expr {
     switch expr {
@@ -53,13 +55,12 @@ public final class VectorLibrary: Library {
     return false
   }
   
-  func makeVector(count: Expr, _ fill: Expr?) throws -> Expr {
+  func makeVector(count: Expr, fill: Expr?) throws -> Expr {
     let k = try count.asInteger()
     guard k >= 0 && k <= Int64(Int.max) else {
       throw EvalError.ParameterOutOfBounds("make-vector", 1, k, 0, Int64(Int.max))
     }
-    return .Vector(self.context.objects.manage(
-      Collection(kind: .Vector, count: Int(k), repeatedValue: fill ?? .Null)))
+    return .Vector(Collection(kind: .Vector, count: Int(k), repeatedValue: fill ?? .Null))
   }
   
   func vector(args: Arguments) -> Expr {
@@ -67,7 +68,7 @@ public final class VectorLibrary: Library {
     for arg in args {
       res.exprs.append(arg)
     }
-    return .Vector(self.context.objects.manage(res))
+    return .Vector(res)
   }
   
   func compileVector(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
@@ -83,10 +84,10 @@ public final class VectorLibrary: Library {
     for expr in exprs {
       res.exprs.appendContentsOf(try expr.asVector().exprs)
     }
-    return .Vector(self.context.objects.manage(res))
+    return .Vector(res)
   }
   
-  func vectorRef(vec: Expr, _ index: Expr) throws -> Expr {
+  func vectorRef(vec: Expr, index: Expr) throws -> Expr {
     let vector = try vec.asVector()
     let i = try index.asInteger()
     guard i >= 0 && i < Int64(vector.exprs.count) else {
@@ -95,7 +96,7 @@ public final class VectorLibrary: Library {
     return vector.exprs[Int(i)]
   }
   
-  func vectorSet(vec: Expr, _ index: Expr, _ expr: Expr) throws -> Expr {
+  func vectorSet(vec: Expr, index: Expr, expr: Expr) throws -> Expr {
     // Extract arguments
     let vector = try vec.asVector()
     let i = try index.asInt()
@@ -115,24 +116,97 @@ public final class VectorLibrary: Library {
     guard case (let exprs, .Null) = expr.toExprs() else {
       throw EvalError.TypeError(expr, [.ProperListType])
     }
-    return .Vector(self.context.objects.manage(Collection(kind: .Vector, exprs: exprs)))
+    return .Vector(Collection(kind: .Vector, exprs: exprs))
   }
   
-  func vectorToList(vec: Expr) throws -> Expr {
+  func vectorToList(vec: Expr, start: Expr?, end: Expr?) throws -> Expr {
     let vector = try vec.asVector()
+    let end = try end?.asInt(below: vector.exprs.count + 1) ?? vector.exprs.count
+    let start = try start?.asInt(below: end + 1) ?? 0
     var res = Expr.Null
-    for expr in vector.exprs.reverse() {
+    for expr in vector.exprs[start..<end].reverse() {
       res = .Pair(expr, res)
     }
     return res
   }
   
-  func vectorFill(vec: Expr, _ expr: Expr) throws -> Expr {
+  func stringToVector(expr: Expr, start: Expr?, end: Expr?) throws -> Expr {
+    let str = try expr.asStr().utf16
+    let max = try end?.asInt(below: str.count + 1) ?? str.count
+    let end = str.startIndex.advancedBy(max)
+    let start = str.startIndex.advancedBy(try start?.asInt(below: max + 1) ?? 0)
+    let res = Collection(kind: .Vector)
+    for ch in str[start..<end] {
+      res.exprs.append(.Char(ch))
+    }
+    return .Vector(res)
+  }
+  
+  func vectorToString(vec: Expr, start: Expr?, end: Expr?) throws -> Expr {
+    let vector = try vec.asVector()
+    let end = try end?.asInt(below: vector.exprs.count + 1) ?? vector.exprs.count
+    let start = try start?.asInt(below: end + 1) ?? 0
+    var uniChars: [UniChar] = []
+    for expr in vector.exprs[start..<end] {
+      uniChars.append(try expr.asChar())
+    }
+    return .Str(NSMutableString(string: String(utf16CodeUnits: uniChars, count: uniChars.count)))
+  }
+  
+  func vectorCopy(vec: Expr, start: Expr?, end: Expr?) throws -> Expr {
+    let vector = try vec.asVector()
+    let end = try end?.asInt(below: vector.exprs.count + 1) ?? vector.exprs.count
+    let start = try start?.asInt(below: end + 1) ?? 0
+    let res = Collection(kind: .Vector)
+    for expr in vector.exprs[start..<end] {
+      res.exprs.append(expr)
+    }
+    return .Vector(res)
+  }
+
+  func vectorOverwrite(trgt: Expr, at: Expr, src: Expr, start: Expr?, end: Expr?) throws -> Expr {
+    let target = try trgt.asVector()
+    guard case .Vector = target.kind else {
+      throw EvalError.AttemptToModifyImmutableData(trgt)
+    }
+    let from = try at.asInt(below: target.exprs.count + 1) ?? target.exprs.count
+    let vector = try src.asVector()
+    let end = try end?.asInt(below: vector.exprs.count + 1) ?? vector.exprs.count
+    let start = try start?.asInt(below: end + 1) ?? 0
+    guard target.exprs.count - from >= end - start else {
+      throw EvalError.ParameterOutOfBounds(
+        "vector-copy!", 2, Int64(from), Int64(0), Int64(start + target.exprs.count - end))
+    }
+    // Decide on right order in case `target` and `vector` are identical vectors
+    var isSimple = true
+    if start < from {
+      for i in (start..<end).reverse() {
+        isSimple = isSimple && vector.exprs[i].isSimple
+        target.exprs[from + i - start] = vector.exprs[i]
+      }
+    } else {
+      for i in start..<end {
+        isSimple = isSimple && vector.exprs[i].isSimple
+        target.exprs[from + i - start] = vector.exprs[i]
+      }
+    }
+    if !isSimple {
+      self.context.objects.manage(target)
+    }
+    return .Void
+  }
+  
+  func vectorFill(vec: Expr, expr: Expr, start: Expr?, end: Expr?) throws -> Expr {
     let vector = try vec.asVector()
     guard case .Vector = vector.kind else {
       throw EvalError.AttemptToModifyImmutableData(vec)
     }
-    for i in vector.exprs.indices {
+    let end = try end?.asInt(below: vector.exprs.count + 1) ?? vector.exprs.count
+    let start = try start?.asInt(below: end + 1) ?? 0
+    if start < end && !expr.isSimple {
+      self.context.objects.manage(vector)
+    }
+    for i in start..<end {
       vector.exprs[i] = expr
     }
     return .Void

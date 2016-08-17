@@ -54,6 +54,21 @@ public final class Future: ManagedObject, CustomStringConvertible {
     super.init(Future.stats)
   }
   
+  /// Returns true if this refers to only "simple" values (i.e. values which won't lead to
+  /// cyclic references)
+  public var isSimple: Bool {
+    switch self.state {
+      case .Lazy(_):
+        return true
+      case .Shared(let future):
+        return future.isSimple
+      case .Value(let expr):
+        return expr.isSimple
+      case .Thrown(_):
+        return false
+    }
+  }
+  
   /// String representation of the future.
   public var description: String {
     switch self.state {

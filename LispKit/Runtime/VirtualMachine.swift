@@ -1111,6 +1111,9 @@ public final class VirtualMachine: TrackedObject {
               guard case .Promise(let result) = self.stack[self.sp - 1] else {
                 throw EvalError.TypeError(self.stack[self.sp - 1], [.PromiseType])
               }
+              if !result.isSimple {
+                self.context.objects.manage(future)
+              }
               future.state = result.state
               result.state = .Shared(future)
             default:
