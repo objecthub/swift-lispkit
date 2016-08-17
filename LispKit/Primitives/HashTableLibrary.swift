@@ -21,9 +21,6 @@
 
 public final class HashTableLibrary: Library {
   
-  private static let bucketsProc   = Procedure("_buckets", HashTableLibrary.hBuckets)
-  private static let bucketAddProc = Procedure("_bucket-add!", HashTableLibrary.hBucketAdd)
-  private static let bucketDelProc = Procedure("_bucket-repl!", HashTableLibrary.hBucketRepl)
   private static let equalHashProc = Procedure("equal-hash", HashTableLibrary.equalHashVal)
   private static let eqvHashProc   = Procedure("eqv-hash", HashTableLibrary.eqvHashVal)
   private static let eqHashProc    = Procedure("eq-hash", HashTableLibrary.eqHashVal)
@@ -33,6 +30,9 @@ public final class HashTableLibrary: Library {
   private let equalProc: Procedure
   private let eqvProc: Procedure
   private let eqProc: Procedure
+  private var bucketsProc: Procedure! = nil
+  private var bucketAddProc: Procedure! = nil
+  private var bucketDelProc: Procedure! = nil
   
   /// Import
   public required init(_ context: Context) {
@@ -40,6 +40,9 @@ public final class HashTableLibrary: Library {
     self.eqvProc = Library.importProc(from: context, name: "eqv?")
     self.eqProc = Library.importProc(from: context, name: "eq?")
     super.init(context)
+    self.bucketsProc = Procedure("_buckets", self.hBuckets)
+    self.bucketAddProc = Procedure("_bucket-add!", self.hBucketAdd)
+    self.bucketDelProc = Procedure("_bucket-repl!", self.hBucketRepl)
   }
   
   /// Export
@@ -205,7 +208,7 @@ public final class HashTableLibrary: Library {
     guard case .Custom(let procs) = map.equiv else {
       return (BaseLibrary.idProc, [map.get(key) ?? .False])
     }
-    return (procs.get, [.Map(map), .Proc(HashTableLibrary.bucketsProc), key])
+    return (procs.get, [.Map(map), .Proc(self.bucketsProc), key])
   }
   
   func hashTableAdd(args: Arguments) throws -> (Procedure, [Expr]) {
@@ -223,10 +226,10 @@ public final class HashTableLibrary: Library {
       return (BaseLibrary.idProc, [.Void])
     }
     return (procs.add, [.Map(map),
-      .Proc(HashTableLibrary.bucketsProc),
-      .Proc(HashTableLibrary.bucketAddProc),
-      key,
-      value])
+                        .Proc(self.bucketsProc),
+                        .Proc(self.bucketAddProc),
+                        key,
+                        value])
   }
   
   func hashTableDelete(args: Arguments) throws -> (Procedure, [Expr]) {
@@ -243,8 +246,8 @@ public final class HashTableLibrary: Library {
       return (BaseLibrary.idProc, [res])
     }
     return (procs.del, [.Map(map),
-                        .Proc(HashTableLibrary.bucketsProc),
-                        .Proc(HashTableLibrary.bucketDelProc),
+                        .Proc(self.bucketsProc),
+                        .Proc(self.bucketDelProc),
                         key])
   }
   
@@ -381,7 +384,7 @@ public final class HashTableLibrary: Library {
     return .Fixnum(Int64(expr.hashValue))
   }
   
-  private static func hBuckets(expr: Expr, hval: Expr?) throws -> Expr {
+  private func hBuckets(expr: Expr, hval: Expr?) throws -> Expr {
     let map = try expr.asMap()
     if let hashValue = try hval?.asInteger() {
       return map.bucketList(Int(hashValue % Int64(map.bucketCount)))
@@ -390,18 +393,18 @@ public final class HashTableLibrary: Library {
     }
   }
   
-  private static func hBucketAdd(expr: Expr,
-                                 hval: Expr,
-                                 key: Expr,
-                                 value: Expr) throws -> Expr {
+  private func hBucketAdd(expr: Expr, hval: Expr, key: Expr, value: Expr) throws -> Expr {
     guard case .Map(let map) = expr else {
       throw EvalError.TypeError(expr, [.MapType])
+    }
+    if !key.isSimple || !value.isSimple {
+      self.context.objects.manage(map)
     }
     map.add(Int(try hval.asInteger() % Int64(map.bucketCount)), key, value)
     return .Void
   }
   
-  private static func hBucketRepl(expr: Expr, hval: Expr, bucket: Expr) throws -> Expr {
+  private func hBucketRepl(expr: Expr, hval: Expr, bucket: Expr) throws -> Expr {
     guard case .Map(let map) = expr else {
       throw EvalError.TypeError(expr, [.MapType])
     }

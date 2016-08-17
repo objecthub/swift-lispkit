@@ -129,6 +129,9 @@ public final class VectorLibrary: Library {
   
   func vectorFill(vec: Expr, _ expr: Expr) throws -> Expr {
     let vector = try vec.asVector()
+    guard case .Vector = vector.kind else {
+      throw EvalError.AttemptToModifyImmutableData(vec)
+    }
     for i in vector.exprs.indices {
       vector.exprs[i] = expr
     }

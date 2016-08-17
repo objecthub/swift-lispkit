@@ -26,6 +26,8 @@ Last update: 2016-08-14
 - [X] Evaluate what it takes to support `call/cc`
 - [X] Implement full support for `call/cc`
 - [X] Implement full support for `dynamic-wind`
+- [ ] Register parameter hash map (incl. mutable parts of the data structure, if needed)
+      such that it's managed by the managed object pool
 
 
 ## Library
