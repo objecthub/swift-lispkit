@@ -18,7 +18,9 @@
 //  limitations under the License.
 //
 
-
+///
+/// Vector library: based on R7RS spec.
+/// 
 public final class VectorLibrary: Library {
   
   public override func export() {

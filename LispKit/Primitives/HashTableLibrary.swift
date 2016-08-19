@@ -18,7 +18,9 @@
 //  limitations under the License.
 //
 
-
+///
+/// Hashtable library: based on R6RS spec.
+/// 
 public final class HashTableLibrary: Library {
   
   private static let equalHashProc = Procedure("equal-hash", HashTableLibrary.equalHashVal)

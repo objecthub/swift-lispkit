@@ -18,7 +18,9 @@
 //  limitations under the License.
 //
 
-
+///
+/// Record library: based on R7RS spec.
+/// 
 public final class RecordLibrary: Library {
   
   public override func export() {

@@ -18,41 +18,86 @@
 //  limitations under the License.
 //
 
-
+///
+/// List library: based on R7RS spec, but with one big difference: cons cells are not
+/// mutable in LispKit. Thus, functionality for mutating and copying lists is missing.
+/// Mutable cons cells created via `mcons` can be used as a replacement for mutable lists.
+/// `mcons` is based on Racket (see BoxLibrary.swift).
+///
 public final class ListLibrary: Library {
   
   public override func export() {
     define(Procedure("pair?", isPair, compileIsPair))
     define(Procedure("list?", isList))
     define(Procedure("null?", isNull, compileIsNull))
+    define(Procedure("make-list", makeList))
     define(Procedure("list", list, compileList))
     define(Procedure("cons", cons, compileCons))
     define(Procedure("car", car, compileCar))
     define(Procedure("cdr", cdr, compileCdr))
+    define(Procedure("caar", caar))
+    define(Procedure("cadr", cadr))
+    define(Procedure("cdar", cdar))
+    define(Procedure("cddr", cddr))
+    define("caaar", compile: "(lambda (x) (car (caar x)))")
+    define("caadr", compile: "(lambda (x) (car (cadr x)))")
+    define("cadar", compile: "(lambda (x) (car (cdar x)))")
+    define("caddr", compile: "(lambda (x) (car (cddr x)))")
+    define("cdaar", compile: "(lambda (x) (cdr (caar x)))")
+    define("cdadr", compile: "(lambda (x) (cdr (cadr x)))")
+    define("cddar", compile: "(lambda (x) (cdr (cdar x)))")
+    define("cdddr", compile: "(lambda (x) (cdr (cddr x)))")
+    define("caaaar", compile: "(lambda (x) (caar (caar x)))")
+    define("caaadr", compile: "(lambda (x) (caar (cadr x)))")
+    define("caadar", compile: "(lambda (x) (caar (cdar x)))")
+    define("caaddr", compile: "(lambda (x) (caar (cddr x)))")
+    define("cadaar", compile: "(lambda (x) (cadr (caar x)))")
+    define("cadadr", compile: "(lambda (x) (cadr (cadr x)))")
+    define("caddar", compile: "(lambda (x) (cadr (cdar x)))")
+    define("cadddr", compile: "(lambda (x) (cadr (cddr x)))")
+    define("cdaaar", compile: "(lambda (x) (cdar (caar x)))")
+    define("cdaadr", compile: "(lambda (x) (cdar (cadr x)))")
+    define("cdadar", compile: "(lambda (x) (cdar (cdar x)))")
+    define("cdaddr", compile: "(lambda (x) (cdar (cddr x)))")
+    define("cddaar", compile: "(lambda (x) (cddr (caar x)))")
+    define("cddadr", compile: "(lambda (x) (cddr (cadr x)))")
+    define("cdddar", compile: "(lambda (x) (cddr (cdar x)))")
+    define("cddddr", compile: "(lambda (x) (cddr (cddr x)))")
     define(Procedure("length", length))
     define(Procedure("append", append))
     define(Procedure("reverse", reverse))
     define(Procedure("list-tail", listTail))
+    define("list-ref", compile: "(lambda (x k) (car (list-tail x k)))")
     define(Procedure("key", key))
     define(Procedure("value", value))
     define(Procedure("memq", memq))
     define(Procedure("memv", memv))
-    define(Procedure("member", member))
+    define("member", compile:
+      "(define (member x list . comp)" +
+      "  (let ((eq (if (pair? comp) (car comp) equal?)))" +
+      "    (let lp ((ls list))" +
+      "      (and (pair? ls) (if (eq x (car ls)) ls (lp (cdr ls)))))))")
     define(Procedure("assq", assq))
     define(Procedure("assv", assv))
-    define(Procedure("assoc", assoc))
+    define("assoc", compile:
+      "(lambda (x list . comp) " +
+      "  (let ((eq (if (pair? comp) (car comp) equal?)))" +
+      "    (let assoc ((ls list))" +
+      "      (cond ((null? ls) #f)" +
+      "            ((eq x (caar ls)) (car ls))" +
+      "            (else (assoc (cdr ls)))))))")
     define(Procedure("decons", decons))
-    define("map",
-           compile: "(lambda (f list1 . lists)" +
-                    "  (let ((res '()))" +
-                    "       (do ((pair (decons (cons list1 lists)) (decons (cdr pair))))" +
-                    "           ((null? pair) (reverse res))" +
-                    "           (set! res (cons (apply f (car pair)) res)))))")
-    define("for-each",
-           compile: "(lambda (f list1 . lists)" +
-                    "  (do ((pair (decons (cons list1 lists)) (decons (cdr pair))))" +
-                    "      ((null? pair))" +
-                    "        (apply f (car pair))))")
+    define("map", compile:
+      "(lambda (f list1 . lists)" +
+      "  (let ((res '()))" +
+      "       (do ((pair (decons (cons list1 lists)) (decons (cdr pair))))" +
+      "           ((null? pair) (reverse res))" +
+      "           (set! res (cons (apply f (car pair)) res)))))")
+    define("for-each", compile:
+      "(lambda (f list1 . lists)" +
+      "  (do ((pair (decons (cons list1 lists)) (decons (cdr pair))))" +
+      "      ((null? pair))" +
+      "        (apply f (car pair))))")
   }
   
   //---------MARK: - List predicates
@@ -85,6 +130,17 @@ public final class ListLibrary: Library {
   }
   
   //-------- MARK: - Construction and deconstruction
+  
+  func makeList(k: Expr, expr: Expr?) throws -> Expr {
+    let def = expr ?? .Null
+    var res: Expr = .Null
+    var n = try k.asInt(below: Int.max)
+    while n > 0 {
+      res = .Pair(def, res)
+      n -= 1
+    }
+    return res
+  }
   
   func list(exprs: Arguments) -> Expr {
     var res = Expr.Null
@@ -145,6 +201,47 @@ public final class ListLibrary: Library {
   func compileCdr(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     return try self.invoke(.Cdr, with: expr, in: env, for: compiler)
   }
+  
+  func caar(expr: Expr) throws -> Expr {
+    guard case .Pair(let car, _) = expr else {
+      throw EvalError.TypeError(expr, [.PairType])
+    }
+    guard case .Pair(let caar, _) = car else {
+      throw EvalError.TypeError(car, [.PairType])
+    }
+    return caar
+  }
+  
+  func cadr(expr: Expr) throws -> Expr {
+    guard case .Pair(_, let cdr) = expr else {
+      throw EvalError.TypeError(expr, [.PairType])
+    }
+    guard case .Pair(let cadr, _) = cdr else {
+      throw EvalError.TypeError(cdr, [.PairType])
+    }
+    return cadr
+  }
+
+  func cdar(expr: Expr) throws -> Expr {
+    guard case .Pair(let car, _) = expr else {
+      throw EvalError.TypeError(expr, [.PairType])
+    }
+    guard case .Pair(_, let cdar) = car else {
+      throw EvalError.TypeError(car, [.PairType])
+    }
+    return cdar
+  }
+  
+  func cddr(expr: Expr) throws -> Expr {
+    guard case .Pair(_, let cdr) = expr else {
+      throw EvalError.TypeError(expr, [.PairType])
+    }
+    guard case .Pair(_, let cddr) = cdr else {
+      throw EvalError.TypeError(cdr, [.PairType])
+    }
+    return cddr
+  }
+
   
   //-------- MARK: - Basic list functions
   
@@ -253,20 +350,6 @@ public final class ListLibrary: Library {
     return .False
   }
   
-  func member(obj: Expr, expr: Expr) throws -> Expr {
-    var list = expr
-    while case .Pair(let car, let cdr) = list {
-      if equalExpr(obj, car) {
-        return list
-      }
-      list = cdr
-    }
-    guard list.isNull else {
-      throw EvalError.TypeError(expr, [.ProperListType])
-    }
-    return .False
-  }
-  
   func assq(obj: Expr, expr: Expr) throws -> Expr {
     var list = expr
     while case .Pair(.Pair(let key, let value), let cdr) = list {
@@ -285,20 +368,6 @@ public final class ListLibrary: Library {
     var list = expr
     while case .Pair(.Pair(let key, let value), let cdr) = list {
       if eqvExpr(obj, key) {
-        return .Pair(key, value)
-      }
-      list = cdr
-    }
-    guard list.isNull else {
-      throw EvalError.TypeError(expr, [.AssocListType])
-    }
-    return .False
-  }
-  
-  func assoc(obj: Expr, expr: Expr) throws -> Expr {
-    var list = expr
-    while case .Pair(.Pair(let key, let value), let cdr) = list {
-      if equalExpr(obj, key) {
         return .Pair(key, value)
       }
       list = cdr

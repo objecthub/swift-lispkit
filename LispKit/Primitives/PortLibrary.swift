@@ -20,7 +20,9 @@
 
 import Foundation
 
-
+///
+/// Port library: based on R7RS spec.
+/// 
 public final class PortLibrary: Library {
   
   public override func export() {
