@@ -31,14 +31,30 @@ public final class MathLibrary: Library {
     define(Procedure("complex?", isComplex))
     define(Procedure("exact?", isExact))
     define(Procedure("inexact?", isInexact))
+    define(Procedure("exact-integer?", isExactInteger))
+    define(Procedure("finite?", isFinite))
+    define(Procedure("infinite?", isInfinite))
+    define(Procedure("nan?", isNaN))
     define(Procedure("positive?", isPositive))
     define(Procedure("negative?", isNegative))
     define(Procedure("zero?", isZero))
     define(Procedure("even?", isEven))
     define(Procedure("odd?", isOdd))
-    define(Procedure("exact->inexact", exactToInexact))
-    define(Procedure("inexact->exact", inexactToExact))
-    define(Procedure("rationalize", rationalize))
+    define(Procedure("inexact", inexact))
+    define(Procedure("exact", exact))
+    define(Procedure("approximate", approximate))
+    define("rationalize", compile:
+      "(lambda (x e)" +
+      "  (letrec ((simplest (lambda (x y return)" +
+      "                       (let ((fx (floor x)) (fy (floor y)))" +
+      "                         (cond ((>= fx x) (return fx 1))" +
+      "                               ((= fx fy) (simplest (/ (- y fy)) (/ (- x fx))" +
+      "                                            (lambda (n d) (return (+ d (* fx n)) n))))" +
+      "                               (else      (return (+ fx 1) 1))))))" +
+      "           (ax (abs x))" +
+      "           (ae (abs e)))" +
+      "  (simplest (- ax ae) (+ ax ae)" +
+      "    (if (negative? x) (lambda (num den) (/ (- num) den)) /))))")
     define(Procedure("floor", floor))
     define(Procedure("ceiling", ceiling))
     define(Procedure("truncate", truncate))
@@ -55,6 +71,7 @@ public final class MathLibrary: Library {
     define(Procedure("max", max))
     define(Procedure("min", min))
     define(Procedure("abs", absolute))
+    define(Procedure("square", square))
     define(Procedure("sqrt", sqrt))
     define(Procedure("expt", expt))
     define(Procedure("exp", exp))
@@ -77,9 +94,13 @@ public final class MathLibrary: Library {
     define(Procedure("denominator", denominator))
     define(Procedure("gcd", gcd))
     define(Procedure("lcm", lcm))
-    define(Procedure("quotient", quotient))
-    define(Procedure("remainder", remainder))
-    define(Procedure("modulo", modulo))
+    define(Procedure("truncate-quotient", truncateQuotient))
+    define(Procedure("truncate-remainder", truncateRemainder))
+    define(Procedure("floor-quotient", floorQuotient))
+    define(Procedure("floor-remainder", floorRemainder))
+    define(Procedure("quotient", truncateQuotient))
+    define(Procedure("remainder", truncateRemainder))
+    define(Procedure("modulo", floorRemainder))
     define(Procedure("fx+", fxPlus, compileFxPlus))
     define(Procedure("fx-", fxMinus, compileFxMinus))
     define(Procedure("fx*", fxMult, compileFxMult))
@@ -116,29 +137,63 @@ public final class MathLibrary: Library {
            .Rat(_),
            .Bigrat(_):
         return .True
-      case .Flonum(_),
-           .Complexnum(_):
-        return .False
       default:
-        throw EvalError.TypeError(expr, [.NumberType])
+        return .False
     }
   }
 
   func isInexact(expr: Expr) throws -> Expr {
     switch expr {
-      case .Fixnum(_),
-           .Bignum(_),
-           .Rat(_),
-           .Bigrat(_):
-        return .False
       case .Flonum(_),
            .Complexnum(_):
         return .True
       default:
-        throw EvalError.TypeError(expr, [.NumberType])
+        return .False
     }
   }
 
+  func isExactInteger(expr: Expr) throws -> Expr {
+    switch expr {
+      case .Fixnum(_):
+        return .True
+      default:
+        return .False
+    }
+  }
+  
+  func isFinite(expr: Expr) throws -> Expr {
+    switch expr {
+      case .Flonum(let num):
+        return .Boolean(num.isFinite)
+      case .Complexnum(let box):
+        return .Boolean(!box.value.isInfinite)
+      default:
+        return .True
+    }
+  }
+
+  func isInfinite(expr: Expr) throws -> Expr {
+    switch expr {
+      case .Flonum(let num):
+        return .Boolean(num.isInfinite)
+      case .Complexnum(let box):
+        return .Boolean(box.value.isInfinite)
+      default:
+        return .False
+    }
+  }
+  
+  func isNaN(expr: Expr) throws -> Expr {
+    switch expr {
+      case .Flonum(let num):
+        return .Boolean(num.isNaN)
+      case .Complexnum(let box):
+        return .Boolean(box.value.re.isNaN || box.value.im.isNaN)
+      default:
+        return .False
+    }
+  }
+  
   func isPositive(expr: Expr) throws -> Expr {
     switch expr {
       case .Fixnum(let num):
@@ -221,7 +276,7 @@ public final class MathLibrary: Library {
 
   //-------- MARK: - Conversion primitives
 
-  func exactToInexact(expr: Expr) throws -> Expr {
+  func inexact(expr: Expr) throws -> Expr {
     switch expr {
       case .Fixnum(let num):
         return .Number(Double(num))
@@ -231,20 +286,16 @@ public final class MathLibrary: Library {
         return .Number(Double(num.value.numerator) / Double(num.value.denominator))
       case .Bigrat(let num):
         return .Number(num.value.numerator.doubleValue / num.value.denominator.doubleValue)
-      case .Flonum(_),
-           .Complexnum(_):
+      case .Flonum(_), .Complexnum(_):
         return expr
       default:
         throw EvalError.TypeError(expr, [.NumberType])
     }
   }
 
-  func inexactToExact(expr: Expr) throws -> Expr {
+  func exact(expr: Expr) throws -> Expr {
     switch expr {
-      case .Fixnum(_),
-           .Bignum(_),
-           .Rat(_),
-           .Bigrat(_):
+      case .Fixnum(_), .Bignum(_), .Rat(_), .Bigrat(_):
         return expr
       case .Flonum(let num):
         return .Number(MathLibrary.approximate(num))
@@ -253,7 +304,7 @@ public final class MathLibrary: Library {
     }
   }
 
-  static func approximate(x: Double, tolerance: Double = 1.0e-9) -> Rational<Int64> {
+  static func approximate(x: Double, tolerance: Double = 1.0e-16) -> Rational<Int64> {
     let mx = x * tolerance
     var y = x
     var (n1, d1) = (Int64(1), Int64(0))
@@ -266,8 +317,7 @@ public final class MathLibrary: Library {
     } while abs(x - Double(n1) / Double(d1)) > mx
     return Rational(n1, d1)
   }
-
-
+    
   //-------- MARK: - Rounding primitives
 
   func floor(expr: Expr) throws -> Expr {
@@ -594,6 +644,29 @@ public final class MathLibrary: Library {
         throw EvalError.TypeError(expr, [.RealType])
     }
   }
+  
+  func square(expr: Expr) throws -> Expr {
+    switch expr {
+      case .Fixnum(let num):
+        let (res, overflow) = Int64.multiplyWithOverflow(num, num)
+        return overflow ? .Number(BigInt(num) * BigInt(num)) : .Number(res)
+      case .Bignum(let num):
+        return .Number(num * num)
+      case .Rat(let num):
+        let (res, overflow) = Rational.multiplyWithOverflow(num.value, num.value)
+        return overflow ? .Number(Rational(BigInt(num.value.numerator), BigInt(num.value.denominator)) *
+                                  Rational(BigInt(num.value.numerator), BigInt(num.value.denominator)))
+                        : .Number(res)
+      case .Bigrat(let num):
+        return .Number(num.value * num.value)
+      case .Flonum(let num):
+        return .Number(num * num)
+      case .Complexnum(let  num):
+        return .Number(num.value * num.value)
+      default:
+        throw EvalError.TypeError(expr, [.NumberType])
+    }
+  }
 
   func sqrt(expr: Expr) throws -> Expr {
     switch expr {
@@ -779,7 +852,7 @@ public final class MathLibrary: Library {
     return abs(err1) <= abs(err2) ? (err1, n1, d1) : (err2, n2, d2)
   }
   
-  func rationalize(x: Expr, delta: Expr) throws -> Expr {
+  func approximate(x: Expr, delta: Expr) throws -> Expr {
     var l_curr: Int64 = 1
     let t = try x.asFloat(coerce: true)
     let err = try delta.asFloat(coerce: true)
@@ -788,6 +861,7 @@ public final class MathLibrary: Library {
       l_curr *= 10
       (actual, n, d) = MathLibrary.findBestRat(t, l_curr)
     }
+    (actual, n, d) = MathLibrary.findBestRat(t, l_curr)
     return .Rat(ImmutableBox(Rational(n, d)))
   }
   
@@ -828,7 +902,7 @@ public final class MathLibrary: Library {
       case .Flonum(let num):
         return .Flonum(Double(MathLibrary.approximate(num).numerator))
       default:
-        throw EvalError.TypeError(expr, [.ExactNumberType])
+        throw EvalError.TypeError(expr, [.NumberType])
     }
   }
   
@@ -843,7 +917,7 @@ public final class MathLibrary: Library {
       case .Flonum(let num):
         return .Flonum(Double(MathLibrary.approximate(num).denominator))
       default:
-        throw EvalError.TypeError(expr, [.RealType])
+        throw EvalError.TypeError(expr, [.NumberType])
     }
   }
   
@@ -903,7 +977,7 @@ public final class MathLibrary: Library {
     return acc
   }
   
-  func quotient(x: Expr, _ y: Expr) throws -> Expr {
+  func truncateQuotient(x: Expr, _ y: Expr) throws -> Expr {
     switch try NumberPair(x, y) {
       case .FixnumPair(let lhs, let rhs):
         return .Number(lhs / rhs)
@@ -916,7 +990,7 @@ public final class MathLibrary: Library {
     }
   }
   
-  func remainder(x: Expr, _ y: Expr) throws -> Expr {
+  func truncateRemainder(x: Expr, _ y: Expr) throws -> Expr {
     switch try NumberPair(x, y) {
       case .FixnumPair(let lhs, let rhs):
         return .Number(lhs % rhs)
@@ -929,7 +1003,22 @@ public final class MathLibrary: Library {
     }
   }
   
-  func modulo(x: Expr, _ y: Expr) throws -> Expr {
+  func floorQuotient(x: Expr, _ y: Expr) throws -> Expr {
+    switch try NumberPair(x, y) {
+      case .FixnumPair(let lhs, let rhs):
+        let res = lhs % rhs
+        return .Number(((res < 0) == (rhs < 0) ? (lhs - res) : (lhs - res - rhs)) / rhs)
+      case .BignumPair(let lhs, let rhs):
+        let res = lhs % rhs
+        return .Number((res.isNegative == rhs.isNegative ? (lhs - res) : (lhs - res - rhs)) / rhs)
+      default:
+        try x.assertTypeOf(.IntegerType)
+        try y.assertTypeOf(.IntegerType)
+        preconditionFailure()
+    }
+  }
+  
+  func floorRemainder(x: Expr, _ y: Expr) throws -> Expr {
     switch try NumberPair(x, y) {
       case .FixnumPair(let lhs, let rhs):
         let res = lhs % rhs

@@ -557,6 +557,16 @@ extension Expr: CustomStringConvertible {
       }
     }
     
+    func doubleString(val: Double) -> String {
+      if val.isInfinite {
+        return val.isSignMinus ? "-inf.0" : "+inf.0"
+      } else if val.isNaN {
+        return "+nan.0"
+      } else {
+        return String(val)
+      }
+    }
+    
     func stringReprOf(expr: Expr) -> String {
       switch expr {
         case .Undef:
@@ -585,15 +595,15 @@ extension Expr: CustomStringConvertible {
         case .Bigrat(let val):
           return val.value.description
         case .Flonum(let val):
-          if val.isInfinite {
-            return val.isSignMinus ? "-inf.0" : "+inf.0"
-          } else if val.isNaN {
-            return "+nan.0"
-          } else {
-            return String(val)
-          }
+          return doubleString(val)
         case .Complexnum(let val):
-          return val.value.description
+          var res = doubleString(val.value.re)
+          if val.value.im.isNaN || val.value.im.isInfinite || val.value.im < 0.0 {
+            res += doubleString(val.value.im)
+          } else {
+            res += "+" + doubleString(val.value.im)
+          }
+          return res + "i"
         case .Char(let ch):
           guard escape else {
             return String(UnicodeScalar(ch))

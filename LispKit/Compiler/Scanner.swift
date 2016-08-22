@@ -109,8 +109,10 @@ public class Scanner {
       if self.ch == PLUS_CH || self.ch == MINUS_CH {
         let neg = self.ch == MINUS_CH
         self.nextCh()
+        // signed numbers
         if isDigit(self.ch) {
           self.scanNumber(10, neg: neg, dot: false)
+        // signed numbers of the form +/-.X
         } else if self.ch == DOT_CH {
           self.nextCh()
           if isDotSubsequent(self.ch) {
@@ -121,15 +123,49 @@ public class Scanner {
             self.token.kind = .IDENT
             self.token.strVal = self.buffer.stringValue
           }
+        // identifiers starting with +/-, infinity or NaN
         } else if isSubsequentIdent(self.ch) || self.ch == PLUS_CH || self.ch == MINUS_CH {
-          self.scanIdent()
+          self.nextCh()
+          while isSubsequentIdent(self.ch) && self.ch != PLUS_CH && self.ch != MINUS_CH {
+            self.nextCh()
+          }
+          var realPart: Double?
+          switch self.buffer.stringValue.lowercaseString {
+            case "-inf.0":
+              realPart = -Double.infinity
+            case "+inf.0":
+              realPart = Double.infinity
+            case "-nan.0", "+nan.0":
+              realPart = Double.NaN
+            default:
+              realPart = nil
+              while isSubsequentIdent(self.ch) {
+                self.nextCh()
+              }
+              self.token.kind = .IDENT
+              self.token.strVal = self.buffer.stringValue.lowercaseString
+          }
+          // check if infinity/NaN is part of a complex number
+          if let realPart = realPart {
+            switch self.ch {
+              case PLUS_CH:
+                self.nextCh()
+                return scanImaginaryPart(realPart, neg: false)
+              case MINUS_CH:
+                self.nextCh()
+                return scanImaginaryPart(realPart, neg: true)
+              default:
+                self.token.kind = .FLOAT
+                self.token.floatVal = realPart
+            }
+          }
         } else {
           self.token.kind = .IDENT
           self.token.strVal = self.buffer.stringValue
         }
         return
       }
-      // handle numbers
+      // handle unsigned numbers
       if isDigit(self.ch) {
         self.scanNumber(10, neg: false, dot: false)
         return
@@ -596,6 +632,23 @@ public class Scanner {
   /// imaginary part of a complex number
   private func scanImaginaryPart(realPart: Double, neg: Bool) {
     let start = self.buffer.index - 1
+    guard self.ch != LI_CH && self.ch != N_CH else {
+      self.scanIdent()
+      let s = self.buffer.stringStartingAt(start)
+      switch s {
+        case "inf.0i":
+          self.token.kind = .COMPLEX
+          self.token.complexVal = Complex(realPart, neg ? -Double.infinity : Double.infinity)
+          self.token.strVal = ""
+        case "nan.0i":
+          self.token.kind = .COMPLEX
+          self.token.complexVal = Complex(realPart, Double.NaN)
+          self.token.strVal = ""
+        default:
+          self.signal(.MalformedComplexLiteral)
+      }
+      return
+    }
     while isDigitForRadix(self.ch, 10) {
       self.nextCh()
     }
