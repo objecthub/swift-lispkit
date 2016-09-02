@@ -19,7 +19,7 @@
 //
 
 
-public final class CharacterLibrary: Library {
+public final class CharacterLibrary: NativeLibrary {
   
   public override func export() {
     define(Procedure("char?", isChar))

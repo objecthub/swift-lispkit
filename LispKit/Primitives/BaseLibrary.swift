@@ -21,7 +21,7 @@
 import Cocoa
 
 
-public final class BaseLibrary: Library {
+public final class BaseLibrary: NativeLibrary {
   
   internal static let idProc = Procedure("identity", BaseLibrary.identity)
   

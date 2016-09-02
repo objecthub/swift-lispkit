@@ -21,7 +21,7 @@
 ///
 /// Box library: based on Racket spec.
 /// 
-public final class BoxLibrary: Library {
+public final class BoxLibrary: NativeLibrary {
   
   public override func export() {
     // Boxes

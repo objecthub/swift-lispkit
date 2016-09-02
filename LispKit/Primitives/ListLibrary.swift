@@ -24,7 +24,7 @@
 /// Mutable cons cells created via `mcons` can be used as a replacement for mutable lists.
 /// `mcons` is based on Racket (see BoxLibrary.swift).
 ///
-public final class ListLibrary: Library {
+public final class ListLibrary: NativeLibrary {
   
   public override func export() {
     define(Procedure("pair?", isPair, compileIsPair))

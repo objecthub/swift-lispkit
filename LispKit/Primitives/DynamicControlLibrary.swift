@@ -9,7 +9,7 @@
 import Foundation
 
 
-public final class DynamicControlLibrary: Library {
+public final class DynamicControlLibrary: NativeLibrary {
   
   public override func export() {
     // Continuations

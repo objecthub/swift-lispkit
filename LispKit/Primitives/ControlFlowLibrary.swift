@@ -19,7 +19,7 @@
 //
 
 
-public final class ControlFlowLibrary: Library {
+public final class ControlFlowLibrary: NativeLibrary {
   
   public override func export() {
     define("begin", SpecialForm(compileBegin))

@@ -21,7 +21,7 @@
 ///
 /// Record library: based on R7RS spec.
 /// 
-public final class RecordLibrary: Library {
+public final class RecordLibrary: NativeLibrary {
   
   public override func export() {
     define(Procedure("record?", isRecord))

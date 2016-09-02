@@ -20,8 +20,10 @@
 
 import NumberKit
 
-
-public final class MathLibrary: Library {
+///
+/// Math library: based on R7RS spec.
+///
+public final class MathLibrary: NativeLibrary {
   
   public override func export() {
     define(Procedure("number?", isNumber))

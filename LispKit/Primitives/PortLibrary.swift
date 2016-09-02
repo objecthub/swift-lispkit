@@ -23,7 +23,7 @@ import Foundation
 ///
 /// Port library: based on R7RS spec.
 /// 
-public final class PortLibrary: Library {
+public final class PortLibrary: NativeLibrary {
   
   public override func export() {
     define(Procedure("port?", isPort))
@@ -49,8 +49,6 @@ public final class PortLibrary: Library {
     define(Procedure("current-input-port", currentInputPort))
     define(Procedure("current-output-port", currentOutputPort))
     define(Procedure("current-error-port", currentErrorPort))
-    define(Procedure("with-input-from-file", withInputFromFile))
-    define(Procedure("with-output-to-file", withOutputFromFile))
     define(Procedure("eof-object?", isEofObject))
     define(Procedure("eof-object", eofObject))
     define(Procedure("read", read))
@@ -74,20 +72,34 @@ public final class PortLibrary: Library {
     define(Procedure("write-u8", writeU8))
     define(Procedure("write-bytevector", writeBytevector))
     define(Procedure("flush-output-port", flushOutputPort))
-    define("call-with-port",
-           compile: "(lambda (port proc) (let ((res (proc port))) (close-port port) res))")
-    define("call-with-input-file",
-           compile: "(lambda (filename proc)" +
-                    "   (let* ((port (open-input-file filename))" +
-                    "          (res (proc port)))" +
-                    "     (close-input-port port)" +
-                    "     res))")
-    define("call-with-output-file",
-           compile: "(lambda (filename proc)" +
-                    "   (let* ((port (open-output-file filename))" +
-                    "          (res (proc port)))" +
-                    "     (close-output-port port)" +
-                    "     res))")
+    define("with-input-from-file", compile:
+      "(lambda (file thunk)" +
+      "  (let ((old (current-input-port))" +
+      "        (new (open-input-file file)))" +
+      "    (dynamic-wind (lambda () (current-input-port new))" +
+      "                  (lambda () (let ((res (thunk))) (close-input-port new) res))" +
+      "                  (lambda () (current-input-port old)))))")
+    define("with-output-to-file", compile:
+      "(lambda (file thunk)" +
+      "  (let ((old (current-output-port))" +
+      "        (new (open-output-file file)))" +
+      "    (dynamic-wind (lambda () (current-output-port new))" +
+      "                  (lambda () (let ((res (thunk))) (close-output-port new) res))" +
+      "                  (lambda () (current-output-port old)))))")
+    define("call-with-port", compile:
+      "(lambda (port proc) (let ((res (proc port))) (close-port port) res))")
+    define("call-with-input-file", compile:
+      "(lambda (filename proc)" +
+      "   (let* ((port (open-input-file filename))" +
+      "          (res (proc port)))" +
+      "     (close-input-port port)" +
+      "     res))")
+    define("call-with-output-file", compile:
+      "(lambda (filename proc)" +
+      "   (let* ((port (open-output-file filename))" +
+      "          (res (proc port)))" +
+      "     (close-output-port port)" +
+      "     res))")
   }
   
   
@@ -261,16 +273,6 @@ public final class PortLibrary: Library {
   
   func currentErrorPort(expr: Expr) -> Expr {
     return .Prt(self.context.errorPort)
-  }
-  
-  /// TODO: Figure out how to implement this function (needs to be in Scheme directly)
-  func withInputFromFile(expr: Expr) -> Expr {
-    return .Undef
-  }
-  
-  /// TODO: Figure out how to implement this function (needs to be in Scheme directly)
-  func withOutputFromFile(expr: Expr) -> Expr {
-    return .Undef
   }
   
   func isEofObject(expr: Expr) -> Expr {

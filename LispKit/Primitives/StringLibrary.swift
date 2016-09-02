@@ -19,7 +19,7 @@
 //
 
 
-public final class StringLibrary: Library {
+public final class StringLibrary: NativeLibrary {
   
   public override func export() {
     define(Procedure("string?", isString))

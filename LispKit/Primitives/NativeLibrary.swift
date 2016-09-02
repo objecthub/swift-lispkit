@@ -23,7 +23,7 @@
 /// fashion. Concrete implementations subclass `Library` and override the `export` method with
 /// declarations of constants, procedures, and special forms.
 /// 
-public class Library {
+public class NativeLibrary {
   
   /// The context into which this library gets exported
   let context: Context
@@ -105,7 +105,7 @@ public class Library {
   
   // Sublibrary declaration
   
-  func include(lib: Library.Type) {
+  func include(lib: NativeLibrary.Type) {
     let _ = lib.init(self.context)
   }
 }

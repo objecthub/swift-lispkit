@@ -21,7 +21,7 @@
 ///
 /// Vector library: based on R7RS spec.
 /// 
-public final class VectorLibrary: Library {
+public final class VectorLibrary: NativeLibrary {
   
   public override func export() {
     define(Procedure("vector?", isVector, compileIsVector))

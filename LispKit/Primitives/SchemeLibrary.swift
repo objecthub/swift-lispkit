@@ -19,7 +19,7 @@
 //
 
 
-public final class SchemeLibrary: Library {
+public final class SchemeLibrary: NativeLibrary {
   
   public override func export() {
     // The current library mechanism requires ControlFlowLibrary to come first (as it's used

@@ -36,14 +36,14 @@ public class Context {
   /// The user scope.
   public let userScope: Scope
   
-  /// The virtual machine for executing Lisp code.
-  public private(set) var machine: VirtualMachine!
-  
   /// The system scope.
   public var systemScope: Scope {
     return self.userScope.outer!
   }
   
+  /// The virtual machine for executing Lisp code.
+  public private(set) var machine: VirtualMachine!
+
   /// The current input port.
   public var inputPort: Port
   
@@ -54,7 +54,7 @@ public class Context {
   public var errorPort: Port
   
   /// Initializes a new object
-  public init(console: Console, library: Library.Type? = nil) {
+  public init(console: Console, library: NativeLibrary.Type? = nil) {
     // Initialize global components
     self.console = console
     self.objects = ManagedObjectPool()
@@ -74,7 +74,7 @@ public class Context {
   }
   
   /// Import an instantiation of the given library type.
-  public func use(lib: Library.Type) {
+  public func use(lib: NativeLibrary.Type) {
     let _ = lib.init(self)
   }
 }

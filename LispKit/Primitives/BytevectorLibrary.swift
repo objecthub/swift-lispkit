@@ -21,7 +21,7 @@
 ///
 /// Bytevector library: based on R7RS spec.
 /// 
-public final class BytevectorLibrary: Library {
+public final class BytevectorLibrary: NativeLibrary {
   
   public override func export() {
     define(Procedure("bytevector?", isBytevector))

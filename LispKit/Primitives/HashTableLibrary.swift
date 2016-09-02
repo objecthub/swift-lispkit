@@ -21,7 +21,7 @@
 ///
 /// Hashtable library: based on R6RS spec.
 /// 
-public final class HashTableLibrary: Library {
+public final class HashTableLibrary: NativeLibrary {
   
   private static let equalHashProc = Procedure("equal-hash", HashTableLibrary.equalHashVal)
   private static let eqvHashProc   = Procedure("eqv-hash", HashTableLibrary.eqvHashVal)
@@ -38,9 +38,9 @@ public final class HashTableLibrary: Library {
   
   /// Import
   public required init(_ context: Context) {
-    self.equalProc = Library.importProc(from: context, name: "equal?")
-    self.eqvProc = Library.importProc(from: context, name: "eqv?")
-    self.eqProc = Library.importProc(from: context, name: "eq?")
+    self.equalProc = NativeLibrary.importProc(from: context, name: "equal?")
+    self.eqvProc = NativeLibrary.importProc(from: context, name: "eqv?")
+    self.eqProc = NativeLibrary.importProc(from: context, name: "eq?")
     super.init(context)
     self.bucketsProc = Procedure("_buckets", self.hBuckets)
     self.bucketAddProc = Procedure("_bucket-add!", self.hBucketAdd)
