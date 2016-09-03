@@ -71,7 +71,7 @@ public final class DynamicControlLibrary: NativeLibrary {
   }
   
   func isContinuation(_ expr: Expr) -> Expr {
-    guard case .proc(let proc) = expr else {
+    guard case .procedure(let proc) = expr else {
       return .false
     }
     guard case .continuation(_) = proc.kind else {
@@ -84,7 +84,7 @@ public final class DynamicControlLibrary: NativeLibrary {
     guard args.count == 1 else {
       throw EvalError.argumentCountError(formals: 1, args: .List(args))
     }
-    guard case .proc(let proc) = args.first! else {
+    guard case .procedure(let proc) = args.first! else {
       throw EvalError.typeError(args.first!, [.procedureType])
     }
     // Create continuation, removing current argument and the call/cc procedure from the
@@ -92,7 +92,7 @@ public final class DynamicControlLibrary: NativeLibrary {
     let vmstate = self.context.machine.getState()
     let cont = Procedure(vmstate)
     // Return procedure to call with continuation as argument
-    return (proc, [.proc(cont)])
+    return (proc, [.procedure(cont)])
   }
   
   func windUp(_ before: Expr, after: Expr) throws -> Expr {
@@ -104,7 +104,7 @@ public final class DynamicControlLibrary: NativeLibrary {
     guard let winder = self.context.machine.windDown() else {
       return .null
     }
-    return .pair(.proc(winder.before), .proc(winder.after))
+    return .pair(.procedure(winder.before), .procedure(winder.after))
   }
   
   func dynamicWindBase(_ cont: Expr) throws -> Expr {
@@ -127,14 +127,14 @@ public final class DynamicControlLibrary: NativeLibrary {
     var res: Expr = .null
     var next = vmState.winders
     while let winder = next , (base == nil) || winder !== base! {
-      res = .pair(.pair(.proc(winder.before), .proc(winder.after)), res)
+      res = .pair(.pair(.procedure(winder.before), .procedure(winder.after)), res)
       next = winder.next
     }
     return res
   }
   
   func makeParameter(_ value: Expr, setter: Expr?) -> Expr {
-    return .proc(Procedure(setter ?? .null, value))
+    return .procedure(Procedure(setter ?? .null, value))
   }
   
   func bindParameter(_ args: Arguments) throws -> (Procedure, [Expr]) {
@@ -144,7 +144,7 @@ public final class DynamicControlLibrary: NativeLibrary {
     guard case .parameter(let tuple) = try args.first!.asProc().kind else {
       throw EvalError.typeError(args.first!, [.parameterType])
     }
-    if case .proc(let proc) = tuple.fst {
+    if case .procedure(let proc) = tuple.fst {
       return (proc, [args.first!, args[args.startIndex + 1], args[args.startIndex + 2]])
     } else {
       return (try args[args.startIndex + 2].asProc(), [args.first!, args[args.startIndex + 1]])
@@ -152,11 +152,11 @@ public final class DynamicControlLibrary: NativeLibrary {
   }
   
   func dynamicEnvironment() -> Expr {
-    return .map(self.context.machine.parameters)
+    return .table(self.context.machine.parameters)
   }
   
   func makeDynamicEnvironment() -> Expr {
-    return .map(HashMap(copy: self.context.machine.parameters, mutable: true))
+    return .table(HashTable(copy: self.context.machine.parameters, mutable: true))
   }
   
   func setDynamicEnvironment(_ expr: Expr) throws -> Expr {

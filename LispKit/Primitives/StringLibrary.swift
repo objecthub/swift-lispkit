@@ -47,7 +47,7 @@ public final class StringLibrary: NativeLibrary {
   }
   
   func isString(_ expr: Expr) -> Expr {
-    if case .str(_) = expr {
+    if case .string(_) = expr {
       return .true
     }
     return .false
@@ -56,7 +56,7 @@ public final class StringLibrary: NativeLibrary {
   func makeString(_ k: Expr, ch: Expr?) throws -> Expr {
     let uniChars = Array<UniChar>(repeating: try ch?.asChar() ?? UniChar(" "),
                                   count: try k.asInt())
-    return .str(NSMutableString(string: String(utf16CodeUnits: uniChars, count: uniChars.count)))
+    return .string(NSMutableString(string: String(utf16CodeUnits: uniChars, count: uniChars.count)))
   }
   
   func string(_ exprs: Arguments) throws -> Expr {
@@ -64,7 +64,7 @@ public final class StringLibrary: NativeLibrary {
     for expr in exprs {
       uniChars.append(try expr.asChar())
     }
-    return .str(NSMutableString(string: String(utf16CodeUnits: uniChars, count: uniChars.count)))
+    return .string(NSMutableString(string: String(utf16CodeUnits: uniChars, count: uniChars.count)))
   }
   
   func stringLength(_ expr: Expr) throws -> Expr {
@@ -86,7 +86,7 @@ public final class StringLibrary: NativeLibrary {
     for expr in exprs {
       res.append(try expr.asStr())
     }
-    return .str(NSMutableString(string: res))
+    return .string(NSMutableString(string: res))
   }
   
   func stringEquals(_ fst: Expr, _ snd: Expr) throws -> Expr {
@@ -134,11 +134,11 @@ public final class StringLibrary: NativeLibrary {
   }
   
   func stringUpcase(_ expr: Expr) throws -> Expr {
-    return .str(NSMutableString(string: try expr.asMutableStr().uppercased))
+    return .string(NSMutableString(string: try expr.asMutableStr().uppercased))
   }
   
   func stringDowncase(_ expr: Expr) throws -> Expr {
-    return .str(NSMutableString(string: try expr.asStr().lowercased()))
+    return .string(NSMutableString(string: try expr.asStr().lowercased()))
   }
   
   func stringToList(_ expr: Expr) throws -> Expr {
@@ -160,7 +160,7 @@ public final class StringLibrary: NativeLibrary {
     guard list.isNull else {
       throw EvalError.typeError(expr, [.properListType])
     }
-    return .str(NSMutableString(string: String(utf16CodeUnits: uniChars, count: uniChars.count)))
+    return .string(NSMutableString(string: String(utf16CodeUnits: uniChars, count: uniChars.count)))
   }
   
   func substring(_ expr: Expr, _ start: Expr, _ end: Expr?) throws -> Expr {
@@ -178,6 +178,6 @@ public final class StringLibrary: NativeLibrary {
     for ch in str[s..<e] {
       uniChars.append(ch)
     }
-    return .str(NSMutableString(string: String(utf16CodeUnits: uniChars, count: uniChars.count)))
+    return .string(NSMutableString(string: String(utf16CodeUnits: uniChars, count: uniChars.count)))
   }
 }

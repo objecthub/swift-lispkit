@@ -180,7 +180,7 @@ public final class VirtualMachine: TrackedObject {
   internal fileprivate(set) var winders: Winder?
   
   /// Parameters
-  internal var parameters: HashMap
+  internal var parameters: HashTable
   
   fileprivate var setParameterProc: Procedure!
   
@@ -198,7 +198,7 @@ public final class VirtualMachine: TrackedObject {
     self.maxSp = 0
     self.registers = Registers(code: Code([], [], []), captured: [], fp: 0, root: true)
     self.winders = nil
-    self.parameters = HashMap(equiv: .eq)
+    self.parameters = HashTable(equiv: .eq)
     self.execInstr = 0
     super.init()
     self.setParameterProc = Procedure("_set-parameter", self.setParameter, nil)
@@ -286,7 +286,7 @@ public final class VirtualMachine: TrackedObject {
                    usingRulesEnv renv: Env? = nil) throws -> Expr {
     let code =
       try Compiler.compile(self.context, expr: .List(expr), in: env, and: renv, optimize: true)
-    return try self.apply(.proc(Procedure(code)), to: .null)
+    return try self.apply(.procedure(Procedure(code)), to: .null)
   }
   
   /// Applies `args` to the function `fun` in environment `env`.
@@ -401,12 +401,12 @@ public final class VirtualMachine: TrackedObject {
   }
   
   internal func getParam(_ param: Procedure) -> Expr? {
-    return self.getParameter(.proc(param))
+    return self.getParameter(.procedure(param))
   }
   
   internal func getParameter(_ param: Expr) -> Expr? {
     guard case .some(.pair(_, .box(let cell))) = self.parameters.get(param) else {
-      guard case .proc(let proc) = param,
+      guard case .procedure(let proc) = param,
             case .parameter(let tuple) = proc.kind else {
         return nil
       }
@@ -416,12 +416,12 @@ public final class VirtualMachine: TrackedObject {
   }
   
   internal func setParam(_ param: Procedure, to value: Expr) -> Expr {
-    return self.setParameter(.proc(param), to: value)
+    return self.setParameter(.procedure(param), to: value)
   }
   
   internal func setParameter(_ param: Expr, to value: Expr) -> Expr {
     guard case .some(.pair(_, .box(let cell))) = self.parameters.get(param) else {
-      guard case .proc(let proc) = param,
+      guard case .procedure(let proc) = param,
             case .parameter(let tuple) = proc.kind else {
         preconditionFailure("cannot set parameter \(param)")
       }
@@ -438,7 +438,7 @@ public final class VirtualMachine: TrackedObject {
   }
   
   internal func bindParameters(_ alist: Expr) {
-    self.parameters = HashMap(copy: self.parameters, mutable: true)
+    self.parameters = HashTable(copy: self.parameters, mutable: true)
     var current = alist
     while case .pair(.pair(let param, let value), let next) = current {
       self.parameters.add(key: param, mapsTo: .box(Cell(value)))
@@ -466,7 +466,7 @@ public final class VirtualMachine: TrackedObject {
     self.sp = self.registers.fp - 2
     self.registers.fp = Int(newfp)
     // Determine closure to which execution returns to
-    guard case .proc(let proc) = self.stack[newfp - 1] else {
+    guard case .procedure(let proc) = self.stack[newfp - 1] else {
       preconditionFailure()
     }
     // Extract code and capture list
@@ -480,7 +480,7 @@ public final class VirtualMachine: TrackedObject {
   
   fileprivate func invoke(_ n: inout Int, _ overhead: Int) throws -> Procedure {
     // Get procedure to call
-    guard case .proc(let p) = self.stack[self.sp - n - 1] else {
+    guard case .procedure(let p) = self.stack[self.sp - n - 1] else {
       throw EvalError.nonApplicativeValue(self.stack[self.sp - n - 1])
     }
     var proc = p
@@ -500,9 +500,9 @@ public final class VirtualMachine: TrackedObject {
           let a0 = self.pop()
           self.pop()
           self.push(tuple.fst)
-          self.push(.proc(proc))
+          self.push(.procedure(proc))
           self.push(a0)
-          self.push(.proc(self.setParameterProc))
+          self.push(.procedure(self.setParameterProc))
           n = 3
           proc = try tuple.fst.asProc()
         default:
@@ -515,13 +515,13 @@ public final class VirtualMachine: TrackedObject {
         case .eval(let eval):
           let generated = Procedure(try eval(self.stack[self.sp-n..<self.sp]))
           self.pop(n + 1)
-          self.push(.proc(generated))
+          self.push(.procedure(generated))
           n = 0
           return generated
         case .apply(let apply):
           let (next, args) = try apply(self.stack[self.sp-n..<self.sp])
           self.pop(n + 1)
-          self.push(.proc(next))
+          self.push(.procedure(next))
           for arg in args {
             self.push(arg)
           }
@@ -757,7 +757,7 @@ public final class VirtualMachine: TrackedObject {
       self.sp = vmState.sp
       self.registers = vmState.registers
       // Push identity function and argument onto restored virtual machine stack
-      self.push(.proc(BaseLibrary.idProc))
+      self.push(.procedure(BaseLibrary.idProc))
       self.push(arg)
     }
     return proc
@@ -773,7 +773,7 @@ public final class VirtualMachine: TrackedObject {
   
   fileprivate func execute(_ code: Code) throws -> Expr {
     self.sp = 0
-    self.push(.proc(Procedure(code)))
+    self.push(.procedure(Procedure(code)))
     return try self.execute(code, args: 0, captured: VirtualMachine.NO_CAPTURES)
   }
   
@@ -819,7 +819,7 @@ public final class VirtualMachine: TrackedObject {
           self.stack[self.sp - 1] = self.stack[self.sp - 2]
           self.stack[self.sp - 2] = top
         case .pushGlobal(let index):
-          guard case .sym(let sym) = self.registers.code.constants[index] else {
+          guard case .symbol(let sym) = self.registers.code.constants[index] else {
             preconditionFailure("PushGlobal expects a symbol at index \(index)")
           }
           guard let symval = context.userScope[sym] else {
@@ -829,12 +829,12 @@ public final class VirtualMachine: TrackedObject {
             case .undef:
               throw EvalError.variableNotYetInitialized(sym)
             case .special(_):
-              throw EvalError.illegalKeywordUsage(.sym(sym))
+              throw EvalError.illegalKeywordUsage(.symbol(sym))
             default:
               self.push(symval)
           }
         case .setGlobal(let index):
-          guard case .sym(let sym) = self.registers.code.constants[index] else {
+          guard case .symbol(let sym) = self.registers.code.constants[index] else {
             preconditionFailure("SetGlobal expects a symbol at index \(index)")
           }
           if let scope = context.userScope.scopeWithBindingFor(sym) {
@@ -843,7 +843,7 @@ public final class VirtualMachine: TrackedObject {
             throw EvalError.unboundVariable(sym)
           }
         case .defineGlobal(let index):
-          guard case .sym(let sym) = self.registers.code.constants[index] else {
+          guard case .symbol(let sym) = self.registers.code.constants[index] else {
             preconditionFailure("DefineGlobal expects a symbol at index \(index)")
           }
           context.userScope[sym] = self.pop()
@@ -917,35 +917,35 @@ public final class VirtualMachine: TrackedObject {
           self.push(.char(char))
         case .makeClosure(let i, let n, let index):
           if i >= 0 {
-            guard case .sym(let sym) = self.registers.code.constants[i] else {
+            guard case .symbol(let sym) = self.registers.code.constants[i] else {
               preconditionFailure(
                 "MakeClosure has broken closure name \(self.registers.code.constants[i])")
             }
-            self.push(.proc(Procedure(sym.description,
+            self.push(.procedure(Procedure(sym.description,
                                       self.captureExprs(n),
                                       self.registers.code.fragments[index])))
           } else {
-            self.push(.proc(Procedure(nil,
+            self.push(.procedure(Procedure(nil,
                                       self.captureExprs(n),
                                       self.registers.code.fragments[index])))
         }
         case .makePromise:
           let top = self.pop()
-          guard case .proc(let proc) = top else {
+          guard case .procedure(let proc) = top else {
             preconditionFailure("MakePromise cannot create promise from \(top)")
           }
-          let future = Future(proc)
+          let future = Promise(proc)
           self.context.objects.manage(future)
           self.push(.promise(future))
         case .makeSyntax:
           let transformer = self.pop()
-          guard case .proc(let proc) = transformer else {
+          guard case .procedure(let proc) = transformer else {
             throw EvalError.malformedTransformer(transformer)
           }
           self.push(.special(SpecialForm(proc)))
         case .compile:
           let code = try Compiler.compile(self.context, expr: .List(self.pop()), optimize: true)
-          self.push(.proc(Procedure(code)))
+          self.push(.procedure(Procedure(code)))
         case .apply(let m):
           let arglist = self.pop()
           var args = arglist
@@ -1084,7 +1084,7 @@ public final class VirtualMachine: TrackedObject {
                 // Push instruction pointer
                 self.push(.fixnum(Int64(self.registers.ip)))
                 // Push procedure that yields the forced result
-                self.push(.proc(proc))
+                self.push(.procedure(proc))
                 // Invoke native function
                 var n = 0
                 if case .closure(_, let newcaptured, let newcode) = try self.invoke(&n, 3).kind {
@@ -1131,7 +1131,7 @@ public final class VirtualMachine: TrackedObject {
         case .display:
           let obj = self.pop()
           switch obj {
-            case .str(let str):
+            case .string(let str):
               context.console.print(str as String)
             default:
               context.console.print(obj.description)

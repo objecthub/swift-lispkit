@@ -766,26 +766,26 @@ public final class MathLibrary: NativeLibrary {
     }
     switch expr {
       case .fixnum(let num):
-        return .str(NSMutableString(string: String(num, radix: radix)))
+        return .string(NSMutableString(string: String(num, radix: radix)))
       case .bignum(let num):
-        return .str(NSMutableString(string: num.toString(base: BigInt.base(of: radix))))
+        return .string(NSMutableString(string: num.toString(base: BigInt.base(of: radix))))
       case .rational(let num):
-        return .str(NSMutableString(string: String(num.value.numerator, radix: radix) + "/" +
+        return .string(NSMutableString(string: String(num.value.numerator, radix: radix) + "/" +
                                             String(num.value.denominator, radix: radix)))
       case .bigrat(let num):
-        return .str(
+        return .string(
           NSMutableString(string: num.value.numerator.toString(base: BigInt.base(of: radix)) +
                           "/" + num.value.denominator.toString(base: BigInt.base(of: radix))))
       case .flonum(let num):
         if radix != 10 {
           throw EvalError.illegalRadix(rad!)
         }
-        return .str(NSMutableString(string: String(num)))
+        return .string(NSMutableString(string: String(num)))
       case .complex(let num):
         if radix != 10 {
           throw EvalError.illegalRadix(rad!)
         }
-        return .str(NSMutableString(string: num.value.description))
+        return .string(NSMutableString(string: num.value.description))
       default:
         throw EvalError.typeError(expr, [.numberType])
     }

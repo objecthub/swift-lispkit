@@ -73,33 +73,33 @@ public final class BoxLibrary: NativeLibrary {
   //-------- MARK: - Mutable pairs
   
   func isMpair(_ expr: Expr) -> Expr {
-    guard case .mutablePair(_) = expr else {
+    guard case .mpair(_) = expr else {
       return .false
     }
     return .true
   }
 
   func mcons(_ car: Expr, cdr: Expr) throws -> Expr {
-    return .mutablePair(Tuple(car, cdr))
+    return .mpair(Tuple(car, cdr))
   }
   
   func mcar(_ expr: Expr) throws -> Expr {
-    guard case .mutablePair(let tuple) = expr else {
-      throw EvalError.typeError(expr, [.mPairType])
+    guard case .mpair(let tuple) = expr else {
+      throw EvalError.typeError(expr, [.mpairType])
     }
     return tuple.fst
   }
   
   func mcdr(_ expr: Expr) throws -> Expr {
-    guard case .mutablePair(let tuple) = expr else {
-      throw EvalError.typeError(expr, [.mPairType])
+    guard case .mpair(let tuple) = expr else {
+      throw EvalError.typeError(expr, [.mpairType])
     }
     return tuple.snd
   }
   
   func setMcar(_ expr: Expr, value: Expr) throws -> Expr {
-    guard case .mutablePair(let tuple) = expr else {
-      throw EvalError.typeError(expr, [.mPairType])
+    guard case .mpair(let tuple) = expr else {
+      throw EvalError.typeError(expr, [.mpairType])
     }
     // Set car of tuple. Guarantee that tuples for which `set-mcar!` is called are managed
     // by a managed object pool.
@@ -108,8 +108,8 @@ public final class BoxLibrary: NativeLibrary {
   }
   
   func setMcdr(_ expr: Expr, value: Expr) throws -> Expr {
-    guard case .mutablePair(let tuple) = expr else {
-      throw EvalError.typeError(expr, [.mPairType])
+    guard case .mpair(let tuple) = expr else {
+      throw EvalError.typeError(expr, [.mpairType])
     }
     // Set cdr of tuple. Guarantee that tuples for which `set-mcdr!` is called are managed
     // by a managed object pool.

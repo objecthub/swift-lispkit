@@ -30,26 +30,26 @@ public enum Expr: Trackable, Hashable {
   case null
   case `true`
   case `false`
-  case sym(Symbol)
+  case symbol(Symbol)
   case fixnum(Int64)
   case bignum(BigInt)
-  case rational(ImmutableBox<Rational<Int64>>)
-  case bigrat(ImmutableBox<Rational<BigInt>>)
+  case rational(FixedRational)
+  case bigrat(BigRational)
   case flonum(Double)
-  case complex(ImmutableBox<Complex<Double>>)
+  case complex(DoubleComplex)
   case char(UniChar)
-  case str(NSMutableString)
+  case string(NSMutableString)
   case bytes(ByteVector)
   indirect case pair(Expr, Expr)
   case box(Cell)
-  case mutablePair(Tuple)
+  case mpair(Tuple)
   case vector(Collection)
   case record(Collection)
-  case map(HashMap)
-  case promise(Future)
-  case proc(Procedure)
+  case table(HashTable)
+  case promise(Promise)
+  case procedure(Procedure)
   case special(SpecialForm)
-  case prt(Port)
+  case port(Port)
   case error(AnyError)
   
   /// Returns the type of this expression.
@@ -67,7 +67,7 @@ public enum Expr: Trackable, Hashable {
         return .booleanType
       case .false:
         return .booleanType
-      case .sym(_):
+      case .symbol(_):
         return .symbolType
       case .fixnum(_):
         return .integerType
@@ -83,7 +83,7 @@ public enum Expr: Trackable, Hashable {
         return .complexType
       case .char(_):
         return .charType
-      case .str(_):
+      case .string(_):
         return .strType
       case .bytes(_):
         return .byteVectorType
@@ -91,21 +91,21 @@ public enum Expr: Trackable, Hashable {
         return .pairType
       case .box(_):
         return .boxType
-      case .mutablePair(_):
-        return .mPairType
+      case .mpair(_):
+        return .mpairType
       case .vector(_):
         return .vectorType
       case .record(_):
         return .recordType
-      case .map(_):
-        return .mapType
+      case .table(_):
+        return .tableType
       case .promise(_):
         return .promiseType
-      case .proc(_):
+      case .procedure(_):
         return .procedureType
       case .special(_):
         return .specialType
-      case .prt(_):
+      case .port(_):
         return .portType
       case .error(_):
         return .errorType
@@ -191,8 +191,8 @@ public enum Expr: Trackable, Hashable {
   /// Returns the given expression with all symbols getting interned.
   public var datum: Expr {
     switch self {
-      case .sym(let sym):
-        return .sym(sym.interned)
+      case .symbol(let sym):
+        return .symbol(sym.interned)
       case .pair(let car, let cdr):
         return .pair(car.datum, cdr.datum)
       default:
@@ -224,8 +224,8 @@ public enum Expr: Trackable, Hashable {
   
   public var isSimple: Bool {
     switch self {
-      case .undef, .void, .eof, .null, .true, .false, .sym(_), .fixnum(_), .bignum(_), .rational(_),
-           .bigrat(_), .flonum(_), .complex(_), .char(_), .str(_), .bytes(_), .prt(_):
+      case .undef, .void, .eof, .null, .true, .false, .symbol(_), .fixnum(_), .bignum(_), .rational(_),
+           .bigrat(_), .flonum(_), .complex(_), .char(_), .string(_), .bytes(_), .port(_):
         return true
       default:
         return false
@@ -236,8 +236,8 @@ public enum Expr: Trackable, Hashable {
     switch self {
       case .pair(let car, let cdr):
         return car.requiresTracking || cdr.requiresTracking
-      case .box(_), .mutablePair(_), .vector(_), .record(_), .map(_), .promise(_),
-           .proc(_), .special(_), .error(_):
+      case .box(_), .mpair(_), .vector(_), .record(_), .table(_), .promise(_),
+           .procedure(_), .special(_), .error(_):
         return true
       default:
         return false
@@ -251,17 +251,17 @@ public enum Expr: Trackable, Hashable {
         cdr.mark(tag)
       case .box(let cell):
         cell.mark(tag)
-      case .mutablePair(let tuple):
+      case .mpair(let tuple):
         tuple.mark(tag)
       case .vector(let vector):
         vector.mark(tag)
       case .record(let record):
         record.mark(tag)
-      case .map(let map):
+      case .table(let map):
         map.mark(tag)
       case .promise(let future):
         future.mark(tag)
-      case .proc(let proc):
+      case .procedure(let proc):
         proc.mark(tag)
       case .special(let special):
         special.mark(tag)
@@ -335,7 +335,7 @@ extension Expr {
   }
   
   public static func StringFor(_ str: String) -> Expr {
-    return .str(NSMutableString(string: str))
+    return .string(NSMutableString(string: str))
   }
 }
 
@@ -439,7 +439,7 @@ extension Expr {
   
   public func toSymbol() -> Symbol? {
     switch self {
-    case .sym(let sym):
+    case .symbol(let sym):
       return sym
     default:
       return nil
@@ -461,14 +461,14 @@ extension Expr {
   }
   
   public func asStr() throws -> String {
-    guard case .str(let res) = self else {
+    guard case .string(let res) = self else {
       throw EvalError.typeError(self, [.strType])
     }
     return res as String
   }
   
   public func asMutableStr() throws -> NSMutableString {
-    guard case .str(let res) = self else {
+    guard case .string(let res) = self else {
       throw EvalError.typeError(self, [.strType])
     }
     return res
@@ -502,22 +502,22 @@ extension Expr {
     return res
   }
   
-  public func asMap() throws -> HashMap {
-    guard case .map(let map) = self else {
-      throw EvalError.typeError(self, [.mapType])
+  public func asMap() throws -> HashTable {
+    guard case .table(let map) = self else {
+      throw EvalError.typeError(self, [.tableType])
     }
     return map
   }
   
   public func asProc() throws -> Procedure {
-    guard case .proc(let proc) = self else {
+    guard case .procedure(let proc) = self else {
       throw EvalError.typeError(self, [.procedureType])
     }
     return proc
   }
   
   public func asPort() throws -> Port {
-    guard case .prt(let port) = self else {
+    guard case .port(let port) = self else {
       throw EvalError.typeError(self, [.portType])
     }
     return port
@@ -584,7 +584,7 @@ extension Expr: CustomStringConvertible {
           return "#t"
         case .false:
           return "#f"
-        case .sym(let sym):
+        case .symbol(let sym):
           guard escape else {
             return sym.rawIdentifier
           }
@@ -634,7 +634,7 @@ extension Expr: CustomStringConvertible {
                 return "#\\\(Character(UnicodeScalar(ch)!))"
               }
           }
-        case .str(let str):
+        case .string(let str):
           guard escape else {
             return str as String
           }
@@ -665,7 +665,7 @@ extension Expr: CustomStringConvertible {
             enclObjs.remove(cell)
             return fixString(cell, res)
           }
-        case .mutablePair(let tuple):
+        case .mpair(let tuple):
           if let res = objIdString(tuple) {
             return res
           } else {
@@ -694,7 +694,7 @@ extension Expr: CustomStringConvertible {
           }
         case .record(let record):
           guard case .record(let type) = record.kind else {
-            guard case .str(let name) = record.exprs[0] else {
+            guard case .string(let name) = record.exprs[0] else {
               preconditionFailure("incorrect encoding of record type")
             }
             return "#<record-type \(name)>"
@@ -702,7 +702,7 @@ extension Expr: CustomStringConvertible {
           if let res = objIdString(record) {
             return res
           } else {
-            guard case .str(let name) = type.exprs[0] else {
+            guard case .string(let name) = type.exprs[0] else {
               preconditionFailure("incorrect encoding of record type")
             }
             enclObjs.insert(record)
@@ -721,7 +721,7 @@ extension Expr: CustomStringConvertible {
             enclObjs.remove(record)
             return fixString(record, res)
           }
-        case .map(let map):
+        case .table(let map):
           if let res = objIdString(map) {
             return res
           } else {
@@ -738,7 +738,7 @@ extension Expr: CustomStringConvertible {
           }
         case .promise(let promise):
           return "#<promise \(promise.identityString)>"
-        case .proc(let proc):
+        case .procedure(let proc):
           switch proc.kind {
             case .parameter(let tuple):
               if let res = objIdString(proc) {
@@ -756,7 +756,7 @@ extension Expr: CustomStringConvertible {
           }
         case .special(let special):
           return "#<special \(special.identityString)>"
-        case .prt(let port):
+        case .port(let port):
           return "#<\(port.typeDescription) \(port.identDescription)>"
         case .error(let error):
           return error.description
@@ -791,4 +791,6 @@ public func ==(lhs: Expr, rhs: Expr) -> Bool {
 }
 
 public typealias ByteVector = MutableBox<[UInt8]>
-
+public typealias FixedRational = ImmutableBox<Rational<Int64>>
+public typealias BigRational = ImmutableBox<Rational<BigInt>>
+public typealias DoubleComplex = ImmutableBox<Complex<Double>>

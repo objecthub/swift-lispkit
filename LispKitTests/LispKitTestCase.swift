@@ -112,7 +112,7 @@ open class LispKitTestCase: XCTestCase {
       var res = [Test]()
       while !parser.finished {
         let spec = try parser.parse()
-        guard case .pair(.str(let descr), .pair(let target, let source)) = spec else {
+        guard case .pair(.string(let descr), .pair(let target, let source)) = spec else {
           preconditionFailure("malformed test spec in file \(filename): \(spec)")
         }
         res.append(Test(description: descr.description, source: source, target: target))

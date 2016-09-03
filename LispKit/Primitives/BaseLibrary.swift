@@ -112,7 +112,7 @@ public final class BaseLibrary: NativeLibrary {
     guard args.count > 1 else {
       throw EvalError.leastArgumentCountError(formals: 2, args: .List(args))
     }
-    guard case .proc(let proc) = args.first! else {
+    guard case .procedure(let proc) = args.first! else {
       throw EvalError.typeError(args.first!, [.procedureType])
     }
     var exprs = Exprs()
@@ -183,14 +183,14 @@ public final class BaseLibrary: NativeLibrary {
         for expr in vector.exprs {
           if case .pair(let car, .pair(let elem, let cddr)) = expr {
             switch car {
-              case .sym(context.symbols.UNQUOTE):
+              case .symbol(context.symbols.UNQUOTE):
                 guard cddr == .null else {
                   throw EvalError.invalidContextInQuasiquote(context.symbols.UNQUOTE, expr)
                 }
                 try compiler.compile(elem, in: env, inTailPos: false)
                 nelem += 1
                 continue
-              case .sym(context.symbols.UNQUOTESPLICING):
+              case .symbol(context.symbols.UNQUOTESPLICING):
                 guard cddr == .null else {
                   throw EvalError.invalidContextInQuasiquote(context.symbols.UNQUOTESPLICING, expr)
                 }
@@ -230,30 +230,30 @@ public final class BaseLibrary: NativeLibrary {
   
   fileprivate func reduceQQ(_ expr: Expr) throws -> Expr {
     guard case .pair(let car, let cdr) = expr else {
-      return Expr.List(.sym(Symbol(context.symbols.QUOTE, .system)), expr)
+      return Expr.List(.symbol(Symbol(context.symbols.QUOTE, .system)), expr)
     }
     switch car {
-      case .sym(context.symbols.UNQUOTE):
+      case .symbol(context.symbols.UNQUOTE):
         guard case .pair(let cadr, .null) = cdr else {
           throw EvalError.invalidContextInQuasiquote(context.symbols.UNQUOTE, car)
         }
         return cadr
-      case .sym(context.symbols.QUASIQUOTE):
+      case .symbol(context.symbols.QUASIQUOTE):
         guard case .pair(let cadr, .null) = cdr else {
           throw EvalError.invalidContextInQuasiquote(context.symbols.QUASIQUOTE, car)
         }
         return try reduceQQ(reduceQQ(cadr))
-      case .sym(context.symbols.UNQUOTESPLICING):
+      case .symbol(context.symbols.UNQUOTESPLICING):
         throw EvalError.invalidContextInQuasiquote(context.symbols.UNQUOTESPLICING, car)
-      case .pair(.sym(context.symbols.UNQUOTESPLICING), let cdar):
+      case .pair(.symbol(context.symbols.UNQUOTESPLICING), let cdar):
         guard case .pair(let cadar, .null) = cdar else {
           throw EvalError.invalidContextInQuasiquote(context.symbols.UNQUOTESPLICING, car)
         }
-        return Expr.List(.sym(Symbol(context.symbols.APPEND, .system)),
+        return Expr.List(.symbol(Symbol(context.symbols.APPEND, .system)),
                          cadar,
                          try reduceQQ(cdr))
       default:
-        return Expr.List(.sym(Symbol(context.symbols.CONS, .system)),
+        return Expr.List(.symbol(Symbol(context.symbols.CONS, .system)),
                          try reduceQQ(car),
                          try reduceQQ(cdr))
     }
@@ -276,7 +276,7 @@ public final class BaseLibrary: NativeLibrary {
   }
   
   func isProcedure(_ expr: Expr) -> Expr {
-    if case .proc(_) = expr {
+    if case .procedure(_) = expr {
       return .true
     }
     return .false
@@ -295,7 +295,7 @@ public final class BaseLibrary: NativeLibrary {
     }
     // Compile definition and store result in global environment
     switch sig {
-      case .sym(_):
+      case .symbol(_):
         guard case .pair(let value, .null) = def else {
           throw EvalError.malformedDefinition(Expr.List(def))
         }
@@ -322,7 +322,7 @@ public final class BaseLibrary: NativeLibrary {
       throw EvalError.argumentCountError(formals: 2, args: expr)
     }
     // Check that the keyword is a symbol
-    guard case .sym(let sym) = kword else {
+    guard case .symbol(let sym) = kword else {
       throw EvalError.typeError(kword, [.symbolType])
     }
     // Check that define is not executed in a local environment
@@ -364,7 +364,7 @@ public final class BaseLibrary: NativeLibrary {
     }
     var literalSet = Set<Symbol>()
     var expr = lit
-    while case .pair(.sym(let sym), let cdr) = expr {
+    while case .pair(.symbol(let sym), let cdr) = expr {
       literalSet.insert(sym)
       expr = cdr
     }
@@ -376,13 +376,13 @@ public final class BaseLibrary: NativeLibrary {
                             patterns: patterns,
                             templates: templates,
                             in: compiler.rulesEnv)
-    compiler.emit(.pushConstant(compiler.registerConstant(.proc(Procedure(rules)))))
+    compiler.emit(.pushConstant(compiler.registerConstant(.procedure(Procedure(rules)))))
     return false
   }
   
   func checkPattern(_ expr: Expr) -> Expr? {
     switch expr {
-      case .eof, .null, .true, .false, .sym(_), .str(_), .char(_),
+      case .eof, .null, .true, .false, .symbol(_), .string(_), .char(_),
            .fixnum(_), .bignum(_), .rational(_), .bigrat(_), .flonum(_), .complex(_):
         return nil
       case .pair(let car, let cdr):
@@ -434,7 +434,7 @@ public final class BaseLibrary: NativeLibrary {
   }
   
   func makePromise(_ expr: Expr) -> Expr {
-    return .promise(Future(expr))
+    return .promise(Promise(expr))
   }
   
   func compileDelayForce(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
@@ -451,7 +451,7 @@ public final class BaseLibrary: NativeLibrary {
       throw EvalError.argumentCountError(formals: 1, args: expr)
     }
     try compiler.compileLambda(
-      nil, .null, .pair(.List(.sym(compiler.context.symbols.MAKEPROMISE), delayed), .null), env)
+      nil, .null, .pair(.List(.symbol(compiler.context.symbols.MAKEPROMISE), delayed), .null), env)
     compiler.emit(.makePromise)
     return false
   }
@@ -469,28 +469,28 @@ public final class BaseLibrary: NativeLibrary {
   //-------- MARK: - Symbol primitives
   
   func isSymbol(_ expr: Expr) -> Expr {
-    if case .sym(_) = expr {
+    if case .symbol(_) = expr {
       return .true
     }
     return .false
   }
   
   func gensym(_ expr: Expr?) throws -> Expr {
-    return .sym(context.symbols.gensym(try expr?.asStr() ?? "g"))
+    return .symbol(context.symbols.gensym(try expr?.asStr() ?? "g"))
   }
   
   func stringToSymbol(_ expr: Expr) throws -> Expr {
-    return .sym(context.symbols.intern(try expr.asStr()))
+    return .symbol(context.symbols.intern(try expr.asStr()))
   }
   
   func symbolToString(_ expr: Expr) throws -> Expr {
-    return .str(NSMutableString(string: try expr.asSymbol().description))
+    return .string(NSMutableString(string: try expr.asSymbol().description))
   }
   
   func symtable() -> Expr {
     var res = Expr.null
     for sym in self.context.symbols {
-      res = .pair(.sym(sym), res)
+      res = .pair(.symbol(sym), res)
     }
     return res
   }
@@ -595,7 +595,7 @@ public final class BaseLibrary: NativeLibrary {
     compiler.emit(.pushCurrentTime)
     compiler.emit(.swap)
     compiler.emit(.flMinus)
-    try compiler.pushValue(.str(NSMutableString(string: "elapsed time = ")))
+    try compiler.pushValue(.string(NSMutableString(string: "elapsed time = ")))
     compiler.emit(.display)
     compiler.emit(.display)
     compiler.emit(.newline)
@@ -613,7 +613,7 @@ public final class BaseLibrary: NativeLibrary {
   }
   
   func disassemble(_ expr: Expr) throws -> Expr {
-    guard case .proc(let proc) = expr else {
+    guard case .procedure(let proc) = expr else {
       throw EvalError.typeError(expr, [.procedureType])
     }
     switch proc.kind {

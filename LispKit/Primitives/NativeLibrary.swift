@@ -44,14 +44,14 @@ open class NativeLibrary {
                                 name: String,
                                 lib: String = #file) -> Procedure {
     let sym = context.symbols.intern(name)
-    guard case .some(.proc(let proc)) = context.systemScope[sym] else {
+    guard case .some(.procedure(let proc)) = context.systemScope[sym] else {
       preconditionFailure("cannot import \(name) in library \(lib)")
     }
     return proc
   }
   
   open func define(_ proc: Procedure) {
-    self.context.systemScope[self.context.symbols.intern(proc.name)] = .proc(proc)
+    self.context.systemScope[self.context.symbols.intern(proc.name)] = .procedure(proc)
   }
     
   open func define(_ name: String, _ special: SpecialForm) {
@@ -70,7 +70,7 @@ open class NativeLibrary {
     switch self.context.machine.evalStr(sourcecode, in: .system) {
       case .error(let error):
         preconditionFailure("compilation failure: " + error.description)
-      case .proc(let proc):
+      case .procedure(let proc):
         self.context.systemScope[self.context.symbols.intern(name)] = .special(SpecialForm(proc))
       case let expr:
         preconditionFailure("broken syntax transformer: " + expr.description)
@@ -79,7 +79,7 @@ open class NativeLibrary {
   
   open func procedure(_ sourcecode: String) -> Procedure {
     let expr = self.context.machine.evalStr(sourcecode, in: .system)
-    guard case .proc(let proc) = expr else {
+    guard case .procedure(let proc) = expr else {
       preconditionFailure("predefined procedure not a procedure")
     }
     return proc

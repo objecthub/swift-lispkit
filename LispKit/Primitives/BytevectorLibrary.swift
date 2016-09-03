@@ -161,7 +161,7 @@ public final class BytevectorLibrary: NativeLibrary {
     while case .scalarValue(let scalar) = decoder.decode(&generator) {
       str.append(String(scalar))
     }
-    return .str(NSMutableString(string: str))
+    return .string(NSMutableString(string: str))
   }
   
   func stringToUtf8(_ string: Expr, args: Arguments) throws -> Expr {

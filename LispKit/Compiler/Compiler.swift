@@ -109,7 +109,7 @@ public final class Compiler {
     var next = arglist
     loop: while case .pair(let arg, let cdr) = next {
       switch arg {
-        case .sym(let sym):
+        case .symbol(let sym):
           arguments.allocBindingFor(sym)
         default:
           break loop
@@ -233,9 +233,9 @@ public final class Compiler {
             return
           }
         }
-        self.emit(.pushGlobal(self.registerConstant(.sym(lexicalSym))))
+        self.emit(.pushGlobal(self.registerConstant(.symbol(lexicalSym))))
       case .macroExpansionRequired(_):
-        throw EvalError.illegalKeywordUsage(.sym(sym))
+        throw EvalError.illegalKeywordUsage(.symbol(sym))
     }
   }
   
@@ -342,8 +342,8 @@ public final class Compiler {
         self.emit(.pushComplex(num.value))
       case .char(let char):
         self.emit(.pushChar(char))
-      case .sym(_), .str(_), .bytes(_), .pair(_, _), .box(_), .mutablePair(_),
-           .vector(_), .record(_), .map(_), .promise(_), .proc(_), .prt(_), .error(_):
+      case .symbol(_), .string(_), .bytes(_), .pair(_, _), .box(_), .mpair(_),
+           .vector(_), .record(_), .table(_), .promise(_), .procedure(_), .port(_), .error(_):
         self.pushConstant(expr)
       case .special(_):
         throw EvalError.illegalKeywordUsage(expr)
@@ -356,7 +356,7 @@ public final class Compiler {
       case .success:
         break; // Nothing to do
       case .globalLookupRequired(let lexicalSym, _):
-        self.emit(.setGlobal(self.registerConstant(.sym(lexicalSym))))
+        self.emit(.setGlobal(self.registerConstant(.symbol(lexicalSym))))
       case .macroExpansionRequired(_):
         preconditionFailure("setting bindings should never trigger macro expansion")
     }
@@ -391,7 +391,7 @@ public final class Compiler {
   /// is located in a tail position. This allows compile to generate code with tail calls.
   public func expand(_ expr: Expr, in env: Env) throws -> Expr {
     switch expr {
-      case .pair(.sym(let sym), let cdr):
+      case .pair(.symbol(let sym), let cdr):
         let cp = self.checkpointer.checkpoint()
         switch self.lookupLocalValueOf(sym, in: env) {
           case .success:
@@ -408,7 +408,7 @@ public final class Compiler {
                     case .macro(let transformer):
                       let expanded = try
                         self.checkpointer.expansion(cp) ??
-                        self.context.machine.apply(.proc(transformer), to: .pair(cdr, .null), in: env)
+                        self.context.machine.apply(.procedure(transformer), to: .pair(cdr, .null), in: env)
                       self.checkpointer.associate(.expansion(expanded), with: cp)
                       log("expanded = \(expanded)")
                       return expanded
@@ -421,7 +421,7 @@ public final class Compiler {
             }
           case .macroExpansionRequired(let transformer):
             let expanded =
-              try self.context.machine.apply(.proc(transformer), to: .pair(cdr, .null), in: env)
+              try self.context.machine.apply(.procedure(transformer), to: .pair(cdr, .null), in: env)
             log("expanded = \(expanded)")
             return expanded
         }
@@ -435,9 +435,9 @@ public final class Compiler {
   @discardableResult public func compile(_ expr: Expr, in env: Env, inTailPos tail: Bool) throws -> Bool {
     let cp = self.checkpointer.checkpoint()
     switch expr {
-      case .sym(let sym):
+      case .symbol(let sym):
         try self.pushValueOf(sym, in: env)
-      case .pair(.sym(let sym), let cdr):
+      case .pair(.symbol(let sym), let cdr):
         let pushFrameIp = self.emit(.makeFrame)
         // Try to push the function if locally defined
         switch self.pushLocalValueOf(sym, in: env) {
@@ -449,7 +449,7 @@ public final class Compiler {
                            global.scope(self.context)[lexicalSym] {
               self.checkpointer.associate(.fromGlobalEnv(value), with: cp)
               switch value {
-                case .proc(let proc):
+                case .procedure(let proc):
                   if case .primitive(_, _, .some(let formCompiler)) = proc.kind
                      , self.checkpointer.systemDefined(cp) ||
                            global.systemDefined(lexicalSym, in: self.context) {
@@ -465,7 +465,7 @@ public final class Compiler {
                     case .macro(let transformer):
                       let expanded = try
                         self.checkpointer.expansion(cp) ??
-                        self.context.machine.apply(.proc(transformer), to: .pair(cdr, .null), in: env)
+                        self.context.machine.apply(.procedure(transformer), to: .pair(cdr, .null), in: env)
                       self.checkpointer.associate(.expansion(expanded), with: cp)
                       log("expanded = \(expanded)")
                       return try self.compile(expanded, in: env, inTailPos: tail)
@@ -479,14 +479,14 @@ public final class Compiler {
               if let value = self.context.systemScope[lexicalSym] {
                 try self.pushValue(value)
               } else {
-                self.emit(.pushGlobal(self.registerConstant(.sym(lexicalSym))))
+                self.emit(.pushGlobal(self.registerConstant(.symbol(lexicalSym))))
               }
             } else {
-              self.emit(.pushGlobal(self.registerConstant(.sym(lexicalSym))))
+              self.emit(.pushGlobal(self.registerConstant(.symbol(lexicalSym))))
             }
           case .macroExpansionRequired(let transformer):
             let expanded =
-              try self.context.machine.apply(.proc(transformer), to: .pair(cdr, .null), in: env)
+              try self.context.machine.apply(.procedure(transformer), to: .pair(cdr, .null), in: env)
             log("expanded = \(expanded)")
             return try self.compile(expanded, in: env, inTailPos: tail)
         }
@@ -557,18 +557,18 @@ public final class Compiler {
     var bindings = Exprs()
     if localDefine {
       loop: while i < exprs.count {
-        guard case .pair(.sym(let fun), let binding) = exprs[i]
+        guard case .pair(.symbol(let fun), let binding) = exprs[i]
               , fun.interned == self.context.symbols.DEFINE &&
                     env.systemDefined(fun, in: self.context) else {
           break loop
         }
         // Distinguish value definitions from function definitions
         switch binding {
-          case .pair(.sym(let sym), .pair(let def, .null)):
-            bindings.append(.pair(.sym(sym), .pair(def, .null)))
-          case .pair(.pair(.sym(let sym), let args), .pair(let def, .null)):
+          case .pair(.symbol(let sym), .pair(let def, .null)):
+            bindings.append(.pair(.symbol(sym), .pair(def, .null)))
+          case .pair(.pair(.symbol(let sym), let args), .pair(let def, .null)):
             bindings.append(
-              .pair(.sym(sym), .pair(.pair(.sym(Symbol(self.context.symbols.LAMBDA, .system)),
+              .pair(.symbol(sym), .pair(.pair(.symbol(Symbol(self.context.symbols.LAMBDA, .system)),
                                            .pair(args, .pair(def, .null))),
                                      .null)))
           default:
@@ -622,7 +622,7 @@ public final class Compiler {
     let env = atomic && !predef ? lenv : .local(group)
     var bindings = bindingList
     if predef {
-      while case .pair(.pair(.sym(let sym), _), let rest) = bindings {
+      while case .pair(.pair(.symbol(let sym), _), let rest) = bindings {
         let binding = group.allocBindingFor(sym)
         // This is a hack for now; we need to make sure forward references work, e.g. in
         // lambda expressions. A way to do this is to allocate variables for all bindings that
@@ -636,7 +636,7 @@ public final class Compiler {
     }
     var prevIndex = -1
     while case .pair(let binding, let rest) = bindings {
-      guard case .pair(.sym(let sym), .pair(let expr, .null)) = binding else {
+      guard case .pair(.symbol(let sym), .pair(let expr, .null)) = binding else {
         throw EvalError.malformedBindings(binding, bindingList)
       }
       try self.compile(expr, in: env, inTailPos: false)
@@ -686,13 +686,13 @@ public final class Compiler {
     let env = recursive ? Env(group) : lenv
     var bindings = bindingList
     while case .pair(let binding, let rest) = bindings {
-      guard case .pair(.sym(let sym), .pair(let transformer, .null)) = binding else {
+      guard case .pair(.symbol(let sym), .pair(let transformer, .null)) = binding else {
         throw EvalError.malformedBindings(binding, bindingList)
       }
       let procExpr = try self.context.machine.eval(transformer,
                                                    in: env.syntacticalEnv,
                                                    usingRulesEnv: env)
-      guard case .proc(let proc) = procExpr else {
+      guard case .procedure(let proc) = procExpr else {
         throw EvalError.malformedTransformer(transformer) //FIXME: Find better error message
       }
       guard group.bindingFor(sym) == nil else {
@@ -721,7 +721,7 @@ public final class Compiler {
     switch next {
       case .null:
         closureCompiler.emit(.assertArgCount(arguments.count))
-      case .sym(let sym):
+      case .symbol(let sym):
         if arguments.count > 0 {
           closureCompiler.emit(.assertMinArgCount(arguments.count))
         }
@@ -779,7 +779,7 @@ public final class Compiler {
       switch next {
         case .null:
           exactIp = closureCompiler.emitPlaceholder()
-        case .sym(let sym):
+        case .symbol(let sym):
           if arguments.count > 0 {
             minIp = closureCompiler.emitPlaceholder()
           }

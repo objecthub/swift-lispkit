@@ -1,5 +1,5 @@
 //
-//  HashMap.swift
+//  HashTable.swift
 //  LispKit
 //
 //  Created by Matthias Zenger on 14/07/2016.
@@ -19,9 +19,9 @@
 //
 
 ///
-/// `HashMap` implements hash maps natively.
+/// `HashTable` implements hash maps natively.
 ///
-public final class HashMap: ManagedObject, CustomStringConvertible {
+public final class HashTable: ManagedObject, CustomStringConvertible {
   
   public struct CustomProcedures {
     let eql: Procedure
@@ -39,7 +39,7 @@ public final class HashMap: ManagedObject, CustomStringConvertible {
   }
   
   /// Maintain object statistics.
-  internal static let stats = Stats("HashMap")
+  internal static let stats = Stats("HashTable")
   
   /// The hash buckets.
   fileprivate var buckets: [Expr]
@@ -47,7 +47,7 @@ public final class HashMap: ManagedObject, CustomStringConvertible {
   /// Number of mappings in this hash table
   public fileprivate(set) var count: Int
   
-  /// Is this `HashMap` object mutable?
+  /// Is this `HashTable` object mutable?
   public let mutable: Bool
   
   /// What equivalence relation is used?
@@ -55,7 +55,7 @@ public final class HashMap: ManagedObject, CustomStringConvertible {
   
   /// Update object statistics.
   deinit {
-    HashMap.stats.dealloc()
+    HashTable.stats.dealloc()
   }
   
   /// Create a new empty hash table with the given size.
@@ -64,11 +64,11 @@ public final class HashMap: ManagedObject, CustomStringConvertible {
     self.count = 0
     self.mutable = mutable
     self.equiv = equiv
-    super.init(HashMap.stats)
+    super.init(HashTable.stats)
   }
   
   /// Create a copy of another hash table. Make it immutable if `mutable` is set to false.
-  public init(copy other: HashMap, mutable: Bool = true) {
+  public init(copy other: HashTable, mutable: Bool = true) {
     self.buckets = [Expr]()
     for i in 0..<other.buckets.count {
       self.buckets.append(other.buckets[i])
@@ -76,7 +76,7 @@ public final class HashMap: ManagedObject, CustomStringConvertible {
     self.count = other.count
     self.mutable = mutable
     self.equiv = other.equiv
-    super.init(HashMap.stats)
+    super.init(HashTable.stats)
   }
   
   /// A string representation of this variable.
@@ -127,7 +127,7 @@ public final class HashMap: ManagedObject, CustomStringConvertible {
   public var mappings: [(Expr, Expr)] {
     var res = [(Expr, Expr)]()
     for bucket in self.buckets {
-      HashMap.insertMappings(into: &res, from: bucket)
+      HashTable.insertMappings(into: &res, from: bucket)
     }
     return res
   }
@@ -221,7 +221,7 @@ public final class HashMap: ManagedObject, CustomStringConvertible {
   public var entries: [(Expr, Expr)] {
     var res = [(Expr, Expr)]()
     for bucket in self.buckets {
-      HashMap.insertMappings(into: &res, from: bucket)
+      HashTable.insertMappings(into: &res, from: bucket)
     }
     return res
   }
@@ -292,7 +292,7 @@ public final class HashMap: ManagedObject, CustomStringConvertible {
       case .equal:
         return equalExpr(right, left)
       case .custom(_):
-        preconditionFailure("cannot access custom HashMap internally")
+        preconditionFailure("cannot access custom HashTable internally")
     }
   }
   
@@ -306,7 +306,7 @@ public final class HashMap: ManagedObject, CustomStringConvertible {
       case .equal:
         return equalHash(expr)
       case .custom(_):
-        preconditionFailure("cannot access custom HashMap internally")
+        preconditionFailure("cannot access custom HashTable internally")
     }
   }
   

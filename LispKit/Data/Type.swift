@@ -40,9 +40,9 @@ public enum Type: Int, CustomStringConvertible {
   case byteVectorType
   case pairType
   case boxType
-  case mPairType
+  case mpairType
   case vectorType
-  case mapType
+  case tableType
   case recordType
   case promiseType
   case procedureType
@@ -97,7 +97,7 @@ public enum Type: Int, CustomStringConvertible {
         return "vector"
       case .byteVectorType:
         return "bytevector"
-      case .mapType:
+      case .tableType:
         return "map"
       case .recordType:
         return "record"
@@ -137,7 +137,7 @@ public enum Type: Int, CustomStringConvertible {
         return "output port"
       case .boxType:
         return "box"
-      case .mPairType:
+      case .mpairType:
         return "mpair"
     }
   }

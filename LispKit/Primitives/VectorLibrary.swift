@@ -152,7 +152,7 @@ public final class VectorLibrary: NativeLibrary {
     for expr in vector.exprs[start..<end] {
       uniChars.append(try expr.asChar())
     }
-    return .str(NSMutableString(string: String(utf16CodeUnits: uniChars, count: uniChars.count)))
+    return .string(NSMutableString(string: String(utf16CodeUnits: uniChars, count: uniChars.count)))
   }
   
   func vectorCopy(_ vec: Expr, start: Expr?, end: Expr?) throws -> Expr {

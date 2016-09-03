@@ -1,5 +1,5 @@
 //
-//  Future.swift
+//  Promise.swift
 //  LispKit
 //
 //  Created by Matthias Zenger on 23/01/2016.
@@ -19,13 +19,13 @@
 //
 
 ///
-/// Class `Future` is used to represent promises in LispKit.
+/// Class `Promise` is used to represent promises natively in LispKit.
 ///
-public final class Future: ManagedObject, CustomStringConvertible {
+public final class Promise: ManagedObject, CustomStringConvertible {
   
   public indirect enum State {
     case lazy(Procedure)       // Thunk of promises
-    case shared(Future)        // Shared future
+    case shared(Promise)        // Shared future
     case value(Expr)           // Evaluated future
     case thrown(Error)     // Failed evaluation of future
   }
@@ -34,24 +34,24 @@ public final class Future: ManagedObject, CustomStringConvertible {
   public var state: State
   
   /// Maintain object statistics.
-  internal static let stats = Stats("Future")
+  internal static let stats = Stats("Promise")
   
   /// Update object statistics.
   deinit {
-    Future.stats.dealloc()
+    Promise.stats.dealloc()
   }
   
   /// Initializes a future with a `thunk` that yields a promise; this promise's state is
   /// copied over into this future as part of the protocol to force a promise.
   public init(_ thunk: Procedure) {
     self.state = .lazy(thunk)
-    super.init(Future.stats)
+    super.init(Promise.stats)
   }
   
   /// Initializes a future with a given value; no evaluation will happen.
   public init(_ value: Expr) {
     self.state = .value(value)
-    super.init(Future.stats)
+    super.init(Promise.stats)
   }
   
   /// Returns true if this refers to only "simple" values (i.e. values which won't lead to

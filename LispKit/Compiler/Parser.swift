@@ -54,7 +54,7 @@ open class Parser {
       case .eof:
         throw SyntaxError.empty
       case .ident:
-        res = .sym(self.symbols.intern(token.strVal))
+        res = .symbol(self.symbols.intern(token.strVal))
       case .truelit:
         res = .true
       case .falselit:
@@ -74,7 +74,7 @@ open class Parser {
       case .char:
         res = .char(UInt16(token.intVal))
       case .string:
-        res = .str(NSMutableString(string: token.strVal))
+        res = .string(NSMutableString(string: token.strVal))
       case .lparen:
         self.scanner.next()
         var exprs = Exprs()
@@ -120,16 +120,16 @@ open class Parser {
         res = .bytes(MutableBox(bytes))
       case .quote:
         self.scanner.next()
-        return Expr.List(.sym(symbols.QUOTE), try self.parse())
+        return Expr.List(.symbol(symbols.QUOTE), try self.parse())
       case .backquote:
         self.scanner.next()
-        return Expr.List(.sym(symbols.QUASIQUOTE), try self.parse())
+        return Expr.List(.symbol(symbols.QUASIQUOTE), try self.parse())
       case .comma:
         self.scanner.next()
-        return Expr.List(.sym(symbols.UNQUOTE), try self.parse())
+        return Expr.List(.symbol(symbols.UNQUOTE), try self.parse())
       case .commaat:
         self.scanner.next()
-        return Expr.List(.sym(symbols.UNQUOTESPLICING), try self.parse())
+        return Expr.List(.symbol(symbols.UNQUOTESPLICING), try self.parse())
       case .dot:
         self.scanner.next()
         throw SyntaxError.unexpectedDot

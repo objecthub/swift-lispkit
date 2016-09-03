@@ -107,7 +107,7 @@ public final class RecordLibrary: NativeLibrary {
     var numFields = 0
     var current = fields
     while case .pair(let sym, let next) = current {
-      guard case .sym(_) = sym else {
+      guard case .symbol(_) = sym else {
         throw EvalError.typeError(sym, [.symbolType])
       }
       numFields += 1
@@ -142,7 +142,7 @@ public final class RecordLibrary: NativeLibrary {
       return .false
     }
     switch name {
-      case .sym(let field):
+      case .symbol(let field):
         guard let index = self.indexOfField(field, in: record.exprs[2]) else {
           throw EvalError.unknownFieldOfRecordType(expr, field)
         }
@@ -170,7 +170,7 @@ public final class RecordLibrary: NativeLibrary {
   fileprivate func indexOfField(_ field: Symbol, in fields: Expr) -> Int? {
     var index = 0
     var current = fields
-    while case .pair(.sym(let sym), let next) = current {
+    while case .pair(.symbol(let sym), let next) = current {
       if sym == field {
         return index
       }

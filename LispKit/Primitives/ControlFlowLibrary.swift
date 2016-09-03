@@ -40,10 +40,10 @@ func splitBindings(_ bindingList: Expr) throws -> (Expr, Expr) {
   var exprs = Exprs()
   var bindings = bindingList
   while case .pair(let binding, let rest) = bindings {
-    guard case .pair(.sym(let sym), .pair(let expr, .null)) = binding else {
+    guard case .pair(.symbol(let sym), .pair(let expr, .null)) = binding else {
       throw EvalError.malformedBindings(binding, bindingList)
     }
-    symbols.append(.sym(sym))
+    symbols.append(.symbol(sym))
     exprs.append(expr)
     bindings = rest
   }
@@ -73,7 +73,7 @@ func compileLet(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -
       let group = try compiler.compileBindings(first, in: env, atomic: true, predef: false)
       res = try compiler.compileSeq(body, in: Env(group), inTailPos: tail)
       group.finalize()
-    case .sym(let sym):
+    case .symbol(let sym):
       guard case .pair(let bindings, let rest) = body else {
         throw EvalError.leastArgumentCountError(formals: 2, args: expr)
       }
@@ -178,7 +178,7 @@ func compileDo(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws ->
   var stepExprs = [Expr]()
   // Compile initial bindings
   while case .pair(let binding, let rest) = bindings {
-    guard case .pair(.sym(let sym), .pair(let start, let optStep)) = binding else {
+    guard case .pair(.symbol(let sym), .pair(let start, let optStep)) = binding else {
       throw EvalError.malformedBindings(binding, bindingList)
     }
     try compiler.compile(start, in: env, inTailPos: false)
@@ -270,7 +270,7 @@ func compileCond(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws 
   // Iterate through all cases
   while case .pair(let cas, let rest) = cases {
     switch cas {
-      case .pair(.sym(let sym), let exprs) where sym === compiler.context.symbols.ELSE:
+      case .pair(.symbol(let sym), let exprs) where sym === compiler.context.symbols.ELSE:
         guard rest == .null else {
           throw EvalError.malformedCondClause(cases)
         }
@@ -278,7 +278,7 @@ func compileCond(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws 
       case .pair(let test, .null):
         try compiler.compile(test, in: env, inTailPos: false)
         exitOrJumps.append(compiler.emitPlaceholder())
-      case .pair(let test, .pair(.sym(let sym), .pair(let res, .null)))
+      case .pair(let test, .pair(.symbol(let sym), .pair(let res, .null)))
           where sym === compiler.context.symbols.DOUBLEARROW:
         try compiler.compile(test, in: env, inTailPos: false)
         let escapeIp = compiler.emitPlaceholder()
@@ -332,7 +332,7 @@ func compileCase(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws 
   // Compile cases
   while case .pair(let cas, let rest) = cases {
     switch cas {
-      case .pair(.sym(compiler.context.symbols.ELSE), let exprs):
+      case .pair(.symbol(compiler.context.symbols.ELSE), let exprs):
         guard rest == .null else {
           throw EvalError.malformedCaseClause(cases)
         }

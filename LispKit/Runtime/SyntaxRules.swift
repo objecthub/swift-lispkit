@@ -33,7 +33,7 @@ open class SyntaxRules {
   
   public init(_ context: Context, literals: Set<Symbol>, patterns: Exprs, templates: Exprs, in env: Env) {
     self.context = context
-    self.ellipsis = .sym(context.symbols.ELLIPSIS)
+    self.ellipsis = .symbol(context.symbols.ELLIPSIS)
     self.reserved = [context.symbols.WILDCARD, context.symbols.ELLIPSIS]
     self.literals = literals
     self.patterns = patterns
@@ -63,7 +63,7 @@ open class SyntaxRules {
                      at depth: Int) -> Bool {
     // print("  MATCH: \(pattern) WITH: \(input) MATCHING: \(matches)") //DEBUG
     switch pattern {
-      case .sym(let sym):
+      case .symbol(let sym):
         if self.literals.contains(sym) {
           return pattern == input
         } else {
@@ -126,7 +126,7 @@ open class SyntaxRules {
   fileprivate func instantiate(_ template: Expr, with matches: Matches, at depth: Int) throws -> Expr {
     // print("INSTANTIATE: \(template) USING: \(matches) DEPTH: \(depth)")
     switch template {
-      case .sym(let sym):
+      case .symbol(let sym):
         return matches.get(sym, in: self.lexicalEnv)
       case .pair(self.ellipsis, let rest):
         guard case .pair(let car, _) = rest else {
@@ -179,7 +179,7 @@ open class SyntaxRules {
   
   fileprivate func instantiateRaw(_ template: Expr, with matches: Matches) -> Expr {
     switch template {
-      case .sym(let sym):
+      case .symbol(let sym):
         return matches.get(sym, in: self.lexicalEnv)
       case .pair(_, _):
         var res = Exprs()
@@ -204,7 +204,7 @@ open class SyntaxRules {
     var vars = Set<Symbol>()
     func traverse(_ pattern: Expr) {
       switch pattern {
-        case .sym(let sym):
+        case .symbol(let sym):
           if !self.literals.contains(sym) && !self.reserved.contains(sym) {
             vars.insert(sym)
           }
@@ -245,11 +245,11 @@ private final class Matches: CustomStringConvertible {
   fileprivate func get(_ sym: Symbol, in lexicalEnv: Env) -> Expr {
     guard let value = self.matchedVal[sym]?.value else {
       if let gensym = self.generatedSym[sym] {
-        return .sym(gensym)
+        return .symbol(gensym)
       } else {
         let gensym = Symbol(sym, lexicalEnv)
         self.generatedSym[sym] = gensym
-        return .sym(gensym)
+        return .symbol(gensym)
       }
     }
     return value
