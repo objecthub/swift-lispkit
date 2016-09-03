@@ -112,201 +112,201 @@ public final class MathLibrary: NativeLibrary {
   
   //-------- MARK: - Classification primitives
 
-  func isNumber(expr: Expr) -> Expr {
-    return .Boolean(Type.NumberType.includes(expr.type))
+  func isNumber(_ expr: Expr) -> Expr {
+    return .Boolean(Type.numberType.includes(expr.type))
   }
 
-  func isReal(expr: Expr) -> Expr {
-    return .Boolean(Type.RealType.includes(expr.type))
+  func isReal(_ expr: Expr) -> Expr {
+    return .Boolean(Type.realType.includes(expr.type))
   }
 
-  func isInteger(expr: Expr) throws -> Expr {
-    return .Boolean(Type.IntegerType.includes(expr.type))
+  func isInteger(_ expr: Expr) throws -> Expr {
+    return .Boolean(Type.integerType.includes(expr.type))
   }
 
-  func isRational(expr: Expr) throws -> Expr {
-    return .Boolean(Type.IntegerType.includes(expr.type) || Type.RationalType.includes(expr.type))
+  func isRational(_ expr: Expr) throws -> Expr {
+    return .Boolean(Type.integerType.includes(expr.type) || Type.rationalType.includes(expr.type))
   }
 
-  func isComplex(expr: Expr) -> Expr {
-    return .Boolean(Type.NumberType.includes(expr.type))
+  func isComplex(_ expr: Expr) -> Expr {
+    return .Boolean(Type.numberType.includes(expr.type))
   }
 
-  func isExact(expr: Expr) throws -> Expr {
+  func isExact(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .Fixnum(_),
-           .Bignum(_),
-           .Rat(_),
-           .Bigrat(_):
-        return .True
+      case .fixnum(_),
+           .bignum(_),
+           .rational(_),
+           .bigrat(_):
+        return .true
       default:
-        return .False
+        return .false
     }
   }
 
-  func isInexact(expr: Expr) throws -> Expr {
+  func isInexact(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .Flonum(_),
-           .Complexnum(_):
-        return .True
+      case .flonum(_),
+           .complex(_):
+        return .true
       default:
-        return .False
+        return .false
     }
   }
 
-  func isExactInteger(expr: Expr) throws -> Expr {
+  func isExactInteger(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .Fixnum(_):
-        return .True
+      case .fixnum(_):
+        return .true
       default:
-        return .False
+        return .false
     }
   }
   
-  func isFinite(expr: Expr) throws -> Expr {
+  func isFinite(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .Flonum(let num):
+      case .flonum(let num):
         return .Boolean(num.isFinite)
-      case .Complexnum(let box):
+      case .complex(let box):
         return .Boolean(!box.value.isInfinite)
       default:
-        return .True
+        return .true
     }
   }
 
-  func isInfinite(expr: Expr) throws -> Expr {
+  func isInfinite(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .Flonum(let num):
+      case .flonum(let num):
         return .Boolean(num.isInfinite)
-      case .Complexnum(let box):
+      case .complex(let box):
         return .Boolean(box.value.isInfinite)
       default:
-        return .False
+        return .false
     }
   }
   
-  func isNaN(expr: Expr) throws -> Expr {
+  func isNaN(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .Flonum(let num):
+      case .flonum(let num):
         return .Boolean(num.isNaN)
-      case .Complexnum(let box):
+      case .complex(let box):
         return .Boolean(box.value.re.isNaN || box.value.im.isNaN)
       default:
-        return .False
+        return .false
     }
   }
   
-  func isPositive(expr: Expr) throws -> Expr {
+  func isPositive(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .Fixnum(let num):
+      case .fixnum(let num):
         return .Boolean(num >= 0)
-      case .Bignum(let num):
+      case .bignum(let num):
         return .Boolean(!num.isNegative)
-      case .Rat(let num):
+      case .rational(let num):
         return .Boolean(!num.value.isNegative)
-      case .Bigrat(let num):
+      case .bigrat(let num):
         return .Boolean(!num.value.isNegative)
-      case .Flonum(let num):
-        return .Boolean(!num.isSignMinus)
-      case .Complexnum(let num):
-        return num.value.isReal ? .Boolean(num.value.re >= 0) : .False
+      case .flonum(let num):
+        return .Boolean(!(num.sign == .minus))
+      case .complex(let num):
+        return num.value.isReal ? .Boolean(num.value.re >= 0) : .false
       default:
-        throw EvalError.TypeError(expr, [.NumberType])
+        throw EvalError.typeError(expr, [.numberType])
     }
   }
 
-  func isNegative(expr: Expr) throws -> Expr {
+  func isNegative(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .Fixnum(let num):
+      case .fixnum(let num):
         return .Boolean(num < 0)
-      case .Bignum(let num):
+      case .bignum(let num):
         return .Boolean(num.isNegative)
-      case .Rat(let num):
+      case .rational(let num):
         return .Boolean(num.value.isNegative)
-      case .Bigrat(let num):
+      case .bigrat(let num):
         return .Boolean(num.value.isNegative)
-      case .Flonum(let num):
-        return .Boolean(num.isSignMinus)
-      case .Complexnum(let num):
-        return num.value.isReal ? .Boolean(num.value.re < 0) : .False
+      case .flonum(let num):
+        return .Boolean(num.sign == .minus)
+      case .complex(let num):
+        return num.value.isReal ? .Boolean(num.value.re < 0) : .false
       default:
-        throw EvalError.TypeError(expr, [.NumberType])
+        throw EvalError.typeError(expr, [.numberType])
     }
   }
 
-  func isZero(expr: Expr) throws -> Expr {
+  func isZero(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .Fixnum(let num):
+      case .fixnum(let num):
         return .Boolean(num == 0)
-      case .Bignum(let num):
+      case .bignum(let num):
         return .Boolean(num.isZero)
-      case .Rat(let num):
+      case .rational(let num):
         return .Boolean(num.value.isZero)
-      case .Bigrat(let num):
+      case .bigrat(let num):
         return .Boolean(num.value.isZero)
-      case .Flonum(let num):
+      case .flonum(let num):
         return .Boolean(num.isZero)
-      case .Complexnum(let num):
-        return num.value.isReal ? .Boolean(num.value.re >= 0) : .False
+      case .complex(let num):
+        return num.value.isReal ? .Boolean(num.value.re >= 0) : .false
       default:
-        throw EvalError.TypeError(expr, [.NumberType])
+        throw EvalError.typeError(expr, [.numberType])
     }
   }
 
-  func isEven(expr: Expr) throws -> Expr {
+  func isEven(_ expr: Expr) throws -> Expr {
     switch expr.normalized {
-      case .Fixnum(let num):
+      case .fixnum(let num):
         return .Boolean(num % 2 == 0)
-      case .Bignum(let num):
+      case .bignum(let num):
         return .Boolean(num % 2 == 0)
       default:
-        throw EvalError.TypeError(expr, [.IntegerType])
+        throw EvalError.typeError(expr, [.integerType])
     }
   }
 
-  func isOdd(expr: Expr) throws -> Expr {
+  func isOdd(_ expr: Expr) throws -> Expr {
     switch expr.normalized {
-      case .Fixnum(let num):
+      case .fixnum(let num):
         return .Boolean(num % 2 != 0)
-      case .Bignum(let num):
+      case .bignum(let num):
         return .Boolean(num % 2 != 0)
       default:
-        throw EvalError.TypeError(expr, [.IntegerType])
+        throw EvalError.typeError(expr, [.integerType])
     }
   }
 
 
   //-------- MARK: - Conversion primitives
 
-  func inexact(expr: Expr) throws -> Expr {
+  func inexact(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .Fixnum(let num):
+      case .fixnum(let num):
         return .Number(Double(num))
-      case .Bignum(let num):
+      case .bignum(let num):
         return .Number(num.doubleValue)
-      case .Rat(let num):
+      case .rational(let num):
         return .Number(Double(num.value.numerator) / Double(num.value.denominator))
-      case .Bigrat(let num):
+      case .bigrat(let num):
         return .Number(num.value.numerator.doubleValue / num.value.denominator.doubleValue)
-      case .Flonum(_), .Complexnum(_):
+      case .flonum(_), .complex(_):
         return expr
       default:
-        throw EvalError.TypeError(expr, [.NumberType])
+        throw EvalError.typeError(expr, [.numberType])
     }
   }
 
-  func exact(expr: Expr) throws -> Expr {
+  func exact(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .Fixnum(_), .Bignum(_), .Rat(_), .Bigrat(_):
+      case .fixnum(_), .bignum(_), .rational(_), .bigrat(_):
         return expr
-      case .Flonum(let num):
+      case .flonum(let num):
         return .Number(MathLibrary.approximate(num))
       default:
-        throw EvalError.TypeError(expr, [.RealType])
+        throw EvalError.typeError(expr, [.realType])
     }
   }
 
-  static func approximate(x: Double, tolerance: Double = 1.0e-16) -> Rational<Int64> {
+  static func approximate(_ x: Double, tolerance: Double = 1.0e-16) -> Rational<Int64> {
     let mx = x * tolerance
     var y = x
     var (n1, d1) = (Int64(1), Int64(0))
@@ -322,220 +322,220 @@ public final class MathLibrary: NativeLibrary {
     
   //-------- MARK: - Rounding primitives
 
-  func floor(expr: Expr) throws -> Expr {
+  func floor(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .Fixnum(_), .Bignum(_):
+      case .fixnum(_), .bignum(_):
         return expr
-      case .Rat(let num):
+      case .rational(let num):
         return .Number(Int64(Foundation.floor(Double(num.value.numerator) /
                        Double(num.value.denominator))))
-      case .Bigrat(let num):
+      case .bigrat(let num):
         return .Number(Int64(Foundation.floor(num.value.numerator.doubleValue /
                        num.value.denominator.doubleValue)))
-      case .Flonum(let num):
+      case .flonum(let num):
         return .Number(Foundation.floor(num))
       default:
-        throw EvalError.TypeError(expr, [.RealType])
+        throw EvalError.typeError(expr, [.realType])
     }
   }
 
-  func ceiling(expr: Expr) throws -> Expr {
+  func ceiling(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .Fixnum(_), .Bignum(_):
+      case .fixnum(_), .bignum(_):
         return expr
-      case .Rat(let num):
+      case .rational(let num):
         return .Number(Int64(ceil(Double(num.value.numerator) / Double(num.value.denominator))))
-      case .Bigrat(let num):
+      case .bigrat(let num):
         return .Number(Int64(ceil(num.value.numerator.doubleValue /
                        num.value.denominator.doubleValue)))
-      case .Flonum(let num):
+      case .flonum(let num):
         return .Number(ceil(num))
       default:
-        throw EvalError.TypeError(expr, [.RealType])
+        throw EvalError.typeError(expr, [.realType])
     }
   }
 
-  func truncate(expr: Expr) throws -> Expr {
+  func truncate(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .Fixnum(_), .Bignum(_):
+      case .fixnum(_), .bignum(_):
         return expr
-      case .Rat(let num):
+      case .rational(let num):
         return .Number(Int64(trunc(Double(num.value.numerator) / Double(num.value.denominator))))
-      case .Bigrat(let num):
+      case .bigrat(let num):
         return .Number(Int64(trunc(num.value.numerator.doubleValue /
                        num.value.denominator.doubleValue)))
-      case .Flonum(let num):
+      case .flonum(let num):
         return .Number(trunc(num))
       default:
-        throw EvalError.TypeError(expr, [.RealType])
+        throw EvalError.typeError(expr, [.realType])
     }
   }
 
-  func round(expr: Expr) throws -> Expr {
+  func round(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .Fixnum(_), .Bignum(_):
+      case .fixnum(_), .bignum(_):
         return expr
-      case .Rat(let num):
+      case .rational(let num):
         return .Number(Int64(Foundation.round(Double(num.value.numerator) /
                        Double(num.value.denominator))))
-      case .Bigrat(let num):
+      case .bigrat(let num):
         return .Number(Int64(Foundation.round(num.value.numerator.doubleValue /
                        num.value.denominator.doubleValue)))
-      case .Flonum(let num):
+      case .flonum(let num):
         return .Number(Foundation.round(num))
       default:
-        throw EvalError.TypeError(expr, [.RealType])
+        throw EvalError.typeError(expr, [.realType])
     }
   }
 
 
   //-------- MARK: - Arithmetic primitives
 
-  func plus(exprs: Arguments) throws -> Expr {
-    var acc = Expr.Fixnum(0)
+  func plus(_ exprs: Arguments) throws -> Expr {
+    var acc = Expr.fixnum(0)
     for expr in exprs {
       switch try NumberPair(acc, expr) {
-        case .FixnumPair(let lhs, let rhs):
+        case .fixnumPair(let lhs, let rhs):
           let (res, overflow) = Int64.addWithOverflow(lhs, rhs)
           acc = overflow ? .Number(BigInt(lhs) + BigInt(rhs)) : .Number(res)
-        case .BignumPair(let lhs, let rhs):
+        case .bignumPair(let lhs, let rhs):
           acc = .Number(lhs + rhs)
-        case .RationalPair(let lhs, let rhs):
+        case .rationalPair(let lhs, let rhs):
           let (res, overflow) = Rational.addWithOverflow(lhs, rhs)
           acc = overflow ? .Number(Rational(BigInt(lhs.numerator), BigInt(lhs.denominator)) +
                                    Rational(BigInt(rhs.numerator), BigInt(rhs.denominator)))
                          : .Number(res)
-        case .BigRationalPair(let lhs, let rhs):
+        case .bigRationalPair(let lhs, let rhs):
           acc = .Number(lhs + rhs)
-        case .FlonumPair(let lhs, let rhs):
+        case .flonumPair(let lhs, let rhs):
           acc = .Number(lhs + rhs)
-        case .ComplexPair(let lhs, let rhs):
+        case .complexPair(let lhs, let rhs):
           acc = .Number(lhs + rhs)
       }
     }
     return acc
   }
 
-  func minus(first: Expr, _ exprs: Arguments) throws -> Expr {
+  func minus(_ first: Expr, _ exprs: Arguments) throws -> Expr {
     var acc = first.normalized
     if exprs.isEmpty {
       switch acc {
-        case .Fixnum(let res):
+        case .fixnum(let res):
           return .Number(-res)
-        case .Bignum(let res):
+        case .bignum(let res):
           return .Number(res.negate)
-        case .Rat(let res):
+        case .rational(let res):
           return .Number(res.value.negate)
-        case .Bigrat(let res):
+        case .bigrat(let res):
           return .Number(res.value.negate)
-        case .Flonum(let res):
+        case .flonum(let res):
           return .Number(-res)
-        case .Complexnum(let res):
+        case .complex(let res):
           return .Number(res.value.negate)
         default:
-          throw EvalError.TypeError(first, [.NumberType])
+          throw EvalError.typeError(first, [.numberType])
       }
     }
     for expr in exprs {
       switch try NumberPair(acc, expr) {
-        case .FixnumPair(let lhs, let rhs):
+        case .fixnumPair(let lhs, let rhs):
           let (res, overflow) = Int64.subtractWithOverflow(lhs, rhs)
           acc = overflow ? .Number(BigInt(lhs) - BigInt(rhs)) : .Number(res)
-        case .BignumPair(let lhs, let rhs):
+        case .bignumPair(let lhs, let rhs):
           acc = .Number(lhs - rhs)
-        case .RationalPair(let lhs, let rhs):
+        case .rationalPair(let lhs, let rhs):
           let (res, overflow) = Rational.subtractWithOverflow(lhs, rhs)
           acc = overflow ? .Number(Rational(BigInt(lhs.numerator), BigInt(lhs.denominator)) -
                                    Rational(BigInt(rhs.numerator), BigInt(rhs.denominator)))
                          : .Number(res)
-        case .BigRationalPair(let lhs, let rhs):
+        case .bigRationalPair(let lhs, let rhs):
           acc = .Number(lhs - rhs)
-        case .FlonumPair(let lhs, let rhs):
+        case .flonumPair(let lhs, let rhs):
           acc = .Number(lhs - rhs)
-        case .ComplexPair(let lhs, let rhs):
+        case .complexPair(let lhs, let rhs):
           acc = .Number(lhs - rhs)
       }
     }
     return acc
   }
 
-  func mult(exprs: Arguments) throws -> Expr {
-    var acc = Expr.Fixnum(1)
+  func mult(_ exprs: Arguments) throws -> Expr {
+    var acc = Expr.fixnum(1)
     for expr in exprs {
       switch try NumberPair(acc, expr) {
-        case .FixnumPair(let lhs, let rhs):
+        case .fixnumPair(let lhs, let rhs):
           let (res, overflow) = Int64.multiplyWithOverflow(lhs, rhs)
           acc = overflow ? .Number(BigInt(lhs) * BigInt(rhs)) : .Number(res)
-        case .BignumPair(let lhs, let rhs):
+        case .bignumPair(let lhs, let rhs):
           acc = .Number(lhs * rhs)
-        case .RationalPair(let lhs, let rhs):
+        case .rationalPair(let lhs, let rhs):
           let (res, overflow) = Rational.multiplyWithOverflow(lhs, rhs)
           acc = overflow ? .Number(Rational(BigInt(lhs.numerator), BigInt(lhs.denominator)) *
                                    Rational(BigInt(rhs.numerator), BigInt(rhs.denominator)))
                          : .Number(res)
-        case .BigRationalPair(let lhs, let rhs):
+        case .bigRationalPair(let lhs, let rhs):
           acc = .Number(lhs * rhs)
-        case .FlonumPair(let lhs, let rhs):
+        case .flonumPair(let lhs, let rhs):
           acc = .Number(lhs * rhs)
-        case .ComplexPair(let lhs, let rhs):
+        case .complexPair(let lhs, let rhs):
           acc = .Number(lhs * rhs)
       }
     }
     return acc
   }
 
-  func div(first: Expr, _ exprs: Arguments) throws -> Expr {
+  func div(_ first: Expr, _ exprs: Arguments) throws -> Expr {
     var acc = first.normalized
     if exprs.isEmpty {
       switch acc {
-        case .Fixnum(let res):
+        case .fixnum(let res):
           guard res != 0 else {
-            throw EvalError.DivisionByZero
+            throw EvalError.divisionByZero
           }
           return .Number(Rational(1, res))
-        case .Bignum(let res):
+        case .bignum(let res):
           guard !res.isZero else {
-            throw EvalError.DivisionByZero
+            throw EvalError.divisionByZero
           }
           return .Number(Rational(BigInt(1), res))
-        case .Rat(let res):
+        case .rational(let res):
           guard !res.value.isZero else {
-            throw EvalError.DivisionByZero
+            throw EvalError.divisionByZero
           }
           return .Number(Rational(res.value.denominator, res.value.numerator))
-        case .Bigrat(let res):
+        case .bigrat(let res):
           guard !res.value.isZero else {
-            throw EvalError.DivisionByZero
+            throw EvalError.divisionByZero
           }
           return .Number(Rational(res.value.denominator, res.value.numerator))
-        case .Flonum(let res):
+        case .flonum(let res):
           return .Number(1.0 / res)
-        case .Complexnum(let res):
+        case .complex(let res):
           return .Number(1.0 / res.value)
         default:
-          throw EvalError.TypeError(first, [.NumberType])
+          throw EvalError.typeError(first, [.numberType])
       }
     }
     for expr in exprs {
       switch try NumberPair(acc, expr) {
-        case .FixnumPair(let lhs, let rhs):
+        case .fixnumPair(let lhs, let rhs):
           guard rhs != 0 else {
-            throw EvalError.DivisionByZero
+            throw EvalError.divisionByZero
           }
           let (res, overflow) = Rational.rationalWithOverflow(lhs, rhs)
           acc = overflow ? .Number(Rational(BigInt(lhs), BigInt(rhs))) : .Number(res)
-        case .BignumPair(let lhs, let rhs):
+        case .bignumPair(let lhs, let rhs):
           acc = .Number(Rational(lhs, rhs))
-        case .RationalPair(let lhs, let rhs):
+        case .rationalPair(let lhs, let rhs):
           let (res, overflow) = Rational.divideWithOverflow(lhs, rhs)
           acc = overflow ? .Number(Rational(BigInt(lhs.numerator), BigInt(lhs.denominator)) /
                                    Rational(BigInt(rhs.numerator), BigInt(rhs.denominator)))
                          : .Number(res)
-        case .BigRationalPair(let lhs, let rhs):
+        case .bigRationalPair(let lhs, let rhs):
           acc = .Number(lhs / rhs)
-        case .FlonumPair(let lhs, let rhs):
+        case .flonumPair(let lhs, let rhs):
           acc = .Number(lhs / rhs)
-        case .ComplexPair(let lhs, let rhs):
+        case .complexPair(let lhs, let rhs):
           acc = .Number(lhs / rhs)
       }
     }
@@ -545,68 +545,68 @@ public final class MathLibrary: NativeLibrary {
   
   //-------- MARK: - Comparison primitives
   
-  func equals(first: Expr, _ exprs: Arguments) throws -> Expr {
-    try first.assertTypeOf(.NumberType)
+  func equals(_ first: Expr, _ exprs: Arguments) throws -> Expr {
+    try first.assertTypeOf(.numberType)
     var last = first
     for expr in exprs {
       guard try compareNumber(last, with: expr) == 0 else {
-        return Expr.False
+        return Expr.false
       }
       last = expr
     }
-    return Expr.True
+    return Expr.true
   }
 
-  func lessThan(first: Expr, _ exprs: Arguments) throws -> Expr {
-    try first.assertTypeOf(.NumberType)
+  func lessThan(_ first: Expr, _ exprs: Arguments) throws -> Expr {
+    try first.assertTypeOf(.numberType)
     var last = first
     for expr in exprs {
       guard try compareNumber(last, with: expr) < 0 else {
-        return Expr.False
+        return Expr.false
       }
       last = expr
     }
-    return Expr.True
+    return Expr.true
   }
 
-  func lessThanEquals(first: Expr, _ exprs: Arguments) throws -> Expr {
-    try first.assertTypeOf(.NumberType)
+  func lessThanEquals(_ first: Expr, _ exprs: Arguments) throws -> Expr {
+    try first.assertTypeOf(.numberType)
     var last = first
     for expr in exprs {
       guard try compareNumber(last, with: expr) <= 0 else {
-        return Expr.False
+        return Expr.false
       }
       last = expr
     }
-    return Expr.True
+    return Expr.true
   }
 
-  func biggerThan(first: Expr, _ exprs: Arguments) throws -> Expr {
-    try first.assertTypeOf(.NumberType)
+  func biggerThan(_ first: Expr, _ exprs: Arguments) throws -> Expr {
+    try first.assertTypeOf(.numberType)
     var last = first
     for expr in exprs {
       guard try compareNumber(last, with: expr) > 0 else {
-        return Expr.False
+        return Expr.false
       }
       last = expr
     }
-    return Expr.True
+    return Expr.true
   }
 
-  func biggerThanEquals(first: Expr, _ exprs: Arguments) throws -> Expr {
-    try first.assertTypeOf(.NumberType)
+  func biggerThanEquals(_ first: Expr, _ exprs: Arguments) throws -> Expr {
+    try first.assertTypeOf(.numberType)
     var last = first
     for expr in exprs {
       guard try compareNumber(last, with: expr) >= 0 else {
-        return Expr.False
+        return Expr.false
       }
       last = expr
     }
-    return Expr.True
+    return Expr.true
   }
 
-  func max(first: Expr, _ exprs: Arguments) throws -> Expr {
-    try first.assertTypeOf(.NumberType)
+  func max(_ first: Expr, _ exprs: Arguments) throws -> Expr {
+    try first.assertTypeOf(.numberType)
     var res = first
     for expr in exprs {
       if try compareNumber(res, with: expr) < 0 {
@@ -616,8 +616,8 @@ public final class MathLibrary: NativeLibrary {
     return res
   }
 
-  func min(first: Expr, _ exprs: Arguments) throws -> Expr {
-    try first.assertTypeOf(.NumberType)
+  func min(_ first: Expr, _ exprs: Arguments) throws -> Expr {
+    try first.assertTypeOf(.numberType)
     var res = first
     for expr in exprs {
       if try compareNumber(res, with: expr) > 0 {
@@ -630,123 +630,123 @@ public final class MathLibrary: NativeLibrary {
 
   //-------- MARK: - Numeric functions
 
-  func absolute(expr: Expr) throws -> Expr {
+  func absolute(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .Fixnum(let num):
+      case .fixnum(let num):
         return .Number(num < 0 ? -num : num)
-      case .Bignum(let num):
+      case .bignum(let num):
         return .Number(num.isNegative ? -num : num)
-      case .Rat(let num):
+      case .rational(let num):
         return .Number(num.value.isNegative ? -num.value : num.value)
-      case .Bigrat(let num):
+      case .bigrat(let num):
         return .Number(num.value.isNegative ? -num.value : num.value)
-      case .Flonum(let num):
-        return .Flonum(num.isSignMinus ? -num : num)
+      case .flonum(let num):
+        return .flonum((num.sign == .minus) ? -num : num)
       default:
-        throw EvalError.TypeError(expr, [.RealType])
+        throw EvalError.typeError(expr, [.realType])
     }
   }
   
-  func square(expr: Expr) throws -> Expr {
+  func square(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .Fixnum(let num):
+      case .fixnum(let num):
         let (res, overflow) = Int64.multiplyWithOverflow(num, num)
         return overflow ? .Number(BigInt(num) * BigInt(num)) : .Number(res)
-      case .Bignum(let num):
+      case .bignum(let num):
         return .Number(num * num)
-      case .Rat(let num):
+      case .rational(let num):
         let (res, overflow) = Rational.multiplyWithOverflow(num.value, num.value)
         return overflow ? .Number(Rational(BigInt(num.value.numerator), BigInt(num.value.denominator)) *
                                   Rational(BigInt(num.value.numerator), BigInt(num.value.denominator)))
                         : .Number(res)
-      case .Bigrat(let num):
+      case .bigrat(let num):
         return .Number(num.value * num.value)
-      case .Flonum(let num):
+      case .flonum(let num):
         return .Number(num * num)
-      case .Complexnum(let  num):
+      case .complex(let  num):
         return .Number(num.value * num.value)
       default:
-        throw EvalError.TypeError(expr, [.NumberType])
+        throw EvalError.typeError(expr, [.numberType])
     }
   }
 
-  func sqrt(expr: Expr) throws -> Expr {
+  func sqrt(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .Fixnum(_), .Bignum(_), .Rat(_), .Bigrat(_), .Flonum(_):
+      case .fixnum(_), .bignum(_), .rational(_), .bigrat(_), .flonum(_):
         let dbl = try expr.asFloat(coerce: true)
         let res = Foundation.sqrt(dbl)
         return res.isNaN ? .Number(Complex(dbl).sqrt) : .Number(res)
-      case .Complexnum(let num):
+      case .complex(let num):
         return .Number(num.value.sqrt)
       default:
-        throw EvalError.TypeError(expr, [.NumberType])
+        throw EvalError.typeError(expr, [.numberType])
     }
   }
   
-  func expt(expr: Expr, _ exp: Expr) throws -> Expr {
+  func expt(_ expr: Expr, _ exp: Expr) throws -> Expr {
     switch try NumberPair(expr, exp) {
-      case .FixnumPair(let x, let y):
+      case .fixnumPair(let x, let y):
         return .Number(BigInt(x) ** BigInt(y))
-      case .BignumPair(let x, let y):
+      case .bignumPair(let x, let y):
         return .Number(x ** y)
-      case .RationalPair(let x, let y):
+      case .rationalPair(let x, let y):
         return .Number(Foundation.exp(y.doubleValue * Foundation.log(x.doubleValue)))
-      case .BigRationalPair(let x, let y):
+      case .bigRationalPair(let x, let y):
         return .Number(Foundation.exp(y.doubleValue * Foundation.log(x.doubleValue)))
-      case .FlonumPair(let x, let y):
+      case .flonumPair(let x, let y):
         return .Number(Foundation.exp(y * Foundation.log(x)))
-      case .ComplexPair(let x, let y):
+      case .complexPair(let x, let y):
         return .Number((y * x.log).exp)
     }
   }
 
-  func exp(expr: Expr) throws -> Expr {
+  func exp(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .Fixnum(_), .Bignum(_), .Rat(_), .Bigrat(_), .Flonum(_):
+      case .fixnum(_), .bignum(_), .rational(_), .bigrat(_), .flonum(_):
         let dbl = try expr.asFloat(coerce: true)
         let res = Foundation.exp(dbl)
         return res.isNaN ? .Number(Complex(dbl).exp) : .Number(res)
-      case .Complexnum(let num):
+      case .complex(let num):
         return .Number(num.value.exp)
       default:
-        throw EvalError.TypeError(expr, [.NumberType])
+        throw EvalError.typeError(expr, [.numberType])
     }
   }
 
-  func log(expr: Expr) throws -> Expr {
+  func log(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .Fixnum(_), .Bignum(_), .Rat(_), .Bigrat(_), .Flonum(_):
+      case .fixnum(_), .bignum(_), .rational(_), .bigrat(_), .flonum(_):
         let dbl = try expr.asFloat(coerce: true)
         let res = Foundation.log(dbl)
         return res.isNaN ? .Number(Complex(dbl).log) : .Number(res)
-      case .Complexnum(let num):
+      case .complex(let num):
         return .Number(num.value.log)
       default:
-        throw EvalError.TypeError(expr, [.NumberType])
+        throw EvalError.typeError(expr, [.numberType])
     }
   }
 
-  func sin(expr: Expr) throws -> Expr {
+  func sin(_ expr: Expr) throws -> Expr {
     return .Number(Foundation.sin(try expr.asFloat(coerce: true)))
   }
 
-  func cos(expr: Expr) throws -> Expr {
+  func cos(_ expr: Expr) throws -> Expr {
     return .Number(Foundation.cos(try expr.asFloat(coerce: true)))
   }
 
-  func tan(expr: Expr) throws -> Expr {
+  func tan(_ expr: Expr) throws -> Expr {
     return .Number(Foundation.tan(try expr.asFloat(coerce: true)))
   }
 
-  func asin(expr: Expr) throws -> Expr {
+  func asin(_ expr: Expr) throws -> Expr {
     return .Number(Foundation.asin(try expr.asFloat(coerce: true)))
   }
 
-  func acos(expr: Expr) throws -> Expr {
+  func acos(_ expr: Expr) throws -> Expr {
     return .Number(Foundation.acos(try expr.asFloat(coerce: true)))
   }
 
-  func atan(fst: Expr, _ snd: Expr?) throws -> Expr {
+  func atan(_ fst: Expr, _ snd: Expr?) throws -> Expr {
     let y = try fst.asFloat(coerce: true)
     if let snd = snd {
       return .Number(Foundation.atan2(y, try snd.asFloat(coerce: true)))
@@ -755,81 +755,81 @@ public final class MathLibrary: NativeLibrary {
     }
   }
   
-  func numberToString(expr: Expr, _ rad: Expr?) throws -> Expr {
+  func numberToString(_ expr: Expr, _ rad: Expr?) throws -> Expr {
     var radix = 10
     if let base = try rad?.asInt() {
       if base == 2 || base == 8 || base == 10 || base == 16 {
         radix = base
       } else {
-        throw EvalError.IllegalRadix(rad!)
+        throw EvalError.illegalRadix(rad!)
       }
     }
     switch expr {
-      case .Fixnum(let num):
-        return .Str(NSMutableString(string: String(num, radix: radix)))
-      case .Bignum(let num):
-        return .Str(NSMutableString(string: num.toString(base: BigInt.base(radix))))
-      case .Rat(let num):
-        return .Str(NSMutableString(string: String(num.value.numerator, radix: radix) + "/" +
+      case .fixnum(let num):
+        return .str(NSMutableString(string: String(num, radix: radix)))
+      case .bignum(let num):
+        return .str(NSMutableString(string: num.toString(base: BigInt.base(of: radix))))
+      case .rational(let num):
+        return .str(NSMutableString(string: String(num.value.numerator, radix: radix) + "/" +
                                             String(num.value.denominator, radix: radix)))
-      case .Bigrat(let num):
-        return .Str(
-          NSMutableString(string: num.value.numerator.toString(base: BigInt.base(radix)) + "/" +
-                          num.value.denominator.toString(base: BigInt.base(radix))))
-      case .Flonum(let num):
+      case .bigrat(let num):
+        return .str(
+          NSMutableString(string: num.value.numerator.toString(base: BigInt.base(of: radix)) +
+                          "/" + num.value.denominator.toString(base: BigInt.base(of: radix))))
+      case .flonum(let num):
         if radix != 10 {
-          throw EvalError.IllegalRadix(rad!)
+          throw EvalError.illegalRadix(rad!)
         }
-        return .Str(NSMutableString(string: String(num)))
-      case .Complexnum(let num):
+        return .str(NSMutableString(string: String(num)))
+      case .complex(let num):
         if radix != 10 {
-          throw EvalError.IllegalRadix(rad!)
+          throw EvalError.illegalRadix(rad!)
         }
-        return .Str(NSMutableString(string: num.value.description))
+        return .str(NSMutableString(string: num.value.description))
       default:
-        throw EvalError.TypeError(expr, [.NumberType])
+        throw EvalError.typeError(expr, [.numberType])
     }
   }
   
-  func stringToNumber(expr: Expr, _ rad: Expr?) throws -> Expr {
+  func stringToNumber(_ expr: Expr, _ rad: Expr?) throws -> Expr {
     var radix = 10
     if let base = try rad?.asInt() {
       if base == 2 || base == 8 || base == 10 || base == 16 {
         radix = base
       } else {
-        throw EvalError.IllegalRadix(rad!)
+        throw EvalError.illegalRadix(rad!)
       }
     }
     let scanner = Scanner(string: try expr.asStr(), prescan: false)
     scanner.skipSpace()
     guard scanner.ch != EOF_CH else {
-      throw EvalError.TypeError(expr, [.NumberType])
+      throw EvalError.typeError(expr, [.numberType])
     }
     scanner.scanSignedNumber(radix)
     let token = scanner.token
     scanner.skipSpace()
     guard scanner.ch == EOF_CH else {
-      throw EvalError.TypeError(expr, [.NumberType])
+      throw EvalError.typeError(expr, [.numberType])
     }
     switch token.kind {
-      case .INT:
-        return .Fixnum(token.intVal)
-      case .BIGINT:
-        return .Bignum(token.bigIntVal)
-      case .RAT:
-        return .Rat(ImmutableBox(token.ratVal))
-      case .BIGRAT:
-        return .Bigrat(ImmutableBox(token.bigRatVal))
-      case .FLOAT:
-        return .Flonum(token.floatVal)
-      case .COMPLEX:
-        return .Complexnum(ImmutableBox(token.complexVal))
+      case .int:
+        return .fixnum(token.intVal)
+      case .bigint:
+        return .bignum(token.bigIntVal)
+      case .rat:
+        return .rational(ImmutableBox(token.ratVal))
+      case .bigrat:
+        return .bigrat(ImmutableBox(token.bigRatVal))
+      case .float:
+        return .flonum(token.floatVal)
+      case .complex:
+        return .complex(ImmutableBox(token.complexVal))
       default:
-        throw EvalError.TypeError(expr, [.NumberType])
+        throw EvalError.typeError(expr, [.numberType])
     }
   }
 
-  private static func findBestRat(t: Double, _ l: Int64) -> (Double, Int64, Int64) {
+  fileprivate static func findBestRat(_ t: Double, _ l: Int64) -> (Double, Int64, Int64) {
     precondition(l >= 1)
     if t <= 0.0 {
       return (0.0, 0, 1)
@@ -854,7 +854,7 @@ public final class MathLibrary: NativeLibrary {
     return abs(err1) <= abs(err2) ? (err1, n1, d1) : (err2, n2, d2)
   }
   
-  func approximate(x: Expr, delta: Expr) throws -> Expr {
+  func approximate(_ x: Expr, delta: Expr) throws -> Expr {
     var l_curr: Int64 = 1
     let t = try x.asFloat(coerce: true)
     let err = try delta.asFloat(coerce: true)
@@ -864,230 +864,230 @@ public final class MathLibrary: NativeLibrary {
       (actual, n, d) = MathLibrary.findBestRat(t, l_curr)
     }
     (actual, n, d) = MathLibrary.findBestRat(t, l_curr)
-    return .Rat(ImmutableBox(Rational(n, d)))
+    return .rational(ImmutableBox(Rational(n, d)))
   }
   
-  func makeRectangular(re: Expr, _ imag: Expr) throws -> Expr {
-    return .Complexnum(ImmutableBox(Complex(try re.asFloat(coerce: true),
+  func makeRectangular(_ re: Expr, _ imag: Expr) throws -> Expr {
+    return .complex(ImmutableBox(Complex(try re.asFloat(coerce: true),
                                             try imag.asFloat(coerce: true))))
   }
   
-  func makePolar(abs: Expr, _ arg: Expr) throws -> Expr {
-    return .Complexnum(ImmutableBox(Complex(abs: try abs.asFloat(coerce: true),
+  func makePolar(_ abs: Expr, _ arg: Expr) throws -> Expr {
+    return .complex(ImmutableBox(Complex(abs: try abs.asFloat(coerce: true),
                                             arg: try arg.asFloat(coerce: true))))
   }
   
-  func realPart(expr: Expr) throws -> Expr {
-    return .Flonum(try expr.asComplex(coerce: true).re)
+  func realPart(_ expr: Expr) throws -> Expr {
+    return .flonum(try expr.asComplex(coerce: true).re)
   }
   
-  func imagPart(expr: Expr) throws -> Expr {
-    return .Flonum(try expr.asComplex(coerce: true).im)
+  func imagPart(_ expr: Expr) throws -> Expr {
+    return .flonum(try expr.asComplex(coerce: true).im)
   }
   
-  func magnitude(expr: Expr) throws -> Expr {
-    return .Flonum(try expr.asComplex(coerce: true).abs)
+  func magnitude(_ expr: Expr) throws -> Expr {
+    return .flonum(try expr.asComplex(coerce: true).abs)
   }
   
-  func angle(expr: Expr) throws -> Expr {
-    return .Flonum(try expr.asComplex(coerce: true).arg)
+  func angle(_ expr: Expr) throws -> Expr {
+    return .flonum(try expr.asComplex(coerce: true).arg)
   }
   
-  func numerator(expr: Expr) throws -> Expr {
+  func numerator(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .Fixnum(_), .Bignum(_):
+      case .fixnum(_), .bignum(_):
         return expr
-      case .Rat(let num):
-        return .Fixnum(num.value.numerator)
-      case .Bigrat(let num):
+      case .rational(let num):
+        return .fixnum(num.value.numerator)
+      case .bigrat(let num):
         return .Number(num.value.numerator)
-      case .Flonum(let num):
-        return .Flonum(Double(MathLibrary.approximate(num).numerator))
+      case .flonum(let num):
+        return .flonum(Double(MathLibrary.approximate(num).numerator))
       default:
-        throw EvalError.TypeError(expr, [.NumberType])
+        throw EvalError.typeError(expr, [.numberType])
     }
   }
   
-  func denominator(expr: Expr) throws -> Expr {
+  func denominator(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .Fixnum(_), .Bignum(_):
-        return .Fixnum(1)
-      case .Rat(let num):
-        return .Fixnum(num.value.denominator)
-      case .Bigrat(let num):
+      case .fixnum(_), .bignum(_):
+        return .fixnum(1)
+      case .rational(let num):
+        return .fixnum(num.value.denominator)
+      case .bigrat(let num):
         return .Number(num.value.denominator)
-      case .Flonum(let num):
-        return .Flonum(Double(MathLibrary.approximate(num).denominator))
+      case .flonum(let num):
+        return .flonum(Double(MathLibrary.approximate(num).denominator))
       default:
-        throw EvalError.TypeError(expr, [.NumberType])
+        throw EvalError.typeError(expr, [.numberType])
     }
   }
   
-  func gcd(exprs: Arguments) throws -> Expr {
-    var acc = Expr.Fixnum(0)
+  func gcd(_ exprs: Arguments) throws -> Expr {
+    var acc = Expr.fixnum(0)
     for expr in exprs {
       var e = expr
-      if case .Flonum(let num) = expr {
+      if case .flonum(let num) = expr {
         e = .Number(MathLibrary.approximate(num))
       }
       switch try NumberPair(acc, e) {
-        case .FixnumPair(let lhs, let rhs):
+        case .fixnumPair(let lhs, let rhs):
           let (res, overflow) = Rational.gcdWithOverflow(lhs, rhs)
           acc = overflow ? .Number(Rational.gcd(BigInt(lhs), BigInt(rhs))) : .Number(res)
-        case .BignumPair(let lhs, let rhs):
+        case .bignumPair(let lhs, let rhs):
           acc = .Number(Rational.gcd(lhs, rhs))
-        case .RationalPair(let lhs, let rhs):
+        case .rationalPair(let lhs, let rhs):
           let (res, overflow) = Rational.gcdWithOverflow(lhs, rhs)
           acc = overflow ?
               .Number(Rational.gcd(Rational(BigInt(lhs.numerator), BigInt(lhs.denominator)),
                                    Rational(BigInt(rhs.numerator), BigInt(rhs.denominator))))
             : .Number(res)
-        case .BigRationalPair(let lhs, let rhs):
+        case .bigRationalPair(let lhs, let rhs):
           acc = .Number(Rational.gcd(lhs, rhs))
         default:
-          throw EvalError.TypeError(expr, [.RealType])
+          throw EvalError.typeError(expr, [.realType])
       }
     }
     return acc
   }
   
-  func lcm(exprs: Arguments) throws -> Expr {
-    var acc = Expr.Fixnum(1)
+  func lcm(_ exprs: Arguments) throws -> Expr {
+    var acc = Expr.fixnum(1)
     for expr in exprs {
       var e = expr
-      if case .Flonum(let num) = expr {
+      if case .flonum(let num) = expr {
         e = .Number(MathLibrary.approximate(num))
       }
       switch try NumberPair(acc, e) {
-        case .FixnumPair(let lhs, let rhs):
+        case .fixnumPair(let lhs, let rhs):
           let (res, overflow) = Rational.lcmWithOverflow(lhs, rhs)
           acc = overflow ? .Number(Rational.lcm(BigInt(lhs), BigInt(rhs))) : .Number(res)
-        case .BignumPair(let lhs, let rhs):
+        case .bignumPair(let lhs, let rhs):
           acc = .Number(Rational.lcm(lhs, rhs))
-        case .RationalPair(let lhs, let rhs):
+        case .rationalPair(let lhs, let rhs):
           let (res, overflow) = Rational.lcmWithOverflow(lhs, rhs)
           acc = overflow ?
               .Number(Rational.lcm(Rational(BigInt(lhs.numerator), BigInt(lhs.denominator)),
                                    Rational(BigInt(rhs.numerator), BigInt(rhs.denominator))))
             : .Number(res)
-        case .BigRationalPair(let lhs, let rhs):
+        case .bigRationalPair(let lhs, let rhs):
           acc = .Number(Rational.lcm(lhs, rhs))
         default:
-          throw EvalError.TypeError(expr, [.RealType])
+          throw EvalError.typeError(expr, [.realType])
       }
     }
     return acc
   }
   
-  func truncateQuotient(x: Expr, _ y: Expr) throws -> Expr {
+  func truncateQuotient(_ x: Expr, _ y: Expr) throws -> Expr {
     switch try NumberPair(x, y) {
-      case .FixnumPair(let lhs, let rhs):
+      case .fixnumPair(let lhs, let rhs):
         return .Number(lhs / rhs)
-      case .BignumPair(let lhs, let rhs):
+      case .bignumPair(let lhs, let rhs):
         return .Number(lhs / rhs)
       default:
-        try x.assertTypeOf(.IntegerType)
-        try y.assertTypeOf(.IntegerType)
+        try x.assertTypeOf(.integerType)
+        try y.assertTypeOf(.integerType)
         preconditionFailure()
     }
   }
   
-  func truncateRemainder(x: Expr, _ y: Expr) throws -> Expr {
+  func truncateRemainder(_ x: Expr, _ y: Expr) throws -> Expr {
     switch try NumberPair(x, y) {
-      case .FixnumPair(let lhs, let rhs):
+      case .fixnumPair(let lhs, let rhs):
         return .Number(lhs % rhs)
-      case .BignumPair(let lhs, let rhs):
+      case .bignumPair(let lhs, let rhs):
         return .Number(lhs % rhs)
       default:
-        try x.assertTypeOf(.IntegerType)
-        try y.assertTypeOf(.IntegerType)
+        try x.assertTypeOf(.integerType)
+        try y.assertTypeOf(.integerType)
         preconditionFailure()
     }
   }
   
-  func floorQuotient(x: Expr, _ y: Expr) throws -> Expr {
+  func floorQuotient(_ x: Expr, _ y: Expr) throws -> Expr {
     switch try NumberPair(x, y) {
-      case .FixnumPair(let lhs, let rhs):
+      case .fixnumPair(let lhs, let rhs):
         let res = lhs % rhs
         return .Number(((res < 0) == (rhs < 0) ? (lhs - res) : (lhs - res - rhs)) / rhs)
-      case .BignumPair(let lhs, let rhs):
+      case .bignumPair(let lhs, let rhs):
         let res = lhs % rhs
         return .Number((res.isNegative == rhs.isNegative ? (lhs - res) : (lhs - res - rhs)) / rhs)
       default:
-        try x.assertTypeOf(.IntegerType)
-        try y.assertTypeOf(.IntegerType)
+        try x.assertTypeOf(.integerType)
+        try y.assertTypeOf(.integerType)
         preconditionFailure()
     }
   }
   
-  func floorRemainder(x: Expr, _ y: Expr) throws -> Expr {
+  func floorRemainder(_ x: Expr, _ y: Expr) throws -> Expr {
     switch try NumberPair(x, y) {
-      case .FixnumPair(let lhs, let rhs):
+      case .fixnumPair(let lhs, let rhs):
         let res = lhs % rhs
         return .Number((res < 0) == (rhs < 0) ? res : res + rhs)
-      case .BignumPair(let lhs, let rhs):
+      case .bignumPair(let lhs, let rhs):
         let res = lhs % rhs
         return .Number(res.isNegative == rhs.isNegative ? res : res + rhs)
       default:
-        try x.assertTypeOf(.IntegerType)
-        try y.assertTypeOf(.IntegerType)
+        try x.assertTypeOf(.integerType)
+        try y.assertTypeOf(.integerType)
         preconditionFailure()
     }
   }
   
-  func fxPlus(x: Expr, _ y: Expr) throws -> Expr {
-    return .Fixnum(try x.asInteger() &+ y.asInteger())
+  func fxPlus(_ x: Expr, _ y: Expr) throws -> Expr {
+    return .fixnum(try x.asInteger() &+ y.asInteger())
   }
   
-  func compileFxPlus(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
-    guard case .Pair(_, .Pair(let x, .Pair(let y, .Null))) = expr else {
-      throw EvalError.ArgumentCountError(formals: 2, args: expr)
+  func compileFxPlus(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    guard case .pair(_, .pair(let x, .pair(let y, .null))) = expr else {
+      throw EvalError.argumentCountError(formals: 2, args: expr)
     }
     try compiler.compile(x, in: env, inTailPos: false)
     try compiler.compile(y, in: env, inTailPos: false)
-    compiler.emit(.FxPlus)
+    compiler.emit(.fxPlus)
     return false
   }
   
-  func fxMinus(x: Expr, _ y: Expr) throws -> Expr {
-    return .Fixnum(try x.asInteger() &- y.asInteger())
+  func fxMinus(_ x: Expr, _ y: Expr) throws -> Expr {
+    return .fixnum(try x.asInteger() &- y.asInteger())
   }
   
-  func compileFxMinus(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
-    guard case .Pair(_, .Pair(let x, .Pair(let y, .Null))) = expr else {
-      throw EvalError.ArgumentCountError(formals: 2, args: expr)
+  func compileFxMinus(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    guard case .pair(_, .pair(let x, .pair(let y, .null))) = expr else {
+      throw EvalError.argumentCountError(formals: 2, args: expr)
     }
     try compiler.compile(x, in: env, inTailPos: false)
     try compiler.compile(y, in: env, inTailPos: false)
-    compiler.emit(.FxMinus)
+    compiler.emit(.fxMinus)
     return false
   }
 
-  func fxMult(x: Expr, _ y: Expr) throws -> Expr {
-    return .Fixnum(try x.asInteger() &* y.asInteger())
+  func fxMult(_ x: Expr, _ y: Expr) throws -> Expr {
+    return .fixnum(try x.asInteger() &* y.asInteger())
   }
   
-  func compileFxMult(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
-    guard case .Pair(_, .Pair(let x, .Pair(let y, .Null))) = expr else {
-      throw EvalError.ArgumentCountError(formals: 2, args: expr)
+  func compileFxMult(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    guard case .pair(_, .pair(let x, .pair(let y, .null))) = expr else {
+      throw EvalError.argumentCountError(formals: 2, args: expr)
     }
     try compiler.compile(x, in: env, inTailPos: false)
     try compiler.compile(y, in: env, inTailPos: false)
-    compiler.emit(.FxMult)
+    compiler.emit(.fxMult)
     return false
   }
   
-  func fxDiv(x: Expr, _ y: Expr) throws -> Expr {
-    return .Fixnum(try x.asInteger() / y.asInteger())
+  func fxDiv(_ x: Expr, _ y: Expr) throws -> Expr {
+    return .fixnum(try x.asInteger() / y.asInteger())
   }
   
-  func compileFxDiv(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
-    guard case .Pair(_, .Pair(let x, .Pair(let y, .Null))) = expr else {
-      throw EvalError.ArgumentCountError(formals: 2, args: expr)
+  func compileFxDiv(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    guard case .pair(_, .pair(let x, .pair(let y, .null))) = expr else {
+      throw EvalError.argumentCountError(formals: 2, args: expr)
     }
     try compiler.compile(x, in: env, inTailPos: false)
     try compiler.compile(y, in: env, inTailPos: false)
-    compiler.emit(.FxDiv)
+    compiler.emit(.fxDiv)
     return false
   }
 }

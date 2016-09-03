@@ -41,25 +41,25 @@ public final class Compiler {
   internal let checkpointer: Checkpointer
   
   /// Capture list
-  private var captures: CaptureGroup!
+  fileprivate var captures: CaptureGroup!
   
   /// Current number of local values/variables
   internal var numLocals: Int = 0
   
   /// Maximum number of local values/variables
-  private var maxLocals: Int = 0
+  fileprivate var maxLocals: Int = 0
   
   /// List of arguments
-  private var arguments: BindingGroup?
+  fileprivate var arguments: BindingGroup?
   
   /// Constant pool
-  private var constants: [Expr] = []
+  fileprivate var constants: [Expr] = []
   
   /// List of code fragments
-  private var fragments: [Code] = []
+  fileprivate var fragments: [Code] = []
   
   /// Instruction sequence
-  private var instructions: [Instruction] = []
+  fileprivate var instructions: [Instruction] = []
   
   /// Returns the parent compiler (since `Compiler` objects are nested, e.g. if nested
   /// functions get compiled)
@@ -68,7 +68,7 @@ public final class Compiler {
   }
   
   /// Initializes a compiler object from the given context, environments, and checkpointer.
-  private init(_ context: Context,
+  fileprivate init(_ context: Context,
                in env: Env,
                and rulesEnv: Env,
                usingCheckpointer cp: Checkpointer) {
@@ -84,9 +84,9 @@ public final class Compiler {
   /// `rulesEnv`. If `optimize` is set to true, the compiler will be invoked twice. The
   /// information collected in the first phase will be used to optimize the code in the second
   /// phase.
-  public static func compile(context: Context,
+  public static func compile(_ context: Context,
                              expr: Expr,
-                             in env: Env = .Interaction,
+                             in env: Env = .interaction,
                              and rulesEnv: Env? = nil,
                              optimize: Bool = false) throws -> Code {
     let checkpointer = Checkpointer()
@@ -104,12 +104,12 @@ public final class Compiler {
   
   /// Compiles the given list of arguments and returns the corresponding binding group as well
   /// as the remaining argument list
-  private func collectArguments(arglist: Expr) -> (BindingGroup, Expr) {
+  fileprivate func collectArguments(_ arglist: Expr) -> (BindingGroup, Expr) {
     let arguments = BindingGroup(owner: self, parent: self.env)
     var next = arglist
-    loop: while case .Pair(let arg, let cdr) = next {
+    loop: while case .pair(let arg, let cdr) = next {
       switch arg {
-        case .Sym(let sym):
+        case .sym(let sym):
           arguments.allocBindingFor(sym)
         default:
           break loop
@@ -121,28 +121,28 @@ public final class Compiler {
   
   /// Compiles the given body of a function (or expression, if this compiler is not used to
   /// compile a function).
-  private func compileBody(expr: Expr) throws {
+  fileprivate func compileBody(_ expr: Expr) throws {
     if expr.isNull {
-      self.emit(.PushVoid)
-      self.emit(.Return)
+      self.emit(.pushVoid)
+      self.emit(.return)
     } else {
       // Reserve instruction for reserving local variables
       let reserveLocalIp = self.emitPlaceholder()
       // Turn arguments into local variables
       if let arguments = self.arguments {
         for sym in arguments.symbols {
-          if let sym = sym, binding = arguments.bindingFor(sym) where !binding.isValue {
-            self.emit(.MakeVariableArgument(binding.index))
+          if let sym = sym, let binding = arguments.bindingFor(sym) , !binding.isValue {
+            self.emit(.makeVariableArgument(binding.index))
           }
         }
       }
       // Compile body
       if !(try compileSeq(expr, in: self.env, inTailPos: true, localDefine: false)) {
-        self.emit(.Return)
+        self.emit(.return)
       }
       // Insert instruction to reserve local variables
       if self.maxLocals > self.arguments?.count ?? 0 {
-        self.patch(.Alloc(self.maxLocals - (self.arguments?.count ?? 0)), at: reserveLocalIp)
+        self.patch(.alloc(self.maxLocals - (self.arguments?.count ?? 0)), at: reserveLocalIp)
       }
     }
     // Checkpoint argument mutability
@@ -159,61 +159,61 @@ public final class Compiler {
   }
   
   /// Removes the last instruction from the instruction sequence.
-  public func removeLastInstr() -> Int {
+  @discardableResult public func removeLastInstr() -> Int {
     self.instructions.removeLast()
     return self.instructions.count - 1
   }
   
   /// Appends the given instruction to the instruction sequence.
-  public func emit(instr: Instruction) -> Int {
+  @discardableResult public func emit(_ instr: Instruction) -> Int {
     self.instructions.append(instr)
     return self.instructions.count - 1
   }
   
   /// Replaces the instruction at the position `at` with the instruction `instr`.
-  public func patch(instr: Instruction, at: Int) {
+  public func patch(_ instr: Instruction, at: Int) {
     self.instructions[at] = instr
   }
   
   /// Appends a placeholder instruction to the instruction sequence.
-  public func emitPlaceholder() -> Int {
-    return self.emit(.NoOp)
+  @discardableResult public func emitPlaceholder() -> Int {
+    return self.emit(.noOp)
   }
   
   /// Replaces the instruction at the position `at` with the instruction `instr`.
-  public func patchMakeClosure(nameIdx: Int) {
-    if case .Some(.MakeClosure(-1, let n, let index)) = self.instructions.last {
-      self.instructions[self.instructions.count - 1] = .MakeClosure(nameIdx, n, index)
+  public func patchMakeClosure(_ nameIdx: Int) {
+    if case .some(.makeClosure(-1, let n, let index)) = self.instructions.last {
+      self.instructions[self.instructions.count - 1] = .makeClosure(nameIdx, n, index)
     }
   }
   
   /// Calls a procedure on the stack with `n` arguments. Uses a tail call if `tail` is set
   /// to true.
-  public func call(n: Int, _ tail: Bool) -> Bool {
+  public func call(_ n: Int, inTailPos tail: Bool) -> Bool {
     if tail {
-      self.emit(.TailCall(n))
+      self.emit(.tailCall(n))
       return true
     } else {
-      self.emit(.Call(n))
+      self.emit(.call(n))
       return false
     }
   }
   
   /// Computes the offset between the next instruction and the given instruction pointer `ip`.
-  public func offsetToNext(ip: Int) -> Int {
+  public func offsetToNext(_ ip: Int) -> Int {
     return self.instructions.count - ip
   }
   
   /// Pushes the given expression onto the stack.
-  public func pushConstant(expr: Expr) {
-    self.emit(.PushConstant(self.registerConstant(expr)))
+  public func pushConstant(_ expr: Expr) {
+    self.emit(.pushConstant(self.registerConstant(expr)))
   }
   
   /// Attaches the given expression to the constant pool and returns the index into the constant
   /// pool. `registerConstant` makes sure that expressions are not added twice.
-  public func registerConstant(expr: Expr) -> Int {
+  public func registerConstant(_ expr: Expr) -> Int {
     for i in self.constants.indices {
-      if eqExpr(self.constants[i], expr) {
+      if eqExpr(expr, self.constants[i]) {
         return i
       }
     }
@@ -222,20 +222,20 @@ public final class Compiler {
   }
   
   /// Push the value of the given symbol in the given environment onto the stack.
-  public func pushValueOf(sym: Symbol, in env: Env) throws {
+  public func pushValueOf(_ sym: Symbol, in env: Env) throws {
     switch self.pushLocalValueOf(sym, in: env) {
-      case .Success:
+      case .success:
         break // Nothing to do
-      case .GlobalLookupRequired(let lexicalSym, let global):
+      case .globalLookupRequired(let lexicalSym, let global):
         if global.systemDefined(lexicalSym, in: self.context) {
           if let value = self.context.systemScope[lexicalSym] {
             try self.pushValue(value)
             return
           }
         }
-        self.emit(.PushGlobal(self.registerConstant(.Sym(lexicalSym))))
-      case .MacroExpansionRequired(_):
-        throw EvalError.IllegalKeywordUsage(.Sym(sym))
+        self.emit(.pushGlobal(self.registerConstant(.sym(lexicalSym))))
+      case .macroExpansionRequired(_):
+        throw EvalError.illegalKeywordUsage(.sym(sym))
     }
   }
   
@@ -243,43 +243,43 @@ public final class Compiler {
   public enum LocalLookupResult {
     
     /// `Success` indicates that a local value/variable was successfully pushed onto the stack
-    case Success
+    case success
     
     /// `MacroExpansionRequired(proc)` indicates that the binding refers to a macro and the
     /// compiler needs to expand the expression with the macro expander procedure `proc`.
-    case MacroExpansionRequired(Procedure)
+    case macroExpansionRequired(Procedure)
     
     /// `GlobalLookupRequired(gsym, genv)` indicates that a suitable binding wasn't found in the
     /// local environment and thus a lookup in the global environment `genv` needs to be made via
     /// symbol `gsym`. Note that `gsym` and `sym` do not necessarily need to be the same due to
     /// the way how hygienic macro expansion is implemented.
-    case GlobalLookupRequired(Symbol, Env)
+    case globalLookupRequired(Symbol, Env)
   }
   
   /// Pushes the value/variable bound to symbol `sym` in the local environment `env`. If this
   /// wasn't possible, the method returns an instruction on how to proceed.
-  public func pushLocalValueOf(sym: Symbol, in env: Env) -> LocalLookupResult {
+  public func pushLocalValueOf(_ sym: Symbol, in env: Env) -> LocalLookupResult {
     var env = env
     // Iterate through the local binding groups until `sym` is found
-    while case .Local(let group) = env {
+    while case .local(let group) = env {
       if let binding = group.bindingFor(sym) {
-        if case .Macro(let proc) = binding.kind {
-          return .MacroExpansionRequired(proc)
+        if case .macro(let proc) = binding.kind {
+          return .macroExpansionRequired(proc)
         } else if group.owner === self {
           if binding.isValue {
-            self.emit(.PushLocal(binding.index))
+            self.emit(.pushLocal(binding.index))
           } else {
-            self.emit(.PushLocalValue(binding.index))
+            self.emit(.pushLocalValue(binding.index))
           }
         } else {
           let capturedIndex = self.captures.capture(binding, from: group)
           if binding.isValue {
-            self.emit(.PushCaptured(capturedIndex))
+            self.emit(.pushCaptured(capturedIndex))
           } else {
-            self.emit(.PushCapturedValue(capturedIndex))
+            self.emit(.pushCapturedValue(capturedIndex))
           }
         }
-        return .Success
+        return .success
       }
       env = group.parent
     }
@@ -288,20 +288,20 @@ public final class Compiler {
       return self.pushLocalValueOf(lexicalSym, in: lexicalEnv)
     }
     // Return global scope
-    return .GlobalLookupRequired(sym, env)
+    return .globalLookupRequired(sym, env)
   }
   
   /// Pushes the value/variable bound to symbol `sym` in the local environment `env`. If this
   /// wasn't possible, the method returns an instruction on how to proceed.
-  public func lookupLocalValueOf(sym: Symbol, in env: Env) -> LocalLookupResult {
+  public func lookupLocalValueOf(_ sym: Symbol, in env: Env) -> LocalLookupResult {
     var env = env
     // Iterate through the local binding groups until `sym` is found
-    while case .Local(let group) = env {
+    while case .local(let group) = env {
       if let binding = group.bindingFor(sym) {
-        if case .Macro(let proc) = binding.kind {
-          return .MacroExpansionRequired(proc)
+        if case .macro(let proc) = binding.kind {
+          return .macroExpansionRequired(proc)
         }
-        return .Success
+        return .success
       }
       env = group.parent
     }
@@ -310,54 +310,54 @@ public final class Compiler {
       return self.lookupLocalValueOf(lexicalSym, in: lexicalEnv)
     }
     // Return global scope
-    return .GlobalLookupRequired(sym, env)
+    return .globalLookupRequired(sym, env)
   }
   
   /// Generates instructions to push the given expression onto the stack.
-  public func pushValue(expr: Expr) throws {
+  public func pushValue(_ expr: Expr) throws {
     switch expr {
-      case .Undef:
-        self.emit(.PushUndef)
-      case .Void:
-        self.emit(.PushVoid)
-      case .Eof:
-        self.emit(.PushEof)
-      case .Null:
-        self.emit(.PushNull)
-      case .True:
-        self.emit(.PushTrue)
-      case .False:
-        self.emit(.PushFalse)
-      case .Fixnum(let num):
-        self.emit(.PushFixnum(num))
-      case .Bignum(let num):
-        self.emit(.PushBignum(num))
-      case .Rat(let num):
-        self.emit(.PushRat(num.value))
-      case .Bigrat(let num):
-        self.emit(.PushBigrat(num.value))
-      case .Flonum(let num):
-        self.emit(.PushFlonum(num))
-      case .Complexnum(let num):
-        self.emit(.PushComplex(num.value))
-      case .Char(let char):
-        self.emit(.PushChar(char))
-      case .Sym(_), .Str(_), .Bytes(_), .Pair(_, _), .Box(_), .MutablePair(_),
-           .Vector(_), .Record(_), .Map(_), .Promise(_), .Proc(_), .Prt(_), .Error(_):
+      case .undef:
+        self.emit(.pushUndef)
+      case .void:
+        self.emit(.pushVoid)
+      case .eof:
+        self.emit(.pushEof)
+      case .null:
+        self.emit(.pushNull)
+      case .true:
+        self.emit(.pushTrue)
+      case .false:
+        self.emit(.pushFalse)
+      case .fixnum(let num):
+        self.emit(.pushFixnum(num))
+      case .bignum(let num):
+        self.emit(.pushBignum(num))
+      case .rational(let num):
+        self.emit(.pushRat(num.value))
+      case .bigrat(let num):
+        self.emit(.pushBigrat(num.value))
+      case .flonum(let num):
+        self.emit(.pushFlonum(num))
+      case .complex(let num):
+        self.emit(.pushComplex(num.value))
+      case .char(let char):
+        self.emit(.pushChar(char))
+      case .sym(_), .str(_), .bytes(_), .pair(_, _), .box(_), .mutablePair(_),
+           .vector(_), .record(_), .map(_), .promise(_), .proc(_), .prt(_), .error(_):
         self.pushConstant(expr)
-      case .Special(_):
-        throw EvalError.IllegalKeywordUsage(expr)
+      case .special(_):
+        throw EvalError.illegalKeywordUsage(expr)
     }
   }
   
   /// Bind symbol `sym` to the value on top of the stack in environment `env`.
-  public func setValueOf(sym: Symbol, in env: Env) {
+  public func setValueOf(_ sym: Symbol, in env: Env) {
     switch self.setLocalValueOf(sym, in: env) {
-      case .Success:
+      case .success:
         break; // Nothing to do
-      case .GlobalLookupRequired(let lexicalSym, _):
-        self.emit(.SetGlobal(self.registerConstant(.Sym(lexicalSym))))
-      case .MacroExpansionRequired(_):
+      case .globalLookupRequired(let lexicalSym, _):
+        self.emit(.setGlobal(self.registerConstant(.sym(lexicalSym))))
+      case .macroExpansionRequired(_):
         preconditionFailure("setting bindings should never trigger macro expansion")
     }
   }
@@ -365,18 +365,18 @@ public final class Compiler {
   /// Bind symbol `sym` to the value on top of the stack assuming `lenv` is a local
   /// environment (i.e. the bindings are located on the stack). If this
   /// wasn't possible, the method returns an instruction on how to proceed.
-  public func setLocalValueOf(sym: Symbol, in lenv: Env) -> LocalLookupResult {
+  public func setLocalValueOf(_ sym: Symbol, in lenv: Env) -> LocalLookupResult {
     var env = lenv
     // Iterate through the local binding groups until `sym` is found
-    while case .Local(let group) = env {
+    while case .local(let group) = env {
       if let binding = group.bindingFor(sym) {
         if group.owner === self {
-          self.emit(.SetLocalValue(binding.index))
+          self.emit(.setLocalValue(binding.index))
         } else {
-          self.emit(.SetCapturedValue(self.captures.capture(binding, from: group)))
+          self.emit(.setCapturedValue(self.captures.capture(binding, from: group)))
         }
         binding.wasMutated()
-        return .Success
+        return .success
       }
       env = group.parent
     }
@@ -384,32 +384,32 @@ public final class Compiler {
     if let (lexicalSym, lexicalEnv) = sym.lexical {
       return self.setLocalValueOf(lexicalSym, in: lexicalEnv)
     }
-    return .GlobalLookupRequired(sym, lenv)
+    return .globalLookupRequired(sym, lenv)
   }
   
   /// Compile expression `expr` in environment `env`. Parameter `tail` specifies if `expr`
   /// is located in a tail position. This allows compile to generate code with tail calls.
-  public func expand(expr: Expr, in env: Env) throws -> Expr {
+  public func expand(_ expr: Expr, in env: Env) throws -> Expr {
     switch expr {
-      case .Pair(.Sym(let sym), let cdr):
+      case .pair(.sym(let sym), let cdr):
         let cp = self.checkpointer.checkpoint()
         switch self.lookupLocalValueOf(sym, in: env) {
-          case .Success:
+          case .success:
             return expr
-          case .GlobalLookupRequired(let lexicalSym, let global):
+          case .globalLookupRequired(let lexicalSym, let global):
             if let value = self.checkpointer.fromGlobalEnv(cp) ??
                            global.scope(self.context)[lexicalSym] {
-              self.checkpointer.associate(.FromGlobalEnv(value), with: cp)
+              self.checkpointer.associate(.fromGlobalEnv(value), with: cp)
               switch value {
-                case .Special(let special):
+                case .special(let special):
                   switch special.kind {
-                    case .Primitive(_):
+                    case .primitive(_):
                       return expr
-                    case .Macro(let transformer):
+                    case .macro(let transformer):
                       let expanded = try
                         self.checkpointer.expansion(cp) ??
-                        self.context.machine.apply(.Proc(transformer), to: .Pair(cdr, .Null), in: env)
-                      self.checkpointer.associate(.Expansion(expanded), with: cp)
+                        self.context.machine.apply(.proc(transformer), to: .pair(cdr, .null), in: env)
+                      self.checkpointer.associate(.expansion(expanded), with: cp)
                       log("expanded = \(expanded)")
                       return expanded
                   }
@@ -419,9 +419,9 @@ public final class Compiler {
             } else {
               return expr
             }
-          case .MacroExpansionRequired(let transformer):
+          case .macroExpansionRequired(let transformer):
             let expanded =
-              try self.context.machine.apply(.Proc(transformer), to: .Pair(cdr, .Null), in: env)
+              try self.context.machine.apply(.proc(transformer), to: .pair(cdr, .null), in: env)
             log("expanded = \(expanded)")
             return expanded
         }
@@ -432,41 +432,41 @@ public final class Compiler {
   
   /// Compile expression `expr` in environment `env`. Parameter `tail` specifies if `expr`
   /// is located in a tail position. This allows compile to generate code with tail calls.
-  public func compile(expr: Expr, in env: Env, inTailPos tail: Bool) throws -> Bool {
+  @discardableResult public func compile(_ expr: Expr, in env: Env, inTailPos tail: Bool) throws -> Bool {
     let cp = self.checkpointer.checkpoint()
     switch expr {
-      case .Sym(let sym):
+      case .sym(let sym):
         try self.pushValueOf(sym, in: env)
-      case .Pair(.Sym(let sym), let cdr):
-        let pushFrameIp = self.emit(.MakeFrame)
+      case .pair(.sym(let sym), let cdr):
+        let pushFrameIp = self.emit(.makeFrame)
         // Try to push the function if locally defined
         switch self.pushLocalValueOf(sym, in: env) {
-          case .Success:
+          case .success:
             break // Nothing to do
-          case .GlobalLookupRequired(let lexicalSym, let global):
+          case .globalLookupRequired(let lexicalSym, let global):
             // Is there a special compiler plugin for this global binding
             if let value = self.checkpointer.fromGlobalEnv(cp) ??
                            global.scope(self.context)[lexicalSym] {
-              self.checkpointer.associate(.FromGlobalEnv(value), with: cp)
+              self.checkpointer.associate(.fromGlobalEnv(value), with: cp)
               switch value {
-                case .Proc(let proc):
-                  if case .Primitive(_, _, .Some(let formCompiler)) = proc.kind
-                     where self.checkpointer.systemDefined(cp) ||
+                case .proc(let proc):
+                  if case .primitive(_, _, .some(let formCompiler)) = proc.kind
+                     , self.checkpointer.systemDefined(cp) ||
                            global.systemDefined(lexicalSym, in: self.context) {
-                    self.checkpointer.associate(.SystemDefined, with: cp)
+                    self.checkpointer.associate(.systemDefined, with: cp)
                     self.removeLastInstr()
                     return try formCompiler(self, expr, env, tail)
                   }
-                case .Special(let special):
+                case .special(let special):
                   self.removeLastInstr()
                   switch special.kind {
-                    case .Primitive(let formCompiler):
+                    case .primitive(let formCompiler):
                       return try formCompiler(self, expr, env, tail)
-                    case .Macro(let transformer):
+                    case .macro(let transformer):
                       let expanded = try
                         self.checkpointer.expansion(cp) ??
-                        self.context.machine.apply(.Proc(transformer), to: .Pair(cdr, .Null), in: env)
-                      self.checkpointer.associate(.Expansion(expanded), with: cp)
+                        self.context.machine.apply(.proc(transformer), to: .pair(cdr, .null), in: env)
+                      self.checkpointer.associate(.expansion(expanded), with: cp)
                       log("expanded = \(expanded)")
                       return try self.compile(expanded, in: env, inTailPos: tail)
                   }
@@ -479,31 +479,31 @@ public final class Compiler {
               if let value = self.context.systemScope[lexicalSym] {
                 try self.pushValue(value)
               } else {
-                self.emit(.PushGlobal(self.registerConstant(.Sym(lexicalSym))))
+                self.emit(.pushGlobal(self.registerConstant(.sym(lexicalSym))))
               }
             } else {
-              self.emit(.PushGlobal(self.registerConstant(.Sym(lexicalSym))))
+              self.emit(.pushGlobal(self.registerConstant(.sym(lexicalSym))))
             }
-          case .MacroExpansionRequired(let transformer):
+          case .macroExpansionRequired(let transformer):
             let expanded =
-              try self.context.machine.apply(.Proc(transformer), to: .Pair(cdr, .Null), in: env)
+              try self.context.machine.apply(.proc(transformer), to: .pair(cdr, .null), in: env)
             log("expanded = \(expanded)")
             return try self.compile(expanded, in: env, inTailPos: tail)
         }
         // Push arguments and call function
-        if self.call(try self.compileExprs(cdr, in: env), tail) {
+        if self.call(try self.compileExprs(cdr, in: env), inTailPos: tail) {
           // Remove MakeFrame if this was a tail call
-          self.patch(.NoOp, at: pushFrameIp)
+          self.patch(.noOp, at: pushFrameIp)
           return true
         }
-      case .Pair(let car, let cdr):
-        let pushFrameIp = self.emit(.MakeFrame)
+      case .pair(let car, let cdr):
+        let pushFrameIp = self.emit(.makeFrame)
         // Push function
         try self.compile(car, in: env, inTailPos: false)
         // Push arguments and call function
-        if self.call(try self.compileExprs(cdr, in: env), tail) {
+        if self.call(try self.compileExprs(cdr, in: env), inTailPos: tail) {
           // Remove MakeFrame if this was a tail call
-          self.patch(.NoOp, at: pushFrameIp)
+          self.patch(.noOp, at: pushFrameIp)
           return true
         }
       default:
@@ -515,16 +515,16 @@ public final class Compiler {
   /// Compile the given list of expressions `expr` in environment `env` and push each result
   /// onto the stack. This method returns the number of expressions that were evaluated and
   /// whose result has been stored on the stack.
-  public func compileExprs(expr: Expr, in env: Env) throws -> Int {
+  public func compileExprs(_ expr: Expr, in env: Env) throws -> Int {
     var n = 0
     var next = expr
-    while case .Pair(let car, let cdr) = next {
+    while case .pair(let car, let cdr) = next {
       try self.compile(car, in: env, inTailPos: false)
       n += 1
       next = cdr
     }
     guard next.isNull else {
-      throw EvalError.TypeError(expr, [.ProperListType])
+      throw EvalError.typeError(expr, [.properListType])
     }
     return n
   }
@@ -532,45 +532,45 @@ public final class Compiler {
   /// Compile the sequence of expressions `expr` in environment `env`. Parameter `tail`
   /// specifies if `expr` is located in a tail position. This allows the compiler to generate
   /// code with tail calls.
-  public func compileSeq(expr: Expr,
-                         in env: Env,
-                         inTailPos tail: Bool,
-                         localDefine: Bool = true) throws -> Bool {
+  @discardableResult public func compileSeq(_ expr: Expr,
+                                            in env: Env,
+                                            inTailPos tail: Bool,
+                                            localDefine: Bool = true) throws -> Bool {
     // Return void for empty sequences
     guard !expr.isNull else {
-      self.emit(.PushVoid)
+      self.emit(.pushVoid)
       return false
     }
     // Partially expand expressions in the sequence
     var next = expr
     var exprs = Exprs()
-    while case .Pair(let car, let cdr) = next {
+    while case .pair(let car, let cdr) = next {
       exprs.append(localDefine ? try self.expand(car, in: env) : car)
       next = cdr
     }
     // Throw error if the sequence is not a proper list
     guard next.isNull else {
-      throw EvalError.TypeError(expr, [.ProperListType])
+      throw EvalError.typeError(expr, [.properListType])
     }
     // Identify internal definitions
     var i = 0
     var bindings = Exprs()
     if localDefine {
       loop: while i < exprs.count {
-        guard case .Pair(.Sym(let fun), let binding) = exprs[i]
-              where fun.interned == self.context.symbols.DEFINE &&
+        guard case .pair(.sym(let fun), let binding) = exprs[i]
+              , fun.interned == self.context.symbols.DEFINE &&
                     env.systemDefined(fun, in: self.context) else {
           break loop
         }
         // Distinguish value definitions from function definitions
         switch binding {
-          case .Pair(.Sym(let sym), .Pair(let def, .Null)):
-            bindings.append(.Pair(.Sym(sym), .Pair(def, .Null)))
-          case .Pair(.Pair(.Sym(let sym), let args), .Pair(let def, .Null)):
+          case .pair(.sym(let sym), .pair(let def, .null)):
+            bindings.append(.pair(.sym(sym), .pair(def, .null)))
+          case .pair(.pair(.sym(let sym), let args), .pair(let def, .null)):
             bindings.append(
-              .Pair(.Sym(sym), .Pair(.Pair(.Sym(Symbol(self.context.symbols.LAMBDA, .System)),
-                                           .Pair(args, .Pair(def, .Null))),
-                                     .Null)))
+              .pair(.sym(sym), .pair(.pair(.sym(Symbol(self.context.symbols.LAMBDA, .system)),
+                                           .pair(args, .pair(def, .null))),
+                                     .null)))
           default:
             break loop
         }
@@ -583,7 +583,7 @@ public final class Compiler {
       // Compilation with no internal definitions
       while i < exprs.count {
         if i > 0 {
-          self.emit(.Pop)
+          self.emit(.pop)
         }
         exit = try self.compile(exprs[i], in: env, inTailPos: tail && (i == exprs.count - 1))
         i += 1
@@ -597,7 +597,7 @@ public final class Compiler {
       var first = true
       while i < exprs.count {
         if !first {
-          self.emit(.Pop)
+          self.emit(.pop)
         }
         exit = try self.compile(exprs[i], in: lenv, inTailPos: tail && (i == exprs.count - 1))
         first = false
@@ -605,7 +605,7 @@ public final class Compiler {
       }
       // Push void in case there is no non-define expression left
       if first {
-        self.emit(.PushVoid)
+        self.emit(.pushVoid)
       }
       return self.finalizeBindings(group, exit: exit, initialLocals: initialLocals)
     }
@@ -614,48 +614,48 @@ public final class Compiler {
   /// Compiles the given binding list of the form
   /// ```((ident init) ...)```
   /// and returns a `BindingGroup` with information about the established local bindings.
-  public func compileBindings(bindingList: Expr,
+  public func compileBindings(_ bindingList: Expr,
                               in lenv: Env,
                               atomic: Bool,
                               predef: Bool) throws -> BindingGroup {
     let group = BindingGroup(owner: self, parent: lenv)
-    let env = atomic && !predef ? lenv : .Local(group)
+    let env = atomic && !predef ? lenv : .local(group)
     var bindings = bindingList
     if predef {
-      while case .Pair(.Pair(.Sym(let sym), _), let rest) = bindings {
+      while case .pair(.pair(.sym(let sym), _), let rest) = bindings {
         let binding = group.allocBindingFor(sym)
         // This is a hack for now; we need to make sure forward references work, e.g. in
         // lambda expressions. A way to do this is to allocate variables for all bindings that
         // are predefined.
         binding.wasMutated()
-        self.emit(.PushUndef)
-        self.emit(binding.isValue ? .SetLocal(binding.index) : .MakeLocalVariable(binding.index))
+        self.emit(.pushUndef)
+        self.emit(binding.isValue ? .setLocal(binding.index) : .makeLocalVariable(binding.index))
         bindings = rest
       }
       bindings = bindingList
     }
     var prevIndex = -1
-    while case .Pair(let binding, let rest) = bindings {
-      guard case .Pair(.Sym(let sym), .Pair(let expr, .Null)) = binding else {
-        throw EvalError.MalformedBindings(binding, bindingList)
+    while case .pair(let binding, let rest) = bindings {
+      guard case .pair(.sym(let sym), .pair(let expr, .null)) = binding else {
+        throw EvalError.malformedBindings(binding, bindingList)
       }
       try self.compile(expr, in: env, inTailPos: false)
       let binding = group.allocBindingFor(sym)
       guard binding.index > prevIndex else {
-        throw EvalError.DuplicateBinding(sym, bindingList)
+        throw EvalError.duplicateBinding(sym, bindingList)
       }
       if binding.isValue {
-        self.emit(.SetLocal(binding.index))
+        self.emit(.setLocal(binding.index))
       } else if predef {
-        self.emit(.SetLocalValue(binding.index))
+        self.emit(.setLocalValue(binding.index))
       } else {
-        self.emit(.MakeLocalVariable(binding.index))
+        self.emit(.makeLocalVariable(binding.index))
       }
       prevIndex = binding.index
       bindings = rest
     }
     guard bindings.isNull else {
-      throw EvalError.MalformedBindings(nil, bindingList)
+      throw EvalError.malformedBindings(nil, bindingList)
     }
     return group
   }
@@ -663,10 +663,10 @@ public final class Compiler {
   /// This function should be used for finalizing the compilation of blocks with local
   /// bindings. It finalizes the binding group and resets the local bindings so that the
   /// garbage collector can deallocate the objects that are not used anymore.
-  public func finalizeBindings(group: BindingGroup, exit: Bool, initialLocals: Int) -> Bool {
+  public func finalizeBindings(_ group: BindingGroup, exit: Bool, initialLocals: Int) -> Bool {
     group.finalize()
     if !exit && self.numLocals > initialLocals {
-      self.emit(.Reset(initialLocals, self.numLocals - initialLocals))
+      self.emit(.reset(initialLocals, self.numLocals - initialLocals))
     }
     self.numLocals = initialLocals
     return exit
@@ -675,7 +675,7 @@ public final class Compiler {
   /// Binds a list of keywords to macro transformers in the given local environment `lenv`.
   /// If `recursive` is set to true, the macro transformers are evaluated in an environment that
   /// includes their own definition.
-  public func compileMacros(bindingList: Expr,
+  public func compileMacros(_ bindingList: Expr,
                             in lenv: Env,
                             recursive: Bool) throws -> BindingGroup {
     var numMacros = 0
@@ -685,24 +685,24 @@ public final class Compiler {
     })
     let env = recursive ? Env(group) : lenv
     var bindings = bindingList
-    while case .Pair(let binding, let rest) = bindings {
-      guard case .Pair(.Sym(let sym), .Pair(let transformer, .Null)) = binding else {
-        throw EvalError.MalformedBindings(binding, bindingList)
+    while case .pair(let binding, let rest) = bindings {
+      guard case .pair(.sym(let sym), .pair(let transformer, .null)) = binding else {
+        throw EvalError.malformedBindings(binding, bindingList)
       }
       let procExpr = try self.context.machine.eval(transformer,
                                                    in: env.syntacticalEnv,
                                                    usingRulesEnv: env)
-      guard case .Proc(let proc) = procExpr else {
-        throw EvalError.MalformedTransformer(transformer) //FIXME: Find better error message
+      guard case .proc(let proc) = procExpr else {
+        throw EvalError.malformedTransformer(transformer) //FIXME: Find better error message
       }
       guard group.bindingFor(sym) == nil else {
-        throw EvalError.DuplicateBinding(sym, bindingList)
+        throw EvalError.duplicateBinding(sym, bindingList)
       }
       group.defineMacro(sym, proc: proc)
       bindings = rest
     }
     guard bindings.isNull else {
-      throw EvalError.MalformedBindings(nil, bindingList)
+      throw EvalError.malformedBindings(nil, bindingList)
     }
     return group
   }
@@ -710,7 +710,7 @@ public final class Compiler {
   /// Compiles a closure consisting of a list of formal arguments `arglist`, a list of
   /// expressions `body`, and a local environment `env`. It puts the closure on top of the
   /// stack.
-  public func compileLambda(nameIdx: Int?, _ arglist: Expr, _ body: Expr, _ env: Env) throws {
+  public func compileLambda(_ nameIdx: Int?, _ arglist: Expr, _ body: Expr, _ env: Env) throws {
     // Create closure compiler as child of the current compiler
     let closureCompiler = Compiler(self.context,
                                    in: env,
@@ -719,19 +719,19 @@ public final class Compiler {
     // Compile arguments
     let (arguments, next) = closureCompiler.collectArguments(arglist)
     switch next {
-      case .Null:
-        closureCompiler.emit(.AssertArgCount(arguments.count))
-      case .Sym(let sym):
+      case .null:
+        closureCompiler.emit(.assertArgCount(arguments.count))
+      case .sym(let sym):
         if arguments.count > 0 {
-          closureCompiler.emit(.AssertMinArgCount(arguments.count))
+          closureCompiler.emit(.assertMinArgCount(arguments.count))
         }
-        closureCompiler.emit(.CollectRest(arguments.count))
+        closureCompiler.emit(.collectRest(arguments.count))
         arguments.allocBindingFor(sym)
       default:
-        throw EvalError.MalformedArgumentList(arglist)
+        throw EvalError.malformedArgumentList(arglist)
     }
     closureCompiler.arguments = arguments
-    closureCompiler.env = .Local(arguments)
+    closureCompiler.env = .local(arguments)
     // Compile body
     try closureCompiler.compileBody(body)
     // Link compiled closure in the current compiler
@@ -740,16 +740,16 @@ public final class Compiler {
     self.fragments.append(code)
     // Generate code for pushing captured bindings onto the stack
     for def in closureCompiler.captures.definitions {
-      if let def = def, capture = closureCompiler.captures.captureFor(def) {
+      if let def = def, let capture = closureCompiler.captures.captureFor(def) {
         if capture.origin.owner === self {
-          self.emit(.PushLocal(def.index))
+          self.emit(.pushLocal(def.index))
         } else {
-          self.emit(.PushCaptured(self.captures.capture(def, from: capture.origin)))
+          self.emit(.pushCaptured(self.captures.capture(def, from: capture.origin)))
         }
       }
     }
     // Return captured binding count and index of compiled closure
-    self.emit(.MakeClosure(nameIdx ?? -1,
+    self.emit(.makeClosure(nameIdx ?? -1,
                            closureCompiler.captures.count,
                            codeIndex))
   }
@@ -757,7 +757,7 @@ public final class Compiler {
   /// Compiles a closure consisting of a list of formal arguments `arglist`, a list of
   /// expressions `body`, and a local environment `env`. It puts the closure on top of the
   /// stack.
-  public func compileCaseLambda(nameIdx: Int?, _ cases: Expr, _ env: Env) throws {
+  public func compileCaseLambda(_ nameIdx: Int?, _ cases: Expr, _ env: Env) throws {
     // Create closure compiler as child of the current compiler
     let closureCompiler = Compiler(self.context,
                                    in: env,
@@ -765,7 +765,7 @@ public final class Compiler {
                                    usingCheckpointer: self.checkpointer)
     // Iterate through all cases
     var current = cases
-    loop: while case .Pair(.Pair(let args, let body), let nextCase) = current {
+    loop: while case .pair(.pair(let args, let body), let nextCase) = current {
       // Reset compiler
       closureCompiler.env = env
       closureCompiler.numLocals = 0
@@ -777,28 +777,28 @@ public final class Compiler {
       var minIp = -1
       let numArgs = arguments.count
       switch next {
-        case .Null:
+        case .null:
           exactIp = closureCompiler.emitPlaceholder()
-        case .Sym(let sym):
+        case .sym(let sym):
           if arguments.count > 0 {
             minIp = closureCompiler.emitPlaceholder()
           }
-          closureCompiler.emit(.CollectRest(arguments.count))
+          closureCompiler.emit(.collectRest(arguments.count))
           arguments.allocBindingFor(sym)
         default:
-          throw EvalError.MalformedArgumentList(args)
+          throw EvalError.malformedArgumentList(args)
       }
       closureCompiler.arguments = arguments
-      closureCompiler.env = .Local(arguments)
+      closureCompiler.env = .local(arguments)
       // Compile body
       try closureCompiler.compileBody(body)
       // Fix jumps
       if exactIp >= 0 {
         closureCompiler.patch(
-          .BranchIfArgMismatch(numArgs, closureCompiler.offsetToNext(exactIp)), at: exactIp)
+          .branchIfArgMismatch(numArgs, closureCompiler.offsetToNext(exactIp)), at: exactIp)
       } else if minIp >= 0 {
         closureCompiler.patch(
-          .BranchIfMinArgMismatch(numArgs, closureCompiler.offsetToNext(minIp)), at: minIp)
+          .branchIfMinArgMismatch(numArgs, closureCompiler.offsetToNext(minIp)), at: minIp)
       } else {
         break loop
       }
@@ -807,12 +807,12 @@ public final class Compiler {
     }
     // Compile final "else" case
     switch current {
-      case .Pair(.Pair(_, _), _):
+      case .pair(.pair(_, _), _):
         break // early exit
-      case .Null:
-        closureCompiler.emit(.NoMatchingArgCount)
+      case .null:
+        closureCompiler.emit(.noMatchingArgCount)
       default:
-        throw EvalError.MalformedCaseLambda(current)
+        throw EvalError.malformedCaseLambda(current)
     }
     // Link compiled closure in the current compiler
     let codeIndex = self.fragments.count
@@ -820,16 +820,16 @@ public final class Compiler {
     self.fragments.append(code)
     // Generate code for pushing captured bindings onto the stack
     for def in closureCompiler.captures.definitions {
-      if let def = def, capture = closureCompiler.captures.captureFor(def) {
+      if let def = def, let capture = closureCompiler.captures.captureFor(def) {
         if capture.origin.owner === self {
-          self.emit(.PushLocal(def.index))
+          self.emit(.pushLocal(def.index))
         } else {
-          self.emit(.PushCaptured(self.captures.capture(def, from: capture.origin)))
+          self.emit(.pushCaptured(self.captures.capture(def, from: capture.origin)))
         }
       }
     }
     // Return captured binding count and index of compiled closure
-    self.emit(.MakeClosure(nameIdx ?? -1,
+    self.emit(.makeClosure(nameIdx ?? -1,
                            closureCompiler.captures.count,
                            codeIndex))
   }
@@ -844,28 +844,28 @@ public final class Compiler {
   
   /// This is just a placeholder for now. Will add a peephole optimizer eventually. For now,
   /// only NOOPs at the beginning of a code block are removed.
-  private func optimize() {
+  fileprivate func optimize() {
     var ip = 0
     switch self.instructions[ip] {
-      case .AssertArgCount(_), .AssertMinArgCount(_):
+      case .assertArgCount(_), .assertMinArgCount(_):
         ip += 1
       default:
         break
     }
     self.eliminateNoOpsAt(ip)
-    if case .MakeVariableArgument(_) = self.instructions[ip] {
+    if case .makeVariableArgument(_) = self.instructions[ip] {
       ip += 1
     }
     self.eliminateNoOpsAt(ip)
   }
   
   /// Remove sequences of NoOp at instruction position `ip`.
-  private func eliminateNoOpsAt(ip: Int) {
+  fileprivate func eliminateNoOpsAt(_ ip: Int) {
     while ip < self.instructions.count {
-      guard case .NoOp = self.instructions[ip] else {
+      guard case .noOp = self.instructions[ip] else {
         return
       }
-      self.instructions.removeAtIndex(ip)
+      self.instructions.remove(at: ip)
     }
   }
 }

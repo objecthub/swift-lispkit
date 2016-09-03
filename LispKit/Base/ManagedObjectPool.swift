@@ -31,16 +31,16 @@
 public final class ManagedObjectPool: CustomStringConvertible {
   
   /// Last tag used for the mark/sweep garbage collector.
-  private var tag: UInt8
+  fileprivate var tag: UInt8
   
   /// Number of garbage collection cycles.
-  private var cycles: UInt64
+  fileprivate var cycles: UInt64
   
   /// Root set of tracked objects.
-  private var rootSet: ObjectPool<TrackedObject>
+  fileprivate var rootSet: ObjectPool<TrackedObject>
   
   /// Pool of managed objects.
-  private var objectPool: ObjectPool<ManagedObject>
+  fileprivate var objectPool: ObjectPool<ManagedObject>
   
   /// Initializes an empty managed object pool.
   public init() {
@@ -73,19 +73,19 @@ public final class ManagedObjectPool: CustomStringConvertible {
   }
   
   /// Track the given tracked object.
-  public func track(obj: TrackedObject) {
+  public func track(_ obj: TrackedObject) {
     self.rootSet.add(obj)
   }
   
   /// Track the given trackable object and return a tracked object acting as a proxy.
-  public func track<T: Trackable>(obj: T) -> Tracked<T> {
+  public func track<T: Trackable>(_ obj: T) -> Tracked<T> {
     let res = Tracked(obj)
     self.rootSet.add(res)
     return res
   }
   
   /// Manage the given managed object.
-  public func manage<T: ManagedObject>(obj: T) -> T {
+  @discardableResult public func manage<T: ManagedObject>(_ obj: T) -> T {
     if !obj.managed {
       obj.managed = true
       self.objectPool.add(obj)

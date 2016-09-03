@@ -30,7 +30,7 @@ public let NO_EXPRS = Exprs()
 extension Array where Element: CustomStringConvertible {
     
   /// Returns a description of this array of expressions with the given prefix and separator
-  public func descriptionWithPrefix(prefix: String, andSeparator separator: String) -> String {
+  public func descriptionWithPrefix(_ prefix: String, andSeparator separator: String) -> String {
     var res = prefix, sep = ""
     for expr in self {
       res += sep

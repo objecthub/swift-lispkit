@@ -25,22 +25,22 @@ import Foundation
 /// not stream-based. They either get initialized with a string, or their content is read
 /// from a file when the `TextInput` object is initialized.
 ///
-public class TextInput {
+open class TextInput {
   
   /// Internal character buffer.
-  private var buffer: String.UTF16View
+  fileprivate var buffer: String.UTF16View
   
   /// Index into the buffer pointing at the next character to read.
-  private var next: String.UTF16View.Index
+  fileprivate var next: String.UTF16View.Index
   
   /// Eof is true if all bytes have been consumed.
-  public private(set) var eof: Bool = false
+  open fileprivate(set) var eof: Bool = false
   
   /// Text provider. If this property is nil, only the content in the buffer is relevant.
-  private var source: TextInputSource?
+  fileprivate var source: TextInputSource?
   
   /// The URL of this text input object.
-  public var url: NSURL?
+  open var url: URL?
   
   public init(string: String) {
     self.buffer = string.utf16
@@ -50,11 +50,11 @@ public class TextInput {
   }
   
   public convenience init(input: BinaryInput, capacity: Int = 4096) {
-    self.init(source: UTF8EncodedSource(input: input, length: capacity), url: input.url)
+    self.init(source: UTF8EncodedSource(input: input, length: capacity), url: input.url as URL?)
     self.eof = input.eof
   }
   
-  public init(source: TextInputSource, url: NSURL? = nil) {
+  public init(source: TextInputSource, url: URL? = nil) {
     self.buffer = "".utf16
     self.next = self.buffer.startIndex
     self.eof = false
@@ -68,34 +68,34 @@ public class TextInput {
   }
   
   /// Closes the `TextInput` object.
-  public func close() {
+  open func close() {
     self.source = nil
   }
   
-  public func read() -> UniChar? {
+  open func read() -> UniChar? {
     guard self.readable() else {
       return nil
     }
     let res = self.buffer[self.next]
-    self.next = self.next.successor()
+    self.next = self.buffer.index(after: self.next)
     return res
   }
   
-  public func peek() -> UniChar? {
+  open func peek() -> UniChar? {
     guard self.readable() else {
       return nil
     }
     return self.buffer[self.next]
   }
   
-  public func readString(n: Int) -> String? {
+  open func readString(_ n: Int) -> String? {
     guard self.readable() else {
       return nil
     }
     var res: [UniChar] = []
     for _ in 0..<n {
       res.append(self.buffer[self.next])
-      self.next = self.next.successor()
+      self.next = self.buffer.index(after: self.next)
       guard self.readable() else {
         return self.eof ? String(utf16CodeUnits: res, count: res.count) : nil
       }
@@ -103,7 +103,7 @@ public class TextInput {
     return String(utf16CodeUnits: res, count: res.count)
   }
   
-  public func readLine() -> String? {
+  open func readLine() -> String? {
     guard self.readable() else {
       return nil
     }
@@ -111,7 +111,7 @@ public class TextInput {
     var last: UniChar = 0
     repeat {
       let ch = self.buffer[self.next]
-      self.next = self.next.successor()
+      self.next = self.buffer.index(after: self.next)
       if (ch == EOL_CH) {
         return String(utf16CodeUnits: res, count: (last == RET_CH) ? res.count - 1 : res.count)
       }
@@ -121,7 +121,7 @@ public class TextInput {
     return self.eof ? String(utf16CodeUnits: res, count: res.count) : nil
   }
   
-  public var readMightBlock: Bool {
+  open var readMightBlock: Bool {
     if self.eof {
       return false
     } else if self.next >= self.buffer.endIndex {
@@ -131,7 +131,7 @@ public class TextInput {
     }
   }
   
-  private func readable() -> Bool {
+  fileprivate func readable() -> Bool {
     if self.eof {
       return false
     } else if self.next >= self.buffer.endIndex {

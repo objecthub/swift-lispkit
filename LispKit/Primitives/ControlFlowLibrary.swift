@@ -35,139 +35,139 @@ public final class ControlFlowLibrary: NativeLibrary {
   }
 }
 
-func splitBindings(bindingList: Expr) throws -> (Expr, Expr) {
+func splitBindings(_ bindingList: Expr) throws -> (Expr, Expr) {
   var symbols = Exprs()
   var exprs = Exprs()
   var bindings = bindingList
-  while case .Pair(let binding, let rest) = bindings {
-    guard case .Pair(.Sym(let sym), .Pair(let expr, .Null)) = binding else {
-      throw EvalError.MalformedBindings(binding, bindingList)
+  while case .pair(let binding, let rest) = bindings {
+    guard case .pair(.sym(let sym), .pair(let expr, .null)) = binding else {
+      throw EvalError.malformedBindings(binding, bindingList)
     }
-    symbols.append(.Sym(sym))
+    symbols.append(.sym(sym))
     exprs.append(expr)
     bindings = rest
   }
   guard bindings.isNull else {
-    throw EvalError.MalformedBindings(nil, bindingList)
+    throw EvalError.malformedBindings(nil, bindingList)
   }
   return (Expr.List(symbols), Expr.List(exprs))
 }
 
-func compileBegin(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
-  guard case .Pair(_, let exprs) = expr else {
+func compileBegin(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  guard case .pair(_, let exprs) = expr else {
     preconditionFailure("malformed begin")
   }
   return try compiler.compileSeq(exprs, in: env, inTailPos: tail, localDefine: false)
 }
 
-func compileLet(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
-  guard case .Pair(_, .Pair(let first, let body)) = expr else {
-    throw EvalError.LeastArgumentCountError(formals: 1, args: expr)
+func compileLet(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  guard case .pair(_, .pair(let first, let body)) = expr else {
+    throw EvalError.leastArgumentCountError(formals: 1, args: expr)
   }
   let initialLocals = compiler.numLocals
   var res = false
   switch first {
-    case .Null:
+    case .null:
       return try compiler.compileSeq(body, in: env, inTailPos: tail)
-    case .Pair(_, _):
+    case .pair(_, _):
       let group = try compiler.compileBindings(first, in: env, atomic: true, predef: false)
       res = try compiler.compileSeq(body, in: Env(group), inTailPos: tail)
       group.finalize()
-    case .Sym(let sym):
-      guard case .Pair(let bindings, let rest) = body else {
-        throw EvalError.LeastArgumentCountError(formals: 2, args: expr)
+    case .sym(let sym):
+      guard case .pair(let bindings, let rest) = body else {
+        throw EvalError.leastArgumentCountError(formals: 2, args: expr)
       }
       let (params, exprs) = try splitBindings(bindings)
       let group = BindingGroup(owner: compiler, parent: env)
       let index = group.allocBindingFor(sym).index
-      compiler.emit(.PushUndef)
-      compiler.emit(.MakeLocalVariable(index))
+      compiler.emit(.pushUndef)
+      compiler.emit(.makeLocalVariable(index))
       let nameIdx = compiler.registerConstant(first)
       try compiler.compileLambda(nameIdx, params, rest, Env(group))
-      compiler.emit(.SetLocalValue(index))
-      res = try compiler.compile(.Pair(first, exprs), in: Env(group), inTailPos: tail)
+      compiler.emit(.setLocalValue(index))
+      res = try compiler.compile(.pair(first, exprs), in: Env(group), inTailPos: tail)
     default:
-      throw EvalError.TypeError(first, [.ListType, .SymbolType])
+      throw EvalError.typeError(first, [.listType, .symbolType])
   }
   if !res && compiler.numLocals > initialLocals {
-    compiler.emit(.Reset(initialLocals, compiler.numLocals - initialLocals))
+    compiler.emit(.reset(initialLocals, compiler.numLocals - initialLocals))
   }
   compiler.numLocals = initialLocals
   return res
 }
 
-func compileLetStar(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
-  guard case .Pair(_, .Pair(let first, let body)) = expr else {
-    throw EvalError.LeastArgumentCountError(formals: 1, args: expr)
+func compileLetStar(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  guard case .pair(_, .pair(let first, let body)) = expr else {
+    throw EvalError.leastArgumentCountError(formals: 1, args: expr)
   }
   let initialLocals = compiler.numLocals
   switch first {
-    case .Null:
+    case .null:
       return try compiler.compileSeq(body, in: env, inTailPos: tail)
-    case .Pair(_, _):
+    case .pair(_, _):
       let group = try compiler.compileBindings(first, in: env, atomic: false, predef: false)
       let res = try compiler.compileSeq(body, in: Env(group), inTailPos: tail)
       return compiler.finalizeBindings(group, exit: res, initialLocals: initialLocals)
     default:
-      throw EvalError.TypeError(first, [.ListType])
+      throw EvalError.typeError(first, [.listType])
   }
 }
 
-func compileLetRec(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
-  guard case .Pair(_, .Pair(let first, let body)) = expr else {
-    throw EvalError.LeastArgumentCountError(formals: 1, args: expr)
+func compileLetRec(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  guard case .pair(_, .pair(let first, let body)) = expr else {
+    throw EvalError.leastArgumentCountError(formals: 1, args: expr)
   }
   let initialLocals = compiler.numLocals
   switch first {
-    case .Null:
+    case .null:
       return try compiler.compileSeq(body, in: env, inTailPos: tail)
-    case .Pair(_, _):
+    case .pair(_, _):
       let group = try compiler.compileBindings(first, in: env, atomic: true, predef: true)
       let res = try compiler.compileSeq(body, in: Env(group), inTailPos: tail)
       return compiler.finalizeBindings(group, exit: res, initialLocals: initialLocals)
     default:
-      throw EvalError.TypeError(first, [.ListType])
+      throw EvalError.typeError(first, [.listType])
   }
 }
 
-func compileLetSyntax(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
-  guard case .Pair(_, .Pair(let first, let body)) = expr else {
-    throw EvalError.LeastArgumentCountError(formals: 1, args: expr)
+func compileLetSyntax(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  guard case .pair(_, .pair(let first, let body)) = expr else {
+    throw EvalError.leastArgumentCountError(formals: 1, args: expr)
   }
   switch first {
-    case .Null:
+    case .null:
       return try compiler.compileSeq(body, in: env, inTailPos: tail)
-    case .Pair(_, _):
+    case .pair(_, _):
       let group = try compiler.compileMacros(first, in: env, recursive: false)
       return try compiler.compileSeq(body, in: Env(group), inTailPos: tail)
     default:
-      throw EvalError.TypeError(first, [.ListType])
+      throw EvalError.typeError(first, [.listType])
   }
 }
 
-func compileLetRecSyntax(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
-  guard case .Pair(_, .Pair(let first, let body)) = expr else {
-    throw EvalError.LeastArgumentCountError(formals: 1, args: expr)
+func compileLetRecSyntax(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  guard case .pair(_, .pair(let first, let body)) = expr else {
+    throw EvalError.leastArgumentCountError(formals: 1, args: expr)
   }
   switch first {
-    case .Null:
+    case .null:
       return try compiler.compileSeq(body, in: env, inTailPos: tail)
-    case .Pair(_, _):
+    case .pair(_, _):
       let group = try compiler.compileMacros(first, in: env, recursive: true)
       return try compiler.compileSeq(body, in: Env(group), inTailPos: tail)
     default:
-      throw EvalError.TypeError(first, [.ListType])
+      throw EvalError.typeError(first, [.listType])
   }
 }
 
-func compileDo(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+func compileDo(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
   // Decompose expression into bindings, exit, and body
-  guard case .Pair(_, .Pair(let bindingList, .Pair(let exit, let body))) = expr else {
-    throw EvalError.LeastArgumentCountError(formals: 2, args: expr)
+  guard case .pair(_, .pair(let bindingList, .pair(let exit, let body))) = expr else {
+    throw EvalError.leastArgumentCountError(formals: 2, args: expr)
   }
   // Extract test and terminal expressions
-  guard case .Pair(let test, let terminal) = exit else {
-    throw EvalError.MalformedTest(exit)
+  guard case .pair(let test, let terminal) = exit else {
+    throw EvalError.malformedTest(exit)
   }
   let initialLocals = compiler.numLocals
   // Setup bindings
@@ -177,30 +177,30 @@ func compileDo(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> B
   var doBindings = [Int]()
   var stepExprs = [Expr]()
   // Compile initial bindings
-  while case .Pair(let binding, let rest) = bindings {
-    guard case .Pair(.Sym(let sym), .Pair(let start, let optStep)) = binding else {
-      throw EvalError.MalformedBindings(binding, bindingList)
+  while case .pair(let binding, let rest) = bindings {
+    guard case .pair(.sym(let sym), .pair(let start, let optStep)) = binding else {
+      throw EvalError.malformedBindings(binding, bindingList)
     }
     try compiler.compile(start, in: env, inTailPos: false)
     let index = group.allocBindingFor(sym).index
     guard index > prevIndex else {
-      throw EvalError.DuplicateBinding(sym, bindingList)
+      throw EvalError.duplicateBinding(sym, bindingList)
     }
-    compiler.emit(.MakeLocalVariable(index))
+    compiler.emit(.makeLocalVariable(index))
     switch optStep {
-      case .Pair(let step, .Null):
+      case .pair(let step, .null):
         doBindings.append(index)
         stepExprs.append(step)
-      case .Null:
+      case .null:
         break;
       default:
-        throw EvalError.MalformedBindings(binding, bindingList)
+        throw EvalError.malformedBindings(binding, bindingList)
     }
     prevIndex = index
     bindings = rest
   }
   guard bindings.isNull else {
-    throw EvalError.MalformedBindings(nil, bindingList)
+    throw EvalError.malformedBindings(nil, bindingList)
   }
   // Compile test expression
   let testIp = compiler.offsetToNext(0)
@@ -208,57 +208,57 @@ func compileDo(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> B
   let exitJumpIp = compiler.emitPlaceholder()
   // Compile body
   try compiler.compileSeq(body, in: Env(group), inTailPos: false)
-  compiler.emit(.Pop)
+  compiler.emit(.pop)
   // Compile step expressions and update bindings
   for step in stepExprs {
     try compiler.compile(step, in: Env(group), inTailPos: false)
   }
-  for index in doBindings.reverse() {
-    compiler.emit(.SetLocalValue(index))
+  for index in doBindings.reversed() {
+    compiler.emit(.setLocalValue(index))
   }
   // Loop
-  compiler.emit(.Branch(-compiler.offsetToNext(testIp)))
+  compiler.emit(.branch(-compiler.offsetToNext(testIp)))
   // Exit if the test expression evaluates to true
-  compiler.patch(.BranchIf(compiler.offsetToNext(exitJumpIp)), at: exitJumpIp)
+  compiler.patch(.branchIf(compiler.offsetToNext(exitJumpIp)), at: exitJumpIp)
   // Compile terminal expressions
   let res = try compiler.compileSeq(terminal, in: Env(group), inTailPos: tail)
   // Remove bindings from stack
   if !res && compiler.numLocals > initialLocals {
-    compiler.emit(.Reset(initialLocals, compiler.numLocals - initialLocals))
+    compiler.emit(.reset(initialLocals, compiler.numLocals - initialLocals))
   }
   compiler.numLocals = initialLocals
   return res
 }
 
-func compileIf(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
-  guard case .Pair(_, .Pair(let cond, .Pair(let thenp, let alternative))) = expr else {
-    throw EvalError.LeastArgumentCountError(formals: 2, args: expr)
+func compileIf(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  guard case .pair(_, .pair(let cond, .pair(let thenp, let alternative))) = expr else {
+    throw EvalError.leastArgumentCountError(formals: 2, args: expr)
   }
-  var elsep = Expr.Void
-  if case .Pair(let ep, .Null) = alternative {
+  var elsep = Expr.void
+  if case .pair(let ep, .null) = alternative {
     elsep = ep
   }
   try compiler.compile(cond, in: env, inTailPos: false)
   let elseJumpIp = compiler.emitPlaceholder()
   // Compile if in tail position
   if try compiler.compile(elsep, in: env, inTailPos: tail) {
-    compiler.patch(.BranchIf(compiler.offsetToNext(elseJumpIp)), at: elseJumpIp)
+    compiler.patch(.branchIf(compiler.offsetToNext(elseJumpIp)), at: elseJumpIp)
     return try compiler.compile(thenp, in: env, inTailPos: true)
   }
   // Compile if in non-tail position
   let exitJumpIp = compiler.emitPlaceholder()
-  compiler.patch(.BranchIf(compiler.offsetToNext(elseJumpIp)), at: elseJumpIp)
+  compiler.patch(.branchIf(compiler.offsetToNext(elseJumpIp)), at: elseJumpIp)
   if try compiler.compile(thenp, in: env, inTailPos: tail) {
-    compiler.patch(.Return, at: exitJumpIp)
+    compiler.patch(.return, at: exitJumpIp)
     return true
   }
-  compiler.patch(.Branch(compiler.offsetToNext(exitJumpIp)), at: exitJumpIp)
+  compiler.patch(.branch(compiler.offsetToNext(exitJumpIp)), at: exitJumpIp)
   return false
 }
 
-func compileCond(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+func compileCond(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
   // Extract case list
-  guard  case .Pair(_, let caseList) = expr else {
+  guard  case .pair(_, let caseList) = expr else {
     preconditionFailure()
   }
   // Keep track of jumps for successful cases
@@ -268,33 +268,33 @@ func compileCond(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws ->
   // Track if there was an else case and whether there was a tail call in the else case
   var elseCaseTailCall: Bool? = nil
   // Iterate through all cases
-  while case .Pair(let cas, let rest) = cases {
+  while case .pair(let cas, let rest) = cases {
     switch cas {
-      case .Pair(.Sym(let sym), let exprs) where sym === compiler.context.symbols.ELSE:
-        guard rest == .Null else {
-          throw EvalError.MalformedCondClause(cases)
+      case .pair(.sym(let sym), let exprs) where sym === compiler.context.symbols.ELSE:
+        guard rest == .null else {
+          throw EvalError.malformedCondClause(cases)
         }
         elseCaseTailCall = try compiler.compileSeq(exprs, in: env, inTailPos: tail)
-      case .Pair(let test, .Null):
+      case .pair(let test, .null):
         try compiler.compile(test, in: env, inTailPos: false)
         exitOrJumps.append(compiler.emitPlaceholder())
-      case .Pair(let test, .Pair(.Sym(let sym), .Pair(let res, .Null)))
+      case .pair(let test, .pair(.sym(let sym), .pair(let res, .null)))
           where sym === compiler.context.symbols.DOUBLEARROW:
         try compiler.compile(test, in: env, inTailPos: false)
         let escapeIp = compiler.emitPlaceholder()
         if !(try compiler.compile(res, in: env, inTailPos: tail)) {
           exitJumps.append(compiler.emitPlaceholder())
         }
-        compiler.patch(.BranchIfNot(compiler.offsetToNext(escapeIp)), at: escapeIp)
-      case .Pair(let test, let exprs):
+        compiler.patch(.branchIfNot(compiler.offsetToNext(escapeIp)), at: escapeIp)
+      case .pair(let test, let exprs):
         try compiler.compile(test, in: env, inTailPos: false)
         let escapeIp = compiler.emitPlaceholder()
         if !(try compiler.compileSeq(exprs, in: env, inTailPos: tail)) {
           exitJumps.append(compiler.emitPlaceholder())
         }
-        compiler.patch(.BranchIfNot(compiler.offsetToNext(escapeIp)), at: escapeIp)
+        compiler.patch(.branchIfNot(compiler.offsetToNext(escapeIp)), at: escapeIp)
       default:
-        throw EvalError.MalformedCondClause(cas)
+        throw EvalError.malformedCondClause(cas)
     }
     cases = rest
   }
@@ -306,21 +306,21 @@ func compileCond(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws ->
     }
   } else {
     // There was no else case: return false
-    compiler.emit(.PushFalse)
+    compiler.emit(.pushFalse)
   }
   // Resolve jumps to current instruction
   for ip in exitJumps {
-    compiler.patch(.Branch(compiler.offsetToNext(ip)), at: ip)
+    compiler.patch(.branch(compiler.offsetToNext(ip)), at: ip)
   }
   for ip in exitOrJumps {
-    compiler.patch(.Or(compiler.offsetToNext(ip)), at: ip)
+    compiler.patch(.or(compiler.offsetToNext(ip)), at: ip)
   }
   return false
 }
 
-func compileCase(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
-  guard case .Pair(_, .Pair(let key, let caseList)) = expr else {
-    throw EvalError.LeastArgumentCountError(formals: 3, args: expr)
+func compileCase(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  guard case .pair(_, .pair(let key, let caseList)) = expr else {
+    throw EvalError.leastArgumentCountError(formals: 3, args: expr)
   }
   // Keep track of jumps for successful cases
   var exitJumps = [Int]()
@@ -330,37 +330,37 @@ func compileCase(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws ->
   // Compile key
   try compiler.compile(key, in: env, inTailPos: false)
   // Compile cases
-  while case .Pair(let cas, let rest) = cases {
+  while case .pair(let cas, let rest) = cases {
     switch cas {
-      case .Pair(.Sym(compiler.context.symbols.ELSE), let exprs):
-        guard rest == .Null else {
-          throw EvalError.MalformedCaseClause(cases)
+      case .pair(.sym(compiler.context.symbols.ELSE), let exprs):
+        guard rest == .null else {
+          throw EvalError.malformedCaseClause(cases)
         }
-        compiler.emit(.Pop)
+        compiler.emit(.pop)
         elseCaseTailCall = try compiler.compileSeq(exprs, in: env, inTailPos: tail)
-      case .Pair(var keys, let exprs):
+      case .pair(var keys, let exprs):
         var positiveJumps = [Int]()
-        while case .Pair(let value, let next) = keys {
-          compiler.emit(.Dup)
+        while case .pair(let value, let next) = keys {
+          compiler.emit(.dup)
           try compiler.pushValue(value)
-          compiler.emit(.Eqv)
+          compiler.emit(.eqv)
           positiveJumps.append(compiler.emitPlaceholder())
           keys = next
         }
         guard keys.isNull else {
-          throw EvalError.MalformedCaseClause(cas)
+          throw EvalError.malformedCaseClause(cas)
         }
         let jumpToNextCase = compiler.emitPlaceholder()
         for ip in positiveJumps {
-          compiler.patch(.BranchIf(compiler.offsetToNext(ip)), at: ip)
+          compiler.patch(.branchIf(compiler.offsetToNext(ip)), at: ip)
         }
-        compiler.emit(.Pop)
+        compiler.emit(.pop)
         if !(try compiler.compileSeq(exprs, in: env, inTailPos: tail)) {
           exitJumps.append(compiler.emitPlaceholder())
         }
-        compiler.patch(.Branch(compiler.offsetToNext(jumpToNextCase)), at: jumpToNextCase)
+        compiler.patch(.branch(compiler.offsetToNext(jumpToNextCase)), at: jumpToNextCase)
       default:
-        throw EvalError.MalformedCaseClause(cas)
+        throw EvalError.malformedCaseClause(cas)
     }
     cases = rest
   }
@@ -372,12 +372,12 @@ func compileCase(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws ->
     }
   } else {
     // There was no else case: drop key and return false
-    compiler.emit(.Pop)
-    compiler.emit(.PushFalse)
+    compiler.emit(.pop)
+    compiler.emit(.pushFalse)
   }
   // Resolve jumps to current instruction
   for ip in exitJumps {
-    compiler.patch(.Branch(compiler.offsetToNext(ip)), at: ip)
+    compiler.patch(.branch(compiler.offsetToNext(ip)), at: ip)
   }
   return false
 }

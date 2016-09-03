@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4 (2016-09-04)
+- Migration from Swift 2.2 to Swift 3.0
+- Implemented [R6RS](http://www.r6rs.org)-compliant hash tables
+- Implemented [R7RS](http://www.r7rs.org)-compliant parameters (supporting dynamic scoping)
+- Implemented [R7RS](http://www.r7rs.org)-compliant record types
+
 ## 0.3 (2016-07-05)
 - Implemented [R7RS](http://www.r7rs.org)-compliant promises
 - Implemented [R7RS](http://www.r7rs.org)-compliant port library, supporting both textual

@@ -34,7 +34,7 @@ public struct Code: CustomStringConvertible {
     self.fragments = fragments
   }
     
-  public func mark(tag: UInt8) {
+  public func mark(_ tag: UInt8) {
     for constant in self.constants {
       constant.mark(tag)
     }
@@ -61,7 +61,7 @@ public struct Code: CustomStringConvertible {
       builder.append(n, width: 5, alignRight: true)
       builder.append(": ")
       n += 1
-      if let comment = instr.commentFor(self, n) {
+      if let comment = instr.comment(for: self, at: n) {
         builder.append(instr.description, width: 32)
         builder.append(";; ")
         builder.append(comment)

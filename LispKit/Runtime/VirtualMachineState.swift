@@ -18,7 +18,7 @@
 //  limitations under the License.
 //
 
-public class VirtualMachineState: TrackedObject, CustomStringConvertible {
+open class VirtualMachineState: TrackedObject, CustomStringConvertible {
   
   internal let stack: [Expr]
   internal let sp: Int
@@ -34,7 +34,7 @@ public class VirtualMachineState: TrackedObject, CustomStringConvertible {
     var adjustedStack = stack
     self.sp = sp + spDelta
     for i in self.sp..<sp {
-      adjustedStack[i] = .Undef
+      adjustedStack[i] = .undef
     }
     self.stack = adjustedStack
     var adjustedRegisters = registers
@@ -43,7 +43,7 @@ public class VirtualMachineState: TrackedObject, CustomStringConvertible {
     self.winders = winders
   }
   
-  public var description: String {
+  open var description: String {
     var builder = StringBuilder("vmstate {")
     if self.sp == 0 {
       builder.append("stack = []")
@@ -64,7 +64,7 @@ public class VirtualMachineState: TrackedObject, CustomStringConvertible {
     return builder.description
   }
   
-  public override func mark(tag: UInt8) {
+  open override func mark(_ tag: UInt8) {
     super.mark(tag)
     for i in 0..<self.sp {
       self.stack[i].mark(tag)

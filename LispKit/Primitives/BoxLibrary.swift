@@ -42,78 +42,78 @@ public final class BoxLibrary: NativeLibrary {
   
   //-------- MARK: - Boxes
   
-  func box(expr: Expr?) -> Expr {
-    return .Box(Cell(expr ?? .Undef))
+  func box(_ expr: Expr?) -> Expr {
+    return .box(Cell(expr ?? .undef))
   }
   
-  func unbox(expr: Expr) throws -> Expr {
-    guard case .Box(let cell) = expr else {
-      throw EvalError.TypeError(expr, [.BoxType])
+  func unbox(_ expr: Expr) throws -> Expr {
+    guard case .box(let cell) = expr else {
+      throw EvalError.typeError(expr, [.boxType])
     }
     return cell.value
   }
   
-  func setBox(expr: Expr, value: Expr) throws -> Expr {
-    guard case .Box(let cell) = expr else {
-      throw EvalError.TypeError(expr, [.BoxType])
+  func setBox(_ expr: Expr, value: Expr) throws -> Expr {
+    guard case .box(let cell) = expr else {
+      throw EvalError.typeError(expr, [.boxType])
     }
     // Set cell value. Guarantee that cells for which `set-box!` is called are managed
     // by a managed object pool.
     (value.isSimple ? cell : self.context.objects.manage(cell)).value = value
-    return .Void
+    return .void
   }
   
-  func isBox(expr: Expr) -> Expr {
-    guard case .Box(_) = expr else {
-      return .False
+  func isBox(_ expr: Expr) -> Expr {
+    guard case .box(_) = expr else {
+      return .false
     }
-    return .True
+    return .true
   }
   
   //-------- MARK: - Mutable pairs
   
-  func isMpair(expr: Expr) -> Expr {
-    guard case .MutablePair(_) = expr else {
-      return .False
+  func isMpair(_ expr: Expr) -> Expr {
+    guard case .mutablePair(_) = expr else {
+      return .false
     }
-    return .True
+    return .true
   }
 
-  func mcons(car: Expr, cdr: Expr) throws -> Expr {
-    return .MutablePair(Tuple(car, cdr))
+  func mcons(_ car: Expr, cdr: Expr) throws -> Expr {
+    return .mutablePair(Tuple(car, cdr))
   }
   
-  func mcar(expr: Expr) throws -> Expr {
-    guard case .MutablePair(let tuple) = expr else {
-      throw EvalError.TypeError(expr, [.MPairType])
+  func mcar(_ expr: Expr) throws -> Expr {
+    guard case .mutablePair(let tuple) = expr else {
+      throw EvalError.typeError(expr, [.mPairType])
     }
     return tuple.fst
   }
   
-  func mcdr(expr: Expr) throws -> Expr {
-    guard case .MutablePair(let tuple) = expr else {
-      throw EvalError.TypeError(expr, [.MPairType])
+  func mcdr(_ expr: Expr) throws -> Expr {
+    guard case .mutablePair(let tuple) = expr else {
+      throw EvalError.typeError(expr, [.mPairType])
     }
     return tuple.snd
   }
   
-  func setMcar(expr: Expr, value: Expr) throws -> Expr {
-    guard case .MutablePair(let tuple) = expr else {
-      throw EvalError.TypeError(expr, [.MPairType])
+  func setMcar(_ expr: Expr, value: Expr) throws -> Expr {
+    guard case .mutablePair(let tuple) = expr else {
+      throw EvalError.typeError(expr, [.mPairType])
     }
     // Set car of tuple. Guarantee that tuples for which `set-mcar!` is called are managed
     // by a managed object pool.
     (value.isSimple ? tuple : self.context.objects.manage(tuple)).fst = value
-    return .Void
+    return .void
   }
   
-  func setMcdr(expr: Expr, value: Expr) throws -> Expr {
-    guard case .MutablePair(let tuple) = expr else {
-      throw EvalError.TypeError(expr, [.MPairType])
+  func setMcdr(_ expr: Expr, value: Expr) throws -> Expr {
+    guard case .mutablePair(let tuple) = expr else {
+      throw EvalError.typeError(expr, [.mPairType])
     }
     // Set cdr of tuple. Guarantee that tuples for which `set-mcdr!` is called are managed
     // by a managed object pool.
     (value.isSimple ? tuple : self.context.objects.manage(tuple)).snd = value
-    return .Void
+    return .void
   }
 }

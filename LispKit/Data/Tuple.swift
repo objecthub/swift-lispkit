@@ -36,14 +36,14 @@ public final class Tuple: ManagedObject, CustomStringConvertible {
   }
   
   /// Create a new tuple with initial values for `fst` and `snd`.
-  public init(_ fst: Expr = .Undef, _ snd: Expr = .Undef) {
+  public init(_ fst: Expr = .undef, _ snd: Expr = .undef) {
     self.fst = fst
     self.snd = snd
     super.init(Tuple.stats)
   }
   
   /// Mark tuple object.
-  public override func mark(tag: UInt8) {
+  public override func mark(_ tag: UInt8) {
     if self.tag != tag {
       self.tag = tag
       self.fst.mark(tag)
@@ -53,8 +53,8 @@ public final class Tuple: ManagedObject, CustomStringConvertible {
   
   /// Clear tuple
   public override func clean() {
-    self.fst = .Undef
-    self.snd = .Undef
+    self.fst = .undef
+    self.snd = .undef
   }
   
   /// A string representation of this tuple.

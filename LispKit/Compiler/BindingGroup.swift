@@ -18,77 +18,77 @@
 //  limitations under the License.
 //
 
-public class Definition: Reference, CustomStringConvertible {
+open class Definition: Reference, CustomStringConvertible {
   
   public enum Kind {
-    case Value
-    case Variable
-    case MutatedVariable
-    case Macro(Procedure)
+    case value
+    case variable
+    case mutatedVariable
+    case macro(Procedure)
   }
   
-  public let index: Int
-  public var kind: Kind
+  open let index: Int
+  open var kind: Kind
   
-  private init(index: Int, isVar: Bool = true) {
+  fileprivate init(index: Int, isVar: Bool = true) {
     self.index = index
-    self.kind = isVar ? .Variable : .Value
+    self.kind = isVar ? .variable : .value
   }
   
-  private init(proc: Procedure) {
+  fileprivate init(proc: Procedure) {
     self.index = 0
-    self.kind = .Macro(proc)
+    self.kind = .macro(proc)
   }
   
-  public var isValue: Bool {
+  open var isValue: Bool {
     switch self.kind {
-      case .Value:
+      case .value:
         return true
       default:
         return false
     }
   }
   
-  public var isVariable: Bool {
+  open var isVariable: Bool {
     switch self.kind {
-      case .Variable, .MutatedVariable:
+      case .variable, .mutatedVariable:
         return true
       default:
         return false
     }
   }
   
-  public var isImmutableVariable: Bool {
+  open var isImmutableVariable: Bool {
     switch self.kind {
-      case .Variable:
+      case .variable:
         return true
       default:
         return false
     }
   }
   
-  public func wasMutated() {
+  open func wasMutated() {
     switch self.kind {
-      case .Value:
+      case .value:
         preconditionFailure("cannot declare value mutable")
-      case .Variable:
-        self.kind = .MutatedVariable
-      case .MutatedVariable:
+      case .variable:
+        self.kind = .mutatedVariable
+      case .mutatedVariable:
         break
-      case .Macro(_):
+      case .macro(_):
         preconditionFailure("cannot declare macro mutable")
     }
   }
   
-  public var description: String {
+  open var description: String {
     switch self.kind {
-      case .Value:
+      case .value:
         return "value at index \(self.index)"
-      case .Variable:
+      case .variable:
         return "variable at index \(self.index)"
-      case .MutatedVariable:
+      case .mutatedVariable:
         return "mutated variable at index \(self.index)"
-      case .Macro(let proc):
+      case .macro(let proc):
         return "macro \(proc)"
     }
   }
@@ -97,10 +97,10 @@ public class Definition: Reference, CustomStringConvertible {
 public final class BindingGroup: Reference, CustomStringConvertible {
   public unowned var owner: Compiler
   public let parent: Env
-  private var bindings: [Symbol : Definition]
-  private let nextIndex: () -> Int
+  fileprivate var bindings: [Symbol : Definition]
+  fileprivate let nextIndex: () -> Int
   internal let checkpoint: UInt
-  public private(set) var box: WeakBox<BindingGroup>!
+  public fileprivate(set) var box: WeakBox<BindingGroup>!
   
   public init(owner: Compiler, parent: Env, nextIndex: (() -> Int)? = nil) {
     self.owner = owner
@@ -112,13 +112,13 @@ public final class BindingGroup: Reference, CustomStringConvertible {
     self.box = WeakBox(self)
   }
   
-  public func defineMacro(sym: Symbol, proc: Procedure) -> Definition {
+  @discardableResult public func defineMacro(_ sym: Symbol, proc: Procedure) -> Definition {
     let def = Definition(proc: proc)
     self.bindings[sym] = def
     return def
   }
   
-  public func allocBindingFor(sym: Symbol) -> Definition {
+  @discardableResult public func allocBindingFor(_ sym: Symbol) -> Definition {
     let variable = !owner.checkpointer.isValueBinding(sym, at: self.checkpoint)
     if let binding = self.bindings[sym] {
       return binding
@@ -128,11 +128,11 @@ public final class BindingGroup: Reference, CustomStringConvertible {
     return binding
   }
   
-  public func bindingFor(sym: Symbol) -> Definition? {
+  public func bindingFor(_ sym: Symbol) -> Definition? {
     return self.bindings[sym]
   }
   
-  public func symbolAtIndex(index: Int) -> Symbol? {
+  public func symbol(at index: Int) -> Symbol? {
     for (sym, bind) in self.bindings {
       if bind.index == index {
         return sym
@@ -141,9 +141,9 @@ public final class BindingGroup: Reference, CustomStringConvertible {
     return nil
   }
   
-  public func covers(group: BindingGroup) -> Bool {
-    var env: Env = .Local(self)
-    while case .Local(let this) = env {
+  public func covers(_ group: BindingGroup) -> Bool {
+    var env: Env = .local(self)
+    while case .local(let this) = env {
       if this === group {
         return true
       }
@@ -157,7 +157,7 @@ public final class BindingGroup: Reference, CustomStringConvertible {
   }
   
   public var symbols: [Symbol?] {
-    var seq = [Symbol?](count: self.bindings.count, repeatedValue: nil)
+    var seq = [Symbol?](repeating: nil, count: self.bindings.count)
     for (sym, bind) in self.bindings {
       var extendBy = 1 + bind.index - seq.count
       while extendBy > 0 {
@@ -171,14 +171,14 @@ public final class BindingGroup: Reference, CustomStringConvertible {
     
   public func macroGroup() -> BindingGroup {
     var env = self.parent
-    while case .Local(let group) = env {
+    while case .local(let group) = env {
       env = group.parent
     }
     let macroGroup = BindingGroup(owner: self.owner, parent: env, nextIndex: { return 0 })
-    env = .Local(self)
-    while case .Local(let group) = env {
+    env = .local(self)
+    while case .local(let group) = env {
       for (sym, bind) in group.bindings {
-        if case .Macro(_) = bind.kind where macroGroup.bindingFor(sym) == nil {
+        if case .macro(_) = bind.kind , macroGroup.bindingFor(sym) == nil {
           macroGroup.bindings[sym] = bind
         }
       }
@@ -190,7 +190,7 @@ public final class BindingGroup: Reference, CustomStringConvertible {
   public func finalize() {
     for (sym, binding) in self.bindings {
       if binding.isImmutableVariable {
-        owner.checkpointer.associate(.ValueBinding(sym), with: self.checkpoint)
+        owner.checkpointer.associate(.valueBinding(sym), with: self.checkpoint)
       }
     }
   }

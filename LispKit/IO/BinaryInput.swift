@@ -26,27 +26,27 @@ import Foundation
 /// no input stream, all data is contained in the buffer which gets initialized when the
 /// `BinaryInput` object is getting created.
 ///
-public class BinaryInput: GeneratorType {
+open class BinaryInput: IteratorProtocol {
   
   /// Buffer for fetching bigger chunks of data at once.
-  private var buffer: [UInt8]
+  fileprivate var buffer: [UInt8]
   
   /// Index into buffer pointing at the next byte to read.
-  private var index: Int = 0
+  fileprivate var index: Int = 0
   
   /// Eof is true if all bytes have been consumed.
-  public private(set) var eof: Bool = false
+  open fileprivate(set) var eof: Bool = false
   
   /// Input stream. If this property is nil, only the content in the buffer is relevant.
-  private var input: NSInputStream?
+  fileprivate var input: InputStream?
   
   /// The URL for the input stream. `url` is nil whenever `input` is nil.
-  public let url: NSURL?
+  open let url: URL?
   
   /// Relative paths are relative to the documents folder
-  private static let documentsUrl =
-    NSURL(fileURLWithPath:
-      NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)[0])
+  fileprivate static let documentsUrl =
+    URL(fileURLWithPath:
+      NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])
   
   /// Initializes a binary input from a byte array
   public init(data: [UInt8]) {
@@ -59,26 +59,26 @@ public class BinaryInput: GeneratorType {
   /// It is assumed that local paths are local to the documents folder. `capacity` determines
   /// the number of bytes used for caching data.
   public convenience init?(path: String, capacity: Int = 4096) {
-    self.init(url: NSURL(fileURLWithPath: path, relativeToURL: BinaryInput.documentsUrl),
+    self.init(url: URL(fileURLWithPath: path, relativeTo: BinaryInput.documentsUrl),
               capacity: capacity)
   }
   
   /// Initializes a binary input from a binary file at the given URL. `capacity` determines
   /// the number of bytes used for caching data.
-  public init?(url: NSURL, capacity: Int = 4096) {
+  public init?(url: URL, capacity: Int = 4096) {
     // Create a new input stream
-    guard let input = NSInputStream(URL: url) else {
+    guard let input = InputStream(url: url) else {
       return nil
     }
     // Set up `BinaryInput` object
-    self.buffer = [UInt8](count: capacity, repeatedValue: 0)
+    self.buffer = [UInt8](repeating: 0, count: capacity)
     self.input = input
     self.url = url
     // Open the stream
     input.open()
     // Read data into the buffer
     if input.hasBytesAvailable {
-      let result = input.read(&self.buffer, maxLength: self.buffer.count * sizeof(UInt8))
+      let result = input.read(&self.buffer, maxLength: self.buffer.count * MemoryLayout<UInt8>.size)
       if result < 0 {
         self.input = nil
         input.close()
@@ -97,7 +97,7 @@ public class BinaryInput: GeneratorType {
   }
   
   /// Closes the `BinaryInput`.
-  public func close() {
+  open func close() {
     if let input = self.input {
       self.input = nil
       input.close()
@@ -106,13 +106,13 @@ public class BinaryInput: GeneratorType {
   
   /// Reads the next byte. Returns nil if all input is consumed or an error was encountered.
   /// Clients can disambiguate the current state by checking property `eof`.
-  public func read() -> UInt8? {
+  open func read() -> UInt8? {
     return self.next()
   }
   
   /// Reads the next byte. Returns nil if all input is consumed or an error was encountered.
   /// Clients can disambiguate the current state by checking property `eof`.
-  public func next() -> UInt8? {
+  open func next() -> UInt8? {
     guard self.readable() else {
       return nil
     }
@@ -122,7 +122,7 @@ public class BinaryInput: GeneratorType {
   
   /// Returns the next byte without consuming it. Returns nil if all input is consumed or an
   /// error was encountered. Clients can disambiguate the current state by checking property `eof`.
-  public func peek() -> UInt8? {
+  open func peek() -> UInt8? {
     guard self.readable() else {
       return nil
     }
@@ -131,7 +131,7 @@ public class BinaryInput: GeneratorType {
   
   /// Reads up to `n` bytes into a new byte array. Returns nil if all input is consumed or an
   /// error was encountered. Clients can disambiguate the current state by checking property `eof`.
-  public func readMany(n: Int) -> [UInt8]? {
+  open func readMany(_ n: Int) -> [UInt8]? {
     guard self.readable() else {
       return nil
     }
@@ -149,7 +149,7 @@ public class BinaryInput: GeneratorType {
   /// Reads bytes into `target` starting from `start` up to and excluding `end`. Returns nil if
   /// all input is consumed or an error was encountered. Clients can disambiguate the current
   /// state by checking property `eof`.
-  public func readInto(inout target: [UInt8], start: Int = 0, end: Int = Int.max) -> Int? {
+  open func readInto(_ target: inout [UInt8], start: Int = 0, end: Int = Int.max) -> Int? {
     guard self.readable() else {
       return nil
     }
@@ -167,7 +167,7 @@ public class BinaryInput: GeneratorType {
     return to - start
   }
   
-  public var readMightBlock: Bool {
+  open var readMightBlock: Bool {
     if self.eof {
       return false
     } else if self.index >= self.buffer.count {
@@ -179,12 +179,12 @@ public class BinaryInput: GeneratorType {
   
   /// Guarantees that there is at least one byte to read from the buffer. Returns false if the
   /// end of file is reached or there has been a read error.
-  private func readable() -> Bool {
+  fileprivate func readable() -> Bool {
     if self.eof {
       return false
     } else if self.index >= self.buffer.count {
-      if let input = self.input where input.hasBytesAvailable {
-        let result = input.read(&self.buffer, maxLength: self.buffer.count * sizeof(UInt8))
+      if let input = self.input , input.hasBytesAvailable {
+        let result = input.read(&self.buffer, maxLength: self.buffer.count * MemoryLayout<UInt8>.size)
         guard result >= 0 else {
           return false
         }
@@ -204,18 +204,18 @@ public class BinaryInput: GeneratorType {
   
   /// Returns a function that decodes the binary input as UTF8 and returns strings of at most
   /// `length` characters (where a character is a unicode scalar).
-  public func textProvider(length: Int) -> () -> String? {
+  open func textProvider(_ length: Int) -> () -> String? {
     var codec = UTF8()
     var this = self
     return {
       var str = ""
       for _ in 0..<length {
         switch codec.decode(&this) {
-          case .Result (let scalar):
-            str.append(scalar)
-          case .EmptyInput:
+          case .scalarValue (let scalar):
+            str.append(String(scalar))
+          case .emptyInput:
             return str
-          case .Error:
+          case .error:
             return nil
         }
       }

@@ -27,23 +27,23 @@ import Foundation
 public struct AppInfo {
   
   // Name of the application
-  public static let name = NSBundle.mainBundle().infoDictionary!["CFBundleName"] as! String
+  public static let name = Bundle.main.infoDictionary!["CFBundleName"] as! String
   
   // Version of the application
   public static let version =
-      NSBundle.mainBundle().infoDictionary!["CFBundleShortVersionString"] as! String
+      Bundle.main.infoDictionary!["CFBundleShortVersionString"] as! String
   
   // Copyright message
   public static let copyright =
-      NSBundle.mainBundle().infoDictionary!["NSHumanReadableCopyright"] as! String
+      Bundle.main.infoDictionary!["NSHumanReadableCopyright"] as! String
   
   // Build date
   public static let buildDate = { () -> String in
-      let dateFormatter = NSDateFormatter()
+      let dateFormatter = DateFormatter()
       dateFormatter.dateFormat = "yyyy-MM-dd"
-      return dateFormatter.stringFromDate(getBuildDate())
+      return dateFormatter.string(from: getBuildDate())
     }()
   
   // Build time
-  public static let buildTime = getBuildTime()
+  public static let buildTime = getBuildTime() ?? ""
 }

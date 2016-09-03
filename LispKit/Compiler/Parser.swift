@@ -22,9 +22,9 @@
 /// Implementation of a simple Lisp parser. The parser requires access to a scanner and
 /// a symbol table for creating `Symbol` objects.
 /// 
-public class Parser {
-  private var symbols: SymbolTable
-  private var scanner: Scanner
+open class Parser {
+  fileprivate var symbols: SymbolTable
+  fileprivate var scanner: Scanner
   
   public convenience init(symbols: SymbolTable, src: String) {
     self.init(symbols: symbols, scanner: Scanner(string: src))
@@ -39,100 +39,100 @@ public class Parser {
     self.scanner = scanner
   }
   
-  public var finished: Bool {
+  open var finished: Bool {
     return !self.scanner.hasNext()
   }
   
-  public func parse(prescan: Bool = true) throws -> Expr {
+  open func parse(_ prescan: Bool = true) throws -> Expr {
     var res: Expr
     let token = self.scanner.token
     switch token.kind {
-      case .ERROR:
+      case .error:
         let lexicalError = token.errorVal!
         self.scanner.next()
         throw lexicalError
-      case .EOF_TOKEN:
-        throw SyntaxError.Empty
-      case .IDENT:
-        res = .Sym(self.symbols.intern(token.strVal))
-      case .TRUELIT:
-        res = .True
-      case .FALSELIT:
-        res = .False
-      case .INT:
-        res = Expr.Fixnum(token.intVal)
-      case .BIGINT:
-        res = Expr.Bignum(token.bigIntVal).normalized
-      case .RAT:
-        res = Expr.Rat(ImmutableBox(token.ratVal)).normalized
-      case .BIGRAT:
-        res = Expr.Bigrat(ImmutableBox(token.bigRatVal)).normalized
-      case .FLOAT:
-        res = Expr.Flonum(token.floatVal)
-      case .COMPLEX:
-        res = Expr.Complexnum(ImmutableBox(token.complexVal)).normalized
-      case .CHAR:
-        res = .Char(UInt16(token.intVal))
-      case .STRING:
-        res = .Str(NSMutableString(string: token.strVal))
-      case .LPAREN:
+      case .eof:
+        throw SyntaxError.empty
+      case .ident:
+        res = .sym(self.symbols.intern(token.strVal))
+      case .truelit:
+        res = .true
+      case .falselit:
+        res = .false
+      case .int:
+        res = Expr.fixnum(token.intVal)
+      case .bigint:
+        res = Expr.bignum(token.bigIntVal).normalized
+      case .rat:
+        res = Expr.rational(ImmutableBox(token.ratVal)).normalized
+      case .bigrat:
+        res = Expr.bigrat(ImmutableBox(token.bigRatVal)).normalized
+      case .float:
+        res = Expr.flonum(token.floatVal)
+      case .complex:
+        res = Expr.complex(ImmutableBox(token.complexVal)).normalized
+      case .char:
+        res = .char(UInt16(token.intVal))
+      case .string:
+        res = .str(NSMutableString(string: token.strVal))
+      case .lparen:
         self.scanner.next()
         var exprs = Exprs()
-        while !self.scanner.hasToken(.EOF_TOKEN, .RPAREN, .DOT) {
+        while !self.scanner.hasToken(.eof, .rparen, .dot) {
           exprs.append(try self.parse())
         }
-        if self.scanner.hasToken(.DOT) {
+        if self.scanner.hasToken(.dot) {
           self.scanner.next()
           res = Expr.List(exprs, append: try self.parse())
         } else {
           res = Expr.List(exprs)
         }
-        if !self.scanner.hasToken(.RPAREN) {
-          throw SyntaxError.ClosingParenthesisMissing
+        if !self.scanner.hasToken(.rparen) {
+          throw SyntaxError.closingParenthesisMissing
         }
-      case .RPAREN:
+      case .rparen:
         self.scanner.next()
-        throw SyntaxError.UnexpectedClosingParenthesis
-      case .HASHLPAREN:
+        throw SyntaxError.unexpectedClosingParenthesis
+      case .hashlparen:
         self.scanner.next()
         var exprs = Exprs()
-        while !self.scanner.hasToken(.EOF_TOKEN, .RPAREN) {
+        while !self.scanner.hasToken(.eof, .rparen) {
           exprs.append(try self.parse())
         }
-        guard self.scanner.hasToken(.RPAREN) else {
-          throw SyntaxError.ClosingParenthesisMissing
+        guard self.scanner.hasToken(.rparen) else {
+          throw SyntaxError.closingParenthesisMissing
         }
-        res = .Vector(Collection(kind: .ImmutableVector, exprs: exprs))
-      case .U8LPAREN:
+        res = .vector(Collection(kind: .immutableVector, exprs: exprs))
+      case .u8LPAREN:
         self.scanner.next()
         var bytes = [UInt8]()
-        while self.scanner.hasToken(.INT) {
+        while self.scanner.hasToken(.int) {
           let number = self.scanner.token.intVal
           guard number >= 0 && number <= 255 else {
-            throw SyntaxError.NotAByteValue
+            throw SyntaxError.notAByteValue
           }
           bytes.append(UInt8(number))
           self.scanner.next()
         }
-        guard self.scanner.hasToken(.RPAREN) else {
-          throw SyntaxError.ClosingParenthesisMissing
+        guard self.scanner.hasToken(.rparen) else {
+          throw SyntaxError.closingParenthesisMissing
         }
-        res = .Bytes(MutableBox(bytes))
-      case .QUOTE:
+        res = .bytes(MutableBox(bytes))
+      case .quote:
         self.scanner.next()
-        return Expr.List(.Sym(symbols.QUOTE), try self.parse())
-      case .BACKQUOTE:
+        return Expr.List(.sym(symbols.QUOTE), try self.parse())
+      case .backquote:
         self.scanner.next()
-        return Expr.List(.Sym(symbols.QUASIQUOTE), try self.parse())
-      case .COMMA:
+        return Expr.List(.sym(symbols.QUASIQUOTE), try self.parse())
+      case .comma:
         self.scanner.next()
-        return Expr.List(.Sym(symbols.UNQUOTE), try self.parse())
-      case .COMMAAT:
+        return Expr.List(.sym(symbols.UNQUOTE), try self.parse())
+      case .commaat:
         self.scanner.next()
-        return Expr.List(.Sym(symbols.UNQUOTESPLICING), try self.parse())
-      case .DOT:
+        return Expr.List(.sym(symbols.UNQUOTESPLICING), try self.parse())
+      case .dot:
         self.scanner.next()
-        throw SyntaxError.UnexpectedDot
+        throw SyntaxError.unexpectedDot
     }
     if prescan {
       self.scanner.next()

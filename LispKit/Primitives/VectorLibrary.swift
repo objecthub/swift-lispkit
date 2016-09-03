@@ -39,112 +39,112 @@ public final class VectorLibrary: NativeLibrary {
     define(Procedure("vector-fill!", vectorFill))
   }
   
-  func isVector(expr: Expr) -> Expr {
+  func isVector(_ expr: Expr) -> Expr {
     switch expr {
-      case .Vector(_):
-        return .True
+      case .vector(_):
+        return .true
       default:
-        return .False
+        return .false
     }
   }
   
-  func compileIsVector(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
-    guard case .Pair(_, .Pair(let arg, .Null)) = expr else {
-      throw EvalError.ArgumentCountError(formals: 1, args: expr)
+  func compileIsVector(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    guard case .pair(_, .pair(let arg, .null)) = expr else {
+      throw EvalError.argumentCountError(formals: 1, args: expr)
     }
     try compiler.compile(arg, in: env, inTailPos: false)
-    compiler.emit(.IsVector)
+    compiler.emit(.isVector)
     return false
   }
   
-  func makeVector(count: Expr, fill: Expr?) throws -> Expr {
+  func makeVector(_ count: Expr, fill: Expr?) throws -> Expr {
     let k = try count.asInteger()
     guard k >= 0 && k <= Int64(Int.max) else {
-      throw EvalError.ParameterOutOfBounds("make-vector", 1, k, 0, Int64(Int.max))
+      throw EvalError.parameterOutOfBounds("make-vector", 1, k, 0, Int64(Int.max))
     }
-    return .Vector(Collection(kind: .Vector, count: Int(k), repeatedValue: fill ?? .Null))
+    return .vector(Collection(kind: .vector, count: Int(k), repeatedValue: fill ?? .null))
   }
   
-  func vector(args: Arguments) -> Expr {
-    let res = Collection(kind: .Vector)
+  func vector(_ args: Arguments) -> Expr {
+    let res = Collection(kind: .vector)
     for arg in args {
       res.exprs.append(arg)
     }
-    return .Vector(res)
+    return .vector(res)
   }
   
-  func compileVector(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
-    guard case .Pair(_, let cdr) = expr else {
+  func compileVector(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    guard case .pair(_, let cdr) = expr else {
       preconditionFailure()
     }
-    compiler.emit(.Vector(try compiler.compileExprs(cdr, in: env)))
+    compiler.emit(.vector(try compiler.compileExprs(cdr, in: env)))
     return false
   }
   
-  func vectorAppend(exprs: Arguments) throws -> Expr {
-    let res = Collection(kind: .Vector)
+  func vectorAppend(_ exprs: Arguments) throws -> Expr {
+    let res = Collection(kind: .vector)
     for expr in exprs {
-      res.exprs.appendContentsOf(try expr.asVector().exprs)
+      res.exprs.append(contentsOf: try expr.asVector().exprs)
     }
-    return .Vector(res)
+    return .vector(res)
   }
   
-  func vectorRef(vec: Expr, index: Expr) throws -> Expr {
+  func vectorRef(_ vec: Expr, index: Expr) throws -> Expr {
     let vector = try vec.asVector()
     let i = try index.asInteger()
     guard i >= 0 && i < Int64(vector.exprs.count) else {
-      throw EvalError.IndexOutOfBounds(i, Int64(vector.exprs.count - 1), vec)
+      throw EvalError.indexOutOfBounds(i, Int64(vector.exprs.count - 1), vec)
     }
     return vector.exprs[Int(i)]
   }
   
-  func vectorSet(vec: Expr, index: Expr, expr: Expr) throws -> Expr {
+  func vectorSet(_ vec: Expr, index: Expr, expr: Expr) throws -> Expr {
     // Extract arguments
     let vector = try vec.asVector()
     let i = try index.asInt()
     guard i >= 0 && i <= vector.exprs.count else {
-      throw EvalError.IndexOutOfBounds(Int64(i), Int64(vector.exprs.count), vec)
+      throw EvalError.indexOutOfBounds(Int64(i), Int64(vector.exprs.count), vec)
     }
-    guard case .Vector = vector.kind else {
-      throw EvalError.AttemptToModifyImmutableData(vec)
+    guard case .vector = vector.kind else {
+      throw EvalError.attemptToModifyImmutableData(vec)
     }
     // Set value at index `i`. Guarantee that vectors for which `vector-set!` is
     // called are managed by a managed object pool.
     (expr.isSimple ? vector : self.context.objects.manage(vector)).exprs[i] = expr
-    return .Void
+    return .void
   }
   
-  func listToVector(expr: Expr) throws -> Expr {
-    guard case (let exprs, .Null) = expr.toExprs() else {
-      throw EvalError.TypeError(expr, [.ProperListType])
+  func listToVector(_ expr: Expr) throws -> Expr {
+    guard case (let exprs, .null) = expr.toExprs() else {
+      throw EvalError.typeError(expr, [.properListType])
     }
-    return .Vector(Collection(kind: .Vector, exprs: exprs))
+    return .vector(Collection(kind: .vector, exprs: exprs))
   }
   
-  func vectorToList(vec: Expr, start: Expr?, end: Expr?) throws -> Expr {
+  func vectorToList(_ vec: Expr, start: Expr?, end: Expr?) throws -> Expr {
     let vector = try vec.asVector()
     let end = try end?.asInt(below: vector.exprs.count + 1) ?? vector.exprs.count
     let start = try start?.asInt(below: end + 1) ?? 0
-    var res = Expr.Null
-    for expr in vector.exprs[start..<end].reverse() {
-      res = .Pair(expr, res)
+    var res = Expr.null
+    for expr in vector.exprs[start..<end].reversed() {
+      res = .pair(expr, res)
     }
     return res
   }
   
-  func stringToVector(expr: Expr, start: Expr?, end: Expr?) throws -> Expr {
+  func stringToVector(_ expr: Expr, start: Expr?, end: Expr?) throws -> Expr {
     let str = try expr.asStr().utf16
     let max = try end?.asInt(below: str.count + 1) ?? str.count
-    let end = str.startIndex.advancedBy(max)
-    let start = str.startIndex.advancedBy(try start?.asInt(below: max + 1) ?? 0)
-    let res = Collection(kind: .Vector)
+    let end = str.index(str.startIndex, offsetBy: max)
+    let start = str.index(str.startIndex, offsetBy: try start?.asInt(below: max + 1) ?? 0)
+    let res = Collection(kind: .vector)
     for ch in str[start..<end] {
-      res.exprs.append(.Char(ch))
+      res.exprs.append(.char(ch))
     }
-    return .Vector(res)
+    return .vector(res)
   }
   
-  func vectorToString(vec: Expr, start: Expr?, end: Expr?) throws -> Expr {
+  func vectorToString(_ vec: Expr, start: Expr?, end: Expr?) throws -> Expr {
     let vector = try vec.asVector()
     let end = try end?.asInt(below: vector.exprs.count + 1) ?? vector.exprs.count
     let start = try start?.asInt(below: end + 1) ?? 0
@@ -152,37 +152,37 @@ public final class VectorLibrary: NativeLibrary {
     for expr in vector.exprs[start..<end] {
       uniChars.append(try expr.asChar())
     }
-    return .Str(NSMutableString(string: String(utf16CodeUnits: uniChars, count: uniChars.count)))
+    return .str(NSMutableString(string: String(utf16CodeUnits: uniChars, count: uniChars.count)))
   }
   
-  func vectorCopy(vec: Expr, start: Expr?, end: Expr?) throws -> Expr {
+  func vectorCopy(_ vec: Expr, start: Expr?, end: Expr?) throws -> Expr {
     let vector = try vec.asVector()
     let end = try end?.asInt(below: vector.exprs.count + 1) ?? vector.exprs.count
     let start = try start?.asInt(below: end + 1) ?? 0
-    let res = Collection(kind: .Vector)
+    let res = Collection(kind: .vector)
     for expr in vector.exprs[start..<end] {
       res.exprs.append(expr)
     }
-    return .Vector(res)
+    return .vector(res)
   }
 
-  func vectorOverwrite(trgt: Expr, at: Expr, src: Expr, start: Expr?, end: Expr?) throws -> Expr {
+  func vectorOverwrite(_ trgt: Expr, at: Expr, src: Expr, start: Expr?, end: Expr?) throws -> Expr {
     let target = try trgt.asVector()
-    guard case .Vector = target.kind else {
-      throw EvalError.AttemptToModifyImmutableData(trgt)
+    guard case .vector = target.kind else {
+      throw EvalError.attemptToModifyImmutableData(trgt)
     }
-    let from = try at.asInt(below: target.exprs.count + 1) ?? target.exprs.count
+    let from = try at.asInt(below: target.exprs.count + 1)
     let vector = try src.asVector()
     let end = try end?.asInt(below: vector.exprs.count + 1) ?? vector.exprs.count
     let start = try start?.asInt(below: end + 1) ?? 0
     guard target.exprs.count - from >= end - start else {
-      throw EvalError.ParameterOutOfBounds(
+      throw EvalError.parameterOutOfBounds(
         "vector-copy!", 2, Int64(from), Int64(0), Int64(start + target.exprs.count - end))
     }
     // Decide on right order in case `target` and `vector` are identical vectors
     var isSimple = true
     if start < from {
-      for i in (start..<end).reverse() {
+      for i in (start..<end).reversed() {
         isSimple = isSimple && vector.exprs[i].isSimple
         target.exprs[from + i - start] = vector.exprs[i]
       }
@@ -195,13 +195,13 @@ public final class VectorLibrary: NativeLibrary {
     if !isSimple {
       self.context.objects.manage(target)
     }
-    return .Void
+    return .void
   }
   
-  func vectorFill(vec: Expr, expr: Expr, start: Expr?, end: Expr?) throws -> Expr {
+  func vectorFill(_ vec: Expr, expr: Expr, start: Expr?, end: Expr?) throws -> Expr {
     let vector = try vec.asVector()
-    guard case .Vector = vector.kind else {
-      throw EvalError.AttemptToModifyImmutableData(vec)
+    guard case .vector = vector.kind else {
+      throw EvalError.attemptToModifyImmutableData(vec)
     }
     let end = try end?.asInt(below: vector.exprs.count + 1) ?? vector.exprs.count
     let start = try start?.asInt(below: end + 1) ?? 0
@@ -211,6 +211,6 @@ public final class VectorLibrary: NativeLibrary {
     for i in start..<end {
       vector.exprs[i] = expr
     }
-    return .Void
+    return .void
   }
 }

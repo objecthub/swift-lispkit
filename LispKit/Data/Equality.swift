@@ -43,32 +43,32 @@ func ==(lhs: Equality, rhs: Equality) -> Bool {
          lhs.ref1 == rhs.ref2 && lhs.ref2 == rhs.ref1
 }
 
-func equalExpr(this: Expr, _ that: Expr) -> Bool {
+func equalExpr(_ this: Expr, _ that: Expr) -> Bool {
   var equalities = Set<Equality>()
   
-  func equals(lhs: Expr, _ rhs: Expr) -> Bool {
+  func equals(_ lhs: Expr, _ rhs: Expr) -> Bool {
     switch (lhs, rhs) {
-      case (.Undef, .Undef),
-           (.Void, .Void),
-           (.Eof, .Eof),
-           (.Null, .Null),
-           (.True, .True),
-           (.False, .False):
+      case (.undef, .undef),
+           (.void, .void),
+           (.eof, .eof),
+           (.null, .null),
+           (.true, .true),
+           (.false, .false):
         return true
-      case (.Sym(let sym1), .Sym(let sym2)):
+      case (.sym(let sym1), .sym(let sym2)):
         return sym1 === sym2
-      case (.Fixnum(_), _),
-           (.Bignum(_), _),
-           (.Rat(_), _),
-           (.Bigrat(_), _),
-           (.Flonum(_), _),
-           (.Complexnum(_), _):
+      case (.fixnum(_), _),
+           (.bignum(_), _),
+           (.rational(_), _),
+           (.bigrat(_), _),
+           (.flonum(_), _),
+           (.complex(_), _):
         return lhs.isExactNumber == rhs.isExactNumber && compare(lhs, with: rhs) == 0
-      case (.Char(let ch1), .Char(let ch2)):
+      case (.char(let ch1), .char(let ch2)):
         return ch1 == ch2
-      case (.Str(let str1), .Str(let str2)):
+      case (.str(let str1), .str(let str2)):
         return str1 == str2
-      case (.Bytes(let bvector1), .Bytes(let bvector2)):
+      case (.bytes(let bvector1), .bytes(let bvector2)):
         guard bvector1.value.count == bvector2.value.count else {
           return false
         }
@@ -78,9 +78,9 @@ func equalExpr(this: Expr, _ that: Expr) -> Bool {
           }
         }
         return true
-      case (.Pair(let car1, let cdr1), .Pair(let car2, let cdr2)):
+      case (.pair(let car1, let cdr1), .pair(let car2, let cdr2)):
         return equals(car1, car2) && equals(cdr1, cdr2)
-      case (.Box(let cell1), .Box(let cell2)):
+      case (.box(let cell1), .box(let cell2)):
         guard cell1 !== cell2 else {
           return true
         }
@@ -90,7 +90,7 @@ func equalExpr(this: Expr, _ that: Expr) -> Bool {
         }
         equalities.insert(equality)
         return cell1.value == cell2.value
-      case (.MutablePair(let tuple1), .MutablePair(let tuple2)):
+      case (.mutablePair(let tuple1), .mutablePair(let tuple2)):
         guard tuple1 !== tuple2 else {
           return true
         }
@@ -100,7 +100,7 @@ func equalExpr(this: Expr, _ that: Expr) -> Bool {
         }
         equalities.insert(equality)
         return tuple1.fst == tuple2.fst && tuple1.snd == tuple2.snd
-      case (.Vector(let vector1), .Vector(let vector2)):
+      case (.vector(let vector1), .vector(let vector2)):
         guard vector1 !== vector2 else {
           return true
         }
@@ -118,7 +118,7 @@ func equalExpr(this: Expr, _ that: Expr) -> Bool {
           }
         }
         return true
-      case (.Record(let record1), .Record(let record2)):
+      case (.record(let record1), .record(let record2)):
         guard record1 !== record2 else {
           return true
         }
@@ -136,16 +136,16 @@ func equalExpr(this: Expr, _ that: Expr) -> Bool {
           }
         }
         return true
-      case (.Map(let map1), .Map(let map2)):
+      case (.map(let map1), .map(let map2)):
         // Identical maps are also equals
         guard map1 !== map2 else {
           return true
         }
         // Maps with incompatible hashing and equality functions are not equals
         switch (map1.equiv, map2.equiv) {
-          case (.Eq, .Eq), (.Eqv, .Eqv), (.Equal, .Equal):
+          case (.eq, .eq), (.eqv, .eqv), (.equal, .equal):
             break;
-          case (.Custom(let procs1), .Custom(let procs2)):
+          case (.custom(let procs1), .custom(let procs2)):
             guard procs1.eql == procs2.eql && procs1.hsh == procs2.hsh else {
               return false
             }
@@ -173,15 +173,15 @@ func equalExpr(this: Expr, _ that: Expr) -> Bool {
           return false
         }
         return count2 == mappings1.count
-      case (.Promise(let promise1), .Promise(let promise2)):
+      case (.promise(let promise1), .promise(let promise2)):
         return promise1 == promise2
-      case (.Proc(let e1), .Proc(let e2)):
+      case (.proc(let e1), .proc(let e2)):
         return e1 == e2
-      case (.Special(let e1), .Special(let e2)):
+      case (.special(let e1), .special(let e2)):
         return e1 == e2
-      case (.Prt(let p1), .Prt(let p2)):
+      case (.prt(let p1), .prt(let p2)):
         return p1 == p2
-      case (.Error(let e1), .Error(let e2)):
+      case (.error(let e1), .error(let e2)):
         return e1 == e2
       default:
         return false
@@ -194,49 +194,49 @@ func equalExpr(this: Expr, _ that: Expr) -> Bool {
 
 //-------- MARK: - Eqv
 
-func eqvExpr(lhs: Expr, _ rhs: Expr) -> Bool {
+func eqvExpr(_ lhs: Expr, _ rhs: Expr) -> Bool {
   switch (lhs, rhs) {
-    case (.Undef, .Undef),
-         (.Void, .Void),
-         (.Eof, .Eof),
-         (.Null, .Null),
-         (.True, .True),
-         (.False, .False):
+    case (.undef, .undef),
+         (.void, .void),
+         (.eof, .eof),
+         (.null, .null),
+         (.true, .true),
+         (.false, .false):
       return true
-    case (.Sym(let sym1), .Sym(let sym2)):
+    case (.sym(let sym1), .sym(let sym2)):
       return sym1 === sym2
-    case (.Fixnum(_), _),
-         (.Bignum(_), _),
-         (.Rat(_), _),
-         (.Bigrat(_), _),
-         (.Flonum(_), _),
-         (.Complexnum(_), _):
+    case (.fixnum(_), _),
+         (.bignum(_), _),
+         (.rational(_), _),
+         (.bigrat(_), _),
+         (.flonum(_), _),
+         (.complex(_), _):
       return lhs.isExactNumber == rhs.isExactNumber && compare(lhs, with: rhs) == 0
-    case (.Char(let ch1), .Char(let ch2)):
+    case (.char(let ch1), .char(let ch2)):
       return ch1 == ch2
-    case (.Str(let str1), .Str(let str2)):
+    case (.str(let str1), .str(let str2)):
       return str1 === str2
-    case (.Bytes(let bvector1), .Bytes(let bvector2)):
+    case (.bytes(let bvector1), .bytes(let bvector2)):
       return bvector1 === bvector2
-    case (.Pair(let car1, let cdr1), .Pair(let car2, let cdr2)):
+    case (.pair(let car1, let cdr1), .pair(let car2, let cdr2)):
       return eqvExpr(car1, car2) && eqvExpr(cdr1, cdr2)
-    case (.Box(let c1), .Box(let c2)):
+    case (.box(let c1), .box(let c2)):
       return c1 === c2
-    case (.MutablePair(let t1), .MutablePair(let t2)):
+    case (.mutablePair(let t1), .mutablePair(let t2)):
       return t1 === t2
-    case (.Vector(let vector1), .Vector(let vector2)):
+    case (.vector(let vector1), .vector(let vector2)):
       return vector1 === vector2
-    case (.Record(let record1), .Record(let record2)):
+    case (.record(let record1), .record(let record2)):
       return record1 === record2
-    case (.Map(let map1), .Map(let map2)):
+    case (.map(let map1), .map(let map2)):
       return map1 === map2
-    case (.Promise(let promise1), .Promise(let promise2)):
+    case (.promise(let promise1), .promise(let promise2)):
       return promise1 === promise2
-    case (.Proc(let e1), .Proc(let e2)):
+    case (.proc(let e1), .proc(let e2)):
       return e1 === e2
-    case (.Special(let e1), .Special(let e2)):
+    case (.special(let e1), .special(let e2)):
       return e1 === e2
-    case (.Error(let e1), .Error(let e2)):
+    case (.error(let e1), .error(let e2)):
       return e1 === e2
     default:
       return false
@@ -246,54 +246,54 @@ func eqvExpr(lhs: Expr, _ rhs: Expr) -> Bool {
 
 //-------- MARK: - Eq
 
-func eqExpr(lhs: Expr, _ rhs: Expr) -> Bool {
+func eqExpr(_ lhs: Expr, _ rhs: Expr) -> Bool {
   switch (lhs, rhs) {
-    case (.Undef, .Undef),
-         (.Void, .Void),
-         (.Eof, .Eof),
-         (.Null, .Null),
-         (.True, .True),
-         (.False, .False):
+    case (.undef, .undef),
+         (.void, .void),
+         (.eof, .eof),
+         (.null, .null),
+         (.true, .true),
+         (.false, .false):
       return true
-    case (.Sym(let sym1), .Sym(let sym2)):
+    case (.sym(let sym1), .sym(let sym2)):
       return sym1 === sym2
-    case (.Fixnum(let num1), .Fixnum(let num2)):
+    case (.fixnum(let num1), .fixnum(let num2)):
       return num1 == num2
-    case (.Bignum(let num1), .Bignum(let num2)):
+    case (.bignum(let num1), .bignum(let num2)):
       return num1 == num2
-    case (.Rat(let num1), .Rat(let num2)):
+    case (.rational(let num1), .rational(let num2)):
       return num1 == num2
-    case (.Bigrat(let num1), .Bigrat(let num2)):
+    case (.bigrat(let num1), .bigrat(let num2)):
       return num1 == num2
-    case (.Flonum(let num1), .Flonum(let num2)):
+    case (.flonum(let num1), .flonum(let num2)):
       return num1 == num2
-    case (.Complexnum(let num1), .Complexnum(let num2)):
+    case (.complex(let num1), .complex(let num2)):
       return num1 == num2
-    case (.Char(let ch1), .Char(let ch2)):
+    case (.char(let ch1), .char(let ch2)):
       return ch1 == ch2
-    case (.Str(let str1), .Str(let str2)):
+    case (.str(let str1), .str(let str2)):
       return str1 === str2
-    case (.Bytes(let bvector1), .Bytes(let bvector2)):
+    case (.bytes(let bvector1), .bytes(let bvector2)):
       return bvector1 === bvector2
-    case (.Pair(let car1, let cdr1), .Pair(let car2, let cdr2)):
+    case (.pair(let car1, let cdr1), .pair(let car2, let cdr2)):
       return eqvExpr(car1, car2) && eqvExpr(cdr1, cdr2)
-    case (.Box(let c1), .Box(let c2)):
+    case (.box(let c1), .box(let c2)):
       return c1 === c2
-    case (.MutablePair(let t1), .MutablePair(let t2)):
+    case (.mutablePair(let t1), .mutablePair(let t2)):
       return t1 === t2
-    case (.Vector(let vector1), .Vector(let vector2)):
+    case (.vector(let vector1), .vector(let vector2)):
       return vector1 === vector2
-    case (.Record(let record1), .Vector(let record2)):
+    case (.record(let record1), .vector(let record2)):
       return record1 === record2
-    case (.Map(let map1), .Map(let map2)):
+    case (.map(let map1), .map(let map2)):
       return map1 === map2
-    case (.Promise(let promise1), .Promise(let promise2)):
+    case (.promise(let promise1), .promise(let promise2)):
       return promise1 === promise2
-    case (.Proc(let e1), .Proc(let e2)):
+    case (.proc(let e1), .proc(let e2)):
       return e1 === e2
-    case (.Special(let e1), .Special(let e2)):
+    case (.special(let e1), .special(let e2)):
       return e1 === e2
-    case (.Error(let e1), .Error(let e2)):
+    case (.error(let e1), .error(let e2)):
       return e1 === e2
     default:
       return false
@@ -304,17 +304,17 @@ func eqExpr(lhs: Expr, _ rhs: Expr) -> Bool {
 //-------- MARK: - Numeric comparisons
 
 enum NumberPair {
-  case FixnumPair(Int64, Int64)
-  case BignumPair(BigInt, BigInt)
-  case RationalPair(Rational<Int64>, Rational<Int64>)
-  case BigRationalPair(Rational<BigInt>, Rational<BigInt>)
-  case FlonumPair(Double, Double)
-  case ComplexPair(Complex<Double>, Complex<Double>)
+  case fixnumPair(Int64, Int64)
+  case bignumPair(BigInt, BigInt)
+  case rationalPair(Rational<Int64>, Rational<Int64>)
+  case bigRationalPair(Rational<BigInt>, Rational<BigInt>)
+  case flonumPair(Double, Double)
+  case complexPair(Complex<Double>, Complex<Double>)
   
   init(_ fst: Expr, _ snd: Expr) throws {
     guard let res = NumberPair(fst, and: snd) else {
-      try snd.assertTypeOf(.NumberType)
-      try fst.assertTypeOf(.NumberType)
+      try snd.assertTypeOf(.numberType)
+      try fst.assertTypeOf(.numberType)
       preconditionFailure()
     }
     self = res
@@ -322,115 +322,117 @@ enum NumberPair {
   
   init?(_ fst: Expr, and snd: Expr) {
     switch (fst, snd) {
-      case (.Fixnum(let lhs), .Fixnum(let rhs)):
-        self = FixnumPair(lhs, rhs)
-      case (.Fixnum(let lhs), .Bignum(let rhs)):
-        self = BignumPair(BigInt(lhs), rhs)
-      case (.Fixnum(let lhs), .Rat(let rhs)):
-        self = RationalPair(Rational(lhs), rhs.value)
-      case (.Fixnum(let lhs), .Bigrat(let rhs)):
-        self = BigRationalPair(Rational(BigInt(lhs)), rhs.value)
-      case (.Fixnum(let lhs), .Flonum(let rhs)):
-        self = FlonumPair(Double(lhs), rhs)
-      case (.Fixnum(let lhs), .Complexnum(let rhs)):
-        self = ComplexPair(Complex(Double(lhs)), rhs.value)
-      case (.Bignum(let lhs), .Fixnum(let rhs)):
-        self = BignumPair(lhs, BigInt(rhs))
-      case (.Bignum(let lhs), .Bignum(let rhs)):
-        self = BignumPair(lhs, rhs)
-      case (.Bignum(let lhs), .Rat(let rhs)):
-        self = BigRationalPair(Rational(lhs),
-                               Rational(BigInt(rhs.value.numerator), BigInt(rhs.value.denominator)))
-      case (.Bignum(let lhs), .Bigrat(let rhs)):
-        self = BigRationalPair(Rational(lhs), rhs.value)
-      case (.Bignum(let lhs), .Flonum(let rhs)):
-        self = FlonumPair(lhs.doubleValue, rhs)
-      case (.Bignum(let lhs), .Complexnum(let rhs)):
-        self = ComplexPair(Complex(lhs.doubleValue), rhs.value)
-      case (.Rat(let lhs), .Fixnum(let rhs)):
-        self = RationalPair(lhs.value, Rational(rhs))
-      case (.Rat(let lhs), .Bignum(let rhs)):
-        self = BigRationalPair(Rational(BigInt(lhs.value.numerator), BigInt(lhs.value.denominator)),
-                               Rational(rhs))
-      case (.Rat(let lhs), .Rat(let rhs)):
-        self = RationalPair(lhs.value, rhs.value)
-      case (.Rat(let lhs), .Bigrat(let rhs)):
-        self = BigRationalPair(Rational(BigInt(lhs.value.numerator),
-                                        BigInt(lhs.value.denominator)), rhs.value)
-      case (.Rat(let lhs), .Flonum(let rhs)):
-        self = FlonumPair(Double(lhs.value.numerator) / Double(lhs.value.denominator), rhs)
-      case (.Rat(let lhs), .Complexnum(let rhs)):
-        self = ComplexPair(Complex(Double(lhs.value.numerator) / Double(lhs.value.denominator)),
-                           rhs.value)
-      case (.Bigrat(let lhs), .Fixnum(let rhs)):
-        self = BigRationalPair(lhs.value, Rational(BigInt(rhs)))
-      case (.Bigrat(let lhs), .Bignum(let rhs)):
-        self = BigRationalPair(lhs.value, Rational(rhs))
-      case (.Bigrat(let lhs), .Rat(let rhs)):
-        self = BigRationalPair(lhs.value, Rational(BigInt(rhs.value.numerator),
-                                                   BigInt(rhs.value.denominator)))
-      case (.Bigrat(let lhs), .Bigrat(let rhs)):
-        self = BigRationalPair(lhs.value, rhs.value)
-      case (.Bigrat(let lhs), .Flonum(let rhs)):
-        self = FlonumPair(lhs.value.numerator.doubleValue / lhs.value.denominator.doubleValue, rhs)
-      case (.Bigrat(let lhs), .Complexnum(let rhs)):
-        self = ComplexPair(
-          Complex(lhs.value.numerator.doubleValue / lhs.value.denominator.doubleValue), rhs.value)
-      case (.Flonum(let lhs), .Fixnum(let rhs)):
-        self = FlonumPair(lhs, Double(rhs))
-      case (.Flonum(let lhs), .Bignum(let rhs)):
-        self = FlonumPair(lhs, rhs.doubleValue)
-      case (.Flonum(let lhs), .Rat(let rhs)):
-        self = FlonumPair(lhs, Double(rhs.value.numerator) / Double(rhs.value.denominator))
-      case (.Flonum(let lhs), .Bigrat(let rhs)):
-        self = FlonumPair(lhs, rhs.value.numerator.doubleValue / rhs.value.denominator.doubleValue)
-      case (.Flonum(let lhs), .Flonum(let rhs)):
-        self = FlonumPair(lhs, rhs)
-      case (.Flonum(let lhs), .Complexnum(let rhs)):
-        self = ComplexPair(Complex(lhs), rhs.value)
-      case (.Complexnum(let lhs), .Fixnum(let rhs)):
-        self = ComplexPair(lhs.value, Complex(Double(rhs)))
-      case (.Complexnum(let lhs), .Bignum(let rhs)):
-        self = ComplexPair(lhs.value, Complex(rhs.doubleValue))
-      case (.Complexnum(let lhs), .Rat(let rhs)):
-        self = ComplexPair(lhs.value,
-                           Complex(Double(rhs.value.numerator) / Double(rhs.value.denominator)))
-      case (.Complexnum(let lhs), .Bigrat(let rhs)):
-        self = ComplexPair(lhs.value,
+      case (.fixnum(let lhs), .fixnum(let rhs)):
+        self = .fixnumPair(lhs, rhs)
+      case (.fixnum(let lhs), .bignum(let rhs)):
+        self = .bignumPair(BigInt(lhs), rhs)
+      case (.fixnum(let lhs), .rational(let rhs)):
+        self = .rationalPair(Rational(lhs), rhs.value)
+      case (.fixnum(let lhs), .bigrat(let rhs)):
+        self = .bigRationalPair(Rational(BigInt(lhs)), rhs.value)
+      case (.fixnum(let lhs), .flonum(let rhs)):
+        self = .flonumPair(Double(lhs), rhs)
+      case (.fixnum(let lhs), .complex(let rhs)):
+        self = .complexPair(Complex(Double(lhs)), rhs.value)
+      case (.bignum(let lhs), .fixnum(let rhs)):
+        self = .bignumPair(lhs, BigInt(rhs))
+      case (.bignum(let lhs), .bignum(let rhs)):
+        self = .bignumPair(lhs, rhs)
+      case (.bignum(let lhs), .rational(let rhs)):
+        self = .bigRationalPair(Rational(lhs),
+                                Rational(BigInt(rhs.value.numerator),
+                                         BigInt(rhs.value.denominator)))
+      case (.bignum(let lhs), .bigrat(let rhs)):
+        self = .bigRationalPair(Rational(lhs), rhs.value)
+      case (.bignum(let lhs), .flonum(let rhs)):
+        self = .flonumPair(lhs.doubleValue, rhs)
+      case (.bignum(let lhs), .complex(let rhs)):
+        self = .complexPair(Complex(lhs.doubleValue), rhs.value)
+      case (.rational(let lhs), .fixnum(let rhs)):
+        self = .rationalPair(lhs.value, Rational(rhs))
+      case (.rational(let lhs), .bignum(let rhs)):
+        self = .bigRationalPair(Rational(BigInt(lhs.value.numerator),
+                                         BigInt(lhs.value.denominator)),
+                                Rational(rhs))
+      case (.rational(let lhs), .rational(let rhs)):
+        self = .rationalPair(lhs.value, rhs.value)
+      case (.rational(let lhs), .bigrat(let rhs)):
+        self = .bigRationalPair(Rational(BigInt(lhs.value.numerator),
+                                         BigInt(lhs.value.denominator)), rhs.value)
+      case (.rational(let lhs), .flonum(let rhs)):
+        self = .flonumPair(Double(lhs.value.numerator) / Double(lhs.value.denominator), rhs)
+      case (.rational(let lhs), .complex(let rhs)):
+        self = .complexPair(Complex(Double(lhs.value.numerator) / Double(lhs.value.denominator)),
+                            rhs.value)
+      case (.bigrat(let lhs), .fixnum(let rhs)):
+        self = .bigRationalPair(lhs.value, Rational(BigInt(rhs)))
+      case (.bigrat(let lhs), .bignum(let rhs)):
+        self = .bigRationalPair(lhs.value, Rational(rhs))
+      case (.bigrat(let lhs), .rational(let rhs)):
+        self = .bigRationalPair(lhs.value, Rational(BigInt(rhs.value.numerator),
+                                                    BigInt(rhs.value.denominator)))
+      case (.bigrat(let lhs), .bigrat(let rhs)):
+        self = .bigRationalPair(lhs.value, rhs.value)
+      case (.bigrat(let lhs), .flonum(let rhs)):
+        self = .flonumPair(lhs.value.numerator.doubleValue/lhs.value.denominator.doubleValue, rhs)
+      case (.bigrat(let lhs), .complex(let rhs)):
+        self = .complexPair(
+          Complex(lhs.value.numerator.doubleValue/lhs.value.denominator.doubleValue), rhs.value)
+      case (.flonum(let lhs), .fixnum(let rhs)):
+        self = .flonumPair(lhs, Double(rhs))
+      case (.flonum(let lhs), .bignum(let rhs)):
+        self = .flonumPair(lhs, rhs.doubleValue)
+      case (.flonum(let lhs), .rational(let rhs)):
+        self = .flonumPair(lhs, Double(rhs.value.numerator) / Double(rhs.value.denominator))
+      case (.flonum(let lhs), .bigrat(let rhs)):
+        self = .flonumPair(lhs, rhs.value.numerator.doubleValue / rhs.value.denominator.doubleValue)
+      case (.flonum(let lhs), .flonum(let rhs)):
+        self = .flonumPair(lhs, rhs)
+      case (.flonum(let lhs), .complex(let rhs)):
+        self = .complexPair(Complex(lhs), rhs.value)
+      case (.complex(let lhs), .fixnum(let rhs)):
+        self = .complexPair(lhs.value, Complex(Double(rhs)))
+      case (.complex(let lhs), .bignum(let rhs)):
+        self = .complexPair(lhs.value, Complex(rhs.doubleValue))
+      case (.complex(let lhs), .rational(let rhs)):
+        self = .complexPair(lhs.value,
+                            Complex(Double(rhs.value.numerator) / Double(rhs.value.denominator)))
+      case (.complex(let lhs), .bigrat(let rhs)):
+        self = .complexPair(lhs.value,
           Complex(rhs.value.numerator.doubleValue / rhs.value.denominator.doubleValue))
-      case (.Complexnum(let lhs), .Flonum(let rhs)):
-        self = ComplexPair(lhs.value, Complex(rhs))
-      case (.Complexnum(let lhs), .Complexnum(let rhs)):
-        self = ComplexPair(lhs.value, rhs.value)
+      case (.complex(let lhs), .flonum(let rhs)):
+        self = .complexPair(lhs.value, Complex(rhs))
+      case (.complex(let lhs), .complex(let rhs)):
+        self = .complexPair(lhs.value, rhs.value)
       default:
         return nil
     }
   }
 }
 
-func compareNumber(lhs: Expr, with rhs: Expr) throws -> Int {
+func compareNumber(_ lhs: Expr, with rhs: Expr) throws -> Int {
   guard let res = compare(lhs, with: rhs) else {
-    try lhs.assertTypeOf(.RealType)
-    try rhs.assertTypeOf(.RealType)
+    try lhs.assertTypeOf(.realType)
+    try rhs.assertTypeOf(.realType)
     preconditionFailure()
   }
   return res
 }
 
-func compare(lhs: Expr, with rhs: Expr) -> Int? {
+func compare(_ lhs: Expr, with rhs: Expr) -> Int? {
   guard let pair = NumberPair(lhs, and: rhs) else {
     return nil
   }
   switch pair {
-    case .FixnumPair(let lnum, let rnum):
+    case .fixnumPair(let lnum, let rnum):
       return lnum < rnum ? -1 : (lnum > rnum ? 1 : 0)
-    case .BignumPair(let lnum, let rnum):
+    case .bignumPair(let lnum, let rnum):
       return lnum < rnum ? -1 : (lnum > rnum ? 1 : 0)
-    case .RationalPair(let lnum, let rnum):
+    case .rationalPair(let lnum, let rnum):
       return lnum < rnum ? -1 : (lnum > rnum ? 1 : 0)
-    case .BigRationalPair(let lnum, let rnum):
+    case .bigRationalPair(let lnum, let rnum):
       return lnum < rnum ? -1 : (lnum > rnum ? 1 : 0)
-    case .FlonumPair(let lnum, let rnum):
+    case .flonumPair(let lnum, let rnum):
       return lnum < rnum ? -1 : (lnum > rnum ? 1 : 0)
     default:
       return nil

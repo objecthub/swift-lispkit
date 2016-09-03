@@ -41,7 +41,7 @@ public final class Cell: ManagedObject, CustomStringConvertible {
   }
   
   /// Mark variable object.
-  public override func mark(tag: UInt8) {
+  public override func mark(_ tag: UInt8) {
     if self.tag != tag {
       self.tag = tag
       self.value.mark(tag)
@@ -50,7 +50,7 @@ public final class Cell: ManagedObject, CustomStringConvertible {
   
   /// Clear cell value.
   public override func clean() {
-    self.value = .Undef
+    self.value = .undef
   }
   
   /// A string representation of this cell.

@@ -22,172 +22,172 @@
 /// `Type` represents a type of an expression/value
 ///
 public enum Type: Int, CustomStringConvertible {
-  case UndefinedType
-  case ErrorType
-  case VoidType
-  case EofType
-  case NullType
-  case SymbolType
-  case BooleanType
-  case ByteType
-  case IntegerType
-  case RationalType
-  case FloatType
-  case RealType
-  case ComplexType
-  case CharType
-  case StrType
-  case ByteVectorType
-  case PairType
-  case BoxType
-  case MPairType
-  case VectorType
-  case MapType
-  case RecordType
-  case PromiseType
-  case ProcedureType
-  case ParameterType
-  case SpecialType
-  case PortType
-  case NumberType
-  case ExactNumberType
-  case ListType
-  case ProperListType
-  case AssocListType
-  case InputPortType
-  case OutputPortType
-  case TextInputPortType
-  case TextOutputPortType
-  case BinaryInputPortType
-  case BinaryOutputPortType
+  case undefinedType
+  case errorType
+  case voidType
+  case eofType
+  case nullType
+  case symbolType
+  case booleanType
+  case byteType
+  case integerType
+  case rationalType
+  case floatType
+  case realType
+  case complexType
+  case charType
+  case strType
+  case byteVectorType
+  case pairType
+  case boxType
+  case mPairType
+  case vectorType
+  case mapType
+  case recordType
+  case promiseType
+  case procedureType
+  case parameterType
+  case specialType
+  case portType
+  case numberType
+  case exactNumberType
+  case listType
+  case properListType
+  case assocListType
+  case inputPortType
+  case outputPortType
+  case textInputPortType
+  case textOutputPortType
+  case binaryInputPortType
+  case binaryOutputPortType
   
   public var description: String {
     switch self {
-      case UndefinedType:
+      case .undefinedType:
         return "undefined"
-      case ErrorType:
+      case .errorType:
         return "error"
-      case VoidType:
+      case .voidType:
         return "void"
-      case EofType:
+      case .eofType:
         return "eof"
-      case NullType:
+      case .nullType:
         return "null"
-      case SymbolType:
+      case .symbolType:
         return "symbol"
-      case BooleanType:
+      case .booleanType:
         return "boolean"
-      case ByteType:
+      case .byteType:
         return "byte"
-      case IntegerType:
+      case .integerType:
         return "integer"
-      case RationalType:
+      case .rationalType:
         return "rational"
-      case FloatType:
+      case .floatType:
         return "float"
-      case ComplexType:
+      case .complexType:
         return "complex"
-      case CharType:
+      case .charType:
         return "character"
-      case StrType:
+      case .strType:
         return "string"
-      case PairType:
+      case .pairType:
         return "pair"
-      case VectorType:
+      case .vectorType:
         return "vector"
-      case ByteVectorType:
+      case .byteVectorType:
         return "bytevector"
-      case MapType:
+      case .mapType:
         return "map"
-      case RecordType:
+      case .recordType:
         return "record"
-      case PromiseType:
+      case .promiseType:
         return "promise"
-      case SpecialType:
+      case .specialType:
         return "special"
-      case ProcedureType:
+      case .procedureType:
         return "procedure"
-      case ParameterType:
+      case .parameterType:
         return "parameter"
-      case PortType:
+      case .portType:
         return "port"
-      case NumberType:
+      case .numberType:
         return "number"
-      case ExactNumberType:
+      case .exactNumberType:
         return "exact number"
-      case RealType:
+      case .realType:
         return "real"
-      case ListType:
+      case .listType:
         return "list"
-      case ProperListType:
+      case .properListType:
         return "proper list"
-      case AssocListType:
+      case .assocListType:
         return "association list"
-      case TextInputPortType:
+      case .textInputPortType:
         return "textual input port"
-      case TextOutputPortType:
+      case .textOutputPortType:
         return "textual output port"
-      case BinaryInputPortType:
+      case .binaryInputPortType:
         return "binary input port"
-      case BinaryOutputPortType:
+      case .binaryOutputPortType:
         return "binary output port"
-      case InputPortType:
+      case .inputPortType:
         return "input port"
-      case OutputPortType:
+      case .outputPortType:
         return "output port"
-      case BoxType:
+      case .boxType:
         return "box"
-      case MPairType:
+      case .mPairType:
         return "mpair"
     }
   }
   
   public var included: Set<Type> {
     switch self {
-      case ProcedureType:
+      case .procedureType:
         return PROCEDURE_SUBTYPES
-      case NumberType:
+      case .numberType:
         return NUMBER_SUBTYPES
-      case ExactNumberType:
+      case .exactNumberType:
         return EXACT_NUMBER_SUBTYPES
-      case RealType:
+      case .realType:
         return REAL_SUBTYPES
-      case ListType:
+      case .listType:
         return LIST_SUBTYPES
-      case ProperListType:
+      case .properListType:
         return PROPERLIST_SUBTYPES
-      case AssocListType:
+      case .assocListType:
         return ASSOCLIST_SUBTYPES
-      case PortType:
+      case .portType:
         return PORT_SUBTYPES
-      case .InputPortType:
+      case .inputPortType:
         return INPUT_PORT_SUBTYPES
-      case .OutputPortType:
+      case .outputPortType:
         return OUTPUT_PORT_SUBTYPES
       default:
         return [self]
     }
   }
   
-  public func includes(type: Type) -> Bool {
+  public func includes(_ type: Type) -> Bool {
     return self.included.contains(type)
   }
 }
 
-private let PROCEDURE_SUBTYPES: Set<Type> = [.ProcedureType, .ParameterType]
-private let NUMBER_SUBTYPES: Set<Type> = [.NumberType, .ByteType, .IntegerType, .RationalType,
-                                          .FloatType, .ComplexType, .ExactNumberType, .RealType]
-private let EXACT_NUMBER_SUBTYPES: Set<Type> = [.ExactNumberType, .ByteType,
-                                                .IntegerType, .RationalType]
-private let REAL_SUBTYPES: Set<Type> = [.RealType, .IntegerType, .RationalType, .FloatType]
-private let LIST_SUBTYPES: Set<Type> = [.ListType, .PairType, .NullType, .ProperListType,
-                                        .AssocListType]
-private let PROPERLIST_SUBTYPES: Set<Type> = [.ProperListType, .PairType, .NullType]
-private let ASSOCLIST_SUBTYPES: Set<Type> = [.AssocListType, .PairType, .NullType]
-private let PORT_SUBTYPES: Set<Type> = [.PortType, .InputPortType, .OutputPortType,
-                                        .TextInputPortType, .TextOutputPortType,
-                                        .BinaryInputPortType, .BinaryOutputPortType]
-private let INPUT_PORT_SUBTYPES: Set<Type> = [.InputPortType, .TextInputPortType,
-                                              .BinaryInputPortType]
-private let OUTPUT_PORT_SUBTYPES: Set<Type> = [.OutputPortType, .TextOutputPortType,
-                                               .BinaryOutputPortType]
+private let PROCEDURE_SUBTYPES: Set<Type> = [.procedureType, .parameterType]
+private let NUMBER_SUBTYPES: Set<Type> = [.numberType, .byteType, .integerType, .rationalType,
+                                          .floatType, .complexType, .exactNumberType, .realType]
+private let EXACT_NUMBER_SUBTYPES: Set<Type> = [.exactNumberType, .byteType,
+                                                .integerType, .rationalType]
+private let REAL_SUBTYPES: Set<Type> = [.realType, .integerType, .rationalType, .floatType]
+private let LIST_SUBTYPES: Set<Type> = [.listType, .pairType, .nullType, .properListType,
+                                        .assocListType]
+private let PROPERLIST_SUBTYPES: Set<Type> = [.properListType, .pairType, .nullType]
+private let ASSOCLIST_SUBTYPES: Set<Type> = [.assocListType, .pairType, .nullType]
+private let PORT_SUBTYPES: Set<Type> = [.portType, .inputPortType, .outputPortType,
+                                        .textInputPortType, .textOutputPortType,
+                                        .binaryInputPortType, .binaryOutputPortType]
+private let INPUT_PORT_SUBTYPES: Set<Type> = [.inputPortType, .textInputPortType,
+                                              .binaryInputPortType]
+private let OUTPUT_PORT_SUBTYPES: Set<Type> = [.outputPortType, .textOutputPortType,
+                                               .binaryOutputPortType]

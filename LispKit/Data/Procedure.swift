@@ -37,11 +37,11 @@ public final class Procedure: Reference, CustomStringConvertible {
   ///    4. Parameters: Parameter objects, which can be mutated for the duration of a dynamic extent
   ///    5. Transformers: User-defined macro transformers defined via `syntax-rules`
   public enum Kind {
-    case Primitive(String, Implementation, FormCompiler?)
-    case Closure(String?, [Expr], Code)
-    case Continuation(VirtualMachineState)
-    case Parameter(Tuple)
-    case Transformer(SyntaxRules)
+    case primitive(String, Implementation, FormCompiler?)
+    case closure(String?, [Expr], Code)
+    case continuation(VirtualMachineState)
+    case parameter(Tuple)
+    case transformer(SyntaxRules)
   }
   
   /// There are three different types of primitive implementations:
@@ -49,24 +49,24 @@ public final class Procedure: Reference, CustomStringConvertible {
   ///    2. Applicators: They map the arguments to a continuation procedure and an argument list
   ///    3. Native implementations: They map the arguments into a result value
   public enum Implementation {
-    case Eval((Arguments) throws -> Code)
-    case Apply((Arguments) throws -> (Procedure, [Expr]))
-    case Native0(() throws -> Expr)
-    case Native1((Expr) throws -> Expr)
-    case Native2((Expr, Expr) throws -> Expr)
-    case Native3((Expr, Expr, Expr) throws -> Expr)
-    case Native4((Expr, Expr, Expr, Expr) throws -> Expr)
-    case Native0O((Expr?) throws -> Expr)
-    case Native1O((Expr, Expr?) throws -> Expr)
-    case Native2O((Expr, Expr, Expr?) throws -> Expr)
-    case Native3O((Expr, Expr, Expr, Expr?) throws -> Expr)
-    case Native1OO((Expr, Expr?, Expr?) throws -> Expr)
-    case Native2OO((Expr, Expr, Expr?, Expr?) throws -> Expr)
-    case Native3OO((Expr, Expr, Expr, Expr?, Expr?) throws -> Expr)
-    case Native0R((Arguments) throws -> Expr)
-    case Native1R((Expr, Arguments) throws -> Expr)
-    case Native2R((Expr, Expr, Arguments) throws -> Expr)
-    case Native3R((Expr, Expr, Expr, Arguments) throws -> Expr)
+    case eval((Arguments) throws -> Code)
+    case apply((Arguments) throws -> (Procedure, [Expr]))
+    case native0(() throws -> Expr)
+    case native1((Expr) throws -> Expr)
+    case native2((Expr, Expr) throws -> Expr)
+    case native3((Expr, Expr, Expr) throws -> Expr)
+    case native4((Expr, Expr, Expr, Expr) throws -> Expr)
+    case native0O((Expr?) throws -> Expr)
+    case native1O((Expr, Expr?) throws -> Expr)
+    case native2O((Expr, Expr, Expr?) throws -> Expr)
+    case native3O((Expr, Expr, Expr, Expr?) throws -> Expr)
+    case native1OO((Expr, Expr?, Expr?) throws -> Expr)
+    case native2OO((Expr, Expr, Expr?, Expr?) throws -> Expr)
+    case native3OO((Expr, Expr, Expr, Expr?, Expr?) throws -> Expr)
+    case native0R((Arguments) throws -> Expr)
+    case native1R((Expr, Arguments) throws -> Expr)
+    case native2R((Expr, Expr, Arguments) throws -> Expr)
+    case native3R((Expr, Expr, Expr, Arguments) throws -> Expr)
   }
   
   /// Procedure kind
@@ -74,186 +74,186 @@ public final class Procedure: Reference, CustomStringConvertible {
   
   /// Initializer for primitive evaluators
   public init(_ name: String,
-              _ proc: (Arguments) throws -> Code,
+              _ proc: @escaping (Arguments) throws -> Code,
               _ compiler: FormCompiler? = nil) {
-    self.kind = .Primitive(name, .Eval(proc), compiler)
+    self.kind = .primitive(name, .eval(proc), compiler)
   }
   
   /// Initializer for primitive evaluators
   public init(_ name: String,
               _ compiler: FormCompiler,
               in context: Context) {
-    func indirect(args: Arguments) throws -> Code {
+    func indirect(_ args: Arguments) throws -> Code {
       let expr =
-        Expr.Pair(.Sym(Symbol(context.symbols.intern(name), .System)), .List(args))
+        Expr.pair(.sym(Symbol(context.symbols.intern(name), .system)), .List(args))
       return try Compiler.compile(context,
-                                  expr: .Pair(expr, .Null),
-                                  in: .System,
+                                  expr: .pair(expr, .null),
+                                  in: .system,
                                   optimize: false)
     }
-    self.kind = .Primitive(name, .Eval(indirect), compiler)
+    self.kind = .primitive(name, .eval(indirect), compiler)
   }
   
   /// Initializer for primitive applicators
   public init(_ name: String,
-              _ proc: (Arguments) throws -> (Procedure, [Expr]),
+              _ proc: @escaping (Arguments) throws -> (Procedure, [Expr]),
               _ compiler: FormCompiler? = nil) {
-    self.kind = .Primitive(name, .Apply(proc), compiler)
+    self.kind = .primitive(name, .apply(proc), compiler)
   }
   
   /// Initializer for primitive procedures
   public init(_ name: String,
-              _ proc: () throws -> Expr,
+              _ proc: @escaping () throws -> Expr,
               _ compiler: FormCompiler? = nil) {
-    self.kind = .Primitive(name, .Native0(proc), compiler)
+    self.kind = .primitive(name, .native0(proc), compiler)
   }
   
   /// Initializer for primitive procedures
   public init(_ name: String,
-              _ proc: (Expr) throws -> Expr,
+              _ proc: @escaping (Expr) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
-    self.kind = .Primitive(name, .Native1(proc), compiler)
+    self.kind = .primitive(name, .native1(proc), compiler)
   }
   
   /// Initializer for primitive procedures
   public init(_ name: String,
-              _ proc: (Expr, Expr) throws -> Expr,
+              _ proc: @escaping (Expr, Expr) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
-    self.kind = .Primitive(name, .Native2(proc), compiler)
+    self.kind = .primitive(name, .native2(proc), compiler)
   }
   
   /// Initializer for primitive procedures
   public init(_ name: String,
-              _ proc: (Expr, Expr, Expr) throws -> Expr,
+              _ proc: @escaping (Expr, Expr, Expr) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
-    self.kind = .Primitive(name, .Native3(proc), compiler)
+    self.kind = .primitive(name, .native3(proc), compiler)
   }
   
   /// Initializer for primitive procedures
   public init(_ name: String,
-              _ proc: (Expr, Expr, Expr, Expr) throws -> Expr,
+              _ proc: @escaping (Expr, Expr, Expr, Expr) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
-    self.kind = .Primitive(name, .Native4(proc), compiler)
+    self.kind = .primitive(name, .native4(proc), compiler)
   }
   
   /// Initializer for primitive procedures
   public init(_ name: String,
-              _ proc: (Expr?) throws -> Expr,
+              _ proc: @escaping (Expr?) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
-    self.kind = .Primitive(name, .Native0O(proc), compiler)
+    self.kind = .primitive(name, .native0O(proc), compiler)
   }
 
   /// Initializer for primitive procedures
   public init(_ name: String,
-              _ proc: (Expr, Expr?) throws -> Expr,
+              _ proc: @escaping (Expr, Expr?) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
-    self.kind = .Primitive(name, .Native1O(proc), compiler)
+    self.kind = .primitive(name, .native1O(proc), compiler)
   }
   
   /// Initializer for primitive procedures
   public init(_ name: String,
-              _ proc: (Expr, Expr, Expr?) throws -> Expr,
+              _ proc: @escaping (Expr, Expr, Expr?) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
-    self.kind = .Primitive(name, .Native2O(proc), compiler)
+    self.kind = .primitive(name, .native2O(proc), compiler)
   }
   
   /// Initializer for primitive procedures
   public init(_ name: String,
-              _ proc: (Expr, Expr, Expr, Expr?) throws -> Expr,
+              _ proc: @escaping (Expr, Expr, Expr, Expr?) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
-    self.kind = .Primitive(name, .Native3O(proc), compiler)
+    self.kind = .primitive(name, .native3O(proc), compiler)
   }
   
   /// Initializer for primitive procedures
   public init(_ name: String,
-              _ proc: (Expr, Expr?, Expr?) throws -> Expr,
+              _ proc: @escaping (Expr, Expr?, Expr?) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
-    self.kind = .Primitive(name, .Native1OO(proc), compiler)
+    self.kind = .primitive(name, .native1OO(proc), compiler)
   }
   
   /// Initializer for primitive procedures
   public init(_ name: String,
-              _ proc: (Expr, Expr, Expr?, Expr?) throws -> Expr,
+              _ proc: @escaping (Expr, Expr, Expr?, Expr?) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
-    self.kind = .Primitive(name, .Native2OO(proc), compiler)
+    self.kind = .primitive(name, .native2OO(proc), compiler)
   }
   
   /// Initializer for primitive procedures
   public init(_ name: String,
-              _ proc: (Expr, Expr, Expr, Expr?, Expr?) throws -> Expr,
+              _ proc: @escaping (Expr, Expr, Expr, Expr?, Expr?) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
-    self.kind = .Primitive(name, .Native3OO(proc), compiler)
+    self.kind = .primitive(name, .native3OO(proc), compiler)
   }
   
   /// Initializer for primitive procedures
   public init(_ name: String,
-              _ proc: (Arguments) throws -> Expr,
+              _ proc: @escaping (Arguments) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
-    self.kind = .Primitive(name, .Native0R(proc), compiler)
+    self.kind = .primitive(name, .native0R(proc), compiler)
   }
   
   /// Initializer for primitive procedures
   public init(_ name: String,
-              _ proc: (Expr, Arguments) throws -> Expr,
+              _ proc: @escaping (Expr, Arguments) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
-    self.kind = .Primitive(name, .Native1R(proc), compiler)
+    self.kind = .primitive(name, .native1R(proc), compiler)
   }
   
   /// Initializer for primitive procedures
   public init(_ name: String,
-              _ proc: (Expr, Expr, Arguments) throws -> Expr,
+              _ proc: @escaping (Expr, Expr, Arguments) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
-    self.kind = .Primitive(name, .Native2R(proc), compiler)
+    self.kind = .primitive(name, .native2R(proc), compiler)
   }
   
   /// Initializer for primitive procedures
   public init(_ name: String,
-              _ proc: (Expr, Expr, Expr, Arguments) throws -> Expr,
+              _ proc: @escaping (Expr, Expr, Expr, Arguments) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
-    self.kind = .Primitive(name, .Native3R(proc), compiler)
+    self.kind = .primitive(name, .native3R(proc), compiler)
   }
   
   /// Initializer for closures
   public init(_ name: String?, _ captured: [Expr], _ code: Code) {
-    self.kind = .Closure(name, captured, code)
+    self.kind = .closure(name, captured, code)
   }
   
   /// Initializer for closures
   public init(_ code: Code) {
-    self.kind = .Closure(nil, [], code)
+    self.kind = .closure(nil, [], code)
   }
   
   /// Initializer for parameters
   public init(_ setter: Expr, _ initial: Expr) {
-    self.kind = .Parameter(Tuple(setter, initial))
+    self.kind = .parameter(Tuple(setter, initial))
   }
   
   /// Initializer for continuations
   public init(_ vmState: VirtualMachineState) {
-    self.kind = .Continuation(vmState)
+    self.kind = .continuation(vmState)
   }
   
   /// Initializer for transformers
   public init(_ rules: SyntaxRules) {
-    self.kind = .Transformer(rules)
+    self.kind = .transformer(rules)
   }
   
   /// Returns the name of this procedure. This method either returns the name of a primitive
   /// procedure or the identity as a hex string.
   public var name: String {
     switch self.kind {
-      case .Primitive(let str, _, _):
+      case .primitive(let str, _, _):
         return str
-      case .Closure(.Some(let str), _, _):
+      case .closure(.some(let str), _, _):
         return "\(str)@\(self.identityString)"
       default:
         return self.identityString
     }
   }
   
-  public func mark(tag: UInt8) {
+  public func mark(_ tag: UInt8) {
     switch self.kind {
-      case .Closure(_, let captures, let code):
+      case .closure(_, let captures, let code):
         for capture in captures {
           capture.mark(tag)
         }
@@ -273,7 +273,7 @@ public typealias Arguments = ArraySlice<Expr>
 
 public extension ArraySlice {
     
-  public func optional(fst: Element, _ snd: Element) -> (Element, Element)? {
+  public func optional(_ fst: Element, _ snd: Element) -> (Element, Element)? {
     switch self.count {
       case 0:
         return (fst, snd)
@@ -286,7 +286,7 @@ public extension ArraySlice {
     }
   }
   
-  public func optional(fst: Element,
+  public func optional(_ fst: Element,
                        _ snd: Element,
                        _ trd: Element) -> (Element, Element, Element)? {
     switch self.count {

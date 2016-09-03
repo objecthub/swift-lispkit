@@ -46,138 +46,138 @@ public final class StringLibrary: NativeLibrary {
     define(Procedure("substring", substring))
   }
   
-  func isString(expr: Expr) -> Expr {
-    if case .Str(_) = expr {
-      return .True
+  func isString(_ expr: Expr) -> Expr {
+    if case .str(_) = expr {
+      return .true
     }
-    return .False
+    return .false
   }
   
-  func makeString(k: Expr, ch: Expr?) throws -> Expr {
-    let uniChars = Array<UniChar>(count: try k.asInt(),
-                                  repeatedValue: try ch?.asChar() ?? UniChar(" "))
-    return .Str(NSMutableString(string: String(utf16CodeUnits: uniChars, count: uniChars.count)))
+  func makeString(_ k: Expr, ch: Expr?) throws -> Expr {
+    let uniChars = Array<UniChar>(repeating: try ch?.asChar() ?? UniChar(" "),
+                                  count: try k.asInt())
+    return .str(NSMutableString(string: String(utf16CodeUnits: uniChars, count: uniChars.count)))
   }
   
-  func string(exprs: Arguments) throws -> Expr {
+  func string(_ exprs: Arguments) throws -> Expr {
     var uniChars: [UniChar] = []
     for expr in exprs {
       uniChars.append(try expr.asChar())
     }
-    return .Str(NSMutableString(string: String(utf16CodeUnits: uniChars, count: uniChars.count)))
+    return .str(NSMutableString(string: String(utf16CodeUnits: uniChars, count: uniChars.count)))
   }
   
-  func stringLength(expr: Expr) throws -> Expr {
-    return .Fixnum(Int64(try expr.asStr().utf16.count))
+  func stringLength(_ expr: Expr) throws -> Expr {
+    return .fixnum(Int64(try expr.asStr().utf16.count))
   }
   
-  func stringRef(expr: Expr, _ index: Expr) throws -> Expr {
+  func stringRef(_ expr: Expr, _ index: Expr) throws -> Expr {
     let str = try expr.asStr().utf16
     let k = try index.asInt()
-    let i = str.startIndex.advancedBy(k)
+    let i = str.index(str.startIndex, offsetBy: k)
     guard i < str.endIndex else {
-      throw EvalError.IndexOutOfBounds(Int64(k), Int64(str.count - 1), expr)
+      throw EvalError.indexOutOfBounds(Int64(k), Int64(str.count - 1), expr)
     }
-    return .Char(str[i])
+    return .char(str[i])
   }
   
-  func stringAppend(exprs: Arguments) throws -> Expr {
+  func stringAppend(_ exprs: Arguments) throws -> Expr {
     var res = ""
     for expr in exprs {
-      res.appendContentsOf(try expr.asStr())
+      res.append(try expr.asStr())
     }
-    return .Str(NSMutableString(string: res))
+    return .str(NSMutableString(string: res))
   }
   
-  func stringEquals(fst: Expr, _ snd: Expr) throws -> Expr {
+  func stringEquals(_ fst: Expr, _ snd: Expr) throws -> Expr {
     return .Boolean(try fst.asStr() == snd.asStr())
   }
   
-  func stringLessThan(fst: Expr, _ snd: Expr) throws -> Expr {
+  func stringLessThan(_ fst: Expr, _ snd: Expr) throws -> Expr {
     return .Boolean(try fst.asStr() < snd.asStr())
   }
   
-  func stringLessThanEquals(fst: Expr, _ snd: Expr) throws -> Expr {
+  func stringLessThanEquals(_ fst: Expr, _ snd: Expr) throws -> Expr {
     return .Boolean(try fst.asStr() <= snd.asStr())
   }
   
-  func stringGreaterThan(fst: Expr, _ snd: Expr) throws -> Expr {
+  func stringGreaterThan(_ fst: Expr, _ snd: Expr) throws -> Expr {
     return .Boolean(try fst.asStr() > snd.asStr())
   }
   
-  func stringGreaterThanEquals(fst: Expr, _ snd: Expr) throws -> Expr {
+  func stringGreaterThanEquals(_ fst: Expr, _ snd: Expr) throws -> Expr {
     return .Boolean(try fst.asStr() >= snd.asStr())
   }
   
-  func stringCiEquals(fst: Expr, _ snd: Expr) throws -> Expr {
-    return .Boolean(try fst.asStr().lowercaseString == snd.asStr().lowercaseString)
+  func stringCiEquals(_ fst: Expr, _ snd: Expr) throws -> Expr {
+    return .Boolean(try fst.asStr().lowercased() == snd.asStr().lowercased())
   }
   
-  func stringCiLessThan(fst: Expr, _ snd: Expr) throws -> Expr {
-    return .Boolean(try fst.asStr().lowercaseString < snd.asStr().lowercaseString)
+  func stringCiLessThan(_ fst: Expr, _ snd: Expr) throws -> Expr {
+    return .Boolean(try fst.asStr().lowercased() < snd.asStr().lowercased())
   }
   
-  func stringCiLessThanEquals(fst: Expr, _ snd: Expr) throws -> Expr {
-    return .Boolean(try fst.asStr().lowercaseString <= snd.asStr().lowercaseString)
+  func stringCiLessThanEquals(_ fst: Expr, _ snd: Expr) throws -> Expr {
+    return .Boolean(try fst.asStr().lowercased() <= snd.asStr().lowercased())
   }
   
-  func stringCiGreaterThan(fst: Expr, _ snd: Expr) throws -> Expr {
-    return .Boolean(try fst.asStr().lowercaseString > snd.asStr().lowercaseString)
+  func stringCiGreaterThan(_ fst: Expr, _ snd: Expr) throws -> Expr {
+    return .Boolean(try fst.asStr().lowercased() > snd.asStr().lowercased())
   }
   
-  func stringCiGreaterThanEquals(fst: Expr, _ snd: Expr) throws -> Expr {
-    return .Boolean(try fst.asStr().lowercaseString >= snd.asStr().lowercaseString)
+  func stringCiGreaterThanEquals(_ fst: Expr, _ snd: Expr) throws -> Expr {
+    return .Boolean(try fst.asStr().lowercased() >= snd.asStr().lowercased())
   }
   
-  func stringContains(expr: Expr, _ other: Expr) throws -> Expr {
-    return .Boolean(try expr.asStr().containsString(try other.asStr()))
+  func stringContains(_ expr: Expr, _ other: Expr) throws -> Expr {
+    return .Boolean(try expr.asStr().contains(try other.asStr()))
   }
   
-  func stringUpcase(expr: Expr) throws -> Expr {
-    return .Str(NSMutableString(string: try expr.asMutableStr().uppercaseString))
+  func stringUpcase(_ expr: Expr) throws -> Expr {
+    return .str(NSMutableString(string: try expr.asMutableStr().uppercased))
   }
   
-  func stringDowncase(expr: Expr) throws -> Expr {
-    return .Str(NSMutableString(string: try expr.asStr().lowercaseString))
+  func stringDowncase(_ expr: Expr) throws -> Expr {
+    return .str(NSMutableString(string: try expr.asStr().lowercased()))
   }
   
-  func stringToList(expr: Expr) throws -> Expr {
-    var res = Expr.Null
+  func stringToList(_ expr: Expr) throws -> Expr {
+    var res = Expr.null
     let str = try expr.asStr().utf16
-    for ch in str.reverse() {
-      res = .Pair(.Char(ch), res)
+    for ch in str.reversed() {
+      res = .pair(.char(ch), res)
     }
     return res
   }
   
-  func listToString(expr: Expr) throws -> Expr {
+  func listToString(_ expr: Expr) throws -> Expr {
     var list = expr
     var uniChars: [UniChar] = []
-    while case .Pair(let ch, let next) = list {
+    while case .pair(let ch, let next) = list {
       uniChars.append(try ch.asChar())
       list = next
     }
     guard list.isNull else {
-      throw EvalError.TypeError(expr, [.ProperListType])
+      throw EvalError.typeError(expr, [.properListType])
     }
-    return .Str(NSMutableString(string: String(utf16CodeUnits: uniChars, count: uniChars.count)))
+    return .str(NSMutableString(string: String(utf16CodeUnits: uniChars, count: uniChars.count)))
   }
   
-  func substring(expr: Expr, _ start: Expr, _ end: Expr?) throws -> Expr {
+  func substring(_ expr: Expr, _ start: Expr, _ end: Expr?) throws -> Expr {
     let str = try expr.asStr().utf16
-    let s = str.startIndex.advancedBy(try start.asInt())
+    let s = str.index(str.startIndex, offsetBy: try start.asInt())
     guard s < str.endIndex else {
-      throw EvalError.IndexOutOfBounds(try start.asInteger(), Int64(str.count), expr)
+      throw EvalError.indexOutOfBounds(try start.asInteger(), Int64(str.count), expr)
     }
-    let e = end == nil ? str.endIndex : str.startIndex.advancedBy(try end!.asInt())
+    let e = end == nil ? str.endIndex : str.index(str.startIndex, offsetBy: try end!.asInt())
     guard e <= str.endIndex && s <= e else {
       // TODO: Fix error (should define [s..str.count] as bounds for e
-      throw EvalError.IndexOutOfBounds(try end!.asInteger(), Int64(str.count), expr)
+      throw EvalError.indexOutOfBounds(try end!.asInteger(), Int64(str.count), expr)
     }
     var uniChars: [UniChar] = []
     for ch in str[s..<e] {
       uniChars.append(ch)
     }
-    return .Str(NSMutableString(string: String(utf16CodeUnits: uniChars, count: uniChars.count)))
+    return .str(NSMutableString(string: String(utf16CodeUnits: uniChars, count: uniChars.count)))
   }
 }

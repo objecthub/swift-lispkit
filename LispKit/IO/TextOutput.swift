@@ -25,25 +25,25 @@ import Foundation
 /// configurable capacity, and an optional binary output to which all data is eventually
 /// written. If there is no output object attached, all data will be accumulated in the buffer.
 ///
-public class TextOutput {
+open class TextOutput {
   
   /// Internal character buffer.
-  private var buffer: [UniChar]
+  fileprivate var buffer: [UniChar]
   
   /// Index of the next character to write.
-  private var next: Int
+  fileprivate var next: Int
   
   /// Soft threshold for triggering a `flush`. Invariant: `threshold` <= `buffer.count`.
-  private let threshold: Int
+  fileprivate let threshold: Int
   
   /// Text output target object to which the character sequences are written as a stream of bytes.
-  private var target: TextOutputTarget?
+  fileprivate var target: TextOutputTarget?
   
   /// The URL of this text output.
-  public var url: NSURL?
+  open var url: URL?
   
   /// Returns the characters that are currently in the buffer as a string.
-  public var currentBuffer: String {
+  open var currentBuffer: String {
     return String(utf16CodeUnits: self.buffer, count: self.next)
   }
 
@@ -57,19 +57,19 @@ public class TextOutput {
   
   public convenience init(output: BinaryOutput, capacity: Int = 4096) {
     self.init(target: UTF8EncodedTarget(output: output),
-              url: output.url,
+              url: output.url as URL?,
               capacity: capacity,
               threshold: capacity)
   }
   
   public init(target: TextOutputTarget,
-              url: NSURL? = nil,
+              url: URL? = nil,
               capacity: Int = 4096,
               threshold: Int = 4096) {
     guard threshold <= capacity else {
       preconditionFailure("TextOutput threshold above capacity")
     }
-    self.buffer = Array<UniChar>(count: capacity, repeatedValue: 0)
+    self.buffer = Array<UniChar>(repeating: 0, count: capacity)
     self.next = 0
     self.threshold = threshold
     self.target = target
@@ -83,12 +83,12 @@ public class TextOutput {
   
   /// Closes the output object. From that point on, writing to the `TextOutput` is still
   /// possible and will be accumulated in the internal buffer.
-  public func close() {
+  open func close() {
     self.flush()
     self.target = nil
   }
   
-  public func flush(completely: Bool = false) -> Bool {
+  @discardableResult open func flush(_ completely: Bool = false) -> Bool {
     if self.target != nil && self.next > 0 {
       let str = String(utf16CodeUnits: self.buffer, count: self.next)
       guard self.target!.writeString(str) else {
@@ -99,7 +99,7 @@ public class TextOutput {
     return true
   }
   
-  public func write(ch: UniChar) -> Bool {
+  open func write(_ ch: UniChar) -> Bool {
     guard self.writeToBuffer(ch) else {
       return false
     }
@@ -109,7 +109,7 @@ public class TextOutput {
     return true
   }
   
-  public func writeString(str: String) -> Bool {
+  open func writeString(_ str: String) -> Bool {
     for ch in str.utf16 {
       guard self.writeToBuffer(ch) else {
         return false
@@ -121,7 +121,7 @@ public class TextOutput {
     return true
   }
   
-  private func writeToBuffer(ch: UniChar) -> Bool {
+  fileprivate func writeToBuffer(_ ch: UniChar) -> Bool {
     if self.next < self.buffer.count {
       self.buffer[self.next] = ch
     } else if self.target != nil {

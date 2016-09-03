@@ -22,36 +22,36 @@
 /// Represents a Scheme evaluation context. Evaluation contexts provide
 /// access to components shared by all environments.
 ///
-public class Context {
+open class Context {
   
   /// The console window, for reading and writing strings from the default port.
-  public let console: Console
+  open let console: Console
   
   /// The managed object pool for freeing up objects with cyclic dependencies.
-  public let objects: ManagedObjectPool
+  open let objects: ManagedObjectPool
   
   /// The symbol table for managing interned symbols.
-  public let symbols: SymbolTable
+  open let symbols: SymbolTable
   
   /// The user scope.
-  public let userScope: Scope
+  open let userScope: Scope
   
   /// The system scope.
-  public var systemScope: Scope {
+  open var systemScope: Scope {
     return self.userScope.outer!
   }
   
   /// The virtual machine for executing Lisp code.
-  public private(set) var machine: VirtualMachine!
+  open fileprivate(set) var machine: VirtualMachine!
 
   /// The current input port.
-  public var inputPort: Port
+  open var inputPort: Port
   
   /// The current output port.
-  public var outputPort: Port
+  open var outputPort: Port
   
   /// The current error port.
-  public var errorPort: Port
+  open var errorPort: Port
   
   /// Initializes a new object
   public init(console: Console, library: NativeLibrary.Type? = nil) {
@@ -74,7 +74,7 @@ public class Context {
   }
   
   /// Import an instantiation of the given library type.
-  public func use(lib: NativeLibrary.Type) {
+  open func use(_ lib: NativeLibrary.Type) {
     let _ = lib.init(self)
   }
 }

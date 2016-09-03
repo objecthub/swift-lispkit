@@ -28,46 +28,46 @@ import XCTest
 class RegressionTests: LispKitTestCase {
   
   func testDefinitions() {
-    self.executeTests("Definitions")
+    self.execute(file: "Definitions")
   }
   
   func testControlFlow() {
-    self.executeTests("ControlFlow")
+    self.execute(file: "ControlFlow")
   }
 
   func testSyntaxRules() {
-    self.executeTests("SyntaxRules")
+    self.execute(file: "SyntaxRules")
   }
 
   func testLocalSyntaxRules() {
-    self.executeTests("LocalSyntaxRules")
+    self.execute(file: "LocalSyntaxRules")
   }
   
   func testCallCC() {
-    self.executeTests("CallCC")
+    self.execute(file: "CallCC")
   }
   
   func testDynamicWind() {
-    self.executeTests("DynamicWind")
+    self.execute(file: "DynamicWind")
   }
   
   func testParameters() {
-    self.executeTests("Parameters")
+    self.execute(file: "Parameters")
   }
   
   func testDelayedEvaluation() {
-    self.executeTests("DelayedEvaluation")
+    self.execute(file: "DelayedEvaluation")
   }
   
   func testHashTables() {
-    self.executeTests("HashTables")
+    self.execute(file: "HashTables")
   }
   
   func testRecords() {
-    self.executeTests("Records")
+    self.execute(file: "Records")
   }
   
   func testPorts() {
-    self.executeTests("Ports")
+    self.execute(file: "Ports")
   }
 }

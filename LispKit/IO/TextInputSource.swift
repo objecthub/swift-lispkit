@@ -27,9 +27,9 @@ public protocol TextInputSource {
 }
 
 public struct UTF8EncodedSource: TextInputSource {
-  private var input: BinaryInput
-  private let length: Int
-  private var codec: UTF8
+  fileprivate var input: BinaryInput
+  fileprivate let length: Int
+  fileprivate var codec: UTF8
   
   public init(input: BinaryInput, length: Int) {
     self.input = input
@@ -47,11 +47,11 @@ public struct UTF8EncodedSource: TextInputSource {
     var str = ""
     for _ in 0..<length {
       switch self.codec.decode(&self.input) {
-      case .Result (let scalar):
-        str.append(scalar)
-      case .EmptyInput:
+      case .scalarValue (let scalar):
+        str.append(String(scalar))
+      case .emptyInput:
         return str
-      case .Error:
+      case .error:
         return nil
       }
     }

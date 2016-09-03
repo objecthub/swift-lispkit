@@ -22,8 +22,8 @@
 /// Objects inheriting from `TrackedObject` can be registered in `ManagedObjectPool`
 /// instances for tracking managed objects.
 ///
-public class TrackedObject {
-  public func mark(tag: UInt8) {}
+open class TrackedObject {
+  open func mark(_ tag: UInt8) {}
 }
 
 ///
@@ -31,21 +31,21 @@ public class TrackedObject {
 /// and registered in `ManagedObjectPool` instances for tracking managed objects.
 ///
 public protocol Trackable {
-  func mark(tag: UInt8)
+  func mark(_ tag: UInt8)
 }
 
 ///
 /// Class `Tracked` implements a generic wrapper for objects implementing the `Trackable`
 /// protocol.
 ///
-public class Tracked<T: Trackable>: TrackedObject {
-  public var value: T
+open class Tracked<T: Trackable>: TrackedObject {
+  open var value: T
   
   internal init(_ value: T) {
     self.value = value
   }
   
-  public override func mark(tag: UInt8) {
+  open override func mark(_ tag: UInt8) {
     self.value.mark(tag)
   }
 }

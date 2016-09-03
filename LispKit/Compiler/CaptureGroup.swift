@@ -19,16 +19,16 @@
 //
 
 
-public class CaptureGroup: CustomStringConvertible {
+open class CaptureGroup: CustomStringConvertible {
   internal unowned let owner: Compiler
   internal let parent: CaptureGroup?
-  private var captures: [Definition: Capture]
+  fileprivate var captures: [Definition: Capture]
   
-  public class Capture {
-    public let index: Int
-    public unowned var origin: BindingGroup
+  open class Capture {
+    open let index: Int
+    open unowned var origin: BindingGroup
     
-    private init(index: Int, origin: BindingGroup) {
+    fileprivate init(index: Int, origin: BindingGroup) {
       self.index = index
       self.origin = origin
     }
@@ -40,7 +40,7 @@ public class CaptureGroup: CustomStringConvertible {
     self.captures = [Definition: Capture]()
   }
   
-  public func capture(def: Definition, from: BindingGroup) -> Int {
+  open func capture(_ def: Definition, from: BindingGroup) -> Int {
     if let capture = self.captures[def] {
       return capture.index
     } else {
@@ -50,30 +50,30 @@ public class CaptureGroup: CustomStringConvertible {
     }
   }
   
-  public func captureFor(def: Definition) -> Capture? {
+  open func captureFor(_ def: Definition) -> Capture? {
     return self.captures[def]
   }
   
-  public var count: Int {
+  open var count: Int {
     return self.captures.count
   }
   
-  public var definitions: [Definition?] {
-    var seq = [Definition?](count: self.captures.count, repeatedValue: nil)
+  open var definitions: [Definition?] {
+    var seq = [Definition?](repeating: nil, count: self.captures.count)
     for (def, capture) in self.captures {
       seq[capture.index] = def
     }
     return seq
   }
   
-  public var description: String {
+  open var description: String {
     var seq = self.definitions
     var builder = StringBuilder()
     for index in seq.indices {
       builder.append(index, width: 5, alignRight: true)
       builder.append(": ")
-      if let def = seq[index], capture = self.captures[def] {
-        builder.append(capture.origin.symbolAtIndex(def.index)?.description ?? "<unknown symbol>")
+      if let def = seq[index], let capture = self.captures[def] {
+        builder.append(capture.origin.symbol(at: def.index)?.description ?? "<unknown symbol>")
         builder.append(" (\(def))")
       } else {
         builder.append("<undef>")

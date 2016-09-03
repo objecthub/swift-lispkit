@@ -26,19 +26,19 @@
 ///
 public final class Symbol: Reference, CustomStringConvertible {
   
-  private enum Kind {
-    case Interned(String)
-    case Generated(Symbol, WeakEnv)
+  fileprivate enum Kind {
+    case interned(String)
+    case generated(Symbol, WeakEnv)
   }
   
-  private let kind: Kind
+  fileprivate let kind: Kind
   
   internal init(_ ident: String) {
-    self.kind = .Interned(ident)
+    self.kind = .interned(ident)
   }
   
   public init(_ sym: Symbol, _ env: Env) {
-    self.kind = .Generated(sym, env.weakEnv)
+    self.kind = .generated(sym, env.weakEnv)
   }
   
   public var identifier: String {
@@ -46,7 +46,7 @@ public final class Symbol: Reference, CustomStringConvertible {
   }
   
   public var rawIdentifier: String {
-    guard case .Interned(let ident) = self.interned.kind else {
+    guard case .interned(let ident) = self.interned.kind else {
       preconditionFailure("no interned symbol")
     }
     return ident
@@ -54,47 +54,47 @@ public final class Symbol: Reference, CustomStringConvertible {
   
   public var isGenerated: Bool {
     switch self.kind {
-      case .Interned(_):
+      case .interned(_):
         return false
-      case .Generated(_, _):
+      case .generated(_, _):
         return true
     }
   }
     
   public var lexical: (Symbol, Env)? {
     switch self.kind {
-      case .Interned(_):
+      case .interned(_):
         return nil
-      case .Generated(let sym, let weakEnv):
+      case .generated(let sym, let weakEnv):
         return (sym, weakEnv.env)
     }
   }
   
   public var interned: Symbol {
     switch self.kind {
-      case .Interned(_):
+      case .interned(_):
         return self
-      case .Generated(let sym, _):
+      case .generated(let sym, _):
         return sym.interned
     }
   }
   
-  private static let ESCAPE_CHARS = { () -> NSCharacterSet in
+  fileprivate static let ESCAPE_CHARS = { () -> CharacterSet in
     let mcs = NSMutableCharacterSet()
-    mcs.formUnionWithCharacterSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
-    mcs.formUnionWithCharacterSet(NSCharacterSet.controlCharacterSet())
-    return mcs.copy() as! NSCharacterSet
+    mcs.formUnion(with: CharacterSet.whitespacesAndNewlines)
+    mcs.formUnion(with: CharacterSet.controlCharacters)
+    return mcs.copy() as! CharacterSet
   }()
   
   public var description: String {
     switch self.kind {
-      case .Interned(let ident):
-        if ident.rangeOfCharacterFromSet(Symbol.ESCAPE_CHARS) != nil {
+      case .interned(let ident):
+        if ident.rangeOfCharacter(from: Symbol.ESCAPE_CHARS) != nil {
           return "|\(Expr.escapeStr(ident))|"
         } else {
           return ident
         }
-      case .Generated(let sym, let weakEnv):
+      case .generated(let sym, let weakEnv):
         return "[\(sym.interned.description) \(weakEnv.env.description)]"
     }
   }
