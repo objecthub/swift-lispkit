@@ -22,7 +22,7 @@
 /// Utility class for building strings incrementally.
 ///
 public struct StringBuilder: CustomStringConvertible {
-  fileprivate var buffer: String
+  private var buffer: String
   
   public init(_ initial: String = "") {
     self.buffer = initial
@@ -65,7 +65,7 @@ public struct StringBuilder: CustomStringConvertible {
     self.buffer += "\n"
   }
   
-  fileprivate static let SPACE: Character = " "
+  private static let spaceChar: Character = " "
 
   /// Returns a string with `n` spaces.
   fileprivate static func padding(_ n: Int) -> String {
@@ -85,7 +85,7 @@ public struct StringBuilder: CustomStringConvertible {
       case 6:
         return "      "
       default:
-        return String(repeating: String(StringBuilder.SPACE), count: n)
+        return String(repeating: String(StringBuilder.spaceChar), count: n)
     }
   }
 }

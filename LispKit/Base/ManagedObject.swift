@@ -32,7 +32,7 @@
 ///    - Hashtables
 ///    - Futures
 ///
-public class ManagedObject: Reference {
+open class ManagedObject: Reference {
   
   /// Used internally to declare that a managed object is registered in a managed object pool.
   internal var managed: Bool = false
@@ -68,11 +68,11 @@ public class ManagedObject: Reference {
   }
   
   /// Mark the managed object with the given tag.
-  internal func mark(_ tag: UInt8) {
+  open func mark(_ tag: UInt8) {
     self.tag = tag
   }
   
   /// Clean up the object; i.e. remove possible cycles to free up the object for
   /// garbage collection.
-  internal func clean() {}
+  open func clean() {}
 }

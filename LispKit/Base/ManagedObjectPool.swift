@@ -31,16 +31,16 @@
 public final class ManagedObjectPool: CustomStringConvertible {
   
   /// Last tag used for the mark/sweep garbage collector.
-  fileprivate var tag: UInt8
+  private var tag: UInt8
   
   /// Number of garbage collection cycles.
-  fileprivate var cycles: UInt64
+  private var cycles: UInt64
   
   /// Root set of tracked objects.
-  fileprivate var rootSet: ObjectPool<TrackedObject>
+  private var rootSet: ObjectPool<TrackedObject>
   
   /// Pool of managed objects.
-  fileprivate var objectPool: ObjectPool<ManagedObject>
+  private var objectPool: ObjectPool<ManagedObject>
   
   /// Initializes an empty managed object pool.
   public init() {

@@ -146,38 +146,38 @@ public final class PortLibrary: NativeLibrary {
     guard case .port(let port) = expr else {
       return .false
     }
-    return .Boolean(port.isInputPort)
+    return .makeBoolean(port.isInputPort)
   }
   
   func isOutputPort(_ expr: Expr) -> Expr {
     guard case .port(let port) = expr else {
       return .false
     }
-    return .Boolean(port.isOutputPort)
+    return .makeBoolean(port.isOutputPort)
   }
   
   func isTextualPort(_ expr: Expr) -> Expr {
     guard case .port(let port) = expr else {
       return .false
     }
-    return .Boolean(port.isTextualPort)
+    return .makeBoolean(port.isTextualPort)
   }
   
   func isBinaryPort(_ expr: Expr) throws -> Expr {
     guard case .port(let port) = expr else {
       return .false
     }
-    return .Boolean(port.isBinaryPort)
+    return .makeBoolean(port.isBinaryPort)
   }
   
   func isInputPortOpen(_ expr: Expr) throws -> Expr {
     let port = try expr.asPort()
-    return .Boolean(port.isInputPort && port.isOpen)
+    return .makeBoolean(port.isInputPort && port.isOpen)
   }
   
   func isOutputPortOpen(_ expr: Expr) throws -> Expr {
     let port = try expr.asPort()
-    return .Boolean(port.isOutputPort && port.isOpen)
+    return .makeBoolean(port.isOutputPort && port.isOpen)
   }
   
   func openInputFile(_ expr: Expr) throws -> Expr {
@@ -232,7 +232,7 @@ public final class PortLibrary: NativeLibrary {
     guard let buffer = try expr.asPort().outputString else {
       throw EvalError.typeError(expr, [.textOutputPortType])
     }
-    return .StringFor(buffer)
+    return .makeString(buffer)
   }
   
   func getOutputBytevector(_ expr: Expr) throws -> Expr {
@@ -276,7 +276,7 @@ public final class PortLibrary: NativeLibrary {
   }
   
   func isEofObject(_ expr: Expr) -> Expr {
-    return .Boolean(expr == .eof)
+    return .makeBoolean(expr == .eof)
   }
   
   func eofObject() -> Expr {
@@ -307,7 +307,7 @@ public final class PortLibrary: NativeLibrary {
   
   func isCharReady(_ port: Expr?) throws -> Expr {
     let input = try self.textInputFrom(port)
-    return .Boolean(!input.readMightBlock)
+    return .makeBoolean(!input.readMightBlock)
   }
   
   func readLine(_ expr: Expr?) throws -> Expr {
@@ -315,7 +315,7 @@ public final class PortLibrary: NativeLibrary {
     guard let str = input.readLine() else {
       return .eof
     }
-    return .StringFor(str)
+    return .makeString(str)
   }
   
   func readString(_ nchars: Expr, expr: Expr?) throws -> Expr {
@@ -323,7 +323,7 @@ public final class PortLibrary: NativeLibrary {
     guard let str = input.readString(try nchars.asInt()) else {
       return .eof
     }
-    return .StringFor(str)
+    return .makeString(str)
   }
   
   func readU8(_ expr: Expr?) throws -> Expr {
@@ -344,7 +344,7 @@ public final class PortLibrary: NativeLibrary {
   
   func u8Ready(_ port: Expr?) throws -> Expr {
     let input = try self.binaryInputFrom(port)
-    return .Boolean(!input.readMightBlock)
+    return .makeBoolean(!input.readMightBlock)
   }
   
   func readBytevector(_ nbytes: Expr, expr: Expr?) throws -> Expr {
@@ -358,9 +358,9 @@ public final class PortLibrary: NativeLibrary {
   func readBytevectorSet(_ bvec: Expr, args: Arguments) throws -> Expr {
     let bvector = try bvec.asByteVector()
     guard let (pexpr, s, e) = args.optional(.port(self.context.inputPort),
-                                            .Number(bvector.value.count),
-                                            .Number(0)) else {
-      throw EvalError.argumentCountError(formals: 4, args: .pair(bvec, .List(args)))
+                                            .makeNumber(bvector.value.count),
+                                            .makeNumber(0)) else {
+      throw EvalError.argumentCountError(formals: 4, args: .pair(bvec, .makeList(args)))
     }
     let (start, end) = (try s.asInt(), try e.asInt())
     guard start >= 0 && start < bvector.value.count else {
@@ -436,9 +436,9 @@ public final class PortLibrary: NativeLibrary {
     } else {
       let chars = try expr.asStr().utf16
       guard let (port, s, e) = args.optional(.port(self.context.outputPort),
-                                             .Number(chars.count),
-                                             .Number(0)) else {
-        throw EvalError.argumentCountError(formals: 4, args: .pair(expr, .List(args)))
+                                             .makeNumber(chars.count),
+                                             .makeNumber(0)) else {
+        throw EvalError.argumentCountError(formals: 4, args: .pair(expr, .makeList(args)))
       }
       let (start, end) = (try s.asInt(), try e.asInt())
       guard start >= 0 && start < chars.count else {
@@ -477,9 +477,9 @@ public final class PortLibrary: NativeLibrary {
       }
     } else {
       guard let (port, s, e) = args.optional(.port(self.context.outputPort),
-                                             .Number(bvector.count),
-                                             .Number(0)) else {
-                                              throw EvalError.argumentCountError(formals: 4, args: .pair(expr, .List(args)))
+                                             .makeNumber(bvector.count),
+                                             .makeNumber(0)) else {
+                                              throw EvalError.argumentCountError(formals: 4, args: .pair(expr, .makeList(args)))
       }
       let (start, end) = (try s.asInt(), try e.asInt())
       guard start >= 0 && start < bvector.count else {

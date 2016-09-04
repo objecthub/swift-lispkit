@@ -113,23 +113,23 @@ public final class MathLibrary: NativeLibrary {
   //-------- MARK: - Classification primitives
 
   func isNumber(_ expr: Expr) -> Expr {
-    return .Boolean(Type.numberType.includes(expr.type))
+    return .makeBoolean(Type.numberType.includes(expr.type))
   }
 
   func isReal(_ expr: Expr) -> Expr {
-    return .Boolean(Type.realType.includes(expr.type))
+    return .makeBoolean(Type.realType.includes(expr.type))
   }
 
   func isInteger(_ expr: Expr) throws -> Expr {
-    return .Boolean(Type.integerType.includes(expr.type))
+    return .makeBoolean(Type.integerType.includes(expr.type))
   }
 
   func isRational(_ expr: Expr) throws -> Expr {
-    return .Boolean(Type.integerType.includes(expr.type) || Type.rationalType.includes(expr.type))
+    return .makeBoolean(Type.integerType.includes(expr.type) || Type.rationalType.includes(expr.type))
   }
 
   func isComplex(_ expr: Expr) -> Expr {
-    return .Boolean(Type.numberType.includes(expr.type))
+    return .makeBoolean(Type.numberType.includes(expr.type))
   }
 
   func isExact(_ expr: Expr) throws -> Expr {
@@ -166,9 +166,9 @@ public final class MathLibrary: NativeLibrary {
   func isFinite(_ expr: Expr) throws -> Expr {
     switch expr {
       case .flonum(let num):
-        return .Boolean(num.isFinite)
+        return .makeBoolean(num.isFinite)
       case .complex(let box):
-        return .Boolean(!box.value.isInfinite)
+        return .makeBoolean(!box.value.isInfinite)
       default:
         return .true
     }
@@ -177,9 +177,9 @@ public final class MathLibrary: NativeLibrary {
   func isInfinite(_ expr: Expr) throws -> Expr {
     switch expr {
       case .flonum(let num):
-        return .Boolean(num.isInfinite)
+        return .makeBoolean(num.isInfinite)
       case .complex(let box):
-        return .Boolean(box.value.isInfinite)
+        return .makeBoolean(box.value.isInfinite)
       default:
         return .false
     }
@@ -188,9 +188,9 @@ public final class MathLibrary: NativeLibrary {
   func isNaN(_ expr: Expr) throws -> Expr {
     switch expr {
       case .flonum(let num):
-        return .Boolean(num.isNaN)
+        return .makeBoolean(num.isNaN)
       case .complex(let box):
-        return .Boolean(box.value.re.isNaN || box.value.im.isNaN)
+        return .makeBoolean(box.value.re.isNaN || box.value.im.isNaN)
       default:
         return .false
     }
@@ -199,17 +199,17 @@ public final class MathLibrary: NativeLibrary {
   func isPositive(_ expr: Expr) throws -> Expr {
     switch expr {
       case .fixnum(let num):
-        return .Boolean(num >= 0)
+        return .makeBoolean(num >= 0)
       case .bignum(let num):
-        return .Boolean(!num.isNegative)
+        return .makeBoolean(!num.isNegative)
       case .rational(let num):
-        return .Boolean(!num.value.isNegative)
+        return .makeBoolean(!num.value.isNegative)
       case .bigrat(let num):
-        return .Boolean(!num.value.isNegative)
+        return .makeBoolean(!num.value.isNegative)
       case .flonum(let num):
-        return .Boolean(!(num.sign == .minus))
+        return .makeBoolean(!(num.sign == .minus))
       case .complex(let num):
-        return num.value.isReal ? .Boolean(num.value.re >= 0) : .false
+        return num.value.isReal ? .makeBoolean(num.value.re >= 0) : .false
       default:
         throw EvalError.typeError(expr, [.numberType])
     }
@@ -218,17 +218,17 @@ public final class MathLibrary: NativeLibrary {
   func isNegative(_ expr: Expr) throws -> Expr {
     switch expr {
       case .fixnum(let num):
-        return .Boolean(num < 0)
+        return .makeBoolean(num < 0)
       case .bignum(let num):
-        return .Boolean(num.isNegative)
+        return .makeBoolean(num.isNegative)
       case .rational(let num):
-        return .Boolean(num.value.isNegative)
+        return .makeBoolean(num.value.isNegative)
       case .bigrat(let num):
-        return .Boolean(num.value.isNegative)
+        return .makeBoolean(num.value.isNegative)
       case .flonum(let num):
-        return .Boolean(num.sign == .minus)
+        return .makeBoolean(num.sign == .minus)
       case .complex(let num):
-        return num.value.isReal ? .Boolean(num.value.re < 0) : .false
+        return num.value.isReal ? .makeBoolean(num.value.re < 0) : .false
       default:
         throw EvalError.typeError(expr, [.numberType])
     }
@@ -237,17 +237,17 @@ public final class MathLibrary: NativeLibrary {
   func isZero(_ expr: Expr) throws -> Expr {
     switch expr {
       case .fixnum(let num):
-        return .Boolean(num == 0)
+        return .makeBoolean(num == 0)
       case .bignum(let num):
-        return .Boolean(num.isZero)
+        return .makeBoolean(num.isZero)
       case .rational(let num):
-        return .Boolean(num.value.isZero)
+        return .makeBoolean(num.value.isZero)
       case .bigrat(let num):
-        return .Boolean(num.value.isZero)
+        return .makeBoolean(num.value.isZero)
       case .flonum(let num):
-        return .Boolean(num.isZero)
+        return .makeBoolean(num.isZero)
       case .complex(let num):
-        return num.value.isReal ? .Boolean(num.value.re >= 0) : .false
+        return num.value.isReal ? .makeBoolean(num.value.re >= 0) : .false
       default:
         throw EvalError.typeError(expr, [.numberType])
     }
@@ -256,9 +256,9 @@ public final class MathLibrary: NativeLibrary {
   func isEven(_ expr: Expr) throws -> Expr {
     switch expr.normalized {
       case .fixnum(let num):
-        return .Boolean(num % 2 == 0)
+        return .makeBoolean(num % 2 == 0)
       case .bignum(let num):
-        return .Boolean(num % 2 == 0)
+        return .makeBoolean(num % 2 == 0)
       default:
         throw EvalError.typeError(expr, [.integerType])
     }
@@ -267,9 +267,9 @@ public final class MathLibrary: NativeLibrary {
   func isOdd(_ expr: Expr) throws -> Expr {
     switch expr.normalized {
       case .fixnum(let num):
-        return .Boolean(num % 2 != 0)
+        return .makeBoolean(num % 2 != 0)
       case .bignum(let num):
-        return .Boolean(num % 2 != 0)
+        return .makeBoolean(num % 2 != 0)
       default:
         throw EvalError.typeError(expr, [.integerType])
     }
@@ -281,13 +281,13 @@ public final class MathLibrary: NativeLibrary {
   func inexact(_ expr: Expr) throws -> Expr {
     switch expr {
       case .fixnum(let num):
-        return .Number(Double(num))
+        return .makeNumber(Double(num))
       case .bignum(let num):
-        return .Number(num.doubleValue)
+        return .makeNumber(num.doubleValue)
       case .rational(let num):
-        return .Number(Double(num.value.numerator) / Double(num.value.denominator))
+        return .makeNumber(Double(num.value.numerator) / Double(num.value.denominator))
       case .bigrat(let num):
-        return .Number(num.value.numerator.doubleValue / num.value.denominator.doubleValue)
+        return .makeNumber(num.value.numerator.doubleValue / num.value.denominator.doubleValue)
       case .flonum(_), .complex(_):
         return expr
       default:
@@ -300,7 +300,7 @@ public final class MathLibrary: NativeLibrary {
       case .fixnum(_), .bignum(_), .rational(_), .bigrat(_):
         return expr
       case .flonum(let num):
-        return .Number(MathLibrary.approximate(num))
+        return .makeNumber(MathLibrary.approximate(num))
       default:
         throw EvalError.typeError(expr, [.realType])
     }
@@ -327,13 +327,13 @@ public final class MathLibrary: NativeLibrary {
       case .fixnum(_), .bignum(_):
         return expr
       case .rational(let num):
-        return .Number(Int64(Foundation.floor(Double(num.value.numerator) /
+        return .makeNumber(Int64(Foundation.floor(Double(num.value.numerator) /
                        Double(num.value.denominator))))
       case .bigrat(let num):
-        return .Number(Int64(Foundation.floor(num.value.numerator.doubleValue /
+        return .makeNumber(Int64(Foundation.floor(num.value.numerator.doubleValue /
                        num.value.denominator.doubleValue)))
       case .flonum(let num):
-        return .Number(Foundation.floor(num))
+        return .makeNumber(Foundation.floor(num))
       default:
         throw EvalError.typeError(expr, [.realType])
     }
@@ -344,12 +344,12 @@ public final class MathLibrary: NativeLibrary {
       case .fixnum(_), .bignum(_):
         return expr
       case .rational(let num):
-        return .Number(Int64(ceil(Double(num.value.numerator) / Double(num.value.denominator))))
+        return .makeNumber(Int64(ceil(Double(num.value.numerator) / Double(num.value.denominator))))
       case .bigrat(let num):
-        return .Number(Int64(ceil(num.value.numerator.doubleValue /
+        return .makeNumber(Int64(ceil(num.value.numerator.doubleValue /
                        num.value.denominator.doubleValue)))
       case .flonum(let num):
-        return .Number(ceil(num))
+        return .makeNumber(ceil(num))
       default:
         throw EvalError.typeError(expr, [.realType])
     }
@@ -360,12 +360,12 @@ public final class MathLibrary: NativeLibrary {
       case .fixnum(_), .bignum(_):
         return expr
       case .rational(let num):
-        return .Number(Int64(trunc(Double(num.value.numerator) / Double(num.value.denominator))))
+        return .makeNumber(Int64(trunc(Double(num.value.numerator) / Double(num.value.denominator))))
       case .bigrat(let num):
-        return .Number(Int64(trunc(num.value.numerator.doubleValue /
+        return .makeNumber(Int64(trunc(num.value.numerator.doubleValue /
                        num.value.denominator.doubleValue)))
       case .flonum(let num):
-        return .Number(trunc(num))
+        return .makeNumber(trunc(num))
       default:
         throw EvalError.typeError(expr, [.realType])
     }
@@ -376,13 +376,13 @@ public final class MathLibrary: NativeLibrary {
       case .fixnum(_), .bignum(_):
         return expr
       case .rational(let num):
-        return .Number(Int64(Foundation.round(Double(num.value.numerator) /
+        return .makeNumber(Int64(Foundation.round(Double(num.value.numerator) /
                        Double(num.value.denominator))))
       case .bigrat(let num):
-        return .Number(Int64(Foundation.round(num.value.numerator.doubleValue /
+        return .makeNumber(Int64(Foundation.round(num.value.numerator.doubleValue /
                        num.value.denominator.doubleValue)))
       case .flonum(let num):
-        return .Number(Foundation.round(num))
+        return .makeNumber(Foundation.round(num))
       default:
         throw EvalError.typeError(expr, [.realType])
     }
@@ -397,20 +397,20 @@ public final class MathLibrary: NativeLibrary {
       switch try NumberPair(acc, expr) {
         case .fixnumPair(let lhs, let rhs):
           let (res, overflow) = Int64.addWithOverflow(lhs, rhs)
-          acc = overflow ? .Number(BigInt(lhs) + BigInt(rhs)) : .Number(res)
+          acc = overflow ? .makeNumber(BigInt(lhs) + BigInt(rhs)) : .makeNumber(res)
         case .bignumPair(let lhs, let rhs):
-          acc = .Number(lhs + rhs)
+          acc = .makeNumber(lhs + rhs)
         case .rationalPair(let lhs, let rhs):
           let (res, overflow) = Rational.addWithOverflow(lhs, rhs)
-          acc = overflow ? .Number(Rational(BigInt(lhs.numerator), BigInt(lhs.denominator)) +
+          acc = overflow ? .makeNumber(Rational(BigInt(lhs.numerator), BigInt(lhs.denominator)) +
                                    Rational(BigInt(rhs.numerator), BigInt(rhs.denominator)))
-                         : .Number(res)
+                         : .makeNumber(res)
         case .bigRationalPair(let lhs, let rhs):
-          acc = .Number(lhs + rhs)
+          acc = .makeNumber(lhs + rhs)
         case .flonumPair(let lhs, let rhs):
-          acc = .Number(lhs + rhs)
+          acc = .makeNumber(lhs + rhs)
         case .complexPair(let lhs, let rhs):
-          acc = .Number(lhs + rhs)
+          acc = .makeNumber(lhs + rhs)
       }
     }
     return acc
@@ -421,17 +421,17 @@ public final class MathLibrary: NativeLibrary {
     if exprs.isEmpty {
       switch acc {
         case .fixnum(let res):
-          return .Number(-res)
+          return .makeNumber(-res)
         case .bignum(let res):
-          return .Number(res.negate)
+          return .makeNumber(res.negate)
         case .rational(let res):
-          return .Number(res.value.negate)
+          return .makeNumber(res.value.negate)
         case .bigrat(let res):
-          return .Number(res.value.negate)
+          return .makeNumber(res.value.negate)
         case .flonum(let res):
-          return .Number(-res)
+          return .makeNumber(-res)
         case .complex(let res):
-          return .Number(res.value.negate)
+          return .makeNumber(res.value.negate)
         default:
           throw EvalError.typeError(first, [.numberType])
       }
@@ -440,20 +440,20 @@ public final class MathLibrary: NativeLibrary {
       switch try NumberPair(acc, expr) {
         case .fixnumPair(let lhs, let rhs):
           let (res, overflow) = Int64.subtractWithOverflow(lhs, rhs)
-          acc = overflow ? .Number(BigInt(lhs) - BigInt(rhs)) : .Number(res)
+          acc = overflow ? .makeNumber(BigInt(lhs) - BigInt(rhs)) : .makeNumber(res)
         case .bignumPair(let lhs, let rhs):
-          acc = .Number(lhs - rhs)
+          acc = .makeNumber(lhs - rhs)
         case .rationalPair(let lhs, let rhs):
           let (res, overflow) = Rational.subtractWithOverflow(lhs, rhs)
-          acc = overflow ? .Number(Rational(BigInt(lhs.numerator), BigInt(lhs.denominator)) -
+          acc = overflow ? .makeNumber(Rational(BigInt(lhs.numerator), BigInt(lhs.denominator)) -
                                    Rational(BigInt(rhs.numerator), BigInt(rhs.denominator)))
-                         : .Number(res)
+                         : .makeNumber(res)
         case .bigRationalPair(let lhs, let rhs):
-          acc = .Number(lhs - rhs)
+          acc = .makeNumber(lhs - rhs)
         case .flonumPair(let lhs, let rhs):
-          acc = .Number(lhs - rhs)
+          acc = .makeNumber(lhs - rhs)
         case .complexPair(let lhs, let rhs):
-          acc = .Number(lhs - rhs)
+          acc = .makeNumber(lhs - rhs)
       }
     }
     return acc
@@ -465,20 +465,20 @@ public final class MathLibrary: NativeLibrary {
       switch try NumberPair(acc, expr) {
         case .fixnumPair(let lhs, let rhs):
           let (res, overflow) = Int64.multiplyWithOverflow(lhs, rhs)
-          acc = overflow ? .Number(BigInt(lhs) * BigInt(rhs)) : .Number(res)
+          acc = overflow ? .makeNumber(BigInt(lhs) * BigInt(rhs)) : .makeNumber(res)
         case .bignumPair(let lhs, let rhs):
-          acc = .Number(lhs * rhs)
+          acc = .makeNumber(lhs * rhs)
         case .rationalPair(let lhs, let rhs):
           let (res, overflow) = Rational.multiplyWithOverflow(lhs, rhs)
-          acc = overflow ? .Number(Rational(BigInt(lhs.numerator), BigInt(lhs.denominator)) *
+          acc = overflow ? .makeNumber(Rational(BigInt(lhs.numerator), BigInt(lhs.denominator)) *
                                    Rational(BigInt(rhs.numerator), BigInt(rhs.denominator)))
-                         : .Number(res)
+                         : .makeNumber(res)
         case .bigRationalPair(let lhs, let rhs):
-          acc = .Number(lhs * rhs)
+          acc = .makeNumber(lhs * rhs)
         case .flonumPair(let lhs, let rhs):
-          acc = .Number(lhs * rhs)
+          acc = .makeNumber(lhs * rhs)
         case .complexPair(let lhs, let rhs):
-          acc = .Number(lhs * rhs)
+          acc = .makeNumber(lhs * rhs)
       }
     }
     return acc
@@ -492,26 +492,26 @@ public final class MathLibrary: NativeLibrary {
           guard res != 0 else {
             throw EvalError.divisionByZero
           }
-          return .Number(Rational(1, res))
+          return .makeNumber(Rational(1, res))
         case .bignum(let res):
           guard !res.isZero else {
             throw EvalError.divisionByZero
           }
-          return .Number(Rational(BigInt(1), res))
+          return .makeNumber(Rational(BigInt(1), res))
         case .rational(let res):
           guard !res.value.isZero else {
             throw EvalError.divisionByZero
           }
-          return .Number(Rational(res.value.denominator, res.value.numerator))
+          return .makeNumber(Rational(res.value.denominator, res.value.numerator))
         case .bigrat(let res):
           guard !res.value.isZero else {
             throw EvalError.divisionByZero
           }
-          return .Number(Rational(res.value.denominator, res.value.numerator))
+          return .makeNumber(Rational(res.value.denominator, res.value.numerator))
         case .flonum(let res):
-          return .Number(1.0 / res)
+          return .makeNumber(1.0 / res)
         case .complex(let res):
-          return .Number(1.0 / res.value)
+          return .makeNumber(1.0 / res.value)
         default:
           throw EvalError.typeError(first, [.numberType])
       }
@@ -523,20 +523,20 @@ public final class MathLibrary: NativeLibrary {
             throw EvalError.divisionByZero
           }
           let (res, overflow) = Rational.rationalWithOverflow(lhs, rhs)
-          acc = overflow ? .Number(Rational(BigInt(lhs), BigInt(rhs))) : .Number(res)
+          acc = overflow ? .makeNumber(Rational(BigInt(lhs), BigInt(rhs))) : .makeNumber(res)
         case .bignumPair(let lhs, let rhs):
-          acc = .Number(Rational(lhs, rhs))
+          acc = .makeNumber(Rational(lhs, rhs))
         case .rationalPair(let lhs, let rhs):
           let (res, overflow) = Rational.divideWithOverflow(lhs, rhs)
-          acc = overflow ? .Number(Rational(BigInt(lhs.numerator), BigInt(lhs.denominator)) /
+          acc = overflow ? .makeNumber(Rational(BigInt(lhs.numerator), BigInt(lhs.denominator)) /
                                    Rational(BigInt(rhs.numerator), BigInt(rhs.denominator)))
-                         : .Number(res)
+                         : .makeNumber(res)
         case .bigRationalPair(let lhs, let rhs):
-          acc = .Number(lhs / rhs)
+          acc = .makeNumber(lhs / rhs)
         case .flonumPair(let lhs, let rhs):
-          acc = .Number(lhs / rhs)
+          acc = .makeNumber(lhs / rhs)
         case .complexPair(let lhs, let rhs):
-          acc = .Number(lhs / rhs)
+          acc = .makeNumber(lhs / rhs)
       }
     }
     return acc
@@ -546,7 +546,7 @@ public final class MathLibrary: NativeLibrary {
   //-------- MARK: - Comparison primitives
   
   func equals(_ first: Expr, _ exprs: Arguments) throws -> Expr {
-    try first.assertTypeOf(.numberType)
+    try first.assertType(.numberType)
     var last = first
     for expr in exprs {
       guard try compareNumber(last, with: expr) == 0 else {
@@ -558,7 +558,7 @@ public final class MathLibrary: NativeLibrary {
   }
 
   func lessThan(_ first: Expr, _ exprs: Arguments) throws -> Expr {
-    try first.assertTypeOf(.numberType)
+    try first.assertType(.numberType)
     var last = first
     for expr in exprs {
       guard try compareNumber(last, with: expr) < 0 else {
@@ -570,7 +570,7 @@ public final class MathLibrary: NativeLibrary {
   }
 
   func lessThanEquals(_ first: Expr, _ exprs: Arguments) throws -> Expr {
-    try first.assertTypeOf(.numberType)
+    try first.assertType(.numberType)
     var last = first
     for expr in exprs {
       guard try compareNumber(last, with: expr) <= 0 else {
@@ -582,7 +582,7 @@ public final class MathLibrary: NativeLibrary {
   }
 
   func biggerThan(_ first: Expr, _ exprs: Arguments) throws -> Expr {
-    try first.assertTypeOf(.numberType)
+    try first.assertType(.numberType)
     var last = first
     for expr in exprs {
       guard try compareNumber(last, with: expr) > 0 else {
@@ -594,7 +594,7 @@ public final class MathLibrary: NativeLibrary {
   }
 
   func biggerThanEquals(_ first: Expr, _ exprs: Arguments) throws -> Expr {
-    try first.assertTypeOf(.numberType)
+    try first.assertType(.numberType)
     var last = first
     for expr in exprs {
       guard try compareNumber(last, with: expr) >= 0 else {
@@ -606,7 +606,7 @@ public final class MathLibrary: NativeLibrary {
   }
 
   func max(_ first: Expr, _ exprs: Arguments) throws -> Expr {
-    try first.assertTypeOf(.numberType)
+    try first.assertType(.numberType)
     var res = first
     for expr in exprs {
       if try compareNumber(res, with: expr) < 0 {
@@ -617,7 +617,7 @@ public final class MathLibrary: NativeLibrary {
   }
 
   func min(_ first: Expr, _ exprs: Arguments) throws -> Expr {
-    try first.assertTypeOf(.numberType)
+    try first.assertType(.numberType)
     var res = first
     for expr in exprs {
       if try compareNumber(res, with: expr) > 0 {
@@ -633,13 +633,13 @@ public final class MathLibrary: NativeLibrary {
   func absolute(_ expr: Expr) throws -> Expr {
     switch expr {
       case .fixnum(let num):
-        return .Number(num < 0 ? -num : num)
+        return .makeNumber(num < 0 ? -num : num)
       case .bignum(let num):
-        return .Number(num.isNegative ? -num : num)
+        return .makeNumber(num.isNegative ? -num : num)
       case .rational(let num):
-        return .Number(num.value.isNegative ? -num.value : num.value)
+        return .makeNumber(num.value.isNegative ? -num.value : num.value)
       case .bigrat(let num):
-        return .Number(num.value.isNegative ? -num.value : num.value)
+        return .makeNumber(num.value.isNegative ? -num.value : num.value)
       case .flonum(let num):
         return .flonum((num.sign == .minus) ? -num : num)
       default:
@@ -651,20 +651,20 @@ public final class MathLibrary: NativeLibrary {
     switch expr {
       case .fixnum(let num):
         let (res, overflow) = Int64.multiplyWithOverflow(num, num)
-        return overflow ? .Number(BigInt(num) * BigInt(num)) : .Number(res)
+        return overflow ? .makeNumber(BigInt(num) * BigInt(num)) : .makeNumber(res)
       case .bignum(let num):
-        return .Number(num * num)
+        return .makeNumber(num * num)
       case .rational(let num):
         let (res, overflow) = Rational.multiplyWithOverflow(num.value, num.value)
-        return overflow ? .Number(Rational(BigInt(num.value.numerator), BigInt(num.value.denominator)) *
+        return overflow ? .makeNumber(Rational(BigInt(num.value.numerator), BigInt(num.value.denominator)) *
                                   Rational(BigInt(num.value.numerator), BigInt(num.value.denominator)))
-                        : .Number(res)
+                        : .makeNumber(res)
       case .bigrat(let num):
-        return .Number(num.value * num.value)
+        return .makeNumber(num.value * num.value)
       case .flonum(let num):
-        return .Number(num * num)
+        return .makeNumber(num * num)
       case .complex(let  num):
-        return .Number(num.value * num.value)
+        return .makeNumber(num.value * num.value)
       default:
         throw EvalError.typeError(expr, [.numberType])
     }
@@ -675,9 +675,9 @@ public final class MathLibrary: NativeLibrary {
       case .fixnum(_), .bignum(_), .rational(_), .bigrat(_), .flonum(_):
         let dbl = try expr.asFloat(coerce: true)
         let res = Foundation.sqrt(dbl)
-        return res.isNaN ? .Number(Complex(dbl).sqrt) : .Number(res)
+        return res.isNaN ? .makeNumber(Complex(dbl).sqrt) : .makeNumber(res)
       case .complex(let num):
-        return .Number(num.value.sqrt)
+        return .makeNumber(num.value.sqrt)
       default:
         throw EvalError.typeError(expr, [.numberType])
     }
@@ -686,17 +686,17 @@ public final class MathLibrary: NativeLibrary {
   func expt(_ expr: Expr, _ exp: Expr) throws -> Expr {
     switch try NumberPair(expr, exp) {
       case .fixnumPair(let x, let y):
-        return .Number(BigInt(x) ** BigInt(y))
+        return .makeNumber(BigInt(x) ** BigInt(y))
       case .bignumPair(let x, let y):
-        return .Number(x ** y)
+        return .makeNumber(x ** y)
       case .rationalPair(let x, let y):
-        return .Number(Foundation.exp(y.doubleValue * Foundation.log(x.doubleValue)))
+        return .makeNumber(Foundation.exp(y.doubleValue * Foundation.log(x.doubleValue)))
       case .bigRationalPair(let x, let y):
-        return .Number(Foundation.exp(y.doubleValue * Foundation.log(x.doubleValue)))
+        return .makeNumber(Foundation.exp(y.doubleValue * Foundation.log(x.doubleValue)))
       case .flonumPair(let x, let y):
-        return .Number(Foundation.exp(y * Foundation.log(x)))
+        return .makeNumber(Foundation.exp(y * Foundation.log(x)))
       case .complexPair(let x, let y):
-        return .Number((y * x.log).exp)
+        return .makeNumber((y * x.log).exp)
     }
   }
 
@@ -705,9 +705,9 @@ public final class MathLibrary: NativeLibrary {
       case .fixnum(_), .bignum(_), .rational(_), .bigrat(_), .flonum(_):
         let dbl = try expr.asFloat(coerce: true)
         let res = Foundation.exp(dbl)
-        return res.isNaN ? .Number(Complex(dbl).exp) : .Number(res)
+        return res.isNaN ? .makeNumber(Complex(dbl).exp) : .makeNumber(res)
       case .complex(let num):
-        return .Number(num.value.exp)
+        return .makeNumber(num.value.exp)
       default:
         throw EvalError.typeError(expr, [.numberType])
     }
@@ -718,40 +718,40 @@ public final class MathLibrary: NativeLibrary {
       case .fixnum(_), .bignum(_), .rational(_), .bigrat(_), .flonum(_):
         let dbl = try expr.asFloat(coerce: true)
         let res = Foundation.log(dbl)
-        return res.isNaN ? .Number(Complex(dbl).log) : .Number(res)
+        return res.isNaN ? .makeNumber(Complex(dbl).log) : .makeNumber(res)
       case .complex(let num):
-        return .Number(num.value.log)
+        return .makeNumber(num.value.log)
       default:
         throw EvalError.typeError(expr, [.numberType])
     }
   }
 
   func sin(_ expr: Expr) throws -> Expr {
-    return .Number(Foundation.sin(try expr.asFloat(coerce: true)))
+    return .makeNumber(Foundation.sin(try expr.asFloat(coerce: true)))
   }
 
   func cos(_ expr: Expr) throws -> Expr {
-    return .Number(Foundation.cos(try expr.asFloat(coerce: true)))
+    return .makeNumber(Foundation.cos(try expr.asFloat(coerce: true)))
   }
 
   func tan(_ expr: Expr) throws -> Expr {
-    return .Number(Foundation.tan(try expr.asFloat(coerce: true)))
+    return .makeNumber(Foundation.tan(try expr.asFloat(coerce: true)))
   }
 
   func asin(_ expr: Expr) throws -> Expr {
-    return .Number(Foundation.asin(try expr.asFloat(coerce: true)))
+    return .makeNumber(Foundation.asin(try expr.asFloat(coerce: true)))
   }
 
   func acos(_ expr: Expr) throws -> Expr {
-    return .Number(Foundation.acos(try expr.asFloat(coerce: true)))
+    return .makeNumber(Foundation.acos(try expr.asFloat(coerce: true)))
   }
 
   func atan(_ fst: Expr, _ snd: Expr?) throws -> Expr {
     let y = try fst.asFloat(coerce: true)
     if let snd = snd {
-      return .Number(Foundation.atan2(y, try snd.asFloat(coerce: true)))
+      return .makeNumber(Foundation.atan2(y, try snd.asFloat(coerce: true)))
     } else {
-      return .Number(Foundation.atan(y))
+      return .makeNumber(Foundation.atan(y))
     }
   }
   
@@ -900,7 +900,7 @@ public final class MathLibrary: NativeLibrary {
       case .rational(let num):
         return .fixnum(num.value.numerator)
       case .bigrat(let num):
-        return .Number(num.value.numerator)
+        return .makeNumber(num.value.numerator)
       case .flonum(let num):
         return .flonum(Double(MathLibrary.approximate(num).numerator))
       default:
@@ -915,7 +915,7 @@ public final class MathLibrary: NativeLibrary {
       case .rational(let num):
         return .fixnum(num.value.denominator)
       case .bigrat(let num):
-        return .Number(num.value.denominator)
+        return .makeNumber(num.value.denominator)
       case .flonum(let num):
         return .flonum(Double(MathLibrary.approximate(num).denominator))
       default:
@@ -928,22 +928,22 @@ public final class MathLibrary: NativeLibrary {
     for expr in exprs {
       var e = expr
       if case .flonum(let num) = expr {
-        e = .Number(MathLibrary.approximate(num))
+        e = .makeNumber(MathLibrary.approximate(num))
       }
       switch try NumberPair(acc, e) {
         case .fixnumPair(let lhs, let rhs):
           let (res, overflow) = Rational.gcdWithOverflow(lhs, rhs)
-          acc = overflow ? .Number(Rational.gcd(BigInt(lhs), BigInt(rhs))) : .Number(res)
+          acc = overflow ? .makeNumber(Rational.gcd(BigInt(lhs), BigInt(rhs))) : .makeNumber(res)
         case .bignumPair(let lhs, let rhs):
-          acc = .Number(Rational.gcd(lhs, rhs))
+          acc = .makeNumber(Rational.gcd(lhs, rhs))
         case .rationalPair(let lhs, let rhs):
           let (res, overflow) = Rational.gcdWithOverflow(lhs, rhs)
           acc = overflow ?
-              .Number(Rational.gcd(Rational(BigInt(lhs.numerator), BigInt(lhs.denominator)),
+              .makeNumber(Rational.gcd(Rational(BigInt(lhs.numerator), BigInt(lhs.denominator)),
                                    Rational(BigInt(rhs.numerator), BigInt(rhs.denominator))))
-            : .Number(res)
+            : .makeNumber(res)
         case .bigRationalPair(let lhs, let rhs):
-          acc = .Number(Rational.gcd(lhs, rhs))
+          acc = .makeNumber(Rational.gcd(lhs, rhs))
         default:
           throw EvalError.typeError(expr, [.realType])
       }
@@ -956,22 +956,22 @@ public final class MathLibrary: NativeLibrary {
     for expr in exprs {
       var e = expr
       if case .flonum(let num) = expr {
-        e = .Number(MathLibrary.approximate(num))
+        e = .makeNumber(MathLibrary.approximate(num))
       }
       switch try NumberPair(acc, e) {
         case .fixnumPair(let lhs, let rhs):
           let (res, overflow) = Rational.lcmWithOverflow(lhs, rhs)
-          acc = overflow ? .Number(Rational.lcm(BigInt(lhs), BigInt(rhs))) : .Number(res)
+          acc = overflow ? .makeNumber(Rational.lcm(BigInt(lhs), BigInt(rhs))) : .makeNumber(res)
         case .bignumPair(let lhs, let rhs):
-          acc = .Number(Rational.lcm(lhs, rhs))
+          acc = .makeNumber(Rational.lcm(lhs, rhs))
         case .rationalPair(let lhs, let rhs):
           let (res, overflow) = Rational.lcmWithOverflow(lhs, rhs)
           acc = overflow ?
-              .Number(Rational.lcm(Rational(BigInt(lhs.numerator), BigInt(lhs.denominator)),
+              .makeNumber(Rational.lcm(Rational(BigInt(lhs.numerator), BigInt(lhs.denominator)),
                                    Rational(BigInt(rhs.numerator), BigInt(rhs.denominator))))
-            : .Number(res)
+            : .makeNumber(res)
         case .bigRationalPair(let lhs, let rhs):
-          acc = .Number(Rational.lcm(lhs, rhs))
+          acc = .makeNumber(Rational.lcm(lhs, rhs))
         default:
           throw EvalError.typeError(expr, [.realType])
       }
@@ -982,12 +982,12 @@ public final class MathLibrary: NativeLibrary {
   func truncateQuotient(_ x: Expr, _ y: Expr) throws -> Expr {
     switch try NumberPair(x, y) {
       case .fixnumPair(let lhs, let rhs):
-        return .Number(lhs / rhs)
+        return .makeNumber(lhs / rhs)
       case .bignumPair(let lhs, let rhs):
-        return .Number(lhs / rhs)
+        return .makeNumber(lhs / rhs)
       default:
-        try x.assertTypeOf(.integerType)
-        try y.assertTypeOf(.integerType)
+        try x.assertType(.integerType)
+        try y.assertType(.integerType)
         preconditionFailure()
     }
   }
@@ -995,12 +995,12 @@ public final class MathLibrary: NativeLibrary {
   func truncateRemainder(_ x: Expr, _ y: Expr) throws -> Expr {
     switch try NumberPair(x, y) {
       case .fixnumPair(let lhs, let rhs):
-        return .Number(lhs % rhs)
+        return .makeNumber(lhs % rhs)
       case .bignumPair(let lhs, let rhs):
-        return .Number(lhs % rhs)
+        return .makeNumber(lhs % rhs)
       default:
-        try x.assertTypeOf(.integerType)
-        try y.assertTypeOf(.integerType)
+        try x.assertType(.integerType)
+        try y.assertType(.integerType)
         preconditionFailure()
     }
   }
@@ -1009,13 +1009,13 @@ public final class MathLibrary: NativeLibrary {
     switch try NumberPair(x, y) {
       case .fixnumPair(let lhs, let rhs):
         let res = lhs % rhs
-        return .Number(((res < 0) == (rhs < 0) ? (lhs - res) : (lhs - res - rhs)) / rhs)
+        return .makeNumber(((res < 0) == (rhs < 0) ? (lhs - res) : (lhs - res - rhs)) / rhs)
       case .bignumPair(let lhs, let rhs):
         let res = lhs % rhs
-        return .Number((res.isNegative == rhs.isNegative ? (lhs - res) : (lhs - res - rhs)) / rhs)
+        return .makeNumber((res.isNegative == rhs.isNegative ? (lhs - res) : (lhs - res - rhs)) / rhs)
       default:
-        try x.assertTypeOf(.integerType)
-        try y.assertTypeOf(.integerType)
+        try x.assertType(.integerType)
+        try y.assertType(.integerType)
         preconditionFailure()
     }
   }
@@ -1024,13 +1024,13 @@ public final class MathLibrary: NativeLibrary {
     switch try NumberPair(x, y) {
       case .fixnumPair(let lhs, let rhs):
         let res = lhs % rhs
-        return .Number((res < 0) == (rhs < 0) ? res : res + rhs)
+        return .makeNumber((res < 0) == (rhs < 0) ? res : res + rhs)
       case .bignumPair(let lhs, let rhs):
         let res = lhs % rhs
-        return .Number(res.isNegative == rhs.isNegative ? res : res + rhs)
+        return .makeNumber(res.isNegative == rhs.isNegative ? res : res + rhs)
       default:
-        try x.assertTypeOf(.integerType)
-        try y.assertTypeOf(.integerType)
+        try x.assertType(.integerType)
+        try y.assertType(.integerType)
         preconditionFailure()
     }
   }

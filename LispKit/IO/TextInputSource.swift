@@ -27,9 +27,9 @@ public protocol TextInputSource {
 }
 
 public struct UTF8EncodedSource: TextInputSource {
-  fileprivate var input: BinaryInput
-  fileprivate let length: Int
-  fileprivate var codec: UTF8
+  private var input: BinaryInput
+  private let length: Int
+  private var codec: UTF8
   
   public init(input: BinaryInput, length: Int) {
     self.input = input

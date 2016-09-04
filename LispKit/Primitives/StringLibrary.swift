@@ -90,47 +90,47 @@ public final class StringLibrary: NativeLibrary {
   }
   
   func stringEquals(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .Boolean(try fst.asStr() == snd.asStr())
+    return .makeBoolean(try fst.asStr() == snd.asStr())
   }
   
   func stringLessThan(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .Boolean(try fst.asStr() < snd.asStr())
+    return .makeBoolean(try fst.asStr() < snd.asStr())
   }
   
   func stringLessThanEquals(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .Boolean(try fst.asStr() <= snd.asStr())
+    return .makeBoolean(try fst.asStr() <= snd.asStr())
   }
   
   func stringGreaterThan(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .Boolean(try fst.asStr() > snd.asStr())
+    return .makeBoolean(try fst.asStr() > snd.asStr())
   }
   
   func stringGreaterThanEquals(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .Boolean(try fst.asStr() >= snd.asStr())
+    return .makeBoolean(try fst.asStr() >= snd.asStr())
   }
   
   func stringCiEquals(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .Boolean(try fst.asStr().lowercased() == snd.asStr().lowercased())
+    return .makeBoolean(try fst.asStr().lowercased() == snd.asStr().lowercased())
   }
   
   func stringCiLessThan(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .Boolean(try fst.asStr().lowercased() < snd.asStr().lowercased())
+    return .makeBoolean(try fst.asStr().lowercased() < snd.asStr().lowercased())
   }
   
   func stringCiLessThanEquals(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .Boolean(try fst.asStr().lowercased() <= snd.asStr().lowercased())
+    return .makeBoolean(try fst.asStr().lowercased() <= snd.asStr().lowercased())
   }
   
   func stringCiGreaterThan(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .Boolean(try fst.asStr().lowercased() > snd.asStr().lowercased())
+    return .makeBoolean(try fst.asStr().lowercased() > snd.asStr().lowercased())
   }
   
   func stringCiGreaterThanEquals(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .Boolean(try fst.asStr().lowercased() >= snd.asStr().lowercased())
+    return .makeBoolean(try fst.asStr().lowercased() >= snd.asStr().lowercased())
   }
   
   func stringContains(_ expr: Expr, _ other: Expr) throws -> Expr {
-    return .Boolean(try expr.asStr().contains(try other.asStr()))
+    return .makeBoolean(try expr.asStr().contains(try other.asStr()))
   }
   
   func stringUpcase(_ expr: Expr) throws -> Expr {

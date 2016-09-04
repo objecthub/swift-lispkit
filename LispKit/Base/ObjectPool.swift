@@ -23,16 +23,16 @@
 /// to the pool via method `add`. They are automatically removed as soon as there is no
 /// strong reference to this object anymore.
 ///
-open class ObjectPool<T: AnyObject>: Sequence, CustomStringConvertible {
+public final class ObjectPool<T: AnyObject>: Sequence, CustomStringConvertible {
   
   /// Weak references to objects in the pool
-  fileprivate var references: [WeakVariable<T>]
+  private var references: [WeakVariable<T>]
   
   /// A set of indices of free weak references
-  fileprivate var free: [Int]
+  private var free: [Int]
   
   /// How many references have been added after the last collection of free references
-  fileprivate var added: Int
+  private var added: Int
   
   /// Initializes an empty object pool
   public init() {
@@ -43,12 +43,12 @@ open class ObjectPool<T: AnyObject>: Sequence, CustomStringConvertible {
   
   /// Returns the capacity of the object pool. This is the number of allocated
   /// weak references.
-  open var capacity: Int {
+  public var capacity: Int {
     return references.count
   }
   
   /// Returns the number of weakly referenced objects in the pool.
-  open var count: Int {
+  public var count: Int {
     collectFreeReferences()
     return references.count - free.count
   }
@@ -59,7 +59,7 @@ open class ObjectPool<T: AnyObject>: Sequence, CustomStringConvertible {
   }
   
   /// Adds the given object to the object pool.
-  open func add(_ obj: T) {
+  public func add(_ obj: T) {
     // Collect free references on a regular basis; frequency is based on the capacity
     if let i = free.first {
       self.added += 1
@@ -83,14 +83,14 @@ open class ObjectPool<T: AnyObject>: Sequence, CustomStringConvertible {
   }
   
   /// Removes all objects from the object pool.
-  open func clear() {
+  public func clear() {
     self.references.removeAll()
     self.free.removeAll()
     self.added = 0
   }
   
   /// Finds all free references in the object pool.
-  fileprivate func collectFreeReferences() {
+  private func collectFreeReferences() {
     for i in self.references.indices {
       if !self.references[i].recycled && self.references[i].obj == nil {
         self.references[i].recycled = true
@@ -100,7 +100,7 @@ open class ObjectPool<T: AnyObject>: Sequence, CustomStringConvertible {
   }
   
   /// Returns a generator for iterating over all objects in the object pool.
-  open func makeIterator() -> AnyIterator<T> {
+  public func makeIterator() -> AnyIterator<T> {
     var i = 0
     return AnyIterator {
       while i < self.references.count {
@@ -115,19 +115,18 @@ open class ObjectPool<T: AnyObject>: Sequence, CustomStringConvertible {
   }
   
   /// Returns a textual representation of this object pool.
-  open var description: String {
+  public var description: String {
     return "ObjectPool{refcount = \(self.references.count), freecount = \(self.free.count), " +
            "free = \(self.free)}"
   }
-  
 }
 
 ///
 /// Internal representation of a weak variable that can be recycled. This class is an
 /// implementation detail of `ObjectPool` and should ideally be nested in `ObjectPool`.
-/// Unfortunately, this is disallowed in Swift 2.
+/// Unfortunately, this is disallowed in Swift 3.
 ///
-private struct WeakVariable<T: AnyObject> {
-  fileprivate var recycled: Bool
-  fileprivate weak var obj: T?
+fileprivate struct WeakVariable<T: AnyObject> {
+  var recycled: Bool
+  weak var obj: T?
 }

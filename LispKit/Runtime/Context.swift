@@ -25,33 +25,33 @@
 open class Context {
   
   /// The console window, for reading and writing strings from the default port.
-  open let console: Console
+  public let console: Console
   
   /// The managed object pool for freeing up objects with cyclic dependencies.
-  open let objects: ManagedObjectPool
+  public let objects: ManagedObjectPool
   
   /// The symbol table for managing interned symbols.
-  open let symbols: SymbolTable
+  public let symbols: SymbolTable
   
   /// The user scope.
-  open let userScope: Scope
+  public let userScope: Scope
   
   /// The system scope.
-  open var systemScope: Scope {
+  public var systemScope: Scope {
     return self.userScope.outer!
   }
   
   /// The virtual machine for executing Lisp code.
-  open fileprivate(set) var machine: VirtualMachine!
+  public private(set) var machine: VirtualMachine!
 
   /// The current input port.
-  open var inputPort: Port
+  public var inputPort: Port
   
   /// The current output port.
-  open var outputPort: Port
+  public var outputPort: Port
   
   /// The current error port.
-  open var errorPort: Port
+  public var errorPort: Port
   
   /// Initializes a new object
   public init(console: Console, library: NativeLibrary.Type? = nil) {
@@ -74,7 +74,7 @@ open class Context {
   }
   
   /// Import an instantiation of the given library type.
-  open func use(_ lib: NativeLibrary.Type) {
+  public func use(_ lib: NativeLibrary.Type) {
     let _ = lib.init(self)
   }
 }

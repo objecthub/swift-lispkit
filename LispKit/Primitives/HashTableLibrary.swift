@@ -123,7 +123,7 @@ public final class HashTableLibrary: NativeLibrary {
   func makeHashTable(_ capacity: Expr, _ eql: Expr, _ hsh: Expr, _ args: Arguments) throws -> Expr {
     guard args.count == 3 else {
       throw EvalError.argumentCountError(
-        formals: 6, args: .pair(capacity, .pair(eql, .pair(hsh, .List(args)))))
+        formals: 6, args: .pair(capacity, .pair(eql, .pair(hsh, .makeList(args)))))
     }
     let numBuckets = try capacity.asInt()
     let eqlProc = try eql.asProc()
@@ -194,7 +194,7 @@ public final class HashTableLibrary: NativeLibrary {
     guard case .table(let table) = expr else {
       return .false
     }
-    return .Boolean(table.mutable)
+    return .makeBoolean(table.mutable)
   }
   
   func hashTableSize(_ expr: Expr) throws -> Expr {
@@ -203,7 +203,7 @@ public final class HashTableLibrary: NativeLibrary {
   
   func hashTableLoad(_ expr: Expr) throws -> Expr {
     let map = try expr.asMap()
-    return .Number(Double(map.count) / Double(map.bucketCount))
+    return .makeNumber(Double(map.count) / Double(map.bucketCount))
   }
   
   func hashTableGet(_ args: Arguments) throws -> (Procedure, [Expr]) {

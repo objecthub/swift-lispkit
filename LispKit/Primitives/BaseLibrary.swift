@@ -87,10 +87,10 @@ public final class BaseLibrary: NativeLibrary {
   
   func eval(_ args: Arguments) throws -> Code {
     guard args.count > 0 else {
-      throw EvalError.leastArgumentCountError(formals: 1, args: .List(args))
+      throw EvalError.leastArgumentCountError(formals: 1, args: .makeList(args))
     }
     guard args.count < 3 else {
-      throw EvalError.argumentCountError(formals: 2, args: .List(args))
+      throw EvalError.argumentCountError(formals: 2, args: .makeList(args))
     }
     return try Compiler.compile(self.context,
                                 expr: .pair(args.first!, .null),
@@ -110,7 +110,7 @@ public final class BaseLibrary: NativeLibrary {
   
   func apply(_ args: Arguments) throws -> (Procedure, [Expr]) {
     guard args.count > 1 else {
-      throw EvalError.leastArgumentCountError(formals: 2, args: .List(args))
+      throw EvalError.leastArgumentCountError(formals: 2, args: .makeList(args))
     }
     guard case .procedure(let proc) = args.first! else {
       throw EvalError.typeError(args.first!, [.procedureType])
@@ -151,15 +151,15 @@ public final class BaseLibrary: NativeLibrary {
   }
   
   func isEqual(_ this: Expr, that: Expr) -> Expr {
-    return .Boolean(equalExpr(that, this))
+    return .makeBoolean(equalExpr(that, this))
   }
   
   func isEqv(_ this: Expr, that: Expr) -> Expr {
-    return .Boolean(eqvExpr(that, this))
+    return .makeBoolean(eqvExpr(that, this))
   }
   
   func isEq(_ this: Expr, that: Expr) -> Expr {
-    return .Boolean(eqExpr(that, this))
+    return .makeBoolean(eqExpr(that, this))
   }
   
   func compileQuote(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
@@ -183,16 +183,16 @@ public final class BaseLibrary: NativeLibrary {
         for expr in vector.exprs {
           if case .pair(let car, .pair(let elem, let cddr)) = expr {
             switch car {
-              case .symbol(context.symbols.UNQUOTE):
+              case .symbol(context.symbols.unquote):
                 guard cddr == .null else {
-                  throw EvalError.invalidContextInQuasiquote(context.symbols.UNQUOTE, expr)
+                  throw EvalError.invalidContextInQuasiquote(context.symbols.unquote, expr)
                 }
                 try compiler.compile(elem, in: env, inTailPos: false)
                 nelem += 1
                 continue
-              case .symbol(context.symbols.UNQUOTESPLICING):
+              case .symbol(context.symbols.unquoteSplicing):
                 guard cddr == .null else {
-                  throw EvalError.invalidContextInQuasiquote(context.symbols.UNQUOTESPLICING, expr)
+                  throw EvalError.invalidContextInQuasiquote(context.symbols.unquoteSplicing, expr)
                 }
                 if nelem > 0 {
                   compiler.emit(.vector(nelem))
@@ -230,30 +230,30 @@ public final class BaseLibrary: NativeLibrary {
   
   fileprivate func reduceQQ(_ expr: Expr) throws -> Expr {
     guard case .pair(let car, let cdr) = expr else {
-      return Expr.List(.symbol(Symbol(context.symbols.QUOTE, .system)), expr)
+      return Expr.makeList(.symbol(Symbol(context.symbols.quote, .system)), expr)
     }
     switch car {
-      case .symbol(context.symbols.UNQUOTE):
+      case .symbol(context.symbols.unquote):
         guard case .pair(let cadr, .null) = cdr else {
-          throw EvalError.invalidContextInQuasiquote(context.symbols.UNQUOTE, car)
+          throw EvalError.invalidContextInQuasiquote(context.symbols.unquote, car)
         }
         return cadr
-      case .symbol(context.symbols.QUASIQUOTE):
+      case .symbol(context.symbols.quasiquote):
         guard case .pair(let cadr, .null) = cdr else {
-          throw EvalError.invalidContextInQuasiquote(context.symbols.QUASIQUOTE, car)
+          throw EvalError.invalidContextInQuasiquote(context.symbols.quasiquote, car)
         }
         return try reduceQQ(reduceQQ(cadr))
-      case .symbol(context.symbols.UNQUOTESPLICING):
-        throw EvalError.invalidContextInQuasiquote(context.symbols.UNQUOTESPLICING, car)
-      case .pair(.symbol(context.symbols.UNQUOTESPLICING), let cdar):
+      case .symbol(context.symbols.unquoteSplicing):
+        throw EvalError.invalidContextInQuasiquote(context.symbols.unquoteSplicing, car)
+      case .pair(.symbol(context.symbols.unquoteSplicing), let cdar):
         guard case .pair(let cadar, .null) = cdar else {
-          throw EvalError.invalidContextInQuasiquote(context.symbols.UNQUOTESPLICING, car)
+          throw EvalError.invalidContextInQuasiquote(context.symbols.unquoteSplicing, car)
         }
-        return Expr.List(.symbol(Symbol(context.symbols.APPEND, .system)),
+        return Expr.makeList(.symbol(Symbol(context.symbols.append, .system)),
                          cadar,
                          try reduceQQ(cdr))
       default:
-        return Expr.List(.symbol(Symbol(context.symbols.CONS, .system)),
+        return Expr.makeList(.symbol(Symbol(context.symbols.cons, .system)),
                          try reduceQQ(car),
                          try reduceQQ(cdr))
     }
@@ -297,7 +297,7 @@ public final class BaseLibrary: NativeLibrary {
     switch sig {
       case .symbol(_):
         guard case .pair(let value, .null) = def else {
-          throw EvalError.malformedDefinition(Expr.List(def))
+          throw EvalError.malformedDefinition(Expr.makeList(def))
         }
         let index = compiler.registerConstant(sig)
         try compiler.compile(value, in: env, inTailPos: false)
@@ -312,7 +312,7 @@ public final class BaseLibrary: NativeLibrary {
         compiler.emit(.pushConstant(index))
         return false
       default:
-        throw EvalError.malformedDefinition(.pair(sig, Expr.List(def)))
+        throw EvalError.malformedDefinition(.pair(sig, Expr.makeList(def)))
     }
   }
   
@@ -371,7 +371,7 @@ public final class BaseLibrary: NativeLibrary {
     guard expr == .null else {
       throw EvalError.malformedSyntaxRuleLiterals(lit)
     }
-    let rules = SyntaxRules(self.context,
+    let rules = SyntaxRules(context: self.context,
                             literals: literalSet,
                             patterns: patterns,
                             templates: templates,
@@ -451,7 +451,7 @@ public final class BaseLibrary: NativeLibrary {
       throw EvalError.argumentCountError(formals: 1, args: expr)
     }
     try compiler.compileLambda(
-      nil, .null, .pair(.List(.symbol(compiler.context.symbols.MAKEPROMISE), delayed), .null), env)
+      nil, .null, .pair(.makeList(.symbol(compiler.context.symbols.makePromise), delayed), .null), env)
     compiler.emit(.makePromise)
     return false
   }

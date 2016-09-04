@@ -42,16 +42,16 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
   internal static let stats = Stats("HashTable")
   
   /// The hash buckets.
-  fileprivate var buckets: [Expr]
+  private var buckets: [Expr]
   
   /// Number of mappings in this hash table
-  public fileprivate(set) var count: Int
+  public private(set) var count: Int
   
   /// Is this `HashTable` object mutable?
   public let mutable: Bool
   
   /// What equivalence relation is used?
-  public fileprivate(set) var equiv: Equivalence
+  public private(set) var equiv: Equivalence
   
   /// Update object statistics.
   deinit {

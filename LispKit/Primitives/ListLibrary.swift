@@ -118,11 +118,11 @@ public final class ListLibrary: NativeLibrary {
     while case .pair(_, let cdr) = expr {
       expr = cdr
     }
-    return Expr.Boolean(expr.isNull)
+    return Expr.makeBoolean(expr.isNull)
   }
   
   func isNull(_ expr: Expr) -> Expr {
-    return Expr.Boolean(expr.isNull)
+    return Expr.makeBoolean(expr.isNull)
   }
   
   func compileIsNull(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
@@ -262,7 +262,7 @@ public final class ListLibrary: NativeLibrary {
     guard case (let exprs, .null) = fst.toExprs() else {
       throw EvalError.typeError(fst, [.properListType])
     }
-    return Expr.List(exprs, append: tail)
+    return Expr.makeList(exprs, append: tail)
   }
   
   func append(_ exprs: Arguments) throws -> Expr {

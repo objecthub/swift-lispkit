@@ -82,7 +82,7 @@ public final class DynamicControlLibrary: NativeLibrary {
   
   func callWithUnprotectedContinuation(_ args: Arguments) throws -> (Procedure, [Expr]) {
     guard args.count == 1 else {
-      throw EvalError.argumentCountError(formals: 1, args: .List(args))
+      throw EvalError.argumentCountError(formals: 1, args: .makeList(args))
     }
     guard case .procedure(let proc) = args.first! else {
       throw EvalError.typeError(args.first!, [.procedureType])
@@ -139,7 +139,7 @@ public final class DynamicControlLibrary: NativeLibrary {
   
   func bindParameter(_ args: Arguments) throws -> (Procedure, [Expr]) {
     guard args.count == 3 else {
-      throw EvalError.argumentCountError(formals: 3, args: .List(args))
+      throw EvalError.argumentCountError(formals: 3, args: .makeList(args))
     }
     guard case .parameter(let tuple) = try args.first!.asProc().kind else {
       throw EvalError.typeError(args.first!, [.parameterType])

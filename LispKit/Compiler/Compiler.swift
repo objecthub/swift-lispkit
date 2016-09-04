@@ -558,7 +558,7 @@ public final class Compiler {
     if localDefine {
       loop: while i < exprs.count {
         guard case .pair(.symbol(let fun), let binding) = exprs[i]
-              , fun.interned == self.context.symbols.DEFINE &&
+              , fun.interned == self.context.symbols.define &&
                     env.systemDefined(fun, in: self.context) else {
           break loop
         }
@@ -568,7 +568,7 @@ public final class Compiler {
             bindings.append(.pair(.symbol(sym), .pair(def, .null)))
           case .pair(.pair(.symbol(let sym), let args), .pair(let def, .null)):
             bindings.append(
-              .pair(.symbol(sym), .pair(.pair(.symbol(Symbol(self.context.symbols.LAMBDA, .system)),
+              .pair(.symbol(sym), .pair(.pair(.symbol(Symbol(self.context.symbols.lambda, .system)),
                                            .pair(args, .pair(def, .null))),
                                      .null)))
           default:
@@ -592,7 +592,7 @@ public final class Compiler {
     } else {
       // Compilation with internal definitions
       let initialLocals = self.numLocals
-      let group = try self.compileBindings(.List(bindings), in: env, atomic: true, predef: true)
+      let group = try self.compileBindings(.makeList(bindings), in: env, atomic: true, predef: true)
       let lenv = Env(group)
       var first = true
       while i < exprs.count {

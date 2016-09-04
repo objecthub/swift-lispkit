@@ -85,7 +85,7 @@ public final class Procedure: Reference, CustomStringConvertible {
               in context: Context) {
     func indirect(_ args: Arguments) throws -> Code {
       let expr =
-        Expr.pair(.symbol(Symbol(context.symbols.intern(name), .system)), .List(args))
+        Expr.pair(.symbol(Symbol(context.symbols.intern(name), .system)), .makeList(args))
       return try Compiler.compile(context,
                                   expr: .pair(expr, .null),
                                   in: .system,

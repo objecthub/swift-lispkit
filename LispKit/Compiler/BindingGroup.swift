@@ -97,10 +97,10 @@ open class Definition: Reference, CustomStringConvertible {
 public final class BindingGroup: Reference, CustomStringConvertible {
   public unowned var owner: Compiler
   public let parent: Env
-  fileprivate var bindings: [Symbol : Definition]
-  fileprivate let nextIndex: () -> Int
+  private var bindings: [Symbol : Definition]
+  private let nextIndex: () -> Int
   internal let checkpoint: UInt
-  public fileprivate(set) var box: WeakBox<BindingGroup>!
+  public private(set) var box: WeakBox<BindingGroup>!
   
   public init(owner: Compiler, parent: Env, nextIndex: (() -> Int)? = nil) {
     self.owner = owner

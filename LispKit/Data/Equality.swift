@@ -43,7 +43,7 @@ func ==(lhs: Equality, rhs: Equality) -> Bool {
          lhs.ref1 == rhs.ref2 && lhs.ref2 == rhs.ref1
 }
 
-func equalExpr(_ this: Expr, _ that: Expr) -> Bool {
+public func equalExpr(_ this: Expr, _ that: Expr) -> Bool {
   var equalities = Set<Equality>()
   
   func equals(_ lhs: Expr, _ rhs: Expr) -> Bool {
@@ -194,7 +194,7 @@ func equalExpr(_ this: Expr, _ that: Expr) -> Bool {
 
 //-------- MARK: - Eqv
 
-func eqvExpr(_ lhs: Expr, _ rhs: Expr) -> Bool {
+public func eqvExpr(_ lhs: Expr, _ rhs: Expr) -> Bool {
   switch (lhs, rhs) {
     case (.undef, .undef),
          (.void, .void),
@@ -246,7 +246,7 @@ func eqvExpr(_ lhs: Expr, _ rhs: Expr) -> Bool {
 
 //-------- MARK: - Eq
 
-func eqExpr(_ lhs: Expr, _ rhs: Expr) -> Bool {
+public func eqExpr(_ lhs: Expr, _ rhs: Expr) -> Bool {
   switch (lhs, rhs) {
     case (.undef, .undef),
          (.void, .void),
@@ -313,8 +313,8 @@ enum NumberPair {
   
   init(_ fst: Expr, _ snd: Expr) throws {
     guard let res = NumberPair(fst, and: snd) else {
-      try snd.assertTypeOf(.numberType)
-      try fst.assertTypeOf(.numberType)
+      try snd.assertType(.numberType)
+      try fst.assertType(.numberType)
       preconditionFailure()
     }
     self = res
@@ -410,16 +410,16 @@ enum NumberPair {
   }
 }
 
-func compareNumber(_ lhs: Expr, with rhs: Expr) throws -> Int {
+public func compareNumber(_ lhs: Expr, with rhs: Expr) throws -> Int {
   guard let res = compare(lhs, with: rhs) else {
-    try lhs.assertTypeOf(.realType)
-    try rhs.assertTypeOf(.realType)
+    try lhs.assertType(.realType)
+    try rhs.assertType(.realType)
     preconditionFailure()
   }
   return res
 }
 
-func compare(_ lhs: Expr, with rhs: Expr) -> Int? {
+public func compare(_ lhs: Expr, with rhs: Expr) -> Int? {
   guard let pair = NumberPair(lhs, and: rhs) else {
     return nil
   }

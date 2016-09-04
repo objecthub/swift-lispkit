@@ -60,7 +60,7 @@ public final class BytevectorLibrary: NativeLibrary {
   }
   
   func bytevectorLength(_ expr: Expr) throws -> Expr {
-    return .Number(try expr.asByteVector().value.count)
+    return .makeNumber(try expr.asByteVector().value.count)
   }
   
   func bytevectorU8Ref(_ bvec: Expr, index: Expr) throws -> Expr {
@@ -84,8 +84,8 @@ public final class BytevectorLibrary: NativeLibrary {
   
   func bytevectorCopy(_ bvec: Expr, args: Arguments) throws -> Expr {
     let bvector = try bvec.asByteVector()
-    guard let (s, e) = args.optional(Expr.Number(bvector.value.count), Expr.Number(0)) else {
-      throw EvalError.argumentCountError(formals: 2, args: .pair(bvec, .List(args)))
+    guard let (s, e) = args.optional(Expr.makeNumber(bvector.value.count), Expr.makeNumber(0)) else {
+      throw EvalError.argumentCountError(formals: 2, args: .pair(bvec, .makeList(args)))
     }
     let (start, end) = (try s.asInt(), try e.asInt())
     guard start >= 0 && start < bvector.value.count else {
@@ -111,9 +111,9 @@ public final class BytevectorLibrary: NativeLibrary {
         "bytevector-copy!", 2, Int64(toStart), Int64(0), Int64(toVec.value.count - 1))
     }
     let fromVec = try from.asByteVector()
-    guard let (s, e) = args.optional(Expr.Number(fromVec.value.count), Expr.Number(0)) else {
+    guard let (s, e) = args.optional(Expr.makeNumber(fromVec.value.count), Expr.makeNumber(0)) else {
       throw EvalError.argumentCountError(
-        formals: 2, args: .pair(to, .pair(at, .pair(from, .List(args)))))
+        formals: 2, args: .pair(to, .pair(at, .pair(from, .makeList(args)))))
     } 
     let (start, end) = (try s.asInt(), try e.asInt())
     guard start >= 0 && start < fromVec.value.count else {
@@ -143,8 +143,8 @@ public final class BytevectorLibrary: NativeLibrary {
   
   func utf8ToString(_ bvec: Expr, args: Arguments) throws -> Expr {
     let bvector = try bvec.asByteVector()
-    guard let (s, e) = args.optional(Expr.Number(bvector.value.count), Expr.Number(0)) else {
-      throw EvalError.argumentCountError(formals: 2, args: .pair(bvec, .List(args)))
+    guard let (s, e) = args.optional(Expr.makeNumber(bvector.value.count), Expr.makeNumber(0)) else {
+      throw EvalError.argumentCountError(formals: 2, args: .pair(bvec, .makeList(args)))
     }
     let (start, end) = (try s.asInt(), try e.asInt())
     guard start >= 0 && start < bvector.value.count else {
@@ -166,8 +166,8 @@ public final class BytevectorLibrary: NativeLibrary {
   
   func stringToUtf8(_ string: Expr, args: Arguments) throws -> Expr {
     let str = try string.asStr().utf16
-    guard let (s, e) = args.optional(Expr.Number(str.count), Expr.Number(0)) else {
-      throw EvalError.argumentCountError(formals: 2, args: .pair(string, .List(args)))
+    guard let (s, e) = args.optional(Expr.makeNumber(str.count), Expr.makeNumber(0)) else {
+      throw EvalError.argumentCountError(formals: 2, args: .pair(string, .makeList(args)))
     }
     let (start, end) = (try s.asInt(), try e.asInt())
     let sidx = str.index(str.startIndex, offsetBy: start)

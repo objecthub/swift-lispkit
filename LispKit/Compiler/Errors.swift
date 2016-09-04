@@ -178,7 +178,7 @@ public enum LexicalError: Int, LispError {
   }
   
   public var irritants: Exprs {
-    return NO_EXPRS
+    return noExprs
   }
   
   public var type: LispErrorType {
@@ -223,7 +223,7 @@ public enum SyntaxError: Int, LispError {
   }
   
   public var irritants: Exprs {
-    return NO_EXPRS
+    return noExprs
   }
   
   public var type: LispErrorType {
@@ -395,7 +395,7 @@ public enum EvalError: LispError {
   }
   
   public var irritants: Exprs {
-    return NO_EXPRS
+    return noExprs
   }
   
   public var type: LispErrorType {
@@ -501,7 +501,7 @@ public enum EvalError: LispError {
   
   public static func assert(_ args: Arguments, count: Int) throws {
     guard args.count == count else {
-      throw EvalError.argumentCountError(formals: count, args: .List(args))
+      throw EvalError.argumentCountError(formals: count, args: .makeList(args))
     }
   }
 }
@@ -523,7 +523,7 @@ open class OsError: LispError {
   }
   
   open var irritants: Exprs {
-    return NO_EXPRS
+    return noExprs
   }
   
   open var type: LispErrorType {

@@ -28,16 +28,16 @@ import Foundation
 open class TextInput {
   
   /// Internal character buffer.
-  fileprivate var buffer: String.UTF16View
+  private var buffer: String.UTF16View
   
   /// Index into the buffer pointing at the next character to read.
-  fileprivate var next: String.UTF16View.Index
+  private var next: String.UTF16View.Index
   
   /// Eof is true if all bytes have been consumed.
-  open fileprivate(set) var eof: Bool = false
+  open private(set) var eof: Bool = false
   
   /// Text provider. If this property is nil, only the content in the buffer is relevant.
-  fileprivate var source: TextInputSource?
+  private var source: TextInputSource?
   
   /// The URL of this text input object.
   open var url: URL?
@@ -131,7 +131,7 @@ open class TextInput {
     }
   }
   
-  fileprivate func readable() -> Bool {
+  private func readable() -> Bool {
     if self.eof {
       return false
     } else if self.next >= self.buffer.endIndex {

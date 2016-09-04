@@ -25,7 +25,7 @@ import Darwin
 ///
 public struct Timer {
   
-  fileprivate static let (TIME_NUMER, TIME_DENOM): (UInt64, UInt64) = {
+  private static let (TIME_NUMER, TIME_DENOM): (UInt64, UInt64) = {
     var info: mach_timebase_info = mach_timebase_info(numer: 0, denom: 0)
     mach_timebase_info(&info)
     return (UInt64(info.numer), UInt64(info.denom))

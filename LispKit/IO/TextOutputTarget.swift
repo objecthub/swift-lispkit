@@ -15,7 +15,7 @@ public protocol TextOutputTarget {
 }
 
 public struct UTF8EncodedTarget: TextOutputTarget {
-  fileprivate let output: BinaryOutput
+  private let output: BinaryOutput
   
   public init(output: BinaryOutput) {
     self.output = output

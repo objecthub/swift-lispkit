@@ -37,7 +37,7 @@ public final class Collection: ManagedObject, CustomStringConvertible {
   }
   
   /// The kind of this collection
-  public fileprivate(set) var kind: Kind
+  public private(set) var kind: Kind
   
   /// The collection values
   public var exprs: Exprs

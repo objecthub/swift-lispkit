@@ -25,9 +25,9 @@ public final class Promise: ManagedObject, CustomStringConvertible {
   
   public indirect enum State {
     case lazy(Procedure)       // Thunk of promises
-    case shared(Promise)        // Shared future
+    case shared(Promise)       // Shared future
     case value(Expr)           // Evaluated future
-    case thrown(Error)     // Failed evaluation of future
+    case thrown(Error)         // Failed evaluation of future
   }
   
   /// State of the future; this state is modified externally.

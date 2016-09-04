@@ -23,7 +23,7 @@
 public typealias Exprs = [Expr]
 
 /// An immutable empty set of expressions
-public let NO_EXPRS = Exprs()
+public let noExprs = Exprs()
 
 /// Add evaluation capabilities to arrays implementing the `Evaluatable` and the
 /// `CustomStringConvertible` protocols

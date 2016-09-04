@@ -22,8 +22,8 @@ import Foundation
 
 
 public struct ScanBuffer {
-  fileprivate var buffer: [UniChar]
-  public fileprivate(set) var index: Int
+  private var buffer: [UniChar]
+  public private(set) var index: Int
   
   public init(capacity: Int = 256) {
     self.buffer = Array<UniChar>(repeating: 0, count: capacity)

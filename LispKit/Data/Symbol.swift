@@ -26,12 +26,12 @@
 ///
 public final class Symbol: Reference, CustomStringConvertible {
   
-  fileprivate enum Kind {
+  private enum Kind {
     case interned(String)
     case generated(Symbol, WeakEnv)
   }
   
-  fileprivate let kind: Kind
+  private let kind: Kind
   
   internal init(_ ident: String) {
     self.kind = .interned(ident)
@@ -79,7 +79,7 @@ public final class Symbol: Reference, CustomStringConvertible {
     }
   }
   
-  fileprivate static let ESCAPE_CHARS = { () -> CharacterSet in
+  private static let escapeChars = { () -> CharacterSet in
     let mcs = NSMutableCharacterSet()
     mcs.formUnion(with: CharacterSet.whitespacesAndNewlines)
     mcs.formUnion(with: CharacterSet.controlCharacters)
@@ -89,7 +89,7 @@ public final class Symbol: Reference, CustomStringConvertible {
   public var description: String {
     switch self.kind {
       case .interned(let ident):
-        if ident.rangeOfCharacter(from: Symbol.ESCAPE_CHARS) != nil {
+        if ident.rangeOfCharacter(from: Symbol.escapeChars) != nil {
           return "|\(Expr.escapeStr(ident))|"
         } else {
           return ident

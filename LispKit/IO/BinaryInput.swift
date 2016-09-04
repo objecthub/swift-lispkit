@@ -29,22 +29,22 @@ import Foundation
 open class BinaryInput: IteratorProtocol {
   
   /// Buffer for fetching bigger chunks of data at once.
-  fileprivate var buffer: [UInt8]
+  private var buffer: [UInt8]
   
   /// Index into buffer pointing at the next byte to read.
-  fileprivate var index: Int = 0
+  private var index: Int = 0
   
   /// Eof is true if all bytes have been consumed.
-  open fileprivate(set) var eof: Bool = false
+  public private(set) var eof: Bool = false
   
   /// Input stream. If this property is nil, only the content in the buffer is relevant.
-  fileprivate var input: InputStream?
+  private var input: InputStream?
   
   /// The URL for the input stream. `url` is nil whenever `input` is nil.
-  open let url: URL?
+  public let url: URL?
   
   /// Relative paths are relative to the documents folder
-  fileprivate static let documentsUrl =
+  private static let documentsUrl =
     URL(fileURLWithPath:
       NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])
   
@@ -179,7 +179,7 @@ open class BinaryInput: IteratorProtocol {
   
   /// Guarantees that there is at least one byte to read from the buffer. Returns false if the
   /// end of file is reached or there has been a read error.
-  fileprivate func readable() -> Bool {
+  private func readable() -> Bool {
     if self.eof {
       return false
     } else if self.index >= self.buffer.count {
@@ -204,7 +204,7 @@ open class BinaryInput: IteratorProtocol {
   
   /// Returns a function that decodes the binary input as UTF8 and returns strings of at most
   /// `length` characters (where a character is a unicode scalar).
-  open func textProvider(_ length: Int) -> () -> String? {
+  public func textProvider(_ length: Int) -> () -> String? {
     var codec = UTF8()
     var this = self
     return {

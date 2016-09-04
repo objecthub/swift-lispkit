@@ -83,9 +83,9 @@ open class Parser {
         }
         if self.scanner.hasToken(.dot) {
           self.scanner.next()
-          res = Expr.List(exprs, append: try self.parse())
+          res = Expr.makeList(exprs, append: try self.parse())
         } else {
-          res = Expr.List(exprs)
+          res = Expr.makeList(exprs)
         }
         if !self.scanner.hasToken(.rparen) {
           throw SyntaxError.closingParenthesisMissing
@@ -120,16 +120,16 @@ open class Parser {
         res = .bytes(MutableBox(bytes))
       case .quote:
         self.scanner.next()
-        return Expr.List(.symbol(symbols.QUOTE), try self.parse())
+        return Expr.makeList(.symbol(symbols.quote), try self.parse())
       case .backquote:
         self.scanner.next()
-        return Expr.List(.symbol(symbols.QUASIQUOTE), try self.parse())
+        return Expr.makeList(.symbol(symbols.quasiquote), try self.parse())
       case .comma:
         self.scanner.next()
-        return Expr.List(.symbol(symbols.UNQUOTE), try self.parse())
+        return Expr.makeList(.symbol(symbols.unquote), try self.parse())
       case .commaat:
         self.scanner.next()
-        return Expr.List(.symbol(symbols.UNQUOTESPLICING), try self.parse())
+        return Expr.makeList(.symbol(symbols.unquoteSplicing), try self.parse())
       case .dot:
         self.scanner.next()
         throw SyntaxError.unexpectedDot

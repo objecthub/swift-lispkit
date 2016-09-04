@@ -145,25 +145,25 @@ public enum Type: Int, CustomStringConvertible {
   public var included: Set<Type> {
     switch self {
       case .procedureType:
-        return PROCEDURE_SUBTYPES
+        return procedureSubtypes
       case .numberType:
-        return NUMBER_SUBTYPES
+        return numberSubtypes
       case .exactNumberType:
-        return EXACT_NUMBER_SUBTYPES
+        return exactNumberSubtypes
       case .realType:
-        return REAL_SUBTYPES
+        return realSubtypes
       case .listType:
-        return LIST_SUBTYPES
+        return listSubtypes
       case .properListType:
-        return PROPERLIST_SUBTYPES
+        return properListSubtypes
       case .assocListType:
-        return ASSOCLIST_SUBTYPES
+        return assocListSubtypes
       case .portType:
-        return PORT_SUBTYPES
+        return portSubtypes
       case .inputPortType:
-        return INPUT_PORT_SUBTYPES
+        return inputPortSubtypes
       case .outputPortType:
-        return OUTPUT_PORT_SUBTYPES
+        return outputPortSubtypes
       default:
         return [self]
     }
@@ -174,20 +174,45 @@ public enum Type: Int, CustomStringConvertible {
   }
 }
 
-private let PROCEDURE_SUBTYPES: Set<Type> = [.procedureType, .parameterType]
-private let NUMBER_SUBTYPES: Set<Type> = [.numberType, .byteType, .integerType, .rationalType,
-                                          .floatType, .complexType, .exactNumberType, .realType]
-private let EXACT_NUMBER_SUBTYPES: Set<Type> = [.exactNumberType, .byteType,
-                                                .integerType, .rationalType]
-private let REAL_SUBTYPES: Set<Type> = [.realType, .integerType, .rationalType, .floatType]
-private let LIST_SUBTYPES: Set<Type> = [.listType, .pairType, .nullType, .properListType,
-                                        .assocListType]
-private let PROPERLIST_SUBTYPES: Set<Type> = [.properListType, .pairType, .nullType]
-private let ASSOCLIST_SUBTYPES: Set<Type> = [.assocListType, .pairType, .nullType]
-private let PORT_SUBTYPES: Set<Type> = [.portType, .inputPortType, .outputPortType,
-                                        .textInputPortType, .textOutputPortType,
-                                        .binaryInputPortType, .binaryOutputPortType]
-private let INPUT_PORT_SUBTYPES: Set<Type> = [.inputPortType, .textInputPortType,
+private let procedureSubtypes  : Set<Type> = [.procedureType,
+                                              .parameterType]
+private let numberSubtypes     : Set<Type> = [.numberType,
+                                              .byteType,
+                                              .integerType,
+                                              .rationalType,
+                                              .floatType,
+                                              .complexType,
+                                              .exactNumberType,
+                                              .realType]
+private let exactNumberSubtypes: Set<Type> = [.exactNumberType,
+                                              .byteType,
+                                              .integerType,
+                                              .rationalType]
+private let realSubtypes       : Set<Type> = [.realType,
+                                              .integerType,
+                                              .rationalType,
+                                              .floatType]
+private let listSubtypes       : Set<Type> = [.listType,
+                                              .pairType,
+                                              .nullType,
+                                              .properListType,
+                                              .assocListType]
+private let properListSubtypes : Set<Type> = [.properListType,
+                                              .pairType,
+                                              .nullType]
+private let assocListSubtypes  : Set<Type> = [.assocListType,
+                                              .pairType,
+                                              .nullType]
+private let portSubtypes       : Set<Type> = [.portType,
+                                              .inputPortType,
+                                              .outputPortType,
+                                              .textInputPortType,
+                                              .textOutputPortType,
+                                              .binaryInputPortType,
+                                              .binaryOutputPortType]
+private let inputPortSubtypes  : Set<Type> = [.inputPortType,
+                                              .textInputPortType,
                                               .binaryInputPortType]
-private let OUTPUT_PORT_SUBTYPES: Set<Type> = [.outputPortType, .textOutputPortType,
-                                               .binaryOutputPortType]
+private let outputPortSubtypes : Set<Type> = [.outputPortType,
+                                              .textOutputPortType,
+                                              .binaryOutputPortType]

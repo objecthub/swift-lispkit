@@ -152,13 +152,13 @@ public final class VirtualMachine: TrackedObject {
   }
   
   /// Counter for managing register ids
-  fileprivate static var nextRid: Int = 0
+  private static var nextRid: Int = 0
   
   /// The context of this virtual machine
-  fileprivate let context: Context
+  private let context: Context
   
   /// The stack used by this virtual machine
-  fileprivate var stack: [Expr]
+  private var stack: [Expr]
   
   /// The stack pointer (pointing at the next available position on the stack); this variable
   /// should be private, but since it's needed in tests, it remains internal.
@@ -171,24 +171,24 @@ public final class VirtualMachine: TrackedObject {
   }
   
   /// The maximum value of the stack pointer so far (used for debugging)
-  fileprivate var maxSp: Int
+  private var maxSp: Int
   
   /// Registers
-  fileprivate var registers: Registers
+  private var registers: Registers
   
   /// Winders
-  internal fileprivate(set) var winders: Winder?
+  internal private(set) var winders: Winder?
   
   /// Parameters
   internal var parameters: HashTable
   
-  fileprivate var setParameterProc: Procedure!
+  private var setParameterProc: Procedure!
   
   /// Internal counter used for triggering the garbage collector
-  fileprivate var execInstr: UInt64
+  private var execInstr: UInt64
   
   /// Constant representing an empty capture set
-  fileprivate static let NO_CAPTURES = [Expr]()
+  private static let noCaptures = [Expr]()
   
   /// Initializes a new virtual machine for the given context
   public init(_ context: Context) {
@@ -235,7 +235,7 @@ public final class VirtualMachine: TrackedObject {
       while !parser.finished {
         exprs.append(try parser.parse())
       }
-      return self.evalExprs(.List(exprs), in: env, optimize: optimize)
+      return self.evalExprs(.makeList(exprs), in: env, optimize: optimize)
     } catch let error as LispError { // handle Lisp-related issues
       return .error(AnyError(error))
     } catch { // handle internal issues
@@ -248,7 +248,7 @@ public final class VirtualMachine: TrackedObject {
   /// Compiles the given expression in the interaction environment and executes it using this
   /// virtual machine.
   public func evalExpr(_ expr: Expr, in env: Env = .interaction, optimize: Bool = true) -> Expr {
-    return self.evalExprs(.List(expr), in: env, optimize: optimize)
+    return self.evalExprs(.makeList(expr), in: env, optimize: optimize)
   }
   
   /// Compiles the given list of expressions in the interaction environment and executes
@@ -259,7 +259,7 @@ public final class VirtualMachine: TrackedObject {
       var res = Expr.void
       while case .pair(let expr, let rest) = exprlist {
         let code =
-          try Compiler.compile(self.context, expr: .List(expr), in: env, optimize: optimize)
+          try Compiler.compile(self.context, expr: .makeList(expr), in: env, optimize: optimize)
         log(code.description)
         res = try self.execute(code)
         exprlist = rest
@@ -285,7 +285,7 @@ public final class VirtualMachine: TrackedObject {
                    in env: Env = .interaction,
                    usingRulesEnv renv: Env? = nil) throws -> Expr {
     let code =
-      try Compiler.compile(self.context, expr: .List(expr), in: env, and: renv, optimize: true)
+      try Compiler.compile(self.context, expr: .makeList(expr), in: env, and: renv, optimize: true)
     return try self.apply(.procedure(Procedure(code)), to: .null)
   }
   
@@ -774,7 +774,7 @@ public final class VirtualMachine: TrackedObject {
   fileprivate func execute(_ code: Code) throws -> Expr {
     self.sp = 0
     self.push(.procedure(Procedure(code)))
-    return try self.execute(code, args: 0, captured: VirtualMachine.NO_CAPTURES)
+    return try self.execute(code, args: 0, captured: VirtualMachine.noCaptures)
   }
   
   fileprivate func execute(_ code: Code, args: Int, captured: [Expr]) throws -> Expr {
@@ -944,7 +944,7 @@ public final class VirtualMachine: TrackedObject {
           }
           self.push(.special(SpecialForm(proc)))
         case .compile:
-          let code = try Compiler.compile(self.context, expr: .List(self.pop()), optimize: true)
+          let code = try Compiler.compile(self.context, expr: .makeList(self.pop()), optimize: true)
           self.push(.procedure(Procedure(code)))
         case .apply(let m):
           let arglist = self.pop()
@@ -1139,11 +1139,11 @@ public final class VirtualMachine: TrackedObject {
         case .newline:
           context.console.print("\n")
         case .eq:
-          self.push(.Boolean(eqExpr(self.pop(), self.pop())))
+          self.push(.makeBoolean(eqExpr(self.pop(), self.pop())))
         case .eqv:
-          self.push(.Boolean(eqvExpr(self.pop(), self.pop())))
+          self.push(.makeBoolean(eqvExpr(self.pop(), self.pop())))
         case .equal:
-          self.push(.Boolean(equalExpr(self.pop(), self.pop())))
+          self.push(.makeBoolean(equalExpr(self.pop(), self.pop())))
         case .isPair:
           if case .pair(_, _) = self.pop() {
             self.push(.true)
@@ -1151,7 +1151,7 @@ public final class VirtualMachine: TrackedObject {
             self.push(.false)
           }
         case .isNull:
-          self.push(.Boolean(self.pop() == .null))
+          self.push(.makeBoolean(self.pop() == .null))
         case .cons:
           let cdr = self.pop()
           self.push(.pair(self.pop(), cdr))

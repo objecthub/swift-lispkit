@@ -24,60 +24,60 @@
 /// creating interned symbols for a given identifier and for looking up the identifier
 /// of a given symbol tag.
 ///
-open class SymbolTable: Sequence {
-  fileprivate var symTable = [String : Symbol]()
-  fileprivate var gensymCounter: UInt64 = 0
+public final class SymbolTable: Sequence {
+  private var symTable = [String : Symbol]()
+  private var gensymCounter: UInt64 = 0
   
-  open let UNDEF           = Symbol("<undef>")
-  open let ELLIPSIS        = Symbol("...")
-  open let WILDCARD        = Symbol("_")
-  open let APPEND          = Symbol("append")
-  open let CONS            = Symbol("cons")
-  open let LIST            = Symbol("list")
-  open let QUOTE           = Symbol("quote")
-  open let QUASIQUOTE      = Symbol("quasiquote")
-  open let UNQUOTE         = Symbol("unquote")
-  open let UNQUOTESPLICING = Symbol("unquote-splicing")
-  open let DOUBLEARROW     = Symbol("=>")
-  open let ELSE            = Symbol("else")
-  open let IF              = Symbol("if")
-  open let LAMBDA          = Symbol("lambda")
-  open let LET             = Symbol("let")
-  open let LETSTAR         = Symbol("let*")
-  open let LETREC          = Symbol("letrec")
-  open let DEFINE          = Symbol("define")
-  open let MAKEPROMISE     = Symbol("make-promise")
+  public let undef           = Symbol("<undef>")
+  public let ellipsis        = Symbol("...")
+  public let wildcard        = Symbol("_")
+  public let append          = Symbol("append")
+  public let cons            = Symbol("cons")
+  public let list            = Symbol("list")
+  public let quote           = Symbol("quote")
+  public let quasiquote      = Symbol("quasiquote")
+  public let unquote         = Symbol("unquote")
+  public let unquoteSplicing = Symbol("unquote-splicing")
+  public let doubleArrow     = Symbol("=>")
+  public let `else`          = Symbol("else")
+  public let `if`            = Symbol("if")
+  public let lambda          = Symbol("lambda")
+  public let `let`           = Symbol("let")
+  public let letStar         = Symbol("let*")
+  public let letrec          = Symbol("letrec")
+  public let define          = Symbol("define")
+  public let makePromise     = Symbol("make-promise")
   
   public init() {
     func register(_ sym: Symbol) {
       self.symTable[sym.description] = sym
     }
-    register(self.UNDEF)
-    register(self.ELLIPSIS)
-    register(self.WILDCARD)
-    register(self.APPEND)
-    register(self.CONS)
-    register(self.LIST)
-    register(self.QUOTE)
-    register(self.QUASIQUOTE)
-    register(self.UNQUOTE)
-    register(self.UNQUOTESPLICING)
-    register(self.DOUBLEARROW)
-    register(self.ELSE)
-    register(self.IF)
-    register(self.LAMBDA)
-    register(self.LET)
-    register(self.LETSTAR)
-    register(self.LETREC)
-    register(self.DEFINE)
-    register(self.MAKEPROMISE)
+    register(self.undef)
+    register(self.ellipsis)
+    register(self.wildcard)
+    register(self.append)
+    register(self.cons)
+    register(self.list)
+    register(self.quote)
+    register(self.quasiquote)
+    register(self.unquote)
+    register(self.unquoteSplicing)
+    register(self.doubleArrow)
+    register(self.else)
+    register(self.if)
+    register(self.lambda)
+    register(self.let)
+    register(self.letStar)
+    register(self.letrec)
+    register(self.define)
+    register(self.makePromise)
   }
   
-  open func exists(_ ident: String) -> Bool {
+  public func exists(_ ident: String) -> Bool {
     return self.symTable[ident] != nil
   }
   
-  open func intern(_ ident: String) -> Symbol {
+  public func intern(_ ident: String) -> Symbol {
     if let sym = self.symTable[ident] {
       return sym
     } else {
@@ -87,7 +87,7 @@ open class SymbolTable: Sequence {
     }
   }
   
-  open func gensym(_ basename: String) -> Symbol {
+  public func gensym(_ basename: String) -> Symbol {
     var ident: String
     repeat {
       ident = basename + String(self.gensymCounter)
@@ -97,7 +97,7 @@ open class SymbolTable: Sequence {
   }
   
   /// Returns a generator for iterating over all symbols of this symbol table.
-  open func makeIterator() -> AnyIterator<Symbol> {
+  public func makeIterator() -> AnyIterator<Symbol> {
     var generator = self.symTable.values.makeIterator()
     return AnyIterator { return generator.next() }
   }

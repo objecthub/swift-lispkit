@@ -211,7 +211,7 @@ public enum Expr: Trackable, Hashable {
     return (exprs, expr)
   }
   
-  /// The length of this expression (all non-pair expressions have length 1)
+  /// The length of this expression (all non-pair expressions have length 1).
   var length: Int {
     var expr = self
     var len: Int = 0
@@ -222,10 +222,13 @@ public enum Expr: Trackable, Hashable {
     return len
   }
   
+  /// Returns true if the expression isn't referring to other expressions directly or
+  /// indirectly.
   public var isSimple: Bool {
     switch self {
-      case .undef, .void, .eof, .null, .true, .false, .symbol(_), .fixnum(_), .bignum(_), .rational(_),
-           .bigrat(_), .flonum(_), .complex(_), .char(_), .string(_), .bytes(_), .port(_):
+      case .undef, .void, .eof, .null, .true, .false, .symbol(_),
+           .fixnum(_), .bignum(_), .rational(_), .bigrat(_), .flonum(_), .complex(_),
+           .char(_), .string(_), .bytes(_), .port(_):
         return true
       default:
         return false
@@ -282,51 +285,51 @@ public enum Expr: Trackable, Hashable {
 ///
 extension Expr {
   
-  public static func Boolean(_ val: Bool) -> Expr {
+  public static func makeBoolean(_ val: Bool) -> Expr {
     return val ? .true : .false
   }
   
-  public static func Number(_ num: Int) -> Expr {
+  public static func makeNumber(_ num: Int) -> Expr {
     return .fixnum(Int64(num))
   }
   
-  public static func Number(_ num: Int64) -> Expr {
+  public static func makeNumber(_ num: Int64) -> Expr {
     return .fixnum(num)
   }
   
-  public static func Number(_ num: BigInt) -> Expr {
+  public static func makeNumber(_ num: BigInt) -> Expr {
     return Expr.bignum(num).normalized
   }
   
-  public static func Number(_ num: Rational<Int64>) -> Expr {
+  public static func makeNumber(_ num: Rational<Int64>) -> Expr {
     return Expr.rational(ImmutableBox(num)).normalized
   }
   
-  public static func Number(_ num: Rational<BigInt>) -> Expr {
+  public static func makeNumber(_ num: Rational<BigInt>) -> Expr {
     return Expr.bigrat(ImmutableBox(num)).normalized
   }
   
-  public static func Number(_ num: Double) -> Expr {
+  public static func makeNumber(_ num: Double) -> Expr {
     return .flonum(num)
   }
   
-  public static func Number(_ num: Complex<Double>) -> Expr {
+  public static func makeNumber(_ num: Complex<Double>) -> Expr {
     return Expr.complex(ImmutableBox(num)).normalized
   }
   
-  public static func List(_ expr: Expr...) -> Expr {
-    return Expr.List(expr)
+  public static func makeList(_ expr: Expr...) -> Expr {
+    return Expr.makeList(expr)
   }
   
-  public static func List(_ exprs: Exprs, append: Expr = Expr.null) -> Expr {
-    return Expr.Stack(exprs.reversed(), append: append)
+  public static func makeList(_ exprs: Exprs, append: Expr = Expr.null) -> Expr {
+    return Expr.makeList(fromStack: exprs.reversed(), append: append)
   }
   
-  public static func List(_ exprs: Arguments, append: Expr = Expr.null) -> Expr {
-    return Expr.Stack(exprs.reversed(), append: append)
+  public static func makeList(_ exprs: Arguments, append: Expr = Expr.null) -> Expr {
+    return Expr.makeList(fromStack: exprs.reversed(), append: append)
   }
   
-  public static func Stack(_ exprs: Exprs, append: Expr = Expr.null) -> Expr {
+  public static func makeList(fromStack exprs: Exprs, append: Expr = Expr.null) -> Expr {
     var res = append
     for expr in exprs {
       res = pair(expr, res)
@@ -334,7 +337,7 @@ extension Expr {
     return res
   }
   
-  public static func StringFor(_ str: String) -> Expr {
+  public static func makeString(_ str: String) -> Expr {
     return .string(NSMutableString(string: str))
   }
 }
@@ -343,7 +346,7 @@ extension Expr {
 /// This extension adds projections to `Expr`.
 ///
 extension Expr {
-  public func assertTypeOf(_ types: Type...) throws {
+  public func assertType(_ types: Type...) throws {
     for type in types {
       for subtype in type.included {
         if self.type == subtype {
@@ -439,10 +442,10 @@ extension Expr {
   
   public func toSymbol() -> Symbol? {
     switch self {
-    case .symbol(let sym):
-      return sym
-    default:
-      return nil
+      case .symbol(let sym):
+        return sym
+      default:
+        return nil
     }
   }
   

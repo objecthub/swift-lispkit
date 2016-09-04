@@ -28,19 +28,19 @@ import Foundation
 open class BinaryOutput {
   
   /// Buffer into which bytes are written first before they are written into an output stream.
-  fileprivate var buffer: [UInt8]
+  private var buffer: [UInt8]
   
   /// Index into the buffer indicating the next byte to write.
-  fileprivate var next: Int
+  private var next: Int
   
   /// The output stream into which content in the buffer is flushed.
-  fileprivate var output: OutputStream?
+  private var output: OutputStream?
   
   /// The URL for the output stream. `url` is nil whenever `output` is nil.
   open let url: URL?
   
   /// Relative paths are relative to the documents folder
-  fileprivate static let documentsUrl =
+  private static let documentsUrl =
     URL(fileURLWithPath:
       NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])
 

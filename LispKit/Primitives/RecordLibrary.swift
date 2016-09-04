@@ -81,7 +81,7 @@ public final class RecordLibrary: NativeLibrary {
           case .recordType = type.kind else {
       return .false
     }
-    return .Boolean(type === exprtype)
+    return .makeBoolean(type === exprtype)
   }
   
   func isRecordType(_ expr: Expr) -> Expr {
@@ -117,7 +117,7 @@ public final class RecordLibrary: NativeLibrary {
       throw EvalError.typeError(fields, [.properListType])
     }
     // Return record type
-    return .record(Collection(kind: .recordType, exprs: [name, .Number(numFields), fields]))
+    return .record(Collection(kind: .recordType, exprs: [name, .makeNumber(numFields), fields]))
   }
   
   func recordTypeName(_ expr: Expr) -> Expr {
@@ -146,7 +146,7 @@ public final class RecordLibrary: NativeLibrary {
         guard let index = self.indexOfField(field, in: record.exprs[2]) else {
           throw EvalError.unknownFieldOfRecordType(expr, field)
         }
-        return .Number(index)
+        return .makeNumber(index)
       case .pair(_, _):
         var indices = Exprs()
         var current = name
@@ -155,13 +155,13 @@ public final class RecordLibrary: NativeLibrary {
           guard let index = self.indexOfField(field, in: record.exprs[2]) else {
             throw EvalError.unknownFieldOfRecordType(expr, field)
           }
-          indices.append(.Number(index))
+          indices.append(.makeNumber(index))
           current = next
         }
         guard current.isNull else {
           throw EvalError.typeError(name, [.properListType])
         }
-        return .List(indices)
+        return .makeList(indices)
       default:
         throw EvalError.typeError(name, [.symbolType])
     }

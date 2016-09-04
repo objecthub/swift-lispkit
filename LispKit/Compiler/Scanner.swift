@@ -946,7 +946,7 @@ public enum TokenKind: Int, CustomStringConvertible {
       case .rparen    : return "RPAREN"
       case .hashlparen: return "HASHLPAREN"
       case .u8LPAREN  : return "U8LPAREN"
-      case .quote     : return "QUOTE"
+      case .quote     : return "quote"
       case .backquote : return "BACKQUOTE"
       case .comma     : return "COMMA"
       case .commaat   : return "COMMAAT"

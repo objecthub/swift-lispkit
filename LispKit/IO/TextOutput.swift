@@ -28,16 +28,16 @@ import Foundation
 open class TextOutput {
   
   /// Internal character buffer.
-  fileprivate var buffer: [UniChar]
+  private var buffer: [UniChar]
   
   /// Index of the next character to write.
-  fileprivate var next: Int
+  private var next: Int
   
   /// Soft threshold for triggering a `flush`. Invariant: `threshold` <= `buffer.count`.
-  fileprivate let threshold: Int
+  private let threshold: Int
   
   /// Text output target object to which the character sequences are written as a stream of bytes.
-  fileprivate var target: TextOutputTarget?
+  private var target: TextOutputTarget?
   
   /// The URL of this text output.
   open var url: URL?
