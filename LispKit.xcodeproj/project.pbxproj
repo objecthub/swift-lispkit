@@ -11,6 +11,8 @@
 		CC01903D1C8C7D8600DB8BF9 /* Reference.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC01903C1C8C7D8600DB8BF9 /* Reference.swift */; };
 		CC050F141D017D3400D32132 /* BytevectorLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC050F131D017D3400D32132 /* BytevectorLibrary.swift */; };
 		CC069FC11D7B7D06004644B1 /* NumberKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC069FBE1D7B7CFE004644B1 /* NumberKit.framework */; };
+		CC069FC31D7BA8F2004644B1 /* NumberKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC069FBE1D7B7CFE004644B1 /* NumberKit.framework */; };
+		CC069FC41D7BA8F2004644B1 /* NumberKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CC069FBE1D7B7CFE004644B1 /* NumberKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CC0980A71C62BDBC006B7FB1 /* Compiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0980A61C62BDBC006B7FB1 /* Compiler.swift */; };
 		CC0980A91C67E81C006B7FB1 /* Code.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0980A81C67E81C006B7FB1 /* Code.swift */; };
 		CC0980AB1C67E84C006B7FB1 /* Cell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0980AA1C67E84C006B7FB1 /* Cell.swift */; };
@@ -109,6 +111,13 @@
 			remoteGlobalIDString = CC99F5591B7AA6E200355E1E;
 			remoteInfo = NumberKitTests;
 		};
+		CC069FC51D7BA8F2004644B1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CC069FB81D7B7CFE004644B1 /* NumberKit.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = CC99F54E1B7AA6E200355E1E;
+			remoteInfo = NumberKit;
+		};
 		CC1AAE3D1CC3CF0F00D1806F /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = CCAD52B11C48403800DBD8EE /* Project object */;
@@ -132,6 +141,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				CC069FC41D7BA8F2004644B1 /* NumberKit.framework in Embed Frameworks */,
 				CC1AAE3C1CC3CF0F00D1806F /* LispKit.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
@@ -254,6 +264,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CC069FC31D7BA8F2004644B1 /* NumberKit.framework in Frameworks */,
 				CC1AAE3B1CC3CF0F00D1806F /* LispKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -527,6 +538,7 @@
 			);
 			dependencies = (
 				CC1AAE3E1CC3CF0F00D1806F /* PBXTargetDependency */,
+				CC069FC61D7BA8F2004644B1 /* PBXTargetDependency */,
 			);
 			name = LispKitRepl;
 			productName = LispKitRepl;
@@ -757,6 +769,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		CC069FC61D7BA8F2004644B1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = NumberKit;
+			targetProxy = CC069FC51D7BA8F2004644B1 /* PBXContainerItemProxy */;
+		};
 		CC1AAE3E1CC3CF0F00D1806F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = CCAD52B91C48403800DBD8EE /* LispKit */;
