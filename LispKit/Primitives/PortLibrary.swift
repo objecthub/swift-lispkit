@@ -181,7 +181,7 @@ public final class PortLibrary: NativeLibrary {
   }
   
   func openInputFile(_ expr: Expr) throws -> Expr {
-    let filename = try expr.asStr()
+    let filename = try expr.asString()
     guard let input = BinaryInput(path: filename) else {
       throw EvalError.cannotOpenFile(filename)
     }
@@ -189,7 +189,7 @@ public final class PortLibrary: NativeLibrary {
   }
   
   func openBinaryInputFile(_ expr: Expr) throws -> Expr {
-    let filename = try expr.asStr()
+    let filename = try expr.asString()
     guard let input = BinaryInput(path: filename) else {
       throw EvalError.cannotOpenFile(filename)
     }
@@ -197,7 +197,7 @@ public final class PortLibrary: NativeLibrary {
   }
   
   func openOutputFile(_ expr: Expr) throws -> Expr {
-    let filename = try expr.asStr()
+    let filename = try expr.asString()
     guard let output = BinaryOutput(path: filename) else {
       throw EvalError.cannotOpenFile(filename)
     }
@@ -205,7 +205,7 @@ public final class PortLibrary: NativeLibrary {
   }
   
   func openBinaryOutputFile(_ expr: Expr) throws -> Expr {
-    let filename = try expr.asStr()
+    let filename = try expr.asString()
     guard let output = BinaryOutput(path: filename) else {
       throw EvalError.cannotOpenFile(filename)
     }
@@ -213,7 +213,7 @@ public final class PortLibrary: NativeLibrary {
   }
   
   func openInputString(_ expr: Expr) throws -> Expr {
-    return .port(Port(input: TextInput(string: try expr.asStr())))
+    return .port(Port(input: TextInput(string: try expr.asString())))
   }
   
   func openOutputString() -> Expr {
@@ -422,7 +422,7 @@ public final class PortLibrary: NativeLibrary {
   }
   
   func writeChar(_ expr: Expr, port: Expr?) throws -> Expr {
-    guard try self.textOutputFrom(port).write(expr.asChar()) else {
+    guard try self.textOutputFrom(port).write(expr.asUniChar()) else {
       throw EvalError.cannotWriteToPort(port ?? .port(self.context.outputPort))
     }
     return .void
@@ -430,11 +430,11 @@ public final class PortLibrary: NativeLibrary {
   
   func writeString(_ expr: Expr, args: Arguments) throws -> Expr {
     if args.count < 2 {
-      guard try self.textOutputFrom(args.first).writeString(expr.asStr()) else {
+      guard try self.textOutputFrom(args.first).writeString(expr.asString()) else {
         throw EvalError.cannotWriteToPort(args.first ?? .port(self.context.outputPort))
       }
     } else {
-      let chars = try expr.asStr().utf16
+      let chars = try expr.asString().utf16
       guard let (port, s, e) = args.optional(.port(self.context.outputPort),
                                              .makeNumber(chars.count),
                                              .makeNumber(0)) else {
@@ -462,7 +462,7 @@ public final class PortLibrary: NativeLibrary {
   }
   
   func writeU8(_ expr: Expr, port: Expr?) throws -> Expr {
-    guard try self.binaryOutputFrom(port).write(expr.asByte()) else {
+    guard try self.binaryOutputFrom(port).write(expr.asUInt8()) else {
       throw EvalError.cannotWriteToPort(port ?? .port(self.context.outputPort))
     }
     return .void

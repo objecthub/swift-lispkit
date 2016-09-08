@@ -52,78 +52,78 @@ public final class CharacterLibrary: NativeLibrary {
   }
   
   func charEquals(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .makeBoolean(try fst.asChar() == snd.asChar())
+    return .makeBoolean(try fst.asUniChar() == snd.asUniChar())
   }
   
   func charLessThan(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .makeBoolean(try fst.asChar() < snd.asChar())
+    return .makeBoolean(try fst.asUniChar() < snd.asUniChar())
   }
   
   func charLessThanEquals(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .makeBoolean(try fst.asChar() <= snd.asChar())
+    return .makeBoolean(try fst.asUniChar() <= snd.asUniChar())
   }
   
   func charGreaterThan(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .makeBoolean(try fst.asChar() > snd.asChar())
+    return .makeBoolean(try fst.asUniChar() > snd.asUniChar())
   }
   
   func charGreaterThanEquals(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .makeBoolean(try fst.asChar() >= snd.asChar())
+    return .makeBoolean(try fst.asUniChar() >= snd.asUniChar())
   }
   
   func charCiEquals(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .makeBoolean(try fst.asCharStr().lowercased() == snd.asCharStr().lowercased())
+    return .makeBoolean(try fst.charAsString().lowercased() == snd.charAsString().lowercased())
   }
   
   func charCiLessThan(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .makeBoolean(try fst.asCharStr().lowercased() < snd.asCharStr().lowercased())
+    return .makeBoolean(try fst.charAsString().lowercased() < snd.charAsString().lowercased())
   }
   
   func charCiLessThanEquals(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .makeBoolean(try fst.asCharStr().lowercased() <= snd.asCharStr().lowercased())
+    return .makeBoolean(try fst.charAsString().lowercased() <= snd.charAsString().lowercased())
   }
   
   func charCiGreaterThan(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .makeBoolean(try fst.asCharStr().lowercased() > snd.asCharStr().lowercased())
+    return .makeBoolean(try fst.charAsString().lowercased() > snd.charAsString().lowercased())
   }
   
   func charCiGreaterThanEquals(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .makeBoolean(try fst.asCharStr().lowercased() >= snd.asCharStr().lowercased())
+    return .makeBoolean(try fst.charAsString().lowercased() >= snd.charAsString().lowercased())
   }
   
   func charIsAlphabetic(_ expr: Expr) throws -> Expr {
-    return .makeBoolean(LETTERS.contains(unicodeScalar(try expr.asChar())))
+    return .makeBoolean(LETTERS.contains(unicodeScalar(try expr.asUniChar())))
   }
   
   func charIsNumeric(_ expr: Expr) throws -> Expr {
-    return .makeBoolean(DIGITS.contains(unicodeScalar(try expr.asChar())))
+    return .makeBoolean(DIGITS.contains(unicodeScalar(try expr.asUniChar())))
   }
   
   func charIsWhitespace(_ expr: Expr) throws -> Expr {
-    return .makeBoolean(WHITESPACES.contains(unicodeScalar(try expr.asChar())))
+    return .makeBoolean(WHITESPACES.contains(unicodeScalar(try expr.asUniChar())))
   }
   
   func charIsUpperCase(_ expr: Expr) throws -> Expr {
-    return .makeBoolean(UPPER_LETTERS.contains(unicodeScalar(try expr.asChar())))
+    return .makeBoolean(UPPER_LETTERS.contains(unicodeScalar(try expr.asUniChar())))
   }
   
   func charIsLowerCase(_ expr: Expr) throws -> Expr {
-    return .makeBoolean(LOWER_LETTERS.contains(unicodeScalar(try expr.asChar())))
+    return .makeBoolean(LOWER_LETTERS.contains(unicodeScalar(try expr.asUniChar())))
   }
   
   func charToInteger(_ expr: Expr) throws -> Expr {
-    return .fixnum(Int64(try expr.asChar()))
+    return .fixnum(Int64(try expr.asUniChar()))
   }
   
   func integerToChar(_ expr: Expr) throws -> Expr {
-    return .char(UInt16(try expr.asInteger()))
+    return .char(UInt16(try expr.asInt64()))
   }
   
   func charUpcase(_ expr: Expr) throws -> Expr {
-    return .char(try expr.asCharStr().uppercased().utf16.first!)
+    return .char(try expr.charAsString().uppercased().utf16.first!)
   }
   
   func charDowncase(_ expr: Expr) throws -> Expr {
-    return .char(try expr.asCharStr().lowercased().utf16.first!)
+    return .char(try expr.charAsString().lowercased().utf16.first!)
   }
 }

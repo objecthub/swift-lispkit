@@ -22,9 +22,9 @@
 /// A scope contains bindings mapping symbol ids to expressions. Scopes are nested. Each
 /// scope is either a top-level scope or it has an outer/parent scope.
 ///
-open class Scope: TrackedObject {
+public final class Scope: TrackedObject {
   internal let outer: Scope?
-  fileprivate var bindings: [Symbol : Expr]
+  private var bindings: [Symbol : Expr]
   
   public init(_ outer: Scope? = nil) {
     self.outer = outer

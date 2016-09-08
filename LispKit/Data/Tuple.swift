@@ -19,7 +19,7 @@
 //
 
 ///
-/// `Tuple` implements two mutable expressions.
+/// `Tuple` implements a mutable pair of expressions.
 ///
 public final class Tuple: ManagedObject, CustomStringConvertible {
   

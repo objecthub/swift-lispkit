@@ -56,14 +56,14 @@ public final class Promise: ManagedObject, CustomStringConvertible {
   
   /// Returns true if this refers to only "simple" values (i.e. values which won't lead to
   /// cyclic references)
-  public var isSimple: Bool {
+  public var isAtom: Bool {
     switch self.state {
       case .lazy(_):
         return true
       case .shared(let future):
-        return future.isSimple
+        return future.isAtom
       case .value(let expr):
-        return expr.isSimple
+        return expr.isAtom
       case .thrown(_):
         return false
     }

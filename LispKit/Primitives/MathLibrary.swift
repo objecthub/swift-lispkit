@@ -673,7 +673,7 @@ public final class MathLibrary: NativeLibrary {
   func sqrt(_ expr: Expr) throws -> Expr {
     switch expr {
       case .fixnum(_), .bignum(_), .rational(_), .bigrat(_), .flonum(_):
-        let dbl = try expr.asFloat(coerce: true)
+        let dbl = try expr.asDouble(coerce: true)
         let res = Foundation.sqrt(dbl)
         return res.isNaN ? .makeNumber(Complex(dbl).sqrt) : .makeNumber(res)
       case .complex(let num):
@@ -703,7 +703,7 @@ public final class MathLibrary: NativeLibrary {
   func exp(_ expr: Expr) throws -> Expr {
     switch expr {
       case .fixnum(_), .bignum(_), .rational(_), .bigrat(_), .flonum(_):
-        let dbl = try expr.asFloat(coerce: true)
+        let dbl = try expr.asDouble(coerce: true)
         let res = Foundation.exp(dbl)
         return res.isNaN ? .makeNumber(Complex(dbl).exp) : .makeNumber(res)
       case .complex(let num):
@@ -716,7 +716,7 @@ public final class MathLibrary: NativeLibrary {
   func log(_ expr: Expr) throws -> Expr {
     switch expr {
       case .fixnum(_), .bignum(_), .rational(_), .bigrat(_), .flonum(_):
-        let dbl = try expr.asFloat(coerce: true)
+        let dbl = try expr.asDouble(coerce: true)
         let res = Foundation.log(dbl)
         return res.isNaN ? .makeNumber(Complex(dbl).log) : .makeNumber(res)
       case .complex(let num):
@@ -727,29 +727,29 @@ public final class MathLibrary: NativeLibrary {
   }
 
   func sin(_ expr: Expr) throws -> Expr {
-    return .makeNumber(Foundation.sin(try expr.asFloat(coerce: true)))
+    return .makeNumber(Foundation.sin(try expr.asDouble(coerce: true)))
   }
 
   func cos(_ expr: Expr) throws -> Expr {
-    return .makeNumber(Foundation.cos(try expr.asFloat(coerce: true)))
+    return .makeNumber(Foundation.cos(try expr.asDouble(coerce: true)))
   }
 
   func tan(_ expr: Expr) throws -> Expr {
-    return .makeNumber(Foundation.tan(try expr.asFloat(coerce: true)))
+    return .makeNumber(Foundation.tan(try expr.asDouble(coerce: true)))
   }
 
   func asin(_ expr: Expr) throws -> Expr {
-    return .makeNumber(Foundation.asin(try expr.asFloat(coerce: true)))
+    return .makeNumber(Foundation.asin(try expr.asDouble(coerce: true)))
   }
 
   func acos(_ expr: Expr) throws -> Expr {
-    return .makeNumber(Foundation.acos(try expr.asFloat(coerce: true)))
+    return .makeNumber(Foundation.acos(try expr.asDouble(coerce: true)))
   }
 
   func atan(_ fst: Expr, _ snd: Expr?) throws -> Expr {
-    let y = try fst.asFloat(coerce: true)
+    let y = try fst.asDouble(coerce: true)
     if let snd = snd {
-      return .makeNumber(Foundation.atan2(y, try snd.asFloat(coerce: true)))
+      return .makeNumber(Foundation.atan2(y, try snd.asDouble(coerce: true)))
     } else {
       return .makeNumber(Foundation.atan(y))
     }
@@ -800,7 +800,7 @@ public final class MathLibrary: NativeLibrary {
         throw EvalError.illegalRadix(rad!)
       }
     }
-    let scanner = Scanner(string: try expr.asStr(), prescan: false)
+    let scanner = Scanner(string: try expr.asString(), prescan: false)
     scanner.skipSpace()
     guard scanner.ch != EOF_CH else {
       throw EvalError.typeError(expr, [.numberType])
@@ -856,8 +856,8 @@ public final class MathLibrary: NativeLibrary {
   
   func approximate(_ x: Expr, delta: Expr) throws -> Expr {
     var l_curr: Int64 = 1
-    let t = try x.asFloat(coerce: true)
-    let err = try delta.asFloat(coerce: true)
+    let t = try x.asDouble(coerce: true)
+    let err = try delta.asDouble(coerce: true)
     var (actual, n, d) = MathLibrary.findBestRat(t, l_curr)
     while abs(actual) > err && l_curr < (Int64.max / 1000) {
       l_curr *= 10
@@ -868,13 +868,13 @@ public final class MathLibrary: NativeLibrary {
   }
   
   func makeRectangular(_ re: Expr, _ imag: Expr) throws -> Expr {
-    return .complex(ImmutableBox(Complex(try re.asFloat(coerce: true),
-                                            try imag.asFloat(coerce: true))))
+    return .complex(ImmutableBox(Complex(try re.asDouble(coerce: true),
+                                            try imag.asDouble(coerce: true))))
   }
   
   func makePolar(_ abs: Expr, _ arg: Expr) throws -> Expr {
-    return .complex(ImmutableBox(Complex(abs: try abs.asFloat(coerce: true),
-                                            arg: try arg.asFloat(coerce: true))))
+    return .complex(ImmutableBox(Complex(abs: try abs.asDouble(coerce: true),
+                                            arg: try arg.asDouble(coerce: true))))
   }
   
   func realPart(_ expr: Expr) throws -> Expr {
@@ -1036,7 +1036,7 @@ public final class MathLibrary: NativeLibrary {
   }
   
   func fxPlus(_ x: Expr, _ y: Expr) throws -> Expr {
-    return .fixnum(try x.asInteger() &+ y.asInteger())
+    return .fixnum(try x.asInt64() &+ y.asInt64())
   }
   
   func compileFxPlus(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
@@ -1050,7 +1050,7 @@ public final class MathLibrary: NativeLibrary {
   }
   
   func fxMinus(_ x: Expr, _ y: Expr) throws -> Expr {
-    return .fixnum(try x.asInteger() &- y.asInteger())
+    return .fixnum(try x.asInt64() &- y.asInt64())
   }
   
   func compileFxMinus(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
@@ -1064,7 +1064,7 @@ public final class MathLibrary: NativeLibrary {
   }
 
   func fxMult(_ x: Expr, _ y: Expr) throws -> Expr {
-    return .fixnum(try x.asInteger() &* y.asInteger())
+    return .fixnum(try x.asInt64() &* y.asInt64())
   }
   
   func compileFxMult(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
@@ -1078,7 +1078,7 @@ public final class MathLibrary: NativeLibrary {
   }
   
   func fxDiv(_ x: Expr, _ y: Expr) throws -> Expr {
-    return .fixnum(try x.asInteger() / y.asInteger())
+    return .fixnum(try x.asInt64() / y.asInt64())
   }
   
   func compileFxDiv(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {

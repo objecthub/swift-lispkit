@@ -59,7 +59,7 @@ public final class BoxLibrary: NativeLibrary {
     }
     // Set cell value. Guarantee that cells for which `set-box!` is called are managed
     // by a managed object pool.
-    (value.isSimple ? cell : self.context.objects.manage(cell)).value = value
+    (value.isAtom ? cell : self.context.objects.manage(cell)).value = value
     return .void
   }
   
@@ -103,7 +103,7 @@ public final class BoxLibrary: NativeLibrary {
     }
     // Set car of tuple. Guarantee that tuples for which `set-mcar!` is called are managed
     // by a managed object pool.
-    (value.isSimple ? tuple : self.context.objects.manage(tuple)).fst = value
+    (value.isAtom ? tuple : self.context.objects.manage(tuple)).fst = value
     return .void
   }
   
@@ -113,7 +113,7 @@ public final class BoxLibrary: NativeLibrary {
     }
     // Set cdr of tuple. Guarantee that tuples for which `set-mcdr!` is called are managed
     // by a managed object pool.
-    (value.isSimple ? tuple : self.context.objects.manage(tuple)).snd = value
+    (value.isAtom ? tuple : self.context.objects.manage(tuple)).snd = value
     return .void
   }
 }

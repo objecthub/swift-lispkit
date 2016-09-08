@@ -96,7 +96,7 @@ public final class DynamicControlLibrary: NativeLibrary {
   }
   
   func windUp(_ before: Expr, after: Expr) throws -> Expr {
-    self.context.machine.windUp(before: try before.asProc(), after: try after.asProc())
+    self.context.machine.windUp(before: try before.asProcedure(), after: try after.asProcedure())
     return .void
   }
   
@@ -108,7 +108,7 @@ public final class DynamicControlLibrary: NativeLibrary {
   }
   
   func dynamicWindBase(_ cont: Expr) throws -> Expr {
-    guard case .continuation(let vmState) = try cont.asProc().kind else {
+    guard case .continuation(let vmState) = try cont.asProcedure().kind else {
       preconditionFailure("_dynamic-wind-base(\(cont))")
     }
     let base = self.context.machine.winders?.commonPrefix(vmState.winders)
@@ -120,7 +120,7 @@ public final class DynamicControlLibrary: NativeLibrary {
   }
   
   func dynamicWinders(_ cont: Expr) throws -> Expr {
-    guard case .continuation(let vmState) = try cont.asProc().kind else {
+    guard case .continuation(let vmState) = try cont.asProcedure().kind else {
       preconditionFailure("_dynamic-winders(\(cont))")
     }
     let base = self.context.machine.winders
@@ -141,13 +141,13 @@ public final class DynamicControlLibrary: NativeLibrary {
     guard args.count == 3 else {
       throw EvalError.argumentCountError(formals: 3, args: .makeList(args))
     }
-    guard case .parameter(let tuple) = try args.first!.asProc().kind else {
+    guard case .parameter(let tuple) = try args.first!.asProcedure().kind else {
       throw EvalError.typeError(args.first!, [.parameterType])
     }
     if case .procedure(let proc) = tuple.fst {
       return (proc, [args.first!, args[args.startIndex + 1], args[args.startIndex + 2]])
     } else {
-      return (try args[args.startIndex + 2].asProc(), [args.first!, args[args.startIndex + 1]])
+      return (try args[args.startIndex + 2].asProcedure(), [args.first!, args[args.startIndex + 1]])
     }
   }
   
@@ -160,7 +160,7 @@ public final class DynamicControlLibrary: NativeLibrary {
   }
   
   func setDynamicEnvironment(_ expr: Expr) throws -> Expr {
-    self.context.machine.parameters = try expr.asMap()
+    self.context.machine.parameters = try expr.asHashTable()
     return .void
   }
 }

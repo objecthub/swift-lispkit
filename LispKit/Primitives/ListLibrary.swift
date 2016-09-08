@@ -287,7 +287,7 @@ public final class ListLibrary: NativeLibrary {
   }
   
   func listTail(_ expr: Expr, _ count: Expr) throws -> Expr {
-    var k = try count.asInteger()
+    var k = try count.asInt64()
     guard k >= 0 else {
       throw EvalError.indexOutOfBounds(k, -1, expr)
     }
@@ -304,7 +304,7 @@ public final class ListLibrary: NativeLibrary {
         len += 1
         list = cdr
       }
-      throw EvalError.indexOutOfBounds(try count.asInteger(), len, expr)
+      throw EvalError.indexOutOfBounds(try count.asInt64(), len, expr)
     }
   }
   

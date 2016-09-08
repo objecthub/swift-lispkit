@@ -137,7 +137,7 @@ public final class RecordLibrary: NativeLibrary {
   }
   
   func recordTypeFieldIndex(_ expr: Expr, name: Expr) throws -> Expr {
-    let record = try expr.asRecord()
+    let record = try expr.recordAsCollection()
     guard case .recordType = record.kind else {
       return .false
     }
@@ -181,7 +181,7 @@ public final class RecordLibrary: NativeLibrary {
   }
   
   func makeRecord(_ expr: Expr) throws -> Expr {
-    let type = try expr.asRecord()
+    let type = try expr.recordAsCollection()
     guard case .recordType = type.kind else {
       return .false
     }
@@ -193,7 +193,7 @@ public final class RecordLibrary: NativeLibrary {
   }
   
   func recordRef(_ expr: Expr, index: Expr) throws -> Expr {
-    let record = try expr.asRecord()
+    let record = try expr.recordAsCollection()
     let idx = try index.asInt()
     guard idx >= 0 && idx < record.exprs.count else {
       throw EvalError.indexOutOfBounds(Int64(idx), Int64(record.exprs.count - 1), expr)
@@ -202,7 +202,7 @@ public final class RecordLibrary: NativeLibrary {
   }
   
   func recordSet(_ expr: Expr, index: Expr, value: Expr) throws -> Expr {
-    let record = try expr.asRecord()
+    let record = try expr.recordAsCollection()
     guard case .record(_) = record.kind else {
       throw EvalError.attemptToModifyImmutableData(expr)
     }
@@ -213,7 +213,7 @@ public final class RecordLibrary: NativeLibrary {
         }
         // Set record field value. Guarantee that cells for which `record-set!` is called are
         // managed by a managed object pool.
-        (value.isSimple ? record : self.context.objects.manage(record)).exprs[Int(idx)] = value
+        (value.isAtom ? record : self.context.objects.manage(record)).exprs[Int(idx)] = value
       case .pair(_, _):
         var allSimple = true
         var numFields = 0
@@ -233,7 +233,7 @@ public final class RecordLibrary: NativeLibrary {
           record.exprs[Int(idx)] = v
           // Guarantee that we manage this record by a managed object pool if there was at least
           // one field value which was not simple
-          if allSimple && !v.isSimple {
+          if allSimple && !v.isAtom {
             _ = self.context.objects.manage(record)
             allSimple = false
           }

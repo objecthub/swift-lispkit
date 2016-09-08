@@ -18,8 +18,7 @@
 //  limitations under the License.
 //
 
-open class VirtualMachineState: TrackedObject, CustomStringConvertible {
-  
+public final class VirtualMachineState: TrackedObject, CustomStringConvertible {
   internal let stack: [Expr]
   internal let sp: Int
   internal let registers: VirtualMachine.Registers

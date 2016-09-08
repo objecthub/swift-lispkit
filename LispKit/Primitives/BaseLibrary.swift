@@ -417,7 +417,7 @@ public final class BaseLibrary: NativeLibrary {
   }
   
   func load(_ expr: Expr) throws -> Expr {
-    let filename = try expr.asStr()
+    let filename = try expr.asString()
     return self.context.machine.evalFile(
       Bundle.main.path(
         forResource: filename, ofType: "scm", inDirectory: "LispKit/Library") ?? filename)
@@ -476,11 +476,11 @@ public final class BaseLibrary: NativeLibrary {
   }
   
   func gensym(_ expr: Expr?) throws -> Expr {
-    return .symbol(context.symbols.gensym(try expr?.asStr() ?? "g"))
+    return .symbol(context.symbols.gensym(try expr?.asString() ?? "g"))
   }
   
   func stringToSymbol(_ expr: Expr) throws -> Expr {
-    return .symbol(context.symbols.intern(try expr.asStr()))
+    return .symbol(context.symbols.intern(try expr.asString()))
   }
   
   func symbolToString(_ expr: Expr) throws -> Expr {

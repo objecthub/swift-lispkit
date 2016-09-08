@@ -504,7 +504,7 @@ public final class VirtualMachine: TrackedObject {
           self.push(a0)
           self.push(.procedure(self.setParameterProc))
           n = 3
-          proc = try tuple.fst.asProc()
+          proc = try tuple.fst.asProcedure()
         default:
           throw EvalError.argumentCountError(formals: 1, args: self.popAsList(n))
       }
@@ -1113,7 +1113,7 @@ public final class VirtualMachine: TrackedObject {
               guard case .promise(let result) = self.stack[self.sp - 1] else {
                 throw EvalError.typeError(self.stack[self.sp - 1], [.promiseType])
               }
-              if !result.isSimple {
+              if !result.isAtom {
                 self.context.objects.manage(future)
               }
               future.state = result.state
@@ -1198,7 +1198,7 @@ public final class VirtualMachine: TrackedObject {
           let vector = Collection(kind: .vector)
           var i = self.sp - n
           while i < self.sp {
-            vector.exprs.append(contentsOf: try self.stack[i].asVector().exprs)
+            vector.exprs.append(contentsOf: try self.stack[i].vectorAsCollection().exprs)
             i += 1
           }
           self.pop(n)
@@ -1211,28 +1211,28 @@ public final class VirtualMachine: TrackedObject {
           }
         case .fxPlus:
           let rhs = self.pop()
-          self.push(.fixnum(try self.pop().asInteger() &+ rhs.asInteger()))
+          self.push(.fixnum(try self.pop().asInt64() &+ rhs.asInt64()))
         case .fxMinus:
           let rhs = self.pop()
-          self.push(.fixnum(try self.pop().asInteger() &- rhs.asInteger()))
+          self.push(.fixnum(try self.pop().asInt64() &- rhs.asInt64()))
         case .fxMult:
           let rhs = self.pop()
-          self.push(.fixnum(try self.pop().asInteger() &* rhs.asInteger()))
+          self.push(.fixnum(try self.pop().asInt64() &* rhs.asInt64()))
         case .fxDiv:
           let rhs = self.pop()
-          self.push(.fixnum(try self.pop().asInteger() / rhs.asInteger()))
+          self.push(.fixnum(try self.pop().asInt64() / rhs.asInt64()))
         case .flPlus:
           let rhs = self.pop()
-          self.push(.flonum(try self.pop().asFloat() + rhs.asFloat()))
+          self.push(.flonum(try self.pop().asDouble() + rhs.asDouble()))
         case .flMinus:
           let rhs = self.pop()
-          self.push(.flonum(try self.pop().asFloat() - rhs.asFloat()))
+          self.push(.flonum(try self.pop().asDouble() - rhs.asDouble()))
         case .flMult:
           let rhs = self.pop()
-          self.push(.flonum(try self.pop().asFloat() * rhs.asFloat()))
+          self.push(.flonum(try self.pop().asDouble() * rhs.asDouble()))
         case .flDiv:
           let rhs = self.pop()
-          self.push(.flonum(try self.pop().asFloat() / rhs.asFloat()))
+          self.push(.flonum(try self.pop().asDouble() / rhs.asDouble()))
       }
     }
     return .null

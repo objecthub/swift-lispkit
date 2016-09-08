@@ -177,8 +177,7 @@ public enum Expr: Trackable, Hashable {
         if let fnnumer = num.value.numerator.intValue,
            let fndenom = num.value.denominator.intValue {
           let num: Rational<Int64> = Rational(fnnumer, fndenom)
-          let box = ImmutableBox(num)
-          return Expr.rational(box).normalized
+          return Expr.rational(ImmutableBox(num)).normalized
         }
         return self
       case .complex(let num):
@@ -214,7 +213,7 @@ public enum Expr: Trackable, Hashable {
   /// The length of this expression (all non-pair expressions have length 1).
   var length: Int {
     var expr = self
-    var len: Int = 0
+    var len = 0
     while case .pair(_, let cdr) = expr {
       len += 1
       expr = cdr
@@ -224,7 +223,7 @@ public enum Expr: Trackable, Hashable {
   
   /// Returns true if the expression isn't referring to other expressions directly or
   /// indirectly.
-  public var isSimple: Bool {
+  public var isAtom: Bool {
     switch self {
       case .undef, .void, .eof, .null, .true, .false, .symbol(_),
            .fixnum(_), .bignum(_), .rational(_), .bigrat(_), .flonum(_), .complex(_),
@@ -357,7 +356,7 @@ extension Expr {
     throw EvalError.typeError(self, Set(types))
   }
   
-  public func asInteger() throws -> Int64 {
+  public func asInt64() throws -> Int64 {
     guard case .fixnum(let res) = self else {
       throw EvalError.typeError(self, [.integerType])
     }
@@ -374,14 +373,14 @@ extension Expr {
     return Int(res)
   }
   
-  public func asByte() throws -> UInt8 {
+  public func asUInt8() throws -> UInt8 {
     guard case .fixnum(let number) = self , number >= 0 && number <= 255 else {
       throw EvalError.typeError(self, [.byteType])
     }
     return UInt8(number)
   }
   
-  public func asFloat(coerce: Bool = false) throws -> Double {
+  public func asDouble(coerce: Bool = false) throws -> Double {
     if !coerce {
       if case .flonum(let num) = self {
         return num
@@ -449,21 +448,21 @@ extension Expr {
     }
   }
   
-  public func asChar() throws -> UniChar {
+  public func asUniChar() throws -> UniChar {
     guard case .char(let res) = self else {
       throw EvalError.typeError(self, [.charType])
     }
     return res
   }
   
-  public func asCharStr() throws -> String {
+  public func charAsString() throws -> String {
     guard case .char(let res) = self else {
       throw EvalError.typeError(self, [.charType])
     }
     return String(unicodeScalar(res))
   }
   
-  public func asStr() throws -> String {
+  public func asString() throws -> String {
     guard case .string(let res) = self else {
       throw EvalError.typeError(self, [.strType])
     }
@@ -484,35 +483,28 @@ extension Expr {
     return bvector
   }
   
-  public func asPair() throws -> (Expr, Expr) {
-    guard case .pair(let res) = self else {
-      throw EvalError.typeError(self, [.pairType])
-    }
-    return res
-  }
-  
-  public func asVector() throws -> Collection {
+  public func vectorAsCollection() throws -> Collection {
     guard case .vector(let res) = self else {
       throw EvalError.typeError(self, [.vectorType])
     }
     return res
   }
   
-  public func asRecord() throws -> Collection {
+  public func recordAsCollection() throws -> Collection {
     guard case .record(let res) = self else {
       throw EvalError.typeError(self, [.recordType])
     }
     return res
   }
   
-  public func asMap() throws -> HashTable {
+  public func asHashTable() throws -> HashTable {
     guard case .table(let map) = self else {
       throw EvalError.typeError(self, [.tableType])
     }
     return map
   }
   
-  public func asProc() throws -> Procedure {
+  public func asProcedure() throws -> Procedure {
     guard case .procedure(let proc) = self else {
       throw EvalError.typeError(self, [.procedureType])
     }

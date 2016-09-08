@@ -49,13 +49,13 @@ public final class BytevectorLibrary: NativeLibrary {
   func bytevector(_ args: Arguments) throws -> Expr {
     var res = [UInt8]()
     for arg in args {
-      res.append(try arg.asByte())
+      res.append(try arg.asUInt8())
     }
     return .bytes(MutableBox(res))
   }
   
   func makeBytevector(_ len: Expr, byte: Expr?) throws -> Expr {
-    return .bytes(MutableBox([UInt8](repeating: try byte?.asByte() ?? 0,
+    return .bytes(MutableBox([UInt8](repeating: try byte?.asUInt8() ?? 0,
                                      count: try len.asInt())))
   }
   
@@ -78,7 +78,7 @@ public final class BytevectorLibrary: NativeLibrary {
     guard i >= 0 && i < bvector.value.count else {
       throw EvalError.indexOutOfBounds(Int64(i), Int64(bvector.value.count - 1), expr)
     }
-    bvector.value[i] = try expr.asByte()
+    bvector.value[i] = try expr.asUInt8()
     return .void
   }
   
@@ -165,7 +165,7 @@ public final class BytevectorLibrary: NativeLibrary {
   }
   
   func stringToUtf8(_ string: Expr, args: Arguments) throws -> Expr {
-    let str = try string.asStr().utf16
+    let str = try string.asString().utf16
     guard let (s, e) = args.optional(Expr.makeNumber(str.count), Expr.makeNumber(0)) else {
       throw EvalError.argumentCountError(formals: 2, args: .pair(string, .makeList(args)))
     }

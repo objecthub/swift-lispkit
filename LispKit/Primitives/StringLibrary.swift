@@ -54,7 +54,7 @@ public final class StringLibrary: NativeLibrary {
   }
   
   func makeString(_ k: Expr, ch: Expr?) throws -> Expr {
-    let uniChars = Array<UniChar>(repeating: try ch?.asChar() ?? UniChar(" "),
+    let uniChars = Array<UniChar>(repeating: try ch?.asUniChar() ?? UniChar(" "),
                                   count: try k.asInt())
     return .string(NSMutableString(string: String(utf16CodeUnits: uniChars, count: uniChars.count)))
   }
@@ -62,17 +62,17 @@ public final class StringLibrary: NativeLibrary {
   func string(_ exprs: Arguments) throws -> Expr {
     var uniChars: [UniChar] = []
     for expr in exprs {
-      uniChars.append(try expr.asChar())
+      uniChars.append(try expr.asUniChar())
     }
     return .string(NSMutableString(string: String(utf16CodeUnits: uniChars, count: uniChars.count)))
   }
   
   func stringLength(_ expr: Expr) throws -> Expr {
-    return .fixnum(Int64(try expr.asStr().utf16.count))
+    return .fixnum(Int64(try expr.asString().utf16.count))
   }
   
   func stringRef(_ expr: Expr, _ index: Expr) throws -> Expr {
-    let str = try expr.asStr().utf16
+    let str = try expr.asString().utf16
     let k = try index.asInt()
     let i = str.index(str.startIndex, offsetBy: k)
     guard i < str.endIndex else {
@@ -84,53 +84,53 @@ public final class StringLibrary: NativeLibrary {
   func stringAppend(_ exprs: Arguments) throws -> Expr {
     var res = ""
     for expr in exprs {
-      res.append(try expr.asStr())
+      res.append(try expr.asString())
     }
     return .string(NSMutableString(string: res))
   }
   
   func stringEquals(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .makeBoolean(try fst.asStr() == snd.asStr())
+    return .makeBoolean(try fst.asString() == snd.asString())
   }
   
   func stringLessThan(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .makeBoolean(try fst.asStr() < snd.asStr())
+    return .makeBoolean(try fst.asString() < snd.asString())
   }
   
   func stringLessThanEquals(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .makeBoolean(try fst.asStr() <= snd.asStr())
+    return .makeBoolean(try fst.asString() <= snd.asString())
   }
   
   func stringGreaterThan(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .makeBoolean(try fst.asStr() > snd.asStr())
+    return .makeBoolean(try fst.asString() > snd.asString())
   }
   
   func stringGreaterThanEquals(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .makeBoolean(try fst.asStr() >= snd.asStr())
+    return .makeBoolean(try fst.asString() >= snd.asString())
   }
   
   func stringCiEquals(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .makeBoolean(try fst.asStr().lowercased() == snd.asStr().lowercased())
+    return .makeBoolean(try fst.asString().lowercased() == snd.asString().lowercased())
   }
   
   func stringCiLessThan(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .makeBoolean(try fst.asStr().lowercased() < snd.asStr().lowercased())
+    return .makeBoolean(try fst.asString().lowercased() < snd.asString().lowercased())
   }
   
   func stringCiLessThanEquals(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .makeBoolean(try fst.asStr().lowercased() <= snd.asStr().lowercased())
+    return .makeBoolean(try fst.asString().lowercased() <= snd.asString().lowercased())
   }
   
   func stringCiGreaterThan(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .makeBoolean(try fst.asStr().lowercased() > snd.asStr().lowercased())
+    return .makeBoolean(try fst.asString().lowercased() > snd.asString().lowercased())
   }
   
   func stringCiGreaterThanEquals(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .makeBoolean(try fst.asStr().lowercased() >= snd.asStr().lowercased())
+    return .makeBoolean(try fst.asString().lowercased() >= snd.asString().lowercased())
   }
   
   func stringContains(_ expr: Expr, _ other: Expr) throws -> Expr {
-    return .makeBoolean(try expr.asStr().contains(try other.asStr()))
+    return .makeBoolean(try expr.asString().contains(try other.asString()))
   }
   
   func stringUpcase(_ expr: Expr) throws -> Expr {
@@ -138,12 +138,12 @@ public final class StringLibrary: NativeLibrary {
   }
   
   func stringDowncase(_ expr: Expr) throws -> Expr {
-    return .string(NSMutableString(string: try expr.asStr().lowercased()))
+    return .string(NSMutableString(string: try expr.asString().lowercased()))
   }
   
   func stringToList(_ expr: Expr) throws -> Expr {
     var res = Expr.null
-    let str = try expr.asStr().utf16
+    let str = try expr.asString().utf16
     for ch in str.reversed() {
       res = .pair(.char(ch), res)
     }
@@ -154,7 +154,7 @@ public final class StringLibrary: NativeLibrary {
     var list = expr
     var uniChars: [UniChar] = []
     while case .pair(let ch, let next) = list {
-      uniChars.append(try ch.asChar())
+      uniChars.append(try ch.asUniChar())
       list = next
     }
     guard list.isNull else {
@@ -164,15 +164,15 @@ public final class StringLibrary: NativeLibrary {
   }
   
   func substring(_ expr: Expr, _ start: Expr, _ end: Expr?) throws -> Expr {
-    let str = try expr.asStr().utf16
+    let str = try expr.asString().utf16
     let s = str.index(str.startIndex, offsetBy: try start.asInt())
     guard s < str.endIndex else {
-      throw EvalError.indexOutOfBounds(try start.asInteger(), Int64(str.count), expr)
+      throw EvalError.indexOutOfBounds(try start.asInt64(), Int64(str.count), expr)
     }
     let e = end == nil ? str.endIndex : str.index(str.startIndex, offsetBy: try end!.asInt())
     guard e <= str.endIndex && s <= e else {
       // TODO: Fix error (should define [s..str.count] as bounds for e
-      throw EvalError.indexOutOfBounds(try end!.asInteger(), Int64(str.count), expr)
+      throw EvalError.indexOutOfBounds(try end!.asInt64(), Int64(str.count), expr)
     }
     var uniChars: [UniChar] = []
     for ch in str[s..<e] {
