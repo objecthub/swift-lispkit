@@ -81,7 +81,7 @@ public final class Procedure: Reference, CustomStringConvertible {
   
   /// Initializer for primitive evaluators
   public init(_ name: String,
-              _ compiler: FormCompiler,
+              _ compiler: @escaping FormCompiler,
               in context: Context) {
     func indirect(_ args: Arguments) throws -> Code {
       let expr =

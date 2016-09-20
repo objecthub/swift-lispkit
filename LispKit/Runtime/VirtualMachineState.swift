@@ -42,7 +42,7 @@ public final class VirtualMachineState: TrackedObject, CustomStringConvertible {
     self.winders = winders
   }
   
-  open var description: String {
+  public var description: String {
     var builder = StringBuilder("vmstate {")
     if self.sp == 0 {
       builder.append("stack = []")
@@ -63,7 +63,7 @@ public final class VirtualMachineState: TrackedObject, CustomStringConvertible {
     return builder.description
   }
   
-  open override func mark(_ tag: UInt8) {
+  public override func mark(_ tag: UInt8) {
     super.mark(tag)
     for i in 0..<self.sp {
       self.stack[i].mark(tag)

@@ -33,6 +33,12 @@ open class Context {
   /// The symbol table for managing interned symbols.
   public let symbols: SymbolTable
   
+  /// Table of global locations
+  public var locations: Exprs
+  
+  /// Table of loaded libraries
+  public var libraries: [Expr : Library]
+  
   /// The user scope.
   public let userScope: Scope
   
@@ -59,6 +65,8 @@ open class Context {
     self.console = console
     self.objects = ManagedObjectPool()
     self.symbols = SymbolTable()
+    self.locations = Exprs()
+    self.libraries = [:]
     self.userScope = Scope(Scope())
     self.inputPort = Port(input: TextInput(source: console))
     self.outputPort = Port(output: TextOutput(target: console, threshold: 0))

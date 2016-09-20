@@ -36,7 +36,7 @@ public final class SpecialForm: Reference, CustomStringConvertible {
   internal let kind: Kind
   
   /// Initializer for primitive special forms
-  public init(_ compiler: FormCompiler) {
+  public init(_ compiler: @escaping FormCompiler) {
     self.kind = .primitive(compiler)
   }
   

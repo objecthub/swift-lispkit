@@ -278,6 +278,7 @@ public enum EvalError: LispError {
   case attemptToModifyImmutableData(Expr)
   case unknownFieldOfRecordType(Expr, Symbol)
   case fieldCountError(Int, Expr)
+  case malformedLibraryDefinition(decls: Expr)
   
   public var kind: String {
     return "eval error"
@@ -391,6 +392,8 @@ public enum EvalError: LispError {
         return "unknown field \(field) of record type \(type)"
       case .fieldCountError(let expected, let values):
         return "expected values for \(expected) fields, received: \(values)"
+      case .malformedLibraryDefinition(let decls):
+        return "malformed library definition: \(decls)"
     }
   }
   
@@ -492,6 +495,8 @@ public enum EvalError: LispError {
           return t1 == t2 && f1 == f2
         case (.fieldCountError(let e1, let v1), .fieldCountError(let e2, let v2)):
           return e1 == e2 && v1 == v2
+        case (.malformedLibraryDefinition(let d1), .malformedLibraryDefinition(let d2)):
+          return d1 == d2
         default:
           return false
       }

@@ -47,6 +47,14 @@ public final class SymbolTable: Sequence {
   public let letrec          = Symbol("letrec")
   public let define          = Symbol("define")
   public let makePromise     = Symbol("make-promise")
+  public let begin           = Symbol("begin")
+  public let `import`        = Symbol("import")
+  public let export          = Symbol("export")
+  public let exportImmutable = Symbol("export-immutable")
+  public let rename          = Symbol("rename")
+  public let only            = Symbol("only")
+  public let except          = Symbol("except")
+  public let prefix          = Symbol("prefix")
   
   public init() {
     func register(_ sym: Symbol) {
@@ -71,6 +79,14 @@ public final class SymbolTable: Sequence {
     register(self.letrec)
     register(self.define)
     register(self.makePromise)
+    register(self.begin)
+    register(self.`import`)
+    register(self.export)
+    register(self.exportImmutable)
+    register(self.rename)
+    register(self.only)
+    register(self.except)
+    register(self.prefix)
   }
   
   public func exists(_ ident: String) -> Bool {
@@ -94,6 +110,10 @@ public final class SymbolTable: Sequence {
       self.gensymCounter += 1
     } while self.exists(ident)
     return self.intern(ident)
+  }
+  
+  public func prefix(_ sym: Symbol, with prefix: Symbol) -> Symbol {
+    return self.intern(prefix.identifier + sym.identifier)
   }
   
   /// Returns a generator for iterating over all symbols of this symbol table.

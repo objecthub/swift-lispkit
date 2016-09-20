@@ -31,7 +31,7 @@ public final class Scope: TrackedObject {
     self.bindings = [Symbol : Expr]()
   }
   
-  open subscript(sym: Symbol) -> Expr? {
+  public subscript(sym: Symbol) -> Expr? {
     get {
       return self.bindingFor(sym)?.0
     }
@@ -40,15 +40,15 @@ public final class Scope: TrackedObject {
     }
   }
   
-  open func lookupLocal(_ sym: Symbol) -> Expr? {
+  public func lookupLocal(_ sym: Symbol) -> Expr? {
     return self.bindings[sym]
   }
   
-  open func scopeWithBindingFor(_ sym: Symbol) -> Scope? {
+  public func scopeWithBindingFor(_ sym: Symbol) -> Scope? {
     return self.bindingFor(sym)?.1
   }
   
-  open func bindingFor(_ sym: Symbol) -> (Expr, Scope)? {
+  public func bindingFor(_ sym: Symbol) -> (Expr, Scope)? {
     var scope: Scope? = self
     while let sc = scope {
       if let res = sc.bindings[sym] {
@@ -59,7 +59,7 @@ public final class Scope: TrackedObject {
     return nil
   }
   
-  open func forAll(inclOuter all: Bool = false, proc: (Symbol, Expr) -> Void) {
+  public func forAll(inclOuter all: Bool = false, proc: (Symbol, Expr) -> Void) {
     var scope: Scope? = self
     while let sc = scope {
       for (sym, expr) in sc.bindings {
@@ -69,7 +69,7 @@ public final class Scope: TrackedObject {
     }
   }
   
-  open override func mark(_ tag: UInt8) {
+  public override func mark(_ tag: UInt8) {
     for (_, expr) in self.bindings {
       expr.mark(tag)
     }
