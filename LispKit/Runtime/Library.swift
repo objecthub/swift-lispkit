@@ -202,9 +202,6 @@ public final class Library: Reference, Trackable, CustomStringConvertible {
   /// Libraries on which this library is dependent on
   var libraries: Set<Library>
   
-  /// Environment of the library
-  let environment: Environment
-  
   /// Parsed export declarations, mapping exported identifiers to internal identifiers
   /// (with mutable/immutable annotations)
   var exportDecls: [Symbol : InternalIdent]
@@ -225,7 +222,6 @@ public final class Library: Reference, Trackable, CustomStringConvertible {
     self.imports = [:]
     self.imported = MultiMap()
     self.libraries = Set<Library>()
-    self.environment = Environment()
     self.exportDecls = [:]
     self.importDecls = []
     self.initDecls = []
@@ -345,22 +341,8 @@ public final class Library: Reference, Trackable, CustomStringConvertible {
     for library in self.libraries {
       library.initialize(in: context)
     }
-    // Set up environment
-    for (ident, importLocation) in imports {
-      switch importLocation {
-        case .mutable(let loc):
-          self.environment[ident] = .mutableImport(loc)
-        case .immutable(let loc):
-          self.environment[ident] = .immutableImport(loc)
-      }
-    }
-    for (extIdent, intIdent) in self.exportDecls {
-      if !self.imported.hasValues(for: intIdent.identifier) {
-        self.environment[intIdent.identifier] = .mutable(self.exports[extIdent]!.location)
-      }
-    }
     // Compile and run
-    
+    let environment = Environment(in: context, for: self)
   }
   
   private func parseLibraryDefinition(_ def: Expr, in context: Context) throws {
@@ -495,159 +477,6 @@ public final class Library: Reference, Trackable, CustomStringConvertible {
     }
     return nil
   }
-  
-  
-  /*
-  
-  
-  public init(name: Expr) {
-    self.name = name
-    self.exports = [:]
-    self.bindings = [:]
-    self.initialized = false
-  }
-  
-  public subscript(sym: Symbol) -> Expr? {
-    guard let value = self.bindings[sym] else {
-      return nil
-    }
-    switch value {
-      case .mutable(let expr),
-           .immutable(let expr),
-           .constant(let expr):
-        return expr
-      case .imported(let ext, let lib):
-        guard let externalValue = lib.bindings[ext] else {
-          return nil
-        }
-        switch externalValue {
-          case .mutable(let expr):
-            return expr
-          case .immutable(let expr), .constant(let expr):
-            self.bindings[sym] = .constant(expr)
-            return expr
-          case .imported(let ext2, let lib2):
-            let resolved = self.resolve(ext2, in: lib2)
-            switch resolved {
-              case .constant(let expr):
-                self.bindings[sym] = resolved
-                return expr
-              case .imported(let newSym, let newLib):
-                if !(newSym === ext && newLib === lib) {
-                  self.bindings[sym] = resolved
-                }
-                return newLib[newSym]
-              default:
-                return nil
-            }
-        }
-    }
-  }
-  
-  /// Defines `ident` in the library and returns the value of the former binding (if there was one).
-  /// For any other result than `nil` or `.provided(_)`, the method was not able to update the
-  /// binding.
-  public func define(ident: Symbol, as expr: Expr) -> Value? {
-    guard let value = self.bindings[ident] else {
-      self.bindings[ident] = .provided(expr)
-      return nil
-    }
-    if case .provided(_) = value {
-      self.bindings[ident] = .provided(expr)
-    }
-    return value
-  }
-  
-  /// Updates the definition of `ident` in the library and returns the value of the former binding.
-  /// For any other result than `.provided(_)`, the method was not able to update the binding.
-  public func update(ident: Symbol, to expr: Expr) -> Value? {
-    guard let value = self.bindings[ident] else {
-      return nil
-    }
-    if case .provided(_) = value {
-      self.bindings[ident] = .provided(expr)
-    }
-    return value
-  }
-  
-  public func lookup(sym: Symbol) -> Value? {
-    guard let value = self.bindings[sym] else {
-      return nil
-    }
-    switch value {
-      case .provided(_), .constant(_):
-        return value
-      case .imported(let sym, let lib):
-        let resolved = self.resolve(sym, in: lib)
-        switch resolved {
-          case .constant(_):
-            self.bindings[sym] = resolved
-          case .imported(let newSym, let newLib):
-            if !(newSym === sym && newLib === lib) {
-              self.bindings[sym] = resolved
-            }
-          default:
-            break
-        }
-        return resolved
-    }
-  }
-  
-  public func exportDef(_ ident: Symbol, as external: Symbol? = nil) -> Symbol? {
-    precondition(!self.initialized, "cannot export \(ident); library already initialized")
-    let extIdent = external ?? ident
-    let res = self.exports[extIdent]
-    self.exports[extIdent] = ident
-    return res
-  }
-  
-  public func importDef(_ ident: Symbol, from library: Library, as local: Symbol? = nil) -> Bool {
-    precondition(!self.initialized, "cannot import \(ident); library already initialized")
-    guard let internalIdent = library.exports[ident] else {
-      return false
-    }
-    self.bindings[local ?? ident] = self.resolve(internalIdent, in: library)
-    return true
-  }
-  
-  private func resolve(_ ident: Symbol, in library: Library) -> Value {
-    var internalIdent = ident
-    var otherLibrary = library
-    while case .some(.imported(let sym, let lib)) = otherLibrary.bindings[internalIdent] {
-      internalIdent = sym
-      otherLibrary = lib
-    }
-    guard let value = otherLibrary.bindings[internalIdent] else {
-      return .imported(internalIdent, otherLibrary)
-    }
-    switch value {
-      case .immutable(let expr), .constant(let expr):
-        return .constant(expr)
-      default:
-        return .imported(internalIdent, otherLibrary)
-    }
-  }
-  
-  public func complete() {
-    self.initialized = true
-  }
- 
-  /// Libraries do not mark other referenced libraries; this is assuming that all libraries
-  /// are tracked individually.
-  public override func mark(_ tag: UInt8) {
-    for (_, value) in self.bindings {
-      switch value {
-        case .provided(let expr):
-          expr.mark(tag)
-        case .constant(let expr):
-          expr.mark(tag)
-        default:
-          break
-      }
-    }
-  }
-  
-  */
   
   /// Libraries do not mark other referenced libraries; this is assuming that all libraries
   /// are tracked individually.

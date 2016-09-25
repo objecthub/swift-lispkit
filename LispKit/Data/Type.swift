@@ -48,6 +48,7 @@ public enum Type: Int, CustomStringConvertible {
   case procedureType
   case parameterType
   case specialType
+  case envType
   case portType
   case numberType
   case exactNumberType
@@ -109,6 +110,8 @@ public enum Type: Int, CustomStringConvertible {
         return "procedure"
       case .parameterType:
         return "parameter"
+      case .envType:
+        return "environment"
       case .portType:
         return "port"
       case .numberType:

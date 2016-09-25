@@ -69,9 +69,9 @@ public final class Compiler {
   
   /// Initializes a compiler object from the given context, environments, and checkpointer.
   fileprivate init(_ context: Context,
-               in env: Env,
-               and rulesEnv: Env,
-               usingCheckpointer cp: Checkpointer) {
+                   in env: Env,
+                   and rulesEnv: Env,
+                   usingCheckpointer cp: Checkpointer) {
     self.context = context
     self.env = env
     self.rulesEnv = rulesEnv
@@ -343,7 +343,8 @@ public final class Compiler {
       case .char(let char):
         self.emit(.pushChar(char))
       case .symbol(_), .string(_), .bytes(_), .pair(_, _), .box(_), .mpair(_),
-           .vector(_), .record(_), .table(_), .promise(_), .procedure(_), .port(_), .error(_):
+           .vector(_), .record(_), .table(_), .promise(_), .procedure(_), .env(_),
+           .port(_), .error(_):
         self.pushConstant(expr)
       case .special(_):
         throw EvalError.illegalKeywordUsage(expr)

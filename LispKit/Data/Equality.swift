@@ -179,6 +179,8 @@ public func equalExpr(_ this: Expr, _ that: Expr) -> Bool {
         return e1 == e2
       case (.special(let e1), .special(let e2)):
         return e1 == e2
+      case (.env(let e1), .env(let e2)):
+        return e1 == e2
       case (.port(let p1), .port(let p2)):
         return p1 == p2
       case (.error(let e1), .error(let e2)):
@@ -236,6 +238,10 @@ public func eqvExpr(_ lhs: Expr, _ rhs: Expr) -> Bool {
       return e1 === e2
     case (.special(let e1), .special(let e2)):
       return e1 === e2
+    case (.env(let e1), .env(let e2)):
+      return e1 === e2
+    case (.port(let p1), .port(let p2)):
+      return p1 === p2
     case (.error(let e1), .error(let e2)):
       return e1 === e2
     default:
@@ -293,6 +299,10 @@ public func eqExpr(_ lhs: Expr, _ rhs: Expr) -> Bool {
       return e1 === e2
     case (.special(let e1), .special(let e2)):
       return e1 === e2
+    case (.env(let e1), .env(let e2)):
+      return e1 === e2
+    case (.port(let p1), .port(let p2)):
+      return p1 === p2
     case (.error(let e1), .error(let e2)):
       return e1 === e2
     default:

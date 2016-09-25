@@ -130,10 +130,12 @@ public func equalHash(_ expr: Expr) -> Int {
         return proc.hashValue &* 31 + 23
       case .special(let special):
         return special.hashValue &* 31 + 24
+      case .env(let environment):
+        return environment.hashValue &* 31 + 25
       case .port(let port):
-        return port.hashValue &* 31 + 25
+        return port.hashValue &* 31 + 26
       case .error(let err):
-        return err.hashValue &* 31 + 26
+        return err.hashValue &* 31 + 27
     }
   }
   
@@ -192,10 +194,12 @@ public func eqvHash(_ expr: Expr) -> Int {
       return proc.hashValue &* 31 + 23
     case .special(let special):
       return special.hashValue &* 31 + 24
+    case .env(let environment):
+      return environment.hashValue &* 31 + 25
     case .port(let port):
-      return port.hashValue &* 31 + 25
+      return port.hashValue &* 31 + 26
     case .error(let err):
-      return err.hashValue &* 31 + 26
+      return err.hashValue &* 31 + 27
   }
 }
 
@@ -251,9 +255,11 @@ public func eqHash(_ expr: Expr) -> Int {
       return proc.hashValue &* 31 + 23
     case .special(let special):
       return special.hashValue &* 31 + 24
+    case .env(let environment):
+      return environment.hashValue &* 31 + 25
     case .port(let port):
-      return port.hashValue &* 31 + 25
+      return port.hashValue &* 31 + 26
     case .error(let err):
-      return err.hashValue &* 31 + 26
+      return err.hashValue &* 31 + 27
   }
 }

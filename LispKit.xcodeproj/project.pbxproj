@@ -363,10 +363,10 @@
 				CC90500E1D384C4E008CE60A /* Tuple.swift */,
 				CC6A3B6D1C53F0F600E962E2 /* Collection.swift */,
 				CC5BBC781D5268D000367E8F /* HashTable.swift */,
-				CCE2C4791D9203DE0047E229 /* Environment.swift */,
 				CC6A3B6B1C53EE3200E962E2 /* Promise.swift */,
 				CC55A8281C50D35C00772B02 /* Procedure.swift */,
 				CC55A82A1C5175B000772B02 /* SpecialForm.swift */,
+				CCE2C4791D9203DE0047E229 /* Environment.swift */,
 				CC8EDE4B1D0317AD004E0636 /* Port.swift */,
 			);
 			path = Data;

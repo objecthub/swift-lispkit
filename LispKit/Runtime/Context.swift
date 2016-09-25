@@ -22,7 +22,7 @@
 /// Represents a Scheme evaluation context. Evaluation contexts provide
 /// access to components shared by all environments.
 ///
-open class Context {
+public final class Context {
   
   /// The console window, for reading and writing strings from the default port.
   public let console: Console
@@ -47,8 +47,11 @@ open class Context {
     return self.userScope.outer!
   }
   
+  /// The global environment is typically used for read-eval-print loops.
+  public private(set) var environment: Environment! = nil
+  
   /// The virtual machine for executing Lisp code.
-  public private(set) var machine: VirtualMachine!
+  public private(set) var machine: VirtualMachine! = nil
 
   /// The current input port.
   public var inputPort: Port
@@ -71,6 +74,7 @@ open class Context {
     self.inputPort = Port(input: TextInput(source: console))
     self.outputPort = Port(output: TextOutput(target: console, threshold: 0))
     self.errorPort = self.inputPort
+    self.environment = Environment(in: self)
     self.machine = VirtualMachine(self)
     // Register tracked objects
     self.objects.track(self.machine)
@@ -79,6 +83,22 @@ open class Context {
     if let lib = library {
       self.use(lib)
     }
+  }
+  
+  /// Allocates a new global location and initializes it with `expr`.
+  public func allocateLocation(for expr: Expr = .undef) -> Int {
+    self.locations.append(expr)
+    return self.locations.count - 1
+  }
+  
+  /// Registers the given library in the context. This method returns false if there is a
+  /// library of the same name registered already.
+  public func register(library: Library) -> Bool {
+    guard self.libraries[library.name] == nil else {
+      return false
+    }
+    self.libraries[library.name] = library
+    return true
   }
   
   /// Import an instantiation of the given library type.

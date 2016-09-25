@@ -49,6 +49,7 @@ public enum Expr: Trackable, Hashable {
   case promise(Promise)
   case procedure(Procedure)
   case special(SpecialForm)
+  case env(Environment)
   case port(Port)
   case error(AnyError)
   
@@ -105,6 +106,8 @@ public enum Expr: Trackable, Hashable {
         return .procedureType
       case .special(_):
         return .specialType
+      case .env(_):
+        return .envType
       case .port(_):
         return .portType
       case .error(_):
@@ -227,7 +230,7 @@ public enum Expr: Trackable, Hashable {
     switch self {
       case .undef, .void, .eof, .null, .true, .false, .symbol(_),
            .fixnum(_), .bignum(_), .rational(_), .bigrat(_), .flonum(_), .complex(_),
-           .char(_), .string(_), .bytes(_), .port(_):
+           .char(_), .string(_), .bytes(_), .env(_), .port(_):
         return true
       default:
         return false
@@ -701,8 +704,8 @@ extension Expr: CustomStringConvertible {
               preconditionFailure("incorrect encoding of record type")
             }
             enclObjs.insert(record)
-            var res = "#<record \(name):"
-            var sep = " "
+            var res = "#<record \(name)"
+            var sep = ": "
             var fields = type.exprs[2]
             for expr in record.exprs {
               guard case .pair(let sym, let nextFields) = fields else {
@@ -721,8 +724,8 @@ extension Expr: CustomStringConvertible {
             return res
           } else {
             enclObjs.insert(map)
-            var res = "#<hashtable \(map.identityString):"
-            var sep = " "
+            var res = "#<hashtable \(map.identityString)"
+            var sep = ": "
             for (key, value) in map.mappings {
               res = res + sep + stringReprOf(key) + " -> " + stringReprOf(value)
               sep = ", "
@@ -751,6 +754,15 @@ extension Expr: CustomStringConvertible {
           }
         case .special(let special):
           return "#<special \(special.identityString)>"
+        case .env(let environment):
+          var res = "#<env \(environment.identityString)"
+          var sep = ": "
+          for sym in environment.boundSymbols {
+            res = res + sep + sym.description
+            sep = ", "
+          }
+          res += ">"
+          return res
         case .port(let port):
           return "#<\(port.typeDescription) \(port.identDescription)>"
         case .error(let error):
