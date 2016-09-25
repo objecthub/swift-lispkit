@@ -37,146 +37,146 @@ public final class BytevectorLibrary: NativeLibrary {
     define(Procedure("string->utf8", stringToUtf8))
   }
   
-  func isBytevector(expr: Expr) -> Expr {
+  func isBytevector(_ expr: Expr) -> Expr {
     switch expr {
-      case .Bytes(_):
-        return .True
+      case .bytes(_):
+        return .true
       default:
-        return .False
+        return .false
     }
   }
   
-  func bytevector(args: Arguments) throws -> Expr {
+  func bytevector(_ args: Arguments) throws -> Expr {
     var res = [UInt8]()
     for arg in args {
-      res.append(try arg.asByte())
+      res.append(try arg.asUInt8())
     }
-    return .Bytes(MutableBox(res))
+    return .bytes(MutableBox(res))
   }
   
-  func makeBytevector(len: Expr, byte: Expr?) throws -> Expr {
-    return .Bytes(MutableBox([UInt8](count: try len.asInt(),
-                                     repeatedValue: try byte?.asByte() ?? 0)))
+  func makeBytevector(_ len: Expr, byte: Expr?) throws -> Expr {
+    return .bytes(MutableBox([UInt8](repeating: try byte?.asUInt8() ?? 0,
+                                     count: try len.asInt())))
   }
   
-  func bytevectorLength(expr: Expr) throws -> Expr {
-    return .Number(try expr.asByteVector().value.count)
+  func bytevectorLength(_ expr: Expr) throws -> Expr {
+    return .makeNumber(try expr.asByteVector().value.count)
   }
   
-  func bytevectorU8Ref(bvec: Expr, index: Expr) throws -> Expr {
+  func bytevectorU8Ref(_ bvec: Expr, index: Expr) throws -> Expr {
     let bvector = try bvec.asByteVector()
     let i = try index.asInt()
     guard i >= 0 && i < bvector.value.count else {
-      throw EvalError.IndexOutOfBounds(Int64(i), Int64(bvector.value.count - 1), bvec)
+      throw EvalError.indexOutOfBounds(Int64(i), Int64(bvector.value.count - 1), bvec)
     }
-    return .Fixnum(Int64(bvector.value[i]))
+    return .fixnum(Int64(bvector.value[i]))
   }
   
-  func bytevectorU8Set(bvec: Expr, index: Expr, expr: Expr) throws -> Expr {
+  func bytevectorU8Set(_ bvec: Expr, index: Expr, expr: Expr) throws -> Expr {
     let bvector = try bvec.asByteVector()
     let i = try index.asInt()
     guard i >= 0 && i < bvector.value.count else {
-      throw EvalError.IndexOutOfBounds(Int64(i), Int64(bvector.value.count - 1), expr)
+      throw EvalError.indexOutOfBounds(Int64(i), Int64(bvector.value.count - 1), expr)
     }
-    bvector.value[i] = try expr.asByte()
-    return .Void
+    bvector.value[i] = try expr.asUInt8()
+    return .void
   }
   
-  func bytevectorCopy(bvec: Expr, args: Arguments) throws -> Expr {
+  func bytevectorCopy(_ bvec: Expr, args: Arguments) throws -> Expr {
     let bvector = try bvec.asByteVector()
-    guard let (s, e) = args.optional(Expr.Number(0), Expr.Number(bvector.value.count)) else {
-      throw EvalError.ArgumentCountError(formals: 2, args: .Pair(bvec, .List(args)))
+    guard let (s, e) = args.optional(Expr.makeNumber(bvector.value.count), Expr.makeNumber(0)) else {
+      throw EvalError.argumentCountError(formals: 2, args: .pair(bvec, .makeList(args)))
     }
     let (start, end) = (try s.asInt(), try e.asInt())
     guard start >= 0 && start < bvector.value.count else {
-      throw EvalError.ParameterOutOfBounds(
+      throw EvalError.parameterOutOfBounds(
         "bytevector-copy", 2, Int64(start), Int64(0), Int64(bvector.value.count - 1))
     }
     guard end >= start && end <= bvector.value.count else {
-      throw EvalError.ParameterOutOfBounds(
+      throw EvalError.parameterOutOfBounds(
         "bytevector-copy", 3, Int64(end), Int64(start), Int64(bvector.value.count))
     }
-    var res = [UInt8](count: end - start, repeatedValue: 0)
+    var res = [UInt8](repeating: 0, count: end - start)
     for i in start..<end {
       res[i - start] = bvector.value[i]
     }
-    return .Bytes(MutableBox(res))
+    return .bytes(MutableBox(res))
   }
   
-  func bytevectorCopyInto(to: Expr, at: Expr, from: Expr, args: Arguments) throws -> Expr {
+  func bytevectorCopyInto(_ to: Expr, at: Expr, from: Expr, args: Arguments) throws -> Expr {
     let toVec = try to.asByteVector()
     let toStart = try at.asInt()
     guard toStart >= 0 && toStart < toVec.value.count else {
-      throw EvalError.ParameterOutOfBounds(
+      throw EvalError.parameterOutOfBounds(
         "bytevector-copy!", 2, Int64(toStart), Int64(0), Int64(toVec.value.count - 1))
     }
     let fromVec = try from.asByteVector()
-    guard let (s, e) = args.optional(Expr.Number(0), Expr.Number(fromVec.value.count)) else {
-      throw EvalError.ArgumentCountError(
-        formals: 2, args: .Pair(to, .Pair(at, .Pair(from, .List(args)))))
+    guard let (s, e) = args.optional(Expr.makeNumber(fromVec.value.count), Expr.makeNumber(0)) else {
+      throw EvalError.argumentCountError(
+        formals: 2, args: .pair(to, .pair(at, .pair(from, .makeList(args)))))
     } 
     let (start, end) = (try s.asInt(), try e.asInt())
     guard start >= 0 && start < fromVec.value.count else {
-      throw EvalError.ParameterOutOfBounds(
+      throw EvalError.parameterOutOfBounds(
         "bytevector-copy!", 4, Int64(start), Int64(0), Int64(fromVec.value.count - 1))
     }
     guard end >= start && end <= fromVec.value.count else {
-      throw EvalError.ParameterOutOfBounds(
+      throw EvalError.parameterOutOfBounds(
         "bytevector-copy!", 5, Int64(end), Int64(start), Int64(fromVec.value.count))
     }
     guard toStart + end - start - 1 < toVec.value.count else {
-      throw EvalError.TargetBytevectorTooSmall(to)
+      throw EvalError.targetBytevectorTooSmall(to)
     }
     for i in start..<end {
       toVec.value[toStart + i - start] = fromVec.value[i]
     }
-    return .Void
+    return .void
   }
   
-  func bytevectorAppend(exprs: Arguments) throws -> Expr {
+  func bytevectorAppend(_ exprs: Arguments) throws -> Expr {
     var res = [UInt8]()
     for expr in exprs {
-      res.appendContentsOf(try expr.asByteVector().value)
+      res.append(contentsOf: try expr.asByteVector().value)
     }
-    return .Bytes(MutableBox(res))
+    return .bytes(MutableBox(res))
   }
   
-  func utf8ToString(bvec: Expr, args: Arguments) throws -> Expr {
+  func utf8ToString(_ bvec: Expr, args: Arguments) throws -> Expr {
     let bvector = try bvec.asByteVector()
-    guard let (s, e) = args.optional(Expr.Number(0), Expr.Number(bvector.value.count)) else {
-      throw EvalError.ArgumentCountError(formals: 2, args: .Pair(bvec, .List(args)))
+    guard let (s, e) = args.optional(Expr.makeNumber(bvector.value.count), Expr.makeNumber(0)) else {
+      throw EvalError.argumentCountError(formals: 2, args: .pair(bvec, .makeList(args)))
     }
     let (start, end) = (try s.asInt(), try e.asInt())
     guard start >= 0 && start < bvector.value.count else {
-      throw EvalError.ParameterOutOfBounds(
+      throw EvalError.parameterOutOfBounds(
         "utf8->string", 2, Int64(start), Int64(0), Int64(bvector.value.count - 1))
     }
     guard end >= start && end <= bvector.value.count else {
-      throw EvalError.ParameterOutOfBounds(
+      throw EvalError.parameterOutOfBounds(
         "utf8->string", 3, Int64(end), Int64(start), Int64(bvector.value.count))
     }
     var str = ""
     var decoder = UTF8()
-    var generator = bvector.value.generate()
-    while case .Result(let scalar) = decoder.decode(&generator) {
-      str.append(scalar)
+    var generator = bvector.value.makeIterator()
+    while case .scalarValue(let scalar) = decoder.decode(&generator) {
+      str.append(String(scalar))
     }
-    return .Str(NSMutableString(string: str))
+    return .string(NSMutableString(string: str))
   }
   
-  func stringToUtf8(string: Expr, args: Arguments) throws -> Expr {
-    let str = try string.asStr().utf16
-    guard let (s, e) = args.optional(Expr.Number(0), Expr.Number(str.count)) else {
-      throw EvalError.ArgumentCountError(formals: 2, args: .Pair(string, .List(args)))
+  func stringToUtf8(_ string: Expr, args: Arguments) throws -> Expr {
+    let str = try string.asString().utf16
+    guard let (s, e) = args.optional(Expr.makeNumber(str.count), Expr.makeNumber(0)) else {
+      throw EvalError.argumentCountError(formals: 2, args: .pair(string, .makeList(args)))
     }
     let (start, end) = (try s.asInt(), try e.asInt())
-    let sidx = str.startIndex.advancedBy(start)
+    let sidx = str.index(str.startIndex, offsetBy: start)
     guard sidx < str.endIndex else {
-      throw EvalError.IndexOutOfBounds(Int64(start), Int64(str.count), s)
+      throw EvalError.indexOutOfBounds(Int64(start), Int64(str.count), s)
     }
-    let eidx = str.startIndex.advancedBy(end)
+    let eidx = str.index(str.startIndex, offsetBy: end)
     guard eidx <= str.endIndex && sidx <= eidx else {
-      throw EvalError.IndexOutOfBounds(Int64(end), Int64(str.count), e)
+      throw EvalError.indexOutOfBounds(Int64(end), Int64(str.count), e)
     }
     var uniChars: [UniChar] = []
     for ch in str[sidx..<eidx] {
@@ -187,6 +187,6 @@ public final class BytevectorLibrary: NativeLibrary {
     for byte in substr.utf8 {
       res.append(byte)
     }
-    return .Bytes(MutableBox(res))
+    return .bytes(MutableBox(res))
   }
 }

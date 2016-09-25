@@ -19,25 +19,25 @@
 //
 
 
-public class Checkpointer: CustomStringConvertible {
-  private var address: UInt
-  private var checkpoints: [UInt : Set<CheckpointData>]
+open class Checkpointer: CustomStringConvertible {
+  fileprivate var address: UInt
+  fileprivate var checkpoints: [UInt : Set<CheckpointData>]
   
   public init() {
     self.address = 0
     self.checkpoints = [:]
   }
   
-  public func checkpoint() -> UInt {
+  open func checkpoint() -> UInt {
     self.address += 1
     return self.address
   }
   
-  public func reset() {
+  open func reset() {
     self.address = 0
   }
   
-  public func associate(data: CheckpointData, with address: UInt) {
+  open func associate(_ data: CheckpointData, with address: UInt) {
     assert(address <= self.address)
     if self.checkpoints[address] == nil {
       self.checkpoints[address] = [data]
@@ -46,82 +46,82 @@ public class Checkpointer: CustomStringConvertible {
     }
   }
   
-  private func associations(address: UInt) -> Set<CheckpointData> {
+  fileprivate func associations(_ address: UInt) -> Set<CheckpointData> {
     if let res = self.checkpoints[address] {
       return res
     }
     return []
   }
   
-  public func systemDefined(address: UInt) -> Bool {
+  open func systemDefined(_ address: UInt) -> Bool {
     for assoc in self.associations(address) {
-      if assoc == .SystemDefined {
+      if assoc == .systemDefined {
         return true
       }
     }
     return false
   }
   
-  public func fromGlobalEnv(address: UInt) -> Expr? {
+  open func fromGlobalEnv(_ address: UInt) -> Expr? {
     for assoc in self.associations(address) {
-      if case .FromGlobalEnv(let expr) = assoc {
+      if case .fromGlobalEnv(let expr) = assoc {
         return expr
       }
     }
     return nil
   }
   
-  public func isValueBinding(sym: Symbol, at address: UInt) -> Bool {
+  open func isValueBinding(_ sym: Symbol, at address: UInt) -> Bool {
     for assoc in self.associations(address) {
-      if case .ValueBinding(let s) = assoc where s == sym {
+      if case .valueBinding(let s) = assoc , s == sym {
         return true
       }
     }
     return false
   }
   
-  public func expansion(address: UInt) -> Expr? {
+  open func expansion(_ address: UInt) -> Expr? {
     for assoc in self.associations(address) {
-      if case .Expansion(let expr) = assoc {
+      if case .expansion(let expr) = assoc {
         return expr
       }
     }
     return nil
   }
   
-  public var description: String {
+  open var description: String {
     return "Checkpoints (\(self.address)): \(self.checkpoints)"
   }
 }
 
 public enum CheckpointData: Hashable, CustomStringConvertible {
-  case SystemDefined
-  case FromGlobalEnv(Expr)
-  case ValueBinding(Symbol)
-  case Expansion(Expr)
+  case systemDefined
+  case fromGlobalEnv(Expr)
+  case valueBinding(Symbol)
+  case expansion(Expr)
   
   public var hashValue: Int {
     switch self {
-      case SystemDefined:
+      case .systemDefined:
         return 1
-      case FromGlobalEnv(let expr):
+      case .fromGlobalEnv(let expr):
         return expr.hashValue &* 31 &+ 2
-      case ValueBinding(let sym):
+      case .valueBinding(let sym):
         return sym.hashValue &* 31 &+ 3
-      case Expansion(let expr):
+      case .expansion(let expr):
         return expr.hashValue &* 31 &+ 4
     }
   }
   
   public var description: String {
     switch self {
-      case SystemDefined:
+      case .systemDefined:
         return "SystemDefined"
-      case FromGlobalEnv(let expr):
+      case .fromGlobalEnv(let expr):
         return "FromGlobalEnv(\(expr.description))"
-      case ValueBinding(let sym):
+      case .valueBinding(let sym):
         return "ValueBinding(\(sym.description))"
-      case Expansion(let expr):
+      case .expansion(let expr):
         return "Expansion(\(expr.description))"
     }
   }
@@ -129,13 +129,13 @@ public enum CheckpointData: Hashable, CustomStringConvertible {
 
 public func ==(left: CheckpointData, right: CheckpointData) -> Bool {
   switch (left, right) {
-    case (.SystemDefined, .SystemDefined):
+    case (.systemDefined, .systemDefined):
       return true
-    case (.FromGlobalEnv(let lexpr), .FromGlobalEnv(let rexpr)):
-      return eqExpr(lexpr, rexpr)
-    case (.ValueBinding(let lsym), .ValueBinding(let rsym)):
+    case (.fromGlobalEnv(let lexpr), .fromGlobalEnv(let rexpr)):
+      return eqExpr(rexpr, lexpr)
+    case (.valueBinding(let lsym), .valueBinding(let rsym)):
       return lsym == rsym
-    case (.Expansion(let lexpr), .Expansion(let rexpr)):
+    case (.expansion(let lexpr), .expansion(let rexpr)):
       return lexpr == rexpr
     default:
       return false

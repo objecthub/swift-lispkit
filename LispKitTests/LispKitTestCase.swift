@@ -46,36 +46,36 @@ import XCTest
 ///    2. The result of the evaluation is compared to the target value
 ///    3. If the two values are not equivalent using `equals?`, the test fails
 ///
-class LispKitTestCase: XCTestCase {
+open class LispKitTestCase: XCTestCase {
   
   /// Default console implementation
-  let console = CommandLineConsole()
+  public let console = CommandLineConsole()
   
   /// LispKit context object; created on demand before every test method is executed
-  var context: Context? = nil
+  public var context: Context? = nil
   
   /// Representation of an individual regression test
-  struct Test {
+  public struct Test {
     let description: String
     let source: Expr
     let target: Expr
   }
   
-  override func setUp() {
+  override open func setUp() {
     super.setUp()
     self.context = Context(console: console, library: SchemeLibrary.self)
   }
   
-  override func tearDown() {
+  override open func tearDown() {
     self.context = nil
     super.tearDown()
   }
   
-  func eval(str: String) -> Expr {
+  public func eval(_ str: String) -> Expr {
     return self.context!.machine.evalStr(str)
   }
   
-  func value(str: String) -> Expr {
+  public func value(_ str: String) -> Expr {
     do {
       return try Parser(symbols: self.context!.symbols, src: str).parse()
     } catch {
@@ -83,7 +83,7 @@ class LispKitTestCase: XCTestCase {
     }
   }
   
-  func assertStackEmpty(after: String? = nil) {
+  public func assertStackEmpty(after: String? = nil) {
     if let after = after {
       XCTAssertEqual(self.context!.machine.sp, 0, "stack not empty: \(after)")
     } else {
@@ -91,11 +91,11 @@ class LispKitTestCase: XCTestCase {
     }
   }
   
-  func loadTestCode(filename: String) -> String? {
-    let bundle = NSBundle(forClass: self.dynamicType)
-    if let path = bundle.pathForResource(filename, ofType: "scm") {
+  public func loadTestCode(from filename: String) -> String? {
+    let bundle = Bundle(for: type(of: self))
+    if let path = bundle.path(forResource: filename, ofType: "scm") {
       do {
-        return try String(contentsOfFile: path, encoding: NSUTF8StringEncoding)
+        return try String(contentsOfFile: path, encoding: String.Encoding.utf8)
       } catch {
         return nil
       }
@@ -103,8 +103,8 @@ class LispKitTestCase: XCTestCase {
     return nil
   }
   
-  func loadTests(filename: String) -> [Test] {
-    guard let code = loadTestCode(filename) else {
+  public func loadTests(from filename: String) -> [Test] {
+    guard let code = loadTestCode(from: filename) else {
       preconditionFailure("cannot open test file: \(filename)")
     }
     do {
@@ -112,7 +112,7 @@ class LispKitTestCase: XCTestCase {
       var res = [Test]()
       while !parser.finished {
         let spec = try parser.parse()
-        guard case .Pair(.Str(let descr), .Pair(let target, let source)) = spec else {
+        guard case .pair(.string(let descr), .pair(let target, let source)) = spec else {
           preconditionFailure("malformed test spec in file \(filename): \(spec)")
         }
         res.append(Test(description: descr.description, source: source, target: target))
@@ -123,7 +123,7 @@ class LispKitTestCase: XCTestCase {
     }
   }
   
-  func executeTests(tests: [Test]) {
+  public func execute(tests: [Test]) {
     for test in tests {
       print("-----------------------")
       print("source: \(test.source)")
@@ -131,11 +131,11 @@ class LispKitTestCase: XCTestCase {
       let res = self.context!.machine.evalExprs(test.source)
       print("result: \(res)")
       XCTAssertEqual(res, test.target, test.description)
-      assertStackEmpty(test.description)
+      assertStackEmpty(after: test.description)
     }
   }
   
-  func executeTests(filename: String) {
-    self.executeTests(self.loadTests(filename))
+  public func execute(file filename: String) {
+    self.execute(tests: self.loadTests(from: filename))
   }
 }

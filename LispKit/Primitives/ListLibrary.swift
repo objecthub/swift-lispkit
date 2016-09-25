@@ -102,142 +102,142 @@ public final class ListLibrary: NativeLibrary {
   
   //---------MARK: - List predicates
   
-  func isPair(expr: Expr) -> Expr {
-    if case .Pair(_, _) = expr {
-      return .True
+  func isPair(_ expr: Expr) -> Expr {
+    if case .pair(_, _) = expr {
+      return .true
     }
-    return .False
+    return .false
   }
   
-  func compileIsPair(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
-    return try self.invoke(.IsPair, with: expr, in: env, for: compiler)
+  func compileIsPair(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    return try self.invoke(.isPair, with: expr, in: env, for: compiler)
   }
   
-  func isList(expr: Expr) -> Expr {
+  func isList(_ expr: Expr) -> Expr {
     var expr = expr
-    while case .Pair(_, let cdr) = expr {
+    while case .pair(_, let cdr) = expr {
       expr = cdr
     }
-    return Expr.Boolean(expr.isNull)
+    return Expr.makeBoolean(expr.isNull)
   }
   
-  func isNull(expr: Expr) -> Expr {
-    return Expr.Boolean(expr.isNull)
+  func isNull(_ expr: Expr) -> Expr {
+    return Expr.makeBoolean(expr.isNull)
   }
   
-  func compileIsNull(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
-    return try self.invoke(.IsNull, with: expr, in: env, for: compiler)
+  func compileIsNull(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    return try self.invoke(.isNull, with: expr, in: env, for: compiler)
   }
   
   //-------- MARK: - Construction and deconstruction
   
-  func makeList(k: Expr, expr: Expr?) throws -> Expr {
-    let def = expr ?? .Null
-    var res: Expr = .Null
+  func makeList(_ k: Expr, expr: Expr?) throws -> Expr {
+    let def = expr ?? .null
+    var res: Expr = .null
     var n = try k.asInt(below: Int.max)
     while n > 0 {
-      res = .Pair(def, res)
+      res = .pair(def, res)
       n -= 1
     }
     return res
   }
   
-  func list(exprs: Arguments) -> Expr {
-    var res = Expr.Null
-    for expr in exprs.reverse() {
-      res = .Pair(expr, res)
+  func list(_ exprs: Arguments) -> Expr {
+    var res = Expr.null
+    for expr in exprs.reversed() {
+      res = .pair(expr, res)
     }
     return res
   }
   
-  func compileList(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
-    guard case .Pair(_, let cdr) = expr else {
+  func compileList(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    guard case .pair(_, let cdr) = expr else {
       preconditionFailure()
     }
     switch try compiler.compileExprs(cdr, in: env) {
       case 0:
-        compiler.emit(.PushNull)
+        compiler.emit(.pushNull)
       case 1:
-        compiler.emit(.PushNull)
-        compiler.emit(.Cons)
+        compiler.emit(.pushNull)
+        compiler.emit(.cons)
       case let n:
-        compiler.emit(.List(n))
+        compiler.emit(.list(n))
     }
     return false
   }
   
-  func cons(car: Expr, _ cdr: Expr) -> Expr {
-    return .Pair(car, cdr)
+  func cons(_ car: Expr, _ cdr: Expr) -> Expr {
+    return .pair(car, cdr)
   }
   
-  func compileCons(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
-    guard case .Pair(_, .Pair(let head, .Pair(let tail, .Null))) = expr else {
-      throw EvalError.ArgumentCountError(formals: 2, args: expr)
+  func compileCons(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    guard case .pair(_, .pair(let head, .pair(let tail, .null))) = expr else {
+      throw EvalError.argumentCountError(formals: 2, args: expr)
     }
-    try compiler.compile(head, in: env, inTailPos: false)
-    try compiler.compile(tail, in: env, inTailPos: false)
-    compiler.emit(.Cons)
+    _ = try compiler.compile(head, in: env, inTailPos: false)
+    _ = try compiler.compile(tail, in: env, inTailPos: false)
+    compiler.emit(.cons)
     return false
   }
   
-  func car(expr: Expr) throws -> Expr {
-    guard case .Pair(let car, _) = expr else {
-      throw EvalError.TypeError(expr, [.PairType])
+  func car(_ expr: Expr) throws -> Expr {
+    guard case .pair(let car, _) = expr else {
+      throw EvalError.typeError(expr, [.pairType])
     }
     return car
   }
   
-  func compileCar(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
-    return try self.invoke(.Car, with: expr, in: env, for: compiler)
+  func compileCar(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    return try self.invoke(.car, with: expr, in: env, for: compiler)
   }
   
-  func cdr(expr: Expr) throws -> Expr {
-    guard case .Pair(_, let cdr) = expr else {
-      throw EvalError.TypeError(expr, [.PairType])
+  func cdr(_ expr: Expr) throws -> Expr {
+    guard case .pair(_, let cdr) = expr else {
+      throw EvalError.typeError(expr, [.pairType])
     }
     return cdr
   }
   
-  func compileCdr(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
-    return try self.invoke(.Cdr, with: expr, in: env, for: compiler)
+  func compileCdr(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    return try self.invoke(.cdr, with: expr, in: env, for: compiler)
   }
   
-  func caar(expr: Expr) throws -> Expr {
-    guard case .Pair(let car, _) = expr else {
-      throw EvalError.TypeError(expr, [.PairType])
+  func caar(_ expr: Expr) throws -> Expr {
+    guard case .pair(let car, _) = expr else {
+      throw EvalError.typeError(expr, [.pairType])
     }
-    guard case .Pair(let caar, _) = car else {
-      throw EvalError.TypeError(car, [.PairType])
+    guard case .pair(let caar, _) = car else {
+      throw EvalError.typeError(car, [.pairType])
     }
     return caar
   }
   
-  func cadr(expr: Expr) throws -> Expr {
-    guard case .Pair(_, let cdr) = expr else {
-      throw EvalError.TypeError(expr, [.PairType])
+  func cadr(_ expr: Expr) throws -> Expr {
+    guard case .pair(_, let cdr) = expr else {
+      throw EvalError.typeError(expr, [.pairType])
     }
-    guard case .Pair(let cadr, _) = cdr else {
-      throw EvalError.TypeError(cdr, [.PairType])
+    guard case .pair(let cadr, _) = cdr else {
+      throw EvalError.typeError(cdr, [.pairType])
     }
     return cadr
   }
 
-  func cdar(expr: Expr) throws -> Expr {
-    guard case .Pair(let car, _) = expr else {
-      throw EvalError.TypeError(expr, [.PairType])
+  func cdar(_ expr: Expr) throws -> Expr {
+    guard case .pair(let car, _) = expr else {
+      throw EvalError.typeError(expr, [.pairType])
     }
-    guard case .Pair(_, let cdar) = car else {
-      throw EvalError.TypeError(car, [.PairType])
+    guard case .pair(_, let cdar) = car else {
+      throw EvalError.typeError(car, [.pairType])
     }
     return cdar
   }
   
-  func cddr(expr: Expr) throws -> Expr {
-    guard case .Pair(_, let cdr) = expr else {
-      throw EvalError.TypeError(expr, [.PairType])
+  func cddr(_ expr: Expr) throws -> Expr {
+    guard case .pair(_, let cdr) = expr else {
+      throw EvalError.typeError(expr, [.pairType])
     }
-    guard case .Pair(_, let cddr) = cdr else {
-      throw EvalError.TypeError(cdr, [.PairType])
+    guard case .pair(_, let cddr) = cdr else {
+      throw EvalError.typeError(cdr, [.pairType])
     }
     return cddr
   }
@@ -245,58 +245,58 @@ public final class ListLibrary: NativeLibrary {
   
   //-------- MARK: - Basic list functions
   
-  func length(expr: Expr) throws -> Expr {
+  func length(_ expr: Expr) throws -> Expr {
     var expr = expr
     var len: Int64 = 0
-    while case .Pair(_, let cdr) = expr {
+    while case .pair(_, let cdr) = expr {
       len += 1
       expr = cdr
     }
     guard expr.isNull else {
-      throw EvalError.TypeError(expr, [.ProperListType])
+      throw EvalError.typeError(expr, [.properListType])
     }
-    return .Fixnum(len)
+    return .fixnum(len)
   }
   
-  func appendList(fst: Expr, _ tail: Expr) throws -> Expr {
-    guard case (let exprs, .Null) = fst.toExprs() else {
-      throw EvalError.TypeError(fst, [.ProperListType])
+  func appendList(_ fst: Expr, _ tail: Expr) throws -> Expr {
+    guard case (let exprs, .null) = fst.toExprs() else {
+      throw EvalError.typeError(fst, [.properListType])
     }
-    return Expr.List(exprs, append: tail)
+    return Expr.makeList(exprs, append: tail)
   }
   
-  func append(exprs: Arguments) throws -> Expr {
+  func append(_ exprs: Arguments) throws -> Expr {
     var res: Expr? = nil
-    for expr in exprs.reverse() {
+    for expr in exprs.reversed() {
       res = (res == nil) ? expr : try appendList(expr, res!)
     }
-    return res ?? .Null
+    return res ?? .null
   }
   
-  func reverse(expr: Expr) throws -> Expr {
-    var res = Expr.Null
+  func reverse(_ expr: Expr) throws -> Expr {
+    var res = Expr.null
     var list = expr
-    while case .Pair(let car, let cdr) = list {
-      res = .Pair(car, res)
+    while case .pair(let car, let cdr) = list {
+      res = .pair(car, res)
       list = cdr
     }
     guard list.isNull else {
-      throw EvalError.TypeError(expr, [.ProperListType])
+      throw EvalError.typeError(expr, [.properListType])
     }
     return res
   }
   
-  func listTail(expr: Expr, _ count: Expr) throws -> Expr {
-    var k = try count.asInteger()
+  func listTail(_ expr: Expr, _ count: Expr) throws -> Expr {
+    var k = try count.asInt64()
     guard k >= 0 else {
-      throw EvalError.IndexOutOfBounds(k, -1, expr)
+      throw EvalError.indexOutOfBounds(k, -1, expr)
     }
     if k == 0 {
       return expr
     } else {
       var list = expr
       var len: Int64 = 0
-      while case .Pair(_, let cdr) = list {
+      while case .pair(_, let cdr) = list {
         k -= 1
         if k == 0 {
           return cdr
@@ -304,100 +304,100 @@ public final class ListLibrary: NativeLibrary {
         len += 1
         list = cdr
       }
-      throw EvalError.IndexOutOfBounds(try count.asInteger(), len, expr)
+      throw EvalError.indexOutOfBounds(try count.asInt64(), len, expr)
     }
   }
   
-  func key(expr: Expr, def: Expr?) throws -> Expr {
-    guard case .Pair(let car, _) = expr else {
-      return def ?? .False
+  func key(_ expr: Expr, def: Expr?) throws -> Expr {
+    guard case .pair(let car, _) = expr else {
+      return def ?? .false
     }
     return car
   }
   
-  func value(expr: Expr, def: Expr?) throws -> Expr {
-    guard case .Pair(_, let cdr) = expr else {
-      return def ?? .False
+  func value(_ expr: Expr, def: Expr?) throws -> Expr {
+    guard case .pair(_, let cdr) = expr else {
+      return def ?? .false
     }
     return cdr
   }
   
-  func memq(obj: Expr, expr: Expr) throws -> Expr {
+  func memq(_ obj: Expr, expr: Expr) throws -> Expr {
     var list = expr
-    while case .Pair(let car, let cdr) = list {
+    while case .pair(let car, let cdr) = list {
       if eqExpr(obj, car) {
         return list
       }
       list = cdr
     }
     guard list.isNull else {
-      throw EvalError.TypeError(expr, [.ProperListType])
+      throw EvalError.typeError(expr, [.properListType])
     }
-    return .False
+    return .false
   }
   
-  func memv(obj: Expr, expr: Expr) throws -> Expr {
+  func memv(_ obj: Expr, expr: Expr) throws -> Expr {
     var list = expr
-    while case .Pair(let car, let cdr) = list {
+    while case .pair(let car, let cdr) = list {
       if eqvExpr(obj, car) {
         return list
       }
       list = cdr
     }
     guard list.isNull else {
-      throw EvalError.TypeError(expr, [.ProperListType])
+      throw EvalError.typeError(expr, [.properListType])
     }
-    return .False
+    return .false
   }
   
-  func assq(obj: Expr, expr: Expr) throws -> Expr {
+  func assq(_ obj: Expr, expr: Expr) throws -> Expr {
     var list = expr
-    while case .Pair(.Pair(let key, let value), let cdr) = list {
+    while case .pair(.pair(let key, let value), let cdr) = list {
       if eqExpr(obj, key) {
-        return .Pair(key, value)
+        return .pair(key, value)
       }
       list = cdr
     }
     guard list.isNull else {
-      throw EvalError.TypeError(expr, [.AssocListType])
+      throw EvalError.typeError(expr, [.assocListType])
     }
-    return .False
+    return .false
   }
   
-  func assv(obj: Expr, expr: Expr) throws -> Expr {
+  func assv(_ obj: Expr, expr: Expr) throws -> Expr {
     var list = expr
-    while case .Pair(.Pair(let key, let value), let cdr) = list {
+    while case .pair(.pair(let key, let value), let cdr) = list {
       if eqvExpr(obj, key) {
-        return .Pair(key, value)
+        return .pair(key, value)
       }
       list = cdr
     }
     guard list.isNull else {
-      throw EvalError.TypeError(expr, [.AssocListType])
+      throw EvalError.typeError(expr, [.assocListType])
     }
-    return .False
+    return .false
   }
   
-  func decons(expr: Expr) throws -> Expr {
-    guard case (let lists, .Null) = expr.toExprs() else {
-      throw EvalError.TypeError(expr, [.ProperListType])
+  func decons(_ expr: Expr) throws -> Expr {
+    guard case (let lists, .null) = expr.toExprs() else {
+      throw EvalError.typeError(expr, [.properListType])
     }
     guard lists.count > 0 else {
-      return .Null
+      return .null
     }
-    var cars: Expr = .Null
-    var cdrs: Expr = .Null
-    for i in lists.indices.reverse() {
+    var cars: Expr = .null
+    var cdrs: Expr = .null
+    for i in lists.indices.reversed() {
       switch lists[i] {
-        case .Null:
-          return .Null
-        case .Pair(let car, let cdr):
-          cars = .Pair(car, cars)
-          cdrs = .Pair(cdr, cdrs)
+        case .null:
+          return .null
+        case .pair(let car, let cdr):
+          cars = .pair(car, cars)
+          cdrs = .pair(cdr, cdrs)
         default:
-          throw EvalError.TypeError(lists[i], [.ProperListType])
+          throw EvalError.typeError(lists[i], [.properListType])
       }
     }
-    return .Pair(cars, cdrs)
+    return .pair(cars, cdrs)
   }
 }

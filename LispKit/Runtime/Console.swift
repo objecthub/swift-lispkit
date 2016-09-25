@@ -25,7 +25,7 @@
 public protocol Console: TextInputSource, TextOutputTarget {
   
   /// Prints the given string into the console window.
-  func print(str: String)
+  func print(_ str: String)
   
   /// Reads a string from the console window.
   func read() -> String?
@@ -48,12 +48,12 @@ extension Console {
   }
   
   /// `flush` always succeeds.
-  public func flush(completely: Bool = false) -> Bool {
+  public func flush(_ completely: Bool = false) -> Bool {
     return true
   }
   
   /// Print the given string to the console.
-  public func writeString(str: String) -> Bool {
+  public func writeString(_ str: String) -> Bool {
     self.print(str)
     return true
   }
@@ -68,13 +68,13 @@ public struct CommandLineConsole: Console {
   public init() {}
   
   /// Prints the given string into the console window.
-  public func print(str: String) {
+  public func print(_ str: String) {
     Swift.print(str, separator: "", terminator: "")
   }
   
   /// Reads a string from the console window.
   public func read() -> String? {
-    return Swift.readLine(stripNewline: false)
+    return Swift.readLine(strippingNewline: false)
   }
 }
 

@@ -23,30 +23,14 @@
 public typealias Exprs = [Expr]
 
 /// An immutable empty set of expressions
-public let NO_EXPRS = Exprs()
-
-/// Add evaluation capabilities to arrays implementing the `Evaluatable` and the
-/// `CustomStringConvertible` protocols
-extension Array where Element: CustomStringConvertible {
-    
-  /// Returns a description of this array of expressions with the given prefix and separator
-  public func descriptionWithPrefix(prefix: String, andSeparator separator: String) -> String {
-    var res = prefix, sep = ""
-    for expr in self {
-      res += sep
-      res += expr.description
-      sep = separator
-    }
-    return res
-  }
-}
+public let noExprs = Exprs()
 
 /// Equality function for sequences of expressions.
 public func ==(lhs: Exprs, rhs: Exprs) -> Bool {
   guard lhs.count == rhs.count else {
     return false
   }
-  for i in 0..<lhs.count {
+  for i in lhs.indices {
     guard lhs[i] == rhs[i] else {
       return false
     }

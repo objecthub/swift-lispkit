@@ -19,40 +19,40 @@
 //
 
 
-public class AnyError: LispError, CustomStringConvertible {
+open class AnyError: LispError, CustomStringConvertible {
   var error: LispError
   
   public init(_ error: LispError) {
     self.error = error
   }
   
-  public var type: LispErrorType {
+  open var type: LispErrorType {
     return error.type
   }
   
-  public var kind: String {
+  open var kind: String {
     return error.kind
   }
   
-  public var message: String {
+  open var message: String {
     return error.message
   }
   
-  public var irritants: Exprs {
+  open var irritants: Exprs {
     return error.irritants
   }
   
-  public func equals(other: LispError) -> Bool {
+  open func equals(_ other: LispError) -> Bool {
     return error.equals(other)
   }
 }
 
-public protocol LispError: ErrorType, CustomStringConvertible {
+public protocol LispError: Error, CustomStringConvertible {
   var type: LispErrorType { get }
   var kind: String { get }
   var message: String { get }
   var irritants: Exprs { get }
-  func equals(other: LispError) -> Bool
+  func equals(_ other: LispError) -> Bool
 }
 
 public extension LispError {
@@ -87,23 +87,23 @@ public func ==(lhs: LispError, rhs: LispError) -> Bool {
 }
 
 public enum LispErrorType: Int, Hashable, CustomStringConvertible {
-  case LexicalError
-  case SyntaxError
-  case EvalError
-  case OsError
-  case CustomError
+  case lexicalError
+  case syntaxError
+  case evalError
+  case osError
+  case customError
   
   public var description: String {
     switch self {
-      case LexicalError:
+      case .lexicalError:
         return "lexical error"
-      case SyntaxError:
+      case .syntaxError:
         return "syntax error"
-      case EvalError:
+      case .evalError:
         return "eval error"
-      case OsError:
+      case .osError:
         return "os error"
-      case CustomError:
+      case .customError:
         return "custom error"
     }
   }
@@ -113,24 +113,24 @@ public enum LispErrorType: Int, Hashable, CustomStringConvertible {
 /// Enumeration `LexicalError` represents lexical parsing errors emitted by the
 /// scanner.
 public enum LexicalError: Int, LispError {
-  case Empty
-  case MalformedIdentifier
-  case BrokenIdentifierEncoding
-  case BrokenNumberEncoding
-  case NumberExpected
-  case MalformedFloatLiteral
-  case MalformedComplexLiteral
-  case MalformedStringLiteral
-  case MalformedCharacterLiteral
-  case UnknownCharacterLiteral
-  case IncompleteCharacterLiteral
-  case IllegalCharacter
-  case IllegalHexCharacter
-  case IllegalEscapeSequence
-  case IllegalEndOfLine
-  case TokenNotYetSupported
-  case DivisionByZero
-  case ExactComplexNumbersUnsupported
+  case empty
+  case malformedIdentifier
+  case brokenIdentifierEncoding
+  case brokenNumberEncoding
+  case numberExpected
+  case malformedFloatLiteral
+  case malformedComplexLiteral
+  case malformedStringLiteral
+  case malformedCharacterLiteral
+  case unknownCharacterLiteral
+  case incompleteCharacterLiteral
+  case illegalCharacter
+  case illegalHexCharacter
+  case illegalEscapeSequence
+  case illegalEndOfLine
+  case tokenNotYetSupported
+  case divisionByZero
+  case exactComplexNumbersUnsupported
   
   public var kind: String {
     return "lexical error"
@@ -138,54 +138,54 @@ public enum LexicalError: Int, LispError {
   
   public var message: String {
     switch self {
-      case Empty:
+      case .empty:
         return "no input available"
-      case MalformedIdentifier:
+      case .malformedIdentifier:
         return "malformed identifier"
-      case BrokenIdentifierEncoding:
+      case .brokenIdentifierEncoding:
         return "broken identifier encoding"
-      case BrokenNumberEncoding:
+      case .brokenNumberEncoding:
         return "broken number encoding"
-      case .NumberExpected:
+      case .numberExpected:
         return "expected a number"
-      case MalformedFloatLiteral:
+      case .malformedFloatLiteral:
         return "malformed floating point number literal"
-      case MalformedComplexLiteral:
+      case .malformedComplexLiteral:
         return "malformed complex number literal"
-      case MalformedStringLiteral:
+      case .malformedStringLiteral:
         return "malformed string literal"
-      case MalformedCharacterLiteral:
+      case .malformedCharacterLiteral:
         return "malformed character literal"
-      case UnknownCharacterLiteral:
+      case .unknownCharacterLiteral:
         return "unknown character literal"
-      case IncompleteCharacterLiteral:
+      case .incompleteCharacterLiteral:
         return "incomplete character literal"
-      case IllegalCharacter:
+      case .illegalCharacter:
         return "illegal character"
-      case IllegalHexCharacter:
+      case .illegalHexCharacter:
         return "illegal hex character"
-      case IllegalEscapeSequence:
+      case .illegalEscapeSequence:
         return "illegal escape sequence"
-      case IllegalEndOfLine:
+      case .illegalEndOfLine:
         return "illegal end of line"
-      case TokenNotYetSupported:
+      case .tokenNotYetSupported:
         return "token not yet supported"
-      case DivisionByZero:
+      case .divisionByZero:
         return "division by zero"
-      case .ExactComplexNumbersUnsupported:
+      case .exactComplexNumbersUnsupported:
         return "exact complex numnbers are not supported"
     }
   }
   
   public var irritants: Exprs {
-    return NO_EXPRS
+    return noExprs
   }
   
   public var type: LispErrorType {
-    return .LexicalError
+    return .lexicalError
   }
   
-  public func equals(error: LispError) -> Bool {
+  public func equals(_ error: LispError) -> Bool {
     if let other = error as? LexicalError {
       return self.rawValue == other.rawValue
     }
@@ -194,12 +194,12 @@ public enum LexicalError: Int, LispError {
 }
 
 public enum SyntaxError: Int, LispError {
-  case Empty
-  case ClosingParenthesisMissing
-  case UnexpectedClosingParenthesis
-  case UnexpectedDot
-  case NotAByteValue
-  case SyntaxNotYetSupported
+  case empty
+  case closingParenthesisMissing
+  case unexpectedClosingParenthesis
+  case unexpectedDot
+  case notAByteValue
+  case syntaxNotYetSupported
   
   public var kind: String {
     return "syntax error"
@@ -207,30 +207,30 @@ public enum SyntaxError: Int, LispError {
   
   public var message: String {
     switch self {
-      case Empty:
+      case .empty:
         return "empty input"
-      case ClosingParenthesisMissing:
+      case .closingParenthesisMissing:
         return "closing parenthesis missing"
-      case UnexpectedClosingParenthesis:
+      case .unexpectedClosingParenthesis:
         return "unexpected closing parenthesis"
-      case UnexpectedDot:
+      case .unexpectedDot:
         return "unexpected dot"
-      case NotAByteValue:
+      case .notAByteValue:
         return "bytevector element not a byte"
-      case SyntaxNotYetSupported:
+      case .syntaxNotYetSupported:
         return "syntax not yet supported"
     }
   }
   
   public var irritants: Exprs {
-    return NO_EXPRS
+    return noExprs
   }
   
   public var type: LispErrorType {
-    return .SyntaxError
+    return .syntaxError
   }
   
-  public func equals(error: LispError) -> Bool {
+  public func equals(_ error: LispError) -> Bool {
     if let other = error as? SyntaxError {
       return self.rawValue == other.rawValue
     }
@@ -239,45 +239,46 @@ public enum SyntaxError: Int, LispError {
 }
 
 public enum EvalError: LispError {
-  case IllegalKeywordUsage(Expr)
-  case IllegalFormalParameter(Expr)
-  case IllegalFormalRestParameter(Expr)
-  case DivisionByZero
-  case UnboundVariable(Symbol)
-  case VariableNotYetInitialized(Symbol?)
-  case MalformedCaseLambda(Expr)
-  case MalformedArgumentList(Expr)
-  case MalformedDefinition(Expr)
-  case MalformedTransformer(Expr)
-  case MalformedSyntaxRule(Expr)
-  case MalformedSyntaxRulePattern(error: Expr?, pattern: Expr)
-  case MalformedSyntaxRuleLiterals(Expr)
-  case InvalidContextInQuasiquote(Symbol, Expr)
-  case MacroMismatchedRepetitionPatterns(Symbol)
-  case MalformedBindings(Expr?, Expr)
-  case MalformedTest(Expr)
-  case MalformedCondClause(Expr)
-  case MalformedCaseClause(Expr)
-  case DuplicateBinding(Symbol, Expr)
-  case IndexOutOfBounds(Int64, Int64, Expr)
-  case ParameterOutOfBounds(String, Int, Int64, Int64, Int64)
-  case NonApplicativeValue(Expr)
-  case IllegalRadix(Expr)
-  case TypeError(Expr, Set<Type>)
-  case ArgumentError(f: Expr, args: Expr)
-  case ArgumentCountError(formals: Int, args: Expr)
-  case NoMatchingCase(args: Expr, proc: Expr)
-  case LeastArgumentCountError(formals: Int, args: Expr)
-  case OutOfScope(Expr)
-  case DefineInLocalEnv(signature: Expr, definition: Expr, group: BindingGroup)
-  case DefineSyntaxInLocalEnv(keyword: Symbol, definition: Expr, group: BindingGroup)
-  case TargetBytevectorTooSmall(Expr)
-  case CannotOpenFile(String)
-  case CannotWriteToPort(Expr)
-  case IllegalContinuationApplication(Procedure, Int)
-  case AttemptToModifyImmutableData(Expr)
-  case UnknownFieldOfRecordType(Expr, Symbol)
-  case FieldCountError(Int, Expr)
+  case illegalKeywordUsage(Expr)
+  case illegalFormalParameter(Expr)
+  case illegalFormalRestParameter(Expr)
+  case divisionByZero
+  case unboundVariable(Symbol)
+  case variableNotYetInitialized(Symbol?)
+  case malformedCaseLambda(Expr)
+  case malformedArgumentList(Expr)
+  case malformedDefinition(Expr)
+  case malformedTransformer(Expr)
+  case malformedSyntaxRule(Expr)
+  case malformedSyntaxRulePattern(error: Expr?, pattern: Expr)
+  case malformedSyntaxRuleLiterals(Expr)
+  case invalidContextInQuasiquote(Symbol, Expr)
+  case macroMismatchedRepetitionPatterns(Symbol)
+  case malformedBindings(Expr?, Expr)
+  case malformedTest(Expr)
+  case malformedCondClause(Expr)
+  case malformedCaseClause(Expr)
+  case duplicateBinding(Symbol, Expr)
+  case indexOutOfBounds(Int64, Int64, Expr)
+  case parameterOutOfBounds(String, Int, Int64, Int64, Int64)
+  case nonApplicativeValue(Expr)
+  case illegalRadix(Expr)
+  case typeError(Expr, Set<Type>)
+  case argumentError(f: Expr, args: Expr)
+  case argumentCountError(formals: Int, args: Expr)
+  case noMatchingCase(args: Expr, proc: Expr)
+  case leastArgumentCountError(formals: Int, args: Expr)
+  case outOfScope(Expr)
+  case defineInLocalEnv(signature: Expr, definition: Expr, group: BindingGroup)
+  case defineSyntaxInLocalEnv(keyword: Symbol, definition: Expr, group: BindingGroup)
+  case targetBytevectorTooSmall(Expr)
+  case cannotOpenFile(String)
+  case cannotWriteToPort(Expr)
+  case illegalContinuationApplication(Procedure, Int)
+  case attemptToModifyImmutableData(Expr)
+  case unknownFieldOfRecordType(Expr, Symbol)
+  case fieldCountError(Int, Expr)
+  case malformedLibraryDefinition(decls: Expr)
   
   public var kind: String {
     return "eval error"
@@ -285,65 +286,65 @@ public enum EvalError: LispError {
   
   public var message: String {
     switch self {
-      case IllegalKeywordUsage(let expr):
+      case .illegalKeywordUsage(let expr):
         return "syntactic keywords may not be used as expressions: \(expr)"
-      case IllegalFormalParameter(let expr):
+      case .illegalFormalParameter(let expr):
         return "illegal formal parameter: \(expr)"
-      case IllegalFormalRestParameter(let expr):
+      case .illegalFormalRestParameter(let expr):
         return "illegal formal rest parameter: \(expr)"
-      case DivisionByZero:
+      case .divisionByZero:
         return "division by zero"
-      case UnboundVariable(let sym):
+      case .unboundVariable(let sym):
         return "unbound variable: \(sym)"
-      case VariableNotYetInitialized(let sym):
+      case .variableNotYetInitialized(let sym):
         return "variable \(sym?.description ?? "") not yet initialized"
-      case MalformedCaseLambda(let expr):
+      case .malformedCaseLambda(let expr):
         return "malformed lambda case list: \(expr)"
-      case MalformedArgumentList(let args):
+      case .malformedArgumentList(let args):
         return "malformed argument list: \(args)"
-      case MalformedDefinition(let def):
+      case .malformedDefinition(let def):
         return "malformed definition: \(def)"
-      case MalformedTransformer(let transformer):
+      case .malformedTransformer(let transformer):
         return "malformed transformer: \(transformer)"
-      case MalformedSyntaxRule(let rule):
+      case .malformedSyntaxRule(let rule):
         return "not a valid syntax rule: \(rule)"
-      case MalformedSyntaxRulePattern(let error, let pattern):
+      case .malformedSyntaxRulePattern(let error, let pattern):
         if let errPat = error {
           return "illegal pattern \(errPat) in syntax rule pattern: \(pattern)"
         } else {
           return "malformed syntax rule pattern: \(pattern)"
         }
-      case MalformedSyntaxRuleLiterals(let literals):
+      case .malformedSyntaxRuleLiterals(let literals):
         return "malformed list of syntax rule literals: \(literals)"
-      case InvalidContextInQuasiquote(let op, let expr):
+      case .invalidContextInQuasiquote(let op, let expr):
         return "\(op) in invalid context within quasiquote: \(expr)"
-      case MacroMismatchedRepetitionPatterns(let sym):
+      case .macroMismatchedRepetitionPatterns(let sym):
         return "macro could not be expanded: mismatched repetition patterns: \(sym)"
-      case MalformedBindings(nil, let bindingList):
+      case .malformedBindings(nil, let bindingList):
         return "malformed list of bindings: \(bindingList)"
-      case MalformedBindings(.Some(let binding), _):
+      case .malformedBindings(.some(let binding), _):
         return "malformed binding: \(binding)"
-      case MalformedTest(let expr):
+      case .malformedTest(let expr):
         return "malformed test expression: \(expr)"
-      case MalformedCondClause(let clause):
+      case .malformedCondClause(let clause):
         return "malformed clause in cond form: \(clause)"
-      case MalformedCaseClause(let clause):
+      case .malformedCaseClause(let clause):
         return "malformed clause in case form: \(clause)"
-      case DuplicateBinding(let sym, let expr):
+      case .duplicateBinding(let sym, let expr):
         return "symbol \(sym) bound multiple times in \(expr)"
-      case IndexOutOfBounds(let index, let max, let expr):
+      case .indexOutOfBounds(let index, let max, let expr):
         if index < 0 && max < 0 {
           return "index \(index) must not be negative when accessing \(expr)"
         } else {
           return "index \(index) out of bounds [0..\(max)] when accessing \(expr)"
         }
-      case ParameterOutOfBounds(let fun, let n, let actual, let min, let max):
+      case .parameterOutOfBounds(let fun, let n, let actual, let min, let max):
         return "parameter \(n) of \(fun) out of bounds [\(min)..\(max)]: \(actual)"
-      case NonApplicativeValue(let expr):
+      case .nonApplicativeValue(let expr):
         return "cannot apply arguments to: \(expr)"
-      case IllegalRadix(let expr):
+      case .illegalRadix(let expr):
         return "illegal radix \(expr)"
-      case TypeError(let expr, let expected):
+      case .typeError(let expr, let expected):
         guard expected.count > 0 else {
           return "unexpected expression \(expr)"
         }
@@ -361,137 +362,141 @@ public enum EvalError: LispError {
           res = "either a " + res + " or " + tpe!.description
         }
         return "expected \(expr) to be \(res) value vs. a value of type \(expr.type)"
-      case ArgumentError(let f, let args):
+      case .argumentError(let f, let args):
         return "wrong number of arguments for \(f): \(args)"
-      case ArgumentCountError(let formals, let args):
+      case .argumentCountError(let formals, let args):
         let (exprs, _) = args.toExprs()
         return "expected \(formals), but received \(exprs.count) arguments: \(args)"
-      case NoMatchingCase(let args, let proc):
+      case .noMatchingCase(let args, let proc):
         return "arguments \(args) not matching any case of \(proc)"
-      case LeastArgumentCountError(let formals, let args):
+      case .leastArgumentCountError(let formals, let args):
         let (exprs, _) = args.toExprs()
         return "expected at least \(formals), but received only \(exprs.count) arguments: \(args)"
-      case OutOfScope(let syntax):
+      case .outOfScope(let syntax):
         return "out of scope evaluation of \(syntax)"
-      case DefineInLocalEnv(let sig, _, _):
+      case .defineInLocalEnv(let sig, _, _):
         return "definition of \(sig) in local environment"
-      case DefineSyntaxInLocalEnv(let sym, _, _):
+      case .defineSyntaxInLocalEnv(let sym, _, _):
         return "syntax definition of \(sym) in local environment"
-      case .TargetBytevectorTooSmall(let bvec):
+      case .targetBytevectorTooSmall(let bvec):
         return "target bytevector too small: \(bvec)"
-      case .CannotOpenFile(let filename):
+      case .cannotOpenFile(let filename):
         return "cannot open file '\(filename)'"
-      case .CannotWriteToPort(let port):
+      case .cannotWriteToPort(let port):
         return "cannot write to port \(port)"
-      case .IllegalContinuationApplication(let proc, let rid):
+      case .illegalContinuationApplication(let proc, let rid):
         return "continuation application in wrong context (\(proc) in \(rid))"
-      case .AttemptToModifyImmutableData(let expr):
+      case .attemptToModifyImmutableData(let expr):
         return "illegal attempt to modify immutable data structure: \(expr)"
-      case .UnknownFieldOfRecordType(let type, let field):
+      case .unknownFieldOfRecordType(let type, let field):
         return "unknown field \(field) of record type \(type)"
-      case FieldCountError(let expected, let values):
+      case .fieldCountError(let expected, let values):
         return "expected values for \(expected) fields, received: \(values)"
+      case .malformedLibraryDefinition(let decls):
+        return "malformed library definition: \(decls)"
     }
   }
   
   public var irritants: Exprs {
-    return NO_EXPRS
+    return noExprs
   }
   
   public var type: LispErrorType {
-    return .EvalError
+    return .evalError
   }
   
-  public func equals(error: LispError) -> Bool {
+  public func equals(_ error: LispError) -> Bool {
     if let other = error as? EvalError {
       switch (self, other) {
-        case (IllegalKeywordUsage(let expr1), IllegalKeywordUsage(let expr2)):
+        case (.illegalKeywordUsage(let expr1), .illegalKeywordUsage(let expr2)):
           return expr1 == expr2
-        case (IllegalFormalParameter(let expr1), IllegalFormalParameter(let expr2)):
+        case (.illegalFormalParameter(let expr1), .illegalFormalParameter(let expr2)):
           return expr1 == expr2
-        case (IllegalFormalRestParameter(let expr1), IllegalFormalRestParameter(let expr2)):
+        case (.illegalFormalRestParameter(let expr1), .illegalFormalRestParameter(let expr2)):
           return expr1 == expr2
-        case (DivisionByZero, DivisionByZero):
+        case (.divisionByZero, .divisionByZero):
           return true
-        case (UnboundVariable(let sym1), UnboundVariable(let sym2)):
+        case (.unboundVariable(let sym1), .unboundVariable(let sym2)):
           return sym1 == sym2
-        case (VariableNotYetInitialized(let sym1), VariableNotYetInitialized(let sym2)):
+        case (.variableNotYetInitialized(let sym1), .variableNotYetInitialized(let sym2)):
           return sym1 == sym2
-        case (MalformedCaseLambda(let e1), MalformedCaseLambda(let e2)):
+        case (.malformedCaseLambda(let e1), .malformedCaseLambda(let e2)):
           return e1 == e2
-        case (MalformedArgumentList(let a1), MalformedArgumentList(let a2)):
+        case (.malformedArgumentList(let a1), .malformedArgumentList(let a2)):
           return a1 == a2
-        case (MalformedDefinition(let def1), MalformedDefinition(let def2)):
+        case (.malformedDefinition(let def1), .malformedDefinition(let def2)):
           return def1 == def2
-        case (MalformedTransformer(let trans1), MalformedTransformer(let trans2)):
+        case (.malformedTransformer(let trans1), .malformedTransformer(let trans2)):
           return trans1 == trans2
-        case (MalformedSyntaxRule(let rule1), MalformedSyntaxRule(let rule2)):
+        case (.malformedSyntaxRule(let rule1), .malformedSyntaxRule(let rule2)):
           return rule1 == rule2
-        case (MalformedSyntaxRulePattern(let error1, let pat1),
-              MalformedSyntaxRulePattern(let error2, let pat2)):
+        case (.malformedSyntaxRulePattern(let error1, let pat1),
+              .malformedSyntaxRulePattern(let error2, let pat2)):
           return error1 == error2 && pat1 == pat2
-        case (MalformedSyntaxRuleLiterals(let lit1), MalformedSyntaxRuleLiterals(let lit2)):
+        case (.malformedSyntaxRuleLiterals(let lit1), .malformedSyntaxRuleLiterals(let lit2)):
           return lit1 == lit2
-        case (InvalidContextInQuasiquote(let op1, let expr1),
-              InvalidContextInQuasiquote(let op2, let expr2)):
+        case (.invalidContextInQuasiquote(let op1, let expr1),
+              .invalidContextInQuasiquote(let op2, let expr2)):
           return op1 == op2 && expr1 == expr2
-        case (MacroMismatchedRepetitionPatterns(let sym1),
-              MacroMismatchedRepetitionPatterns(let sym2)):
+        case (.macroMismatchedRepetitionPatterns(let sym1),
+              .macroMismatchedRepetitionPatterns(let sym2)):
           return sym1 == sym2
-        case (MalformedBindings(let b1, let l1), MalformedBindings(let b2, let l2)):
+        case (.malformedBindings(let b1, let l1), .malformedBindings(let b2, let l2)):
           return b1 == b2 && l1 == l2
-        case (MalformedTest(let expr1), MalformedTest(let expr2)):
+        case (.malformedTest(let expr1), .malformedTest(let expr2)):
           return expr1 == expr2
-        case (MalformedCondClause(let clause1), MalformedCondClause(let clause2)):
+        case (.malformedCondClause(let clause1), .malformedCondClause(let clause2)):
           return clause1 == clause2
-        case (MalformedCaseClause(let clause1), MalformedCaseClause(let clause2)):
+        case (.malformedCaseClause(let clause1), .malformedCaseClause(let clause2)):
           return clause1 == clause2
-        case (DuplicateBinding(let sym1, let expr1), DuplicateBinding(let sym2, let expr2)):
+        case (.duplicateBinding(let sym1, let expr1), .duplicateBinding(let sym2, let expr2)):
           return sym1 == sym2 && expr1 == expr2
-        case (IndexOutOfBounds(let i1, let m1, let expr1),
-              IndexOutOfBounds(let i2, let m2, let expr2)):
+        case (.indexOutOfBounds(let i1, let m1, let expr1),
+              .indexOutOfBounds(let i2, let m2, let expr2)):
           return i1 == i2 && m1 == m2 && expr1 == expr2
-        case (ParameterOutOfBounds(let fun1, let n1, let actual1, let min1, let max1),
-              ParameterOutOfBounds(let fun2, let n2, let actual2, let min2, let max2)):
+        case (.parameterOutOfBounds(let fun1, let n1, let actual1, let min1, let max1),
+              .parameterOutOfBounds(let fun2, let n2, let actual2, let min2, let max2)):
           return fun1 == fun2 && n1 == n2 && actual1 == actual2 && min1 == min2 && max1 == max2
-        case (NonApplicativeValue(let expr1), NonApplicativeValue(let expr2)):
+        case (.nonApplicativeValue(let expr1), .nonApplicativeValue(let expr2)):
           return expr1 == expr2
-        case (IllegalRadix(let expr1), IllegalRadix(let expr2)):
+        case (.illegalRadix(let expr1), .illegalRadix(let expr2)):
           return expr1 == expr2
-        case (TypeError(let expr1, let exp1), TypeError(let expr2, let exp2)):
+        case (.typeError(let expr1, let exp1), .typeError(let expr2, let exp2)):
           return expr1 == expr2 && exp1 == exp2
-        case (ArgumentError(let f1, let a1), ArgumentError(let f2, let a2)):
+        case (.argumentError(let f1, let a1), .argumentError(let f2, let a2)):
           return f1 == f2 && a1 == a2
-        case (ArgumentCountError(let fml1, let a1), ArgumentCountError(let fml2, let a2)):
+        case (.argumentCountError(let fml1, let a1), .argumentCountError(let fml2, let a2)):
           return fml1 == fml2 && a1 == a2
-        case (NoMatchingCase(let a1, let p1), NoMatchingCase(let a2, let p2)):
+        case (.noMatchingCase(let a1, let p1), .noMatchingCase(let a2, let p2)):
           return a1 == a2 && p1 == p2
-        case (LeastArgumentCountError(let fml1, let a1),
-              LeastArgumentCountError(let fml2, let a2)):
+        case (.leastArgumentCountError(let fml1, let a1),
+              .leastArgumentCountError(let fml2, let a2)):
           return fml1 == fml2 && a1 == a2
-        case (OutOfScope(let e1), OutOfScope(let e2)):
+        case (.outOfScope(let e1), .outOfScope(let e2)):
           return e1 == e2
-        case (DefineInLocalEnv(let sig1, let def1, let g1),
-              DefineInLocalEnv(let sig2, let def2, let g2)):
+        case (.defineInLocalEnv(let sig1, let def1, let g1),
+              .defineInLocalEnv(let sig2, let def2, let g2)):
           return sig1 == sig2 && def1 == def2 && g1 == g2
-        case (DefineSyntaxInLocalEnv(let sym1, let def1, let g1),
-              DefineSyntaxInLocalEnv(let sym2, let def2, let g2)):
+        case (.defineSyntaxInLocalEnv(let sym1, let def1, let g1),
+              .defineSyntaxInLocalEnv(let sym2, let def2, let g2)):
           return sym1 == sym2 && def1 == def2 && g1 == g2
-        case (TargetBytevectorTooSmall(let bvec1), TargetBytevectorTooSmall(let bvec2)):
+        case (.targetBytevectorTooSmall(let bvec1), .targetBytevectorTooSmall(let bvec2)):
           return bvec1 == bvec2
-        case (CannotOpenFile(let f1), CannotOpenFile(let f2)):
+        case (.cannotOpenFile(let f1), .cannotOpenFile(let f2)):
           return f1 == f2
-        case (CannotWriteToPort(let p1), CannotWriteToPort(let p2)):
+        case (.cannotWriteToPort(let p1), .cannotWriteToPort(let p2)):
           return p1 == p2
-        case (IllegalContinuationApplication(let p1, let rid1),
-              IllegalContinuationApplication(let p2, let rid2)):
+        case (.illegalContinuationApplication(let p1, let rid1),
+              .illegalContinuationApplication(let p2, let rid2)):
           return p1 == p2 && rid1 == rid2
-        case (AttemptToModifyImmutableData(let e1), AttemptToModifyImmutableData(let e2)):
+        case (.attemptToModifyImmutableData(let e1), .attemptToModifyImmutableData(let e2)):
           return e1 == e2
-        case (UnknownFieldOfRecordType(let t1, let f1), UnknownFieldOfRecordType(let t2, let f2)):
+        case (.unknownFieldOfRecordType(let t1, let f1), .unknownFieldOfRecordType(let t2, let f2)):
           return t1 == t2 && f1 == f2
-        case (FieldCountError(let e1, let v1), FieldCountError(let e2, let v2)):
+        case (.fieldCountError(let e1, let v1), .fieldCountError(let e2, let v2)):
           return e1 == e2 && v1 == v2
+        case (.malformedLibraryDefinition(let d1), .malformedLibraryDefinition(let d2)):
+          return d1 == d2
         default:
           return false
       }
@@ -499,38 +504,38 @@ public enum EvalError: LispError {
     return false
   }
   
-  public static func assert(args: Arguments, count: Int) throws {
+  public static func assert(_ args: Arguments, count: Int) throws {
     guard args.count == count else {
-      throw EvalError.ArgumentCountError(formals: count, args: .List(args))
+      throw EvalError.argumentCountError(formals: count, args: .makeList(args))
     }
   }
 }
 
-public class OsError: LispError {
+open class OsError: LispError {
   let nsError: NSError
   
   public init(_ nsError: NSError) {
     self.nsError = nsError
   }
   
-  public var kind: String {
+  open var kind: String {
     return type.description
   }
   
-  public var message: String {
+  open var message: String {
     return "\(self.nsError.localizedFailureReason ?? self.nsError.localizedDescription) " +
            "(\(self.nsError.domain), \(self.nsError.code))"
   }
   
-  public var irritants: Exprs {
-    return NO_EXPRS
+  open var irritants: Exprs {
+    return noExprs
   }
   
-  public var type: LispErrorType {
-    return .OsError
+  open var type: LispErrorType {
+    return .osError
   }
   
-  public func equals(error: LispError) -> Bool {
+  open func equals(_ error: LispError) -> Bool {
     guard let other = error as? OsError else {
       return false
     }
@@ -544,10 +549,10 @@ public struct CustomError: LispError {
   public let irritants: Exprs
   
   public var type: LispErrorType {
-    return .CustomError
+    return .customError
   }
   
-  public func equals(error: LispError) -> Bool {
+  public func equals(_ error: LispError) -> Bool {
     if let other = error as? CustomError {
       return self.kind == other.kind &&
              self.message == other.message &&

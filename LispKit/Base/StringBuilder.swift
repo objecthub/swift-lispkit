@@ -32,11 +32,11 @@ public struct StringBuilder: CustomStringConvertible {
     return buffer
   }
   
-  public mutating func append(str: String) {
+  public mutating func append(_ str: String) {
     self.buffer += str
   }
   
-  public mutating func append(str: String, width: Int, alignRight: Bool = false) {
+  public mutating func append(_ str: String, width: Int, alignRight: Bool = false) {
     let pad = width - str.characters.count
     if alignRight {
       self.appendSpaces(pad)
@@ -47,17 +47,17 @@ public struct StringBuilder: CustomStringConvertible {
     }
   }
   
-  public mutating func append(num: Int) {
+  public mutating func append(_ num: Int) {
     self.buffer += String(num)
   }
   
-  public mutating func append(num: Int, width: Int, alignRight: Bool = false) {
+  public mutating func append(_ num: Int, width: Int, alignRight: Bool = false) {
     self.append(String(num), width: width, alignRight: alignRight)
   }
   
-  public mutating func appendSpaces(width: Int) {
+  public mutating func appendSpaces(_ width: Int) {
     if width > 0 {
-      self.buffer.appendContentsOf(StringBuilder.padding(width))
+      self.buffer.append(StringBuilder.padding(width))
     }
   }
   
@@ -65,10 +65,10 @@ public struct StringBuilder: CustomStringConvertible {
     self.buffer += "\n"
   }
   
-  private static let SPACE: Character = " "
+  private static let spaceChar: Character = " "
 
   /// Returns a string with `n` spaces.
-  private static func padding(n: Int) -> String {
+  fileprivate static func padding(_ n: Int) -> String {
     switch n {
       case 0:
         return ""
@@ -85,7 +85,7 @@ public struct StringBuilder: CustomStringConvertible {
       case 6:
         return "      "
       default:
-        return String(count: n, repeatedValue: StringBuilder.SPACE)
+        return String(repeating: String(StringBuilder.spaceChar), count: n)
     }
   }
 }

@@ -10,8 +10,8 @@ import Foundation
 
 
 public protocol TextOutputTarget {
-  func flush(completely: Bool) -> Bool
-  func writeString(str: String) -> Bool
+  func flush(_ completely: Bool) -> Bool
+  func writeString(_ str: String) -> Bool
 }
 
 public struct UTF8EncodedTarget: TextOutputTarget {
@@ -21,11 +21,11 @@ public struct UTF8EncodedTarget: TextOutputTarget {
     self.output = output
   }
 
-  public func flush(completely: Bool = false) -> Bool {
+  @discardableResult public func flush(_ completely: Bool = false) -> Bool {
     return self.output.flush(completely)
   }
   
-  public func writeString(str: String) -> Bool {
+  public func writeString(_ str: String) -> Bool {
     for byte in str.utf8 {
       guard self.output.write(byte) else {
         return false

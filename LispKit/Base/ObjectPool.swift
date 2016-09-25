@@ -23,7 +23,7 @@
 /// to the pool via method `add`. They are automatically removed as soon as there is no
 /// strong reference to this object anymore.
 ///
-public class ObjectPool<T: AnyObject>: SequenceType, CustomStringConvertible {
+public final class ObjectPool<T: AnyObject>: Sequence, CustomStringConvertible {
   
   /// Weak references to objects in the pool
   private var references: [WeakVariable<T>]
@@ -54,12 +54,12 @@ public class ObjectPool<T: AnyObject>: SequenceType, CustomStringConvertible {
   }
   
   /// Returns true if the object pool is empty.
-  public var isEmpty: Bool {
+  open var isEmpty: Bool {
     return self.count == 0
   }
   
   /// Adds the given object to the object pool.
-  public func add(obj: T) {
+  public func add(_ obj: T) {
     // Collect free references on a regular basis; frequency is based on the capacity
     if let i = free.first {
       self.added += 1
@@ -100,9 +100,9 @@ public class ObjectPool<T: AnyObject>: SequenceType, CustomStringConvertible {
   }
   
   /// Returns a generator for iterating over all objects in the object pool.
-  public func generate() -> AnyGenerator<T> {
+  public func makeIterator() -> AnyIterator<T> {
     var i = 0
-    return AnyGenerator {
+    return AnyIterator {
       while i < self.references.count {
         if let obj = self.references[i].obj {
           i += 1
@@ -119,15 +119,14 @@ public class ObjectPool<T: AnyObject>: SequenceType, CustomStringConvertible {
     return "ObjectPool{refcount = \(self.references.count), freecount = \(self.free.count), " +
            "free = \(self.free)}"
   }
-  
 }
 
 ///
 /// Internal representation of a weak variable that can be recycled. This class is an
 /// implementation detail of `ObjectPool` and should ideally be nested in `ObjectPool`.
-/// Unfortunately, this is disallowed in Swift 2.
+/// Unfortunately, this is disallowed in Swift 3.
 ///
-private struct WeakVariable<T: AnyObject> {
-  private var recycled: Bool
-  private weak var obj: T?
+fileprivate struct WeakVariable<T: AnyObject> {
+  var recycled: Bool
+  weak var obj: T?
 }

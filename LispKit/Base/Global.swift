@@ -18,7 +18,7 @@
 //  limitations under the License.
 //
 
-internal func log(str: String) {
+internal func log(_ str: String) {
   #if LOG
     print(str)
   #endif

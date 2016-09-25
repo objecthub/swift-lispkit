@@ -28,9 +28,9 @@ let console = CommandLineConsole()
 let context = Context(console: console, library: SchemeLibrary.self)
 
 // Load standard Prelude
-if let preludePath = NSBundle(identifier: "net.objecthub.LispKit")?.pathForResource(
-  "Prelude", ofType: "scm", inDirectory: "LispKit/Library") {
-  context.machine.evalFile(preludePath)
+if let preludePath = Bundle(identifier: "net.objecthub.LispKit")?.path(
+  forResource: "Prelude", ofType: "scm", inDirectory: "LispKit/Library") {
+  _ = context.machine.evalFile(preludePath)
 }
 
 // Print header
@@ -44,7 +44,7 @@ while let line = console.read() {
     break
   }
   let res = context.machine.evalStr(line)
-  if res != Expr.Void {
+  if res != Expr.void {
     console.print(res.description + "\n")
   }
   console.print("⟹ ")

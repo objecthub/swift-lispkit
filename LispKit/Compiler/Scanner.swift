@@ -24,19 +24,19 @@ import NumberKit
 /// Class `Scanner` implements a lexical analyzer for Scheme. The class uses the utf16 view
 /// of the string for parsing purposes.
 /// 
-public class Scanner {
+open class Scanner {
   
   /// Input of source code
-  private let input: TextInput
+  fileprivate let input: TextInput
   
   /// Buffer for characters read during one invocation of `next`
-  private var buffer: ScanBuffer
+  fileprivate var buffer: ScanBuffer
   
   /// Last scanned character
   internal var ch: UniChar
   
   /// Position of last scanned character
-  private var lpos: Position
+  fileprivate var lpos: Position
   
   /// Next position
   internal var pos: Position
@@ -58,7 +58,7 @@ public class Scanner {
     self.ch = SPACE_CH
     self.token = Token(
       pos: Position(0, 0),
-      kind: .ERROR,
+      kind: .error,
       strVal: "",
       intVal: 0,
       bigIntVal: 0,
@@ -66,14 +66,14 @@ public class Scanner {
       bigRatVal: 0,
       floatVal: 0.0,
       complexVal: 0.0,
-      errorVal: LexicalError.Empty)
+      errorVal: LexicalError.empty)
     if prescan {
       self.next()
     }
   }
   
   /// Returns true if the current token has one of the given token kinds.
-  public func hasToken(kind: TokenKind...) -> Bool {
+  open func hasToken(_ kind: TokenKind...) -> Bool {
     for k in kind {
       if self.token.kind == k {
         return true
@@ -84,12 +84,12 @@ public class Scanner {
   
   /// Returns true if there is another token available. The token can be accessed via the
   /// `token` property.
-  public func hasNext() -> Bool {
-    return self.token.kind != .EOF_TOKEN
+  open func hasNext() -> Bool {
+    return self.token.kind != .eof
   }
   
   /// Parses the next token.
-  public func next() {
+  open func next() {
     while self.ch != EOF_CH {
       // skip whitespace
       self.skipSpace()
@@ -120,7 +120,7 @@ public class Scanner {
           } else if isDigit(self.ch) {
             self.scanNumber(10, neg: neg, dot: true)
           } else {
-            self.token.kind = .IDENT
+            self.token.kind = .ident
             self.token.strVal = self.buffer.stringValue
           }
         // identifiers starting with +/-, infinity or NaN
@@ -130,20 +130,20 @@ public class Scanner {
             self.nextCh()
           }
           var realPart: Double?
-          switch self.buffer.stringValue.lowercaseString {
+          switch self.buffer.stringValue.lowercased() {
             case "-inf.0":
               realPart = -Double.infinity
             case "+inf.0":
               realPart = Double.infinity
             case "-nan.0", "+nan.0":
-              realPart = Double.NaN
+              realPart = Double.nan
             default:
               realPart = nil
               while isSubsequentIdent(self.ch) {
                 self.nextCh()
               }
-              self.token.kind = .IDENT
-              self.token.strVal = self.buffer.stringValue.lowercaseString
+              self.token.kind = .ident
+              self.token.strVal = self.buffer.stringValue.lowercased()
           }
           // check if infinity/NaN is part of a complex number
           if let realPart = realPart {
@@ -155,12 +155,12 @@ public class Scanner {
                 self.nextCh()
                 return scanImaginaryPart(realPart, neg: true)
               default:
-                self.token.kind = .FLOAT
+                self.token.kind = .float
                 self.token.floatVal = realPart
             }
           }
         } else {
-          self.token.kind = .IDENT
+          self.token.kind = .ident
           self.token.strVal = self.buffer.stringValue
         }
         return
@@ -182,23 +182,23 @@ public class Scanner {
           } else if isDigit(self.ch) {
             self.scanNumber(10, neg: false, dot: true)
           } else {
-            self.token.kind = .DOT
+            self.token.kind = .dot
           }
           return
         case LPAREN_CH:
-          self.token.kind = .LPAREN
+          self.token.kind = .lparen
           self.nextCh()
           return
         case RPAREN_CH:
-          self.token.kind = .RPAREN
+          self.token.kind = .rparen
           self.nextCh()
           return
         case Q_CH, OPENQ_CH, CLOSEQ_CH:
-          self.token.kind = .QUOTE
+          self.token.kind = .quote
           self.nextCh()
           return
         case BQ_CH:
-          self.token.kind = .BACKQUOTE
+          self.token.kind = .backquote
           self.nextCh()
           return
         case DQ_CH:
@@ -208,9 +208,9 @@ public class Scanner {
           self.nextCh()
           if self.ch == AT_CH {
             self.nextCh()
-            self.token.kind = .COMMAAT
+            self.token.kind = .commaat
           } else {
-            self.token.kind = .COMMA
+            self.token.kind = .comma
           }
           return
         case HASH_CH:
@@ -237,16 +237,16 @@ public class Scanner {
             case U_CH:
               self.nextCh()
               guard self.ch == EIGHT_CH else {
-                self.signal(.IncompleteCharacterLiteral)
+                self.signal(.incompleteCharacterLiteral)
                 return
               }
               self.nextCh()
               guard self.ch == LPAREN_CH else {
-                self.signal(.IncompleteCharacterLiteral)
+                self.signal(.incompleteCharacterLiteral)
                 return
               }
               self.nextCh()
-              self.token.kind = .U8LPAREN
+              self.token.kind = .u8LPAREN
             case BAR_CH:
               self.nextCh()
               var bar = false
@@ -260,49 +260,49 @@ public class Scanner {
               continue
             case LPAREN_CH:
               self.nextCh()
-              self.token.kind = .HASHLPAREN
+              self.token.kind = .hashlparen
             case BS_CH:
               self.nextCh()
               self.scanCharacterLiteral()
             case EOF_CH:
-              self.signal(.IncompleteCharacterLiteral)
+              self.signal(.incompleteCharacterLiteral)
               return
             default:
               while self.ch >= LA_CH && self.ch <= LZ_CH || self.ch >= UA_CH && self.ch <= UZ_CH {
                 self.nextCh()
               }
               let s = self.buffer.stringStartingAt(1)
-              switch s.lowercaseString {
+              switch s.lowercased() {
                 case "t":
-                  self.token.kind = .TRUELIT
+                  self.token.kind = .truelit
                 case "true":
-                  self.token.kind = .TRUELIT
+                  self.token.kind = .truelit
                 case "f":
-                  self.token.kind = .FALSELIT
+                  self.token.kind = .falselit
                 case "false":
-                  self.token.kind = .FALSELIT
+                  self.token.kind = .falselit
                 default:
-                  self.signal(.UnknownCharacterLiteral)
+                  self.signal(.unknownCharacterLiteral)
                   return
               }
           }
           return
         default:
           self.nextCh()
-          self.signal(.IllegalCharacter)
+          self.signal(.illegalCharacter)
       }
     }
-    self.token.kind = .EOF_TOKEN
+    self.token.kind = .eof
   }
   
   /// Signals a lexical error
-  private func signal(error: LexicalError) {
-    self.token.kind = .ERROR
+  fileprivate func signal(_ error: LexicalError) {
+    self.token.kind = .error
     self.token.errorVal = error
   }
   
   /// Reads the next character and makes it available via the `ch` property.
-  private func nextCh() {
+  fileprivate func nextCh() {
     // Check if we reached EOF already
     guard self.ch != EOF_CH else {
       return
@@ -321,8 +321,8 @@ public class Scanner {
         self.ch = EOL_CH
         self.pos.col = 1
         self.pos.line += 1
-        if let next = self.input.peek() where next == EOL_CH {
-          self.input.read()
+        if let next = self.input.peek(), next == EOL_CH {
+          _ = self.input.read()
         }
       case EOL_CH:
         self.ch = EOL_CH
@@ -349,7 +349,7 @@ public class Scanner {
   }
   
   /// Skips consecutive comment lines
-  private func skipComment() {
+  fileprivate func skipComment() {
     while self.ch == SEMI_CH {
       self.nextCh()
       while self.ch != EOL_CH && self.ch != EOF_CH {
@@ -359,40 +359,40 @@ public class Scanner {
   }
   
   /// Scans the next characters as an identifier.
-  private func scanIdent() {
+  fileprivate func scanIdent() {
     self.nextCh()
     while isSubsequentIdent(self.ch) {
       self.nextCh()
     }
-    self.token.kind = .IDENT
-    self.token.strVal = self.buffer.stringValue.lowercaseString
+    self.token.kind = .ident
+    self.token.strVal = self.buffer.stringValue.lowercased()
   }
   
   /// Scans a character literal
-  private func scanCharacterLiteral() {
+  fileprivate func scanCharacterLiteral() {
     switch self.ch {
       case EOF_CH:
-        self.signal(.MalformedCharacterLiteral)
+        self.signal(.malformedCharacterLiteral)
       case X_CH:
         self.nextCh()
         if let ch = self.scanHexNumber(2) {
-          self.token.kind = .CHAR
+          self.token.kind = .char
           self.token.intVal = ch
         } else if self.ch >= LA_CH && self.ch <= LZ_CH || self.ch >= UA_CH && self.ch <= UZ_CH {
-          self.signal(.UnknownCharacterLiteral)
+          self.signal(.unknownCharacterLiteral)
         } else {
-          self.token.kind = .CHAR
+          self.token.kind = .char
           self.token.intVal = Int64(X_CH)
         }
       case U_CH:
         self.nextCh()
         if let ch = self.scanHexNumber(4) {
-          self.token.kind = .CHAR
+          self.token.kind = .char
           self.token.intVal = ch
         } else if self.ch >= LA_CH && self.ch <= LZ_CH || self.ch >= UA_CH && self.ch <= UZ_CH {
-          self.signal(.UnknownCharacterLiteral)
+          self.signal(.unknownCharacterLiteral)
         } else {
-          self.token.kind = .CHAR
+          self.token.kind = .char
           self.token.intVal = Int64(U_CH)
         }
       case LA_CH...LZ_CH, UA_CH...UZ_CH:
@@ -401,7 +401,7 @@ public class Scanner {
           self.nextCh()
         }
         let s = self.buffer.stringStartingAt(2)
-        self.token.kind = .CHAR
+        self.token.kind = .char
         if (s.utf16.count == 1) {
           self.token.intVal = Int64(s.utf16.first!)
         } else {
@@ -429,14 +429,14 @@ public class Scanner {
             case "vtab":
               self.token.intVal = 11
             default:
-              self.signal(.UnknownCharacterLiteral)
+              self.signal(.unknownCharacterLiteral)
           }
         }
       default:
         if self.ch > 0xd7ff {
-          self.signal(.UnknownCharacterLiteral)
+          self.signal(.unknownCharacterLiteral)
         } else {
-          self.token.kind = .CHAR
+          self.token.kind = .char
           self.token.intVal = Int64(self.ch)
           self.nextCh()
         }
@@ -444,7 +444,7 @@ public class Scanner {
   }
   
   /// Scans a hex number with a given number of digits.
-  private func scanHexNumber(maxDigits: Int) -> Int64? {
+  fileprivate func scanHexNumber(_ maxDigits: Int) -> Int64? {
     guard isDigitForRadix(self.ch, 16) else {
       return nil
     }
@@ -463,7 +463,7 @@ public class Scanner {
   }
   
   /// Scans an exact or inexact number
-  private func scanGeneralNumber(exact exact: Bool? = nil) {
+  fileprivate func scanGeneralNumber(exact: Bool? = nil) {
     if self.ch == HASH_CH {
       self.nextCh()
       switch self.ch {
@@ -480,7 +480,7 @@ public class Scanner {
           self.nextCh()
           self.scanSignedNumber(16)
         default:
-          self.signal(LexicalError.NumberExpected)
+          self.signal(LexicalError.numberExpected)
       }
     } else {
       self.scanSignedNumber(10)
@@ -488,32 +488,32 @@ public class Scanner {
     if let exact = exact {
       if exact {
         switch self.token.kind {
-          case .FLOAT:
-            self.token.kind = .RAT
+          case .float:
+            self.token.kind = .rat
             self.token.ratVal = MathLibrary.approximate(self.token.floatVal)
             self.token.floatVal = 0.0
-          case .COMPLEX:
-            self.signal(LexicalError.ExactComplexNumbersUnsupported)
+          case .complex:
+            self.signal(LexicalError.exactComplexNumbersUnsupported)
           default:
             break
         }
       } else {
         switch self.token.kind {
-          case .INT:
-            self.token.kind = .FLOAT
+          case .int:
+            self.token.kind = .float
             self.token.floatVal = Double(self.token.intVal)
             self.token.intVal = 0
-          case .BIGINT:
-            self.token.kind = .FLOAT
+          case .bigint:
+            self.token.kind = .float
             self.token.floatVal = self.token.bigIntVal.doubleValue
             self.token.bigIntVal = 0
-          case .RAT:
-            self.token.kind = .FLOAT
+          case .rat:
+            self.token.kind = .float
             self.token.floatVal = Double(self.token.ratVal.numerator) /
                                   Double(self.token.ratVal.denominator)
             self.token.ratVal = 0
-          case .BIGRAT:
-            self.token.kind = .FLOAT
+          case .bigrat:
+            self.token.kind = .float
             self.token.floatVal = self.token.bigRatVal.numerator.doubleValue /
                                   self.token.bigRatVal.denominator.doubleValue
             self.token.bigRatVal = 0
@@ -525,7 +525,7 @@ public class Scanner {
   }
   
   /// Scans the next characters as a signed integer or floating point number.
-  internal func scanSignedNumber(radix: Int) {
+  internal func scanSignedNumber(_ radix: Int) {
     switch self.ch {
       case MINUS_CH:
         self.nextCh()
@@ -539,7 +539,7 @@ public class Scanner {
   }
   
   /// Scans the next characters as an unsigned integer or floating point number.
-  private func scanNumber(radix: Int, neg: Bool, dot: Bool) {
+  fileprivate func scanNumber(_ radix: Int, neg: Bool, dot: Bool) {
     var digits: [UInt8] = []
     var isFloat = dot
     let start = self.buffer.index - 1
@@ -578,14 +578,14 @@ public class Scanner {
             self.nextCh()
             return scanImaginaryPart(neg ? -dbl : dbl, neg: true)
           default:
-            self.token.kind = .FLOAT
+            self.token.kind = .float
             self.token.floatVal = neg ? -dbl : dbl
         }
       } else {
-        self.signal(.MalformedFloatLiteral)
+        self.signal(.malformedFloatLiteral)
       }
     } else {
-      let numer = BigInt(digits, negative: neg, base: BigInt.base(radix))
+      let numer = BigInt(digits: digits, negative: neg, base: BigInt.base(of: radix))
       switch self.ch {
         case SLASH_CH:
           self.nextCh()
@@ -598,16 +598,16 @@ public class Scanner {
             self.scanIdent()
             return
           }
-          let denom = BigInt(digits, negative: false, base: BigInt.base(radix))
+          let denom = BigInt(digits: digits, negative: false, base: BigInt.base(of: radix))
           guard denom != 0 else {
-            self.signal(LexicalError.DivisionByZero)
+            self.signal(LexicalError.divisionByZero)
             return
           }
-          if let n = numer.intValue, d = denom.intValue {
-            self.token.kind = .RAT
+          if let n = numer.intValue, let d = denom.intValue {
+            self.token.kind = .rat
             self.token.ratVal = Rational(n, d)
           } else {
-            self.token.kind = .BIGRAT
+            self.token.kind = .bigrat
             self.token.bigRatVal = Rational(numer, denom)
           }
         case PLUS_CH:
@@ -618,10 +618,10 @@ public class Scanner {
           return scanImaginaryPart(numer.doubleValue, neg: true)
         default:
           if let i = numer.intValue {
-            self.token.kind = .INT
+            self.token.kind = .int
             self.token.intVal = i
           } else {
-            self.token.kind = .BIGINT
+            self.token.kind = .bigint
             self.token.bigIntVal = numer
           }
         }
@@ -630,22 +630,22 @@ public class Scanner {
   
   /// Scans the next characters as an unsigned floating point number representing the
   /// imaginary part of a complex number
-  private func scanImaginaryPart(realPart: Double, neg: Bool) {
+  fileprivate func scanImaginaryPart(_ realPart: Double, neg: Bool) {
     let start = self.buffer.index - 1
     guard self.ch != LI_CH && self.ch != N_CH else {
       self.scanIdent()
       let s = self.buffer.stringStartingAt(start)
       switch s {
         case "inf.0i":
-          self.token.kind = .COMPLEX
+          self.token.kind = .complex
           self.token.complexVal = Complex(realPart, neg ? -Double.infinity : Double.infinity)
           self.token.strVal = ""
         case "nan.0i":
-          self.token.kind = .COMPLEX
-          self.token.complexVal = Complex(realPart, Double.NaN)
+          self.token.kind = .complex
+          self.token.complexVal = Complex(realPart, Double.nan)
           self.token.strVal = ""
         default:
-          self.signal(.MalformedComplexLiteral)
+          self.signal(.malformedComplexLiteral)
       }
       return
     }
@@ -671,72 +671,72 @@ public class Scanner {
       let s = self.buffer.stringStartingAt(start)
       self.nextCh()
       if let dbl = Double(s) {
-        self.token.kind = .COMPLEX
+        self.token.kind = .complex
         self.token.complexVal = Complex(realPart, neg ? -dbl : dbl)
       } else {
-        self.signal(.MalformedFloatLiteral)
+        self.signal(.malformedFloatLiteral)
       }
     } else {
-      self.signal(.MalformedComplexLiteral)
+      self.signal(.malformedComplexLiteral)
     }
   }
   
   /// Scans the next characters as a string literal.
-  private func scanString() {
+  fileprivate func scanString() {
     switch self.scanCharSequenceUntil(DQ_CH) {
-      case .Success(let str):
-        self.token.kind = .STRING
+      case .success(let str):
+        self.token.kind = .string
         self.token.strVal = str
-      case .Malformed:
-        self.signal(.MalformedStringLiteral)
-      case .IllegalEscapeSequence:
-        self.signal(.IllegalEscapeSequence)
-      case .IllegalEndOfLine:
-        self.signal(.IllegalEndOfLine)
-      case .IllegalHexChar:
-        self.signal(.IllegalHexCharacter)
-      case .Unsupported:
-        self.signal(.TokenNotYetSupported)
+      case .malformed:
+        self.signal(.malformedStringLiteral)
+      case .illegalEscapeSequence:
+        self.signal(.illegalEscapeSequence)
+      case .illegalEndOfLine:
+        self.signal(.illegalEndOfLine)
+      case .illegalHexChar:
+        self.signal(.illegalHexCharacter)
+      case .unsupported:
+        self.signal(.tokenNotYetSupported)
     }
   }
   
   /// Scans the next characters as an identifier.
-  private func scanDelimitedIdent() {
+  fileprivate func scanDelimitedIdent() {
     switch self.scanCharSequenceUntil(BAR_CH) {
-      case .Success(let str):
-        self.token.kind = .IDENT
-        self.token.strVal = str.lowercaseString
-      case .Malformed:
-        self.signal(.MalformedIdentifier)
-      case .IllegalEscapeSequence:
-        self.signal(.IllegalEscapeSequence)
-      case .IllegalEndOfLine:
-        self.signal(.IllegalEndOfLine)
-      case .IllegalHexChar:
-        self.signal(.IllegalHexCharacter)
-      case .Unsupported:
-        self.signal(.TokenNotYetSupported)
+      case .success(let str):
+        self.token.kind = .ident
+        self.token.strVal = str.lowercased()
+      case .malformed:
+        self.signal(.malformedIdentifier)
+      case .illegalEscapeSequence:
+        self.signal(.illegalEscapeSequence)
+      case .illegalEndOfLine:
+        self.signal(.illegalEndOfLine)
+      case .illegalHexChar:
+        self.signal(.illegalHexCharacter)
+      case .unsupported:
+        self.signal(.tokenNotYetSupported)
     }
   }
   
   /// Result type of `scanCharSequenceUntil`.
-  private enum CharSequenceResult {
-    case Success(String)
-    case Malformed
-    case IllegalEscapeSequence
-    case IllegalEndOfLine
-    case IllegalHexChar
-    case Unsupported
+  fileprivate enum CharSequenceResult {
+    case success(String)
+    case malformed
+    case illegalEscapeSequence
+    case illegalEndOfLine
+    case illegalHexChar
+    case unsupported
   }
   
   /// Scans the next characters until the given terminator character and returns the character
   /// sequence as a string.
-  private func scanCharSequenceUntil(terminator: UniChar) -> CharSequenceResult {
+  fileprivate func scanCharSequenceUntil(_ terminator: UniChar) -> CharSequenceResult {
     var uniChars: [UniChar] = []
     self.nextCh()
     while self.ch != terminator {
       if self.ch == EOF_CH {
-        return .Malformed
+        return .malformed
       } else if self.ch == BS_CH {
         self.nextCh()
         switch self.ch {
@@ -749,7 +749,7 @@ public class Scanner {
           case X_CH:
             self.nextCh();
             guard let ch = self.scanHexChar() else {
-              return .IllegalHexChar
+              return .illegalHexChar
             }
             uniChars.append(ch)
           case LA_CH: // alarm
@@ -784,22 +784,22 @@ public class Scanner {
               self.nextCh()
             }
           default:
-            return .IllegalEscapeSequence
+            return .illegalEscapeSequence
         }
       } else if self.ch == EOL_CH || self.ch == RET_CH {
         self.nextCh()
-        return .IllegalEndOfLine
+        return .illegalEndOfLine
       } else {
         uniChars.append(self.ch)
         self.nextCh()
       }
     }
     self.nextCh()
-    return .Success(String(utf16CodeUnits: uniChars, count: uniChars.count))
+    return .success(String(utf16CodeUnits: uniChars, count: uniChars.count))
   }
   
   /// Scans a hex number with a given number of digits.
-  private func scanHexChar() -> UniChar? {
+  fileprivate func scanHexChar() -> UniChar? {
     guard isDigitForRadix(self.ch, 16) else {
       return nil
     }
@@ -852,18 +852,18 @@ public struct Token: CustomStringConvertible {
   
   public var description: String {
     switch self.kind {
-      case .ERROR     : return "<error: \(self.errorVal)>"
-      case .EOF_TOKEN : return "<eof>"
-      case .IDENT     : return self.strVal
-      case .TRUELIT   : return "#t"
-      case .FALSELIT  : return "#f"
-      case .INT       : return self.intVal.description
-      case .BIGINT    : return self.bigIntVal.description
-      case .RAT       : return self.ratVal.description
-      case .BIGRAT    : return self.bigRatVal.description
-      case .FLOAT     : return self.floatVal.description
-      case .COMPLEX   : return self.complexVal.description
-      case .CHAR      :
+      case .error     : return "<error: \(self.errorVal)>"
+      case .eof       : return "<eof>"
+      case .ident     : return self.strVal
+      case .truelit   : return "#t"
+      case .falselit  : return "#f"
+      case .int       : return self.intVal.description
+      case .bigint    : return self.bigIntVal.description
+      case .rat       : return self.ratVal.description
+      case .bigrat    : return self.bigRatVal.description
+      case .float     : return self.floatVal.description
+      case .complex   : return self.complexVal.description
+      case .char      :
         switch self.intVal {
           case   7: return "#\\alarm"
           case   8: return "#\\backspace"
@@ -876,22 +876,22 @@ public struct Token: CustomStringConvertible {
           case   9: return "#\\tab"
           default : return "#\\\(self.strVal)"
         }
-      case .STRING    : return "\"\(self.strVal)\""
-      case .LPAREN    : return "("
-      case .RPAREN    : return ")"
-      case .HASHLPAREN: return "#("
-      case .U8LPAREN  : return "#u8("
-      case .QUOTE     : return "'"
-      case .BACKQUOTE : return "`"
-      case .COMMA     : return ","
-      case .COMMAAT   : return ",@"
-      case .DOT       : return "."
+      case .string    : return "\"\(self.strVal)\""
+      case .lparen    : return "("
+      case .rparen    : return ")"
+      case .hashlparen: return "#("
+      case .u8LPAREN  : return "#u8("
+      case .quote     : return "'"
+      case .backquote : return "`"
+      case .comma     : return ","
+      case .commaat   : return ",@"
+      case .dot       : return "."
     }
   }
   
-  mutating func reset(pos: Position) {
+  mutating func reset(_ pos: Position) {
     self.pos = pos
-    self.kind = .ERROR
+    self.kind = .error
     self.strVal = ""
     self.intVal = 0
     self.bigIntVal = 0
@@ -904,58 +904,58 @@ public struct Token: CustomStringConvertible {
 }
 
 public enum TokenKind: Int, CustomStringConvertible {
-  case ERROR
-  case EOF_TOKEN
-  case IDENT
-  case TRUELIT
-  case FALSELIT
-  case INT
-  case BIGINT
-  case RAT
-  case BIGRAT
-  case FLOAT
-  case COMPLEX
-  case CHAR
-  case STRING
-  case LPAREN
-  case RPAREN
-  case HASHLPAREN
-  case U8LPAREN
-  case QUOTE
-  case BACKQUOTE
-  case COMMA
-  case COMMAAT
-  case DOT
+  case error
+  case eof
+  case ident
+  case truelit
+  case falselit
+  case int
+  case bigint
+  case rat
+  case bigrat
+  case float
+  case complex
+  case char
+  case string
+  case lparen
+  case rparen
+  case hashlparen
+  case u8LPAREN
+  case quote
+  case backquote
+  case comma
+  case commaat
+  case dot
   
   public var description: String {
     switch self {
-      case ERROR     : return "ERROR"
-      case EOF_TOKEN : return "EOF"
-      case IDENT     : return "IDENT"
-      case TRUELIT   : return "TRUELIT"
-      case FALSELIT  : return "FALSELIT"
-      case INT       : return "INT"
-      case BIGINT    : return "BIGINT"
-      case RAT       : return "RAT"
-      case BIGRAT    : return "BIGRAT"
-      case FLOAT     : return "FLOAT"
-      case COMPLEX   : return "COMPLEX"
-      case CHAR      : return "CHAR"
-      case STRING    : return "STRING"
-      case LPAREN    : return "LPAREN"
-      case RPAREN    : return "RPAREN"
-      case HASHLPAREN: return "HASHLPAREN"
-      case U8LPAREN  : return "U8LPAREN"
-      case QUOTE     : return "QUOTE"
-      case BACKQUOTE : return "BACKQUOTE"
-      case COMMA     : return "COMMA"
-      case COMMAAT   : return "COMMAAT"
-      case DOT       : return "DOT"
+      case .error     : return "ERROR"
+      case .eof       : return "EOF"
+      case .ident     : return "IDENT"
+      case .truelit   : return "TRUELIT"
+      case .falselit  : return "FALSELIT"
+      case .int       : return "INT"
+      case .bigint    : return "BIGINT"
+      case .rat       : return "RAT"
+      case .bigrat    : return "BIGRAT"
+      case .float     : return "FLOAT"
+      case .complex   : return "COMPLEX"
+      case .char      : return "CHAR"
+      case .string    : return "STRING"
+      case .lparen    : return "LPAREN"
+      case .rparen    : return "RPAREN"
+      case .hashlparen: return "HASHLPAREN"
+      case .u8LPAREN  : return "U8LPAREN"
+      case .quote     : return "quote"
+      case .backquote : return "BACKQUOTE"
+      case .comma     : return "COMMA"
+      case .commaat   : return "COMMAAT"
+      case .dot       : return "DOT"
     }
   }
 }
 
-func UniChar(str: String) -> UniChar {
+func UniChar(_ str: String) -> UniChar {
   return str.utf16.first!
 }
 
@@ -1002,66 +1002,70 @@ let EIGHT_CH           = UniChar("8")
 let LPAREN_CH          = UniChar("(")
 let RPAREN_CH          = UniChar(")")
 
-let WHITESPACES        = NSCharacterSet.whitespaceCharacterSet()
-let WHITESPACES_NL     = NSCharacterSet.whitespaceAndNewlineCharacterSet()
-let CONTROL_CHARS      = NSCharacterSet.controlCharacterSet()
-let ILLEGAL_CHARS      = NSCharacterSet.illegalCharacterSet()
-let MODIFIER_CHARS     = NSCharacterSet.nonBaseCharacterSet()
-let DIGITS             = NSCharacterSet(charactersInString: "0123456789")
-let LHEXDIGITS         = NSCharacterSet(charactersInString: "abcdef")
-let UHEXDIGITS         = NSCharacterSet(charactersInString: "ABCDEF")
-let LETTERS            = NSCharacterSet.letterCharacterSet()
-let UPPER_LETTERS      = NSCharacterSet.uppercaseLetterCharacterSet()
-let LOWER_LETTERS      = NSCharacterSet.lowercaseLetterCharacterSet()
-let INITIALS           = NSCharacterSet(charactersInString: "!$%&*/:<=>?^_~")
-let SUBSEQUENTS        = NSCharacterSet(charactersInString: "+-.@")
-let SIGNSUBSEQUENTS    = NSCharacterSet(charactersInString: "+-@")
+let WHITESPACES        = CharacterSet.whitespaces
+let WHITESPACES_NL     = CharacterSet.whitespacesAndNewlines
+let CONTROL_CHARS      = CharacterSet.controlCharacters
+let ILLEGAL_CHARS      = CharacterSet.illegalCharacters
+let MODIFIER_CHARS     = CharacterSet.nonBaseCharacters
+let DIGITS             = CharacterSet(charactersIn: "0123456789")
+let LHEXDIGITS         = CharacterSet(charactersIn: "abcdef")
+let UHEXDIGITS         = CharacterSet(charactersIn: "ABCDEF")
+let LETTERS            = CharacterSet.letters
+let UPPER_LETTERS      = CharacterSet.uppercaseLetters
+let LOWER_LETTERS      = CharacterSet.lowercaseLetters
+let INITIALS           = CharacterSet(charactersIn: "!$%&*/:<=>?^_~")
+let SUBSEQUENTS        = CharacterSet(charactersIn: "+-.@")
+let SIGNSUBSEQUENTS    = CharacterSet(charactersIn: "+-@")
 
-func isSpace(ch: UniChar) -> Bool {
-  return WHITESPACES.characterIsMember(ch)
+func isSpace(_ ch: UniChar) -> Bool {
+  return WHITESPACES.contains(UnicodeScalar(ch)!)
 }
 
-func isLetter(ch: UniChar) -> Bool {
-  return LETTERS.characterIsMember(ch)
+func isLetter(_ ch: UniChar) -> Bool {
+  return LETTERS.contains(UnicodeScalar(ch)!)
 }
 
-func isDigit(ch: UniChar) -> Bool {
-  return DIGITS.characterIsMember(ch)
+func isDigit(_ ch: UniChar) -> Bool {
+  return DIGITS.contains(UnicodeScalar(ch)!)
 }
 
-func isDigitForRadix(ch: UniChar, _ radix: Int) -> Bool {
+func isDigitForRadix(_ ch: UniChar, _ radix: Int) -> Bool {
   return digitVal(ch) < radix
 }
 
-func isInitialIdent(ch: UniChar) -> Bool {
-  return LETTERS.characterIsMember(ch) ||
-         INITIALS.characterIsMember(ch)
+func isInitialIdent(_ ch: UniChar) -> Bool {
+  return LETTERS.contains(UnicodeScalar(ch)!) ||
+         INITIALS.contains(UnicodeScalar(ch)!)
 }
 
-func isSubsequentIdent(ch: UniChar) -> Bool {
+func isSubsequentIdent(_ ch: UniChar) -> Bool {
   return isInitialIdent(ch) ||
          isDigit(ch) ||
-         SUBSEQUENTS.characterIsMember(ch)
+         SUBSEQUENTS.contains(UnicodeScalar(ch)!)
 }
 
-func isSignSubsequent(ch: UniChar) -> Bool {
+func isSignSubsequent(_ ch: UniChar) -> Bool {
   return isInitialIdent(ch) ||
-         SIGNSUBSEQUENTS.characterIsMember(ch)
+         SIGNSUBSEQUENTS.contains(UnicodeScalar(ch)!)
 }
 
-func isDotSubsequent(ch: UniChar) -> Bool {
+func isDotSubsequent(_ ch: UniChar) -> Bool {
   return isSignSubsequent(ch) ||
          ch == DOT_CH
 }
 
-func digitVal(ch: UniChar) -> Int {
-  if DIGITS.characterIsMember(ch) {
+func digitVal(_ ch: UniChar) -> Int {
+  if DIGITS.contains(UnicodeScalar(ch)!) {
     return Int(ch - ZERO_CH)
-  } else if LHEXDIGITS.characterIsMember(ch) {
+  } else if LHEXDIGITS.contains(UnicodeScalar(ch)!) {
     return Int(ch - LA_CH + 10)
-  } else if UHEXDIGITS.characterIsMember(ch) {
+  } else if UHEXDIGITS.contains(UnicodeScalar(ch)!) {
     return Int(ch - UA_CH + 10)
   } else {
     return 16
   }
+}
+
+func unicodeScalar(_ ch: UniChar) -> UnicodeScalar {
+  return UnicodeScalar(ch) ?? UnicodeScalar(0)
 }

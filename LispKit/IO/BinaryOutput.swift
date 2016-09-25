@@ -25,7 +25,7 @@ import Foundation
 /// configurable capacity, and an optional output stream to which all data is eventually
 /// written. If there is no output stream, all data will be accumulated in the buffer.
 ///
-public class BinaryOutput {
+open class BinaryOutput {
   
   /// Buffer into which bytes are written first before they are written into an output stream.
   private var buffer: [UInt8]
@@ -34,15 +34,15 @@ public class BinaryOutput {
   private var next: Int
   
   /// The output stream into which content in the buffer is flushed.
-  private var output: NSOutputStream?
+  private var output: OutputStream?
   
   /// The URL for the output stream. `url` is nil whenever `output` is nil.
-  public let url: NSURL?
+  open let url: URL?
   
   /// Relative paths are relative to the documents folder
   private static let documentsUrl =
-    NSURL(fileURLWithPath:
-      NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)[0])
+    URL(fileURLWithPath:
+      NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])
 
   /// Initializes a new `BinaryOutput` that is not backed by an output stream.
   public init() {
@@ -57,7 +57,7 @@ public class BinaryOutput {
   /// if the content should be appended in case the output stream refers to an existing file.
   /// `capacity` indicates the size of the buffer in terms of the number of bytes.
   public convenience init?(path: String, append: Bool = false, capacity: Int = 4096) {
-    self.init(url: NSURL(fileURLWithPath: path, relativeToURL: BinaryOutput.documentsUrl),
+    self.init(url: URL(fileURLWithPath: path, relativeTo: BinaryOutput.documentsUrl),
               capacity: capacity)
   }
   
@@ -65,9 +65,9 @@ public class BinaryOutput {
   /// given URL. `append` determines if the content should be appended in case the output
   /// stream refers to an existing file. `capacity` indicates the size of the buffer in terms
   /// of the number of bytes.
-  public init?(url: NSURL, append: Bool = false, capacity: Int = 4096) {
+  public init?(url: URL, append: Bool = false, capacity: Int = 4096) {
     // Create a new output stream
-    guard let output = NSOutputStream(URL: url, append: append) else {
+    guard let output = OutputStream(url: url, append: append) else {
       return nil
     }
     // Open the output stream
@@ -78,7 +78,7 @@ public class BinaryOutput {
       return nil
     }
     // Initialize properties
-    self.buffer = [UInt8](count: capacity, repeatedValue: 0)
+    self.buffer = [UInt8](repeating: 0, count: capacity)
     self.next = 0
     self.output = output
     self.url = url
@@ -91,7 +91,7 @@ public class BinaryOutput {
   
   /// Closes the output stream. From that point on, writing to the `BinaryOutput` is still
   /// possible and will be accumulated in the internal buffer.
-  public func close() {
+  open func close() {
     self.flush()
     if let output = self.output {
       self.output = nil
@@ -100,7 +100,7 @@ public class BinaryOutput {
   }
   
   /// Returns true if there is at least one byte that can be written into the buffer.
-  private func writeable() -> Bool {
+  fileprivate func writeable() -> Bool {
     guard self.output == nil || self.next < self.buffer.count else {
       return self.flush()
     }
@@ -109,9 +109,9 @@ public class BinaryOutput {
   
   /// Flushes the buffer by writing it into the output steam. For `BinaryOutput` objects that
   /// are not backed by an output stream, flush does nothing.
-  public func flush(completely: Bool = false) -> Bool {
-    if let output = self.output where self.next > 0 {
-      let result = output.write(&self.buffer, maxLength: self.next * sizeof(UInt8))
+  @discardableResult open func flush(_ completely: Bool = false) -> Bool {
+    if let output = self.output , self.next > 0 {
+      let result = output.write(&self.buffer, maxLength: self.next * MemoryLayout<UInt8>.size)
       if result < 0 {
         return false
       }
@@ -121,7 +121,7 @@ public class BinaryOutput {
   }
   
   /// Writes the given byte into the `BinaryOutput`.
-  public func write(byte: UInt8) -> Bool {
+  open func write(_ byte: UInt8) -> Bool {
     guard self.writeable() else {
       return false
     }
@@ -136,7 +136,7 @@ public class BinaryOutput {
   }
   
   /// Writes the given sequence of bytes into the `BinaryOutput`.
-  public func writeFrom(source: [UInt8], start: Int, end: Int) -> Bool {
+  open func writeFrom(_ source: [UInt8], start: Int, end: Int) -> Bool {
     guard start < source.count && start <= end else {
       return true
     }
@@ -150,7 +150,7 @@ public class BinaryOutput {
   }
   
   /// Returns the bytes that are currently in the buffer as a new byte array.
-  public var currentBuffer: [UInt8] {
+  open var currentBuffer: [UInt8] {
     return [UInt8](self.buffer[0..<self.next])
   }
 }

@@ -28,28 +28,28 @@ public final class SpecialForm: Reference, CustomStringConvertible {
   ///    1. Primitives: These are built-in special forms
   ///    2. Macros: These are user-defined and expressed in terms of a macro transformer
   internal enum Kind {
-    case Primitive(FormCompiler)
-    case Macro(Procedure)
+    case primitive(FormCompiler)
+    case macro(Procedure)
   }
   
   /// Special form kind
   internal let kind: Kind
   
   /// Initializer for primitive special forms
-  public init(_ compiler: FormCompiler) {
-    self.kind = .Primitive(compiler)
+  public init(_ compiler: @escaping FormCompiler) {
+    self.kind = .primitive(compiler)
   }
   
   /// Initializer for special forms based on macro transformers
   public init(_ transformer: Procedure) {
-    self.kind = .Macro(transformer)
+    self.kind = .macro(transformer)
   }
   
-  public func mark(tag: UInt8) {
+  public func mark(_ tag: UInt8) {
     switch self.kind {
-      case .Primitive(_):
+      case .primitive(_):
         break
-      case .Macro(let proc):
+      case .macro(let proc):
         proc.mark(tag)
     }
   }

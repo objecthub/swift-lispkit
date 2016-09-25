@@ -47,11 +47,11 @@ public struct UTF8EncodedSource: TextInputSource {
     var str = ""
     for _ in 0..<length {
       switch self.codec.decode(&self.input) {
-      case .Result (let scalar):
-        str.append(scalar)
-      case .EmptyInput:
+      case .scalarValue (let scalar):
+        str.append(String(scalar))
+      case .emptyInput:
         return str
-      case .Error:
+      case .error:
         return nil
       }
     }

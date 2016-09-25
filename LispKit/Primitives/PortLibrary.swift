@@ -103,410 +103,410 @@ public final class PortLibrary: NativeLibrary {
   }
   
   
-  func textInputFrom(expr: Expr?) throws -> TextInput {
+  func textInputFrom(_ expr: Expr?) throws -> TextInput {
     let port = try expr?.asPort() ?? self.context.inputPort
-    guard case .TextInputPort(let input) = port.kind else {
-      throw EvalError.TypeError(.Prt(port), [.TextInputPortType])
+    guard case .textInputPort(let input) = port.kind else {
+      throw EvalError.typeError(.port(port), [.textInputPortType])
     }
     return input
   }
   
-  func binaryInputFrom(expr: Expr?) throws -> BinaryInput {
+  func binaryInputFrom(_ expr: Expr?) throws -> BinaryInput {
     let port = try expr?.asPort() ?? self.context.inputPort
-    guard case .BinaryInputPort(let input) = port.kind else {
-      throw EvalError.TypeError(.Prt(port), [.BinaryInputPortType])
+    guard case .binaryInputPort(let input) = port.kind else {
+      throw EvalError.typeError(.port(port), [.binaryInputPortType])
     }
     return input
   }
   
-  func textOutputFrom(expr: Expr?) throws -> TextOutput {
+  func textOutputFrom(_ expr: Expr?) throws -> TextOutput {
     let port = try expr?.asPort() ?? self.context.outputPort
-    guard case .TextOutputPort(let output) = port.kind else {
-      throw EvalError.TypeError(.Prt(port), [.TextInputPortType])
+    guard case .textOutputPort(let output) = port.kind else {
+      throw EvalError.typeError(.port(port), [.textInputPortType])
     }
     return output
   }
   
-  func binaryOutputFrom(expr: Expr?) throws -> BinaryOutput {
+  func binaryOutputFrom(_ expr: Expr?) throws -> BinaryOutput {
     let port = try expr?.asPort() ?? self.context.outputPort
-    guard case .BinaryOutputPort(let output) = port.kind else {
-      throw EvalError.TypeError(.Prt(port), [.BinaryInputPortType])
+    guard case .binaryOutputPort(let output) = port.kind else {
+      throw EvalError.typeError(.port(port), [.binaryInputPortType])
     }
     return output
   }
   
-  func isPort(expr: Expr) -> Expr {
-    if case .Prt(_) = expr {
-      return .True
+  func isPort(_ expr: Expr) -> Expr {
+    if case .port(_) = expr {
+      return .true
     }
-    return .False
+    return .false
   }
   
-  func isInputPort(expr: Expr) -> Expr {
-    guard case .Prt(let port) = expr else {
-      return .False
+  func isInputPort(_ expr: Expr) -> Expr {
+    guard case .port(let port) = expr else {
+      return .false
     }
-    return .Boolean(port.isInputPort)
+    return .makeBoolean(port.isInputPort)
   }
   
-  func isOutputPort(expr: Expr) -> Expr {
-    guard case .Prt(let port) = expr else {
-      return .False
+  func isOutputPort(_ expr: Expr) -> Expr {
+    guard case .port(let port) = expr else {
+      return .false
     }
-    return .Boolean(port.isOutputPort)
+    return .makeBoolean(port.isOutputPort)
   }
   
-  func isTextualPort(expr: Expr) -> Expr {
-    guard case .Prt(let port) = expr else {
-      return .False
+  func isTextualPort(_ expr: Expr) -> Expr {
+    guard case .port(let port) = expr else {
+      return .false
     }
-    return .Boolean(port.isTextualPort)
+    return .makeBoolean(port.isTextualPort)
   }
   
-  func isBinaryPort(expr: Expr) throws -> Expr {
-    guard case .Prt(let port) = expr else {
-      return .False
+  func isBinaryPort(_ expr: Expr) throws -> Expr {
+    guard case .port(let port) = expr else {
+      return .false
     }
-    return .Boolean(port.isBinaryPort)
+    return .makeBoolean(port.isBinaryPort)
   }
   
-  func isInputPortOpen(expr: Expr) throws -> Expr {
+  func isInputPortOpen(_ expr: Expr) throws -> Expr {
     let port = try expr.asPort()
-    return .Boolean(port.isInputPort && port.isOpen)
+    return .makeBoolean(port.isInputPort && port.isOpen)
   }
   
-  func isOutputPortOpen(expr: Expr) throws -> Expr {
+  func isOutputPortOpen(_ expr: Expr) throws -> Expr {
     let port = try expr.asPort()
-    return .Boolean(port.isOutputPort && port.isOpen)
+    return .makeBoolean(port.isOutputPort && port.isOpen)
   }
   
-  func openInputFile(expr: Expr) throws -> Expr {
-    let filename = try expr.asStr()
+  func openInputFile(_ expr: Expr) throws -> Expr {
+    let filename = try expr.asString()
     guard let input = BinaryInput(path: filename) else {
-      throw EvalError.CannotOpenFile(filename)
+      throw EvalError.cannotOpenFile(filename)
     }
-    return .Prt(Port(input: TextInput(input: input)))
+    return .port(Port(input: TextInput(input: input)))
   }
   
-  func openBinaryInputFile(expr: Expr) throws -> Expr {
-    let filename = try expr.asStr()
+  func openBinaryInputFile(_ expr: Expr) throws -> Expr {
+    let filename = try expr.asString()
     guard let input = BinaryInput(path: filename) else {
-      throw EvalError.CannotOpenFile(filename)
+      throw EvalError.cannotOpenFile(filename)
     }
-    return .Prt(Port(input: input))
+    return .port(Port(input: input))
   }
   
-  func openOutputFile(expr: Expr) throws -> Expr {
-    let filename = try expr.asStr()
+  func openOutputFile(_ expr: Expr) throws -> Expr {
+    let filename = try expr.asString()
     guard let output = BinaryOutput(path: filename) else {
-      throw EvalError.CannotOpenFile(filename)
+      throw EvalError.cannotOpenFile(filename)
     }
-    return .Prt(Port(output: TextOutput(output: output)))
+    return .port(Port(output: TextOutput(output: output)))
   }
   
-  func openBinaryOutputFile(expr: Expr) throws -> Expr {
-    let filename = try expr.asStr()
+  func openBinaryOutputFile(_ expr: Expr) throws -> Expr {
+    let filename = try expr.asString()
     guard let output = BinaryOutput(path: filename) else {
-      throw EvalError.CannotOpenFile(filename)
+      throw EvalError.cannotOpenFile(filename)
     }
-    return .Prt(Port(output: output))
+    return .port(Port(output: output))
   }
   
-  func openInputString(expr: Expr) throws -> Expr {
-    return .Prt(Port(input: TextInput(string: try expr.asStr())))
+  func openInputString(_ expr: Expr) throws -> Expr {
+    return .port(Port(input: TextInput(string: try expr.asString())))
   }
   
   func openOutputString() -> Expr {
-    return .Prt(Port(output: TextOutput()))
+    return .port(Port(output: TextOutput()))
   }
   
-  func openInputBytevector(expr: Expr) throws -> Expr {
-    return .Prt(Port(input: BinaryInput(data: try expr.asByteVector().value)))
+  func openInputBytevector(_ expr: Expr) throws -> Expr {
+    return .port(Port(input: BinaryInput(data: try expr.asByteVector().value)))
   }
   
   func openOutputBytevector() -> Expr {
-    return .Prt(Port(output: BinaryOutput()))
+    return .port(Port(output: BinaryOutput()))
   }
   
-  func getOutputString(expr: Expr) throws -> Expr {
+  func getOutputString(_ expr: Expr) throws -> Expr {
     guard let buffer = try expr.asPort().outputString else {
-      throw EvalError.TypeError(expr, [.TextOutputPortType])
+      throw EvalError.typeError(expr, [.textOutputPortType])
     }
-    return .StringFor(buffer)
+    return .makeString(buffer)
   }
   
-  func getOutputBytevector(expr: Expr) throws -> Expr {
+  func getOutputBytevector(_ expr: Expr) throws -> Expr {
     guard let buffer = try expr.asPort().outputBinary else {
-      throw EvalError.TypeError(expr, [.BinaryOutputPortType])
+      throw EvalError.typeError(expr, [.binaryOutputPortType])
     }
-    return .Bytes(MutableBox(buffer))
+    return .bytes(MutableBox(buffer))
   }
   
-  func closePort(expr: Expr) throws -> Expr {
+  func closePort(_ expr: Expr) throws -> Expr {
     try expr.asPort().close()
-    return .Void
+    return .void
   }
   
-  func closeInputPort(expr: Expr) throws -> Expr {
+  func closeInputPort(_ expr: Expr) throws -> Expr {
     let port = try expr.asPort()
     if port.isInputPort {
       port.close()
     }
-    return .Void
+    return .void
   }
   
-  func closeOutputPort(expr: Expr) throws -> Expr {
+  func closeOutputPort(_ expr: Expr) throws -> Expr {
     let port = try expr.asPort()
     if port.isOutputPort {
       port.close()
     }
-    return .Void
+    return .void
   }
   
-  func currentInputPort(expr: Expr) -> Expr {
-    return .Prt(self.context.inputPort)
+  func currentInputPort(_ expr: Expr) -> Expr {
+    return .port(self.context.inputPort)
   }
   
-  func currentOutputPort(expr: Expr) -> Expr {
-    return .Prt(self.context.outputPort)
+  func currentOutputPort(_ expr: Expr) -> Expr {
+    return .port(self.context.outputPort)
   }
   
-  func currentErrorPort(expr: Expr) -> Expr {
-    return .Prt(self.context.errorPort)
+  func currentErrorPort(_ expr: Expr) -> Expr {
+    return .port(self.context.errorPort)
   }
   
-  func isEofObject(expr: Expr) -> Expr {
-    return .Boolean(expr == .Eof)
+  func isEofObject(_ expr: Expr) -> Expr {
+    return .makeBoolean(expr == .eof)
   }
   
   func eofObject() -> Expr {
-    return .Eof
+    return .eof
   }
   
-  func read(expr: Expr?) throws -> Expr {
+  func read(_ expr: Expr?) throws -> Expr {
     let input = try self.textInputFrom(expr)
     let parser = Parser(symbols: self.context.symbols, input: input)
     return try parser.parse(false)
   }
   
-  func readChar(expr: Expr?) throws -> Expr {
+  func readChar(_ expr: Expr?) throws -> Expr {
     let input = try self.textInputFrom(expr)
     guard let ch = input.read() else {
-      return .Eof
+      return .eof
     }
-    return .Char(ch)
+    return .char(ch)
   }
   
-  func peekChar(expr: Expr?) throws -> Expr {
+  func peekChar(_ expr: Expr?) throws -> Expr {
     let input = try self.textInputFrom(expr)
     guard let ch = input.peek() else {
-      return .Eof
+      return .eof
     }
-    return .Char(ch)
+    return .char(ch)
   }
   
-  func isCharReady(port: Expr?) throws -> Expr {
+  func isCharReady(_ port: Expr?) throws -> Expr {
     let input = try self.textInputFrom(port)
-    return .Boolean(!input.readMightBlock)
+    return .makeBoolean(!input.readMightBlock)
   }
   
-  func readLine(expr: Expr?) throws -> Expr {
+  func readLine(_ expr: Expr?) throws -> Expr {
     let input = try self.textInputFrom(expr)
     guard let str = input.readLine() else {
-      return .Eof
+      return .eof
     }
-    return .StringFor(str)
+    return .makeString(str)
   }
   
-  func readString(nchars: Expr, expr: Expr?) throws -> Expr {
+  func readString(_ nchars: Expr, expr: Expr?) throws -> Expr {
     let input = try self.textInputFrom(expr)
     guard let str = input.readString(try nchars.asInt()) else {
-      return .Eof
+      return .eof
     }
-    return .StringFor(str)
+    return .makeString(str)
   }
   
-  func readU8(expr: Expr?) throws -> Expr {
+  func readU8(_ expr: Expr?) throws -> Expr {
     let input = try self.binaryInputFrom(expr)
     guard let byte = input.read() else {
-      return .Eof
+      return .eof
     }
-    return .Fixnum(Int64(byte))
+    return .fixnum(Int64(byte))
   }
   
-  func peekU8(expr: Expr?) throws -> Expr {
+  func peekU8(_ expr: Expr?) throws -> Expr {
     let input = try self.binaryInputFrom(expr)
     guard let byte = input.peek() else {
-      return .Eof
+      return .eof
     }
-    return .Fixnum(Int64(byte))
+    return .fixnum(Int64(byte))
   }
   
-  func u8Ready(port: Expr?) throws -> Expr {
+  func u8Ready(_ port: Expr?) throws -> Expr {
     let input = try self.binaryInputFrom(port)
-    return .Boolean(!input.readMightBlock)
+    return .makeBoolean(!input.readMightBlock)
   }
   
-  func readBytevector(nbytes: Expr, expr: Expr?) throws -> Expr {
+  func readBytevector(_ nbytes: Expr, expr: Expr?) throws -> Expr {
     let input = try self.binaryInputFrom(expr)
     guard let bytes = input.readMany(try nbytes.asInt()) else {
-      return .Eof
+      return .eof
     }
-    return .Bytes(MutableBox(bytes))
+    return .bytes(MutableBox(bytes))
   }
   
-  func readBytevectorSet(bvec: Expr, args: Arguments) throws -> Expr {
+  func readBytevectorSet(_ bvec: Expr, args: Arguments) throws -> Expr {
     let bvector = try bvec.asByteVector()
-    guard let (pexpr, s, e) = args.optional(.Prt(self.context.inputPort),
-                                            .Number(0),
-                                            .Number(bvector.value.count)) else {
-      throw EvalError.ArgumentCountError(formals: 4, args: .Pair(bvec, .List(args)))
+    guard let (pexpr, s, e) = args.optional(.port(self.context.inputPort),
+                                            .makeNumber(bvector.value.count),
+                                            .makeNumber(0)) else {
+      throw EvalError.argumentCountError(formals: 4, args: .pair(bvec, .makeList(args)))
     }
     let (start, end) = (try s.asInt(), try e.asInt())
     guard start >= 0 && start < bvector.value.count else {
-      throw EvalError.ParameterOutOfBounds(
+      throw EvalError.parameterOutOfBounds(
         "read-bytevector!", 3, Int64(start), Int64(0), Int64(bvector.value.count - 1))
     }
     guard end >= start && end <= bvector.value.count else {
-      throw EvalError.ParameterOutOfBounds(
+      throw EvalError.parameterOutOfBounds(
         "read-bytevector!", 4, Int64(end), Int64(start), Int64(bvector.value.count))
     }
     let input = try self.binaryInputFrom(pexpr)
     guard let n = input.readInto(&bvector.value, start: start, end: end) else {
-      return .Eof
+      return .eof
     }
-    return .Fixnum(Int64(n))
+    return .fixnum(Int64(n))
   }
   
-  func write(expr: Expr, port: Expr?) throws -> Expr {
+  func write(_ expr: Expr, port: Expr?) throws -> Expr {
     let output = try self.textOutputFrom(port)
     guard output.writeString(expr.description) else {
-      throw EvalError.CannotWriteToPort(port ?? .Prt(self.context.outputPort))
+      throw EvalError.cannotWriteToPort(port ?? .port(self.context.outputPort))
     }
-    return .Void
+    return .void
   }
   
   /// TODO: Implement this function correctly; i.e. force usage of datum labels for shared
   /// structures.
-  func writeShared(expr: Expr, port: Expr?) throws -> Expr {
+  func writeShared(_ expr: Expr, port: Expr?) throws -> Expr {
     let output = try self.textOutputFrom(port)
     guard output.writeString(expr.description) else {
-      throw EvalError.CannotWriteToPort(port ?? .Prt(self.context.outputPort))
+      throw EvalError.cannotWriteToPort(port ?? .port(self.context.outputPort))
     }
-    return .Void
+    return .void
   }
   
   /// TODO: Implement this function correctly; i.e. never use datum labels for shared
   /// structures.
-  func writeSimple(expr: Expr, port: Expr?) throws -> Expr {
+  func writeSimple(_ expr: Expr, port: Expr?) throws -> Expr {
     let output = try self.textOutputFrom(port)
     guard output.writeString(expr.description) else {
-      throw EvalError.CannotWriteToPort(port ?? .Prt(self.context.outputPort))
+      throw EvalError.cannotWriteToPort(port ?? .port(self.context.outputPort))
     }
-    return .Void
+    return .void
   }
   
-  func display(expr: Expr, port: Expr? = nil) throws -> Expr {
+  func display(_ expr: Expr, port: Expr? = nil) throws -> Expr {
     let output = try self.textOutputFrom(port)
     guard output.writeString(expr.unescapedDescription) else {
-      throw EvalError.CannotWriteToPort(port ?? .Prt(self.context.outputPort))
+      throw EvalError.cannotWriteToPort(port ?? .port(self.context.outputPort))
     }
-    return .Void
+    return .void
   }
   
-  func newline(port: Expr?) throws -> Expr {
+  func newline(_ port: Expr?) throws -> Expr {
     guard try self.textOutputFrom(port).writeString("\n") else {
-      throw EvalError.CannotWriteToPort(port ?? .Prt(self.context.outputPort))
+      throw EvalError.cannotWriteToPort(port ?? .port(self.context.outputPort))
     }
-    return .Void
+    return .void
   }
   
-  func writeChar(expr: Expr, port: Expr?) throws -> Expr {
-    guard try self.textOutputFrom(port).write(expr.asChar()) else {
-      throw EvalError.CannotWriteToPort(port ?? .Prt(self.context.outputPort))
+  func writeChar(_ expr: Expr, port: Expr?) throws -> Expr {
+    guard try self.textOutputFrom(port).write(expr.asUniChar()) else {
+      throw EvalError.cannotWriteToPort(port ?? .port(self.context.outputPort))
     }
-    return .Void
+    return .void
   }
   
-  func writeString(expr: Expr, args: Arguments) throws -> Expr {
+  func writeString(_ expr: Expr, args: Arguments) throws -> Expr {
     if args.count < 2 {
-      guard try self.textOutputFrom(args.first).writeString(expr.asStr()) else {
-        throw EvalError.CannotWriteToPort(args.first ?? .Prt(self.context.outputPort))
+      guard try self.textOutputFrom(args.first).writeString(expr.asString()) else {
+        throw EvalError.cannotWriteToPort(args.first ?? .port(self.context.outputPort))
       }
     } else {
-      let chars = try expr.asStr().utf16
-      guard let (port, s, e) = args.optional(.Prt(self.context.outputPort),
-                                             .Number(0),
-                                             .Number(chars.count)) else {
-        throw EvalError.ArgumentCountError(formals: 4, args: .Pair(expr, .List(args)))
+      let chars = try expr.asString().utf16
+      guard let (port, s, e) = args.optional(.port(self.context.outputPort),
+                                             .makeNumber(chars.count),
+                                             .makeNumber(0)) else {
+        throw EvalError.argumentCountError(formals: 4, args: .pair(expr, .makeList(args)))
       }
       let (start, end) = (try s.asInt(), try e.asInt())
       guard start >= 0 && start < chars.count else {
-        throw EvalError.ParameterOutOfBounds(
+        throw EvalError.parameterOutOfBounds(
           "write-string", 3, Int64(start), Int64(0), Int64(chars.count - 1))
       }
       guard end >= start && end <= chars.count else {
-        throw EvalError.ParameterOutOfBounds(
+        throw EvalError.parameterOutOfBounds(
           "write-string", 4, Int64(end), Int64(start), Int64(chars.count))
       }
       var uniChars: [UniChar] = []
-      for ch in chars[chars.startIndex.advancedBy(start)..<chars.startIndex.advancedBy(end)] {
+      for ch in chars[chars.index(chars.startIndex, offsetBy: start)..<chars.index(chars.startIndex, offsetBy: end)] {
         uniChars.append(ch)
       }
       let str = String(utf16CodeUnits: uniChars, count: end - start)
       guard try self.textOutputFrom(port).writeString(str) else {
-        throw EvalError.CannotWriteToPort(port)
+        throw EvalError.cannotWriteToPort(port)
       }
     }
-    return .Void
+    return .void
   }
   
-  func writeU8(expr: Expr, port: Expr?) throws -> Expr {
-    guard try self.binaryOutputFrom(port).write(expr.asByte()) else {
-      throw EvalError.CannotWriteToPort(port ?? .Prt(self.context.outputPort))
+  func writeU8(_ expr: Expr, port: Expr?) throws -> Expr {
+    guard try self.binaryOutputFrom(port).write(expr.asUInt8()) else {
+      throw EvalError.cannotWriteToPort(port ?? .port(self.context.outputPort))
     }
-    return .Void
+    return .void
   }
   
-  func writeBytevector(expr: Expr, args: Arguments) throws -> Expr {
+  func writeBytevector(_ expr: Expr, args: Arguments) throws -> Expr {
     let bvector = try expr.asByteVector().value
     if args.count < 2 {
       guard try self.binaryOutputFrom(args.first)
                     .writeFrom(bvector, start: 0, end: bvector.count) else {
-        throw EvalError.CannotWriteToPort(args.first ?? .Prt(self.context.outputPort))
+        throw EvalError.cannotWriteToPort(args.first ?? .port(self.context.outputPort))
       }
     } else {
-      guard let (port, s, e) = args.optional(.Prt(self.context.outputPort),
-                                             .Number(0),
-                                             .Number(bvector.count)) else {
-                                              throw EvalError.ArgumentCountError(formals: 4, args: .Pair(expr, .List(args)))
+      guard let (port, s, e) = args.optional(.port(self.context.outputPort),
+                                             .makeNumber(bvector.count),
+                                             .makeNumber(0)) else {
+                                              throw EvalError.argumentCountError(formals: 4, args: .pair(expr, .makeList(args)))
       }
       let (start, end) = (try s.asInt(), try e.asInt())
       guard start >= 0 && start < bvector.count else {
-        throw EvalError.ParameterOutOfBounds(
+        throw EvalError.parameterOutOfBounds(
           "write-bytevector", 3, Int64(start), Int64(0), Int64(bvector.count - 1))
       }
       guard end >= start && end <= bvector.count else {
-        throw EvalError.ParameterOutOfBounds(
+        throw EvalError.parameterOutOfBounds(
           "write-bytevector", 4, Int64(end), Int64(start), Int64(bvector.count))
       }
       guard try self.binaryOutputFrom(port).writeFrom(bvector, start: start, end: end) else {
-        throw EvalError.CannotWriteToPort(port)
+        throw EvalError.cannotWriteToPort(port)
       }
     }
-    return .Void
+    return .void
   }
   
-  func flushOutputPort(port: Expr?) throws -> Expr {
+  func flushOutputPort(_ port: Expr?) throws -> Expr {
     let port = try port?.asPort() ?? self.context.outputPort
     switch port.kind {
-      case .BinaryOutputPort(let output):
+      case .binaryOutputPort(let output):
         output.flush(true)
-      case .TextOutputPort(let output):
+      case .textOutputPort(let output):
         output.flush(true)
       default:
-        throw EvalError.TypeError(.Prt(port), [.OutputPortType])
+        throw EvalError.typeError(.port(port), [.outputPortType])
     }
-    return .Void
+    return .void
   }
 }

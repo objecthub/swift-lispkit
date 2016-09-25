@@ -22,7 +22,7 @@
 /// A scope contains bindings mapping symbol ids to expressions. Scopes are nested. Each
 /// scope is either a top-level scope or it has an outer/parent scope.
 ///
-public class Scope: TrackedObject {
+public final class Scope: TrackedObject {
   internal let outer: Scope?
   private var bindings: [Symbol : Expr]
   
@@ -40,15 +40,15 @@ public class Scope: TrackedObject {
     }
   }
   
-  public func lookupLocal(sym: Symbol) -> Expr? {
+  public func lookupLocal(_ sym: Symbol) -> Expr? {
     return self.bindings[sym]
   }
   
-  public func scopeWithBindingFor(sym: Symbol) -> Scope? {
+  public func scopeWithBindingFor(_ sym: Symbol) -> Scope? {
     return self.bindingFor(sym)?.1
   }
   
-  public func bindingFor(sym: Symbol) -> (Expr, Scope)? {
+  public func bindingFor(_ sym: Symbol) -> (Expr, Scope)? {
     var scope: Scope? = self
     while let sc = scope {
       if let res = sc.bindings[sym] {
@@ -59,7 +59,7 @@ public class Scope: TrackedObject {
     return nil
   }
   
-  public func forAll(inclOuter all: Bool = false, @noescape proc: (Symbol, Expr) -> Void) {
+  public func forAll(inclOuter all: Bool = false, proc: (Symbol, Expr) -> Void) {
     var scope: Scope? = self
     while let sc = scope {
       for (sym, expr) in sc.bindings {
@@ -69,7 +69,7 @@ public class Scope: TrackedObject {
     }
   }
   
-  public override func mark(tag: UInt8) {
+  public override func mark(_ tag: UInt8) {
     for (_, expr) in self.bindings {
       expr.mark(tag)
     }

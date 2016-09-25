@@ -73,19 +73,19 @@ public final class ManagedObjectPool: CustomStringConvertible {
   }
   
   /// Track the given tracked object.
-  public func track(obj: TrackedObject) {
+  public func track(_ obj: TrackedObject) {
     self.rootSet.add(obj)
   }
   
   /// Track the given trackable object and return a tracked object acting as a proxy.
-  public func track<T: Trackable>(obj: T) -> Tracked<T> {
+  public func track<T: Trackable>(_ obj: T) -> Tracked<T> {
     let res = Tracked(obj)
     self.rootSet.add(res)
     return res
   }
   
   /// Manage the given managed object.
-  public func manage<T: ManagedObject>(obj: T) -> T {
+  @discardableResult public func manage<T: ManagedObject>(_ obj: T) -> T {
     if !obj.managed {
       obj.managed = true
       self.objectPool.add(obj)

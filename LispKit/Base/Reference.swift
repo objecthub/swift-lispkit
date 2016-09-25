@@ -22,10 +22,10 @@
 /// A `Reference` is a hashable object whose identity is used for the definition of
 /// equality and the hash value.
 ///
-public class Reference: Hashable {
+open class Reference: Hashable {
   
   public var identity: UInt {
-    return ObjectIdentifier(self).uintValue
+    return UInt(bitPattern: ObjectIdentifier(self))
   }
   
   public var identityString: String {

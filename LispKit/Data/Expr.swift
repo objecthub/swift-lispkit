@@ -24,91 +24,94 @@ import NumberKit
 /// `Expr` represents LispKit expressions in form of an enumeration with associated values.
 ///
 public enum Expr: Trackable, Hashable {
-  case Undef
-  case Void
-  case Eof
-  case Null
-  case True
-  case False
-  case Sym(Symbol)
-  case Fixnum(Int64)
-  case Bignum(BigInt)
-  case Rat(ImmutableBox<Rational<Int64>>)
-  case Bigrat(ImmutableBox<Rational<BigInt>>)
-  case Flonum(Double)
-  case Complexnum(ImmutableBox<Complex<Double>>)
-  case Char(UniChar)
-  case Str(NSMutableString)
-  case Bytes(ByteVector)
-  indirect case Pair(Expr, Expr)
-  case Box(Cell)
-  case MutablePair(Tuple)
-  case Vector(Collection)
-  case Record(Collection)
-  case Map(HashMap)
-  case Promise(Future)
-  case Proc(Procedure)
-  case Special(SpecialForm)
-  case Prt(Port)
-  case Error(AnyError)
+  case undef
+  case void
+  case eof
+  case null
+  case `true`
+  case `false`
+  case symbol(Symbol)
+  case fixnum(Int64)
+  case bignum(BigInt)
+  case rational(FixedRational)
+  case bigrat(BigRational)
+  case flonum(Double)
+  case complex(DoubleComplex)
+  case char(UniChar)
+  case string(NSMutableString)
+  case bytes(ByteVector)
+  indirect case pair(Expr, Expr)
+  case box(Cell)
+  case mpair(Tuple)
+  case vector(Collection)
+  case record(Collection)
+  case table(HashTable)
+  case promise(Promise)
+  case procedure(Procedure)
+  case special(SpecialForm)
+  case env(Environment)
+  case port(Port)
+  case error(AnyError)
   
   /// Returns the type of this expression.
   public var type: Type {
     switch self {
-      case Undef:
-        return .UndefinedType
-      case Void:
-        return .VoidType
-      case Eof:
-        return .EofType
-      case Null:
-        return .NullType
-      case True:
-        return .BooleanType
-      case False:
-        return .BooleanType
-      case Sym(_):
-        return .SymbolType
-      case Fixnum(_):
-        return .IntegerType
-      case Bignum(_):
-        return .IntegerType
-      case Rat(_):
-        return .RationalType
-      case Bigrat(_):
-        return .RationalType
-      case Flonum(_):
-        return .FloatType
-      case Complexnum(_):
-        return .ComplexType
-      case Char(_):
-        return .CharType
-      case Str(_):
-        return .StrType
-      case Bytes(_):
-        return .ByteVectorType
-      case Pair(_, _):
-        return .PairType
-      case Box(_):
-        return .BoxType
-      case MutablePair(_):
-        return .MPairType
-      case Vector(_):
-        return .VectorType
-      case Record(_):
-        return .RecordType
-      case Map(_):
-        return .MapType
-      case Promise(_):
-        return .PromiseType
-      case Proc(_):
-        return .ProcedureType
-      case Special(_):
-        return .SpecialType
-      case Prt(_):
-        return .PortType
-      case Error(_):
-        return .ErrorType
+      case .undef:
+        return .undefinedType
+      case .void:
+        return .voidType
+      case .eof:
+        return .eofType
+      case .null:
+        return .nullType
+      case .true:
+        return .booleanType
+      case .false:
+        return .booleanType
+      case .symbol(_):
+        return .symbolType
+      case .fixnum(_):
+        return .integerType
+      case .bignum(_):
+        return .integerType
+      case .rational(_):
+        return .rationalType
+      case .bigrat(_):
+        return .rationalType
+      case .flonum(_):
+        return .floatType
+      case .complex(_):
+        return .complexType
+      case .char(_):
+        return .charType
+      case .string(_):
+        return .strType
+      case .bytes(_):
+        return .byteVectorType
+      case .pair(_, _):
+        return .pairType
+      case .box(_):
+        return .boxType
+      case .mpair(_):
+        return .mpairType
+      case .vector(_):
+        return .vectorType
+      case .record(_):
+        return .recordType
+      case .table(_):
+        return .tableType
+      case .promise(_):
+        return .promiseType
+      case .procedure(_):
+        return .procedureType
+      case .special(_):
+        return .specialType
+      case .env(_):
+        return .envType
+      case .port(_):
+        return .portType
+      case .error(_):
+        return .errorType
     }
   }
   
@@ -117,7 +120,7 @@ public enum Expr: Trackable, Hashable {
   /// Returns true if this expression is null.
   public var isNull: Bool {
     switch self {
-      case Null:
+      case .null:
         return true
       default:
         return false
@@ -127,7 +130,7 @@ public enum Expr: Trackable, Hashable {
   /// Returns true if this is not the `#f` value.
   public var isTrue: Bool {
     switch self {
-      case False:
+      case .false:
         return false
       default:
         return true
@@ -137,7 +140,7 @@ public enum Expr: Trackable, Hashable {
   /// Returns true if this is the `#f` value.
   public var isFalse: Bool {
     switch self {
-      case False:
+      case .false:
         return true
       default:
         return false
@@ -147,7 +150,7 @@ public enum Expr: Trackable, Hashable {
   /// Returns true if this is an exact number.
   public var isExactNumber: Bool {
     switch self {
-      case Fixnum(_), Bignum(_), Rat(_), Bigrat(_):
+      case .fixnum(_), .bignum(_), .rational(_), .bigrat(_):
         return true
       default:
         return false
@@ -157,29 +160,31 @@ public enum Expr: Trackable, Hashable {
   /// Normalizes the representation (relevant for numeric datatypes)
   public var normalized: Expr {
     switch self {
-      case Bignum(let num):
+      case .bignum(let num):
         if let fn = num.intValue {
-          return Fixnum(fn)
+          return .fixnum(fn)
         }
         return self
-      case Rat(let num):
+      case .rational(let num):
         if let fn = num.value.intValue {
-          return Fixnum(fn)
+          return .fixnum(fn)
         }
         return self
-      case Bigrat(let num):
+      case .bigrat(let num):
         if let bn = num.value.intValue {
           if let fn = bn.intValue {
-            return Fixnum(fn)
+            return .fixnum(fn)
           }
-          return Bignum(bn)
+          return .bignum(bn)
         }
-        if let fnnumer = num.value.numerator.intValue, fndenom = num.value.denominator.intValue {
-          return Rat(ImmutableBox(Rational(fnnumer, fndenom))).normalized
+        if let fnnumer = num.value.numerator.intValue,
+           let fndenom = num.value.denominator.intValue {
+          let num: Rational<Int64> = Rational(fnnumer, fndenom)
+          return Expr.rational(ImmutableBox(num)).normalized
         }
         return self
-      case Complexnum(let num):
-        return num.value.isReal ? Flonum(num.value.re) : self
+      case .complex(let num):
+        return num.value.isReal ? .flonum(num.value.re) : self
       default:
         return self
     }
@@ -188,10 +193,10 @@ public enum Expr: Trackable, Hashable {
   /// Returns the given expression with all symbols getting interned.
   public var datum: Expr {
     switch self {
-      case Sym(let sym):
-        return Sym(sym.interned)
-      case Pair(let car, let cdr):
-        return .Pair(car.datum, cdr.datum)
+      case .symbol(let sym):
+        return .symbol(sym.interned)
+      case .pair(let car, let cdr):
+        return .pair(car.datum, cdr.datum)
       default:
         return self
     }
@@ -201,28 +206,31 @@ public enum Expr: Trackable, Hashable {
   public func toExprs() -> (Exprs, Expr) {
     var exprs = Exprs()
     var expr = self
-    while case Pair(let car, let cdr) = expr {
+    while case .pair(let car, let cdr) = expr {
       exprs.append(car)
       expr = cdr
     }
     return (exprs, expr)
   }
   
-  /// The length of this expression (all non-pair expressions have length 1)
+  /// The length of this expression (all non-pair expressions have length 1).
   var length: Int {
     var expr = self
-    var len: Int = 0
-    while case .Pair(_, let cdr) = expr {
+    var len = 0
+    while case .pair(_, let cdr) = expr {
       len += 1
       expr = cdr
     }
     return len
   }
   
-  public var isSimple: Bool {
+  /// Returns true if the expression isn't referring to other expressions directly or
+  /// indirectly.
+  public var isAtom: Bool {
     switch self {
-      case Undef, Void, Eof, Null, True, False, Sym(_), Fixnum(_), Bignum(_), Rat(_),
-           Bigrat(_), Flonum(_), Complexnum(_), Char(_), Str(_), Bytes(_), Prt(_):
+      case .undef, .void, .eof, .null, .true, .false, .symbol(_),
+           .fixnum(_), .bignum(_), .rational(_), .bigrat(_), .flonum(_), .complex(_),
+           .char(_), .string(_), .bytes(_), .env(_), .port(_):
         return true
       default:
         return false
@@ -231,38 +239,38 @@ public enum Expr: Trackable, Hashable {
   
   public var requiresTracking: Bool {
     switch self {
-      case Pair(let car, let cdr):
+      case .pair(let car, let cdr):
         return car.requiresTracking || cdr.requiresTracking
-      case Box(_), MutablePair(_), Vector(_), Record(_), Map(_), Promise(_),
-           Proc(_), Special(_), Error(_):
+      case .box(_), .mpair(_), .vector(_), .record(_), .table(_), .promise(_),
+           .procedure(_), .special(_), .error(_):
         return true
       default:
         return false
     }
   }
   
-  public func mark(tag: UInt8) {
+  public func mark(_ tag: UInt8) {
     switch self {
-      case Pair(let car, let cdr):
+      case .pair(let car, let cdr):
         car.mark(tag)
         cdr.mark(tag)
-      case Box(let cell):
+      case .box(let cell):
         cell.mark(tag)
-      case MutablePair(let tuple):
+      case .mpair(let tuple):
         tuple.mark(tag)
-      case Vector(let vector):
+      case .vector(let vector):
         vector.mark(tag)
-      case Record(let record):
+      case .record(let record):
         record.mark(tag)
-      case Map(let map):
+      case .table(let map):
         map.mark(tag)
-      case Promise(let future):
+      case .promise(let future):
         future.mark(tag)
-      case Proc(let proc):
+      case .procedure(let proc):
         proc.mark(tag)
-      case Special(let special):
+      case .special(let special):
         special.mark(tag)
-      case Error(_):
+      case .error(_):
         break
       default:
         break
@@ -279,60 +287,60 @@ public enum Expr: Trackable, Hashable {
 ///
 extension Expr {
   
-  public static func Boolean(val: Bool) -> Expr {
-    return val ? True : False
+  public static func makeBoolean(_ val: Bool) -> Expr {
+    return val ? .true : .false
   }
   
-  public static func Number(num: Int) -> Expr {
-    return Fixnum(Int64(num))
+  public static func makeNumber(_ num: Int) -> Expr {
+    return .fixnum(Int64(num))
   }
   
-  public static func Number(num: Int64) -> Expr {
-    return Fixnum(num)
+  public static func makeNumber(_ num: Int64) -> Expr {
+    return .fixnum(num)
   }
   
-  public static func Number(num: BigInt) -> Expr {
-    return Bignum(num).normalized
+  public static func makeNumber(_ num: BigInt) -> Expr {
+    return Expr.bignum(num).normalized
   }
   
-  public static func Number(num: Rational<Int64>) -> Expr {
-    return Rat(ImmutableBox(num)).normalized
+  public static func makeNumber(_ num: Rational<Int64>) -> Expr {
+    return Expr.rational(ImmutableBox(num)).normalized
   }
   
-  public static func Number(num: Rational<BigInt>) -> Expr {
-    return Bigrat(ImmutableBox(num)).normalized
+  public static func makeNumber(_ num: Rational<BigInt>) -> Expr {
+    return Expr.bigrat(ImmutableBox(num)).normalized
   }
   
-  public static func Number(num: Double) -> Expr {
-    return Flonum(num)
+  public static func makeNumber(_ num: Double) -> Expr {
+    return .flonum(num)
   }
   
-  public static func Number(num: Complex<Double>) -> Expr {
-    return Complexnum(ImmutableBox(num)).normalized
+  public static func makeNumber(_ num: Complex<Double>) -> Expr {
+    return Expr.complex(ImmutableBox(num)).normalized
   }
   
-  public static func List(expr: Expr...) -> Expr {
-    return List(expr)
+  public static func makeList(_ expr: Expr...) -> Expr {
+    return Expr.makeList(expr)
   }
   
-  public static func List(exprs: Exprs, append: Expr = Expr.Null) -> Expr {
-    return Expr.Stack(exprs.reverse(), append: append)
+  public static func makeList(_ exprs: Exprs, append: Expr = Expr.null) -> Expr {
+    return Expr.makeList(fromStack: exprs.reversed(), append: append)
   }
   
-  public static func List(exprs: Arguments, append: Expr = Expr.Null) -> Expr {
-    return Expr.Stack(exprs.reverse(), append: append)
+  public static func makeList(_ exprs: Arguments, append: Expr = Expr.null) -> Expr {
+    return Expr.makeList(fromStack: exprs.reversed(), append: append)
   }
   
-  public static func Stack(exprs: Exprs, append: Expr = Expr.Null) -> Expr {
+  public static func makeList(fromStack exprs: Exprs, append: Expr = Expr.null) -> Expr {
     var res = append
     for expr in exprs {
-      res = Pair(expr, res)
+      res = pair(expr, res)
     }
     return res
   }
   
-  public static func StringFor(str: String) -> Expr {
-    return .Str(NSMutableString(string: str))
+  public static func makeString(_ str: String) -> Expr {
+    return .string(NSMutableString(string: str))
   }
 }
 
@@ -340,7 +348,7 @@ extension Expr {
 /// This extension adds projections to `Expr`.
 ///
 extension Expr {
-  public func assertTypeOf(types: Type...) throws {
+  public func assertType(_ types: Type...) throws {
     for type in types {
       for subtype in type.included {
         if self.type == subtype {
@@ -348,174 +356,167 @@ extension Expr {
         }
       }
     }
-    throw EvalError.TypeError(self, Set(types))
+    throw EvalError.typeError(self, Set(types))
   }
   
-  public func asInteger() throws -> Int64 {
-    guard case Fixnum(let res) = self else {
-      throw EvalError.TypeError(self, [.IntegerType])
+  public func asInt64() throws -> Int64 {
+    guard case .fixnum(let res) = self else {
+      throw EvalError.typeError(self, [.integerType])
     }
     return res
   }
   
-  public func asInt(below below: Int = Int.max) throws -> Int {
-    guard case Fixnum(let res) = self else {
-      throw EvalError.TypeError(self, [.IntegerType])
+  public func asInt(below: Int = Int.max) throws -> Int {
+    guard case .fixnum(let res) = self else {
+      throw EvalError.typeError(self, [.integerType])
     }
     guard res >= 0 && res < Int64(below) else {
-      throw EvalError.IndexOutOfBounds(res, Int64(below), self)
+      throw EvalError.indexOutOfBounds(res, Int64(below), self)
     }
     return Int(res)
   }
   
-  public func asByte() throws -> UInt8 {
-    guard case Fixnum(let number) = self where number >= 0 && number <= 255 else {
-      throw EvalError.TypeError(self, [.ByteType])
+  public func asUInt8() throws -> UInt8 {
+    guard case .fixnum(let number) = self , number >= 0 && number <= 255 else {
+      throw EvalError.typeError(self, [.byteType])
     }
     return UInt8(number)
   }
   
-  public func asFloat(coerce coerce: Bool = false) throws -> Double {
+  public func asDouble(coerce: Bool = false) throws -> Double {
     if !coerce {
-      if case Flonum(let num) = self {
+      if case .flonum(let num) = self {
         return num
       }
-      throw EvalError.TypeError(self, [.FloatType])
+      throw EvalError.typeError(self, [.floatType])
     }
     switch self.normalized {
-      case Fixnum(let num):
+      case .fixnum(let num):
         return Double(num)
-      case .Bignum(let num):
+      case .bignum(let num):
         return num.doubleValue
-      case .Rat(let num):
+      case .rational(let num):
         return Double(num.value.numerator) / Double(num.value.denominator)
-      case .Bigrat(let num):
+      case .bigrat(let num):
         return num.value.numerator.doubleValue / num.value.denominator.doubleValue
-      case .Flonum(let num):
+      case .flonum(let num):
         return num
       default:
-        throw EvalError.TypeError(self, [.RealType])
+        throw EvalError.typeError(self, [.realType])
     }
   }
     
-  public func asComplex(coerce coerce: Bool = false) throws -> Complex<Double> {
+  public func asComplex(coerce: Bool = false) throws -> Complex<Double> {
     if !coerce {
       switch self {
-        case Flonum(let num):
+        case .flonum(let num):
           return Complex(num, 0.0)
-        case Complexnum(let complex):
+        case .complex(let complex):
           return complex.value
         default:
-          throw EvalError.TypeError(self, [.ComplexType])
+          throw EvalError.typeError(self, [.complexType])
       }
     }
     switch self.normalized {
-      case Fixnum(let num):
+      case .fixnum(let num):
         return Complex(Double(num), 0.0)
-      case .Bignum(let num):
+      case .bignum(let num):
         return Complex(num.doubleValue, 0.0)
-      case .Rat(let num):
+      case .rational(let num):
         return Complex(Double(num.value.numerator) / Double(num.value.denominator), 0.0)
-      case .Bigrat(let num):
+      case .bigrat(let num):
         return Complex(num.value.numerator.doubleValue / num.value.denominator.doubleValue, 0.0)
-      case .Flonum(let num):
+      case .flonum(let num):
         return Complex(num, 0.0)
-      case .Complexnum(let num):
+      case .complex(let num):
         return num.value
       default:
-        throw EvalError.TypeError(self, [.ComplexType])
+        throw EvalError.typeError(self, [.complexType])
     }
   }
   
   public func asSymbol() throws -> Symbol {
     guard let symid = self.toSymbol() else {
-      throw EvalError.TypeError(self, [.SymbolType])
+      throw EvalError.typeError(self, [.symbolType])
     }
     return symid
   }
   
   public func toSymbol() -> Symbol? {
     switch self {
-    case Sym(let sym):
-      return sym
-    default:
-      return nil
+      case .symbol(let sym):
+        return sym
+      default:
+        return nil
     }
   }
   
-  public func asChar() throws -> UniChar {
-    guard case Char(let res) = self else {
-      throw EvalError.TypeError(self, [.CharType])
+  public func asUniChar() throws -> UniChar {
+    guard case .char(let res) = self else {
+      throw EvalError.typeError(self, [.charType])
     }
     return res
   }
   
-  public func asCharStr() throws -> String {
-    guard case Char(let res) = self else {
-      throw EvalError.TypeError(self, [.CharType])
+  public func charAsString() throws -> String {
+    guard case .char(let res) = self else {
+      throw EvalError.typeError(self, [.charType])
     }
-    return String(UnicodeScalar(res))
+    return String(unicodeScalar(res))
   }
   
-  public func asStr() throws -> String {
-    guard case Str(let res) = self else {
-      throw EvalError.TypeError(self, [.StrType])
+  public func asString() throws -> String {
+    guard case .string(let res) = self else {
+      throw EvalError.typeError(self, [.strType])
     }
     return res as String
   }
   
   public func asMutableStr() throws -> NSMutableString {
-    guard case Str(let res) = self else {
-      throw EvalError.TypeError(self, [.StrType])
+    guard case .string(let res) = self else {
+      throw EvalError.typeError(self, [.strType])
     }
     return res
   }
   
   public func asByteVector() throws -> ByteVector {
-    guard case Bytes(let bvector) = self else {
-      throw EvalError.TypeError(self, [.ByteVectorType])
+    guard case .bytes(let bvector) = self else {
+      throw EvalError.typeError(self, [.byteVectorType])
     }
     return bvector
   }
   
-  public func asPair() throws -> (Expr, Expr) {
-    guard case Pair(let res) = self else {
-      throw EvalError.TypeError(self, [.PairType])
+  public func vectorAsCollection() throws -> Collection {
+    guard case .vector(let res) = self else {
+      throw EvalError.typeError(self, [.vectorType])
     }
     return res
   }
   
-  public func asVector() throws -> Collection {
-    guard case Vector(let res) = self else {
-      throw EvalError.TypeError(self, [.VectorType])
+  public func recordAsCollection() throws -> Collection {
+    guard case .record(let res) = self else {
+      throw EvalError.typeError(self, [.recordType])
     }
     return res
   }
   
-  public func asRecord() throws -> Collection {
-    guard case Record(let res) = self else {
-      throw EvalError.TypeError(self, [.RecordType])
-    }
-    return res
-  }
-  
-  public func asMap() throws -> HashMap {
-    guard case Map(let map) = self else {
-      throw EvalError.TypeError(self, [.MapType])
+  public func asHashTable() throws -> HashTable {
+    guard case .table(let map) = self else {
+      throw EvalError.typeError(self, [.tableType])
     }
     return map
   }
   
-  public func asProc() throws -> Procedure {
-    guard case Proc(let proc) = self else {
-      throw EvalError.TypeError(self, [.ProcedureType])
+  public func asProcedure() throws -> Procedure {
+    guard case .procedure(let proc) = self else {
+      throw EvalError.typeError(self, [.procedureType])
     }
     return proc
   }
   
   public func asPort() throws -> Port {
-    guard case Prt(let port) = self else {
-      throw EvalError.TypeError(self, [.PortType])
+    guard case .port(let port) = self else {
+      throw EvalError.typeError(self, [.portType])
     }
     return port
   }
@@ -534,11 +535,11 @@ extension Expr: CustomStringConvertible {
     return self.toString(escape: false)
   }
   
-  public func toString(escape escape: Bool = true) -> String {
+  public func toString(escape: Bool = true) -> String {
     var enclObjs = Set<Reference>()
     var objId = [Reference: Int]()
     
-    func objIdString(ref: Reference) -> String? {
+    func objIdString(_ ref: Reference) -> String? {
       if let id = objId[ref] {
         return "#\(id)#"
       } else if enclObjs.contains(ref) {
@@ -549,7 +550,7 @@ extension Expr: CustomStringConvertible {
       }
     }
     
-    func fixString(ref: Reference, _ str: String) -> String {
+    func fixString(_ ref: Reference, _ str: String) -> String {
       if let id = objId[ref] {
         return "#\(id)=\(str)"
       } else {
@@ -557,9 +558,9 @@ extension Expr: CustomStringConvertible {
       }
     }
     
-    func doubleString(val: Double) -> String {
+    func doubleString(_ val: Double) -> String {
       if val.isInfinite {
-        return val.isSignMinus ? "-inf.0" : "+inf.0"
+        return (val.sign == .minus) ? "-inf.0" : "+inf.0"
       } else if val.isNaN {
         return "+nan.0"
       } else {
@@ -567,36 +568,36 @@ extension Expr: CustomStringConvertible {
       }
     }
     
-    func stringReprOf(expr: Expr) -> String {
+    func stringReprOf(_ expr: Expr) -> String {
       switch expr {
-        case .Undef:
+        case .undef:
           return "#<undef>"
-        case .Void:
+        case .void:
           return "#<void>"
-        case .Eof:
+        case .eof:
           return "#<eof>"
-        case .Null:
+        case .null:
           return "()"
-        case .True:
+        case .true:
           return "#t"
-        case .False:
+        case .false:
           return "#f"
-        case .Sym(let sym):
+        case .symbol(let sym):
           guard escape else {
             return sym.rawIdentifier
           }
           return sym.description
-        case .Fixnum(let val):
+        case .fixnum(let val):
           return String(val)
-        case .Bignum(let val):
+        case .bignum(let val):
           return val.description
-        case .Rat(let val):
+        case .rational(let val):
           return val.value.description
-        case .Bigrat(let val):
+        case .bigrat(let val):
           return val.value.description
-        case .Flonum(let val):
+        case .flonum(let val):
           return doubleString(val)
-        case .Complexnum(let val):
+        case .complex(let val):
           var res = doubleString(val.value.re)
           if val.value.im.isNaN || val.value.im.isInfinite || val.value.im < 0.0 {
             res += doubleString(val.value.im)
@@ -604,9 +605,9 @@ extension Expr: CustomStringConvertible {
             res += "+" + doubleString(val.value.im)
           }
           return res + "i"
-        case .Char(let ch):
+        case .char(let ch):
           guard escape else {
-            return String(UnicodeScalar(ch))
+            return String(unicodeScalar(ch))
           }
           switch ch {
             case   7: return "#\\alarm"
@@ -621,22 +622,22 @@ extension Expr: CustomStringConvertible {
             case   9: return "#\\tab"
             case  11: return "#\\vtab"
             default :
-              if WHITESPACES_NL.characterIsMember(ch) ||
-                 CONTROL_CHARS.characterIsMember(ch) ||
-                 ILLEGAL_CHARS.characterIsMember(ch) ||
-                 MODIFIER_CHARS.characterIsMember(ch) ||
+              if WHITESPACES_NL.contains(unicodeScalar(ch)) ||
+                 CONTROL_CHARS.contains(unicodeScalar(ch)) ||
+                 ILLEGAL_CHARS.contains(unicodeScalar(ch)) ||
+                 MODIFIER_CHARS.contains(unicodeScalar(ch)) ||
                  ch > 0xd7ff {
                 return "#\\u\(String(ch, radix:16))"
               } else {
-                return "#\\\(Character(UnicodeScalar(ch)))"
+                return "#\\\(Character(UnicodeScalar(ch)!))"
               }
           }
-        case .Str(let str):
+        case .string(let str):
           guard escape else {
             return str as String
           }
           return "\"\(Expr.escapeStr(str as String))\""
-        case .Bytes(let boxedVec):
+        case .bytes(let boxedVec):
           var res = "#u8("
           var sep = ""
           for byte in boxedVec.value {
@@ -644,16 +645,16 @@ extension Expr: CustomStringConvertible {
             sep = " "
           }
           return res + ")"
-        case .Pair(let head, let tail):
+        case .pair(let head, let tail):
           var res = "(" + stringReprOf(head)
           var expr = tail
-          while case .Pair(let car, let cdr) = expr {
+          while case .pair(let car, let cdr) = expr {
             res += " "
             res += stringReprOf(car)
             expr = cdr
           }
           return res + (expr.isNull ? ")" : " . \(expr))")
-        case .Box(let cell):
+        case .box(let cell):
           if let res = objIdString(cell) {
             return res
           } else {
@@ -662,7 +663,7 @@ extension Expr: CustomStringConvertible {
             enclObjs.remove(cell)
             return fixString(cell, res)
           }
-        case .MutablePair(let tuple):
+        case .mpair(let tuple):
           if let res = objIdString(tuple) {
             return res
           } else {
@@ -672,7 +673,7 @@ extension Expr: CustomStringConvertible {
             enclObjs.remove(tuple)
             return fixString(tuple, res)
           }
-        case .Vector(let vector):
+        case .vector(let vector):
           if let res = objIdString(vector) {
             return res
           } else if vector.exprs.count == 0 {
@@ -689,9 +690,9 @@ extension Expr: CustomStringConvertible {
             enclObjs.remove(vector)
             return fixString(vector, res)
           }
-        case .Record(let record):
-          guard case .Record(let type) = record.kind else {
-            guard case .Str(let name) = record.exprs[0] else {
+        case .record(let record):
+          guard case .record(let type) = record.kind else {
+            guard case .string(let name) = record.exprs[0] else {
               preconditionFailure("incorrect encoding of record type")
             }
             return "#<record-type \(name)>"
@@ -699,15 +700,15 @@ extension Expr: CustomStringConvertible {
           if let res = objIdString(record) {
             return res
           } else {
-            guard case .Str(let name) = type.exprs[0] else {
+            guard case .string(let name) = type.exprs[0] else {
               preconditionFailure("incorrect encoding of record type")
             }
             enclObjs.insert(record)
-            var res = "#<record \(name):"
-            var sep = " "
+            var res = "#<record \(name)"
+            var sep = ": "
             var fields = type.exprs[2]
             for expr in record.exprs {
-              guard case .Pair(let sym, let nextFields) = fields else {
+              guard case .pair(let sym, let nextFields) = fields else {
                 preconditionFailure("incorrect encoding of record \(type.exprs[0])")
               }
               res = res + sep + "\(sym)=\(stringReprOf(expr))"
@@ -718,13 +719,13 @@ extension Expr: CustomStringConvertible {
             enclObjs.remove(record)
             return fixString(record, res)
           }
-        case .Map(let map):
+        case .table(let map):
           if let res = objIdString(map) {
             return res
           } else {
             enclObjs.insert(map)
-            var res = "#<hashtable \(map.identityString):"
-            var sep = " "
+            var res = "#<hashtable \(map.identityString)"
+            var sep = ": "
             for (key, value) in map.mappings {
               res = res + sep + stringReprOf(key) + " -> " + stringReprOf(value)
               sep = ", "
@@ -733,11 +734,11 @@ extension Expr: CustomStringConvertible {
             enclObjs.remove(map)
             return fixString(map, res)
           }
-        case .Promise(let promise):
+        case .promise(let promise):
           return "#<promise \(promise.identityString)>"
-        case .Proc(let proc):
+        case .procedure(let proc):
           switch proc.kind {
-            case .Parameter(let tuple):
+            case .parameter(let tuple):
               if let res = objIdString(proc) {
                 return res
               } else {
@@ -746,23 +747,32 @@ extension Expr: CustomStringConvertible {
                 enclObjs.remove(proc)
                 return fixString(proc, res)
               }
-            case .Continuation(_):
+            case .continuation(_):
               return "#<continuation \(proc.name)>"
             default:
               return "#<procedure \(proc.name)>"
           }
-        case .Special(let special):
+        case .special(let special):
           return "#<special \(special.identityString)>"
-        case .Prt(let port):
+        case .env(let environment):
+          var res = "#<env \(environment.identityString)"
+          var sep = ": "
+          for sym in environment.boundSymbols {
+            res = res + sep + sym.description
+            sep = ", "
+          }
+          res += ">"
+          return res
+        case .port(let port):
           return "#<\(port.typeDescription) \(port.identDescription)>"
-        case .Error(let error):
+        case .error(let error):
           return error.description
       }
     }
     return stringReprOf(self)
   }
   
-  internal static func escapeStr(str: String) -> String {
+  internal static func escapeStr(_ str: String) -> String {
     var res = ""
     for c in str.characters {
       switch c {
@@ -784,8 +794,10 @@ extension Expr: CustomStringConvertible {
 }
 
 public func ==(lhs: Expr, rhs: Expr) -> Bool {
-  return equalExpr(lhs, rhs)
+  return equalExpr(rhs, lhs)
 }
 
 public typealias ByteVector = MutableBox<[UInt8]>
-
+public typealias FixedRational = ImmutableBox<Rational<Int64>>
+public typealias BigRational = ImmutableBox<Rational<BigInt>>
+public typealias DoubleComplex = ImmutableBox<Complex<Double>>

@@ -30,66 +30,66 @@ public enum Instruction: CustomStringConvertible {
   // Stack ------------------------------------------------------------------------------------
   
   /// **`pop`**: Drops the top element from stack.
-  case Pop
+  case pop
   
   /// **`dup`**: Duplicates the top element on the stack.
-  case Dup
+  case dup
   
   /// **`swap`**: Swaps the top two elements on the stack.
-  case Swap
+  case swap
   
   /// **`alloc` _n_**: Pushes `n` undefined values onto the stack.
-  case Alloc(Int)
+  case alloc(Int)
   
   /// **`reset` _o_,_n_**: Replaces `n` values on the stack with the undefined value starting
   /// from frame pointer offset `o`.
-  case Reset(Int, Int)
+  case reset(Int, Int)
   
   
   // Constants --------------------------------------------------------------------------------
   
   /// **`push_undef`**: Pushes the _undefined value_ onto the stack.
-  case PushUndef
+  case pushUndef
   
   /// **`push_void`**: Pushes the _void value_ onto the stack.
-  case PushVoid
+  case pushVoid
   
   /// **`push_eof`**: Pushes the _EOF value_ onto the stack.
-  case PushEof
+  case pushEof
   
   /// **`push_null`**: Pushes value _null_ (empty list) onto the stack.
-  case PushNull
+  case pushNull
   
   /// **`push_true`**: Pushes value `#true` onto the stack.
-  case PushTrue
+  case pushTrue
   
   /// **`push_false`**: Pushes value `#false` onto the stack.
-  case PushFalse
+  case pushFalse
   
   /// **`push_fixnum` _n_**: Pushes the fixnum _n_ onto the stack.
-  case PushFixnum(Int64)
+  case pushFixnum(Int64)
   
   /// **`push_bignum` _bn_**: Pushes the bignum _bn_ onto the stack.
-  case PushBignum(BigInt)
+  case pushBignum(BigInt)
   
   /// **`push_rat` _r_**: Pushes the rational number _r_ onto the stack.
-  case PushRat(Rational<Int64>)
+  case pushRat(Rational<Int64>)
   
   /// **`push_bigrat` _br_**: Pushes the given bigrat number _br_ onto the stack.
-  case PushBigrat(Rational<BigInt>)
+  case pushBigrat(Rational<BigInt>)
   
   /// **`push_flonum` _x_**: Pushes the flonum _x_ onto the stack.
-  case PushFlonum(Double)
+  case pushFlonum(Double)
   
   /// **`push_complex` _cx_**: Pushes the complex number _cx_ onto the stack.
-  case PushComplex(Complex<Double>)
+  case pushComplex(Complex<Double>)
   
   /// **`push_char` _ch_**: Pushes the character _ch_ onto the stack.
-  case PushChar(UniChar)
+  case pushChar(UniChar)
   
   /// **`push_constant` _c_**: Pushes the constant from the constant pool at index _c_ onto
   /// the stack.
-  case PushConstant(Int)
+  case pushConstant(Int)
   
   
   // Functions --------------------------------------------------------------------------------
@@ -99,67 +99,67 @@ public enum Instruction: CustomStringConvertible {
   /// an index into the list of code fragments of the currently executed code. _i_ is a
   /// reference into the constant pool referring to the name of the closure (-1 indicates that
   /// the closure is anonymous)
-  case MakeClosure(Int, Int, Int)
+  case makeClosure(Int, Int, Int)
   
   /// **`make_frame`**: Pushes a new stack frame onto the stack.
-  case MakeFrame
+  case makeFrame
   
   /// **`call` _n_**: Calls a procedure with _n_ arguments.
-  case Call(Int)
+  case call(Int)
   
   /// **`tail_call` _n_**: Calls a procedure with _n_ arguments. This instruction is used
   /// for tail calls and does not require a new frame to be pushed.
-  case TailCall(Int)
+  case tailCall(Int)
   
   /// **`apply` _n_**: This instruction expects on the stack a function, _n - 1_ individual
   /// arguments and an additional list of arguments. apply pushes the elements of the list
   /// onto the stack as well and then applies the function to all arguments on the stack.
   /// The instruction puts the result of the function application onto the stack.
-  case Apply(Int)
+  case apply(Int)
   
   /// **`return`**: Returns from the currently executed procedure.
-  case Return
+  case `return`
   
   /// **`assert_arg_count` _n_**: Checks that there are exactly _n_ arguments on the stack.
-  case AssertArgCount(Int)
+  case assertArgCount(Int)
   
   /// **`assert_min_arg_count` _n_**: Checks that there are at least _n_ arguments on the
   /// stack.
-  case AssertMinArgCount(Int)
+  case assertMinArgCount(Int)
   
   /// **`no_matching_arg_count`**: Fails with an error signaling the lack of a matching case
   /// (in a `case-lambda`).
-  case NoMatchingArgCount
+  case noMatchingArgCount
   
   /// **`collect_rest` _n_**: Collects the arguments exceeding _n_ into a list.
-  case CollectRest(Int)
+  case collectRest(Int)
   
   /// **`compile`**: Compiles the expression on top of the stack creating a thunk (a
   /// procedure without arguments) which is left on top of the stack.
-  case Compile
+  case compile
   
   
   // Macros -----------------------------------------------------------------------------------
   
   /// **`make_syntax`**: Pops a syntax transformer function off the stack, creates a special
   /// form from it and pushes it onto the stack.
-  case MakeSyntax
+  case makeSyntax
   
   
   // Promises ---------------------------------------------------------------------------------
   
   /// **`make_promise`**: Creates a new promise on the stack whose value will be computed
   /// by executing the closure on top of the stack.
-  case MakePromise
+  case makePromise
   
   /// **`force`**: Forces the value of the promise on top of the stack. If the promise has
   /// been evaluated already, push the value onto the stack and skip the next instruction
   /// (which is typically a `store_in_promise` instruction).
-  case Force
+  case force
   
   /// **`store_in_promise`**: Stores the value on top of the stack in the promise to which
   /// the second top-most entry on the stack The promise gets removed from the stack.
-  case StoreInPromise
+  case storeInPromise
   
   
   // Variables --------------------------------------------------------------------------------
@@ -167,13 +167,13 @@ public enum Instruction: CustomStringConvertible {
   /// **`make_local_variable` _o_**: Creates a new variable, pops an expression from the
   /// stack and assignes the variable this expression as its initial value. The variable
   /// is then stored at the location specified by the frame pointer offset _o_.
-  case MakeLocalVariable(Int)
+  case makeLocalVariable(Int)
   
   /// **`make_variable_argument` _o_**: Creates a new variable and assignes the variable the
   /// expression at the location specified by the frame pointer offset _o_. The variable is
   /// then stored at the location specified by the frame pointer offset _o_, i.e. this
   /// instruction swaps a value on the stack with a variable with the same value.
-  case MakeVariableArgument(Int)
+  case makeVariableArgument(Int)
   
   
   // Bindings ---------------------------------------------------------------------------------
@@ -181,242 +181,242 @@ public enum Instruction: CustomStringConvertible {
   /// **`push_global` _c_**: _c_ is an index into the constant pool referring to a symbol.
   /// `push_global` pushes the value to which this symbol is bound in the global environment
   /// onto the stack.
-  case PushGlobal(Int)
+  case pushGlobal(Int)
   
   /// **`set_global` _c_**: _c_ is an index into the constant pool referring to a symbol.
   /// `set_global` binds the symbol in the global environment to the value on top of the
   /// stack. `set_global` fails if the symbol has not previously been bound in the global
   /// environment.
-  case SetGlobal(Int)
+  case setGlobal(Int)
   
   /// **`define_global` _c_**: _c_ is an index into the constant pool referring to a symbol.
   /// `define_global` binds the symbol in the global environment to the value on top of the
   /// stack. As opposed to `set_global`, the symbol does not have to be bound previously.
-  case DefineGlobal(Int)
+  case defineGlobal(Int)
   
   /// **`push_captured` _d_**: _d_ is an index into the capture list. `push_captured` pushes
   /// the value _d_ refers to onto the stack.
-  case PushCaptured(Int)
+  case pushCaptured(Int)
   
   /// **`push_captured_value` _d_**: _d_ is an index into the capture list referring to
   /// a variable. `push_captured_value` pushes the value of the variable to which _d_
   /// refers to onto the stack.
-  case PushCapturedValue(Int)
+  case pushCapturedValue(Int)
   
   /// **`set_captured_value` _d_**: _d_ is an index into the capture list referring to
   /// a variable. `set_captured_value` stores the value on top of the stack in the variable
   /// to which _d_ refers to.
-  case SetCapturedValue(Int)
+  case setCapturedValue(Int)
   
   /// **`push_local` _o_**: is an offset relative to the frame pointer. `push_local` pushes
   /// the value in this location onto the stack.
-  case PushLocal(Int)
+  case pushLocal(Int)
   
   /// **`push_local_value` _o_**: _o_ is an offset relative to the frame pointer referring
   /// to a variable. `push_local_value` pushes the value of this variable onto the stack.
-  case PushLocalValue(Int)
+  case pushLocalValue(Int)
   
   /// **`set_local` _o_**: _o_ is an offset relative to the frame pointer. `set_local`
   /// stores the value on top of the stack in this stack location overwriting the previous
   /// value.
-  case SetLocal(Int)
+  case setLocal(Int)
   
   /// **`set_local_value` _o_**: _o_ is an offset relative to the frame pointer referring
   /// to a variable. `set_local_value` stores the value on top of the stack in this variable.
-  case SetLocalValue(Int)
+  case setLocalValue(Int)
   
   
   // Control flow -----------------------------------------------------------------------------
   
   /// **`branch` _i_**: _i_ is an offset relative to the current instruction pointer.
   /// `branch` jumps to the instruction to which _i_ refers to.
-  case Branch(Int)
+  case branch(Int)
   
   /// **`branch_if` _i_**: _i_ is an offset relative to the current instruction pointer.
   /// `branch_if` jumps to the instruction to which _i_ refers to if the value on the stack
   /// is not `#false`.
-  case BranchIf(Int)
+  case branchIf(Int)
   
   /// **`branch_if_not` _i_**: _i_ is an offset relative to the current instruction
   /// pointer. `branch_if` jumps to the instruction to which _i_ refers to if the value
   /// on the stack is `#false`.
-  case BranchIfNot(Int)
+  case branchIfNot(Int)
   
   /// **`branch_if_arg_mismatch` _n_,_i_**: _i_ is an offset relative to the current instruction
   /// pointer. `branch_if_arg_mismatch` jumps to the instruction to which _i_ refers to if
   /// there are not exactly _n_ arguments on the stack.
-  case BranchIfArgMismatch(Int, Int)
+  case branchIfArgMismatch(Int, Int)
   
   /// **`branch_if_min_arg_mismatch` _n_,_i_**: _i_ is an offset relative to the current
   /// instruction pointer. `branch_if_min_arg_mismatch` jumps to the instruction to which _i_
   /// refers to if there are not at least _n_ arguments on the stack.
-  case BranchIfMinArgMismatch(Int, Int)
+  case branchIfMinArgMismatch(Int, Int)
   
   /// **`or` _i_**: _i_ is an offset relative to the current instruction pointer. `or`
   /// jumps to the instruction to which _i_ refers to if the value on the stack is not
   /// `#false`. As opposed to `branch_if`, the value on top of the stack will remain there.
   /// Only if the value on top of the stack is `#false`, `or` will pop this value off the
   /// stack.
-  case Or(Int)
+  case or(Int)
   
   /// **`and` _i_**: _i_ is an offset relative to the current instruction pointer. `or`
   /// jumps to the instruction to which _i_ refers to if the value on the stack is `#false`.
   /// As opposed to `branch_if_not`, the value on top of the stack will remain there. Only
   /// if the value on top of the stack is not `#false`, `and` will pop this value off the
   /// stack.
-  case And(Int)
+  case and(Int)
   
   
   // Equivalences -----------------------------------------------------------------------------
   
   /// **`eq`**: Compares the top two values on the stack via `eq?` and pushes the result
   /// onto the stack.
-  case Eq
+  case eq
   
   /// **`eqv`**: Compares the top two values on the stack via `eqv?` and pushes the result
   /// onto the stack.
-  case Eqv
+  case eqv
   
   /// **`equal`**: Compares the top two values on the stack via `equal?` and pushes the
   /// result onto the stack.
-  case Equal
+  case equal
   
   
   // Containers -------------------------------------------------------------------------------
 
   /// **`is_pair`**: Pushes `#false` onto the stack if the current value on top of
   /// the stack is not a pair.
-  case IsPair
+  case isPair
   
   /// **`is_null`**: Pushes `#false` onto the stack if the current value on top of
   /// the stack is not null.
-  case IsNull
+  case isNull
   
   /// **`list` _n_**: Pops the top _n_ values off the stack and constructs a list out of
   /// them on top of the stack.
-  case List(Int)
+  case list(Int)
   
   /// **`cons`**: Pops the head and the tail of a new pair off the stack and pushes a
   /// new pair with this head and tail onto the stack.
-  case Cons
+  case cons
   
   /// **`car`**: Pops a pair off the stack and pushes its head onto the stack.
-  case Car
+  case car
   
   /// **`cdr`**: Pops a pair off the stack and pushes its tail onto the stack.
-  case Cdr
+  case cdr
   
   /// **`vector` _n_**: Pops the top _n_ values off the stack and constructs a vector
   /// out of them on top of the stack.
-  case Vector(Int)
+  case vector(Int)
   
   /// **`list_to_vector`**: Converts a list to a vector.
-  case ListToVector
+  case listToVector
   
   /// **`vector_append` _n_**: Pops the top _n_ vectors off the stack and constructs a
   /// new vector by concatenating the individual vectors.
-  case VectorAppend(Int)
+  case vectorAppend(Int)
   
   /// **`is_vector`**: Pushes `#false` onto the stack if the current value on top of
   /// the stack is not a vector.
-  case IsVector
+  case isVector
   
   
   // Math -------------------------------------------------------------------------------------
   
   /// **`fx_plus`**: Computes the sum of two fixnum values on the stack.
-  case FxPlus
+  case fxPlus
   
   /// **`fx_minus`**: Computes the difference of two fixnum values on the stack.
-  case FxMinus
+  case fxMinus
   
   /// **`fx_mult`**: Multiplies two fixnum values on the stack.
-  case FxMult
+  case fxMult
   
   /// **`fx_div`**: Divides a fixnum value by another fixnum value on the stack.
-  case FxDiv
+  case fxDiv
   
   /// **`fl_plus`**: Computes the sum of two flonum values on the stack.
-  case FlPlus
+  case flPlus
   
   /// **`fl_minus`**: Computes the difference of two flonum values on the stack.
-  case FlMinus
+  case flMinus
   
   /// **`fl_mult`**: Multiplies two flonum values on the stack.
-  case FlMult
+  case flMult
   
   /// **`fl_div`**: Divides a flonum value by another flonum value on the stack.
-  case FlDiv
+  case flDiv
   
   
   // Miscellaneous ----------------------------------------------------------------------------
 
   /// **`push_current_time`**: Pushes the current time as a flonum onto the stack. The time
   /// is expressed as seconds since January 1, 1970 at 00:00.
-  case PushCurrentTime
+  case pushCurrentTime
   
   /// **`display`**: Displays the value on top of the stack on the console.
-  case Display
+  case display
   
   /// **`newline`**: Displays a newline character on the console.
-  case Newline
+  case newline
   
   /// **`noop`**: Empty instruction; proceeds to the next instruction.
-  case NoOp
+  case noOp
   
   
   // ------------------------------------------------------------------------------------------
   
   
   /// Provides supplemental information about this instruction in a given code context.
-  public func commentFor(code: Code, _ ip: Int) -> String? {
+  public func comment(for code: Code, at ip: Int) -> String? {
     switch self {
-      case PushGlobal(let index):
+      case .pushGlobal(let index):
         return code.constants[index].description
-      case SetGlobal(let index):
+      case .setGlobal(let index):
         return code.constants[index].description
-      case PushCaptured(_):
+      case .pushCaptured(_):
         return nil
-      case PushCapturedValue(_):
+      case .pushCapturedValue(_):
         return nil
-      case SetCapturedValue(_):
+      case .setCapturedValue(_):
         return nil
-      case PushLocal(_):
+      case .pushLocal(_):
         return nil
-      case PushLocalValue(_):
+      case .pushLocalValue(_):
         return nil
-      case SetLocal(_):
+      case .setLocal(_):
         return nil
-      case SetLocalValue(_):
+      case .setLocalValue(_):
         return nil
-      case PushConstant(let index):
+      case .pushConstant(let index):
         return code.constants[index].description
-      case MakeClosure(let i, _, _):
+      case .makeClosure(let i, _, _):
         return i >= 0 ? code.constants[i].description : nil
-      case MakeVariableArgument(_):
+      case .makeVariableArgument(_):
         return nil
-      case PushChar(let char):
+      case .pushChar(let char):
         var res = "'"
-        res.append(Character(UnicodeScalar(char)))
+        res.append(Character(UnicodeScalar(char)!))
         res.append(Character("'"))
         return res
-      case Call(_):
+      case .call(_):
         return nil
-      case TailCall(_):
+      case .tailCall(_):
         return nil
-      case Branch(let offset):
+      case .branch(let offset):
         return "jump to \(ip + offset - 1)"
-      case BranchIf(let offset):
+      case .branchIf(let offset):
         return "jump to \(ip + offset - 1)"
-      case BranchIfNot(let offset):
+      case .branchIfNot(let offset):
         return "jump to \(ip + offset - 1)"
-      case BranchIfArgMismatch(_, let offset):
+      case .branchIfArgMismatch(_, let offset):
         return "jump to \(ip + offset - 1)"
-      case BranchIfMinArgMismatch(_, let offset):
+      case .branchIfMinArgMismatch(_, let offset):
         return "jump to \(ip + offset - 1)"
-      case And(let offset):
+      case .and(let offset):
         return "pop or jump to \(ip + offset - 1) if false"
-      case Or(let offset):
+      case .or(let offset):
         return "pop or jump to \(ip + offset - 1) if true"
       default:
         return nil
@@ -426,161 +426,161 @@ public enum Instruction: CustomStringConvertible {
   /// Returns a textual description of this instruction.
   public var description: String {
     switch self {
-      case NoOp:
+      case .noOp:
         return "noop"
-      case Pop:
+      case .pop:
         return "pop"
-      case Dup:
+      case .dup:
         return "dup"
-      case PushGlobal(let index):
+      case .pushGlobal(let index):
         return "push_global \(index)"
-      case SetGlobal(let index):
+      case .setGlobal(let index):
         return "set_global \(index)"
-      case DefineGlobal(let index):
+      case .defineGlobal(let index):
         return "define_global \(index)"
-      case PushCaptured(let index):
+      case .pushCaptured(let index):
         return "push_captured \(index)"
-      case PushCapturedValue(let index):
+      case .pushCapturedValue(let index):
         return "push_captured_value \(index)"
-      case SetCapturedValue(let index):
+      case .setCapturedValue(let index):
         return "set_captured_value \(index)"
-      case PushLocal(let index):
+      case .pushLocal(let index):
         return "push_local \(index)"
-      case MakeLocalVariable(let index):
+      case .makeLocalVariable(let index):
         return "make_local_variable \(index)"
-      case PushLocalValue(let index):
+      case .pushLocalValue(let index):
         return "push_local_value \(index)"
-      case SetLocal(let index):
+      case .setLocal(let index):
         return "set_local \(index)"
-      case SetLocalValue(let index):
+      case .setLocalValue(let index):
         return "set_local_value \(index)"
-      case PushConstant(let index):
+      case .pushConstant(let index):
         return "push_constant \(index)"
-      case MakeVariableArgument(let index):
+      case .makeVariableArgument(let index):
         return "make_variable_argument \(index)"
-      case PushUndef:
+      case .pushUndef:
         return "push_undef"
-      case PushVoid:
+      case .pushVoid:
         return "push_void"
-      case PushEof:
+      case .pushEof:
         return "push_eof"
-      case PushNull:
+      case .pushNull:
         return "push_null"
-      case PushTrue:
+      case .pushTrue:
         return "push_true"
-      case PushFalse:
+      case .pushFalse:
         return "push_false"
-      case PushFixnum(let num):
+      case .pushFixnum(let num):
         return "push_fixnum \(num)"
-      case PushBignum(let num):
+      case .pushBignum(let num):
         return "push_bignum \(num)"
-      case PushRat(let num):
+      case .pushRat(let num):
         return "push_rat \(num)"
-      case PushBigrat(let num):
+      case .pushBigrat(let num):
         return "push_bigrat \(num)"
-      case PushFlonum(let num):
+      case .pushFlonum(let num):
         return "push_flonum \(num)"
-      case PushComplex(let num):
+      case .pushComplex(let num):
         return "push_complex \(num)"
-      case PushChar(let char):
+      case .pushChar(let char):
         return "push_char \(char)"
-      case MakeClosure(let i, let n, let index):
+      case .makeClosure(let i, let n, let index):
         return "make_closure \(i),\(n),\(index)"
-      case MakePromise:
+      case .makePromise:
         return "make_promise"
-      case MakeSyntax:
+      case .makeSyntax:
         return "make_syntax"
-      case Compile:
+      case .compile:
         return "compile"
-      case Apply(let n):
+      case .apply(let n):
         return "apply \(n)"
-      case MakeFrame:
+      case .makeFrame:
         return "make_frame"
-      case Call(let n):
+      case .call(let n):
         return "call \(n)"
-      case TailCall(let n):
+      case .tailCall(let n):
         return "tail_call \(n)"
-      case AssertArgCount(let n):
+      case .assertArgCount(let n):
         return "assert_arg_count \(n)"
-      case AssertMinArgCount(let n):
+      case .assertMinArgCount(let n):
         return "assert_min_arg_count \(n)"
-      case NoMatchingArgCount:
+      case .noMatchingArgCount:
         return "no_matching_arg_count"
-      case CollectRest(let n):
+      case .collectRest(let n):
         return "collect_rest \(n)"
-      case Alloc(let n):
+      case .alloc(let n):
         return "alloc \(n)"
-      case Reset(let index, let n):
+      case .reset(let index, let n):
         return "reset \(index), \(n)"
-      case Return:
+      case .`return`:
         return "return"
-      case Branch(let offset):
+      case .branch(let offset):
         return "branch \(offset)"
-      case BranchIf(let offset):
+      case .branchIf(let offset):
         return "branch_if \(offset)"
-      case BranchIfNot(let offset):
+      case .branchIfNot(let offset):
         return "branch_if_not \(offset)"
-      case BranchIfArgMismatch(let n, let offset):
+      case .branchIfArgMismatch(let n, let offset):
         return "branch_if_arg_mismatch \(n), \(offset)"
-      case BranchIfMinArgMismatch(let n, let offset):
+      case .branchIfMinArgMismatch(let n, let offset):
         return "branch_if_min_arg_mismatch \(n), \(offset)"
-      case And(let offset):
+      case .and(let offset):
         return "and \(offset)"
-      case Or(let offset):
+      case .or(let offset):
         return "or \(offset)"
-      case Force:
+      case .force:
         return "force"
-      case StoreInPromise:
+      case .storeInPromise:
         return "store_in_promise"
-      case Swap:
+      case .swap:
         return "swap"
-      case PushCurrentTime:
+      case .pushCurrentTime:
         return "push_current_time"
-      case Display:
+      case .display:
         return "display"
-      case Newline:
+      case .newline:
         return "newline"
-      case Eq:
+      case .eq:
         return "eq"
-      case Eqv:
+      case .eqv:
         return "eqv"
-      case Equal:
+      case .equal:
         return "equal"
-      case IsPair:
+      case .isPair:
         return "is_pair"
-      case IsNull:
+      case .isNull:
         return "is_null"
-      case Cons:
+      case .cons:
         return "cons"
-      case Car:
+      case .car:
         return "car"
-      case Cdr:
+      case .cdr:
         return "cdr"
-      case List(let n):
+      case .list(let n):
         return "list \(n)"
-      case Vector(let n):
+      case .vector(let n):
         return "vector \(n)"
-      case ListToVector:
+      case .listToVector:
         return "list_to_vector"
-      case VectorAppend(let n):
+      case .vectorAppend(let n):
         return "vector_append \(n)"
-      case IsVector:
+      case .isVector:
         return "is_vector"
-      case FxPlus:
+      case .fxPlus:
         return "fx_plus"
-      case FxMinus:
+      case .fxMinus:
         return "fx_minus"
-      case FxMult:
+      case .fxMult:
         return "fx_mult"
-      case FxDiv:
+      case .fxDiv:
         return "fx_div"
-      case FlPlus:
+      case .flPlus:
         return "fl_plus"
-      case FlMinus:
+      case .flMinus:
         return "fl_minus"
-      case FlMult:
+      case .flMult:
         return "fl_mult"
-      case FlDiv:
+      case .flDiv:
         return "fl_div"
     }
   }

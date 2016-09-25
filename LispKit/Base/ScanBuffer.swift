@@ -26,7 +26,7 @@ public struct ScanBuffer {
   public private(set) var index: Int
   
   public init(capacity: Int = 256) {
-    self.buffer = Array<UniChar>(count: capacity, repeatedValue: 0)
+    self.buffer = Array<UniChar>(repeating: 0, count: capacity)
     self.index = 0
   }
   
@@ -37,7 +37,7 @@ public struct ScanBuffer {
     }
   }
   
-  public mutating func append(ch: UniChar) {
+  public mutating func append(_ ch: UniChar) {
     if self.index < self.buffer.count {
       self.buffer[self.index] = ch
     } else {
@@ -50,7 +50,7 @@ public struct ScanBuffer {
     return self.index > 0 ? String(utf16CodeUnits: self.buffer, count: self.index - 1) : ""
   }
   
-  public func stringStartingAt(start: Int) -> String {
+  public func stringStartingAt(_ start: Int) -> String {
     guard self.index > start else {
       return ""
     }

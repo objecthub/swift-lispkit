@@ -1,5 +1,5 @@
 //
-//  HashMap.swift
+//  HashTable.swift
 //  LispKit
 //
 //  Created by Matthias Zenger on 14/07/2016.
@@ -19,9 +19,9 @@
 //
 
 ///
-/// `HashMap` implements hash maps natively.
+/// `HashTable` implements hash maps natively.
 ///
-public final class HashMap: ManagedObject, CustomStringConvertible {
+public final class HashTable: ManagedObject, CustomStringConvertible {
   
   public struct CustomProcedures {
     let eql: Procedure
@@ -32,14 +32,14 @@ public final class HashMap: ManagedObject, CustomStringConvertible {
   }
   
   public enum Equivalence {
-    case Eq
-    case Eqv
-    case Equal
-    case Custom(CustomProcedures)
+    case eq
+    case eqv
+    case equal
+    case custom(CustomProcedures)
   }
   
   /// Maintain object statistics.
-  internal static let stats = Stats("HashMap")
+  internal static let stats = Stats("HashTable")
   
   /// The hash buckets.
   private var buckets: [Expr]
@@ -47,7 +47,7 @@ public final class HashMap: ManagedObject, CustomStringConvertible {
   /// Number of mappings in this hash table
   public private(set) var count: Int
   
-  /// Is this `HashMap` object mutable?
+  /// Is this `HashTable` object mutable?
   public let mutable: Bool
   
   /// What equivalence relation is used?
@@ -55,20 +55,20 @@ public final class HashMap: ManagedObject, CustomStringConvertible {
   
   /// Update object statistics.
   deinit {
-    HashMap.stats.dealloc()
+    HashTable.stats.dealloc()
   }
   
   /// Create a new empty hash table with the given size.
   public init(capacity: Int = 127, mutable: Bool = true, equiv: Equivalence) {
-    self.buckets = [Expr](count: capacity, repeatedValue: .Null)
+    self.buckets = [Expr](repeating: .null, count: capacity)
     self.count = 0
     self.mutable = mutable
     self.equiv = equiv
-    super.init(HashMap.stats)
+    super.init(HashTable.stats)
   }
   
   /// Create a copy of another hash table. Make it immutable if `mutable` is set to false.
-  public init(copy other: HashMap, mutable: Bool = true) {
+  public init(copy other: HashTable, mutable: Bool = true) {
     self.buckets = [Expr]()
     for i in 0..<other.buckets.count {
       self.buckets.append(other.buckets[i])
@@ -76,7 +76,7 @@ public final class HashMap: ManagedObject, CustomStringConvertible {
     self.count = other.count
     self.mutable = mutable
     self.equiv = other.equiv
-    super.init(HashMap.stats)
+    super.init(HashTable.stats)
   }
   
   /// A string representation of this variable.
@@ -86,15 +86,15 @@ public final class HashMap: ManagedObject, CustomStringConvertible {
   
   /// Clear entries in hash table and resize if capacity is supposed to change. This
   /// method creates a new array of buckets if the `capacity` parameter is provided.
-  public func clear(capacity: Int? = nil) -> Bool {
+  public func clear(_ capacity: Int? = nil) -> Bool {
     guard self.mutable else {
       return false
     }
     if let capacity = capacity {
-      self.buckets = [Expr](count: capacity, repeatedValue: .Null)
+      self.buckets = [Expr](repeating: .null, count: capacity)
     } else {
       for i in self.buckets.indices {
-        self.buckets[i] = .Null
+        self.buckets[i] = .null
       }
     }
     self.count = 0
@@ -103,21 +103,21 @@ public final class HashMap: ManagedObject, CustomStringConvertible {
   
   /// Recreates the hash table for the given capacity; this only works for non-custom
   /// hash tables.
-  public func rehash(capacity: Int) {
+  public func rehash(_ capacity: Int) {
     // Skip custom hash tables
-    if case .Custom(_) = self.equiv {
+    if case .custom(_) = self.equiv {
       return
     }
     // Save old bucket array
     let oldBuckets = self.buckets
     // Create new bucket array
-    self.buckets = [Expr](count: capacity, repeatedValue: .Null)
+    self.buckets = [Expr](repeating: .null, count: capacity)
     // Rehash the mappings
     for bucket in oldBuckets {
       var current = bucket
-      while case .Pair(.Pair(let key, let value), let next) = current {
+      while case .pair(.pair(let key, let value), let next) = current {
         let bid = self.hash(key) % capacity
-        self.buckets[bid] = .Pair(.Pair(key, value), self.buckets[bid])
+        self.buckets[bid] = .pair(.pair(key, value), self.buckets[bid])
         current = next
       }
     }
@@ -127,15 +127,15 @@ public final class HashMap: ManagedObject, CustomStringConvertible {
   public var mappings: [(Expr, Expr)] {
     var res = [(Expr, Expr)]()
     for bucket in self.buckets {
-      HashMap.insertMappings(into: &res, from: bucket)
+      HashTable.insertMappings(into: &res, from: bucket)
     }
     return res
   }
   
   /// Insert the mappings from the given bucket list into the array `arr`.
-  private static func insertMappings(inout into arr: [(Expr, Expr)], from bucket: Expr) {
+  fileprivate static func insertMappings(into arr: inout [(Expr, Expr)], from bucket: Expr) {
     var current = bucket
-    while case .Pair(.Pair(let key, let value), let next) = current {
+    while case .pair(.pair(let key, let value), let next) = current {
       arr.append((key, value))
       current = next
     }
@@ -147,15 +147,15 @@ public final class HashMap: ManagedObject, CustomStringConvertible {
   }
   
   /// Returns the mappings in the hash table as an association list with boxed values
-  public func bucketList(bid: Int? = nil) -> Expr {
+  public func bucketList(_ bid: Int? = nil) -> Expr {
     if let bid = bid {
       return self.buckets[bid]
     } else {
-      var res: Expr = .Null
+      var res: Expr = .null
       for bucket in self.buckets {
         var current = bucket
-        while case .Pair(let mapping, let next) = current {
-          res = .Pair(mapping, res)
+        while case .pair(let mapping, let next) = current {
+          res = .pair(mapping, res)
           current = next
         }
       }
@@ -170,7 +170,7 @@ public final class HashMap: ManagedObject, CustomStringConvertible {
     var res = [Expr]()
     for bucket in self.buckets {
       var current = bucket
-      while case .Pair(.Pair(let key, _), let next) = current {
+      while case .pair(.pair(let key, _), let next) = current {
         res.append(key)
         current = next
       }
@@ -180,11 +180,11 @@ public final class HashMap: ManagedObject, CustomStringConvertible {
   
   /// Returns a list of all keys in the hash table
   public func keyList() -> Expr {
-    var res: Expr = .Null
+    var res: Expr = .null
     for bucket in self.buckets {
       var current = bucket
-      while case .Pair(.Pair(let key, _), let next) = current {
-        res = .Pair(key, res)
+      while case .pair(.pair(let key, _), let next) = current {
+        res = .pair(key, res)
         current = next
       }
     }
@@ -196,7 +196,7 @@ public final class HashMap: ManagedObject, CustomStringConvertible {
     var res = [Expr]()
     for bucket in self.buckets {
       var current = bucket
-      while case .Pair(.Pair(_, let value), let next) = current {
+      while case .pair(.pair(_, let value), let next) = current {
         res.append(value)
         current = next
       }
@@ -206,11 +206,11 @@ public final class HashMap: ManagedObject, CustomStringConvertible {
   
   /// Returns a list of all values in the hash table
   public func valueList() -> Expr {
-    var res: Expr = .Null
+    var res: Expr = .null
     for bucket in self.buckets {
       var current = bucket
-      while case .Pair(.Pair(_, let value), let next) = current {
-        res = .Pair(value, res)
+      while case .pair(.pair(_, let value), let next) = current {
+        res = .pair(value, res)
         current = next
       }
     }
@@ -221,18 +221,18 @@ public final class HashMap: ManagedObject, CustomStringConvertible {
   public var entries: [(Expr, Expr)] {
     var res = [(Expr, Expr)]()
     for bucket in self.buckets {
-      HashMap.insertMappings(into: &res, from: bucket)
+      HashTable.insertMappings(into: &res, from: bucket)
     }
     return res
   }
   
   /// Returns the mappings in the hash table as an association list
   public func entryList() -> Expr {
-    var res: Expr = .Null
+    var res: Expr = .null
     for bucket in self.buckets {
       var current = bucket
-      while case .Pair(.Pair(let key, let value), let next) = current {
-        res = .Pair(.Pair(key, value), res)
+      while case .pair(.pair(let key, let value), let next) = current {
+        res = .pair(.pair(key, value), res)
         current = next
       }
     }
@@ -242,11 +242,11 @@ public final class HashMap: ManagedObject, CustomStringConvertible {
   // Setting and getting mappings
   
   /// Returns the value associated with `key` in bucket `bid`.
-  public func get(bid: Int, _ key: Expr, _ eql: (Expr, Expr) -> Bool) -> Expr? {
+  public func get(_ bid: Int, _ key: Expr, _ eql: (Expr, Expr) -> Bool) -> Expr? {
     var current = self.buckets[bid]
-    while case .Pair(.Pair(let k, let v), let next) = current {
+    while case .pair(.pair(let k, let v), let next) = current {
       if eql(key, k) {
-        return .Pair(k, v)
+        return .pair(k, v)
       }
       current = next
     }
@@ -255,11 +255,11 @@ public final class HashMap: ManagedObject, CustomStringConvertible {
 
   /// Adds a new mapping to bucket `bid`. If the hash table load factor is above 0.75, rehash
   /// the whole table.
-  public func add(bid: Int, _ key: Expr, _ value: Expr) -> Bool {
+  @discardableResult public func add(_ bid: Int, _ key: Expr, _ value: Expr) -> Bool {
     guard self.mutable else {
       return false
     }
-    self.buckets[bid] = .Pair(.Pair(key, value), self.buckets[bid])
+    self.buckets[bid] = .pair(.pair(key, value), self.buckets[bid])
     self.count += 1
     if (self.count * 4 / self.buckets.count) > 3 {
       self.rehash(self.buckets.count * 2 + 1)
@@ -268,7 +268,7 @@ public final class HashMap: ManagedObject, CustomStringConvertible {
   }
   
   /// Replaces bucket `bid` with a new bucket expression.
-  public func replace(bid: Int, _ bucket: Expr) -> Bool {
+  @discardableResult public func replace(_ bid: Int, _ bucket: Expr) -> Bool {
     guard self.mutable else {
       return false
     }
@@ -283,42 +283,42 @@ public final class HashMap: ManagedObject, CustomStringConvertible {
   // Support for non-custom HashMaps
   
   /// Compares two expressions for non-custom HashMaps.
-  internal func eql(left: Expr, _ right: Expr) -> Bool {
+  internal func eql(_ left: Expr, _ right: Expr) -> Bool {
     switch self.equiv {
-      case .Eq:
-        return eqExpr(left, right)
-      case .Eqv:
-        return eqvExpr(left, right)
-      case .Equal:
-        return equalExpr(left, right)
-      case .Custom(_):
-        preconditionFailure("cannot access custom HashMap internally")
+      case .eq:
+        return eqExpr(right, left)
+      case .eqv:
+        return eqvExpr(right, left)
+      case .equal:
+        return equalExpr(right, left)
+      case .custom(_):
+        preconditionFailure("cannot access custom HashTable internally")
     }
   }
   
   /// Computes the hash value for non-custom HashMaps.
-  internal func hash(expr: Expr) -> Int {
+  internal func hash(_ expr: Expr) -> Int {
     switch self.equiv {
-      case .Eq:
+      case .eq:
         return eqHash(expr)
-      case .Eqv:
+      case .eqv:
         return eqvHash(expr)
-      case .Equal:
+      case .equal:
         return equalHash(expr)
-      case .Custom(_):
-        preconditionFailure("cannot access custom HashMap internally")
+      case .custom(_):
+        preconditionFailure("cannot access custom HashTable internally")
     }
   }
   
-  public func get(key: Expr) -> Expr? {
+  public func get(_ key: Expr) -> Expr? {
     return self.get(self.hash(key) % self.buckets.count, key, self.eql)
   }
   
-  public func set(key: Expr, value: Expr) -> Bool {
-    return self.remove(key) != nil && self.add(key, value)
+  @discardableResult public func set(key: Expr, mapsTo value: Expr) -> Bool {
+    return self.remove(key: key) != nil && self.add(key: key, mapsTo: value)
   }
   
-  public func add(key: Expr, _ value: Expr) -> Bool {
+  @discardableResult public func add(key: Expr, mapsTo value: Expr) -> Bool {
     return self.add(self.hash(key) % self.buckets.count, key, value)
   }
   
@@ -329,37 +329,37 @@ public final class HashMap: ManagedObject, CustomStringConvertible {
     let bid = self.hash(key) % self.buckets.count
     var ms = [(Expr, Expr)]()
     var current = self.buckets[bid]
-    while case .Pair(.Pair(let k, let v), let next) = current {
+    while case .pair(.pair(let k, let v), let next) = current {
       if eql(key, k) {
         var bucket = next
-        for (k2, v2) in ms.reverse() {
-          bucket = .Pair(.Pair(k2, v2), bucket)
+        for (k2, v2) in ms.reversed() {
+          bucket = .pair(.pair(k2, v2), bucket)
         }
         self.buckets[bid] = bucket
         self.count -= 1
-        return .Pair(k, v)
+        return .pair(k, v)
       }
       ms.append((k, v))
       current = next
     }
-    return .False
+    return .false
   }
   
   // Support for managed objects
   
   /// Mark hash table content.
-  public override func mark(tag: UInt8) {
+  public override func mark(_ tag: UInt8) {
     if self.tag != tag {
       self.tag = tag
       for bucket in self.buckets {
         var current = bucket
-        while case .Pair(.Pair(let key, .Box(let cell)), let next) = current {
+        while case .pair(.pair(let key, .box(let cell)), let next) = current {
           key.mark(tag)
           cell.mark(tag)
           current = next
         }
       }
-      if case .Custom(let procs) = self.equiv {
+      if case .custom(let procs) = self.equiv {
         procs.eql.mark(tag)
         procs.hsh.mark(tag)
         procs.get.mark(tag)
@@ -371,8 +371,8 @@ public final class HashMap: ManagedObject, CustomStringConvertible {
   
   /// Clear variable value
   public override func clean() {
-    self.buckets = [Expr](count: 1, repeatedValue: .Null)
+    self.buckets = [Expr](repeating: .null, count: 1)
     self.count = 0
-    self.equiv = .Eq
+    self.equiv = .eq
   }
 }

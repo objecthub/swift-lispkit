@@ -22,7 +22,7 @@
 /// A `Rules` object defines syntax rules for a symbol. Class `Rules` is used to implement
 /// hygienic Scheme macros based on the "syntax-rules" standard.
 ///
-public class SyntaxRules {
+public final class SyntaxRules {
   private let context: Context
   private let ellipsis: Expr
   private let reserved: Set<Symbol>
@@ -31,61 +31,65 @@ public class SyntaxRules {
   private let templates: Exprs
   private let lexicalEnv: Env
   
-  public init(_ context: Context, literals: Set<Symbol>, patterns: Exprs, templates: Exprs, in env: Env) {
+  public init(context: Context,
+              literals: Set<Symbol>,
+              patterns: Exprs,
+              templates: Exprs,
+              in env: Env) {
     self.context = context
-    self.ellipsis = .Sym(context.symbols.ELLIPSIS)
-    self.reserved = [context.symbols.WILDCARD, context.symbols.ELLIPSIS]
+    self.ellipsis = .symbol(context.symbols.ellipsis)
+    self.reserved = [context.symbols.wildcard, context.symbols.ellipsis]
     self.literals = literals
     self.patterns = patterns
     self.templates = templates
     self.lexicalEnv = env
   }
   
-  public func expand(input: Expr) throws -> Expr {
+  internal func expand(_ input: Expr) throws -> Expr {
     log("---- EXPAND: \(input)") //DEBUG
     for index in self.patterns.indices {
       if let matches = self.match(self.patterns[index], with: input) {
-        return try self.instantiate(self.templates[index], with: matches, at: 0)
+        return try self.instantiate(template: self.templates[index], with: matches, at: 0)
       }
     }
     return input // TODO: should we throw an error instead?
   }
   
-  private func match(pattern: Expr, with input: Expr) -> Matches? {
+  private func match(_ pattern: Expr, with input: Expr) -> Matches? {
     // print("MATCH: \(pattern) WITH: \(input)") //DEBUG
-    let matches = Matches(self.variablesIn(pattern))
+    let matches = Matches(self.variables(in: pattern))
     return self.match(pattern, with: input, in: matches, at: 0) ? matches : nil
   }
   
-  private func match(pattern: Expr,
+  private func match(_ pattern: Expr,
                      with input: Expr,
                      in matches: Matches,
                      at depth: Int) -> Bool {
     // print("  MATCH: \(pattern) WITH: \(input) MATCHING: \(matches)") //DEBUG
     switch pattern {
-      case .Sym(let sym):
+      case .symbol(let sym):
         if self.literals.contains(sym) {
           return pattern == input
         } else {
           matches.put(sym, input)
           return true
         }
-      case .Pair(_, _):
-        guard case .Pair(_, _) = input else {
+      case .pair(_, _):
+        guard case .pair(_, _) = input else {
           return false
         }
         var pat = pattern
         var inp = input
-        while case .Pair(let token, let rest) = pat {
+        while case .pair(let token, let rest) = pat {
           if token != self.ellipsis {
-            if case .Pair(self.ellipsis, _) = rest {
-              matches.register(self.variablesIn(token), at: depth + 1)
-              while case .Pair(let car, let cdr) = inp
-                    where self.match(token, with: car, in: matches, at: depth + 1) {
+            if case .pair(self.ellipsis, _) = rest {
+              matches.register(self.variables(in: token), at: depth + 1)
+              while case .pair(let car, let cdr) = inp
+                    , self.match(token, with: car, in: matches, at: depth + 1) {
                 inp = cdr
               }
-            } else if case .Pair(let car, let cdr) = inp
-                      where self.match(token, with: car, in: matches, at: depth) {
+            } else if case .pair(let car, let cdr) = inp
+                      , self.match(token, with: car, in: matches, at: depth) {
               inp = cdr
             } else {
               return false
@@ -94,8 +98,8 @@ public class SyntaxRules {
           pat = rest
         }
         return self.match(pat, with: inp, in: matches, at: depth)
-      case .Vector(let patVector):
-        guard case .Vector(let inpVector) = input else {
+      case .vector(let patVector):
+        guard case .vector(let inpVector) = input else {
           return false
         }
         var inpIndex = 0
@@ -104,7 +108,7 @@ public class SyntaxRules {
           if token != self.ellipsis {
             if patIndex < patVector.exprs.count - 1 &&
                patVector.exprs[patIndex + 1] == self.ellipsis {
-              matches.register(self.variablesIn(token), at: depth + 1)
+              matches.register(self.variables(in: token), at: depth + 1)
               while inpIndex < inpVector.exprs.count &&
                     self.match(token, with: inpVector.exprs[inpIndex], in: matches, at: depth + 1) {
                 inpIndex += 1
@@ -123,95 +127,104 @@ public class SyntaxRules {
     }
   }
   
-  private func instantiate(template: Expr, with matches: Matches, at depth: Int) throws -> Expr {
+  fileprivate func instantiate(template: Expr,
+                               with matches: Matches,
+                               at depth: Int) throws -> Expr {
     // print("INSTANTIATE: \(template) USING: \(matches) DEPTH: \(depth)")
     switch template {
-      case .Sym(let sym):
+      case .symbol(let sym):
         return matches.get(sym, in: self.lexicalEnv)
-      case .Pair(self.ellipsis, let rest):
-        guard case .Pair(let car, _) = rest else {
-          throw EvalError.TypeError(rest, [.PairType])
+      case .pair(self.ellipsis, let rest):
+        guard case .pair(let car, _) = rest else {
+          throw EvalError.typeError(rest, [.pairType])
         }
-        return self.instantiateRaw(car, with: matches)
-      case .Pair(_, _):
+        return self.instantiateRaw(template: car, with: matches)
+      case .pair(_, _):
         var res = Exprs()
         var templ = template
         var repeater: Expr? = nil
-        while case .Pair(let token, let rest) = templ {
-          if case .Pair(self.ellipsis, _) = rest {
+        while case .pair(let token, let rest) = templ {
+          if case .pair(self.ellipsis, _) = rest {
             guard token != self.ellipsis else {
-              throw EvalError.MacroMismatchedRepetitionPatterns(self.context.symbols.ELLIPSIS)
+              throw EvalError.macroMismatchedRepetitionPatterns(self.context.symbols.ellipsis)
             }
             repeater = token
           } else if token == self.ellipsis {
             guard let repeaterTemplate = repeater else {
-              throw EvalError.MacroMismatchedRepetitionPatterns(self.context.symbols.ELLIPSIS)
+              throw EvalError.macroMismatchedRepetitionPatterns(self.context.symbols.ellipsis)
             }
-            try matches.instantiate(&res, self, repeaterTemplate, at: depth + 1)
+            try matches.instantiate(template: repeaterTemplate,
+                                    with: self,
+                                    at: depth + 1,
+                                    appendingTo: &res)
             repeater = nil
           } else {
-            res.append(try self.instantiate(token, with: matches, at: depth))
+            res.append(try self.instantiate(template: token, with: matches, at: depth))
           }
           templ = rest
         }
-        return Expr.List(res, append: try self.instantiate(templ, with: matches, at: depth))
-      case .Vector(let vector):
+        return Expr.makeList(res, append: try self.instantiate(template: templ, with: matches, at: depth))
+      case .vector(let vector):
         var res = Exprs()
         for i in vector.exprs.indices {
           if (i < vector.exprs.count - 1) && vector.exprs[i + 1] == self.ellipsis {
             guard vector.exprs[i] != self.ellipsis else {
-              throw EvalError.MacroMismatchedRepetitionPatterns(self.context.symbols.ELLIPSIS)
+              throw EvalError.macroMismatchedRepetitionPatterns(self.context.symbols.ellipsis)
             }
           } else if vector.exprs[i] == self.ellipsis {
             guard i > 0 else {
-              throw EvalError.MacroMismatchedRepetitionPatterns(self.context.symbols.ELLIPSIS)
+              throw EvalError.macroMismatchedRepetitionPatterns(self.context.symbols.ellipsis)
             }
-            try matches.instantiate(&res, self, vector.exprs[i - 1], at: depth + 1)
+            try matches.instantiate(template: vector.exprs[i - 1],
+                                    with: self,
+                                    at: depth + 1,
+                                    appendingTo: &res)
           } else {
-            res.append(try self.instantiate(vector.exprs[i], with: matches, at: depth).datum)
+            res.append(
+              try self.instantiate(template: vector.exprs[i], with: matches, at: depth).datum)
           }
         }
-        return .Vector(self.context.objects.manage(Collection(kind: .ImmutableVector, exprs: res)))
+        return .vector(self.context.objects.manage(Collection(kind: .immutableVector, exprs: res)))
       default:
         return template
     }
   }
   
-  private func instantiateRaw(template: Expr, with matches: Matches) -> Expr {
+  fileprivate func instantiateRaw(template: Expr, with matches: Matches) -> Expr {
     switch template {
-      case .Sym(let sym):
+      case .symbol(let sym):
         return matches.get(sym, in: self.lexicalEnv)
-      case .Pair(_, _):
+      case .pair(_, _):
         var res = Exprs()
         var templ = template
-        while case .Pair(let token, let rest) = templ {
-          res.append(self.instantiateRaw(token, with: matches))
+        while case .pair(let token, let rest) = templ {
+          res.append(self.instantiateRaw(template: token, with: matches))
           templ = rest
         }
-        return Expr.List(res, append: self.instantiateRaw(templ, with: matches))
-      case .Vector(let vector):
+        return Expr.makeList(res, append: self.instantiateRaw(template: templ, with: matches))
+      case .vector(let vector):
         var res = Exprs()
         for i in vector.exprs.indices {
-          res.append(self.instantiateRaw(vector.exprs[i], with: matches))
+          res.append(self.instantiateRaw(template: vector.exprs[i], with: matches))
         }
-        return .Vector(self.context.objects.manage(Collection(kind: .ImmutableVector, exprs: res)))
+        return .vector(self.context.objects.manage(Collection(kind: .immutableVector, exprs: res)))
       default:
         return template
     }
   }
   
-  private func variablesIn(pattern: Expr) -> Set<Symbol> {
+  fileprivate func variables(in pattern: Expr) -> Set<Symbol> {
     var vars = Set<Symbol>()
-    func traverse(pattern: Expr) {
+    func traverse(_ pattern: Expr) {
       switch pattern {
-        case .Sym(let sym):
+        case .symbol(let sym):
           if !self.literals.contains(sym) && !self.reserved.contains(sym) {
             vars.insert(sym)
           }
-        case .Pair(let car, let cdr):
+        case .pair(let car, let cdr):
           traverse(car)
           traverse(cdr)
-        case .Vector(let vector):
+        case .vector(let vector):
           for expr in vector.exprs {
             traverse(expr)
           }
@@ -234,7 +247,7 @@ private final class Matches: CustomStringConvertible {
   private var generatedSym: [Symbol : Symbol]
   private var matchedVal: [Symbol : MatchTree]
   
-  private init(_ syms: Set<Symbol>) {
+  fileprivate init(_ syms: Set<Symbol>) {
     self.generatedSym = [Symbol : Symbol]()
     self.matchedVal = [Symbol : MatchTree]()
     for sym in syms {
@@ -242,50 +255,50 @@ private final class Matches: CustomStringConvertible {
     }
   }
   
-  private func get(sym: Symbol, in lexicalEnv: Env) -> Expr {
+  fileprivate func get(_ sym: Symbol, in lexicalEnv: Env) -> Expr {
     guard let value = self.matchedVal[sym]?.value else {
       if let gensym = self.generatedSym[sym] {
-        return .Sym(gensym)
+        return .symbol(gensym)
       } else {
         let gensym = Symbol(sym, lexicalEnv)
         self.generatedSym[sym] = gensym
-        return .Sym(gensym)
+        return .symbol(gensym)
       }
     }
     return value
   }
   
-  private func put(sym: Symbol, _ expr: Expr) {
+  fileprivate func put(_ sym: Symbol, _ expr: Expr) {
     self.matchedVal[sym]?.enter(expr)
   }
   
-  private func register(syms: Set<Symbol>, at depth: Int) {
+  fileprivate func register(_ syms: Set<Symbol>, at depth: Int) {
     for sym in syms {
       self.matchedVal[sym]?.descendAt(depth)
     }
   }
   
-  private func instantiate(inout exprs: Exprs,
-                           _ rules: SyntaxRules,
-                           _ template: Expr,
-                           at depth: Int) throws {
-    let syms = rules.variablesIn(template)
-    for _ in 0..<(try self.numChildrenOf(syms, at: depth)) {
-      exprs.append(try rules.instantiate(template, with: self, at: depth))
+  fileprivate func instantiate(template: Expr,
+                               with rules: SyntaxRules,
+                               at depth: Int,
+                               appendingTo exprs: inout Exprs) throws {
+    let syms = rules.variables(in: template)
+    for _ in 0..<(try self.numChildren(of: syms, at: depth)) {
+      exprs.append(try rules.instantiate(template: template, with: self, at: depth))
       for sym in syms {
         self.matchedVal[sym]?.rotateAt(depth)
       }
     }
   }
   
-  private func numChildrenOf(syms: Set<Symbol>, at depth: Int) throws -> Int {
+  private func numChildren(of syms: Set<Symbol>, at depth: Int) throws -> Int {
     var res = 0
     for sym in syms {
       if let tree = self.matchedVal[sym] {
         let s = tree.numChildren(depth)
         if s > 0 {
           guard res == 0 || res == s else {
-            throw EvalError.MacroMismatchedRepetitionPatterns(sym)
+            throw EvalError.macroMismatchedRepetitionPatterns(sym)
           }
           res = s
         }
@@ -294,7 +307,7 @@ private final class Matches: CustomStringConvertible {
     return res
   }
   
-  private var description: String {
+  fileprivate var description: String {
     var res = "{", sep = ""
     for (sym, tree) in self.matchedVal {
       res += sep + sym.description + " => " + tree.description
@@ -309,51 +322,51 @@ private final class Matches: CustomStringConvertible {
 /// pattern variable
 ///
 private final class MatchTree: CustomStringConvertible {
-  var root: Node = Node()
-  var depth: Int = 0
-  var complete: Bool = false
+  private var root: Node = Node()
+  private var depth: Int = 0
+  private var complete: Bool = false
   lazy var pos: [Int] = {
     [unowned self] in
       self.complete = true
-      return [Int](count: self.depth + 1, repeatedValue: 0)
+      return [Int](repeating: 0, count: self.depth + 1)
   }()
   
-  private enum Node: CustomStringConvertible {
-    case Leaf(Expr)
-    case Parent(MutableBox<[Node]>)
+  fileprivate enum Node: CustomStringConvertible {
+    case leaf(Expr)
+    case parent(MutableBox<[Node]>)
     
-    private init() {
-      self = Parent(MutableBox([Node]()))
+    fileprivate init() {
+      self = .parent(MutableBox([Node]()))
     }
     
-    private func appendChild(node: Node) {
-      guard case .Parent(let children) = self else {
+    fileprivate func appendChild(_ node: Node) {
+      guard case .parent(let children) = self else {
         preconditionFailure("cannot append child to a leaf")
       }
       children.value.append(node)
     }
     
-    private var lastChild: Node {
-      guard case .Parent(let children) = self else {
+    fileprivate var lastChild: Node {
+      guard case .parent(let children) = self else {
         preconditionFailure("a leaf does not have children")
       }
       return children.value.last!
     }
     
-    private var numChildren: Int {
+    fileprivate var numChildren: Int {
       switch self {
-        case Leaf(_):
+        case .leaf(_):
           return 0
-        case Parent(let children):
+        case .parent(let children):
           return children.value.count
       }
     }
     
-    private var description: String {
+    fileprivate var description: String {
       switch self {
-        case Leaf(let expr):
+        case .leaf(let expr):
           return expr.description
-        case Parent(let children):
+        case .parent(let children):
           var res = "["
           var sep = ""
           for child in children.value {
@@ -366,21 +379,21 @@ private final class MatchTree: CustomStringConvertible {
     }
   }
   
-  private var value: Expr? {
-    guard case .Some(.Parent(let children)) = self.currentNode(self.depth) else {
+  fileprivate var value: Expr? {
+    guard case .some(.parent(let children)) = self.currentNode(self.depth) else {
       return nil
     }
-    guard case .Leaf(let expr) = children.value[self.pos[self.depth]] else {
+    guard case .leaf(let expr) = children.value[self.pos[self.depth]] else {
       return nil
     }
     return expr
   }
   
-  private func enter(expr: Expr) {
-    self.tailNode(self.depth).appendChild(.Leaf(expr))
+  fileprivate func enter(_ expr: Expr) {
+    self.tailNode(self.depth).appendChild(.leaf(expr))
   }
 
-  private func tailNode(depth: Int) -> Node {
+  fileprivate func tailNode(_ depth: Int) -> Node {
     var res = self.root
     for _ in 0..<self.depth {
       res = res.lastChild
@@ -388,10 +401,10 @@ private final class MatchTree: CustomStringConvertible {
     return res
   }
   
-  private func currentNode(depth: Int) -> Node? {
+  private func currentNode(_ depth: Int) -> Node? {
     var res = self.root
     for i in 0..<self.depth {
-      guard case .Parent(let children) = res else {
+      guard case .parent(let children) = res else {
         return nil
       }
       res = children.value[self.pos[i]]
@@ -399,19 +412,19 @@ private final class MatchTree: CustomStringConvertible {
     return res
   }
   
-  private func numChildren(depth: Int) -> Int {
+  fileprivate func numChildren(_ depth: Int) -> Int {
     guard depth <= self.depth else {
       return 0
     }
     return self.currentNode(depth)?.numChildren ?? 0
   }
   
-  private func descendAt(depth: Int) {
+  fileprivate func descendAt(_ depth: Int) {
     self.tailNode(depth - 1).appendChild(Node())
     self.depth = max(self.depth, depth)
   }
   
-  private func rotateAt(depth: Int) {
+  fileprivate func rotateAt(_ depth: Int) {
     if depth <= self.depth {
       self.pos[depth] += 1
       if self.pos[depth] >= self.currentNode(depth)!.numChildren {
@@ -420,7 +433,7 @@ private final class MatchTree: CustomStringConvertible {
     }
   }
   
-  private var description: String {
+  fileprivate var description: String {
     var res = "(\(self.depth); \(self.root); "
     if self.complete {
       for idx in self.pos {

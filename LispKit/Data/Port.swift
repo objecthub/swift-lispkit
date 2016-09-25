@@ -20,127 +20,127 @@
 
 import Foundation
 
-public class Port: Reference, CustomStringConvertible {
+open class Port: Reference, CustomStringConvertible {
   
   public enum Kind {
-    case TextInputPort(TextInput)
-    case TextOutputPort(TextOutput)
-    case BinaryInputPort(BinaryInput)
-    case BinaryOutputPort(BinaryOutput)
+    case textInputPort(TextInput)
+    case textOutputPort(TextOutput)
+    case binaryInputPort(BinaryInput)
+    case binaryOutputPort(BinaryOutput)
   }
   
-  public let kind: Kind
-  public var isOpen: Bool = true
+  open let kind: Kind
+  open var isOpen: Bool = true
   
   public init(input: TextInput) {
-    self.kind = .TextInputPort(input)
+    self.kind = .textInputPort(input)
   }
   
   public init(output: TextOutput) {
-    self.kind = .TextOutputPort(output)
+    self.kind = .textOutputPort(output)
   }
   
   public init(input: BinaryInput) {
-    self.kind = .BinaryInputPort(input)
+    self.kind = .binaryInputPort(input)
   }
   
   public init(output: BinaryOutput) {
-    self.kind = .BinaryOutputPort(output)
+    self.kind = .binaryOutputPort(output)
   }
   
-  private init(_ kind: Kind) {
+  fileprivate init(_ kind: Kind) {
     self.kind = kind
   }
   
-  public var isBinaryPort: Bool {
+  open var isBinaryPort: Bool {
     switch self.kind {
-      case .BinaryInputPort(_), .BinaryOutputPort(_):
+      case .binaryInputPort(_), .binaryOutputPort(_):
         return true
       default:
         return false
     }
   }
   
-  public var isTextualPort: Bool {
+  open var isTextualPort: Bool {
     switch self.kind {
-      case .TextInputPort(_), .TextOutputPort(_):
+      case .textInputPort(_), .textOutputPort(_):
         return true
       default:
         return false
     }
   }
   
-  public var isInputPort: Bool {
+  open var isInputPort: Bool {
     switch self.kind {
-      case .TextInputPort(_), .BinaryInputPort(_):
+      case .textInputPort(_), .binaryInputPort(_):
         return true
       default:
         return false
     }
   }
   
-  public var isOutputPort: Bool {
+  open var isOutputPort: Bool {
     switch self.kind {
-      case .TextOutputPort(_), .BinaryOutputPort(_):
+      case .textOutputPort(_), .binaryOutputPort(_):
         return true
       default:
         return false
     }
   }
   
-  public var outputString: String? {
-    guard case .TextOutputPort(let output) = self.kind else {
+  open var outputString: String? {
+    guard case .textOutputPort(let output) = self.kind else {
       return nil
     }
     return output.currentBuffer
   }
   
-  public var outputBinary: [UInt8]? {
-    guard case .BinaryOutputPort(let output) = self.kind else {
+  open var outputBinary: [UInt8]? {
+    guard case .binaryOutputPort(let output) = self.kind else {
       return nil
     }
     return output.currentBuffer
   }
   
-  public var url: NSURL? {
+  open var url: URL? {
     switch self.kind {
-      case .TextInputPort(let input):
+      case .textInputPort(let input):
         return input.url
-      case .TextOutputPort(let output):
+      case .textOutputPort(let output):
         return output.url
-      case .BinaryInputPort(let input):
+      case .binaryInputPort(let input):
         return input.url
-      case .BinaryOutputPort(let output):
+      case .binaryOutputPort(let output):
         return output.url
     }
   }
   
-  public var typeDescription: String {
+  open var typeDescription: String {
     return (self.isTextualPort ? "text-" : "binary-") +
            (self.isInputPort ? "input-port" : "output-port")
   }
   
-  public var identDescription: String {
+  open var identDescription: String {
     if let url = self.url {
-      return url.path ?? url.absoluteString
+      return url.path
     } else {
       return self.isBinaryPort ? "bytevector" : "string"
     }
   }
   
-  public var description: String {
+  open var description: String {
     return "\(self.typeDescription):\(self.identDescription)"
   }
   
-  public func close() {
+  open func close() {
     switch self.kind {
-      case .TextInputPort(let input):
+      case .textInputPort(let input):
         input.close()
-      case .TextOutputPort(let output):
+      case .textOutputPort(let output):
         output.close()
-      case .BinaryInputPort(let input):
+      case .binaryInputPort(let input):
         input.close()
-      case .BinaryOutputPort(let output):
+      case .binaryOutputPort(let output):
         output.close()
     }
   }

@@ -1,5 +1,5 @@
 //
-//  Future.swift
+//  Promise.swift
 //  LispKit
 //
 //  Created by Matthias Zenger on 23/01/2016.
@@ -19,52 +19,52 @@
 //
 
 ///
-/// Class `Future` is used to represent promises in LispKit.
+/// Class `Promise` is used to represent promises natively in LispKit.
 ///
-public final class Future: ManagedObject, CustomStringConvertible {
+public final class Promise: ManagedObject, CustomStringConvertible {
   
   public indirect enum State {
-    case Lazy(Procedure)       // Thunk of promises
-    case Shared(Future)        // Shared future
-    case Value(Expr)           // Evaluated future
-    case Thrown(ErrorType)     // Failed evaluation of future
+    case lazy(Procedure)       // Thunk of promises
+    case shared(Promise)       // Shared future
+    case value(Expr)           // Evaluated future
+    case thrown(Error)         // Failed evaluation of future
   }
   
   /// State of the future; this state is modified externally.
   public var state: State
   
   /// Maintain object statistics.
-  internal static let stats = Stats("Future")
+  internal static let stats = Stats("Promise")
   
   /// Update object statistics.
   deinit {
-    Future.stats.dealloc()
+    Promise.stats.dealloc()
   }
   
   /// Initializes a future with a `thunk` that yields a promise; this promise's state is
   /// copied over into this future as part of the protocol to force a promise.
   public init(_ thunk: Procedure) {
-    self.state = .Lazy(thunk)
-    super.init(Future.stats)
+    self.state = .lazy(thunk)
+    super.init(Promise.stats)
   }
   
   /// Initializes a future with a given value; no evaluation will happen.
   public init(_ value: Expr) {
-    self.state = .Value(value)
-    super.init(Future.stats)
+    self.state = .value(value)
+    super.init(Promise.stats)
   }
   
   /// Returns true if this refers to only "simple" values (i.e. values which won't lead to
   /// cyclic references)
-  public var isSimple: Bool {
+  public var isAtom: Bool {
     switch self.state {
-      case .Lazy(_):
+      case .lazy(_):
         return true
-      case .Shared(let future):
-        return future.isSimple
-      case .Value(let expr):
-        return expr.isSimple
-      case .Thrown(_):
+      case .shared(let future):
+        return future.isAtom
+      case .value(let expr):
+        return expr.isAtom
+      case .thrown(_):
         return false
     }
   }
@@ -72,29 +72,29 @@ public final class Future: ManagedObject, CustomStringConvertible {
   /// String representation of the future.
   public var description: String {
     switch self.state {
-      case .Lazy(let proc):
+      case .lazy(let proc):
         return "future#lazy(\(proc))"
-      case .Shared(let future):
+      case .shared(let future):
         return "future#shared(\(future))"
-      case .Value(let value):
+      case .value(let value):
         return "future#value(\(value))"
-      case .Thrown(let error):
+      case .thrown(let error):
         return "future#thrown(\(error))"
     }
   }
   
   /// Mark the expressions referenced from this future.
-  public override func mark(tag: UInt8) {
+  public override func mark(_ tag: UInt8) {
     if self.tag != tag {
       self.tag = tag
       switch self.state {
-        case .Lazy(let proc):
+        case .lazy(let proc):
           proc.mark(tag)
-        case .Shared(let future):
+        case .shared(let future):
           future.mark(tag)
-        case .Value(let expr):
+        case .value(let expr):
           expr.mark(tag)
-        case .Thrown(_):
+        case .thrown(_):
           // TODO: Figure out how to mark errors
           break
       }
@@ -103,6 +103,6 @@ public final class Future: ManagedObject, CustomStringConvertible {
   
   /// Remove references to expressions from this future.
   public override func clean() {
-    self.state = .Value(.Null)
+    self.state = .value(.null)
   }
 }

@@ -30,10 +30,10 @@
 public final class Collection: ManagedObject, CustomStringConvertible {
   
   public enum Kind {
-    case Vector
-    case ImmutableVector
-    case RecordType
-    case Record(Collection)
+    case vector
+    case immutableVector
+    case recordType
+    case record(Collection)
   }
   
   /// The kind of this collection
@@ -58,25 +58,25 @@ public final class Collection: ManagedObject, CustomStringConvertible {
   }
   
   /// Creates a mutable Collection of the given length and prefilled with the given value
-  public convenience init(kind: Kind, count n: Int, repeatedValue value: Expr = .Null) {
-    self.init(kind: kind, exprs: Exprs(count: n, repeatedValue: value))
+  public convenience init(kind: Kind, count n: Int, repeatedValue value: Expr = .null) {
+    self.init(kind: kind, exprs: Exprs(repeating: value, count: n))
   }
   
-  public func sameKindAs(other: Collection) -> Bool {
+  public func sameKindAs(_ other: Collection) -> Bool {
     switch (self.kind, other.kind) {
-      case (.Vector, .Vector), (.ImmutableVector, .ImmutableVector), (.RecordType, .RecordType):
+      case (.vector, .vector), (.immutableVector, .immutableVector), (.recordType, .recordType):
         return true
-      case (.Record(let type1), .Record(let type2)):
+      case (.record(let type1), .record(let type2)):
         return type1 == type2
       default:
         return true
     }
   }
   
-  public override func mark(tag: UInt8) {
+  public override func mark(_ tag: UInt8) {
     if self.tag != tag {
       self.tag = tag
-      if case .Record(let type) = self.kind {
+      if case .record(let type) = self.kind {
         type.mark(tag)
       }
       for expr in self.exprs {
@@ -86,19 +86,19 @@ public final class Collection: ManagedObject, CustomStringConvertible {
   }
   
   public override func clean() {
-    self.kind = .Vector
+    self.kind = .vector
     self.exprs.removeAll()
   }
   
   public var description: String {
     switch self.kind {
-      case .Vector:
+      case .vector:
         return "#<vector \(self.identityString)>"
-      case .ImmutableVector:
+      case .immutableVector:
         return "#<immutable-vector \(self.identityString)>"
-      case .RecordType:
+      case .recordType:
         return "#<record-type:\(self.exprs[0]) \(self.identityString)>"
-      case .Record(let type):
+      case .record(let type):
         return "#<record-type:\(type.exprs[0]) \(self.identityString)>"
     }
   }
