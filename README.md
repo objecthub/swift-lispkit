@@ -29,9 +29,11 @@ Details can be found in the [LispKit Wiki](https://github.com/objecthub/swift-li
 ## Current state
 
 In July 2016, _LispKit_ reached a major milestone in providing full support for `call/cc`.
-The recently implemented libraries supporting _ports_ and _promises_ are based on the
-[R7RS](http://www.r7rs.org) standard from 2013. Over time, it's my goal to base the
-implementation primarily on R7RS.
+The recently implemented libraries supporting _ports_, _promises_, and _bytevectors_ are
+based on the [R7RS (small)](http://www.r7rs.org) standard from 2013. Currently, support for
+libraries based on the R7RS specification is being added. Over time, it's my goal to
+base the implementation primarily on R7RS and fall back to R6RS only whne there is no
+corresponding specification provided by R7RS (e.g. for hash tables).
 
 Internally, _LispKit_ relies on [NumberKit](http://github.com/objecthub/swift-numberkit)
 for its support of numeric datatypes like rationals, complex numbers, and big integers.
@@ -42,9 +44,9 @@ The read-eval-print loop is a command-line tool that can be used to try out the 
 It parses the entered _LispKit_ expression, compiles it to bytecode, executes it, and
 displays the result.
 
-
 ## Requirements
 
-- XCode 8-beta
+- XCode 8.0
 - Swift 3.0
 - [NumberKit](http://github.com/objecthub/swift-numberkit)
+
