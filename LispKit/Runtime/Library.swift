@@ -18,7 +18,11 @@
 //  limitations under the License.
 //
 
-
+///
+/// `Library` represents a library specification, listing exported identifiers, imported
+/// identifiers, as well as the definition of the library in terms of import, export,
+/// and initialization declarations.
+/// 
 public final class Library: Reference, Trackable, CustomStringConvertible {
   
   public enum State {
@@ -88,7 +92,7 @@ public final class Library: Reference, Trackable, CustomStringConvertible {
     }
   }
   
-  public enum InternalIdent {
+  public enum InternalIdent: Hashable {
     case mutable(Symbol)
     case immutable(Symbol)
     
@@ -118,102 +122,39 @@ public final class Library: Reference, Trackable, CustomStringConvertible {
           return .immutable(location)
       }
     }
-  }
-  
-  public indirect enum ImportSet {
-    case library(Expr)
-    case only(ImportSet, [Symbol])
-    case except(ImportSet, Set<Symbol>)
-    case prefix(ImportSet, Symbol)
-    case rename(ImportSet, [Symbol : Symbol])
     
-    /// `expand` returns for the import set a reference to the library from which definitions
-    /// are imported. In addition, a mapping is returned that maps renamed definitions to the
-    /// definitions as exported by the library.
-    public func expand(in context: Context) -> (Library, [Symbol : Symbol])? {
-      switch self {
-        case .library(let name):
-          guard let library = context.libraries[name] else {
-            return nil
-          }
-          var imports = [Symbol : Symbol]()
-          for export in library.exported {
-            imports[export] = export
-          }
-          return (library, imports)
-        case .only(let importSet, let restricted):
-          guard let (library, currentImports) = importSet.expand(in: context) else {
-            return nil
-          }
-          var imports = [Symbol : Symbol]()
-          for restrict in restricted {
-            guard let export = currentImports[restrict] else {
-              return nil
-            }
-            imports[restrict] = export
-          }
-          return (library, imports)
-        case .except(let importSet, let excluded):
-          guard let (library, currentImports) = importSet.expand(in: context) else {
-            return nil
-          }
-          var imports = [Symbol : Symbol]()
-          for currentImport in currentImports.keys {
-            if !excluded.contains(currentImport) {
-              imports[currentImport] = currentImports[currentImport]
-            }
-          }
-          return (library, imports)
-        case .prefix(let importSet, let prefix):
-          guard let (library, currentImports) = importSet.expand(in: context) else {
-            return nil
-          }
-          var imports = [Symbol : Symbol]()
-          for currentImport in currentImports.keys {
-            imports[context.symbols.prefix(currentImport, with: prefix)] =
-              currentImports[currentImport]
-          }
-          return (library, imports)
-        case .rename(let importSet, let renamings):
-          guard let (library, currentImports) = importSet.expand(in: context) else {
-            return nil
-          }
-          var imports = [Symbol : Symbol]()
-          for currentImport in currentImports.keys {
-            imports[renamings[currentImport] ?? currentImport] = currentImports[currentImport]
-          }
-          return (library, imports)
-      }
+    public var hashValue: Int {
+      return self.identifier.hashValue
     }
   }
   
   /// The name of a library is a list of symbols
-  let name: Expr
+  public let name: Expr
   
   /// Maps exported identifiers to location references (immutable/mutable)
-  var exports: [Symbol : InternalLocationRef]
+  public private(set) var exports: [Symbol : InternalLocationRef]
 
   /// Maps imported internal identifiers to location references (immutable/mutable)
-  var imports: [Symbol : InternalLocationRef]
+  public private(set) var imports: [Symbol : InternalLocationRef]
   
   /// Maps imported internal identifiers to a set of (library, identifier) pairs
-  var imported: MultiMap<Symbol, (Library, Symbol)>
+  internal var imported: MultiMap<Symbol, (Library, Symbol)>
   
   /// Libraries on which this library is dependent on
-  var libraries: Set<Library>
+  private var libraries: Set<Library>
   
   /// Parsed export declarations, mapping exported identifiers to internal identifiers
   /// (with mutable/immutable annotations)
-  var exportDecls: [Symbol : InternalIdent]
+  internal var exportDecls: [Symbol : InternalIdent]
   
   /// Parsed import declarations
-  var importDecls: [ImportSet]
+  private var importDecls: [ImportSet]
   
   /// Parsed initialization declarations
-  var initDecls: Exprs
+  private var initDecls: Exprs
   
   /// State of the library
-  var state: State
+  private var state: State
   
   /// Initialize a new library based on its definition
   public init(name: Expr, declarations: Expr, in context: Context) throws {
@@ -228,6 +169,21 @@ public final class Library: Reference, Trackable, CustomStringConvertible {
     self.state = .loaded
     super.init()
     try self.parseLibraryDefinition(declarations, in: context)
+  }
+  
+  /// Initialize a new native library
+  public convenience init(name: Expr,
+                          exports: [InternalIdent : Expr],
+                          imports: [ImportSet],
+                          initDecls: Exprs,
+                          in context: Context) throws {
+    try self.init(name: name, declarations: .null, in: context)
+    for (ident, decl) in exports {
+      self.exports[ident.identifier] = ident.located(at: context.allocateLocation(for: decl))
+      self.exportDecls[ident.identifier] = ident
+    }
+    self.importDecls = imports
+    self.initDecls = initDecls
   }
   
   public var exported: [Symbol] {
@@ -303,8 +259,7 @@ public final class Library: Reference, Trackable, CustomStringConvertible {
     // Allocate locations for the exported identifiers which are not imported
     for (extIdent, intIdent) in self.exportDecls {
       if !self.imported.hasValues(for: intIdent.identifier) {
-        self.exports[extIdent] = intIdent.located(at: context.locations.count)
-        context.locations.append(.undef)
+        self.exports[extIdent] = intIdent.located(at: context.allocateLocation())
       }
     }
     // Allocate all libraries from which identifiers are imported
@@ -384,7 +339,7 @@ public final class Library: Reference, Trackable, CustomStringConvertible {
             throw EvalError.malformedLibraryDefinition(decls: decls)
           }
         case .pair(.symbol(context.symbols.`import`), let spec):
-          guard let importSet = self.parseImportSet(spec, in: context) else {
+          guard let importSet = ImportSet(spec, in: context) else {
             throw EvalError.malformedLibraryDefinition(decls: decls)
           }
           importDecls.append(importSet)
@@ -402,80 +357,9 @@ public final class Library: Reference, Trackable, CustomStringConvertible {
       }
       decls = next
     }
-  }
-  
-  private func parseImportSet(_ importSet: Expr, in context: Context) -> ImportSet? {
-    switch importSet {
-      case .pair(.symbol(context.symbols.only), .pair(let baseSet, let idents)):
-        var identList = idents
-        var inclSym = [Symbol]()
-        while case .pair(.symbol(let sym), let next) = identList {
-          inclSym.append(sym)
-          identList = next
-        }
-        guard identList.isNull else {
-          return nil
-        }
-        if let importSet = self.parseImportSet(baseSet, in: context) {
-          return .only(importSet, inclSym)
-        }
-      case .pair(.symbol(context.symbols.except), .pair(let baseSet, let idents)):
-        var identList = idents
-        var exclSym = Set<Symbol>()
-        while case .pair(.symbol(let sym), let next) = identList {
-          exclSym.insert(sym)
-          identList = next
-        }
-        guard identList.isNull else {
-          return nil
-        }
-        if let root = self.parseImportSet(baseSet, in: context) {
-          return .except(root, exclSym)
-        }
-      case .pair(.symbol(context.symbols.prefix),
-                 .pair(let baseSet, .pair(.symbol(let ident), .null))):
-        if let root = self.parseImportSet(baseSet, in: context) {
-          return .prefix(root, ident)
-        }
-      case .pair(.symbol(context.symbols.rename), .pair(let baseSet, let idents)):
-        var renameList = idents
-        var renamings = [Symbol : Symbol]()
-        while case .pair(let renaming, let next) = renameList {
-          switch renaming {
-            case .symbol(let sym):
-              renamings[sym] = sym
-            case .pair(.symbol(let from), .pair(.symbol(let to), .null)):
-              renamings[to] = from
-            default:
-              return nil
-          }
-          renameList = next
-        }
-        guard renameList.isNull else {
-          return nil
-        }
-        if let root = self.parseImportSet(baseSet, in: context) {
-          return .rename(root, renamings)
-        }
-      case .pair(_, _):
-        var libraryName = importSet
-        while case .pair(let component, let next) = libraryName {
-          switch component {
-            case .symbol(_), .fixnum(_), .flonum(_):
-              break
-            default:
-              return nil
-          }
-          libraryName = next
-        }
-        guard libraryName.isNull else {
-          return nil
-        }
-        return .library(importSet)
-      default:
-        break
+    guard decls.isNull else {
+      throw EvalError.malformedLibraryDefinition(decls: decls)
     }
-    return nil
   }
   
   /// Libraries do not mark other referenced libraries; this is assuming that all libraries
@@ -487,4 +371,8 @@ public final class Library: Reference, Trackable, CustomStringConvertible {
   public var description: String {
     return "<library \(self.name) exporting \(self.exports.keys)>"
   }
+}
+
+public func ==(left: Library.InternalIdent, right: Library.InternalIdent) -> Bool {
+  return left.identifier == right.identifier
 }

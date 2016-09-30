@@ -49,6 +49,13 @@ public final class Environment: Reference, CustomStringConvertible {
       return true
     }
     
+    public var isImmutable: Bool {
+      guard case .immutableImport(_) = self else {
+        return false
+      }
+      return true
+    }
+    
     public var location: Int? {
       switch self {
         case .undefined:
@@ -138,6 +145,24 @@ public final class Environment: Reference, CustomStringConvertible {
     return self.context.locations[loc]
   }
   
+  /// Returns true if the given symbol is not defined in this environment.
+  public func isUndefined(_ sym: Symbol) -> Bool {
+    return self.bindings[sym.interned]?.isUndefined ?? true
+  }
+  
+  /// Returns the location reference associated with `sym`.
+  public func locationRef(for sym: Symbol) -> LocationRef {
+    return self.bindings[sym.interned] ?? .undefined
+  }
+  
+  /// Sets the location reference of `sym` to `lref`.
+  internal func setLocationRef(for sym: Symbol, to lref: LocationRef) {
+    if case .undefined = lref {
+      preconditionFailure("cannot set binding in environment to undefined")
+    }
+    self.bindings[sym.interned] = lref
+  }
+  
   /// Defines a new binding in this environment from `sym` to `expr`. This function returns
   /// false only if this is an environment for a program or a library and the symbol was
   /// previously bound already.
@@ -183,22 +208,45 @@ public final class Environment: Reference, CustomStringConvertible {
     }
   }
   
-  /// Returns true if the given symbol is not defined in this environment.
-  public func isUndefined(_ sym: Symbol) -> Bool {
-    return self.bindings[sym.interned]?.isUndefined ?? true
-  }
-  
-  /// Returns the location reference associated with `sym`.
-  public func locationRef(for sym: Symbol) -> LocationRef {
-    return self.bindings[sym.interned] ?? .undefined
-  }
-  
-  /// Sets the location reference of `sym` to `lref`.
-  internal func setLocationRef(for sym: Symbol, to lref: LocationRef) {
-    if case .undefined = lref {
-      preconditionFailure("cannot set binding in environment to undefined")
+  /// Imports the bindings defined by `importSet` into this environment. Environments of
+  /// libraries do not support imports.
+  public func `import`(_ importSet: ImportSet) -> Library? {
+    // Cannot import into libraries
+    if case .library(_) = self.kind {
+      return nil
     }
-    self.bindings[sym.interned] = lref
+    // Expand the import set
+    guard let (library, importSpec) = importSet.expand(in: self.context) else {
+      // Could not expand import set
+      return nil
+    }
+    // Make sure the library from which symbols are imported is wired
+    library.wire(in: context)
+    // Check that bindings can be imported
+    for impIdent in importSpec.keys {
+      switch self.bindings[impIdent] {
+        case .some(.mutable(_)), .some(.mutableImport(_)), .some(.immutableImport(_)):
+          guard case .repl = self.kind else {
+            // Cannot redefine a local binding with an import in a program
+            return nil
+          }
+        default:
+          break
+      }
+    }
+    // Import the bindings
+    for (impIdent, expIdent) in importSpec {
+      switch library.exports[expIdent] {
+        case .some(.mutable(let loc)):
+          self.bindings[impIdent] = .mutableImport(loc)
+        case .some(.immutable(let loc)):
+          self.bindings[impIdent] = .immutableImport(loc)
+        default:
+          // Should nerver happen
+          return nil
+      }
+    }
+    return library
   }
   
   /// A description of the bindings in this environment.
