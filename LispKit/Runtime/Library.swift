@@ -321,7 +321,7 @@ open class Library: Reference, Trackable, CustomStringConvertible {
       library.initialize()
     }
     // Compile and run
-    let environment = Environment(in: self.context, for: self)
+    _ = Environment(in: self.context, for: self)
   }
   
   private static func checkLibraryName(_ name: Expr) throws {

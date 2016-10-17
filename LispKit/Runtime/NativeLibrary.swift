@@ -22,7 +22,7 @@
 /// `Library` defines a framework for defining built-in functionality for LispKit in a modular
 /// fashion. Concrete implementations subclass `Library` and override the `export` method with
 /// declarations of constants, procedures, and special forms.
-/// 
+///
 open class NativeLibrary: Library {
   
   /// Initialize native library by providing a hook that programmatically sets up the
@@ -128,10 +128,13 @@ open class NativeLibrary: Library {
     self.execute(code: via.reduce("", +))
   }
   
+  /// Adds the given expression to the initialization declarations of this library.
   public func execute(expr: Expr) {
     self.initDecls.append(expr)
   }
   
+  /// Parses the given string and adds the resulting expression to the initialization
+  /// declarations of this library.
   public func execute(code: String) {
     do {
       let parser = Parser(symbols: self.context.symbols, src: code)
