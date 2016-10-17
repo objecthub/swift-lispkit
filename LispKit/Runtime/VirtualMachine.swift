@@ -191,7 +191,7 @@ public final class VirtualMachine: TrackedObject {
   private static let noCaptures = [Expr]()
   
   /// Initializes a new virtual machine for the given context
-  public init(_ context: Context) {
+  public init(for context: Context) {
     self.context = context
     self.stack = [Expr](repeating: .undef, count: 1024)
     self.sp = 0

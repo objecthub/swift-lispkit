@@ -44,7 +44,7 @@ public struct Code: CustomStringConvertible {
   }
   
   public var description: String {
-    var builder = StringBuilder("CONSTANTS:")
+    var builder = StringBuilder(prefix: "CONSTANTS:")
     var n = 0
     for constant in self.constants {
       builder.appendNewline()

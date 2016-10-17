@@ -23,52 +23,68 @@
 ///
 public struct StringBuilder: CustomStringConvertible {
   private var buffer: String
+  private let postfix: String
+  private let separator: String?
+  private var initial: String?
+  private var requiresSeparator: Bool
   
-  public init(_ initial: String = "") {
-    self.buffer = initial
+  public init(prefix: String = "",
+              postfix: String = "",
+              separator: String? = nil,
+              initial: String? = nil) {
+    self.buffer = prefix
+    self.postfix = postfix
+    self.separator = separator
+    self.initial = initial
+    self.requiresSeparator = false
   }
   
   public var description: String {
-    return buffer
+    return buffer + postfix
   }
   
-  public mutating func append(_ str: String) {
-    self.buffer += str
+  public mutating func append(_ strs: String...) {
+    if self.requiresSeparator {
+      self.buffer += self.separator!
+    } else {
+      self.requiresSeparator = self.separator != nil
+      if self.initial != nil {
+        self.buffer += self.initial!
+        self.initial = nil
+      }
+    }
+    for str in strs {
+      self.buffer += str
+    }
   }
   
   public mutating func append(_ str: String, width: Int, alignRight: Bool = false) {
     let pad = width - str.characters.count
     if alignRight {
-      self.appendSpaces(pad)
-      self.buffer += str
+      self.append(StringBuilder.padding(pad), str)
     } else {
-      self.buffer += str
-      self.appendSpaces(pad)
+      self.append(str, StringBuilder.padding(pad))
     }
   }
   
   public mutating func append(_ num: Int) {
-    self.buffer += String(num)
+    self.append(String(num))
   }
   
   public mutating func append(_ num: Int, width: Int, alignRight: Bool = false) {
     self.append(String(num), width: width, alignRight: alignRight)
   }
   
-  public mutating func appendSpaces(_ width: Int) {
-    if width > 0 {
-      self.buffer.append(StringBuilder.padding(width))
-    }
-  }
-  
   public mutating func appendNewline() {
+    if self.requiresSeparator {
+      self.buffer += separator!
+      self.requiresSeparator = false
+    }
     self.buffer += "\n"
   }
-  
-  private static let spaceChar: Character = " "
 
   /// Returns a string with `n` spaces.
-  fileprivate static func padding(_ n: Int) -> String {
+  private static func padding(_ n: Int) -> String {
     switch n {
       case 0:
         return ""
@@ -84,8 +100,12 @@ public struct StringBuilder: CustomStringConvertible {
         return "     "
       case 6:
         return "      "
+      case 7:
+        return "       "
+      case 8:
+        return "        "
       default:
-        return String(repeating: String(StringBuilder.spaceChar), count: n)
+        return String(repeating: " ", count: n)
     }
   }
 }

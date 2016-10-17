@@ -21,21 +21,25 @@
 
 public final class SchemeLibrary: NativeLibrary {
   
-  public override func export() {
-    // The current library mechanism requires ControlFlowLibrary to come first (as it's used
-    // by native implementations of some functions in other libraries)
-    include(ControlFlowLibrary.self)
-    include(BaseLibrary.self)
-    include(BoxLibrary.self)
-    include(HashTableLibrary.self)
-    include(DynamicControlLibrary.self)
-    include(MathLibrary.self)
-    include(ListLibrary.self)
-    include(VectorLibrary.self)
-    include(RecordLibrary.self)
-    include(BytevectorLibrary.self)
-    include(CharacterLibrary.self)
-    include(StringLibrary.self)
-    include(PortLibrary.self)
+  /// Name of the library.
+  public override class var name: [String] {
+    return ["scheme", "base"]
+  }
+  
+  /// Declarations of the library.
+  public override func declarations() {
+    self.include(ControlFlowLibrary.name)
+    self.include(BaseLibrary.name)
+    self.include(BoxLibrary.name)
+    self.include(HashTableLibrary.name)
+    self.include(DynamicControlLibrary.name)
+    self.include(MathLibrary.name)
+    self.include(ListLibrary.name)
+    self.include(VectorLibrary.name)
+    self.include(RecordLibrary.name)
+    self.include(BytevectorLibrary.name)
+    self.include(CharacterLibrary.name)
+    self.include(StringLibrary.name)
+    self.include(PortLibrary.name)
   }
 }

@@ -279,6 +279,7 @@ public enum EvalError: LispError {
   case unknownFieldOfRecordType(Expr, Symbol)
   case fieldCountError(Int, Expr)
   case malformedLibraryDefinition(decls: Expr)
+  case malformedLibraryName(name: Expr)
   
   public var kind: String {
     return "eval error"
@@ -394,6 +395,8 @@ public enum EvalError: LispError {
         return "expected values for \(expected) fields, received: \(values)"
       case .malformedLibraryDefinition(let decls):
         return "malformed library definition: \(decls)"
+      case .malformedLibraryName(let name):
+        return "malformed library name: \(name)"
     }
   }
   
@@ -497,6 +500,8 @@ public enum EvalError: LispError {
           return e1 == e2 && v1 == v2
         case (.malformedLibraryDefinition(let d1), .malformedLibraryDefinition(let d2)):
           return d1 == d2
+        case (.malformedLibraryName(let n1), .malformedLibraryName(let n2)):
+          return n1 == n2
         default:
           return false
       }

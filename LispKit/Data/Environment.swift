@@ -115,7 +115,7 @@ public final class Environment: Reference, CustomStringConvertible {
     self.context = context
     self.bindings = [:]
     // Wire the library
-    library.wire(in: context)
+    library.wire()
     // Set up environment based on wired library
     for (ident, importLocation) in library.imports {
       switch importLocation {
@@ -221,7 +221,7 @@ public final class Environment: Reference, CustomStringConvertible {
       return nil
     }
     // Make sure the library from which symbols are imported is wired
-    library.wire(in: context)
+    library.wire()
     // Check that bindings can be imported
     for impIdent in importSpec.keys {
       switch self.bindings[impIdent] {
@@ -251,16 +251,10 @@ public final class Environment: Reference, CustomStringConvertible {
   
   /// A description of the bindings in this environment.
   public var description: String {
-    var builder = StringBuilder("<env")
-    var sep = ": "
+    var builder = StringBuilder(prefix: "<env", postfix: ">", separator: ", ", initial: ": ")
     for (sym, locref) in self.bindings {
-      builder.append(sep)
-      builder.append(sym.description)
-      builder.append(" -> ")
-      builder.append(locref.description)
-      sep = ", "
+      builder.append(sym.description, " -> ", locref.description)
     }
-    builder.append(">")
     return builder.description
   }
 }

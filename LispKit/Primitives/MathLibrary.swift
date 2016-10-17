@@ -25,88 +25,94 @@ import NumberKit
 ///
 public final class MathLibrary: NativeLibrary {
   
-  public override func export() {
-    define(Procedure("number?", isNumber))
-    define(Procedure("real?", isReal))
-    define(Procedure("integer?", isInteger))
-    define(Procedure("rational?", isRational))
-    define(Procedure("complex?", isComplex))
-    define(Procedure("exact?", isExact))
-    define(Procedure("inexact?", isInexact))
-    define(Procedure("exact-integer?", isExactInteger))
-    define(Procedure("finite?", isFinite))
-    define(Procedure("infinite?", isInfinite))
-    define(Procedure("nan?", isNaN))
-    define(Procedure("positive?", isPositive))
-    define(Procedure("negative?", isNegative))
-    define(Procedure("zero?", isZero))
-    define(Procedure("even?", isEven))
-    define(Procedure("odd?", isOdd))
-    define(Procedure("inexact", inexact))
-    define(Procedure("exact", exact))
-    define(Procedure("approximate", approximate))
-    define("rationalize", compile:
-      "(lambda (x e)" +
-      "  (letrec ((simplest (lambda (x y return)" +
-      "                       (let ((fx (floor x)) (fy (floor y)))" +
-      "                         (cond ((>= fx x) (return fx 1))" +
-      "                               ((= fx fy) (simplest (/ (- y fy)) (/ (- x fx))" +
-      "                                            (lambda (n d) (return (+ d (* fx n)) n))))" +
-      "                               (else      (return (+ fx 1) 1))))))" +
-      "           (ax (abs x))" +
-      "           (ae (abs e)))" +
-      "  (simplest (- ax ae) (+ ax ae)" +
+  /// Name of the library.
+  public override class var name: [String] {
+    return ["lispkit", "math"]
+  }
+  
+  /// Declarations of the library.
+  public override func declarations() {
+    self.define(Procedure("number?", isNumber))
+    self.define(Procedure("real?", isReal))
+    self.define(Procedure("integer?", isInteger))
+    self.define(Procedure("rational?", isRational))
+    self.define(Procedure("complex?", isComplex))
+    self.define(Procedure("exact?", isExact))
+    self.define(Procedure("inexact?", isInexact))
+    self.define(Procedure("exact-integer?", isExactInteger))
+    self.define(Procedure("finite?", isFinite))
+    self.define(Procedure("infinite?", isInfinite))
+    self.define(Procedure("nan?", isNaN))
+    self.define(Procedure("positive?", isPositive))
+    self.define(Procedure("negative?", isNegative))
+    self.define(Procedure("zero?", isZero))
+    self.define(Procedure("even?", isEven))
+    self.define(Procedure("odd?", isOdd))
+    self.define(Procedure("inexact", inexact))
+    self.define(Procedure("exact", exact))
+    self.define(Procedure("approximate", approximate))
+    self.define("rationalize", via:
+      "(define (rationalize x e)",
+      "  (letrec ((simplest (lambda (x y return)",
+      "                       (let ((fx (floor x)) (fy (floor y)))",
+      "                         (cond ((>= fx x) (return fx 1))",
+      "                               ((= fx fy) (simplest (/ (- y fy)) (/ (- x fx))",
+      "                                            (lambda (n d) (return (+ d (* fx n)) n))))",
+      "                               (else      (return (+ fx 1) 1))))))",
+      "           (ax (abs x))",
+      "           (ae (abs e)))",
+      "  (simplest (- ax ae) (+ ax ae)",
       "    (if (negative? x) (lambda (num den) (/ (- num) den)) /))))")
-    define(Procedure("floor", floor))
-    define(Procedure("ceiling", ceiling))
-    define(Procedure("truncate", truncate))
-    define(Procedure("round", round))
-    define(Procedure("+", plus))
-    define(Procedure("-", minus))
-    define(Procedure("*", mult))
-    define(Procedure("/", div))
-    define(Procedure("=", equals))
-    define(Procedure("<", lessThan))
-    define(Procedure(">", biggerThan))
-    define(Procedure("<=", lessThanEquals))
-    define(Procedure(">=", biggerThanEquals))
-    define(Procedure("max", max))
-    define(Procedure("min", min))
-    define(Procedure("abs", absolute))
-    define(Procedure("square", square))
-    define(Procedure("sqrt", sqrt))
-    define(Procedure("expt", expt))
-    define(Procedure("exp", exp))
-    define(Procedure("log", log))
-    define(Procedure("sin", sin))
-    define(Procedure("cos", cos))
-    define(Procedure("tan", tan))
-    define(Procedure("asin", asin))
-    define(Procedure("acos", acos))
-    define(Procedure("atan", atan))
-    define(Procedure("number->string", numberToString))
-    define(Procedure("string->number", stringToNumber))
-    define(Procedure("make-rectangular", makeRectangular))
-    define(Procedure("make-polar", makePolar))
-    define(Procedure("real-part", realPart))
-    define(Procedure("imag-part", imagPart))
-    define(Procedure("magnitude", magnitude))
-    define(Procedure("angle", angle))
-    define(Procedure("numerator", numerator))
-    define(Procedure("denominator", denominator))
-    define(Procedure("gcd", gcd))
-    define(Procedure("lcm", lcm))
-    define(Procedure("truncate-quotient", truncateQuotient))
-    define(Procedure("truncate-remainder", truncateRemainder))
-    define(Procedure("floor-quotient", floorQuotient))
-    define(Procedure("floor-remainder", floorRemainder))
-    define(Procedure("quotient", truncateQuotient))
-    define(Procedure("remainder", truncateRemainder))
-    define(Procedure("modulo", floorRemainder))
-    define(Procedure("fx+", fxPlus, compileFxPlus))
-    define(Procedure("fx-", fxMinus, compileFxMinus))
-    define(Procedure("fx*", fxMult, compileFxMult))
-    define(Procedure("fx/", fxDiv, compileFxDiv))
+    self.define(Procedure("floor", floor))
+    self.define(Procedure("ceiling", ceiling))
+    self.define(Procedure("truncate", truncate))
+    self.define(Procedure("round", round))
+    self.define(Procedure("+", plus))
+    self.define(Procedure("-", minus))
+    self.define(Procedure("*", mult))
+    self.define(Procedure("/", div))
+    self.define(Procedure("=", equals))
+    self.define(Procedure("<", lessThan))
+    self.define(Procedure(">", biggerThan))
+    self.define(Procedure("<=", lessThanEquals))
+    self.define(Procedure(">=", biggerThanEquals))
+    self.define(Procedure("max", max))
+    self.define(Procedure("min", min))
+    self.define(Procedure("abs", absolute))
+    self.define(Procedure("square", square))
+    self.define(Procedure("sqrt", sqrt))
+    self.define(Procedure("expt", expt))
+    self.define(Procedure("exp", exp))
+    self.define(Procedure("log", log))
+    self.define(Procedure("sin", sin))
+    self.define(Procedure("cos", cos))
+    self.define(Procedure("tan", tan))
+    self.define(Procedure("asin", asin))
+    self.define(Procedure("acos", acos))
+    self.define(Procedure("atan", atan))
+    self.define(Procedure("number->string", numberToString))
+    self.define(Procedure("string->number", stringToNumber))
+    self.define(Procedure("make-rectangular", makeRectangular))
+    self.define(Procedure("make-polar", makePolar))
+    self.define(Procedure("real-part", realPart))
+    self.define(Procedure("imag-part", imagPart))
+    self.define(Procedure("magnitude", magnitude))
+    self.define(Procedure("angle", angle))
+    self.define(Procedure("numerator", numerator))
+    self.define(Procedure("denominator", denominator))
+    self.define(Procedure("gcd", gcd))
+    self.define(Procedure("lcm", lcm))
+    self.define(Procedure("truncate-quotient", truncateQuotient))
+    self.define(Procedure("truncate-remainder", truncateRemainder))
+    self.define(Procedure("floor-quotient", floorQuotient))
+    self.define(Procedure("floor-remainder", floorRemainder))
+    self.define(Procedure("quotient", truncateQuotient))
+    self.define(Procedure("remainder", truncateRemainder))
+    self.define(Procedure("modulo", floorRemainder))
+    self.define(Procedure("fx+", fxPlus, compileFxPlus))
+    self.define(Procedure("fx-", fxMinus, compileFxMinus))
+    self.define(Procedure("fx*", fxMult, compileFxMult))
+    self.define(Procedure("fx/", fxDiv, compileFxDiv))
   }
   
   

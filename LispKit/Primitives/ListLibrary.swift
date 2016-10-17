@@ -26,78 +26,84 @@
 ///
 public final class ListLibrary: NativeLibrary {
   
-  public override func export() {
-    define(Procedure("pair?", isPair, compileIsPair))
-    define(Procedure("list?", isList))
-    define(Procedure("null?", isNull, compileIsNull))
-    define(Procedure("make-list", makeList))
-    define(Procedure("list", list, compileList))
-    define(Procedure("cons", cons, compileCons))
-    define(Procedure("car", car, compileCar))
-    define(Procedure("cdr", cdr, compileCdr))
-    define(Procedure("caar", caar))
-    define(Procedure("cadr", cadr))
-    define(Procedure("cdar", cdar))
-    define(Procedure("cddr", cddr))
-    define("caaar", compile: "(lambda (x) (car (caar x)))")
-    define("caadr", compile: "(lambda (x) (car (cadr x)))")
-    define("cadar", compile: "(lambda (x) (car (cdar x)))")
-    define("caddr", compile: "(lambda (x) (car (cddr x)))")
-    define("cdaar", compile: "(lambda (x) (cdr (caar x)))")
-    define("cdadr", compile: "(lambda (x) (cdr (cadr x)))")
-    define("cddar", compile: "(lambda (x) (cdr (cdar x)))")
-    define("cdddr", compile: "(lambda (x) (cdr (cddr x)))")
-    define("caaaar", compile: "(lambda (x) (caar (caar x)))")
-    define("caaadr", compile: "(lambda (x) (caar (cadr x)))")
-    define("caadar", compile: "(lambda (x) (caar (cdar x)))")
-    define("caaddr", compile: "(lambda (x) (caar (cddr x)))")
-    define("cadaar", compile: "(lambda (x) (cadr (caar x)))")
-    define("cadadr", compile: "(lambda (x) (cadr (cadr x)))")
-    define("caddar", compile: "(lambda (x) (cadr (cdar x)))")
-    define("cadddr", compile: "(lambda (x) (cadr (cddr x)))")
-    define("cdaaar", compile: "(lambda (x) (cdar (caar x)))")
-    define("cdaadr", compile: "(lambda (x) (cdar (cadr x)))")
-    define("cdadar", compile: "(lambda (x) (cdar (cdar x)))")
-    define("cdaddr", compile: "(lambda (x) (cdar (cddr x)))")
-    define("cddaar", compile: "(lambda (x) (cddr (caar x)))")
-    define("cddadr", compile: "(lambda (x) (cddr (cadr x)))")
-    define("cdddar", compile: "(lambda (x) (cddr (cdar x)))")
-    define("cddddr", compile: "(lambda (x) (cddr (cddr x)))")
-    define(Procedure("length", length))
-    define(Procedure("append", append))
-    define(Procedure("reverse", reverse))
-    define(Procedure("list-tail", listTail))
-    define("list-ref", compile: "(lambda (x k) (car (list-tail x k)))")
-    define(Procedure("key", key))
-    define(Procedure("value", value))
-    define(Procedure("memq", memq))
-    define(Procedure("memv", memv))
-    define("member", compile:
-      "(define (member x list . comp)" +
-      "  (let ((eq (if (pair? comp) (car comp) equal?)))" +
-      "    (let lp ((ls list))" +
+  /// Name of the library.
+  public override class var name: [String] {
+    return ["lispkit", "box"]
+  }
+  
+  /// Declarations of the library.
+  public override func declarations() {
+    self.define(Procedure("pair?", isPair, compileIsPair))
+    self.define(Procedure("list?", isList))
+    self.define(Procedure("null?", isNull, compileIsNull))
+    self.define(Procedure("make-list", makeList))
+    self.define(Procedure("list", list, compileList))
+    self.define(Procedure("cons", cons, compileCons))
+    self.define(Procedure("car", car, compileCar))
+    self.define(Procedure("cdr", cdr, compileCdr))
+    self.define(Procedure("caar", caar))
+    self.define(Procedure("cadr", cadr))
+    self.define(Procedure("cdar", cdar))
+    self.define(Procedure("cddr", cddr))
+    self.define("caaar", via: "(define (caaar x) (car (caar x)))")
+    self.define("caadr", via: "(define (caadr x) (car (cadr x)))")
+    self.define("cadar", via: "(define (cadar x) (car (cdar x)))")
+    self.define("caddr", via: "(define (caddr x) (car (cddr x)))")
+    self.define("cdaar", via: "(define (cdaar x) (cdr (caar x)))")
+    self.define("cdadr", via: "(define (cdadr x) (cdr (cadr x)))")
+    self.define("cddar", via: "(define (cddar x) (cdr (cdar x)))")
+    self.define("cdddr", via: "(define (cdddr x) (cdr (cddr x)))")
+    self.define("caaaar", via: "(define (caaaar x) (caar (caar x)))")
+    self.define("caaadr", via: "(define (caaadr x) (caar (cadr x)))")
+    self.define("caadar", via: "(define (caadar x) (caar (cdar x)))")
+    self.define("caaddr", via: "(define (caaddr x) (caar (cddr x)))")
+    self.define("cadaar", via: "(define (cadaar x) (cadr (caar x)))")
+    self.define("cadadr", via: "(define (cadadr x) (cadr (cadr x)))")
+    self.define("caddar", via: "(define (caddar x) (cadr (cdar x)))")
+    self.define("cadddr", via: "(define (cadddr x) (cadr (cddr x)))")
+    self.define("cdaaar", via: "(define (cdaaar x) (cdar (caar x)))")
+    self.define("cdaadr", via: "(define (cdaadr x) (cdar (cadr x)))")
+    self.define("cdadar", via: "(define (cdadar x) (cdar (cdar x)))")
+    self.define("cdaddr", via: "(define (cdaddr x) (cdar (cddr x)))")
+    self.define("cddaar", via: "(define (cddaar x) (cddr (caar x)))")
+    self.define("cddadr", via: "(define (cddadr x) (cddr (cadr x)))")
+    self.define("cdddar", via: "(define (cdddar x) (cddr (cdar x)))")
+    self.define("cddddr", via: "(define (cddddr x) (cddr (cddr x)))")
+    self.define("list-ref", via: "(define (list-ref x k) (car (list-tail x k)))")
+    self.define("member", via:
+      "(define (member x list . comp)",
+      "  (let ((eq (if (pair? comp) (car comp) equal?)))",
+      "    (let lp ((ls list))",
       "      (and (pair? ls) (if (eq x (car ls)) ls (lp (cdr ls)))))))")
-    define(Procedure("assq", assq))
-    define(Procedure("assv", assv))
-    define("assoc", compile:
-      "(lambda (x list . comp) " +
-      "  (let ((eq (if (pair? comp) (car comp) equal?)))" +
-      "    (let assoc ((ls list))" +
-      "      (cond ((null? ls) #f)" +
-      "            ((eq x (caar ls)) (car ls))" +
+    self.define("assoc", via:
+      "(define (assoc x list . comp) ",
+      "  (let ((eq (if (pair? comp) (car comp) equal?)))",
+      "    (let assoc ((ls list))",
+      "      (cond ((null? ls) #f)",
+      "            ((eq x (caar ls)) (car ls))",
       "            (else (assoc (cdr ls)))))))")
-    define(Procedure("decons", decons))
-    define("map", compile:
-      "(lambda (f list1 . lists)" +
-      "  (let ((res '()))" +
-      "       (do ((pair (decons (cons list1 lists)) (decons (cdr pair))))" +
-      "           ((null? pair) (reverse res))" +
+    self.define("map", via:
+      "(define (map f list1 . lists)",
+      "  (let ((res '()))",
+      "       (do ((pair (decons (cons list1 lists)) (decons (cdr pair))))",
+      "           ((null? pair) (reverse res))",
       "           (set! res (cons (apply f (car pair)) res)))))")
-    define("for-each", compile:
-      "(lambda (f list1 . lists)" +
-      "  (do ((pair (decons (cons list1 lists)) (decons (cdr pair))))" +
-      "      ((null? pair))" +
+    self.define("foreach", via:
+      "(define (for-each f list1 . lists)",
+      "  (do ((pair (decons (cons list1 lists)) (decons (cdr pair))))",
+      "      ((null? pair))",
       "        (apply f (car pair))))")
+    self.define(Procedure("length", length))
+    self.define(Procedure("append", append))
+    self.define(Procedure("reverse", reverse))
+    self.define(Procedure("list-tail", listTail))
+    self.define(Procedure("key", key))
+    self.define(Procedure("value", value))
+    self.define(Procedure("memq", memq))
+    self.define(Procedure("memv", memv))
+    self.define(Procedure("assq", assq))
+    self.define(Procedure("assv", assv))
+    self.define(Procedure("decons", decons))
   }
   
   //---------MARK: - List predicates

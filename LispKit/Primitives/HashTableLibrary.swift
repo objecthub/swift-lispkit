@@ -23,101 +23,107 @@
 /// 
 public final class HashTableLibrary: NativeLibrary {
   
-  fileprivate static let equalHashProc = Procedure("equal-hash", HashTableLibrary.equalHashVal)
-  fileprivate static let eqvHashProc   = Procedure("eqv-hash", HashTableLibrary.eqvHashVal)
-  fileprivate static let eqHashProc    = Procedure("eq-hash", HashTableLibrary.eqHashVal)
+  private static let equalHashProc = Procedure("equal-hash", HashTableLibrary.equalHashVal)
+  private static let eqvHashProc   = Procedure("eqv-hash", HashTableLibrary.eqvHashVal)
+  private static let eqHashProc    = Procedure("eq-hash", HashTableLibrary.eqHashVal)
   
-  fileprivate static let defaultCapacity = 127
+  private static let defaultCapacity = 127
   
-  fileprivate let equalProc: Procedure
-  fileprivate let eqvProc: Procedure
-  fileprivate let eqProc: Procedure
-  fileprivate var bucketsProc: Procedure! = nil
-  fileprivate var bucketAddProc: Procedure! = nil
-  fileprivate var bucketDelProc: Procedure! = nil
+  private var bucketsProc: Procedure! = nil
+  private var bucketAddProc: Procedure! = nil
+  private var bucketDelProc: Procedure! = nil
+  private var equalProc: Procedure! = nil
+  private var eqvProc: Procedure! = nil
+  private var eqProc: Procedure! = nil
   
-  /// Import
-  public required init(_ context: Context) {
-    self.equalProc = NativeLibrary.importProc(from: context, name: "equal?")
-    self.eqvProc = NativeLibrary.importProc(from: context, name: "eqv?")
-    self.eqProc = NativeLibrary.importProc(from: context, name: "eq?")
-    super.init(context)
+  /// Name of the library.
+  public override class var name: [String] {
+    return ["lispkit", "hashtable"]
+  }
+  
+  /// Declarations of the library.
+  public override func declarations() {
     self.bucketsProc = Procedure("_buckets", self.hBuckets)
     self.bucketAddProc = Procedure("_bucket-add!", self.hBucketAdd)
     self.bucketDelProc = Procedure("_bucket-repl!", self.hBucketRepl)
+    self.define(HashTableLibrary.equalHashProc)
+    self.define(HashTableLibrary.eqvHashProc)
+    self.define(HashTableLibrary.eqHashProc)
+    self.define(Procedure("_make-hashtable", makeHashTable))
+    self.define(Procedure("make-eq-hashtable", makeEqHashTable))
+    self.define(Procedure("make-eqv-hashtable", makeEqvHashTable))
+    self.define(Procedure("make-equal-hashtable", makeEqualHashTable))
+    self.define("make-hashtable", via:
+      "(define (make-hashtable hash eql . size)",
+      "  (letrec ((k (if (pair? size) (car size) \(HashTableLibrary.defaultCapacity)))",
+      "           (find (lambda (key bs)",
+      "                   (if (pair? bs)",
+      "                     (if (eql (car (car bs)) key) (car bs) (find key (cdr bs))) #f)))",
+      "           (drop (lambda (key bs)",  // TODO: Use a built-in filter function for this
+      "                   (if (pair? bs)",
+      "                     (if (eql (car (car bs)) key)",
+      "                       bs",
+      "                       (let ((res (drop key (cdr bs))))",
+      "                         (cons (car res) (cons (car bs) (cdr res)))))",
+      "                     (cons #f bs)))))",
+      "    (_make-hashtable k eql hash",
+      "      (lambda (ht buckets key)",
+      "        (find key (buckets ht (hash key))))",
+      "      (lambda (ht buckets add key value)",
+      "        (add ht (hash key) key value)",
+      "        (if (> (hashtable-load ht) 0.75)",
+      "          (let ((ms (buckets ht)))",
+      "            (hashtable-clear! ht (+ (* (hashtable-size ht) 3) 1))",
+      "            (for-each (lambda (m) (add ht (hash (car m)) (car m) (cdr m))) ms))))",
+      "      (lambda (ht buckets replace key)",
+      "        (let* ((h (hash key))",
+      "               (res (drop key (buckets ht h))))",
+      "          (replace ht h (cdr res)) (car res))))))")
+    self.define(Procedure("hashtable?", isHashTable))
+    self.define(Procedure("eq-hashtable?", isEqHashTable))
+    self.define(Procedure("eqv-hashtable?", isEqvHashTable))
+    self.define(Procedure("equal-hashtable?", isEqualHashTable))
+    self.define(Procedure("hashtable-mutable?", isHashTableMutable))
+    self.define(Procedure("hashtable-size", hashTableSize))
+    self.define(Procedure("hashtable-load", hashTableLoad))
+    self.define(Procedure("hashtable-get", hashTableGet))
+    self.define(Procedure("hashtable-add!", hashTableAdd))
+    self.define("hashtable-include!", via:
+      "(define (hashtable-include! hm alist)",
+      "  (for-each (lambda (m) (hashtable-add! hm (car m) (cdr m))) alist))")
+    self.define("hashtable-contains", via:
+      "(define (hashtable-contains map key) (pair? (hashtable-get map key)))")
+    self.define("hashtable-ref", via:
+      "(define (hashtable-ref map key default) (value (hashtable-get map key) default))")
+    self.define("hashtable-set!", via:
+      "(define (hashtable-set! map key value)",
+      "  (hashtable-delete! map key)(hashtable-add! map key value))")
+    self.define("hashtable-update!", via:
+      "(define (hashtable-update! map key proc default)" +
+      "  (hashtable-add! map key (proc (value (hashtable-delete! map key) default))))")
+    self.define(Procedure("hashtable-delete!", hashTableDelete))
+    self.define(Procedure("hashtable-clear!", hashTableClear))
+    self.define(Procedure("hashtable-copy", hashTableCopy))
+    self.define(Procedure("hashtable-keys", hashTableKeys))
+    self.define(Procedure("hashtable-values", hashTableValues))
+    self.define(Procedure("hashtable-key-list", hashTableKeyList))
+    self.define(Procedure("hashtable-value-list", hashTableValueList))
+    self.define(Procedure("hashtable->alist", hashTableToAlist))
+    self.define(Procedure("alist->eq-hashtable", alistToEqHashTable))
+    self.define(Procedure("alist->eqv-hashtable", alistToEqvHashTable))
+    self.define(Procedure("alist->equal-hashtable", alistToEqualHashTable))
+    self.define(Procedure("hashtable-equivalence-function", hashTableEquivalenceFunction))
+    self.define(Procedure("hashtable-hash-function", hashTableHashFunction))
+    self.define(Procedure("string-hash", stringHashVal))
+    self.define(Procedure("string-ci-hash", stringCiHashVal))
+    self.define(Procedure("symbol-hash", symbolHashVal))
   }
   
-  /// Export
-  public override func export() {
-    define(Procedure("_make-hashtable", makeHashTable))
-    define(Procedure("make-eq-hashtable", makeEqHashTable))
-    define(Procedure("make-eqv-hashtable", makeEqvHashTable))
-    define(Procedure("make-equal-hashtable", makeEqualHashTable))
-    define("make-hashtable", compile:
-      "(lambda (hash eql . size)" +
-      "  (letrec ((k (if (pair? size) (car size) \(HashTableLibrary.defaultCapacity)))" +
-      "           (find (lambda (key bs)" +
-      "                   (if (pair? bs)" +
-      "                     (if (eql (car (car bs)) key) (car bs) (find key (cdr bs))) #f)))" +
-      "           (drop (lambda (key bs)" +  // TODO: Use a built-in filter function for this
-      "                   (if (pair? bs)" +
-      "                     (if (eql (car (car bs)) key)" +
-      "                       bs" +
-      "                       (let ((res (drop key (cdr bs))))" +
-      "                         (cons (car res) (cons (car bs) (cdr res)))))" +
-      "                     (cons #f bs)))))" +
-      "    (_make-hashtable k eql hash" +
-      "      (lambda (ht buckets key)" +
-      "        (find key (buckets ht (hash key))))" +
-      "      (lambda (ht buckets add key value)" +
-      "        (add ht (hash key) key value)" +
-      "        (if (> (hashtable-load ht) 0.75)" +
-      "          (let ((ms (buckets ht)))" +
-      "            (hashtable-clear! ht (+ (* (hashtable-size ht) 3) 1))" +
-      "            (for-each (lambda (m) (add ht (hash (car m)) (car m) (cdr m))) ms))))" +
-      "      (lambda (ht buckets replace key)" +
-      "        (let* ((h (hash key))" +
-      "               (res (drop key (buckets ht h))))" +
-      "          (replace ht h (cdr res)) (car res))))))")
-    define(Procedure("hashtable?", isHashTable))
-    define(Procedure("eq-hashtable?", isEqHashTable))
-    define(Procedure("eqv-hashtable?", isEqvHashTable))
-    define(Procedure("equal-hashtable?", isEqualHashTable))
-    define(Procedure("hashtable-mutable?", isHashTableMutable))
-    define(Procedure("hashtable-size", hashTableSize))
-    define(Procedure("hashtable-load", hashTableLoad))
-    define(Procedure("hashtable-get", hashTableGet))
-    define(Procedure("hashtable-add!", hashTableAdd))
-    define("hashtable-include!", compile:
-      "(lambda (hm alist) (for-each (lambda (m) (hashtable-add! hm (car m) (cdr m))) alist))")
-    define("hashtable-contains", compile:
-      "(lambda (map key) (pair? (hashtable-get map key)))")
-    define("hashtable-ref", compile:
-      "(lambda (map key default) (value (hashtable-get map key) default))")
-    define("hashtable-set!", compile:
-      "(lambda (map key value) (hashtable-delete! map key)(hashtable-add! map key value))")
-    define("hashtable-update!", compile:
-      "(lambda (map key proc default)" +
-      "  (hashtable-add! map key (proc (value (hashtable-delete! map key) default))))")
-    define(Procedure("hashtable-delete!", hashTableDelete))
-    define(Procedure("hashtable-clear!", hashTableClear))
-    define(Procedure("hashtable-copy", hashTableCopy))
-    define(Procedure("hashtable-keys", hashTableKeys))
-    define(Procedure("hashtable-values", hashTableValues))
-    define(Procedure("hashtable-key-list", hashTableKeyList))
-    define(Procedure("hashtable-value-list", hashTableValueList))
-    define(Procedure("hashtable->alist", hashTableToAlist))
-    define(Procedure("alist->eq-hashtable", alistToEqHashTable))
-    define(Procedure("alist->eqv-hashtable", alistToEqvHashTable))
-    define(Procedure("alist->equal-hashtable", alistToEqualHashTable))
-    define(Procedure("hashtable-equivalence-function", hashTableEquivalenceFunction))
-    define(Procedure("hashtable-hash-function", hashTableHashFunction))
-    define(HashTableLibrary.equalHashProc)
-    define(HashTableLibrary.eqvHashProc)
-    define(HashTableLibrary.eqHashProc)
-    define(Procedure("string-hash", stringHashVal))
-    define(Procedure("string-ci-hash", stringCiHashVal))
-    define(Procedure("symbol-hash", symbolHashVal))
+  /// Import definitions from other libraries
+  public override func dependencies() {
+    self.equalProc = self.procedure(self.imported("equal?"))
+    self.eqvProc = self.procedure(self.imported("eqv?"))
+    self.eqProc = self.procedure(self.imported("eq?"))
   }
   
   func makeHashTable(_ capacity: Expr, _ eql: Expr, _ hsh: Expr, _ args: Arguments) throws -> Expr {
@@ -336,23 +342,23 @@ public final class HashTableLibrary: NativeLibrary {
   
   func hashTableEquivalenceFunction(_ expr: Expr) throws -> Expr {
     switch try expr.asHashTable().equiv {
-    case .eq:
-      return .procedure(self.eqProc)
-    case .eqv:
-      return .procedure(self.eqvProc)
-    case .equal:
-      return .procedure(self.equalProc)
-    case .custom(let procs):
-      return .procedure(procs.eql)
+      case .eq:
+        return .procedure(self.eqProc)
+      case .eqv:
+        return .procedure(self.eqvProc)
+      case .equal:
+        return .procedure(self.equalProc)
+      case .custom(let procs):
+        return .procedure(procs.eql)
     }
   }
   
   func hashTableHashFunction(_ expr: Expr) throws -> Expr {
     switch try expr.asHashTable().equiv {
-    case .eq, .eqv, .equal:
-      return .false
-    case .custom(let procs):
-      return .procedure(procs.hsh)
+      case .eq, .eqv, .equal:
+        return .false
+      case .custom(let procs):
+        return .procedure(procs.hsh)
     }
   }
   

@@ -23,59 +23,65 @@ import Cocoa
 
 public final class BaseLibrary: NativeLibrary {
   
+  /// Name of the library.
+  public override class var name: [String] {
+    return ["lispkit", "base"]
+  }
+  
   internal static let idProc = Procedure("identity", BaseLibrary.identity)
   
-  public override func export() {
+  /// Declarations of the library.
+  public override func declarations() {
     // Basic primitives
-    define(BaseLibrary.idProc)
-    define(Procedure("procedure?", isProcedure))
-    define(Procedure("eval", eval, compileEval))
-    define(Procedure("apply", apply, compileApply))
-    define(Procedure("equal?", isEqual))
-    define(Procedure("eqv?", isEqv))
-    define(Procedure("eq?", isEq))
-    define("quote", SpecialForm(compileQuote))
-    define("quasiquote", SpecialForm(compileQuasiquote))
-    define("lambda", SpecialForm(compileLambda))
-    define("case-lambda", SpecialForm(compileCaseLambda))
+    self.define(BaseLibrary.idProc)
+    self.define(Procedure("procedure?", isProcedure))
+    self.define(Procedure("eval", eval, compileEval))
+    self.define(Procedure("apply", apply, compileApply))
+    self.define(Procedure("equal?", isEqual))
+    self.define(Procedure("eqv?", isEqv))
+    self.define(Procedure("eq?", isEq))
+    self.define("quote", as: SpecialForm(compileQuote))
+    self.define("quasiquote", as: SpecialForm(compileQuasiquote))
+    self.define("lambda", as: SpecialForm(compileLambda))
+    self.define("case-lambda", as: SpecialForm(compileCaseLambda))
     
     // Definition primitives
-    define("define", SpecialForm(compileDefine))
-    define("define-syntax", SpecialForm(compileDefineSyntax))
-    define("syntax-rules", SpecialForm(compileSyntaxRules))
-    define("set!", SpecialForm(compileSet))
-    define(Procedure("load", load))
+    self.define("define", as: SpecialForm(compileDefine))
+    self.define("define-syntax", as: SpecialForm(compileDefineSyntax))
+    self.define("syntax-rules", as: SpecialForm(compileSyntaxRules))
+    self.define("set!", as: SpecialForm(compileSet))
+    self.define(Procedure("load", load))
     
     // Delayed execution
-    define(Procedure("promise?", isPromise))
-    define(Procedure("force", compileForce, in: self.context))
-    define(Procedure("make-promise", makePromise))
-    define(Procedure("eager", makePromise))
-    define("delay", SpecialForm(compileDelay))
-    define("delay-force", SpecialForm(compileDelayForce))
-    define("lazy", SpecialForm(compileDelayForce))
+    self.define(Procedure("promise?", isPromise))
+    self.define(Procedure("force", compileForce, in: self.context))
+    self.define(Procedure("make-promise", makePromise))
+    self.define(Procedure("eager", makePromise))
+    self.define("delay", as: SpecialForm(compileDelay))
+    self.define("delay-force", as: SpecialForm(compileDelayForce))
+    self.define("lazy", as: SpecialForm(compileDelayForce))
     
     // Symbol primitives
-    define(Procedure("symbol?", isSymbol))
-    define(Procedure("gensym", gensym))
-    define(Procedure("string->symbol", stringToSymbol))
-    define(Procedure("symbol->string", symbolToString))
-    define(Procedure("symtable", symtable))
+    self.define(Procedure("symbol?", isSymbol))
+    self.define(Procedure("gensym", gensym))
+    self.define(Procedure("string->symbol", stringToSymbol))
+    self.define(Procedure("symbol->string", symbolToString))
+    self.define(Procedure("symtable", symtable))
     
     // Boolean primitives
-    define(Procedure("boolean?", isBoolean))
-    define("and", SpecialForm(compileAnd))
-    define("or", SpecialForm(compileOr))
-    define(Procedure("not", not))
+    self.define(Procedure("boolean?", isBoolean))
+    self.define("and", as: SpecialForm(compileAnd))
+    self.define("or", as: SpecialForm(compileOr))
+    self.define(Procedure("not", not))
     
     // System primitives
-    define(Procedure("void", voidConst))
-    define(Procedure("gc", gc))
-    define(Procedure("exit", exit))
-    define(Procedure("compile", compile))
-    define(Procedure("disassemble", disassemble))
-    define(Procedure("inspect", inspect))
-    define("time", SpecialForm(compileTime))
+    self.define(Procedure("void", voidConst))
+    self.define(Procedure("gc", gc))
+    self.define(Procedure("exit", exit))
+    self.define(Procedure("compile", compile))
+    self.define(Procedure("disassemble", disassemble))
+    self.define(Procedure("inspect", inspect))
+    self.define("time", as: SpecialForm(compileTime))
   }
   
   

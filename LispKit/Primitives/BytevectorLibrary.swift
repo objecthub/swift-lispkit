@@ -23,18 +23,24 @@
 /// 
 public final class BytevectorLibrary: NativeLibrary {
   
-  public override func export() {
-    define(Procedure("bytevector?", isBytevector))
-    define(Procedure("bytevector", bytevector))
-    define(Procedure("make-bytevector", makeBytevector))
-    define(Procedure("bytevector-length", bytevectorLength))
-    define(Procedure("bytevector-u8-ref", bytevectorU8Ref))
-    define(Procedure("bytevector-u8-set!", bytevectorU8Set))
-    define(Procedure("bytevector-copy", bytevectorCopy))
-    define(Procedure("bytevector-copy!", bytevectorCopyInto))
-    define(Procedure("bytevector-append", bytevectorAppend))
-    define(Procedure("utf8->string", utf8ToString))
-    define(Procedure("string->utf8", stringToUtf8))
+  /// Name of the library.
+  public override class var name: [String] {
+    return ["lispkit", "bytevector"]
+  }
+  
+  /// Declarations of the library.
+  public override func declarations() {
+    self.define(Procedure("bytevector?", isBytevector))
+    self.define(Procedure("bytevector", bytevector))
+    self.define(Procedure("make-bytevector", makeBytevector))
+    self.define(Procedure("bytevector-length", bytevectorLength))
+    self.define(Procedure("bytevector-u8-ref", bytevectorU8Ref))
+    self.define(Procedure("bytevector-u8-set!", bytevectorU8Set))
+    self.define(Procedure("bytevector-copy", bytevectorCopy))
+    self.define(Procedure("bytevector-copy!", bytevectorCopyInto))
+    self.define(Procedure("bytevector-append", bytevectorAppend))
+    self.define(Procedure("utf8->string", utf8ToString))
+    self.define(Procedure("string->utf8", stringToUtf8))
   }
   
   func isBytevector(_ expr: Expr) -> Expr {

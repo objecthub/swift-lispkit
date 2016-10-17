@@ -23,21 +23,28 @@
 /// 
 public final class BoxLibrary: NativeLibrary {
   
-  public override func export() {
+  /// Name of the library.
+  public override class var name: [String] {
+    return ["lispkit", "box"]
+  }
+  
+  /// Declarations of the library.
+  public override func declarations() {
     // Boxes
-    define(Procedure("box?", isBox))
-    define(Procedure("box", box))
-    define(Procedure("unbox", unbox))
-    define(Procedure("set-box!", setBox))
-    define("update-box!", compile: "(lambda (box proc) (set-box! box (proc (unbox box))))")
+    self.define(Procedure("box?", isBox))
+    self.define(Procedure("box", box))
+    self.define(Procedure("unbox", unbox))
+    self.define(Procedure("set-box!", setBox))
+    self.define("update-box!", via:
+      "(define (update-box! box proc) (set-box! box (proc (unbox box))))")
     
     // Mutable pairs
-    define(Procedure("mpair?", isMpair))
-    define(Procedure("mcons", mcons))
-    define(Procedure("mcar", mcar))
-    define(Procedure("mcdr", mcdr))
-    define(Procedure("set-mcar!", setMcar))
-    define(Procedure("set-mcdr!", setMcdr))
+    self.define(Procedure("mpair?", isMpair))
+    self.define(Procedure("mcons", mcons))
+    self.define(Procedure("mcar", mcar))
+    self.define(Procedure("mcdr", mcdr))
+    self.define(Procedure("set-mcar!", setMcar))
+    self.define(Procedure("set-mcdr!", setMcdr))
   }
   
   //-------- MARK: - Boxes

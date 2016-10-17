@@ -24,6 +24,7 @@
 		CC1AAE3B1CC3CF0F00D1806F /* LispKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCAD52BA1C48403800DBD8EE /* LispKit.framework */; };
 		CC1AAE3C1CC3CF0F00D1806F /* LispKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CCAD52BA1C48403800DBD8EE /* LispKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CC26069C1C61760C0047A3D3 /* Boxes.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC26069B1C61760C0047A3D3 /* Boxes.swift */; };
+		CC2D124F1DB40E7F009BDC72 /* LibraryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2D124E1DB40E7F009BDC72 /* LibraryManager.swift */; };
 		CC2E6A911C486AB30046E680 /* Prelude.scm in CopyFiles */ = {isa = PBXBuildFile; fileRef = CCAD52D51C48467D00DBD8EE /* Prelude.scm */; };
 		CC31A6981D3AC223008D7728 /* Hash.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC31A6971D3AC223008D7728 /* Hash.swift */; };
 		CC35FD0D1C6FA4B700C8B992 /* VirtualMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */; };
@@ -97,6 +98,7 @@
 		CCE0429E1C9E8C8B00CA7BC4 /* ManagedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE0429D1C9E8C8B00CA7BC4 /* ManagedObject.swift */; };
 		CCE2C47A1D9203DE0047E229 /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE2C4791D9203DE0047E229 /* Environment.swift */; };
 		CCF529981CBC73F7000C2959 /* StringBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCF529971CBC73F7000C2959 /* StringBuilder.swift */; };
+		CCF982F71D998B8A00B22A1D /* ImportSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCF982F61D998B8A00B22A1D /* ImportSet.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -178,6 +180,7 @@
 		CC131C4F1CDE0E01006C030C /* LispKitTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = LispKitTestCase.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC131C511CDE840C006C030C /* LocalSyntaxRules.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LocalSyntaxRules.scm; sourceTree = "<group>"; };
 		CC26069B1C61760C0047A3D3 /* Boxes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Boxes.swift; sourceTree = "<group>"; };
+		CC2D124E1DB40E7F009BDC72 /* LibraryManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryManager.swift; sourceTree = "<group>"; };
 		CC31A6971D3AC223008D7728 /* Hash.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Hash.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = VirtualMachine.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC35FD0E1C711FEA00C8B992 /* BindingGroup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BindingGroup.swift; sourceTree = "<group>"; };
@@ -263,6 +266,7 @@
 		CCE0429D1C9E8C8B00CA7BC4 /* ManagedObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManagedObject.swift; sourceTree = "<group>"; };
 		CCE2C4791D9203DE0047E229 /* Environment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Environment.swift; sourceTree = "<group>"; };
 		CCF529971CBC73F7000C2959 /* StringBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringBuilder.swift; sourceTree = "<group>"; };
+		CCF982F61D998B8A00B22A1D /* ImportSet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImportSet.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -467,10 +471,9 @@
 		CCAD52E81C4846A700DBD8EE /* Primitives */ = {
 			isa = PBXGroup;
 			children = (
-				CC5A47201C5295E600EFCF76 /* NativeLibrary.swift */,
 				CC6A3B671C52F17200E962E2 /* SchemeLibrary.swift */,
-				CC5A47221C529D4A00EFCF76 /* BaseLibrary.swift */,
 				CC90500A1D36F52F008CE60A /* DynamicControlLibrary.swift */,
+				CC5A47221C529D4A00EFCF76 /* BaseLibrary.swift */,
 				CC5A47241C52E08900EFCF76 /* ControlFlowLibrary.swift */,
 				CC6A3B631C52EED400E962E2 /* MathLibrary.swift */,
 				CCDF99FB1D3D7A3100FD2A57 /* BoxLibrary.swift */,
@@ -511,6 +514,9 @@
 				CC5033B01CDBE4CD0045A8FA /* Console.swift */,
 				CC78BF6B1C56C87500876D54 /* Scope.swift */,
 				CC3C92431D84C0D800016C28 /* Library.swift */,
+				CC5A47201C5295E600EFCF76 /* NativeLibrary.swift */,
+				CC2D124E1DB40E7F009BDC72 /* LibraryManager.swift */,
+				CCF982F61D998B8A00B22A1D /* ImportSet.swift */,
 				CC6A3B6F1C53F2CF00E962E2 /* SymbolTable.swift */,
 				CCAD52DE1C48468F00DBD8EE /* SyntaxRules.swift */,
 				CC5696761CBCFA9900F6803E /* Instruction.swift */,
@@ -727,8 +733,10 @@
 				CC6A3B6E1C53F0F600E962E2 /* Collection.swift in Sources */,
 				CC6A3B5E1C52E8EF00E962E2 /* VectorLibrary.swift in Sources */,
 				CC8EDE701D07265E004E0636 /* TextInput.swift in Sources */,
+				CC2D124F1DB40E7F009BDC72 /* LibraryManager.swift in Sources */,
 				CCAD52E51C48468F00DBD8EE /* Symbol.swift in Sources */,
 				CC4D2C9F1D5EDA2A00A02256 /* RecordLibrary.swift in Sources */,
+				CCF982F71D998B8A00B22A1D /* ImportSet.swift in Sources */,
 				CC26069C1C61760C0047A3D3 /* Boxes.swift in Sources */,
 				CCC41DC61D2851FB003CB4D0 /* VirtualMachineState.swift in Sources */,
 				CCAD52E41C48468F00DBD8EE /* Scanner.swift in Sources */,
