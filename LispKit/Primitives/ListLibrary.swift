@@ -28,7 +28,13 @@ public final class ListLibrary: NativeLibrary {
   
   /// Name of the library.
   public override class var name: [String] {
-    return ["lispkit", "box"]
+    return ["lispkit", "list"]
+  }
+  
+  /// Dependencies of the library.
+  public override func dependencies() {
+    self.`import`(from: ["lispkit", "base"], "define", "set!", "apply", "quote", "and", "equal?")
+    self.`import`(from: ["lispkit", "control"], "if", "cond", "let", "do")
   }
   
   /// Declarations of the library.
@@ -69,6 +75,11 @@ public final class ListLibrary: NativeLibrary {
     self.define("cddadr", via: "(define (cddadr x) (cddr (cadr x)))")
     self.define("cdddar", via: "(define (cdddar x) (cddr (cdar x)))")
     self.define("cddddr", via: "(define (cddddr x) (cddr (cddr x)))")
+    self.define(Procedure("length", length))
+    self.define(Procedure("append", append))
+    self.define(Procedure("reverse", reverse))
+    self.define(Procedure("list-tail", listTail))
+    self.define(Procedure("decons", decons))
     self.define("list-ref", via: "(define (list-ref x k) (car (list-tail x k)))")
     self.define("member", via:
       "(define (member x list . comp)",
@@ -88,22 +99,17 @@ public final class ListLibrary: NativeLibrary {
       "       (do ((pair (decons (cons list1 lists)) (decons (cdr pair))))",
       "           ((null? pair) (reverse res))",
       "           (set! res (cons (apply f (car pair)) res)))))")
-    self.define("foreach", via:
+    self.define("for-each", via:
       "(define (for-each f list1 . lists)",
       "  (do ((pair (decons (cons list1 lists)) (decons (cdr pair))))",
       "      ((null? pair))",
       "        (apply f (car pair))))")
-    self.define(Procedure("length", length))
-    self.define(Procedure("append", append))
-    self.define(Procedure("reverse", reverse))
-    self.define(Procedure("list-tail", listTail))
     self.define(Procedure("key", key))
     self.define(Procedure("value", value))
     self.define(Procedure("memq", memq))
     self.define(Procedure("memv", memv))
     self.define(Procedure("assq", assq))
     self.define(Procedure("assv", assv))
-    self.define(Procedure("decons", decons))
   }
   
   //---------MARK: - List predicates

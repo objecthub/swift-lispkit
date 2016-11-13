@@ -66,7 +66,6 @@ public final class BaseLibrary: NativeLibrary {
     self.define(Procedure("gensym", gensym))
     self.define(Procedure("string->symbol", stringToSymbol))
     self.define(Procedure("symbol->string", symbolToString))
-    self.define(Procedure("symtable", symtable))
     
     // Boolean primitives
     self.define(Procedure("boolean?", isBoolean))
@@ -80,7 +79,9 @@ public final class BaseLibrary: NativeLibrary {
     self.define(Procedure("exit", exit))
     self.define(Procedure("compile", compile))
     self.define(Procedure("disassemble", disassemble))
-    self.define(Procedure("inspect", inspect))
+    self.define(Procedure("available-symbols", availableSymbols))
+    self.define(Procedure("loaded-libraries", loadedLibraries))
+    self.define(Procedure("environment-info", environmentInfo))
     self.define("time", as: SpecialForm(compileTime))
   }
   
@@ -98,9 +99,8 @@ public final class BaseLibrary: NativeLibrary {
     guard args.count < 3 else {
       throw EvalError.argumentCountError(formals: 2, args: .makeList(args))
     }
-    return try Compiler.compile(self.context,
-                                expr: .pair(args.first!, .null),
-                                in: .interaction,
+    return try Compiler.compile(expr: .pair(args.first!, .null),
+                                in: self.context.global,
                                 optimize: true)
   }
   
@@ -182,7 +182,7 @@ public final class BaseLibrary: NativeLibrary {
     }
     switch arg {
       case .pair(_, _):
-        return try compiler.compile(reduceQQ(arg), in: env, inTailPos: tail)
+        return try compiler.compile(reduceQQ(arg, in: env), in: env, inTailPos: tail)
       case .vector(let vector):
         var nvec = 0
         var nelem = 0
@@ -234,9 +234,9 @@ public final class BaseLibrary: NativeLibrary {
     return false
   }
   
-  fileprivate func reduceQQ(_ expr: Expr) throws -> Expr {
+  private func reduceQQ(_ expr: Expr, in env: Env) throws -> Expr {
     guard case .pair(let car, let cdr) = expr else {
-      return Expr.makeList(.symbol(Symbol(context.symbols.quote, .system)), expr)
+      return Expr.makeList(.symbol(Symbol(context.symbols.quote, env.global)), expr)
     }
     switch car {
       case .symbol(context.symbols.unquote):
@@ -248,20 +248,20 @@ public final class BaseLibrary: NativeLibrary {
         guard case .pair(let cadr, .null) = cdr else {
           throw EvalError.invalidContextInQuasiquote(context.symbols.quasiquote, car)
         }
-        return try reduceQQ(reduceQQ(cadr))
+        return try reduceQQ(reduceQQ(cadr, in: env), in: env)
       case .symbol(context.symbols.unquoteSplicing):
         throw EvalError.invalidContextInQuasiquote(context.symbols.unquoteSplicing, car)
       case .pair(.symbol(context.symbols.unquoteSplicing), let cdar):
         guard case .pair(let cadar, .null) = cdar else {
           throw EvalError.invalidContextInQuasiquote(context.symbols.unquoteSplicing, car)
         }
-        return Expr.makeList(.symbol(Symbol(context.symbols.append, .system)),
-                         cadar,
-                         try reduceQQ(cdr))
+        return Expr.makeList(.symbol(Symbol(context.symbols.append, env.global)),
+                             cadar,
+                             try reduceQQ(cdr, in: env))
       default:
-        return Expr.makeList(.symbol(Symbol(context.symbols.cons, .system)),
-                         try reduceQQ(car),
-                         try reduceQQ(cdr))
+        return Expr.makeList(.symbol(Symbol(context.symbols.cons, env.global)),
+                             try reduceQQ(car, in: env),
+                             try reduceQQ(cdr, in: env))
     }
   }
   
@@ -301,20 +301,22 @@ public final class BaseLibrary: NativeLibrary {
     }
     // Compile definition and store result in global environment
     switch sig {
-      case .symbol(_):
+      case .symbol(let sym):
         guard case .pair(let value, .null) = def else {
           throw EvalError.malformedDefinition(Expr.makeList(def))
         }
         let index = compiler.registerConstant(sig)
         try compiler.compile(value, in: env, inTailPos: false)
+        let loc = env.environment!.forceDefinedLocationRef(for: sym).location!
         compiler.patchMakeClosure(index)
-        compiler.emit(.defineGlobal(index))
+        compiler.emit(.defineGlobal(loc))
         compiler.emit(.pushConstant(index))
         return false
-      case .pair(let symSig, let arglist):
-        let index = compiler.registerConstant(symSig)
+      case .pair(.symbol(let sym), let arglist):
+        let index = compiler.registerConstant(.symbol(sym))
         try compiler.compileLambda(index, arglist, def, env)
-        compiler.emit(.defineGlobal(index))
+        let loc = env.environment!.forceDefinedLocationRef(for: sym).location!
+        compiler.emit(.defineGlobal(loc))
         compiler.emit(.pushConstant(index))
         return false
       default:
@@ -338,8 +340,9 @@ public final class BaseLibrary: NativeLibrary {
     // Compile transformer and store it as global keyword
     let index = compiler.registerConstant(kword)
     try compiler.compile(transformer, in: env, inTailPos: false)
+    let loc = env.environment!.forceDefinedLocationRef(for: sym).location!
     compiler.emit(.makeSyntax)
-    compiler.emit(.defineGlobal(index))
+    compiler.emit(.defineGlobal(loc))
     compiler.emit(.pushConstant(index))
     return false
   }
@@ -424,9 +427,10 @@ public final class BaseLibrary: NativeLibrary {
   
   func load(_ expr: Expr) throws -> Expr {
     let filename = try expr.asString()
-    return self.context.machine.evalFile(
-      Bundle.main.path(
-        forResource: filename, ofType: "scm", inDirectory: "LispKit/Library") ?? filename)
+    return self.context.machine.eval(
+      file: Bundle.main.path(
+              forResource: filename, ofType: "scm", inDirectory: "LispKit/Library") ?? filename,
+      in: self.context.global)
   }
   
   
@@ -492,15 +496,6 @@ public final class BaseLibrary: NativeLibrary {
   func symbolToString(_ expr: Expr) throws -> Expr {
     return .string(NSMutableString(string: try expr.asSymbol().description))
   }
-  
-  func symtable() -> Expr {
-    var res = Expr.null
-    for sym in self.context.symbols {
-      res = .pair(.symbol(sym), res)
-    }
-    return res
-  }
-  
   
   //-------- MARK: - Boolean primitives
   
@@ -613,7 +608,9 @@ public final class BaseLibrary: NativeLibrary {
     for expr in exprs.reversed() {
       seq = .pair(expr, seq)
     }
-    let code = try Compiler.compile(self.context, expr: seq, optimize: true)
+    let code = try Compiler.compile(expr: seq,
+                                    in: self.context.global,
+                                    optimize: true)
     context.console.print(code.description)
     return .void
   }
@@ -646,7 +643,33 @@ public final class BaseLibrary: NativeLibrary {
     return .void
   }
   
-  func inspect(_ expr: Expr) -> Expr {
-    return expr
+  func availableSymbols() -> Expr {
+    var res = Expr.null
+    for sym in self.context.symbols {
+      res = .pair(.symbol(sym), res)
+    }
+    return res
+  }
+  
+  func loadedLibraries() -> Expr {
+    var res = Expr.null
+    for library in self.context.libraries.loaded {
+      res = .pair(library.name, res)
+    }
+    return res
+  }
+  
+  func environmentInfo() -> Expr {
+    context.console.print("MANAGED OBJECT POOL\n")
+    context.console.print("  tracked objects    : \(context.objects.numTrackedObjects)\n")
+    context.console.print("  tracked capacity   : \(context.objects.trackedObjectCapacity)\n")
+    context.console.print("  managed objects    : \(context.objects.numManagedObjects)\n")
+    context.console.print("  managed capacity   : \(context.objects.managedObjectCapacity)\n")
+    context.console.print("GARBAGE COLLECTOR\n")
+    context.console.print("  gc cycles          : \(context.objects.cycles)\n")
+    context.console.print("  last tag           : \(context.objects.tag)\n")
+    context.console.print("GLOBAL LOCATIONS\n")
+    context.console.print("  allocated locations: \(context.locations.count)\n")
+    return .void
   }
 }

@@ -216,11 +216,11 @@ public final class VirtualMachine: TrackedObject {
   
   /// Loads the file at file patch `path`, compiles it in the interaction environment, and
   /// executes it using this virtual machine.
-  public func evalFile(_ path: String, in env: Env = .interaction, optimize: Bool = true) -> Expr {
+  public func eval(file path: String, in env: Env, optimize: Bool = true) -> Expr {
     do {
-      return self.evalStr(try String(contentsOfFile: path, encoding: String.Encoding.utf8),
-                          in: env,
-                          optimize: optimize)
+      return self.eval(str: try String(contentsOfFile: path, encoding: String.Encoding.utf8),
+                       in: env,
+                       optimize: optimize)
     } catch let error as NSError {
       return .error(AnyError(OsError(error)))
     }
@@ -228,14 +228,14 @@ public final class VirtualMachine: TrackedObject {
   
   /// Parses the given string, compiles it in the interaction environment, and executes it using
   /// this virtual machine.
-  public func evalStr(_ str: String, in env: Env = .interaction, optimize: Bool = true) -> Expr {
+  public func eval(str: String, in env: Env, optimize: Bool = true) -> Expr {
     do {
       let parser = Parser(symbols: self.context.symbols, src: str)
       var exprs = Exprs()
       while !parser.finished {
         exprs.append(try parser.parse())
       }
-      return self.evalExprs(.makeList(exprs), in: env, optimize: optimize)
+      return self.eval(exprs: .makeList(exprs), in: env, optimize: optimize)
     } catch let error as LispError { // handle Lisp-related issues
       return .error(AnyError(error))
     } catch { // handle internal issues
@@ -247,19 +247,21 @@ public final class VirtualMachine: TrackedObject {
   
   /// Compiles the given expression in the interaction environment and executes it using this
   /// virtual machine.
-  public func evalExpr(_ expr: Expr, in env: Env = .interaction, optimize: Bool = true) -> Expr {
-    return self.evalExprs(.makeList(expr), in: env, optimize: optimize)
+  public func eval(expr: Expr, in env: Env, optimize: Bool = true) -> Expr {
+    return self.eval(exprs: .makeList(expr), in: env, optimize: optimize)
   }
   
   /// Compiles the given list of expressions in the interaction environment and executes
   /// it using this virtual machine.
-  public func evalExprs(_ exprs: Expr, in env: Env = .interaction, optimize: Bool = true) -> Expr {
+  public func eval(exprs: Expr, in env: Env, optimize: Bool = true) -> Expr {
     do {
       var exprlist = exprs
       var res = Expr.void
       while case .pair(let expr, let rest) = exprlist {
         let code =
-          try Compiler.compile(self.context, expr: .makeList(expr), in: env, optimize: optimize)
+          try Compiler.compile(expr: .makeList(expr),
+                               in: env,
+                               optimize: optimize)
         log(code.description)
         res = try self.execute(code)
         exprlist = rest
@@ -281,16 +283,17 @@ public final class VirtualMachine: TrackedObject {
   
   /// Compiles the given expression `expr` in the environment `env` and executes it using
   /// this virtual machine.
-  public func eval(_ expr: Expr,
-                   in env: Env = .interaction,
-                   usingRulesEnv renv: Env? = nil) throws -> Expr {
+  public func eval(_ expr: Expr, in env: Env, usingRulesEnv renv: Env? = nil) throws -> Expr {
     let code =
-      try Compiler.compile(self.context, expr: .makeList(expr), in: env, and: renv, optimize: true)
+      try Compiler.compile(expr: .makeList(expr),
+                           in: env,
+                           and: renv,
+                           optimize: true)
     return try self.apply(.procedure(Procedure(code)), to: .null)
   }
   
   /// Applies `args` to the function `fun` in environment `env`.
-  public func apply(_ fun: Expr, to args: Expr, in env: Env = .interaction) throws -> Expr {
+  public func apply(_ fun: Expr, to args: Expr) throws -> Expr {
     self.push(fun)
     var n = try self.pushArguments(args)
     let proc = try self.invoke(&n, 1)
@@ -819,34 +822,29 @@ public final class VirtualMachine: TrackedObject {
           self.stack[self.sp - 1] = self.stack[self.sp - 2]
           self.stack[self.sp - 2] = top
         case .pushGlobal(let index):
-          guard case .symbol(let sym) = self.registers.code.constants[index] else {
-            preconditionFailure("PushGlobal expects a symbol at index \(index)")
-          }
-          guard let symval = context.userScope[sym] else {
-            throw EvalError.unboundVariable(sym)
-          }
-          switch symval {
+          let value = self.context.locations[index]
+          switch value {
             case .undef:
+              throw EvalError.variableNotYetInitialized(nil)
+            case .uninit(let sym):
               throw EvalError.variableNotYetInitialized(sym)
             case .special(_):
-              throw EvalError.illegalKeywordUsage(.symbol(sym))
+              throw EvalError.illegalKeywordUsage(.undef) // TODO: can this really happen?
             default:
-              self.push(symval)
+              self.push(value)
           }
         case .setGlobal(let index):
-          guard case .symbol(let sym) = self.registers.code.constants[index] else {
-            preconditionFailure("SetGlobal expects a symbol at index \(index)")
-          }
-          if let scope = context.userScope.scopeWithBindingFor(sym) {
-            scope[sym] = self.pop()
-          } else {
-            throw EvalError.unboundVariable(sym)
+          let value = self.context.locations[index]
+          switch value {
+            case .undef:
+              throw EvalError.variableNotYetInitialized(nil)
+            case .uninit(let sym):
+              throw EvalError.unboundVariable(sym)
+            default:
+              self.context.locations[index] = self.pop()
           }
         case .defineGlobal(let index):
-          guard case .symbol(let sym) = self.registers.code.constants[index] else {
-            preconditionFailure("DefineGlobal expects a symbol at index \(index)")
-          }
-          context.userScope[sym] = self.pop()
+          self.context.locations[index] = self.pop()
         case .pushCaptured(let index):
           self.push(self.registers.captured[index])
         case .pushCapturedValue(let index):
@@ -944,7 +942,9 @@ public final class VirtualMachine: TrackedObject {
           }
           self.push(.special(SpecialForm(proc)))
         case .compile:
-          let code = try Compiler.compile(self.context, expr: .makeList(self.pop()), optimize: true)
+          let code = try Compiler.compile(expr: .makeList(self.pop()),
+                                          in: self.context.global,
+                                          optimize: true)
           self.push(.procedure(Procedure(code)))
         case .apply(let m):
           let arglist = self.pop()

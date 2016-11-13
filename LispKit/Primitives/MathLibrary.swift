@@ -30,6 +30,12 @@ public final class MathLibrary: NativeLibrary {
     return ["lispkit", "math"]
   }
   
+  /// Dependencies of the library.
+  public override func dependencies() {
+    self.`import`(from: ["lispkit", "base"], "define", "lambda")
+    self.`import`(from: ["lispkit", "control"], "letrec", "let", "cond", "if")
+  }
+  
   /// Declarations of the library.
   public override func declarations() {
     self.define(Procedure("number?", isNumber))

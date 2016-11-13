@@ -28,6 +28,11 @@ public final class BoxLibrary: NativeLibrary {
     return ["lispkit", "box"]
   }
   
+  /// Dependencies of the library.
+  public override func dependencies() {
+    self.`import`(from: ["lispkit", "base"], "define")
+  }
+  
   /// Declarations of the library.
   public override func declarations() {
     // Boxes

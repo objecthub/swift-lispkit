@@ -25,12 +25,17 @@ import LispKit
 let console = CommandLineConsole()
 
 // Create LispKit context
-let context = Context(console: console, library: SchemeLibrary.self)
+let context = Context(console: console)
+do {
+  try context.environment.import(SchemeLibrary.name)
+} catch {
+  preconditionFailure("cannot import (base scheme)")
+}
 
 // Load standard Prelude
 if let preludePath = Bundle(identifier: "net.objecthub.LispKit")?.path(
   forResource: "Prelude", ofType: "scm", inDirectory: "LispKit/Library") {
-  _ = context.machine.evalFile(preludePath)
+  _ = context.machine.eval(file: preludePath, in: context.global)
 }
 
 // Print header
@@ -43,7 +48,7 @@ while let line = console.read() {
   guard line != "exit" else {
     break
   }
-  let res = context.machine.evalStr(line)
+  let res = context.machine.eval(str: line, in: context.global)
   if res != Expr.void {
     console.print(res.description + "\n")
   }

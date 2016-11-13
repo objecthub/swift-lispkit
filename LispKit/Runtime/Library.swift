@@ -164,7 +164,7 @@ open class Library: Reference, Trackable, CustomStringConvertible {
   
   /// Maps exported identifiers to location references (immutable/mutable)
   public internal(set) var exports: [Symbol : InternalLocationRef]
-
+  
   /// Maps imported internal identifiers to location references (immutable/mutable)
   public internal(set) var imports: [Symbol : InternalLocationRef]
   
@@ -253,11 +253,13 @@ open class Library: Reference, Trackable, CustomStringConvertible {
         if let unifiedLocationRef = locationRef.unify(with: currentLocationRef) {
           self.imports[ident] = unifiedLocationRef
         } else {
+          print("*** INCONSISTENT IMPORT OF \(ident) ***")
           // ERROR: inconsistent import of `import` involving `library` and one of the
           // previous library values (just pick the first from libraryReferences?) since
           // a unification wasn't possible
         }
       } else {
+        print("*** CYCLIC DEPENDENCY OF \(ident) ***")
         // ERROR: signal cyclic dependency since the library isn't able to return a location
       }
     }
@@ -265,16 +267,16 @@ open class Library: Reference, Trackable, CustomStringConvertible {
     return self.imports[ident]!
   }
   
-  public func allocate() {
+  public func allocate() -> Bool {
     guard case .loaded = self.state else {
-      return
+      return false
     }
     // Mark the state of the library as allocated
     self.state = .allocated
     // Collect imported identifiers and determine where they are imported from
     for importDecl in self.importDecls {
       if let (library, importSpec) = importDecl.expand(in: self.context) {
-        libraries.insert(library)
+        self.libraries.insert(library)
         for (impIdent, expIdent) in importSpec {
           self.imported.insert(impIdent, mapsTo: (library, expIdent))
         }
@@ -282,20 +284,22 @@ open class Library: Reference, Trackable, CustomStringConvertible {
     }
     // Allocate locations for the exported identifiers which are not imported
     for (extIdent, intIdent) in self.exportDecls {
-      if !self.imported.hasValues(for: intIdent.identifier) {
-        self.exports[extIdent] = intIdent.located(at: self.context.allocateLocation())
+      if !self.imported.hasValues(for: intIdent.identifier) && self.exports[extIdent] == nil {
+        self.exports[extIdent] =
+          intIdent.located(at: self.context.allocateLocation(for: .uninit(intIdent.identifier)))
       }
     }
     // Allocate all libraries from which identifiers are imported
     for library in self.libraries {
-      library.allocate()
+      _ = library.allocate()
     }
+    return true
   }
   
-  public func wire() {
-    self.allocate()
-    guard case .wired = self.state else {
-      return
+  public func wire() -> Bool {
+    _ = self.allocate()
+    guard case .allocated = self.state else {
+      return false
     }
     // Mark the state of the library as wired
     self.state = .wired
@@ -305,23 +309,31 @@ open class Library: Reference, Trackable, CustomStringConvertible {
     }
     // Backfill dependencies for the exported identifiers which are imported
     for exportedIdent in self.exportDecls.keys {
-      _ = self.exportLocation(exportedIdent)
+      guard self.exportLocation(exportedIdent) != nil else {
+        preconditionFailure("cannot export \(exportedIdent) from \(self.name)")
+      }
     }
+    return true
   }
   
-  public func initialize() {
-    self.wire()
-    guard case .initialized = self.state else {
-      return
+  public func initialize() throws -> Bool {
+    _ = self.wire()
+    guard case .wired = self.state else {
+      return false
     }
     // Mark the state of the library as initialized
     self.state = .initialized
     // Initialize libraries on which this library depends
     for library in self.libraries {
-      library.initialize()
+      _ = try library.initialize()
     }
     // Compile and run
-    _ = Environment(in: self.context, for: self)
+    let env = Env(Environment(in: self.context, for: self))
+    for decl in self.initDecls {
+      _ = try self.context.machine.eval(decl, in: env)
+    }
+    // TODO: Check that all exported declarations are initialized
+    return true
   }
   
   private static func checkLibraryName(_ name: Expr) throws {

@@ -28,6 +28,13 @@ public final class RecordLibrary: NativeLibrary {
     return ["lispkit", "record"]
   }
   
+  /// Dependencies of the library.
+  public override func dependencies() {
+    self.`import`(from: ["lispkit", "base"], "define", "define-syntax", "syntax-rules",
+                                             "lambda", "quote", "symbol->string")
+    self.`import`(from: ["lispkit", "control"], "let", "begin")
+  }
+  
   /// Declarations of the library.
   public override func declarations() {
     self.define(Procedure("record?", isRecord))
@@ -64,7 +71,7 @@ public final class RecordLibrary: NativeLibrary {
       "    ((_ type field accessor mutator)",
       "      (begin",
       "        (define accessor (record-field-accessor type 'field))",
-      "        (define mutator (record-field-mutator type 'field)))))")
+      "        (define mutator (record-field-mutator type 'field))))))")
     self.define("define-record-type", via:
       "(define-syntax define-record-type",
       "  (syntax-rules ()",
@@ -73,7 +80,7 @@ public final class RecordLibrary: NativeLibrary {
       "        (define type (make-record-type (symbol->string 'type) '(cfield ...)))",
       "        (define constr (record-constructor type '(cfield ...)))",
       "        (define pred (record-predicate type))",
-      "        (define-record-field type field accessor . mutator) ...)))")
+      "        (define-record-field type field accessor . mutator) ...))))")
   }
   
   func isRecord(_ expr: Expr, rtype: Expr?) -> Expr {

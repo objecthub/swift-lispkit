@@ -56,7 +56,7 @@ public final class Context {
   
   /// Initializes a new object
   public init(console: Console) {
-    // Initialize global components
+    // Initialize components
     self.console = console
     self.objects = ManagedObjectPool()
     self.symbols = SymbolTable()
@@ -69,6 +69,19 @@ public final class Context {
     self.machine = VirtualMachine(for: self)
     // Register tracked objects
     self.objects.track(self.machine)
+    // Load native libraries
+    do {
+      for nativeLibrary in LibraryRegistry.nativeLibraries {
+        try self.libraries.load(libraryType: nativeLibrary)
+      }
+    } catch let error {
+      preconditionFailure("cannot load native libraries: \(error)")
+    }
+  }
+  
+  /// Returns the global environment of this context
+  public var global: Env {
+    return .global(self.environment)
   }
   
   /// Allocates a new global location and initializes it with `expr`.

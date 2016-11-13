@@ -27,6 +27,16 @@ public final class DynamicControlLibrary: NativeLibrary {
     return ["lispkit", "dynamic"]
   }
   
+  /// Dependencies of the library.
+  public override func dependencies() {
+    self.`import`(from: ["lispkit", "base"], "define", "define-syntax", "syntax-rules",
+                                             "lambda", "eqv?")
+    self.`import`(from: ["lispkit", "control"], "if", "let", "let*", "do")
+    self.`import`(from: ["lispkit", "box"], "box")
+    self.`import`(from: ["lispkit", "list"], "car", "cdr", "list", "null?")
+    self.`import`(from: ["lispkit", "hashtable"], "hashtable-add!")
+  }
+  
   /// Declarations of the library.
   public override func declarations() {
     // Continuations
@@ -56,12 +66,12 @@ public final class DynamicControlLibrary: NativeLibrary {
       "  (let ((res (during))) ((cdr (_wind-down))) res))")
     
     // Parameters
-    define(Procedure("dynamic-environment", dynamicEnvironment))
-    define(Procedure("make-dynamic-environment", makeDynamicEnvironment))
-    define(Procedure("set-dynamic-environment!", setDynamicEnvironment))
-    define(Procedure("_make-parameter", makeParameter))
-    define(Procedure("_bind-parameter", bindParameter))
-    define("_dynamic-bind", via:
+    self.define(Procedure("dynamic-environment", dynamicEnvironment))
+    self.define(Procedure("make-dynamic-environment", makeDynamicEnvironment))
+    self.define(Procedure("set-dynamic-environment!", setDynamicEnvironment))
+    self.define(Procedure("_make-parameter", makeParameter))
+    self.define(Procedure("_bind-parameter", bindParameter))
+    self.define("_dynamic-bind", via:
       "(define (_dynamic-bind parameters values body)" +
       "  (let* ((old-env (dynamic-environment))" +
       "         (new-env (make-dynamic-environment)))" +
@@ -74,18 +84,18 @@ public final class DynamicControlLibrary: NativeLibrary {
       "    (dynamic-wind (lambda () (set-dynamic-environment! new-env))" +
       "                  body" +
       "                  (lambda () (set-dynamic-environment! old-env)))))")
-    define("make-parameter", via:
+    self.define("make-parameter", via:
       "(define (make-parameter val . conv)" +
       "  (if (null? conv)" +
       "    (_make-parameter val)" +
       "    (_make-parameter" +
       "      ((car conv) val)" +
       "      (lambda (param val setter) (setter param ((car conv) val))))))")
-    define("parameterize", via:
+    self.define("parameterize", via:
       "(define-syntax parameterize" +
       "  (syntax-rules ()" +
       "    ((parameterize ((expr1 expr2) ...) body ...)" +
-      "      (_dynamic-bind (list expr1 ...) (list expr2 ...) (lambda () body ...))))")
+      "      (_dynamic-bind (list expr1 ...) (list expr2 ...) (lambda () body ...)))))")
   }
   
   func isContinuation(_ expr: Expr) -> Expr {

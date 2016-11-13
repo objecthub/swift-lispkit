@@ -55,6 +55,8 @@ public func equalExpr(_ this: Expr, _ that: Expr) -> Bool {
            (.true, .true),
            (.false, .false):
         return true
+      case (.uninit(let sym1), .uninit(let sym2)):
+        return sym1 === sym2
       case (.symbol(let sym1), .symbol(let sym2)):
         return sym1 === sym2
       case (.fixnum(_), _),
@@ -205,6 +207,8 @@ public func eqvExpr(_ lhs: Expr, _ rhs: Expr) -> Bool {
          (.true, .true),
          (.false, .false):
       return true
+    case (.uninit(let sym1), .uninit(let sym2)):
+      return sym1 === sym2
     case (.symbol(let sym1), .symbol(let sym2)):
       return sym1 === sym2
     case (.fixnum(_), _),
@@ -261,6 +265,8 @@ public func eqExpr(_ lhs: Expr, _ rhs: Expr) -> Bool {
          (.true, .true),
          (.false, .false):
       return true
+    case (.uninit(let sym1), .uninit(let sym2)):
+      return sym1 === sym2
     case (.symbol(let sym1), .symbol(let sym2)):
       return sym1 === sym2
     case (.fixnum(let num1), .fixnum(let num2)):

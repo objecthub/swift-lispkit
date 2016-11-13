@@ -87,10 +87,11 @@ public final class Procedure: Reference, CustomStringConvertible {
               in context: Context) {
     func indirect(_ args: Arguments) throws -> Code {
       let expr =
-        Expr.pair(.symbol(Symbol(context.symbols.intern(name), .system)), .makeList(args))
-      return try Compiler.compile(context,
-                                  expr: .pair(expr, .null),
-                                  in: .system,
+        Expr.pair(
+          .symbol(Symbol(context.symbols.intern(name), context.global)),
+          .makeList(args))
+      return try Compiler.compile(expr: .pair(expr, .null),
+                                  in: context.global,
                                   optimize: false)
     }
     self.kind = .primitive(name, .eval(indirect), compiler)

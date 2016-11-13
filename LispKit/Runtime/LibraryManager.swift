@@ -37,9 +37,19 @@ public final class LibraryManager: CustomStringConvertible {
     return AnySequence(self.libraries.values)
   }
   
+  /// Returns the libraries loaded by this library manager.
+  public var loadedLibraryNames: AnySequence<Expr> {
+    return AnySequence(self.libraries.keys)
+  }
+  
   /// Returns the library loaded by this library manager with the given name.
   public func lookup(_ name: Expr) -> Library? {
     return self.libraries[name]
+  }
+  
+  /// Returns the library loaded by this library manager with the given name.
+  public func lookup(_ name: [String]) -> Library? {
+    return self.libraries[self.name(name)]
   }
   
   /// Returns the library loaded by this library manager with the given name.

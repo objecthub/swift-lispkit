@@ -371,10 +371,12 @@ public enum Instruction: CustomStringConvertible {
   /// Provides supplemental information about this instruction in a given code context.
   public func comment(for code: Code, at ip: Int) -> String? {
     switch self {
-      case .pushGlobal(let index):
-        return code.constants[index].description
-      case .setGlobal(let index):
-        return code.constants[index].description
+      case .pushGlobal(_):
+        return nil
+      case .setGlobal(_):
+        return nil
+      case .defineGlobal(_):
+        return nil
       case .pushCaptured(_):
         return nil
       case .pushCapturedValue(_):
@@ -432,12 +434,12 @@ public enum Instruction: CustomStringConvertible {
         return "pop"
       case .dup:
         return "dup"
-      case .pushGlobal(let index):
-        return "push_global \(index)"
-      case .setGlobal(let index):
-        return "set_global \(index)"
-      case .defineGlobal(let index):
-        return "define_global \(index)"
+      case .pushGlobal(let loc):
+        return "push_global \(loc)"
+      case .setGlobal(let loc):
+        return "set_global \(loc)"
+      case .defineGlobal(let loc):
+        return "define_global \(loc)"
       case .pushCaptured(let index):
         return "push_captured \(index)"
       case .pushCapturedValue(let index):

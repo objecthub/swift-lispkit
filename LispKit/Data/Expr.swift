@@ -30,6 +30,7 @@ public enum Expr: Trackable, Hashable {
   case null
   case `true`
   case `false`
+  case uninit(Symbol)
   case symbol(Symbol)
   case fixnum(Int64)
   case bignum(BigInt)
@@ -56,7 +57,8 @@ public enum Expr: Trackable, Hashable {
   /// Returns the type of this expression.
   public var type: Type {
     switch self {
-      case .undef:
+      case .undef,
+           .uninit(_):
         return .undefinedType
       case .void:
         return .voidType
@@ -116,6 +118,16 @@ public enum Expr: Trackable, Hashable {
   }
   
   // Predicate methods
+  
+  /// Returns true if this expression is undefined.
+  public var isUndef: Bool {
+    switch self {
+      case .undef, .uninit(_):
+        return true
+      default:
+        return false
+    }
+  }
   
   /// Returns true if this expression is null.
   public var isNull: Bool {
@@ -228,7 +240,7 @@ public enum Expr: Trackable, Hashable {
   /// indirectly.
   public var isAtom: Bool {
     switch self {
-      case .undef, .void, .eof, .null, .true, .false, .symbol(_),
+      case .undef, .void, .eof, .null, .true, .false, .uninit(_), .symbol(_),
            .fixnum(_), .bignum(_), .rational(_), .bigrat(_), .flonum(_), .complex(_),
            .char(_), .string(_), .bytes(_), .env(_), .port(_):
         return true
@@ -582,6 +594,11 @@ extension Expr: CustomStringConvertible {
           return "#t"
         case .false:
           return "#f"
+        case .uninit(let sym):
+          guard escape else {
+            return "#<uninit \(sym.rawIdentifier)>"
+          }
+          return "#<uninit \(sym.description)>"
         case .symbol(let sym):
           guard escape else {
             return sym.rawIdentifier

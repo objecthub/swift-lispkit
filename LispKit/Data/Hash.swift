@@ -34,7 +34,8 @@ public func equalHash(_ expr: Expr) -> Int {
   
   func hash(_ expr: Expr) -> Int {
     switch expr.normalized {
-      case .undef:
+      case .undef,
+           .uninit(_):
         return 0
       case .void:
         return 1
@@ -144,7 +145,8 @@ public func equalHash(_ expr: Expr) -> Int {
 
 public func eqvHash(_ expr: Expr) -> Int {
   switch expr.normalized {
-    case .undef:
+    case .undef,
+         .uninit(_):
       return 0
     case .void:
       return 1
@@ -205,7 +207,8 @@ public func eqvHash(_ expr: Expr) -> Int {
 
 public func eqHash(_ expr: Expr) -> Int {
   switch expr {
-    case .undef:
+    case .undef,
+         .uninit(_):
       return 0
     case .void:
       return 1

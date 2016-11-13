@@ -41,6 +41,21 @@ public final class HashTableLibrary: NativeLibrary {
     return ["lispkit", "hashtable"]
   }
   
+  /// Dependencies of the library.
+  public override func dependencies() {
+    self.`import`(from: ["lispkit", "base"], "define", "lambda", "equal?", "eqv?", "eq?")
+    self.`import`(from: ["lispkit", "control"], "let*", "letrec", "if")
+    self.`import`(from: ["lispkit", "list"], "cons", "car", "cdr", "pair?", "for-each", "value")
+    self.`import`(from: ["lispkit", "math"], ">", "+", "*")
+  }
+  
+  /// Access to imported native procedures.
+  public override func initializations() {
+    self.equalProc = self.procedure(self.imported("equal?"))
+    self.eqvProc = self.procedure(self.imported("eqv?"))
+    self.eqProc = self.procedure(self.imported("eq?"))
+  }
+  
   /// Declarations of the library.
   public override func declarations() {
     self.bucketsProc = Procedure("_buckets", self.hBuckets)
@@ -117,13 +132,6 @@ public final class HashTableLibrary: NativeLibrary {
     self.define(Procedure("string-hash", stringHashVal))
     self.define(Procedure("string-ci-hash", stringCiHashVal))
     self.define(Procedure("symbol-hash", symbolHashVal))
-  }
-  
-  /// Import definitions from other libraries
-  public override func dependencies() {
-    self.equalProc = self.procedure(self.imported("equal?"))
-    self.eqvProc = self.procedure(self.imported("eqv?"))
-    self.eqProc = self.procedure(self.imported("eq?"))
   }
   
   func makeHashTable(_ capacity: Expr, _ eql: Expr, _ hsh: Expr, _ args: Arguments) throws -> Expr {

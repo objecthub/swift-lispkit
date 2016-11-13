@@ -26,20 +26,25 @@ public final class SchemeLibrary: NativeLibrary {
     return ["scheme", "base"]
   }
   
-  /// Declarations of the library.
-  public override func declarations() {
-    self.include(ControlFlowLibrary.name)
-    self.include(BaseLibrary.name)
-    self.include(BoxLibrary.name)
-    self.include(HashTableLibrary.name)
-    self.include(DynamicControlLibrary.name)
-    self.include(MathLibrary.name)
-    self.include(ListLibrary.name)
-    self.include(VectorLibrary.name)
-    self.include(RecordLibrary.name)
-    self.include(BytevectorLibrary.name)
-    self.include(CharacterLibrary.name)
-    self.include(StringLibrary.name)
-    self.include(PortLibrary.name)
+  /// Exported definitions.
+  public override func reexports() {
+    self.exportAll()
+  }
+  
+  /// Dependencies of the library.
+  public override func dependencies() {
+    self.import(from: ControlFlowLibrary.name)
+    self.import(from: BaseLibrary.name)
+    self.import(from: BoxLibrary.name)
+    self.import(from: HashTableLibrary.name)
+    self.import(from: DynamicControlLibrary.name)
+    self.import(from: MathLibrary.name)
+    self.import(from: ListLibrary.name)
+    self.import(from: VectorLibrary.name)
+    self.import(from: RecordLibrary.name)
+    self.import(from: BytevectorLibrary.name)
+    self.import(from: CharacterLibrary.name)
+    self.import(from: StringLibrary.name)
+    self.import(from: PortLibrary.name)
   }
 }

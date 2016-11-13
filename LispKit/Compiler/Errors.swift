@@ -270,6 +270,11 @@ public enum EvalError: LispError {
   case leastArgumentCountError(formals: Int, args: Expr)
   case outOfScope(Expr)
   case defineInLocalEnv(signature: Expr, definition: Expr, group: BindingGroup)
+  case importInLocalEnv(Expr, BindingGroup)
+  case importInLibrary(Expr)
+  case malformedImportSet(Expr)
+  case erroneousRedefinition(Symbol, Library)
+  case cannotExpandImportSet(ImportSet)
   case defineSyntaxInLocalEnv(keyword: Symbol, definition: Expr, group: BindingGroup)
   case targetBytevectorTooSmall(Expr)
   case cannotOpenFile(String)
@@ -377,6 +382,16 @@ public enum EvalError: LispError {
         return "out of scope evaluation of \(syntax)"
       case .defineInLocalEnv(let sig, _, _):
         return "definition of \(sig) in local environment"
+      case .importInLocalEnv(let importSet, _):
+        return "import of \(importSet) in local environment"
+      case .importInLibrary(let e):
+        return "illegal import in library \(e)"
+      case .malformedImportSet(let e):
+        return "malformed import set \(e)"
+      case .erroneousRedefinition(let sym, let lib):
+        return "attempted to redefine \(sym) with definition from \(lib)"
+      case .cannotExpandImportSet(let i):
+        return "cannot expand import set \(i)"
       case .defineSyntaxInLocalEnv(let sym, _, _):
         return "syntax definition of \(sym) in local environment"
       case .targetBytevectorTooSmall(let bvec):
@@ -480,6 +495,16 @@ public enum EvalError: LispError {
         case (.defineInLocalEnv(let sig1, let def1, let g1),
               .defineInLocalEnv(let sig2, let def2, let g2)):
           return sig1 == sig2 && def1 == def2 && g1 == g2
+        case (.importInLocalEnv(let is1, let g1), .importInLocalEnv(let is2, let g2)):
+          return is1 == is2 && g1 == g2
+        case (.importInLibrary(let e1), .importInLibrary(let e2)):
+          return e1 == e2
+        case (.malformedImportSet(let e1), .malformedImportSet(let e2)):
+          return e1 == e2
+        case (.erroneousRedefinition(let s1, let l1), .erroneousRedefinition(let s2, let l2)):
+          return s1 == s2 && l1 == l2
+        case (.cannotExpandImportSet(let i1), .cannotExpandImportSet(let i2)):
+          return i1 == i2
         case (.defineSyntaxInLocalEnv(let sym1, let def1, let g1),
               .defineSyntaxInLocalEnv(let sym2, let def2, let g2)):
           return sym1 == sym2 && def1 == def2 && g1 == g2
