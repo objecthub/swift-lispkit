@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5 (2016-11-13)
+- Implemented environments as first-class values
+- Introduced a new R7RS-compatible library abstraction
+- Reimplemented all functions using libraries
+
 ## 0.4 (2016-09-04)
 - Migration from Swift 2.2 to Swift 3.0
 - Implemented [R6RS](http://www.r6rs.org)-compliant hash tables
@@ -21,7 +26,6 @@
 - Optimized usage of variables for function arguments.
 
 ## 0.1 (2016-05-02)
-
 - Initial version consisting of the framework and a very simple read-eval-print loop
 - The LispKit framework implements a subset of the
   [R5RS Scheme standard](http://www.schemers.org/Documents/Standards/R5RS/HTML/); the

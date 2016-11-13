@@ -32,10 +32,15 @@ In July 2016, _LispKit_ reached a major milestone in providing full support for 
 The recently implemented libraries supporting _ports_, _promises_, and _bytevectors_ are
 based on the [R7RS (small)](http://www.r7rs.org) standard from 2013. Currently, support for
 libraries based on the R7RS specification is being added. Over time, it's my goal to
-base the implementation primarily on R7RS and fall back to R6RS only whne there is no
+base the implementation primarily on R7RS and fall back to R6RS only when there is no
 corresponding specification provided by R7RS (e.g. for hash tables).
 
-Internally, _LispKit_ relies on [NumberKit](http://github.com/objecthub/swift-numberkit)
+In November 2016, _LispKit_ reached an important milestone for supporting R7RS libraries.
+Environments got reimplemented from scratch and made first-class values. Libraries were
+introduced and all built-in functions were modularly reimplemented in terms of the new
+library abstraction.
+
+_LispKit_ relies on [NumberKit](http://github.com/objecthub/swift-numberkit)
 for its support of numeric datatypes like rationals, complex numbers, and big integers.
 The _LispKit_ compiler does not perform any code optimizations and the performance of the
 system is significantly below state of the art Scheme implementations.
@@ -46,7 +51,7 @@ displays the result.
 
 ## Requirements
 
-- XCode 8.0
-- Swift 3.0
+- XCode 8.1
+- Swift 3.0.1
 - [NumberKit](http://github.com/objecthub/swift-numberkit)
 
