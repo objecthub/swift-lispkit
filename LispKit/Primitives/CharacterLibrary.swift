@@ -21,27 +21,33 @@
 
 public final class CharacterLibrary: NativeLibrary {
   
-  public override func export() {
-    define(Procedure("char?", isChar))
-    define(Procedure("char=?", charEquals))
-    define(Procedure("char<?", charLessThan))
-    define(Procedure("char>?", charGreaterThan))
-    define(Procedure("char<=?", charLessThanEquals))
-    define(Procedure("char>=?", charGreaterThanEquals))
-    define(Procedure("char-ci=?", charCiEquals))
-    define(Procedure("char-ci<?", charCiLessThan))
-    define(Procedure("char-ci>?", charCiGreaterThan))
-    define(Procedure("char-ci<=?", charCiLessThanEquals))
-    define(Procedure("char-ci>=?", charCiGreaterThanEquals))
-    define(Procedure("char-alphabetic?", charIsAlphabetic))
-    define(Procedure("char-numeric?", charIsNumeric))
-    define(Procedure("char-whitespace?", charIsWhitespace))
-    define(Procedure("char-upper-case?", charIsUpperCase))
-    define(Procedure("char-lower-case?", charIsLowerCase))
-    define(Procedure("char->integer", charToInteger))
-    define(Procedure("integer->char", integerToChar))
-    define(Procedure("char-upcase", charUpcase))
-    define(Procedure("char-downcase", charDowncase))
+  /// Name of the library.
+  public override class var name: [String] {
+    return ["lispkit", "character"]
+  }
+  
+  /// Declarations of the library.
+  public override func declarations() {
+    self.define(Procedure("char?", isChar))
+    self.define(Procedure("char=?", charEquals))
+    self.define(Procedure("char<?", charLessThan))
+    self.define(Procedure("char>?", charGreaterThan))
+    self.define(Procedure("char<=?", charLessThanEquals))
+    self.define(Procedure("char>=?", charGreaterThanEquals))
+    self.define(Procedure("char-ci=?", charCiEquals))
+    self.define(Procedure("char-ci<?", charCiLessThan))
+    self.define(Procedure("char-ci>?", charCiGreaterThan))
+    self.define(Procedure("char-ci<=?", charCiLessThanEquals))
+    self.define(Procedure("char-ci>=?", charCiGreaterThanEquals))
+    self.define(Procedure("char-alphabetic?", charIsAlphabetic))
+    self.define(Procedure("char-numeric?", charIsNumeric))
+    self.define(Procedure("char-whitespace?", charIsWhitespace))
+    self.define(Procedure("char-upper-case?", charIsUpperCase))
+    self.define(Procedure("char-lower-case?", charIsLowerCase))
+    self.define(Procedure("char->integer", charToInteger))
+    self.define(Procedure("integer->char", integerToChar))
+    self.define(Procedure("char-upcase", charUpcase))
+    self.define(Procedure("char-downcase", charDowncase))
   }
   
   func isChar(_ expr: Expr) -> Expr {

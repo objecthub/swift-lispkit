@@ -31,10 +31,10 @@
 public final class ManagedObjectPool: CustomStringConvertible {
   
   /// Last tag used for the mark/sweep garbage collector.
-  private var tag: UInt8
+  internal private(set) var tag: UInt8
   
   /// Number of garbage collection cycles.
-  private var cycles: UInt64
+  internal private(set) var cycles: UInt64
   
   /// Root set of tracked objects.
   private var rootSet: ObjectPool<TrackedObject>

@@ -23,48 +23,64 @@
 /// 
 public final class RecordLibrary: NativeLibrary {
   
-  public override func export() {
-    define(Procedure("record?", isRecord))
-    define(Procedure("record-type?", isRecordType))
-    define(Procedure("record-type", recordType))
-    define(Procedure("make-record-type", makeRecordType))
-    define(Procedure("record-type-name", recordTypeName))
-    define(Procedure("record-type-field-names", recordTypeFieldNames))
-    define(Procedure("record-type-field-index", recordTypeFieldIndex))
-    define(Procedure("make-record", makeRecord))
-    define(Procedure("record-ref", recordRef))
-    define(Procedure("record-set!", recordSet))
-    define("record-constructor", compile:
-      "(lambda (type fields)" +
-      "  (let ((indices (record-type-field-index type fields)))" +
-      "    (lambda args" +
-      "      (let ((record (make-record type)))" +
+  /// Name of the library.
+  public override class var name: [String] {
+    return ["lispkit", "record"]
+  }
+  
+  /// Dependencies of the library.
+  public override func dependencies() {
+    self.`import`(from: ["lispkit", "base"], "define", "define-syntax", "syntax-rules",
+                                             "lambda", "quote", "symbol->string")
+    self.`import`(from: ["lispkit", "control"], "let", "begin")
+  }
+  
+  /// Declarations of the library.
+  public override func declarations() {
+    self.define(Procedure("record?", isRecord))
+    self.define(Procedure("record-type?", isRecordType))
+    self.define(Procedure("record-type", recordType))
+    self.define(Procedure("make-record-type", makeRecordType))
+    self.define(Procedure("record-type-name", recordTypeName))
+    self.define(Procedure("record-type-field-names", recordTypeFieldNames))
+    self.define(Procedure("record-type-field-index", recordTypeFieldIndex))
+    self.define(Procedure("make-record", makeRecord))
+    self.define(Procedure("record-ref", recordRef))
+    self.define(Procedure("record-set!", recordSet))
+    self.define("record-constructor", via:
+      "(define (record-constructor type fields)",
+      "  (let ((indices (record-type-field-index type fields)))",
+      "    (lambda args",
+      "      (let ((record (make-record type)))",
       "        (record-set! record indices args) record))))")
-    define("record-predicate", compile: "(lambda (type) (lambda (x) (record? x type)))")
-    define("record-field-accessor", compile:
-      "(lambda (type field)" +
-      "  (let ((index (record-type-field-index type field)))" +
+    self.define("record-predicate", via:
+      "(define (record-predicate type) (lambda (x) (record? x type)))")
+    self.define("record-field-accessor", via:
+      "(define (record-field-accessor type field)",
+      "  (let ((index (record-type-field-index type field)))",
       "    (lambda (record) (record-ref record index))))")
-    define("record-field-mutator", compile:
-      "(lambda (type field)" +
-      "  (let ((index (record-type-field-index type field)))" +
+    self.define("record-field-mutator", via:
+      "(define (record-field-mutator type field)",
+      "  (let ((index (record-type-field-index type field)))",
       "    (lambda (record value) (record-set! record index value))))")
-    define("define-record-field", syntax:
-      "(syntax-rules ()" +
-      "  ((_ type field accessor)" +
-      "    (define accessor (record-field-accessor type 'field)))" +
-      "  ((_ type field accessor mutator)" +
-      "    (begin" +
-      "      (define accessor (record-field-accessor type 'field))" +
-      "      (define mutator (record-field-mutator type 'field)))))")
-    define("define-record-type", syntax:
-      "(syntax-rules ()" +
-      "  ((_ type (constr cfield ...) pred (field accessor . mutator) ...)" +
-      "    (begin" +
-      "      (define type (make-record-type (symbol->string 'type) '(cfield ...)))" +
-      "      (define constr (record-constructor type '(cfield ...)))" +
-      "      (define pred (record-predicate type))" +
-      "      (define-record-field type field accessor . mutator) ...)))")
+    self.define("define-record-field", via:
+      "(define-syntax define-record-field",
+      "  (syntax-rules ()",
+      "    ((_ type field accessor)",
+      "      (define accessor (record-field-accessor type 'field)))",
+      "    ((_ type field accessor mutator)",
+      "      (begin",
+      "        (define accessor (record-field-accessor type 'field))",
+      "        (define mutator (record-field-mutator type 'field))))))")
+    self.define("define-record-type", via:
+      "(define-syntax define-record-type",
+      "  (syntax-rules ()",
+      "    ((_ type (constr cfield ...) pred (field accessor . mutator) ...)",
+      "      (begin",
+      "        (define type (make-record-type (symbol->string 'type) '(cfield ...)))",
+      "        (define constr (record-constructor type '(cfield ...)))",
+      "        (define pred (record-predicate type))",
+      "        (define-record-field type field accessor . mutator) ...))))")
   }
   
   func isRecord(_ expr: Expr, rtype: Expr?) -> Expr {

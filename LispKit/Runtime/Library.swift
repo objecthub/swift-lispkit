@@ -22,10 +22,11 @@
 /// `Library` represents a library specification, listing exported identifiers, imported
 /// identifiers, as well as the definition of the library in terms of import, export,
 /// and initialization declarations.
-/// 
-public final class Library: Reference, Trackable, CustomStringConvertible {
+///
+open class Library: Reference, Trackable, CustomStringConvertible {
   
-  public enum State {
+  /// State of a library
+  public enum State: CustomStringConvertible {
     case loaded
     case allocated
     case wired
@@ -39,9 +40,24 @@ public final class Library: Reference, Trackable, CustomStringConvertible {
           return false
       }
     }
+    
+    public var description: String {
+      switch self {
+        case .loaded:
+          return "loaded"
+        case .allocated:
+          return "allocated"
+        case .wired:
+          return "wired"
+        case .initialized:
+          return "initialized"
+      }
+    }
   }
   
-  public enum InternalLocationRef {
+  /// Internal location references are tagged references to a location. The tag determines
+  /// whether the library has read-only or read/write access.
+  public enum InternalLocationRef: CustomStringConvertible {
     case mutable(Int)
     case immutable(Int)
     
@@ -90,8 +106,20 @@ public final class Library: Reference, Trackable, CustomStringConvertible {
           return .immutable(loc1)
       }
     }
+    
+    public var description: String {
+      switch self {
+        case .mutable(let loc):
+          return "R[\(loc)]"
+        case .immutable(let loc):
+          return "RW[\(loc)]"
+      }
+    }
   }
   
+  /// Internal identifiers are tagged symbols. The tag determines whether the library provides
+  /// read-only or read/write access to the location to which the symbol refers to. This data
+  /// structure is used for representing exported symbols.
   public enum InternalIdent: Hashable {
     case mutable(Symbol)
     case immutable(Symbol)
@@ -128,36 +156,41 @@ public final class Library: Reference, Trackable, CustomStringConvertible {
     }
   }
   
+  /// The context in which this library is defined
+  public unowned let context: Context
+  
   /// The name of a library is a list of symbols
   public let name: Expr
   
   /// Maps exported identifiers to location references (immutable/mutable)
-  public private(set) var exports: [Symbol : InternalLocationRef]
-
+  public internal(set) var exports: [Symbol : InternalLocationRef]
+  
   /// Maps imported internal identifiers to location references (immutable/mutable)
-  public private(set) var imports: [Symbol : InternalLocationRef]
+  public internal(set) var imports: [Symbol : InternalLocationRef]
   
   /// Maps imported internal identifiers to a set of (library, identifier) pairs
   internal var imported: MultiMap<Symbol, (Library, Symbol)>
   
   /// Libraries on which this library is dependent on
-  private var libraries: Set<Library>
+  internal var libraries: Set<Library>
   
   /// Parsed export declarations, mapping exported identifiers to internal identifiers
   /// (with mutable/immutable annotations)
   internal var exportDecls: [Symbol : InternalIdent]
   
   /// Parsed import declarations
-  private var importDecls: [ImportSet]
+  internal var importDecls: [ImportSet]
   
   /// Parsed initialization declarations
-  private var initDecls: Exprs
+  internal var initDecls: Exprs
   
   /// State of the library
-  private var state: State
+  public private(set) var state: State
   
   /// Initialize a new library based on its definition
-  public init(name: Expr, declarations: Expr, in context: Context) throws {
+  internal init(name: Expr, in context: Context) throws {
+    try Library.checkLibraryName(name)
+    self.context = context
     self.name = name
     self.exports = [:]
     self.imports = [:]
@@ -168,26 +201,17 @@ public final class Library: Reference, Trackable, CustomStringConvertible {
     self.initDecls = []
     self.state = .loaded
     super.init()
-    try self.parseLibraryDefinition(declarations, in: context)
   }
   
-  /// Initialize a new native library
-  public convenience init(name: Expr,
-                          exports: [InternalIdent : Expr],
-                          imports: [ImportSet],
-                          initDecls: Exprs,
-                          in context: Context) throws {
-    try self.init(name: name, declarations: .null, in: context)
-    for (ident, decl) in exports {
-      self.exports[ident.identifier] = ident.located(at: context.allocateLocation(for: decl))
-      self.exportDecls[ident.identifier] = ident
-    }
-    self.importDecls = imports
-    self.initDecls = initDecls
+  /// Initialize a new library based on its definition
+  internal convenience init(name: Expr, declarations: Expr, in context: Context) throws {
+    try self.init(name: name, in: context)
+    try self.parseLibraryDefinition(declarations)
   }
   
-  public var exported: [Symbol] {
-    return [Symbol](self.exportDecls.keys)
+  /// Returns a sequence of exported symbols
+  public var exported: AnySequence<Symbol> {
+    return AnySequence(self.exportDecls.keys)
   }
   
   public func exportLocation(_ ident: Symbol) -> InternalLocationRef? {
@@ -229,11 +253,13 @@ public final class Library: Reference, Trackable, CustomStringConvertible {
         if let unifiedLocationRef = locationRef.unify(with: currentLocationRef) {
           self.imports[ident] = unifiedLocationRef
         } else {
+          print("*** INCONSISTENT IMPORT OF \(ident) ***")
           // ERROR: inconsistent import of `import` involving `library` and one of the
           // previous library values (just pick the first from libraryReferences?) since
           // a unification wasn't possible
         }
       } else {
+        print("*** CYCLIC DEPENDENCY OF \(ident) ***")
         // ERROR: signal cyclic dependency since the library isn't able to return a location
       }
     }
@@ -241,16 +267,16 @@ public final class Library: Reference, Trackable, CustomStringConvertible {
     return self.imports[ident]!
   }
   
-  public func allocate(in context: Context) {
+  public func allocate() -> Bool {
     guard case .loaded = self.state else {
-      return
+      return false
     }
     // Mark the state of the library as allocated
     self.state = .allocated
     // Collect imported identifiers and determine where they are imported from
     for importDecl in self.importDecls {
-      if let (library, importSpec) = importDecl.expand(in: context) {
-        libraries.insert(library)
+      if let (library, importSpec) = importDecl.expand(in: self.context) {
+        self.libraries.insert(library)
         for (impIdent, expIdent) in importSpec {
           self.imported.insert(impIdent, mapsTo: (library, expIdent))
         }
@@ -258,20 +284,22 @@ public final class Library: Reference, Trackable, CustomStringConvertible {
     }
     // Allocate locations for the exported identifiers which are not imported
     for (extIdent, intIdent) in self.exportDecls {
-      if !self.imported.hasValues(for: intIdent.identifier) {
-        self.exports[extIdent] = intIdent.located(at: context.allocateLocation())
+      if !self.imported.hasValues(for: intIdent.identifier) && self.exports[extIdent] == nil {
+        self.exports[extIdent] =
+          intIdent.located(at: self.context.allocateLocation(for: .uninit(intIdent.identifier)))
       }
     }
     // Allocate all libraries from which identifiers are imported
     for library in self.libraries {
-      library.allocate(in: context)
+      _ = library.allocate()
     }
+    return true
   }
   
-  public func wire(in context: Context) {
-    self.allocate(in: context)
-    guard case .wired = self.state else {
-      return
+  public func wire() -> Bool {
+    _ = self.allocate()
+    guard case .allocated = self.state else {
+      return false
     }
     // Mark the state of the library as wired
     self.state = .wired
@@ -281,36 +309,60 @@ public final class Library: Reference, Trackable, CustomStringConvertible {
     }
     // Backfill dependencies for the exported identifiers which are imported
     for exportedIdent in self.exportDecls.keys {
-      _ = self.exportLocation(exportedIdent)
+      guard self.exportLocation(exportedIdent) != nil else {
+        preconditionFailure("cannot export \(exportedIdent) from \(self.name)")
+      }
     }
+    return true
   }
   
-  public func initialize(in context: Context) {
-    self.wire(in: context)
-    guard case .initialized = self.state else {
-      return
+  public func initialize() throws -> Bool {
+    _ = self.wire()
+    guard case .wired = self.state else {
+      return false
     }
     // Mark the state of the library as initialized
     self.state = .initialized
     // Initialize libraries on which this library depends
     for library in self.libraries {
-      library.initialize(in: context)
+      _ = try library.initialize()
     }
     // Compile and run
-    let environment = Environment(in: context, for: self)
+    let env = Env(Environment(in: self.context, for: self))
+    for decl in self.initDecls {
+      _ = try self.context.machine.eval(decl, in: env)
+    }
+    // TODO: Check that all exported declarations are initialized
+    return true
   }
   
-  private func parseLibraryDefinition(_ def: Expr, in context: Context) throws {
+  private static func checkLibraryName(_ name: Expr) throws {
+    var expr = name
+    while case .pair(let comp, let next) = expr {
+      switch comp {
+        case .fixnum(_), .symbol(_):
+          break
+        default:
+          throw EvalError.malformedLibraryName(name: name)
+      }
+      expr = next
+    }
+    guard case .null = expr else {
+      throw EvalError.malformedLibraryName(name: name)
+    }
+  }
+  
+  private func parseLibraryDefinition(_ def: Expr) throws {
     var decls = def
     while case .pair(let decl, let next) = decls {
       switch decl {
-        case .pair(.symbol(context.symbols.export), let spec):
+        case .pair(.symbol(self.context.symbols.export), let spec):
           var exportList = spec
           while case .pair(let export, let next) = exportList {
             switch export {
               case .symbol(let sym):
                 self.exportDecls[sym] = .mutable(sym)
-              case .pair(.symbol(context.symbols.rename),
+              case .pair(.symbol(self.context.symbols.rename),
                          .pair(.symbol(let intSym), .pair(.symbol(let extSym), .null))):
                 self.exportDecls[extSym] = .mutable(intSym)
               default:
@@ -321,13 +373,13 @@ public final class Library: Reference, Trackable, CustomStringConvertible {
           guard exportList.isNull else {
             throw EvalError.malformedLibraryDefinition(decls: decls)
           }
-        case .pair(.symbol(context.symbols.exportImmutable), let spec):
+        case .pair(.symbol(self.context.symbols.exportImmutable), let spec):
           var exportList = spec
           while case .pair(let export, let next) = exportList {
             switch export {
               case .symbol(let sym):
                 self.exportDecls[sym] = .immutable(sym)
-              case .pair(.symbol(context.symbols.rename),
+              case .pair(.symbol(self.context.symbols.rename),
                          .pair(.symbol(let intSym), .pair(.symbol(let extSym), .null))):
                 self.exportDecls[extSym] = .immutable(intSym)
               default:
@@ -338,12 +390,12 @@ public final class Library: Reference, Trackable, CustomStringConvertible {
           guard exportList.isNull else {
             throw EvalError.malformedLibraryDefinition(decls: decls)
           }
-        case .pair(.symbol(context.symbols.`import`), let spec):
-          guard let importSet = ImportSet(spec, in: context) else {
+        case .pair(.symbol(self.context.symbols.`import`), let spec):
+          guard let importSet = ImportSet(spec, in: self.context) else {
             throw EvalError.malformedLibraryDefinition(decls: decls)
           }
           importDecls.append(importSet)
-        case .pair(.symbol(context.symbols.begin), let exprs):
+        case .pair(.symbol(self.context.symbols.begin), let exprs):
           var initExprs = exprs
           while case .pair(let initExpr, let next) = initExprs {
             initDecls.append(initExpr)
@@ -360,6 +412,20 @@ public final class Library: Reference, Trackable, CustomStringConvertible {
     guard decls.isNull else {
       throw EvalError.malformedLibraryDefinition(decls: decls)
     }
+  }
+  
+  /// Returns the library name for the given string components. Strings that can be converted
+  /// to an integer are represented as fixnum values, all other strings are converted to symbols.
+  public static func name(_ components: [String], in context: Context) -> Expr {
+    var res = Expr.null
+    for component in components.reversed() {
+      if let num = Int64(component) {
+        res = .pair(.fixnum(num), res)
+      } else {
+        res = .pair(.symbol(context.symbols.intern(component)), res)
+      }
+    }
+    return res
   }
   
   /// Libraries do not mark other referenced libraries; this is assuming that all libraries

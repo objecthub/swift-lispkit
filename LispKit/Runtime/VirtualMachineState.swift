@@ -43,7 +43,7 @@ public final class VirtualMachineState: TrackedObject, CustomStringConvertible {
   }
   
   public var description: String {
-    var builder = StringBuilder("vmstate {")
+    var builder = StringBuilder(prefix: "vmstate {")
     if self.sp == 0 {
       builder.append("stack = []")
     } else if self.sp == 1 {

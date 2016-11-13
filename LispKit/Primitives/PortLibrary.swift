@@ -25,80 +25,93 @@ import Foundation
 /// 
 public final class PortLibrary: NativeLibrary {
   
-  public override func export() {
-    define(Procedure("port?", isPort))
-    define(Procedure("input-port?", isInputPort))
-    define(Procedure("output-port?", isOutputPort))
-    define(Procedure("textual-port?", isTextualPort))
-    define(Procedure("binary-port?", isBinaryPort))
-    define(Procedure("input-port-open?", isInputPortOpen))
-    define(Procedure("output-port-open?", isOutputPortOpen))
-    define(Procedure("open-input-file", openInputFile))
-    define(Procedure("open-binary-input-file", openBinaryInputFile))
-    define(Procedure("open-output-file", openOutputFile))
-    define(Procedure("open-binary-output-file", openBinaryOutputFile))
-    define(Procedure("open-input-string", openInputString))
-    define(Procedure("open-output-string", openOutputString))
-    define(Procedure("open-input-bytevector", openInputBytevector))
-    define(Procedure("open-output-bytevector", openOutputBytevector))
-    define(Procedure("get-output-string", getOutputString))
-    define(Procedure("get-output-bytevector", getOutputBytevector))
-    define(Procedure("close-port", closePort))
-    define(Procedure("close-input-port", closeInputPort))
-    define(Procedure("close-output-port", closeOutputPort))
-    define(Procedure("current-input-port", currentInputPort))
-    define(Procedure("current-output-port", currentOutputPort))
-    define(Procedure("current-error-port", currentErrorPort))
-    define(Procedure("eof-object?", isEofObject))
-    define(Procedure("eof-object", eofObject))
-    define(Procedure("read", read))
-    define(Procedure("read-char", readChar))
-    define(Procedure("peek-char", peekChar))
-    define(Procedure("char-ready?", isCharReady))
-    define(Procedure("read-line", readLine))
-    define(Procedure("read-string", readString))
-    define(Procedure("read-u8", readU8))
-    define(Procedure("peek-u8", peekU8))
-    define(Procedure("u8-ready?", u8Ready))
-    define(Procedure("read-bytevector", readBytevector))
-    define(Procedure("read-bytevector!", readBytevectorSet))
-    define(Procedure("write", write))
-    define(Procedure("write-shared", writeShared))
-    define(Procedure("write-simple", writeSimple))
-    define(Procedure("display", display))
-    define(Procedure("newline", newline))
-    define(Procedure("write-char", writeChar))
-    define(Procedure("write-string", writeString))
-    define(Procedure("write-u8", writeU8))
-    define(Procedure("write-bytevector", writeBytevector))
-    define(Procedure("flush-output-port", flushOutputPort))
-    define("with-input-from-file", compile:
-      "(lambda (file thunk)" +
-      "  (let ((old (current-input-port))" +
-      "        (new (open-input-file file)))" +
-      "    (dynamic-wind (lambda () (current-input-port new))" +
-      "                  (lambda () (let ((res (thunk))) (close-input-port new) res))" +
+  /// Name of the library.
+  public override class var name: [String] {
+    return ["lispkit", "port"]
+  }
+  
+  /// Dependencies of the library.
+  public override func dependencies() {
+    self.`import`(from: ["lispkit", "base"], "define", "lambda", "quote")
+    self.`import`(from: ["lispkit", "control"], "let", "let*")
+    self.`import`(from: ["lispkit", "dynamic"], "dynamic-wind")
+  }
+  
+  /// Declarations of the library.
+  public override func declarations() {
+    self.define(Procedure("port?", isPort))
+    self.define(Procedure("input-port?", isInputPort))
+    self.define(Procedure("output-port?", isOutputPort))
+    self.define(Procedure("textual-port?", isTextualPort))
+    self.define(Procedure("binary-port?", isBinaryPort))
+    self.define(Procedure("input-port-open?", isInputPortOpen))
+    self.define(Procedure("output-port-open?", isOutputPortOpen))
+    self.define(Procedure("open-input-file", openInputFile))
+    self.define(Procedure("open-binary-input-file", openBinaryInputFile))
+    self.define(Procedure("open-output-file", openOutputFile))
+    self.define(Procedure("open-binary-output-file", openBinaryOutputFile))
+    self.define(Procedure("open-input-string", openInputString))
+    self.define(Procedure("open-output-string", openOutputString))
+    self.define(Procedure("open-input-bytevector", openInputBytevector))
+    self.define(Procedure("open-output-bytevector", openOutputBytevector))
+    self.define(Procedure("get-output-string", getOutputString))
+    self.define(Procedure("get-output-bytevector", getOutputBytevector))
+    self.define(Procedure("close-port", closePort))
+    self.define(Procedure("close-input-port", closeInputPort))
+    self.define(Procedure("close-output-port", closeOutputPort))
+    self.define(Procedure("current-input-port", currentInputPort))
+    self.define(Procedure("current-output-port", currentOutputPort))
+    self.define(Procedure("current-error-port", currentErrorPort))
+    self.define(Procedure("eof-object?", isEofObject))
+    self.define(Procedure("eof-object", eofObject))
+    self.define(Procedure("read", read))
+    self.define(Procedure("read-char", readChar))
+    self.define(Procedure("peek-char", peekChar))
+    self.define(Procedure("char-ready?", isCharReady))
+    self.define(Procedure("read-line", readLine))
+    self.define(Procedure("read-string", readString))
+    self.define(Procedure("read-u8", readU8))
+    self.define(Procedure("peek-u8", peekU8))
+    self.define(Procedure("u8-ready?", u8Ready))
+    self.define(Procedure("read-bytevector", readBytevector))
+    self.define(Procedure("read-bytevector!", readBytevectorSet))
+    self.define(Procedure("write", write))
+    self.define(Procedure("write-shared", writeShared))
+    self.define(Procedure("write-simple", writeSimple))
+    self.define(Procedure("display", display))
+    self.define(Procedure("newline", newline))
+    self.define(Procedure("write-char", writeChar))
+    self.define(Procedure("write-string", writeString))
+    self.define(Procedure("write-u8", writeU8))
+    self.define(Procedure("write-bytevector", writeBytevector))
+    self.define(Procedure("flush-output-port", flushOutputPort))
+    self.define("with-input-from-file", via:
+      "(define (with-input-from-file file thunk)",
+      "  (let ((old (current-input-port))",
+      "        (new (open-input-file file)))",
+      "    (dynamic-wind (lambda () (current-input-port new))",
+      "                  (lambda () (let ((res (thunk))) (close-input-port new) res))",
       "                  (lambda () (current-input-port old)))))")
-    define("with-output-to-file", compile:
-      "(lambda (file thunk)" +
-      "  (let ((old (current-output-port))" +
-      "        (new (open-output-file file)))" +
-      "    (dynamic-wind (lambda () (current-output-port new))" +
-      "                  (lambda () (let ((res (thunk))) (close-output-port new) res))" +
+    self.define("with-output-to-file", via:
+      "(define (with-output-to-file file thunk)",
+      "  (let ((old (current-output-port))",
+      "        (new (open-output-file file)))",
+      "    (dynamic-wind (lambda () (current-output-port new))",
+      "                  (lambda () (let ((res (thunk))) (close-output-port new) res))",
       "                  (lambda () (current-output-port old)))))")
-    define("call-with-port", compile:
-      "(lambda (port proc) (let ((res (proc port))) (close-port port) res))")
-    define("call-with-input-file", compile:
-      "(lambda (filename proc)" +
-      "   (let* ((port (open-input-file filename))" +
-      "          (res (proc port)))" +
-      "     (close-input-port port)" +
+    self.define("call-with-port", via:
+      "(define (call-with-port port proc) (let ((res (proc port))) (close-port port) res))")
+    self.define("call-with-input-file", via:
+      "(define (call-with-input-file filename proc)",
+      "   (let* ((port (open-input-file filename))",
+      "          (res (proc port)))",
+      "     (close-input-port port)",
       "     res))")
-    define("call-with-output-file", compile:
-      "(lambda (filename proc)" +
-      "   (let* ((port (open-output-file filename))" +
-      "          (res (proc port)))" +
-      "     (close-output-port port)" +
+    self.define("call-with-output-file", via:
+      "(define (call-with-output-file filename proc)",
+      "   (let* ((port (open-output-file filename))",
+      "          (res (proc port)))",
+      "     (close-output-port port)",
       "     res))")
   }
   

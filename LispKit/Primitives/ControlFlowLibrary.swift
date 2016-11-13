@@ -21,17 +21,23 @@
 
 public final class ControlFlowLibrary: NativeLibrary {
   
-  public override func export() {
-    define("begin", SpecialForm(compileBegin))
-    define("let", SpecialForm(compileLet))
-    define("let*", SpecialForm(compileLetStar))
-    define("letrec", SpecialForm(compileLetRec))
-    define("let-syntax", SpecialForm(compileLetSyntax))
-    define("letrec-syntax", SpecialForm(compileLetRecSyntax))
-    define("do", SpecialForm(compileDo))
-    define("if", SpecialForm(compileIf))
-    define("cond", SpecialForm(compileCond))
-    define("case", SpecialForm(compileCase))
+  /// Name of the library.
+  public override class var name: [String] {
+    return ["lispkit", "control"]
+  }
+  
+  /// Declarations of the library.
+  public override func declarations() {
+    self.define("begin", as: SpecialForm(compileBegin))
+    self.define("let", as: SpecialForm(compileLet))
+    self.define("let*", as: SpecialForm(compileLetStar))
+    self.define("letrec", as: SpecialForm(compileLetRec))
+    self.define("let-syntax", as: SpecialForm(compileLetSyntax))
+    self.define("letrec-syntax", as: SpecialForm(compileLetRecSyntax))
+    self.define("do", as: SpecialForm(compileDo))
+    self.define("if", as: SpecialForm(compileIf))
+    self.define("cond", as: SpecialForm(compileCond))
+    self.define("case", as: SpecialForm(compileCase))
   }
 }
 

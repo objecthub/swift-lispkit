@@ -23,12 +23,12 @@
 /// they need to be renamed. An import set specifies the imports implicitly. It can be expanded
 /// in a context into an explicit list of potentially renamed symbol references for a library.
 ///
-public indirect enum ImportSet {
+public indirect enum ImportSet: Equatable, CustomStringConvertible {
   case library(Expr)
-  case only(ImportSet, [Symbol])
-  case except(ImportSet, Set<Symbol>)
-  case prefix(ImportSet, Symbol)
-  case rename(ImportSet, [Symbol : Symbol])
+  case only([Symbol], ImportSet)
+  case except(Set<Symbol>, ImportSet)
+  case prefix(Symbol, ImportSet)
+  case rename([Symbol : Symbol], ImportSet)
   
   /// Constructs an import set from an expression for a given context.
   public init?(_ importSet: Expr, in context: Context) {
@@ -44,7 +44,7 @@ public indirect enum ImportSet {
           return nil
         }
         if let importSet = ImportSet(baseSet, in: context) {
-          self = .only(importSet, inclSym)
+          self = .only(inclSym, importSet)
           return
         }
       case .pair(.symbol(context.symbols.except), .pair(let baseSet, let idents)):
@@ -58,13 +58,13 @@ public indirect enum ImportSet {
           return nil
         }
         if let root = ImportSet(baseSet, in: context) {
-          self = .except(root, exclSym)
+          self = .except(exclSym, root)
           return
         }
       case .pair(.symbol(context.symbols.prefix),
                  .pair(let baseSet, .pair(.symbol(let ident), .null))):
         if let root = ImportSet(baseSet, in: context) {
-          self = .prefix(root, ident)
+          self = .prefix(ident, root)
           return
         }
       case .pair(.symbol(context.symbols.rename), .pair(let baseSet, let idents)):
@@ -85,7 +85,7 @@ public indirect enum ImportSet {
           return nil
         }
         if let root = ImportSet(baseSet, in: context) {
-          self = .rename(root, renamings)
+          self = .rename(renamings, root)
           return
         }
       case .pair(_, _):
@@ -116,15 +116,16 @@ public indirect enum ImportSet {
   public func expand(in context: Context) -> (Library, [Symbol : Symbol])? {
     switch self {
       case .library(let name):
-        guard let library = context.libraries[name] else {
+        guard let library = context.libraries.lookup(name) else {
           return nil
         }
+        _ = library.allocate()
         var imports = [Symbol : Symbol]()
         for export in library.exported {
           imports[export] = export
         }
         return (library, imports)
-      case .only(let importSet, let restricted):
+      case .only(let restricted, let importSet):
         guard let (library, currentImports) = importSet.expand(in: context) else {
           return nil
         }
@@ -136,7 +137,7 @@ public indirect enum ImportSet {
           imports[restrict] = export
         }
         return (library, imports)
-      case .except(let importSet, let excluded):
+      case .except(let excluded, let importSet):
         guard let (library, currentImports) = importSet.expand(in: context) else {
           return nil
         }
@@ -147,7 +148,7 @@ public indirect enum ImportSet {
           }
         }
         return (library, imports)
-      case .prefix(let importSet, let prefix):
+      case .prefix(let prefix, let importSet):
         guard let (library, currentImports) = importSet.expand(in: context) else {
           return nil
         }
@@ -157,7 +158,7 @@ public indirect enum ImportSet {
             currentImports[currentImport]
         }
         return (library, imports)
-      case .rename(let importSet, let renamings):
+      case .rename(let renamings, let importSet):
         guard let (library, currentImports) = importSet.expand(in: context) else {
           return nil
         }
@@ -168,4 +169,37 @@ public indirect enum ImportSet {
         return (library, imports)
     }
   }
+  
+  public var description: String {
+    switch self {
+      case .library(let expr):
+        return expr.description
+      case .only(let symbols, let importSet):
+        return "(only \(symbols) from \(importSet))"
+      case .except(let symbols, let importSet):
+        return "(except \(symbols) from \(importSet))"
+      case .prefix(let sym, let importSet):
+        return "(prefix \(sym) for \(importSet))"
+      case .rename(let map, let importSet):
+        return "(rename \(map) from \(importSet))"
+    }
+  }
 }
+
+public func ==(_ left: ImportSet, _ right: ImportSet) -> Bool {
+  switch (left, right) {
+    case (.library(let e1), .library(let e2)):
+      return e1 == e2
+    case (.only(let s1, let is1), .only(let s2, let is2)):
+      return s1 == s2 && is1 == is2
+    case (.except(let s1, let is1), .except(let s2, let is2)):
+      return s1 == s2 && is1 == is2
+    case (.prefix(let s1, let is1), .prefix(let s2, let is2)):
+      return s1 == s2 && is1 == is2
+    case (.rename(let m1, let is1), .rename(let m2, let is2)):
+      return m1 == m2 && is1 == is2
+    default:
+      return false
+  }
+}
+

@@ -36,16 +36,8 @@ public final class Context {
   /// Table of global locations
   public var locations: Exprs
   
-  /// Table of loaded libraries
-  public var libraries: [Expr : Library]
-  
-  /// The user scope.
-  public let userScope: Scope
-  
-  /// The system scope.
-  public var systemScope: Scope {
-    return self.userScope.outer!
-  }
+  /// The library manager of this context.
+  public var libraries: LibraryManager! = nil
   
   /// The global environment is typically used for read-eval-print loops.
   public private(set) var environment: Environment! = nil
@@ -63,46 +55,38 @@ public final class Context {
   public var errorPort: Port
   
   /// Initializes a new object
-  public init(console: Console, library: NativeLibrary.Type? = nil) {
-    // Initialize global components
+  public init(console: Console) {
+    // Initialize components
     self.console = console
     self.objects = ManagedObjectPool()
     self.symbols = SymbolTable()
     self.locations = Exprs()
-    self.libraries = [:]
-    self.userScope = Scope(Scope())
     self.inputPort = Port(input: TextInput(source: console))
     self.outputPort = Port(output: TextOutput(target: console, threshold: 0))
     self.errorPort = self.inputPort
+    self.libraries = LibraryManager(for: self)
     self.environment = Environment(in: self)
-    self.machine = VirtualMachine(self)
+    self.machine = VirtualMachine(for: self)
     // Register tracked objects
     self.objects.track(self.machine)
-    self.objects.track(self.userScope)
-    // Import libraries
-    if let lib = library {
-      self.use(lib)
+    // Load native libraries
+    do {
+      for nativeLibrary in LibraryRegistry.nativeLibraries {
+        try self.libraries.load(libraryType: nativeLibrary)
+      }
+    } catch let error {
+      preconditionFailure("cannot load native libraries: \(error)")
     }
+  }
+  
+  /// Returns the global environment of this context
+  public var global: Env {
+    return .global(self.environment)
   }
   
   /// Allocates a new global location and initializes it with `expr`.
   public func allocateLocation(for expr: Expr = .undef) -> Int {
     self.locations.append(expr)
     return self.locations.count - 1
-  }
-  
-  /// Registers the given library in the context. This method returns false if there is a
-  /// library of the same name registered already.
-  public func register(library: Library) -> Bool {
-    guard self.libraries[library.name] == nil else {
-      return false
-    }
-    self.libraries[library.name] = library
-    return true
-  }
-  
-  /// Import an instantiation of the given library type.
-  public func use(_ lib: NativeLibrary.Type) {
-    let _ = lib.init(self)
   }
 }

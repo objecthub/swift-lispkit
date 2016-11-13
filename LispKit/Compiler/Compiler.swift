@@ -27,7 +27,7 @@ import NumberKit
 /// 
 public final class Compiler {
   
-  /// Context of the compiler
+  /// Context in which this compiler is running
   public let context: Context
   
   /// Environment in which expressions should be compiled
@@ -41,61 +41,63 @@ public final class Compiler {
   internal let checkpointer: Checkpointer
   
   /// Capture list
-  fileprivate var captures: CaptureGroup!
+  private var captures: CaptureGroup!
   
   /// Current number of local values/variables
   internal var numLocals: Int = 0
   
   /// Maximum number of local values/variables
-  fileprivate var maxLocals: Int = 0
+  private var maxLocals: Int = 0
   
   /// List of arguments
-  fileprivate var arguments: BindingGroup?
+  private var arguments: BindingGroup?
   
   /// Constant pool
-  fileprivate var constants: [Expr] = []
+  private var constants: [Expr] = []
   
   /// List of code fragments
-  fileprivate var fragments: [Code] = []
+  private var fragments: [Code] = []
   
   /// Instruction sequence
-  fileprivate var instructions: [Instruction] = []
+  private var instructions: [Instruction] = []
   
-  /// Returns the parent compiler (since `Compiler` objects are nested, e.g. if nested
+  /// Parent compiler (needed since `Compiler` objects are nested, e.g. if nested
   /// functions get compiled)
   public var parent: Compiler? {
     return self.captures.parent?.owner
   }
   
   /// Initializes a compiler object from the given context, environments, and checkpointer.
-  fileprivate init(_ context: Context,
-                   in env: Env,
-                   and rulesEnv: Env,
-                   usingCheckpointer cp: Checkpointer) {
-    self.context = context
+  private init(in env: Env,
+               and rulesEnv: Env,
+               usingCheckpointer cp: Checkpointer) {
+    self.context = env.environment!.context
     self.env = env
     self.rulesEnv = rulesEnv
     self.checkpointer = cp
     self.captures = CaptureGroup(owner: self, parent: env.bindingGroup?.owner.captures)
     self.arguments = nil
   }
-
+  
   /// Compiles the given expression `expr` in the environment `env` and the rules environment
   /// `rulesEnv`. If `optimize` is set to true, the compiler will be invoked twice. The
   /// information collected in the first phase will be used to optimize the code in the second
   /// phase.
-  public static func compile(_ context: Context,
-                             expr: Expr,
-                             in env: Env = .interaction,
+  public static func compile(expr: Expr,
+                             in env: Env,
                              and rulesEnv: Env? = nil,
                              optimize: Bool = false) throws -> Code {
     let checkpointer = Checkpointer()
-    var compiler = Compiler(context, in: env, and: rulesEnv ?? env, usingCheckpointer: checkpointer)
+    var compiler = Compiler(in: env,
+                            and: rulesEnv ?? env,
+                            usingCheckpointer: checkpointer)
     try compiler.compileBody(expr)
     if optimize {
       log(checkpointer.description)
       checkpointer.reset()
-      compiler = Compiler(context, in: env, and: rulesEnv ?? env, usingCheckpointer: checkpointer)
+      compiler = Compiler(in: env,
+                          and: rulesEnv ?? env,
+                          usingCheckpointer: checkpointer)
       try compiler.compileBody(expr)
       log(checkpointer.description)
     }
@@ -104,7 +106,7 @@ public final class Compiler {
   
   /// Compiles the given list of arguments and returns the corresponding binding group as well
   /// as the remaining argument list
-  fileprivate func collectArguments(_ arglist: Expr) -> (BindingGroup, Expr) {
+  private func collectArguments(_ arglist: Expr) -> (BindingGroup, Expr) {
     let arguments = BindingGroup(owner: self, parent: self.env)
     var next = arglist
     loop: while case .pair(let arg, let cdr) = next {
@@ -121,7 +123,7 @@ public final class Compiler {
   
   /// Compiles the given body of a function (or expression, if this compiler is not used to
   /// compile a function).
-  fileprivate func compileBody(_ expr: Expr) throws {
+  private func compileBody(_ expr: Expr) throws {
     if expr.isNull {
       self.emit(.pushVoid)
       self.emit(.return)
@@ -226,14 +228,18 @@ public final class Compiler {
     switch self.pushLocalValueOf(sym, in: env) {
       case .success:
         break // Nothing to do
-      case .globalLookupRequired(let lexicalSym, let global):
-        if global.systemDefined(lexicalSym, in: self.context) {
-          if let value = self.context.systemScope[lexicalSym] {
+      case .globalLookupRequired(let lexicalSym, let environment):
+        let locRef = environment.forceDefinedLocationRef(for: lexicalSym)
+        if case .immutableImport(let loc) = locRef {
+          let value = self.context.locations[loc]
+          if value.isUndef {
+            self.emit(.pushGlobal(locRef.location!))
+          } else {
             try self.pushValue(value)
-            return
           }
+        } else {
+          self.emit(.pushGlobal(locRef.location!))
         }
-        self.emit(.pushGlobal(self.registerConstant(.symbol(lexicalSym))))
       case .macroExpansionRequired(_):
         throw EvalError.illegalKeywordUsage(.symbol(sym))
     }
@@ -250,10 +256,10 @@ public final class Compiler {
     case macroExpansionRequired(Procedure)
     
     /// `GlobalLookupRequired(gsym, genv)` indicates that a suitable binding wasn't found in the
-    /// local environment and thus a lookup in the global environment `genv` needs to be made via
-    /// symbol `gsym`. Note that `gsym` and `sym` do not necessarily need to be the same due to
-    /// the way how hygienic macro expansion is implemented.
-    case globalLookupRequired(Symbol, Env)
+    /// local environment and thus a lookup in the global environment `genv` needs to be made.
+    /// Note that `gsym` and `sym` do not necessarily need to be the same due to the way how
+    /// hygienic macro expansion is implemented.
+    case globalLookupRequired(Symbol, Environment)
   }
   
   /// Pushes the value/variable bound to symbol `sym` in the local environment `env`. If this
@@ -288,7 +294,7 @@ public final class Compiler {
       return self.pushLocalValueOf(lexicalSym, in: lexicalEnv)
     }
     // Return global scope
-    return .globalLookupRequired(sym, env)
+    return .globalLookupRequired(sym, env.environment!)
   }
   
   /// Pushes the value/variable bound to symbol `sym` in the local environment `env`. If this
@@ -310,13 +316,13 @@ public final class Compiler {
       return self.lookupLocalValueOf(lexicalSym, in: lexicalEnv)
     }
     // Return global scope
-    return .globalLookupRequired(sym, env)
+    return .globalLookupRequired(sym, env.environment!)
   }
   
   /// Generates instructions to push the given expression onto the stack.
   public func pushValue(_ expr: Expr) throws {
     switch expr {
-      case .undef:
+      case .undef, .uninit(_):
         self.emit(.pushUndef)
       case .void:
         self.emit(.pushVoid)
@@ -356,8 +362,9 @@ public final class Compiler {
     switch self.setLocalValueOf(sym, in: env) {
       case .success:
         break; // Nothing to do
-      case .globalLookupRequired(let lexicalSym, _):
-        self.emit(.setGlobal(self.registerConstant(.symbol(lexicalSym))))
+      case .globalLookupRequired(let lexicalSym, let environment):
+        let loc = environment.forceDefinedLocationRef(for: lexicalSym).location!
+        self.emit(.setGlobal(loc))
       case .macroExpansionRequired(_):
         preconditionFailure("setting bindings should never trigger macro expansion")
     }
@@ -385,7 +392,7 @@ public final class Compiler {
     if let (lexicalSym, lexicalEnv) = sym.lexical {
       return self.setLocalValueOf(lexicalSym, in: lexicalEnv)
     }
-    return .globalLookupRequired(sym, lenv)
+    return .globalLookupRequired(sym, env.environment!)
   }
   
   /// Compile expression `expr` in environment `env`. Parameter `tail` specifies if `expr`
@@ -397,9 +404,8 @@ public final class Compiler {
         switch self.lookupLocalValueOf(sym, in: env) {
           case .success:
             return expr
-          case .globalLookupRequired(let lexicalSym, let global):
-            if let value = self.checkpointer.fromGlobalEnv(cp) ??
-                           global.scope(self.context)[lexicalSym] {
+          case .globalLookupRequired(let lexicalSym, let environment):
+            if let value = self.checkpointer.fromGlobalEnv(cp) ?? environment[lexicalSym] {
               self.checkpointer.associate(.fromGlobalEnv(value), with: cp)
               switch value {
                 case .special(let special):
@@ -409,7 +415,7 @@ public final class Compiler {
                     case .macro(let transformer):
                       let expanded = try
                         self.checkpointer.expansion(cp) ??
-                        self.context.machine.apply(.procedure(transformer), to: .pair(cdr, .null), in: env)
+                        self.context.machine.apply(.procedure(transformer), to: .pair(cdr, .null))
                       self.checkpointer.associate(.expansion(expanded), with: cp)
                       log("expanded = \(expanded)")
                       return expanded
@@ -422,7 +428,7 @@ public final class Compiler {
             }
           case .macroExpansionRequired(let transformer):
             let expanded =
-              try self.context.machine.apply(.procedure(transformer), to: .pair(cdr, .null), in: env)
+              try self.context.machine.apply(.procedure(transformer), to: .pair(cdr, .null))
             log("expanded = \(expanded)")
             return expanded
         }
@@ -433,7 +439,9 @@ public final class Compiler {
   
   /// Compile expression `expr` in environment `env`. Parameter `tail` specifies if `expr`
   /// is located in a tail position. This allows compile to generate code with tail calls.
-  @discardableResult public func compile(_ expr: Expr, in env: Env, inTailPos tail: Bool) throws -> Bool {
+  @discardableResult public func compile(_ expr: Expr,
+                                         in env: Env,
+                                         inTailPos tail: Bool) throws -> Bool {
     let cp = self.checkpointer.checkpoint()
     switch expr {
       case .symbol(let sym):
@@ -444,16 +452,15 @@ public final class Compiler {
         switch self.pushLocalValueOf(sym, in: env) {
           case .success:
             break // Nothing to do
-          case .globalLookupRequired(let lexicalSym, let global):
-            // Is there a special compiler plugin for this global binding
-            if let value = self.checkpointer.fromGlobalEnv(cp) ??
-                           global.scope(self.context)[lexicalSym] {
+          case .globalLookupRequired(let lexicalSym, let environment):
+            // Is there a special compiler plugin for this global binding, or is this a
+            // keyword/special form)?
+            if let value = self.checkpointer.fromGlobalEnv(cp) ?? environment[lexicalSym] {
               self.checkpointer.associate(.fromGlobalEnv(value), with: cp)
               switch value {
                 case .procedure(let proc):
-                  if case .primitive(_, _, .some(let formCompiler)) = proc.kind
-                     , self.checkpointer.systemDefined(cp) ||
-                           global.systemDefined(lexicalSym, in: self.context) {
+                  if case .primitive(_, _, .some(let formCompiler)) = proc.kind,
+                     self.checkpointer.systemDefined(cp) || environment.isImmutable(lexicalSym) {
                     self.checkpointer.associate(.systemDefined, with: cp)
                     self.removeLastInstr()
                     return try formCompiler(self, expr, env, tail)
@@ -466,7 +473,7 @@ public final class Compiler {
                     case .macro(let transformer):
                       let expanded = try
                         self.checkpointer.expansion(cp) ??
-                        self.context.machine.apply(.procedure(transformer), to: .pair(cdr, .null), in: env)
+                        self.context.machine.apply(.procedure(transformer), to: .pair(cdr, .null))
                       self.checkpointer.associate(.expansion(expanded), with: cp)
                       log("expanded = \(expanded)")
                       return try self.compile(expanded, in: env, inTailPos: tail)
@@ -476,18 +483,20 @@ public final class Compiler {
               }
             }
             // Push function from global binding
-            if global.systemDefined(lexicalSym, in: self.context) {
-              if let value = self.context.systemScope[lexicalSym] {
-                try self.pushValue(value)
+            let locRef = environment.forceDefinedLocationRef(for: lexicalSym)
+            if case .immutableImport(let loc) = locRef {
+              let value = self.context.locations[loc]
+              if value.isUndef {
+                self.emit(.pushGlobal(loc))
               } else {
-                self.emit(.pushGlobal(self.registerConstant(.symbol(lexicalSym))))
+                try self.pushValue(value)
               }
             } else {
-              self.emit(.pushGlobal(self.registerConstant(.symbol(lexicalSym))))
+              self.emit(.pushGlobal(locRef.location!))
             }
           case .macroExpansionRequired(let transformer):
             let expanded =
-              try self.context.machine.apply(.procedure(transformer), to: .pair(cdr, .null), in: env)
+              try self.context.machine.apply(.procedure(transformer), to: .pair(cdr, .null))
             log("expanded = \(expanded)")
             return try self.compile(expanded, in: env, inTailPos: tail)
         }
@@ -558,9 +567,8 @@ public final class Compiler {
     var bindings = Exprs()
     if localDefine {
       loop: while i < exprs.count {
-        guard case .pair(.symbol(let fun), let binding) = exprs[i]
-              , fun.interned == self.context.symbols.define &&
-                    env.systemDefined(fun, in: self.context) else {
+        guard case .pair(.symbol(let fun), let binding) = exprs[i],
+              fun.interned == self.context.symbols.define && env.isImmutable(fun) else {
           break loop
         }
         // Distinguish value definitions from function definitions
@@ -569,9 +577,10 @@ public final class Compiler {
             bindings.append(.pair(.symbol(sym), .pair(def, .null)))
           case .pair(.pair(.symbol(let sym), let args), .pair(let def, .null)):
             bindings.append(
-              .pair(.symbol(sym), .pair(.pair(.symbol(Symbol(self.context.symbols.lambda, .system)),
-                                           .pair(args, .pair(def, .null))),
-                                     .null)))
+              .pair(.symbol(sym),
+                    .pair(.pair(.symbol(Symbol(self.context.symbols.lambda, env.global)),
+                                .pair(args, .pair(def, .null))),
+                          .null)))
           default:
             break loop
         }
@@ -713,8 +722,7 @@ public final class Compiler {
   /// stack.
   public func compileLambda(_ nameIdx: Int?, _ arglist: Expr, _ body: Expr, _ env: Env) throws {
     // Create closure compiler as child of the current compiler
-    let closureCompiler = Compiler(self.context,
-                                   in: env,
+    let closureCompiler = Compiler(in: env,
                                    and: env,
                                    usingCheckpointer: self.checkpointer)
     // Compile arguments
@@ -760,8 +768,7 @@ public final class Compiler {
   /// stack.
   public func compileCaseLambda(_ nameIdx: Int?, _ cases: Expr, _ env: Env) throws {
     // Create closure compiler as child of the current compiler
-    let closureCompiler = Compiler(self.context,
-                                   in: env,
+    let closureCompiler = Compiler(in: env,
                                    and: env,
                                    usingCheckpointer: self.checkpointer)
     // Iterate through all cases
@@ -845,7 +852,7 @@ public final class Compiler {
   
   /// This is just a placeholder for now. Will add a peephole optimizer eventually. For now,
   /// only NOOPs at the beginning of a code block are removed.
-  fileprivate func optimize() {
+  private func optimize() {
     var ip = 0
     switch self.instructions[ip] {
       case .assertArgCount(_), .assertMinArgCount(_):
@@ -861,7 +868,7 @@ public final class Compiler {
   }
   
   /// Remove sequences of NoOp at instruction position `ip`.
-  fileprivate func eliminateNoOpsAt(_ ip: Int) {
+  private func eliminateNoOpsAt(_ ip: Int) {
     while ip < self.instructions.count {
       guard case .noOp = self.instructions[ip] else {
         return

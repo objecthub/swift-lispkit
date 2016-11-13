@@ -63,7 +63,12 @@ open class LispKitTestCase: XCTestCase {
   
   override open func setUp() {
     super.setUp()
-    self.context = Context(console: console, library: SchemeLibrary.self)
+    self.context = Context(console: console)
+    do {
+      try self.context?.environment.import(SchemeLibrary.name)
+    } catch {
+      preconditionFailure("cannot import (base scheme) into test context")
+    }
   }
   
   override open func tearDown() {
@@ -71,8 +76,8 @@ open class LispKitTestCase: XCTestCase {
     super.tearDown()
   }
   
-  public func eval(_ str: String) -> Expr {
-    return self.context!.machine.evalStr(str)
+  public func eval(_ string: String) -> Expr {
+    return self.context!.machine.eval(str: string, in: context!.global)
   }
   
   public func value(_ str: String) -> Expr {
@@ -128,7 +133,7 @@ open class LispKitTestCase: XCTestCase {
       print("-----------------------")
       print("source: \(test.source)")
       print("target: \(test.target)")
-      let res = self.context!.machine.evalExprs(test.source)
+      let res = self.context!.machine.eval(exprs: test.source, in: context!.global)
       print("result: \(res)")
       XCTAssertEqual(res, test.target, test.description)
       assertStackEmpty(after: test.description)

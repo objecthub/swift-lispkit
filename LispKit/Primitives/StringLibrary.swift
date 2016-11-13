@@ -21,29 +21,35 @@
 
 public final class StringLibrary: NativeLibrary {
   
-  public override func export() {
-    define(Procedure("string?", isString))
-    define(Procedure("make-string", makeString))
-    define(Procedure("string", string))
-    define(Procedure("string-ref", stringRef))
-    define(Procedure("string-length", stringLength))
-    define(Procedure("string-append", stringAppend))
-    define(Procedure("string=?", stringEquals))
-    define(Procedure("string<?", stringLessThan))
-    define(Procedure("string>?", stringLessThanEquals))
-    define(Procedure("string<=?", stringGreaterThan))
-    define(Procedure("string>=?", stringGreaterThanEquals))
-    define(Procedure("string-ci=?", stringCiEquals))
-    define(Procedure("string-ci<?", stringCiLessThan))
-    define(Procedure("string-ci>?", stringCiLessThanEquals))
-    define(Procedure("string-ci<=?", stringCiGreaterThan))
-    define(Procedure("string-ci>=?", stringCiGreaterThanEquals))
-    define(Procedure("string-contains?", stringContains))
-    define(Procedure("string-upcase", stringUpcase))
-    define(Procedure("string-downcase", stringDowncase))
-    define(Procedure("list->string", listToString))
-    define(Procedure("string->list", stringToList))
-    define(Procedure("substring", substring))
+  /// Name of the library.
+  public override class var name: [String] {
+    return ["lispkit", "string"]
+  }
+  
+  /// Declarations of the library.
+  public override func declarations() {
+    self.define(Procedure("string?", isString))
+    self.define(Procedure("make-string", makeString))
+    self.define(Procedure("string", string))
+    self.define(Procedure("string-ref", stringRef))
+    self.define(Procedure("string-length", stringLength))
+    self.define(Procedure("string-append", stringAppend))
+    self.define(Procedure("string=?", stringEquals))
+    self.define(Procedure("string<?", stringLessThan))
+    self.define(Procedure("string>?", stringLessThanEquals))
+    self.define(Procedure("string<=?", stringGreaterThan))
+    self.define(Procedure("string>=?", stringGreaterThanEquals))
+    self.define(Procedure("string-ci=?", stringCiEquals))
+    self.define(Procedure("string-ci<?", stringCiLessThan))
+    self.define(Procedure("string-ci>?", stringCiLessThanEquals))
+    self.define(Procedure("string-ci<=?", stringCiGreaterThan))
+    self.define(Procedure("string-ci>=?", stringCiGreaterThanEquals))
+    self.define(Procedure("string-contains?", stringContains))
+    self.define(Procedure("string-upcase", stringUpcase))
+    self.define(Procedure("string-downcase", stringDowncase))
+    self.define(Procedure("list->string", listToString))
+    self.define(Procedure("string->list", stringToList))
+    self.define(Procedure("substring", substring))
   }
   
   func isString(_ expr: Expr) -> Expr {

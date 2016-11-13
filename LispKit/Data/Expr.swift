@@ -30,6 +30,7 @@ public enum Expr: Trackable, Hashable {
   case null
   case `true`
   case `false`
+  case uninit(Symbol)
   case symbol(Symbol)
   case fixnum(Int64)
   case bignum(BigInt)
@@ -56,7 +57,8 @@ public enum Expr: Trackable, Hashable {
   /// Returns the type of this expression.
   public var type: Type {
     switch self {
-      case .undef:
+      case .undef,
+           .uninit(_):
         return .undefinedType
       case .void:
         return .voidType
@@ -116,6 +118,16 @@ public enum Expr: Trackable, Hashable {
   }
   
   // Predicate methods
+  
+  /// Returns true if this expression is undefined.
+  public var isUndef: Bool {
+    switch self {
+      case .undef, .uninit(_):
+        return true
+      default:
+        return false
+    }
+  }
   
   /// Returns true if this expression is null.
   public var isNull: Bool {
@@ -228,7 +240,7 @@ public enum Expr: Trackable, Hashable {
   /// indirectly.
   public var isAtom: Bool {
     switch self {
-      case .undef, .void, .eof, .null, .true, .false, .symbol(_),
+      case .undef, .void, .eof, .null, .true, .false, .uninit(_), .symbol(_),
            .fixnum(_), .bignum(_), .rational(_), .bigrat(_), .flonum(_), .complex(_),
            .char(_), .string(_), .bytes(_), .env(_), .port(_):
         return true
@@ -582,6 +594,11 @@ extension Expr: CustomStringConvertible {
           return "#t"
         case .false:
           return "#f"
+        case .uninit(let sym):
+          guard escape else {
+            return "#<uninit \(sym.rawIdentifier)>"
+          }
+          return "#<uninit \(sym.description)>"
         case .symbol(let sym):
           guard escape else {
             return sym.rawIdentifier
@@ -638,22 +655,20 @@ extension Expr: CustomStringConvertible {
           }
           return "\"\(Expr.escapeStr(str as String))\""
         case .bytes(let boxedVec):
-          var res = "#u8("
-          var sep = ""
+          var builder = StringBuilder(prefix: "#u8(", postfix: ")", separator: " ")
           for byte in boxedVec.value {
-            res = res + sep + String(byte)
-            sep = " "
+            builder.append(String(byte))
           }
-          return res + ")"
+          return builder.description
         case .pair(let head, let tail):
-          var res = "(" + stringReprOf(head)
+          var builder = StringBuilder(prefix: "(", separator: " ")
+          builder.append(stringReprOf(head))
           var expr = tail
           while case .pair(let car, let cdr) = expr {
-            res += " "
-            res += stringReprOf(car)
+            builder.append(stringReprOf(car))
             expr = cdr
           }
-          return res + (expr.isNull ? ")" : " . \(expr))")
+          return builder.description + (expr.isNull ? ")" : (" . " + stringReprOf(expr)))
         case .box(let cell):
           if let res = objIdString(cell) {
             return res
@@ -680,15 +695,12 @@ extension Expr: CustomStringConvertible {
             return "#()"
           } else {
             enclObjs.insert(vector)
-            var res = ""
-            var sep = "#("
+            var builder = StringBuilder(prefix: "#(", postfix: ")", separator: " ")
             for expr in vector.exprs {
-              res = res + sep + stringReprOf(expr)
-              sep = " "
+              builder.append(stringReprOf(expr))
             }
-            res += ")"
             enclObjs.remove(vector)
-            return fixString(vector, res)
+            return fixString(vector, builder.description)
           }
         case .record(let record):
           guard case .record(let type) = record.kind else {
@@ -704,35 +716,35 @@ extension Expr: CustomStringConvertible {
               preconditionFailure("incorrect encoding of record type")
             }
             enclObjs.insert(record)
-            var res = "#<record \(name)"
-            var sep = ": "
+            var builder = StringBuilder(prefix: "#<record \(name)",
+                                        postfix: ">",
+                                        separator: ", ",
+                                        initial: ": ")
             var fields = type.exprs[2]
             for expr in record.exprs {
               guard case .pair(let sym, let nextFields) = fields else {
                 preconditionFailure("incorrect encoding of record \(type.exprs[0])")
               }
-              res = res + sep + "\(sym)=\(stringReprOf(expr))"
-              sep = ", "
+              builder.append(sym.description, "=", stringReprOf(expr))
               fields = nextFields
             }
-            res += ">"
             enclObjs.remove(record)
-            return fixString(record, res)
+            return fixString(record, builder.description)
           }
         case .table(let map):
           if let res = objIdString(map) {
             return res
           } else {
             enclObjs.insert(map)
-            var res = "#<hashtable \(map.identityString)"
-            var sep = ": "
+            var builder = StringBuilder(prefix: "#<hashtable \(map.identityString)",
+                                        postfix: ">",
+                                        separator: ", ",
+                                        initial: ": ")
             for (key, value) in map.mappings {
-              res = res + sep + stringReprOf(key) + " -> " + stringReprOf(value)
-              sep = ", "
+              builder.append(stringReprOf(key), " -> ", stringReprOf(value))
             }
-            res += ">"
             enclObjs.remove(map)
-            return fixString(map, res)
+            return fixString(map, builder.description)
           }
         case .promise(let promise):
           return "#<promise \(promise.identityString)>"
@@ -755,14 +767,14 @@ extension Expr: CustomStringConvertible {
         case .special(let special):
           return "#<special \(special.identityString)>"
         case .env(let environment):
-          var res = "#<env \(environment.identityString)"
-          var sep = ": "
+          var builder = StringBuilder(prefix: "#<env \(environment.identityString)",
+                                      postfix: ">",
+                                      separator: ", ",
+                                      initial: ": ")
           for sym in environment.boundSymbols {
-            res = res + sep + sym.description
-            sep = ", "
+            builder.append(sym.description)
           }
-          res += ">"
-          return res
+          return builder.description
         case .port(let port):
           return "#<\(port.typeDescription) \(port.identDescription)>"
         case .error(let error):

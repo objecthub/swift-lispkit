@@ -35,14 +35,10 @@ public struct MultiMap<Key: Hashable, Value>: CustomStringConvertible {
   }
   
   public var description: String {
-    var builder = StringBuilder("{")
-    var sep = ""
+    var builder = StringBuilder(prefix: "{", postfix: "}", separator: ", ")
     for (key, value) in self.map {
-      builder.append(sep)
       builder.append("\(key) → \(value)")
-      sep = ", "
     }
-    builder.append("}")
     return builder.description
   }
 }

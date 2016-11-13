@@ -23,20 +23,26 @@
 /// 
 public final class VectorLibrary: NativeLibrary {
   
-  public override func export() {
-    define(Procedure("vector?", isVector, compileIsVector))
-    define(Procedure("vector", vector, compileVector))
-    define(Procedure("make-vector", makeVector))
-    define(Procedure("vector-append", vectorAppend))
-    define(Procedure("vector-ref", vectorRef))
-    define(Procedure("vector-set!", vectorSet))
-    define(Procedure("list->vector", listToVector))
-    define(Procedure("vector->list", vectorToList))
-    define(Procedure("string->vector", stringToVector))
-    define(Procedure("vector->string", vectorToString))
-    define(Procedure("vector-copy", vectorCopy))
-    define(Procedure("vector-copy!", vectorOverwrite))
-    define(Procedure("vector-fill!", vectorFill))
+  /// Name of the library.
+  public override class var name: [String] {
+    return ["lispkit", "vector"]
+  }
+  
+  /// Declarations of the library.
+  public override func declarations() {
+    self.define(Procedure("vector?", isVector, compileIsVector))
+    self.define(Procedure("vector", vector, compileVector))
+    self.define(Procedure("make-vector", makeVector))
+    self.define(Procedure("vector-append", vectorAppend))
+    self.define(Procedure("vector-ref", vectorRef))
+    self.define(Procedure("vector-set!", vectorSet))
+    self.define(Procedure("list->vector", listToVector))
+    self.define(Procedure("vector->list", vectorToList))
+    self.define(Procedure("string->vector", stringToVector))
+    self.define(Procedure("vector->string", vectorToString))
+    self.define(Procedure("vector-copy", vectorCopy))
+    self.define(Procedure("vector-copy!", vectorOverwrite))
+    self.define(Procedure("vector-fill!", vectorFill))
   }
   
   func isVector(_ expr: Expr) -> Expr {

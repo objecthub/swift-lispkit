@@ -1,51 +1,78 @@
 //
-//  ContinuationLibrary.swift
+//  DynamicControlLibrary.swift
 //  LispKit
 //
 //  Created by Matthias Zenger on 14/07/2016.
 //  Copyright © 2016 ObjectHub. All rights reserved.
 //
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+//
 
 import Foundation
 
-
 public final class DynamicControlLibrary: NativeLibrary {
   
-  public override func export() {
+  /// Name of the library.
+  public override class var name: [String] {
+    return ["lispkit", "dynamic"]
+  }
+  
+  /// Dependencies of the library.
+  public override func dependencies() {
+    self.`import`(from: ["lispkit", "base"], "define", "define-syntax", "syntax-rules",
+                                             "lambda", "eqv?")
+    self.`import`(from: ["lispkit", "control"], "if", "let", "let*", "do")
+    self.`import`(from: ["lispkit", "box"], "box")
+    self.`import`(from: ["lispkit", "list"], "car", "cdr", "list", "null?")
+    self.`import`(from: ["lispkit", "hashtable"], "hashtable-add!")
+  }
+  
+  /// Declarations of the library.
+  public override func declarations() {
     // Continuations
-    define(Procedure("continuation?", isContinuation))
-    define(Procedure("_call-with-unprotected-continuation", callWithUnprotectedContinuation))
-    define(Procedure("_wind-down", windDown))
-    define(Procedure("_wind-up", windUp))
-    define(Procedure("_dynamic-wind-base", dynamicWindBase))
-    define(Procedure("_dynamic-wind-current", dynamicWindCurrent))
-    define(Procedure("_dynamic-winders", dynamicWinders))
-    define("call-with-current-continuation", compile:
-      "(lambda (f)" +
-      "  (_call-with-unprotected-continuation" +
-      "     (lambda (cont)" +
-      "       (f (lambda (x)" +
-      "            (do ((base (_dynamic-wind-base cont)))" +
-      "                ((eqv? (_dynamic-wind-current) base))" +
-      "              ((cdr (_wind-down))))" +
-      "            (do ((winders (_dynamic-winders cont) (cdr winders)))" +
-      "                ((null? winders) (cont x))" +
-      "              ((car (car winders)))" +
+    self.define(Procedure("continuation?", isContinuation))
+    self.define(Procedure("_call-with-unprotected-continuation", callWithUnprotectedContinuation))
+    self.define(Procedure("_wind-down", windDown))
+    self.define(Procedure("_wind-up", windUp))
+    self.define(Procedure("_dynamic-wind-base", dynamicWindBase))
+    self.define(Procedure("_dynamic-wind-current", dynamicWindCurrent))
+    self.define(Procedure("_dynamic-winders", dynamicWinders))
+    self.define("call-with-current-continuation", via:
+      "(define (call-with-current-continuation f)",
+      "  (_call-with-unprotected-continuation",
+      "     (lambda (cont)",
+      "       (f (lambda (x)",
+      "            (do ((base (_dynamic-wind-base cont)))",
+      "                ((eqv? (_dynamic-wind-current) base))",
+      "              ((cdr (_wind-down))))",
+      "            (do ((winders (_dynamic-winders cont) (cdr winders)))",
+      "                ((null? winders) (cont x))",
+      "              ((car (car winders)))",
       "              (_wind-up (car (car winders)) (cdr (car winders)))))))))")
-    define("dynamic-wind", compile:
-      "(lambda (before during after)" +
-      "  (before)" +
-      "  (_wind-up before after)" +
+    self.define("dynamic-wind", via:
+      "(define (dynamic-wind before during after)",
+      "  (before)",
+      "  (_wind-up before after)",
       "  (let ((res (during))) ((cdr (_wind-down))) res))")
     
     // Parameters
-    define(Procedure("dynamic-environment", dynamicEnvironment))
-    define(Procedure("make-dynamic-environment", makeDynamicEnvironment))
-    define(Procedure("set-dynamic-environment!", setDynamicEnvironment))
-    define(Procedure("_make-parameter", makeParameter))
-    define(Procedure("_bind-parameter", bindParameter))
-    define("_dynamic-bind", compile:
-      "(lambda (parameters values body)" +
+    self.define(Procedure("dynamic-environment", dynamicEnvironment))
+    self.define(Procedure("make-dynamic-environment", makeDynamicEnvironment))
+    self.define(Procedure("set-dynamic-environment!", setDynamicEnvironment))
+    self.define(Procedure("_make-parameter", makeParameter))
+    self.define(Procedure("_bind-parameter", bindParameter))
+    self.define("_dynamic-bind", via:
+      "(define (_dynamic-bind parameters values body)" +
       "  (let* ((old-env (dynamic-environment))" +
       "         (new-env (make-dynamic-environment)))" +
       "    (do ((ps parameters (cdr ps))" +
@@ -57,17 +84,18 @@ public final class DynamicControlLibrary: NativeLibrary {
       "    (dynamic-wind (lambda () (set-dynamic-environment! new-env))" +
       "                  body" +
       "                  (lambda () (set-dynamic-environment! old-env)))))")
-    define("make-parameter", compile:
-      "(lambda (val . conv)" +
+    self.define("make-parameter", via:
+      "(define (make-parameter val . conv)" +
       "  (if (null? conv)" +
       "    (_make-parameter val)" +
       "    (_make-parameter" +
       "      ((car conv) val)" +
       "      (lambda (param val setter) (setter param ((car conv) val))))))")
-    define("parameterize", syntax:
-      "(syntax-rules ()" +
-      "  ((parameterize ((expr1 expr2) ...) body ...)" +
-      "    (_dynamic-bind (list expr1 ...) (list expr2 ...) (lambda () body ...))))")
+    self.define("parameterize", via:
+      "(define-syntax parameterize" +
+      "  (syntax-rules ()" +
+      "    ((parameterize ((expr1 expr2) ...) body ...)" +
+      "      (_dynamic-bind (list expr1 ...) (list expr2 ...) (lambda () body ...)))))")
   }
   
   func isContinuation(_ expr: Expr) -> Expr {
