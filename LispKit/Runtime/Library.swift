@@ -390,11 +390,18 @@ open class Library: Reference, Trackable, CustomStringConvertible {
           guard exportList.isNull else {
             throw EvalError.malformedLibraryDefinition(decls: decls)
           }
-        case .pair(.symbol(self.context.symbols.`import`), let spec):
-          guard let importSet = ImportSet(spec, in: self.context) else {
+        case .pair(.symbol(self.context.symbols.`import`), let exprs):
+          var importList = exprs
+          while case .pair(let spec, let next) = importList {
+            guard let importSet = ImportSet(spec, in: self.context) else {
+              throw EvalError.malformedLibraryDefinition(decls: decls)
+            }
+            importDecls.append(importSet)
+            importList = next
+          }
+          guard importList.isNull else {
             throw EvalError.malformedLibraryDefinition(decls: decls)
           }
-          importDecls.append(importSet)
         case .pair(.symbol(self.context.symbols.begin), let exprs):
           var initExprs = exprs
           while case .pair(let initExpr, let next) = initExprs {

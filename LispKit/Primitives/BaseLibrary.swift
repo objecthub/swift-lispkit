@@ -48,6 +48,7 @@ public final class BaseLibrary: NativeLibrary {
     // Definition primitives
     self.define("define", as: SpecialForm(compileDefine))
     self.define("define-syntax", as: SpecialForm(compileDefineSyntax))
+    self.define("define-library", as: SpecialForm(compileDefineLibrary))
     self.define("syntax-rules", as: SpecialForm(compileSyntaxRules))
     self.define("set!", as: SpecialForm(compileSet))
     self.define(Procedure("load", load))
@@ -290,7 +291,7 @@ public final class BaseLibrary: NativeLibrary {
     
   //-------- MARK: - Definition primitives
   
-  func compileDefine(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  func compileDefine(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     // Extract signature and definition
     guard case .pair(_, .pair(let sig, let def)) = expr else {
       throw EvalError.leastArgumentCountError(formals: 2, args: expr)
@@ -324,7 +325,7 @@ public final class BaseLibrary: NativeLibrary {
     }
   }
   
-  func compileDefineSyntax(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  func compileDefineSyntax(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     // Extract keyword and transformer definition
     guard case .pair(_, .pair(let kword, .pair(let transformer, .null))) = expr else {
       throw EvalError.argumentCountError(formals: 2, args: expr)
@@ -347,7 +348,16 @@ public final class BaseLibrary: NativeLibrary {
     return false
   }
   
-  func compileSyntaxRules(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  func compileDefineLibrary(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    guard case .pair(_, .pair(let name, let decls)) = expr else {
+      throw EvalError.leastArgumentCountError(formals: 1, args: expr)
+    }
+    try compiler.context.libraries.load(name: name, declarations: decls)
+    compiler.emit(.pushVoid)
+    return false
+  }
+  
+  func compileSyntaxRules(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let lit, let patTrans)) = expr else {
       throw EvalError.leastArgumentCountError(formals: 1, args: expr)
     }
