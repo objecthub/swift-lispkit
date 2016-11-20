@@ -74,7 +74,14 @@ public final class BaseLibrary: NativeLibrary {
     self.define("or", as: SpecialForm(compileOr))
     self.define(Procedure("not", not))
     
+    // Environments
+    self.define(Procedure("environment?", isEnvironment))
+    self.define(Procedure("environment", environment))
+    self.define(Procedure("interaction-environment", interactionEnvironment))
+    
     // System primitives
+    self.define(Procedure("get-environment-variable", getEnvironmentVariable))
+    self.define(Procedure("get-environment-variables", getEnvironmentVariables))
     self.define(Procedure("void", voidConst))
     self.define(Procedure("gc", gc))
     self.define(Procedure("exit", exit))
@@ -89,28 +96,39 @@ public final class BaseLibrary: NativeLibrary {
   
   //-------- MARK: - Basic primitives
   
-  static func identity(_ expr: Expr) -> Expr {
+  static func identity(expr: Expr) -> Expr {
     return expr
   }
   
-  func eval(_ args: Arguments) throws -> Code {
+  func eval(args: Arguments) throws -> Code {
     guard args.count > 0 else {
       throw EvalError.leastArgumentCountError(formals: 1, args: .makeList(args))
     }
     guard args.count < 3 else {
       throw EvalError.argumentCountError(formals: 2, args: .makeList(args))
     }
-    return try Compiler.compile(expr: .pair(args.first!, .null),
-                                in: self.context.global,
-                                optimize: true)
+    var env = self.context.global
+    if args.count == 2 {
+      env = .global(try args[args.startIndex + 1].asEnvironment())
+    }
+    return try Compiler.compile(expr: .pair(args.first!, .null), in: env, optimize: true)
   }
   
   func compileEval(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
-    guard case .pair(_, .pair(let arg, .null)) = expr else {
-      throw EvalError.argumentCountError(formals: 1, args: expr)
+    guard case .pair(_, .pair(let expr, let rest)) = expr else {
+      throw EvalError.argumentCountError(formals: 1, args: .null)
     }
     compiler.emit(.makeFrame)
-    try compiler.compile(arg, in: env, inTailPos: false)
+    switch rest {
+      case .null:
+        try compiler.compile(expr, in: env, inTailPos: false)
+        try compiler.pushValue(.env(env.environment ?? self.context.environment))
+      case .pair(let e, .null):
+        try compiler.compile(expr, in: env, inTailPos: false)
+        try compiler.compile(e, in: env, inTailPos: false)
+      default:
+        throw EvalError.argumentCountError(formals: 1, args: .pair(expr, rest))
+    }
     compiler.emit(.compile)
     return compiler.call(0, inTailPos: tail)
   }
@@ -435,12 +453,12 @@ public final class BaseLibrary: NativeLibrary {
     return false
   }
   
-  func load(_ expr: Expr) throws -> Expr {
+  func load(expr: Expr, e: Expr?) throws -> Expr {
     let filename = try expr.asString()
     return self.context.machine.eval(
       file: Bundle.main.path(
               forResource: filename, ofType: "scm", inDirectory: "LispKit/Library") ?? filename,
-      in: self.context.global)
+      in: .global(try e?.asEnvironment() ?? self.context.environment))
   }
   
   
@@ -578,7 +596,50 @@ public final class BaseLibrary: NativeLibrary {
   }
   
   
+  //-------- MARK: - Environments
+  
+  func isEnvironment(expr: Expr) -> Expr {
+    switch expr {
+      case .env(_):
+        return .true
+      default:
+        return .false
+    }
+  }
+  
+  func environment(exprs: Arguments) throws -> Expr {
+    var importSets = [ImportSet]()
+    for expr in exprs {
+      guard let importSet = ImportSet(expr, in: self.context) else {
+        throw EvalError.malformedImportSet(expr)
+      }
+      importSets.append(importSet)
+    }
+    return Expr.env(try Environment(in: self.context, importing: importSets))
+  }
+  
+  func interactionEnvironment() -> Expr {
+    return Expr.env(self.context.environment)
+  }
+  
+  
   //-------- MARK: - System primitives
+  
+  func getEnvironmentVariable(expr: Expr) throws -> Expr {
+    let name = try expr.asString()
+    guard let value = ProcessInfo.processInfo.environment[name] else {
+      return .false
+    }
+    return .makeString(value)
+  }
+  
+  func getEnvironmentVariables() -> Expr {
+    var alist = Expr.null
+    for (name, value) in ProcessInfo.processInfo.environment {
+      alist = .pair(.pair(.makeString(name), .makeString(value)), alist)
+    }
+    return alist
+  }
   
   func voidConst() -> Expr {
     return .void

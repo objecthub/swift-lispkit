@@ -942,8 +942,9 @@ public final class VirtualMachine: TrackedObject {
           }
           self.push(.special(SpecialForm(proc)))
         case .compile:
+          let environment = try self.pop().asEnvironment()
           let code = try Compiler.compile(expr: .makeList(self.pop()),
-                                          in: self.context.global,
+                                          in: .global(environment),
                                           optimize: true)
           self.push(.procedure(Procedure(code)))
         case .apply(let m):

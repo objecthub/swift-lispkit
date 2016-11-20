@@ -33,6 +33,7 @@ public final class Environment: Reference, CustomStringConvertible {
     case library(Expr)
     case program(String)
     case repl
+    case custom
   }
   
   /// Tagged reference to a location
@@ -102,7 +103,7 @@ public final class Environment: Reference, CustomStringConvertible {
   /// A weak box object pointing at this environment
   public private(set) var box: WeakBox<Environment>!
   
-  /// Initializes an empty interactive environment (typically used for read-eval-print loops).
+  /// Initializes an empty interactive environment for read-eval-print loops.
   public init(in context: Context) {
     self.kind = .repl
     self.context = context
@@ -144,6 +145,18 @@ public final class Environment: Reference, CustomStringConvertible {
       if !library.imported.hasValues(for: intIdent.identifier) {
         self.bindings[intIdent.identifier] = .mutable(library.exports[extIdent]!.location)
       }
+    }
+  }
+  
+  /// Initializes a custom environment with the given import sets.
+  public init(in context: Context, importing importSets: [ImportSet]) throws {
+    self.kind = .custom
+    self.context = context
+    self.bindings = [:]
+    super.init()
+    self.box = WeakBox(self)
+    for importSet in importSets {
+      _ = try self.initialImport(importSet)
     }
   }
   
@@ -202,25 +215,35 @@ public final class Environment: Reference, CustomStringConvertible {
     let lref = self.bindings[sym] ?? .undefined
     switch lref {
       case .undefined:
-        self.bindings[sym] = .mutable(self.context.allocateLocation(for: expr))
-        return true
+        switch self.kind {
+          case .custom:
+            return false
+          default:
+            self.bindings[sym] = .mutable(self.context.allocateLocation(for: expr))
+            return true
+        }
       case .reserved(let loc):
-        self.context.locations[loc] = expr
-        self.bindings[sym] = .mutable(loc)
-        return true
+        switch self.kind {
+          case .custom:
+            return false
+          default:
+            self.context.locations[loc] = expr
+            self.bindings[sym] = .mutable(loc)
+            return true
+        }
       case .mutable(let loc):
         switch self.kind {
-          case .library, .program: // illegal redefinition of a binding
+          case .custom, .library, .program: // illegal redefinition of a binding
             return false
-          case .repl:              // change existing binding
+          case .repl:                       // change existing binding
             self.context.locations[loc] = expr
             return true
         }
       case .mutableImport(_), .immutableImport(_):
         switch self.kind {
-          case .library, .program: // illegal redefinition of a binding
+          case .custom, .library, .program: // illegal redefinition of a binding
             return false
-          case .repl:              // override existing binding
+          case .repl:                       // override existing binding
             self.bindings[sym] = .mutable(self.context.allocateLocation(for: expr))
             return true
         }
@@ -236,8 +259,13 @@ public final class Environment: Reference, CustomStringConvertible {
       case .undefined, .reserved(_):
         return false
       case .mutable(let loc), .mutableImport(let loc):
-        self.context.locations[loc] = expr
-        return true
+        switch self.kind {
+          case .custom:
+            return false
+          default:
+            self.context.locations[loc] = expr
+            return true
+        }
       case .immutableImport(_):
         return false
     }
@@ -257,6 +285,12 @@ public final class Environment: Reference, CustomStringConvertible {
     if case .library(let lib) = self.kind {
       throw EvalError.importInLibrary(lib)
     }
+    return try self.initialImport(importSet)
+  }
+  
+  /// Imports the bindings defined by `importSet` into this environment. Environments of
+  /// libraries do not support imports. This method does not force the library to be initialized.
+  private func initialImport(_ importSet: ImportSet) throws -> Library {
     // Expand the import set
     guard let (library, importSpec) = importSet.expand(in: self.context) else {
       // Could not expand import set
@@ -293,7 +327,7 @@ public final class Environment: Reference, CustomStringConvertible {
         default:
           // Should nerver happen
           preconditionFailure("cannot import \(impIdent) as \(expIdent) " +
-                              "using \(library.exports[expIdent])")
+            "using \(library.exports[expIdent])")
       }
     }
     return library
@@ -301,7 +335,21 @@ public final class Environment: Reference, CustomStringConvertible {
   
   /// A description of the bindings in this environment.
   public var description: String {
-    var builder = StringBuilder(prefix: "<env", postfix: ">", separator: ", ", initial: ": ")
+    var type: String = ""
+    switch self.kind {
+      case .library(let name):
+        type = " " + name.description
+      case .program(let filename):
+        type = " " + filename
+      case .repl:
+        type = " interaction"
+      case .custom:
+        type = " "
+    }
+    var builder = StringBuilder(prefix: "<env",
+                                postfix: ">",
+                                separator: ", ",
+                                initial: type + ": ")
     for (sym, locref) in self.bindings {
       builder.append(sym.description, " -> ", locref.description)
     }

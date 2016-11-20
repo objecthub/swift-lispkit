@@ -526,6 +526,13 @@ extension Expr {
     return proc
   }
   
+  public func asEnvironment() throws -> Environment {
+    guard case .env(let environment) = self else {
+      throw EvalError.typeError(self, [.envType])
+    }
+    return environment
+  }
+  
   public func asPort() throws -> Port {
     guard case .port(let port) = self else {
       throw EvalError.typeError(self, [.portType])
@@ -668,7 +675,7 @@ extension Expr: CustomStringConvertible {
             builder.append(stringReprOf(car))
             expr = cdr
           }
-          return builder.description + (expr.isNull ? ")" : (" . " + stringReprOf(expr)))
+          return builder.description + (expr.isNull ? ")" : " . \(stringReprOf(expr)))")
         case .box(let cell):
           if let res = objIdString(cell) {
             return res
@@ -767,10 +774,21 @@ extension Expr: CustomStringConvertible {
         case .special(let special):
           return "#<special \(special.identityString)>"
         case .env(let environment):
-          var builder = StringBuilder(prefix: "#<env \(environment.identityString)",
+          var type: String = ""
+          switch environment.kind {
+            case .library(let name):
+              type = " " + name.description
+            case .program(let filename):
+              type = " " + filename
+            case .repl:
+              type = " interaction"
+            case .custom:
+              type = ""
+          }
+          var builder = StringBuilder(prefix: "#<env",
                                       postfix: ">",
                                       separator: ", ",
-                                      initial: ": ")
+                                      initial: type + ": ")
           for sym in environment.boundSymbols {
             builder.append(sym.description)
           }
