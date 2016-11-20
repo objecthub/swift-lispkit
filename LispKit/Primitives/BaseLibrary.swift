@@ -114,7 +114,7 @@ public final class BaseLibrary: NativeLibrary {
     return try Compiler.compile(expr: .pair(args.first!, .null), in: env, optimize: true)
   }
   
-  func compileEval(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  func compileEval(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let expr, let rest)) = expr else {
       throw EvalError.argumentCountError(formals: 1, args: .null)
     }
@@ -133,7 +133,7 @@ public final class BaseLibrary: NativeLibrary {
     return compiler.call(0, inTailPos: tail)
   }
   
-  func apply(_ args: Arguments) throws -> (Procedure, [Expr]) {
+  func apply(args: Arguments) throws -> (Procedure, [Expr]) {
     guard args.count > 1 else {
       throw EvalError.leastArgumentCountError(formals: 2, args: .makeList(args))
     }
@@ -155,7 +155,7 @@ public final class BaseLibrary: NativeLibrary {
     return (proc, exprs)
   }
   
-  func compileApply(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  func compileApply(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let fun, let arglist)) = expr else {
       throw EvalError.leastArgumentCountError(formals: 2, args: expr)
     }
@@ -175,19 +175,19 @@ public final class BaseLibrary: NativeLibrary {
     throw EvalError.leastArgumentCountError(formals: 2, args: expr)
   }
   
-  func isEqual(_ this: Expr, that: Expr) -> Expr {
+  func isEqual(this: Expr, that: Expr) -> Expr {
     return .makeBoolean(equalExpr(that, this))
   }
   
-  func isEqv(_ this: Expr, that: Expr) -> Expr {
+  func isEqv(this: Expr, that: Expr) -> Expr {
     return .makeBoolean(eqvExpr(that, this))
   }
   
-  func isEq(_ this: Expr, that: Expr) -> Expr {
+  func isEq(this: Expr, that: Expr) -> Expr {
     return .makeBoolean(eqExpr(that, this))
   }
   
-  func compileQuote(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  func compileQuote(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let arg, .null)) = expr else {
       throw EvalError.argumentCountError(formals: 1, args: expr)
     }
@@ -195,7 +195,7 @@ public final class BaseLibrary: NativeLibrary {
     return false
   }
   
-  func compileQuasiquote(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  func compileQuasiquote(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let arg, .null)) = expr else {
       throw EvalError.argumentCountError(formals: 1, args: expr)
     }
@@ -284,7 +284,7 @@ public final class BaseLibrary: NativeLibrary {
     }
   }
   
-  func compileLambda(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  func compileLambda(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let arglist, let body)) = expr else {
       throw EvalError.leastArgumentCountError(formals: 1, args: expr)
     }
@@ -292,7 +292,7 @@ public final class BaseLibrary: NativeLibrary {
     return false
   }
   
-  func compileCaseLambda(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  func compileCaseLambda(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, let cases) = expr else {
       preconditionFailure("broken case-lambda invocation")
     }
@@ -300,7 +300,7 @@ public final class BaseLibrary: NativeLibrary {
     return false
   }
   
-  func isProcedure(_ expr: Expr) -> Expr {
+  func isProcedure(expr: Expr) -> Expr {
     if case .procedure(_) = expr {
       return .true
     }
@@ -442,7 +442,7 @@ public final class BaseLibrary: NativeLibrary {
     }
   }
   
-  func compileSet(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  func compileSet(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let symbol, .pair(let value, .null))) = expr else {
       throw EvalError.argumentCountError(formals: 2, args: expr)
     }
@@ -464,18 +464,18 @@ public final class BaseLibrary: NativeLibrary {
   
   //-------- MARK: - Delayed execution
   
-  func isPromise(_ expr: Expr) -> Expr {
+  func isPromise(expr: Expr) -> Expr {
     if case .promise(_) = expr {
       return .true
     }
     return .false
   }
   
-  func makePromise(_ expr: Expr) -> Expr {
+  func makePromise(expr: Expr) -> Expr {
     return .promise(Promise(expr))
   }
   
-  func compileDelayForce(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  func compileDelayForce(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let delayed, .null)) = expr else {
       throw EvalError.argumentCountError(formals: 1, args: expr)
     }
@@ -484,17 +484,17 @@ public final class BaseLibrary: NativeLibrary {
     return false
   }
   
-  func compileDelay(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  func compileDelay(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let delayed, .null)) = expr else {
       throw EvalError.argumentCountError(formals: 1, args: expr)
     }
-    try compiler.compileLambda(
-      nil, .null, .pair(.makeList(.symbol(compiler.context.symbols.makePromise), delayed), .null), env)
+    let body = Expr.pair(.makeList(.symbol(compiler.context.symbols.makePromise), delayed), .null)
+    try compiler.compileLambda(nil, .null, body, env)
     compiler.emit(.makePromise)
     return false
   }
   
-  func compileForce(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  func compileForce(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let promise, .null)) = expr else {
       throw EvalError.argumentCountError(formals: 1, args: expr)
     }
@@ -506,28 +506,28 @@ public final class BaseLibrary: NativeLibrary {
   
   //-------- MARK: - Symbol primitives
   
-  func isSymbol(_ expr: Expr) -> Expr {
+  func isSymbol(expr: Expr) -> Expr {
     if case .symbol(_) = expr {
       return .true
     }
     return .false
   }
   
-  func gensym(_ expr: Expr?) throws -> Expr {
+  func gensym(expr: Expr?) throws -> Expr {
     return .symbol(context.symbols.gensym(try expr?.asString() ?? "g"))
   }
   
-  func stringToSymbol(_ expr: Expr) throws -> Expr {
+  func stringToSymbol(expr: Expr) throws -> Expr {
     return .symbol(context.symbols.intern(try expr.asString()))
   }
   
-  func symbolToString(_ expr: Expr) throws -> Expr {
-    return .string(NSMutableString(string: try expr.asSymbol().description))
+  func symbolToString(expr: Expr) throws -> Expr {
+    return .makeString(try expr.asSymbol().description)
   }
   
   //-------- MARK: - Boolean primitives
   
-  func isBoolean(_ expr: Expr) -> Expr {
+  func isBoolean(expr: Expr) -> Expr {
     switch expr {
       case .true, .false:
         return .true
@@ -536,14 +536,14 @@ public final class BaseLibrary: NativeLibrary {
     }
   }
   
-  func not(_ expr: Expr) -> Expr {
+  func not(expr: Expr) -> Expr {
     if case .false = expr {
       return .true
     }
     return .false
   }
   
-  func compileAnd(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  func compileAnd(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, let exprs) = expr else {
       preconditionFailure()
     }
@@ -569,7 +569,7 @@ public final class BaseLibrary: NativeLibrary {
     return false
   }
   
-  func compileOr(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  func compileOr(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, let exprs) = expr else {
       preconditionFailure()
     }
@@ -657,7 +657,7 @@ public final class BaseLibrary: NativeLibrary {
     return .undef
   }
   
-  func compileTime(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  func compileTime(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let exec, .null)) = expr else {
       throw EvalError.argumentCountError(formals: 1, args: expr)
     }
@@ -667,14 +667,14 @@ public final class BaseLibrary: NativeLibrary {
     compiler.emit(.pushCurrentTime)
     compiler.emit(.swap)
     compiler.emit(.flMinus)
-    try compiler.pushValue(.string(NSMutableString(string: "elapsed time = ")))
+    try compiler.pushValue(.makeString("elapsed time = "))
     compiler.emit(.display)
     compiler.emit(.display)
     compiler.emit(.newline)
     return false
   }
   
-  func compile(_ exprs: Arguments) throws -> Expr {
+  func compile(exprs: Arguments) throws -> Expr {
     var seq = Expr.null
     for expr in exprs.reversed() {
       seq = .pair(expr, seq)
@@ -686,7 +686,7 @@ public final class BaseLibrary: NativeLibrary {
     return .void
   }
   
-  func disassemble(_ expr: Expr) throws -> Expr {
+  func disassemble(expr: Expr) throws -> Expr {
     guard case .procedure(let proc) = expr else {
       throw EvalError.typeError(expr, [.procedureType])
     }
