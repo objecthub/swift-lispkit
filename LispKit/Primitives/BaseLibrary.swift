@@ -91,6 +91,9 @@ public final class BaseLibrary: NativeLibrary {
     self.define(Procedure("loaded-libraries", loadedLibraries))
     self.define(Procedure("environment-info", environmentInfo))
     self.define("time", as: SpecialForm(compileTime))
+    self.define(Procedure("current-second", currentSecond))
+    self.define(Procedure("current-jiffy", currentJiffy))
+    self.define(Procedure("jiffies-per-second", jiffiesPerSecond))
   }
   
   
@@ -742,5 +745,21 @@ public final class BaseLibrary: NativeLibrary {
     context.console.print("GLOBAL LOCATIONS\n")
     context.console.print("  allocated locations: \(context.locations.count)\n")
     return .void
+  }
+  
+  func currentSecond() -> Expr {
+    var time = timeval(tv_sec: 0, tv_usec: 0)
+    gettimeofday(&time, nil)
+    return .flonum(Double(time.tv_sec) + (Double(time.tv_usec) / 1000000.0))
+  }
+  
+  func currentJiffy() -> Expr {
+    var time = timeval(tv_sec: 0, tv_usec: 0)
+    gettimeofday(&time, nil)
+    return .fixnum(Int64(time.tv_sec) * 1000 + Int64(time.tv_usec / 1000))
+  }
+  
+  func jiffiesPerSecond() -> Expr {
+    return .fixnum(1000)
   }
 }
