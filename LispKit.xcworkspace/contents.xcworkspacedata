@@ -5,6 +5,6 @@
       location = "group:LispKit.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:../NumberKit/NumberKit.xcodeproj">
+      location = "group:../swift-numberkit/NumberKit.xcodeproj">
    </FileRef>
 </Workspace>
