@@ -23,3 +23,11 @@ internal func log(_ str: String) {
     print(str)
   #endif
 }
+
+public func lispKitFilePath(for fname: String) -> String {
+  let bundle = Bundle(identifier: "net.objecthub.LispKit")
+  return bundle?.path(forResource: fname, ofType: nil, inDirectory: "LispKit/Resources") ??
+         bundle?.path(forResource: fname, ofType: "scm", inDirectory: "LispKit/Resources") ??
+         bundle?.path(forResource: fname, ofType: "sld", inDirectory: "LispKit/Resources") ??
+         fname
+}

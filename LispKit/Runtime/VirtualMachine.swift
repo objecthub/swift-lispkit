@@ -449,7 +449,7 @@ public final class VirtualMachine: TrackedObject {
     }
   }
   
-  fileprivate func exitFrame() {
+  private func exitFrame() {
     // Determine former ip
     guard case .fixnum(let newip) = self.stack[self.registers.fp - 2] else {
       preconditionFailure()
@@ -481,7 +481,7 @@ public final class VirtualMachine: TrackedObject {
     self.registers.code = newcode
   }
   
-  fileprivate func invoke(_ n: inout Int, _ overhead: Int) throws -> Procedure {
+  private func invoke(_ n: inout Int, _ overhead: Int) throws -> Procedure {
     // Get procedure to call
     guard case .procedure(let p) = self.stack[self.sp - n - 1] else {
       throw EvalError.nonApplicativeValue(self.stack[self.sp - n - 1])
@@ -766,7 +766,7 @@ public final class VirtualMachine: TrackedObject {
     return proc
   }
   
-  @inline(__always) fileprivate func collectGarbageIfNeeded() {
+  @inline(__always) private func collectGarbageIfNeeded() {
     self.execInstr = self.execInstr &+ 1
     if self.execInstr % 0b0111111111111111111 == 0 {
       let res = self.context.objects.collectGarbage()
@@ -774,13 +774,13 @@ public final class VirtualMachine: TrackedObject {
     }
   }
   
-  fileprivate func execute(_ code: Code) throws -> Expr {
+  private func execute(_ code: Code) throws -> Expr {
     self.sp = 0
     self.push(.procedure(Procedure(code)))
     return try self.execute(code, args: 0, captured: VirtualMachine.noCaptures)
   }
   
-  fileprivate func execute(_ code: Code, args: Int, captured: [Expr]) throws -> Expr {
+  private func execute(_ code: Code, args: Int, captured: [Expr]) throws -> Expr {
     // Use new registers
     let savedRegisters = self.registers
     self.registers = Registers(code: code,
@@ -794,7 +794,7 @@ public final class VirtualMachine: TrackedObject {
     return try self.execute()
   }
   
-  fileprivate func execute() throws -> Expr {
+  private func execute() throws -> Expr {
     while self.registers.ip >= 0 && self.registers.ip < self.registers.code.instructions.count {
       self.collectGarbageIfNeeded()
       /*
@@ -1250,7 +1250,7 @@ public final class VirtualMachine: TrackedObject {
   }
   
   /// Debugging output
-  fileprivate func stackFragmentDescr(_ ip: Int, _ fp: Int, header: String? = nil) -> String {
+  private func stackFragmentDescr(_ ip: Int, _ fp: Int, header: String? = nil) -> String {
     var res = header ?? "╔══════════════════════════════════════════════════════\n"
     res += "║ ip = \(ip), fp = \(fp), sp = \(self.sp), max_sp = \(self.maxSp)\n"
     res += "╟──────────────────────────────────────────────────────\n"

@@ -1,8 +1,8 @@
 //
-//  Library.swift
+//  NativeLibrary.swift
 //  LispKit
 //
-//  Created by Matthias Zenger on 22/01/2016.
+//  Created by Matthias Zenger on 01/10/2016.
 //  Copyright © 2016 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,9 +19,9 @@
 //
 
 /// 
-/// `Library` defines a framework for defining built-in functionality for LispKit in a modular
-/// fashion. Concrete implementations subclass `Library` and override the `export` method with
-/// declarations of constants, procedures, and special forms.
+/// `NativeLibrary` defines a framework for defining built-in functionality for LispKit in
+/// a modular fashion. Concrete implementations subclass `NativeLibrary` and override the
+/// `export` method with declarations of constants, procedures, and special forms.
 ///
 open class NativeLibrary: Library {
   
@@ -109,9 +109,15 @@ open class NativeLibrary: Library {
     }
   }
   
+  /// Exports all bindings from this library that are also exported by the imported library
+  /// `library`. This method fails if the library is unknown or was not imported before.
+  /// Bindings whose identifier starts with `_` are not re-exported.
   public func export(from library: Expr) {
     guard let lib = self.context.libraries.lookup(library) else {
-      preconditionFailure("cannot export from \(library)")
+      preconditionFailure("cannot export from unknown library \(library)")
+    }
+    guard self.libraries.contains(lib) else {
+      preconditionFailure("cannot export library \(library) without importing it")
     }
     for (sym, internalName) in lib.exportDecls {
       if self.exportDecls[sym] == nil && sym.identifier.characters.first != Character("_") {
@@ -125,10 +131,14 @@ open class NativeLibrary: Library {
     }
   }
   
+  /// Exports all bindings from this library that are also exported by the library identified
+  /// by `library`. This method fails if the library is unknown or was not imported before.
+  /// Bindings whose identifier starts with `_` are not re-exported.
   public func export(from library: [String]) {
     self.export(from: self.context.libraries.name(library))
   }
   
+  /// Exports all bindings from all libraries imported by this library.
   public func exportAll() {
     for library in self.libraries {
       self.export(from: library.name)
@@ -161,19 +171,27 @@ open class NativeLibrary: Library {
     }
     return location
   }
-    
+  
+  /// Declares a new definition for the given procedure `proc` using the internal name of `proc`.
+  /// The optional parameter `export` determines whether the definition is exported or internal.
   public func define(_ proc: Procedure, export: Bool = true) {
     self.define(proc.name, as: .procedure(proc), export: export)
   }
   
+  /// Declares a new definition for the given procedure `proc` and name `name`. The optional
+  /// parameter `export` determines whether the definition is exported or internal.
   public func define(_ name: String, as proc: Procedure, export: Bool = true) {
     self.define(proc.name, as: .procedure(proc), export: export)
   }
   
+  /// Declares a new syntactical definition for the given special form `special` and name
+  /// `name`. The optional parameter `export` determines whether the definition is exported
+  /// or internal.
   public func define(_ name: String, as special: SpecialForm, export: Bool = true) {
     self.define(name, as: .special(special), export: export)
   }
   
+  /// Declares a new exported definition expressed in terms of source code.
   public func define(_ name: String, via: String...) {
     self.define(name, export: true)
     self.execute(code: via.reduce("", +))

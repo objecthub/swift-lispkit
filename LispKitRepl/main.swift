@@ -34,7 +34,7 @@ do {
 
 // Load standard Prelude
 if let preludePath = Bundle(identifier: "net.objecthub.LispKit")?.path(
-  forResource: "Prelude", ofType: "scm", inDirectory: "LispKit/Library") {
+  forResource: "Prelude", ofType: "scm", inDirectory: "LispKit/Resources") {
   _ = context.machine.eval(file: preludePath, in: context.global)
 }
 
