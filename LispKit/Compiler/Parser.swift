@@ -22,9 +22,9 @@
 /// Implementation of a simple Lisp parser. The parser requires access to a scanner and
 /// a symbol table for creating `Symbol` objects.
 /// 
-open class Parser {
-  fileprivate var symbols: SymbolTable
-  fileprivate var scanner: Scanner
+public final class Parser {
+  private var symbols: SymbolTable
+  private var scanner: Scanner
   
   public convenience init(symbols: SymbolTable, src: String) {
     self.init(symbols: symbols, scanner: Scanner(string: src))
@@ -39,11 +39,11 @@ open class Parser {
     self.scanner = scanner
   }
   
-  open var finished: Bool {
+  public var finished: Bool {
     return !self.scanner.hasNext()
   }
   
-  open func parse(_ prescan: Bool = true) throws -> Expr {
+  public func parse(_ prescan: Bool = true) throws -> Expr {
     var res: Expr
     let token = self.scanner.token
     switch token.kind {

@@ -93,6 +93,7 @@
 		CCC5319E1D16E40D00FAED6E /* TextInputSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC5319D1D16E40D00FAED6E /* TextInputSource.swift */; };
 		CCC531A01D18595500FAED6E /* TextOutputTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC5319F1D18595500FAED6E /* TextOutputTarget.swift */; };
 		CCC62D921CA9ED6A00E2C43F /* TrackedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC62D911CA9ED6A00E2C43F /* TrackedObject.swift */; };
+		CCCEB3FF1DF2DAA9009BF66B /* FileHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCEB3FE1DF2DAA9009BF66B /* FileHandler.swift */; };
 		CCD81AD21CE75823009EB087 /* Checkpointer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD81AD11CE75823009EB087 /* Checkpointer.swift */; };
 		CCDAD5521D4813E900A7EE4F /* HashTables.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCDAD5511D4813E900A7EE4F /* HashTables.scm */; };
 		CCDF99FC1D3D7A3100FD2A57 /* BoxLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDF99FB1D3D7A3100FD2A57 /* BoxLibrary.swift */; };
@@ -271,6 +272,7 @@
 		CCC937451C4F02AF00A5608F /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		CCC937471C4F02DF00A5608F /* CHANGELOG.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = CHANGELOG.md; sourceTree = "<group>"; };
 		CCC937491C4F031700A5608F /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		CCCEB3FE1DF2DAA9009BF66B /* FileHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileHandler.swift; sourceTree = "<group>"; };
 		CCD81AD11CE75823009EB087 /* Checkpointer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Checkpointer.swift; sourceTree = "<group>"; };
 		CCDAD5511D4813E900A7EE4F /* HashTables.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = HashTables.scm; sourceTree = "<group>"; };
 		CCDF99FB1D3D7A3100FD2A57 /* BoxLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = BoxLibrary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -532,6 +534,7 @@
 			children = (
 				CCAD52F71C48474500DBD8EE /* Context.swift */,
 				CC5033B01CDBE4CD0045A8FA /* Console.swift */,
+				CCCEB3FE1DF2DAA9009BF66B /* FileHandler.swift */,
 				CC3C92431D84C0D800016C28 /* Library.swift */,
 				CC5A47201C5295E600EFCF76 /* NativeLibrary.swift */,
 				CC2D124E1DB40E7F009BDC72 /* LibraryManager.swift */,
@@ -792,6 +795,7 @@
 				CC5A47251C52E08900EFCF76 /* ControlFlowLibrary.swift in Sources */,
 				CC6A3B681C52F17200E962E2 /* SchemeLibrary.swift in Sources */,
 				CC5C0A3F1D8EBE0A00CE2E98 /* MultiMap.swift in Sources */,
+				CCCEB3FF1DF2DAA9009BF66B /* FileHandler.swift in Sources */,
 				CC55A82B1C5175B000772B02 /* SpecialForm.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

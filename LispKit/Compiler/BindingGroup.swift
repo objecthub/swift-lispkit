@@ -18,7 +18,7 @@
 //  limitations under the License.
 //
 
-open class Definition: Reference, CustomStringConvertible {
+public final class Definition: Reference, CustomStringConvertible {
   
   public enum Kind {
     case value
@@ -27,8 +27,8 @@ open class Definition: Reference, CustomStringConvertible {
     case macro(Procedure)
   }
   
-  open let index: Int
-  open var kind: Kind
+  public let index: Int
+  public var kind: Kind
   
   fileprivate init(index: Int, isVar: Bool = true) {
     self.index = index
@@ -40,7 +40,7 @@ open class Definition: Reference, CustomStringConvertible {
     self.kind = .macro(proc)
   }
   
-  open var isValue: Bool {
+  public var isValue: Bool {
     switch self.kind {
       case .value:
         return true
@@ -49,7 +49,7 @@ open class Definition: Reference, CustomStringConvertible {
     }
   }
   
-  open var isVariable: Bool {
+  public var isVariable: Bool {
     switch self.kind {
       case .variable, .mutatedVariable:
         return true
@@ -58,7 +58,7 @@ open class Definition: Reference, CustomStringConvertible {
     }
   }
   
-  open var isImmutableVariable: Bool {
+  public var isImmutableVariable: Bool {
     switch self.kind {
       case .variable:
         return true
@@ -67,7 +67,7 @@ open class Definition: Reference, CustomStringConvertible {
     }
   }
   
-  open func wasMutated() {
+  public func wasMutated() {
     switch self.kind {
       case .value:
         preconditionFailure("cannot declare value mutable")
@@ -80,7 +80,7 @@ open class Definition: Reference, CustomStringConvertible {
     }
   }
   
-  open var description: String {
+  public var description: String {
     switch self.kind {
       case .value:
         return "value at index \(self.index)"

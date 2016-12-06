@@ -24,8 +24,11 @@
 ///
 public final class Context {
   
-  /// The console window, for reading and writing strings from the default port.
+  /// The console for reading and writing strings from the default port.
   public let console: Console
+  
+  /// A centralized module for handling files.
+  public let fileHandler: FileHandler
   
   /// The managed object pool for freeing up objects with cyclic dependencies.
   public let objects: ManagedObjectPool
@@ -58,6 +61,7 @@ public final class Context {
   public init(console: Console) {
     // Initialize components
     self.console = console
+    self.fileHandler = FileHandler()
     self.objects = ManagedObjectPool()
     self.symbols = SymbolTable()
     self.locations = Exprs()

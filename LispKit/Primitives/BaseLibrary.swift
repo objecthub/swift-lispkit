@@ -457,9 +457,11 @@ public final class BaseLibrary: NativeLibrary {
   }
   
   func load(expr: Expr, e: Expr?) throws -> Expr {
-    let path = lispKitFilePath(for: try expr.asString())
+    let name = try expr.asString()
     return self.context.machine.eval(
-      file: path,
+      file: self.context.fileHandler.filePath(forFile: name) ??
+            self.context.fileHandler.libraryFilePath(forFile: name) ??
+            name,
       in: .global(try e?.asEnvironment() ?? self.context.environment))
   }
   

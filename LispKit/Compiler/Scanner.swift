@@ -24,19 +24,19 @@ import NumberKit
 /// Class `Scanner` implements a lexical analyzer for Scheme. The class uses the utf16 view
 /// of the string for parsing purposes.
 /// 
-open class Scanner {
+public final class Scanner {
   
   /// Input of source code
-  fileprivate let input: TextInput
+  private let input: TextInput
   
   /// Buffer for characters read during one invocation of `next`
-  fileprivate var buffer: ScanBuffer
+  private var buffer: ScanBuffer
   
   /// Last scanned character
   internal var ch: UniChar
   
   /// Position of last scanned character
-  fileprivate var lpos: Position
+  private var lpos: Position
   
   /// Next position
   internal var pos: Position
@@ -73,7 +73,7 @@ open class Scanner {
   }
   
   /// Returns true if the current token has one of the given token kinds.
-  open func hasToken(_ kind: TokenKind...) -> Bool {
+  public func hasToken(_ kind: TokenKind...) -> Bool {
     for k in kind {
       if self.token.kind == k {
         return true
@@ -84,12 +84,12 @@ open class Scanner {
   
   /// Returns true if there is another token available. The token can be accessed via the
   /// `token` property.
-  open func hasNext() -> Bool {
+  public func hasNext() -> Bool {
     return self.token.kind != .eof
   }
   
   /// Parses the next token.
-  open func next() {
+  public func next() {
     while self.ch != EOF_CH {
       // skip whitespace
       self.skipSpace()
@@ -296,13 +296,13 @@ open class Scanner {
   }
   
   /// Signals a lexical error
-  fileprivate func signal(_ error: LexicalError) {
+  private func signal(_ error: LexicalError) {
     self.token.kind = .error
     self.token.errorVal = error
   }
   
   /// Reads the next character and makes it available via the `ch` property.
-  fileprivate func nextCh() {
+  private func nextCh() {
     // Check if we reached EOF already
     guard self.ch != EOF_CH else {
       return
@@ -349,7 +349,7 @@ open class Scanner {
   }
   
   /// Skips consecutive comment lines
-  fileprivate func skipComment() {
+  private func skipComment() {
     while self.ch == SEMI_CH {
       self.nextCh()
       while self.ch != EOL_CH && self.ch != EOF_CH {
@@ -359,7 +359,7 @@ open class Scanner {
   }
   
   /// Scans the next characters as an identifier.
-  fileprivate func scanIdent() {
+  private func scanIdent() {
     self.nextCh()
     while isSubsequentIdent(self.ch) {
       self.nextCh()
@@ -369,7 +369,7 @@ open class Scanner {
   }
   
   /// Scans a character literal
-  fileprivate func scanCharacterLiteral() {
+  private func scanCharacterLiteral() {
     switch self.ch {
       case EOF_CH:
         self.signal(.malformedCharacterLiteral)
@@ -444,7 +444,7 @@ open class Scanner {
   }
   
   /// Scans a hex number with a given number of digits.
-  fileprivate func scanHexNumber(_ maxDigits: Int) -> Int64? {
+  private func scanHexNumber(_ maxDigits: Int) -> Int64? {
     guard isDigitForRadix(self.ch, 16) else {
       return nil
     }
@@ -463,7 +463,7 @@ open class Scanner {
   }
   
   /// Scans an exact or inexact number
-  fileprivate func scanGeneralNumber(exact: Bool? = nil) {
+  private func scanGeneralNumber(exact: Bool? = nil) {
     if self.ch == HASH_CH {
       self.nextCh()
       switch self.ch {
@@ -539,7 +539,7 @@ open class Scanner {
   }
   
   /// Scans the next characters as an unsigned integer or floating point number.
-  fileprivate func scanNumber(_ radix: Int, neg: Bool, dot: Bool) {
+  private func scanNumber(_ radix: Int, neg: Bool, dot: Bool) {
     var digits: [UInt8] = []
     var isFloat = dot
     let start = self.buffer.index - 1
@@ -630,7 +630,7 @@ open class Scanner {
   
   /// Scans the next characters as an unsigned floating point number representing the
   /// imaginary part of a complex number
-  fileprivate func scanImaginaryPart(_ realPart: Double, neg: Bool) {
+  private func scanImaginaryPart(_ realPart: Double, neg: Bool) {
     let start = self.buffer.index - 1
     guard self.ch != LI_CH && self.ch != N_CH else {
       self.scanIdent()
@@ -682,7 +682,7 @@ open class Scanner {
   }
   
   /// Scans the next characters as a string literal.
-  fileprivate func scanString() {
+  private func scanString() {
     switch self.scanCharSequenceUntil(DQ_CH) {
       case .success(let str):
         self.token.kind = .string
@@ -701,7 +701,7 @@ open class Scanner {
   }
   
   /// Scans the next characters as an identifier.
-  fileprivate func scanDelimitedIdent() {
+  private func scanDelimitedIdent() {
     switch self.scanCharSequenceUntil(BAR_CH) {
       case .success(let str):
         self.token.kind = .ident
@@ -720,7 +720,7 @@ open class Scanner {
   }
   
   /// Result type of `scanCharSequenceUntil`.
-  fileprivate enum CharSequenceResult {
+  private enum CharSequenceResult {
     case success(String)
     case malformed
     case illegalEscapeSequence
@@ -731,7 +731,7 @@ open class Scanner {
   
   /// Scans the next characters until the given terminator character and returns the character
   /// sequence as a string.
-  fileprivate func scanCharSequenceUntil(_ terminator: UniChar) -> CharSequenceResult {
+  private func scanCharSequenceUntil(_ terminator: UniChar) -> CharSequenceResult {
     var uniChars: [UniChar] = []
     self.nextCh()
     while self.ch != terminator {
@@ -799,7 +799,7 @@ open class Scanner {
   }
   
   /// Scans a hex number with a given number of digits.
-  fileprivate func scanHexChar() -> UniChar? {
+  private func scanHexChar() -> UniChar? {
     guard isDigitForRadix(self.ch, 16) else {
       return nil
     }
