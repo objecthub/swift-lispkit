@@ -24,6 +24,7 @@ public struct LibraryRegistry {
   public static let nativeLibraries: [NativeLibrary.Type] = [
     ControlFlowLibrary.self,
     BaseLibrary.self,
+    SystemLibrary.self,
     BoxLibrary.self,
     HashTableLibrary.self,
     DynamicControlLibrary.self,

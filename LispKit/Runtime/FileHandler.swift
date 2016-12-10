@@ -63,12 +63,6 @@ public final class FileHandler {
         }
       }
     }
-    for s in searchUrls {
-      print("searching \(s)")
-    }
-    for s in librarySearchUrls {
-      print("searching libraries \(s)")
-    }
   }
   
   public func addSearchPath(_ path: String) -> Bool {
@@ -128,7 +122,7 @@ public final class FileHandler {
   }
   
   public func fileExists(atPath path: String) -> Bool {
-    return fileManager.fileExists(atPath: path)
+    return self.fileManager.fileExists(atPath: path)
   }
   
   public func isFile(atPath path: String) -> Bool {
@@ -145,5 +139,13 @@ public final class FileHandler {
       return false
     }
     return isDir.boolValue
+  }
+  
+  public func deleteFile(atPath path: String) throws {
+    return try self.fileManager.removeItem(atPath: path)
+  }
+  
+  public func contentsOfDirectory(atPath path: String) throws -> [String] {
+    return try self.fileManager.contentsOfDirectory(atPath: path)
   }
 }

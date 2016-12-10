@@ -18,8 +18,6 @@
 //  limitations under the License.
 //
 
-import Cocoa
-
 
 public final class BaseLibrary: NativeLibrary {
   
@@ -32,6 +30,7 @@ public final class BaseLibrary: NativeLibrary {
   
   /// Declarations of the library.
   public override func declarations() {
+    
     // Basic primitives
     self.define(BaseLibrary.idProc)
     self.define(Procedure("procedure?", isProcedure))
@@ -51,7 +50,6 @@ public final class BaseLibrary: NativeLibrary {
     self.define("define-library", as: SpecialForm(compileDefineLibrary))
     self.define("syntax-rules", as: SpecialForm(compileSyntaxRules))
     self.define("set!", as: SpecialForm(compileSet))
-    self.define(Procedure("load", load))
     
     // Delayed execution
     self.define(Procedure("promise?", isPromise))
@@ -79,21 +77,8 @@ public final class BaseLibrary: NativeLibrary {
     self.define(Procedure("environment", environment))
     self.define(Procedure("interaction-environment", interactionEnvironment))
     
-    // System primitives
-    self.define(Procedure("get-environment-variable", getEnvironmentVariable))
-    self.define(Procedure("get-environment-variables", getEnvironmentVariables))
+    // Helpers
     self.define(Procedure("void", voidConst))
-    self.define(Procedure("gc", gc))
-    self.define(Procedure("exit", exit))
-    self.define(Procedure("compile", compile))
-    self.define(Procedure("disassemble", disassemble))
-    self.define(Procedure("available-symbols", availableSymbols))
-    self.define(Procedure("loaded-libraries", loadedLibraries))
-    self.define(Procedure("environment-info", environmentInfo))
-    self.define("time", as: SpecialForm(compileTime))
-    self.define(Procedure("current-second", currentSecond))
-    self.define(Procedure("current-jiffy", currentJiffy))
-    self.define(Procedure("jiffies-per-second", jiffiesPerSecond))
   }
   
   
@@ -455,16 +440,7 @@ public final class BaseLibrary: NativeLibrary {
     compiler.emit(.pushVoid)
     return false
   }
-  
-  func load(expr: Expr, e: Expr?) throws -> Expr {
-    let name = try expr.asString()
-    return self.context.machine.eval(
-      file: self.context.fileHandler.filePath(forFile: name) ??
-            self.context.fileHandler.libraryFilePath(forFile: name) ??
-            name,
-      in: .global(try e?.asEnvironment() ?? self.context.environment))
-  }
-  
+    
   //-------- MARK: - Delayed execution
   
   func isPromise(expr: Expr) -> Expr {
@@ -628,138 +604,7 @@ public final class BaseLibrary: NativeLibrary {
   
   //-------- MARK: - System primitives
   
-  func getEnvironmentVariable(expr: Expr) throws -> Expr {
-    let name = try expr.asString()
-    guard let value = ProcessInfo.processInfo.environment[name] else {
-      return .false
-    }
-    return .makeString(value)
-  }
-  
-  func getEnvironmentVariables() -> Expr {
-    var alist = Expr.null
-    for (name, value) in ProcessInfo.processInfo.environment {
-      alist = .pair(.pair(.makeString(name), .makeString(value)), alist)
-    }
-    return alist
-  }
-  
   func voidConst() -> Expr {
     return .void
-  }
-  
-  func gc() -> Expr {
-    context.console.print("BEFORE: " + context.objects.description + "\n")
-    let res = Expr.fixnum(Int64(self.context.objects.collectGarbage()))
-    context.console.print("AFTER: " + context.objects.description + "\n")
-    return res
-  }
-  
-  func exit() -> Expr {
-    NSApplication.shared().terminate(self)
-    return .undef
-  }
-  
-  func compileTime(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
-    guard case .pair(_, .pair(let exec, .null)) = expr else {
-      throw EvalError.argumentCountError(formals: 1, args: expr)
-    }
-    compiler.emit(.pushCurrentTime)
-    try compiler.compile(exec, in: env, inTailPos: false)
-    compiler.emit(.swap)
-    compiler.emit(.pushCurrentTime)
-    compiler.emit(.swap)
-    compiler.emit(.flMinus)
-    try compiler.pushValue(.makeString("elapsed time = "))
-    compiler.emit(.display)
-    compiler.emit(.display)
-    compiler.emit(.newline)
-    return false
-  }
-  
-  func compile(exprs: Arguments) throws -> Expr {
-    var seq = Expr.null
-    for expr in exprs.reversed() {
-      seq = .pair(expr, seq)
-    }
-    let code = try Compiler.compile(expr: seq,
-                                    in: self.context.global,
-                                    optimize: true)
-    context.console.print(code.description)
-    return .void
-  }
-  
-  func disassemble(expr: Expr) throws -> Expr {
-    guard case .procedure(let proc) = expr else {
-      throw EvalError.typeError(expr, [.procedureType])
-    }
-    switch proc.kind {
-      case .closure(_, let captured, let code):
-        context.console.print(code.description)
-        if captured.count > 0 {
-          context.console.print("CAPTURED:\n")
-          for i in captured.indices {
-            context.console.print("  \(i): \(captured[i])\n")
-          }
-        }
-      case .continuation(let vmState):
-        context.console.print(vmState.description + "\n")
-        context.console.print(vmState.registers.code.description)
-        if vmState.registers.captured.count > 0 {
-          context.console.print("CAPTURED:\n")
-          for i in vmState.registers.captured.indices {
-            context.console.print("  \(i): \(vmState.registers.captured[i])\n")
-          }
-        }
-      default:
-        context.console.print("cannot disassemble \(expr)\n")
-    }
-    return .void
-  }
-  
-  func availableSymbols() -> Expr {
-    var res = Expr.null
-    for sym in self.context.symbols {
-      res = .pair(.symbol(sym), res)
-    }
-    return res
-  }
-  
-  func loadedLibraries() -> Expr {
-    var res = Expr.null
-    for library in self.context.libraries.loaded {
-      res = .pair(library.name, res)
-    }
-    return res
-  }
-  
-  func environmentInfo() -> Expr {
-    context.console.print("MANAGED OBJECT POOL\n")
-    context.console.print("  tracked objects    : \(context.objects.numTrackedObjects)\n")
-    context.console.print("  tracked capacity   : \(context.objects.trackedObjectCapacity)\n")
-    context.console.print("  managed objects    : \(context.objects.numManagedObjects)\n")
-    context.console.print("  managed capacity   : \(context.objects.managedObjectCapacity)\n")
-    context.console.print("GARBAGE COLLECTOR\n")
-    context.console.print("  gc cycles          : \(context.objects.cycles)\n")
-    context.console.print("  last tag           : \(context.objects.tag)\n")
-    context.console.print("GLOBAL LOCATIONS\n")
-    context.console.print("  allocated locations: \(context.locations.count)\n")
-    return .void
-  }
-  
-  func currentSecond() -> Expr {
-    var time = timeval(tv_sec: 0, tv_usec: 0)
-    gettimeofday(&time, nil)
-    return .flonum(Double(time.tv_sec) + (Double(time.tv_usec) / 1000000.0))
-  }
-  
-  func currentJiffy() -> Expr {
-    var time = timeval(tv_sec: 0, tv_usec: 0)
-    gettimeofday(&time, nil)
-    return .fixnum(Int64(time.tv_sec) * 1000 + Int64(time.tv_usec / 1000))
-  }
-  
-  func jiffiesPerSecond() -> Expr {
-    return .fixnum(1000)
   }
 }
