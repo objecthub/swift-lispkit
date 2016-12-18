@@ -491,6 +491,13 @@ extension Expr {
     return res
   }
   
+  public func asPath() throws -> String {
+    guard case .string(let res) = self else {
+      throw EvalError.typeError(self, [.strType])
+    }
+    return res.expandingTildeInPath
+  }
+  
   public func asByteVector() throws -> ByteVector {
     guard case .bytes(let bvector) = self else {
       throw EvalError.typeError(self, [.byteVectorType])

@@ -920,13 +920,13 @@ public final class VirtualMachine: TrackedObject {
                 "MakeClosure has broken closure name \(self.registers.code.constants[i])")
             }
             self.push(.procedure(Procedure(sym.description,
-                                      self.captureExprs(n),
-                                      self.registers.code.fragments[index])))
+                                           self.captureExprs(n),
+                                           self.registers.code.fragments[index])))
           } else {
             self.push(.procedure(Procedure(nil,
-                                      self.captureExprs(n),
-                                      self.registers.code.fragments[index])))
-        }
+                                           self.captureExprs(n),
+                                           self.registers.code.fragments[index])))
+          }
         case .makePromise:
           let top = self.pop()
           guard case .procedure(let proc) = top else {

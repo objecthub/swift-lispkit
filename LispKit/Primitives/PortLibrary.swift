@@ -25,6 +25,9 @@ import Foundation
 /// 
 public final class PortLibrary: NativeLibrary {
   
+  /// Imported native library
+  private var systemLibrary: SystemLibrary!
+  
   /// Name of the library.
   public override class var name: [String] {
     return ["lispkit", "port"]
@@ -32,6 +35,7 @@ public final class PortLibrary: NativeLibrary {
   
   /// Dependencies of the library.
   public override func dependencies() {
+    self.`import`(from: ["lispkit", "system"], "current-directory")
     self.`import`(from: ["lispkit", "base"], "define", "lambda", "quote")
     self.`import`(from: ["lispkit", "control"], "let", "let*")
     self.`import`(from: ["lispkit", "dynamic"], "dynamic-wind")
@@ -115,6 +119,10 @@ public final class PortLibrary: NativeLibrary {
       "     res))")
   }
   
+  public override func initializations() {
+    self.systemLibrary = self.nativeLibrary(SystemLibrary.self)
+  }
+  
   
   func textInputFrom(_ expr: Expr?) throws -> TextInput {
     let port = try expr?.asPort() ?? self.context.inputPort
@@ -194,7 +202,9 @@ public final class PortLibrary: NativeLibrary {
   }
   
   func openInputFile(_ expr: Expr) throws -> Expr {
-    let filename = try expr.asString()
+    let filename =
+      self.context.fileHandler.path(try expr.asPath(),
+                                    relativeTo: self.systemLibrary.currentDirectoryPath)
     guard let input = BinaryInput(path: filename) else {
       throw EvalError.cannotOpenFile(filename)
     }
@@ -202,7 +212,9 @@ public final class PortLibrary: NativeLibrary {
   }
   
   func openBinaryInputFile(_ expr: Expr) throws -> Expr {
-    let filename = try expr.asString()
+    let filename =
+      self.context.fileHandler.path(try expr.asPath(),
+                                    relativeTo: self.systemLibrary.currentDirectoryPath)
     guard let input = BinaryInput(path: filename) else {
       throw EvalError.cannotOpenFile(filename)
     }
@@ -210,7 +222,9 @@ public final class PortLibrary: NativeLibrary {
   }
   
   func openOutputFile(_ expr: Expr) throws -> Expr {
-    let filename = try expr.asString()
+    let filename =
+      self.context.fileHandler.path(try expr.asPath(),
+                                    relativeTo: self.systemLibrary.currentDirectoryPath)
     guard let output = BinaryOutput(path: filename) else {
       throw EvalError.cannotOpenFile(filename)
     }
@@ -218,7 +232,9 @@ public final class PortLibrary: NativeLibrary {
   }
   
   func openBinaryOutputFile(_ expr: Expr) throws -> Expr {
-    let filename = try expr.asString()
+    let filename =
+      self.context.fileHandler.path(try expr.asPath(),
+                                    relativeTo: self.systemLibrary.currentDirectoryPath)
     guard let output = BinaryOutput(path: filename) else {
       throw EvalError.cannotOpenFile(filename)
     }

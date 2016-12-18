@@ -30,6 +30,15 @@ public final class FileHandler {
   public var searchUrls: [URL]
   public var librarySearchUrls: [URL]
   
+  public var currentDirectoryPath: String {
+    get {
+      return self.fileManager.currentDirectoryPath
+    }
+    set {
+      self.fileManager.changeCurrentDirectoryPath(newValue)
+    }
+  }
+  
   public init(includeInternalResources: Bool = true,
               includeDocumentPath: String? = "LispKit") {
     self.fileManager = FileManager.default
@@ -81,24 +90,31 @@ public final class FileHandler {
     return true
   }
   
-  public func filePath(forFile name: String) -> String? {
-    return self.searchFile(withName: name, ofType: "scm", findIn: self.searchUrls)
+  public func filePath(forFile name: String, relativeTo root: String? = nil) -> String? {
+    return self.searchFile(withName: name,
+                           ofType: "scm",
+                           relativeTo: root,
+                           findIn: self.searchUrls)
   }
   
-  public func libraryFilePath(forFile name: String) -> String? {
-    return self.searchFile(withName: name, ofType: "sld", findIn: self.librarySearchUrls)
+  public func libraryFilePath(forFile name: String, relativeTo root: String? = nil) -> String? {
+    return self.searchFile(withName: name,
+                           ofType: "sld",
+                           relativeTo: root,
+                           findIn: self.librarySearchUrls)
   }
   
   private func searchFile(withName name: String,
                           ofType type: String,
+                          relativeTo root: String? = nil,
                           findIn urls: [URL]) -> String? {
     // Compute suffix
     let suffix = "." + type
     // If there is a name in the current path (either with or without suffix), then return it.
-    if self.isFile(atPath: name) {
-      return name
-    } else if !name.hasSuffix(suffix) && self.isFile(atPath: name + suffix) {
-      return name + suffix
+    if self.isFile(atPath: name, relativeTo: root) {
+      return self.path(name, relativeTo: root)
+    } else if !name.hasSuffix(suffix) && self.isFile(atPath: name + suffix, relativeTo: root) {
+      return self.path(name + suffix, relativeTo: root)
     }
     // Search through all search paths ignoring the suffix.
     for url in urls {
@@ -121,31 +137,96 @@ public final class FileHandler {
     return nil
   }
   
-  public func fileExists(atPath path: String) -> Bool {
-    return self.fileManager.fileExists(atPath: path)
+  public func path(_ path: String, relativeTo root: String? = nil) -> String {
+    if let root = root {
+      return URL(fileURLWithPath: path,
+                 relativeTo: URL(fileURLWithPath: root)).standardizedFileURL.path
+    } else {
+      return URL(fileURLWithPath: path,
+                 relativeTo: URL(fileURLWithPath: self.currentDirectoryPath))
+             .standardizedFileURL.path
+    }
   }
   
-  public func isFile(atPath path: String) -> Bool {
+  public func directory(_ path: String, relativeTo root: String? = nil) -> String {
+    if let root = root {
+      return URL(fileURLWithPath: path,
+                 relativeTo: URL(fileURLWithPath: root)).deletingLastPathComponent()
+             .standardizedFileURL.path
+    } else {
+      return URL(fileURLWithPath: path,
+                 relativeTo: URL(fileURLWithPath: self.currentDirectoryPath))
+             .deletingLastPathComponent().standardizedFileURL.path
+
+    }
+  }
+  
+  public func fileSize(atPath path: String, relativeTo root: String? = nil) -> Int64? {
+    let filePath = self.path(path, relativeTo: root)
     var isDir: ObjCBool = false
-    guard self.fileManager.fileExists(atPath: path, isDirectory: &isDir) else {
+    guard self.fileManager.fileExists(atPath: filePath, isDirectory: &isDir) else {
+      return nil
+    }
+    guard !isDir.boolValue else {
+      return nil
+    }
+    do {
+      let attr = try self.fileManager.attributesOfItem(atPath: filePath)
+      return attr[FileAttributeKey.size] as? Int64
+    } catch {
+      return nil
+    }
+  }
+  
+  public func itemExists(atPath path: String, relativeTo root: String? = nil) -> Bool {
+    return self.fileManager.fileExists(atPath: self.path(path, relativeTo: root))
+  }
+  
+  public func isFile(atPath path: String, relativeTo root: String? = nil) -> Bool {
+    var isDir: ObjCBool = false
+    guard self.fileManager.fileExists(atPath: self.path(path, relativeTo: root),
+                                      isDirectory: &isDir) else {
       return false
     }
     return !isDir.boolValue
   }
   
-  public func isDirectory(atPath path: String) -> Bool {
+  public func isDirectory(atPath path: String, relativeTo root: String? = nil) -> Bool {
     var isDir: ObjCBool = false
-    guard self.fileManager.fileExists(atPath: path, isDirectory: &isDir) else {
+    guard self.fileManager.fileExists(atPath: self.path(path, relativeTo: root),
+                                      isDirectory: &isDir) else {
       return false
     }
     return isDir.boolValue
   }
   
-  public func deleteFile(atPath path: String) throws {
-    return try self.fileManager.removeItem(atPath: path)
+  public func contentsOfDirectory(atPath path: String,
+                                  relativeTo root: String? = nil) throws -> [String] {
+    return try self.fileManager.contentsOfDirectory(atPath: self.path(path, relativeTo: root))
   }
   
-  public func contentsOfDirectory(atPath path: String) throws -> [String] {
-    return try self.fileManager.contentsOfDirectory(atPath: path)
+  public func makeDirectory(atPath path: String,
+                            relativeTo root: String? = nil) throws {
+    try self.fileManager.createDirectory(atPath: self.path(path, relativeTo: root),
+                                         withIntermediateDirectories: false,
+                                         attributes: nil)
+  }
+  
+  public func deleteItem(atPath path: String, relativeTo root: String? = nil) throws {
+    try self.fileManager.removeItem(atPath: self.path(path, relativeTo: root))
+  }
+  
+  public func copyItem(atPath path: String,
+                       toPath dest: String,
+                       relativeTo root: String? = nil) throws {
+    try self.fileManager.copyItem(atPath: self.path(path, relativeTo: root),
+                                  toPath: self.path(dest, relativeTo: root))
+  }
+  
+  public func moveItem(atPath path: String,
+                       toPath dest: String,
+                       relativeTo root: String? = nil) throws {
+    try self.fileManager.moveItem(atPath: self.path(path, relativeTo: root),
+                                  toPath: self.path(dest, relativeTo: root))
   }
 }

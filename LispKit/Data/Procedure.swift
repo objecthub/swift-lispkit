@@ -231,6 +231,11 @@ public final class Procedure: Reference, CustomStringConvertible {
     self.kind = .parameter(Tuple(setter, initial))
   }
   
+  /// Initializer for parameters
+  public init(_ tuple: Tuple) {
+    self.kind = .parameter(tuple)
+  }
+  
   /// Initializer for continuations
   public init(_ vmState: VirtualMachineState) {
     self.kind = .continuation(vmState)

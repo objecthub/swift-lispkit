@@ -285,6 +285,8 @@ public enum EvalError: LispError {
   case fieldCountError(Int, Expr)
   case malformedLibraryDefinition(decls: Expr)
   case malformedLibraryName(name: Expr)
+  case unknownFile(String)
+  case unknownDirectory(String)
   
   public var kind: String {
     return "eval error"
@@ -412,6 +414,10 @@ public enum EvalError: LispError {
         return "malformed library definition: \(decls)"
       case .malformedLibraryName(let name):
         return "malformed library name: \(name)"
+      case .unknownFile(let path):
+        return "file \"\(path)\" unknown or a directory"
+      case .unknownDirectory(let path):
+        return "directory \"\(path)\" unknown or a file"
     }
   }
   
@@ -527,6 +533,10 @@ public enum EvalError: LispError {
           return d1 == d2
         case (.malformedLibraryName(let n1), .malformedLibraryName(let n2)):
           return n1 == n2
+        case (.unknownFile(let p1), .unknownFile(let p2)):
+          return p1 == p2
+        case (.unknownDirectory(let p1), .unknownDirectory(let p2)):
+          return p1 == p2
         default:
           return false
       }

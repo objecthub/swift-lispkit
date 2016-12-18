@@ -233,6 +233,16 @@ open class NativeLibrary: Library {
     return self.imported(self.context.symbols.intern(str))
   }
   
+  /// Returns the native library for the given implementation (if imported).
+  public func nativeLibrary<T: NativeLibrary>(_: T.Type) -> T? {
+    for library in self.libraries {
+      if library is T {
+        return (library as! T)
+      }
+    }
+    return nil
+  }
+  
   /// Returns the procedure at the given location. This method fails if there is no procedure
   /// at the given location. This method can only be used in native procedure implementations to
   /// refer to other procedures (that are imported, or defined internally).
