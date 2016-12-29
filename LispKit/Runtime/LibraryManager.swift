@@ -86,12 +86,16 @@ public final class LibraryManager: CustomStringConvertible {
   
   /// Load library with the given name and library declarations.
   public func load(name: Expr, declarations: Expr) throws {
-    self.libraries[name] = try Library(name: name, declarations: declarations, in: self.context)
+    let library = try Library(name: name, declarations: declarations, in: self.context)
+    self.libraries[name] = library
+    self.context.observer?.loaded(library: library, by: self)
   }
   
   /// Load native library.
   public func load(libraryType: NativeLibrary.Type) throws {
-    self.libraries[self.name(libraryType.name)] = try libraryType.init(in: self.context)
+    let library = try libraryType.init(in: self.context)
+    self.libraries[self.name(libraryType.name)] = library
+    self.context.observer?.loaded(library: library, by: self)
   }
   
   /// Returns the library name for the given string components. Strings that can be converted

@@ -170,7 +170,7 @@ public final class Environment: Reference, CustomStringConvertible {
     guard let loc = self.bindings[sym]?.location else {
       return nil
     }
-    return self.context.locations[loc]
+    return self.context.heap.locations[loc]
   }
   
   /// Returns true if the given symbol is not defined in this environment.
@@ -195,7 +195,7 @@ public final class Environment: Reference, CustomStringConvertible {
     if let locRef = self.bindings[sym] {
       return locRef
     }
-    let locRef = LocationRef.reserved(self.context.allocateLocation(for: .uninit(sym)))
+    let locRef = LocationRef.reserved(self.context.heap.allocateLocation(for: .uninit(sym)))
     self.bindings[sym] = locRef
     return locRef
   }
@@ -219,7 +219,7 @@ public final class Environment: Reference, CustomStringConvertible {
           case .custom:
             return false
           default:
-            self.bindings[sym] = .mutable(self.context.allocateLocation(for: expr))
+            self.bindings[sym] = .mutable(self.context.heap.allocateLocation(for: expr))
             return true
         }
       case .reserved(let loc):
@@ -227,7 +227,7 @@ public final class Environment: Reference, CustomStringConvertible {
           case .custom:
             return false
           default:
-            self.context.locations[loc] = expr
+            self.context.heap.locations[loc] = expr
             self.bindings[sym] = .mutable(loc)
             return true
         }
@@ -236,7 +236,7 @@ public final class Environment: Reference, CustomStringConvertible {
           case .custom, .library, .program: // illegal redefinition of a binding
             return false
           case .repl:                       // change existing binding
-            self.context.locations[loc] = expr
+            self.context.heap.locations[loc] = expr
             return true
         }
       case .mutableImport(_), .immutableImport(_):
@@ -244,7 +244,7 @@ public final class Environment: Reference, CustomStringConvertible {
           case .custom, .library, .program: // illegal redefinition of a binding
             return false
           case .repl:                       // override existing binding
-            self.bindings[sym] = .mutable(self.context.allocateLocation(for: expr))
+            self.bindings[sym] = .mutable(self.context.heap.allocateLocation(for: expr))
             return true
         }
     }
@@ -263,7 +263,7 @@ public final class Environment: Reference, CustomStringConvertible {
           case .custom:
             return false
           default:
-            self.context.locations[loc] = expr
+            self.context.heap.locations[loc] = expr
             return true
         }
       case .immutableImport(_):

@@ -231,7 +231,7 @@ public final class Compiler {
       case .globalLookupRequired(let lexicalSym, let environment):
         let locRef = environment.forceDefinedLocationRef(for: lexicalSym)
         if case .immutableImport(let loc) = locRef {
-          let value = self.context.locations[loc]
+          let value = self.context.heap.locations[loc]
           if value.isUndef {
             self.emit(.pushGlobal(locRef.location!))
           } else {
@@ -485,7 +485,7 @@ public final class Compiler {
             // Push function from global binding
             let locRef = environment.forceDefinedLocationRef(for: lexicalSym)
             if case .immutableImport(let loc) = locRef {
-              let value = self.context.locations[loc]
+              let value = self.context.heap.locations[loc]
               if value.isUndef {
                 self.emit(.pushGlobal(loc))
               } else {

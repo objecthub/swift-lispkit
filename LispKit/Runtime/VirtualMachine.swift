@@ -158,7 +158,7 @@ public final class VirtualMachine: TrackedObject {
   private let context: Context
   
   /// The stack used by this virtual machine
-  private var stack: [Expr]
+  private var stack: Exprs
   
   /// The stack pointer (pointing at the next available position on the stack); this variable
   /// should be private, but since it's needed in tests, it remains internal.
@@ -193,7 +193,7 @@ public final class VirtualMachine: TrackedObject {
   /// Initializes a new virtual machine for the given context
   public init(for context: Context) {
     self.context = context
-    self.stack = [Expr](repeating: .undef, count: 1024)
+    self.stack = Exprs(repeating: .undef, count: 1024)
     self.sp = 0
     self.maxSp = 0
     self.registers = Registers(code: Code([], [], []), captured: [], fp: 0, root: true)
@@ -316,6 +316,12 @@ public final class VirtualMachine: TrackedObject {
   
   /// Pushes the given expression onto the stack.
   @inline(__always) private func push(_ expr: Expr) {
+    guard self.sp < self.stack.count else {
+      self.stack.reserveCapacity(self.sp * 2)
+      self.stack.append(expr)
+      self.sp += 1
+      return
+    }
     self.stack[self.sp] = expr
     self.sp += 1
   }
@@ -326,8 +332,7 @@ public final class VirtualMachine: TrackedObject {
     var args = arglist
     var n = 0
     while case .pair(let arg, let rest) = args {
-      self.stack[self.sp] = arg
-      self.sp += 1
+      self.push(arg)
       n += 1
       args = rest
     }
@@ -822,7 +827,7 @@ public final class VirtualMachine: TrackedObject {
           self.stack[self.sp - 1] = self.stack[self.sp - 2]
           self.stack[self.sp - 2] = top
         case .pushGlobal(let index):
-          let value = self.context.locations[index]
+          let value = self.context.heap.locations[index]
           switch value {
             case .undef:
               throw EvalError.variableNotYetInitialized(nil)
@@ -834,17 +839,17 @@ public final class VirtualMachine: TrackedObject {
               self.push(value)
           }
         case .setGlobal(let index):
-          let value = self.context.locations[index]
+          let value = self.context.heap.locations[index]
           switch value {
             case .undef:
               throw EvalError.variableNotYetInitialized(nil)
             case .uninit(let sym):
               throw EvalError.unboundVariable(sym)
             default:
-              self.context.locations[index] = self.pop()
+              self.context.heap.locations[index] = self.pop()
           }
         case .defineGlobal(let index):
-          self.context.locations[index] = self.pop()
+          self.context.heap.locations[index] = self.pop()
         case .pushCaptured(let index):
           self.push(self.registers.captured[index])
         case .pushCapturedValue(let index):
@@ -1027,6 +1032,12 @@ public final class VirtualMachine: TrackedObject {
           }
           self.push(rest)
         case .alloc(let n):
+          if self.sp + n > self.stack.count {
+            self.stack.reserveCapacity(self.sp * 2)
+            for _ in 0..<(self.sp + n - self.stack.count) {
+              self.stack.append(.undef)
+            }
+          }
           self.sp += n
         case .reset(let index, let n):
           for i in self.registers.fp+index..<self.registers.fp+index+n {

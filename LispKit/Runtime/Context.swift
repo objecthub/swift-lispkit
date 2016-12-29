@@ -24,8 +24,15 @@
 ///
 public final class Context {
   
+  /// An observer object which receives updates related to the virtual machine managed by
+  /// this context.
+  public var observer: ContextObserver? = nil
+  
   /// The console for reading and writing strings from the default port.
   public let console: Console
+  
+  /// The global expression heap.
+  public let heap: Heap
   
   /// A centralized module for handling files.
   public let fileHandler: FileHandler
@@ -35,9 +42,6 @@ public final class Context {
   
   /// The symbol table for managing interned symbols.
   public let symbols: SymbolTable
-  
-  /// Table of global locations
-  public var locations: Exprs
   
   /// The library manager of this context.
   public var libraries: LibraryManager! = nil
@@ -61,10 +65,10 @@ public final class Context {
   public init(console: Console) {
     // Initialize components
     self.console = console
+    self.heap = Heap()
     self.fileHandler = FileHandler()
     self.objects = ManagedObjectPool()
     self.symbols = SymbolTable()
-    self.locations = Exprs()
     self.inputPort = Port(input: TextInput(source: console))
     self.outputPort = Port(output: TextOutput(target: console, threshold: 0))
     self.errorPort = self.inputPort
@@ -86,11 +90,5 @@ public final class Context {
   /// Returns the global environment of this context
   public var global: Env {
     return .global(self.environment)
-  }
-  
-  /// Allocates a new global location and initializes it with `expr`.
-  public func allocateLocation(for expr: Expr = .undef) -> Int {
-    self.locations.append(expr)
-    return self.locations.count - 1
   }
 }

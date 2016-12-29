@@ -286,7 +286,8 @@ open class Library: Reference, Trackable, CustomStringConvertible {
     for (extIdent, intIdent) in self.exportDecls {
       if !self.imported.hasValues(for: intIdent.identifier) && self.exports[extIdent] == nil {
         self.exports[extIdent] =
-          intIdent.located(at: self.context.allocateLocation(for: .uninit(intIdent.identifier)))
+          intIdent.located(at:
+            self.context.heap.allocateLocation(for: .uninit(intIdent.identifier)))
       }
     }
     // Allocate all libraries from which identifiers are imported

@@ -153,7 +153,7 @@ open class NativeLibrary: Library {
                                         mutable: Bool = false,
                                         export: Bool = true) -> Int {
     let ident = self.context.symbols.intern(name)
-    let location = self.context.allocateLocation(for: expr ?? .uninit(ident))
+    let location = self.context.heap.allocateLocation(for: expr ?? .uninit(ident))
     if export {
       if mutable {
         self.exports[ident] = .mutable(location)
@@ -247,7 +247,7 @@ open class NativeLibrary: Library {
   /// at the given location. This method can only be used in native procedure implementations to
   /// refer to other procedures (that are imported, or defined internally).
   public func procedure(_ location: Int) -> Procedure {
-    let expr = self.context.locations[location]
+    let expr = self.context.heap.locations[location]
     guard case .procedure(let proc) = expr else {
       preconditionFailure("predefined procedure not a procedure")
     }

@@ -365,15 +365,15 @@ public final class SystemLibrary: NativeLibrary {
   
   private func environmentInfo() -> Expr {
     context.console.print("MANAGED OBJECT POOL\n")
-    context.console.print("  tracked objects    : \(context.objects.numTrackedObjects)\n")
-    context.console.print("  tracked capacity   : \(context.objects.trackedObjectCapacity)\n")
-    context.console.print("  managed objects    : \(context.objects.numManagedObjects)\n")
-    context.console.print("  managed capacity   : \(context.objects.managedObjectCapacity)\n")
+    context.console.print("  tracked objects    : \(self.context.objects.numTrackedObjects)\n")
+    context.console.print("  tracked capacity   : \(self.context.objects.trackedObjectCapacity)\n")
+    context.console.print("  managed objects    : \(self.context.objects.numManagedObjects)\n")
+    context.console.print("  managed capacity   : \(self.context.objects.managedObjectCapacity)\n")
     context.console.print("GARBAGE COLLECTOR\n")
-    context.console.print("  gc cycles          : \(context.objects.cycles)\n")
-    context.console.print("  last tag           : \(context.objects.tag)\n")
+    context.console.print("  gc cycles          : \(self.context.objects.cycles)\n")
+    context.console.print("  last tag           : \(self.context.objects.tag)\n")
     context.console.print("GLOBAL LOCATIONS\n")
-    context.console.print("  allocated locations: \(context.locations.count)\n")
+    context.console.print("  allocated locations: \(self.context.heap.locations.count)\n")
     return .void
   }
   
