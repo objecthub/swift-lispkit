@@ -44,7 +44,7 @@ public final class Context {
   public let symbols: SymbolTable
   
   /// The library manager of this context.
-  public var libraries: LibraryManager! = nil
+  public private(set) var libraries: LibraryManager! = nil
   
   /// The global environment is typically used for read-eval-print loops.
   public private(set) var environment: Environment! = nil

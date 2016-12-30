@@ -28,7 +28,7 @@ import Darwin
 ///      and for returning results.
 ///    - *sp*: The stack pointer, i.e. the index of the next available position on the stack.
 ///
-/// The stack is segmented into frames, each representing the invocation of a closure. The
+/// The stack is segmented into frames, each representing the invocation of a procedure. The
 /// layout of each stack frame looks like this:
 ///
 ///    │        ...        │
@@ -40,8 +40,8 @@ import Darwin
 ///    │ Local variable 0  │  ⟸ fp + args
 ///    │ Argument 1        │
 ///    │ Argument 0        │  ⟸ fp
-///    │ Closure           │  ⟸ fp - 1
-///    ├───────────────────┤                 ⥥ MakeFrame ⥥
+///    │ Procedure         │  ⟸ fp - 1
+///    ├───────────────────┤                 ⥥ makeFrame ⥥
 ///    │ Return address    │  ⟸ fp - 2
 ///    │ Dynamic link      │  ⟸ fp - 3
 ///    ╞═══════════════════╡
@@ -171,7 +171,7 @@ public final class VirtualMachine: TrackedObject {
   }
   
   /// The maximum value of the stack pointer so far (used for debugging)
-  private var maxSp: Int
+  public private(set) var maxSp: Int
   
   /// Registers
   private var registers: Registers
@@ -180,8 +180,7 @@ public final class VirtualMachine: TrackedObject {
   internal private(set) var winders: Winder?
   
   /// Parameters
-  internal var parameters: HashTable
-  
+  public internal(set) var parameters: HashTable
   private var setParameterProc: Procedure!
   
   /// Internal counter used for triggering the garbage collector
@@ -238,10 +237,8 @@ public final class VirtualMachine: TrackedObject {
       return self.eval(exprs: .makeList(exprs), in: env, optimize: optimize)
     } catch let error as LispError { // handle Lisp-related issues
       return .error(AnyError(error))
-    } catch { // handle internal issues
-      // TODO: Figure out what needs to be logged here
-      print("UNKNOWN ERROR in Evaluator.evalStr")
-      return .undef
+    } catch let error as NSError { // handle OS-related issues
+      return .error(AnyError(OsError(error)))
     }
   }
   
@@ -274,10 +271,6 @@ public final class VirtualMachine: TrackedObject {
       return .error(AnyError(error))
     } catch let error as NSError { // handle OS-related issues
       return .error(AnyError(OsError(error)))
-    } catch { // handle internal issues
-      // TODO: Figure out what needs to be logged here
-      print("UNKNOWN ERROR in Evaluator.evalExprs")
-      return .undef
     }
   }
   
@@ -775,7 +768,7 @@ public final class VirtualMachine: TrackedObject {
   
   @inline(__always) private func collectGarbageIfNeeded() {
     self.execInstr = self.execInstr &+ 1
-    if self.execInstr % 0b0111111111111111111 == 0 {
+    if self.execInstr % 0b01111111111111111111 == 0 {
       let res = self.context.objects.collectGarbage()
       log("[collect garbage; freed up objects: \(res)]")
     }
