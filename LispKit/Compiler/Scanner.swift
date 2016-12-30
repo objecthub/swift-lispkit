@@ -1018,15 +1018,24 @@ let SUBSEQUENTS        = CharacterSet(charactersIn: "+-.@")
 let SIGNSUBSEQUENTS    = CharacterSet(charactersIn: "+-@")
 
 func isSpace(_ ch: UniChar) -> Bool {
-  return WHITESPACES.contains(UnicodeScalar(ch)!)
+  guard let scalar = UnicodeScalar(ch) else {
+    return false
+  }
+  return WHITESPACES.contains(scalar)
 }
 
 func isLetter(_ ch: UniChar) -> Bool {
-  return LETTERS.contains(UnicodeScalar(ch)!)
+  guard let scalar = UnicodeScalar(ch) else {
+    return false
+  }
+  return LETTERS.contains(scalar)
 }
 
 func isDigit(_ ch: UniChar) -> Bool {
-  return DIGITS.contains(UnicodeScalar(ch)!)
+  guard let scalar = UnicodeScalar(ch) else {
+    return false
+  }
+  return DIGITS.contains(scalar)
 }
 
 func isDigitForRadix(_ ch: UniChar, _ radix: Int) -> Bool {
@@ -1034,32 +1043,39 @@ func isDigitForRadix(_ ch: UniChar, _ radix: Int) -> Bool {
 }
 
 func isInitialIdent(_ ch: UniChar) -> Bool {
-  return LETTERS.contains(UnicodeScalar(ch)!) ||
-         INITIALS.contains(UnicodeScalar(ch)!)
+  guard let scalar = UnicodeScalar(ch) else {
+    return false
+  }
+  return LETTERS.contains(scalar) || INITIALS.contains(scalar)
 }
 
 func isSubsequentIdent(_ ch: UniChar) -> Bool {
-  return isInitialIdent(ch) ||
-         isDigit(ch) ||
-         SUBSEQUENTS.contains(UnicodeScalar(ch)!)
+  guard let scalar = UnicodeScalar(ch) else {
+    return false
+  }
+  return isInitialIdent(ch) || isDigit(ch) || SUBSEQUENTS.contains(scalar)
 }
 
 func isSignSubsequent(_ ch: UniChar) -> Bool {
-  return isInitialIdent(ch) ||
-         SIGNSUBSEQUENTS.contains(UnicodeScalar(ch)!)
+  guard let scalar = UnicodeScalar(ch) else {
+    return false
+  }
+  return isInitialIdent(ch) || SIGNSUBSEQUENTS.contains(scalar)
 }
 
 func isDotSubsequent(_ ch: UniChar) -> Bool {
-  return isSignSubsequent(ch) ||
-         ch == DOT_CH
+  return isSignSubsequent(ch) || ch == DOT_CH
 }
 
 func digitVal(_ ch: UniChar) -> Int {
-  if DIGITS.contains(UnicodeScalar(ch)!) {
+  guard let scalar = UnicodeScalar(ch) else {
+    return 16
+  }
+  if DIGITS.contains(scalar) {
     return Int(ch - ZERO_CH)
-  } else if LHEXDIGITS.contains(UnicodeScalar(ch)!) {
+  } else if LHEXDIGITS.contains(scalar) {
     return Int(ch - LA_CH + 10)
-  } else if UHEXDIGITS.contains(UnicodeScalar(ch)!) {
+  } else if UHEXDIGITS.contains(scalar) {
     return Int(ch - UA_CH + 10)
   } else {
     return 16
@@ -1069,3 +1085,4 @@ func digitVal(_ ch: UniChar) -> Int {
 func unicodeScalar(_ ch: UniChar) -> UnicodeScalar {
   return UnicodeScalar(ch) ?? UnicodeScalar(0)
 }
+

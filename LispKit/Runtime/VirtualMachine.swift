@@ -317,7 +317,9 @@ public final class VirtualMachine: TrackedObject {
   /// Pushes the given expression onto the stack.
   @inline(__always) private func push(_ expr: Expr) {
     guard self.sp < self.stack.count else {
-      self.stack.reserveCapacity(self.sp * 2)
+      if self.sp >= self.stack.capacity {
+        self.stack.reserveCapacity(self.sp * 2)
+      }
       self.stack.append(expr)
       self.sp += 1
       return
@@ -1033,7 +1035,9 @@ public final class VirtualMachine: TrackedObject {
           self.push(rest)
         case .alloc(let n):
           if self.sp + n > self.stack.count {
-            self.stack.reserveCapacity(self.sp * 2)
+            if self.sp + n >= self.stack.capacity {
+              self.stack.reserveCapacity(self.sp * 2)
+            }
             for _ in 0..<(self.sp + n - self.stack.count) {
               self.stack.append(.undef)
             }
