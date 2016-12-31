@@ -77,11 +77,15 @@ public final class LibraryManager: CustomStringConvertible {
       return
     }
     if let filename = self.filename(name) {
-      _ = self.context.machine.eval(
-            file: self.context.fileHandler.libraryFilePath(forFile: filename) ?? filename,
-            in: self.context.global)
+      // Evaluate file
+      do {
+        _ = try self.context.machine.eval(
+                  file: self.context.fileHandler.libraryFilePath(forFile: filename) ?? filename,
+                  in: self.context.global)
+      } catch {
+        // ignore
+      }
     }
-    
   }
   
   /// Load library with the given name and library declarations.

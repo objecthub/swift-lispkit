@@ -699,9 +699,9 @@ public final class Compiler {
       guard case .pair(.symbol(let sym), .pair(let transformer, .null)) = binding else {
         throw EvalError.malformedBindings(binding, bindingList)
       }
-      let procExpr = try self.context.machine.eval(transformer,
-                                                   in: env.syntacticalEnv,
-                                                   usingRulesEnv: env)
+      let procExpr = try self.context.machine.compileAndEval(expr: transformer,
+                                                             in: env.syntacticalEnv,
+                                                             usingRulesEnv: env)
       guard case .procedure(let proc) = procExpr else {
         throw EvalError.malformedTransformer(transformer) //FIXME: Find better error message
       }

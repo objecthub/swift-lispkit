@@ -331,7 +331,7 @@ open class Library: Reference, Trackable, CustomStringConvertible {
     // Compile and run
     let env = Env(Environment(in: self.context, for: self))
     for decl in self.initDecls {
-      _ = try self.context.machine.eval(decl, in: env)
+      _ = try self.context.machine.compileAndEval(expr: decl, in: env)
     }
     // TODO: Check that all exported declarations are initialized
     return true

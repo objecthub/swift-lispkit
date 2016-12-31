@@ -27,6 +27,7 @@ public final class BaseLibrary: NativeLibrary {
   }
   
   internal static let idProc = Procedure("identity", BaseLibrary.identity)
+  internal static let voidProc = Procedure("void", BaseLibrary.voidConst)
   
   /// Declarations of the library.
   public override func declarations() {
@@ -78,7 +79,7 @@ public final class BaseLibrary: NativeLibrary {
     self.define(Procedure("interaction-environment", interactionEnvironment))
     
     // Helpers
-    self.define(Procedure("void", voidConst))
+    self.define(Procedure("void", BaseLibrary.voidConst))
   }
   
   
@@ -604,7 +605,7 @@ public final class BaseLibrary: NativeLibrary {
   
   //-------- MARK: - System primitives
   
-  func voidConst() -> Expr {
+  static func voidConst() -> Expr {
     return .void
   }
 }

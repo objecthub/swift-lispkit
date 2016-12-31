@@ -183,13 +183,16 @@ public final class VirtualMachine: TrackedObject {
   public internal(set) var parameters: HashTable
   private var setParameterProc: Procedure!
   
-  /// Internal counter used for triggering the garbage collector
+  /// Internal counter used for triggering the garbage collector.
   private var execInstr: UInt64
   
-  /// Constant representing an empty capture set
+  /// Constant representing an empty capture set.
   private static let noCaptures = [Expr]()
   
-  /// Initializes a new virtual machine for the given context
+  /// When set to true, it will trigger an abortion of the machine evaluator as soon as possible.
+  private var abortionRequested: Bool = false
+  
+  /// Initializes a new virtual machine for the given context.
   public init(for context: Context) {
     self.context = context
     self.stack = Exprs(repeating: .undef, count: 1024)
@@ -203,7 +206,7 @@ public final class VirtualMachine: TrackedObject {
     self.setParameterProc = Procedure("_set-parameter", self.setParameter, nil)
   }
   
-  /// Returns a copy of the current virtual machine state
+  /// Returns a copy of the current virtual machine state.
   public func getState() -> VirtualMachineState {
     return VirtualMachineState(stack: self.stack,
                                sp: self.sp,
@@ -213,60 +216,61 @@ public final class VirtualMachine: TrackedObject {
                                winders: self.winders)
   }
   
+  /// Requests abortion of the machine evaluator.
+  public func abort() {
+    self.abortionRequested = true
+  }
+  
   /// Loads the file at file patch `path`, compiles it in the interaction environment, and
   /// executes it using this virtual machine.
-  public func eval(file path: String, in env: Env, optimize: Bool = true) -> Expr {
+  public func evalOnTopLevel(file path: String, in env: Env, optimize: Bool = true) -> Expr {
+    guard self.sp == 0 && !self.abortionRequested else {
+      preconditionFailure("preconditions for top-level evaluation not met")
+    }
+    defer {
+      self.sp = 0
+      self.abortionRequested = false
+    }
     do {
-      return self.eval(str: try String(contentsOfFile: path, encoding: String.Encoding.utf8),
-                       in: env,
-                       optimize: optimize)
-    } catch let error as NSError {
+      return try self.eval(file: path, in: env, optimize: optimize)
+    } catch let error as LispError { // handle Lisp-related issues
+      return .error(AnyError(error))
+    } catch let error as NSError { // handle OS-related issues
       return .error(AnyError(OsError(error)))
     }
   }
   
   /// Parses the given string, compiles it in the interaction environment, and executes it using
   /// this virtual machine.
-  public func eval(str: String, in env: Env, optimize: Bool = true) -> Expr {
+  public func evalOnTopLevel(str: String, in env: Env, optimize: Bool = true) -> Expr {
+    guard self.sp == 0 && !self.abortionRequested else {
+      preconditionFailure("preconditions for top-level evaluation not met (sp = \(self.sp))")
+    }
+    defer {
+      self.sp = 0
+      self.abortionRequested = false
+    }
     do {
-      let parser = Parser(symbols: self.context.symbols, src: str)
-      var exprs = Exprs()
-      while !parser.finished {
-        exprs.append(try parser.parse())
-      }
-      return self.eval(exprs: .makeList(exprs), in: env, optimize: optimize)
+      return try self.eval(str: str, in: env, optimize: optimize)
     } catch let error as LispError { // handle Lisp-related issues
       return .error(AnyError(error))
     } catch let error as NSError { // handle OS-related issues
       return .error(AnyError(OsError(error)))
     }
-  }
-  
-  /// Compiles the given expression in the interaction environment and executes it using this
-  /// virtual machine.
-  public func eval(expr: Expr, in env: Env, optimize: Bool = true) -> Expr {
-    return self.eval(exprs: .makeList(expr), in: env, optimize: optimize)
   }
   
   /// Compiles the given list of expressions in the interaction environment and executes
   /// it using this virtual machine.
-  public func eval(exprs: Expr, in env: Env, optimize: Bool = true) -> Expr {
+  public func evalOnTopLevel(exprs: Expr, in env: Env, optimize: Bool = true) -> Expr {
+    guard self.sp == 0 && !self.abortionRequested else {
+      preconditionFailure("preconditions for top-level evaluation not met")
+    }
+    defer {
+      self.sp = 0
+      self.abortionRequested = false
+    }
     do {
-      var exprlist = exprs
-      var res = Expr.void
-      while case .pair(let expr, let rest) = exprlist {
-        let code =
-          try Compiler.compile(expr: .makeList(expr),
-                               in: env,
-                               optimize: optimize)
-        log(code.description)
-        res = try self.execute(code)
-        exprlist = rest
-      }
-      guard exprlist.isNull else {
-        throw EvalError.typeError(exprs, [.properListType])
-      }
-      return res
+      return try self.eval(exprs: exprs, in: env, optimize: optimize)
     } catch let error as LispError { // handle Lisp-related issues
       return .error(AnyError(error))
     } catch let error as NSError { // handle OS-related issues
@@ -274,14 +278,55 @@ public final class VirtualMachine: TrackedObject {
     }
   }
   
+  /// Loads the file at file patch `path`, compiles it in the interaction environment, and
+  /// executes it using this virtual machine.
+  public func eval(file path: String, in env: Env, optimize: Bool = true) throws -> Expr {
+    return try self.eval(str: try String(contentsOfFile: path, encoding: String.Encoding.utf8),
+                         in: env,
+                         optimize: optimize)
+  }
+  
+  /// Parses the given string, compiles it in the interaction environment, and executes it using
+  /// this virtual machine.
+  public func eval(str: String, in env: Env, optimize: Bool = true) throws -> Expr {
+    let parser = Parser(symbols: self.context.symbols, src: str)
+    var exprs = Exprs()
+    while !parser.finished {
+      exprs.append(try parser.parse())
+    }
+    return try self.eval(exprs: .makeList(exprs), in: env, optimize: optimize)
+  }
+  
+  /// Compiles the given list of expressions in the interaction environment and executes
+  /// it using this virtual machine.
+  public func eval(exprs: Expr, in env: Env, optimize: Bool = true) throws -> Expr {
+    var exprlist = exprs
+    var res = Expr.void
+    while case .pair(let expr, let rest) = exprlist {
+      let code = try Compiler.compile(expr: .makeList(expr), in: env, optimize: optimize)
+      log(code.description)
+      res = try self.execute(code)
+      exprlist = rest
+    }
+    guard exprlist.isNull else {
+      throw EvalError.typeError(exprs, [.properListType])
+    }
+    return res
+  }
+  
+  /// Compiles the given expression in the interaction environment and executes it using this
+  /// virtual machine.
+  public func eval(expr: Expr, in env: Env, optimize: Bool = true) throws -> Expr {
+    return try self.eval(exprs: .makeList(expr), in: env, optimize: optimize)
+  }
+  
   /// Compiles the given expression `expr` in the environment `env` and executes it using
   /// this virtual machine.
-  public func eval(_ expr: Expr, in env: Env, usingRulesEnv renv: Env? = nil) throws -> Expr {
-    let code =
-      try Compiler.compile(expr: .makeList(expr),
-                           in: env,
-                           and: renv,
-                           optimize: true)
+  public func compileAndEval(expr: Expr,
+                             in env: Env,
+                             usingRulesEnv renv: Env? = nil,
+                             optimize: Bool = true) throws -> Expr {
+    let code = try Compiler.compile(expr: .makeList(expr), in: env, and: renv, optimize: optimize)
     return try self.apply(.procedure(Procedure(code)), to: .null)
   }
   
@@ -775,7 +820,6 @@ public final class VirtualMachine: TrackedObject {
   }
   
   private func execute(_ code: Code) throws -> Expr {
-    self.sp = 0
     self.push(.procedure(Procedure(code)))
     return try self.execute(code, args: 0, captured: VirtualMachine.noCaptures)
   }
@@ -796,6 +840,9 @@ public final class VirtualMachine: TrackedObject {
   
   private func execute() throws -> Expr {
     while self.registers.ip >= 0 && self.registers.ip < self.registers.code.instructions.count {
+      guard !self.abortionRequested else {
+        throw AbortionError.value
+      }
       self.collectGarbageIfNeeded()
       /*
       print("╔══════════════════════════════════════════════════════")

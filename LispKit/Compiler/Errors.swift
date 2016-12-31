@@ -91,6 +91,7 @@ public enum LispErrorType: Int, Hashable, CustomStringConvertible {
   case syntaxError
   case evalError
   case osError
+  case abortionError
   case customError
   
   public var description: String {
@@ -103,6 +104,8 @@ public enum LispErrorType: Int, Hashable, CustomStringConvertible {
         return "eval error"
       case .osError:
         return "os error"
+      case .abortionError:
+        return "abortion"
       case .customError:
         return "custom error"
     }
@@ -580,6 +583,30 @@ open class OsError: LispError {
       return false
     }
     return self.nsError == other.nsError
+  }
+}
+
+public enum AbortionError: LispError {
+  case value
+  
+  public var kind: String {
+    return self.type.description
+  }
+  
+  public var message: String {
+    return "aborted evaluation"
+  }
+  
+  public var irritants: Exprs {
+    return noExprs
+  }
+  
+  public var type: LispErrorType {
+    return .abortionError
+  }
+  
+  public func equals(_ error: LispError) -> Bool {
+    return error.type == .abortionError
   }
 }
 

@@ -77,7 +77,7 @@ open class LispKitTestCase: XCTestCase {
   }
   
   public func eval(_ string: String) -> Expr {
-    return self.context!.machine.eval(str: string, in: context!.global)
+    return self.context!.machine.evalOnTopLevel(str: string, in: context!.global)
   }
   
   public func value(_ str: String) -> Expr {
@@ -133,7 +133,7 @@ open class LispKitTestCase: XCTestCase {
       print("-----------------------")
       print("source: \(test.source)")
       print("target: \(test.target)")
-      let res = self.context!.machine.eval(exprs: test.source, in: context!.global)
+      let res = self.context!.machine.evalOnTopLevel(exprs: test.source, in: context!.global)
       print("result: \(res)")
       XCTAssertEqual(res, test.target, test.description)
       assertStackEmpty(after: test.description)

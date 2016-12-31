@@ -23,8 +23,9 @@ import Cocoa
 
 public final class SystemLibrary: NativeLibrary {
   
-  /// Container for the current directory path.
+  /// Container for the current directory path parameter.
   private var currentDirectoryProc: Procedure!
+  private var compileAndEvalFirstProc: Procedure!
   
   public var currentDirectoryPath: String {
     get {
@@ -49,6 +50,8 @@ public final class SystemLibrary: NativeLibrary {
     self.currentDirectoryProc =
       Procedure(.procedure(Procedure("_validCurrentPath", self.validCurrentPath)),
                 .makeString(self.context.fileHandler.currentDirectoryPath))
+    self.compileAndEvalFirstProc =
+      Procedure("_compileAndEvalFirst", self.compileAndEvalFirst)
     self.define("current-directory", as: .procedure(self.currentDirectoryProc))
     self.define(Procedure("file-path", filePath))
     self.define(Procedure("parent-file-path", parentFilePath))
@@ -104,15 +107,56 @@ public final class SystemLibrary: NativeLibrary {
                                     relativeTo: self.currentDirectoryPath) == "/")
   }
   
-  private func load(expr: Expr, e: Expr?) throws -> Expr {
-    let path = try expr.asPath()
-    return self.context.machine.eval(
-      file: self.context.fileHandler.filePath(forFile: path,
-                                              relativeTo: self.currentDirectoryPath) ??
-            self.context.fileHandler.libraryFilePath(forFile: path,
-                                                     relativeTo: self.currentDirectoryPath) ??
-            self.context.fileHandler.path(path, relativeTo: self.currentDirectoryPath),
-      in: .global(try e?.asEnvironment() ?? self.context.environment))
+  private func load(args: Arguments) throws -> (Procedure, [Expr]) {
+    guard args.count == 1 || args.count == 2  else {
+      throw EvalError.argumentCountError(formals: 2, args: .makeList(args))
+    }
+    // Extract arguments
+    let path = try args.first!.asPath()
+    let filename =
+      self.context.fileHandler.filePath(forFile: path,
+                                        relativeTo: self.currentDirectoryPath) ??
+      self.context.fileHandler.libraryFilePath(forFile: path,
+                                               relativeTo: self.currentDirectoryPath) ??
+      self.context.fileHandler.path(path, relativeTo: self.currentDirectoryPath)
+    var environment = self.context.environment
+    if args.count == 2 {
+      environment = try args[args.startIndex + 1].asEnvironment()
+    }
+    // Load file
+    let str = try String(contentsOfFile: filename, encoding: String.Encoding.utf8)
+    // Parse file and store parsed expressions in a list
+    let parser = Parser(symbols: self.context.symbols, src: str)
+    var exprs = Exprs()
+    while !parser.finished {
+      exprs.append(try parser.parse())
+    }
+    // Hand over work to `compileAndEvalFirst`
+    return (self.compileAndEvalFirstProc, [.makeList(exprs), .env(environment!)])
+  }
+  
+  private func compileAndEvalFirst(args: Arguments) throws -> (Procedure, [Expr]) {
+    guard args.count == 2 else {
+      throw EvalError.argumentCountError(formals: 2, args: .makeList(args))
+    }
+    let env = args[args.startIndex + 1]
+    switch args.first! {
+      case .null:
+        return (BaseLibrary.voidProc, [])
+      case .pair(let expr, let rest):
+        let source = Expr.pair(
+          expr,
+          .pair(.makeList(.procedure(self.compileAndEvalFirstProc),
+                          .makeList(.symbol(Symbol(self.context.symbols.quote,
+                                                   .global(self.context.environment))),
+                                    rest),
+                          env),
+                .null))
+        let code = try Compiler.compile(expr: source, in: .global(try env.asEnvironment()))
+        return (Procedure(code), [])
+      default:
+        throw EvalError.typeError(args.first!, [.properListType])
+    }
   }
   
   private func validCurrentPath(param: Expr, expr: Expr, setter: Expr) throws -> Expr {

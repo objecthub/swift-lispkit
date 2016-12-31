@@ -50,6 +50,8 @@ public final class Procedure: Reference, CustomStringConvertible {
   ///    1. Evaluators: They turn the arguments into code that the VM executes
   ///    2. Applicators: They map the arguments to a continuation procedure and an argument list
   ///    3. Native implementations: They map the arguments into a result value
+  // TODO: Remove evaluators; they can be represented as applicators returning a newly
+  //       generated procedure without arguments.
   public enum Implementation {
     case eval((Arguments) throws -> Code)
     case apply((Arguments) throws -> (Procedure, [Expr]))

@@ -28,14 +28,18 @@ let console = CommandLineConsole()
 let context = Context(console: console)
 do {
   try context.environment.import(SchemeLibrary.name)
-} catch {
-  preconditionFailure("cannot import (base scheme)")
+} catch let error {
+  preconditionFailure("cannot import (base scheme): \(error.localizedDescription)")
 }
 
 // Load standard Prelude
 if let preludePath = Bundle(identifier: "net.objecthub.LispKit")?.path(
   forResource: "Prelude", ofType: "scm", inDirectory: "LispKit/Resources") {
-  _ = context.machine.eval(file: preludePath, in: context.global)
+  do {
+    _ = try context.machine.eval(file: preludePath, in: context.global)
+  } catch let error {
+    preconditionFailure("cannot evaluate prelude: \(error.localizedDescription)")
+  }
 }
 
 // Print header
@@ -48,7 +52,7 @@ while let line = console.read() {
   guard line != "exit" else {
     break
   }
-  let res = context.machine.eval(str: line, in: context.global)
+  let res = context.machine.evalOnTopLevel(str: line, in: context.global)
   if res != Expr.void {
     console.print(res.description + "\n")
   }
