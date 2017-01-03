@@ -49,12 +49,14 @@ console.print("\(AppInfo.copyright)\n")
 // Enter read-eval-print loop
 console.print("⟹ ")
 while let line = console.read() {
-  guard line != "exit" else {
-    break
-  }
   let res = context.machine.evalOnTopLevel(str: line, in: context.global)
-  if res != Expr.void {
-    console.print(res.description + "\n")
+  if context.machine.exitTriggered {
+    if res != .true {
+      console.print("abnormal exit: \(res.description)\n")
+    }
+    break
+  } else if res != .void {
+    console.print("\(res.description)\n")
   }
   console.print("⟹ ")
 }

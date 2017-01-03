@@ -86,7 +86,7 @@
 		CCAD52E61C48468F00DBD8EE /* SyntaxRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCAD52DE1C48468F00DBD8EE /* SyntaxRules.swift */; };
 		CCAD52E71C48468F00DBD8EE /* Type.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCAD52DF1C48468F00DBD8EE /* Type.swift */; };
 		CCAD52F81C48474500DBD8EE /* Context.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCAD52F71C48474500DBD8EE /* Context.swift */; };
-		CCB585B81E15A6E70064BB18 /* ContextObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCB585B71E15A6E70064BB18 /* ContextObserver.swift */; };
+		CCB585B81E15A6E70064BB18 /* ContextDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCB585B71E15A6E70064BB18 /* ContextDelegate.swift */; };
 		CCB585BB1E15AA4D0064BB18 /* Heap.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCB585BA1E15AA4D0064BB18 /* Heap.swift */; };
 		CCB91C981D57E785001A95DC /* Parameters.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCB91C971D57E784001A95DC /* Parameters.scm */; };
 		CCC41DC41D2649E9003CB4D0 /* DelayedEvaluation.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCC41DC31D2649E9003CB4D0 /* DelayedEvaluation.scm */; };
@@ -265,7 +265,7 @@
 		CCAD52DE1C48468F00DBD8EE /* SyntaxRules.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = SyntaxRules.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CCAD52DF1C48468F00DBD8EE /* Type.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Type.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CCAD52F71C48474500DBD8EE /* Context.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Context.swift; sourceTree = "<group>"; };
-		CCB585B71E15A6E70064BB18 /* ContextObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContextObserver.swift; sourceTree = "<group>"; };
+		CCB585B71E15A6E70064BB18 /* ContextDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContextDelegate.swift; sourceTree = "<group>"; };
 		CCB585BA1E15AA4D0064BB18 /* Heap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Heap.swift; sourceTree = "<group>"; };
 		CCB91C971D57E784001A95DC /* Parameters.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Parameters.scm; sourceTree = "<group>"; };
 		CCC41DC31D2649E9003CB4D0 /* DelayedEvaluation.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = DelayedEvaluation.scm; sourceTree = "<group>"; };
@@ -540,7 +540,7 @@
 			isa = PBXGroup;
 			children = (
 				CCAD52F71C48474500DBD8EE /* Context.swift */,
-				CCB585B71E15A6E70064BB18 /* ContextObserver.swift */,
+				CCB585B71E15A6E70064BB18 /* ContextDelegate.swift */,
 				CCB585BA1E15AA4D0064BB18 /* Heap.swift */,
 				CC5033B01CDBE4CD0045A8FA /* Console.swift */,
 				CCCEB3FE1DF2DAA9009BF66B /* FileHandler.swift */,
@@ -804,7 +804,7 @@
 				CC6A3B721C54DF7F00E962E2 /* Exprs.swift in Sources */,
 				CC31A6981D3AC223008D7728 /* Hash.swift in Sources */,
 				CC5A47251C52E08900EFCF76 /* ControlFlowLibrary.swift in Sources */,
-				CCB585B81E15A6E70064BB18 /* ContextObserver.swift in Sources */,
+				CCB585B81E15A6E70064BB18 /* ContextDelegate.swift in Sources */,
 				CC6A3B681C52F17200E962E2 /* SchemeLibrary.swift in Sources */,
 				CC5C0A3F1D8EBE0A00CE2E98 /* MultiMap.swift in Sources */,
 				CCCEB3FF1DF2DAA9009BF66B /* FileHandler.swift in Sources */,

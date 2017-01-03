@@ -192,6 +192,9 @@ public final class VirtualMachine: TrackedObject {
   /// When set to true, it will trigger an abortion of the machine evaluator as soon as possible.
   private var abortionRequested: Bool = false
   
+  /// Will be set to true if the `exit` function was invoked.
+  public internal(set) var exitTriggered: Bool = false
+  
   /// Initializes a new virtual machine for the given context.
   public init(for context: Context) {
     self.context = context
@@ -227,6 +230,7 @@ public final class VirtualMachine: TrackedObject {
     guard self.sp == 0 && !self.abortionRequested else {
       preconditionFailure("preconditions for top-level evaluation not met")
     }
+    self.exitTriggered = false
     defer {
       self.sp = 0
       self.abortionRequested = false
@@ -246,6 +250,7 @@ public final class VirtualMachine: TrackedObject {
     guard self.sp == 0 && !self.abortionRequested else {
       preconditionFailure("preconditions for top-level evaluation not met (sp = \(self.sp))")
     }
+    self.exitTriggered = false
     defer {
       self.sp = 0
       self.abortionRequested = false
@@ -265,6 +270,7 @@ public final class VirtualMachine: TrackedObject {
     guard self.sp == 0 && !self.abortionRequested else {
       preconditionFailure("preconditions for top-level evaluation not met")
     }
+    self.exitTriggered = false
     defer {
       self.sp = 0
       self.abortionRequested = false

@@ -24,9 +24,9 @@
 ///
 public final class Context {
   
-  /// An observer object which receives updates related to the virtual machine managed by
-  /// this context.
-  public var observer: ContextObserver? = nil
+  /// A delegate object which receives updates related to the virtual machine managed by
+  /// this context. The virtual machine also delegates some functionality to this object.
+  public var delegate: ContextDelegate? = nil
   
   /// The console for reading and writing strings from the default port.
   public let console: Console

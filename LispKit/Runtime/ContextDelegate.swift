@@ -18,10 +18,19 @@
 //  limitations under the License.
 //
 
-public protocol ContextObserver {
+import Cocoa
+
+public protocol ContextDelegate {
   func loaded(library: Library, by: LibraryManager)
+  func exit(obj: Expr?)
 }
 
-public extension ContextObserver {
-  func loaded(library: Library, by: LibraryManager) {}
+public extension ContextDelegate {
+  
+  func loaded(library: Library, by: LibraryManager) {
+  }
+  
+  func emergencyExit(obj: Expr?) {
+    NSApplication.shared().terminate(self)
+  }
 }

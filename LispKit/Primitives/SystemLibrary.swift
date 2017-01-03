@@ -45,6 +45,12 @@ public final class SystemLibrary: NativeLibrary {
     return ["lispkit", "system"]
   }
   
+  /// Dependencies of the library.
+  public override func dependencies() {
+    self.`import`(from: ["lispkit", "dynamic"], "call-with-current-continuation")
+    self.`import`(from: ["lispkit", "base"], "define", "set!", "lambda")
+  }
+  
   /// Declarations of the library.
   public override func declarations() {
     self.currentDirectoryProc =
@@ -75,7 +81,7 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("get-environment-variable", getEnvironmentVariable))
     self.define(Procedure("get-environment-variables", getEnvironmentVariables))
     self.define(Procedure("gc", gc))
-    self.define(Procedure("exit", exit))
+    self.define(Procedure("emergency-exit", emergencyExit))
     self.define(Procedure("compile", compile))
     self.define(Procedure("disassemble", disassemble))
     self.define(Procedure("available-symbols", availableSymbols))
@@ -85,6 +91,10 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("current-second", currentSecond))
     self.define(Procedure("current-jiffy", currentJiffy))
     self.define(Procedure("jiffies-per-second", jiffiesPerSecond))
+    self.define(Procedure("_trigger-exit", triggerExit))
+    self.define("exit", via: "(define exit 0)")
+    self.execute("(call-with-current-continuation " +
+                 "  (lambda (cont) (set! exit (lambda args (_trigger-exit cont args)))))")
   }
   
   private func filePath(expr: Expr, base: Expr?) throws -> Expr {
@@ -329,8 +339,30 @@ public final class SystemLibrary: NativeLibrary {
     return res
   }
   
-  private func exit() -> Expr {
-    NSApplication.shared().terminate(self)
+  private func triggerExit(args: Arguments) throws -> (Procedure, [Expr]) {
+    guard args.count == 2 else {
+      throw EvalError.argumentCountError(formals: 1, args: .makeList(args))
+    }
+    let exit = try args.first!.asProcedure()
+    let obj: Expr
+    switch args[args.startIndex + 1] {
+      case .null:
+        obj = .true
+      case .pair(let expr, .null):
+        obj = expr
+      default:
+        throw EvalError.argumentCountError(formals: 1, args: args[args.startIndex + 1])
+    }
+    self.context.machine.exitTriggered = true
+    return (exit, [obj])
+  }
+  
+  private func emergencyExit(expr: Expr?) -> Expr {
+    if self.context.delegate != nil {
+      self.context.delegate!.emergencyExit(obj: expr)
+    } else {
+      NSApplication.shared().terminate(self)
+    }
     return .undef
   }
   
