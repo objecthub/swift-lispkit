@@ -336,6 +336,23 @@ public enum Instruction: CustomStringConvertible {
   /// **`fx_div`**: Divides a fixnum value by another fixnum value on the stack.
   case fxDiv
   
+  /// **`fx_eq`**: Compares a fixnum value with another fixnum value on the stack for equality.
+  case fxEq
+  
+  /// **`fx_lt`**: Determines whether a fixnum value is less than another fixnum value.
+  case fxLt
+  
+  /// **`fx_gt`**: Determines whether a fixnum value is greater than another fixnum value.
+  case fxGt
+  
+  /// **`fx_lt_eq`**: Determines whether a fixnum value is less than or equal another fixnum
+  /// value.
+  case fxLtEq
+  
+  /// **`fx_gt_eq`**: Determines whether a fixnum value is greater than or equal another fixnum
+  /// value.
+  case fxGtEq
+  
   /// **`fl_plus`**: Computes the sum of two flonum values on the stack.
   case flPlus
   
@@ -576,6 +593,16 @@ public enum Instruction: CustomStringConvertible {
         return "fx_mult"
       case .fxDiv:
         return "fx_div"
+      case .fxEq:
+        return "fx_eq"
+      case .fxLt:
+        return "fx_lt"
+      case .fxGt:
+        return "fx_gt"
+      case .fxLtEq:
+        return "fx_lt_eq"
+      case .fxGtEq:
+        return "fx_gt_eq"
       case .flPlus:
         return "fl_plus"
       case .flMinus:

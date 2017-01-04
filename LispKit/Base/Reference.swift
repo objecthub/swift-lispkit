@@ -24,15 +24,15 @@
 ///
 open class Reference: Hashable {
   
-  public var identity: UInt {
+  public final var identity: UInt {
     return UInt(bitPattern: ObjectIdentifier(self))
   }
   
-  public var identityString: String {
+  public final var identityString: String {
     return String(self.identity, radix: 16)
   }
   
-  public var hashValue: Int {
+  public final var hashValue: Int {
     return ObjectIdentifier(self).hashValue
   }
 }

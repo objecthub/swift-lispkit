@@ -35,11 +35,11 @@
 open class ManagedObject: Reference {
   
   /// Used internally to declare that a managed object is registered in a managed object pool.
-  internal var managed: Bool = false
+  internal final var managed: Bool = false
   
   /// A tag that defines the last GC cyle in which this object was marked (by following the
   /// root set references).
-  internal var tag: UInt8 = 0
+  internal final var tag: UInt8 = 0
   
   /// Each class inheriting from `ManagedObject` creates a static `Stats` instance and
   /// passes it on to the constructor of `ManagedObject`. The `deinit` method of each

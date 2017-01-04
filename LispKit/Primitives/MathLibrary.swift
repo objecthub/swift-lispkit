@@ -119,6 +119,11 @@ public final class MathLibrary: NativeLibrary {
     self.define(Procedure("fx-", fxMinus, compileFxMinus))
     self.define(Procedure("fx*", fxMult, compileFxMult))
     self.define(Procedure("fx/", fxDiv, compileFxDiv))
+    self.define(Procedure("fx=", fxEq, compileFxEq))
+    self.define(Procedure("fx<", fxLt, compileFxLt))
+    self.define(Procedure("fx>", fxGt, compileFxGt))
+    self.define(Procedure("fx<=", fxLtEq, compileFxLtEq))
+    self.define(Procedure("fx>=", fxGtEq, compileFxGtEq))
   }
   
   
@@ -1047,16 +1052,20 @@ public final class MathLibrary: NativeLibrary {
     }
   }
   
-  func fxPlus(_ x: Expr, _ y: Expr) throws -> Expr {
-    return .fixnum(try x.asInt64() &+ y.asInt64())
-  }
-  
-  func compileFxPlus(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  @inline(__always) private func compileBinOp(_ compiler: Compiler, expr: Expr, env: Env) throws {
     guard case .pair(_, .pair(let x, .pair(let y, .null))) = expr else {
       throw EvalError.argumentCountError(formals: 2, args: expr)
     }
     try compiler.compile(x, in: env, inTailPos: false)
     try compiler.compile(y, in: env, inTailPos: false)
+  }
+  
+  func fxPlus(_ x: Expr, _ y: Expr) throws -> Expr {
+    return .fixnum(try x.asInt64() &+ y.asInt64())
+  }
+  
+  func compileFxPlus(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    try self.compileBinOp(compiler, expr: expr, env: env)
     compiler.emit(.fxPlus)
     return false
   }
@@ -1066,11 +1075,7 @@ public final class MathLibrary: NativeLibrary {
   }
   
   func compileFxMinus(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
-    guard case .pair(_, .pair(let x, .pair(let y, .null))) = expr else {
-      throw EvalError.argumentCountError(formals: 2, args: expr)
-    }
-    try compiler.compile(x, in: env, inTailPos: false)
-    try compiler.compile(y, in: env, inTailPos: false)
+    try self.compileBinOp(compiler, expr: expr, env: env)
     compiler.emit(.fxMinus)
     return false
   }
@@ -1080,11 +1085,7 @@ public final class MathLibrary: NativeLibrary {
   }
   
   func compileFxMult(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
-    guard case .pair(_, .pair(let x, .pair(let y, .null))) = expr else {
-      throw EvalError.argumentCountError(formals: 2, args: expr)
-    }
-    try compiler.compile(x, in: env, inTailPos: false)
-    try compiler.compile(y, in: env, inTailPos: false)
+    try self.compileBinOp(compiler, expr: expr, env: env)
     compiler.emit(.fxMult)
     return false
   }
@@ -1094,12 +1095,58 @@ public final class MathLibrary: NativeLibrary {
   }
   
   func compileFxDiv(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
-    guard case .pair(_, .pair(let x, .pair(let y, .null))) = expr else {
-      throw EvalError.argumentCountError(formals: 2, args: expr)
-    }
-    try compiler.compile(x, in: env, inTailPos: false)
-    try compiler.compile(y, in: env, inTailPos: false)
+    try self.compileBinOp(compiler, expr: expr, env: env)
     compiler.emit(.fxDiv)
+    return false
+  }
+  
+  func fxEq(_ x: Expr, _ y: Expr) throws -> Expr {
+    return .makeBoolean(try x.asInt64() == y.asInt64())
+  }
+  
+  func compileFxEq(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    try self.compileBinOp(compiler, expr: expr, env: env)
+    compiler.emit(.fxEq)
+    return false
+  }
+  
+  func fxLt(_ x: Expr, _ y: Expr) throws -> Expr {
+    return .makeBoolean(try x.asInt64() < y.asInt64())
+  }
+  
+  func compileFxLt(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    try self.compileBinOp(compiler, expr: expr, env: env)
+    compiler.emit(.fxLt)
+    return false
+  }
+  
+  func fxGt(_ x: Expr, _ y: Expr) throws -> Expr {
+    return .makeBoolean(try x.asInt64() > y.asInt64())
+  }
+  
+  func compileFxGt(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    try self.compileBinOp(compiler, expr: expr, env: env)
+    compiler.emit(.fxGt)
+    return false
+  }
+  
+  func fxLtEq(_ x: Expr, _ y: Expr) throws -> Expr {
+    return .makeBoolean(try x.asInt64() <= y.asInt64())
+  }
+  
+  func compileFxLtEq(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    try self.compileBinOp(compiler, expr: expr, env: env)
+    compiler.emit(.fxLtEq)
+    return false
+  }
+
+  func fxGtEq(_ x: Expr, _ y: Expr) throws -> Expr {
+    return .makeBoolean(try x.asInt64() >= y.asInt64())
+  }
+  
+  func compileFxGtEq(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    try self.compileBinOp(compiler, expr: expr, env: env)
+    compiler.emit(.fxLtEq)
     return false
   }
 }

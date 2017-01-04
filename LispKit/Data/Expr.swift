@@ -360,7 +360,7 @@ extension Expr {
 /// This extension adds projections to `Expr`.
 ///
 extension Expr {
-  public func assertType(_ types: Type...) throws {
+  @inline(__always) public func assertType(_ types: Type...) throws {
     for type in types {
       for subtype in type.included {
         if self.type == subtype {
@@ -371,14 +371,14 @@ extension Expr {
     throw EvalError.typeError(self, Set(types))
   }
   
-  public func asInt64() throws -> Int64 {
+  @inline(__always) public func asInt64() throws -> Int64 {
     guard case .fixnum(let res) = self else {
       throw EvalError.typeError(self, [.integerType])
     }
     return res
   }
   
-  public func asInt(below: Int = Int.max) throws -> Int {
+  @inline(__always) public func asInt(below: Int = Int.max) throws -> Int {
     guard case .fixnum(let res) = self else {
       throw EvalError.typeError(self, [.integerType])
     }
@@ -388,7 +388,7 @@ extension Expr {
     return Int(res)
   }
   
-  public func asUInt8() throws -> UInt8 {
+  @inline(__always) public func asUInt8() throws -> UInt8 {
     guard case .fixnum(let number) = self , number >= 0 && number <= 255 else {
       throw EvalError.typeError(self, [.byteType])
     }
@@ -447,14 +447,16 @@ extension Expr {
     }
   }
   
-  public func asSymbol() throws -> Symbol {
-    guard let symid = self.toSymbol() else {
-      throw EvalError.typeError(self, [.symbolType])
+  @inline(__always) public func asSymbol() throws -> Symbol {
+    switch self {
+      case .symbol(let sym):
+        return sym
+      default:
+        throw EvalError.typeError(self, [.symbolType])
     }
-    return symid
   }
   
-  public func toSymbol() -> Symbol? {
+  @inline(__always) public func toSymbol() -> Symbol? {
     switch self {
       case .symbol(let sym):
         return sym
@@ -463,84 +465,84 @@ extension Expr {
     }
   }
   
-  public func asUniChar() throws -> UniChar {
+  @inline(__always) public func asUniChar() throws -> UniChar {
     guard case .char(let res) = self else {
       throw EvalError.typeError(self, [.charType])
     }
     return res
   }
   
-  public func charAsString() throws -> String {
+  @inline(__always) public func charAsString() throws -> String {
     guard case .char(let res) = self else {
       throw EvalError.typeError(self, [.charType])
     }
     return String(unicodeScalar(res))
   }
   
-  public func asString() throws -> String {
+  @inline(__always) public func asString() throws -> String {
     guard case .string(let res) = self else {
       throw EvalError.typeError(self, [.strType])
     }
     return res as String
   }
   
-  public func asMutableStr() throws -> NSMutableString {
+  @inline(__always) public func asMutableStr() throws -> NSMutableString {
     guard case .string(let res) = self else {
       throw EvalError.typeError(self, [.strType])
     }
     return res
   }
   
-  public func asPath() throws -> String {
+  @inline(__always) public func asPath() throws -> String {
     guard case .string(let res) = self else {
       throw EvalError.typeError(self, [.strType])
     }
     return res.expandingTildeInPath
   }
   
-  public func asByteVector() throws -> ByteVector {
+  @inline(__always) public func asByteVector() throws -> ByteVector {
     guard case .bytes(let bvector) = self else {
       throw EvalError.typeError(self, [.byteVectorType])
     }
     return bvector
   }
   
-  public func vectorAsCollection() throws -> Collection {
+  @inline(__always) public func vectorAsCollection() throws -> Collection {
     guard case .vector(let res) = self else {
       throw EvalError.typeError(self, [.vectorType])
     }
     return res
   }
   
-  public func recordAsCollection() throws -> Collection {
+  @inline(__always) public func recordAsCollection() throws -> Collection {
     guard case .record(let res) = self else {
       throw EvalError.typeError(self, [.recordType])
     }
     return res
   }
   
-  public func asHashTable() throws -> HashTable {
+  @inline(__always) public func asHashTable() throws -> HashTable {
     guard case .table(let map) = self else {
       throw EvalError.typeError(self, [.tableType])
     }
     return map
   }
   
-  public func asProcedure() throws -> Procedure {
+  @inline(__always) public func asProcedure() throws -> Procedure {
     guard case .procedure(let proc) = self else {
       throw EvalError.typeError(self, [.procedureType])
     }
     return proc
   }
   
-  public func asEnvironment() throws -> Environment {
+  @inline(__always) public func asEnvironment() throws -> Environment {
     guard case .env(let environment) = self else {
       throw EvalError.typeError(self, [.envType])
     }
     return environment
   }
   
-  public func asPort() throws -> Port {
+  @inline(__always) public func asPort() throws -> Port {
     guard case .port(let port) = self else {
       throw EvalError.typeError(self, [.portType])
     }
