@@ -34,7 +34,7 @@ public final class ManagedObjectPool: CustomStringConvertible {
   internal private(set) var tag: UInt8
   
   /// Number of garbage collection cycles.
-  internal private(set) var cycles: UInt64
+  public private(set) var cycles: UInt64
   
   /// Root set of tracked objects.
   private var rootSet: ObjectPool<TrackedObject>

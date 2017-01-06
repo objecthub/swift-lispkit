@@ -160,6 +160,11 @@ public final class Environment: Reference, CustomStringConvertible {
     }
   }
   
+  /// Returns the number of bindings in this environment.
+  public var count: Int {
+    return self.bindings.count
+  }
+    
   /// Returns an array of all the symbols bound in this environment.
   public var boundSymbols: [Symbol] {
     return [Symbol](self.bindings.keys)
