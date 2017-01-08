@@ -22,7 +22,7 @@ import Cocoa
 
 public protocol ContextDelegate {
   func loaded(library: Library, by: LibraryManager)
-  func exit(obj: Expr?)
+  func emergencyExit(obj: Expr?)
 }
 
 public extension ContextDelegate {

@@ -26,7 +26,7 @@ public final class Context {
   
   /// A delegate object which receives updates related to the virtual machine managed by
   /// this context. The virtual machine also delegates some functionality to this object.
-  public var delegate: ContextDelegate? = nil
+  public var delegate: ContextDelegate?
   
   /// The console for reading and writing strings from the default port.
   public let console: Console
@@ -62,8 +62,9 @@ public final class Context {
   public var errorPort: Port
   
   /// Initializes a new object
-  public init(console: Console) {
+  public init(console: Console, delegate: ContextDelegate? = nil) {
     // Initialize components
+    self.delegate = delegate
     self.console = console
     self.heap = Heap()
     self.fileHandler = FileHandler()
