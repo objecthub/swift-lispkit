@@ -22,12 +22,16 @@ import Cocoa
 
 public protocol ContextDelegate {
   func loaded(library: Library, by: LibraryManager)
+  func bound(symbol: Symbol, in: Environment)
   func emergencyExit(obj: Expr?)
 }
 
 public extension ContextDelegate {
   
   func loaded(library: Library, by: LibraryManager) {
+  }
+    
+  func bound(symbol: Symbol, in: Environment) {
   }
   
   func emergencyExit(obj: Expr?) {

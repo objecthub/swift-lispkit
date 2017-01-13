@@ -136,14 +136,14 @@ public final class Environment: Reference, CustomStringConvertible {
     for (ident, importLocation) in library.imports {
       switch importLocation {
         case .mutable(let loc):
-          self.bindings[ident] = .mutableImport(loc)
+          self.bind(ident, to: .mutableImport(loc))
         case .immutable(let loc):
-          self.bindings[ident] = .immutableImport(loc)
+          self.bind(ident, to: .immutableImport(loc))
       }
     }
     for (extIdent, intIdent) in library.exportDecls {
       if !library.imported.hasValues(for: intIdent.identifier) {
-        self.bindings[intIdent.identifier] = .mutable(library.exports[extIdent]!.location)
+        self.bind(intIdent.identifier, to: .mutable(library.exports[extIdent]!.location))
       }
     }
   }
@@ -178,6 +178,20 @@ public final class Environment: Reference, CustomStringConvertible {
     return self.context.heap.locations[loc]
   }
   
+  /// Binds symbol `sym` to the given location reference `loc`.
+  private func bind(_ sym: Symbol, to loc: LocationRef) {
+    switch self.kind {
+      case .repl:
+        let new = self.isUndefined(sym)
+        self.bindings[sym] = loc
+        if new {
+          self.context.delegate?.bound(symbol: sym, in: self)
+        }
+      default:
+        self.bindings[sym] = loc
+    }
+  }
+  
   /// Returns true if the given symbol is not defined in this environment.
   public func isUndefined(_ sym: Symbol) -> Bool {
     return self.bindings[sym]?.isUndefined ?? true
@@ -201,7 +215,7 @@ public final class Environment: Reference, CustomStringConvertible {
       return locRef
     }
     let locRef = LocationRef.reserved(self.context.heap.allocateLocation(for: .uninit(sym)))
-    self.bindings[sym] = locRef
+    self.bind(sym, to: locRef)
     return locRef
   }
   
@@ -210,7 +224,7 @@ public final class Environment: Reference, CustomStringConvertible {
     if case .undefined = lref {
       preconditionFailure("cannot set binding in environment to undefined")
     }
-    self.bindings[sym] = lref
+    self.bind(sym, to: lref)
   }
   
   /// Defines a new binding in this environment from `sym` to `expr`. This function returns
@@ -224,7 +238,7 @@ public final class Environment: Reference, CustomStringConvertible {
           case .custom:
             return false
           default:
-            self.bindings[sym] = .mutable(self.context.heap.allocateLocation(for: expr))
+            self.bind(sym, to: .mutable(self.context.heap.allocateLocation(for: expr)))
             return true
         }
       case .reserved(let loc):
@@ -233,7 +247,7 @@ public final class Environment: Reference, CustomStringConvertible {
             return false
           default:
             self.context.heap.locations[loc] = expr
-            self.bindings[sym] = .mutable(loc)
+            self.bind(sym, to: .mutable(loc))
             return true
         }
       case .mutable(let loc):
@@ -249,7 +263,7 @@ public final class Environment: Reference, CustomStringConvertible {
           case .custom, .library, .program: // illegal redefinition of a binding
             return false
           case .repl:                       // override existing binding
-            self.bindings[sym] = .mutable(self.context.heap.allocateLocation(for: expr))
+            self.bind(sym, to: .mutable(self.context.heap.allocateLocation(for: expr)))
             return true
         }
     }
@@ -324,11 +338,11 @@ public final class Environment: Reference, CustomStringConvertible {
         case .some(.mutable(let loc)):
           // print("  import \(expIdent) from \(library.name) as \(impIdent) using " +
           //      "[\(loc)] \(self.context.locations[loc])")
-          self.bindings[impIdent] = .mutableImport(loc)
+          self.bind(impIdent, to: .mutableImport(loc))
         case .some(.immutable(let loc)):
           // print("  import \(expIdent) from \(library.name) as immutable \(impIdent) using " +
           //       "[\(loc)] \(self.context.locations[loc])")
-          self.bindings[impIdent] = .immutableImport(loc)
+          self.bind(impIdent, to: .immutableImport(loc))
         default:
           // Should nerver happen
           preconditionFailure("cannot import \(impIdent) as \(expIdent) " +
