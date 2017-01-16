@@ -1,5 +1,6 @@
-;;; SRFI 1 list-processing library
-;;;
+;;; SRFI 1
+;;; List-processing library
+;;; 
 ;;; This implementation is incomplete. It leaves out all functionality using mutable pairs,
 ;;; since mutable lists are not supported by LispKit.
 ;;;

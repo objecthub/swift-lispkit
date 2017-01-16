@@ -33,6 +33,8 @@
 		CC3C92441D84C0D800016C28 /* Library.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC3C92431D84C0D800016C28 /* Library.swift */; };
 		CC4D2C9F1D5EDA2A00A02256 /* RecordLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC4D2C9E1D5EDA2A00A02256 /* RecordLibrary.swift */; };
 		CC4E2D371D09691000D77159 /* PortLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC4E2D361D09691000D77159 /* PortLibrary.swift */; };
+		CC4F84851E2C3AC60066D842 /* srfi_2.sld in Resources */ = {isa = PBXBuildFile; fileRef = CC4F84841E2C3AC60066D842 /* srfi_2.sld */; };
+		CC4F84881E2C438A0066D842 /* srfi_2.sld in CopyFiles */ = {isa = PBXBuildFile; fileRef = CC4F84841E2C3AC60066D842 /* srfi_2.sld */; };
 		CC502A951CDABF1E00875D9F /* BuildMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = CC502A941CDABF1E00875D9F /* BuildMetadata.m */; };
 		CC5033AF1CDB9A440045A8FA /* AppInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5033AE1CDB9A440045A8FA /* AppInfo.swift */; };
 		CC5033B11CDBE4CD0045A8FA /* Console.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5033B01CDBE4CD0045A8FA /* Console.swift */; };
@@ -173,6 +175,7 @@
 			dstPath = LispKit/Resources/Libraries;
 			dstSubfolderSpec = 7;
 			files = (
+				CC4F84881E2C438A0066D842 /* srfi_2.sld in CopyFiles */,
 				CCA752FA1DEF9F640098C34A /* srfi_1.sld in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -206,6 +209,7 @@
 		CC48055C1CFE366100D608B6 /* lispkit_logo_small.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lispkit_logo_small.png; sourceTree = "<group>"; };
 		CC4D2C9E1D5EDA2A00A02256 /* RecordLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = RecordLibrary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC4E2D361D09691000D77159 /* PortLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = PortLibrary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		CC4F84841E2C3AC60066D842 /* srfi_2.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = srfi_2.sld; sourceTree = "<group>"; };
 		CC502A931CDABF1E00875D9F /* LispKitReplBridgingHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LispKitReplBridgingHeader.h; sourceTree = "<group>"; };
 		CC502A941CDABF1E00875D9F /* BuildMetadata.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BuildMetadata.m; sourceTree = "<group>"; };
 		CC502A961CDABF6B00875D9F /* BuildMetadata.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BuildMetadata.h; sourceTree = "<group>"; };
@@ -248,7 +252,7 @@
 		CC93A65E1D077766008350C8 /* BinaryOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BinaryOutput.swift; sourceTree = "<group>"; };
 		CC93A6601D0777A9008350C8 /* TextOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextOutput.swift; sourceTree = "<group>"; };
 		CC97FA151CFA51520008596E /* Definitions.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Definitions.scm; sourceTree = "<group>"; };
-		CCA752F61DEF9F0D0098C34A /* srfi_1.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = srfi_1.sld; path = Libraries/srfi_1.sld; sourceTree = "<group>"; };
+		CCA752F61DEF9F0D0098C34A /* srfi_1.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = srfi_1.sld; sourceTree = "<group>"; };
 		CCAD52BA1C48403800DBD8EE /* LispKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = LispKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CCAD52BD1C48403900DBD8EE /* LispKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LispKit.h; sourceTree = "<group>"; };
 		CCAD52BF1C48403900DBD8EE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -412,8 +416,9 @@
 			isa = PBXGroup;
 			children = (
 				CCA752F61DEF9F0D0098C34A /* srfi_1.sld */,
+				CC4F84841E2C3AC60066D842 /* srfi_2.sld */,
 			);
-			name = Libraries;
+			path = Libraries;
 			sourceTree = "<group>";
 		};
 		CCAD52B01C48403800DBD8EE = {
@@ -700,6 +705,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CC4F84851E2C3AC60066D842 /* srfi_2.sld in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
