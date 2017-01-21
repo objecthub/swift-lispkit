@@ -44,6 +44,4 @@
         ((and-let* ((expr) . bindings) . body)
           (and expr (and-let* bindings . body)))
         ((and-let* (var . bindings) . body)
-          (begin (let ((var #f)) #f) (and var (and-let* bindings . body))))))
-  )
-)
+          (begin (let ((var #f)) #f) (and var (and-let* bindings . body))))))))

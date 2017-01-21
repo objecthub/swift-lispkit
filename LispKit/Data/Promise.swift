@@ -23,12 +23,41 @@
 ///
 public final class Promise: ManagedObject, CustomStringConvertible {
   
-  public indirect enum State {
+  public enum Kind: CustomStringConvertible {
+    case promise
+    case stream
+    
+    public var description: String {
+      switch self {
+        case .promise:
+          return "promise"
+        case .stream:
+          return "stream"
+      }
+    }
+  }
+  
+  public indirect enum State: CustomStringConvertible {
     case lazy(Procedure)       // Thunk of promises
     case shared(Promise)       // Shared future
     case value(Expr)           // Evaluated future
     case thrown(Error)         // Failed evaluation of future
+    
+    public var description: String {
+      switch self {
+        case .lazy(let proc):
+          return "lazy(\(proc))"
+        case .shared(let future):
+          return "shared(\(future))"
+        case .value(let value):
+          return "value(\(value))"
+        case .thrown(let error):
+          return "thrown(\(error))"
+      }
+    }
   }
+  
+  public let kind: Kind
   
   /// State of the future; this state is modified externally.
   public var state: State
@@ -43,13 +72,15 @@ public final class Promise: ManagedObject, CustomStringConvertible {
   
   /// Initializes a future with a `thunk` that yields a promise; this promise's state is
   /// copied over into this future as part of the protocol to force a promise.
-  public init(_ thunk: Procedure) {
+  public init(kind: Kind, thunk: Procedure) {
+    self.kind = kind
     self.state = .lazy(thunk)
     super.init(Promise.stats)
   }
   
   /// Initializes a future with a given value; no evaluation will happen.
-  public init(_ value: Expr) {
+  public init(kind: Kind, value: Expr) {
+    self.kind = kind
     self.state = .value(value)
     super.init(Promise.stats)
   }
@@ -71,16 +102,7 @@ public final class Promise: ManagedObject, CustomStringConvertible {
   
   /// String representation of the future.
   public var description: String {
-    switch self.state {
-      case .lazy(let proc):
-        return "future#lazy(\(proc))"
-      case .shared(let future):
-        return "future#shared(\(future))"
-      case .value(let value):
-        return "future#value(\(value))"
-      case .thrown(let error):
-        return "future#thrown(\(error))"
-    }
+    return "\(self.kind)#\(self.state)"
   }
   
   /// Mark the expressions referenced from this future.

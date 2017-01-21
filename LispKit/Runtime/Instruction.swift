@@ -146,19 +146,23 @@ public enum Instruction: CustomStringConvertible {
   case makeSyntax
   
   
-  // Promises ---------------------------------------------------------------------------------
+  // Promises and streams ---------------------------------------------------------------------
   
   /// **`make_promise`**: Creates a new promise on the stack whose value will be computed
   /// by executing the closure on top of the stack.
   case makePromise
   
-  /// **`force`**: Forces the value of the promise on top of the stack. If the promise has
-  /// been evaluated already, push the value onto the stack and skip the next instruction
-  /// (which is typically a `store_in_promise` instruction).
+  /// **`make_stream`**: Creates a new stream on the stack whose value will be computed
+  /// by executing the closure on top of the stack.
+  case makeStream
+  
+  /// **`force`**: Forces the value of the promise or stream on top of the stack. If the
+  /// promise or stream has been evaluated already, push the value onto the stack and skip
+  /// the next instruction (which is typically a `store_in_promise` instruction).
   case force
   
-  /// **`store_in_promise`**: Stores the value on top of the stack in the promise to which
-  /// the second top-most entry on the stack The promise gets removed from the stack.
+  /// **`store_in_promise`**: Stores the value on top of the stack in the promise or stream
+  /// to which the second top-most entry on the stack The promise gets removed from the stack.
   case storeInPromise
   
   
@@ -507,6 +511,8 @@ public enum Instruction: CustomStringConvertible {
         return "make_closure \(i),\(n),\(index)"
       case .makePromise:
         return "make_promise"
+      case .makeStream:
+        return "make_stream"
       case .makeSyntax:
         return "make_syntax"
       case .compile:

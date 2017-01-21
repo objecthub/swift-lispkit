@@ -64,6 +64,12 @@
 		CC8213661D614A8600C1BE57 /* Records.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC8213651D614A8600C1BE57 /* Records.scm */; };
 		CC882C921C9E93A600D20039 /* Timer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC882C911C9E93A600D20039 /* Timer.swift */; };
 		CC8C6EC81CFA65F200126BDD /* ControlFlow.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC8C6EC71CFA65F200126BDD /* ControlFlow.scm */; };
+		CC8E2B961E2D33770080299A /* srfi_41.sld in Resources */ = {isa = PBXBuildFile; fileRef = CC8E2B951E2D33770080299A /* srfi_41.sld */; };
+		CC8E2B991E2D34890080299A /* primitive.sld in Resources */ = {isa = PBXBuildFile; fileRef = CC8E2B981E2D34890080299A /* primitive.sld */; };
+		CC8E2B9B1E2D34F60080299A /* derived.sld in Resources */ = {isa = PBXBuildFile; fileRef = CC8E2B9A1E2D34F60080299A /* derived.sld */; };
+		CC8E2B9C1E335D980080299A /* srfi_41.sld in CopyFiles */ = {isa = PBXBuildFile; fileRef = CC8E2B951E2D33770080299A /* srfi_41.sld */; };
+		CC8E2BA11E3361DA0080299A /* primitive.sld in CopyFiles */ = {isa = PBXBuildFile; fileRef = CC8E2B981E2D34890080299A /* primitive.sld */; };
+		CC8E2BA21E3361E30080299A /* derived.sld in CopyFiles */ = {isa = PBXBuildFile; fileRef = CC8E2B9A1E2D34F60080299A /* derived.sld */; };
 		CC8EDE4C1D0317AD004E0636 /* Port.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8EDE4B1D0317AD004E0636 /* Port.swift */; };
 		CC8EDE6E1D07263D004E0636 /* BinaryInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8EDE6D1D07263D004E0636 /* BinaryInput.swift */; };
 		CC8EDE701D07265E004E0636 /* TextInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8EDE6F1D07265E004E0636 /* TextInput.swift */; };
@@ -169,12 +175,24 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CC8E2BA01E3361C50080299A /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = LispKit/Resources/Libraries/srfi_41;
+			dstSubfolderSpec = 7;
+			files = (
+				CC8E2BA21E3361E30080299A /* derived.sld in CopyFiles */,
+				CC8E2BA11E3361DA0080299A /* primitive.sld in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CCA752F91DEF9F4E0098C34A /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = LispKit/Resources/Libraries;
 			dstSubfolderSpec = 7;
 			files = (
+				CC8E2B9C1E335D980080299A /* srfi_41.sld in CopyFiles */,
 				CC4F84881E2C438A0066D842 /* srfi_2.sld in CopyFiles */,
 				CCA752FA1DEF9F640098C34A /* srfi_1.sld in CopyFiles */,
 			);
@@ -242,6 +260,9 @@
 		CC8213651D614A8600C1BE57 /* Records.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Records.scm; sourceTree = "<group>"; };
 		CC882C911C9E93A600D20039 /* Timer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Timer.swift; sourceTree = "<group>"; };
 		CC8C6EC71CFA65F200126BDD /* ControlFlow.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ControlFlow.scm; sourceTree = "<group>"; };
+		CC8E2B951E2D33770080299A /* srfi_41.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = srfi_41.sld; sourceTree = "<group>"; };
+		CC8E2B981E2D34890080299A /* primitive.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = primitive.sld; sourceTree = "<group>"; };
+		CC8E2B9A1E2D34F60080299A /* derived.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = derived.sld; sourceTree = "<group>"; };
 		CC8EDE4B1D0317AD004E0636 /* Port.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Port.swift; sourceTree = "<group>"; };
 		CC8EDE6D1D07263D004E0636 /* BinaryInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BinaryInput.swift; sourceTree = "<group>"; };
 		CC8EDE6F1D07265E004E0636 /* TextInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextInput.swift; sourceTree = "<group>"; };
@@ -377,6 +398,15 @@
 			path = Assets;
 			sourceTree = "<group>";
 		};
+		CC8E2B9F1E33613C0080299A /* srfi_41 */ = {
+			isa = PBXGroup;
+			children = (
+				CC8E2B981E2D34890080299A /* primitive.sld */,
+				CC8E2B9A1E2D34F60080299A /* derived.sld */,
+			);
+			path = srfi_41;
+			sourceTree = "<group>";
+		};
 		CC9050101D392706008CE60A /* Data */ = {
 			isa = PBXGroup;
 			children = (
@@ -417,6 +447,8 @@
 			children = (
 				CCA752F61DEF9F0D0098C34A /* srfi_1.sld */,
 				CC4F84841E2C3AC60066D842 /* srfi_2.sld */,
+				CC8E2B951E2D33770080299A /* srfi_41.sld */,
+				CC8E2B9F1E33613C0080299A /* srfi_41 */,
 			);
 			path = Libraries;
 			sourceTree = "<group>";
@@ -606,6 +638,7 @@
 				CCAD52B81C48403800DBD8EE /* Resources */,
 				CC2E6A901C486AA70046E680 /* CopyFiles */,
 				CCA752F91DEF9F4E0098C34A /* CopyFiles */,
+				CC8E2BA01E3361C50080299A /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -705,6 +738,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CC8E2B961E2D33770080299A /* srfi_41.sld in Resources */,
+				CC8E2B991E2D34890080299A /* primitive.sld in Resources */,
+				CC8E2B9B1E2D34F60080299A /* derived.sld in Resources */,
 				CC4F84851E2C3AC60066D842 /* srfi_2.sld in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

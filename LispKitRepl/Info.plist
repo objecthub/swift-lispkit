@@ -23,6 +23,6 @@
 	<key>LSMinimumSystemVersion</key>
 	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright © 2016 ObjectHub. All rights reserved.</string>
+	<string>Copyright © 2017 ObjectHub. All rights reserved.</string>
 </dict>
 </plist>

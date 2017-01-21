@@ -5,15 +5,18 @@
 ;;; since mutable lists are not supported by LispKit.
 ;;;
 ;;; Portions of this code: SRFI 1 reference implementation
-;;;   Copyright (c) 1998, 1999 by Olin Shivers. You may do as you please with
-;;;   this code as long as you do not remove this copyright notice or
-;;;   hold me liable for its use. Please send bug reports to shivers@ai.mit.edu.
+;;;   Copyright © 1998, 1999 by Olin Shivers.
+;;;   You may do as you please with this code as long as you do not remove this copyright
+;;;   notice or hold me liable for its use. Please send bug reports to shivers@ai.mit.edu.
 ;;;
 ;;; Portions of this code: SRFI 1 library provided by Picrin
-;;;   Copyright (c) 2013-2014 Yuichi Nishiwaki and other picrin contributors.
+;;;   Copyright © 2013-2014 Yuichi Nishiwaki and other picrin contributors.
 ;;;
+;;; Adaptation to LispKit
+;;;   Copyright © 2017 Matthias Zenger. All rights reserved.
 
 (define-library (srfi 1)
+  
   (import (scheme base))
   
   ;; # Constructors
@@ -43,8 +46,7 @@
                   (acc '()))
           (if (zero? count)
               (cons start acc)
-              (rec (- count 1) (cons (+ start (* count step)) acc))))))
-  )
+              (rec (- count 1) (cons (+ start (* count step)) acc)))))))
 
   (export cons list xcons cons* make-list list-tabulate iota)
 
@@ -81,8 +83,7 @@
                                  (rec1 list2 others))
                             (and (not (null-list? l2))
                                  (elt= (car l1) (car l2))
-                                 (rec2 (cdr l1) (cdr l2)))))))))))
-  )
+                                 (rec2 (cdr l1) (cdr l2))))))))))))
 
   (export pair? null? not-pair? proper-list? dotted-list? null-list? list=)
 
@@ -146,8 +147,7 @@
 
     (define (tenth x) (cadr (cddddr (cddddr x))))
 
-    (define (car+cdr pair) (values (car pair) (cdr pair)))
-  )
+    (define (car+cdr pair) (values (car pair) (cdr pair))))
 
   (export car cdr car+cdr list-ref
           caar cadr cdar cddr caaar caadr cadar caddr cdaar cdadr cddar cdddr
@@ -205,8 +205,7 @@
       (let rec ((tflst (apply map pred clists)) (n 0))
         (if (null? tflst)
             n
-            (rec (cdr tflst) (if (car tflst) (+ n 1) n)))))
-  )
+            (rec (cdr tflst) (if (car tflst) (+ n 1) n))))))
 
   (export length
           append concatenate
@@ -328,8 +327,7 @@
       (let recur ((l (apply map f clist clists)))
         (cond ((null? l) '())
               ((car l)   (cons (car l) (recur (cdr l))))
-              (else      (recur (cdr l))))))
-  )
+              (else      (recur (cdr l)))))))
 
   (export map for-each
           fold unfold pair-fold reduce
@@ -350,8 +348,7 @@
 
     (define (partition pred list)
       (values (filter pred list)
-              (remove pred list)))
-  )
+              (remove pred list))))
 
   (export filter partition remove)
 
@@ -435,8 +432,7 @@
             (if (every pair? clists)
                 (if (apply pred (map car clists))
                     n
-                    (rec (map cdr clists) (+ n 1)))))))
-  )
+                    (rec (map cdr clists) (+ n 1))))))))
 
   (export member memq memv
           find find-tail
@@ -461,8 +457,7 @@
               (let* ((x (car list))
                      (rest (cdr list))
                      (deleted (delete x rest =)))
-                (rec deleted (lambda (y) (cont (cons x y)))))))))
-  )
+                (rec deleted (lambda (y) (cont (cons x y))))))))))
 
   (export delete delete-duplicates)
 
@@ -480,8 +475,7 @@
 
     (define (alist-delete key alist . =)
       (let ((= (if (null? =) equal? (car =))))
-        (remove (lambda (x) (= key (car x))) alist)))
-  )
+        (remove (lambda (x) (= key (car x))) alist))))
 
   (export assoc assq assv
           alist-cons alist-copy
@@ -571,13 +565,11 @@
 
     (define (lset-diff+intersection = list . lists)
       (values (apply lset-difference = list lists)
-              (lset-intersection = list (apply lset-union lists))))
-  )
+              (lset-intersection = list (apply lset-union lists)))))
 
   (export lset<= lset= lset-adjoin
           lset-union
           lset-intersection
           lset-difference
           lset-xor
-          lset-diff+intersection)
-)
+          lset-diff+intersection))

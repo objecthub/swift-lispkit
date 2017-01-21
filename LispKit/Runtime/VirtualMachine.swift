@@ -224,12 +224,17 @@ public final class VirtualMachine: TrackedObject {
     self.abortionRequested = true
   }
   
-  /// Loads the file at file patch `path`, compiles it in the interaction environment, and
-  /// executes it using this virtual machine.
-  public func evalOnTopLevel(file path: String, in env: Env, optimize: Bool = true) -> Expr {
+  /// Checks that computation happens on top level and fails if the conditions are not met.
+  private func assertTopLevel() {
     guard self.sp == 0 && !self.abortionRequested else {
       preconditionFailure("preconditions for top-level evaluation not met")
     }
+  }
+  
+  /// Loads the file at file patch `path`, compiles it in the interaction environment, and
+  /// executes it using this virtual machine.
+  public func evalOnTopLevel(file path: String, in env: Env, optimize: Bool = true) -> Expr {
+    self.assertTopLevel()
     self.exitTriggered = false
     defer {
       self.sp = 0
@@ -247,9 +252,7 @@ public final class VirtualMachine: TrackedObject {
   /// Parses the given string, compiles it in the interaction environment, and executes it using
   /// this virtual machine.
   public func evalOnTopLevel(str: String, in env: Env, optimize: Bool = true) -> Expr {
-    guard self.sp == 0 && !self.abortionRequested else {
-      preconditionFailure("preconditions for top-level evaluation not met (sp = \(self.sp))")
-    }
+    self.assertTopLevel()
     self.exitTriggered = false
     defer {
       self.sp = 0
@@ -267,9 +270,7 @@ public final class VirtualMachine: TrackedObject {
   /// Compiles the given list of expressions in the interaction environment and executes
   /// it using this virtual machine.
   public func evalOnTopLevel(exprs: Expr, in env: Env, optimize: Bool = true) -> Expr {
-    guard self.sp == 0 && !self.abortionRequested else {
-      preconditionFailure("preconditions for top-level evaluation not met")
-    }
+    self.assertTopLevel()
     self.exitTriggered = false
     defer {
       self.sp = 0
@@ -900,7 +901,7 @@ public final class VirtualMachine: TrackedObject {
           self.push(self.registers.captured[index])
         case .pushCapturedValue(let index):
           guard case .box(let cell) = self.registers.captured[index] else {
-            preconditionFailure("PushCapturedValue cannot push \(self.registers.captured[index])")
+            preconditionFailure("pushCapturedValue cannot push \(self.registers.captured[index])")
           }
           if case .undef = cell.value {
             throw EvalError.variableNotYetInitialized(nil)
@@ -908,7 +909,7 @@ public final class VirtualMachine: TrackedObject {
           self.push(cell.value)
         case .setCapturedValue(let index):
           guard case .box(let cell) = self.registers.captured[index] else {
-            preconditionFailure("SetCapturedValue cannot set value of \(self.registers.captured[index])")
+            preconditionFailure("setCapturedValue cannot set value of \(self.registers.captured[index])")
           }
           cell.value = self.pop()
         case .pushLocal(let index):
@@ -918,7 +919,7 @@ public final class VirtualMachine: TrackedObject {
         case .setLocalValue(let index):
           guard case .box(let cell) = self.stack[self.registers.fp &+ index] else {
             preconditionFailure(
-              "SetLocalValue cannot set value of \(self.stack[self.registers.fp &+ index])")
+              "setLocalValue cannot set value of \(self.stack[self.registers.fp &+ index])")
           }
           cell.value = self.pop()
         case .makeLocalVariable(let index):
@@ -932,7 +933,7 @@ public final class VirtualMachine: TrackedObject {
         case .pushLocalValue(let index):
           guard case .box(let cell) = self.stack[self.registers.fp &+ index] else {
             preconditionFailure(
-              "PushLocalValue cannot push \(self.stack[self.registers.fp &+ index])")
+              "pushLocalValue cannot push \(self.stack[self.registers.fp &+ index])")
           }
           if case .undef = cell.value {
             throw EvalError.variableNotYetInitialized(nil)
@@ -970,7 +971,7 @@ public final class VirtualMachine: TrackedObject {
           if i >= 0 {
             guard case .symbol(let sym) = self.registers.code.constants[i] else {
               preconditionFailure(
-                "MakeClosure has broken closure name \(self.registers.code.constants[i])")
+                "makeClosure has broken closure name \(self.registers.code.constants[i])")
             }
             self.push(.procedure(Procedure(sym.description,
                                            self.captureExprs(n),
@@ -983,9 +984,17 @@ public final class VirtualMachine: TrackedObject {
         case .makePromise:
           let top = self.pop()
           guard case .procedure(let proc) = top else {
-            preconditionFailure("MakePromise cannot create promise from \(top)")
+            preconditionFailure("makePromise cannot create promise from \(top)")
           }
-          let future = Promise(proc)
+          let future = Promise(kind: .promise, thunk: proc)
+          self.context.objects.manage(future)
+          self.push(.promise(future))
+        case .makeStream:
+          let top = self.pop()
+          guard case .procedure(let proc) = top else {
+            preconditionFailure("makeStream cannot create promise from \(top)")
+          }
+          let future = Promise(kind: .stream, thunk: proc)
           self.context.objects.manage(future)
           self.push(.promise(future))
         case .makeSyntax:
@@ -1174,8 +1183,10 @@ public final class VirtualMachine: TrackedObject {
           }
           switch future.state {
             case .lazy(_), .shared(_):
-              guard case .promise(let result) = self.stack[self.sp &- 1] else {
-                throw EvalError.typeError(self.stack[self.sp &- 1], [.promiseType])
+              guard case .promise(let result) = self.stack[self.sp &- 1],
+                    future.kind == result.kind else {
+                let type: Type = future.kind == Promise.Kind.promise ? .promiseType : .streamType
+                throw EvalError.typeError(self.stack[self.sp &- 1], [type])
               }
               if !result.isAtom {
                 self.context.objects.manage(future)

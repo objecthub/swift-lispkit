@@ -102,8 +102,8 @@ public enum Expr: Trackable, Hashable {
         return .recordType
       case .table(_):
         return .tableType
-      case .promise(_):
-        return .promiseType
+      case .promise(let future):
+        return future.kind == Promise.Kind.promise ? .promiseType : .streamType
       case .procedure(_):
         return .procedureType
       case .special(_):
@@ -763,7 +763,7 @@ extension Expr: CustomStringConvertible {
             return fixString(map, builder.description)
           }
         case .promise(let promise):
-          return "#<promise \(promise.identityString)>"
+          return "#<\(promise.kind) \(promise.identityString)>"
         case .procedure(let proc):
           switch proc.kind {
             case .parameter(let tuple):

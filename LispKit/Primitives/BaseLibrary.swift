@@ -54,12 +54,18 @@ public final class BaseLibrary: NativeLibrary {
     
     // Delayed execution
     self.define(Procedure("promise?", isPromise))
-    self.define(Procedure("force", compileForce, in: self.context))
     self.define(Procedure("make-promise", makePromise))
     self.define(Procedure("eager", makePromise))
     self.define("delay", as: SpecialForm(compileDelay))
     self.define("delay-force", as: SpecialForm(compileDelayForce))
     self.define("lazy", as: SpecialForm(compileDelayForce))
+    self.define(Procedure("stream?", isStream))
+    self.define(Procedure("make-stream", makeStream))
+    self.define(Procedure("stream-eager", makeStream))
+    self.define("stream-delay", as: SpecialForm(compileStreamDelay))
+    self.define("stream-delay-force", as: SpecialForm(compileStreamDelayForce))
+    self.define("stream-lazy", as: SpecialForm(compileStreamDelayForce))
+    self.define(Procedure("force", compileForce, in: self.context))
     
     // Symbol primitives
     self.define(Procedure("symbol?", isSymbol))
@@ -445,14 +451,15 @@ public final class BaseLibrary: NativeLibrary {
   //-------- MARK: - Delayed execution
   
   func isPromise(expr: Expr) -> Expr {
-    if case .promise(_) = expr {
+    if case .promise(let future) = expr,
+       case .promise = future.kind {
       return .true
     }
     return .false
   }
   
   func makePromise(expr: Expr) -> Expr {
-    return .promise(Promise(expr))
+    return .promise(Promise(kind: .promise, value: expr))
   }
   
   func compileDelayForce(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
@@ -483,6 +490,41 @@ public final class BaseLibrary: NativeLibrary {
     compiler.emit(.storeInPromise)
     return false
   }
+  
+  func isStream(expr: Expr) -> Expr {
+    if case .promise(let future) = expr,
+       case .stream = future.kind {
+      return .true
+    }
+    return .false
+  }
+  
+  func makeStream(expr: Expr) -> Expr {
+    return .promise(Promise(kind: .stream, value: expr))
+  }
+  
+  func compileStreamDelayForce(compiler: Compiler,
+                               expr: Expr,
+                               env: Env,
+                               tail: Bool) throws -> Bool {
+    guard case .pair(_, .pair(let delayed, .null)) = expr else {
+      throw EvalError.argumentCountError(formals: 1, args: expr)
+    }
+    try compiler.compileLambda(nil, .null, .pair(delayed, .null), env)
+    compiler.emit(.makeStream)
+    return false
+  }
+  
+  func compileStreamDelay(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    guard case .pair(_, .pair(let delayed, .null)) = expr else {
+      throw EvalError.argumentCountError(formals: 1, args: expr)
+    }
+    let body = Expr.pair(.makeList(.symbol(compiler.context.symbols.makeStream), delayed), .null)
+    try compiler.compileLambda(nil, .null, body, env)
+    compiler.emit(.makeStream)
+    return false
+  }
+
   
   //-------- MARK: - Symbol primitives
   
