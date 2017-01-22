@@ -231,9 +231,8 @@ public final class VirtualMachine: TrackedObject {
     }
   }
   
-  /// Loads the file at file patch `path`, compiles it in the interaction environment, and
-  /// executes it using this virtual machine.
-  public func evalOnTopLevel(file path: String, in env: Env, optimize: Bool = true) -> Expr {
+  /// Executes an evaluation function at the top-level.
+  public func onTopLevelProtect(_ eval: () throws -> Expr) -> Expr {
     self.assertTopLevel()
     self.exitTriggered = false
     defer {
@@ -241,7 +240,7 @@ public final class VirtualMachine: TrackedObject {
       self.abortionRequested = false
     }
     do {
-      return try self.eval(file: path, in: env, optimize: optimize)
+      return try eval()
     } catch let error as LispError { // handle Lisp-related issues
       return .error(AnyError(error))
     } catch let error as NSError { // handle OS-related issues
@@ -249,40 +248,15 @@ public final class VirtualMachine: TrackedObject {
     }
   }
   
-  /// Parses the given string, compiles it in the interaction environment, and executes it using
-  /// this virtual machine.
-  public func evalOnTopLevel(str: String, in env: Env, optimize: Bool = true) -> Expr {
+  /// Executes an evaluation function at the top-level.
+  public func onTopLevelDo(_ eval: () throws -> Expr) throws -> Expr {
     self.assertTopLevel()
     self.exitTriggered = false
     defer {
       self.sp = 0
       self.abortionRequested = false
     }
-    do {
-      return try self.eval(str: str, in: env, optimize: optimize)
-    } catch let error as LispError { // handle Lisp-related issues
-      return .error(AnyError(error))
-    } catch let error as NSError { // handle OS-related issues
-      return .error(AnyError(OsError(error)))
-    }
-  }
-  
-  /// Compiles the given list of expressions in the interaction environment and executes
-  /// it using this virtual machine.
-  public func evalOnTopLevel(exprs: Expr, in env: Env, optimize: Bool = true) -> Expr {
-    self.assertTopLevel()
-    self.exitTriggered = false
-    defer {
-      self.sp = 0
-      self.abortionRequested = false
-    }
-    do {
-      return try self.eval(exprs: exprs, in: env, optimize: optimize)
-    } catch let error as LispError { // handle Lisp-related issues
-      return .error(AnyError(error))
-    } catch let error as NSError { // handle OS-related issues
-      return .error(AnyError(OsError(error)))
-    }
+    return try eval()
   }
   
   /// Loads the file at file patch `path`, compiles it in the interaction environment, and
@@ -296,12 +270,7 @@ public final class VirtualMachine: TrackedObject {
   /// Parses the given string, compiles it in the interaction environment, and executes it using
   /// this virtual machine.
   public func eval(str: String, in env: Env, optimize: Bool = true) throws -> Expr {
-    let parser = Parser(symbols: self.context.symbols, src: str)
-    var exprs = Exprs()
-    while !parser.finished {
-      exprs.append(try parser.parse())
-    }
-    return try self.eval(exprs: .makeList(exprs), in: env, optimize: optimize)
+    return try self.eval(exprs: self.parse(str: str), in: env, optimize: optimize)
   }
   
   /// Compiles the given list of expressions in the interaction environment and executes
@@ -325,6 +294,16 @@ public final class VirtualMachine: TrackedObject {
   /// virtual machine.
   public func eval(expr: Expr, in env: Env, optimize: Bool = true) throws -> Expr {
     return try self.eval(exprs: .makeList(expr), in: env, optimize: optimize)
+  }
+  
+  /// Parses the given string and returns a list of parsed expressions.
+  public func parse(str: String) throws -> Expr {
+      let parser = Parser(symbols: self.context.symbols, src: str)
+      var exprs = Exprs()
+      while !parser.finished {
+          exprs.append(try parser.parse())
+      }
+      return .makeList(exprs)
   }
   
   /// Compiles the given expression `expr` in the environment `env` and executes it using

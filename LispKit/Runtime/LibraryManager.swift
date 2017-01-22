@@ -83,6 +83,7 @@ public final class LibraryManager: CustomStringConvertible {
                   file: self.context.fileHandler.libraryFilePath(forFile: filename) ?? filename,
                   in: self.context.global)
       } catch {
+        // TODO: figure out how to best propagate an error in such a case
         // ignore
       }
     }

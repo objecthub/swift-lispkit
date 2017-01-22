@@ -20,7 +20,7 @@
 
 
 open class AnyError: LispError, CustomStringConvertible {
-  var error: LispError
+  public var error: LispError
   
   public init(_ error: LispError) {
     self.error = error
@@ -68,7 +68,7 @@ public extension LispError {
   }
   
   public var description: String {
-    var res = "#<\(self.kind)| \(self.message)"
+    var res = "\(self.kind) | \(self.message)"
     if self.irritants.count > 0 {
       res += ": "
       var sep = ""
@@ -78,7 +78,7 @@ public extension LispError {
         sep = ", "
       }
     }
-    return res + ">"
+    return res
   }
 }
 
@@ -101,7 +101,7 @@ public enum LispErrorType: Int, Hashable, CustomStringConvertible {
       case .syntaxError:
         return "syntax error"
       case .evalError:
-        return "eval error"
+        return "evaluation error"
       case .osError:
         return "os error"
       case .abortionError:
@@ -292,7 +292,7 @@ public enum EvalError: LispError {
   case unknownDirectory(String)
   
   public var kind: String {
-    return "eval error"
+    return LispErrorType.evalError.description
   }
   
   public var message: String {
@@ -306,9 +306,12 @@ public enum EvalError: LispError {
       case .divisionByZero:
         return "division by zero"
       case .unboundVariable(let sym):
-        return "unbound variable: \(sym)"
+        return "unbound variable `\(sym)`"
       case .variableNotYetInitialized(let sym):
-        return "variable \(sym?.description ?? "") not yet initialized"
+        guard let sym = sym else {
+          return "variable not yet initialized"
+        }
+        return "variable `\(sym)` not yet initialized"
       case .malformedCaseLambda(let expr):
         return "malformed lambda case list: \(expr)"
       case .malformedArgumentList(let args):

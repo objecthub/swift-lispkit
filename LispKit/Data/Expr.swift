@@ -805,7 +805,7 @@ extension Expr: CustomStringConvertible {
         case .port(let port):
           return "#<\(port.typeDescription) \(port.identDescription)>"
         case .error(let error):
-          return error.description
+          return "#<\(error.description)>"
       }
     }
     return stringReprOf(self)
