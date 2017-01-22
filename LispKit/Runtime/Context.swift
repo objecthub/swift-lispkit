@@ -61,6 +61,12 @@ public final class Context {
   /// The current error port.
   public var errorPort: Port
   
+  /// Path to default prelude file.
+  public static let defaultPreludePath =
+    Bundle(identifier: "net.objecthub.LispKit")?.path(forResource: "Prelude",
+                                                      ofType: "scm",
+                                                      inDirectory: "LispKit/Resources")
+  
   /// Initializes a new object
   public init(console: Console, delegate: ContextDelegate? = nil) {
     // Initialize components

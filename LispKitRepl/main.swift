@@ -24,7 +24,7 @@ import LispKit
 // Create console
 let console = CommandLineConsole()
 
-// Create LispKit context
+// Create LispKit context and import (base scheme)
 let context = Context(console: console)
 do {
   try context.environment.import(SchemeLibrary.name)
@@ -33,8 +33,7 @@ do {
 }
 
 // Load standard Prelude
-if let preludePath = Bundle(identifier: "net.objecthub.LispKit")?.path(
-  forResource: "Prelude", ofType: "scm", inDirectory: "LispKit/Resources") {
+if let preludePath = Context.defaultPreludePath {
   do {
     _ = try context.machine.eval(file: preludePath, in: context.global)
   } catch let error {
@@ -47,16 +46,29 @@ console.print("\(AppInfo.name) \(AppInfo.version) (\(AppInfo.buildDate) \(AppInf
 console.print("\(AppInfo.copyright)\n")
 
 // Enter read-eval-print loop
+var buffer = ""
 console.print("⟹ ")
 while let line = console.read() {
-  let res = context.machine.evalOnTopLevel(str: line, in: context.global)
+  buffer += line
+  let res = context.machine.onTopLevelProtect {
+    return try context.machine.eval(str: buffer, in: context.global)
+  }
+  // Exit loop if the machine has executed the `exit` function
   if context.machine.exitTriggered {
     if res != .true {
       console.print("abnormal exit: \(res.description)\n")
     }
     break
+  // If closing parenthesis are missing, keep on reading
+  } else if case .error(let err) = res,
+            let syntaxError = err.error as? SyntaxError,
+            syntaxError == SyntaxError.closingParenthesisMissing {
+    continue
+  // For non-void results, print result
   } else if res != .void {
     console.print("\(res.description)\n")
   }
+  // Print prompt and empty buffer
   console.print("⟹ ")
+  buffer = ""
 }
