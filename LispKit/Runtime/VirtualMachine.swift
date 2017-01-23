@@ -383,6 +383,11 @@ public final class VirtualMachine: TrackedObject {
     return self.stack[self.sp]
   }
   
+  /// Returns the top element of the stack.
+  @inline(__always) private func top() -> Expr {
+    return self.stack[self.sp &- 1]
+  }
+  
   /// Removes the top element from the stack and returns it.
   @inline(__always) private func pop() -> Expr {
     self.sp = self.sp &- 1
@@ -1011,6 +1016,14 @@ public final class VirtualMachine: TrackedObject {
           self.push(.fixnum(Int64(self.registers.fp)))
           // Reserve space for instruction pointer
           self.push(.undef)
+        case .injectFrame:
+          let top = self.pop()
+          // Push frame pointer
+          self.push(.fixnum(Int64(self.registers.fp)))
+          // Reserve space for instruction pointer
+          self.push(.undef)
+          // Push top value onto stack again
+          self.push(top)
         case .call(let n):
           // Store instruction pointer
           self.stack[self.sp &- n &- 2] = .fixnum(Int64(self.registers.ip))
@@ -1106,6 +1119,13 @@ public final class VirtualMachine: TrackedObject {
         case .branchIfNot(let offset):
           if self.pop().isFalse {
             self.registers.ip = self.registers.ip &+ offset &- 1
+          }
+        case .keepOrBranchIfNot(let offset):
+          let top = self.pop()
+          if top.isFalse {
+            self.registers.ip = self.registers.ip &+ offset &- 1
+          } else {
+            self.push(top)
           }
         case .branchIfArgMismatch(let n, let offset):
           if self.sp &- n != self.registers.fp {

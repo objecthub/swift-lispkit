@@ -92,9 +92,13 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("current-jiffy", currentJiffy))
     self.define(Procedure("jiffies-per-second", jiffiesPerSecond))
     self.define(Procedure("_trigger-exit", triggerExit))
+    self.define(Procedure("_report-error", reportError))
     self.define("exit", via: "(define exit 0)")
     self.execute("(call-with-current-continuation " +
                  "  (lambda (cont) (set! exit (lambda args (_trigger-exit cont args)))))")
+    self.define("error", via: "(define error 0)")
+    self.execute("(call-with-current-continuation " +
+                 "  (lambda (cont) (set! error (lambda args (_report-error cont args)))))")
   }
   
   private func filePath(expr: Expr, base: Expr?) throws -> Expr {
@@ -341,7 +345,7 @@ public final class SystemLibrary: NativeLibrary {
   
   private func triggerExit(args: Arguments) throws -> (Procedure, [Expr]) {
     guard args.count == 2 else {
-      throw EvalError.argumentCountError(formals: 1, args: .makeList(args))
+      throw EvalError.argumentCountError(formals: 2, args: .makeList(args))
     }
     let exit = try args.first!.asProcedure()
     let obj: Expr
@@ -354,6 +358,23 @@ public final class SystemLibrary: NativeLibrary {
         throw EvalError.argumentCountError(formals: 1, args: args[args.startIndex + 1])
     }
     self.context.machine.exitTriggered = true
+    return (exit, [obj])
+  }
+  
+  private func reportError(args: Arguments) throws -> (Procedure, [Expr]) {
+    guard args.count == 2 else {
+      throw EvalError.argumentCountError(formals: 2, args: .makeList(args))
+    }
+    let exit = try args.first!.asProcedure()
+    let obj: Expr
+    switch args[args.startIndex + 1] {
+      case .pair(let message, let rest):
+        obj = .error(AnyError(CustomError(kind: "custom error",
+                                          message: message.unescapedDescription,
+                                          irritants: rest.toExprs().0)))
+      default:
+        throw EvalError.leastArgumentCountError(formals: 1, args: args[args.startIndex + 1])
+    }
     return (exit, [obj])
   }
   

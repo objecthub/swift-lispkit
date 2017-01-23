@@ -104,6 +104,9 @@ public enum Instruction: CustomStringConvertible {
   /// **`make_frame`**: Pushes a new stack frame onto the stack.
   case makeFrame
   
+  /// **`inject_frame` _i_**: Creates a new stack frame on the stack below the top value.
+  case injectFrame
+  
   /// **`call` _n_**: Calls a procedure with _n_ arguments.
   case call(Int)
   
@@ -242,9 +245,15 @@ public enum Instruction: CustomStringConvertible {
   case branchIf(Int)
   
   /// **`branch_if_not` _i_**: _i_ is an offset relative to the current instruction
-  /// pointer. `branch_if` jumps to the instruction to which _i_ refers to if the value
+  /// pointer. `branch_if_not` jumps to the instruction to which _i_ refers to if the value
   /// on the stack is `#false`.
   case branchIfNot(Int)
+  
+  /// **`keep_or_branch_if_not` _i_**: _i_ is an offset relative to the current instruction
+  /// pointer. `keep_or_branch_if_not` jumps to the instruction to which _i_ refers to if
+  /// the value on the stack is `#false`. If the value is not `#false`, the value will remain
+  /// on the stack.
+  case keepOrBranchIfNot(Int)
   
   /// **`branch_if_arg_mismatch` _n_,_i_**: _i_ is an offset relative to the current instruction
   /// pointer. `branch_if_arg_mismatch` jumps to the instruction to which _i_ refers to if
@@ -433,6 +442,8 @@ public enum Instruction: CustomStringConvertible {
         return "jump to \(ip + offset - 1)"
       case .branchIfNot(let offset):
         return "jump to \(ip + offset - 1)"
+      case .keepOrBranchIfNot(let offset):
+        return "jump to \(ip + offset - 1)"
       case .branchIfArgMismatch(_, let offset):
         return "jump to \(ip + offset - 1)"
       case .branchIfMinArgMismatch(_, let offset):
@@ -521,6 +532,8 @@ public enum Instruction: CustomStringConvertible {
         return "apply \(n)"
       case .makeFrame:
         return "make_frame"
+      case .injectFrame:
+        return "inject_frame"
       case .call(let n):
         return "call \(n)"
       case .tailCall(let n):
@@ -545,6 +558,8 @@ public enum Instruction: CustomStringConvertible {
         return "branch_if \(offset)"
       case .branchIfNot(let offset):
         return "branch_if_not \(offset)"
+      case .keepOrBranchIfNot(let offset):
+        return "keep_or_branch_if_not \(offset)"
       case .branchIfArgMismatch(let n, let offset):
         return "branch_if_arg_mismatch \(n), \(offset)"
       case .branchIfMinArgMismatch(let n, let offset):

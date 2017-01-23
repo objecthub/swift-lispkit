@@ -216,7 +216,7 @@ public final class MathLibrary: NativeLibrary {
   func isPositive(_ expr: Expr) throws -> Expr {
     switch expr {
       case .fixnum(let num):
-        return .makeBoolean(num >= 0)
+        return .makeBoolean(num > 0)
       case .bignum(let num):
         return .makeBoolean(!num.isNegative)
       case .rational(let num):
@@ -224,9 +224,9 @@ public final class MathLibrary: NativeLibrary {
       case .bigrat(let num):
         return .makeBoolean(!num.value.isNegative)
       case .flonum(let num):
-        return .makeBoolean(!(num.sign == .minus))
+        return .makeBoolean(num > 0.0)
       case .complex(let num):
-        return num.value.isReal ? .makeBoolean(num.value.re >= 0) : .false
+        return num.value.isReal ? .makeBoolean(num.value.re > 0) : .false
       default:
         throw EvalError.typeError(expr, [.numberType])
     }
@@ -243,7 +243,7 @@ public final class MathLibrary: NativeLibrary {
       case .bigrat(let num):
         return .makeBoolean(num.value.isNegative)
       case .flonum(let num):
-        return .makeBoolean(num.sign == .minus)
+        return .makeBoolean(num < 0.0)
       case .complex(let num):
         return num.value.isReal ? .makeBoolean(num.value.re < 0) : .false
       default:

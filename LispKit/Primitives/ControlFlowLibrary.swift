@@ -284,14 +284,26 @@ func compileCond(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws 
       case .pair(let test, .null):
         try compiler.compile(test, in: env, inTailPos: false)
         exitOrJumps.append(compiler.emitPlaceholder())
-      case .pair(let test, .pair(.symbol(let sym), .pair(let res, .null)))
+      case .pair(let test, .pair(.symbol(let sym), .pair(let proc, .null)))
           where sym === compiler.context.symbols.doubleArrow:
+        // Compile condition
         try compiler.compile(test, in: env, inTailPos: false)
+        // Jump if it's false or inject stack frame
         let escapeIp = compiler.emitPlaceholder()
-        if !(try compiler.compile(res, in: env, inTailPos: tail)) {
+        // Inject stack frame
+        let pushFrameIp = compiler.emit(.injectFrame)
+        // Compile procedure
+        try compiler.compile(proc, in: env, inTailPos: false)
+        // Swap procedure with argument (= condition)
+        compiler.emit(.swap)
+        // Call procedure
+        if compiler.call(1, inTailPos: tail) {
+          // Remove InjectFrame if this was a tail call
+          compiler.patch(.noOp, at: pushFrameIp)
+        } else {
           exitJumps.append(compiler.emitPlaceholder())
         }
-        compiler.patch(.branchIfNot(compiler.offsetToNext(escapeIp)), at: escapeIp)
+        compiler.patch(.keepOrBranchIfNot(compiler.offsetToNext(escapeIp)), at: escapeIp)
       case .pair(let test, let exprs):
         try compiler.compile(test, in: env, inTailPos: false)
         let escapeIp = compiler.emitPlaceholder()
