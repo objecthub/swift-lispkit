@@ -18,9 +18,18 @@
 //  limitations under the License.
 //
 
-import Foundation
+import Cocoa
 
 public final class DynamicControlLibrary: NativeLibrary {
+  
+  private var raiseProcLoc: Int? = nil
+  public var raiseProc: Procedure? {
+    if let loc = self.raiseProcLoc {
+      return self.procedure(loc)
+    } else {
+      return nil
+    }
+  }
   
   /// Name of the library.
   public override class var name: [String] {
@@ -29,9 +38,9 @@ public final class DynamicControlLibrary: NativeLibrary {
   
   /// Dependencies of the library.
   public override func dependencies() {
-    self.`import`(from: ["lispkit", "base"], "define", "define-syntax", "syntax-rules",
-                                             "lambda", "eqv?")
-    self.`import`(from: ["lispkit", "control"], "if", "let", "let*", "do")
+    self.`import`(from: ["lispkit", "base"], "define", "set!", "define-syntax", "syntax-rules",
+                                             "lambda", "eqv?", "void", "or")
+    self.`import`(from: ["lispkit", "control"], "if", "let", "let*", "do", "begin")
     self.`import`(from: ["lispkit", "box"], "box")
     self.`import`(from: ["lispkit", "list"], "car", "cdr", "list", "null?")
     self.`import`(from: ["lispkit", "hashtable"], "hashtable-add!")
@@ -44,6 +53,7 @@ public final class DynamicControlLibrary: NativeLibrary {
     self.define(Procedure("_call-with-unprotected-continuation", callWithUnprotectedContinuation))
     self.define(Procedure("_wind-down", windDown))
     self.define(Procedure("_wind-up", windUp))
+    self.define(Procedure("_wind-up-raise", windUpRaise))
     self.define(Procedure("_dynamic-wind-base", dynamicWindBase))
     self.define(Procedure("_dynamic-wind-current", dynamicWindCurrent))
     self.define(Procedure("_dynamic-winders", dynamicWinders))
@@ -64,6 +74,72 @@ public final class DynamicControlLibrary: NativeLibrary {
       "  (before)",
       "  (_wind-up before after)",
       "  (let ((res (during))) ((cdr (_wind-down))) res))")
+    
+    // Errors
+    self.define(Procedure("make-error", makeError))
+    self.define(Procedure("error-object-message", errorObjectMessage))
+    self.define(Procedure("error-object-irritants", errorObjectIrritants))
+    self.define(Procedure("error-object?", isErrorObject))
+    self.define(Procedure("read-error?", isReadError))
+    self.define(Procedure("file-error?", isFileError))
+    
+    // Exceptions
+    self.define("return", via: "(define return 0)")
+    self.execute("(call-with-current-continuation (lambda (cont) (set! return cont)))")
+    self.define("with-exception-handler", via:
+      "(define (with-exception-handler handler thunk)",
+      "  (_wind-up void void handler)",
+      "  (let ((res (thunk))) (_wind-down) res))")
+    self.raiseProcLoc = self.define("raise", via:
+      "(define (raise obj)",
+      "  ((or (_wind-up-raise void void) return) obj)",
+      "  (raise (make-error \"exception handler returned\" obj)))")
+    self.define("raise-continuable", via:
+      "(define (raise-continuable obj)",
+      "  (let ((res ((_wind-up-raise void void) obj))) (_wind-down) res))")
+    self.define("guard-aux", export: false, via:
+      "(define-syntax guard-aux",
+      "  (syntax-rules (else =>)",
+      "    ((guard-aux reraise (else result1 result2 ...))",
+      "      (begin result1 result2 ...))",
+      "    ((guard-aux reraise (test => result))",
+      "      (let ((temp test)) (if temp (result temp) reraise)))",
+      "    ((guard-aux reraise (test => result) clause1 clause2 ...)",
+      "      (let ((temp test)) (if temp (result temp) (guard-aux reraise clause1 clause2 ...))))",
+      "    ((guard-aux reraise (test))",
+      "      test)",
+      "    ((guard-aux reraise (test) clause1 clause2 ...)",
+      "      (let ((temp test)) (if temp temp (guard-aux reraise clause1 clause2 ...))))",
+      "    ((guard-aux reraise (test result1 result2 ...))",
+      "      (if test (begin result1 result2 ...) reraise))",
+      "    ((guard-aux reraise (test result1 result2 ...) clause1 clause2 ...)",
+      "      (if test (begin result1 result2 ...) (guard-aux reraise clause1 clause2 ...)))))")
+    self.define("guard", via:
+      "(define-syntax guard",
+      "  (syntax-rules ()",
+      "    ((guard (var clause ...) e1 e2 ...)",
+      "      ((call-with-current-continuation",
+      "        (lambda (guard-k)",
+      "          (with-exception-handler",
+      "            (lambda (condition)",
+      "              ((call-with-current-continuation",
+      "                (lambda (handler-k)",
+      "                  (guard-k",
+      "                    (lambda ()",
+      "                      (let ((var condition))",
+      "                        (guard-aux",
+      "                          (handler-k (lambda () (raise-continuable condition)))",
+      "                          clause ...))))))))",
+      "            (lambda ()",
+      "              (let ((res (begin e1 e2 ...)))",
+      "                (guard-k (lambda () res)))))))))))")
+    self.define("error", via:
+      "(define (error message . irritants) (raise (make-error message irritants)))")
+    self.define(Procedure("_trigger-exit", triggerExit))
+    self.define("exit", via: "(define exit 0)")
+    self.execute("(call-with-current-continuation " +
+      "  (lambda (cont) (set! exit (lambda args (_trigger-exit cont args)))))")
+    self.define(Procedure("emergency-exit", emergencyExit))
     
     // Parameters
     self.define(Procedure("dynamic-environment", dynamicEnvironment))
@@ -123,9 +199,27 @@ public final class DynamicControlLibrary: NativeLibrary {
     return (proc, [.procedure(cont)])
   }
   
-  func windUp(_ before: Expr, after: Expr) throws -> Expr {
-    self.context.machine.windUp(before: try before.asProcedure(), after: try after.asProcedure())
+  func windUp(_ before: Expr, after: Expr, handler: Expr?) throws -> Expr {
+    var handlers: Expr? = nil
+    if let handler = handler {
+      handlers = .pair(handler, self.context.machine.currentHandlers() ?? .null)
+    }
+    self.context.machine.windUp(before: try before.asProcedure(),
+                                after: try after.asProcedure(),
+                                handlers: handlers)
     return .void
+  }
+  
+  func windUpRaise(_ before: Expr, after: Expr) throws -> Expr {
+    switch self.context.machine.currentHandlers() {
+      case .some(.pair(let handler, let rest)):
+        self.context.machine.windUp(before: try before.asProcedure(),
+                                    after: try after.asProcedure(),
+                                    handlers: rest)
+        return handler
+      default:
+        return .false
+    }
   }
   
   func windDown() -> Expr {
@@ -159,6 +253,59 @@ public final class DynamicControlLibrary: NativeLibrary {
       next = winder.next
     }
     return res
+  }
+  
+  private func makeError(message: Expr, irritants: Expr) -> Expr {
+    return .error(AnyError(CustomError(kind: "custom error",
+                                       message: message.unescapedDescription,
+                                       irritants: irritants.toExprs().0)))
+  }
+  
+  private func errorObjectMessage(expr: Expr) throws -> Expr {
+    return .undef
+  }
+  
+  private func errorObjectIrritants(expr: Expr) throws -> Expr {
+    return .undef
+  }
+  
+  private func isErrorObject(expr: Expr) -> Expr {
+    return .false
+  }
+
+  private func isReadError(expr: Expr) -> Expr {
+    return .false
+  }
+
+  private func isFileError(expr: Expr) -> Expr {
+    return .false
+  }
+    
+  private func triggerExit(args: Arguments) throws -> (Procedure, [Expr]) {
+    guard args.count == 2 else {
+      throw EvalError.argumentCountError(formals: 2, args: .makeList(args))
+    }
+    let exit = try args.first!.asProcedure()
+    let obj: Expr
+    switch args[args.startIndex + 1] {
+      case .null:
+        obj = .true
+      case .pair(let expr, .null):
+        obj = expr
+      default:
+        throw EvalError.argumentCountError(formals: 1, args: args[args.startIndex + 1])
+    }
+    self.context.machine.exitTriggered = true
+    return (exit, [obj])
+  }
+  
+  private func emergencyExit(expr: Expr?) -> Expr {
+    if self.context.delegate != nil {
+      self.context.delegate!.emergencyExit(obj: expr)
+    } else {
+      NSApplication.shared().terminate(self)
+    }
+    return .undef
   }
   
   func makeParameter(_ value: Expr, setter: Expr?) -> Expr {

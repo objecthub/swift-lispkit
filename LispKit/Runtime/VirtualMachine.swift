@@ -98,11 +98,13 @@ public final class VirtualMachine: TrackedObject {
   internal final class Winder: Reference {
     let before: Procedure
     let after: Procedure
+    let handlers: Expr?
     let next: Winder?
     
-    init(before: Procedure, after: Procedure, next: Winder?) {
+    init(before: Procedure, after: Procedure, handlers: Expr?, next: Winder?) {
       self.before = before
       self.after = after
+      self.handlers = handlers
       self.next = next
     }
     
@@ -122,7 +124,7 @@ public final class VirtualMachine: TrackedObject {
     
     func commonPrefix(_ with: Winder?) -> Winder? {
       guard with != nil else {
-        return self
+        return nil
       }
       var this: Winder? = self
       var that: Winder? = with!
@@ -155,7 +157,7 @@ public final class VirtualMachine: TrackedObject {
   private static var nextRid: Int = 0
   
   /// The context of this virtual machine
-  private let context: Context
+  private unowned let context: Context
   
   /// The stack used by this virtual machine
   private var stack: Exprs
@@ -186,8 +188,8 @@ public final class VirtualMachine: TrackedObject {
   /// Internal counter used for triggering the garbage collector.
   private var execInstr: UInt64
   
-  /// Constant representing an empty capture set.
-  private static let noCaptures = [Expr]()
+  /// Error handler procedure.
+  public var raiseProc: Procedure? = nil
   
   /// When set to true, it will trigger an abortion of the machine evaluator as soon as possible.
   private var abortionRequested: Bool = false
@@ -232,31 +234,49 @@ public final class VirtualMachine: TrackedObject {
   }
   
   /// Executes an evaluation function at the top-level.
-  public func onTopLevelProtect(_ eval: () throws -> Expr) -> Expr {
+  public func onTopLevelDo(_ eval: () throws -> Expr) -> Expr {
+    // Prepare for the evaluation
     self.assertTopLevel()
     self.exitTriggered = false
+    // Reset machine once evaluation finished
     defer {
+      for i in 0..<self.sp {
+        self.stack[i] = .undef
+      }
       self.sp = 0
+      self.winders = nil
       self.abortionRequested = false
     }
+    // Perform evaluation
+    var exception: AnyError? = nil
     do {
       return try eval()
     } catch let error as LispError { // handle Lisp-related issues
-      return .error(AnyError(error))
+      exception = AnyError(error)
     } catch let error as NSError { // handle OS-related issues
-      return .error(AnyError(OsError(error)))
+      exception = AnyError(OsError(error))
     }
-  }
-  
-  /// Executes an evaluation function at the top-level.
-  public func onTopLevelDo(_ eval: () throws -> Expr) throws -> Expr {
-    self.assertTopLevel()
-    self.exitTriggered = false
-    defer {
-      self.sp = 0
-      self.abortionRequested = false
+    // Abortions ignore dynamic environments
+    guard !self.abortionRequested else {
+      return .error(exception!)
     }
-    return try eval()
+    // Return thrown exception if there is no `raise` procedure. In such a case, there is no
+    // unwind of the dynamic environment.
+    guard let raiseProc = self.raiseProc else {
+      return .error(exception!)
+    }
+    // Raise thrown exceptions
+    while let obj = exception {
+      do {
+        return try self.apply(.procedure(raiseProc), to: .pair(.error(obj), .null))
+      } catch let error as LispError { // handle Lisp-related issues
+        exception = AnyError(error)
+      } catch let error as NSError { // handle OS-related issues
+        exception = AnyError(OsError(error))
+      }
+    }
+    // Never happens
+    return .void
   }
   
   /// Loads the file at file patch `path`, compiles it in the interaction environment, and
@@ -424,8 +444,8 @@ public final class VirtualMachine: TrackedObject {
     return captures
   }
   
-  internal func windUp(before: Procedure, after: Procedure) {
-    self.winders = Winder(before: before, after: after, next: self.winders)
+  internal func windUp(before: Procedure, after: Procedure, handlers: Expr? = nil) {
+    self.winders = Winder(before: before, after: after, handlers: handlers , next: self.winders)
   }
   
   internal func windDown() -> Winder? {
@@ -434,6 +454,14 @@ public final class VirtualMachine: TrackedObject {
     }
     self.winders = res.next
     return res
+  }
+  
+  internal func currentHandlers() -> Expr? {
+    var winders = self.winders
+    while let w = winders, w.handlers == nil {
+      winders = w.next
+    }
+    return winders?.handlers
   }
   
   internal func getParam(_ param: Procedure) -> Expr? {
@@ -809,7 +837,7 @@ public final class VirtualMachine: TrackedObject {
   
   @inline(__always) private func execute(_ code: Code) throws -> Expr {
     self.push(.procedure(Procedure(code)))
-    return try self.execute(code, args: 0, captured: VirtualMachine.noCaptures)
+    return try self.execute(code, args: 0, captured: noExprs)
   }
   
   @inline(__always) private func execute(_ code: Code, args: Int, captured: [Expr]) throws -> Expr {

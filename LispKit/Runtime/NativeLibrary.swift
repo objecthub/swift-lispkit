@@ -174,27 +174,35 @@ open class NativeLibrary: Library {
   
   /// Declares a new definition for the given procedure `proc` using the internal name of `proc`.
   /// The optional parameter `export` determines whether the definition is exported or internal.
-  public func define(_ proc: Procedure, export: Bool = true) {
-    self.define(proc.name, as: .procedure(proc), export: export)
+  @discardableResult public func define(_ proc: Procedure, export: Bool = true) -> Int {
+    return self.define(proc.name, as: .procedure(proc), export: export)
   }
   
   /// Declares a new definition for the given procedure `proc` and name `name`. The optional
   /// parameter `export` determines whether the definition is exported or internal.
-  public func define(_ name: String, as proc: Procedure, export: Bool = true) {
-    self.define(proc.name, as: .procedure(proc), export: export)
+  @discardableResult public func define(_ name: String,
+                                        as proc: Procedure,
+                                        export: Bool = true) -> Int {
+    return self.define(proc.name, as: .procedure(proc), export: export)
   }
   
   /// Declares a new syntactical definition for the given special form `special` and name
   /// `name`. The optional parameter `export` determines whether the definition is exported
   /// or internal.
-  public func define(_ name: String, as special: SpecialForm, export: Bool = true) {
-    self.define(name, as: .special(special), export: export)
+  @discardableResult public func define(_ name: String,
+                                        as special: SpecialForm,
+                                        export: Bool = true) -> Int {
+    return self.define(name, as: .special(special), export: export)
   }
   
   /// Declares a new exported definition expressed in terms of source code.
-  public func define(_ name: String, via: String...) {
-    self.define(name, export: true)
+  @discardableResult public func define(_ name: String,
+                                        mutable: Bool = false,
+                                        export: Bool = true,
+                                        via: String...) -> Int {
+    let res = self.define(name, as: nil, mutable: mutable, export: export)
     self.execute(code: via.reduce("", +))
+    return res
   }
   
   /// Adds the given expression to the initialization declarations of this library.

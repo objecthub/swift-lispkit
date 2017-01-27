@@ -41,6 +41,12 @@ if let preludePath = Context.defaultPreludePath {
   }
 }
 
+// Install error handler
+if let dynamicLib = context.libraries.lookup("lispkit", "dynamic") as? DynamicControlLibrary,
+   let raiseProc = dynamicLib.raiseProc {
+  context.machine.raiseProc = raiseProc
+}
+
 // Print header
 console.print("\(AppInfo.name) \(AppInfo.version) (\(AppInfo.buildDate) \(AppInfo.buildTime))\n")
 console.print("\(AppInfo.copyright)\n")
@@ -50,7 +56,7 @@ var buffer = ""
 console.print("⟹ ")
 while let line = console.read() {
   buffer += line
-  let res = context.machine.onTopLevelProtect {
+  let res = context.machine.onTopLevelDo {
     return try context.machine.eval(str: buffer, in: context.global)
   }
   // Exit loop if the machine has executed the `exit` function

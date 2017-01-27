@@ -80,6 +80,10 @@ public extension LispError {
     }
     return res
   }
+  
+  public var localizedDescription: String {
+    return self.description
+  }
 }
 
 public func ==(lhs: LispError, rhs: LispError) -> Bool {
