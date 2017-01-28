@@ -26,6 +26,7 @@
 		CC1AAE3C1CC3CF0F00D1806F /* LispKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CCAD52BA1C48403800DBD8EE /* LispKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CC201A6D1DBD72C100045A4D /* LibraryRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC201A6C1DBD72C100045A4D /* LibraryRegistry.swift */; };
 		CC26069C1C61760C0047A3D3 /* Boxes.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC26069B1C61760C0047A3D3 /* Boxes.swift */; };
+		CC2CE1621E3CE8C2005AEC74 /* srfi_28.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC2CE1611E3CE6CF005AEC74 /* srfi_28.sld */; };
 		CC2D124F1DB40E7F009BDC72 /* LibraryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2D124E1DB40E7F009BDC72 /* LibraryManager.swift */; };
 		CC31A6981D3AC223008D7728 /* Hash.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC31A6971D3AC223008D7728 /* Hash.swift */; };
 		CC35FD0D1C6FA4B700C8B992 /* VirtualMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */; };
@@ -190,6 +191,7 @@
 			dstPath = LispKit/Resources/Libraries;
 			dstSubfolderSpec = 7;
 			files = (
+				CC2CE1621E3CE8C2005AEC74 /* srfi_28.sld in Copy pre-installed LispKit libraries */,
 				CC8E2B9C1E335D980080299A /* srfi_41.sld in Copy pre-installed LispKit libraries */,
 				CC4F84881E2C438A0066D842 /* srfi_2.sld in Copy pre-installed LispKit libraries */,
 				CCA752FA1DEF9F640098C34A /* srfi_1.sld in Copy pre-installed LispKit libraries */,
@@ -217,6 +219,7 @@
 		CC131C511CDE840C006C030C /* LocalSyntaxRules.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LocalSyntaxRules.scm; sourceTree = "<group>"; };
 		CC201A6C1DBD72C100045A4D /* LibraryRegistry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryRegistry.swift; sourceTree = "<group>"; };
 		CC26069B1C61760C0047A3D3 /* Boxes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Boxes.swift; sourceTree = "<group>"; };
+		CC2CE1611E3CE6CF005AEC74 /* srfi_28.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = srfi_28.sld; sourceTree = "<group>"; };
 		CC2D124E1DB40E7F009BDC72 /* LibraryManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryManager.swift; sourceTree = "<group>"; };
 		CC31A6971D3AC223008D7728 /* Hash.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Hash.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = VirtualMachine.swift; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -446,6 +449,7 @@
 			children = (
 				CCA752F61DEF9F0D0098C34A /* srfi_1.sld */,
 				CC4F84841E2C3AC60066D842 /* srfi_2.sld */,
+				CC2CE1611E3CE6CF005AEC74 /* srfi_28.sld */,
 				CC8E2B951E2D33770080299A /* srfi_41.sld */,
 				CC8E2B9F1E33613C0080299A /* srfi_41 */,
 			);
