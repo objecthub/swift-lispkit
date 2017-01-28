@@ -26,28 +26,14 @@
 
 (define-syntax unless
   (syntax-rules ()
-    ((_ pred body ...)
+    ((unless pred body ...)
        (if (not pred) (begin body ...)))))
 
 (define-syntax when
   (syntax-rules ()
-    ((_ pred body ...)
+    ((when pred body ...)
        (if pred (begin body ...)))))
 
-;;; create binding for error
-(define my-error #f)
-
-;;; capture toplevel continuation
-;;;  assign a function to error, allowing a variable number of arguments to
-;;;  be passed
-(call-with-current-continuation
-  (lambda (k)
-    (set! my-error
-      (lambda error-arguments
-        (display ">>>> ERROR ")
-        (newline)
-        (k error-arguments)))
-    'done))
 
 ;;; Scratch (for testing)
 

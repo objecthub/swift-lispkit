@@ -31,6 +31,9 @@ open class BinaryInput: IteratorProtocol {
   /// Buffer for fetching bigger chunks of data at once.
   private var buffer: [UInt8]
   
+  /// Size of the buffer; invariant `bufferSize` <= `buffer.count`
+  private var bufferSize: Int = 0
+  
   /// Index into buffer pointing at the next byte to read.
   private var index: Int = 0
   
@@ -51,6 +54,7 @@ open class BinaryInput: IteratorProtocol {
   /// Initializes a binary input from a byte array
   public init(data: [UInt8]) {
     self.buffer = data
+    self.bufferSize = data.count
     self.input = nil
     self.url = nil
   }
@@ -82,13 +86,16 @@ open class BinaryInput: IteratorProtocol {
     input.open()
     // Read data into the buffer
     if input.hasBytesAvailable {
-      let result = input.read(&self.buffer, maxLength: self.buffer.count * MemoryLayout<UInt8>.size)
+      let result = input.read(&self.buffer,
+                              maxLength: self.buffer.count * MemoryLayout<UInt8>.size)
       if result < 0 {
         self.input = nil
         input.close()
         return nil
       } else if result == 0 {
         self.eof = true
+      } else {
+        self.bufferSize = result
       }
     } else {
       self.eof = true
@@ -136,16 +143,17 @@ open class BinaryInput: IteratorProtocol {
   /// Reads up to `n` bytes into a new byte array. Returns nil if all input is consumed or an
   /// error was encountered. Clients can disambiguate the current state by checking property `eof`.
   open func readMany(_ n: Int) -> [UInt8]? {
-    guard self.readable() else {
-      return nil
+    assert(n >= 0, "BinaryInput.readMany called with negative count")
+    guard n > 0 else {
+      return [UInt8]()
     }
     var res = [UInt8]()
     for _ in 0..<n {
+      guard self.readable() else {
+        return (res.count == 0 || !self.eof) ? nil : res
+      }
       res.append(self.buffer[self.index])
       self.index += 1
-      guard self.readable() else {
-        return self.eof ? res : nil
-      }
     }
     return res
   }
@@ -154,19 +162,16 @@ open class BinaryInput: IteratorProtocol {
   /// all input is consumed or an error was encountered. Clients can disambiguate the current
   /// state by checking property `eof`.
   open func readInto(_ target: inout [UInt8], start: Int = 0, end: Int = Int.max) -> Int? {
-    guard self.readable() else {
-      return nil
-    }
     guard start < target.count && start < end else {
       return 0
     }
     let to = end > target.count ? target.count : end
     for i in start..<to {
+      guard self.readable() else {
+        return (i == start || !self.eof) ? nil : (i - start + 1)
+      }
       target[i] = self.buffer[self.index]
       self.index += 1
-      guard self.readable() else {
-        return self.eof ? i - start + 1 : nil
-      }
     }
     return to - start
   }
@@ -174,7 +179,7 @@ open class BinaryInput: IteratorProtocol {
   open var readMightBlock: Bool {
     if self.eof {
       return false
-    } else if self.index >= self.buffer.count {
+    } else if self.index >= self.bufferSize {
       return self.input?.hasBytesAvailable ?? false
     } else {
       return false
@@ -186,12 +191,14 @@ open class BinaryInput: IteratorProtocol {
   private func readable() -> Bool {
     if self.eof {
       return false
-    } else if self.index >= self.buffer.count {
-      if let input = self.input , input.hasBytesAvailable {
-        let result = input.read(&self.buffer, maxLength: self.buffer.count * MemoryLayout<UInt8>.size)
+    } else if self.index >= self.bufferSize {
+      if let input = self.input, input.hasBytesAvailable {
+        let result = input.read(&self.buffer,
+                                maxLength: self.buffer.count * MemoryLayout<UInt8>.size)
         guard result >= 0 else {
           return false
         }
+        self.bufferSize = result
         self.index = 0
         if result == 0 {
           self.eof = true

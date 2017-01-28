@@ -89,16 +89,17 @@ open class TextInput {
   }
   
   open func readString(_ n: Int) -> String? {
-    guard self.readable() else {
-      return nil
+    assert(n >= 0, "TextInput.readString called with negative count")
+    guard n > 0 else {
+      return ""
     }
     var res: [UniChar] = []
     for _ in 0..<n {
+      guard self.readable() else {
+        return (res.count == 0 || !self.eof) ? nil : String(utf16CodeUnits: res, count: res.count)
+      }
       res.append(self.buffer[self.next])
       self.next = self.buffer.index(after: self.next)
-      guard self.readable() else {
-        return self.eof ? String(utf16CodeUnits: res, count: res.count) : nil
-      }
     }
     return String(utf16CodeUnits: res, count: res.count)
   }
