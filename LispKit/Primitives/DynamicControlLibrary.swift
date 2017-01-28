@@ -262,15 +262,30 @@ public final class DynamicControlLibrary: NativeLibrary {
   }
   
   private func errorObjectMessage(expr: Expr) throws -> Expr {
-    return .undef
+    switch expr {
+      case .error(let err):
+        return .makeString(err.message)
+      default:
+        throw EvalError.typeError(expr, [.errorType])
+    }
   }
   
   private func errorObjectIrritants(expr: Expr) throws -> Expr {
-    return .undef
+    switch expr {
+      case .error(let err):
+        return .makeList(err.irritants)
+      default:
+        throw EvalError.typeError(expr, [.errorType])
+    }
   }
   
   private func isErrorObject(expr: Expr) -> Expr {
-    return .false
+    switch expr {
+      case .error(_):
+        return .true
+      default:
+        return .false
+    }
   }
 
   private func isReadError(expr: Expr) -> Expr {

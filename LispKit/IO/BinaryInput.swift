@@ -66,6 +66,10 @@ open class BinaryInput: IteratorProtocol {
   /// Initializes a binary input from a binary file at the given URL. `capacity` determines
   /// the number of bytes used for caching data.
   public init?(url: URL, capacity: Int = 4096) {
+    // Check if the file at the given URL exists
+    guard (try? url.checkResourceIsReachable()) ?? false else {
+      return nil
+    }
     // Create a new input stream
     guard let input = InputStream(url: url) else {
       return nil

@@ -77,7 +77,7 @@ open class LispKitTestCase: XCTestCase {
   }
   
   public func eval(_ string: String) -> Expr {
-    return self.context!.machine.onTopLevelProtect {
+    return self.context!.machine.onTopLevelDo {
       return try self.context!.machine.eval(str: string, in: context!.global)
     }
   }
@@ -135,7 +135,7 @@ open class LispKitTestCase: XCTestCase {
       print("-----------------------")
       print("source: \(test.source)")
       print("target: \(test.target)")
-      let res = self.context!.machine.onTopLevelProtect {
+      let res = self.context!.machine.onTopLevelDo {
         return try self.context!.machine.eval(exprs: test.source, in: context!.global)
       }
       print("result: \(res)")

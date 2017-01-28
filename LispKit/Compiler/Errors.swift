@@ -18,43 +18,25 @@
 //  limitations under the License.
 //
 
+import Foundation
 
-open class AnyError: LispError, CustomStringConvertible {
-  public var error: LispError
-  
-  public init(_ error: LispError) {
-    self.error = error
-  }
-  
-  open var type: LispErrorType {
-    return error.type
-  }
-  
-  open var kind: String {
-    return error.kind
-  }
-  
-  open var message: String {
-    return error.message
-  }
-  
-  open var irritants: Exprs {
-    return error.irritants
-  }
-  
-  open func equals(_ other: LispError) -> Bool {
-    return error.equals(other)
-  }
-}
 
+///
+/// Definition of the LispKit error protocol. A `LispError` object provides the following
+/// components:
+///    - An error type: Every implementation of `LispError` implements errors of a certain type.
+///    - An error message: A string representation of the error.
+///    - The error irritants: These are LispKit expressions which are associated with the error.
+///      The error message might refer to the irritants.
+///
 public protocol LispError: Error, CustomStringConvertible {
   var type: LispErrorType { get }
-  var kind: String { get }
   var message: String { get }
   var irritants: Exprs { get }
   func equals(_ other: LispError) -> Bool
 }
 
+/// This extension defines a few default implementations for `LispError` implementations.
 public extension LispError {
   
   public var hashValue: Int {
@@ -63,12 +45,11 @@ public extension LispError {
       res = res &* 31 &+ irritant.hashValue
     }
     res = res &* 31 &+ self.message.hashValue
-    res = res &* 31 &+ self.kind.hashValue
     return res &* 31 &+ self.type.hashValue
   }
   
   public var description: String {
-    var res = "\(self.kind) | \(self.message)"
+    var res = "\(self.type) | \(self.message)"
     if self.irritants.count > 0 {
       res += ": "
       var sep = ""
@@ -80,23 +61,41 @@ public extension LispError {
     }
     return res
   }
-  
-  public var localizedDescription: String {
-    return self.description
-  }
 }
 
 public func ==(lhs: LispError, rhs: LispError) -> Bool {
   return lhs.equals(rhs)
 }
 
-public enum LispErrorType: Int, Hashable, CustomStringConvertible {
+
+///
+/// Every `LispError` implementation has a unique type associated. This enumeration lists
+/// all available types.
+///
+public enum LispErrorType: Hashable, CustomStringConvertible {
   case lexicalError
   case syntaxError
   case evalError
   case osError
   case abortionError
-  case customError
+  case customError(kind: String)
+  
+  public var hashValue: Int {
+    switch self {
+      case .lexicalError:
+        return 0
+      case .syntaxError:
+        return 1
+      case .evalError:
+        return 2
+      case .osError:
+        return 3
+      case .abortionError:
+        return 4
+      case .customError(let kind):
+        return (kind.hashValue &* 31) &+ 5
+    }
+  }
   
   public var description: String {
     switch self {
@@ -110,16 +109,72 @@ public enum LispErrorType: Int, Hashable, CustomStringConvertible {
         return "os error"
       case .abortionError:
         return "abortion"
-      case .customError:
-        return "custom error"
+      case .customError(let kind):
+        return kind
     }
   }
 }
 
+public func ==(lhs: LispErrorType, rhs: LispErrorType) -> Bool {
+  switch (lhs, rhs) {
+    case (.lexicalError, .lexicalError),
+         (.syntaxError, .syntaxError),
+         (.evalError, .evalError),
+         (.osError, .osError),
+         (.abortionError, .abortionError):
+      return true
+    case (.customError(let lkind), .customError(let rkind)):
+      return lkind == rkind
+    default:
+      return false
+  }
+}
 
+
+///
+/// Class `AnyError` wraps `LispError` implementations. The main motivation for using this class
+/// is related to the high cost of storing references to protocols (especially in the definition
+/// of the `Expr` enumeration). Another reason is that Swift 3 does not allow protocols to
+/// implement Hashable (which, in practice, needs to be attached to a class, struct or enum).
+///
+public final class AnyError: LispError, Hashable, CustomStringConvertible {
+  public var error: LispError
+  
+  public init(_ error: LispError) {
+    self.error = error
+  }
+  
+  public var type: LispErrorType {
+    return error.type
+  }
+  
+  public var message: String {
+    return error.message
+  }
+  
+  public var irritants: Exprs {
+    return error.irritants
+  }
+  
+  public func equals(_ other: LispError) -> Bool {
+    if let that = other as? AnyError {
+      return self.error.equals(that.error)
+    } else {
+      return false
+    }
+  }
+}
+
+public func ==(lhs: AnyError, rhs: AnyError) -> Bool {
+  return lhs.equals(rhs)
+}
+
+
+///
 /// Enumeration `LexicalError` represents lexical parsing errors emitted by the
 /// scanner.
-public enum LexicalError: Int, LispError {
+///
+public enum LexicalError: Int, LispError, Hashable {
   case empty
   case malformedIdentifier
   case brokenIdentifierEncoding
@@ -139,8 +194,8 @@ public enum LexicalError: Int, LispError {
   case divisionByZero
   case exactComplexNumbersUnsupported
   
-  public var kind: String {
-    return "lexical error"
+  public var type: LispErrorType {
+    return .lexicalError
   }
   
   public var message: String {
@@ -188,10 +243,6 @@ public enum LexicalError: Int, LispError {
     return noExprs
   }
   
-  public var type: LispErrorType {
-    return .lexicalError
-  }
-  
   public func equals(_ error: LispError) -> Bool {
     if let other = error as? LexicalError {
       return self.rawValue == other.rawValue
@@ -200,7 +251,11 @@ public enum LexicalError: Int, LispError {
   }
 }
 
-public enum SyntaxError: Int, LispError {
+
+///
+/// Enumeration `SyntaxError` represents syntactical errors emitted by the parser.
+///
+public enum SyntaxError: Int, LispError, Hashable {
   case empty
   case closingParenthesisMissing
   case unexpectedClosingParenthesis
@@ -208,8 +263,8 @@ public enum SyntaxError: Int, LispError {
   case notAByteValue
   case syntaxNotYetSupported
   
-  public var kind: String {
-    return "syntax error"
+  public var type: LispErrorType {
+    return .syntaxError
   }
   
   public var message: String {
@@ -233,10 +288,6 @@ public enum SyntaxError: Int, LispError {
     return noExprs
   }
   
-  public var type: LispErrorType {
-    return .syntaxError
-  }
-  
   public func equals(_ error: LispError) -> Bool {
     if let other = error as? SyntaxError {
       return self.rawValue == other.rawValue
@@ -245,7 +296,12 @@ public enum SyntaxError: Int, LispError {
   }
 }
 
-public enum EvalError: LispError {
+
+///
+/// Enumeration `EvalError` represents errors occuring during the evaluation or compilation
+/// of LispKit expressions.
+///
+public enum EvalError: LispError, Hashable {
   case illegalKeywordUsage(Expr)
   case illegalFormalParameter(Expr)
   case illegalFormalRestParameter(Expr)
@@ -295,8 +351,8 @@ public enum EvalError: LispError {
   case unknownFile(String)
   case unknownDirectory(String)
   
-  public var kind: String {
-    return LispErrorType.evalError.description
+  public var type: LispErrorType {
+    return .evalError
   }
   
   public var message: String {
@@ -435,10 +491,6 @@ public enum EvalError: LispError {
     return noExprs
   }
   
-  public var type: LispErrorType {
-    return .evalError
-  }
-  
   public func equals(_ error: LispError) -> Bool {
     if let other = error as? EvalError {
       switch (self, other) {
@@ -561,31 +613,36 @@ public enum EvalError: LispError {
   }
 }
 
-open class OsError: LispError {
+public func ==(lhs: EvalError, rhs: EvalError) -> Bool {
+  return lhs.equals(rhs)
+}
+
+
+///
+/// Class `OsError` wraps system-level errors (represented as `NSError`) and maps them to
+/// the LispKit error protocol.
+///
+public final class OsError: LispError, Hashable {
   let nsError: NSError
   
   public init(_ nsError: NSError) {
     self.nsError = nsError
   }
   
-  open var kind: String {
-    return type.description
+  public var type: LispErrorType {
+    return .osError
   }
   
-  open var message: String {
+  public var message: String {
     return "\(self.nsError.localizedFailureReason ?? self.nsError.localizedDescription) " +
            "(\(self.nsError.domain), \(self.nsError.code))"
   }
   
-  open var irritants: Exprs {
+  public var irritants: Exprs {
     return noExprs
   }
   
-  open var type: LispErrorType {
-    return .osError
-  }
-  
-  open func equals(_ error: LispError) -> Bool {
+  public func equals(_ error: LispError) -> Bool {
     guard let other = error as? OsError else {
       return false
     }
@@ -593,11 +650,19 @@ open class OsError: LispError {
   }
 }
 
-public enum AbortionError: LispError {
+public func ==(lhs: OsError, rhs: OsError) -> Bool {
+  return lhs.equals(rhs)
+}
+
+
+///
+/// An abortion error is created by a user to terminate long-running evaluations
+///
+public enum AbortionError: Int, LispError, Hashable {
   case value
   
-  public var kind: String {
-    return self.type.description
+  public var type: LispErrorType {
+    return .abortionError
   }
   
   public var message: String {
@@ -608,22 +673,23 @@ public enum AbortionError: LispError {
     return noExprs
   }
   
-  public var type: LispErrorType {
-    return .abortionError
-  }
-  
   public func equals(_ error: LispError) -> Bool {
     return error.type == .abortionError
   }
 }
 
-public struct CustomError: LispError {
+
+///
+/// Custom errors are created via the LispKit functions `make-error` and (indirectly) `error`.
+/// The semantics of these errors are defined by the programmer.
+///
+public struct CustomError: LispError, Hashable {
   public let kind: String
   public let message: String
   public let irritants: Exprs
   
   public var type: LispErrorType {
-    return .customError
+    return .customError(kind: kind)
   }
   
   public func equals(_ error: LispError) -> Bool {
@@ -635,3 +701,8 @@ public struct CustomError: LispError {
     return false
   }
 }
+
+public func ==(lhs: CustomError, rhs: CustomError) -> Bool {
+  return lhs.equals(rhs)
+}
+

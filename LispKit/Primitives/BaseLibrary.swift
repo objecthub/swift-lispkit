@@ -86,6 +86,7 @@ public final class BaseLibrary: NativeLibrary {
     
     // Helpers
     self.define(Procedure("void", BaseLibrary.voidConst))
+    self.define(Procedure("void?", BaseLibrary.isVoid))
   }
   
   
@@ -649,5 +650,14 @@ public final class BaseLibrary: NativeLibrary {
   
   static func voidConst() -> Expr {
     return .void
+  }
+  
+  static func isVoid(expr: Expr) -> Expr {
+    switch expr {
+      case .void:
+        return .true
+      default:
+        return .false
+    }
   }
 }
