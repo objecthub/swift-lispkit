@@ -1,7 +1,13 @@
 ;;; SRFI 28
-;;; <title>
+;;; Basic format strings
 ;;;
-;;; <description>
+;;; Many Scheme systems provide access to a function called format. This function takes as
+;;; arguments a format string, an ordinary Scheme string containing zero or more escape
+;;; sequences, followed zero or more Scheme values. The procedure processes the format
+;;; string and performs string replacement on the escape sequences according to the rules
+;;; for each code. This SRFI defines a basic version of format which should allow portable
+;;; code to be written using the function without much (if any) effort on the part of
+;;; Scheme implementors.
 ;;;
 ;;; Copyright © 2002 Scott G. Miller. All Rights Reserved.
 ;;;

@@ -85,6 +85,7 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("loaded-libraries", loadedLibraries))
     self.define(Procedure("environment-info", environmentInfo))
     self.define("time", as: SpecialForm(compileTime))
+    self.define(Procedure("seconds-from-gmt", secondsFromGmt))
     self.define(Procedure("current-second", currentSecond))
     self.define(Procedure("current-jiffy", currentJiffy))
     self.define(Procedure("jiffies-per-second", jiffiesPerSecond))
@@ -417,6 +418,10 @@ public final class SystemLibrary: NativeLibrary {
     context.console.print("GLOBAL LOCATIONS\n")
     context.console.print("  allocated locations: \(self.context.heap.locations.count)\n")
     return .void
+  }
+  
+  private func secondsFromGmt() -> Expr {
+    return .fixnum(Int64(NSTimeZone.local.secondsFromGMT()))
   }
   
   private func currentSecond() -> Expr {

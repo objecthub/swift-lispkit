@@ -261,6 +261,18 @@ public final class Procedure: Reference, CustomStringConvertible {
     }
   }
   
+  /// Returns the original name of this procedure if it exists and is known. This method either
+  public var originalName: String? {
+    switch self.kind {
+      case .primitive(let str, _, _):
+        return str
+      case .closure(.some(let str), _, _):
+        return str
+      default:
+        return nil
+    }
+  }
+  
   public func mark(_ tag: UInt8) {
     switch self.kind {
       case .closure(_, let captures, let code):

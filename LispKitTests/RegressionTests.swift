@@ -70,4 +70,8 @@ class RegressionTests: LispKitTestCase {
   func testPorts() {
     self.execute(file: "Ports")
   }
+  
+  func testSRFI19() {
+    self.execute(file: "SRFI19")
+  }
 }

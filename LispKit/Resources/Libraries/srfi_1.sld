@@ -1,6 +1,10 @@
 ;;; SRFI 1
 ;;; List-processing library
 ;;; 
+;;; R5RS Scheme has an impoverished set of list-processing utilities, which is a problem
+;;; for authors of portable code. This SRFI proposes a coherent and comprehensive set of
+;;; list-processing procedures.
+;;;
 ;;; This implementation is incomplete. It leaves out all functionality using mutable pairs,
 ;;; since mutable lists are not supported by LispKit.
 ;;;
