@@ -318,12 +318,12 @@ public final class VirtualMachine: TrackedObject {
   
   /// Parses the given string and returns a list of parsed expressions.
   public func parse(str: String) throws -> Expr {
-      let parser = Parser(symbols: self.context.symbols, src: str)
-      var exprs = Exprs()
-      while !parser.finished {
-          exprs.append(try parser.parse())
-      }
-      return .makeList(exprs)
+    let parser = Parser(symbols: self.context.symbols, src: str)
+    var exprs = Exprs()
+    while !parser.finished {
+      exprs.append(try parser.parse())
+    }
+    return .makeList(exprs)
   }
   
   /// Compiles the given expression `expr` in the environment `env` and executes it using
@@ -889,7 +889,7 @@ public final class VirtualMachine: TrackedObject {
           let value = self.context.heap.locations[index]
           switch value {
             case .undef:
-              throw EvalError.variableNotYetInitialized(nil)
+              throw EvalError.variableUndefined(nil)
             case .uninit(let sym):
               throw EvalError.variableNotYetInitialized(sym)
             case .special(_):

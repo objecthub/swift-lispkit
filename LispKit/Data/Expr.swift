@@ -48,6 +48,7 @@ public enum Expr: Trackable, Hashable {
   case record(Collection)
   case table(HashTable)
   case promise(Promise)
+  indirect case values(Expr)
   case procedure(Procedure)
   case special(SpecialForm)
   case env(Environment)
@@ -104,6 +105,8 @@ public enum Expr: Trackable, Hashable {
         return .tableType
       case .promise(let future):
         return future.kind == Promise.Kind.promise ? .promiseType : .streamType
+      case .values(_):
+        return .valuesType
       case .procedure(_):
         return .procedureType
       case .special(_):
@@ -278,6 +281,8 @@ public enum Expr: Trackable, Hashable {
         map.mark(tag)
       case .promise(let future):
         future.mark(tag)
+      case .values(let list):
+        list.mark(tag)
       case .procedure(let proc):
         proc.mark(tag)
       case .special(let special):
@@ -764,6 +769,17 @@ extension Expr: CustomStringConvertible {
           }
         case .promise(let promise):
           return "#<\(promise.kind) \(promise.identityString)>"
+        case .values(let list):
+          var builder = StringBuilder(prefix: "#<values",
+                                      postfix: ">",
+                                      separator: " ",
+                                      initial: ": ")
+          var expr = list
+          while case .pair(let car, let cdr) = expr {
+            builder.append(stringReprOf(car))
+            expr = cdr
+          }
+          return builder.description
         case .procedure(let proc):
           switch proc.kind {
             case .parameter(let tuple):

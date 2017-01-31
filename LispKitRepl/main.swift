@@ -70,6 +70,13 @@ while let line = console.read() {
             let syntaxError = err.error as? SyntaxError,
             syntaxError == SyntaxError.closingParenthesisMissing {
     continue
+  // For multiple values being returned, print each value on a separate line
+  } else if case .values(let expr) = res {
+    var next = expr
+    while case .pair(let x, let rest) = next {
+      console.print("\(x.description)\n")
+      next = rest
+    }
   // For non-void results, print result
   } else if res != .void {
     console.print("\(res.description)\n")

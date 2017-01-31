@@ -46,6 +46,7 @@ public enum Type: Int, CustomStringConvertible {
   case recordType
   case promiseType
   case streamType
+  case valuesType
   case procedureType
   case parameterType
   case specialType
@@ -107,6 +108,8 @@ public enum Type: Int, CustomStringConvertible {
         return "promise"
       case .streamType:
         return "stream"
+      case .valuesType:
+        return "values"
       case .specialType:
         return "special"
       case .procedureType:

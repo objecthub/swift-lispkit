@@ -354,6 +354,8 @@ public final class Compiler {
         self.pushConstant(expr)
       case .special(_):
         throw EvalError.illegalKeywordUsage(expr)
+      case .values(_):
+        preconditionFailure("cannot push multiple values onto stack")
     }
   }
   

@@ -48,6 +48,13 @@ public final class DynamicControlLibrary: NativeLibrary {
   
   /// Declarations of the library.
   public override func declarations() {
+    // Multiple values
+    self.define(Procedure("values", values))
+    self.define(Procedure("_make-values", makeValues))
+    self.define(Procedure("_apply-with-values", applyWithValues))
+    self.define("call-with-values", via:
+      "(define (call-with-values producer consumer) (_apply-with-values consumer (producer)))")
+    
     // Continuations
     self.define(Procedure("continuation?", isContinuation))
     self.define(Procedure("_call-with-unprotected-continuation", callWithUnprotectedContinuation))
@@ -61,12 +68,12 @@ public final class DynamicControlLibrary: NativeLibrary {
       "(define (call-with-current-continuation f)",
       "  (_call-with-unprotected-continuation",
       "     (lambda (cont)",
-      "       (f (lambda (x)",
+      "       (f (lambda args",
       "            (do ((base (_dynamic-wind-base cont)))",
       "                ((eqv? (_dynamic-wind-current) base))",
       "              ((cdr (_wind-down))))",
       "            (do ((winders (_dynamic-winders cont) (cdr winders)))",
-      "                ((null? winders) (cont x))",
+      "                ((null? winders) (cont (_make-values args)))",
       "              ((car (car winders)))",
       "              (_wind-up (car (car winders)) (cdr (car winders)))))))))")
     self.define("dynamic-wind", via:
@@ -172,6 +179,59 @@ public final class DynamicControlLibrary: NativeLibrary {
       "  (syntax-rules ()" +
       "    ((parameterize ((expr1 expr2) ...) body ...)" +
       "      (_dynamic-bind (list expr1 ...) (list expr2 ...) (lambda () body ...)))))")
+  }
+  
+  func values(args: Arguments) -> Expr {
+    switch args.count {
+      case 0:
+        return .void // .values(.null)
+      case 1:
+        return args.first!
+      default:
+        var res = Expr.null
+        var idx = args.endIndex
+        while idx > args.startIndex {
+          idx = args.index(before: idx)
+          res = .pair(args[idx], res)
+        }
+        return .values(res)
+    }
+  }
+  
+  // This implementation must only be used in call/cc; it's inherently unsafe to use outside
+  // since it doesn't check the structure of expr.
+  func makeValues(expr: Expr) -> Expr {
+    switch expr {
+      case .null:
+        return .void // .values(.null)
+      case .pair(let x, .null):
+        return x
+      default:
+        return .values(expr)
+    }
+  }
+  
+  func applyWithValues(args: Arguments) throws -> (Procedure, Exprs) {
+    guard args.count == 2 else {
+      throw EvalError.argumentCountError(formals: 2, args: .makeList(args))
+    }
+    guard case .procedure(let consumer) = args.first! else {
+      throw EvalError.typeError(args.first!, [.procedureType])
+    }
+    let x = args[args.startIndex + 1]
+    if case .void = x {
+      return (consumer, [])
+    }
+    guard case .values(let expr) = x else {
+      return (consumer, [x])
+    }
+    var exprs = Exprs()
+    var next = expr
+    while case .pair(let arg, let rest) = next {
+      exprs.append(arg)
+      next = rest
+    }
+    return (consumer, exprs)
   }
   
   func isContinuation(_ expr: Expr) -> Expr {

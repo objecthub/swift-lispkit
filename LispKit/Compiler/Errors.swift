@@ -307,6 +307,7 @@ public enum EvalError: LispError, Hashable {
   case illegalFormalRestParameter(Expr)
   case divisionByZero
   case unboundVariable(Symbol)
+  case variableUndefined(Symbol?)
   case variableNotYetInitialized(Symbol?)
   case malformedCaseLambda(Expr)
   case malformedArgumentList(Expr)
@@ -367,6 +368,11 @@ public enum EvalError: LispError, Hashable {
         return "division by zero"
       case .unboundVariable(let sym):
         return "unbound variable `\(sym)`"
+      case .variableUndefined(let sym):
+        guard let sym = sym else {
+          return "variable undefined"
+        }
+        return "variable `\(sym)` undefined"
       case .variableNotYetInitialized(let sym):
         guard let sym = sym else {
           return "variable not yet initialized"
@@ -503,6 +509,8 @@ public enum EvalError: LispError, Hashable {
         case (.divisionByZero, .divisionByZero):
           return true
         case (.unboundVariable(let sym1), .unboundVariable(let sym2)):
+          return sym1 == sym2
+        case (.variableUndefined(let sym1), .variableUndefined(let sym2)):
           return sym1 == sym2
         case (.variableNotYetInitialized(let sym1), .variableNotYetInitialized(let sym2)):
           return sym1 == sym2

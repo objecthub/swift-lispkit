@@ -177,6 +177,8 @@ public func equalExpr(_ this: Expr, _ that: Expr) -> Bool {
         return count2 == mappings1.count
       case (.promise(let promise1), .promise(let promise2)):
         return promise1 == promise2
+      case (.values(let e1), .values(let e2)):
+        return equals(e1, e2)
       case (.procedure(let e1), .procedure(let e2)):
         return e1 == e2
       case (.special(let e1), .special(let e2)):
@@ -238,6 +240,8 @@ public func eqvExpr(_ lhs: Expr, _ rhs: Expr) -> Bool {
       return map1 === map2
     case (.promise(let promise1), .promise(let promise2)):
       return promise1 === promise2
+    case (.values(let e1), .values(let e2)):
+      return eqvExpr(e1, e2)
     case (.procedure(let e1), .procedure(let e2)):
       return e1 === e2
     case (.special(let e1), .special(let e2)):
@@ -288,7 +292,7 @@ public func eqExpr(_ lhs: Expr, _ rhs: Expr) -> Bool {
     case (.bytes(let bvector1), .bytes(let bvector2)):
       return bvector1 === bvector2
     case (.pair(let car1, let cdr1), .pair(let car2, let cdr2)):
-      return eqvExpr(car1, car2) && eqvExpr(cdr1, cdr2)
+      return eqExpr(car1, car2) && eqExpr(cdr1, cdr2)
     case (.box(let c1), .box(let c2)):
       return c1 === c2
     case (.mpair(let t1), .mpair(let t2)):
@@ -301,6 +305,8 @@ public func eqExpr(_ lhs: Expr, _ rhs: Expr) -> Bool {
       return map1 === map2
     case (.promise(let promise1), .promise(let promise2)):
       return promise1 === promise2
+    case (.values(let e1), .values(let e2)):
+      return eqExpr(e1, e2)
     case (.procedure(let e1), .procedure(let e2)):
       return e1 === e2
     case (.special(let e1), .special(let e2)):

@@ -127,16 +127,18 @@ public func equalHash(_ expr: Expr) -> Int {
         return res &* 31 + 21
       case .promise(let promise):
         return promise.hashValue &* 31 + 22
+      case .values(let expr):
+        return hash(expr) &* 31 + 23
       case .procedure(let proc):
-        return proc.hashValue &* 31 + 23
+        return proc.hashValue &* 31 + 24
       case .special(let special):
-        return special.hashValue &* 31 + 24
+        return special.hashValue &* 31 + 25
       case .env(let environment):
-        return environment.hashValue &* 31 + 25
+        return environment.hashValue &* 31 + 26
       case .port(let port):
-        return port.hashValue &* 31 + 26
+        return port.hashValue &* 31 + 27
       case .error(let err):
-        return err.hashValue &* 31 + 27
+        return err.hashValue &* 31 + 28
     }
   }
   
@@ -192,16 +194,18 @@ public func eqvHash(_ expr: Expr) -> Int {
       return map.hashValue &* 31 &+ 21
     case .promise(let promise):
       return promise.hashValue &* 31 + 22
+    case .values(let expr):
+      return eqvHash(expr) &* 31 + 23
     case .procedure(let proc):
-      return proc.hashValue &* 31 + 23
+      return proc.hashValue &* 31 + 24
     case .special(let special):
-      return special.hashValue &* 31 + 24
+      return special.hashValue &* 31 + 25
     case .env(let environment):
-      return environment.hashValue &* 31 + 25
+      return environment.hashValue &* 31 + 26
     case .port(let port):
-      return port.hashValue &* 31 + 26
+      return port.hashValue &* 31 + 27
     case .error(let err):
-      return err.hashValue &* 31 + 27
+      return err.hashValue &* 31 + 28
   }
 }
 
@@ -254,15 +258,17 @@ public func eqHash(_ expr: Expr) -> Int {
       return map.hashValue &* 31 &+ 21
     case .promise(let promise):
       return promise.hashValue &* 31 + 22
+    case .values(let expr):
+      return eqHash(expr) &* 31 + 23
     case .procedure(let proc):
-      return proc.hashValue &* 31 + 23
+      return proc.hashValue &* 31 + 24
     case .special(let special):
-      return special.hashValue &* 31 + 24
+      return special.hashValue &* 31 + 25
     case .env(let environment):
-      return environment.hashValue &* 31 + 25
+      return environment.hashValue &* 31 + 26
     case .port(let port):
-      return port.hashValue &* 31 + 26
+      return port.hashValue &* 31 + 27
     case .error(let err):
-      return err.hashValue &* 31 + 27
+      return err.hashValue &* 31 + 28
   }
 }
