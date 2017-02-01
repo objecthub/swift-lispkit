@@ -80,7 +80,7 @@ public final class DynamicControlLibrary: NativeLibrary {
       "(define (dynamic-wind before during after)",
       "  (before)",
       "  (_wind-up before after)",
-      "  (let ((res (during))) ((cdr (_wind-down))) res))")
+      "  (_apply-with-values (lambda args ((cdr (_wind-down))) (_make-values args)) (during)))")
     
     // Errors
     self.define(Procedure("make-error", makeError))
@@ -138,8 +138,9 @@ public final class DynamicControlLibrary: NativeLibrary {
       "                          (handler-k (lambda () (raise-continuable condition)))",
       "                          clause ...))))))))",
       "            (lambda ()",
-      "              (let ((res (begin e1 e2 ...)))",
-      "                (guard-k (lambda () res)))))))))))")
+      "              (call-with-values",
+      "                (lambda () e1 e2 ...)",
+      "                (lambda args (guard-k (lambda () (_make-values args)))))))))))))")
     self.define("error", via:
       "(define (error message . irritants) (raise (make-error message irritants)))")
     self.define(Procedure("_trigger-exit", triggerExit))
