@@ -123,7 +123,7 @@ public final class Compiler {
   
   /// Compiles the given body of a function (or expression, if this compiler is not used to
   /// compile a function).
-  private func compileBody(_ expr: Expr) throws {
+  private func compileBody(_ expr: Expr, localDefine: Bool = false) throws {
     if expr.isNull {
       self.emit(.pushVoid)
       self.emit(.return)
@@ -139,7 +139,7 @@ public final class Compiler {
         }
       }
       // Compile body
-      if !(try compileSeq(expr, in: self.env, inTailPos: true, localDefine: false)) {
+      if !(try compileSeq(expr, in: self.env, inTailPos: true, localDefine: localDefine)) {
         self.emit(.return)
       }
       // Insert instruction to reserve local variables
@@ -629,11 +629,12 @@ public final class Compiler {
   public func compileBindings(_ bindingList: Expr,
                               in lenv: Env,
                               atomic: Bool,
-                              predef: Bool) throws -> BindingGroup {
+                              predef: Bool,
+                              postset: Bool = false) throws -> BindingGroup {
     let group = BindingGroup(owner: self, parent: lenv)
     let env = atomic && !predef ? lenv : .local(group)
     var bindings = bindingList
-    if predef {
+    if predef || postset {
       while case .pair(.pair(.symbol(let sym), _), let rest) = bindings {
         let binding = group.allocBindingFor(sym)
         // This is a hack for now; we need to make sure forward references work, e.g. in
@@ -646,6 +647,7 @@ public final class Compiler {
       }
       bindings = bindingList
     }
+    var definitions: [Definition] = []
     var prevIndex = -1
     while case .pair(let binding, let rest) = bindings {
       guard case .pair(.symbol(let sym), .pair(let expr, .null)) = binding else {
@@ -656,7 +658,9 @@ public final class Compiler {
       guard binding.index > prevIndex else {
         throw EvalError.duplicateBinding(sym, bindingList)
       }
-      if binding.isValue {
+      if postset {
+        definitions.append(binding)
+      } else if binding.isValue {
         self.emit(.setLocal(binding.index))
       } else if predef {
         self.emit(.setLocalValue(binding.index))
@@ -668,6 +672,13 @@ public final class Compiler {
     }
     guard bindings.isNull else {
       throw EvalError.malformedBindings(nil, bindingList)
+    }
+    for binding in definitions.reversed() {
+      if binding.isValue {
+        self.emit(.setLocal(binding.index))
+      } else {
+        self.emit(.setLocalValue(binding.index))
+      }
     }
     return group
   }
@@ -744,7 +755,7 @@ public final class Compiler {
     closureCompiler.arguments = arguments
     closureCompiler.env = .local(arguments)
     // Compile body
-    try closureCompiler.compileBody(body)
+    try closureCompiler.compileBody(body, localDefine: true)
     // Link compiled closure in the current compiler
     let codeIndex = self.fragments.count
     let code = closureCompiler.bundle()

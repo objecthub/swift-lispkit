@@ -32,6 +32,7 @@ public final class ControlFlowLibrary: NativeLibrary {
     self.define("let", as: SpecialForm(compileLet))
     self.define("let*", as: SpecialForm(compileLetStar))
     self.define("letrec", as: SpecialForm(compileLetRec))
+    self.define("letrec*", as: SpecialForm(compileLetRecStar))
     self.define("let-syntax", as: SpecialForm(compileLetSyntax))
     self.define("letrec-syntax", as: SpecialForm(compileLetRecSyntax))
     self.define("do", as: SpecialForm(compileDo))
@@ -120,6 +121,27 @@ func compileLetStar(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) thro
 }
 
 func compileLetRec(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  guard case .pair(_, .pair(let first, let body)) = expr else {
+    throw EvalError.leastArgumentCountError(formals: 1, args: expr)
+  }
+  let initialLocals = compiler.numLocals
+  switch first {
+  case .null:
+    return try compiler.compileSeq(body, in: env, inTailPos: tail)
+  case .pair(_, _):
+    let group = try compiler.compileBindings(first,
+                                             in: env,
+                                             atomic: true,
+                                             predef: true,
+                                             postset: true)
+    let res = try compiler.compileSeq(body, in: Env(group), inTailPos: tail)
+    return compiler.finalizeBindings(group, exit: res, initialLocals: initialLocals)
+  default:
+    throw EvalError.typeError(first, [.listType])
+  }
+}
+
+func compileLetRecStar(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
   guard case .pair(_, .pair(let first, let body)) = expr else {
     throw EvalError.leastArgumentCountError(formals: 1, args: expr)
   }
