@@ -53,7 +53,7 @@ public final class VirtualMachine: TrackedObject {
   internal struct Registers {
     let rid: Int
     var code: Code
-    var captured: [Expr]
+    var captured: Exprs
     var ip: Int
     var fp: Int
     let initialFp: Int
@@ -89,8 +89,8 @@ public final class VirtualMachine: TrackedObject {
     
     func mark(_ tag: UInt8) {
       self.code.mark(tag)
-      for expr in self.captured {
-        expr.mark(tag)
+      for i in self.captured.indices {
+        self.captured[i].mark(tag)
       }
     }
   }
@@ -149,6 +149,7 @@ public final class VirtualMachine: TrackedObject {
     func mark(_ tag: UInt8) {
       self.before.mark(tag)
       self.after.mark(tag)
+      self.handlers?.mark(tag)
       self.next?.mark(tag)
     }
   }
@@ -1356,13 +1357,13 @@ public final class VirtualMachine: TrackedObject {
   }
   
   public override func mark(_ tag: UInt8) {
-    super.mark(tag)
     for i in 0..<self.sp {
       self.stack[i].mark(tag)
     }
     self.registers.mark(tag)
     self.winders?.mark(tag)
     self.parameters.mark(tag)
+    self.raiseProc?.mark(tag)
   }
   
   /// Debugging output

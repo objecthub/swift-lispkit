@@ -33,15 +33,6 @@ public struct Code: CustomStringConvertible {
     self.constants = constants
     self.fragments = fragments
   }
-    
-  public func mark(_ tag: UInt8) {
-    for constant in self.constants {
-      constant.mark(tag)
-    }
-    for fragment in self.fragments {
-      fragment.mark(tag)
-    }
-  }
   
   public var description: String {
     var builder = StringBuilder(prefix: "CONSTANTS:")
@@ -81,5 +72,14 @@ public struct Code: CustomStringConvertible {
     }
     builder.appendNewline()
     return builder.description
+  }
+  
+  public func mark(_ tag: UInt8) {
+    for i in self.constants.indices {
+      self.constants[i].mark(tag)
+    }
+    for i in self.fragments.indices {
+      self.fragments[i].mark(tag)
+    }
   }
 }

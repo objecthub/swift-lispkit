@@ -6,7 +6,8 @@
 ;;; result of one expression can be bound to a fresh variable and used in the subsequent
 ;;; expressions. AND-LET* is a cross-breed between LET* and AND.
 ;;;
-;;; Author: Matthias Zenger
+;;; Author of spec: Oleg Kiselyov
+;;; Author of code: Matthias Zenger
 ;;; Copyright © 2017 Matthias Zenger. All rights reserved.
 ;;;
 ;;; Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
@@ -20,7 +21,9 @@
 ;;; and limitations under the License.
 
 (define-library (srfi 2)
+  
   (export and-let*)
+
   (import (scheme base))
 
   (begin

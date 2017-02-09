@@ -725,6 +725,10 @@ extension Expr: CustomStringConvertible {
           }
         case .record(let record):
           guard case .record(let type) = record.kind else {
+            guard record.exprs.count > 0 else {
+              preconditionFailure("incorrect internal record type state: \(record.kind) | " +
+                                  "\(record.description)")
+            }
             guard case .string(let name) = record.exprs[0] else {
               preconditionFailure("incorrect encoding of record type")
             }

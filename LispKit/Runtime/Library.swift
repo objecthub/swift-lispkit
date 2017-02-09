@@ -437,9 +437,11 @@ open class Library: Reference, Trackable, CustomStringConvertible {
   }
   
   /// Libraries do not mark other referenced libraries; this is assuming that all libraries
-  /// are tracked individually.
+  /// are tracked individually. Only the initializing declarations need to be marked.
   public func mark(_ tag: UInt8) {
-    // TODO: implement library marking
+    for i in self.initDecls.indices {
+      self.initDecls[i].mark(tag)
+    }
   }
   
   public var description: String {

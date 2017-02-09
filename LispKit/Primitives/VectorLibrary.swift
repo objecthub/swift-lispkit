@@ -32,6 +32,7 @@ public final class VectorLibrary: NativeLibrary {
   public override func declarations() {
     self.define(Procedure("vector?", isVector, compileIsVector))
     self.define(Procedure("vector", vector, compileVector))
+    self.define(Procedure("vector-length", vectorLength))
     self.define(Procedure("make-vector", makeVector))
     self.define(Procedure("vector-append", vectorAppend))
     self.define(Procedure("vector-ref", vectorRef))
@@ -61,6 +62,10 @@ public final class VectorLibrary: NativeLibrary {
     try compiler.compile(arg, in: env, inTailPos: false)
     compiler.emit(.isVector)
     return false
+  }
+  
+  func vectorLength(vec: Expr) throws -> Expr {
+    return .fixnum(Int64(try vec.vectorAsCollection().exprs.count))
   }
   
   func makeVector(_ count: Expr, fill: Expr?) throws -> Expr {

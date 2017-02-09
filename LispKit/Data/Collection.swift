@@ -29,11 +29,24 @@
 ///
 public final class Collection: ManagedObject, CustomStringConvertible {
   
-  public enum Kind {
+  public enum Kind: CustomStringConvertible {
     case vector
     case immutableVector
     case recordType
     case record(Collection)
+    
+    public var description: String {
+      switch self {
+        case .vector:
+          return "vector"
+        case .immutableVector:
+          return "immutable vector"
+        case .recordType:
+          return "record type"
+        case .record(let type):
+          return "record of type \(type)"
+      }
+    }
   }
   
   /// The kind of this collection

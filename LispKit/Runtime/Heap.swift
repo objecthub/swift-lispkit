@@ -21,7 +21,7 @@
 ///
 /// Class encapsulating all objects referenced from global environments.
 ///
-public final class Heap {
+public final class Heap: TrackedObject {
   
   /// Global locations.
   public var locations: Exprs
@@ -53,6 +53,13 @@ public final class Heap {
   public func reserveCapacity(_ capacity: Int) {
     if self.locations.capacity < capacity {
       self.locations.reserveCapacity(capacity)
+    }
+  }
+  
+  /// Mark all elements on the heap
+  public override func mark(_ tag: UInt8) {
+    for i in self.locations.indices {
+      self.locations[i].mark(tag)
     }
   }
 }

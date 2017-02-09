@@ -22,6 +22,8 @@
 		CC131C4E1CDE0DCA006C030C /* RegressionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC131C4D1CDE0DCA006C030C /* RegressionTests.swift */; };
 		CC131C501CDE0E01006C030C /* LispKitTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC131C4F1CDE0E01006C030C /* LispKitTestCase.swift */; };
 		CC131C521CDE840C006C030C /* LocalSyntaxRules.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC131C511CDE840C006C030C /* LocalSyntaxRules.scm */; };
+		CC167D311E49286C005304C5 /* srfi_132.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC167D2F1E47E8C4005304C5 /* srfi_132.sld */; };
+		CC167D331E4949F3005304C5 /* srfi_27.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC167D321E49499E005304C5 /* srfi_27.sld */; };
 		CC1AAE3B1CC3CF0F00D1806F /* LispKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCAD52BA1C48403800DBD8EE /* LispKit.framework */; };
 		CC1AAE3C1CC3CF0F00D1806F /* LispKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CCAD52BA1C48403800DBD8EE /* LispKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CC201A6D1DBD72C100045A4D /* LibraryRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC201A6C1DBD72C100045A4D /* LibraryRegistry.swift */; };
@@ -193,6 +195,8 @@
 			dstPath = LispKit/Resources/Libraries;
 			dstSubfolderSpec = 7;
 			files = (
+				CC167D331E4949F3005304C5 /* srfi_27.sld in Copy pre-installed LispKit libraries */,
+				CC167D311E49286C005304C5 /* srfi_132.sld in Copy pre-installed LispKit libraries */,
 				CCE37E281E3FB3310084FEA6 /* srfi_19.sld in Copy pre-installed LispKit libraries */,
 				CC2CE1621E3CE8C2005AEC74 /* srfi_28.sld in Copy pre-installed LispKit libraries */,
 				CC8E2B9C1E335D980080299A /* srfi_41.sld in Copy pre-installed LispKit libraries */,
@@ -220,6 +224,8 @@
 		CC131C4D1CDE0DCA006C030C /* RegressionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RegressionTests.swift; sourceTree = "<group>"; };
 		CC131C4F1CDE0E01006C030C /* LispKitTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = LispKitTestCase.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC131C511CDE840C006C030C /* LocalSyntaxRules.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LocalSyntaxRules.scm; sourceTree = "<group>"; };
+		CC167D2F1E47E8C4005304C5 /* srfi_132.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = srfi_132.sld; sourceTree = "<group>"; };
+		CC167D321E49499E005304C5 /* srfi_27.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = srfi_27.sld; sourceTree = "<group>"; };
 		CC201A6C1DBD72C100045A4D /* LibraryRegistry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryRegistry.swift; sourceTree = "<group>"; };
 		CC26069B1C61760C0047A3D3 /* Boxes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Boxes.swift; sourceTree = "<group>"; };
 		CC2CE1611E3CE6CF005AEC74 /* srfi_28.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = srfi_28.sld; sourceTree = "<group>"; };
@@ -456,9 +462,11 @@
 				CCA752F61DEF9F0D0098C34A /* srfi_1.sld */,
 				CC4F84841E2C3AC60066D842 /* srfi_2.sld */,
 				CCE37E261E3FB0590084FEA6 /* srfi_19.sld */,
+				CC167D321E49499E005304C5 /* srfi_27.sld */,
 				CC2CE1611E3CE6CF005AEC74 /* srfi_28.sld */,
 				CC8E2B951E2D33770080299A /* srfi_41.sld */,
 				CC8E2B9F1E33613C0080299A /* srfi_41 */,
+				CC167D2F1E47E8C4005304C5 /* srfi_132.sld */,
 			);
 			path = Libraries;
 			sourceTree = "<group>";

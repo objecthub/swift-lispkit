@@ -8,7 +8,7 @@
 ;;; Time durations are defined. Conversion routines are provided. The procedure CURRENT-TIME
 ;;; queries the current time in a specified variant, with a system-dependent resolution.
 ;;; Procedures for time arithmetic and time comparisons are also provided.
-;;;
+;;; 
 ;;; A date is a representation of a point in time in the Gregorian calendar, a 24 hour clock
 ;;; (with nanosecond precision) and a time zone offset from UTC. Procedures for converting
 ;;; between time and dates are provided, as well as for reading and writing string
@@ -37,39 +37,88 @@
 ;;;   Copyright © 2017 Matthias Zenger. All rights reserved.
 
 (define-library (srfi 19)
-  (export time-duration time-monotonic time-process time-tai
-          time-thread time-utc
-          current-date current-julian-day current-modified-julian-day
-          current-time time-resolution
-          make-time time? time-type time-nanosecond time-second
-          set-time-type! set-time-nanosecond! set-time-second!
+
+  (export add-duration
+          add-duration!
           copy-time
-          time<=? time<? time=? time>=? time>?
-          time-difference time-difference!
-          add-duration add-duration!
-          subtract-duration subtract-duration!
-          make-date date? date-nanosecond date-second
-          date-minute date-hour date-day date-month date-year
-          date-zone-offset date-year-day date-week-day date-week-number
-          date->julian-day date->modified-julian-day
-          date->time-monotonic date->time-tai date->time-utc
-          julian-day->date julian-day->time-monotonic
-          julian-day->time-tai julian-day->time-utc
-          modified-julian-day->date modified-julian-day->time-monotonic
-          modified-julian-day->time-tai modified-julian-day->time-utc
-          time-monotonic->date time-monotonic->julian-day
+          current-date
+          current-julian-day
+          current-modified-julian-day
+          current-time
+          date?
+          date->julian-day
+          date->modified-julian-day
+          date->string
+          date->time-monotonic
+          date->time-tai
+          date->time-utc
+          date-day
+          date-hour
+          date-minute
+          date-month
+          date-nanosecond
+          date-second
+          date-week-day
+          date-week-number
+          date-year
+          date-year-day
+          date-zone-offset
+          julian-day->date
+          julian-day->time-monotonic
+          julian-day->time-tai
+          julian-day->time-utc
+          make-date
+          make-time
+          modified-julian-day->date
+          modified-julian-day->time-monotonic
+          modified-julian-day->time-tai
+          modified-julian-day->time-utc
+          set-time-nanosecond!
+          set-time-second!
+          set-time-type!
+          string->date
+          subtract-duration
+          subtract-duration!
+          time-difference
+          time-difference!
+          time-duration
+          time-monotonic
+          time-monotonic->date
+          time-monotonic->julian-day
           time-monotonic->modified-julian-day
-          time-monotonic->time-tai  time-monotonic->time-tai!
-          time-monotonic->time-utc  time-monotonic->time-utc!
-          time-tai->date time-tai->julian-day
+          time-monotonic->time-tai
+          time-monotonic->time-tai!
+          time-monotonic->time-utc
+          time-monotonic->time-utc!
+          time-nanosecond
+          time-process
+          time-resolution
+          time-second
+          time-tai
+          time-tai->date
+          time-tai->julian-day
           time-tai->modified-julian-day
-          time-tai->time-monotonic time-tai->time-monotonic!
-          time-tai->time-utc time-tai->time-utc!
-          time-utc->date time-utc->julian-day
+          time-tai->time-monotonic
+          time-tai->time-monotonic!
+          time-tai->time-utc
+          time-tai->time-utc!
+          time-thread
+          time-type
+          time-utc
+          time-utc->date
+          time-utc->julian-day
           time-utc->modified-julian-day
-          time-utc->time-monotonic time-utc->time-monotonic!
-          time-utc->time-tai time-utc->time-tai!
-          date->string string->date)
+          time-utc->time-monotonic
+          time-utc->time-monotonic!
+          time-utc->time-tai
+          time-utc->time-tai!
+          time?
+          time<?
+          time<=?
+          time=?
+          time>?
+          time>=?)
+  
   (import (scheme base))
 
   (begin

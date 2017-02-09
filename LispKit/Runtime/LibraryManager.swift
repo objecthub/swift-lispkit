@@ -21,9 +21,11 @@
 import Foundation
 
 ///
-/// Class `LibraryManager` manages libraries that are loaded into a LispKit context.
+/// Class `LibraryManager` manages libraries that are loaded into a LispKit context. This
+/// component doesn't need to be a `TrackedObject` because it only stores expressions
+/// consisting of pairs, symbols, and integers.
 /// 
-public final class LibraryManager: CustomStringConvertible {
+public final class LibraryManager: TrackedObject, CustomStringConvertible {
 
   /// The owner of this library manager.
   private unowned let context: Context
@@ -82,7 +84,8 @@ public final class LibraryManager: CustomStringConvertible {
         _ = try self.context.machine.eval(
                   file: self.context.fileHandler.libraryFilePath(forFile: filename) ?? filename,
                   in: self.context.global)
-      } catch {
+      } catch let error {
+        Swift.print("error = \(error.localizedDescription)")
         // TODO: figure out how to best propagate an error in such a case
         // ignore
       }
@@ -155,5 +158,12 @@ public final class LibraryManager: CustomStringConvertible {
       builder.append(name.description)
     }
     return builder.description
+  }
+  
+  /// Mark all registered libraries
+  public override func mark(_ tag: UInt8) {
+    for library in self.libraries.values {
+      library.mark(tag)
+    }
   }
 }

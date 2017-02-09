@@ -84,6 +84,8 @@ public final class Context {
     self.machine = VirtualMachine(for: self)
     // Register tracked objects
     self.objects.track(self.machine)
+    self.objects.track(self.heap)
+    self.objects.track(self.libraries)
     // Load native libraries
     do {
       for nativeLibrary in LibraryRegistry.nativeLibraries {
