@@ -113,8 +113,8 @@ public final class VectorLibrary: NativeLibrary {
     // Extract arguments
     let vector = try vec.vectorAsCollection()
     let i = try index.asInt()
-    guard i >= 0 && i <= vector.exprs.count else {
-      throw EvalError.indexOutOfBounds(Int64(i), Int64(vector.exprs.count), vec)
+    guard i >= 0 && i < vector.exprs.count else {
+      throw EvalError.indexOutOfBounds(Int64(i), Int64(vector.exprs.count) - 1, vec)
     }
     guard case .vector = vector.kind else {
       throw EvalError.attemptToModifyImmutableData(vec)

@@ -36,7 +36,6 @@
           list-sort
           list-stable-sort
           list-merge
-          list-merge-sort
           list-delete-neighbor-dups
           vector-sorted?
           vector-sort
@@ -53,11 +52,7 @@
           vector-select!
           vector-separate!)
 
-  (import (except (scheme base) vector-copy vector-copy! vector-fill!)
-          (rename (only (scheme base) vector-copy vector-copy! vector-fill!)
-                  (vector-copy  r7rs-vector-copy)
-                  (vector-copy! r7rs-vector-copy!)
-                  (vector-fill! r7rs-vector-fill!))
+  (import (scheme base)
           (only (srfi 27) random-integer))
   
   (begin
@@ -342,9 +337,6 @@
             ((= i end) new)
           (vector-set! new j (vector-ref vec i)))))
 
-    (define (vector-copy vec)
-      (vector-portion-copy vec 0 (vector-length vec)))
-
     (define (vector-portion-copy! target src start end)
       (let ((len (- end start)))
         (do ((i (- len 1) (- i 1))
@@ -624,13 +616,13 @@
                             (pair? (cdr maybe-args))
                             (pair? (cddr maybe-args)))
                        (caddr maybe-args)
-                       (vector-copy v))))
+                       (vector-portion-copy v 0 (vector-length v)))))
         (%vector-merge-sort! < v start end temp)))
 
     (define (vector-merge-sort < v . maybe-args)
       (let* ((start (start-arg maybe-args))
              (end   (end-arg maybe-args v))
-             (ans   (r7rs-vector-copy v start end)))
+             (ans   (vector-copy v start end)))
         (vector-merge-sort! < ans)
         ans))
     
@@ -736,7 +728,7 @@
                     temp v (not v=v0?))))))))))
            (lambda (ignored-len ignored-ansvec ansvec=v0?)
          (if (not ansvec=v0?)
-                 (r7rs-vector-copy! v0 l temp0 l r))))))
+                 (vector-copy! v0 l temp0 l r))))))
 
     ;;; Code tuning & porting
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1015,9 +1007,9 @@
                          (v3 (make-vector (- end start count count2))))
                     (copy-smaller! < pivot v2 0 v start end)
                     (copy-bigger! < pivot v3 0 v start end)
-                    (r7rs-vector-copy! v start v2)
-                    (r7rs-vector-fill! v pivot (+ start count) (+ start count count2))
-                    (r7rs-vector-copy! v (+ start count count2) v3))))))))
+                    (vector-copy! v start v2)
+                    (vector-fill! v pivot (+ start count) (+ start count count2))
+                    (vector-copy! v (+ start count count2) v3))))))))
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -1084,7 +1076,7 @@
                               (vector-ref v (+ k start))
                               (vector-ref v (+ (- 1 k) start))))
               ((< size just-sort-it-threshold)
-                (vector-ref (vector-sort <? (r7rs-vector-copy v start end)) k))
+                (vector-ref (vector-sort <? (vector-copy v start end)) k))
               (else
                 (let* ((ip (random-integer size))
                        (pivot (vector-ref v (+ start ip))))
@@ -1122,7 +1114,7 @@
                        (values a b))
                        (values b a)))
               ((< size just-sort-it-threshold)
-                 (let ((v2 (vector-sort <? (r7rs-vector-copy v start end))))
+                 (let ((v2 (vector-sort <? (vector-copy v start end))))
                    (values (vector-ref v2 k) (vector-ref v2 (+ k 1)))))
               (else
                 (let* ((ip (random-integer size))

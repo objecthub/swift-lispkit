@@ -132,14 +132,14 @@ open class LispKitTestCase: XCTestCase {
   
   public func execute(tests: [Test]) {
     for test in tests {
-      print("-----------------------")
-      print("source: \(test.source)")
-      print("target: \(test.target)")
+      print("───────────────────────────────────────────────────────────────────────")
+      print("✅ \(test.description)")
+      print("expected: \(test.target)")
       let res = self.context!.machine.onTopLevelDo {
         return try self.context!.machine.eval(exprs: test.source, in: context!.global)
       }
-      print("result: \(res)")
-      XCTAssertEqual(res, test.target, test.description)
+      print("computed: \(res)")
+      XCTAssertEqual(res, test.target, "🛑 \(test.description)")
       assertStackEmpty(after: test.description)
     }
   }

@@ -44,6 +44,7 @@
 		CC55A82B1C5175B000772B02 /* SpecialForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55A82A1C5175B000772B02 /* SpecialForm.swift */; };
 		CC5696771CBCFA9900F6803E /* Instruction.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5696761CBCFA9900F6803E /* Instruction.swift */; };
 		CC5696791CBD48E700F6803E /* Global.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5696781CBD48E700F6803E /* Global.swift */; };
+		CC5847FA1E4FC55700BE6497 /* SRFI132.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC5847F91E4FC55700BE6497 /* SRFI132.scm */; };
 		CC5A47211C5295E600EFCF76 /* NativeLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5A47201C5295E600EFCF76 /* NativeLibrary.swift */; };
 		CC5A47231C529D4A00EFCF76 /* BaseLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5A47221C529D4A00EFCF76 /* BaseLibrary.swift */; };
 		CC5A47251C52E08900EFCF76 /* ControlFlowLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5A47241C52E08900EFCF76 /* ControlFlowLibrary.swift */; };
@@ -248,6 +249,7 @@
 		CC55A82A1C5175B000772B02 /* SpecialForm.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpecialForm.swift; sourceTree = "<group>"; };
 		CC5696761CBCFA9900F6803E /* Instruction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Instruction.swift; sourceTree = "<group>"; };
 		CC5696781CBD48E700F6803E /* Global.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Global.swift; sourceTree = "<group>"; };
+		CC5847F91E4FC55700BE6497 /* SRFI132.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SRFI132.scm; sourceTree = "<group>"; };
 		CC5A47201C5295E600EFCF76 /* NativeLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NativeLibrary.swift; sourceTree = "<group>"; };
 		CC5A47221C529D4A00EFCF76 /* BaseLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = BaseLibrary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC5A47241C52E08900EFCF76 /* ControlFlowLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = ControlFlowLibrary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -400,6 +402,7 @@
 				CC8213651D614A8600C1BE57 /* Records.scm */,
 				CC8169261D1FADE2003FADEA /* Ports.scm */,
 				CC8218901E3FFFAB009CA653 /* SRFI19.scm */,
+				CC5847F91E4FC55700BE6497 /* SRFI132.scm */,
 			);
 			path = Code;
 			sourceTree = "<group>";
@@ -763,6 +766,7 @@
 				CCB91C981D57E785001A95DC /* Parameters.scm in Resources */,
 				CC131C4C1CDE0C3D006C030C /* SyntaxRules.scm in Resources */,
 				CC8169271D1FADEC003FADEA /* Ports.scm in Resources */,
+				CC5847FA1E4FC55700BE6497 /* SRFI132.scm in Resources */,
 				CC8213661D614A8600C1BE57 /* Records.scm in Resources */,
 				CC8218911E3FFFAB009CA653 /* SRFI19.scm in Resources */,
 				CCC41DCA1D330439003CB4D0 /* DynamicWind.scm in Resources */,
