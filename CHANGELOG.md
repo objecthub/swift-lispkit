@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.6 (2017-02-12)
+- Automatically load libraries
+- Made stack grow automatically
+- Support externally triggered termination of evaluation
+– Implemented new system library; added new file functions
+- Implemented support for [R7RS](http://www.r7rs.org)-compliant exceptions
+- Implemented support for multiple return values
+– Ported various SRFIs and included them in the LispKit package
+
 ## 0.5 (2016-11-13)
 - Implemented environments as first-class values
 - Introduced a new R7RS-compatible library abstraction
