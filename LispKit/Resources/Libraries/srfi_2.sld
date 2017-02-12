@@ -21,11 +21,8 @@
 ;;; and limitations under the License.
 
 (define-library (srfi 2)
-  
   (export and-let*)
-
   (import (scheme base))
-
   (begin
     (define-syntax and-let*
       (syntax-rules ()
