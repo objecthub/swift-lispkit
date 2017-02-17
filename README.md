@@ -4,7 +4,7 @@
 <p>
 <a href="https://developer.apple.com/osx/"><img src="https://img.shields.io/badge/Platform-macOS-blue.svg?style=flat" alt="Platform: macOS" /></a>
 <a href="https://developer.apple.com/swift/"><img src="https://img.shields.io/badge/Language-Swift%203.0-green.svg?style=flat" alt="Language: Swift 3.0" /></a>
-<a href="https://developer.apple.com/xcode/"><img src="https://img.shields.io/badge/IDE-Xcode%208.1-orange.svg?style=flat" alt="IDE: Xcode 8.2" /></a>
+<a href="https://developer.apple.com/xcode/"><img src="https://img.shields.io/badge/IDE-Xcode%208.2-orange.svg?style=flat" alt="IDE: Xcode 8.2" /></a>
 <a href="https://raw.githubusercontent.com/objecthub/swift-lispkit/master/LICENSE"><img src="http://img.shields.io/badge/License-Apache-lightgrey.svg?style=flat" alt="License: Apache" /></a>
 </p>
 

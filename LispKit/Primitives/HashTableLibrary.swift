@@ -36,6 +36,10 @@ public final class HashTableLibrary: NativeLibrary {
   private var eqvProc: Procedure! = nil
   private var eqProc: Procedure! = nil
   
+  private var hashtableUnionLoc = 0
+  private var hashtableIntersectionLoc = 0
+  private var hashtableDifferenceLoc = 0
+  
   /// Name of the library.
   public override class var name: [String] {
     return ["lispkit", "hashtable"]
@@ -43,9 +47,10 @@ public final class HashTableLibrary: NativeLibrary {
   
   /// Dependencies of the library.
   public override func dependencies() {
-    self.`import`(from: ["lispkit", "base"], "define", "lambda", "equal?", "eqv?", "eq?")
-    self.`import`(from: ["lispkit", "control"], "let*", "letrec", "if")
-    self.`import`(from: ["lispkit", "list"], "cons", "car", "cdr", "pair?", "for-each", "value")
+    self.`import`(from: ["lispkit", "base"], "define", "lambda", "equal?", "eqv?", "eq?", "not")
+    self.`import`(from: ["lispkit", "control"], "let*", "letrec", "if", "do")
+    self.`import`(from: ["lispkit", "list"], "cons", "car", "cdr", "pair?", "for-each", "value",
+                                             "null?")
     self.`import`(from: ["lispkit", "math"], ">", "+", "*")
   }
   
@@ -73,7 +78,8 @@ public final class HashTableLibrary: NativeLibrary {
       "  (letrec ((k (if (pair? size) (car size) \(HashTableLibrary.defaultCapacity)))",
       "           (find (lambda (key bs)",
       "                   (if (pair? bs)",
-      "                     (if (eql (car (car bs)) key) (car bs) (find key (cdr bs))) #f)))",
+      "                       (if (eql (car (car bs)) key) (car bs) (find key (cdr bs)))",
+      "                       #f)))",
       "           (drop (lambda (key bs)",  // TODO: Use a built-in filter function for this
       "                   (if (pair? bs)",
       "                     (if (eql (car (car bs)) key)",
@@ -103,11 +109,8 @@ public final class HashTableLibrary: NativeLibrary {
     self.define(Procedure("hashtable-load", hashTableLoad))
     self.define(Procedure("hashtable-get", hashTableGet))
     self.define(Procedure("hashtable-add!", hashTableAdd))
-    self.define("hashtable-include!", via:
-      "(define (hashtable-include! hm alist)",
-      "  (for-each (lambda (m) (hashtable-add! hm (car m) (cdr m))) alist))")
-    self.define("hashtable-contains", via:
-      "(define (hashtable-contains map key) (pair? (hashtable-get map key)))")
+    self.define("hashtable-contains?", via:
+      "(define (hashtable-contains? map key) (pair? (hashtable-get map key)))")
     self.define("hashtable-ref", via:
       "(define (hashtable-ref map key default) (value (hashtable-get map key) default))")
     self.define("hashtable-set!", via:
@@ -118,12 +121,39 @@ public final class HashTableLibrary: NativeLibrary {
       "  (hashtable-add! map key (proc (value (hashtable-delete! map key) default))))")
     self.define(Procedure("hashtable-delete!", hashTableDelete))
     self.define(Procedure("hashtable-clear!", hashTableClear))
+    self.hashtableUnionLoc =
+      self.define("xhashtable-union!", via:
+        "(define (xhashtable-union! ht1 ht2)",
+        "  (do ((ks (hashtable->alist ht2) (cdr ks)))",
+        "      ((null? ks))",
+        "    (if (not (hashtable-contains? ht1 (car (car ks))))",
+        "        (hashtable-add! ht1 (car (car ks)) (cdr (car ks))))))")
+    self.hashtableIntersectionLoc =
+      self.define("_hashtable-intersection!", via:
+        "(define (_hashtable-intersection! ht1 ht2)",
+        "  (do ((ks (hashtable->alist ht1) (cdr ks)))",
+        "      ((null? ks))",
+        "    (if (not (hashtable-contains? ht2 (car (car ks))))",
+        "        (hashtable-delete! ht1 (car (car ks))))))")
+    self.hashtableDifferenceLoc =
+      self.define("_hashtable-difference!", via:
+        "(define (_hashtable-difference! ht1 ht2)",
+        "  (do ((ks (hashtable->alist ht1) (cdr ks)))",
+        "      ((null? ks))",
+        "    (if (hashtable-contains? ht2 (car (car ks)))",
+        "        (hashtable-delete! ht1 (car (car ks))))))")
+    self.define(Procedure("hashtable-union!", hashTableUnion))
+    self.define(Procedure("hashtable-intersection!", hashTableIntersection))
+    self.define(Procedure("hashtable-difference!", hashTableDifference))
     self.define(Procedure("hashtable-copy", hashTableCopy))
     self.define(Procedure("hashtable-keys", hashTableKeys))
     self.define(Procedure("hashtable-values", hashTableValues))
     self.define(Procedure("hashtable-key-list", hashTableKeyList))
     self.define(Procedure("hashtable-value-list", hashTableValueList))
     self.define(Procedure("hashtable->alist", hashTableToAlist))
+    self.define("alist->hashtable!", via:
+      "(define (alist->hashtable! hm alist)",
+      "  (for-each (lambda (m) (hashtable-add! hm (car m) (cdr m))) alist))")
     self.define(Procedure("alist->eq-hashtable", alistToEqHashTable))
     self.define(Procedure("alist->eqv-hashtable", alistToEqvHashTable))
     self.define(Procedure("alist->equal-hashtable", alistToEqualHashTable))
@@ -150,10 +180,10 @@ public final class HashTableLibrary: NativeLibrary {
       return .table(HashTable(capacity: numBuckets, mutable: true, equiv: .eq))
     } else {
       let procs = HashTable.CustomProcedures(eql: eqlProc,
-                                           hsh: hshProc,
-                                           get: try args[args.startIndex].asProcedure(),
-                                           add: try args[args.startIndex + 1].asProcedure(),
-                                           del: try args[args.startIndex + 2].asProcedure())
+                                             hsh: hshProc,
+                                             get: try args[args.startIndex].asProcedure(),
+                                             add: try args[args.startIndex + 1].asProcedure(),
+                                             del: try args[args.startIndex + 2].asProcedure())
       return .table(HashTable(capacity: numBuckets, mutable: true, equiv: .custom(procs)))
     }
   }
@@ -286,16 +316,60 @@ public final class HashTableLibrary: NativeLibrary {
     return .void
   }
   
+  func hashTableUnion(_ args: Arguments) throws -> (Procedure, [Expr]) {
+    try EvalError.assert(args, count: 2)
+    let map1 = try args.first!.asHashTable()
+    let map2 = try args[args.startIndex + 1].asHashTable()
+    guard map1.mutable else {
+      throw EvalError.attemptToModifyImmutableData(.table(map1))
+    }
+    guard case .custom(_) = map1.equiv else {
+      guard map1.union(map2) else {
+        preconditionFailure("trying to union mapping with immutable hash map")
+      }
+      return (BaseLibrary.voidProc, [])
+    }
+    return (self.procedure(self.hashtableUnionLoc), [.table(map1), .table(map2)])
+  }
+  
+  func hashTableIntersection(_ args: Arguments) throws -> (Procedure, [Expr]) {
+    try EvalError.assert(args, count: 2)
+    let map1 = try args.first!.asHashTable()
+    let map2 = try args[args.startIndex + 1].asHashTable()
+    guard map1.mutable else {
+      throw EvalError.attemptToModifyImmutableData(.table(map1))
+    }
+    guard case .custom(_) = map1.equiv else {
+      guard map1.difference(map2, intersect: true) else {
+        preconditionFailure("trying to intersect mapping with immutable hash map")
+      }
+      return (BaseLibrary.voidProc, [])
+    }
+    return (self.procedure(self.hashtableIntersectionLoc), [.table(map1), .table(map2)])
+  }
+  
+  func hashTableDifference(_ args: Arguments) throws -> (Procedure, [Expr]) {
+    try EvalError.assert(args, count: 2)
+    let map1 = try args.first!.asHashTable()
+    let map2 = try args[args.startIndex + 1].asHashTable()
+    guard map1.mutable else {
+      throw EvalError.attemptToModifyImmutableData(.table(map1))
+    }
+    guard case .custom(_) = map1.equiv else {
+      guard map1.difference(map2, intersect: false) else {
+        preconditionFailure("trying to compute difference with immutable hash map")
+      }
+      return (BaseLibrary.voidProc, [])
+    }
+    return (self.procedure(self.hashtableDifferenceLoc), [.table(map1), .table(map2)])
+  }
+  
   func hashTableKeys(_ expr: Expr) throws -> Expr {
     return .vector(Collection(kind: .immutableVector, exprs: try expr.asHashTable().keys))
   }
   
   func hashTableValues(_ expr: Expr) throws -> Expr {
     return .vector(Collection(kind: .immutableVector, exprs: try expr.asHashTable().values))
-  }
-  
-  func hashTableEntries(_ expr: Expr) throws -> Expr {
-    return .undef
   }
   
   func hashTableKeyList(_ expr: Expr) throws -> Expr {
@@ -305,11 +379,7 @@ public final class HashTableLibrary: NativeLibrary {
   func hashTableValueList(_ expr: Expr) throws -> Expr {
     return try expr.asHashTable().valueList()
   }
-  
-  func hashTableEntryList(_ expr: Expr) throws -> Expr {
-    return .undef
-  }
-  
+    
   func hashTableToAlist(_ expr: Expr) throws -> Expr {
     return try expr.asHashTable().entryList()
   }
@@ -363,22 +433,24 @@ public final class HashTableLibrary: NativeLibrary {
   
   func hashTableHashFunction(_ expr: Expr) throws -> Expr {
     switch try expr.asHashTable().equiv {
-      case .eq, .eqv, .equal:
+      case .eq, .eqv:
         return .false
+      case .equal:
+        return .procedure(HashTableLibrary.equalHashProc)
       case .custom(let procs):
         return .procedure(procs.hsh)
     }
   }
   
-  fileprivate static func eqHashVal(_ expr: Expr) -> Expr {
+  private static func eqHashVal(_ expr: Expr) -> Expr {
     return .fixnum(Int64(eqHash(expr)))
   }
   
-  fileprivate static func eqvHashVal(_ expr: Expr) -> Expr {
+  private static func eqvHashVal(_ expr: Expr) -> Expr {
     return .fixnum(Int64(eqvHash(expr)))
   }
   
-  fileprivate static func equalHashVal(_ expr: Expr) -> Expr {
+  private static func equalHashVal(_ expr: Expr) -> Expr {
     return .fixnum(Int64(equalHash(expr)))
   }
   
@@ -403,7 +475,7 @@ public final class HashTableLibrary: NativeLibrary {
     return .fixnum(Int64(expr.hashValue))
   }
   
-  fileprivate func hBuckets(_ expr: Expr, hval: Expr?) throws -> Expr {
+  private func hBuckets(_ expr: Expr, hval: Expr?) throws -> Expr {
     let map = try expr.asHashTable()
     if let hashValue = try hval?.asInt64() {
       return map.bucketList(Int(hashValue % Int64(map.bucketCount)))
@@ -412,7 +484,7 @@ public final class HashTableLibrary: NativeLibrary {
     }
   }
   
-  fileprivate func hBucketAdd(_ expr: Expr, hval: Expr, key: Expr, value: Expr) throws -> Expr {
+  private func hBucketAdd(_ expr: Expr, hval: Expr, key: Expr, value: Expr) throws -> Expr {
     guard case .table(let map) = expr else {
       throw EvalError.typeError(expr, [.tableType])
     }
@@ -423,7 +495,7 @@ public final class HashTableLibrary: NativeLibrary {
     return .void
   }
   
-  fileprivate func hBucketRepl(_ expr: Expr, hval: Expr, bucket: Expr) throws -> Expr {
+  private func hBucketRepl(_ expr: Expr, hval: Expr, bucket: Expr) throws -> Expr {
     guard case .table(let map) = expr else {
       throw EvalError.typeError(expr, [.tableType])
     }

@@ -326,7 +326,10 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
     guard self.mutable else {
       return nil
     }
-    let bid = self.hash(key) % self.buckets.count
+    return self.remove(self.hash(key) % self.buckets.count, key: key)
+  }
+  
+  private func remove(_ bid: Int, key: Expr) -> Expr? {
     var ms = [(Expr, Expr)]()
     var current = self.buckets[bid]
     while case .pair(.pair(let k, let v), let next) = current {
@@ -343,6 +346,62 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
       current = next
     }
     return .false
+  }
+  
+  public func union(_ map: HashTable) -> Bool {
+    guard self.mutable else {
+      return false
+    }
+    for bucket in map.buckets {
+      var current = bucket
+      while case .pair(.pair(let key, let value), let next) = current {
+        let bid = self.hash(key) % self.buckets.count
+        if self.get(bid, key, self.eql) == nil {
+          self.add(bid, key, value)
+        }
+        current = next
+      }
+    }
+    return true
+  }
+  
+  public func difference(_ map: HashTable, intersect: Bool) -> Bool {
+    guard self.mutable else {
+      return false
+    }
+    for i in self.buckets.indices {
+      var current = self.buckets[i]
+      var keysToRemove = Exprs()
+      while case .pair(.pair(let key, _), let next) = current {
+        if intersect == (map.get(key) == nil) {
+          keysToRemove.append(key)
+        }
+        current = next
+      }
+      if !keysToRemove.isEmpty {
+        var ms = [(Expr, Expr)]()
+        current = self.buckets[i]
+        var j = 0
+        while case .pair(.pair(let key, let value), let next) = current {
+          if eql(key, keysToRemove[j]) {
+            j += 1
+            if j >= keysToRemove.count {
+              var bucket = next
+              for (k, v) in ms.reversed() {
+                bucket = .pair(.pair(k, v), bucket)
+              }
+              self.buckets[i] = bucket
+              self.count -= 1
+              break
+            }
+          } else {
+            ms.append((key, value))
+          }
+          current = next
+        }
+      }
+    }
+    return true
   }
   
   // Support for managed objects
