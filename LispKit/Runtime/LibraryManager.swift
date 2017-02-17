@@ -135,11 +135,7 @@ public final class LibraryManager: TrackedObject, CustomStringConvertible {
         case .symbol(let sym):
           components.append(sym.description)
         case .fixnum(let num):
-          if components.count == 0 {
-            components.append(String(num))
-          } else {
-            components[components.count - 1] = components[components.count - 1] + "_\(num)"
-          }
+          components.append(String(num))
         default:
           break
       }
