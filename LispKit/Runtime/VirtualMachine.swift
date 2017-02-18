@@ -1324,6 +1324,30 @@ public final class VirtualMachine: TrackedObject {
         case .fxDiv:
           let rhs = self.pop()
           self.push(.fixnum(try self.popUnsafe().asInt64() / rhs.asInt64()))
+        case .fxInc:
+          let idx = self.sp &- 1
+          switch self.stack[idx] {
+            case .fixnum(let x):
+              self.stack[idx] = .fixnum(x &+ 1)
+            default:
+              throw EvalError.typeError(self.stack[idx], [.integerType])
+          }
+        case .fxDec:
+          let idx = self.sp &- 1
+          switch self.stack[idx] {
+            case .fixnum(let x):
+              self.stack[idx] = .fixnum(x &- 1)
+            default:
+              throw EvalError.typeError(self.stack[idx], [.integerType])
+          }
+        case .fxIsZero:
+          let idx = self.sp &- 1
+          switch self.stack[idx] {
+            case .fixnum(let x):
+              self.stack[idx] = x == 0 ? .true : .false
+            default:
+              throw EvalError.typeError(self.stack[idx], [.integerType])
+          }
         case .fxEq:
           let rhs = self.pop()
           self.push(.makeBoolean(try self.popUnsafe().asInt64() == rhs.asInt64()))
@@ -1351,6 +1375,21 @@ public final class VirtualMachine: TrackedObject {
         case .flDiv:
           let rhs = self.pop()
           self.push(.flonum(try self.popUnsafe().asDouble() / rhs.asDouble()))
+        case .flEq:
+          let rhs = self.pop()
+          self.push(.makeBoolean(try self.popUnsafe().asDouble() == rhs.asDouble()))
+        case .flLt:
+          let rhs = self.pop()
+          self.push(.makeBoolean(try self.popUnsafe().asDouble() < rhs.asDouble()))
+        case .flGt:
+          let rhs = self.pop()
+          self.push(.makeBoolean(try self.popUnsafe().asDouble() > rhs.asDouble()))
+        case .flLtEq:
+          let rhs = self.pop()
+          self.push(.makeBoolean(try self.popUnsafe().asDouble() <= rhs.asDouble()))
+        case .flGtEq:
+          let rhs = self.pop()
+          self.push(.makeBoolean(try self.popUnsafe().asDouble() >= rhs.asDouble()))
       }
     }
     return .null

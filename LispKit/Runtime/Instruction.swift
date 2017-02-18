@@ -349,6 +349,15 @@ public enum Instruction: CustomStringConvertible {
   /// **`fx_div`**: Divides a fixnum value by another fixnum value on the stack.
   case fxDiv
   
+  /// **`fx_inc`**: Adds one to another fixnum value on the stack.
+  case fxInc
+  
+  /// **`fx_dec`**: Substracts one from another fixnum value on the stack.
+  case fxDec
+  
+  /// **`fx_is_zero`**: Puts true on the stack if the fixnum value on the stack is zero.
+  case fxIsZero
+  
   /// **`fx_eq`**: Compares a fixnum value with another fixnum value on the stack for equality.
   case fxEq
   
@@ -378,6 +387,22 @@ public enum Instruction: CustomStringConvertible {
   /// **`fl_div`**: Divides a flonum value by another flonum value on the stack.
   case flDiv
   
+  /// **`fl_eq`**: Compares a flonum value with another flonum value on the stack for equality.
+  case flEq
+  
+  /// **`fl_lt`**: Determines whether a flonum value is less than another flonum value.
+  case flLt
+  
+  /// **`fl_gt`**: Determines whether a flonum value is greater than another flonum value.
+  case flGt
+  
+  /// **`fl_lt_eq`**: Determines whether a flonum value is less than or equal another flonum
+  /// value.
+  case flLtEq
+  
+  /// **`fl_gt_eq`**: Determines whether a flonum value is greater than or equal another flonum
+  /// value.
+  case flGtEq
   
   // Miscellaneous ----------------------------------------------------------------------------
 
@@ -614,6 +639,12 @@ public enum Instruction: CustomStringConvertible {
         return "fx_mult"
       case .fxDiv:
         return "fx_div"
+      case .fxInc:
+        return "fx_inc"
+      case .fxDec:
+        return "fx_dec"
+      case .fxIsZero:
+        return "fx_is_zero"
       case .fxEq:
         return "fx_eq"
       case .fxLt:
@@ -632,6 +663,16 @@ public enum Instruction: CustomStringConvertible {
         return "fl_mult"
       case .flDiv:
         return "fl_div"
+      case .flEq:
+        return "fl_eq"
+      case .flLt:
+        return "fl_lt"
+      case .flGt:
+        return "fl_gt"
+      case .flLtEq:
+        return "fl_lt_eq"
+      case .flGtEq:
+        return "fl_gt_eq"
     }
   }
 }

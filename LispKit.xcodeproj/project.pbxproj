@@ -458,8 +458,8 @@
 		CC8E2B9F1E33613C0080299A /* 41 */ = {
 			isa = PBXGroup;
 			children = (
-				CC58480D1E56BD4100BE6497 /* derived.sld */,
 				CC58480E1E56BD4100BE6497 /* primitive.sld */,
+				CC58480D1E56BD4100BE6497 /* derived.sld */,
 			);
 			name = 41;
 			path = LispKit/Resources/Libraries/srfi/41;

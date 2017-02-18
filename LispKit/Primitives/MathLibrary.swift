@@ -124,6 +124,15 @@ public final class MathLibrary: NativeLibrary {
     self.define(Procedure("fx>", fxGt, compileFxGt))
     self.define(Procedure("fx<=", fxLtEq, compileFxLtEq))
     self.define(Procedure("fx>=", fxGtEq, compileFxGtEq))
+    self.define(Procedure("fl+", flPlus, compileFlPlus))
+    self.define(Procedure("fl-", flMinus, compileFlMinus))
+    self.define(Procedure("fl*", flMult, compileFlMult))
+    self.define(Procedure("fl/", flDiv, compileFlDiv))
+    self.define(Procedure("fl=", flEq, compileFlEq))
+    self.define(Procedure("fl<", flLt, compileFlLt))
+    self.define(Procedure("fl>", flGt, compileFlGt))
+    self.define(Procedure("fl<=", flLtEq, compileFlLtEq))
+    self.define(Procedure("fl>=", flGtEq, compileFlGtEq))
   }
   
   
@@ -1065,8 +1074,26 @@ public final class MathLibrary: NativeLibrary {
   }
   
   func compileFxPlus(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
-    try self.compileBinOp(compiler, expr: expr, env: env)
-    compiler.emit(.fxPlus)
+    guard case .pair(_, .pair(let x, .pair(let y, .null))) = expr else {
+      throw EvalError.argumentCountError(formals: 2, args: expr)
+    }
+    if case .fixnum(1) = x {
+      try compiler.compile(y, in: env, inTailPos: false)
+      compiler.emit(.fxInc)
+    } else if case .fixnum(1) = y {
+      try compiler.compile(x, in: env, inTailPos: false)
+      compiler.emit(.fxInc)
+    } else if case .fixnum(-1) = x {
+      try compiler.compile(y, in: env, inTailPos: false)
+      compiler.emit(.fxDec)
+    } else if case .fixnum(-1) = y {
+      try compiler.compile(x, in: env, inTailPos: false)
+      compiler.emit(.fxDec)
+    } else {
+      try compiler.compile(x, in: env, inTailPos: false)
+      try compiler.compile(y, in: env, inTailPos: false)
+      compiler.emit(.fxPlus)
+    }
     return false
   }
   
@@ -1075,11 +1102,23 @@ public final class MathLibrary: NativeLibrary {
   }
   
   func compileFxMinus(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
-    try self.compileBinOp(compiler, expr: expr, env: env)
-    compiler.emit(.fxMinus)
+    guard case .pair(_, .pair(let x, .pair(let y, .null))) = expr else {
+      throw EvalError.argumentCountError(formals: 2, args: expr)
+    }
+    if case .fixnum(1) = y {
+      try compiler.compile(x, in: env, inTailPos: false)
+      compiler.emit(.fxDec)
+    } else if case .fixnum(-1) = y {
+      try compiler.compile(x, in: env, inTailPos: false)
+      compiler.emit(.fxInc)
+    } else {
+      try compiler.compile(x, in: env, inTailPos: false)
+      try compiler.compile(y, in: env, inTailPos: false)
+      compiler.emit(.fxMinus)
+    }
     return false
   }
-
+  
   func fxMult(_ x: Expr, _ y: Expr) throws -> Expr {
     return .fixnum(try x.asInt64() &* y.asInt64())
   }
@@ -1105,8 +1144,20 @@ public final class MathLibrary: NativeLibrary {
   }
   
   func compileFxEq(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
-    try self.compileBinOp(compiler, expr: expr, env: env)
-    compiler.emit(.fxEq)
+    guard case .pair(_, .pair(let x, .pair(let y, .null))) = expr else {
+      throw EvalError.argumentCountError(formals: 2, args: expr)
+    }
+    if case .fixnum(0) = x {
+      try compiler.compile(y, in: env, inTailPos: false)
+      compiler.emit(.fxIsZero)
+    } else if case .fixnum(0) = y {
+      try compiler.compile(x, in: env, inTailPos: false)
+      compiler.emit(.fxIsZero)
+    } else {
+      try compiler.compile(x, in: env, inTailPos: false)
+      try compiler.compile(y, in: env, inTailPos: false)
+      compiler.emit(.fxEq)
+    }
     return false
   }
   
@@ -1147,6 +1198,96 @@ public final class MathLibrary: NativeLibrary {
   func compileFxGtEq(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     try self.compileBinOp(compiler, expr: expr, env: env)
     compiler.emit(.fxLtEq)
+    return false
+  }
+  
+  func flPlus(_ x: Expr, _ y: Expr) throws -> Expr {
+    return .flonum(try x.asDouble() + y.asDouble())
+  }
+  
+  func compileFlPlus(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    try self.compileBinOp(compiler, expr: expr, env: env)
+    compiler.emit(.flPlus)
+    return false
+  }
+  
+  func flMinus(_ x: Expr, _ y: Expr) throws -> Expr {
+    return .flonum(try x.asDouble() - y.asDouble())
+  }
+  
+  func compileFlMinus(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    try self.compileBinOp(compiler, expr: expr, env: env)
+    compiler.emit(.flMinus)
+    return false
+  }
+
+  func flMult(_ x: Expr, _ y: Expr) throws -> Expr {
+    return .flonum(try x.asDouble() * y.asDouble())
+  }
+  
+  func compileFlMult(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    try self.compileBinOp(compiler, expr: expr, env: env)
+    compiler.emit(.flMult)
+    return false
+  }
+  
+  func flDiv(_ x: Expr, _ y: Expr) throws -> Expr {
+    return .flonum(try x.asDouble() / y.asDouble())
+  }
+  
+  func compileFlDiv(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    try self.compileBinOp(compiler, expr: expr, env: env)
+    compiler.emit(.flDiv)
+    return false
+  }
+  
+  func flEq(_ x: Expr, _ y: Expr) throws -> Expr {
+    return .makeBoolean(try x.asDouble() == y.asDouble())
+  }
+  
+  func compileFlEq(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    try self.compileBinOp(compiler, expr: expr, env: env)
+    compiler.emit(.flEq)
+    return false
+  }
+  
+  func flLt(_ x: Expr, _ y: Expr) throws -> Expr {
+    return .makeBoolean(try x.asDouble() < y.asDouble())
+  }
+  
+  func compileFlLt(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    try self.compileBinOp(compiler, expr: expr, env: env)
+    compiler.emit(.flLt)
+    return false
+  }
+  
+  func flGt(_ x: Expr, _ y: Expr) throws -> Expr {
+    return .makeBoolean(try x.asDouble() > y.asDouble())
+  }
+  
+  func compileFlGt(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    try self.compileBinOp(compiler, expr: expr, env: env)
+    compiler.emit(.flGt)
+    return false
+  }
+  
+  func flLtEq(_ x: Expr, _ y: Expr) throws -> Expr {
+    return .makeBoolean(try x.asDouble() <= y.asDouble())
+  }
+  
+  func compileFlLtEq(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    try self.compileBinOp(compiler, expr: expr, env: env)
+    compiler.emit(.flLtEq)
+    return false
+  }
+
+  func flGtEq(_ x: Expr, _ y: Expr) throws -> Expr {
+    return .makeBoolean(try x.asDouble() >= y.asDouble())
+  }
+  
+  func compileFlGtEq(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    try self.compileBinOp(compiler, expr: expr, env: env)
+    compiler.emit(.flLtEq)
     return false
   }
 }
