@@ -143,7 +143,7 @@ public final class Scanner {
                 self.nextCh()
               }
               self.token.kind = .ident
-              self.token.strVal = self.buffer.stringValue.lowercased()
+              self.token.strVal = self.buffer.stringValue
           }
           // check if infinity/NaN is part of a complex number
           if let realPart = realPart {
@@ -365,7 +365,7 @@ public final class Scanner {
       self.nextCh()
     }
     self.token.kind = .ident
-    self.token.strVal = self.buffer.stringValue.lowercased()
+    self.token.strVal = self.buffer.stringValue
   }
   
   /// Scans a character literal
@@ -709,7 +709,7 @@ public final class Scanner {
     switch self.scanCharSequenceUntil(BAR_CH) {
       case .success(let str):
         self.token.kind = .ident
-        self.token.strVal = str.lowercased()
+        self.token.strVal = str
       case .malformed:
         self.signal(.malformedIdentifier)
       case .illegalEscapeSequence:
