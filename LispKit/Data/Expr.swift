@@ -388,7 +388,7 @@ extension Expr {
       throw EvalError.typeError(self, [.integerType])
     }
     guard res >= 0 && res < Int64(below) else {
-      throw EvalError.indexOutOfBounds(res, Int64(below), self)
+      throw EvalError.indexOutOfBounds(res, Int64(below - 1), self)
     }
     return Int(res)
   }

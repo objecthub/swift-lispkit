@@ -544,15 +544,19 @@ public final class Scanner {
     var isFloat = dot
     let start = self.buffer.index - 1
     if !isFloat {
-      if radix != 10 || self.ch != DOT_CH {
+      if !(radix == 10 && (self.ch == DOT_CH || (self.ch == LE_CH) || (self.ch == UE_CH))) {
         while isDigitForRadix(self.ch, radix) {
           digits.append(UInt8(digitVal(self.ch)))
           self.nextCh()
         }
       }
-      if radix == 10 && self.ch == DOT_CH {
-        isFloat = true
-        self.nextCh()
+      if radix == 10 {
+        if self.ch == DOT_CH {
+          isFloat = true
+          self.nextCh()
+        } else if self.ch == LE_CH || self.ch == UE_CH {
+          isFloat = true
+        }
       }
     }
     if isFloat {
