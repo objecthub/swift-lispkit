@@ -332,6 +332,7 @@ public enum EvalError: LispError, Hashable {
   case argumentCountError(formals: Int, args: Expr)
   case noMatchingCase(args: Expr, proc: Expr)
   case leastArgumentCountError(formals: Int, args: Expr)
+  case multiValueCountError(expected: Int, found: Expr)
   case outOfScope(Expr)
   case defineInLocalEnv(signature: Expr, definition: Expr, group: BindingGroup)
   case importInLocalEnv(Expr, BindingGroup)
@@ -452,6 +453,8 @@ public enum EvalError: LispError, Hashable {
       case .leastArgumentCountError(let formals, let args):
         let (exprs, _) = args.toExprs()
         return "expected at least \(formals), but received only \(exprs.count) arguments: \(args)"
+      case .multiValueCountError(let expected, let found):
+        return "expected \(expected) values to be returned, but found: \(found)"
       case .outOfScope(let syntax):
         return "out of scope evaluation of \(syntax)"
       case .defineInLocalEnv(let sig, _, _):
@@ -566,6 +569,8 @@ public enum EvalError: LispError, Hashable {
         case (.leastArgumentCountError(let fml1, let a1),
               .leastArgumentCountError(let fml2, let a2)):
           return fml1 == fml2 && a1 == a2
+        case (.multiValueCountError(let e1, let f1), .multiValueCountError(let e2, let f2)):
+          return e1 == e2 && f1 == f2
         case (.outOfScope(let e1), .outOfScope(let e2)):
           return e1 == e2
         case (.defineInLocalEnv(let sig1, let def1, let g1),

@@ -683,6 +683,51 @@ public final class Compiler {
     return group
   }
   
+  /// Compiles the given binding list of the form
+  /// ```(((ident ...) init) ...)```
+  /// and returns a `BindingGroup` with information about the established local bindings.
+  public func compileMultiBindings(_ bindingList: Expr,
+                                   in lenv: Env,
+                                   atomic: Bool) throws -> BindingGroup {
+    let group = BindingGroup(owner: self, parent: lenv)
+    let env = atomic ? lenv : .local(group)
+    var bindings = bindingList
+    var prevIndex = -1
+    while case .pair(let binding, let rest) = bindings {
+      guard case .pair(let variables, .pair(let expr, .null)) = binding else {
+        throw EvalError.malformedBindings(binding, bindingList)
+      }
+      try self.compile(expr, in: env, inTailPos: false)
+      var vars = variables
+      var syms = [Symbol]()
+      while case .pair(.symbol(let sym), let rest) = vars {
+        syms.append(sym)
+        vars = rest
+      }
+      guard vars.isNull else {
+        throw EvalError.malformedBindings(binding, bindingList)
+      }
+      self.emit(.unpack(syms.count))
+      for sym in syms.reversed() {
+        let binding = group.allocBindingFor(sym)
+        guard binding.index > prevIndex else {
+          throw EvalError.duplicateBinding(sym, bindingList)
+        }
+        if binding.isValue {
+          self.emit(.setLocal(binding.index))
+        } else {
+          self.emit(.makeLocalVariable(binding.index))
+        }
+        prevIndex = binding.index
+      }
+      bindings = rest
+    }
+    guard bindings.isNull else {
+      throw EvalError.malformedBindings(nil, bindingList)
+    }
+    return group
+  }
+  
   /// This function should be used for finalizing the compilation of blocks with local
   /// bindings. It finalizes the binding group and resets the local bindings so that the
   /// garbage collector can deallocate the objects that are not used anymore.

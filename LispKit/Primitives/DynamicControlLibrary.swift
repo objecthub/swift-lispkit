@@ -49,7 +49,7 @@ public final class DynamicControlLibrary: NativeLibrary {
   /// Declarations of the library.
   public override func declarations() {
     // Multiple values
-    self.define(Procedure("values", values))
+    self.define(Procedure("values", values, compileValues))
     self.define(Procedure("_make-values", makeValues))
     self.define(Procedure("_apply-with-values", applyWithValues))
     self.define("call-with-values", via:
@@ -197,6 +197,21 @@ public final class DynamicControlLibrary: NativeLibrary {
         }
         return .values(res)
     }
+  }
+  
+  func compileValues(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    guard case .pair(_, let cdr) = expr else {
+      preconditionFailure()
+    }
+    switch try compiler.compileExprs(cdr, in: env) {
+      case 0:
+        compiler.emit(.pushVoid)
+      case 1:
+        break
+      case let n:
+        compiler.emit(.pack(n))
+    }
+    return false
   }
   
   // This implementation must only be used in call/cc; it's inherently unsafe to use outside

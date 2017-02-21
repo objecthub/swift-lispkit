@@ -980,6 +980,39 @@ public final class VirtualMachine: TrackedObject {
           self.push(.complex(ImmutableBox(num)))
         case .pushChar(let char):
           self.push(.char(char))
+        case .pack(let n):
+          var list = Expr.null
+          for _ in 0..<n {
+            list = .pair(self.pop(), list)
+          }
+          self.push(.values(list))
+        case .unpack(let n):
+          switch self.top() {
+            case .void:
+              guard n == 0 else {
+                throw EvalError.multiValueCountError(expected: n, found: .null)
+              }
+              self.drop()
+            case .values(let list):
+              self.drop()
+              var m = n
+              var next = list
+              while case .pair(let value, let rest) = next {
+                guard m > 0 else {
+                  throw EvalError.multiValueCountError(expected: n, found: list)
+                }
+                self.push(value)
+                m -= 1
+                next = rest
+              }
+              guard m == 0 else {
+                throw EvalError.multiValueCountError(expected: n, found: list)
+              }
+            default:
+              guard n == 1 else {
+                throw EvalError.multiValueCountError(expected: n, found: .pair(self.top(), .null))
+              }
+          }
         case .makeClosure(let i, let n, let index):
           if i >= 0 {
             guard case .symbol(let sym) = self.registers.code.constants[i] else {

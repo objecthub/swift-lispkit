@@ -39,6 +39,21 @@
 )
 
 (
+  "Let-values"
+  3
+  (let-values ((() (values)) ((a) (+ 1 2))) a)
+)
+
+(
+  "Let and let*-values"
+  (x y x y)
+  (let ((a 'a) (b 'b) (x 'x) (y 'y))
+    (let*-values (((a b) (values x y))
+                  ((x y) (values a b)))
+      (list a b x y)))
+)
+
+(
   "Letrec"
   #t
   (letrec ((even? (lambda (n) (if (zero? n) #t (odd? (- n 1)))))

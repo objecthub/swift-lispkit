@@ -92,6 +92,17 @@ public enum Instruction: CustomStringConvertible {
   case pushConstant(Int)
   
   
+  // Multi values
+  
+  /// **`pack` _n_**: Pops _n_ values from the stack and packages them up in a multi-value
+  /// expression.
+  case pack(Int)
+  
+  /// **`unpack` _n_**: Retrieves _n_ values from a multi-value expression and stores them on
+  /// the stack.
+  case unpack(Int)
+  
+  
   // Functions --------------------------------------------------------------------------------
   
   /// **`make_closure` _i_,_n_,_f_**: Creates a new closure from a name, capture list and a code
@@ -543,6 +554,10 @@ public enum Instruction: CustomStringConvertible {
         return "push_complex \(num)"
       case .pushChar(let char):
         return "push_char \(char)"
+      case .pack(let n):
+        return "pack \(n)"
+      case .unpack(let n):
+        return "unpack \(n)"
       case .makeClosure(let i, let n, let index):
         return "make_closure \(i),\(n),\(index)"
       case .makePromise:
