@@ -39,6 +39,8 @@ public final class ControlFlowLibrary: NativeLibrary {
     self.define("letrec-syntax", as: SpecialForm(compileLetRecSyntax))
     self.define("do", as: SpecialForm(compileDo))
     self.define("if", as: SpecialForm(compileIf))
+    self.define("when", as: SpecialForm(compileWhen))
+    self.define("unless", as: SpecialForm(compileUnless))
     self.define("cond", as: SpecialForm(compileCond))
     self.define("case", as: SpecialForm(compileCase))
   }
@@ -319,7 +321,41 @@ public final class ControlFlowLibrary: NativeLibrary {
     compiler.patch(.branch(compiler.offsetToNext(exitJumpIp)), at: exitJumpIp)
     return false
   }
+  
+  func compileWhen(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    guard case .pair(_, .pair(let cond, let exprs)) = expr else {
+      throw EvalError.leastArgumentCountError(formals: 1, args: expr)
+    }
+    try compiler.compile(cond, in: env, inTailPos: false)
+    let elseJumpIp = compiler.emitPlaceholder()
+    compiler.emit(.pushVoid)
+    let exitJumpIp = compiler.emitPlaceholder()
+    compiler.patch(.branchIf(compiler.offsetToNext(elseJumpIp)), at: elseJumpIp)
+    if try compiler.compileSeq(exprs, in: env, inTailPos: tail) {
+      compiler.patch(.return, at: exitJumpIp)
+      return true
+    }
+    compiler.patch(.branch(compiler.offsetToNext(exitJumpIp)), at: exitJumpIp)
+    return false
+  }
 
+  func compileUnless(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    guard case .pair(_, .pair(let cond, let exprs)) = expr else {
+      throw EvalError.leastArgumentCountError(formals: 1, args: expr)
+    }
+    try compiler.compile(cond, in: env, inTailPos: false)
+    let elseJumpIp = compiler.emitPlaceholder()
+    compiler.emit(.pushVoid)
+    let exitJumpIp = compiler.emitPlaceholder()
+    compiler.patch(.branchIfNot(compiler.offsetToNext(elseJumpIp)), at: elseJumpIp)
+    if try compiler.compileSeq(exprs, in: env, inTailPos: tail) {
+      compiler.patch(.return, at: exitJumpIp)
+      return true
+    }
+    compiler.patch(.branch(compiler.offsetToNext(exitJumpIp)), at: exitJumpIp)
+    return false
+  }
+  
   func compileCond(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     // Extract case list
     guard  case .pair(_, let caseList) = expr else {

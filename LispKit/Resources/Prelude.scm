@@ -24,18 +24,8 @@
        (let loop ()
          (if condition (begin body ... (loop)) #f)))))
 
-(define-syntax unless
-  (syntax-rules ()
-    ((unless pred body ...)
-       (if (not pred) (begin body ...)))))
-
-(define-syntax when
-  (syntax-rules ()
-    ((when pred body ...)
-       (if pred (begin body ...)))))
-
-
 ;;; Scratch (for testing)
 
 (define (fib n) (if (< n 2) n (+ (fib (- n 1)) (fib (- n 2)))))
 (define (fxfib n) (if (fx< n 2) n (fx+ (fxfib (fx- n 1)) (fxfib (fx- n 2)))))
+(define (fxfib2 n) (if (fx< n 2) n (fx+ (fxfib2 (fx1- n)) (fxfib (fx- n 2)))))
