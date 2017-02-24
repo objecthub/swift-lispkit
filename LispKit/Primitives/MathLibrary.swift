@@ -148,6 +148,7 @@ public final class MathLibrary: NativeLibrary {
     self.define(Procedure("fxmax", fxMax))
     self.define("max-fixnum", via: "(define max-fixnum \(Int64.max))")
     self.define("min-fixnum", via: "(define min-fixnum \(Int64.min))")
+    self.define(Procedure("fxrandom", fxRandom))
     self.define(Procedure("fl+", flPlus, compileFlPlus))
     self.define(Procedure("fl-", flMinus, compileFlMinus))
     self.define(Procedure("fl*", flMult, compileFlMult))
@@ -1380,6 +1381,28 @@ public final class MathLibrary: NativeLibrary {
     let xint = try x.asInt64()
     let yint = try y.asInt64()
     return .fixnum(xint > yint ? xint : yint)
+  }
+  
+  func fxRandom(_ expr: Expr, bound: Expr?) throws -> Expr {
+    let min: Int64
+    let max: Int64
+    if let bound = bound {
+      min = try expr.asInt64()
+      max = try bound.asInt64()
+      guard min >= 0 && min < Int64(Int.max) else {
+        throw EvalError.parameterOutOfBounds("random", 1, min, 0, Int64(Int.max) - 1)
+      }
+      guard max > min && max <= Int64(Int.max) else {
+        throw EvalError.parameterOutOfBounds("random", 1, max, min, Int64(Int.max))
+      }
+    } else {
+      min = 0
+      max = try expr.asInt64()
+      guard max > 0 && max <= Int64(Int.max) else {
+        throw EvalError.parameterOutOfBounds("random", 1, max, 0, Int64(Int.max))
+      }
+    }
+    return .fixnum(Int64.random(min: min, max: max))
   }
   
   func flPlus(_ x: Expr, _ y: Expr) throws -> Expr {

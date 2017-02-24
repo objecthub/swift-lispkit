@@ -35,6 +35,7 @@ public final class ListLibrary: NativeLibrary {
   public override func dependencies() {
     self.`import`(from: ["lispkit", "base"], "define", "set!", "apply", "quote", "and", "equal?")
     self.`import`(from: ["lispkit", "control"], "if", "cond", "let", "do")
+    self.`import`(from: ["lispkit", "math"], "=", "truncate-quotient", "-")
   }
   
   /// Declarations of the library.
@@ -110,6 +111,21 @@ public final class ListLibrary: NativeLibrary {
     self.define(Procedure("memv", memv))
     self.define(Procedure("assq", assq))
     self.define(Procedure("assv", assv))
+    self.define("merge", via:
+      "(define (merge pred l1 l2)",
+      "  (cond ((null? l1)               l2)",
+      "        ((null? l2)               l1)",
+      "        ((pred (car l2) (car l1)) (cons (car l2) (merge pred l1 (cdr l2))))",
+      "        (else                     (cons (car l1) (merge pred (cdr l1) l2)))))")
+    self.define("sort", via:
+      "(define (sort pred l)",
+      "  (if (null? l)",
+      "      l",
+      "      (let isort ((ls l) (n (length l)))",
+      "        (if (= n 1)",
+      "            (list (car ls))",
+      "            (let ((i (truncate-quotient n 2)))",
+      "              (merge pred (isort ls i) (isort (list-tail ls i) (- n i))))))))")
   }
   
   //---------MARK: - List predicates

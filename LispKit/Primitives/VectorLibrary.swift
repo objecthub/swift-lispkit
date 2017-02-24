@@ -28,6 +28,13 @@ public final class VectorLibrary: NativeLibrary {
     return ["lispkit", "vector"]
   }
   
+  /// Dependencies of the library.
+  public override func dependencies() {
+    self.`import`(from: ["lispkit", "control"], "let", "do", "unless", "when")
+    self.`import`(from: ["lispkit", "base"], "define", "set!", "or", "not")
+    self.`import`(from: ["lispkit", "math"], "fx1+", "fx1-", "fx=", "fx>", "fx<", "fx<=")
+  }
+  
   /// Declarations of the library.
   public override func declarations() {
     self.define(Procedure("vector?", isVector, compileIsVector))
@@ -37,6 +44,7 @@ public final class VectorLibrary: NativeLibrary {
     self.define(Procedure("vector-append", vectorAppend))
     self.define(Procedure("vector-ref", vectorRef))
     self.define(Procedure("vector-set!", vectorSet))
+    self.define(Procedure("vector-swap!", vectorSwap))
     self.define(Procedure("list->vector", listToVector))
     self.define(Procedure("vector->list", vectorToList))
     self.define(Procedure("string->vector", stringToVector))
@@ -44,6 +52,28 @@ public final class VectorLibrary: NativeLibrary {
     self.define(Procedure("vector-copy", vectorCopy))
     self.define(Procedure("vector-copy!", vectorOverwrite))
     self.define(Procedure("vector-fill!", vectorFill))
+    self.define(Procedure("_vector-pivot!", vectorPivot))
+    self.define("_vector-partition!", via:
+      "(define (_vector-partition! pred v lo hi)",
+      "  (do ((i (fx1+ lo) (fx1+ i))",
+      "       (j (fx1+ hi))",
+      "       (pivot (_vector-pivot! v lo hi)))",
+      "      ((fx> i j) (vector-swap! v lo j) j)",
+      "    (do () ((or (fx= i hi) (not (pred (vector-ref v i) pivot))))",
+      "      (set! i (fx1+ i)))",
+      "    (set! j (fx1- j))",
+      "    (do () ((or (fx= j lo) (not (pred pivot (vector-ref v j)))))",
+      "      (set! j (fx1- j)))",
+      "    (when (fx< i j) (vector-swap! v i j))))")
+    self.define("_quick-sort!", via:
+      "(define (_quick-sort! pred v lo hi)",
+      "  (unless (fx<= hi lo)",
+      "    (let ((j (_vector-partition! pred v lo hi)))",
+      "      (_quick-sort! pred v lo (fx1- j))",
+      "      (_quick-sort! pred v (fx1+ j) hi))))")
+    self.define("vector-sort!", via:
+      "(define (vector-sort! pred v)",
+      "  (_quick-sort! pred v 0 (fx1- (vector-length v))))")
   }
   
   func isVector(_ expr: Expr) -> Expr {
@@ -122,6 +152,19 @@ public final class VectorLibrary: NativeLibrary {
     // Set value at index `i`. Guarantee that vectors for which `vector-set!` is
     // called are managed by a managed object pool.
     (expr.isAtom ? vector : self.context.objects.manage(vector)).exprs[i] = expr
+    return .void
+  }
+  
+  func vectorSwap(_ vec: Expr, index1: Expr, index2: Expr) throws -> Expr {
+    let vector = try vec.vectorAsCollection()
+    let i = try index1.asInt(below: vector.exprs.count)
+    let j = try index2.asInt(below: vector.exprs.count)
+    guard case .vector = vector.kind else {
+      throw EvalError.attemptToModifyImmutableData(vec)
+    }
+    let temp = vector.exprs[i]
+    vector.exprs[i] = vector.exprs[j]
+    vector.exprs[j] = temp
     return .void
   }
   
@@ -223,5 +266,24 @@ public final class VectorLibrary: NativeLibrary {
       vector.exprs[i] = expr
     }
     return .void
+  }
+  
+  func vectorPivot(_ vec: Expr, ilo: Expr, ihi: Expr) throws -> Expr {
+    let vector = try vec.vectorAsCollection()
+    let hi = try ihi.asInt(below: vector.exprs.count)
+    let lo = try ilo.asInt(below: hi &+ 1)
+    guard case .vector = vector.kind else {
+      throw EvalError.attemptToModifyImmutableData(vec)
+    }
+    guard lo < hi else {
+      return vector.exprs[lo]
+    }
+    let i = Int(arc4random_uniform(UInt32(hi &- lo) &+ UInt32(1))) &+ lo
+    let temp = vector.exprs[i]
+    if i != lo {
+      vector.exprs[i] = vector.exprs[lo]
+      vector.exprs[lo] = temp
+    }
+    return temp
   }
 }
