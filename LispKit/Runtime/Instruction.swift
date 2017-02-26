@@ -306,7 +306,7 @@ public enum Instruction: CustomStringConvertible {
   case equal
   
   
-  // Containers -------------------------------------------------------------------------------
+  // Frequently used primitives --------------------------------------------------------------
 
   /// **`is_pair`**: Pushes `#false` onto the stack if the current value on top of
   /// the stack is not a pair.
@@ -344,6 +344,9 @@ public enum Instruction: CustomStringConvertible {
   /// **`is_vector`**: Pushes `#false` onto the stack if the current value on top of
   /// the stack is not a vector.
   case isVector
+  
+  /// **`not`**: Logical negation of the value on top of the stack.
+  case not
   
   
   // Math -------------------------------------------------------------------------------------
@@ -646,6 +649,8 @@ public enum Instruction: CustomStringConvertible {
         return "vector_append \(n)"
       case .isVector:
         return "is_vector"
+      case .not:
+        return "not"
       case .fxPlus:
         return "fx_plus"
       case .fxMinus:

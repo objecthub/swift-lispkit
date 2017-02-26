@@ -37,9 +37,9 @@ public final class BaseLibrary: NativeLibrary {
     self.define(Procedure("procedure?", isProcedure))
     self.define(Procedure("eval", eval, compileEval))
     self.define(Procedure("apply", apply, compileApply))
-    self.define(Procedure("equal?", isEqual))
-    self.define(Procedure("eqv?", isEqv))
-    self.define(Procedure("eq?", isEq))
+    self.define(Procedure("equal?", isEqual, compileEqual))
+    self.define(Procedure("eqv?", isEqv, compileEqv))
+    self.define(Procedure("eq?", isEq, compileEq))
     self.define("quote", as: SpecialForm(compileQuote))
     self.define("quasiquote", as: SpecialForm(compileQuasiquote))
     self.define("lambda", as: SpecialForm(compileLambda))
@@ -77,7 +77,7 @@ public final class BaseLibrary: NativeLibrary {
     self.define(Procedure("boolean?", isBoolean))
     self.define("and", as: SpecialForm(compileAnd))
     self.define("or", as: SpecialForm(compileOr))
-    self.define(Procedure("not", not))
+    self.define(Procedure("not", not, compileNot))
     
     // Environments
     self.define(Procedure("environment?", isEnvironment))
@@ -176,12 +176,42 @@ public final class BaseLibrary: NativeLibrary {
     return .makeBoolean(equalExpr(that, this))
   }
   
+  func compileEqual(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    guard case .pair(_, .pair(let this, .pair(let that, .null))) = expr else {
+      throw EvalError.argumentCountError(formals: 2, args: expr)
+    }
+    _ = try compiler.compile(this, in: env, inTailPos: false)
+    _ = try compiler.compile(that, in: env, inTailPos: false)
+    compiler.emit(.equal)
+    return false
+  }
+  
   func isEqv(this: Expr, that: Expr) -> Expr {
     return .makeBoolean(eqvExpr(that, this))
   }
   
+  func compileEqv(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    guard case .pair(_, .pair(let this, .pair(let that, .null))) = expr else {
+      throw EvalError.argumentCountError(formals: 2, args: expr)
+    }
+    _ = try compiler.compile(this, in: env, inTailPos: false)
+    _ = try compiler.compile(that, in: env, inTailPos: false)
+    compiler.emit(.eqv)
+    return false
+  }
+  
   func isEq(this: Expr, that: Expr) -> Expr {
     return .makeBoolean(eqExpr(that, this))
+  }
+  
+  func compileEq(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    guard case .pair(_, .pair(let this, .pair(let that, .null))) = expr else {
+      throw EvalError.argumentCountError(formals: 2, args: expr)
+    }
+    _ = try compiler.compile(this, in: env, inTailPos: false)
+    _ = try compiler.compile(that, in: env, inTailPos: false)
+    compiler.emit(.eq)
+    return false
   }
   
   func compileQuote(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
@@ -565,6 +595,15 @@ public final class BaseLibrary: NativeLibrary {
       return .true
     }
     return .false
+  }
+  
+  func compileNot(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    guard case .pair(_, .pair(let arg, .null)) = expr else {
+      throw EvalError.argumentCountError(formals: 1, args: expr)
+    }
+    _ = try compiler.compile(arg, in: env, inTailPos: false)
+    compiler.emit(.not)
+    return false
   }
   
   func compileAnd(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {

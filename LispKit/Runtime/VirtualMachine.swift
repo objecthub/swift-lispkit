@@ -1275,11 +1275,11 @@ public final class VirtualMachine: TrackedObject {
         case .newline:
           context.console.print("\n")
         case .eq:
-          self.push(.makeBoolean(eqExpr(self.pop(), self.pop())))
+          self.push(.makeBoolean(eqExpr(self.pop(), self.popUnsafe())))
         case .eqv:
-          self.push(.makeBoolean(eqvExpr(self.pop(), self.pop())))
+          self.push(.makeBoolean(eqvExpr(self.pop(), self.popUnsafe())))
         case .equal:
-          self.push(.makeBoolean(equalExpr(self.pop(), self.pop())))
+          self.push(.makeBoolean(equalExpr(self.pop(), self.popUnsafe())))
         case .isPair:
           if case .pair(_, _) = self.popUnsafe() {
             self.push(.true)
@@ -1341,6 +1341,12 @@ public final class VirtualMachine: TrackedObject {
           self.push(.vector(vector))
         case .isVector:
           if case .vector(_) = self.popUnsafe() {
+            self.push(.true)
+          } else {
+            self.push(.false)
+          }
+        case .not:
+          if case .false = self.popUnsafe() {
             self.push(.true)
           } else {
             self.push(.false)

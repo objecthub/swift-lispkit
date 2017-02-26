@@ -133,6 +133,7 @@ public final class Environment: Reference, CustomStringConvertible {
     // Wire the library
     _ = library.wire()
     // Set up environment based on wired library
+    // Include imports in the environment
     for (ident, importLocation) in library.imports {
       switch importLocation {
         case .mutable(let loc):
@@ -141,9 +142,35 @@ public final class Environment: Reference, CustomStringConvertible {
           self.bind(ident, to: .immutableImport(loc))
       }
     }
+    // Include excludes in the environment
     for (extIdent, intIdent) in library.exportDecls {
       if !library.imported.hasValues(for: intIdent.identifier) {
-        self.bind(intIdent.identifier, to: .mutable(library.exports[extIdent]!.location))
+        let iref = library.exports[extIdent]!
+        // Include internally defined primitive procedures with a form compiler such that
+        // the compiler can do some inter-library optimizations
+        if intIdent.isMutable {
+          self.bind(intIdent.identifier, to: .mutable(iref.location))
+        } else {
+          self.bind(intIdent.identifier, to: .immutableImport(iref.location))
+        }
+        /*
+        OPTION 1:
+        if iref.isMutable {
+          self.bind(intIdent.identifier, to: .mutable(iref.location))
+        } else {
+          self.bind(intIdent.identifier, to: .immutableImport(iref.location))
+        }
+        OPTION 2:
+        switch context.heap.locations[iref.location] {
+          case .procedure(let proc):
+            if case .primitive(_, _, .some(_)) = proc.kind {
+              self.bind(intIdent.identifier, to: .immutableImport(iref.location))
+            } else {
+              self.bind(intIdent.identifier, to: .mutable(iref.location))
+            }
+          default:
+            self.bind(intIdent.identifier, to: .mutable(iref.location))
+        } */
       }
     }
   }

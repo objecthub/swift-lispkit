@@ -33,7 +33,7 @@ public final class ListLibrary: NativeLibrary {
   
   /// Dependencies of the library.
   public override func dependencies() {
-    self.`import`(from: ["lispkit", "base"], "define", "set!", "apply", "quote", "and", "or",
+    self.`import`(from: ["lispkit", "base"], "define", "apply", "quote", "and", "or",
                                              "not", "equal?", "lambda", "identity")
     self.`import`(from: ["lispkit", "control"], "if", "cond", "let", "do")
     self.`import`(from: ["lispkit", "math"], "=", "truncate-quotient", "-")
@@ -82,7 +82,7 @@ public final class ListLibrary: NativeLibrary {
     self.define(Procedure("append", append))
     self.define(Procedure("reverse", reverse))
     self.define(Procedure("list-tail", listTail))
-    self.define(Procedure("decons", decons))
+    self.define(Procedure("decons", decons), export: false)
     self.define("list-ref", via: "(define (list-ref x k) (car (list-tail x k)))")
     self.define("member", via:
       "(define (member x list . comp)",

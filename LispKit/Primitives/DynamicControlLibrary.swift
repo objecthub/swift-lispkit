@@ -91,7 +91,7 @@ public final class DynamicControlLibrary: NativeLibrary {
     self.define(Procedure("file-error?", isFileError))
     
     // Exceptions
-    self.define("return", via: "(define return 0)")
+    self.define("return", mutable: true, via: "(define return 0)")
     self.execute("(call-with-current-continuation (lambda (cont) (set! return cont)))")
     self.define("with-exception-handler", via:
       "(define (with-exception-handler handler thunk)",
@@ -144,7 +144,7 @@ public final class DynamicControlLibrary: NativeLibrary {
     self.define("error", via:
       "(define (error message . irritants) (raise (make-error message irritants)))")
     self.define(Procedure("_trigger-exit", triggerExit))
-    self.define("exit", via: "(define exit 0)")
+    self.define("exit", mutable: true, via: "(define exit 0)")
     self.execute("(call-with-current-continuation " +
       "  (lambda (cont) (set! exit (lambda args (_trigger-exit cont args)))))")
     self.define(Procedure("emergency-exit", emergencyExit))
