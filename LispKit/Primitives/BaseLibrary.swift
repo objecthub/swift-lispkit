@@ -87,6 +87,7 @@ public final class BaseLibrary: NativeLibrary {
     // Helpers
     self.define(Procedure("void", BaseLibrary.voidConst))
     self.define(Procedure("void?", BaseLibrary.isVoid))
+    self.define(BaseLibrary.idProc)
   }
   
   

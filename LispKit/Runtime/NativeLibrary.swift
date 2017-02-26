@@ -264,7 +264,7 @@ open class NativeLibrary: Library {
   
   /// Invokes the given instruction `instr` with parameter `expr` in environment `env` for
   /// compiler `compiler`. This method must only be used in form compilers.
-  public func invoke(_ instr: Instruction,
+  public func invoke(_ instrs: Instruction...,
                      with expr: Expr,
                      in env: Env,
                      for compiler: Compiler) throws -> Bool {
@@ -272,7 +272,9 @@ open class NativeLibrary: Library {
       throw EvalError.argumentCountError(formals: 1, args: expr)
     }
     try compiler.compile(arg, in: env, inTailPos: false)
-    compiler.emit(instr)
+    for instr in instrs {
+      compiler.emit(instr)
+    }
     return false
   }
 }

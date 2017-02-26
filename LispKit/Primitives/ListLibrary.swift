@@ -33,7 +33,8 @@ public final class ListLibrary: NativeLibrary {
   
   /// Dependencies of the library.
   public override func dependencies() {
-    self.`import`(from: ["lispkit", "base"], "define", "set!", "apply", "quote", "and", "equal?")
+    self.`import`(from: ["lispkit", "base"], "define", "set!", "apply", "quote", "and", "or",
+                                             "not", "equal?", "lambda", "identity")
     self.`import`(from: ["lispkit", "control"], "if", "cond", "let", "do")
     self.`import`(from: ["lispkit", "math"], "=", "truncate-quotient", "-")
   }
@@ -46,12 +47,13 @@ public final class ListLibrary: NativeLibrary {
     self.define(Procedure("make-list", makeList))
     self.define(Procedure("list", list, compileList))
     self.define(Procedure("cons", cons, compileCons))
+    self.define(Procedure("cons*", consStar))
     self.define(Procedure("car", car, compileCar))
     self.define(Procedure("cdr", cdr, compileCdr))
-    self.define(Procedure("caar", caar))
-    self.define(Procedure("cadr", cadr))
-    self.define(Procedure("cdar", cdar))
-    self.define(Procedure("cddr", cddr))
+    self.define(Procedure("caar", caar, compileCaar))
+    self.define(Procedure("cadr", cadr, compileCadr))
+    self.define(Procedure("cdar", cdar, compileCdar))
+    self.define(Procedure("cddr", cddr, compileCddr))
     self.define("caaar", via: "(define (caaar x) (car (caar x)))")
     self.define("caadr", via: "(define (caadr x) (car (cadr x)))")
     self.define("cadar", via: "(define (cadar x) (car (cdar x)))")
@@ -95,11 +97,14 @@ public final class ListLibrary: NativeLibrary {
       "            ((eq x (caar ls)) (car ls))",
       "            (else (assoc (cdr ls)))))))")
     self.define("map", via:
-      "(define (map f list1 . lists)",
-      "  (let ((res '()))",
-      "       (do ((pair (decons (cons list1 lists)) (decons (cdr pair))))",
-      "           ((null? pair) (reverse res))",
-      "           (set! res (cons (apply f (car pair)) res)))))")
+      "(define (map f xs . xss)",
+      "  (if (null? xss)",
+      "      (do ((res '() (cons (f (car xs)) res))",
+      "           (xs xs (cdr xs)))",
+      "          ((null? xs) (reverse res)))",
+      "      (do ((res '() (cons (apply f (car pair)) res))",
+      "           (pair (decons (cons xs xss)) (decons (cdr pair))))",
+      "          ((null? pair) (reverse res)))))")
     self.define("for-each", via:
       "(define (for-each f list1 . lists)",
       "  (do ((pair (decons (cons list1 lists)) (decons (cdr pair))))",
@@ -126,6 +131,41 @@ public final class ListLibrary: NativeLibrary {
       "            (list (car ls))",
       "            (let ((i (truncate-quotient n 2)))",
       "              (merge pred (isort ls i) (isort (list-tail ls i) (- n i))))))))")
+    self.define("fold-left", via:
+      "(define (fold-left f z xs . xss)",
+      "  (if (null? xss)",
+      "      (do ((acc z (f (car xs) acc))",
+      "           (xs xs (cdr xs)))",
+      "          ((null? xs) acc))",
+      "      (do ((acc z (apply f (append (car pair) (list acc))))",
+      "           (pair (decons (cons xs xss)) (decons (cdr pair))))",
+      "          ((null? pair) acc))))")
+    self.define("fold-right", via:
+      "(define (fold-right f z xs . xss)",
+      "  (if (null? xss)",
+      "      (let rec ((cont identity) (xs xs))",
+      "        (if (null? xs)",
+      "            (cont z)",
+      "            (rec (lambda (acc) (cont (f (car xs) acc))) (cdr xs))))",
+      "      (let rec ((cont identity) (pair (decons (cons xs xss))))",
+      "        (if (null? pair)",
+      "            (cont z)",
+      "            (rec (lambda (acc) (cont (apply f (append (car pair) (list acc)))))",
+      "                 (decons (cdr pair)))))))")
+    self.define("every", via:
+      "(define (every pred xs . xss)",
+      "  (if (null? xss)",
+      "      (do ((xs xs (cdr xs)))",
+      "          ((or (null? xs) (not (pred (car xs)))) (null? xs)))",
+      "      (do ((pair (decons (cons xs xss)) (decons (cdr pair))))",
+      "          ((or (null? pair) (not (apply pred (car pair)))) (null? pair)))))")
+    self.define("any", via:
+      "(define (any pred xs . xss)",
+      "  (if (null? xss)",
+      "      (do ((xs xs (cdr xs)))",
+      "          ((or (null? xs) (pred (car xs))) (not (null? xs))))",
+      "      (do ((pair (decons (cons xs xss)) (decons (cdr pair))))",
+      "          ((or (null? pair) (apply pred (car pair))) (not (null? pair))))))")
   }
   
   //---------MARK: - List predicates
@@ -208,6 +248,14 @@ public final class ListLibrary: NativeLibrary {
     return false
   }
   
+  func consStar(_ expr: Expr, _ args: Arguments) -> Expr {
+    var res: Expr? = nil
+    for arg in args.reversed() {
+      res = res == nil ? arg : Expr.pair(arg, res!)
+    }
+    return res == nil ? expr : Expr.pair(expr, res!)
+  }
+  
   func car(_ expr: Expr) throws -> Expr {
     guard case .pair(let car, _) = expr else {
       throw EvalError.typeError(expr, [.pairType])
@@ -240,6 +288,10 @@ public final class ListLibrary: NativeLibrary {
     return caar
   }
   
+  func compileCaar(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    return try self.invoke(.car, .car, with: expr, in: env, for: compiler)
+  }
+  
   func cadr(_ expr: Expr) throws -> Expr {
     guard case .pair(_, let cdr) = expr else {
       throw EvalError.typeError(expr, [.pairType])
@@ -248,6 +300,10 @@ public final class ListLibrary: NativeLibrary {
       throw EvalError.typeError(cdr, [.pairType])
     }
     return cadr
+  }
+  
+  func compileCadr(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    return try self.invoke(.cdr, .car, with: expr, in: env, for: compiler)
   }
 
   func cdar(_ expr: Expr) throws -> Expr {
@@ -260,6 +316,10 @@ public final class ListLibrary: NativeLibrary {
     return cdar
   }
   
+  func compileCdar(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    return try self.invoke(.car, .cdr, with: expr, in: env, for: compiler)
+  }
+  
   func cddr(_ expr: Expr) throws -> Expr {
     guard case .pair(_, let cdr) = expr else {
       throw EvalError.typeError(expr, [.pairType])
@@ -269,7 +329,10 @@ public final class ListLibrary: NativeLibrary {
     }
     return cddr
   }
-
+  
+  func compileCddr(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    return try self.invoke(.cdr, .cdr, with: expr, in: env, for: compiler)
+  }
   
   //-------- MARK: - Basic list functions
   

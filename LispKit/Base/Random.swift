@@ -31,7 +31,9 @@ private func arc4random<T: ExpressibleByIntegerLiteral>(_ type: T.Type) -> T {
 
 public extension UInt64 {
   public static func random(min: UInt64 = UInt64.min, max: UInt64 = UInt64.max) -> UInt64 {
+    // compute random number
     var rand = arc4random(self)
+    // fix modulo bias
     let range = max - min
     let m: UInt64 = range > maxInt64 ? (1 + ~range) : (((UInt64.max - (range * 2)) + 1) % range)
     while rand < m {
@@ -45,7 +47,19 @@ public extension Int64 {
   public static func random(min: Int64 = Int64.min, max: Int64 = Int64.max) -> Int64 {
     let (s, overflow) = Int64.subtractWithOverflow(max, min)
     let u: UInt64 = overflow ? (UInt64.max - UInt64(~s)) : UInt64(s)
-    let r = UInt64.random(max: u)
-    return r > UInt64(Int64.max) ? Int64(r - (UInt64(~min) + 1)) : (Int64(r) + min)
+    let rand = UInt64.random(max: u)
+    return rand > maxInt64 ? Int64(rand - (UInt64(~min) + 1)) : (Int64(rand) + min)
+  }
+}
+
+public extension UInt32 {
+  public static func random(min: UInt32 = UInt32.min, max: UInt32 = UInt32.max) -> UInt32 {
+    return arc4random_uniform(max - min) + min
+  }
+}
+
+public extension Int32 {
+  public static func random(min: Int32 = Int32.min, max: Int32 = Int32.max) -> Int32 {
+    return Int32(Int64(arc4random_uniform(UInt32(Int64(max) - Int64(min)))) + Int64(min))
   }
 }
