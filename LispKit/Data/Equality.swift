@@ -47,7 +47,7 @@ public func equalExpr(_ this: Expr, _ that: Expr) -> Bool {
   var equalities = Set<Equality>()
   
   func equals(_ lhs: Expr, _ rhs: Expr) -> Bool {
-    switch (lhs, rhs) {
+    switch (lhs.normalized, rhs.normalized) {
       case (.undef, .undef),
            (.void, .void),
            (.eof, .eof),
@@ -59,13 +59,18 @@ public func equalExpr(_ this: Expr, _ that: Expr) -> Bool {
         return sym1 === sym2
       case (.symbol(let sym1), .symbol(let sym2)):
         return sym1 === sym2
-      case (.fixnum(_), _),
-           (.bignum(_), _),
-           (.rational(_), _),
-           (.bigrat(_), _),
-           (.flonum(_), _),
-           (.complex(_), _):
-        return lhs.isExactNumber == rhs.isExactNumber && compare(lhs, with: rhs) == 0
+      case (.fixnum(let num1), .fixnum(let num2)):
+        return num1 == num2
+      case (.bignum(let num1), .bignum(let num2)):
+        return num1 == num2
+      case (.rational(let num1), .rational(let num2)):
+        return num1.value == num2.value
+      case (.bigrat(let num1), .bigrat(let num2)):
+        return num1.value == num2.value
+      case (.flonum(let num1), .flonum(let num2)):
+        return num1 == num2
+      case (.complex(let num1), .complex(let num2)):
+        return num1.value == num2.value
       case (.char(let ch1), .char(let ch2)):
         return ch1 == ch2
       case (.string(let str1), .string(let str2)):
@@ -201,7 +206,7 @@ public func equalExpr(_ this: Expr, _ that: Expr) -> Bool {
 //-------- MARK: - Eqv
 
 public func eqvExpr(_ lhs: Expr, _ rhs: Expr) -> Bool {
-  switch (lhs, rhs) {
+  switch (lhs.normalized, rhs.normalized) {
     case (.undef, .undef),
          (.void, .void),
          (.eof, .eof),
@@ -213,13 +218,18 @@ public func eqvExpr(_ lhs: Expr, _ rhs: Expr) -> Bool {
       return sym1 === sym2
     case (.symbol(let sym1), .symbol(let sym2)):
       return sym1 === sym2
-    case (.fixnum(_), _),
-         (.bignum(_), _),
-         (.rational(_), _),
-         (.bigrat(_), _),
-         (.flonum(_), _),
-         (.complex(_), _):
-      return lhs.isExactNumber == rhs.isExactNumber && compare(lhs, with: rhs) == 0
+    case (.fixnum(let num1), .fixnum(let num2)):
+      return num1 == num2
+    case (.bignum(let num1), .bignum(let num2)):
+      return num1 == num2
+    case (.rational(let num1), .rational(let num2)):
+      return num1.value == num2.value
+    case (.bigrat(let num1), .bigrat(let num2)):
+      return num1.value == num2.value
+    case (.flonum(let num1), .flonum(let num2)):
+      return num1 == num2
+    case (.complex(let num1), .complex(let num2)):
+      return num1.value == num2.value
     case (.char(let ch1), .char(let ch2)):
       return ch1 == ch2
     case (.string(let str1), .string(let str2)):
@@ -278,13 +288,13 @@ public func eqExpr(_ lhs: Expr, _ rhs: Expr) -> Bool {
     case (.bignum(let num1), .bignum(let num2)):
       return num1 == num2
     case (.rational(let num1), .rational(let num2)):
-      return num1 == num2
+      return num1.value == num2.value
     case (.bigrat(let num1), .bigrat(let num2)):
-      return num1 == num2
+      return num1.value == num2.value
     case (.flonum(let num1), .flonum(let num2)):
       return num1 == num2
     case (.complex(let num1), .complex(let num2)):
-      return num1 == num2
+      return num1.value == num2.value
     case (.char(let ch1), .char(let ch2)):
       return ch1 == ch2
     case (.string(let str1), .string(let str2)):

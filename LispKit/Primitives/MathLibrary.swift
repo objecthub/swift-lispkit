@@ -172,23 +172,66 @@ public final class MathLibrary: NativeLibrary {
   //-------- MARK: - Classification primitives
 
   func isNumber(_ expr: Expr) -> Expr {
-    return .makeBoolean(Type.numberType.includes(expr.type))
+    switch expr {
+      case .fixnum(_), .bignum(_), .rational(_), .bigrat(_), .flonum(_), .complex(_):
+        return .true
+      default:
+        return .false
+    }
   }
-
-  func isReal(_ expr: Expr) -> Expr {
-    return .makeBoolean(Type.realType.includes(expr.type))
-  }
-
-  func isInteger(_ expr: Expr) throws -> Expr {
-    return .makeBoolean(Type.integerType.includes(expr.type))
-  }
-
-  func isRational(_ expr: Expr) throws -> Expr {
-    return .makeBoolean(Type.integerType.includes(expr.type) || Type.rationalType.includes(expr.type))
-  }
-
+  
   func isComplex(_ expr: Expr) -> Expr {
-    return .makeBoolean(Type.numberType.includes(expr.type))
+    switch expr {
+      case .fixnum(_), .bignum(_), .rational(_), .bigrat(_), .flonum(_), .complex(_):
+        return .true
+      default:
+        return .false
+    }
+  }
+  
+  func isReal(_ expr: Expr) -> Expr {
+    switch expr {
+      case .fixnum(_), .bignum(_), .rational(_), .bigrat(_), .flonum(_):
+        return .true
+      case .complex(let num):
+        return .makeBoolean(num.value.isReal)
+      default:
+        return .false
+    }
+  }
+  
+  func isInteger(_ expr: Expr) -> Expr {
+    switch expr {
+      case .fixnum(_), .bignum(_):
+        return .true
+      case .rational(let num):
+        return .makeBoolean(num.value.intValue != nil)
+      case .bigrat(let num):
+        return .makeBoolean(num.value.intValue != nil)
+      case .flonum(let num):
+        return .makeBoolean(Foundation.round(num) == num)
+      case .complex(let num):
+        guard let real = num.value.realValue else {
+          return .false
+        }
+        return .makeBoolean(Foundation.round(real) == real)
+      default:
+        return .false
+    }
+  }
+  
+  func isRational(_ expr: Expr) throws -> Expr {
+    switch expr {
+      case .fixnum(_), .bignum(_), .rational(_), .bigrat(_):
+        return .true
+      case .flonum(let num):
+        return .makeBoolean(!num.isInfinite && !num.isNaN)
+      case .complex(let num):
+        return .makeBoolean(!num.value.re.isInfinite && !num.value.re.isNaN &&
+                            !num.value.im.isInfinite && !num.value.im.isNaN)
+      default:
+        return .false
+    }
   }
   
   func isFixnum(_ expr: Expr) -> Expr {
@@ -261,8 +304,12 @@ public final class MathLibrary: NativeLibrary {
 
   func isExactInteger(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .fixnum(_):
+      case .fixnum(_), .bignum(_):
         return .true
+      case .rational(let num):
+        return .makeBoolean(num.value.intValue != nil)
+      case .bigrat(let num):
+        return .makeBoolean(num.value.intValue != nil)
       default:
         return .false
     }
@@ -352,7 +399,7 @@ public final class MathLibrary: NativeLibrary {
       case .flonum(let num):
         return .makeBoolean(num.isZero)
       case .complex(let num):
-        return num.value.isReal ? .makeBoolean(num.value.re >= 0) : .false
+        return num.value.isReal ? .makeBoolean(num.value.re.isZero) : .false
       default:
         throw EvalError.typeError(expr, [.numberType])
     }
