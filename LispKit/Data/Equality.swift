@@ -68,9 +68,11 @@ public func equalExpr(_ this: Expr, _ that: Expr) -> Bool {
       case (.bigrat(let num1), .bigrat(let num2)):
         return num1.value == num2.value
       case (.flonum(let num1), .flonum(let num2)):
-        return num1 == num2
+        return num1 == num2 && num1.sign == num2.sign
       case (.complex(let num1), .complex(let num2)):
-        return num1.value == num2.value
+        return num1.value == num2.value &&
+               num1.value.re.sign == num2.value.re.sign &&
+               num1.value.im.sign == num2.value.im.sign
       case (.char(let ch1), .char(let ch2)):
         return ch1 == ch2
       case (.string(let str1), .string(let str2)):
@@ -227,9 +229,11 @@ public func eqvExpr(_ lhs: Expr, _ rhs: Expr) -> Bool {
     case (.bigrat(let num1), .bigrat(let num2)):
       return num1.value == num2.value
     case (.flonum(let num1), .flonum(let num2)):
-      return num1 == num2
+      return num1 == num2 && num1.sign == num2.sign
     case (.complex(let num1), .complex(let num2)):
-      return num1.value == num2.value
+      return num1.value == num2.value &&
+             num1.value.re.sign == num2.value.re.sign &&
+             num1.value.im.sign == num2.value.im.sign
     case (.char(let ch1), .char(let ch2)):
       return ch1 == ch2
     case (.string(let str1), .string(let str2)):
@@ -292,9 +296,11 @@ public func eqExpr(_ lhs: Expr, _ rhs: Expr) -> Bool {
     case (.bigrat(let num1), .bigrat(let num2)):
       return num1.value == num2.value
     case (.flonum(let num1), .flonum(let num2)):
-      return num1 == num2
+      return num1 == num2 && num1.sign == num2.sign
     case (.complex(let num1), .complex(let num2)):
-      return num1.value == num2.value
+      return num1.value == num2.value &&
+             num1.value.re.sign == num2.value.re.sign &&
+             num1.value.im.sign == num2.value.im.sign
     case (.char(let ch1), .char(let ch2)):
       return ch1 == ch2
     case (.string(let str1), .string(let str2)):
