@@ -338,10 +338,12 @@ public final class Compiler {
         self.emit(.pushFixnum(num))
       case .bignum(let num):
         self.emit(.pushBignum(num))
-      case .rational(let num):
-        self.emit(.pushRat(num.value))
-      case .bigrat(let num):
-        self.emit(.pushBigrat(num.value))
+      case .rational(.fixnum(let n), .fixnum(let d)):
+        self.emit(.pushRat(Rational(n, d)))
+      case .rational(.bignum(let n), .bignum(let d)):
+        self.emit(.pushBigrat(Rational(n, d)))
+      case .rational(_, _):
+        preconditionFailure("incorrectly encoded rational number")
       case .flonum(let num):
         self.emit(.pushFlonum(num))
       case .complex(let num):

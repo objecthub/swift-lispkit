@@ -971,9 +971,9 @@ public final class VirtualMachine: TrackedObject {
         case .pushBignum(let num):
           self.push(.bignum(num))
         case .pushRat(let num):
-          self.push(.rational(ImmutableBox(num)))
+          self.push(.rational(.fixnum(num.numerator), .fixnum(num.denominator)))
         case .pushBigrat(let num):
-          self.push(.bigrat(ImmutableBox(num)))
+          self.push(.rational(.bignum(num.numerator), .bignum(num.denominator)))
         case .pushFlonum(let num):
           self.push(.flonum(num))
         case .pushComplex(let num):

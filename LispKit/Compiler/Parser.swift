@@ -64,9 +64,11 @@ public final class Parser {
       case .bigint:
         res = Expr.bignum(token.bigIntVal).normalized
       case .rat:
-        res = Expr.rational(ImmutableBox(token.ratVal)).normalized
+        res = Expr.rational(.fixnum(token.ratVal.numerator),
+                            .fixnum(token.ratVal.denominator)).normalized
       case .bigrat:
-        res = Expr.bigrat(ImmutableBox(token.bigRatVal)).normalized
+        res = Expr.rational(.bignum(token.bigRatVal.numerator),
+                            .bignum(token.bigRatVal.denominator)).normalized
       case .float:
         res = Expr.flonum(token.floatVal)
       case .complex:

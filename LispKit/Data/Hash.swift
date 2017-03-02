@@ -53,10 +53,8 @@ public func equalHash(_ expr: Expr) -> Int {
         return num.hashValue &* 31 &+ 7
       case .bignum(let num):
         return num.hashValue &* 31 &+ 8
-      case .rational(let num):
-        return num.value.hashValue &* 31 &+ 9
-      case .bigrat(let num):
-        return num.value.hashValue &* 31 &+ 10
+      case .rational(let n, let d):
+        return ((hash(n) &* 31) &+ hash(d)) &* 31 + 9
       case .flonum(let num):
         return num.hashValue &* 31 &+ 11
       case .complex(let num):
@@ -166,10 +164,8 @@ public func eqvHash(_ expr: Expr) -> Int {
       return num.hashValue &* 31 &+ 7
     case .bignum(let num):
       return num.hashValue &* 31 &+ 8
-    case .rational(let num):
-      return num.value.hashValue &* 31 &+ 9
-    case .bigrat(let num):
-      return num.value.hashValue &* 31 &+ 10
+    case .rational(let n, let d):
+      return ((eqvHash(n) &* 31) &+ eqvHash(d)) &* 31 + 9
     case .flonum(let num):
       return num.hashValue &* 31 &+ 11
     case .complex(let num):
@@ -230,10 +226,8 @@ public func eqHash(_ expr: Expr) -> Int {
       return num.hashValue &* 31 &+ 7
     case .bignum(let num):
       return num.hashValue &* 31 &+ 8
-    case .rational(let num):
-      return num.value.hashValue &* 31 &+ 9
-    case .bigrat(let num):
-      return num.value.hashValue &* 31 &+ 10
+    case .rational(let n, let d):
+      return ((eqHash(n) &* 31) &+ eqHash(d)) &* 31 + 9
     case .flonum(let num):
       return num.hashValue &* 31 &+ 11
     case .complex(let num):

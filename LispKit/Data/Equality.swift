@@ -63,10 +63,8 @@ public func equalExpr(_ this: Expr, _ that: Expr) -> Bool {
         return num1 == num2
       case (.bignum(let num1), .bignum(let num2)):
         return num1 == num2
-      case (.rational(let num1), .rational(let num2)):
-        return num1.value == num2.value
-      case (.bigrat(let num1), .bigrat(let num2)):
-        return num1.value == num2.value
+      case (.rational(let n1, let d1), .rational(let n2, let d2)):
+        return equals(n1, n2) && equals(d1, d2)
       case (.flonum(let num1), .flonum(let num2)):
         return num1 == num2 && num1.sign == num2.sign
       case (.complex(let num1), .complex(let num2)):
@@ -224,10 +222,8 @@ public func eqvExpr(_ lhs: Expr, _ rhs: Expr) -> Bool {
       return num1 == num2
     case (.bignum(let num1), .bignum(let num2)):
       return num1 == num2
-    case (.rational(let num1), .rational(let num2)):
-      return num1.value == num2.value
-    case (.bigrat(let num1), .bigrat(let num2)):
-      return num1.value == num2.value
+    case (.rational(let n1, let d1), .rational(let n2, let d2)):
+      return eqvExpr(n1, n2) && eqvExpr(d1, d2)
     case (.flonum(let num1), .flonum(let num2)):
       return num1 == num2 && num1.sign == num2.sign
     case (.complex(let num1), .complex(let num2)):
@@ -291,10 +287,8 @@ public func eqExpr(_ lhs: Expr, _ rhs: Expr) -> Bool {
       return num1 == num2
     case (.bignum(let num1), .bignum(let num2)):
       return num1 == num2
-    case (.rational(let num1), .rational(let num2)):
-      return num1.value == num2.value
-    case (.bigrat(let num1), .bigrat(let num2)):
-      return num1.value == num2.value
+    case (.rational(let n1, let d1), .rational(let n2, let d2)):
+      return eqExpr(n1, n2) && eqExpr(d1, d2)
     case (.flonum(let num1), .flonum(let num2)):
       return num1 == num2 && num1.sign == num2.sign
     case (.complex(let num1), .complex(let num2)):
@@ -364,10 +358,10 @@ enum NumberPair {
         self = .fixnumPair(lhs, rhs)
       case (.fixnum(let lhs), .bignum(let rhs)):
         self = .bignumPair(BigInt(lhs), rhs)
-      case (.fixnum(let lhs), .rational(let rhs)):
-        self = .rationalPair(Rational(lhs), rhs.value)
-      case (.fixnum(let lhs), .bigrat(let rhs)):
-        self = .bigRationalPair(Rational(BigInt(lhs)), rhs.value)
+      case (.fixnum(let lhs), .rational(.fixnum(let n), .fixnum(let d))):
+        self = .rationalPair(Rational(lhs), Rational(n, d))
+      case (.fixnum(let lhs), .rational(.bignum(let n), .bignum(let d))):
+        self = .bigRationalPair(Rational(BigInt(lhs)), Rational(n, d))
       case (.fixnum(let lhs), .flonum(let rhs)):
         self = .flonumPair(Double(lhs), rhs)
       case (.fixnum(let lhs), .complex(let rhs)):
@@ -376,54 +370,50 @@ enum NumberPair {
         self = .bignumPair(lhs, BigInt(rhs))
       case (.bignum(let lhs), .bignum(let rhs)):
         self = .bignumPair(lhs, rhs)
-      case (.bignum(let lhs), .rational(let rhs)):
-        self = .bigRationalPair(Rational(lhs),
-                                Rational(BigInt(rhs.value.numerator),
-                                         BigInt(rhs.value.denominator)))
-      case (.bignum(let lhs), .bigrat(let rhs)):
-        self = .bigRationalPair(Rational(lhs), rhs.value)
+      case (.bignum(let lhs), .rational(.fixnum(let n), .fixnum(let d))):
+        self = .bigRationalPair(Rational(lhs), Rational(BigInt(n), BigInt(d)))
+      case (.bignum(let lhs), .rational(.bignum(let n), .bignum(let d))):
+        self = .bigRationalPair(Rational(lhs), Rational(n, d))
       case (.bignum(let lhs), .flonum(let rhs)):
         self = .flonumPair(lhs.doubleValue, rhs)
       case (.bignum(let lhs), .complex(let rhs)):
         self = .complexPair(Complex(lhs.doubleValue), rhs.value)
-      case (.rational(let lhs), .fixnum(let rhs)):
-        self = .rationalPair(lhs.value, Rational(rhs))
-      case (.rational(let lhs), .bignum(let rhs)):
-        self = .bigRationalPair(Rational(BigInt(lhs.value.numerator),
-                                         BigInt(lhs.value.denominator)),
-                                Rational(rhs))
-      case (.rational(let lhs), .rational(let rhs)):
-        self = .rationalPair(lhs.value, rhs.value)
-      case (.rational(let lhs), .bigrat(let rhs)):
-        self = .bigRationalPair(Rational(BigInt(lhs.value.numerator),
-                                         BigInt(lhs.value.denominator)), rhs.value)
-      case (.rational(let lhs), .flonum(let rhs)):
-        self = .flonumPair(Double(lhs.value.numerator) / Double(lhs.value.denominator), rhs)
-      case (.rational(let lhs), .complex(let rhs)):
-        self = .complexPair(Complex(Double(lhs.value.numerator) / Double(lhs.value.denominator)),
-                            rhs.value)
-      case (.bigrat(let lhs), .fixnum(let rhs)):
-        self = .bigRationalPair(lhs.value, Rational(BigInt(rhs)))
-      case (.bigrat(let lhs), .bignum(let rhs)):
-        self = .bigRationalPair(lhs.value, Rational(rhs))
-      case (.bigrat(let lhs), .rational(let rhs)):
-        self = .bigRationalPair(lhs.value, Rational(BigInt(rhs.value.numerator),
-                                                    BigInt(rhs.value.denominator)))
-      case (.bigrat(let lhs), .bigrat(let rhs)):
-        self = .bigRationalPair(lhs.value, rhs.value)
-      case (.bigrat(let lhs), .flonum(let rhs)):
-        self = .flonumPair(lhs.value.numerator.doubleValue/lhs.value.denominator.doubleValue, rhs)
-      case (.bigrat(let lhs), .complex(let rhs)):
-        self = .complexPair(
-          Complex(lhs.value.numerator.doubleValue/lhs.value.denominator.doubleValue), rhs.value)
+      case (.rational(.fixnum(let n), .fixnum(let d)), .fixnum(let rhs)):
+        self = .rationalPair(Rational(n, d), Rational(rhs))
+      case (.rational(.fixnum(let n), .fixnum(let d)), .bignum(let rhs)):
+        self = .bigRationalPair(Rational(BigInt(n), BigInt(d)), Rational(rhs))
+      case (.rational(.fixnum(let n1), .fixnum(let d1)),
+            .rational(.fixnum(let n2), .fixnum(let d2))):
+        self = .rationalPair(Rational(n1, d1), Rational(n2, d2))
+      case (.rational(.fixnum(let n1), .fixnum(let d1)),
+            .rational(.bignum(let n2), .bignum(let d2))):
+        self = .bigRationalPair(Rational(BigInt(n1), BigInt(d1)), Rational(n2, d2))
+      case (.rational(.fixnum(let n), .fixnum(let d)), .flonum(let rhs)):
+        self = .flonumPair(Double(n) / Double(d), rhs)
+      case (.rational(.fixnum(let n), .fixnum(let d)), .complex(let rhs)):
+        self = .complexPair(Complex(Double(n) / Double(d)), rhs.value)
+      case (.rational(.bignum(let n), .bignum(let d)), .fixnum(let rhs)):
+        self = .bigRationalPair(Rational(n, d), Rational(BigInt(rhs)))
+      case (.rational(.bignum(let n), .bignum(let d)), .bignum(let rhs)):
+        self = .bigRationalPair(Rational(n, d), Rational(rhs))
+      case (.rational(.bignum(let n1), .bignum(let d1)),
+            .rational(.fixnum(let n2), .fixnum(let d2))):
+        self = .bigRationalPair(Rational(n1, d1), Rational(BigInt(n2), BigInt(d2)))
+      case (.rational(.bignum(let n1), .bignum(let d1)),
+            .rational(.bignum(let n2), .bignum(let d2))):
+        self = .bigRationalPair(Rational(n1, d1), Rational(n2, d2))
+      case (.rational(.bignum(let n), .bignum(let d)), .flonum(let rhs)):
+        self = .flonumPair(n.doubleValue / d.doubleValue, rhs)
+      case (.rational(.bignum(let n), .bignum(let d)), .complex(let rhs)):
+        self = .complexPair(Complex(n.doubleValue / d.doubleValue), rhs.value)
       case (.flonum(let lhs), .fixnum(let rhs)):
         self = .flonumPair(lhs, Double(rhs))
       case (.flonum(let lhs), .bignum(let rhs)):
         self = .flonumPair(lhs, rhs.doubleValue)
-      case (.flonum(let lhs), .rational(let rhs)):
-        self = .flonumPair(lhs, Double(rhs.value.numerator) / Double(rhs.value.denominator))
-      case (.flonum(let lhs), .bigrat(let rhs)):
-        self = .flonumPair(lhs, rhs.value.numerator.doubleValue / rhs.value.denominator.doubleValue)
+      case (.flonum(let lhs), .rational(.fixnum(let n), .fixnum(let d))):
+        self = .flonumPair(lhs, Double(n) / Double(d))
+      case (.flonum(let lhs), .rational(.bignum(let n), .bignum(let d))):
+        self = .flonumPair(lhs, n.doubleValue / d.doubleValue)
       case (.flonum(let lhs), .flonum(let rhs)):
         self = .flonumPair(lhs, rhs)
       case (.flonum(let lhs), .complex(let rhs)):
@@ -432,12 +422,10 @@ enum NumberPair {
         self = .complexPair(lhs.value, Complex(Double(rhs)))
       case (.complex(let lhs), .bignum(let rhs)):
         self = .complexPair(lhs.value, Complex(rhs.doubleValue))
-      case (.complex(let lhs), .rational(let rhs)):
-        self = .complexPair(lhs.value,
-                            Complex(Double(rhs.value.numerator) / Double(rhs.value.denominator)))
-      case (.complex(let lhs), .bigrat(let rhs)):
-        self = .complexPair(lhs.value,
-          Complex(rhs.value.numerator.doubleValue / rhs.value.denominator.doubleValue))
+      case (.complex(let lhs), .rational(.fixnum(let n), .fixnum(let d))):
+        self = .complexPair(lhs.value, Complex(Double(n) / Double(d)))
+      case (.complex(let lhs), .rational(.bignum(let n), .bignum(let d))):
+        self = .complexPair(lhs.value, Complex(n.doubleValue / d.doubleValue))
       case (.complex(let lhs), .flonum(let rhs)):
         self = .complexPair(lhs.value, Complex(rhs))
       case (.complex(let lhs), .complex(let rhs)):

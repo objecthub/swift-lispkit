@@ -447,7 +447,7 @@ public final class BaseLibrary: NativeLibrary {
   func checkPattern(_ expr: Expr) -> Expr? {
     switch expr {
       case .eof, .null, .true, .false, .symbol(_), .string(_), .char(_),
-           .fixnum(_), .bignum(_), .rational(_), .bigrat(_), .flonum(_), .complex(_):
+           .fixnum(_), .bignum(_), .rational(_, _), .flonum(_), .complex(_):
         return nil
       case .pair(let car, let cdr):
         if let errExpr = checkPattern(car) {

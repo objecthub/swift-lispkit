@@ -34,8 +34,7 @@ public enum Expr: Trackable, Hashable {
   case symbol(Symbol)
   case fixnum(Int64)
   case bignum(BigInt)
-  case rational(FixedRational)
-  case bigrat(BigRational)
+  indirect case rational(Expr, Expr)
   case flonum(Double)
   case complex(DoubleComplex)
   case char(UniChar)
@@ -78,8 +77,6 @@ public enum Expr: Trackable, Hashable {
       case .bignum(_):
         return .integerType
       case .rational(_):
-        return .rationalType
-      case .bigrat(_):
         return .rationalType
       case .flonum(_):
         return .floatType
@@ -165,7 +162,7 @@ public enum Expr: Trackable, Hashable {
   /// Returns true if this is an exact number.
   public var isExactNumber: Bool {
     switch self {
-      case .fixnum(_), .bignum(_), .rational(_), .bigrat(_):
+      case .fixnum(_), .bignum(_), .rational(_):
         return true
       default:
         return false
@@ -180,24 +177,15 @@ public enum Expr: Trackable, Hashable {
           return .fixnum(fn)
         }
         return self
-      case .rational(let num):
-        if let fn = num.value.intValue {
-          return .fixnum(fn)
+      case .rational(let n, let d):
+        switch d {
+          case .fixnum(let fd):
+            return fd == 1 ? n : self
+          case .bignum(let bd):
+            return bd == 1 ? n.normalized : self
+          default:
+            return self
         }
-        return self
-      case .bigrat(let num):
-        if let bn = num.value.intValue {
-          if let fn = bn.intValue {
-            return .fixnum(fn)
-          }
-          return .bignum(bn)
-        }
-        if let fnnumer = num.value.numerator.intValue,
-           let fndenom = num.value.denominator.intValue {
-          let num: Rational<Int64> = Rational(fnnumer, fndenom)
-          return Expr.rational(ImmutableBox(num)).normalized
-        }
-        return self
       case .complex(let num):
         return num.value.isReal ? .flonum(num.value.re) : self
       default:
@@ -244,7 +232,7 @@ public enum Expr: Trackable, Hashable {
   public var isAtom: Bool {
     switch self {
       case .undef, .void, .eof, .null, .true, .false, .uninit(_), .symbol(_),
-           .fixnum(_), .bignum(_), .rational(_), .bigrat(_), .flonum(_), .complex(_),
+           .fixnum(_), .bignum(_), .rational(_, _), .flonum(_), .complex(_),
            .char(_), .string(_), .bytes(_), .env(_), .port(_):
         return true
       default:
@@ -321,11 +309,11 @@ extension Expr {
   }
   
   public static func makeNumber(_ num: Rational<Int64>) -> Expr {
-    return Expr.rational(ImmutableBox(num)).normalized
+    return Expr.rational(.fixnum(num.numerator), .fixnum(num.denominator)).normalized
   }
   
   public static func makeNumber(_ num: Rational<BigInt>) -> Expr {
-    return Expr.bigrat(ImmutableBox(num)).normalized
+    return Expr.rational(.bignum(num.numerator), .bignum(num.denominator)).normalized
   }
   
   public static func makeNumber(_ num: Double) -> Expr {
@@ -412,10 +400,10 @@ extension Expr {
         return Double(num)
       case .bignum(let num):
         return num.doubleValue
-      case .rational(let num):
-        return Double(num.value.numerator) / Double(num.value.denominator)
-      case .bigrat(let num):
-        return num.value.numerator.doubleValue / num.value.denominator.doubleValue
+      case .rational(.fixnum(let n), .fixnum(let d)):
+        return Double(n) / Double(d)
+      case .rational(.bignum(let n), .bignum(let d)):
+        return n.doubleValue / d.doubleValue
       case .flonum(let num):
         return num
       default:
@@ -439,10 +427,10 @@ extension Expr {
         return Complex(Double(num), 0.0)
       case .bignum(let num):
         return Complex(num.doubleValue, 0.0)
-      case .rational(let num):
-        return Complex(Double(num.value.numerator) / Double(num.value.denominator), 0.0)
-      case .bigrat(let num):
-        return Complex(num.value.numerator.doubleValue / num.value.denominator.doubleValue, 0.0)
+      case .rational(.fixnum(let n), .fixnum(let d)):
+        return Complex(Double(n) / Double(d), 0.0)
+      case .rational(.bignum(let n), .bignum(let d)):
+        return Complex(n.doubleValue / d.doubleValue, 0.0)
       case .flonum(let num):
         return Complex(num, 0.0)
       case .complex(let num):
@@ -629,10 +617,8 @@ extension Expr: CustomStringConvertible {
           return String(val)
         case .bignum(let val):
           return val.description
-        case .rational(let val):
-          return val.value.description
-        case .bigrat(let val):
-          return val.value.description
+        case .rational(let n, let d):
+          return stringReprOf(n) + "/" + stringReprOf(d)
         case .flonum(let val):
           return doubleString(val)
         case .complex(let val):
