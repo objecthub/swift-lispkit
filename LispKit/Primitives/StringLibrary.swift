@@ -3,7 +3,7 @@
 //  LispKit
 //
 //  Created by Matthias Zenger on 22/01/2016.
-//  Copyright © 2016 ObjectHub. All rights reserved.
+//  Copyright © 2016, 2017 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ public final class StringLibrary: NativeLibrary {
     self.define(Procedure("make-string", makeString))
     self.define(Procedure("string", string))
     self.define(Procedure("string-ref", stringRef))
+    self.define(Procedure("string-set!", stringSet))
     self.define(Procedure("string-length", stringLength))
     self.define(Procedure("string-append", stringAppend))
     self.define(Procedure("string=?", stringEquals))
@@ -47,9 +48,14 @@ public final class StringLibrary: NativeLibrary {
     self.define(Procedure("string-contains?", stringContains))
     self.define(Procedure("string-upcase", stringUpcase))
     self.define(Procedure("string-downcase", stringDowncase))
+    self.define(Procedure("string-titlecase", stringTitlecase))
+    self.define(Procedure("string-foldcase", stringFoldcase))
     self.define(Procedure("list->string", listToString))
     self.define(Procedure("string->list", stringToList))
     self.define(Procedure("substring", substring))
+    self.define(Procedure("string-copy", stringCopy))
+    self.define(Procedure("string-copy!", stringInsert))
+    self.define(Procedure("string-fill!", stringFill))
   }
   
   func isString(_ expr: Expr) -> Expr {
@@ -87,12 +93,19 @@ public final class StringLibrary: NativeLibrary {
     return .char(str[i])
   }
   
+  func stringSet(_ expr: Expr, _ index: Expr, char: Expr) throws -> Expr {
+    let str = try expr.asMutableStr()
+    str.replaceCharacters(in: NSRange(location: try index.asInt(below: str.length), length: 1),
+                          with: String(utf16CodeUnits: [try char.asUniChar()], count: 1))
+    return .void
+  }
+  
   func stringAppend(_ exprs: Arguments) throws -> Expr {
-    var res = ""
+    let str = NSMutableString()
     for expr in exprs {
-      res.append(try expr.asString())
+      str.append(try expr.asString())
     }
-    return .string(NSMutableString(string: res))
+    return .string(str)
   }
   
   func stringEquals(_ fst: Expr, _ snd: Expr) throws -> Expr {
@@ -144,14 +157,31 @@ public final class StringLibrary: NativeLibrary {
   }
   
   func stringDowncase(_ expr: Expr) throws -> Expr {
-    return .string(NSMutableString(string: try expr.asString().lowercased()))
+    return .string(NSMutableString(string: try expr.asMutableStr().lowercased))
   }
   
-  func stringToList(_ expr: Expr) throws -> Expr {
-    var res = Expr.null
+  func stringTitlecase(_ expr: Expr) throws -> Expr {
+    return .string(NSMutableString(string: try expr.asMutableStr().capitalized))
+  }
+  
+  func stringFoldcase(_ expr: Expr) throws -> Expr {
+    return .string(NSMutableString(
+      string: try expr.asMutableStr().folding(options: [.caseInsensitive], locale: nil)))
+  }
+  
+  func stringToList(_ expr: Expr, args: Arguments) throws -> Expr {
     let str = try expr.asString().utf16
-    for ch in str.reversed() {
-      res = .pair(.char(ch), res)
+    guard let (s, e) = args.optional(Expr.makeNumber(0), Expr.makeNumber(str.count)) else {
+      throw EvalError.argumentCountError(formals: 2, args: .pair(expr, .makeList(args)))
+    }
+    var end = try e.asInt(below: str.count + 1)
+    let start = try s.asInt(below: end + 1)
+    var i = str.index(str.startIndex, offsetBy: end)
+    var res = Expr.null
+    while end > start {
+      i = str.index(before: i)
+      res = .pair(.char(str[i]), res)
+      end -= 1
     }
     return res
   }
@@ -169,21 +199,75 @@ public final class StringLibrary: NativeLibrary {
     return .string(NSMutableString(string: String(utf16CodeUnits: uniChars, count: uniChars.count)))
   }
   
-  func substring(_ expr: Expr, _ start: Expr, _ end: Expr?) throws -> Expr {
+  func substring(_ expr: Expr, _ s: Expr, _ e: Expr) throws -> Expr {
     let str = try expr.asString().utf16
-    let s = str.index(str.startIndex, offsetBy: try start.asInt())
-    guard s < str.endIndex else {
-      throw EvalError.indexOutOfBounds(try start.asInt64(), Int64(str.count), expr)
+    let end = try e.asInt(below: str.count + 1)
+    let start = try s.asInt(below: end + 1)
+    // short-cut if this is a full copy
+    if start == 0 && end == str.count {
+      return .string(NSMutableString(string: try expr.asString()))
     }
-    let e = end == nil ? str.endIndex : str.index(str.startIndex, offsetBy: try end!.asInt())
-    guard e <= str.endIndex && s <= e else {
-      // TODO: Fix error (should define [s..str.count] as bounds for e
-      throw EvalError.indexOutOfBounds(try end!.asInt64(), Int64(str.count), expr)
-    }
+    // extract substring
+    let ei = str.index(str.startIndex, offsetBy: end)
+    let si = str.index(str.startIndex, offsetBy: start)
     var uniChars: [UniChar] = []
-    for ch in str[s..<e] {
+    for ch in str[si..<ei] {
       uniChars.append(ch)
     }
     return .string(NSMutableString(string: String(utf16CodeUnits: uniChars, count: uniChars.count)))
+  }
+  
+  func stringCopy(_ expr: Expr, args: Arguments) throws -> Expr {
+    let str = try expr.asString().utf16
+    guard let (s, e) = args.optional(Expr.makeNumber(0), Expr.makeNumber(str.count)) else {
+      throw EvalError.argumentCountError(formals: 2, args: .pair(expr, .makeList(args)))
+    }
+    let end = try e.asInt(below: str.count + 1)
+    let start = try s.asInt(below: end + 1)
+    // short-cut if this is a full copy
+    if start == 0 && end == str.count {
+      return .string(NSMutableString(string: try expr.asString()))
+    }
+    // extract substring to copy
+    let ei = str.index(str.startIndex, offsetBy: end)
+    let si = str.index(str.startIndex, offsetBy: start)
+    var uniChars: [UniChar] = []
+    for ch in str[si..<ei] {
+      uniChars.append(ch)
+    }
+    return .string(NSMutableString(string: String(utf16CodeUnits: uniChars, count: uniChars.count)))
+  }
+  
+  func stringInsert(_ expr: Expr, _ index: Expr, _ from: Expr, args: Arguments) throws -> Expr {
+    let str = try from.asString().utf16
+    guard let (s, e) = args.optional(Expr.makeNumber(0), Expr.makeNumber(str.count)) else {
+      throw EvalError.argumentCountError(formals: 2, args: .pair(expr, .makeList(args)))
+    }
+    let end = try e.asInt(below: str.count + 1)
+    let ei = str.index(str.startIndex, offsetBy: end)
+    let si = str.index(str.startIndex, offsetBy: try s.asInt(below: end + 1))
+    var uniChars: [UniChar] = []
+    for ch in str[si..<ei] {
+      uniChars.append(ch)
+    }
+    let target = try expr.asMutableStr()
+    target.insert(String(utf16CodeUnits: uniChars, count: uniChars.count),
+                  at: try index.asInt(below: target.length + 1))
+    return .void
+  }
+  
+  func stringFill(_ expr: Expr, _ ch: Expr, _ args: Arguments) throws -> Expr {
+    let str = try expr.asMutableStr()
+    guard let (s, e) = args.optional(Expr.makeNumber(0), Expr.makeNumber(str.length)) else {
+      throw EvalError.argumentCountError(formals: 2, args: .pair(expr, .makeList(args)))
+    }
+    let end = try e.asInt(below: str.length + 1)
+    let start = try s.asInt(below: end + 1)
+    if start < end {
+      let uniChars = Array<UniChar>(repeating: try ch.asUniChar(), count: end - start)
+      str.replaceCharacters(in: NSRange(location: start, length: end - start),
+                            with: String(utf16CodeUnits: uniChars, count: uniChars.count))
+    }
+    return .void
   }
 }

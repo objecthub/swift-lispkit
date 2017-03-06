@@ -76,6 +76,7 @@ public final class DynamicControlLibrary: NativeLibrary {
       "                ((null? winders) (cont (_make-values args)))",
       "              ((car (car winders)))",
       "              (_wind-up (car (car winders)) (cdr (car winders)))))))))")
+    self.define("call/cc", via: "(define call/cc call-with-current-continuation)")
     self.define("dynamic-wind", via:
       "(define (dynamic-wind before during after)",
       "  (before)",
