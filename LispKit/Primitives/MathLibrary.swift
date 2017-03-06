@@ -830,11 +830,30 @@ public final class MathLibrary: NativeLibrary {
     }
   }
   
-  // TODO: make this work for bignum as well
   func exactIntegerSqrt(_ expr: Expr) throws -> Expr {
-    let x = try expr.asInt64()
-    let sr = Int64(Foundation.sqrt(Double(x)))
-    return .values(.pair(.fixnum(sr), .pair(.fixnum(x - sr * sr), .null)))
+    switch expr {
+      case .fixnum(let x):
+        let res = Foundation.sqrt(Double(x))
+        if res.isNaN {
+          let x = Complex(try expr.asDouble(coerce: true))
+          let sr = x.sqrt
+          return .values(.pair(.makeNumber(sr), .pair(.makeNumber(x - sr * sr), .null)))
+        } else {
+          let sr = Int64(res)
+          return .values(.pair(.fixnum(sr), .pair(.fixnum(x - sr * sr), .null)))
+        }
+      case .bignum(let x):
+        if x.isNegative {
+          let x = Complex(try expr.asDouble(coerce: true))
+          let sr = x.sqrt
+          return .values(.pair(.makeNumber(sr), .pair(.makeNumber(x - sr * sr), .null)))
+        } else {
+          let sr = x.sqrt
+          return .values(.pair(.makeNumber(sr), .pair(.makeNumber(x - sr * sr), .null)))
+        }
+      default:
+        throw EvalError.typeError(expr, [.integerType])
+    }
   }
   
   func expt(_ expr: Expr, _ exp: Expr) throws -> Expr {
