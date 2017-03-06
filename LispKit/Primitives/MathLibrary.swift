@@ -92,6 +92,7 @@ public final class MathLibrary: NativeLibrary {
     self.define(Procedure("abs", absolute))
     self.define(Procedure("square", square))
     self.define(Procedure("sqrt", sqrt))
+    self.define(Procedure("exact-integer-sqrt", exactIntegerSqrt))
     self.define(Procedure("expt", expt))
     self.define(Procedure("exp", exp))
     self.define(Procedure("log", log))
@@ -827,6 +828,13 @@ public final class MathLibrary: NativeLibrary {
       default:
         throw EvalError.typeError(expr, [.numberType])
     }
+  }
+  
+  // TODO: make this work for bignum as well
+  func exactIntegerSqrt(_ expr: Expr) throws -> Expr {
+    let x = try expr.asInt64()
+    let sr = Int64(Foundation.sqrt(Double(x)))
+    return .values(.pair(.fixnum(sr), .pair(.fixnum(x - sr * sr), .null)))
   }
   
   func expt(_ expr: Expr, _ exp: Expr) throws -> Expr {

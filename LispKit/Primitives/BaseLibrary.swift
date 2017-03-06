@@ -70,6 +70,7 @@ public final class BaseLibrary: NativeLibrary {
     // Symbol primitives
     self.define(Procedure("symbol?", isSymbol))
     self.define(Procedure("gensym", gensym))
+    self.define(Procedure("symbol=?", stringEquals))
     self.define(Procedure("string->symbol", stringToSymbol))
     self.define(Procedure("symbol->string", symbolToString))
     
@@ -569,6 +570,16 @@ public final class BaseLibrary: NativeLibrary {
   
   func gensym(expr: Expr?) throws -> Expr {
     return .symbol(context.symbols.gensym(try expr?.asString() ?? "g"))
+  }
+  
+  func stringEquals(expr: Expr, args: Arguments) throws -> Expr {
+    let sym = try expr.asSymbol()
+    for arg in args {
+      guard try sym == arg.asSymbol() else {
+        return .false
+      }
+    }
+    return .true
   }
   
   func stringToSymbol(expr: Expr) throws -> Expr {

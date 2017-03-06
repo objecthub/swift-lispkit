@@ -108,44 +108,120 @@ public final class StringLibrary: NativeLibrary {
     return .string(str)
   }
   
-  func stringEquals(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .makeBoolean(try fst.asString() == snd.asString())
+  func stringEquals(_ expr: Expr, _ args: Arguments) throws -> Expr {
+    let str = try expr.asString()
+    for arg in args {
+      guard try str == arg.asString() else {
+        return .false
+      }
+    }
+    return .true
   }
   
-  func stringLessThan(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .makeBoolean(try fst.asString() < snd.asString())
+  func stringLessThan(_ expr: Expr, _ args: Arguments) throws -> Expr {
+    var str = try expr.asString()
+    for arg in args {
+      let next = try arg.asString()
+      guard str < next else {
+        return .false
+      }
+      str = next
+    }
+    return .true
   }
   
-  func stringLessThanEquals(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .makeBoolean(try fst.asString() <= snd.asString())
+  func stringLessThanEquals(_ expr: Expr, _ args: Arguments) throws -> Expr {
+    var str = try expr.asString()
+    for arg in args {
+      let next = try arg.asString()
+      guard str <= next else {
+        return .false
+      }
+      str = next
+    }
+    return .true
   }
   
-  func stringGreaterThan(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .makeBoolean(try fst.asString() > snd.asString())
+  func stringGreaterThan(_ expr: Expr, _ args: Arguments) throws -> Expr {
+    var str = try expr.asString()
+    for arg in args {
+      let next = try arg.asString()
+      guard str > next else {
+        return .false
+      }
+      str = next
+    }
+    return .true
   }
   
-  func stringGreaterThanEquals(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .makeBoolean(try fst.asString() >= snd.asString())
+  func stringGreaterThanEquals(_ expr: Expr, _ args: Arguments) throws -> Expr {
+    var str = try expr.asString()
+    for arg in args {
+      let next = try arg.asString()
+      guard str >= next else {
+        return .false
+      }
+      str = next
+    }
+    return .true
   }
   
-  func stringCiEquals(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .makeBoolean(try fst.asString().lowercased() == snd.asString().lowercased())
+  func stringCiEquals(_ expr: Expr, _ args: Arguments) throws -> Expr {
+    let str = try expr.asString().lowercased()
+    for arg in args {
+      guard try str == arg.asString().lowercased() else {
+        return .false
+      }
+    }
+    return .true
   }
   
-  func stringCiLessThan(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .makeBoolean(try fst.asString().lowercased() < snd.asString().lowercased())
+  func stringCiLessThan(_ expr: Expr, _ args: Arguments) throws -> Expr {
+    var str = try expr.asString().lowercased()
+    for arg in args {
+      let next = try arg.asString().lowercased()
+      guard str < next else {
+        return .false
+      }
+      str = next
+    }
+    return .true
   }
   
-  func stringCiLessThanEquals(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .makeBoolean(try fst.asString().lowercased() <= snd.asString().lowercased())
+  func stringCiLessThanEquals(_ expr: Expr, _ args: Arguments) throws -> Expr {
+    var str = try expr.asString().lowercased()
+    for arg in args {
+      let next = try arg.asString().lowercased()
+      guard str <= next else {
+        return .false
+      }
+      str = next
+    }
+    return .true
   }
   
-  func stringCiGreaterThan(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .makeBoolean(try fst.asString().lowercased() > snd.asString().lowercased())
+  func stringCiGreaterThan(_ expr: Expr, _ args: Arguments) throws -> Expr {
+    var str = try expr.asString().lowercased()
+    for arg in args {
+      let next = try arg.asString().lowercased()
+      guard str > next else {
+        return .false
+      }
+      str = next
+    }
+    return .true
   }
   
-  func stringCiGreaterThanEquals(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .makeBoolean(try fst.asString().lowercased() >= snd.asString().lowercased())
+  func stringCiGreaterThanEquals(_ expr: Expr, _ args: Arguments) throws -> Expr {
+    var str = try expr.asString().lowercased()
+    for arg in args {
+      let next = try arg.asString().lowercased()
+      guard str >= next else {
+        return .false
+      }
+      str = next
+    }
+    return .true
   }
   
   func stringContains(_ expr: Expr, _ other: Expr) throws -> Expr {

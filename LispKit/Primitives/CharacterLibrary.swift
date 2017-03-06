@@ -44,10 +44,12 @@ public final class CharacterLibrary: NativeLibrary {
     self.define(Procedure("char-whitespace?", charIsWhitespace))
     self.define(Procedure("char-upper-case?", charIsUpperCase))
     self.define(Procedure("char-lower-case?", charIsLowerCase))
+    self.define(Procedure("digit-value", digitValue))
     self.define(Procedure("char->integer", charToInteger))
     self.define(Procedure("integer->char", integerToChar))
     self.define(Procedure("char-upcase", charUpcase))
     self.define(Procedure("char-downcase", charDowncase))
+    self.define(Procedure("char-foldcase", charFoldcase))
   }
   
   func isChar(_ expr: Expr) -> Expr {
@@ -57,44 +59,120 @@ public final class CharacterLibrary: NativeLibrary {
     return .false
   }
   
-  func charEquals(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .makeBoolean(try fst.asUniChar() == snd.asUniChar())
+  func charEquals(_ expr: Expr, _ args: Arguments) throws -> Expr {
+    let ch = try expr.asUniChar()
+    for arg in args {
+      guard try ch == arg.asUniChar() else {
+        return .false
+      }
+    }
+    return .true
   }
   
-  func charLessThan(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .makeBoolean(try fst.asUniChar() < snd.asUniChar())
+  func charLessThan(_ expr: Expr, _ args: Arguments) throws -> Expr {
+    var ch = try expr.asUniChar()
+    for arg in args {
+      let next = try arg.asUniChar()
+      guard ch < next else {
+        return .false
+      }
+      ch = next
+    }
+    return .true
   }
   
-  func charLessThanEquals(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .makeBoolean(try fst.asUniChar() <= snd.asUniChar())
+  func charLessThanEquals(_ expr: Expr, _ args: Arguments) throws -> Expr {
+    var ch = try expr.asUniChar()
+    for arg in args {
+      let next = try arg.asUniChar()
+      guard ch <= next else {
+        return .false
+      }
+      ch = next
+    }
+    return .true
   }
   
-  func charGreaterThan(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .makeBoolean(try fst.asUniChar() > snd.asUniChar())
+  func charGreaterThan(_ expr: Expr, _ args: Arguments) throws -> Expr {
+    var ch = try expr.asUniChar()
+    for arg in args {
+      let next = try arg.asUniChar()
+      guard ch > next else {
+        return .false
+      }
+      ch = next
+    }
+    return .true
   }
   
-  func charGreaterThanEquals(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .makeBoolean(try fst.asUniChar() >= snd.asUniChar())
+  func charGreaterThanEquals(_ expr: Expr, _ args: Arguments) throws -> Expr {
+    var ch = try expr.asUniChar()
+    for arg in args {
+      let next = try arg.asUniChar()
+      guard ch >= next else {
+        return .false
+      }
+      ch = next
+    }
+    return .true
   }
   
-  func charCiEquals(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .makeBoolean(try fst.charAsString().lowercased() == snd.charAsString().lowercased())
+  func charCiEquals(_ expr: Expr, _ args: Arguments) throws -> Expr {
+    let str = try expr.charAsString().lowercased()
+    for arg in args {
+      guard try str == arg.charAsString().lowercased() else {
+        return .false
+      }
+    }
+    return .true
   }
   
-  func charCiLessThan(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .makeBoolean(try fst.charAsString().lowercased() < snd.charAsString().lowercased())
+  func charCiLessThan(_ expr: Expr, _ args: Arguments) throws -> Expr {
+    var str = try expr.charAsString().lowercased()
+    for arg in args {
+      let next = try arg.charAsString().lowercased()
+      guard str < next else {
+        return .false
+      }
+      str = next
+    }
+    return .true
   }
   
-  func charCiLessThanEquals(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .makeBoolean(try fst.charAsString().lowercased() <= snd.charAsString().lowercased())
+  func charCiLessThanEquals(_ expr: Expr, _ args: Arguments) throws -> Expr {
+    var str = try expr.charAsString().lowercased()
+    for arg in args {
+      let next = try arg.charAsString().lowercased()
+      guard str <= next else {
+        return .false
+      }
+      str = next
+    }
+    return .true
   }
   
-  func charCiGreaterThan(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .makeBoolean(try fst.charAsString().lowercased() > snd.charAsString().lowercased())
+  func charCiGreaterThan(_ expr: Expr, _ args: Arguments) throws -> Expr {
+    var str = try expr.charAsString().lowercased()
+    for arg in args {
+      let next = try arg.charAsString().lowercased()
+      guard str > next else {
+        return .false
+      }
+      str = next
+    }
+    return .true
   }
   
-  func charCiGreaterThanEquals(_ fst: Expr, _ snd: Expr) throws -> Expr {
-    return .makeBoolean(try fst.charAsString().lowercased() >= snd.charAsString().lowercased())
+  func charCiGreaterThanEquals(_ expr: Expr, _ args: Arguments) throws -> Expr {
+    var str = try expr.charAsString().lowercased()
+    for arg in args {
+      let next = try arg.charAsString().lowercased()
+      guard str >= next else {
+        return .false
+      }
+      str = next
+    }
+    return .true
   }
   
   func charIsAlphabetic(_ expr: Expr) throws -> Expr {
@@ -117,6 +195,14 @@ public final class CharacterLibrary: NativeLibrary {
     return .makeBoolean(LOWER_LETTERS.contains(unicodeScalar(try expr.asUniChar())))
   }
   
+  func digitValue(_ expr: Expr) throws -> Expr {
+    let ch = try expr.asUniChar()
+    guard DIGITS.contains(unicodeScalar(ch)) else {
+      return .false
+    }
+    return .fixnum(Int64(ch - ZERO_CH))
+  }
+  
   func charToInteger(_ expr: Expr) throws -> Expr {
     return .fixnum(Int64(try expr.asUniChar()))
   }
@@ -131,5 +217,10 @@ public final class CharacterLibrary: NativeLibrary {
   
   func charDowncase(_ expr: Expr) throws -> Expr {
     return .char(try expr.charAsString().lowercased().utf16.first!)
+  }
+  
+  func charFoldcase(_ expr: Expr) throws -> Expr {
+    return .char(try expr.charAsString().folding(
+      options: [.caseInsensitive], locale: nil).utf16.first!)
   }
 }
