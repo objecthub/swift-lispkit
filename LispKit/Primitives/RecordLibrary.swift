@@ -264,7 +264,7 @@ public final class RecordLibrary: NativeLibrary {
           throw EvalError.fieldCountError(numFields, value)
         }
       default:
-        throw EvalError.typeError(index, [.integerType])
+        throw EvalError.typeError(index, [.exactIntegerType])
     }
     return .void
   }

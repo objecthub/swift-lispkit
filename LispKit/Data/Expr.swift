@@ -57,8 +57,7 @@ public enum Expr: Trackable, Hashable {
   /// Returns the type of this expression.
   public var type: Type {
     switch self {
-      case .undef,
-           .uninit(_):
+      case .undef, .uninit(_):
         return .undefinedType
       case .void:
         return .voidType
@@ -73,13 +72,13 @@ public enum Expr: Trackable, Hashable {
       case .symbol(_):
         return .symbolType
       case .fixnum(_):
-        return .integerType
+        return .exactIntegerType
       case .bignum(_):
-        return .integerType
+        return .exactIntegerType
       case .rational(_):
         return .rationalType
-      case .flonum(_):
-        return .floatType
+      case .flonum(let num):
+        return Foundation.trunc(num) == num ? .integerType : .floatType
       case .complex(_):
         return .complexType
       case .char(_):
@@ -366,14 +365,14 @@ extension Expr {
   
   @inline(__always) public func asInt64() throws -> Int64 {
     guard case .fixnum(let res) = self else {
-      throw EvalError.typeError(self, [.integerType])
+      throw EvalError.typeError(self, [.exactIntegerType])
     }
     return res
   }
   
   @inline(__always) public func asInt(below: Int = Int.max) throws -> Int {
     guard case .fixnum(let res) = self else {
-      throw EvalError.typeError(self, [.integerType])
+      throw EvalError.typeError(self, [.exactIntegerType])
     }
     guard res >= 0 && res < Int64(below) else {
       throw EvalError.indexOutOfBounds(res, Int64(below - 1), self)

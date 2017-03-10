@@ -1369,7 +1369,7 @@ public final class VirtualMachine: TrackedObject {
             case .fixnum(let x):
               self.stack[idx] = .fixnum(x &+ 1)
             default:
-              throw EvalError.typeError(self.stack[idx], [.integerType])
+              throw EvalError.typeError(self.stack[idx], [.exactIntegerType])
           }
         case .fxDec:
           let idx = self.sp &- 1
@@ -1377,7 +1377,7 @@ public final class VirtualMachine: TrackedObject {
             case .fixnum(let x):
               self.stack[idx] = .fixnum(x &- 1)
             default:
-              throw EvalError.typeError(self.stack[idx], [.integerType])
+              throw EvalError.typeError(self.stack[idx], [.exactIntegerType])
           }
         case .fxIsZero:
           let idx = self.sp &- 1
@@ -1385,7 +1385,7 @@ public final class VirtualMachine: TrackedObject {
             case .fixnum(let x):
               self.stack[idx] = x == 0 ? .true : .false
             default:
-              throw EvalError.typeError(self.stack[idx], [.integerType])
+              throw EvalError.typeError(self.stack[idx], [.exactIntegerType])
           }
         case .fxEq:
           let rhs = self.pop()

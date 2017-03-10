@@ -114,8 +114,10 @@ public final class MathLibrary: NativeLibrary {
     self.define(Procedure("denominator", denominator))
     self.define(Procedure("gcd", gcd))
     self.define(Procedure("lcm", lcm))
+    self.define(Procedure("truncate/", truncateDiv))
     self.define(Procedure("truncate-quotient", truncateQuotient))
     self.define(Procedure("truncate-remainder", truncateRemainder))
+    self.define(Procedure("floor/", floorDiv))
     self.define(Procedure("floor-quotient", floorQuotient))
     self.define(Procedure("floor-remainder", floorRemainder))
     self.define(Procedure("quotient", truncateQuotient))
@@ -210,12 +212,7 @@ public final class MathLibrary: NativeLibrary {
       case .rational(_, .bignum(let d)):
         return .makeBoolean(d == 1)
       case .flonum(let num):
-        return .makeBoolean(Foundation.round(num) == num)
-      case .complex(let num):
-        guard let real = num.value.realValue else {
-          return .false
-        }
-        return .makeBoolean(Foundation.round(real) == real)
+        return .makeBoolean(Foundation.trunc(num) == num)
       default:
         return .false
     }
@@ -282,9 +279,7 @@ public final class MathLibrary: NativeLibrary {
   
   func isExact(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .fixnum(_),
-           .bignum(_),
-           .rational(_):
+      case .fixnum(_), .bignum(_), .rational(_):
         return .true
       default:
         return .false
@@ -293,8 +288,7 @@ public final class MathLibrary: NativeLibrary {
 
   func isInexact(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .flonum(_),
-           .complex(_):
+      case .flonum(_), .complex(_):
         return .true
       default:
         return .false
@@ -405,11 +399,16 @@ public final class MathLibrary: NativeLibrary {
   }
 
   func isEven(_ expr: Expr) throws -> Expr {
-    switch expr.normalized {
+    switch expr {
       case .fixnum(let num):
         return .makeBoolean(num % 2 == 0)
       case .bignum(let num):
         return .makeBoolean(num % 2 == 0)
+      case .flonum(let num):
+        guard Foundation.trunc(num) == num else {
+          throw EvalError.typeError(expr, [.integerType])
+        }
+        return .makeBoolean(num.truncatingRemainder(dividingBy: 2) == 0.0)
       default:
         throw EvalError.typeError(expr, [.integerType])
     }
@@ -421,6 +420,11 @@ public final class MathLibrary: NativeLibrary {
         return .makeBoolean(num % 2 != 0)
       case .bignum(let num):
         return .makeBoolean(num % 2 != 0)
+      case .flonum(let num):
+        guard Foundation.trunc(num) == num else {
+          throw EvalError.typeError(expr, [.integerType])
+        }
+        return .makeBoolean(num.truncatingRemainder(dividingBy: 2) != 0.0)
       default:
         throw EvalError.typeError(expr, [.integerType])
     }
@@ -852,7 +856,7 @@ public final class MathLibrary: NativeLibrary {
           return .values(.pair(.makeNumber(sr), .pair(.makeNumber(x - sr * sr), .null)))
         }
       default:
-        throw EvalError.typeError(expr, [.integerType])
+        throw EvalError.typeError(expr, [.exactIntegerType])
     }
   }
   
@@ -1148,12 +1152,42 @@ public final class MathLibrary: NativeLibrary {
     return acc
   }
   
+  func truncateDiv(_ x: Expr, _ y: Expr) throws -> Expr {
+    switch try NumberPair(x, y) {
+      case .fixnumPair(let lhs, let rhs):
+        return .values(.pair(.makeNumber(lhs / rhs), .pair(.makeNumber(lhs % rhs), .null)))
+      case .bignumPair(let lhs, let rhs):
+        return .values(.pair(.makeNumber(lhs / rhs), .pair(.makeNumber(lhs % rhs), .null)))
+      case .flonumPair(let lhs, let rhs):
+        guard Foundation.trunc(lhs) == lhs else {
+          throw EvalError.typeError(x, [.integerType])
+        }
+        guard Foundation.trunc(rhs) == rhs else {
+          throw EvalError.typeError(y, [.integerType])
+        }
+        return .values(.pair(.makeNumber(Foundation.trunc(lhs / rhs)),
+                             .pair(.makeNumber(lhs.truncatingRemainder(dividingBy: rhs)), .null)))
+      default:
+        try x.assertType(.integerType)
+        try y.assertType(.integerType)
+        preconditionFailure()
+    }
+  }
+  
   func truncateQuotient(_ x: Expr, _ y: Expr) throws -> Expr {
     switch try NumberPair(x, y) {
       case .fixnumPair(let lhs, let rhs):
         return .makeNumber(lhs / rhs)
       case .bignumPair(let lhs, let rhs):
         return .makeNumber(lhs / rhs)
+      case .flonumPair(let lhs, let rhs):
+        guard Foundation.trunc(lhs) == lhs else {
+          throw EvalError.typeError(x, [.integerType])
+        }
+        guard Foundation.trunc(rhs) == rhs else {
+          throw EvalError.typeError(y, [.integerType])
+        }
+        return .makeNumber(Foundation.trunc(lhs / rhs))
       default:
         try x.assertType(.integerType)
         try y.assertType(.integerType)
@@ -1167,6 +1201,53 @@ public final class MathLibrary: NativeLibrary {
         return .makeNumber(lhs % rhs)
       case .bignumPair(let lhs, let rhs):
         return .makeNumber(lhs % rhs)
+      case .flonumPair(let lhs, let rhs):
+        guard Foundation.trunc(lhs) == lhs else {
+          throw EvalError.typeError(x, [.integerType])
+        }
+        guard Foundation.trunc(rhs) == rhs else {
+          throw EvalError.typeError(y, [.integerType])
+        }
+        return .makeNumber(lhs.truncatingRemainder(dividingBy: rhs))
+      default:
+        try x.assertType(.integerType)
+        try y.assertType(.integerType)
+        preconditionFailure()
+    }
+  }
+  
+  func floorDiv(_ x: Expr, _ y: Expr) throws -> Expr {
+    switch try NumberPair(x, y) {
+      case .fixnumPair(let lhs, let rhs):
+        let res = lhs % rhs
+        if (res < 0) == (rhs < 0) {
+          return .values(.pair(.makeNumber((lhs - res) / rhs), .pair(.makeNumber(res), .null)))
+        } else {
+          return .values(.pair(.makeNumber((lhs - res - rhs) / rhs),
+                               .pair(.makeNumber(res + rhs), .null)))
+        }
+      case .bignumPair(let lhs, let rhs):
+        let res = lhs % rhs
+        if res.isNegative == rhs.isNegative {
+          return .values(.pair(.makeNumber((lhs - res) / rhs), .pair(.makeNumber(res), .null)))
+        } else {
+          return .values(.pair(.makeNumber((lhs - res - rhs) / rhs),
+                               .pair(.makeNumber(res + rhs), .null)))
+        }
+      case .flonumPair(let lhs, let rhs):
+        guard Foundation.trunc(lhs) == lhs else {
+          throw EvalError.typeError(x, [.integerType])
+        }
+        guard Foundation.trunc(rhs) == rhs else {
+          throw EvalError.typeError(y, [.integerType])
+        }
+        let res = lhs.truncatingRemainder(dividingBy: rhs)
+        if (res < 0.0) == (rhs < 0.0) {
+          return .values(.pair(.makeNumber((lhs - res) / rhs), .pair(.makeNumber(res), .null)))
+        } else {
+          return .values(.pair(.makeNumber((lhs - res - rhs) / rhs),
+                               .pair(.makeNumber(res + rhs), .null)))
+        }
       default:
         try x.assertType(.integerType)
         try y.assertType(.integerType)
@@ -1181,7 +1262,21 @@ public final class MathLibrary: NativeLibrary {
         return .makeNumber(((res < 0) == (rhs < 0) ? (lhs - res) : (lhs - res - rhs)) / rhs)
       case .bignumPair(let lhs, let rhs):
         let res = lhs % rhs
-        return .makeNumber((res.isNegative == rhs.isNegative ? (lhs - res) : (lhs - res - rhs)) / rhs)
+        return .makeNumber((res.isNegative == rhs.isNegative ? (lhs - res)
+                                                             : (lhs - res - rhs)) / rhs)
+      case .flonumPair(let lhs, let rhs):
+        guard Foundation.trunc(lhs) == lhs else {
+          throw EvalError.typeError(x, [.integerType])
+        }
+        guard Foundation.trunc(rhs) == rhs else {
+          throw EvalError.typeError(y, [.integerType])
+        }
+        let res = lhs.truncatingRemainder(dividingBy: rhs)
+        if (res < 0.0) == (rhs < 0.0) {
+          return .makeNumber((lhs - res) / rhs)
+        } else {
+          return .makeNumber((lhs - res - rhs) / rhs)
+        }
       default:
         try x.assertType(.integerType)
         try y.assertType(.integerType)
@@ -1197,6 +1292,19 @@ public final class MathLibrary: NativeLibrary {
       case .bignumPair(let lhs, let rhs):
         let res = lhs % rhs
         return .makeNumber(res.isNegative == rhs.isNegative ? res : res + rhs)
+      case .flonumPair(let lhs, let rhs):
+        guard Foundation.trunc(lhs) == lhs else {
+          throw EvalError.typeError(x, [.integerType])
+        }
+        guard Foundation.trunc(rhs) == rhs else {
+          throw EvalError.typeError(y, [.integerType])
+        }
+        let res = lhs.truncatingRemainder(dividingBy: rhs)
+        if (res < 0.0) == (rhs < 0.0) {
+          return .makeNumber(res)
+        } else {
+          return .makeNumber(res + rhs)
+        }
       default:
         try x.assertType(.integerType)
         try y.assertType(.integerType)
