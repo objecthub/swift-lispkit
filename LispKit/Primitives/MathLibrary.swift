@@ -1495,7 +1495,7 @@ public final class MathLibrary: NativeLibrary {
   
   func compileFxGtEq(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     try self.compileBinOp(compiler, expr: expr, env: env)
-    compiler.emit(.fxLtEq)
+    compiler.emit(.fxGtEq)
     return false
   }
   

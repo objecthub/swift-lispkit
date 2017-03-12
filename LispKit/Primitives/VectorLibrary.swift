@@ -30,9 +30,10 @@ public final class VectorLibrary: NativeLibrary {
   
   /// Dependencies of the library.
   public override func dependencies() {
-    self.`import`(from: ["lispkit", "control"], "let", "do", "unless", "when")
-    self.`import`(from: ["lispkit", "base"], "define", "set!", "or", "not")
-    self.`import`(from: ["lispkit", "math"], "fx1+", "fx1-", "fx=", "fx>", "fx<", "fx<=")
+    self.`import`(from: ["lispkit", "control"], "let", "let*", "do", "unless", "when", "if")
+    self.`import`(from: ["lispkit", "base"], "define", "set!", "or", "not", "apply")
+    self.`import`(from: ["lispkit", "list"], "cons", "null?")
+    self.`import`(from: ["lispkit", "math"], "fx1+", "fx1-", "fx=", "fx>", "fx<", "fx<=", "fx>=")
   }
   
   /// Declarations of the library.
@@ -74,6 +75,27 @@ public final class VectorLibrary: NativeLibrary {
     self.define("vector-sort!", via:
       "(define (vector-sort! pred v)",
       "  (_quick-sort! pred v 0 (fx1- (vector-length v))))")
+    self.define(Procedure("_vector-list-ref", vectorListRef))
+    self.define(Procedure("_vector-list-length", vectorListLength))
+    self.define("vector-map", via:
+      "(define (vector-map f xs . xss)",
+      "  (let* ((vecs (cons xs xss))",
+      "         (len (_vector-list-length vecs))",
+      "         (res (make-vector len)))",
+      "    (if (null? xss)",
+      "        (do ((i 0 (fx1+ i)))",
+      "            ((fx>= i len) res)",
+      "          (vector-set! res i (f (vector-ref xs i))))",
+      "        (do ((i 0 (fx1+ i)))",
+      "            ((fx>= i len) res)",
+      "          (vector-set! res i (apply f (_vector-list-ref i vecs)))))))")
+    self.define("vector-for-each", via:
+      "(define (vector-for-each f xs . xss)",
+      "  (let* ((vecs (cons xs xss))",
+      "         (len (_vector-list-length vecs)))",
+      "    (do ((i 0 (fx1+ i)))",
+      "         ((fx>= i len))",
+      "      (apply f (_vector-list-ref i vecs)))))")
   }
   
   func isVector(_ expr: Expr) -> Expr {
@@ -96,6 +118,19 @@ public final class VectorLibrary: NativeLibrary {
   
   func vectorLength(vec: Expr) throws -> Expr {
     return .fixnum(Int64(try vec.vectorAsCollection().exprs.count))
+  }
+  
+  func vectorListLength(vectors: Expr) throws -> Expr {
+    var n = Int.max
+    var list = vectors
+    while case .pair(let vec, let next) = list {
+      let vector = try vec.vectorAsCollection()
+      if vector.exprs.count < n {
+        n = vector.exprs.count
+      }
+      list = next
+    }
+    return .fixnum(Int64(n))
   }
   
   func makeVector(_ count: Expr, fill: Expr?) throws -> Expr {
@@ -137,6 +172,21 @@ public final class VectorLibrary: NativeLibrary {
       throw EvalError.indexOutOfBounds(i, Int64(vector.exprs.count - 1), vec)
     }
     return vector.exprs[Int(i)]
+  }
+  
+  func vectorListRef(_ index: Expr, _ vectors: Expr) throws -> Expr {
+    let i = try index.asInt64()
+    var res = Exprs()
+    var list = vectors
+    while case .pair(let vec, let next) = list {
+      let vector = try vec.vectorAsCollection()
+      guard i >= 0 && i < Int64(vector.exprs.count) else {
+        return .false
+      }
+      res.append(vector.exprs[Int(i)])
+      list = next
+    }
+    return .makeList(res)
   }
   
   func vectorSet(_ vec: Expr, index: Expr, expr: Expr) throws -> Expr {
