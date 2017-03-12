@@ -43,6 +43,7 @@ public final class VectorLibrary: NativeLibrary {
     self.define(Procedure("vector-length", vectorLength))
     self.define(Procedure("make-vector", makeVector))
     self.define(Procedure("vector-append", vectorAppend))
+    self.define(Procedure("vector-concatenate", vectorConcatenate))
     self.define(Procedure("vector-ref", vectorRef))
     self.define(Procedure("vector-set!", vectorSet))
     self.define(Procedure("vector-swap!", vectorSwap))
@@ -53,6 +54,7 @@ public final class VectorLibrary: NativeLibrary {
     self.define(Procedure("vector-copy", vectorCopy))
     self.define(Procedure("vector-copy!", vectorOverwrite))
     self.define(Procedure("vector-fill!", vectorFill))
+    self.define(Procedure("vector-reverse!", vectorReverse))
     self.define(Procedure("_vector-pivot!", vectorPivot))
     self.define("_vector-partition!", via:
       "(define (_vector-partition! pred v lo hi)",
@@ -89,6 +91,17 @@ public final class VectorLibrary: NativeLibrary {
       "        (do ((i 0 (fx1+ i)))",
       "            ((fx>= i len) res)",
       "          (vector-set! res i (apply f (_vector-list-ref i vecs)))))))")
+    self.define("vector-map!", via:
+      "(define (vector-map! f xs . xss)",
+      "  (let* ((vecs (cons xs xss))",
+      "         (len (_vector-list-length vecs)))",
+      "    (if (null? xss)",
+      "        (do ((i 0 (fx1+ i)))",
+      "            ((fx>= i len))",
+      "          (vector-set! xs i (f (vector-ref xs i))))",
+      "        (do ((i 0 (fx1+ i)))",
+      "            ((fx>= i len))",
+      "          (vector-set! xs i (apply f (_vector-list-ref i vecs)))))))")
     self.define("vector-for-each", via:
       "(define (vector-for-each f xs . xss)",
       "  (let* ((vecs (cons xs xss))",
@@ -130,6 +143,9 @@ public final class VectorLibrary: NativeLibrary {
       }
       list = next
     }
+    guard list.isNull else {
+      throw EvalError.typeError(vectors, [.properListType])
+    }
     return .fixnum(Int64(n))
   }
   
@@ -165,6 +181,19 @@ public final class VectorLibrary: NativeLibrary {
     return .vector(res)
   }
   
+  func vectorConcatenate(_ expr: Expr) throws -> Expr {
+    let res = Collection(kind: .vector)
+    var list = expr
+    while case .pair(let vec, let next) = list {
+      res.exprs.append(contentsOf: try vec.vectorAsCollection().exprs)
+      list = next
+    }
+    guard list.isNull else {
+      throw EvalError.typeError(expr, [.properListType])
+    }
+    return .vector(res)
+  }
+  
   func vectorRef(_ vec: Expr, index: Expr) throws -> Expr {
     let vector = try vec.vectorAsCollection()
     let i = try index.asInt64()
@@ -185,6 +214,9 @@ public final class VectorLibrary: NativeLibrary {
       }
       res.append(vector.exprs[Int(i)])
       list = next
+    }
+    guard list.isNull else {
+      throw EvalError.typeError(vectors, [.properListType])
     }
     return .makeList(res)
   }
@@ -315,6 +347,17 @@ public final class VectorLibrary: NativeLibrary {
     for i in start..<end {
       vector.exprs[i] = expr
     }
+    return .void
+  }
+  
+  func vectorReverse(_ vec: Expr, _ start: Expr?, _ end: Expr?) throws -> Expr {
+    let vector = try vec.vectorAsCollection()
+    guard case .vector = vector.kind else {
+      throw EvalError.attemptToModifyImmutableData(vec)
+    }
+    let end = try end?.asInt(below: vector.exprs.count + 1) ?? vector.exprs.count
+    let start = try start?.asInt(below: end + 1) ?? 0
+    vector.exprs[start..<end].reverse()
     return .void
   }
   
