@@ -26,6 +26,14 @@ public final class StringLibrary: NativeLibrary {
     return ["lispkit", "string"]
   }
   
+  /// Dependencies of the library.
+  public override func dependencies() {
+    self.`import`(from: ["lispkit", "control"], "let", "let*", "do", "unless", "when", "if")
+    self.`import`(from: ["lispkit", "base"], "define", "set!", "or", "not", "apply")
+    self.`import`(from: ["lispkit", "list"], "cons", "null?")
+    self.`import`(from: ["lispkit", "math"], "fx1+", "fx1-", "fx=", "fx>", "fx<", "fx<=", "fx>=")
+  }
+  
   /// Declarations of the library.
   public override func declarations() {
     self.define(Procedure("string?", isString))
@@ -35,6 +43,7 @@ public final class StringLibrary: NativeLibrary {
     self.define(Procedure("string-set!", stringSet))
     self.define(Procedure("string-length", stringLength))
     self.define(Procedure("string-append", stringAppend))
+    self.define(Procedure("string-concatenate", stringConcatenate))
     self.define(Procedure("string=?", stringEquals))
     self.define(Procedure("string<?", stringLessThan))
     self.define(Procedure("string>?", stringLessThanEquals))
@@ -56,6 +65,27 @@ public final class StringLibrary: NativeLibrary {
     self.define(Procedure("string-copy", stringCopy))
     self.define(Procedure("string-copy!", stringInsert))
     self.define(Procedure("string-fill!", stringFill))
+    self.define(Procedure("_string-list-ref", stringListRef))
+    self.define(Procedure("_string-list-length", stringListLength))
+    self.define("string-map", via:
+      "(define (string-map f xs . xss)",
+      "  (let* ((strs (cons xs xss))",
+      "         (len (_string-list-length strs))",
+      "         (res (make-string len)))",
+      "    (if (null? xss)",
+      "        (do ((i 0 (fx1+ i)))",
+      "            ((fx>= i len) res)",
+      "          (string-set! res i (f (string-ref xs i))))",
+      "        (do ((i 0 (fx1+ i)))",
+      "            ((fx>= i len) res)",
+      "          (string-set! res i (apply f (_string-list-ref i strs)))))))")
+    self.define("string-for-each", via:
+      "(define (string-for-each f xs . xss)",
+      "  (let* ((strs (cons xs xss))",
+      "         (len (_string-list-length strs)))",
+      "    (do ((i 0 (fx1+ i)))",
+      "         ((fx>= i len))",
+      "      (apply f (_string-list-ref i strs)))))")
   }
   
   func isString(_ expr: Expr) -> Expr {
@@ -83,6 +113,22 @@ public final class StringLibrary: NativeLibrary {
     return .fixnum(Int64(try expr.asString().utf16.count))
   }
   
+  func stringListLength(_ strings: Expr) throws -> Expr {
+    var n = Int.max
+    var list = strings
+    while case .pair(let expr, let next) = list {
+      let str = try expr.asString().utf16
+      if str.count < n {
+        n = str.count
+      }
+      list = next
+    }
+    guard list.isNull else {
+      throw EvalError.typeError(strings, [.properListType])
+    }
+    return .fixnum(Int64(n))
+  }
+  
   func stringRef(_ expr: Expr, _ index: Expr) throws -> Expr {
     let str = try expr.asString().utf16
     let k = try index.asInt()
@@ -91,6 +137,25 @@ public final class StringLibrary: NativeLibrary {
       throw EvalError.indexOutOfBounds(Int64(k), Int64(str.count - 1), expr)
     }
     return .char(str[i])
+  }
+  
+  func stringListRef(_ index: Expr, _ strings: Expr) throws -> Expr {
+    let k = try index.asInt()
+    var res = Exprs()
+    var list = strings
+    while case .pair(let expr, let next) = list {
+      let str = try expr.asString().utf16
+      let i = str.index(str.startIndex, offsetBy: k)
+      guard i < str.endIndex else {
+        return .false
+      }
+      res.append(.char(str[i]))
+      list = next
+    }
+    guard list.isNull else {
+      throw EvalError.typeError(strings, [.properListType])
+    }
+    return .makeList(res)
   }
   
   func stringSet(_ expr: Expr, _ index: Expr, char: Expr) throws -> Expr {
@@ -106,6 +171,19 @@ public final class StringLibrary: NativeLibrary {
       str.append(try expr.asString())
     }
     return .string(str)
+  }
+  
+  func stringConcatenate(_ expr: Expr) throws -> Expr {
+    let res = NSMutableString()
+    var list = expr
+    while case .pair(let str, let next) = list {
+      res.append(try str.asString())
+      list = next
+    }
+    guard list.isNull else {
+      throw EvalError.typeError(expr, [.properListType])
+    }
+    return .string(res)
   }
   
   func stringEquals(_ expr: Expr, _ args: Arguments) throws -> Expr {

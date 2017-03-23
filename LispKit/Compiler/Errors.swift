@@ -414,7 +414,7 @@ public enum EvalError: LispError, Hashable {
       case .duplicateBinding(let sym, let expr):
         return "symbol \(sym) bound multiple times in \(expr)"
       case .indexOutOfBounds(let index, let max, let expr):
-        if index < 0 && max < 0 {
+        if index < 0 {
           return "index \(index) must not be negative when accessing \(expr)"
         } else {
           return "index \(index) out of bounds [0..\(max)] when accessing \(expr)"

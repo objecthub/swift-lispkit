@@ -80,6 +80,7 @@ public final class ListLibrary: NativeLibrary {
     self.define("cddddr", via: "(define (cddddr x) (cddr (cddr x)))")
     self.define(Procedure("length", length))
     self.define(Procedure("append", append))
+    self.define(Procedure("concatenate", concatenate))
     self.define(Procedure("reverse", reverse))
     self.define(Procedure("list-tail", listTail))
     self.define(Procedure("decons", decons), export: false)
@@ -360,6 +361,16 @@ public final class ListLibrary: NativeLibrary {
     var res: Expr? = nil
     for expr in exprs.reversed() {
       res = (res == nil) ? expr : try appendList(expr, res!)
+    }
+    return res ?? .null
+  }
+  
+  func concatenate(_ expr: Expr) throws -> Expr {
+    var res: Expr? = nil
+    var lists = try self.reverse(expr)
+    while case .pair(let list, let next) = lists {
+      res = (res == nil) ? list : try appendList(list, res!)
+      lists = next
     }
     return res ?? .null
   }
