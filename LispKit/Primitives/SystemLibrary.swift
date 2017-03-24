@@ -3,7 +3,7 @@
 //  LispKit
 //
 //  Created by Matthias Zenger on 10/12/2016.
-//  Copyright © 2016 ObjectHub. All rights reserved.
+//  Copyright © 2016, 2017 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -78,6 +78,7 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("make-directory", makeDirectory))
     self.define(Procedure("get-environment-variable", getEnvironmentVariable))
     self.define(Procedure("get-environment-variables", getEnvironmentVariables))
+    self.define(Procedure("command-line", commandLine))
     self.define(Procedure("gc", gc))
     self.define(Procedure("compile", compile))
     self.define(Procedure("disassemble", disassemble))
@@ -324,6 +325,15 @@ public final class SystemLibrary: NativeLibrary {
       alist = .pair(.pair(.makeString(name), .makeString(value)), alist)
     }
     return alist
+  }
+  
+  private func commandLine() -> Expr {
+    let args = CommandLine.arguments.reversed()
+    var res = Expr.null
+    for arg in args {
+      res = .pair(.makeString(arg), res)
+    }
+    return res
   }
   
   private func gc() -> Expr {
