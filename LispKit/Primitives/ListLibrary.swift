@@ -34,7 +34,8 @@ public final class ListLibrary: NativeLibrary {
   /// Dependencies of the library.
   public override func dependencies() {
     self.`import`(from: ["lispkit", "base"], "define", "apply", "quote", "and", "or",
-                                             "not", "equal?", "lambda", "identity")
+                                             "not", "equal?", "lambda", "identity", "set!",
+                                             "values")
     self.`import`(from: ["lispkit", "control"], "if", "cond", "let", "do")
     self.`import`(from: ["lispkit", "math"], "=", "truncate-quotient", "-")
   }
@@ -167,6 +168,16 @@ public final class ListLibrary: NativeLibrary {
       "          ((or (null? xs) (pred (car xs))) (not (null? xs))))",
       "      (do ((pair (decons (cons xs xss)) (decons (cdr pair))))",
       "          ((or (null? pair) (apply pred (car pair))) (not (null? pair))))))")
+    self.define("filter", via:
+      "(define (filter pred xs)",
+      "  (do ((xs xs (cdr xs))",
+      "       (res '() (if (pred (car xs)) (cons (car xs) res) res)))",
+      "      ((null? xs) (reverse res))))")
+    self.define("partition", via:
+      "(define (partition pred xs)",
+      "  (do ((xs xs (cdr xs)) (ys '()) (zs '()))",
+      "      ((null? xs) (values (reverse ys) (reverse zs)))",
+      "    (if (pred (car xs)) (set! ys (cons (car xs) ys)) (set! zs (cons (car xs) zs)))))")
   }
   
   //---------MARK: - List predicates
