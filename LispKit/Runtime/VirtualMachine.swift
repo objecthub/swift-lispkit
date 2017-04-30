@@ -531,7 +531,7 @@ public final class VirtualMachine: TrackedObject {
     self.sp = self.registers.fp &- 2
     self.registers.fp = Int(newfp)
     // Determine closure to which execution returns to
-    guard case .procedure(let proc) = self.stack[newfp - 1] else {
+    guard case .procedure(let proc) = self.stack[Int(newfp) - 1] else {
       preconditionFailure()
     }
     // Extract code and capture list

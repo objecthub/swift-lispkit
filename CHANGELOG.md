@@ -1,5 +1,13 @@
 # Changelog
 
+
+## 0.7 (2017-04-30)
+- Implemented native support for fixnum (fx*) and flonum (fl*) operations
+- Completed support for all R7RS string operations
+- Completed support for all R7RS character operations
+- Added common list operations (sort, filter, partition)
+- Completed support for all R7RS vector operations
+
 ## 0.6 (2017-02-12)
 - Automatically load libraries
 - Made stack grow automatically

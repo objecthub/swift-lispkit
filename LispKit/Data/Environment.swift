@@ -373,7 +373,7 @@ public final class Environment: Reference, CustomStringConvertible {
         default:
           // Should nerver happen
           preconditionFailure("cannot import \(impIdent) as \(expIdent) " +
-            "using \(library.exports[expIdent])")
+            "using \(String(describing: library.exports[expIdent]))")
       }
     }
     return library

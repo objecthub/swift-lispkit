@@ -32,7 +32,7 @@ public final class MathLibrary: NativeLibrary {
   
   /// Dependencies of the library.
   public override func dependencies() {
-    self.`import`(from: ["lispkit", "base"], "define", "lambda")
+    self.`import`(from: ["lispkit", "base"],    "define", "lambda")
     self.`import`(from: ["lispkit", "control"], "letrec", "let", "cond", "if")
   }
   

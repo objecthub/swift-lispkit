@@ -30,8 +30,8 @@ public final class RecordLibrary: NativeLibrary {
   
   /// Dependencies of the library.
   public override func dependencies() {
-    self.`import`(from: ["lispkit", "base"], "define", "define-syntax", "syntax-rules",
-                                             "lambda", "quote", "symbol->string")
+    self.`import`(from: ["lispkit", "base"],    "define", "define-syntax", "syntax-rules",
+                                                "lambda", "quote", "symbol->string")
     self.`import`(from: ["lispkit", "control"], "let", "begin")
   }
   

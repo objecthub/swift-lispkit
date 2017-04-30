@@ -30,10 +30,10 @@ public final class VectorLibrary: NativeLibrary {
   
   /// Dependencies of the library.
   public override func dependencies() {
+    self.`import`(from: ["lispkit", "base"],    "define", "set!", "or", "not", "apply")
     self.`import`(from: ["lispkit", "control"], "let", "let*", "do", "unless", "when", "if")
-    self.`import`(from: ["lispkit", "base"], "define", "set!", "or", "not", "apply")
-    self.`import`(from: ["lispkit", "list"], "cons", "null?")
-    self.`import`(from: ["lispkit", "math"], "fx1+", "fx1-", "fx=", "fx>", "fx<", "fx<=", "fx>=")
+    self.`import`(from: ["lispkit", "math"],    "fx1+", "fx1-", "fx=", "fx>", "fx<", "fx<=", "fx>=")
+    self.`import`(from: ["lispkit", "list"],    "cons", "null?")
   }
   
   /// Declarations of the library.

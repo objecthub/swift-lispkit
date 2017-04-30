@@ -35,9 +35,9 @@ public final class PortLibrary: NativeLibrary {
   
   /// Dependencies of the library.
   public override func dependencies() {
-    self.`import`(from: ["lispkit", "system"], "current-directory")
-    self.`import`(from: ["lispkit", "base"], "define", "lambda", "quote")
+    self.`import`(from: ["lispkit", "base"],    "define", "lambda", "quote")
     self.`import`(from: ["lispkit", "control"], "let", "let*")
+    self.`import`(from: ["lispkit", "system"],  "current-directory")
     self.`import`(from: ["lispkit", "dynamic"], "dynamic-wind")
   }
   

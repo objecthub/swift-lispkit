@@ -33,14 +33,14 @@ public final class SchemeLibrary: NativeLibrary {
   
   /// Dependencies of the library.
   public override func dependencies() {
-    self.import(from: ControlFlowLibrary.name)
     self.import(from: BaseLibrary.name)
+    self.import(from: ControlFlowLibrary.name)
     self.import(from: SystemLibrary.name)
     self.import(from: BoxLibrary.name)
-    self.import(from: HashTableLibrary.name)
-    self.import(from: DynamicControlLibrary.name)
     self.import(from: MathLibrary.name)
     self.import(from: ListLibrary.name)
+    self.import(from: HashTableLibrary.name)
+    self.import(from: DynamicControlLibrary.name)
     self.import(from: VectorLibrary.name)
     self.import(from: RecordLibrary.name)
     self.import(from: BytevectorLibrary.name)

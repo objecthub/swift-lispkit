@@ -38,12 +38,12 @@ public final class DynamicControlLibrary: NativeLibrary {
   
   /// Dependencies of the library.
   public override func dependencies() {
-    self.`import`(from: ["lispkit", "base"], "define", "set!", "define-syntax", "syntax-rules",
-                                             "lambda", "eqv?", "void", "or", "call-with-values",
-                                             "apply-with-values")
-    self.`import`(from: ["lispkit", "control"], "if", "let", "let*", "do", "begin")
-    self.`import`(from: ["lispkit", "box"], "box")
-    self.`import`(from: ["lispkit", "list"], "car", "cdr", "list", "null?")
+    self.`import`(from: ["lispkit", "base"],      "define", "set!", "define-syntax",
+                                                  "syntax-rules", "lambda", "eqv?", "void", "or",
+                                                  "call-with-values", "apply-with-values")
+    self.`import`(from: ["lispkit", "control"],   "if", "let", "let*", "do", "begin")
+    self.`import`(from: ["lispkit", "box"],       "box")
+    self.`import`(from: ["lispkit", "list"],      "car", "cdr", "list", "null?")
     self.`import`(from: ["lispkit", "hashtable"], "hashtable-add!")
   }
   

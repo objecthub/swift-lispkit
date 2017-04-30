@@ -856,7 +856,7 @@ public struct Token: CustomStringConvertible {
   
   public var description: String {
     switch self.kind {
-      case .error     : return "<error: \(self.errorVal)>"
+      case .error     : return self.errorVal == nil ? "<error>" : "<error: \(self.errorVal!)>"
       case .eof       : return "<eof>"
       case .ident     : return self.strVal
       case .truelit   : return "#t"

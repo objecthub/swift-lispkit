@@ -47,11 +47,11 @@ public final class HashTableLibrary: NativeLibrary {
   
   /// Dependencies of the library.
   public override func dependencies() {
-    self.`import`(from: ["lispkit", "base"], "define", "lambda", "equal?", "eqv?", "eq?", "not")
+    self.`import`(from: ["lispkit", "base"],    "define", "lambda", "equal?", "eqv?", "eq?", "not")
     self.`import`(from: ["lispkit", "control"], "let*", "letrec", "if", "do")
-    self.`import`(from: ["lispkit", "list"], "cons", "car", "cdr", "pair?", "for-each", "value",
-                                             "null?")
-    self.`import`(from: ["lispkit", "math"], ">", "+", "*")
+    self.`import`(from: ["lispkit", "list"],    "cons", "car", "cdr", "pair?", "for-each", "value",
+                                                "null?")
+    self.`import`(from: ["lispkit", "math"],    ">", "+", "*")
   }
   
   /// Access to imported native procedures.
