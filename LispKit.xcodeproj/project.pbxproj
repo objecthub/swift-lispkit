@@ -10,9 +10,6 @@
 		CC01903B1C89D02200DB8BF9 /* CaptureGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC01903A1C89D02200DB8BF9 /* CaptureGroup.swift */; };
 		CC01903D1C8C7D8600DB8BF9 /* Reference.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC01903C1C8C7D8600DB8BF9 /* Reference.swift */; };
 		CC050F141D017D3400D32132 /* BytevectorLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC050F131D017D3400D32132 /* BytevectorLibrary.swift */; };
-		CC069FC11D7B7D06004644B1 /* NumberKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC069FBE1D7B7CFE004644B1 /* NumberKit.framework */; };
-		CC069FC31D7BA8F2004644B1 /* NumberKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC069FBE1D7B7CFE004644B1 /* NumberKit.framework */; };
-		CC069FC41D7BA8F2004644B1 /* NumberKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CC069FBE1D7B7CFE004644B1 /* NumberKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CC0980A71C62BDBC006B7FB1 /* Compiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0980A61C62BDBC006B7FB1 /* Compiler.swift */; };
 		CC0980A91C67E81C006B7FB1 /* Code.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0980A81C67E81C006B7FB1 /* Code.swift */; };
 		CC0980AB1C67E84C006B7FB1 /* Cell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0980AA1C67E84C006B7FB1 /* Cell.swift */; };
@@ -58,6 +55,7 @@
 		CC5BBC791D5268D000367E8F /* HashTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5BBC781D5268D000367E8F /* HashTable.swift */; };
 		CC5BBC7B1D52724800367E8F /* HashTableLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5BBC7A1D52724800367E8F /* HashTableLibrary.swift */; };
 		CC5C0A3F1D8EBE0A00CE2E98 /* MultiMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5C0A3E1D8EBE0A00CE2E98 /* MultiMap.swift */; };
+		CC5C713F1EBD3D3A00280CF4 /* NumberKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC5C713E1EBD3D3A00280CF4 /* NumberKit.framework */; };
 		CC6A3B5C1C52E71F00E962E2 /* ListLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B5B1C52E71F00E962E2 /* ListLibrary.swift */; };
 		CC6A3B5E1C52E8EF00E962E2 /* VectorLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B5D1C52E8EF00E962E2 /* VectorLibrary.swift */; };
 		CC6A3B601C52EBD700E962E2 /* StringLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B5F1C52EBD700E962E2 /* StringLibrary.swift */; };
@@ -86,6 +84,9 @@
 		CC93A65F1D077766008350C8 /* BinaryOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC93A65E1D077766008350C8 /* BinaryOutput.swift */; };
 		CC93A6611D0777A9008350C8 /* TextOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC93A6601D0777A9008350C8 /* TextOutput.swift */; };
 		CC97FA161CFA515E0008596E /* Definitions.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC97FA151CFA51520008596E /* Definitions.scm */; };
+		CC98B4571EBD43C900BCD049 /* NumberKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CC5C713E1EBD3D3A00280CF4 /* NumberKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		CC98B4581EBD43E500BCD049 /* NumberKit.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = CC5C713E1EBD3D3A00280CF4 /* NumberKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		CC98B45A1EBD444400BCD049 /* NumberKit.framework.dSYM in Copy dSYM data */ = {isa = PBXBuildFile; fileRef = CC98B4591EBD444400BCD049 /* NumberKit.framework.dSYM */; };
 		CCA752F41DEF9E410098C34A /* Prelude.scm in Copy default prelude */ = {isa = PBXBuildFile; fileRef = CCAD52D51C48467D00DBD8EE /* Prelude.scm */; };
 		CCAD52BE1C48403900DBD8EE /* LispKit.h in Headers */ = {isa = PBXBuildFile; fileRef = CCAD52BD1C48403900DBD8EE /* LispKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		CCAD52C51C48403900DBD8EE /* LispKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCAD52BA1C48403800DBD8EE /* LispKit.framework */; };
@@ -120,27 +121,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		CC069FBD1D7B7CFE004644B1 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = CC069FB81D7B7CFE004644B1 /* NumberKit.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = CC99F54F1B7AA6E200355E1E;
-			remoteInfo = NumberKit;
-		};
-		CC069FBF1D7B7CFE004644B1 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = CC069FB81D7B7CFE004644B1 /* NumberKit.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = CC99F5591B7AA6E200355E1E;
-			remoteInfo = NumberKitTests;
-		};
-		CC069FC51D7BA8F2004644B1 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = CC069FB81D7B7CFE004644B1 /* NumberKit.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = CC99F54E1B7AA6E200355E1E;
-			remoteInfo = NumberKit;
-		};
 		CC1AAE3D1CC3CF0F00D1806F /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = CCAD52B11C48403800DBD8EE /* Project object */;
@@ -164,8 +144,8 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				CC069FC41D7BA8F2004644B1 /* NumberKit.framework in Embed Frameworks */,
 				CC1AAE3C1CC3CF0F00D1806F /* LispKit.framework in Embed Frameworks */,
+				CC98B4571EBD43C900BCD049 /* NumberKit.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -192,6 +172,17 @@
 			name = "Copy pre-installed LispKit libraries";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CC5C71401EBD3DD100280CF4 /* Copy dSYM data */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 16;
+			files = (
+				CC98B45A1EBD444400BCD049 /* NumberKit.framework.dSYM in Copy dSYM data */,
+			);
+			name = "Copy dSYM data";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CC8E2BA01E3361C50080299A /* Copy pre-installed LispKit library: SRFI 41 */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -202,6 +193,16 @@
 				CC5848101E56BE0600BE6497 /* derived.sld in Copy pre-installed LispKit library: SRFI 41 */,
 			);
 			name = "Copy pre-installed LispKit library: SRFI 41";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC98B4521EBD433400BCD049 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				CC98B4581EBD43E500BCD049 /* NumberKit.framework in CopyFiles */,
+			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		CCA752F91DEF9F4E0098C34A /* Copy pre-installed SRFI libraries */ = {
@@ -228,7 +229,6 @@
 		CC01903A1C89D02200DB8BF9 /* CaptureGroup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptureGroup.swift; sourceTree = "<group>"; };
 		CC01903C1C8C7D8600DB8BF9 /* Reference.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reference.swift; sourceTree = "<group>"; };
 		CC050F131D017D3400D32132 /* BytevectorLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = BytevectorLibrary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
-		CC069FB81D7B7CFE004644B1 /* NumberKit.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = NumberKit.xcodeproj; path = ../NumberKit/NumberKit.xcodeproj; sourceTree = "<group>"; };
 		CC0980A61C62BDBC006B7FB1 /* Compiler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Compiler.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC0980A81C67E81C006B7FB1 /* Code.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Code.swift; sourceTree = "<group>"; };
 		CC0980AA1C67E84C006B7FB1 /* Cell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cell.swift; sourceTree = "<group>"; };
@@ -278,6 +278,8 @@
 		CC5BBC781D5268D000367E8F /* HashTable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HashTable.swift; sourceTree = "<group>"; };
 		CC5BBC7A1D52724800367E8F /* HashTableLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = HashTableLibrary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC5C0A3E1D8EBE0A00CE2E98 /* MultiMap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MultiMap.swift; sourceTree = "<group>"; };
+		CC5C713E1EBD3D3A00280CF4 /* NumberKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NumberKit.framework; path = Carthage/Build/Mac/NumberKit.framework; sourceTree = "<group>"; };
+		CC5C71431EBD3F3F00280CF4 /* Cartfile */ = {isa = PBXFileReference; lastKnownFileType = text; path = Cartfile; sourceTree = "<group>"; };
 		CC6A3B5B1C52E71F00E962E2 /* ListLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = ListLibrary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC6A3B5D1C52E8EF00E962E2 /* VectorLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = VectorLibrary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC6A3B5F1C52EBD700E962E2 /* StringLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = StringLibrary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -291,7 +293,6 @@
 		CC6A3B711C54DF7F00E962E2 /* Exprs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Exprs.swift; sourceTree = "<group>"; };
 		CC6AB0861C5C28FE008E9460 /* Equality.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Equality.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC6BB1991E60F237009A9091 /* Random.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Random.swift; sourceTree = "<group>"; };
-		CC6F6C5A1C501F4300522507 /* SCRATCH */ = {isa = PBXFileReference; lastKnownFileType = text; path = SCRATCH; sourceTree = "<group>"; };
 		CC8169261D1FADE2003FADEA /* Ports.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Ports.scm; sourceTree = "<group>"; };
 		CC8213651D614A8600C1BE57 /* Records.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Records.scm; sourceTree = "<group>"; };
 		CC8218901E3FFFAB009CA653 /* SRFI19.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SRFI19.scm; sourceTree = "<group>"; };
@@ -307,6 +308,7 @@
 		CC93A65E1D077766008350C8 /* BinaryOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BinaryOutput.swift; sourceTree = "<group>"; };
 		CC93A6601D0777A9008350C8 /* TextOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextOutput.swift; sourceTree = "<group>"; };
 		CC97FA151CFA51520008596E /* Definitions.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Definitions.scm; sourceTree = "<group>"; };
+		CC98B4591EBD444400BCD049 /* NumberKit.framework.dSYM */ = {isa = PBXFileReference; lastKnownFileType = wrapper.dsym; name = NumberKit.framework.dSYM; path = Carthage/Build/Mac/NumberKit.framework.dSYM; sourceTree = "<group>"; };
 		CCAD52BA1C48403800DBD8EE /* LispKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = LispKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CCAD52BD1C48403900DBD8EE /* LispKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LispKit.h; sourceTree = "<group>"; };
 		CCAD52BF1C48403900DBD8EE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -351,7 +353,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CC069FC31D7BA8F2004644B1 /* NumberKit.framework in Frameworks */,
 				CC1AAE3B1CC3CF0F00D1806F /* LispKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -360,7 +361,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CC069FC11D7B7D06004644B1 /* NumberKit.framework in Frameworks */,
+				CC5C713F1EBD3D3A00280CF4 /* NumberKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -378,18 +379,10 @@
 		CC069FB71D7B7CFD004644B1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				CC069FB81D7B7CFE004644B1 /* NumberKit.xcodeproj */,
+				CC98B4591EBD444400BCD049 /* NumberKit.framework.dSYM */,
+				CC5C713E1EBD3D3A00280CF4 /* NumberKit.framework */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		CC069FB91D7B7CFE004644B1 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				CC069FBE1D7B7CFE004644B1 /* NumberKit.framework */,
-				CC069FC01D7B7CFE004644B1 /* NumberKitTests.xctest */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		CC1227371CBFE74500821EB7 /* LispKitRepl */ = {
@@ -514,10 +507,10 @@
 		CCAD52B01C48403800DBD8EE = {
 			isa = PBXGroup;
 			children = (
-				CC6F6C5A1C501F4300522507 /* SCRATCH */,
 				CCC937491C4F031700A5608F /* README.md */,
 				CCC937471C4F02DF00A5608F /* CHANGELOG.md */,
 				CC3C4E051CD81C5E00C78F89 /* TODO.md */,
+				CC5C71431EBD3F3F00280CF4 /* Cartfile */,
 				CCC937451C4F02AF00A5608F /* LICENSE */,
 				CC48055B1CFE366100D608B6 /* Assets */,
 				CCAD52BC1C48403800DBD8EE /* LispKit */,
@@ -680,7 +673,6 @@
 			);
 			dependencies = (
 				CC1AAE3E1CC3CF0F00D1806F /* PBXTargetDependency */,
-				CC069FC61D7BA8F2004644B1 /* PBXTargetDependency */,
 			);
 			name = LispKitRepl;
 			productName = LispKitRepl;
@@ -694,6 +686,7 @@
 				CCAD52B51C48403800DBD8EE /* Sources */,
 				CCAD52B61C48403800DBD8EE /* Frameworks */,
 				CCAD52B71C48403800DBD8EE /* Headers */,
+				CC5C71401EBD3DD100280CF4 /* Copy dSYM data */,
 				CC2E6A901C486AA70046E680 /* Copy default prelude */,
 				CCA752F91DEF9F4E0098C34A /* Copy pre-installed SRFI libraries */,
 				CC8E2BA01E3361C50080299A /* Copy pre-installed LispKit library: SRFI 41 */,
@@ -715,6 +708,7 @@
 				CCAD52C01C48403900DBD8EE /* Sources */,
 				CCAD52C11C48403900DBD8EE /* Frameworks */,
 				CCAD52C21C48403900DBD8EE /* Resources */,
+				CC98B4521EBD433400BCD049 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -760,12 +754,6 @@
 			mainGroup = CCAD52B01C48403800DBD8EE;
 			productRefGroup = CCAD52BB1C48403800DBD8EE /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = CC069FB91D7B7CFE004644B1 /* Products */;
-					ProjectRef = CC069FB81D7B7CFE004644B1 /* NumberKit.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				CCAD52B91C48403800DBD8EE /* LispKit */,
@@ -774,23 +762,6 @@
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-		CC069FBE1D7B7CFE004644B1 /* NumberKit.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = NumberKit.framework;
-			remoteRef = CC069FBD1D7B7CFE004644B1 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		CC069FC01D7B7CFE004644B1 /* NumberKitTests.xctest */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.cfbundle;
-			path = NumberKitTests.xctest;
-			remoteRef = CC069FBF1D7B7CFE004644B1 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		CCAD52C21C48403900DBD8EE /* Resources */ = {
@@ -918,11 +889,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		CC069FC61D7BA8F2004644B1 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = NumberKit;
-			targetProxy = CC069FC51D7BA8F2004644B1 /* PBXContainerItemProxy */;
-		};
 		CC1AAE3E1CC3CF0F00D1806F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = CCAD52B91C48403800DBD8EE /* LispKit */;
@@ -1070,7 +1036,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				FRAMEWORK_SEARCH_PATHS = "";
+				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/Carthage/Build/Mac";
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = LispKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -1096,7 +1062,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				FRAMEWORK_SEARCH_PATHS = "";
+				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/Carthage/Build/Mac";
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = LispKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -1113,6 +1079,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/Mac",
+				);
 				INFOPLIST_FILE = LispKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispKitTests;
@@ -1125,6 +1095,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/Mac",
+				);
 				INFOPLIST_FILE = LispKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispKitTests;
