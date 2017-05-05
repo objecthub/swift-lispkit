@@ -1,13 +1,11 @@
 <img src="Assets/lispkit_logo_small.png" alt="LispKit" width="80" height="80" align="middle" />&nbsp;Swift LispKit
 ======================================================
 
-<p>
 [![Platform: macOS](https://img.shields.io/badge/Platform-macOS-blue.svg?style=flat)](https://developer.apple.com/osx/)]
 [![Language: Swift 3.1](https://img.shields.io/badge/Language-Swift%203.1-green.svg?style=flat)](https://developer.apple.com/swift/)
 [![IDE: Xcode 8.3](https://img.shields.io/badge/IDE-Xcode%208.3-orange.svg?style=flat)](https://developer.apple.com/xcode/)
 [![Carthage: compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![License: Apache](http://img.shields.io/badge/License-Apache-lightgrey.svg?style=flat)](https://raw.githubusercontent.com/objecthub/swift-lispkit/master/LICENSE)
-</p>
 
 
 ## Overview
