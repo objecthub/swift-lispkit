@@ -68,7 +68,7 @@ stack-based, handles tail calls and continuations, and provides a garbage collec
 Details can be found in the [LispKit Wiki](https://github.com/objecthub/swift-lispkit/wiki).
 
 The project provides a read-eval-print loop. This is a command-line tool that can be used
-to try out and experiment with the framework. The read-eval-print loop is a tool which parses
+to try out and experiment with the framework. The read-eval-print parses
 the entered _LispKit_ expression, compiles it to bytecode, executes it, and
 displays the result.
 

@@ -39,8 +39,6 @@
 		CC5696791CBD48E700F6803E /* Global.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5696781CBD48E700F6803E /* Global.swift */; };
 		CC5847FA1E4FC55700BE6497 /* SRFI132.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC5847F91E4FC55700BE6497 /* SRFI132.scm */; };
 		CC5848031E56920600BE6497 /* set.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC5848021E5691B300BE6497 /* set.sld */; };
-		CC5848101E56BE0600BE6497 /* derived.sld in Copy pre-installed LispKit library: SRFI 41 */ = {isa = PBXBuildFile; fileRef = CC58480D1E56BD4100BE6497 /* derived.sld */; };
-		CC5848111E56BE0C00BE6497 /* primitive.sld in Copy pre-installed LispKit library: SRFI 41 */ = {isa = PBXBuildFile; fileRef = CC58480E1E56BD4100BE6497 /* primitive.sld */; };
 		CC5848121E56BE2700BE6497 /* 1.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC5848051E56BD0B00BE6497 /* 1.sld */; };
 		CC5848131E56BE2700BE6497 /* 2.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC5848061E56BD0B00BE6497 /* 2.sld */; };
 		CC5848141E56BE2700BE6497 /* 8.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC5848071E56BD0B00BE6497 /* 8.sld */; };
@@ -111,6 +109,8 @@
 		CCC531A01D18595500FAED6E /* TextOutputTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC5319F1D18595500FAED6E /* TextOutputTarget.swift */; };
 		CCC62D921CA9ED6A00E2C43F /* TrackedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC62D911CA9ED6A00E2C43F /* TrackedObject.swift */; };
 		CCCEB3FF1DF2DAA9009BF66B /* FileHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCEB3FE1DF2DAA9009BF66B /* FileHandler.swift */; };
+		CCD2BF6A1EBE550D004B2CB5 /* primitive.sld in Copy pre-installed LispKit library: SRFI 41 */ = {isa = PBXBuildFile; fileRef = CC58480E1E56BD4100BE6497 /* primitive.sld */; };
+		CCD2BF6B1EBE5515004B2CB5 /* derived.sld in Copy pre-installed LispKit library: SRFI 41 */ = {isa = PBXBuildFile; fileRef = CC58480D1E56BD4100BE6497 /* derived.sld */; };
 		CCD81AD21CE75823009EB087 /* Checkpointer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD81AD11CE75823009EB087 /* Checkpointer.swift */; };
 		CCDAD5521D4813E900A7EE4F /* HashTables.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCDAD5511D4813E900A7EE4F /* HashTables.scm */; };
 		CCDF99FC1D3D7A3100FD2A57 /* BoxLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDF99FB1D3D7A3100FD2A57 /* BoxLibrary.swift */; };
@@ -189,8 +189,8 @@
 			dstPath = LispKit/Resources/Libraries/srfi/41;
 			dstSubfolderSpec = 7;
 			files = (
-				CC5848111E56BE0C00BE6497 /* primitive.sld in Copy pre-installed LispKit library: SRFI 41 */,
-				CC5848101E56BE0600BE6497 /* derived.sld in Copy pre-installed LispKit library: SRFI 41 */,
+				CCD2BF6B1EBE5515004B2CB5 /* derived.sld in Copy pre-installed LispKit library: SRFI 41 */,
+				CCD2BF6A1EBE550D004B2CB5 /* primitive.sld in Copy pre-installed LispKit library: SRFI 41 */,
 			);
 			name = "Copy pre-installed LispKit library: SRFI 41";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -395,7 +395,8 @@
 				CC12273A1CBFE74500821EB7 /* Info.plist */,
 				CC502A931CDABF1E00875D9F /* LispKitReplBridgingHeader.h */,
 			);
-			path = LispKitRepl;
+			name = LispKitRepl;
+			path = Sources/LispKitRepl;
 			sourceTree = "<group>";
 		};
 		CC131C4A1CDE0C3D006C030C /* Code */ = {
@@ -457,7 +458,7 @@
 				CC58480D1E56BD4100BE6497 /* derived.sld */,
 			);
 			name = 41;
-			path = LispKit/Resources/Libraries/srfi/41;
+			path = Sources/LispKit/Resources/Libraries/srfi/41;
 			sourceTree = SOURCE_ROOT;
 		};
 		CC9050101D392706008CE60A /* Data */ = {
@@ -544,7 +545,8 @@
 				CCAD52BD1C48403900DBD8EE /* LispKit.h */,
 				CCAD52BF1C48403900DBD8EE /* Info.plist */,
 			);
-			path = LispKit;
+			name = LispKit;
+			path = Sources/LispKit;
 			sourceTree = "<group>";
 		};
 		CCAD52C81C48403900DBD8EE /* LispKitTests */ = {
@@ -556,7 +558,8 @@
 				CCAD52CB1C48403900DBD8EE /* Info.plist */,
 				CC131C4A1CDE0C3D006C030C /* Code */,
 			);
-			path = LispKitTests;
+			name = LispKitTests;
+			path = Tests/LispKitTests;
 			sourceTree = "<group>";
 		};
 		CCAD52D41C48467D00DBD8EE /* Resources */ = {
@@ -908,12 +911,12 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
-				INFOPLIST_FILE = LispKitRepl/Info.plist;
+				INFOPLIST_FILE = Sources/LispKitRepl/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../Frameworks";
 				"OTHER_SWIFT_FLAGS[arch=*]" = "-D DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispKitRepl;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = LispKitRepl/LispKitReplBridgingHeader.h;
+				SWIFT_OBJC_BRIDGING_HEADER = Sources/LispKitRepl/LispKitReplBridgingHeader.h;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 3.0;
 			};
@@ -925,11 +928,11 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
-				INFOPLIST_FILE = LispKitRepl/Info.plist;
+				INFOPLIST_FILE = Sources/LispKitRepl/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispKitRepl;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = LispKitRepl/LispKitReplBridgingHeader.h;
+				SWIFT_OBJC_BRIDGING_HEADER = Sources/LispKitRepl/LispKitReplBridgingHeader.h;
 				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
@@ -1038,7 +1041,7 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/Carthage/Build/Mac";
 				FRAMEWORK_VERSION = A;
-				INFOPLIST_FILE = LispKit/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/Sources/LispKit/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
 				"OTHER_SWIFT_FLAGS[arch=*]" = "-D DEBUG";
@@ -1064,7 +1067,7 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/Carthage/Build/Mac";
 				FRAMEWORK_VERSION = A;
-				INFOPLIST_FILE = LispKit/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/Sources/LispKit/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispKit;
@@ -1083,7 +1086,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/Mac",
 				);
-				INFOPLIST_FILE = LispKitTests/Info.plist;
+				INFOPLIST_FILE = Tests/LispKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispKitTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1099,7 +1102,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/Mac",
 				);
-				INFOPLIST_FILE = LispKitTests/Info.plist;
+				INFOPLIST_FILE = Tests/LispKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispKitTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
