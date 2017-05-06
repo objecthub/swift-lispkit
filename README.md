@@ -1,7 +1,6 @@
 <img src="Assets/lispkit_logo_small.png" alt="LispKit" width="80" height="80" align="middle" />&nbsp;Swift LispKit
-======================================================
 
-[![Platform: macOS](https://img.shields.io/badge/Platform-macOS-blue.svg?style=flat)](https://developer.apple.com/osx/)]
+[![Platform: macOS](https://img.shields.io/badge/Platform-macOS-blue.svg?style=flat)](https://developer.apple.com/osx/)
 [![Language: Swift 3.1](https://img.shields.io/badge/Language-Swift%203.1-green.svg?style=flat)](https://developer.apple.com/swift/)
 [![IDE: Xcode 8.3](https://img.shields.io/badge/IDE-Xcode%208.3-orange.svg?style=flat)](https://developer.apple.com/xcode/)
 [![Carthage: compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
@@ -74,15 +73,39 @@ the entered _LispKit_ expression, compiles it to bytecode, executes it, and
 displays the result.
 
 
-## Dependencies
+## Building and running the read-eval-print loop
 
-_LispKit_ relies on [NumberKit](http://github.com/objecthub/swift-numberkit)
-for its support of numeric datatypes like rationals, complex numbers, and big integers.
+First, clone the _LispKit_ repository via `git`. This will create a directory `swift-lispkit`.
 
+```sh
+> git clone https://github.com/objecthub/swift-lispkit.git
+Cloning into 'swift-lispkit'...
+remote: Counting objects: 1849, done.
+remote: Compressing objects: 100% (39/39), done.
+remote: Total 1849 (delta 9), reused 0 (delta 0), pack-reused 1806
+Receiving objects: 100% (1849/1849), 689.43 KiB | 666.00 KiB/s, done.
+Resolving deltas: 100% (1430/1430), done.
+```
+
+Next, fetch dependencies and build them from scratch via `carthage`:
+```sh
+> cd swift-lispkit
+> carthage bootstrap
+*** Checking out swift-numberkit at "1.6.0"
+*** xcodebuild output can be found in /var/folders/c_/h31lvvtx72s3zhc9bvxd0p480000gn/T/carthage-xcodebuild.46W8Z7.log
+*** Building scheme "NumberKit (shared)" in NumberKit.xcodeproj
+```
+
+Now, it's possible to switch to Xcode and build the read-eval-print loop via
+scheme `LispKitRepl`:
+```sh
+> open LispKit.xcodeproj
+```
 
 ## Requirements
 
 - XCode 8.3
+- [Carthage](https://github.com/Carthage/Carthage)
 - Swift 3.1
 - [NumberKit](http://github.com/objecthub/swift-numberkit)
 
