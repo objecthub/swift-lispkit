@@ -89,6 +89,18 @@ public final class PortLibrary: NativeLibrary {
     self.define(Procedure("write-u8", writeU8))
     self.define(Procedure("write-bytevector", writeBytevector))
     self.define(Procedure("flush-output-port", flushOutputPort))
+    self.define("with-input-from-port", via:
+      "(define (with-input-from-port new thunk)",
+                "  (let ((old (current-input-port)))",
+                "    (dynamic-wind (lambda () (current-input-port new))",
+                "                  (lambda () (let ((res (thunk))) (close-input-port new) res))",
+                "                  (lambda () (current-input-port old)))))")
+    self.define("with-output-to-port", via:
+      "(define (with-output-to-port new thunk)",
+                "  (let ((old (current-output-port)))",
+                "    (dynamic-wind (lambda () (current-output-port new))",
+                "                  (lambda () (let ((res (thunk))) (close-output-port new) res))",
+                "                  (lambda () (current-output-port old)))))")
     self.define("with-input-from-file", via:
       "(define (with-input-from-file file thunk)",
       "  (let ((old (current-input-port))",
@@ -292,16 +304,49 @@ public final class PortLibrary: NativeLibrary {
     return .void
   }
   
-  func currentInputPort(_ expr: Expr) -> Expr {
-    return .port(self.context.inputPort)
+  func currentInputPort(_ expr: Expr?) throws -> Expr {
+    switch expr {
+      case .none:
+        return .port(self.context.inputPort)
+      case .some(.port(let port)):
+        guard port.isInputPort else {
+          throw EvalError.typeError(expr!, [.inputPortType])
+        }
+        self.context.inputPort = port
+        return .void
+      default:
+        throw EvalError.typeError(expr!, [.inputPortType])
+    }
   }
   
-  func currentOutputPort(_ expr: Expr) -> Expr {
-    return .port(self.context.outputPort)
+  func currentOutputPort(_ expr: Expr?) throws -> Expr {
+    switch expr {
+      case .none:
+        return .port(self.context.outputPort)
+      case .some(.port(let port)):
+        guard port.isOutputPort else {
+          throw EvalError.typeError(expr!, [.outputPortType])
+        }
+        self.context.outputPort = port
+        return .void
+      default:
+        throw EvalError.typeError(expr!, [.outputPortType])
+    }
   }
   
-  func currentErrorPort(_ expr: Expr) -> Expr {
-    return .port(self.context.errorPort)
+  func currentErrorPort(_ expr: Expr?) throws -> Expr {
+    switch expr {
+      case .none:
+        return .port(self.context.errorPort)
+      case .some(.port(let port)):
+        guard port.isOutputPort else {
+          throw EvalError.typeError(expr!, [.outputPortType])
+        }
+        self.context.errorPort = port
+        return .void
+      default:
+        throw EvalError.typeError(expr!, [.outputPortType])
+    }
   }
   
   func isEofObject(_ expr: Expr) -> Expr {
@@ -315,7 +360,13 @@ public final class PortLibrary: NativeLibrary {
   func read(_ expr: Expr?) throws -> Expr {
     let input = try self.textInputFrom(expr)
     let parser = Parser(symbols: self.context.symbols, input: input)
-    return try parser.parse(false)
+    do {
+      return try parser.parse(false)
+    } catch SyntaxError.empty {
+      return .eof
+    } catch let error {
+      throw error
+    }
   }
   
   func readChar(_ expr: Expr?) throws -> Expr {

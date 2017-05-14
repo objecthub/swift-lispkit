@@ -1,4 +1,5 @@
 <img src="Assets/lispkit_logo_small.png" alt="LispKit" width="80" height="80" align="middle" />&nbsp;Swift LispKit
+========================
 
 [![Platform: macOS](https://img.shields.io/badge/Platform-macOS-blue.svg?style=flat)](https://developer.apple.com/osx/)
 [![Language: Swift 3.1](https://img.shields.io/badge/Language-Swift%203.1-green.svg?style=flat)](https://developer.apple.com/swift/)
@@ -49,6 +50,8 @@ _LispKit_ is incompatible or incomplete with respect to the following R7RS featu
     implemented; this includes the following functions: `features` and `cond-expand`
   - Error support is incomplete; the following functions are missing: `syntax-error`,
     `read-error?`, `file-error?`
+  - `current-input-port`, `current-output-port`, and `current-error-port` are functions
+    (as required by R5RS) and not parameter objects (as required by R7RS)
   - The R5RS-fallback mechanism for handling symbols in a case-insensitive manner is not
     implemented yet; this includes support for `include-ci`
   - Libraries do not yet support: `include`, `include-ci`, `include-library-declarations`, and
@@ -75,7 +78,8 @@ displays the result.
 
 ## Building and running the read-eval-print loop
 
-First, clone the _LispKit_ repository via `git`. This will create a directory `swift-lispkit`.
+First, clone the _LispKit_ repository via `git`. The following command will create a
+directory `swift-lispkit`.
 
 ```sh
 > git clone https://github.com/objecthub/swift-lispkit.git
