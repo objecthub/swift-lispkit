@@ -18,6 +18,7 @@
 //  limitations under the License.
 //
 
+import Foundation
 import NumberKit
 
 /// 
@@ -1086,7 +1087,11 @@ func digitVal(_ ch: UniChar) -> Int {
   }
 }
 
-func unicodeScalar(_ ch: UniChar) -> UnicodeScalar {
+// TODO: Figure out why this is required to be `public`.
+// I made this public because otherwise, I'd get the following error if built as a dependency
+// via Carthage: global function 'unicodeScalar' is not '@_versioned' or public. Another
+// error I received was: global function 'unicodeScalar' is internal and cannot be referenced
+// from an '@inline(__always)' function
+public func unicodeScalar(_ ch: UniChar) -> UnicodeScalar {
   return UnicodeScalar(ch) ?? UnicodeScalar(0)
 }
-
