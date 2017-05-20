@@ -1,6 +1,6 @@
 # Todo
 
-Last update: 2016-09-04
+Last update: 2017-05-20
 
 
 ## Compiler
@@ -37,8 +37,8 @@ Last update: 2016-09-04
 - [X] Implement hash table library based on the R6RS standard
 - [X] Implement record library based on the R7RS standard
 - [X] Implement delay-force; provide full support for R7RS delayed evaluation primitives
-- [ ] Implement libraries based on the R7RS standard
-- [ ] Support mutable strings
+- [X] Implement libraries based on the R7RS standard
+- [X] Support mutable strings
 
 
 ## Tests

@@ -59,6 +59,21 @@ _LispKit_ is incompatible or incomplete with respect to the following R7RS featu
   - Environment-support lacks the following functions: `scheme-report-environment`,
     `null-environment`.
 
+The following standard libraries have been ported to _LispKit_ and are included in the
+framework:
+
+  - [SRFI 1: List Library](https://srfi.schemers.org/srfi-1/srfi-1.html)
+  - [SRFI 2: AND-LET* - an AND with local bindings, a guarded LET* special
+             form](https://srfi.schemers.org/srfi-2/srfi-2.html)
+  - [SRFI 8: receive - Binding to multiple values](https://srfi.schemers.org/srfi-8/srfi-8.html)
+  - [SRFI 19: Time Data Types and Procedures](https://srfi.schemers.org/srfi-19/srfi-19.html)
+  - [SRFI 27: Sources of Random Bits](https://srfi.schemers.org/srfi-27/srfi-27.html)
+  - [SRFI 28: Basic Format Strings](https://srfi.schemers.org/srfi-28/srfi-28.html)
+  - [SRFI 41: Streams](https://srfi.schemers.org/srfi-41/srfi-41.html)
+  - [SRFI 121: Generators](https://srfi.schemers.org/srfi-121/srfi-121.html)
+  - [SRFI 132: Sort Libraries](https://srfi.schemers.org/srfi-132/srfi-132.html)
+  - [SRFI 134: Immutable Deques](https://srfi.schemers.org/srfi-134/srfi-134.html)
+
 
 ## Architecture
 

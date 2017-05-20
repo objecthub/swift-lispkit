@@ -155,6 +155,32 @@ public final class ListLibrary: NativeLibrary {
       "            (rec (lambda (acc) (cont (apply f (append (car pair) (list acc)))))",
       "                 (decons (cdr pair)))))))")
     self.define("every", via:
+      "(define (every pred ls . lists)",
+      "  (if (null? lists)",
+      "      (let lp ((ls ls))",
+      "        (cond ((null? ls)       #t)",
+      "              ((null? (cdr ls)) (pred (car ls)))",
+      "              (else             (and (pred (car ls)) (lp (cdr ls))))))",
+      "      (let lp ((lists (cons ls lists)))",
+      "        (cond ((any1 null? lists)     #t)",
+      "              ((any1 null? (map cdr lists)) (apply pred (map car lists)))",
+      "              (else                         (and (apply pred (map car lists))",
+      "                                                 (lp (map cdr lists))))))))")
+    self.define("any", via:
+      "(define (any pred ls . lists)",
+      "  (if (null? lists)",
+      "      (let lp ((ls ls))",
+      "        (cond ((null? ls)        #f)",
+	    "              ((null? (cdr ls))  (pred (car ls)))",
+	    "              (else              (or (pred (car ls)) (lp (cdr ls))))))",
+      "      (let lp ((lists (cons ls lists)))",
+      "        (cond ((any1 null? lists)           #f)",
+      "              ((any1 null? (map cdr lists)) (apply pred (map car lists)))",
+      "              (else                         (or (apply pred (map car lists))",
+      "                                                (lp (map cdr lists))))))))")
+    /* More efficient versions, but not fully compliant with the official spec;
+     
+    self.define("every", via:
       "(define (every pred xs . xss)",
       "  (if (null? xss)",
       "      (do ((xs xs (cdr xs)))",
@@ -167,7 +193,7 @@ public final class ListLibrary: NativeLibrary {
       "      (do ((xs xs (cdr xs)))",
       "          ((or (null? xs) (pred (car xs))) (not (null? xs))))",
       "      (do ((pair (decons (cons xs xss)) (decons (cdr pair))))",
-      "          ((or (null? pair) (apply pred (car pair))) (not (null? pair))))))")
+      "          ((or (null? pair) (apply pred (car pair))) (not (null? pair))))))") */
     self.define("filter", via:
       "(define (filter pred xs)",
       "  (do ((xs xs (cdr xs))",

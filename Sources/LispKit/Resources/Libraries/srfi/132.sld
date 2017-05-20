@@ -27,7 +27,7 @@
 ;;; OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 ;;; DEALINGS IN THE SOFTWARE.
 ;;; 
-;;; Adaptation to LispKit
+;;; LispKit Port:
 ;;;   Copyright © 2017 Matthias Zenger. All rights reserved.
 
 (define-library (srfi 132)
