@@ -44,9 +44,7 @@
                          (loop 0 (+ 1 y)))
               (else      (display (vector-ref board (index (cons x y))))
                          (loop (+ 1 x) y))))))
-  (display (string-append (number->string (length pss))
-                          " SOLUTIONS FOR N = "
-                          (number->string n)))
+  (display (string-append (number->string (length pss)) " SOLUTIONS FOR N = " (number->string n)))
   (newline)
   (newline)
   (for-each pp-board pss))
