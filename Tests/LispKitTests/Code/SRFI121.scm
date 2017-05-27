@@ -45,7 +45,6 @@
    (10 20 30)
    (5 4 3 2 1)
    (0 2 4 6 8 10))
-  (import (srfi 121))
   (define g (make-coroutine-generator
               (lambda (yield) (let loop ((i 0))
                 (when (< i 3) (yield i) (loop (+ i 1)))))))
@@ -80,7 +79,6 @@
    (1 2)
    (1 2 0)
    (3 4))
-  (import (srfi 121))
   (define g (make-range-generator 1 5))
   (define g1 (generator 1 2 3))
   (define g2 (generator 4 5 6 7))
@@ -110,7 +108,6 @@
    (a d e)
    (1 2 3)
    (1))
-  (import (srfi 121))
   (define g (make-range-generator 1 5))
   (define g1 (make-range-generator 1 5))
   (define (small? x) (< x 3))
@@ -135,7 +132,6 @@
    #(1 2 3)
    "abc"
    (e d c b a . z))
-  (import (srfi 121))
   (list (generator->list (generator 1 2 3 4 5) 3)
         (generator->reverse-list (generator 1 2 3 4 5))
         (generator->vector (generator 1 2 3 4 5))

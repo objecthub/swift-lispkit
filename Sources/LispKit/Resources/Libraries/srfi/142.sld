@@ -1,7 +1,7 @@
 ;;; SRFI 142
 ;;; Bitwise Operations
 ;;; 
-;;; This SRFI proposes a coherent and comprehensive set of procedures for performing bitwise
+;;; This SRFI defines a coherent and comprehensive set of procedures for performing bitwise
 ;;; logical operations on integers. The code below is based on a reference implementation of
 ;;; the spec in terms of a set of seven core operators. The implementation is portable, as
 ;;; efficient as practical with pure Scheme arithmetic, and open source.
@@ -57,7 +57,6 @@
 ;;;
 ;;; LispKit Port:
 ;;;   Copyright © 2017 Matthias Zenger. All rights reserved.
-
 
 (define-library (srfi 142)
 

@@ -83,6 +83,10 @@ class RegressionTests: LispKitTestCase {
     self.execute(file: "SRFI132")
   }
   
+  func testSRFI133() {
+    self.execute(file: "SRFI133")
+  }
+  
   func testSRFI134() {
     self.execute(file: "SRFI134")
   }

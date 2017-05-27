@@ -31,7 +31,6 @@
 (
   "Time comparisons (time=?, etc.)"
   #t
-  (import (srfi 19))
   (let ((t1 (make-time 'time-utc 0 1))
         (t2 (make-time 'time-utc 0 1))
         (t3 (make-time 'time-utc 0 2))
@@ -57,7 +56,6 @@
 (
   "Time difference"
   #t
-  (import (srfi 19))
   (let ((t1 (make-time 'time-utc 0 3000))
         (t2 (make-time 'time-utc 0 1000))
         (t3 (make-time 'time-duration 0 2000))
@@ -69,7 +67,6 @@
 (
   "TAI-UTC Conversions"
   #t
-  (import (srfi 19))
   (define (test-one-utc-tai-edge utc tai-diff tai-last-diff)
     (let* (;; right on the edge they should be the same
            (utc-basic (make-time 'time-utc 0 utc))
@@ -133,7 +130,6 @@
 (
   "TAI-Date Conversions"
   #t
-  (import (srfi 19))
   (define (tm:date= d1 d2)
     (and (= (date-year d1) (date-year d2))
          (= (date-month d1) (date-month d2))
@@ -156,7 +152,6 @@
 (
   "Date-UTC Conversions"
   #t
-  (import (srfi 19))
   (and
     (time=? (make-time time-utc 0 (- 915148800 2))
             (date->time-utc (make-date 0 58 59 23 31 12 1998 0)))
@@ -174,7 +169,6 @@
 (
   "TZ Offset conversions"
   #t
-  (import (srfi 19))
   (let ((ct-utc (make-time time-utc 6320000 1045944859))
 	      (ct-tai (make-time time-tai 6320000 1045944891))
 	      (cd (make-date 6320000 19 14 15 22 2 2003 -18000)))

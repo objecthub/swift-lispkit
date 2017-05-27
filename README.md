@@ -72,7 +72,9 @@ framework:
   - [SRFI 41: Streams](https://srfi.schemers.org/srfi-41/srfi-41.html)
   - [SRFI 121: Generators](https://srfi.schemers.org/srfi-121/srfi-121.html)
   - [SRFI 132: Sort Libraries](https://srfi.schemers.org/srfi-132/srfi-132.html)
+  - [SRFI 133: Vector Library](https://srfi.schemers.org/srfi-133/srfi-133.html)
   - [SRFI 134: Immutable Deques](https://srfi.schemers.org/srfi-134/srfi-134.html)
+  - [SRFI 142: Bitwise Operations](https://srfi.schemers.org/srfi-142/srfi-142.html)
 
 
 ## Architecture
