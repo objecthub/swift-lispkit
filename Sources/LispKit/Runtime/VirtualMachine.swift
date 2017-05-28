@@ -1291,6 +1291,13 @@ public final class VirtualMachine: TrackedObject {
         case .cons:
           let cdr = self.pop()
           self.push(.pair(self.popUnsafe(), cdr))
+        case .decons:
+          let expr = self.popUnsafe()
+          guard case .pair(let car, let cdr) = expr else {
+            throw EvalError.typeError(expr, [.pairType])
+          }
+          self.push(cdr)
+          self.push(car)
         case .car:
           let expr = self.popUnsafe()
           guard case .pair(let car, _) = expr else {

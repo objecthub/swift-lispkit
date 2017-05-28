@@ -324,6 +324,10 @@ public enum Instruction: CustomStringConvertible {
   /// new pair with this head and tail onto the stack.
   case cons
   
+  /// **`decons`**: Pops a pair off the stack and pushes first its tail and then its head
+  /// onto the stack.
+  case decons
+  
   /// **`car`**: Pops a pair off the stack and pushes its head onto the stack.
   case car
   
@@ -635,6 +639,8 @@ public enum Instruction: CustomStringConvertible {
         return "is_null"
       case .cons:
         return "cons"
+      case .decons:
+        return "decons"
       case .car:
         return "car"
       case .cdr:

@@ -107,44 +107,11 @@
     ;;; --------------------
     ;;; Utilities
 
-    ;;; Not the best LET*-OPTIONALS, but not the worst, either.  Use Olin's
-    ;;; if it's available to you.
-    (define-syntax let*-optionals
-      (syntax-rules ()
-        ((let*-optionals (?x ...) ((?var ?default) ...) ?body1 ?body2 ...)
-         (let ((args (?x ...)))
-           (let*-optionals args ((?var ?default) ...) ?body1 ?body2 ...)))
-        ((let*-optionals ?args ((?var ?default) ...) ?body1 ?body2 ...)
-         (let*-optionals:aux ?args ?args ((?var ?default) ...)
-           ?body1 ?body2 ...))))
-
-    (define-syntax let*-optionals:aux
-      (syntax-rules ()
-        ((aux ?orig-args-var ?args-var () ?body1 ?body2 ...)
-         (if (null? ?args-var)
-             (let () ?body1 ?body2 ...)
-             (error "too many arguments" (length ?orig-args-var)
-                    ?orig-args-var)))
-        ((aux ?orig-args-var ?args-var
-             ((?var ?default) ?more ...)
-           ?body1 ?body2 ...)
-         (if (null? ?args-var)
-             (let* ((?var ?default) ?more ...) ?body1 ?body2 ...)
-             (let ((?var (car ?args-var))
-                   (new-args (cdr ?args-var)))
-               (let*-optionals:aux ?orig-args-var new-args
-                   (?more ...)
-                 ?body1 ?body2 ...))))))
-
     (define (nonneg-int? x)
-      (and (integer? x)
-           (not (negative? x))))
+      (and (integer? x) (not (negative? x))))
 
     (define (between? x y z)
-      (and (<  x y)
-           (<= y z)))
-
-    (define (unspecified-value) (if #f #f))
+      (and (< x y) (<= y z)))
 
     ;; This should be implemented more efficiently.  It shouldn't cons a
     ;; closure, and the cons cells used in the loops when using this could
@@ -590,11 +557,11 @@
                         `(vector was ,vec))))))
       (let ((n (vector-length vec)))
         (cond ((null? args)
-               (parse-args 0 n n (unspecified-value)))
+               (parse-args 0 n n (void)))
               ((null? (cdr args))
-               (parse-args (car args) n n (unspecified-value)))
+               (parse-args (car args) n n (void)))
               ((null? (cddr args))
-               (parse-args (car args) (cadr args) n (unspecified-value)))
+               (parse-args (car args) (cadr args) n (void)))
               ((null? (cdddr args))
                (parse-args (car args) (cadr args) n (caddr args)))
               (else
@@ -871,7 +838,7 @@
                             (%smallest-length vectors
                                               (vector-length vec)
                                               vector-map!)))
-        (unspecified-value)))
+        (void)))
 
     ;;; (VECTOR-FOR-EACH <f> <vector> ...) -> unspecified
     ;;;     (F <elt> ...) ; N vectors -> N args

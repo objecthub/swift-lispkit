@@ -35,6 +35,8 @@ public final class ControlFlowLibrary: NativeLibrary {
     self.define("letrec*", as: SpecialForm(compileLetRecStar))
     self.define("let-values", as: SpecialForm(compileLetValues))
     self.define("let*-values", as: SpecialForm(compileLetStarValues))
+    self.define("let-optionals", as: SpecialForm(compileLetOptionals))
+    self.define("let*-optionals", as: SpecialForm(compileLetStarOptionals))
     self.define("let-syntax", as: SpecialForm(compileLetSyntax))
     self.define("letrec-syntax", as: SpecialForm(compileLetRecSyntax))
     self.define("do", as: SpecialForm(compileDo))
@@ -166,13 +168,12 @@ public final class ControlFlowLibrary: NativeLibrary {
       throw EvalError.leastArgumentCountError(formals: 1, args: expr)
     }
     let initialLocals = compiler.numLocals
-    var res = false
     switch first {
       case .null:
         return try compiler.compileSeq(body, in: env, inTailPos: tail)
       case .pair(_, _):
         let group = try compiler.compileMultiBindings(first, in: env, atomic: true)
-        res = try compiler.compileSeq(body, in: Env(group), inTailPos: tail)
+        let res = try compiler.compileSeq(body, in: Env(group), inTailPos: tail)
         return compiler.finalizeBindings(group, exit: res, initialLocals: initialLocals)
       default:
         throw EvalError.typeError(first, [.listType])
@@ -194,6 +195,82 @@ public final class ControlFlowLibrary: NativeLibrary {
       default:
         throw EvalError.typeError(first, [.listType])
     }
+  }
+  
+  func compileLetOptionals(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    guard case .pair(_, .pair(let optlist, .pair(let first, let body))) = expr else {
+      throw EvalError.leastArgumentCountError(formals: 2, args: expr)
+    }
+    let initialLocals = compiler.numLocals
+    switch first {
+      case .null:
+        return try compiler.compileSeq(.pair(optlist, body), in: env, inTailPos: tail)
+      case .pair(_, _):
+        try compiler.compile(optlist, in: env, inTailPos: false)
+        let group = try self.compileOptionalBindings(compiler, first, in: env, atomic: true)
+        compiler.emit(.pop)
+        let res = try compiler.compileSeq(body, in: Env(group), inTailPos: tail)
+        return compiler.finalizeBindings(group, exit: res, initialLocals: initialLocals)
+      default:
+        throw EvalError.typeError(first, [.listType])
+    }
+  }
+  
+  func compileLetStarOptionals(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    guard case .pair(_, .pair(let optlist, .pair(let first, let body))) = expr else {
+      throw EvalError.leastArgumentCountError(formals: 2, args: expr)
+    }
+    let initialLocals = compiler.numLocals
+    switch first {
+      case .null:
+        return try compiler.compileSeq(.pair(optlist, body), in: env, inTailPos: tail)
+      case .pair(_, _):
+        try compiler.compile(optlist, in: env, inTailPos: false)
+        let group = try self.compileOptionalBindings(compiler, first, in: env, atomic: false)
+        compiler.emit(.pop)
+        let res = try compiler.compileSeq(body, in: Env(group), inTailPos: tail)
+        return compiler.finalizeBindings(group, exit: res, initialLocals: initialLocals)
+      default:
+        throw EvalError.typeError(first, [.listType])
+    }
+  }
+
+  private func compileOptionalBindings(_ compiler: Compiler,
+                                      _ bindingList: Expr,
+                                      in lenv: Env,
+                                      atomic: Bool) throws -> BindingGroup {
+    let group = BindingGroup(owner: compiler, parent: lenv)
+    let env = atomic ? lenv : .local(group)
+    var bindings = bindingList
+    var prevIndex = -1
+    while case .pair(let binding, let rest) = bindings {
+      guard case .pair(.symbol(let sym), .pair(let expr, .null)) = binding else {
+        throw EvalError.malformedBindings(binding, bindingList)
+      }
+      compiler.emit(.dup)
+      compiler.emit(.isNull)
+      let branchIfIp = compiler.emitPlaceholder()
+      compiler.emit(.decons)
+      let branchIp = compiler.emitPlaceholder()
+      compiler.patch(.branchIf(compiler.offsetToNext(branchIfIp)), at: branchIfIp)
+      try compiler.compile(expr, in: env, inTailPos: false)
+      compiler.patch(.branch(compiler.offsetToNext(branchIp)), at: branchIp)
+      let binding = group.allocBindingFor(sym)
+      guard binding.index > prevIndex else {
+        throw EvalError.duplicateBinding(sym, bindingList)
+      }
+      if binding.isValue {
+        compiler.emit(.setLocal(binding.index))
+      } else {
+        compiler.emit(.makeLocalVariable(binding.index))
+      }
+      prevIndex = binding.index
+      bindings = rest
+    }
+    guard bindings.isNull else {
+      throw EvalError.malformedBindings(nil, bindingList)
+    }
+    return group
   }
   
   func compileLetSyntax(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
