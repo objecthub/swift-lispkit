@@ -30,6 +30,7 @@ import Foundation
 ///      The error message might refer to the irritants.
 ///
 public protocol LispError: Error, CustomStringConvertible {
+  var root: LispError { get }
   var type: LispErrorType { get }
   var message: String { get }
   var irritants: Exprs { get }
@@ -38,6 +39,10 @@ public protocol LispError: Error, CustomStringConvertible {
 
 /// This extension defines a few default implementations for `LispError` implementations.
 public extension LispError {
+  
+  public var root: LispError {
+    return self
+  }
   
   public var hashValue: Int {
     var res = 0
@@ -137,11 +142,19 @@ public func ==(lhs: LispErrorType, rhs: LispErrorType) -> Bool {
 /// of the `Expr` enumeration). Another reason is that Swift 3 does not allow protocols to
 /// implement Hashable (which, in practice, needs to be attached to a class, struct or enum).
 ///
-public final class AnyError: LispError, Hashable, CustomStringConvertible {
-  public var error: LispError
+public class AnyError: LispError, Hashable, CustomStringConvertible {
+  private let error: LispError
   
   public init(_ error: LispError) {
-    self.error = error
+    if let anyError = error as? AnyError {
+      self.error = anyError.error
+    } else {
+      self.error = error
+    }
+  }
+  
+  public var root: LispError {
+    return self.error.root
   }
   
   public var type: LispErrorType {
@@ -156,6 +169,10 @@ public final class AnyError: LispError, Hashable, CustomStringConvertible {
     return error.irritants
   }
   
+  public var stackTrace: [Procedure] {
+    return []
+  }
+  
   public func equals(_ other: LispError) -> Bool {
     if let that = other as? AnyError {
       return self.error.equals(that.error)
@@ -163,10 +180,46 @@ public final class AnyError: LispError, Hashable, CustomStringConvertible {
       return false
     }
   }
+  
+  public var printableDescription: String {
+    var builder = StringBuilder(prefix: "\(self.type): \(self.message)",
+                                separator: ", ",
+                                initial: "\nirritants: ")
+    for expr in self.irritants {
+      builder.append(expr.description)
+    }
+    return builder.description
+  }
 }
 
 public func ==(lhs: AnyError, rhs: AnyError) -> Bool {
   return lhs.equals(rhs)
+}
+
+///
+/// Class `ContextualError` wraps `LispError` implementations adding a stack trace.
+///
+public final class ContextualError: AnyError {
+  public let procedures: [Procedure]
+  
+  public init(_ error: LispError, _ stackTrace: [Procedure]) {
+    self.procedures = stackTrace
+    super.init(error)
+  }
+  
+  public override var stackTrace: [Procedure] {
+    return self.procedures
+  }
+  
+  public override var printableDescription: String {
+    var builder = StringBuilder(prefix: super.printableDescription,
+                                separator: ", ",
+                                initial: "\nstack trace: ")
+    for proc in self.stackTrace {
+      builder.append(proc.name)
+    }
+    return builder.description
+  }
 }
 
 

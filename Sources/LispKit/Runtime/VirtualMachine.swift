@@ -252,6 +252,8 @@ public final class VirtualMachine: TrackedObject {
     var exception: AnyError? = nil
     do {
       return try eval()
+    } catch let error as AnyError { // handle Lisp-related issues that are wrapped already
+      exception = error
     } catch let error as LispError { // handle Lisp-related issues
       exception = AnyError(error)
     } catch let error as NSError { // handle OS-related issues
@@ -541,6 +543,26 @@ public final class VirtualMachine: TrackedObject {
     // Set new code and capture list
     self.registers.captured = newcaptured
     self.registers.code = newcode
+  }
+  
+  private func getStackTrace() -> [Procedure] {
+    var stackTrace: [Procedure] = []
+    var fp = self.registers.fp
+    while fp > 0 {
+      guard case .procedure(let proc) = self.stack[fp &- 1] else {
+        preconditionFailure()
+      }
+      stackTrace.append(proc)
+      if fp > 2 {
+        guard case .fixnum(let newfp) = self.stack[fp &- 3] else {
+          preconditionFailure()
+        }
+        fp = Int(newfp)
+      } else {
+        fp = 0
+      }
+    }
+    return stackTrace
   }
   
   private func invoke(_ n: inout Int, _ overhead: Int) throws -> Procedure {
@@ -852,7 +874,13 @@ public final class VirtualMachine: TrackedObject {
     defer {
       self.registers = savedRegisters
     }
-    return try self.execute()
+    do {
+      return try self.execute()
+    } catch let error as LispError {
+      throw ContextualError(error, self.getStackTrace())
+    } catch let error as NSError {
+      throw ContextualError(OsError(error), self.getStackTrace())
+    }
   }
   
   private func execute() throws -> Expr {

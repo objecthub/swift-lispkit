@@ -67,7 +67,7 @@ while let line = console.read() {
     break
   // If closing parenthesis are missing, keep on reading
   } else if case .error(let err) = res,
-            let syntaxError = err.error as? SyntaxError,
+            let syntaxError = err.root as? SyntaxError,
             syntaxError == SyntaxError.closingParenthesisMissing {
     continue
   // For multiple values being returned, print each value on a separate line
@@ -77,6 +77,9 @@ while let line = console.read() {
       console.print("\(x.description)\n")
       next = rest
     }
+  // For errors print the error message
+  } else if case .error(let err) = res {
+    console.print("\(err.printableDescription)\n")
   // For non-void results, print result
   } else if res != .void {
     console.print("\(res.description)\n")

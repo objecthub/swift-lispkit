@@ -108,6 +108,7 @@
 		CCB585B81E15A6E70064BB18 /* ContextDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCB585B71E15A6E70064BB18 /* ContextDelegate.swift */; };
 		CCB585BB1E15AA4D0064BB18 /* Heap.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCB585BA1E15AA4D0064BB18 /* Heap.swift */; };
 		CCB91C981D57E785001A95DC /* Parameters.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCB91C971D57E784001A95DC /* Parameters.scm */; };
+		CCBDB73B1EDB7C63001606E2 /* Prolog.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCBDB73A1EDB4AB3001606E2 /* Prolog.scm */; };
 		CCC41DC41D2649E9003CB4D0 /* DelayedEvaluation.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCC41DC31D2649E9003CB4D0 /* DelayedEvaluation.scm */; };
 		CCC41DC61D2851FB003CB4D0 /* VirtualMachineState.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC41DC51D2851FB003CB4D0 /* VirtualMachineState.swift */; };
 		CCC41DC81D2B14AD003CB4D0 /* CallCC.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCC41DC71D2B14AD003CB4D0 /* CallCC.scm */; };
@@ -177,6 +178,7 @@
 			dstPath = LispKit/Resources/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CCBDB73B1EDB7C63001606E2 /* Prolog.scm in Copy examples */,
 				CC0EBFF91ED37FB7004510B2 /* Math.scm in Copy examples */,
 				CC474EB11ED03CB100B535E3 /* Queens.scm in Copy examples */,
 				CC474EAF1ECFAC3F00B535E3 /* Pi.scm in Copy examples */,
@@ -361,6 +363,7 @@
 		CCB585B71E15A6E70064BB18 /* ContextDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContextDelegate.swift; sourceTree = "<group>"; };
 		CCB585BA1E15AA4D0064BB18 /* Heap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Heap.swift; sourceTree = "<group>"; };
 		CCB91C971D57E784001A95DC /* Parameters.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Parameters.scm; sourceTree = "<group>"; };
+		CCBDB73A1EDB4AB3001606E2 /* Prolog.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Prolog.scm; sourceTree = "<group>"; };
 		CCC41DC31D2649E9003CB4D0 /* DelayedEvaluation.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = DelayedEvaluation.scm; sourceTree = "<group>"; };
 		CCC41DC51D2851FB003CB4D0 /* VirtualMachineState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VirtualMachineState.swift; sourceTree = "<group>"; };
 		CCC41DC71D2B14AD003CB4D0 /* CallCC.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CallCC.scm; sourceTree = "<group>"; };
@@ -701,6 +704,7 @@
 				CCFBE5C31ECBA8DA0032254B /* Pi.scm */,
 				CC0EBFF81ED37A76004510B2 /* Math.scm */,
 				CC474EB01ED0390200B535E3 /* Queens.scm */,
+				CCBDB73A1EDB4AB3001606E2 /* Prolog.scm */,
 			);
 			path = Examples;
 			sourceTree = "<group>";
