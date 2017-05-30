@@ -157,7 +157,9 @@ public final class SystemLibrary: NativeLibrary {
                                     rest),
                           env),
                 .null))
-        let code = try Compiler.compile(expr: source, in: .global(try env.asEnvironment()))
+        let code = try Compiler.compile(expr: source,
+                                        in: .global(try env.asEnvironment()),
+                                        optimize: true)
         return (Procedure(code), [])
       default:
         throw EvalError.typeError(args.first!, [.properListType])
@@ -422,6 +424,10 @@ public final class SystemLibrary: NativeLibrary {
     context.console.print("  tracked capacity   : \(self.context.objects.trackedObjectCapacity)\n")
     context.console.print("  managed objects    : \(self.context.objects.numManagedObjects)\n")
     context.console.print("  managed capacity   : \(self.context.objects.managedObjectCapacity)\n")
+    context.console.print("MANAGED OBJECT DISTRIBUTION\n")
+    for (typeName, count) in self.context.objects.managedObjectDistribution {
+      context.console.print("  \(typeName): \(count)\n")
+    }
     context.console.print("GARBAGE COLLECTOR\n")
     context.console.print("  gc cycles          : \(self.context.objects.cycles)\n")
     context.console.print("  last tag           : \(self.context.objects.tag)\n")

@@ -123,4 +123,18 @@ public final class ManagedObjectPool: CustomStringConvertible {
            "\(self.trackedObjectCapacity), managed \(self.numManagedObjects) of " +
            "\(self.managedObjectCapacity), gc cycles = \(self.cycles), last tag = \(self.tag) }"
   }
+  
+  /// Returns a distribution of type names of managed objects
+  public var managedObjectDistribution: [String : Int] {
+    var distrib: [String : Int] = [:]
+    for object in self.objectPool {
+      let typeName = String(describing: type(of: object))
+      if let count = distrib[typeName] {
+        distrib[typeName] = count + 1
+      } else {
+        distrib[typeName] = 1
+      }
+    }
+    return distrib
+  }
 }

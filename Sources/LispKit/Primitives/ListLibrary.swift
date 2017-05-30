@@ -91,13 +91,14 @@ public final class ListLibrary: NativeLibrary {
       "  (let ((eq (if (pair? comp) (car comp) equal?)))",
       "    (let lp ((ls list))",
       "      (and (pair? ls) (if (eq x (car ls)) ls (lp (cdr ls)))))))")
+    self.define("_assoc", via:
+      "(define (_assoc x ls eq)",
+      "  (cond ((null? ls)       #f)",
+      "        ((eq x (caar ls)) (car ls))",
+      "        (else             (_assoc x (cdr ls) eq))))")
     self.define("assoc", via:
-      "(define (assoc x list . comp) ",
-      "  (let ((eq (if (pair? comp) (car comp) equal?)))",
-      "    (let assoc ((ls list))",
-      "      (cond ((null? ls) #f)",
-      "            ((eq x (caar ls)) (car ls))",
-      "            (else (assoc (cdr ls)))))))")
+      "(define (assoc x list . comp)",
+      "  (_assoc x list (if (pair? comp) (car comp) equal?)))")
     self.define("map", via:
       "(define (map f xs . xss)",
       "  (if (null? xss)",

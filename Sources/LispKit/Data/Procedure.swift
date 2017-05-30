@@ -94,7 +94,7 @@ public final class Procedure: Reference, CustomStringConvertible {
           .makeList(args))
       return try Compiler.compile(expr: .pair(expr, .null),
                                   in: context.global,
-                                  optimize: false)
+                                  optimize: true)
     }
     self.kind = .primitive(name, .eval(indirect), compiler)
   }
