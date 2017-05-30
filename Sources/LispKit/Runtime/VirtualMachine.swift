@@ -965,11 +965,15 @@ public final class VirtualMachine: TrackedObject {
           cell.value = self.pop()
         case .makeLocalVariable(let index):
           let cell = Cell(self.pop())
-          self.context.objects.manage(cell)
+          // TODO: I can't think of a reason to manage such cells since they only live on the
+          // stack and are never stored anywhere else.
+          // self.context.objects.manage(cell)
           self.stack[self.registers.fp &+ index] = .box(cell)
         case .makeVariableArgument(let index):
           let cell = Cell(self.stack[self.registers.fp &+ index])
-          self.context.objects.manage(cell)
+          // TODO: I can't think of a reason to manage such cells since they only live on the
+          // stack and are never stored anywhere else.
+          // self.context.objects.manage(cell)
           self.stack[self.registers.fp &+ index] = .box(cell)
         case .pushLocalValue(let index):
           guard case .box(let cell) = self.stack[self.registers.fp &+ index] else {
