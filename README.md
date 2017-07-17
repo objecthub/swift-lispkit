@@ -22,6 +22,9 @@ So far, performance was not a priority in the development of _LispKit_. The _Lis
 compiler does not perform any code optimizations and the performance of the system is
 below state of the art Lisp and Scheme implementations.
 
+[LispPad](http://lisppad.objecthub.net) implements a a simple, lightweight, integrated
+development environment for _LispKit_ on macOS. 
+
 
 ## Features
 
