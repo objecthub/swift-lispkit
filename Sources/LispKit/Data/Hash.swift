@@ -54,7 +54,7 @@ public func equalHash(_ expr: Expr) -> Int {
       case .bignum(let num):
         return num.hashValue &* 31 &+ 8
       case .rational(let n, let d):
-        return ((hash(n) &* 31) &+ hash(d)) &* 31 + 9
+        return ((hash(n) &* 31) &+ hash(d)) &* 31 &+ 9
       case .flonum(let num):
         return num.hashValue &* 31 &+ 11
       case .complex(let num):
@@ -70,21 +70,21 @@ public func equalHash(_ expr: Expr) -> Int {
         }
         return res &* 31 &+ 15
       case .pair(let car, let cdr):
-        return ((hash(car) &* 31) &+ hash(cdr)) &* 31 + 16
+        return ((hash(car) &* 31) &+ hash(cdr)) &* 31 &+ 16
       case .box(let cell):
         if alreadyVisited(cell) {
           return 0
         }
         let res = hash(cell.value)
         visited.remove(cell)
-        return res &* 31 + 17
+        return res &* 31 &+ 17
       case .mpair(let tuple):
         if alreadyVisited(tuple) {
           return 0
         }
         let res = hash(tuple.fst) &* 31 &+ hash(tuple.snd)
         visited.remove(tuple)
-        return res &* 31 + 18
+        return res &* 31 &+ 18
       case .vector(let vector):
         if alreadyVisited(vector) {
           return 0
@@ -94,7 +94,7 @@ public func equalHash(_ expr: Expr) -> Int {
           res = res &* 31 &+ hash(expr)
         }
         visited.remove(vector)
-        return res &* 31 + 19
+        return res &* 31 &+ 19
       case .record(let record):
         if alreadyVisited(record) {
           return 0
@@ -112,31 +112,31 @@ public func equalHash(_ expr: Expr) -> Int {
           res = res &* 31 &+ hash(expr)
         }
         visited.remove(record)
-        return res &* 31 + 20
+        return res &* 31 &+ 20
       case .table(let map):
         if alreadyVisited(map) {
           return 0
         }
         var res = 0
         for (key, value) in map.mappings {
-          res += (hash(key) &* 31) + hash(value)
+          res = res &+ (hash(key) &* 31) &+ hash(value)
         }
         visited.remove(map)
-        return res &* 31 + 21
+        return res &* 31 &+ 21
       case .promise(let promise):
-        return promise.hashValue &* 31 + 22
+        return promise.hashValue &* 31 &+ 22
       case .values(let expr):
-        return hash(expr) &* 31 + 23
+        return hash(expr) &* 31 &+ 23
       case .procedure(let proc):
-        return proc.hashValue &* 31 + 24
+        return proc.hashValue &* 31 &+ 24
       case .special(let special):
-        return special.hashValue &* 31 + 25
+        return special.hashValue &* 31 &+ 25
       case .env(let environment):
-        return environment.hashValue &* 31 + 26
+        return environment.hashValue &* 31 &+ 26
       case .port(let port):
-        return port.hashValue &* 31 + 27
+        return port.hashValue &* 31 &+ 27
       case .error(let err):
-        return err.hashValue &* 31 + 28
+        return err.hashValue &* 31 &+ 28
     }
   }
   
@@ -165,7 +165,7 @@ public func eqvHash(_ expr: Expr) -> Int {
     case .bignum(let num):
       return num.hashValue &* 31 &+ 8
     case .rational(let n, let d):
-      return ((eqvHash(n) &* 31) &+ eqvHash(d)) &* 31 + 9
+      return ((eqvHash(n) &* 31) &+ eqvHash(d)) &* 31 &+ 9
     case .flonum(let num):
       return num.hashValue &* 31 &+ 11
     case .complex(let num):
@@ -177,7 +177,7 @@ public func eqvHash(_ expr: Expr) -> Int {
     case .bytes(let bvector):
       return bvector.hashValue &* 31 &+ 15
     case .pair(let car, let cdr):
-      return ((eqvHash(car) &* 31) &+ eqvHash(cdr)) &* 31 + 16
+      return ((eqvHash(car) &* 31) &+ eqvHash(cdr)) &* 31 &+ 16
     case .box(let cell):
       return cell.hashValue &* 31 &+ 17
     case .mpair(let tuple):
@@ -189,19 +189,19 @@ public func eqvHash(_ expr: Expr) -> Int {
     case .table(let map):
       return map.hashValue &* 31 &+ 21
     case .promise(let promise):
-      return promise.hashValue &* 31 + 22
+      return promise.hashValue &* 31 &+ 22
     case .values(let expr):
-      return eqvHash(expr) &* 31 + 23
+      return eqvHash(expr) &* 31 &+ 23
     case .procedure(let proc):
-      return proc.hashValue &* 31 + 24
+      return proc.hashValue &* 31 &+ 24
     case .special(let special):
-      return special.hashValue &* 31 + 25
+      return special.hashValue &* 31 &+ 25
     case .env(let environment):
-      return environment.hashValue &* 31 + 26
+      return environment.hashValue &* 31 &+ 26
     case .port(let port):
-      return port.hashValue &* 31 + 27
+      return port.hashValue &* 31 &+ 27
     case .error(let err):
-      return err.hashValue &* 31 + 28
+      return err.hashValue &* 31 &+ 28
   }
 }
 
@@ -239,7 +239,7 @@ public func eqHash(_ expr: Expr) -> Int {
     case .bytes(let bvector):
       return bvector.hashValue &* 31 &+ 15
     case .pair(let car, let cdr):
-      return ((eqHash(car) &* 31) &+ eqHash(cdr)) &* 31 + 16
+      return ((eqHash(car) &* 31) &+ eqHash(cdr)) &* 31 &+ 16
     case .box(let cell):
       return cell.hashValue &* 31 &+ 17
     case .mpair(let tuple):
@@ -251,18 +251,18 @@ public func eqHash(_ expr: Expr) -> Int {
     case .table(let map):
       return map.hashValue &* 31 &+ 21
     case .promise(let promise):
-      return promise.hashValue &* 31 + 22
+      return promise.hashValue &* 31 &+ 22
     case .values(let expr):
-      return eqHash(expr) &* 31 + 23
+      return eqHash(expr) &* 31 &+ 23
     case .procedure(let proc):
-      return proc.hashValue &* 31 + 24
+      return proc.hashValue &* 31 &+ 24
     case .special(let special):
-      return special.hashValue &* 31 + 25
+      return special.hashValue &* 31 &+ 25
     case .env(let environment):
-      return environment.hashValue &* 31 + 26
+      return environment.hashValue &* 31 &+ 26
     case .port(let port):
-      return port.hashValue &* 31 + 27
+      return port.hashValue &* 31 &+ 27
     case .error(let err):
-      return err.hashValue &* 31 + 28
+      return err.hashValue &* 31 &+ 28
   }
 }
