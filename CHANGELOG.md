@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0 (2017-08-06)
+- Support for custom ellipsis in `syntax-rules`
+- Fixed serious scoping issues in `syntax-rules`
+- Fixed hash functions to prevent overflows
+- Support for R6RS enumeration operations
 
 ## 0.7 (2017-04-30)
 - Implemented native support for fixnum (fx*) and flonum (fl*) operations

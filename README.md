@@ -11,19 +11,19 @@
 ## Overview
 
 _LispKit_ is a framework for building Lisp-based extension and scripting languages
-for macOS applications. _LispKit_ is fully implemented in the programming language
+for macOS applications. _LispKit_ is fully written in the programming language
 [Swift](http://www.swift.org). _LispKit_ implements a core language based on the
 [R7RS (small) Scheme standard](http://www.r7rs.org). It is extensible,
 allowing the inclusion of new native libraries, of new libraries written in Scheme, as
 well as custom modifications of the core environment consisting of a compiler, a
-virtual machine as well as core libraries.
+virtual machine as well as the core libraries.
 
 So far, performance was not a priority in the development of _LispKit_. The _LispKit_
-compiler does not perform any code optimizations and the performance of the system is
+compiler does not perform many code optimizations and the performance of the system is
 below state of the art Lisp and Scheme implementations.
 
-[LispPad](http://lisppad.objecthub.net) implements a a simple, lightweight, integrated
-development environment for _LispKit_ on macOS. 
+[LispPad](http://lisppad.objecthub.net) implements a simple, lightweight, integrated
+development environment for _LispKit_ on macOS.
 
 
 ## Features
@@ -31,7 +31,7 @@ development environment for _LispKit_ on macOS.
 _LispKit_ provides support for the following core features, many of which are based on R7RS:
 
   - Modules via R7RS libraries
-  - Hygienic macros based on the _syntax-rules_ standard
+  - Hygienic macros based on `syntax-rules`
   - First-class environments
   - `call/cc`, `dynamic-wind` and exceptions
   - Dynamically-scoped paramaters
@@ -44,6 +44,7 @@ _LispKit_ provides support for the following core features, many of which are ba
   - Text and binary ports
   - R7RS-compliant records
   - [R6RS](http://www.r6rs.org)-compliant hashtables
+  - [R6RS](http://www.r6rs.org)-compliant enumerations
 
 _LispKit_ is incompatible or incomplete with respect to the following R7RS features:
 
