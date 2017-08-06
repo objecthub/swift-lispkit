@@ -229,7 +229,7 @@ public final class Compiler {
       case .success:
         break // Nothing to do
       case .globalLookupRequired(let lexicalSym, let environment):
-        let locRef = environment.forceDefinedLocationRef(for: lexicalSym)
+        let locRef = self.forceDefinedLocationRef(for: lexicalSym, in: environment)
         if case .immutableImport(let loc) = locRef {
           let value = self.context.heap.locations[loc]
           if value.isUndef {
@@ -264,7 +264,7 @@ public final class Compiler {
   
   /// Pushes the value/variable bound to symbol `sym` in the local environment `env`. If this
   /// wasn't possible, the method returns an instruction on how to proceed.
-  public func pushLocalValueOf(_ sym: Symbol, in env: Env) -> LocalLookupResult {
+  private func pushLocalValueOf(_ sym: Symbol, in env: Env) -> LocalLookupResult {
     var env = env
     // Iterate through the local binding groups until `sym` is found
     while case .local(let group) = env {
@@ -291,15 +291,23 @@ public final class Compiler {
     }
     // If `sym` wasn't found, look into the lexical environment
     if let (lexicalSym, lexicalEnv) = sym.lexical {
-      return self.pushLocalValueOf(lexicalSym, in: lexicalEnv)
+      // If the lexical environment is a global environment, return that a global lookup is needed
+      if case .global(_) = lexicalEnv {
+        return .globalLookupRequired(sym, env.environment!)
+      }
+      // Find the new lexical symbol in the new lexcial environment
+      let res = self.pushLocalValueOf(lexicalSym, in: lexicalEnv)
+      // If this didn't succeed, return that a global lookup is needed
+      guard case .globalLookupRequired(_, _) = res else {
+        return res
+      }
     }
     // Return global scope
     return .globalLookupRequired(sym, env.environment!)
   }
   
-  /// Pushes the value/variable bound to symbol `sym` in the local environment `env`. If this
-  /// wasn't possible, the method returns an instruction on how to proceed.
-  public func lookupLocalValueOf(_ sym: Symbol, in env: Env) -> LocalLookupResult {
+  /// Checks if the symbol `sym` is bound in the local environment `env`.
+  private func lookupLocalValueOf(_ sym: Symbol, in env: Env) -> LocalLookupResult {
     var env = env
     // Iterate through the local binding groups until `sym` is found
     while case .local(let group) = env {
@@ -313,7 +321,16 @@ public final class Compiler {
     }
     // If `sym` wasn't found, look into the lexical environment
     if let (lexicalSym, lexicalEnv) = sym.lexical {
-      return self.lookupLocalValueOf(lexicalSym, in: lexicalEnv)
+      // If the lexical environment is a global environment, return that a global lookup is needed
+      if case .global(_) = lexicalEnv {
+        return .globalLookupRequired(sym, env.environment!)
+      }
+      // Find the new lexical symbol in the new lexcial environment
+      let res = self.lookupLocalValueOf(lexicalSym, in: lexicalEnv)
+      // If this didn't succeed, return that a global lookup is needed
+      guard case .globalLookupRequired(_, _) = res else {
+        return res
+      }
     }
     // Return global scope
     return .globalLookupRequired(sym, env.environment!)
@@ -367,7 +384,7 @@ public final class Compiler {
       case .success:
         break; // Nothing to do
       case .globalLookupRequired(let lexicalSym, let environment):
-        let loc = environment.forceDefinedLocationRef(for: lexicalSym).location!
+        let loc = self.forceDefinedLocationRef(for: lexicalSym, in: environment).location!
         self.emit(.setGlobal(loc))
       case .macroExpansionRequired(_):
         preconditionFailure("setting bindings should never trigger macro expansion")
@@ -377,7 +394,7 @@ public final class Compiler {
   /// Bind symbol `sym` to the value on top of the stack assuming `lenv` is a local
   /// environment (i.e. the bindings are located on the stack). If this
   /// wasn't possible, the method returns an instruction on how to proceed.
-  public func setLocalValueOf(_ sym: Symbol, in lenv: Env) -> LocalLookupResult {
+  private func setLocalValueOf(_ sym: Symbol, in lenv: Env) -> LocalLookupResult {
     var env = lenv
     // Iterate through the local binding groups until `sym` is found
     while case .local(let group) = env {
@@ -394,9 +411,59 @@ public final class Compiler {
     }
     // If `sym` wasn't found, look into the lexical environment
     if let (lexicalSym, lexicalEnv) = sym.lexical {
-      return self.setLocalValueOf(lexicalSym, in: lexicalEnv)
+      // If the lexical environment is a global environment, return that a global lookup is needed
+      if case .global(_) = lexicalEnv {
+        return .globalLookupRequired(sym, env.environment!)
+      }
+      // Find the new lexical symbol in the new lexcial environment
+      let res = self.setLocalValueOf(lexicalSym, in: lexicalEnv)
+      // If this didn't succeed, return that a global lookup is needed
+      guard case .globalLookupRequired(_, _) = res else {
+        return res
+      }
     }
     return .globalLookupRequired(sym, env.environment!)
+  }
+  
+  private func locationRef(for sym: Symbol,
+                           in environment: Environment) -> Environment.LocationRef {
+    var environment = environment
+    var res = environment.locationRef(for: sym)
+    var sym = sym
+    while case .undefined = res, let (lexicalSym, lexicalEnv) = sym.lexical {
+      sym = lexicalSym
+      environment = lexicalEnv.environment!
+      res = environment.locationRef(for: sym)
+    }
+    return res
+  }
+  
+  private func forceDefinedLocationRef(for sym: Symbol,
+                                       in environment: Environment) -> Environment.LocationRef {
+    var environment = environment
+    var res = environment.locationRef(for: sym)
+    var sym = sym
+    while case .undefined = res, let (lexicalSym, lexicalEnv) = sym.lexical {
+      sym = lexicalSym
+      environment = lexicalEnv.environment!
+      res = environment.locationRef(for: sym)
+    }
+    if case .undefined = res {
+      return environment.forceDefinedLocationRef(for: sym)
+    }
+    return res
+  }
+  
+  private func value(of sym: Symbol, in environment: Environment) -> Expr? {
+    var environment = environment
+    var res = environment[sym]
+    var sym = sym
+    while res == nil, let (lexicalSym, lexicalEnv) = sym.lexical {
+      sym = lexicalSym
+      environment = lexicalEnv.environment!
+      res = environment[sym]
+    }
+    return res
   }
   
   /// Compile expression `expr` in environment `env`. Parameter `tail` specifies if `expr`
@@ -409,7 +476,8 @@ public final class Compiler {
           case .success:
             return expr
           case .globalLookupRequired(let lexicalSym, let environment):
-            if let value = self.checkpointer.fromGlobalEnv(cp) ?? environment[lexicalSym] {
+            if let value = self.checkpointer.fromGlobalEnv(cp) ??
+                           value(of: lexicalSym, in: environment) {
               self.checkpointer.associate(.fromGlobalEnv(value), with: cp)
               switch value {
                 case .special(let special):
@@ -459,7 +527,8 @@ public final class Compiler {
           case .globalLookupRequired(let lexicalSym, let environment):
             // Is there a special compiler plugin for this global binding, or is this a
             // keyword/special form)?
-            if let value = self.checkpointer.fromGlobalEnv(cp) ?? environment[lexicalSym] {
+            if let value = self.checkpointer.fromGlobalEnv(cp) ??
+                           self.value(of: lexicalSym, in: environment) {
               self.checkpointer.associate(.fromGlobalEnv(value), with: cp)
               switch value {
                 case .procedure(let proc):
@@ -487,7 +556,7 @@ public final class Compiler {
               }
             }
             // Push function from global binding
-            let locRef = environment.forceDefinedLocationRef(for: lexicalSym)
+            let locRef = self.forceDefinedLocationRef(for: lexicalSym, in: environment)
             if case .immutableImport(let loc) = locRef {
               let value = self.context.heap.locations[loc]
               if value.isUndef {

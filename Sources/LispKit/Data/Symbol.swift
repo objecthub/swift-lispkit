@@ -95,7 +95,7 @@ public final class Symbol: Reference, CustomStringConvertible {
           return ident
         }
       case .generated(let sym, let weakEnv):
-        return "[\(sym.interned.description) \(weakEnv.env.description)]"
+        return "[\(sym.interned.description) \(sym.identity) \(weakEnv.env.description)]"
     }
   }
 }

@@ -26,7 +26,7 @@
 /// where `Local` represents bindings that are context specific. The context is described
 /// in form of a `BindingGroup` object.
 ///
-public enum Env: CustomStringConvertible {
+public enum Env: CustomStringConvertible, Equatable {
   case expired
   case global(Environment)
   case local(BindingGroup)
@@ -181,6 +181,22 @@ public enum Env: CustomStringConvertible {
       case .local(let group):
         return "local " + group.identityString
     }
+  }
+}
+
+/// Compares two env objects. Two weak environments are the same if they have the same
+/// type (i.e. same enumeration case) and for local environments, the bindings groups are
+/// identical (same object).
+public func ==(lhs: Env, rhs: Env) -> Bool {
+  switch (lhs, rhs) {
+    case (.expired, .expired):
+      return true
+    case (.global(let env1), .global(let env2)):
+      return env1 === env2
+    case (.local(let group1), .local(let group2)):
+      return group1 === group2
+    default:
+      return false
   }
 }
 

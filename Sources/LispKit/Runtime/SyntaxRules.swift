@@ -24,21 +24,24 @@
 ///
 public final class SyntaxRules {
   private let context: Context
-  private let ellipsis: Expr
+  private let ellipsisSym: Symbol
   private let reserved: Set<Symbol>
   private let literals: Set<Symbol>
+  private let ellipsis: Expr
   private let patterns: Exprs
   private let templates: Exprs
   private let lexicalEnv: Env
   
   public init(context: Context,
               literals: Set<Symbol>,
+              ellipsis: Symbol? = nil,
               patterns: Exprs,
               templates: Exprs,
               in env: Env) {
     self.context = context
-    self.ellipsis = .symbol(context.symbols.ellipsis)
-    self.reserved = [context.symbols.wildcard, context.symbols.ellipsis]
+    self.ellipsisSym = ellipsis ?? context.symbols.ellipsis
+    self.reserved = [context.symbols.wildcard, self.ellipsisSym]
+    self.ellipsis = .symbol(self.ellipsisSym)
     self.literals = literals
     self.patterns = patterns
     self.templates = templates
@@ -146,12 +149,12 @@ public final class SyntaxRules {
         while case .pair(let token, let rest) = templ {
           if case .pair(self.ellipsis, _) = rest {
             guard token != self.ellipsis else {
-              throw EvalError.macroMismatchedRepetitionPatterns(self.context.symbols.ellipsis)
+              throw EvalError.macroMismatchedRepetitionPatterns(self.ellipsisSym)
             }
             repeater = token
           } else if token == self.ellipsis {
             guard let repeaterTemplate = repeater else {
-              throw EvalError.macroMismatchedRepetitionPatterns(self.context.symbols.ellipsis)
+              throw EvalError.macroMismatchedRepetitionPatterns(self.ellipsisSym)
             }
             try matches.instantiate(template: repeaterTemplate,
                                     with: self,

@@ -115,3 +115,12 @@
       ((_ () r) r)))
   (reverse-form ((3 8 -) 7 -))
 )
+
+(
+  "Global definition in syntax rule"
+  (2 2 2)
+  (define-syntax deftest
+    (syntax-rules ()
+      ((_ glob val) (begin (define loc val)(define glob val)(list loc glob)))))
+  (append (deftest two (+ 1 1)) (list two))
+)

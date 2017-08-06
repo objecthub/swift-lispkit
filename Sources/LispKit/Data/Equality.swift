@@ -309,7 +309,7 @@ public func eqExpr(_ lhs: Expr, _ rhs: Expr) -> Bool {
       return t1 === t2
     case (.vector(let vector1), .vector(let vector2)):
       return vector1 === vector2
-    case (.record(let record1), .vector(let record2)):
+    case (.record(let record1), .record(let record2)):
       return record1 === record2
     case (.table(let map1), .table(let map2)):
       return map1 === map2

@@ -410,12 +410,22 @@ public final class BaseLibrary: NativeLibrary {
   }
   
   func compileSyntaxRules(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
-    guard case .pair(_, .pair(let lit, let patTrans)) = expr else {
-      throw EvalError.leastArgumentCountError(formals: 1, args: expr)
+    var ellipsis: Symbol? = nil
+    var lit: Expr = .null
+    var transRules: Expr = .null
+    switch expr {
+      case .pair(_, .pair(.symbol(let sym), .pair(let literals, let patTrans))):
+        ellipsis = sym
+        lit = literals
+        transRules = patTrans
+      case .pair(_, .pair(let literals, let patTrans)):
+        lit = literals
+        transRules = patTrans
+      default:
+        throw EvalError.leastArgumentCountError(formals: 1, args: expr)
     }
     var patterns = Exprs()
     var templates = Exprs()
-    var transRules = patTrans
     while case .pair(let rule, let rest) = transRules {
       guard case .pair(let car, .pair(let cadr, .null)) = rule else {
         throw EvalError.malformedSyntaxRule(rule)
@@ -444,6 +454,7 @@ public final class BaseLibrary: NativeLibrary {
     }
     let rules = SyntaxRules(context: self.context,
                             literals: literalSet,
+                            ellipsis: ellipsis,
                             patterns: patterns,
                             templates: templates,
                             in: compiler.rulesEnv)
