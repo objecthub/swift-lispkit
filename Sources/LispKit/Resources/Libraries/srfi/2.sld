@@ -7,7 +7,7 @@
 ;;; expressions. AND-LET* is a cross-breed between LET* and AND.
 ;;;
 ;;; Author of spec: Oleg Kiselyov
-;;; Author of code: Matthias Zenger
+;;; 
 ;;; Copyright © 2017 Matthias Zenger. All rights reserved.
 ;;;
 ;;; Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
@@ -23,6 +23,7 @@
 (define-library (srfi 2)
   (export and-let*)
   (import (scheme base))
+
   (begin
     (define-syntax and-let*
       (syntax-rules ()

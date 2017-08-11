@@ -32,6 +32,9 @@
 		CC474EAF1ECFAC3F00B535E3 /* Pi.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCFBE5C31ECBA8DA0032254B /* Pi.scm */; };
 		CC474EB11ED03CB100B535E3 /* Queens.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC474EB01ED0390200B535E3 /* Queens.scm */; };
 		CC474EB31ED08D8D00B535E3 /* SRFI134.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC474EB21ED08C9700B535E3 /* SRFI134.scm */; };
+		CC48EBC31F3A6CFF00233FA9 /* 31.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC48EBC11F3A645C00233FA9 /* 31.sld */; };
+		CC48EBC41F3A6D0700233FA9 /* 35.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC48EBC21F3A6BFF00233FA9 /* 35.sld */; };
+		CC48EBC61F3E460900233FA9 /* SRFI35.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC48EBC51F3E437300233FA9 /* SRFI35.scm */; };
 		CC4D2C9F1D5EDA2A00A02256 /* RecordLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC4D2C9E1D5EDA2A00A02256 /* RecordLibrary.swift */; };
 		CC4E2D371D09691000D77159 /* PortLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC4E2D361D09691000D77159 /* PortLibrary.swift */; };
 		CC502A951CDABF1E00875D9F /* BuildMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = CC502A941CDABF1E00875D9F /* BuildMetadata.m */; };
@@ -238,6 +241,8 @@
 			dstPath = LispKit/Resources/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
+				CC48EBC41F3A6D0700233FA9 /* 35.sld in Copy pre-installed SRFI libraries */,
+				CC48EBC31F3A6CFF00233FA9 /* 31.sld in Copy pre-installed SRFI libraries */,
 				CCEFE6131ED8F43300DFED9B /* 133.sld in Copy pre-installed SRFI libraries */,
 				CCEFE6111ED80BBA00DFED9B /* 142.sld in Copy pre-installed SRFI libraries */,
 				CC7AAE701EC90D3900B0F66C /* 134.sld in Copy pre-installed SRFI libraries */,
@@ -283,6 +288,9 @@
 		CC474EB01ED0390200B535E3 /* Queens.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Queens.scm; sourceTree = "<group>"; };
 		CC474EB21ED08C9700B535E3 /* SRFI134.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SRFI134.scm; sourceTree = "<group>"; };
 		CC48055C1CFE366100D608B6 /* lispkit_logo_small.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lispkit_logo_small.png; sourceTree = "<group>"; };
+		CC48EBC11F3A645C00233FA9 /* 31.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 31.sld; sourceTree = "<group>"; };
+		CC48EBC21F3A6BFF00233FA9 /* 35.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 35.sld; sourceTree = "<group>"; };
+		CC48EBC51F3E437300233FA9 /* SRFI35.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SRFI35.scm; sourceTree = "<group>"; };
 		CC4D2C9E1D5EDA2A00A02256 /* RecordLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = RecordLibrary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC4E2D361D09691000D77159 /* PortLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = PortLibrary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC502A931CDABF1E00875D9F /* LispKitReplBridgingHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LispKitReplBridgingHeader.h; sourceTree = "<group>"; };
@@ -457,6 +465,7 @@
 				CC8213651D614A8600C1BE57 /* Records.scm */,
 				CC8169261D1FADE2003FADEA /* Ports.scm */,
 				CC8218901E3FFFAB009CA653 /* SRFI19.scm */,
+				CC48EBC51F3E437300233FA9 /* SRFI35.scm */,
 				CC7AAE6D1EC8AEBE00B0F66C /* SRFI121.scm */,
 				CC5847F91E4FC55700BE6497 /* SRFI132.scm */,
 				CCEFE6141ED8F55D00DFED9B /* SRFI133.scm */,
@@ -491,6 +500,8 @@
 				CC5848081E56BD0B00BE6497 /* 19.sld */,
 				CC5848091E56BD0B00BE6497 /* 27.sld */,
 				CC58480A1E56BD0B00BE6497 /* 28.sld */,
+				CC48EBC11F3A645C00233FA9 /* 31.sld */,
+				CC48EBC21F3A6BFF00233FA9 /* 35.sld */,
 				CC58480B1E56BD1800BE6497 /* 41.sld */,
 				CC8E2B9F1E33613C0080299A /* 41 */,
 				CC7AAE6B1EC859E100B0F66C /* 121.sld */,
@@ -837,6 +848,7 @@
 			files = (
 				CCC41DC41D2649E9003CB4D0 /* DelayedEvaluation.scm in Resources */,
 				CC131C521CDE840C006C030C /* LocalSyntaxRules.scm in Resources */,
+				CC48EBC61F3E460900233FA9 /* SRFI35.scm in Resources */,
 				CC8C6EC81CFA65F200126BDD /* ControlFlow.scm in Resources */,
 				CC97FA161CFA515E0008596E /* Definitions.scm in Resources */,
 				CCC41DC81D2B14AD003CB4D0 /* CallCC.scm in Resources */,

@@ -68,7 +68,8 @@ public final class SyntaxRules {
                      with input: Expr,
                      in matches: Matches,
                      at depth: Int) -> Bool {
-    // print("  MATCH: \(pattern) WITH: \(input) MATCHING: \(matches)") //DEBUG
+    // print(String(repeating: " ", count: depth * 2) +
+    //      "MATCH: \(pattern) WITH: \(input) MATCHING: \(matches)") //DEBUG
     switch pattern {
       case .symbol(let sym):
         if self.literals.contains(sym) {
@@ -87,12 +88,12 @@ public final class SyntaxRules {
           if token != self.ellipsis {
             if case .pair(self.ellipsis, _) = rest {
               matches.register(self.variables(in: token), at: depth + 1)
-              while case .pair(let car, let cdr) = inp
-                    , self.match(token, with: car, in: matches, at: depth + 1) {
+              while case .pair(let car, let cdr) = inp,
+                    self.match(token, with: car, in: matches, at: depth + 1) {
                 inp = cdr
               }
-            } else if case .pair(let car, let cdr) = inp
-                      , self.match(token, with: car, in: matches, at: depth) {
+            } else if case .pair(let car, let cdr) = inp,
+                   self.match(token, with: car, in: matches, at: depth) {
               inp = cdr
             } else {
               return false
@@ -133,7 +134,8 @@ public final class SyntaxRules {
   fileprivate func instantiate(template: Expr,
                                with matches: Matches,
                                at depth: Int) throws -> Expr {
-    // print("INSTANTIATE: \(template) USING: \(matches) DEPTH: \(depth)")
+    // print(String(repeating: " ", count: depth * 2) +
+    //      "INSTANTIATE: \(template) USING: \(matches) DEPTH: \(depth)")//DEBUG
     switch template {
       case .symbol(let sym):
         return matches.get(sym, in: self.lexicalEnv)
@@ -166,7 +168,9 @@ public final class SyntaxRules {
           }
           templ = rest
         }
-        return Expr.makeList(res, append: try self.instantiate(template: templ, with: matches, at: depth))
+        return Expr.makeList(res, append: try self.instantiate(template: templ,
+                                                               with: matches,
+                                                               at: depth))
       case .vector(let vector):
         var res = Exprs()
         for i in vector.exprs.indices {
@@ -187,7 +191,8 @@ public final class SyntaxRules {
               try self.instantiate(template: vector.exprs[i], with: matches, at: depth).datum)
           }
         }
-        return .vector(self.context.objects.manage(Collection(kind: .immutableVector, exprs: res)))
+        return Expr.vector(
+          self.context.objects.manage(Collection(kind: .immutableVector, exprs: res)))
       default:
         return template
     }
@@ -328,6 +333,7 @@ private final class MatchTree: CustomStringConvertible {
   private var root: Node = Node()
   private var depth: Int = 0
   private var complete: Bool = false
+  
   lazy var pos: [Int] = {
     [unowned self] in
       self.complete = true
@@ -398,7 +404,7 @@ private final class MatchTree: CustomStringConvertible {
 
   fileprivate func tailNode(_ depth: Int) -> Node {
     var res = self.root
-    for _ in 0..<self.depth {
+    for _ in 0..<depth {
       res = res.lastChild
     }
     return res
@@ -406,7 +412,7 @@ private final class MatchTree: CustomStringConvertible {
   
   private func currentNode(_ depth: Int) -> Node? {
     var res = self.root
-    for i in 0..<self.depth {
+    for i in 0..<depth {
       guard case .parent(let children) = res else {
         return nil
       }
