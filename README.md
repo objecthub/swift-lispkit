@@ -73,11 +73,14 @@ framework:
   - [SRFI 19: Time Data Types and Procedures](https://srfi.schemers.org/srfi-19/srfi-19.html)
   - [SRFI 27: Sources of Random Bits](https://srfi.schemers.org/srfi-27/srfi-27.html)
   - [SRFI 28: Basic Format Strings](https://srfi.schemers.org/srfi-28/srfi-28.html)
+  - [SRFI 31: A special form rec for recursive evaluation](https://srfi.schemers.org/srfi-31/srfi-31.html)
+  - [SRFI 35: Conditions](https://srfi.schemers.org/srfi-35/srfi-35.html)
   - [SRFI 41: Streams](https://srfi.schemers.org/srfi-41/srfi-41.html)
   - [SRFI 121: Generators](https://srfi.schemers.org/srfi-121/srfi-121.html)
   - [SRFI 132: Sort Libraries](https://srfi.schemers.org/srfi-132/srfi-132.html)
   - [SRFI 133: Vector Library](https://srfi.schemers.org/srfi-133/srfi-133.html)
   - [SRFI 134: Immutable Deques](https://srfi.schemers.org/srfi-134/srfi-134.html)
+  - [SRFI 135: Immutable Texts](https://srfi.schemers.org/srfi-135/srfi-135.html)
   - [SRFI 142: Bitwise Operations](https://srfi.schemers.org/srfi-142/srfi-142.html)
 
 

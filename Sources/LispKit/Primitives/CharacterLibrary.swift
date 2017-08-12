@@ -208,7 +208,7 @@ public final class CharacterLibrary: NativeLibrary {
   }
   
   func integerToChar(_ expr: Expr) throws -> Expr {
-    return .char(UInt16(try expr.asInt64()))
+    return .char(UInt16(try expr.asInt(below: Int(UInt16.max) + 1)))
   }
   
   func charUpcase(_ expr: Expr) throws -> Expr {

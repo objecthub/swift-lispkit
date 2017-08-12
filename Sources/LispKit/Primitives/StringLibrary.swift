@@ -393,20 +393,22 @@ public final class StringLibrary: NativeLibrary {
   }
   
   func stringInsert(_ expr: Expr, _ index: Expr, _ from: Expr, args: Arguments) throws -> Expr {
+    let target = try expr.asMutableStr()
     let str = try from.asString().utf16
     guard let (s, e) = args.optional(Expr.makeNumber(0), Expr.makeNumber(str.count)) else {
       throw EvalError.argumentCountError(formals: 2, args: .pair(expr, .makeList(args)))
     }
     let end = try e.asInt(below: str.count + 1)
-    let ei = str.index(str.startIndex, offsetBy: end)
+    var ei = str.index(str.startIndex, offsetBy: end)
     let si = str.index(str.startIndex, offsetBy: try s.asInt(below: end + 1))
+    let loc = try index.asInt(below: target.length + 1)
+    ei = min(ei, target.length - loc + si)
     var uniChars: [UniChar] = []
     for ch in str[si..<ei] {
       uniChars.append(ch)
     }
-    let target = try expr.asMutableStr()
-    target.insert(String(utf16CodeUnits: uniChars, count: uniChars.count),
-                  at: try index.asInt(below: target.length + 1))
+    target.replaceCharacters(in: NSMakeRange(loc, min(ei - si, target.length - loc)),
+                             with: String(utf16CodeUnits: uniChars, count: uniChars.count))
     return .void
   }
   

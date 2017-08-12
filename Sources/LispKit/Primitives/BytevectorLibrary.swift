@@ -149,13 +149,14 @@ public final class BytevectorLibrary: NativeLibrary {
   
   func utf8ToString(_ bvec: Expr, args: Arguments) throws -> Expr {
     let bvector = try bvec.asByteVector()
-    guard let (s, e) = args.optional(Expr.makeNumber(bvector.value.count), Expr.makeNumber(0)) else {
+    guard let (s, e) = args.optional(Expr.makeNumber(0),
+                                     Expr.makeNumber(bvector.value.count)) else {
       throw EvalError.argumentCountError(formals: 2, args: .pair(bvec, .makeList(args)))
     }
     let (start, end) = (try s.asInt(), try e.asInt())
-    guard start >= 0 && start < bvector.value.count else {
+    guard start >= 0 && start <= bvector.value.count else {
       throw EvalError.parameterOutOfBounds(
-        "utf8->string", 2, Int64(start), Int64(0), Int64(bvector.value.count - 1))
+        "utf8->string", 2, Int64(start), Int64(0), Int64(bvector.value.count))
     }
     guard end >= start && end <= bvector.value.count else {
       throw EvalError.parameterOutOfBounds(
@@ -163,7 +164,11 @@ public final class BytevectorLibrary: NativeLibrary {
     }
     var str = ""
     var decoder = UTF8()
-    var generator = bvector.value.makeIterator()
+    var subvec = [UInt8](repeating: 0, count: end - start)
+    for i in start..<end {
+      subvec[i - start] = bvector.value[i]
+    }
+    var generator = subvec.makeIterator()
     while case .scalarValue(let scalar) = decoder.decode(&generator) {
       str.append(String(scalar))
     }
@@ -172,12 +177,12 @@ public final class BytevectorLibrary: NativeLibrary {
   
   func stringToUtf8(_ string: Expr, args: Arguments) throws -> Expr {
     let str = try string.asString().utf16
-    guard let (s, e) = args.optional(Expr.makeNumber(str.count), Expr.makeNumber(0)) else {
+    guard let (s, e) = args.optional(Expr.makeNumber(0), Expr.makeNumber(str.count)) else {
       throw EvalError.argumentCountError(formals: 2, args: .pair(string, .makeList(args)))
     }
     let (start, end) = (try s.asInt(), try e.asInt())
     let sidx = str.index(str.startIndex, offsetBy: start)
-    guard sidx < str.endIndex else {
+    guard sidx <= str.endIndex else {
       throw EvalError.indexOutOfBounds(Int64(start), Int64(str.count), s)
     }
     let eidx = str.index(str.startIndex, offsetBy: end)
