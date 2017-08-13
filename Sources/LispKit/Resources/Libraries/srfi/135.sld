@@ -1,3 +1,23 @@
+;;; SRFI 135
+;;; Immutable Texts
+;;;
+;;; In Scheme, strings are a mutable data type. Although it "is an error" (R5RS and R7RS) to
+;;; use string-set! on literal strings or on strings returned by symbol->string, and any attempt
+;;; to do so "should raise an exception" (R6RS), all other strings are mutable.
+;;;
+;;; Although many mutable strings are never actually mutated, the mere possibility of mutation
+;;; complicates specifications of libraries that use strings, encourages precautionary copying
+;;; of strings, and precludes structure sharing that could otherwise be used to make procedures
+;;; such as substring and string-append faster and more space-efficient.
+;;;
+;;; This SRFI specifies a new data type of immutable texts. It comes with efficient and portable
+;;; sample implementations that guarantee O(1) indexing for both sequential and random access,
+;;; even in systems whose string-ref procedure takes linear time. The operations of this new data
+;;; type include analogues for all of the non-mutating operations on strings specified by the
+;;; R7RS and most of those specified by SRFI 130, but the immutability of texts and uniformity
+;;; of character-based indexing simplify the specification of those operations while avoiding
+;;; several inefficiencies associated with the mutability of Scheme's strings.
+;;;
 ;;; Copyright (C) William D Clinger (2016).
 ;;; 
 ;;; Permission is hereby granted, free of charge, to any person
