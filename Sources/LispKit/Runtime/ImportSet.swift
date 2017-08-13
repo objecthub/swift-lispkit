@@ -75,7 +75,7 @@ public indirect enum ImportSet: Equatable, CustomStringConvertible {
             case .symbol(let sym):
               renamings[sym] = sym
             case .pair(.symbol(let from), .pair(.symbol(let to), .null)):
-              renamings[to] = from
+              renamings[from] = to
             default:
               return nil
           }
@@ -110,7 +110,7 @@ public indirect enum ImportSet: Equatable, CustomStringConvertible {
     return nil
   }
   
-  /// `expand` returns for the import set a reference to the library from which definitions
+  /// `expand` returns, for this import set, a reference to the library from which definitions
   /// are imported. In addition, a mapping is returned that maps renamed definitions to the
   /// definitions as exported by the library.
   public func expand(in context: Context) -> (Library, [Symbol : Symbol])? {
