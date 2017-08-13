@@ -88,6 +88,7 @@
 		CC8218911E3FFFAB009CA653 /* SRFI19.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC8218901E3FFFAB009CA653 /* SRFI19.scm */; };
 		CC882C921C9E93A600D20039 /* Timer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC882C911C9E93A600D20039 /* Timer.swift */; };
 		CC8A2AAF1F405E2500D1E4D8 /* 17.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC8A2AAE1F405CDD00D1E4D8 /* 17.sld */; };
+		CC8A2AB11F40681500D1E4D8 /* 48.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC8A2AB01F40672700D1E4D8 /* 48.sld */; };
 		CC8C6EC81CFA65F200126BDD /* ControlFlow.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC8C6EC71CFA65F200126BDD /* ControlFlow.scm */; };
 		CC8EDE4C1D0317AD004E0636 /* Port.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8EDE4B1D0317AD004E0636 /* Port.swift */; };
 		CC8EDE6E1D07263D004E0636 /* BinaryInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8EDE6D1D07263D004E0636 /* BinaryInput.swift */; };
@@ -257,6 +258,7 @@
 			dstPath = LispKit/Resources/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
+				CC8A2AB11F40681500D1E4D8 /* 48.sld in Copy pre-installed SRFI libraries */,
 				CC8A2AAF1F405E2500D1E4D8 /* 17.sld in Copy pre-installed SRFI libraries */,
 				CC48EBD51F3E617800233FA9 /* 135.sld in Copy pre-installed SRFI libraries */,
 				CC48EBC41F3A6D0700233FA9 /* 35.sld in Copy pre-installed SRFI libraries */,
@@ -364,6 +366,7 @@
 		CC8218901E3FFFAB009CA653 /* SRFI19.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SRFI19.scm; sourceTree = "<group>"; };
 		CC882C911C9E93A600D20039 /* Timer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Timer.swift; sourceTree = "<group>"; };
 		CC8A2AAE1F405CDD00D1E4D8 /* 17.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 17.sld; sourceTree = "<group>"; };
+		CC8A2AB01F40672700D1E4D8 /* 48.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 48.sld; sourceTree = "<group>"; };
 		CC8C6EC71CFA65F200126BDD /* ControlFlow.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ControlFlow.scm; sourceTree = "<group>"; };
 		CC8EDE4B1D0317AD004E0636 /* Port.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Port.swift; sourceTree = "<group>"; };
 		CC8EDE6D1D07263D004E0636 /* BinaryInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BinaryInput.swift; sourceTree = "<group>"; };
@@ -545,6 +548,7 @@
 				CC48EBC21F3A6BFF00233FA9 /* 35.sld */,
 				CC48EBCD1F3E5AC700233FA9 /* 41 */,
 				CC58480B1E56BD1800BE6497 /* 41.sld */,
+				CC8A2AB01F40672700D1E4D8 /* 48.sld */,
 				CC7AAE6B1EC859E100B0F66C /* 121.sld */,
 				CC58480C1E56BD1800BE6497 /* 132.sld */,
 				CCEFE6121ED8F17700DFED9B /* 133.sld */,
