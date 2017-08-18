@@ -262,6 +262,9 @@ public final class Scanner {
             case LPAREN_CH:
               self.nextCh()
               self.token.kind = .hashlparen
+            case SEMI_CH:
+              self.nextCh()
+              self.token.kind = .hashsemi
             case BS_CH:
               self.nextCh()
               self.scanCharacterLiteral()
@@ -891,6 +894,7 @@ public struct Token: CustomStringConvertible {
       case .comma     : return ","
       case .commaat   : return ",@"
       case .dot       : return "."
+      case .hashsemi  : return "#;"
     }
   }
   
@@ -931,6 +935,7 @@ public enum TokenKind: Int, CustomStringConvertible {
   case comma
   case commaat
   case dot
+  case hashsemi
   
   public var description: String {
     switch self {
@@ -956,6 +961,7 @@ public enum TokenKind: Int, CustomStringConvertible {
       case .comma     : return "COMMA"
       case .commaat   : return "COMMAAT"
       case .dot       : return "DOT"
+      case .hashsemi  : return "HASHSEMI"
     }
   }
 }

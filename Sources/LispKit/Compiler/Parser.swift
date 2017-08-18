@@ -53,6 +53,10 @@ public final class Parser {
         throw lexicalError
       case .eof:
         throw SyntaxError.empty
+      case .hashsemi:
+        self.scanner.next()
+        _ = try self.parse()
+        return try self.parse(prescan)
       case .ident:
         res = .symbol(self.symbols.intern(token.strVal))
       case .truelit:
