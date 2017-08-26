@@ -30,11 +30,11 @@ development environment for _LispKit_ on macOS.
 
 _LispKit_ provides support for the following core features, many of which are based on R7RS:
 
-  - Modules via R7RS libraries
+  - Modules based on R7RS libraries
   - Hygienic macros based on `syntax-rules`
   - First-class environments
   - `call/cc`, `dynamic-wind` and exceptions
-  - Dynamically-scoped paramaters
+  - Dynamically-scoped parameters
   - Multiple return values
   - Delayed execution via promises and streams
   - Support for the full numerical tower consisting of arbitrary size integers, rationals,
@@ -49,7 +49,7 @@ _LispKit_ provides support for the following core features, many of which are ba
 _LispKit_ is incompatible or incomplete with respect to the following R7RS features:
 
   - Lists are immutable. Mutable cons-cells are supported in a way similar to
-    [Racket](https://racket-lang.org).
+    [Racket](https://racket-lang.org)
   - R7RS's mechanism for declaring the features of the Scheme implementation is not yet
     implemented; this includes the following functions: `features` and `cond-expand`
   - Error support is incomplete; the following functions are missing: `syntax-error`,
@@ -84,7 +84,7 @@ framework:
   - [SRFI 134: Immutable Deques](https://srfi.schemers.org/srfi-134/srfi-134.html)
   - [SRFI 135: Immutable Texts](https://srfi.schemers.org/srfi-135/srfi-135.html)
   - [SRFI 142: Bitwise Operations](https://srfi.schemers.org/srfi-142/srfi-142.html)
-
+  - [SRFI 152: String Library](https://srfi.schemers.org/srfi-152/srfi-152.html)
 
 ## Architecture
 

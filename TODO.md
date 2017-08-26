@@ -1,6 +1,6 @@
 # Todo
 
-Last update: 2017-05-20
+Last update: 2017-08-27
 
 
 ## Compiler
@@ -13,7 +13,13 @@ Last update: 2017-05-20
 - [X] Support (define ...) in control flow special forms
 - [X] Refactor creation of compiler; checkpointer needs to be always passed explicitly
 - [X] Support compiled system functions
-
+- [ ] Support tail patterns in `syntax-rules`
+- [ ] Within library definitions, support: `include`, `include-ci`,
+      `include-library-declarations`, `cond-expand`
+- [ ] Support `define-values`
+- [ ] Support `cond-expand`
+- [ ] Support `include-ci`
+- [ ] Support features mechanism
 
 ## Runtime
 
