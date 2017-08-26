@@ -1,8 +1,11 @@
-;;; SRFI 132
-;;; Sort libraries
+;;; SRFI 133
+;;; Vector library
 ;;;
-;;; Current Scheme sorting packages are, every one of them, surprisingly bad. This library
-;;; provides a full-featured sort toolkit.
+;;; This SRFI proposes a comprehensive library of vector operations accompanied by a freely
+;;; available and complete reference implementation. The reference implementation is
+;;; unencumbered by copyright, and useable with no modifications on any Scheme system
+;;; that is R5RS-compliant. It also provides several hooks for implementation-specific
+;;; optimization as well.
 ;;;
 ;;; Specification:
 ;;;   Copyright © 2016 John Cowan. All Rights Reserved.
@@ -36,9 +39,6 @@
 ;;;   Copyright © 2017 Matthias Zenger. All rights reserved.
 
 (define-library (srfi 133)
-
-  (import (scheme base)
-          (srfi 8))
   
   ;; Constructors 
   (export vector-unfold
@@ -79,6 +79,9 @@
   (export reverse-vector->list
           reverse-list->vector)
 
+  (import (scheme base)
+          (srfi 8))
+  
   (begin
     ;;; This code is somewhat tuned for efficiency.  There are several
     ;;; internal routines that can be optimized greatly to greatly improve

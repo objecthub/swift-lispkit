@@ -184,7 +184,7 @@ public final class CharacterLibrary: NativeLibrary {
   }
   
   func charIsWhitespace(_ expr: Expr) throws -> Expr {
-    return .makeBoolean(WHITESPACES.contains(unicodeScalar(try expr.asUniChar())))
+    return .makeBoolean(WHITESPACES_NL.contains(unicodeScalar(try expr.asUniChar())))
   }
   
   func charIsUpperCase(_ expr: Expr) throws -> Expr {
