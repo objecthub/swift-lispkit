@@ -62,6 +62,10 @@ public final class StringLibrary: NativeLibrary {
     self.define(Procedure("list->string", listToString))
     self.define(Procedure("string->list", stringToList))
     self.define(Procedure("substring", substring))
+    self.define(Procedure("string-contains", stringContainsIndex))
+    self.define(Procedure("string-replace!", stringReplace))
+    self.define(Procedure("string-replace-first!", stringReplaceFirst))
+    self.define(Procedure("string-insert!", stringReplaceRange))
     self.define(Procedure("string-copy", stringCopy))
     self.define(Procedure("string-copy!", stringInsert))
     self.define(Procedure("string-fill!", stringFill))
@@ -369,6 +373,75 @@ public final class StringLibrary: NativeLibrary {
       uniChars.append(ch)
     }
     return .string(NSMutableString(string: String(utf16CodeUnits: uniChars, count: uniChars.count)))
+  }
+  
+  func stringContainsIndex(_ expr: Expr, _ sub: Expr, _ args: Arguments) throws -> Expr {
+    let str = try expr.asMutableStr()
+    let from = try sub.asString()
+    guard let (s, e) = args.optional(Expr.makeNumber(0), Expr.makeNumber(str.length)) else {
+      throw EvalError.argumentCountError(formals: 4,
+                                         args: .pair(expr, .pair(sub, .makeList(args))))
+    }
+    let end = try e.asInt(below: str.length + 1)
+    let start = try s.asInt(below: end + 1)
+    let range = str.range(of: from, options: [], range: NSMakeRange(start, end - start))
+    if range.location == NSNotFound {
+      return .false
+    } else {
+      return .makeNumber(range.location)
+    }
+  }
+  
+  func stringReplace(_ expr: Expr, _ sub: Expr, _ repl: Expr, _ args: Arguments) throws -> Expr {
+    let str = try expr.asMutableStr()
+    let from = try sub.asString()
+    let to = try repl.asString()
+    guard let (s, e) = args.optional(Expr.makeNumber(0), Expr.makeNumber(str.length)) else {
+      throw EvalError.argumentCountError(formals: 5,
+        args: .pair(expr, .pair(sub, .pair(repl, .makeList(args)))))
+    }
+    let end = try e.asInt(below: str.length + 1)
+    let start = try s.asInt(below: end + 1)
+    let num = str.replaceOccurrences(of: from,
+                                     with: to,
+                                     options: [],
+                                     range: NSMakeRange(start, end - start))
+    return .makeNumber(num)
+  }
+  
+  func stringReplaceFirst(_ expr: Expr,
+                          _ sub: Expr,
+                          _ repl: Expr,
+                          _ args: Arguments) throws -> Expr {
+    let str = try expr.asMutableStr()
+    let from = try sub.asString()
+    let to = try repl.asString()
+    guard let (s, e) = args.optional(Expr.makeNumber(0), Expr.makeNumber(str.length)) else {
+      throw EvalError.argumentCountError(formals: 5,
+                                         args: .pair(expr, .pair(sub, .pair(repl, .makeList(args)))))
+    }
+    let end = try e.asInt(below: str.length + 1)
+    let start = try s.asInt(below: end + 1)
+    let range = str.range(of: from, options: [], range: NSMakeRange(start, end - start))
+    if range.location == NSNotFound {
+      return .false
+    } else {
+      str.replaceCharacters(in: range, with: to)
+      return .true
+    }
+  }
+  
+  func stringReplaceRange(_ expr: Expr, _ repl: Expr, _ args: Arguments) throws -> Expr {
+    let str = try expr.asMutableStr()
+    let to = try repl.asString()
+    guard let (s, e) = args.optional(Expr.makeNumber(0), Expr.makeNumber(str.length)) else {
+      throw EvalError.argumentCountError(formals: 4,
+                                         args: .pair(expr, .pair(repl, .makeList(args))))
+    }
+    let end = try e.asInt(below: str.length + 1)
+    let start = try s.asInt(below: end + 1)
+    str.replaceCharacters(in: NSMakeRange(start, end - start), with: to)
+    return .void
   }
   
   func stringCopy(_ expr: Expr, args: Arguments) throws -> Expr {
