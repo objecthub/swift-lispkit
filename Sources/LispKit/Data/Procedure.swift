@@ -280,6 +280,10 @@ public final class Procedure: Reference, CustomStringConvertible {
           capture.mark(tag)
         }
         code.mark(tag)
+      case .parameter(let tuple):
+        tuple.mark(tag)
+      case .continuation(let state):
+        state.mark(tag)
       default:
         break
     }

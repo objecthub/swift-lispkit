@@ -77,7 +77,9 @@ public final class Collection: ManagedObject, CustomStringConvertible {
   
   public func sameKindAs(_ other: Collection) -> Bool {
     switch (self.kind, other.kind) {
-      case (.vector, .vector), (.immutableVector, .immutableVector), (.recordType, .recordType):
+      case (.vector, .vector),
+           (.immutableVector, .immutableVector),
+           (.recordType, .recordType):
         return true
       case (.record(let type1), .record(let type2)):
         return type1 == type2
@@ -110,9 +112,11 @@ public final class Collection: ManagedObject, CustomStringConvertible {
       case .immutableVector:
         return "#<immutable-vector \(self.identityString)>"
       case .recordType:
-        return "#<record-type:\(self.exprs[0]) \(self.identityString)>"
+        return "#<record-type:\((try? self.exprs[0].asString()) ?? self.exprs[0].description) " +
+               "\(self.identityString)>"
       case .record(let type):
-        return "#<record-type:\(type.exprs[0]) \(self.identityString)>"
+        return "#<record:\((try? type.exprs[0].asString()) ?? type.exprs[0].description) " +
+               "\(self.identityString)>"
     }
   }
 }

@@ -17,6 +17,7 @@
 		CC0AEFFA1F52311600119BF6 /* SRFI152.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC0AEFF91F52303400119BF6 /* SRFI152.scm */; };
 		CC0BA16C1DFC843C0063B9DE /* SystemLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0BA16B1DFC843C0063B9DE /* SystemLibrary.swift */; };
 		CC0EBFF91ED37FB7004510B2 /* Math.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC0EBFF81ED37A76004510B2 /* Math.scm */; };
+		CC10404D1F53789D0045144A /* pdf.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC10404C1F5378660045144A /* pdf.sld */; };
 		CC1227391CBFE74500821EB7 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1227381CBFE74500821EB7 /* main.swift */; };
 		CC131C4C1CDE0C3D006C030C /* SyntaxRules.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC131C4B1CDE0C3D006C030C /* SyntaxRules.scm */; };
 		CC131C4E1CDE0DCA006C030C /* RegressionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC131C4D1CDE0DCA006C030C /* RegressionTests.swift */; };
@@ -216,6 +217,7 @@
 			dstPath = LispKit/Resources/Libraries/lispkit;
 			dstSubfolderSpec = 7;
 			files = (
+				CC10404D1F53789D0045144A /* pdf.sld in Copy pre-installed LispKit libraries */,
 				CC72862D1F52B32C00EEBC58 /* heap.sld in Copy pre-installed LispKit libraries */,
 				CCD6C3E91F35F9F10002F7D4 /* enum.sld in Copy pre-installed LispKit libraries */,
 				CC5848031E56920600BE6497 /* set.sld in Copy pre-installed LispKit libraries */,
@@ -297,6 +299,7 @@
 		CC0AEFF91F52303400119BF6 /* SRFI152.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SRFI152.scm; sourceTree = "<group>"; };
 		CC0BA16B1DFC843C0063B9DE /* SystemLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SystemLibrary.swift; sourceTree = "<group>"; };
 		CC0EBFF81ED37A76004510B2 /* Math.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Math.scm; sourceTree = "<group>"; };
+		CC10404C1F5378660045144A /* pdf.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pdf.sld; sourceTree = "<group>"; };
 		CC1227361CBFE74500821EB7 /* LispKitRepl.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LispKitRepl.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CC1227381CBFE74500821EB7 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		CC12273A1CBFE74500821EB7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -540,6 +543,7 @@
 				CC5848021E5691B300BE6497 /* set.sld */,
 				CC72862C1F52B2F600EEBC58 /* heap.sld */,
 				CCD6C3E81F35F95D0002F7D4 /* enum.sld */,
+				CC10404C1F5378660045144A /* pdf.sld */,
 			);
 			path = lispkit;
 			sourceTree = "<group>";

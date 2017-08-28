@@ -38,14 +38,14 @@ public protocol Trackable {
 /// Class `Tracked` implements a generic wrapper for objects implementing the `Trackable`
 /// protocol.
 ///
-open class Tracked<T: Trackable>: TrackedObject {
-  open var value: T
+public final class Tracked<T: Trackable>: TrackedObject {
+  internal var value: T
   
   internal init(_ value: T) {
     self.value = value
   }
   
-  open override func mark(_ tag: UInt8) {
+  public override func mark(_ tag: UInt8) {
     self.value.mark(tag)
   }
 }

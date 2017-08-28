@@ -504,6 +504,7 @@ public final class VirtualMachine: TrackedObject {
     return .void
   }
   
+  /*
   internal func bindParameters(_ alist: Expr) {
     self.parameters = HashTable(copy: self.parameters, mutable: true)
     var current = alist
@@ -512,6 +513,7 @@ public final class VirtualMachine: TrackedObject {
       current = next
     }
   }
+  */
   
   private func exitFrame() {
     // Determine former ip
