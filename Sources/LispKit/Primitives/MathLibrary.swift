@@ -863,15 +863,23 @@ public final class MathLibrary: NativeLibrary {
   func expt(_ expr: Expr, _ exp: Expr) throws -> Expr {
     switch try NumberPair(expr, exp) {
       case .fixnumPair(let x, let y):
-        return .makeNumber(BigInt(x) ** BigInt(y))
+        if y >= 0 {
+          return .makeNumber(BigInt(x) ** BigInt(y))
+        } else {
+          return .makeNumber(1.0 / (BigInt(x) ** BigInt(y).negate).doubleValue)
+        }
       case .bignumPair(let x, let y):
-        return .makeNumber(x ** y)
+        if y.isNegative {
+          return .makeNumber(1.0 / (x ** y.negate).doubleValue)
+        } else {
+          return .makeNumber(x ** y)
+        }
       case .rationalPair(let x, let y):
-        return .makeNumber(Foundation.exp(y.doubleValue * Foundation.log(x.doubleValue)))
+        return .makeNumber(Foundation.pow(x.doubleValue, y.doubleValue))
       case .bigRationalPair(let x, let y):
-        return .makeNumber(Foundation.exp(y.doubleValue * Foundation.log(x.doubleValue)))
+        return .makeNumber(Foundation.pow(x.doubleValue, y.doubleValue))
       case .flonumPair(let x, let y):
-        return .makeNumber(Foundation.exp(y * Foundation.log(x)))
+        return .makeNumber(Foundation.pow(x, y))
       case .complexPair(let x, let y):
         return .makeNumber((y * x.log).exp)
     }

@@ -207,7 +207,7 @@
                        (format (*page-stream*) "Q~%")))))
 
     (define (rotate deg)
-      (let* ((angle (/ (* PI deg) 180.0))
+      (let* ((angle (/ (* pi deg) 180.0))
              (s (sin angle))
              (c (cos angle)))
         (format (*page-stream*) "~1,3F ~1,3F ~1,3F ~1,3F 0.0 0.0 cm~%" c s (- s) c)))
@@ -247,9 +247,8 @@
 
     ;; geometry
 
-    (define PI 3.141527)
-    (define *2pi* (* 2 PI))
-    (define *pi/2* (/ PI 2))
+    (define *2pi* (* 2 pi))
+    (define *pi/2* (/ pi 2))
 
     (define (arc center-x center-y radius start extent)
       (move-to (+ center-x (* radius (cos start)))
@@ -374,7 +373,7 @@
       ;; This case may be given by two aligned points in a polyline.
       ;; Better do nothing.
       (unless (zero? extent)
-        (if (<= (abs extent) (/ PI 2.0))
+        (if (<= (abs extent) (/ pi 2.0))
           (let-values (((x1 y1 x2 y2 x3 y3)
                         (bezarc center-x center-y radius start extent)))
                       (bezier-to x1 y1 x2 y2 x3 y3))
@@ -404,8 +403,7 @@
 
 
     (define (distance p1 p2)
-      (sqrt (+ (expt (- (car p2)  (car p1))  2)
-               (expt (- (cadr p2) (cadr p1)) 2))))
+      (sqrt (+ (expt (- (car p2)  (car p1)) 2) (expt (- (cadr p2) (cadr p1)) 2))))
 
     (define (angle2 p1 p2)
       (if (zero? (distance p1 p2))
@@ -422,7 +420,7 @@
 
     (define (angle-3points pt1 pt2 pt3)
       (let* ((ang (- (angle2 pt1 pt3) (angle2 pt1 pt2))))
-        (if (or (> ang PI) (<= ang (- PI)))
+        (if (or (> ang pi) (<= ang (- pi)))
           (- ang (* (sign ang) *2pi*))
           ang)))
 
@@ -449,10 +447,9 @@
     ;; p3 = end
     ;; -> no useful return value
     (define (fillet p1 p2 p3 radius)
-      (let* ((gamma (/ (abs (angle-3points p1 p2 p3)) 2))
-             (dist-p1-t (/ radius (tan gamma)))
-             (dist-p1-s (/ (sqrt (+ (expt radius 2) (expt dist-p1-t 2)))
-                           (cos gamma)))
+      (let* ((gamma      (/ (abs (angle-3points p1 p2 p3)) 2))
+             (dist-p1-t  (/ radius (tan gamma)))
+             (dist-p1-s  (/ (sqrt (+ (expt radius 2) (expt dist-p1-t 2))) (cos gamma)))
              (dist-p1-p2 (distance p1 p2))
              (dist-p1-p3 (distance p1 p3)))
         (if (or (< dist-p1-p2 dist-p1-t)
@@ -469,7 +466,7 @@
             (arc-to (car center) (cadr center) radius
                     (angle2 center t2) (angle-3points center t2 t3))))))
     
-    ;; structure defs
+    ;; structure definitions
 
     (define-record-type <doc>
                         (make-doc catalog root-page pages xref objects fonts)
