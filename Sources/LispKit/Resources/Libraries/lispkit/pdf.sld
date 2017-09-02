@@ -42,7 +42,6 @@
 ;;;
 ;;;   Author: Bruce Butterfield <bab@entricom.com>
 ;;;
-;;;   Commentary:
 ;;;   The port from Common Lisp was done as "Scheme-ishly" as possible; most of the changes
 ;;;   from the original code involved mapping CLOS objects to structures and associated
 ;;;   functions. I would have used the PLT class library but I wanted to be able to use this
@@ -84,6 +83,7 @@
           set-mitter-limit
           move-to
           line-to
+          polyline
           bezier-to
           bezier2-to
           bezier3-to
@@ -288,9 +288,12 @@
         (basic-rect x y dx dy)
         (begin
           (move-to (+ x dx) (- (+ y dy) radius))
-          (polyline (list (list x y) (list (+ x dx) y)
-                          (list (+ x dx) (+ y dy)) (list x (+ y dy)))
-                    radius #t))))
+          (polyline (list (list x y)
+                          (list (+ x dx) y)
+                          (list (+ x dx) (+ y dy))
+                          (list x (+ y dy)))
+                    radius
+                    #t))))
 
     (define-syntax dotimes
       (syntax-rules ()
@@ -299,34 +302,39 @@
                        ((= index maxval))
                        body ...))))
 
+    (define (last-pair items)
+      (list (car (reverse items))))
+
+    (define (x-coord pt)
+      (car (car pt)))
+
+    (define (y-coord pt)
+      (cadr (car pt)))
+
     (define (polyline points radius closed)
-      (define (last-pair items)
-        (list (car (reverse items))))
-      (let ((x-coord (lambda (pt) (car (car pt))))
-            (y-coord (lambda (pt) (cadr (car pt)))))
-        (if (zero? radius)
-          (let ((x1 (x-coord points))
-                (y1 (y-coord points)))
-            (move-to x1 y1)
-            (let loop ((point (cdr points)))
-              (if (not (null? point))
-                (begin
-                  (line-to (x-coord point) (y-coord point))
-                  (loop (cdr point)))))
-            (if closed
-              (line-to x1 y1))))
-        (begin
+      (if (zero? radius)
+        (let ((x1 (x-coord points))
+              (y1 (y-coord points)))
+          (move-to x1 y1)
+          (let loop ((point (cdr points)))
+            (if (not (null? point))
+              (begin
+                (line-to (x-coord point) (y-coord point))
+                (loop (cdr point)))))
           (if closed
-            (let ((break-point (midpoint (car points) (car (last-pair points)) 0.5)))
-              (set! points `(,break-point ,@points ,break-point))))
-          (move-to (x-coord points) (y-coord points))
-          (dotimes (i (- (length points) 2))
-            (let ((p1 (list-ref points i))
-                  (p2 (list-ref points (+ 1 i)))
-                  (p3 (list-ref points (+ 2 i))))
-              (fillet p2 p1 p3 radius)))
-          (line-to (x-coord (last-pair points))
-                   (y-coord (last-pair points))))))
+            (line-to x1 y1))))
+      (begin
+        (if closed
+          (let ((break-point (midpoint (car points) (car (last-pair points)) 0.5)))
+            (set! points `(,break-point ,@points ,break-point))))
+        (move-to (x-coord points) (y-coord points))
+        (dotimes (i (- (length points) 2))
+          (let ((p1 (list-ref points i))
+                (p2 (list-ref points (fx1+ i)))
+                (p3 (list-ref points (fx1+ (fx1+ i)))))
+            (fillet p2 p1 p3 radius)))
+        (line-to (x-coord (last-pair points))
+                 (y-coord (last-pair points)))))
 
     (define regular-polygon
       (case-lambda
@@ -376,7 +384,7 @@
         (if (<= (abs extent) (/ pi 2.0))
           (let-values (((x1 y1 x2 y2 x3 y3)
                         (bezarc center-x center-y radius start extent)))
-                      (bezier-to x1 y1 x2 y2 x3 y3))
+            (bezier-to x1 y1 x2 y2 x3 y3))
           (let ((half-extent (/ extent 2.0)))
             (arc-to center-x center-y radius start half-extent)
             (arc-to center-x center-y radius (+ start half-extent) half-extent)))))
@@ -429,14 +437,15 @@
     ;;;
     ;;; (midpoint <point> <point> <real>)
     ;;;
-    ;;; Devuelve un punto situado entre los dos que se dan como argumento. El
-    ;;; factor de posición indica la relación de las distancias entre los puntos
-    ;;; de entrada y el de salida.
+    ;;; Returns a point between the two points given as an argument. Factor `ratio` indicates
+    ;;; the ratio of the distances between the points `pt1` and `pt2`.
     ;;;
 
     (define (midpoint pt1 pt2 ratio)
-      (let ((x1 (car pt1))(y1 (cadr pt1))
-            (x2 (car pt2))(y2 (cadr pt2)))
+      (let ((x1 (car pt1))
+            (y1 (cadr pt1))
+            (x2 (car pt2))
+            (y2 (cadr pt2)))
         (list (+ x1 (* ratio (- x2 x1)))
               (+ y1 (* ratio (- y2 y1))))))
 
@@ -452,19 +461,18 @@
              (dist-p1-s  (/ (sqrt (+ (expt radius 2) (expt dist-p1-t 2))) (cos gamma)))
              (dist-p1-p2 (distance p1 p2))
              (dist-p1-p3 (distance p1 p3)))
-        (if (or (< dist-p1-p2 dist-p1-t)
-                (< dist-p1-p3 dist-p1-t))
-          ;; Radius is too large, so we aren't going to draw the arc.
-          (line-to (car p1) (cadr p1))
-          ;; Else, draw the arc.
-          (let ((t2 (midpoint p1 p2 (/ dist-p1-t dist-p1-p2)))
-                (t3 (midpoint p1 p3 (/ dist-p1-t dist-p1-p3)))
-                (center (midpoint (midpoint p1 p2 (/ dist-p1-s dist-p1-p2))
-                                  (midpoint p1 p3 (/ dist-p1-s dist-p1-p3))
-                                  0.5)))
-            (line-to (car t2) (cadr t2))
-            (arc-to (car center) (cadr center) radius
-                    (angle2 center t2) (angle-3points center t2 t3))))))
+        (if (or (< dist-p1-p2 dist-p1-t) (< dist-p1-p3 dist-p1-t))
+            ;; Radius is too large, so we aren't going to draw the arc.
+            (line-to (car p1) (cadr p1))
+            ;; Else, draw the arc.
+            (let ((t2     (midpoint p1 p2 (/ dist-p1-t dist-p1-p2)))
+                  (t3     (midpoint p1 p3 (/ dist-p1-t dist-p1-p3)))
+                  (center (midpoint (midpoint p1 p2 (/ dist-p1-s dist-p1-p2))
+                                    (midpoint p1 p3 (/ dist-p1-s dist-p1-p3))
+                                    0.5)))
+              (line-to (car t2) (cadr t2))
+              (arc-to (car center) (cadr center) radius
+                      (angle2 center t2) (angle-3points center t2 t3))))))
     
     ;; structure definitions
 

@@ -84,6 +84,7 @@
 		CC6AB0871C5C28FE008E9460 /* Equality.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6AB0861C5C28FE008E9460 /* Equality.swift */; };
 		CC6BB19A1E60F237009A9091 /* Random.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6BB1991E60F237009A9091 /* Random.swift */; };
 		CC72862D1F52B32C00EEBC58 /* heap.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC72862C1F52B2F600EEBC58 /* heap.sld */; };
+		CC750BD81F5AC71500CD82A2 /* PDF.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC750BD71F5AC68900CD82A2 /* PDF.scm */; };
 		CC7AAE6C1EC8A87F00B0F66C /* 121.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC7AAE6B1EC859E100B0F66C /* 121.sld */; };
 		CC7AAE6E1EC8AEC600B0F66C /* SRFI121.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC7AAE6D1EC8AEBE00B0F66C /* SRFI121.scm */; };
 		CC7AAE701EC90D3900B0F66C /* 134.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC7AAE6F1EC9050B00B0F66C /* 134.sld */; };
@@ -192,6 +193,7 @@
 			dstPath = LispKit/Resources/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC750BD81F5AC71500CD82A2 /* PDF.scm in Copy examples */,
 				CCBDB73B1EDB7C63001606E2 /* Prolog.scm in Copy examples */,
 				CC0EBFF91ED37FB7004510B2 /* Math.scm in Copy examples */,
 				CC474EB11ED03CB100B535E3 /* Queens.scm in Copy examples */,
@@ -369,6 +371,7 @@
 		CC6AB0861C5C28FE008E9460 /* Equality.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Equality.swift; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC6BB1991E60F237009A9091 /* Random.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Random.swift; sourceTree = "<group>"; };
 		CC72862C1F52B2F600EEBC58 /* heap.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = heap.sld; sourceTree = "<group>"; };
+		CC750BD71F5AC68900CD82A2 /* PDF.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = PDF.scm; sourceTree = "<group>"; };
 		CC7AAE6B1EC859E100B0F66C /* 121.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 121.sld; sourceTree = "<group>"; };
 		CC7AAE6D1EC8AEBE00B0F66C /* SRFI121.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SRFI121.scm; sourceTree = "<group>"; };
 		CC7AAE6F1EC9050B00B0F66C /* 134.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 134.sld; sourceTree = "<group>"; };
@@ -769,6 +772,7 @@
 			isa = PBXGroup;
 			children = (
 				CCFBE5C31ECBA8DA0032254B /* Pi.scm */,
+				CC750BD71F5AC68900CD82A2 /* PDF.scm */,
 				CC0EBFF81ED37A76004510B2 /* Math.scm */,
 				CC474EB01ED0390200B535E3 /* Queens.scm */,
 				CCBDB73A1EDB4AB3001606E2 /* Prolog.scm */,

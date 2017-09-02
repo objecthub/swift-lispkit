@@ -23,8 +23,3 @@
     ((while condition body ...)
        (let loop ()
          (if condition (begin body ... (loop)) #f)))))
-
-;;; Scratch (for testing)
-
-(define (fib n) (if (< n 2) n (+ (fib (- n 1)) (fib (- n 2)))))
-(define (fxfib n) (if (fx< n 2) n (fx+ (fxfib (fx1- n)) (fxfib (fx- n 2)))))

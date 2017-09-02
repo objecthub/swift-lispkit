@@ -14,6 +14,7 @@
 ;;; and limitations under the License.
 
 
+;;; Returns the factorial decomposition of integer `n` in form of a list of prime numbers
 (define (factors n)
   (cond ((negative? n) (cons -1 (factors (- n))))
         ((< n 3)       (list n))
@@ -25,6 +26,7 @@
                                  (cons divisor (loop divisor (/ n divisor)))
                                  (loop (+ divisor 2) n)))))))
 
+;;; Returns `#t` if integer `n` is a prime number, `#f` otherwise.
 (define (prime? n)
   (cond ((= n 0)   #f)
         ((= n 1)   #f)
@@ -34,3 +36,15 @@
                      (cond ((> (square d) n)        #t)
                            ((zero? (remainder n d)) #f)
                            (else                    (loop (+ d 2))))))))
+
+;;; Returns the `n`-th Fibonacci number
+(define (fib n)
+  (if (fx< n 2)
+      n
+      (fx+ (fxfib (fx1- n)) (fxfib (fx- n 2)))))
+
+;;; Returns the factorial of integer `n`
+(define (fac n)
+  (if (= n 0)
+      1
+      (* n (fac (- n 1)))))
