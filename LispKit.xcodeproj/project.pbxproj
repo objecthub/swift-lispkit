@@ -85,6 +85,7 @@
 		CC6BB19A1E60F237009A9091 /* Random.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6BB1991E60F237009A9091 /* Random.swift */; };
 		CC72862D1F52B32C00EEBC58 /* heap.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC72862C1F52B2F600EEBC58 /* heap.sld */; };
 		CC750BD81F5AC71500CD82A2 /* PDF.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC750BD71F5AC68900CD82A2 /* PDF.scm */; };
+		CC750BDA1F5B776700CD82A2 /* prettify.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC750BD91F5B772200CD82A2 /* prettify.sld */; };
 		CC7AAE6C1EC8A87F00B0F66C /* 121.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC7AAE6B1EC859E100B0F66C /* 121.sld */; };
 		CC7AAE6E1EC8AEC600B0F66C /* SRFI121.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC7AAE6D1EC8AEBE00B0F66C /* SRFI121.scm */; };
 		CC7AAE701EC90D3900B0F66C /* 134.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC7AAE6F1EC9050B00B0F66C /* 134.sld */; };
@@ -219,6 +220,7 @@
 			dstPath = LispKit/Resources/Libraries/lispkit;
 			dstSubfolderSpec = 7;
 			files = (
+				CC750BDA1F5B776700CD82A2 /* prettify.sld in Copy pre-installed LispKit libraries */,
 				CC10404D1F53789D0045144A /* pdf.sld in Copy pre-installed LispKit libraries */,
 				CC72862D1F52B32C00EEBC58 /* heap.sld in Copy pre-installed LispKit libraries */,
 				CCD6C3E91F35F9F10002F7D4 /* enum.sld in Copy pre-installed LispKit libraries */,
@@ -372,6 +374,7 @@
 		CC6BB1991E60F237009A9091 /* Random.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Random.swift; sourceTree = "<group>"; };
 		CC72862C1F52B2F600EEBC58 /* heap.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = heap.sld; sourceTree = "<group>"; };
 		CC750BD71F5AC68900CD82A2 /* PDF.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = PDF.scm; sourceTree = "<group>"; };
+		CC750BD91F5B772200CD82A2 /* prettify.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = prettify.sld; sourceTree = "<group>"; };
 		CC7AAE6B1EC859E100B0F66C /* 121.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 121.sld; sourceTree = "<group>"; };
 		CC7AAE6D1EC8AEBE00B0F66C /* SRFI121.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SRFI121.scm; sourceTree = "<group>"; };
 		CC7AAE6F1EC9050B00B0F66C /* 134.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 134.sld; sourceTree = "<group>"; };
@@ -547,6 +550,7 @@
 				CC72862C1F52B2F600EEBC58 /* heap.sld */,
 				CCD6C3E81F35F95D0002F7D4 /* enum.sld */,
 				CC10404C1F5378660045144A /* pdf.sld */,
+				CC750BD91F5B772200CD82A2 /* prettify.sld */,
 			);
 			path = lispkit;
 			sourceTree = "<group>";
