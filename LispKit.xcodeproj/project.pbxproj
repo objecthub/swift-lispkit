@@ -109,6 +109,7 @@
 		CC98B4571EBD43C900BCD049 /* NumberKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CC5C713E1EBD3D3A00280CF4 /* NumberKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CC98B4581EBD43E500BCD049 /* NumberKit.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = CC5C713E1EBD3D3A00280CF4 /* NumberKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CC98B45A1EBD444400BCD049 /* NumberKit.framework.dSYM in Copy dSYM data */ = {isa = PBXBuildFile; fileRef = CC98B4591EBD444400BCD049 /* NumberKit.framework.dSYM */; };
+		CC9EB1151F5C9DFF00697511 /* Topological.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC9EB1141F5C9D4000697511 /* Topological.scm */; };
 		CCA752F41DEF9E410098C34A /* Prelude.scm in Copy default prelude */ = {isa = PBXBuildFile; fileRef = CCAD52D51C48467D00DBD8EE /* Prelude.scm */; };
 		CCAD52BE1C48403900DBD8EE /* LispKit.h in Headers */ = {isa = PBXBuildFile; fileRef = CCAD52BD1C48403900DBD8EE /* LispKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		CCAD52C51C48403900DBD8EE /* LispKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCAD52BA1C48403800DBD8EE /* LispKit.framework */; };
@@ -194,6 +195,7 @@
 			dstPath = LispKit/Resources/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC9EB1151F5C9DFF00697511 /* Topological.scm in Copy examples */,
 				CC750BD81F5AC71500CD82A2 /* PDF.scm in Copy examples */,
 				CCBDB73B1EDB7C63001606E2 /* Prolog.scm in Copy examples */,
 				CC0EBFF91ED37FB7004510B2 /* Math.scm in Copy examples */,
@@ -396,6 +398,7 @@
 		CC93A6601D0777A9008350C8 /* TextOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextOutput.swift; sourceTree = "<group>"; };
 		CC97FA151CFA51520008596E /* Definitions.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Definitions.scm; sourceTree = "<group>"; };
 		CC98B4591EBD444400BCD049 /* NumberKit.framework.dSYM */ = {isa = PBXFileReference; lastKnownFileType = wrapper.dsym; name = NumberKit.framework.dSYM; path = Carthage/Build/Mac/NumberKit.framework.dSYM; sourceTree = "<group>"; };
+		CC9EB1141F5C9D4000697511 /* Topological.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Topological.scm; sourceTree = "<group>"; };
 		CCAD52BA1C48403800DBD8EE /* LispKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = LispKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CCAD52BD1C48403900DBD8EE /* LispKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LispKit.h; sourceTree = "<group>"; };
 		CCAD52BF1C48403900DBD8EE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -780,6 +783,7 @@
 				CC0EBFF81ED37A76004510B2 /* Math.scm */,
 				CC474EB01ED0390200B535E3 /* Queens.scm */,
 				CCBDB73A1EDB4AB3001606E2 /* Prolog.scm */,
+				CC9EB1141F5C9D4000697511 /* Topological.scm */,
 			);
 			path = Examples;
 			sourceTree = "<group>";
