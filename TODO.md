@@ -1,6 +1,6 @@
 # Todo
 
-Last update: 2017-08-27
+Last update: 2017-09-03
 
 
 ## Compiler
@@ -20,6 +20,7 @@ Last update: 2017-08-27
 - [ ] Support `cond-expand`
 - [ ] Support `include-ci`
 - [ ] Support features mechanism
+- [ ] Fix bug preventing to nest definitions three or more times
 
 ## Runtime
 
