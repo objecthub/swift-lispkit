@@ -449,18 +449,27 @@ public final class MathLibrary: NativeLibrary {
         throw EvalError.typeError(expr, [.numberType])
     }
   }
-
+  
   func exact(_ expr: Expr) throws -> Expr {
     switch expr {
       case .fixnum(_), .bignum(_), .rational(_):
         return expr
       case .flonum(let num):
-        return .makeNumber(MathLibrary.approximate(num))
+        return MathLibrary.approximateNumber(num)
       default:
         throw EvalError.typeError(expr, [.realType])
     }
   }
-
+  
+  static func approximateNumber(_ x: Double, tolerance: Double = 1.0e-16) -> Expr {
+    let max = Double(Int64.max)
+    if x > -max && x < max {
+      return .makeNumber(MathLibrary.approximate(x))
+    } else {
+      return .makeNumber(MathLibrary.approximateBigRat(x))
+    }
+  }
+  
   static func approximate(_ x: Double, tolerance: Double = 1.0e-16) -> Rational<Int64> {
     let mx = x * tolerance
     var y = x
@@ -474,6 +483,21 @@ public final class MathLibrary: NativeLibrary {
     } while abs(x - Double(n1) / Double(d1)) > mx
     return Rational(n1, d1)
   }
+  
+  static func approximateBigRat(_ x: Double, tolerance: Double = 1.0e-16) -> Rational<BigInt> {
+    let mx = x * tolerance
+    var y = x
+    var (n1, d1) = (BigInt(1), BigInt(0))
+    var (n2, d2) = (BigInt(0), BigInt(1))
+    repeat {
+      let fy = BigInt(Foundation.floor(y))
+      (n1, n2) = (fy * n1 + n2, n1)
+      (d1, d2) = (fy * d1 + d2, d1)
+      y = 1.0 / (y - Foundation.floor(y))
+    } while abs(x - n1.doubleValue / d1.doubleValue) > mx
+    return Rational(n1, d1)
+  }
+  
     
   //-------- MARK: - Rounding primitives
 
@@ -1085,7 +1109,7 @@ public final class MathLibrary: NativeLibrary {
       case .rational(let numerator, _):
         return numerator
       case .flonum(let num):
-        return .flonum(Double(MathLibrary.approximate(num).numerator))
+        return try self.numerator(MathLibrary.approximateNumber(num))
       default:
         throw EvalError.typeError(expr, [.numberType])
     }
@@ -1098,7 +1122,7 @@ public final class MathLibrary: NativeLibrary {
       case .rational(_, let denominator):
         return denominator
       case .flonum(let num):
-        return .flonum(Double(MathLibrary.approximate(num).denominator))
+        return try self.denominator(MathLibrary.approximateNumber(num))
       default:
         throw EvalError.typeError(expr, [.numberType])
     }
@@ -1109,7 +1133,7 @@ public final class MathLibrary: NativeLibrary {
     for expr in exprs {
       var e = expr
       if case .flonum(let num) = expr {
-        e = .makeNumber(MathLibrary.approximate(num))
+        e = MathLibrary.approximateNumber(num)
       }
       switch try NumberPair(acc, e) {
         case .fixnumPair(let lhs, let rhs):
@@ -1137,7 +1161,7 @@ public final class MathLibrary: NativeLibrary {
     for expr in exprs {
       var e = expr
       if case .flonum(let num) = expr {
-        e = .makeNumber(MathLibrary.approximate(num))
+        e = MathLibrary.approximateNumber(num)
       }
       switch try NumberPair(acc, e) {
         case .fixnumPair(let lhs, let rhs):
