@@ -31,7 +31,7 @@ public final class RecordLibrary: NativeLibrary {
   /// Dependencies of the library.
   public override func dependencies() {
     self.`import`(from: ["lispkit", "base"],    "define", "define-syntax", "syntax-rules",
-                                                "lambda", "quote", "symbol->string")
+                                                "lambda", "quote", "void", "symbol->string")
     self.`import`(from: ["lispkit", "control"], "let", "begin")
   }
   
@@ -77,10 +77,10 @@ public final class RecordLibrary: NativeLibrary {
       "  (syntax-rules ()",
       "    ((_ type (constr cfield ...) pred (field accessor . mutator) ...)",
       "      (begin",
-      "        (define type (make-record-type (symbol->string 'type) '(cfield ...)))",
+      "        (define type (make-record-type (symbol->string 'type) '(field ...)))",
       "        (define constr (record-constructor type '(cfield ...)))",
       "        (define pred (record-predicate type))",
-      "        (define-record-field type field accessor . mutator) ...))))")
+      "        (define-record-field type field accessor . mutator) ... (void)))))")
   }
   
   func isRecord(_ expr: Expr, rtype: Expr?) -> Expr {
@@ -163,6 +163,8 @@ public final class RecordLibrary: NativeLibrary {
           throw EvalError.unknownFieldOfRecordType(expr, field)
         }
         return .makeNumber(index)
+      case .null:
+        return .null
       case .pair(_, _):
         var indices = Exprs()
         var current = name
@@ -230,6 +232,10 @@ public final class RecordLibrary: NativeLibrary {
         // Set record field value. Guarantee that cells for which `record-set!` is called are
         // managed by a managed object pool.
         (value.isAtom ? record : self.context.objects.manage(record)).exprs[Int(idx)] = value
+      case .null:
+        guard value.isNull else {
+          throw EvalError.fieldCountError(0, value)
+        }
       case .pair(_, _):
         var allSimple = true
         var numFields = 0
