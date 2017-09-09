@@ -69,7 +69,7 @@ public final class SyntaxRules {
                      in matches: Matches,
                      at depth: Int) -> Bool {
     // print(String(repeating: " ", count: depth * 2) +
-    //      "MATCH: \(pattern) WITH: \(input) MATCHING: \(matches)") //DEBUG
+    //       "MATCH: \(pattern) WITH: \(input) MATCHING: \(matches)") //DEBUG
     switch pattern {
       case .symbol(let sym):
         if self.literals.contains(sym) {
@@ -79,8 +79,11 @@ public final class SyntaxRules {
           return true
         }
       case .pair(_, _):
-        guard case .pair(_, _) = input else {
-          return false
+        switch input {
+          case .null, .pair(_, _):
+            break
+          default:
+            return false
         }
         var pat = pattern
         var inp = input
@@ -135,7 +138,7 @@ public final class SyntaxRules {
                                with matches: Matches,
                                at depth: Int) throws -> Expr {
     // print(String(repeating: " ", count: depth * 2) +
-    //      "INSTANTIATE: \(template) USING: \(matches) DEPTH: \(depth)")//DEBUG
+    //       "INSTANTIATE: \(template) USING: \(matches) DEPTH: \(depth)")//DEBUG
     switch template {
       case .symbol(let sym):
         return matches.get(sym, in: self.lexicalEnv)
