@@ -63,12 +63,16 @@ class RegressionTests: LispKitTestCase {
     self.execute(file: "HashTables")
   }
   
+  func testPorts() {
+    self.execute(file: "Ports")
+  }
+  
   func testRecords() {
     self.execute(file: "Records")
   }
   
-  func testPorts() {
-    self.execute(file: "Ports")
+  func testDatatypes() {
+    self.execute(file: "Datatypes")
   }
   
   func testSRFI19() {

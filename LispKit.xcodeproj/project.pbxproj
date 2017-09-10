@@ -26,6 +26,8 @@
 		CC1AAE3B1CC3CF0F00D1806F /* LispKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCAD52BA1C48403800DBD8EE /* LispKit.framework */; };
 		CC1AAE3C1CC3CF0F00D1806F /* LispKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CCAD52BA1C48403800DBD8EE /* LispKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CC201A6D1DBD72C100045A4D /* LibraryRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC201A6C1DBD72C100045A4D /* LibraryRegistry.swift */; };
+		CC2345411F655BD800C38817 /* datatype.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC2345401F655B8B00C38817 /* datatype.sld */; };
+		CC2345431F655C0A00C38817 /* Datatypes.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC2345421F655C0A00C38817 /* Datatypes.scm */; };
 		CC26069C1C61760C0047A3D3 /* Boxes.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC26069B1C61760C0047A3D3 /* Boxes.swift */; };
 		CC2D124F1DB40E7F009BDC72 /* LibraryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2D124E1DB40E7F009BDC72 /* LibraryManager.swift */; };
 		CC31A6981D3AC223008D7728 /* Hash.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC31A6971D3AC223008D7728 /* Hash.swift */; };
@@ -222,6 +224,7 @@
 			dstPath = LispKit/Resources/Libraries/lispkit;
 			dstSubfolderSpec = 7;
 			files = (
+				CC2345411F655BD800C38817 /* datatype.sld in Copy pre-installed LispKit libraries */,
 				CC750BDA1F5B776700CD82A2 /* prettify.sld in Copy pre-installed LispKit libraries */,
 				CC10404D1F53789D0045144A /* pdf.sld in Copy pre-installed LispKit libraries */,
 				CC72862D1F52B32C00EEBC58 /* heap.sld in Copy pre-installed LispKit libraries */,
@@ -314,6 +317,8 @@
 		CC131C4F1CDE0E01006C030C /* LispKitTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = LispKitTestCase.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC131C511CDE840C006C030C /* LocalSyntaxRules.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LocalSyntaxRules.scm; sourceTree = "<group>"; };
 		CC201A6C1DBD72C100045A4D /* LibraryRegistry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryRegistry.swift; sourceTree = "<group>"; };
+		CC2345401F655B8B00C38817 /* datatype.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = datatype.sld; sourceTree = "<group>"; };
+		CC2345421F655C0A00C38817 /* Datatypes.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Datatypes.scm; sourceTree = "<group>"; };
 		CC26069B1C61760C0047A3D3 /* Boxes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Boxes.swift; sourceTree = "<group>"; };
 		CC2D124E1DB40E7F009BDC72 /* LibraryManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryManager.swift; sourceTree = "<group>"; };
 		CC31A6971D3AC223008D7728 /* Hash.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Hash.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -507,8 +512,9 @@
 				CCB91C971D57E784001A95DC /* Parameters.scm */,
 				CCC41DC31D2649E9003CB4D0 /* DelayedEvaluation.scm */,
 				CCDAD5511D4813E900A7EE4F /* HashTables.scm */,
-				CC8213651D614A8600C1BE57 /* Records.scm */,
 				CC8169261D1FADE2003FADEA /* Ports.scm */,
+				CC8213651D614A8600C1BE57 /* Records.scm */,
+				CC2345421F655C0A00C38817 /* Datatypes.scm */,
 				CC8218901E3FFFAB009CA653 /* SRFI19.scm */,
 				CC48EBC51F3E437300233FA9 /* SRFI35.scm */,
 				CC7AAE6D1EC8AEBE00B0F66C /* SRFI121.scm */,
@@ -549,11 +555,12 @@
 		CC5847FE1E506D7400BE6497 /* lispkit */ = {
 			isa = PBXGroup;
 			children = (
+				CC2345401F655B8B00C38817 /* datatype.sld */,
+				CCD6C3E81F35F95D0002F7D4 /* enum.sld */,
 				CC5848021E5691B300BE6497 /* set.sld */,
 				CC72862C1F52B2F600EEBC58 /* heap.sld */,
-				CCD6C3E81F35F95D0002F7D4 /* enum.sld */,
-				CC10404C1F5378660045144A /* pdf.sld */,
 				CC750BD91F5B772200CD82A2 /* prettify.sld */,
+				CC10404C1F5378660045144A /* pdf.sld */,
 			);
 			path = lispkit;
 			sourceTree = "<group>";
@@ -920,6 +927,7 @@
 				CCB91C981D57E785001A95DC /* Parameters.scm in Resources */,
 				CC48EBCC1F3E5AA700233FA9 /* kernel0.sld in Resources */,
 				CC0AEFFA1F52311600119BF6 /* SRFI152.scm in Resources */,
+				CC2345431F655C0A00C38817 /* Datatypes.scm in Resources */,
 				CC131C4C1CDE0C3D006C030C /* SyntaxRules.scm in Resources */,
 				CCEFE6151ED8F56600DFED9B /* SRFI133.scm in Resources */,
 				CC8169271D1FADEC003FADEA /* Ports.scm in Resources */,
