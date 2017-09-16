@@ -45,8 +45,8 @@ _LispKit_ provides support for the following core features, many of which are ba
   - R7RS-compliant records
   - [R6RS](http://www.r6rs.org)-compliant hashtables
   - [R6RS](http://www.r6rs.org)-compliant enumerations
-  - LispKit-specific libraries: `(lispkit set)`, `(lispkit heap)`, `(lispkit pdf)`,
-    `(lispkit prettify)`
+  - LispKit-specific libraries: `(lispkit datatype)`, `(lispkit set)`, `(lispkit heap)`,
+    `(lispkit prettify)`, and `(lispkit pdf)`
 
 _LispKit_ is incompatible or incomplete with respect to the following R7RS features:
 
@@ -64,6 +64,8 @@ _LispKit_ is incompatible or incomplete with respect to the following R7RS featu
     `cond-expand`.
   - Environment-support lacks the following functions: `scheme-report-environment`,
     `null-environment`.
+  - No support for tail patterns in `syntax-rules`.
+  - Datum comments introduced via `#;` do not always work as expected.
 
 The following standard libraries have been ported to _LispKit_ and are included in the
 framework:
