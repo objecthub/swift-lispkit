@@ -45,14 +45,14 @@
 ;;;    This code is in the public domain.
 
 
-;;; Returns a topologically sorted list of vertices for a given directed acyclic graph.
-;;; A graph is represented by a list of sublists. The first element of each sublist is a
-;;; vertex. The remaining elements of the sublist define all vertices for which there
-;;; exists an edge to the first vertex of the sublist.
-;;;   `dag`      is a directed acyclic graph
-;;;   `eql?`     is an equivalence relation
-;;;   `eql-hash` is a hash function compatible to `eql?`. `eql-hash` can be omitted if
-;;;              `eql?` is either `eq?`, `eqv?`, or `equal?`.
+;; Returns a topologically sorted list of vertices for a given directed acyclic graph.
+;; A graph is represented by a list of sublists. The first element of each sublist is a
+;; vertex. The remaining elements of the sublist define all vertices for which there
+;; exists an edge to the first vertex of the sublist.
+;;   `dag`      is a directed acyclic graph
+;;   `eql?`     is an equivalence relation
+;;   `eql-hash` is a hash function compatible to `eql?`. `eql-hash` can be omitted if
+;;              `eql?` is either `eq?`, `eqv?`, or `equal?`.
 (define topological-sort
   (case-lambda
     ((dag)

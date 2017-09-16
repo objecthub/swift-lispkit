@@ -14,11 +14,11 @@
 ;;; and limitations under the License.
 
 
-;;; Returns a string representation of pi with `n` decimal digits
+;; Returns a string representation of pi with `n` decimal digits
 (define (pi-as-string n)
   (pi->string (approx-pi n)))
 
-;;; Returns a list of `n` decimal digits of pi
+;; Returns a list of `n` decimal digits of pi
 (define (approx-pi n)
   (let ((u 0) (y 0) (j (+ n 2)))
     (do ((q 1   (* 10 q i (- (* 2 i) 1)))
@@ -30,7 +30,7 @@
       (set! u (* 3 (+ (* 3 i) 1) (+ (* 3 i) 2)))
       (set! y (floor-quotient (+ (* q (- (* 27 i) 12)) (* 5 r)) (* 5 t))))))
 
-;;; Converts a list of decimal digits into a string representation of pi
+;; Converts a list of decimal digits into a string representation of pi
 (define (pi->string xs)
   (let ((out (open-output-string)))
     (write-string "3." out)
