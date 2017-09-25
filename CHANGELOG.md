@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1 (2017-09-25)
+- Migrated project to Xcode 9 and Swift 4
+- Adopted Swift 4-version of NumberKit
+
 ## 1.0 (2017-08-06)
 - Support for custom ellipsis in `syntax-rules`
 - Fixed serious scoping issues in `syntax-rules`

@@ -569,7 +569,7 @@ public final class MathLibrary: NativeLibrary {
     for expr in exprs {
       switch try NumberPair(acc, expr) {
         case .fixnumPair(let lhs, let rhs):
-          let (res, overflow) = Int64.addWithOverflow(lhs, rhs)
+          let (res, overflow) = lhs.addingReportingOverflow(rhs)
           acc = overflow ? .makeNumber(BigInt(lhs) + BigInt(rhs)) : .makeNumber(res)
         case .bignumPair(let lhs, let rhs):
           acc = .makeNumber(lhs + rhs)
@@ -612,7 +612,7 @@ public final class MathLibrary: NativeLibrary {
     for expr in exprs {
       switch try NumberPair(acc, expr) {
         case .fixnumPair(let lhs, let rhs):
-          let (res, overflow) = Int64.subtractWithOverflow(lhs, rhs)
+          let (res, overflow) = lhs.subtractingReportingOverflow(rhs)
           acc = overflow ? .makeNumber(BigInt(lhs) - BigInt(rhs)) : .makeNumber(res)
         case .bignumPair(let lhs, let rhs):
           acc = .makeNumber(lhs - rhs)
@@ -637,7 +637,7 @@ public final class MathLibrary: NativeLibrary {
     for expr in exprs {
       switch try NumberPair(acc, expr) {
         case .fixnumPair(let lhs, let rhs):
-          let (res, overflow) = Int64.multiplyWithOverflow(lhs, rhs)
+          let (res, overflow) = lhs.multipliedReportingOverflow(by: rhs)
           acc = overflow ? .makeNumber(BigInt(lhs) * BigInt(rhs)) : .makeNumber(res)
         case .bignumPair(let lhs, let rhs):
           acc = .makeNumber(lhs * rhs)
@@ -823,7 +823,7 @@ public final class MathLibrary: NativeLibrary {
   func square(_ expr: Expr) throws -> Expr {
     switch expr {
       case .fixnum(let num):
-        let (res, overflow) = Int64.multiplyWithOverflow(num, num)
+        let (res, overflow) = num.multipliedReportingOverflow(by: num)
         return overflow ? .makeNumber(BigInt(num) * BigInt(num)) : .makeNumber(res)
       case .bignum(let num):
         return .makeNumber(num * num)

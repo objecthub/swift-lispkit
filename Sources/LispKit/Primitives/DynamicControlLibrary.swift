@@ -337,7 +337,7 @@ public final class DynamicControlLibrary: NativeLibrary {
     if self.context.delegate != nil {
       self.context.delegate!.emergencyExit(obj: expr)
     } else {
-      NSApplication.shared().terminate(self)
+      NSApplication.shared.terminate(self)
     }
     return .undef
   }

@@ -139,7 +139,7 @@ public func ==(lhs: LispErrorType, rhs: LispErrorType) -> Bool {
 ///
 /// Class `AnyError` wraps `LispError` implementations. The main motivation for using this class
 /// is related to the high cost of storing references to protocols (especially in the definition
-/// of the `Expr` enumeration). Another reason is that Swift 3 does not allow protocols to
+/// of the `Expr` enumeration). Another reason is that Swift 4 does not allow protocols to
 /// implement Hashable (which, in practice, needs to be attached to a class, struct or enum).
 ///
 public class AnyError: LispError, Hashable, CustomStringConvertible {

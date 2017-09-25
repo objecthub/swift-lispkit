@@ -14,7 +14,7 @@ public struct MultiMap<Key: Hashable, Value>: CustomStringConvertible {
     self.map = [:]
   }
   
-  public var keys: LazyMapCollection<[Key : [Value]], Key> {
+  public var keys: Dictionary<Key, [Value]>.Keys {
     return map.keys
   }
   

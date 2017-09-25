@@ -475,12 +475,14 @@ public final class StringLibrary: NativeLibrary {
     var ei = str.index(str.startIndex, offsetBy: end)
     let si = str.index(str.startIndex, offsetBy: try s.asInt(below: end + 1))
     let loc = try index.asInt(below: target.length + 1)
-    ei = min(ei, target.length - loc + si)
+    ei = min(ei, str.index(si, offsetBy: target.length - loc))
     var uniChars: [UniChar] = []
+    var n = 0
     for ch in str[si..<ei] {
       uniChars.append(ch)
+      n += 1
     }
-    target.replaceCharacters(in: NSMakeRange(loc, min(ei - si, target.length - loc)),
+    target.replaceCharacters(in: NSMakeRange(loc, min(n, target.length - loc)),
                              with: String(utf16CodeUnits: uniChars, count: uniChars.count))
     return .void
   }

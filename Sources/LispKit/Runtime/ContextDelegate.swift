@@ -35,6 +35,6 @@ public extension ContextDelegate {
   }
   
   func emergencyExit(obj: Expr?) {
-    NSApplication.shared().terminate(self)
+    NSApplication.shared.terminate(self)
   }
 }

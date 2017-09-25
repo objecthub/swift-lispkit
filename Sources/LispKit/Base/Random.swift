@@ -45,7 +45,7 @@ public extension UInt64 {
 
 public extension Int64 {
   public static func random(min: Int64 = Int64.min, max: Int64 = Int64.max) -> Int64 {
-    let (s, overflow) = Int64.subtractWithOverflow(max, min)
+    let (s, overflow) = max.subtractingReportingOverflow(min)
     let u: UInt64 = overflow ? (UInt64.max - UInt64(~s)) : UInt64(s)
     let rand = UInt64.random(max: u)
     return rand > maxInt64 ? Int64(rand - (UInt64(~min) + 1)) : (Int64(rand) + min)

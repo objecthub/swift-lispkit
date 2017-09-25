@@ -455,8 +455,8 @@ public final class Scanner {
     var i = maxDigits
     var res: Int64 = 0
     while i > 0 && isDigitForRadix(self.ch, 16) {
-      guard case (let x, false) = Int64.multiplyWithOverflow(res, 16),
-            case (let y, false) = Int64.addWithOverflow(x, Int64(digitVal(self.ch))) else {
+      guard case (let x, false) = res.multipliedReportingOverflow(by: 16),
+            case (let y, false) = x.addingReportingOverflow(Int64(digitVal(self.ch))) else {
         return nil
       }
       res = y
@@ -819,8 +819,8 @@ public final class Scanner {
     }
     var res: UInt16 = 0
     while isDigitForRadix(self.ch, 16) {
-      guard case (let x, false) = UInt16.multiplyWithOverflow(res, 16),
-            case (let y, false) = UInt16.addWithOverflow(x, UInt16(digitVal(self.ch))) else {
+      guard case (let x, false) = res.multipliedReportingOverflow(by: 16),
+            case (let y, false) = x.addingReportingOverflow(UInt16(digitVal(self.ch))) else {
         return nil
       }
       res = y
@@ -1099,7 +1099,7 @@ func digitVal(_ ch: UniChar) -> Int {
   }
 }
 
-// TODO: Figure out why this is required to be `public`.
+// TODO: Figure out why this is required to be `public` (even in Swift 4).
 // I made this public because otherwise, I'd get the following error if built as a dependency
 // via Carthage: global function 'unicodeScalar' is not '@_versioned' or public. Another
 // error I received was: global function 'unicodeScalar' is internal and cannot be referenced

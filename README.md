@@ -2,8 +2,8 @@
 ========================
 
 [![Platform: macOS](https://img.shields.io/badge/Platform-macOS-blue.svg?style=flat)](https://developer.apple.com/osx/)
-[![Language: Swift 3.1](https://img.shields.io/badge/Language-Swift%203.1-green.svg?style=flat)](https://developer.apple.com/swift/)
-[![IDE: Xcode 8.3](https://img.shields.io/badge/IDE-Xcode%208.3-orange.svg?style=flat)](https://developer.apple.com/xcode/)
+[![Language: Swift 4](https://img.shields.io/badge/Language-Swift%204.0-green.svg?style=flat)](https://developer.apple.com/swift/)
+[![IDE: Xcode 9](https://img.shields.io/badge/IDE-Xcode%209.0-orange.svg?style=flat)](https://developer.apple.com/xcode/)
 [![Carthage: compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![License: Apache](http://img.shields.io/badge/License-Apache-lightgrey.svg?style=flat)](https://raw.githubusercontent.com/objecthub/swift-lispkit/master/LICENSE)
 
@@ -138,8 +138,8 @@ scheme `LispKitRepl`:
 
 ## Requirements
 
-- XCode 8.3
+- XCode 9.0
 - [Carthage](https://github.com/Carthage/Carthage)
-- Swift 3.1
+- Swift 4.0
 - [NumberKit](http://github.com/objecthub/swift-numberkit)
 

@@ -25,8 +25,14 @@
 ///
 public final class ObjectPool<T: AnyObject>: Sequence, CustomStringConvertible {
   
+  /// Internal representation of a weak variable that can be recycled.
+  private struct WeakVariable {
+    var recycled: Bool
+    weak var obj: T?
+  }
+  
   /// Weak references to objects in the pool
-  private var references: [WeakVariable<T>]
+  private var references: [WeakVariable]
   
   /// A set of indices of free weak references
   private var free: [Int]
@@ -121,12 +127,3 @@ public final class ObjectPool<T: AnyObject>: Sequence, CustomStringConvertible {
   }
 }
 
-///
-/// Internal representation of a weak variable that can be recycled. This class is an
-/// implementation detail of `ObjectPool` and should ideally be nested in `ObjectPool`.
-/// Unfortunately, this is disallowed in Swift 3.
-///
-fileprivate struct WeakVariable<T: AnyObject> {
-  var recycled: Bool
-  weak var obj: T?
-}
