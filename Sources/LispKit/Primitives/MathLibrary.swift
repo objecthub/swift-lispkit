@@ -574,7 +574,7 @@ public final class MathLibrary: NativeLibrary {
         case .bignumPair(let lhs, let rhs):
           acc = .makeNumber(lhs + rhs)
         case .rationalPair(let lhs, let rhs):
-          let (res, overflow) = Rational.addWithOverflow(lhs, rhs)
+          let (res, overflow) = lhs.addingReportingOverflow(rhs)
           acc = overflow ? .makeNumber(Rational(BigInt(lhs.numerator), BigInt(lhs.denominator)) +
                                    Rational(BigInt(rhs.numerator), BigInt(rhs.denominator)))
                          : .makeNumber(res)
@@ -617,7 +617,7 @@ public final class MathLibrary: NativeLibrary {
         case .bignumPair(let lhs, let rhs):
           acc = .makeNumber(lhs - rhs)
         case .rationalPair(let lhs, let rhs):
-          let (res, overflow) = Rational.subtractWithOverflow(lhs, rhs)
+          let (res, overflow) = lhs.subtractingReportingOverflow(rhs)
           acc = overflow ? .makeNumber(Rational(BigInt(lhs.numerator), BigInt(lhs.denominator)) -
                                    Rational(BigInt(rhs.numerator), BigInt(rhs.denominator)))
                          : .makeNumber(res)
@@ -642,7 +642,7 @@ public final class MathLibrary: NativeLibrary {
         case .bignumPair(let lhs, let rhs):
           acc = .makeNumber(lhs * rhs)
         case .rationalPair(let lhs, let rhs):
-          let (res, overflow) = Rational.multiplyWithOverflow(lhs, rhs)
+          let (res, overflow) = lhs.multipliedReportingOverflow(by: rhs)
           acc = overflow ? .makeNumber(Rational(BigInt(lhs.numerator), BigInt(lhs.denominator)) *
                                    Rational(BigInt(rhs.numerator), BigInt(rhs.denominator)))
                          : .makeNumber(res)
@@ -700,7 +700,7 @@ public final class MathLibrary: NativeLibrary {
         case .bignumPair(let lhs, let rhs):
           acc = .makeNumber(Rational(lhs, rhs))
         case .rationalPair(let lhs, let rhs):
-          let (res, overflow) = Rational.divideWithOverflow(lhs, rhs)
+          let (res, overflow) = lhs.dividedReportingOverflow(by: rhs)
           acc = overflow ? .makeNumber(Rational(BigInt(lhs.numerator), BigInt(lhs.denominator)) /
                                    Rational(BigInt(rhs.numerator), BigInt(rhs.denominator)))
                          : .makeNumber(res)
@@ -829,7 +829,7 @@ public final class MathLibrary: NativeLibrary {
         return .makeNumber(num * num)
       case .rational(.fixnum(let n), .fixnum(let d)):
         let num = Rational(n, d)
-        let (res, overflow) = Rational.multiplyWithOverflow(num, num)
+        let (res, overflow) = num.multipliedReportingOverflow(by: num)
         return overflow ? .makeNumber(Rational(BigInt(n), BigInt(d)) *
                                       Rational(BigInt(n), BigInt(d)))
                         : .makeNumber(res)
@@ -1142,7 +1142,7 @@ public final class MathLibrary: NativeLibrary {
         case .bignumPair(let lhs, let rhs):
           acc = .makeNumber(Rational.gcd(lhs, rhs))
         case .rationalPair(let lhs, let rhs):
-          let (res, overflow) = Rational.gcdWithOverflow(lhs, rhs)
+          let (res, overflow) = lhs.gcdReportingOverflow(with: rhs)
           acc = overflow ?
               .makeNumber(Rational.gcd(Rational(BigInt(lhs.numerator), BigInt(lhs.denominator)),
                                    Rational(BigInt(rhs.numerator), BigInt(rhs.denominator))))
@@ -1170,7 +1170,7 @@ public final class MathLibrary: NativeLibrary {
         case .bignumPair(let lhs, let rhs):
           acc = .makeNumber(Rational.lcm(lhs, rhs))
         case .rationalPair(let lhs, let rhs):
-          let (res, overflow) = Rational.lcmWithOverflow(lhs, rhs)
+          let (res, overflow) = lhs.lcmReportingOverflow(with: rhs)
           acc = overflow ?
               .makeNumber(Rational.lcm(Rational(BigInt(lhs.numerator), BigInt(lhs.denominator)),
                                    Rational(BigInt(rhs.numerator), BigInt(rhs.denominator))))
