@@ -386,13 +386,13 @@
 		CC72862C1F52B2F600EEBC58 /* heap.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = heap.sld; sourceTree = "<group>"; };
 		CC750BD71F5AC68900CD82A2 /* PDF.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = PDF.scm; sourceTree = "<group>"; };
 		CC750BD91F5B772200CD82A2 /* prettify.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = prettify.sld; sourceTree = "<group>"; };
-		CC79DE031F883FED00CE7A5D /* 63.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 63.sld; sourceTree = "<group>"; };
-		CC79DE051F88D42600CE7A5D /* TypeLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypeLibrary.swift; sourceTree = "<group>"; };
+		CC79DE031F883FED00CE7A5D /* 63.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 63.sld; sourceTree = "<group>"; };
+		CC79DE051F88D42600CE7A5D /* TypeLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TypeLibrary.swift; sourceTree = "<group>"; };
 		CC79DE071F8993EE00CE7A5D /* LightweightTypes.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LightweightTypes.scm; sourceTree = "<group>"; };
 		CC7AAE6B1EC859E100B0F66C /* 121.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 121.sld; sourceTree = "<group>"; };
 		CC7AAE6D1EC8AEBE00B0F66C /* SRFI121.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SRFI121.scm; sourceTree = "<group>"; };
 		CC7AAE6F1EC9050B00B0F66C /* 134.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 134.sld; sourceTree = "<group>"; };
-		CC8169261D1FADE2003FADEA /* Ports.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Ports.scm; sourceTree = "<group>"; };
+		CC8169261D1FADE2003FADEA /* Ports.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Ports.scm; sourceTree = "<group>"; };
 		CC8213651D614A8600C1BE57 /* Records.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Records.scm; sourceTree = "<group>"; };
 		CC8218901E3FFFAB009CA653 /* SRFI19.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SRFI19.scm; sourceTree = "<group>"; };
 		CC882C911C9E93A600D20039 /* Timer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Timer.swift; sourceTree = "<group>"; };

@@ -419,6 +419,11 @@ public final class SystemLibrary: NativeLibrary {
   }
   
   private func environmentInfo() -> Expr {
+    context.console.print("OBJECT SIZES\n")
+    context.console.print("  atom size          : \(MemoryLayout<Expr>.size) bytes\n")
+    context.console.print("  atom stride size   : \(MemoryLayout<Expr>.stride) bytes\n")
+    context.console.print("  instr size         : \(MemoryLayout<Instruction>.size) bytes\n")
+    context.console.print("  instr stride size  : \(MemoryLayout<Instruction>.stride) bytes\n")
     context.console.print("MANAGED OBJECT POOL\n")
     context.console.print("  tracked objects    : \(self.context.objects.numTrackedObjects)\n")
     context.console.print("  tracked capacity   : \(self.context.objects.trackedObjectCapacity)\n")
