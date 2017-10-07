@@ -28,6 +28,7 @@ public struct LibraryRegistry {
     BoxLibrary.self,
     HashTableLibrary.self,
     DynamicControlLibrary.self,
+    TypeLibrary.self,
     MathLibrary.self,
     ListLibrary.self,
     VectorLibrary.self,

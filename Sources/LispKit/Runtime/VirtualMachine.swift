@@ -1020,20 +1020,27 @@ public final class VirtualMachine: TrackedObject {
             list = .pair(self.pop(), list)
           }
           self.push(.values(list))
-        case .unpack(let n):
+        case .unpack(let n, let overflow):
           switch self.top() {
             case .void:
               guard n == 0 else {
                 throw EvalError.multiValueCountError(expected: n, found: .null)
               }
               self.drop()
+              if overflow {
+                self.push(.null)
+              }
             case .values(let list):
               self.drop()
               var m = n
               var next = list
               while case .pair(let value, let rest) = next {
-                guard m > 0 else {
-                  throw EvalError.multiValueCountError(expected: n, found: list)
+                if m <= 0 {
+                  if overflow {
+                    break
+                  } else {
+                    throw EvalError.multiValueCountError(expected: n, found: list)
+                  }
                 }
                 self.push(value)
                 m -= 1
@@ -1042,8 +1049,17 @@ public final class VirtualMachine: TrackedObject {
               guard m == 0 else {
                 throw EvalError.multiValueCountError(expected: n, found: list)
               }
+              if overflow {
+                self.push(next)
+              }
             default:
-              guard n == 1 else {
+              if n == 1 {
+                if overflow {
+                  self.push(.null)
+                }
+              } else if n == 0 && overflow {
+                self.push(.pair(self.popUnsafe(), .null))
+              } else {
                 throw EvalError.multiValueCountError(expected: n, found: .pair(self.top(), .null))
               }
           }

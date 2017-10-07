@@ -16,7 +16,7 @@ Last update: 2017-09-03
 - [ ] Support tail patterns in `syntax-rules`
 - [ ] Within library definitions, support: `include`, `include-ci`,
       `include-library-declarations`, `cond-expand`
-- [ ] Support `define-values`
+- [X] Support `define-values`
 - [ ] Support `cond-expand`
 - [ ] Support `include-ci`
 - [ ] Support features mechanism
@@ -33,7 +33,7 @@ Last update: 2017-09-03
 - [X] Evaluate what it takes to support `call/cc`
 - [X] Implement full support for `call/cc`
 - [X] Implement full support for `dynamic-wind`
-- [ ] Register parameter hash map (incl. mutable parts of the data structure, if needed)
+- [X] Register parameter hash map (incl. mutable parts of the data structure, if needed)
       such that it's managed by the managed object pool
 
 

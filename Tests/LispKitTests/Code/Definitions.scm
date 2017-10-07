@@ -27,6 +27,18 @@
 )
 
 (
+  "Multiple simultaneous definitions"
+  ((0 1 2) ("hello") "hello" 0 1 0 1 () 0 1 (2 3))
+  (define-values a (values 0 1 2))
+  (define-values b "hello")
+  (define-values (c) "hello")
+  (define-values (d e) (values 0 1))
+  (define-values (f g . h) (values 0 1))
+  (define-values (i j . k) (values 0 1 2 3))
+  (list a b c d e f g h i j k)
+)
+
+(
   "Definitions via syntax rules"
   111
   (define-syntax declare

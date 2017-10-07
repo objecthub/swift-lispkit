@@ -52,6 +52,7 @@ public enum Expr: Trackable, Hashable {
   case special(SpecialForm)
   case env(Environment)
   case port(Port)
+  indirect case tagged(Expr, Expr)
   case error(AnyError)
   
   /// Returns the type of this expression.
@@ -111,6 +112,8 @@ public enum Expr: Trackable, Hashable {
         return .envType
       case .port(_):
         return .portType
+      case .tagged(_, _):
+       return .taggedType
       case .error(_):
         return .errorType
     }
@@ -274,6 +277,9 @@ public enum Expr: Trackable, Hashable {
         proc.mark(tag)
       case .special(let special):
         special.mark(tag)
+      case .tagged(let etag, let expr):
+        etag.mark(tag)
+        expr.mark(tag)
       case .error(_):
         break
       default:
@@ -680,7 +686,7 @@ extension Expr: CustomStringConvertible {
             return res
           } else {
             enclObjs.insert(cell)
-            let res = "#<box \(cell.identityString): \(stringReprOf(cell.value))>"
+            let res = "#<box \(stringReprOf(cell.value))>"
             enclObjs.remove(cell)
             return fixString(cell, res)
           }
@@ -689,8 +695,7 @@ extension Expr: CustomStringConvertible {
             return res
           } else {
             enclObjs.insert(tuple)
-            let res = "#<tuple \(tuple.identityString): " +
-                      "\(stringReprOf(tuple.fst)), \(stringReprOf(tuple.snd))>"
+            let res = "#<pair \(stringReprOf(tuple.fst)) \(stringReprOf(tuple.snd))>"
             enclObjs.remove(tuple)
             return fixString(tuple, res)
           }
@@ -809,6 +814,8 @@ extension Expr: CustomStringConvertible {
           return builder.description
         case .port(let port):
           return "#<\(port.typeDescription) \(port.identDescription)>"
+        case .tagged(let tag, let expr):
+          return "#<type \(stringReprOf(tag)): '(\(stringReprOf(expr))>"
         case .error(let error):
           return "#<\(error.description)>"
       }

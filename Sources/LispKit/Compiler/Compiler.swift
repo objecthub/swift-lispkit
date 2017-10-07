@@ -369,7 +369,7 @@ public final class Compiler {
         self.emit(.pushChar(char))
       case .symbol(_), .string(_), .bytes(_), .pair(_, _), .box(_), .mpair(_),
            .vector(_), .record(_), .table(_), .promise(_), .procedure(_), .env(_),
-           .port(_), .error(_):
+           .port(_), .tagged(_, _), .error(_):
         self.pushConstant(expr)
       case .special(_):
         throw EvalError.illegalKeywordUsage(expr)
@@ -775,10 +775,21 @@ public final class Compiler {
         syms.append(sym)
         vars = rest
       }
-      guard vars.isNull else {
-        throw EvalError.malformedBindings(binding, bindingList)
+      switch vars {
+        case .null:
+          self.emit(.unpack(syms.count, false))
+        case .symbol(let sym):
+          self.emit(.unpack(syms.count, true))
+          let binding = group.allocBindingFor(sym)
+          if binding.isValue {
+            self.emit(.setLocal(binding.index))
+          } else {
+            self.emit(.makeLocalVariable(binding.index))
+          }
+          prevIndex = binding.index
+        default:
+          throw EvalError.malformedBindings(binding, bindingList)
       }
-      self.emit(.unpack(syms.count))
       for sym in syms.reversed() {
         let binding = group.allocBindingFor(sym)
         guard binding.index > prevIndex else {

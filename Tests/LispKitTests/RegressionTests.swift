@@ -59,6 +59,10 @@ class RegressionTests: LispKitTestCase {
     self.execute(file: "DelayedEvaluation")
   }
   
+  func testLightweightTypes() {
+    self.execute(file: "LightweightTypes")
+  }
+  
   func testHashTables() {
     self.execute(file: "HashTables")
   }

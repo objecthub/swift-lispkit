@@ -99,8 +99,9 @@ public enum Instruction: CustomStringConvertible {
   case pack(Int)
   
   /// **`unpack` _n_**: Retrieves _n_ values from a multi-value expression and stores them on
-  /// the stack.
-  case unpack(Int)
+  /// the stack. If the boolean flag is true, all values beyond _n_ are pushed onto the stack
+  /// as a list.
+  case unpack(Int, Bool)
   
   
   // Functions --------------------------------------------------------------------------------

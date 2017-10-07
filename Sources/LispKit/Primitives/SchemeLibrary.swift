@@ -41,6 +41,7 @@ public final class SchemeLibrary: NativeLibrary {
     self.import(from: ListLibrary.name)
     self.import(from: HashTableLibrary.name)
     self.import(from: DynamicControlLibrary.name)
+    self.import(from: TypeLibrary.name)
     self.import(from: VectorLibrary.name)
     self.import(from: RecordLibrary.name)
     self.import(from: BytevectorLibrary.name)

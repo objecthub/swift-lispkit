@@ -47,6 +47,7 @@ public final class BaseLibrary: NativeLibrary {
     
     // Definition primitives
     self.define("define", as: SpecialForm(compileDefine))
+    self.define("define-values", as: SpecialForm(compileDefineValues))
     self.define("define-syntax", as: SpecialForm(compileDefineSyntax))
     self.define("define-library", as: SpecialForm(compileDefineLibrary))
     self.define("syntax-rules", as: SpecialForm(compileSyntaxRules))
@@ -374,6 +375,71 @@ public final class BaseLibrary: NativeLibrary {
         return false
       default:
         throw EvalError.malformedDefinition(.pair(sig, Expr.makeList(def)))
+    }
+  }
+  
+  func compileDefineValues(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    // Extract signature and definition
+    guard case .pair(_, .pair(let sig, .pair(let value, .null))) = expr else {
+      throw EvalError.leastArgumentCountError(formals: 2, args: expr)
+    }
+    // Check that define is not executed in a local environment
+    if case .local(let group) = env {
+      throw EvalError.defineInLocalEnv(signature: sig, definition: value, group: group)
+    }
+    // Compile definition and store result in global environment
+    switch sig {
+      case .null:
+        try compiler.compile(value, in: env, inTailPos: false)
+        compiler.emit(.unpack(0, false))
+        compiler.emit(.pushVoid)
+        return false
+      case .symbol(let sym):
+        let index = compiler.registerConstant(sig)
+        try compiler.compile(value, in: env, inTailPos: false)
+        compiler.emit(.unpack(0, true))
+        let loc = env.environment!.forceDefinedLocationRef(for: sym).location!
+        compiler.emit(.defineGlobal(loc))
+        compiler.emit(.pushConstant(index))
+        return false
+      case .pair(_, _):
+        try compiler.compile(value, in: env, inTailPos: false)
+        var vars = sig
+        var syms = [Symbol]()
+        while case .pair(.symbol(let sym), let rest) = vars {
+          if syms.contains(sym) {
+            throw EvalError.duplicateBinding(sym, sig)
+          }
+          syms.append(sym)
+          vars = rest
+        }
+        switch vars {
+          case .null:
+            compiler.emit(.unpack(syms.count, false))
+          case .symbol(let sym):
+            compiler.emit(.unpack(syms.count, true))
+            syms.append(sym)
+          default:
+            throw EvalError.malformedDefinition(.pair(sig, Expr.makeList(value)))
+        }
+        var res: Expr = .null
+        for sym in syms.reversed() {
+          let loc = env.environment!.forceDefinedLocationRef(for: sym).location!
+          compiler.emit(.defineGlobal(loc))
+          res = .pair(.symbol(sym), res)
+        }
+        if syms.count == 0 {
+          res = .void
+        } else if syms.count == 1 {
+          res = .symbol(syms.first!)
+        } else {
+          res = .values(res)
+        }
+        let index = compiler.registerConstant(res)
+        compiler.emit(.pushConstant(index))
+        return false
+      default:
+        throw EvalError.malformedDefinition(.pair(sig, Expr.makeList(value)))
     }
   }
   
