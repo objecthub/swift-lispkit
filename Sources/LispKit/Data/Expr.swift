@@ -814,8 +814,10 @@ extension Expr: CustomStringConvertible {
           return builder.description
         case .port(let port):
           return "#<\(port.typeDescription) \(port.identDescription)>"
+        case .tagged(.mpair(let tuple), let expr):
+          return "#\(stringReprOf(tuple.fst)):\(stringReprOf(expr))"
         case .tagged(let tag, let expr):
-          return "#<type \(stringReprOf(tag)): '(\(stringReprOf(expr))>"
+          return "#<tag \(stringReprOf(tag)): \(stringReprOf(expr))>"
         case .error(let error):
           return "#<\(error.description)>"
       }

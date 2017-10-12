@@ -146,6 +146,7 @@
 		CCDF99FC1D3D7A3100FD2A57 /* BoxLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDF99FB1D3D7A3100FD2A57 /* BoxLibrary.swift */; };
 		CCE0429E1C9E8C8B00CA7BC4 /* ManagedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE0429D1C9E8C8B00CA7BC4 /* ManagedObject.swift */; };
 		CCE2C47A1D9203DE0047E229 /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE2C4791D9203DE0047E229 /* Environment.swift */; };
+		CCE7CA461F8EC07000FD7ECA /* iteration.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCE7CA451F8D819600FD7ECA /* iteration.sld */; };
 		CCEFE6111ED80BBA00DFED9B /* 142.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCEFE6101ED804E900DFED9B /* 142.sld */; };
 		CCEFE6131ED8F43300DFED9B /* 133.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCEFE6121ED8F17700DFED9B /* 133.sld */; };
 		CCEFE6151ED8F56600DFED9B /* SRFI133.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCEFE6141ED8F55D00DFED9B /* SRFI133.scm */; };
@@ -227,6 +228,7 @@
 			dstPath = LispKit/Resources/Libraries/lispkit;
 			dstSubfolderSpec = 7;
 			files = (
+				CCE7CA461F8EC07000FD7ECA /* iteration.sld in Copy pre-installed LispKit libraries */,
 				CC2345411F655BD800C38817 /* datatype.sld in Copy pre-installed LispKit libraries */,
 				CC750BDA1F5B776700CD82A2 /* prettify.sld in Copy pre-installed LispKit libraries */,
 				CC10404D1F53789D0045144A /* pdf.sld in Copy pre-installed LispKit libraries */,
@@ -448,6 +450,7 @@
 		CCDF99FB1D3D7A3100FD2A57 /* BoxLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = BoxLibrary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CCE0429D1C9E8C8B00CA7BC4 /* ManagedObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManagedObject.swift; sourceTree = "<group>"; };
 		CCE2C4791D9203DE0047E229 /* Environment.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.swift; path = Environment.swift; sourceTree = "<group>"; tabWidth = 2; };
+		CCE7CA451F8D819600FD7ECA /* iteration.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = iteration.sld; sourceTree = "<group>"; };
 		CCEFE6101ED804E900DFED9B /* 142.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 142.sld; sourceTree = "<group>"; };
 		CCEFE6121ED8F17700DFED9B /* 133.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 133.sld; sourceTree = "<group>"; };
 		CCEFE6141ED8F55D00DFED9B /* SRFI133.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SRFI133.scm; sourceTree = "<group>"; };
@@ -565,6 +568,7 @@
 			children = (
 				CC2345401F655B8B00C38817 /* datatype.sld */,
 				CCD6C3E81F35F95D0002F7D4 /* enum.sld */,
+				CCE7CA451F8D819600FD7ECA /* iteration.sld */,
 				CC5848021E5691B300BE6497 /* set.sld */,
 				CC72862C1F52B2F600EEBC58 /* heap.sld */,
 				CC750BD91F5B772200CD82A2 /* prettify.sld */,

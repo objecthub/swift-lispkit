@@ -41,37 +41,23 @@
           (define-full-datatype type pred (c p ...) ...))
         ((_ type pred (c p ...) ...)
           (define-full-datatype type pred (c p ...) ...))))
-    
+
     (define-syntax define-full-datatype
       (syntax-rules ()
         ((_ type pred (c p ...) ...)
           (begin
-            (define-record-type type
-              (make constructor parameters)
-              pred
-              (constructor variant-constructor)
-              (parameters variant-parameters))
-            (make-variant make pred variant-constructor variant-parameters c p ...)
+            (define-values (make pred ref make-subtype) (make-type (quote type)))
+            (define (c . args)
+              (if (and (pair? args)
+                       (adt-selector? (car args))
+                       (pair? (cdr args))
+                       (null? (cddr args)))
+                  (if (and (pred (cadr args)) (eq? (quote c) (car (ref (cadr args)))))
+                      (cdr (ref (cadr args)))
+                      #f)
+                  (apply (lambda (p ...) (make (list (quote c) p ...))) args)))
             ...
             (void)))))
-    
-    (define-syntax make-variant
-      (syntax-rules ()
-        ((_ make pred vconstr vparams c p ...)
-          (begin
-            (define (variant p ...) (make variant (list p ...)))
-            (define c (variant-constructor pred vconstr vparams variant))))))
-    
-    (define (variant-constructor pred vconstr vparams variant)
-      (lambda args
-        (if (and (pair? args)
-                 (adt-selector? (car args))
-                 (pair? (cdr args))
-                 (null? (cddr args)))
-            (if (and (pred (cadr args)) (eq? variant (vconstr (cadr args))))
-                (vparams (cadr args))
-                #f)
-            (apply variant args))))
     
     ;; A special form for decomposing values of algebraic types via pattern matching.
     ;; A `match` construct takes a value `expr` to pattern match on, as well as a sequence
