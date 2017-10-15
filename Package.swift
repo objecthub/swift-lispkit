@@ -38,9 +38,12 @@ let package = Package(
     .package(url: "https://github.com/objecthub/swift-numberkit.git", from: "2.0.3")
   ],
   targets: [
-    .target(name: "LispKit", dependencies: ["NumberKit"]),
-    .target(name: "LispKitRepl", dependencies: ["LispKit"], exclude: [
-      "BuildMetadata.m", "BuildMetadata.h"]),
-    .testTarget(name: "LispKitTests", dependencies: ["LispKit"])
+    .target(name: "LispKit",
+            dependencies: ["NumberKit"]),
+    .target(name: "LispKitRepl",
+            dependencies: ["LispKit"],
+            exclude: ["BuildMetadata.m", "BuildMetadata.h"]),
+    .testTarget(name: "LispKitTests",
+                dependencies: ["LispKit"])
   ]
 )
