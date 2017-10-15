@@ -52,16 +52,13 @@ _LispKit_ is incompatible or incomplete with respect to the following R7RS featu
 
   - Lists are immutable. Mutable cons-cells are supported in a way similar to
     [Racket](https://racket-lang.org)
-  - R7RS's mechanism for declaring the features of the Scheme implementation is not yet
-    implemented; this includes the following functions: `features` and `cond-expand`
   - Error support is incomplete; the following functions are missing: `syntax-error`,
     `read-error?`, `file-error?`
   - `current-input-port`, `current-output-port`, and `current-error-port` are functions
     (as required by R5RS) and not parameter objects (as required by R7RS)
   - The R5RS-fallback mechanism for handling symbols in a case-insensitive manner is not
     implemented yet; this includes support for `include-ci`
-  - Libraries do not yet support: `include`, `include-ci`, `include-library-declarations`, and
-    `cond-expand`.
+  - Libraries do not yet support: `include`, `include-ci`, and `include-library-declarations`
   - Environment-support lacks the following functions: `scheme-report-environment`,
     `null-environment`.
   - No support for tail patterns in `syntax-rules`.
