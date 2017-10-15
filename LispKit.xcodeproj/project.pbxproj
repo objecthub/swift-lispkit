@@ -23,6 +23,9 @@
 		CC131C4E1CDE0DCA006C030C /* RegressionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC131C4D1CDE0DCA006C030C /* RegressionTests.swift */; };
 		CC131C501CDE0E01006C030C /* LispKitTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC131C4F1CDE0E01006C030C /* LispKitTestCase.swift */; };
 		CC131C521CDE840C006C030C /* LocalSyntaxRules.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC131C511CDE840C006C030C /* LocalSyntaxRules.scm */; };
+		CC14F4B01F939486000FB1E0 /* Features.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC14F4AF1F939486000FB1E0 /* Features.swift */; };
+		CC14F4B21F93A455000FB1E0 /* FeatureRequirement.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC14F4B11F93A455000FB1E0 /* FeatureRequirement.swift */; };
+		CC14F4B31F93AE04000FB1E0 /* AvlTrees.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC14F4AE1F9385BF000FB1E0 /* AvlTrees.scm */; };
 		CC1AAE3B1CC3CF0F00D1806F /* LispKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCAD52BA1C48403800DBD8EE /* LispKit.framework */; };
 		CC1AAE3C1CC3CF0F00D1806F /* LispKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CCAD52BA1C48403800DBD8EE /* LispKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CC201A6D1DBD72C100045A4D /* LibraryRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC201A6C1DBD72C100045A4D /* LibraryRegistry.swift */; };
@@ -201,6 +204,7 @@
 			dstPath = LispKit/Resources/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC14F4B31F93AE04000FB1E0 /* AvlTrees.scm in Copy examples */,
 				CC9EB1151F5C9DFF00697511 /* Topological.scm in Copy examples */,
 				CC750BD81F5AC71500CD82A2 /* PDF.scm in Copy examples */,
 				CCBDB73B1EDB7C63001606E2 /* Prolog.scm in Copy examples */,
@@ -322,6 +326,9 @@
 		CC131C4D1CDE0DCA006C030C /* RegressionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RegressionTests.swift; sourceTree = "<group>"; };
 		CC131C4F1CDE0E01006C030C /* LispKitTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = LispKitTestCase.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC131C511CDE840C006C030C /* LocalSyntaxRules.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LocalSyntaxRules.scm; sourceTree = "<group>"; };
+		CC14F4AE1F9385BF000FB1E0 /* AvlTrees.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = AvlTrees.scm; sourceTree = "<group>"; };
+		CC14F4AF1F939486000FB1E0 /* Features.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Features.swift; sourceTree = "<group>"; };
+		CC14F4B11F93A455000FB1E0 /* FeatureRequirement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureRequirement.swift; sourceTree = "<group>"; };
 		CC201A6C1DBD72C100045A4D /* LibraryRegistry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryRegistry.swift; sourceTree = "<group>"; };
 		CC2345401F655B8B00C38817 /* datatype.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = datatype.sld; sourceTree = "<group>"; };
 		CC2345421F655C0A00C38817 /* Datatypes.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Datatypes.scm; sourceTree = "<group>"; };
@@ -788,6 +795,8 @@
 				CCF982F61D998B8A00B22A1D /* ImportSet.swift */,
 				CC6A3B6F1C53F2CF00E962E2 /* SymbolTable.swift */,
 				CCAD52DE1C48468F00DBD8EE /* SyntaxRules.swift */,
+				CC14F4AF1F939486000FB1E0 /* Features.swift */,
+				CC14F4B11F93A455000FB1E0 /* FeatureRequirement.swift */,
 				CC5696761CBCFA9900F6803E /* Instruction.swift */,
 				CC0980A81C67E81C006B7FB1 /* Code.swift */,
 				CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */,
@@ -805,6 +814,7 @@
 				CC474EB01ED0390200B535E3 /* Queens.scm */,
 				CCBDB73A1EDB4AB3001606E2 /* Prolog.scm */,
 				CC9EB1141F5C9D4000697511 /* Topological.scm */,
+				CC14F4AE1F9385BF000FB1E0 /* AvlTrees.scm */,
 			);
 			path = Examples;
 			sourceTree = "<group>";
@@ -992,6 +1002,7 @@
 				CC5A47231C529D4A00EFCF76 /* BaseLibrary.swift in Sources */,
 				CC90500B1D36F52F008CE60A /* DynamicControlLibrary.swift in Sources */,
 				CCC531A01D18595500FAED6E /* TextOutputTarget.swift in Sources */,
+				CC14F4B01F939486000FB1E0 /* Features.swift in Sources */,
 				CC5A47211C5295E600EFCF76 /* NativeLibrary.swift in Sources */,
 				CC6A3B621C52ED7D00E962E2 /* CharacterLibrary.swift in Sources */,
 				CC4E2D371D09691000D77159 /* PortLibrary.swift in Sources */,
@@ -1015,6 +1026,7 @@
 				CCC5319E1D16E40D00FAED6E /* TextInputSource.swift in Sources */,
 				CCAD52F81C48474500DBD8EE /* Context.swift in Sources */,
 				CC050F141D017D3400D32132 /* BytevectorLibrary.swift in Sources */,
+				CC14F4B21F93A455000FB1E0 /* FeatureRequirement.swift in Sources */,
 				CC8EDE721D0727A4004E0636 /* ScanBuffer.swift in Sources */,
 				CC5696771CBCFA9900F6803E /* Instruction.swift in Sources */,
 				CCE0429E1C9E8C8B00CA7BC4 /* ManagedObject.swift in Sources */,

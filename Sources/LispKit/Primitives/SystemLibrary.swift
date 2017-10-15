@@ -90,6 +90,7 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("current-second", currentSecond))
     self.define(Procedure("current-jiffy", currentJiffy))
     self.define(Procedure("jiffies-per-second", jiffiesPerSecond))
+    self.define(Procedure("features", features))
   }
   
   private func filePath(expr: Expr, base: Expr?) throws -> Expr {
@@ -459,5 +460,13 @@ public final class SystemLibrary: NativeLibrary {
   
   private func jiffiesPerSecond() -> Expr {
     return .fixnum(1000)
+  }
+  
+  private func features() -> Expr {
+    var res: Expr = .null
+    for feature in Feature.supported {
+      res = .pair(.symbol(self.context.symbols.intern(feature.rawValue)), res)
+    }
+    return res
   }
 }

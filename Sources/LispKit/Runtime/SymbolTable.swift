@@ -56,6 +56,10 @@ public final class SymbolTable: Sequence {
   public let only            = Symbol("only")
   public let except          = Symbol("except")
   public let prefix          = Symbol("prefix")
+  public let library         = Symbol("library")
+  public let and             = Symbol("and")
+  public let or              = Symbol("or")
+  public let not             = Symbol("not")
   
   public init() {
     func register(_ sym: Symbol) {
@@ -89,6 +93,10 @@ public final class SymbolTable: Sequence {
     register(self.only)
     register(self.except)
     register(self.prefix)
+    register(self.library)
+    register(self.and)
+    register(self.or)
+    register(self.not)
   }
   
   public func exists(_ ident: String) -> Bool {
