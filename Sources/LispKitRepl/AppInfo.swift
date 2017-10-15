@@ -27,23 +27,41 @@ import Foundation
 public struct AppInfo {
   
   // Name of the application
-  public static let name = Bundle.main.infoDictionary!["CFBundleName"] as! String
+  public static let name =
+    (Bundle.main.infoDictionary?["CFBundleName"] as? String) ??
+    "LispKitRepl"
   
   // Version of the application
   public static let version =
-      Bundle.main.infoDictionary!["CFBundleShortVersionString"] as! String
+    (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String) ??
+    "1.2"
   
   // Copyright message
   public static let copyright =
-      Bundle.main.infoDictionary!["NSHumanReadableCopyright"] as! String
+    (Bundle.main.infoDictionary?["NSHumanReadableCopyright"] as? String) ??
+    "Copyright © 2017 Matthias Zenger. All rights reserved."
+  
+  #if SPM
+    public static let prompt = "> "
+  #else
+    public static let prompt = "⟹ "
+  #endif
   
   // Build date
-  public static let buildDate = { () -> String in
+  #if SPM
+    public static let buildDate = "2017"
+  #else
+    public static let buildDate = { () -> String in
       let dateFormatter = DateFormatter()
       dateFormatter.dateFormat = "yyyy-MM-dd"
       return dateFormatter.string(from: getBuildDate())
     }()
+  #endif
   
   // Build time
-  public static let buildTime = getBuildTime() ?? ""
+  #if SPM
+    public static let buildTime = "?"
+  #else
+    public static let buildTime = getBuildTime() ?? ""
+  #endif
 }

@@ -18,6 +18,8 @@
 //  limitations under the License.
 //
 
+import Foundation
+
 ///
 /// Hashtable library: based on R6RS spec.
 /// 

@@ -18,6 +18,8 @@
 //  limitations under the License.
 //
 
+import Foundation
+
 ///
 /// Bytevector library: based on R7RS spec.
 /// 

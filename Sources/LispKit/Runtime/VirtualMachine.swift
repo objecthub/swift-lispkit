@@ -18,7 +18,7 @@
 //  limitations under the License.
 //
 
-import Darwin
+import Foundation
 
 ///
 /// Class `VirtualMachine` implements a virtual stack machine for executing LispKit `Code`

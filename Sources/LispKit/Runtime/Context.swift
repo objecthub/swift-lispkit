@@ -18,6 +18,8 @@
 //  limitations under the License.
 //
 
+import Foundation
+
 ///
 /// Represents a Scheme evaluation context. Evaluation contexts provide
 /// access to components shared by all environments.

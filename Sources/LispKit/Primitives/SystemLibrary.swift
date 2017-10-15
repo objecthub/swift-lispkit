@@ -20,7 +20,6 @@
 
 import Foundation
 
-
 public final class SystemLibrary: NativeLibrary {
   
   /// Container for the current directory path parameter.

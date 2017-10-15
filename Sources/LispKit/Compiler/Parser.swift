@@ -18,6 +18,8 @@
 //  limitations under the License.
 //
 
+import Foundation
+
 /// 
 /// Implementation of a simple Lisp parser. The parser requires access to a scanner and
 /// a symbol table for creating `Symbol` objects.

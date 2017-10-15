@@ -53,7 +53,7 @@ console.print("\(AppInfo.copyright)\n")
 
 // Enter read-eval-print loop
 var buffer = ""
-console.print("⟹ ")
+console.print(AppInfo.prompt)
 while let line = console.read() {
   buffer += line
   let res = context.machine.onTopLevelDo {
@@ -85,6 +85,6 @@ while let line = console.read() {
     console.print("\(res.description)\n")
   }
   // Print prompt and empty buffer
-  console.print("⟹ ")
+  console.print(AppInfo.prompt)
   buffer = ""
 }

@@ -18,6 +18,8 @@
 //  limitations under the License.
 //
 
+import Foundation
+
 ///
 /// List library: based on R7RS spec, but with one big difference: cons cells are not
 /// mutable in LispKit. Thus, functionality for mutating and copying lists is missing.

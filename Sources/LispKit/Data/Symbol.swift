@@ -18,6 +18,8 @@
 //  limitations under the License.
 //
 
+import Foundation
+
 ///
 /// Class `Symbol` represents symbols. Symbols have reference semantics, i.e. two symbols
 /// are considered equal if they have the same identity. LispKit supports interned symbols and

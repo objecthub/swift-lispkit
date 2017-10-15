@@ -18,6 +18,7 @@
 //  limitations under the License.
 //
 
+import Foundation
 
 public final class CharacterLibrary: NativeLibrary {
   
