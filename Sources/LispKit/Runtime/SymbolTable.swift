@@ -60,6 +60,7 @@ public final class SymbolTable: Sequence {
   public let and             = Symbol("and")
   public let or              = Symbol("or")
   public let not             = Symbol("not")
+  public let condExpand      = Symbol("cond-expand")
   
   public init() {
     func register(_ sym: Symbol) {
@@ -97,6 +98,7 @@ public final class SymbolTable: Sequence {
     register(self.and)
     register(self.or)
     register(self.not)
+    register(self.condExpand)
   }
   
   public func exists(_ ident: String) -> Bool {

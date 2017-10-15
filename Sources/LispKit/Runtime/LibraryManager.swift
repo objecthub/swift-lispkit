@@ -84,8 +84,7 @@ public final class LibraryManager: TrackedObject, CustomStringConvertible {
         _ = try self.context.machine.eval(
                   file: self.context.fileHandler.libraryFilePath(forFile: filename) ?? filename,
                   in: self.context.global)
-      } catch let error {
-        Swift.print("error = \(error.localizedDescription)")
+      } catch {
         // TODO: figure out how to best propagate an error in such a case
         // ignore
       }

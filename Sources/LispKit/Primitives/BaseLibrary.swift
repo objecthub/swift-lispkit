@@ -81,6 +81,9 @@ public final class BaseLibrary: NativeLibrary {
     self.define("or", as: SpecialForm(compileOr))
     self.define(Procedure("not", not, compileNot))
     
+    // Conditional compilation
+    self.define("cond-expand", as: SpecialForm(compileCondExpand))
+    
     // Multiple values
     self.define(Procedure("values", values, compileValues))
     self.define(Procedure("apply-with-values", applyWithValues))
@@ -750,6 +753,35 @@ public final class BaseLibrary: NativeLibrary {
     }
     compiler.emit(.pushFalse)
     return false
+  }
+  
+  func compileCondExpand(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    // Extract expansion case list
+    guard  case .pair(_, let caseList) = expr else {
+      preconditionFailure()
+    }
+    var cases = caseList
+    // Iterate through all expansion cases
+    while case .pair(let cas, let rest) = cases {
+      switch cas {
+        case .pair(.symbol(compiler.context.symbols.else), let exprs):
+          guard rest == .null else {
+            throw EvalError.malformedCondExpandClause(cases)
+          }
+          return try compiler.compileSeq(exprs, in: env, inTailPos: tail, localDefine: false)
+        case .pair(let reqs, let exprs):
+          guard let featureReq = FeatureRequirement(reqs, in: compiler.context) else {
+            throw EvalError.malformedCondExpandClause(cas)
+          }
+          if featureReq.valid(in: compiler.context) {
+            return try compiler.compileSeq(exprs, in: env, inTailPos: tail, localDefine: false)
+          }
+        default:
+          throw EvalError.malformedCondExpandClause(cas)
+      }
+      cases = rest
+    }
+    return try compiler.compileSeq(.null, in: env, inTailPos: tail, localDefine: false)
   }
   
   //-------- MARK: - Multiple values

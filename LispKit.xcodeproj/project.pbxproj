@@ -326,7 +326,7 @@
 		CC131C4D1CDE0DCA006C030C /* RegressionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RegressionTests.swift; sourceTree = "<group>"; };
 		CC131C4F1CDE0E01006C030C /* LispKitTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = LispKitTestCase.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC131C511CDE840C006C030C /* LocalSyntaxRules.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LocalSyntaxRules.scm; sourceTree = "<group>"; };
-		CC14F4AE1F9385BF000FB1E0 /* AvlTrees.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = AvlTrees.scm; sourceTree = "<group>"; };
+		CC14F4AE1F9385BF000FB1E0 /* AvlTrees.scm */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = text; path = AvlTrees.scm; sourceTree = "<group>"; tabWidth = 2; };
 		CC14F4AF1F939486000FB1E0 /* Features.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Features.swift; sourceTree = "<group>"; };
 		CC14F4B11F93A455000FB1E0 /* FeatureRequirement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureRequirement.swift; sourceTree = "<group>"; };
 		CC201A6C1DBD72C100045A4D /* LibraryRegistry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryRegistry.swift; sourceTree = "<group>"; };

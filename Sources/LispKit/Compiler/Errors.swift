@@ -374,6 +374,7 @@ public enum EvalError: LispError, Hashable {
   case malformedBindings(Expr?, Expr)
   case malformedTest(Expr)
   case malformedCondClause(Expr)
+  case malformedCondExpandClause(Expr)
   case malformedCaseClause(Expr)
   case duplicateBinding(Symbol, Expr)
   case indexOutOfBounds(Int64, Int64, Expr)
@@ -462,6 +463,8 @@ public enum EvalError: LispError, Hashable {
         return "malformed test expression: \(expr)"
       case .malformedCondClause(let clause):
         return "malformed clause in cond form: \(clause)"
+      case .malformedCondExpandClause(let clause):
+        return "malformed clause in cond-expand form: \(clause)"
       case .malformedCaseClause(let clause):
         return "malformed clause in case form: \(clause)"
       case .duplicateBinding(let sym, let expr):
@@ -596,6 +599,8 @@ public enum EvalError: LispError, Hashable {
         case (.malformedTest(let expr1), .malformedTest(let expr2)):
           return expr1 == expr2
         case (.malformedCondClause(let clause1), .malformedCondClause(let clause2)):
+          return clause1 == clause2
+        case (.malformedCondExpandClause(let clause1), .malformedCondExpandClause(let clause2)):
           return clause1 == clause2
         case (.malformedCaseClause(let clause1), .malformedCaseClause(let clause2)):
           return clause1 == clause2

@@ -354,8 +354,18 @@ open class Library: Reference, Trackable, CustomStringConvertible {
   }
   
   private func parseLibraryDefinition(_ def: Expr) throws {
-    var decls = def
-    while case .pair(let decl, let next) = decls {
+    var decls = Exprs()
+    var defs = def
+    while case .pair(let decl, let next) = defs {
+      decls.append(decl)
+      defs = next
+    }
+    guard defs.isNull else {
+      throw EvalError.malformedLibraryDefinition(decls: defs)
+    }
+    var i = 0
+    while i < decls.count {
+      let decl = decls[i]
       switch decl {
         case .pair(.symbol(self.context.symbols.export), let spec):
           var exportList = spec
@@ -367,12 +377,12 @@ open class Library: Reference, Trackable, CustomStringConvertible {
                          .pair(.symbol(let intSym), .pair(.symbol(let extSym), .null))):
                 self.exportDecls[extSym] = .mutable(intSym)
               default:
-                throw EvalError.malformedLibraryDefinition(decls: decls)
+                throw EvalError.malformedLibraryDefinition(decls: decl)
             }
             exportList = next
           }
           guard exportList.isNull else {
-            throw EvalError.malformedLibraryDefinition(decls: decls)
+            throw EvalError.malformedLibraryDefinition(decls: decl)
           }
         case .pair(.symbol(self.context.symbols.exportImmutable), let spec):
           var exportList = spec
@@ -384,24 +394,24 @@ open class Library: Reference, Trackable, CustomStringConvertible {
                          .pair(.symbol(let intSym), .pair(.symbol(let extSym), .null))):
                 self.exportDecls[extSym] = .immutable(intSym)
               default:
-                throw EvalError.malformedLibraryDefinition(decls: decls)
+                throw EvalError.malformedLibraryDefinition(decls: decl)
             }
             exportList = next
           }
           guard exportList.isNull else {
-            throw EvalError.malformedLibraryDefinition(decls: decls)
+            throw EvalError.malformedLibraryDefinition(decls: decl)
           }
         case .pair(.symbol(self.context.symbols.`import`), let exprs):
           var importList = exprs
           while case .pair(let spec, let next) = importList {
             guard let importSet = ImportSet(spec, in: self.context) else {
-              throw EvalError.malformedLibraryDefinition(decls: decls)
+              throw EvalError.malformedLibraryDefinition(decls: decl)
             }
             importDecls.append(importSet)
             importList = next
           }
           guard importList.isNull else {
-            throw EvalError.malformedLibraryDefinition(decls: decls)
+            throw EvalError.malformedLibraryDefinition(decls: decl)
           }
         case .pair(.symbol(self.context.symbols.begin), let exprs):
           var initExprs = exprs
@@ -410,15 +420,56 @@ open class Library: Reference, Trackable, CustomStringConvertible {
             initExprs = next
           }
           guard initExprs.isNull else {
-            throw EvalError.malformedLibraryDefinition(decls: decls)
+            throw EvalError.malformedLibraryDefinition(decls: decl)
+          }
+        case .pair(.symbol(self.context.symbols.condExpand), let clauseList):
+          var clauses = clauseList
+          expand: while case .pair(let clause, let next) = clauses {
+            switch clause {
+              case .pair(.symbol(self.context.symbols.else), let exprs):
+                guard next == .null else {
+                  throw EvalError.malformedLibraryDefinition(decls: decl)
+                }
+                defs = exprs
+                var j = i
+                while case .pair(let decl, let next) = defs {
+                  j += 1
+                  decls.insert(decl, at: j)
+                  defs = next
+                }
+                guard defs.isNull else {
+                  throw EvalError.malformedLibraryDefinition(decls: defs)
+                }
+              case .pair(let reqs, let exprs):
+                guard let featureReq = FeatureRequirement(reqs, in: self.context) else {
+                  throw EvalError.malformedCondExpandClause(clause)
+                }
+                if featureReq.valid(in: self.context) {
+                  defs = exprs
+                  var j = i
+                  while case .pair(let decl, let next) = defs {
+                    j += 1
+                    decls.insert(decl, at: j)
+                    defs = next
+                  }
+                  guard defs.isNull else {
+                    throw EvalError.malformedLibraryDefinition(decls: defs)
+                  }
+                  clauses = .null
+                  break expand
+                }
+              default:
+                throw EvalError.malformedCondExpandClause(clause)
+            }
+            clauses = next
+          }
+          guard clauses.isNull else {
+            throw EvalError.malformedLibraryDefinition(decls: decl)
           }
         default:
-          throw EvalError.malformedLibraryDefinition(decls: decls)
+          throw EvalError.malformedLibraryDefinition(decls: decl)
       }
-      decls = next
-    }
-    guard decls.isNull else {
-      throw EvalError.malformedLibraryDefinition(decls: decls)
+      i += 1
     }
   }
   
