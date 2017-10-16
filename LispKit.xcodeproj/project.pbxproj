@@ -450,7 +450,7 @@
 		CCC937451C4F02AF00A5608F /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		CCC937471C4F02DF00A5608F /* CHANGELOG.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = CHANGELOG.md; sourceTree = "<group>"; };
 		CCC937491C4F031700A5608F /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		CCCAF92D1F941A43006692E9 /* Package.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; tabWidth = 2; };
+		CCCAF92D1F941A43006692E9 /* Package.swift */ = {isa = PBXFileReference; explicitFileType = sourcecode.swift; fileEncoding = 4; indentWidth = 2; path = Package.swift; sourceTree = "<group>"; tabWidth = 2; };
 		CCCEB3FE1DF2DAA9009BF66B /* FileHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileHandler.swift; sourceTree = "<group>"; };
 		CCD6C3E81F35F95D0002F7D4 /* enum.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = enum.sld; sourceTree = "<group>"; };
 		CCD81AD11CE75823009EB087 /* Checkpointer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Checkpointer.swift; sourceTree = "<group>"; };
