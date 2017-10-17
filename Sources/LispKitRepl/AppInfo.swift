@@ -27,9 +27,7 @@ import Foundation
 public struct AppInfo {
   
   // Name of the application
-  public static let name =
-    (Bundle.main.infoDictionary?["CFBundleName"] as? String) ??
-    "LispKitRepl"
+  public static let name = "LispKit Shell"
   
   // Version of the application
   public static let version =
@@ -47,21 +45,18 @@ public struct AppInfo {
     public static let prompt = "⟹ "
   #endif
   
-  // Build date
+  // Build date/time
   #if SPM
     public static let buildDate = "2017"
+    public static let buildTime = "?"
+    public static let buildAnnotation = ""
   #else
     public static let buildDate = { () -> String in
       let dateFormatter = DateFormatter()
       dateFormatter.dateFormat = "yyyy-MM-dd"
       return dateFormatter.string(from: getBuildDate())
     }()
-  #endif
-  
-  // Build time
-  #if SPM
-    public static let buildTime = "?"
-  #else
     public static let buildTime = getBuildTime() ?? ""
+    public static let buildAnnotation = " (\(AppInfo.buildDate) \(AppInfo.buildTime))"
   #endif
 }

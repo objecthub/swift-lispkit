@@ -128,23 +128,19 @@ public final class SystemLibrary: NativeLibrary {
     if args.count == 2 {
       environment = try args[args.startIndex + 1].asEnvironment()
     }
-    // Load file
-    let str = try String(contentsOfFile: filename, encoding: String.Encoding.utf8)
-    // Parse file and store parsed expressions in a list
-    let parser = Parser(symbols: self.context.symbols, src: str)
-    var exprs = Exprs()
-    while !parser.finished {
-      exprs.append(try parser.parse())
-    }
+    // Load file and parse expressions
+    let exprs = try self.context.machine.parse(file: filename)
+    let sourceDir = self.context.fileHandler.directory(filename)
     // Hand over work to `compileAndEvalFirst`
-    return (self.compileAndEvalFirstProc, [.makeList(exprs), .env(environment!)])
+    return (self.compileAndEvalFirstProc, [exprs, .makeString(sourceDir), .env(environment!)])
   }
   
   private func compileAndEvalFirst(args: Arguments) throws -> (Procedure, [Expr]) {
-    guard args.count == 2 else {
-      throw EvalError.argumentCountError(formals: 2, args: .makeList(args))
+    guard args.count == 3 else {
+      throw EvalError.argumentCountError(formals: 3, args: .makeList(args))
     }
-    let env = args[args.startIndex + 1]
+    let sourceDir = args[args.startIndex + 1]
+    let env = args[args.startIndex + 2]
     switch args.first! {
       case .null:
         return (BaseLibrary.voidProc, [])
@@ -155,11 +151,13 @@ public final class SystemLibrary: NativeLibrary {
                           .makeList(.symbol(Symbol(self.context.symbols.quote,
                                                    .global(self.context.environment))),
                                     rest),
+                          sourceDir,
                           env),
                 .null))
         let code = try Compiler.compile(expr: source,
                                         in: .global(try env.asEnvironment()),
-                                        optimize: true)
+                                        optimize: true,
+                                        inDirectory: try sourceDir.asString())
         return (Procedure(code), [])
       default:
         throw EvalError.typeError(args.first!, [.properListType])

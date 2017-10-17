@@ -207,7 +207,11 @@ open class NativeLibrary: Library {
   
   /// Adds the given expression to the initialization declarations of this library.
   public func execute(expr: Expr) {
-    self.initDecls.append(expr)
+    if let block = self.initDeclBlocks.last, block.sourceDirectory == nil {
+      block.decls.append(expr)
+    } else {
+      self.initDeclBlocks.append(DeclBlock(decls: [expr]))
+    }
   }
   
   /// Parses the given string and adds the resulting expression to the initialization

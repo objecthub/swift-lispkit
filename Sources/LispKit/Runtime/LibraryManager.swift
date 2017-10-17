@@ -92,8 +92,11 @@ public final class LibraryManager: TrackedObject, CustomStringConvertible {
   }
   
   /// Load library with the given name and library declarations.
-  public func load(name: Expr, declarations: Expr) throws {
-    let library = try Library(name: name, declarations: declarations, in: self.context)
+  public func load(name: Expr, declarations: Expr, origin: String) throws {
+    let library = try Library(name: name,
+                              declarations: declarations,
+                              origin: origin,
+                              in: self.context)
     self.libraries[name] = library
     self.context.delegate?.loaded(library: library, by: self)
   }

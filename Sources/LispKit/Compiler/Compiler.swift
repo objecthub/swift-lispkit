@@ -62,6 +62,9 @@ public final class Compiler {
   /// Instruction sequence
   private var instructions: [Instruction] = []
   
+  /// Directory of the current source file
+  internal var sourceDirectory: String
+  
   /// Parent compiler (needed since `Compiler` objects are nested, e.g. if nested
   /// functions get compiled)
   public var parent: Compiler? {
@@ -76,8 +79,9 @@ public final class Compiler {
     self.env = env
     self.rulesEnv = rulesEnv
     self.checkpointer = cp
-    self.captures = CaptureGroup(owner: self, parent: env.bindingGroup?.owner.captures)
     self.arguments = nil
+    self.sourceDirectory = env.environment!.context.fileHandler.currentDirectoryPath
+    self.captures = CaptureGroup(owner: self, parent: env.bindingGroup?.owner.captures)
   }
   
   /// Compiles the given expression `expr` in the environment `env` and the rules environment
@@ -87,11 +91,15 @@ public final class Compiler {
   public static func compile(expr: Expr,
                              in env: Env,
                              and rulesEnv: Env? = nil,
-                             optimize: Bool = false) throws -> Code {
+                             optimize: Bool = false,
+                             inDirectory: String? = nil) throws -> Code {
     let checkpointer = Checkpointer()
     var compiler = Compiler(in: env,
                             and: rulesEnv ?? env,
                             usingCheckpointer: checkpointer)
+    if let dir = inDirectory {
+      compiler.sourceDirectory = dir
+    }
     try compiler.compileBody(expr)
     if optimize {
       log(checkpointer.description)
@@ -99,6 +107,9 @@ public final class Compiler {
       compiler = Compiler(in: env,
                           and: rulesEnv ?? env,
                           usingCheckpointer: checkpointer)
+      if let dir = inDirectory {
+        compiler.sourceDirectory = dir
+      }
       try compiler.compileBody(expr)
       log(checkpointer.description)
     }
@@ -619,11 +630,20 @@ public final class Compiler {
   @discardableResult public func compileSeq(_ expr: Expr,
                                             in env: Env,
                                             inTailPos tail: Bool,
-                                            localDefine: Bool = true) throws -> Bool {
+                                            localDefine: Bool = true,
+                                            inDirectory: String? = nil) throws -> Bool {
     // Return void for empty sequences
     guard !expr.isNull else {
       self.emit(.pushVoid)
       return false
+    }
+    // Override the source directory if the code comes from a different file
+    var oldDir = self.sourceDirectory
+    if let dir = inDirectory {
+      self.sourceDirectory = dir
+    }
+    defer {
+      self.sourceDirectory = oldDir
     }
     // Partially expand expressions in the sequence
     var next = expr

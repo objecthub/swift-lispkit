@@ -287,22 +287,35 @@ public final class VirtualMachine: TrackedObject {
   public func eval(file path: String, in env: Env, optimize: Bool = true) throws -> Expr {
     return try self.eval(str: try String(contentsOfFile: path, encoding: String.Encoding.utf8),
                          in: env,
-                         optimize: optimize)
+                         optimize: optimize,
+                         inDirectory: self.context.fileHandler.directory(path))
   }
   
   /// Parses the given string, compiles it in the interaction environment, and executes it using
   /// this virtual machine.
-  public func eval(str: String, in env: Env, optimize: Bool = true) throws -> Expr {
-    return try self.eval(exprs: self.parse(str: str), in: env, optimize: optimize)
+  public func eval(str: String,
+                   in env: Env,
+                   optimize: Bool = true,
+                   inDirectory: String? = nil) throws -> Expr {
+    return try self.eval(exprs: self.parse(str: str),
+                         in: env,
+                         optimize: optimize,
+                         inDirectory: inDirectory)
   }
   
   /// Compiles the given list of expressions in the interaction environment and executes
   /// it using this virtual machine.
-  public func eval(exprs: Expr, in env: Env, optimize: Bool = true) throws -> Expr {
+  public func eval(exprs: Expr,
+                   in env: Env,
+                   optimize: Bool = true,
+                   inDirectory: String? = nil) throws -> Expr {
     var exprlist = exprs
     var res = Expr.void
     while case .pair(let expr, let rest) = exprlist {
-      let code = try Compiler.compile(expr: .makeList(expr), in: env, optimize: optimize)
+      let code = try Compiler.compile(expr: .makeList(expr),
+                                      in: env,
+                                      optimize: optimize,
+                                      inDirectory: inDirectory)
       log(code.description)
       res = try self.execute(code)
       exprlist = rest
@@ -315,18 +328,40 @@ public final class VirtualMachine: TrackedObject {
   
   /// Compiles the given expression in the interaction environment and executes it using this
   /// virtual machine.
-  public func eval(expr: Expr, in env: Env, optimize: Bool = true) throws -> Expr {
-    return try self.eval(exprs: .makeList(expr), in: env, optimize: optimize)
+  public func eval(expr: Expr,
+                   in env: Env,
+                   optimize: Bool = true,
+                   inDirectory: String? = nil) throws -> Expr {
+    return try self.eval(exprs: .makeList(expr),
+                         in: env,
+                         optimize: optimize,
+                         inDirectory: inDirectory)
+  }
+  
+  /// Parses the given file and returns a list of parsed expressions.
+  public func parse(file path: String) throws -> Expr {
+    return try self.parse(str: try String(contentsOfFile: path, encoding: String.Encoding.utf8))
   }
   
   /// Parses the given string and returns a list of parsed expressions.
   public func parse(str: String) throws -> Expr {
+    return .makeList(try self.parseExprs(str: str))
+  }
+  
+  /// Parses the given string and returns an array of parsed expressions.
+  public func parseExprs(file path: String) throws -> Exprs {
+    return try self.parseExprs(
+      str: try String(contentsOfFile: path, encoding: String.Encoding.utf8))
+  }
+  
+  /// Parses the given string and returns an array of parsed expressions.
+  public func parseExprs(str: String) throws -> Exprs {
     let parser = Parser(symbols: self.context.symbols, src: str)
     var exprs = Exprs()
     while !parser.finished {
       exprs.append(try parser.parse())
     }
-    return .makeList(exprs)
+    return exprs
   }
   
   /// Compiles the given expression `expr` in the environment `env` and executes it using
@@ -334,8 +369,13 @@ public final class VirtualMachine: TrackedObject {
   public func compileAndEval(expr: Expr,
                              in env: Env,
                              usingRulesEnv renv: Env? = nil,
-                             optimize: Bool = true) throws -> Expr {
-    let code = try Compiler.compile(expr: .makeList(expr), in: env, and: renv, optimize: optimize)
+                             optimize: Bool = true,
+                             inDirectory: String? = nil) throws -> Expr {
+    let code = try Compiler.compile(expr: .makeList(expr),
+                                    in: env,
+                                    and: renv,
+                                    optimize: optimize,
+                                    inDirectory: inDirectory)
     return try self.apply(.procedure(Procedure(code)), to: .null)
   }
   

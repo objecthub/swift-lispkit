@@ -156,6 +156,18 @@ open class Library: Reference, Trackable, CustomStringConvertible {
     }
   }
   
+  /// A block of initialization expressions coming from a file defined in the provided
+  /// source directory.
+  public final class DeclBlock {
+    let sourceDirectory: String?
+    var decls: Exprs
+    
+    init(decls: Exprs = [], inDirectory: String? = nil) {
+      self.sourceDirectory = inDirectory
+      self.decls = decls
+    }
+  }
+  
   /// The context in which this library is defined
   public unowned let context: Context
   
@@ -182,12 +194,13 @@ open class Library: Reference, Trackable, CustomStringConvertible {
   internal var importDecls: [ImportSet]
   
   /// Parsed initialization declarations
-  internal var initDecls: Exprs
+  internal var initDeclBlocks: [DeclBlock]
   
   /// State of the library
   public private(set) var state: State
   
-  /// Initialize a new library based on its definition
+  
+  /// Initialize a new empty library in the given context.
   internal init(name: Expr, in context: Context) throws {
     try Library.checkLibraryName(name)
     self.context = context
@@ -198,15 +211,19 @@ open class Library: Reference, Trackable, CustomStringConvertible {
     self.libraries = Set<Library>()
     self.exportDecls = [:]
     self.importDecls = []
-    self.initDecls = []
+    self.initDeclBlocks = []
     self.state = .loaded
     super.init()
   }
   
-  /// Initialize a new library based on its definition
-  internal convenience init(name: Expr, declarations: Expr, in context: Context) throws {
+  /// Initialize a new library based on its definition, its origin (the source directory),
+  /// and context.
+  internal convenience init(name: Expr,
+                            declarations: Expr,
+                            origin: String,
+                            in context: Context) throws {
     try self.init(name: name, in: context)
-    try self.parseLibraryDefinition(declarations)
+    try self.parseLibraryDefinition(declarations, inDirectory: origin)
   }
   
   /// Returns a sequence of exported symbols
@@ -330,8 +347,12 @@ open class Library: Reference, Trackable, CustomStringConvertible {
     }
     // Compile and run
     let env = Env(Environment(in: self.context, for: self))
-    for decl in self.initDecls {
-      _ = try self.context.machine.compileAndEval(expr: decl, in: env)
+    for block in self.initDeclBlocks {
+      for decl in block.decls {
+        _ = try self.context.machine.compileAndEval(expr: decl,
+                                                    in: env,
+                                                    inDirectory: block.sourceDirectory)
+      }
     }
     // TODO: Check that all exported declarations are initialized
     return true
@@ -353,19 +374,23 @@ open class Library: Reference, Trackable, CustomStringConvertible {
     }
   }
   
-  private func parseLibraryDefinition(_ def: Expr) throws {
-    var decls = Exprs()
+  private func parseLibraryDefinition(_ def: Expr, inDirectory: String?) throws {
+    // Array of all library definition statements. Each library definition statement consists
+    // of an optional source directory and an expression.
+    var decls: [(String?, Expr)]  = []
+    // Create initial library definition statements
     var defs = def
     while case .pair(let decl, let next) = defs {
-      decls.append(decl)
+      decls.append((inDirectory, decl))
       defs = next
     }
     guard defs.isNull else {
       throw EvalError.malformedLibraryDefinition(decls: defs)
     }
+    // Interpret the library definition statements
     var i = 0
     while i < decls.count {
-      let decl = decls[i]
+      let (sourceDirectory, decl) = decls[i]
       switch decl {
         case .pair(.symbol(self.context.symbols.export), let spec):
           var exportList = spec
@@ -414,12 +439,52 @@ open class Library: Reference, Trackable, CustomStringConvertible {
             throw EvalError.malformedLibraryDefinition(decls: decl)
           }
         case .pair(.symbol(self.context.symbols.begin), let exprs):
+          let block = DeclBlock(inDirectory: inDirectory)
           var initExprs = exprs
           while case .pair(let initExpr, let next) = initExprs {
-            initDecls.append(initExpr)
+            block.decls.append(initExpr)
             initExprs = next
           }
           guard initExprs.isNull else {
+            throw EvalError.malformedLibraryDefinition(decls: decl)
+          }
+          if block.decls.count > 0 {
+            self.initDeclBlocks.append(block)
+          }
+        case .pair(.symbol(self.context.symbols.include), let filenameList):
+          var filenames = filenameList
+          while case .pair(let filename, let next) = filenames {
+            let str = try filename.asPath()
+            let resolvedName =
+              self.context.fileHandler.filePath(forFile: str, relativeTo: inDirectory) ??
+              self.context.fileHandler.path(str, relativeTo: inDirectory)
+            let exprs = try self.context.machine.parseExprs(file: resolvedName)
+            if exprs.count > 0 {
+              let sourceDirectory = self.context.fileHandler.directory(resolvedName)
+              self.initDeclBlocks.append(DeclBlock(decls: exprs, inDirectory: sourceDirectory))
+            }
+            filenames = next
+          }
+          guard filenames.isNull else {
+            throw EvalError.malformedLibraryDefinition(decls: decl)
+          }
+        case .pair(.symbol(self.context.symbols.includeLibDecls), let filenameList):
+          var filenames = filenameList
+          while case .pair(let filename, let next) = filenames {
+            let str = try filename.asPath()
+            let resolvedName =
+              self.context.fileHandler.filePath(forFile: str, relativeTo: inDirectory) ??
+              self.context.fileHandler.path(str, relativeTo: inDirectory)
+            let exprs = try self.context.machine.parseExprs(file: resolvedName)
+            let sourceDirectory = self.context.fileHandler.directory(resolvedName)
+            var j = i
+            for expr in exprs {
+              j += 1
+              decls.insert((sourceDirectory, expr), at: j)
+            }
+            filenames = next
+          }
+          guard filenames.isNull else {
             throw EvalError.malformedLibraryDefinition(decls: decl)
           }
         case .pair(.symbol(self.context.symbols.condExpand), let clauseList):
@@ -434,7 +499,7 @@ open class Library: Reference, Trackable, CustomStringConvertible {
                 var j = i
                 while case .pair(let decl, let next) = defs {
                   j += 1
-                  decls.insert(decl, at: j)
+                  decls.insert((sourceDirectory, decl), at: j)
                   defs = next
                 }
                 guard defs.isNull else {
@@ -449,7 +514,7 @@ open class Library: Reference, Trackable, CustomStringConvertible {
                   var j = i
                   while case .pair(let decl, let next) = defs {
                     j += 1
-                    decls.insert(decl, at: j)
+                    decls.insert((sourceDirectory, decl), at: j)
                     defs = next
                   }
                   guard defs.isNull else {
@@ -490,8 +555,10 @@ open class Library: Reference, Trackable, CustomStringConvertible {
   /// Libraries do not mark other referenced libraries; this is assuming that all libraries
   /// are tracked individually. Only the initializing declarations need to be marked.
   public func mark(_ tag: UInt8) {
-    for i in self.initDecls.indices {
-      self.initDecls[i].mark(tag)
+    for block in self.initDeclBlocks {
+      for i in block.decls.indices {
+        block.decls[i].mark(tag)
+      }
     }
   }
   

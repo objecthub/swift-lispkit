@@ -9,7 +9,6 @@
 //  A release can be built with these options:
 //  swift build -c release -Xswiftc -static-stdlib -Xswiftc "-target" -Xswiftc "x86_64-apple-macosx10.11" -Xswiftc "-D" -Xswiftc "SPM"
 //
-//
 //  Created by Matthias Zenger on 16/10/2017.
 //  Copyright © 2017 ObjectHub. All rights reserved.
 //

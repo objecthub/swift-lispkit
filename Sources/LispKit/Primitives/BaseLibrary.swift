@@ -82,8 +82,9 @@ public final class BaseLibrary: NativeLibrary {
     self.define("or", as: SpecialForm(compileOr))
     self.define(Procedure("not", not, compileNot))
     
-    // Conditional compilation
+    // Conditional compilation & inclusion compilation
     self.define("cond-expand", as: SpecialForm(compileCondExpand))
+    self.define("include", as: SpecialForm(include))
     
     // Multiple values
     self.define(Procedure("values", values, compileValues))
@@ -474,7 +475,9 @@ public final class BaseLibrary: NativeLibrary {
     guard case .pair(_, .pair(let name, let decls)) = expr else {
       throw EvalError.leastArgumentCountError(formals: 1, args: expr)
     }
-    try compiler.context.libraries.load(name: name, declarations: decls)
+    try compiler.context.libraries.load(name: name,
+                                        declarations: decls,
+                                        origin: compiler.sourceDirectory)
     compiler.emit(.pushVoid)
     return false
   }
@@ -781,6 +784,30 @@ public final class BaseLibrary: NativeLibrary {
           throw EvalError.malformedCondExpandClause(cas)
       }
       cases = rest
+    }
+    return try compiler.compileSeq(.null, in: env, inTailPos: tail, localDefine: false)
+  }
+  
+  func include(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    guard  case .pair(_, let filenameList) = expr else {
+      preconditionFailure()
+    }
+    var filenames = filenameList
+    while case .pair(let filename, let rest) = filenames {
+      let str = try filename.asPath()
+      let resolvedName =
+        self.context.fileHandler.filePath(forFile: str, relativeTo: compiler.sourceDirectory) ??
+        self.context.fileHandler.path(str, relativeTo: compiler.sourceDirectory)
+      let exprs = try self.context.machine.parse(file: resolvedName)
+      try compiler.compileSeq(exprs,
+                              in: env,
+                              inTailPos: false,
+                              localDefine: false,
+                              inDirectory: self.context.fileHandler.directory(resolvedName))
+      filenames = rest
+    }
+    guard filenames.isNull else {
+      throw EvalError.malformedArgumentList(filenameList)
     }
     return try compiler.compileSeq(.null, in: env, inTailPos: tail, localDefine: false)
   }

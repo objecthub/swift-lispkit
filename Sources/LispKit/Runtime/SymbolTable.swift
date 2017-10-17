@@ -61,6 +61,8 @@ public final class SymbolTable: Sequence {
   public let or              = Symbol("or")
   public let not             = Symbol("not")
   public let condExpand      = Symbol("cond-expand")
+  public let include         = Symbol("include")
+  public let includeLibDecls = Symbol("include-library-declarations")
   
   public init() {
     func register(_ sym: Symbol) {
@@ -99,6 +101,8 @@ public final class SymbolTable: Sequence {
     register(self.or)
     register(self.not)
     register(self.condExpand)
+    register(self.include)
+    register(self.includeLibDecls)
   }
   
   public func exists(_ ident: String) -> Bool {

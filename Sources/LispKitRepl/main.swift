@@ -48,7 +48,7 @@ if let dynamicLib = context.libraries.lookup("lispkit", "dynamic") as? DynamicCo
 }
 
 // Print header
-console.print("\(AppInfo.name) \(AppInfo.version) (\(AppInfo.buildDate) \(AppInfo.buildTime))\n")
+console.print("\(AppInfo.name) \(AppInfo.version)\(AppInfo.buildAnnotation)\n")
 console.print("\(AppInfo.copyright)\n")
 
 // Enter read-eval-print loop
