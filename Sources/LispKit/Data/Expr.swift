@@ -256,35 +256,46 @@ public enum Expr: Trackable, Hashable {
   }
   
   public func mark(_ tag: UInt8) {
-    switch self {
-      case .pair(let car, let cdr):
-        car.mark(tag)
-        cdr.mark(tag)
-      case .box(let cell):
-        cell.mark(tag)
-      case .mpair(let tuple):
-        tuple.mark(tag)
-      case .vector(let vector):
-        vector.mark(tag)
-      case .record(let record):
-        record.mark(tag)
-      case .table(let map):
-        map.mark(tag)
-      case .promise(let future):
-        future.mark(tag)
-      case .values(let list):
-        list.mark(tag)
-      case .procedure(let proc):
-        proc.mark(tag)
-      case .special(let special):
-        special.mark(tag)
-      case .tagged(let etag, let expr):
-        etag.mark(tag)
-        expr.mark(tag)
-      case .error(_):
-        break
-      default:
-        break
+    var expr = self
+    while true {
+      switch expr {
+        case .pair(let car, let cdr):
+          car.mark(tag)
+          expr = cdr
+        case .box(let cell):
+          cell.mark(tag)
+          return
+        case .mpair(let tuple):
+          tuple.mark(tag)
+          return
+        case .vector(let vector):
+          vector.mark(tag)
+          return
+        case .record(let record):
+          record.mark(tag)
+          return
+        case .table(let map):
+          map.mark(tag)
+          return
+        case .promise(let future):
+          future.mark(tag)
+          return
+        case .values(let list):
+          expr = list
+        case .procedure(let proc):
+          proc.mark(tag)
+          return
+        case .special(let special):
+          special.mark(tag)
+          return
+        case .tagged(let etag, let data):
+          etag.mark(tag)
+          expr = data
+        case .error(_):
+          return
+        default:
+          return
+      }
     }
   }
   
