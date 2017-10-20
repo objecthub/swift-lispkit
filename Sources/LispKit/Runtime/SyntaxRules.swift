@@ -89,10 +89,16 @@ public final class SyntaxRules {
         var inp = input
         while case .pair(let token, let rest) = pat {
           if token != self.ellipsis {
-            if case .pair(self.ellipsis, _) = rest {
+            if case .pair(self.ellipsis, let tail) = rest {
+              // Register variable
               matches.register(self.variables(in: token), at: depth + 1)
+              // Determine maximum number of matches
+              var maxMatchCount = inp.length - tail.length
+              // Match input
               while case .pair(let car, let cdr) = inp,
+                    maxMatchCount > 0,
                     self.match(token, with: car, in: matches, at: depth + 1) {
+                maxMatchCount -= 1
                 inp = cdr
               }
             } else if case .pair(let car, let cdr) = inp,
@@ -115,9 +121,16 @@ public final class SyntaxRules {
           if token != self.ellipsis {
             if patIndex < patVector.exprs.count - 1 &&
                patVector.exprs[patIndex + 1] == self.ellipsis {
+              // Register variable
               matches.register(self.variables(in: token), at: depth + 1)
-              while inpIndex < inpVector.exprs.count &&
+              // Determine maximum number of matches
+              var maxMatchCount = (inpVector.exprs.count - inpIndex) -
+                                  (patVector.exprs.count - patIndex - 2)
+              // Match input
+              while inpIndex < inpVector.exprs.count,
+                    maxMatchCount > 0,
                     self.match(token, with: inpVector.exprs[inpIndex], in: matches, at: depth + 1) {
+                maxMatchCount -= 1
                 inpIndex += 1
               }
             } else if inpIndex < inpVector.exprs.count &&

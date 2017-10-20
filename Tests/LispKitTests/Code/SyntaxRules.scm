@@ -89,6 +89,21 @@
 )
 
 (
+  "Tail pattern 1"
+  (((1 3 5) (2 4 6) 7 (8 9)) ((1 3) (2 4) (5 6) ()))
+  (define-syntax tpat1
+    (syntax-rules () ((_ (a b) ... x . y) (list (list a ...) (list b ...) 'x 'y))))
+  (list (tpat1 (1 2) (3 4) (5 6) 7 8 9) (tpat1 (1 2) (3 4) (5 6)))
+)
+
+(
+  "Tail pattern 2"
+  (6 5 1 2 3 4)
+  (define-syntax tpat2 (syntax-rules () ((_ x ... y z) (list z y x ...))))
+  (tpat2 1 2 3 4 5 6)
+)
+
+(
   "Cond1"
   100
   (define-syntax cond1

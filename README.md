@@ -46,7 +46,7 @@ _LispKit_ provides support for the following core features, many of which are ba
   - [R6RS](http://www.r6rs.org)-compliant hashtables
   - [R6RS](http://www.r6rs.org)-compliant enumerations
   - LispKit-specific libraries: `(lispkit datatype)`, `(lispkit iteration)`, `(lispkit set)`, `(lispkit heap)`,
-    `(lispkit prettify)`, and `(lispkit pdf)`
+    `(lispkit prettify)`, `(lispkit json)`, and `(lispkit pdf)`
 
 _LispKit_ is incompatible or incomplete with respect to the following R7RS features:
 
@@ -61,7 +61,6 @@ _LispKit_ is incompatible or incomplete with respect to the following R7RS featu
     in library definitions.
   - Environment-support lacks the following functions: `scheme-report-environment`,
     `null-environment`.
-  - No support for tail patterns in `syntax-rules`.
   - Datum comments introduced via `#;` do not always work as expected.
 
 The following standard libraries have been ported to _LispKit_ and are included in the
@@ -98,10 +97,10 @@ stack-based, handles tail calls and continuations, and provides a garbage collec
 
 Details can be found in the [LispKit Wiki](https://github.com/objecthub/swift-lispkit/wiki).
 
-The project provides a read-eval-print loop. This is a command-line tool that can be used
-to try out and experiment with the framework. The read-eval-print parses
-the entered _LispKit_ expression, compiles it to bytecode, executes it, and
-displays the result.
+The project provides a read-eval-print loop in form of a command-line tool.
+This command-line tool that can be used to try out and experiment with the
+framework. The read-eval-print loop parses the entered _LispKit_ expression,
+compiles it to bytecode, executes it, and displays the result.
 
 
 ## Building and running the read-eval-print loop
@@ -119,7 +118,9 @@ Receiving objects: 100% (1849/1849), 689.43 KiB | 666.00 KiB/s, done.
 Resolving deltas: 100% (1430/1430), done.
 ```
 
-Next, fetch dependencies and build them from scratch via `carthage`:
+### Running the read-eval-print loop in Xcode
+
+Fetch dependencies and build them from scratch via `carthage`:
 ```sh
 > cd swift-lispkit
 > carthage bootstrap
@@ -134,10 +135,37 @@ scheme `LispKitRepl`:
 > open LispKit.xcodeproj
 ```
 
+### Compiling the read-eval-print loop with the Swift Package Manager
+
+A debug binary can be built in the following way:
+```sh
+> cd swift-lispkit
+> swift build -Xswiftc "-target" -Xswiftc "x86_64-apple-macosx10.11" \
+  -Xswiftc "-D" -Xswiftc "SPM"
+Compile Swift Module 'NumberKit' (6 sources)
+Compile Swift Module 'LispKit' (75 sources)
+Compile Swift Module 'LispKitRepl' (2 sources)
+Linking ./.build/x86_64-apple-macosx10.10/debug/LispKitRepl
+```
+
+A release binary can be built like this:
+```sh
+> cd swift-lispkit
+> swift build -c release -Xswiftc -static-stdlib -Xswiftc "-target" \
+  -Xswiftc "x86_64-apple-macosx10.11" -Xswiftc "-D" -Xswiftc "SPM"
+Compile Swift Module 'NumberKit' (6 sources)
+Compile Swift Module 'LispKit' (75 sources)
+Compile Swift Module 'LispKitRepl' (2 sources)
+Linking ./.build/x86_64-apple-macosx10.10/release/LispKitRepl
+```
+
+
 ## Requirements
 
-- XCode 9.0
+The read-eval-print loop can be built using the Swift Package Manager. Nevertheless, it is
+recommended to use Xcode 9 in combination with Carthage:
+
+- Xcode 9.0
 - [Carthage](https://github.com/Carthage/Carthage)
 - Swift 4.0
 - [NumberKit](http://github.com/objecthub/swift-numberkit)
-

@@ -506,7 +506,7 @@ public final class BaseLibrary: NativeLibrary {
       guard case .pair(_, let pat) = car else {
         throw EvalError.malformedSyntaxRulePattern(error: nil, pattern: car)
       }
-      if let errExpr = checkPattern(car) {
+      if let errExpr = check(pattern: car, ellipsis: ellipsis ?? self.context.symbols.ellipsis) {
         throw EvalError.malformedSyntaxRulePattern(error: errExpr, pattern: car)
       }
       patterns.append(pat)
@@ -535,24 +535,39 @@ public final class BaseLibrary: NativeLibrary {
     return false
   }
   
-  func checkPattern(_ expr: Expr) -> Expr? {
+  private func check(pattern: Expr, ellipsis: Symbol) -> Expr? {
+    var expr = pattern
+    var ellipsisFound = false
+    var first = true
+    while case .pair(let car, let cdr) = expr {
+      if case .symbol(ellipsis) = car {
+        if ellipsisFound || first {
+          return pattern
+        }
+        ellipsisFound = true
+      } else if let errExpr = self.check(pattern: car, ellipsis: ellipsis) {
+        return errExpr
+      }
+      first = false
+      expr = cdr
+    }
     switch expr {
       case .eof, .null, .true, .false, .symbol(_), .string(_), .char(_),
            .fixnum(_), .bignum(_), .rational(_, _), .flonum(_), .complex(_):
         return nil
-      case .pair(let car, let cdr):
-        if let errExpr = checkPattern(car) {
-          return errExpr
-        } else if let errExpr = checkPattern(cdr) {
-          return errExpr
-        } else {
-          return nil
-        }
       case .vector(let vector):
+        ellipsisFound = false
+        first = true
         for pat in vector.exprs {
-          if let errExpr = checkPattern(pat) {
+          if case .symbol(ellipsis) = pat {
+            if ellipsisFound || first {
+              return expr
+            }
+            ellipsisFound = true
+          } else if let errExpr = check(pattern: pat, ellipsis: ellipsis) {
             return errExpr
           }
+          first = false
         }
         return nil
       default:
