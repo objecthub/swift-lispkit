@@ -97,6 +97,9 @@ public final class BaseLibrary: NativeLibrary {
     self.define(Procedure("environment", environment))
     self.define(Procedure("interaction-environment", interactionEnvironment))
     
+    // Syntax errors
+    self.define("syntax-error", as: SpecialForm(compileSyntaxError))
+    
     // Helpers
     self.define(Procedure("void", BaseLibrary.voidConst))
     self.define(Procedure("void?", BaseLibrary.isVoid))
@@ -908,6 +911,17 @@ public final class BaseLibrary: NativeLibrary {
   
   func interactionEnvironment() -> Expr {
     return Expr.env(self.context.environment)
+  }
+  
+  //-------- MARK: - Syntax errors
+  
+  func compileSyntaxError(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    guard case .pair(_, .pair(let message, let irritants)) = expr else {
+      throw EvalError.argumentCountError(formals: 1, args: expr)
+    }
+    throw CustomError(kind: "syntax error",
+                      message: message.unescapedDescription,
+                      irritants: irritants.toExprs().0)
   }
   
   

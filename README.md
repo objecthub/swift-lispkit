@@ -52,8 +52,7 @@ _LispKit_ is incompatible or incomplete with respect to the following R7RS featu
 
   - Lists are immutable. Mutable cons-cells are supported in a way similar to
     [Racket](https://racket-lang.org)
-  - Error support is incomplete; the following functions are missing: `syntax-error`,
-    `read-error?`, `file-error?`
+  - Error support is incomplete; the following functions are missing: `read-error?`, `file-error?`
   - `current-input-port`, `current-output-port`, and `current-error-port` are functions
     (as required by R5RS) and not parameter objects (as required by R7RS)
   - The R5RS-fallback mechanism for handling symbols in a case-insensitive manner is not
