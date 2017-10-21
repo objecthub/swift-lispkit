@@ -78,6 +78,7 @@ public final class BaseLibrary: NativeLibrary {
     
     // Boolean primitives
     self.define(Procedure("boolean?", isBoolean))
+    self.define(Procedure("boolean=?", isBooleanEq))
     self.define("and", as: SpecialForm(compileAnd))
     self.define("or", as: SpecialForm(compileOr))
     self.define(Procedure("not", not, compileNot))
@@ -707,6 +708,45 @@ public final class BaseLibrary: NativeLibrary {
       default:
         return .false
     }
+  }
+  
+  func isBooleanEq(_ expr1: Expr, _ expr2: Expr, args: Arguments) throws -> Expr {
+    var fst: Bool
+    switch expr1 {
+      case .true:
+        fst = true
+      case .false:
+        fst = false
+      default:
+        throw EvalError.typeError(expr1, [.booleanType])
+    }
+    switch expr2 {
+      case .true:
+        guard fst else {
+          return .false
+        }
+      case .false:
+        guard !fst else {
+          return .false
+        }
+      default:
+        throw EvalError.typeError(expr1, [.booleanType])
+    }
+    for arg in args {
+      switch arg {
+        case .true:
+          guard fst else {
+            return .false
+          }
+        case .false:
+          guard !fst else {
+            return .false
+          }
+        default:
+          throw EvalError.typeError(expr1, [.booleanType])
+      }
+    }
+    return .true
   }
   
   func not(expr: Expr) -> Expr {
