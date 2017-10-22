@@ -26,6 +26,12 @@ import Foundation
 ///
 public final class Context {
   
+  /// The name of the LispKit interpreter which is defined by this context.
+  public let implementationName: String?
+  
+  /// Version of the LispKit interpreter which is defined by this context.
+  public let implementationVersion: String?
+  
   /// A delegate object which receives updates related to the virtual machine managed by
   /// this context. The virtual machine also delegates some functionality to this object.
   public var delegate: ContextDelegate?
@@ -79,12 +85,20 @@ public final class Context {
                                                               inDirectory: "LispKit/Resources")
   
   /// Initializes a new object
-  public init(console: Console, delegate: ContextDelegate? = nil) {
+  public init(console: Console,
+              implementationName: String? = nil,
+              implementationVersion: String? = nil,
+              includeInternalResources: Bool = true,
+              includeDocumentPath: String? = "LispKit",
+              delegate: ContextDelegate? = nil) {
     // Initialize components
     self.delegate = delegate
+    self.implementationName = implementationName ?? Context.implementationName
+    self.implementationVersion = implementationVersion ?? Context.implementationVersion
     self.console = console
     self.heap = Heap()
-    self.fileHandler = FileHandler()
+    self.fileHandler = FileHandler(includeInternalResources: includeInternalResources,
+                                   includeDocumentPath: includeDocumentPath)
     self.objects = ManagedObjectPool()
     self.symbols = SymbolTable()
     self.inputPort = Port(input: TextInput(source: console))
@@ -107,7 +121,7 @@ public final class Context {
     }
   }
   
-  /// Returns the global environment of this context
+  /// Returns the global environment of this context.
   public var global: Env {
     return .global(self.environment)
   }

@@ -477,7 +477,7 @@ public final class SystemLibrary: NativeLibrary {
   }
   
   private func implementationName() -> Expr {
-    if let name = Context.implementationName {
+    if let name = self.context.implementationName {
       return .makeString(name)
     } else {
       return .false
@@ -485,7 +485,7 @@ public final class SystemLibrary: NativeLibrary {
   }
   
   private func implementationVersion() -> Expr {
-    if let version = Context.implementationVersion {
+    if let version = self.context.implementationVersion {
       return .makeString(version)
     } else {
       return .false

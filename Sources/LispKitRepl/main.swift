@@ -25,7 +25,13 @@ import LispKit
 let console = CommandLineConsole()
 
 // Create LispKit context and import (base scheme)
-let context = Context(console: console)
+#if SPM
+  let context = Context(console: console,
+                        implementationName: "LispKit",
+                        implementationVersion: "1.2")
+#else
+  let context = Context(console: console)
+#endif
 do {
   try context.environment.import(SchemeLibrary.name)
 } catch let error {

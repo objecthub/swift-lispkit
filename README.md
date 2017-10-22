@@ -14,9 +14,9 @@ _LispKit_ is a framework for building Lisp-based extension and scripting languag
 for macOS applications. _LispKit_ is fully written in the programming language
 [Swift](http://www.swift.org). _LispKit_ implements a core language based on the
 [R7RS (small) Scheme standard](http://www.r7rs.org). It is extensible,
-allowing the inclusion of new native libraries, of new libraries written in Scheme, as
-well as custom modifications of the core environment consisting of a compiler, a
-virtual machine as well as the core libraries.
+allowing the inclusion of new native libraries written in Swift, of new libraries written
+in Scheme, as well as custom modifications of the core environment consisting of
+a compiler, a virtual machine as well as the core libraries.
 
 So far, performance was not a priority in the development of _LispKit_. The _LispKit_
 compiler does not perform many code optimizations and the performance of the system is
