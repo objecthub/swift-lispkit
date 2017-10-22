@@ -185,7 +185,7 @@ public final class RecordLibrary: NativeLibrary {
     }
   }
   
-  fileprivate func indexOfField(_ field: Symbol, in fields: Expr) -> Int? {
+  private func indexOfField(_ field: Symbol, in fields: Expr) -> Int? {
     var index = 0
     var current = fields
     while case .pair(.symbol(let sym), let next) = current {

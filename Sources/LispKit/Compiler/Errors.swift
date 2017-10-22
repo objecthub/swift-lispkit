@@ -404,6 +404,7 @@ public enum EvalError: LispError, Hashable {
   case fieldCountError(Int, Expr)
   case malformedLibraryDefinition(decls: Expr)
   case malformedLibraryName(name: Expr)
+  case uninitializedExports([Symbol], Expr)
   case unknownFile(String)
   case unknownDirectory(String)
   
@@ -545,6 +546,18 @@ public enum EvalError: LispError, Hashable {
         return "malformed library definition: \(decls)"
       case .malformedLibraryName(let name):
         return "malformed library name: \(name)"
+      case .uninitializedExports(let exports, let lib):
+        guard !exports.isEmpty else {
+          return "library \(lib) does not initialize all exported definitions"
+        }
+        let defstr = exports.count == 1 ? " definition " : " definitions "
+        var builder = StringBuilder(prefix: "library \(lib) does not initialize exported\(defstr)",
+                                    postfix: "",
+                                    separator: ", ")
+        for sym in exports {
+          builder.append(sym.rawIdentifier)
+        }
+        return builder.description
       case .unknownFile(let path):
         return "file \"\(path)\" unknown or a directory"
       case .unknownDirectory(let path):
@@ -666,6 +679,16 @@ public enum EvalError: LispError, Hashable {
           return d1 == d2
         case (.malformedLibraryName(let n1), .malformedLibraryName(let n2)):
           return n1 == n2
+        case (.uninitializedExports(let e1, let l1), .uninitializedExports(let e2, let l2)):
+          guard l1 == l2 && e1.count == e2.count else {
+            return false
+          }
+          for i in e1.indices {
+            guard e1[i] === e2[i] else {
+              return false
+            }
+          }
+          return true
         case (.unknownFile(let p1), .unknownFile(let p2)):
           return p1 == p2
         case (.unknownDirectory(let p1), .unknownDirectory(let p2)):

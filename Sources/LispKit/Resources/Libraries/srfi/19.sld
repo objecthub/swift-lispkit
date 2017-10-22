@@ -91,7 +91,6 @@
           time-monotonic->time-utc
           time-monotonic->time-utc!
           time-nanosecond
-          time-process
           time-resolution
           time-second
           time-tai
@@ -102,7 +101,6 @@
           time-tai->time-monotonic!
           time-tai->time-utc
           time-tai->time-utc!
-          time-thread
           time-type
           time-utc
           time-utc->date

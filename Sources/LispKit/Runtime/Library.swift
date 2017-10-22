@@ -354,7 +354,16 @@ open class Library: Reference, Trackable, CustomStringConvertible {
                                                     inDirectory: block.sourceDirectory)
       }
     }
-    // TODO: Check that all exported declarations are initialized
+    // Check that all exported declarations are initialized
+    var uninitializedExports: [Symbol] = []
+    for (sym, lref) in self.exports {
+      if case .uninit(_) = self.context.heap.locations[lref.location] {
+        uninitializedExports.append(sym)
+      }
+    }
+    guard uninitializedExports.count == 0 else {
+      throw EvalError.uninitializedExports(uninitializedExports, self.name)
+    }
     return true
   }
   

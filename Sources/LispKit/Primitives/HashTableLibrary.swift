@@ -386,12 +386,12 @@ public final class HashTableLibrary: NativeLibrary {
     return try expr.asHashTable().entryList()
   }
   
-  fileprivate func newHashTable(_ equiv: HashTable.Equivalence, capacity: Int?) -> HashTable {
+  private func newHashTable(_ equiv: HashTable.Equivalence, capacity: Int?) -> HashTable {
     let numBuckets = capacity ?? HashTableLibrary.defaultCapacity
     return HashTable(capacity: numBuckets, mutable: true, equiv: equiv)
   }
   
-  fileprivate func enterAlist(_ expr: Expr, into map: HashTable) throws {
+  private func enterAlist(_ expr: Expr, into map: HashTable) throws {
     var list = expr
     while case .pair(.pair(let key, let value), let cdr) = list {
       map.add(key: key, mapsTo: value)

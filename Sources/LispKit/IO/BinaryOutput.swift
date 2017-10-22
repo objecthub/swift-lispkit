@@ -100,7 +100,7 @@ open class BinaryOutput {
   }
   
   /// Returns true if there is at least one byte that can be written into the buffer.
-  fileprivate func writeable() -> Bool {
+  private func writeable() -> Bool {
     guard self.output == nil || self.next < self.buffer.count else {
       return self.flush()
     }

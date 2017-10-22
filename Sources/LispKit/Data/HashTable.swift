@@ -133,7 +133,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
   }
   
   /// Insert the mappings from the given bucket list into the array `arr`.
-  fileprivate static func insertMappings(into arr: inout [(Expr, Expr)], from bucket: Expr) {
+  private static func insertMappings(into arr: inout [(Expr, Expr)], from bucket: Expr) {
     var current = bucket
     while case .pair(.pair(let key, let value), let next) = current {
       arr.append((key, value))

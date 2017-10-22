@@ -64,6 +64,7 @@
           stream-take
           stream-take-while
           stream-unfold
+          stream-unfolds
           stream-zip)
 
   (import (scheme base)
@@ -457,6 +458,35 @@
                 (error "stream-unfold: non-procedural generator" generator))
               (else
                 (_stream-unfold base)))))
+
+    (define (stream-unfolds gen seed)
+      (define (len-values gen seed)
+        (call-with-values (lambda () (gen seed)) (lambda vs (- (length vs) 1))))
+      (define unfold-result-stream
+        (stream-lambda (gen seed)
+          (call-with-values (lambda () (gen seed))
+                            (lambda (next . results)
+                              (stream-cons results (unfold-result-stream gen next))))))
+      (define result-stream->output-stream
+        (stream-lambda (result-stream i)
+          (let ((result (list-ref (stream-car result-stream) (- i 1))))
+            (cond ((pair? result)
+                     (stream-cons (car result)
+                                  (result-stream->output-stream (stream-cdr result-stream) i)))
+                  ((not result)
+                     (result-stream->output-stream (stream-cdr result-stream) i))
+                  ((null? result)
+                     stream-null)
+                  (else
+                     (error 'stream-unfolds "can't happen"))))))
+      (define (result-stream->output-streams result-stream)
+        (let loop ((i (len-values gen seed)) (outputs '()))
+          (if (zero? i)
+              (apply values outputs)
+              (loop (- i 1) (cons (result-stream->output-stream result-stream i) outputs)))))
+      (if (not (procedure? gen))
+          (error 'stream-unfolds "non-procedural argument")
+          (result-stream->output-streams (unfold-result-stream gen seed))))
 
     (define (stream-zip . strms)
       (if (null? strms)

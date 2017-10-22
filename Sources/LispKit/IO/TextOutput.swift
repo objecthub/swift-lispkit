@@ -121,7 +121,7 @@ open class TextOutput {
     return true
   }
   
-  fileprivate func writeToBuffer(_ ch: UniChar) -> Bool {
+  private func writeToBuffer(_ ch: UniChar) -> Bool {
     if self.next < self.buffer.count {
       self.buffer[self.next] = ch
     } else if self.target != nil {

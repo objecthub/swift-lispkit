@@ -28,26 +28,26 @@ public final class ControlFlowLibrary: NativeLibrary {
   
   /// Declarations of the library.
   public override func declarations() {
-    self.define("begin", as: SpecialForm(compileBegin))
-    self.define("let", as: SpecialForm(compileLet))
-    self.define("let*", as: SpecialForm(compileLetStar))
-    self.define("letrec", as: SpecialForm(compileLetRec))
-    self.define("letrec*", as: SpecialForm(compileLetRecStar))
-    self.define("let-values", as: SpecialForm(compileLetValues))
-    self.define("let*-values", as: SpecialForm(compileLetStarValues))
-    self.define("let-optionals", as: SpecialForm(compileLetOptionals))
-    self.define("let*-optionals", as: SpecialForm(compileLetStarOptionals))
-    self.define("let-syntax", as: SpecialForm(compileLetSyntax))
-    self.define("letrec-syntax", as: SpecialForm(compileLetRecSyntax))
-    self.define("do", as: SpecialForm(compileDo))
-    self.define("if", as: SpecialForm(compileIf))
-    self.define("when", as: SpecialForm(compileWhen))
-    self.define("unless", as: SpecialForm(compileUnless))
-    self.define("cond", as: SpecialForm(compileCond))
-    self.define("case", as: SpecialForm(compileCase))
+    self.define("begin", as: SpecialForm(self.compileBegin))
+    self.define("let", as: SpecialForm(self.compileLet))
+    self.define("let*", as: SpecialForm(self.compileLetStar))
+    self.define("letrec", as: SpecialForm(self.compileLetRec))
+    self.define("letrec*", as: SpecialForm(self.compileLetRecStar))
+    self.define("let-values", as: SpecialForm(self.compileLetValues))
+    self.define("let*-values", as: SpecialForm(self.compileLetStarValues))
+    self.define("let-optionals", as: SpecialForm(self.compileLetOptionals))
+    self.define("let*-optionals", as: SpecialForm(self.compileLetStarOptionals))
+    self.define("let-syntax", as: SpecialForm(self.compileLetSyntax))
+    self.define("letrec-syntax", as: SpecialForm(self.compileLetRecSyntax))
+    self.define("do", as: SpecialForm(self.compileDo))
+    self.define("if", as: SpecialForm(self.compileIf))
+    self.define("when", as: SpecialForm(self.compileWhen))
+    self.define("unless", as: SpecialForm(self.compileUnless))
+    self.define("cond", as: SpecialForm(self.compileCond))
+    self.define("case", as: SpecialForm(self.compileCase))
   }
   
-  func splitBindings(_ bindingList: Expr) throws -> (Expr, Expr) {
+  private func splitBindings(_ bindingList: Expr) throws -> (Expr, Expr) {
     var symbols = Exprs()
     var exprs = Exprs()
     var bindings = bindingList
@@ -65,14 +65,14 @@ public final class ControlFlowLibrary: NativeLibrary {
     return (Expr.makeList(symbols), Expr.makeList(exprs))
   }
 
-  func compileBegin(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  private func compileBegin(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, let exprs) = expr else {
       preconditionFailure("malformed begin")
     }
     return try compiler.compileSeq(exprs, in: env, inTailPos: tail, localDefine: false)
   }
 
-  func compileLet(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  private func compileLet(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let first, let body)) = expr else {
       throw EvalError.leastArgumentCountError(formals: 1, args: expr)
     }
@@ -108,7 +108,10 @@ public final class ControlFlowLibrary: NativeLibrary {
     return res
   }
 
-  func compileLetStar(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  private func compileLetStar(_ compiler: Compiler,
+                              expr: Expr,
+                              env: Env,
+                              tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let first, let body)) = expr else {
       throw EvalError.leastArgumentCountError(formals: 1, args: expr)
     }
@@ -125,7 +128,10 @@ public final class ControlFlowLibrary: NativeLibrary {
     }
   }
 
-  func compileLetRec(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  private func compileLetRec(_ compiler: Compiler,
+                             expr: Expr,
+                             env: Env,
+                             tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let first, let body)) = expr else {
       throw EvalError.leastArgumentCountError(formals: 1, args: expr)
     }
@@ -146,7 +152,10 @@ public final class ControlFlowLibrary: NativeLibrary {
     }
   }
 
-  func compileLetRecStar(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  private func compileLetRecStar(_ compiler: Compiler,
+                                 expr: Expr,
+                                 env: Env,
+                                 tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let first, let body)) = expr else {
       throw EvalError.leastArgumentCountError(formals: 1, args: expr)
     }
@@ -163,7 +172,10 @@ public final class ControlFlowLibrary: NativeLibrary {
     }
   }
 
-  func compileLetValues(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  private func compileLetValues(_ compiler: Compiler,
+                                expr: Expr,
+                                env: Env,
+                                tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let first, let body)) = expr else {
       throw EvalError.leastArgumentCountError(formals: 1, args: expr)
     }
@@ -180,7 +192,10 @@ public final class ControlFlowLibrary: NativeLibrary {
     }
   }
   
-  func compileLetStarValues(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  private func compileLetStarValues(_ compiler: Compiler,
+                                    expr: Expr,
+                                    env: Env,
+                                    tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let first, let body)) = expr else {
       throw EvalError.leastArgumentCountError(formals: 1, args: expr)
     }
@@ -197,7 +212,10 @@ public final class ControlFlowLibrary: NativeLibrary {
     }
   }
   
-  func compileLetOptionals(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  private func compileLetOptionals(_ compiler: Compiler,
+                                   expr: Expr,
+                                   env: Env,
+                                   tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let optlist, .pair(let first, let body))) = expr else {
       throw EvalError.leastArgumentCountError(formals: 2, args: expr)
     }
@@ -216,7 +234,10 @@ public final class ControlFlowLibrary: NativeLibrary {
     }
   }
   
-  func compileLetStarOptionals(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  private func compileLetStarOptionals(_ compiler: Compiler,
+                                       expr: Expr,
+                                       env: Env,
+                                       tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let optlist, .pair(let first, let body))) = expr else {
       throw EvalError.leastArgumentCountError(formals: 2, args: expr)
     }
@@ -273,7 +294,9 @@ public final class ControlFlowLibrary: NativeLibrary {
     return group
   }
   
-  func compileLetSyntax(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  private func compileLetSyntax(_ compiler: Compiler,
+                                expr: Expr,
+                                env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let first, let body)) = expr else {
       throw EvalError.leastArgumentCountError(formals: 1, args: expr)
     }
@@ -288,7 +311,10 @@ public final class ControlFlowLibrary: NativeLibrary {
     }
   }
 
-  func compileLetRecSyntax(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  private func compileLetRecSyntax(_ compiler: Compiler,
+                                   expr: Expr,
+                                   env: Env,
+                                   tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let first, let body)) = expr else {
       throw EvalError.leastArgumentCountError(formals: 1, args: expr)
     }
@@ -303,7 +329,7 @@ public final class ControlFlowLibrary: NativeLibrary {
     }
   }
 
-  func compileDo(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  private func compileDo(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     // Decompose expression into bindings, exit, and body
     guard case .pair(_, .pair(let bindingList, .pair(let exit, let body))) = expr else {
       throw EvalError.leastArgumentCountError(formals: 2, args: expr)
@@ -373,7 +399,7 @@ public final class ControlFlowLibrary: NativeLibrary {
     return res
   }
 
-  func compileIf(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  private func compileIf(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let cond, .pair(let thenp, let alternative))) = expr else {
       throw EvalError.leastArgumentCountError(formals: 2, args: expr)
     }
@@ -399,7 +425,7 @@ public final class ControlFlowLibrary: NativeLibrary {
     return false
   }
   
-  func compileWhen(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  private func compileWhen(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let cond, let exprs)) = expr else {
       throw EvalError.leastArgumentCountError(formals: 1, args: expr)
     }
@@ -416,7 +442,10 @@ public final class ControlFlowLibrary: NativeLibrary {
     return false
   }
 
-  func compileUnless(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  private func compileUnless(_ compiler: Compiler,
+                             expr: Expr,
+                             env: Env,
+                             tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let cond, let exprs)) = expr else {
       throw EvalError.leastArgumentCountError(formals: 1, args: expr)
     }
@@ -433,7 +462,7 @@ public final class ControlFlowLibrary: NativeLibrary {
     return false
   }
   
-  func compileCond(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  private func compileCond(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     // Extract case list
     guard  case .pair(_, let caseList) = expr else {
       preconditionFailure()
@@ -507,7 +536,7 @@ public final class ControlFlowLibrary: NativeLibrary {
     return false
   }
 
-  func compileCase(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  private func compileCase(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let key, let caseList)) = expr else {
       throw EvalError.leastArgumentCountError(formals: 3, args: expr)
     }

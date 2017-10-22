@@ -48,7 +48,7 @@ open class Port: Reference, CustomStringConvertible {
     self.kind = .binaryOutputPort(output)
   }
   
-  fileprivate init(_ kind: Kind) {
+  private init(_ kind: Kind) {
     self.kind = kind
   }
   

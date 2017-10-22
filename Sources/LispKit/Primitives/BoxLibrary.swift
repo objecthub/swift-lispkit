@@ -36,36 +36,36 @@ public final class BoxLibrary: NativeLibrary {
   /// Declarations of the library.
   public override func declarations() {
     // Boxes
-    self.define(Procedure("box?", isBox))
-    self.define(Procedure("box", box))
-    self.define(Procedure("unbox", unbox))
-    self.define(Procedure("set-box!", setBox))
+    self.define(Procedure("box?", self.isBox))
+    self.define(Procedure("box", self.box))
+    self.define(Procedure("unbox", self.unbox))
+    self.define(Procedure("set-box!", self.setBox))
     self.define("update-box!", via:
       "(define (update-box! box proc) (set-box! box (proc (unbox box))))")
     
     // Mutable pairs
-    self.define(Procedure("mpair?", isMpair))
-    self.define(Procedure("mcons", mcons))
-    self.define(Procedure("mcar", mcar))
-    self.define(Procedure("mcdr", mcdr))
-    self.define(Procedure("set-mcar!", setMcar))
-    self.define(Procedure("set-mcdr!", setMcdr))
+    self.define(Procedure("mpair?", self.isMpair))
+    self.define(Procedure("mcons", self.mcons))
+    self.define(Procedure("mcar", self.mcar))
+    self.define(Procedure("mcdr", self.mcdr))
+    self.define(Procedure("set-mcar!", self.setMcar))
+    self.define(Procedure("set-mcdr!", self.setMcdr))
   }
   
   //-------- MARK: - Boxes
   
-  func box(_ expr: Expr?) -> Expr {
+  private func box(_ expr: Expr?) -> Expr {
     return .box(Cell(expr ?? .undef))
   }
   
-  func unbox(_ expr: Expr) throws -> Expr {
+  private func unbox(_ expr: Expr) throws -> Expr {
     guard case .box(let cell) = expr else {
       throw EvalError.typeError(expr, [.boxType])
     }
     return cell.value
   }
   
-  func setBox(_ expr: Expr, value: Expr) throws -> Expr {
+  private func setBox(_ expr: Expr, value: Expr) throws -> Expr {
     guard case .box(let cell) = expr else {
       throw EvalError.typeError(expr, [.boxType])
     }
@@ -75,7 +75,7 @@ public final class BoxLibrary: NativeLibrary {
     return .void
   }
   
-  func isBox(_ expr: Expr) -> Expr {
+  private func isBox(_ expr: Expr) -> Expr {
     guard case .box(_) = expr else {
       return .false
     }
@@ -84,32 +84,32 @@ public final class BoxLibrary: NativeLibrary {
   
   //-------- MARK: - Mutable pairs
   
-  func isMpair(_ expr: Expr) -> Expr {
+  private func isMpair(_ expr: Expr) -> Expr {
     guard case .mpair(_) = expr else {
       return .false
     }
     return .true
   }
 
-  func mcons(_ car: Expr, cdr: Expr) throws -> Expr {
+  private func mcons(_ car: Expr, cdr: Expr) throws -> Expr {
     return .mpair(Tuple(car, cdr))
   }
   
-  func mcar(_ expr: Expr) throws -> Expr {
+  private func mcar(_ expr: Expr) throws -> Expr {
     guard case .mpair(let tuple) = expr else {
       throw EvalError.typeError(expr, [.mpairType])
     }
     return tuple.fst
   }
   
-  func mcdr(_ expr: Expr) throws -> Expr {
+  private func mcdr(_ expr: Expr) throws -> Expr {
     guard case .mpair(let tuple) = expr else {
       throw EvalError.typeError(expr, [.mpairType])
     }
     return tuple.snd
   }
   
-  func setMcar(_ expr: Expr, value: Expr) throws -> Expr {
+  private func setMcar(_ expr: Expr, value: Expr) throws -> Expr {
     guard case .mpair(let tuple) = expr else {
       throw EvalError.typeError(expr, [.mpairType])
     }
@@ -119,7 +119,7 @@ public final class BoxLibrary: NativeLibrary {
     return .void
   }
   
-  func setMcdr(_ expr: Expr, value: Expr) throws -> Expr {
+  private func setMcdr(_ expr: Expr, value: Expr) throws -> Expr {
     guard case .mpair(let tuple) = expr else {
       throw EvalError.typeError(expr, [.mpairType])
     }
