@@ -80,6 +80,7 @@ framework:
   - [SRFI 63: Homogeneous and Heterogeneous Arrays](https://srfi.schemers.org/srfi-63/srfi-63.html)
   - [SRFI 64: A Scheme API for test suites](https://srfi.schemers.org/srfi-64/srfi-64.html)
   - [SRFI 121: Generators](https://srfi.schemers.org/srfi-121/srfi-121.html)
+  - [SRFI 128: Comparators](https://srfi.schemers.org/srfi-128/srfi-128.html)
   - [SRFI 132: Sort Libraries](https://srfi.schemers.org/srfi-132/srfi-132.html)
   - [SRFI 133: Vector Library](https://srfi.schemers.org/srfi-133/srfi-133.html)
   - [SRFI 134: Immutable Deques](https://srfi.schemers.org/srfi-134/srfi-134.html)

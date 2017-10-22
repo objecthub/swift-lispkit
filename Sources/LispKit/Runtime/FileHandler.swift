@@ -45,16 +45,15 @@ public final class FileHandler {
     self.searchUrls = []
     self.librarySearchUrls = []
     if includeInternalResources {
-      let bundle = Bundle(identifier: "net.objecthub.LispKit")
-      if let url = bundle?.resourceURL?
-                          .appendingPathComponent("LispKit/Resources", isDirectory: true) {
+      if let url = Context.bundle?.resourceURL?
+                                  .appendingPathComponent("LispKit/Resources", isDirectory: true) {
         if self.isDirectory(atPath: url.path) {
           self.searchUrls.append(url.absoluteURL)
         }
       }
       if let url =
-          bundle?.resourceURL?
-                 .appendingPathComponent("LispKit/Resources/Libraries", isDirectory: true) {
+          Context.bundle?.resourceURL?
+                         .appendingPathComponent("LispKit/Resources/Libraries", isDirectory: true) {
         if self.isDirectory(atPath: url.path) {
           self.librarySearchUrls.append(url.absoluteURL)
         }

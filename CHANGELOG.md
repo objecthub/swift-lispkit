@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.2 (2017-10-22)
+- Support for tail patterns in `syntax-rules`
+- Support for `features` and `cond-expand`
+- Support for `include` and `include-library-declarations`
+- Support for `syntax-error`
+- Support for `define-values`
+- Support a new lightweight custom type declaration mechanism via `make-type`
+- Added SRFI 112-style support for human-readable information about the hardware
+   and software configuration on which LispKit is being executed
+- Added support for the following libraries: `(srfi 63)`, `(srfi 64)`, `(srfi 128)`,
+   `(lispkit iteration)`, `(lispkit json)`
+
 ## 1.1 (2017-09-25)
 - Migrated project to Xcode 9 and Swift 4
 - Adopted Swift 4-version of NumberKit

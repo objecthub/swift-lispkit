@@ -138,6 +138,7 @@
 		CCBDB73B1EDB7C63001606E2 /* Prolog.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCBDB73A1EDB4AB3001606E2 /* Prolog.scm */; };
 		CCC072461F9AB3110063974E /* 64.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCC072451F9AA8B70063974E /* 64.sld */; };
 		CCC072481F9C09D30063974E /* 128.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCC072471F9C047D0063974E /* 128.sld */; };
+		CCC0724A1F9C11FA0063974E /* Sysctl.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC072491F9C11FA0063974E /* Sysctl.swift */; };
 		CCC41DC41D2649E9003CB4D0 /* DelayedEvaluation.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCC41DC31D2649E9003CB4D0 /* DelayedEvaluation.scm */; };
 		CCC41DC61D2851FB003CB4D0 /* VirtualMachineState.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC41DC51D2851FB003CB4D0 /* VirtualMachineState.swift */; };
 		CCC41DC81D2B14AD003CB4D0 /* CallCC.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCC41DC71D2B14AD003CB4D0 /* CallCC.scm */; };
@@ -449,6 +450,7 @@
 		CCBDB73A1EDB4AB3001606E2 /* Prolog.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Prolog.scm; sourceTree = "<group>"; };
 		CCC072451F9AA8B70063974E /* 64.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 64.sld; sourceTree = "<group>"; };
 		CCC072471F9C047D0063974E /* 128.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 128.sld; sourceTree = "<group>"; };
+		CCC072491F9C11FA0063974E /* Sysctl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sysctl.swift; sourceTree = "<group>"; };
 		CCC41DC31D2649E9003CB4D0 /* DelayedEvaluation.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = DelayedEvaluation.scm; sourceTree = "<group>"; };
 		CCC41DC51D2851FB003CB4D0 /* VirtualMachineState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VirtualMachineState.swift; sourceTree = "<group>"; };
 		CCC41DC71D2B14AD003CB4D0 /* CallCC.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CallCC.scm; sourceTree = "<group>"; };
@@ -791,6 +793,7 @@
 				CC5C0A3E1D8EBE0A00CE2E98 /* MultiMap.swift */,
 				CC8EDE711D0727A4004E0636 /* ScanBuffer.swift */,
 				CC6BB1991E60F237009A9091 /* Random.swift */,
+				CCC072491F9C11FA0063974E /* Sysctl.swift */,
 			);
 			path = Base;
 			sourceTree = "<group>";
@@ -1051,6 +1054,7 @@
 				CC6A3B701C53F2CF00E962E2 /* SymbolTable.swift in Sources */,
 				CC5033B11CDBE4CD0045A8FA /* Console.swift in Sources */,
 				CCF529981CBC73F7000C2959 /* StringBuilder.swift in Sources */,
+				CCC0724A1F9C11FA0063974E /* Sysctl.swift in Sources */,
 				CC882C921C9E93A600D20039 /* Timer.swift in Sources */,
 				CCAD52E21C48468F00DBD8EE /* Expr.swift in Sources */,
 				CC35FD0D1C6FA4B700C8B992 /* VirtualMachine.swift in Sources */,

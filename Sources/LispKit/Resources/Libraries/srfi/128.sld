@@ -192,10 +192,7 @@
        (if (null? objs) #t (loop b (car objs) (cdr objs))))))
 
     ;; Simple ordering and hash functions
-
-    (define (boolean=? a b)
-      (eq? a b))
-
+    
     (define (boolean<? a b)
       ;; #f < #t but not otherwise
       (and (not a) b))

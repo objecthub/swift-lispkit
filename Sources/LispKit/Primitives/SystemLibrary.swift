@@ -90,6 +90,14 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("current-jiffy", currentJiffy))
     self.define(Procedure("jiffies-per-second", jiffiesPerSecond))
     self.define(Procedure("features", features))
+    self.define(Procedure("implementation-name", implementationName))
+    self.define(Procedure("implementation-version", implementationVersion))
+    self.define(Procedure("cpu-architecture", cpuArchitecture))
+    self.define(Procedure("machine-name", machineName))
+    self.define(Procedure("os-type", osType))
+    self.define(Procedure("os-version", osVersion))
+    self.define(Procedure("os-name", osName))
+    self.define(Procedure("os-release", osRelease))
   }
   
   private func filePath(expr: Expr, base: Expr?) throws -> Expr {
@@ -465,5 +473,52 @@ public final class SystemLibrary: NativeLibrary {
       res = .pair(.symbol(self.context.symbols.intern(feature.rawValue)), res)
     }
     return res
+  }
+  
+  private func implementationName() -> Expr {
+    if let name = Context.implementationName {
+      return .makeString(name)
+    } else {
+      return .false
+    }
+  }
+  
+  private func implementationVersion() -> Expr {
+    if let version = Context.implementationVersion {
+      return .makeString(version)
+    } else {
+      return .false
+    }
+  }
+  
+  private func cpuArchitecture() -> Expr {
+    return .makeString(Sysctl.machine)
+  }
+  
+  private func machineName() -> Expr {
+    return .makeString(Sysctl.hostName)
+  }
+  
+  private func osType() -> Expr {
+    return .makeString(Sysctl.osType)
+  }
+  
+  private func osVersion() -> Expr {
+    return .makeString(Sysctl.osVersion)
+  }
+  
+  private func osName() -> Expr {
+    #if os(macOS)
+      return .makeString("macOS")
+    #elseif os(iOS)
+      return .makeString("iOS")
+    #elseif os(Linux)
+      return .makeString("Linux")
+    #endif
+  }
+  
+  private func osRelease() -> Expr {
+    return .makeString("\(ProcessInfo.processInfo.operatingSystemVersion.majorVersion)." +
+                       "\(ProcessInfo.processInfo.operatingSystemVersion.minorVersion)")
   }
 }
