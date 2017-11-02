@@ -3,7 +3,7 @@
 //  LispKit
 //
 //  Created by Matthias Zenger on 07/06/2016.
-//  Copyright © 2016 ObjectHub. All rights reserved.
+//  Copyright © 2016-2017 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ open class BinaryInput: IteratorProtocol {
   public private(set) var eof: Bool = false
   
   /// Input stream. If this property is nil, only the content in the buffer is relevant.
-  private var input: InputStream?
+  private var input: BinaryInputSource?
   
   /// The URL for the input stream. `url` is nil whenever `input` is nil.
   public let url: URL?
@@ -69,28 +69,43 @@ open class BinaryInput: IteratorProtocol {
   
   /// Initializes a binary input from a binary file at the given URL. `capacity` determines
   /// the number of bytes used for caching data.
-  public init?(url: URL, capacity: Int = 4096) {
-    // Check if the file at the given URL exists
-    guard (try? url.checkResourceIsReachable()) ?? false else {
-      return nil
+  public convenience init?(url: URL, capacity: Int = 4096) {
+    switch url.scheme {
+      case "http"?, "https"?:
+        // Create a new HTTP input stream
+        guard let input = HTTPInputStream(url: url) else {
+          return nil
+        }
+        self.init(source: input, url: url, capacity: capacity)
+      default:
+        // Check if the file at the given URL exists
+        guard (try? url.checkResourceIsReachable()) ?? false else {
+          return nil
+        }
+        // Create a new file input stream
+        guard let input = InputStream(url: url) else {
+          return nil
+        }
+        self.init(source: input, url: url, capacity: capacity)
     }
-    // Create a new input stream
-    guard let input = InputStream(url: url) else {
-      return nil
-    }
+  }
+  
+  /// Initializes a binary input from a binary file at the given URL. `capacity` determines
+  /// the number of bytes used for caching data.
+  public init?(source: BinaryInputSource, url: URL, capacity: Int = 4096) {
     // Set up `BinaryInput` object
     self.buffer = [UInt8](repeating: 0, count: capacity)
-    self.input = input
+    self.input = source
     self.url = url
     // Open the stream
-    input.open()
+    source.open()
     // Read data into the buffer
-    if input.hasBytesAvailable {
-      let result = input.read(&self.buffer,
-                              maxLength: self.buffer.count * MemoryLayout<UInt8>.size)
+    if source.hasBytesAvailable {
+      let result = source.read(&self.buffer,
+                               maxLength: self.buffer.count * MemoryLayout<UInt8>.size)
       if result < 0 {
         self.input = nil
-        input.close()
+        source.close()
         return nil
       } else if result == 0 {
         self.eof = true

@@ -510,6 +510,16 @@ extension Expr {
     return res.expandingTildeInPath
   }
   
+  @inline(__always) public func asURL() throws -> URL {
+    guard case .string(let res) = self else {
+      throw EvalError.typeError(self, [.strType])
+    }
+    guard let url = URL(string: res as String) else {
+      throw EvalError.invalidUrl(self)
+    }
+    return url
+  }
+  
   @inline(__always) public func asByteVector() throws -> ByteVector {
     guard case .bytes(let bvector) = self else {
       throw EvalError.typeError(self, [.byteVectorType])

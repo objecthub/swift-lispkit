@@ -397,6 +397,8 @@ public enum EvalError: LispError, Hashable {
   case defineSyntaxInLocalEnv(keyword: Symbol, definition: Expr, group: BindingGroup)
   case targetBytevectorTooSmall(Expr)
   case cannotOpenFile(String)
+  case cannotOpenUrl(String)
+  case invalidUrl(Expr)
   case cannotWriteToPort(Expr)
   case illegalContinuationApplication(Procedure, Int)
   case attemptToModifyImmutableData(Expr)
@@ -532,6 +534,10 @@ public enum EvalError: LispError, Hashable {
         return "target bytevector too small: \(bvec)"
       case .cannotOpenFile(let filename):
         return "cannot open file '\(filename)'"
+      case .cannotOpenUrl(let url):
+        return "cannot open URL '\(url)'"
+      case .invalidUrl(let expr):
+        return "invalid URL: '\(expr)'"
       case .cannotWriteToPort(let port):
         return "cannot write to port \(port)"
       case .illegalContinuationApplication(let proc, let rid):
@@ -664,6 +670,10 @@ public enum EvalError: LispError, Hashable {
           return bvec1 == bvec2
         case (.cannotOpenFile(let f1), .cannotOpenFile(let f2)):
           return f1 == f2
+        case (.cannotOpenUrl(let u1), .cannotOpenUrl(let u2)):
+          return u1 == u2
+        case (.invalidUrl(let e1), .invalidUrl(let e2)):
+          return e1 == e2
         case (.cannotWriteToPort(let p1), .cannotWriteToPort(let p2)):
           return p1 == p2
         case (.illegalContinuationApplication(let p1, let rid1),

@@ -58,6 +58,8 @@ public final class PortLibrary: NativeLibrary {
     self.define(Procedure("open-output-string", openOutputString))
     self.define(Procedure("open-input-bytevector", openInputBytevector))
     self.define(Procedure("open-output-bytevector", openOutputBytevector))
+    self.define(Procedure("open-input-url", openInputUrl))
+    self.define(Procedure("open-binary-input-url", openBinaryInputUrl))
     self.define(Procedure("get-output-string", getOutputString))
     self.define(Procedure("get-output-bytevector", getOutputBytevector))
     self.define(Procedure("close-port", closePort))
@@ -91,16 +93,16 @@ public final class PortLibrary: NativeLibrary {
     self.define(Procedure("flush-output-port", flushOutputPort))
     self.define("with-input-from-port", via:
       "(define (with-input-from-port new thunk)",
-                "  (let ((old (current-input-port)))",
-                "    (dynamic-wind (lambda () (current-input-port new))",
-                "                  (lambda () (let ((res (thunk))) (close-input-port new) res))",
-                "                  (lambda () (current-input-port old)))))")
+      "  (let ((old (current-input-port)))",
+      "    (dynamic-wind (lambda () (current-input-port new))",
+      "                  (lambda () (let ((res (thunk))) (close-input-port new) res))",
+      "                  (lambda () (current-input-port old)))))")
     self.define("with-output-to-port", via:
       "(define (with-output-to-port new thunk)",
-                "  (let ((old (current-output-port)))",
-                "    (dynamic-wind (lambda () (current-output-port new))",
-                "                  (lambda () (let ((res (thunk))) (close-output-port new) res))",
-                "                  (lambda () (current-output-port old)))))")
+      "  (let ((old (current-output-port)))",
+      "    (dynamic-wind (lambda () (current-output-port new))",
+      "                  (lambda () (let ((res (thunk))) (close-output-port new) res))",
+      "                  (lambda () (current-output-port old)))))")
     self.define("with-input-from-file", via:
       "(define (with-input-from-file file thunk)",
       "  (let ((old (current-input-port))",
@@ -115,6 +117,13 @@ public final class PortLibrary: NativeLibrary {
       "    (dynamic-wind (lambda () (current-output-port new))",
       "                  (lambda () (let ((res (thunk))) (close-output-port new) res))",
       "                  (lambda () (current-output-port old)))))")
+    self.define("with-input-from-url", via:
+      "(define (with-input-from-url url thunk)",
+      "  (let ((old (current-input-port))",
+      "        (new (open-input-url url)))",
+      "    (dynamic-wind (lambda () (current-input-port new))",
+      "                  (lambda () (let ((res (thunk))) (close-input-port new) res))",
+      "                  (lambda () (current-input-port old)))))")
     self.define("call-with-port", via:
       "(define (call-with-port port proc) (let ((res (proc port))) (close-port port) res))")
     self.define("call-with-input-file", via:
@@ -128,6 +137,12 @@ public final class PortLibrary: NativeLibrary {
       "   (let* ((port (open-output-file filename))",
       "          (res (proc port)))",
       "     (close-output-port port)",
+      "     res))")
+    self.define("call-with-input-url", via:
+      "(define (call-with-input-url url proc)",
+      "   (let* ((port (open-input-url url))",
+      "          (res (proc port)))",
+      "     (close-input-port port)",
       "     res))")
   }
   
@@ -267,6 +282,22 @@ public final class PortLibrary: NativeLibrary {
   
   func openOutputBytevector() -> Expr {
     return .port(Port(output: BinaryOutput()))
+  }
+  
+  func openInputUrl(_ expr: Expr) throws -> Expr {
+    let url = try expr.asURL()
+    guard let input = BinaryInput(url: url) else {
+      throw EvalError.cannotOpenUrl(url.description)
+    }
+    return .port(Port(input: TextInput(input: input)))
+  }
+  
+  func openBinaryInputUrl(_ expr: Expr) throws -> Expr {
+    let url = try expr.asURL()
+    guard let input = BinaryInput(url: url) else {
+      throw EvalError.cannotOpenUrl(url.description)
+    }
+    return .port(Port(input: input))
   }
   
   func getOutputString(_ expr: Expr) throws -> Expr {
