@@ -32,7 +32,7 @@ extension InputStream: BinaryInputSource {
 }
 
 public final class HTTPInputStream: BinaryInputSource {
-  
+
   /// A condition object used to synchronize changes between tasks and the input stream object
   fileprivate let condition = NSCondition()
   
@@ -61,10 +61,13 @@ public final class HTTPInputStream: BinaryInputSource {
   
   private static let sessionDelegate = SessionDelegate()
   
+  /// The default request timeout
+  public static let defaultTimeout: Double = 60.0
+  
   public private(set) static var session: URLSession = {
     let configuration = URLSessionConfiguration.default
     configuration.requestCachePolicy = .useProtocolCachePolicy
-    configuration.timeoutIntervalForRequest = TimeInterval(5.0) // 5 seconds timeout
+    configuration.timeoutIntervalForRequest = TimeInterval(HTTPInputStream.defaultTimeout)
     return URLSession(configuration: configuration,
                       delegate: HTTPInputStream.sessionDelegate,
                       delegateQueue: nil)
@@ -80,13 +83,17 @@ public final class HTTPInputStream: BinaryInputSource {
   }
   
   public func open() {
-    guard !self.completed else {
+    self.open(timeout: HTTPInputStream.defaultTimeout)
+  }
+  
+  public func open(timeout: Double) {
+    guard self.task == nil && !self.completed else {
       return
     }
     var request = URLRequest(url: self.url)
     request.httpMethod = "GET"
     request.cachePolicy = .useProtocolCachePolicy
-    request.timeoutInterval = TimeInterval(5.0)
+    request.timeoutInterval = TimeInterval(timeout)
     request.httpShouldHandleCookies = false
     let task = HTTPInputStream.session.dataTask(with: request)
     HTTPInputStream.sessionDelegate.registerTask(task, forStream: self)
@@ -98,6 +105,7 @@ public final class HTTPInputStream: BinaryInputSource {
     if !self.completed {
       if let task = self.task {
         task.cancel()
+        self.task = nil
       } else {
         self.completed = true
       }

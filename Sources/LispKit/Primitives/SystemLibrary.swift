@@ -99,6 +99,7 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("os-version", self.osVersion))
     self.define(Procedure("os-name", self.osName))
     self.define(Procedure("os-release", self.osRelease))
+    self.define(Procedure("http-get", httpGet))
   }
   
   private func filePath(expr: Expr, base: Expr?) throws -> Expr {
@@ -525,5 +526,33 @@ public final class SystemLibrary: NativeLibrary {
   private func osRelease() -> Expr {
     return .makeString("\(ProcessInfo.processInfo.operatingSystemVersion.majorVersion)." +
                        "\(ProcessInfo.processInfo.operatingSystemVersion.minorVersion)")
+  }
+  
+  func httpGet(_ expr: Expr, _ tout: Expr?) throws -> Expr {
+    let url = try expr.asURL()
+    let timeout = try tout?.asDouble(coerce: true) ?? HTTPInputStream.defaultTimeout
+    guard let stream = HTTPInputStream(url: url) else {
+      throw EvalError.cannotOpenUrl(url.description)
+    }
+    stream.open(timeout: timeout)
+    stream.waitForResponse()
+    guard let input = BinaryInput(source: stream, url: url) else {
+      throw EvalError.cannotOpenUrl(url.description)
+    }
+    var response = Expr.null
+    guard let headerFields = stream.headerFields else {
+      throw EvalError.cannotOpenUrl(url.description)
+    }
+    for (key, value) in headerFields {
+      response = .pair(.pair(.makeString(key), .makeString(value)), response)
+    }
+    stream.waitForData()
+    let bytes: [UInt8]
+    if let bs = input.readMany(Int.max) {
+      bytes = bs
+    } else {
+      bytes = []
+    }
+    return .values(.pair(response, .pair(.bytes(MutableBox(bytes)), .null)))
   }
 }
