@@ -117,6 +117,20 @@ public final class PortLibrary: NativeLibrary {
       "    (dynamic-wind (lambda () (current-output-port new))",
       "                  (lambda () (let ((res (thunk))) (close-output-port new) res))",
       "                  (lambda () (current-output-port old)))))")
+    self.define("with-input-from-string", via:
+      "(define (with-input-from-string str thunk)",
+      "  (let ((old (current-input-port))",
+      "        (new (open-input-string str)))",
+      "    (dynamic-wind (lambda () (current-input-port new))",
+      "                  (lambda () (let ((res (thunk))) (close-input-port new) res))",
+      "                  (lambda () (current-input-port old)))))")
+    self.define("with-output-to-string", via:
+      "(define (with-output-to-string thunk)",
+      "  (let ((old (current-output-port))",
+      "        (new (open-output-string)))",
+      "    (dynamic-wind (lambda () (current-output-port new))",
+      "                  (lambda () (let ((res (thunk))) (close-output-port new) res))",
+      "                  (lambda () (current-output-port old)))))")
     self.define("with-input-from-url", via:
       "(define (with-input-from-url url thunk)",
       "  (let ((old (current-input-port))",

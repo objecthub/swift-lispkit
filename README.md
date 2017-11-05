@@ -87,6 +87,7 @@ framework:
   - [SRFI 135: Immutable Texts](https://srfi.schemers.org/srfi-135/srfi-135.html)
   - [SRFI 142: Bitwise Operations](https://srfi.schemers.org/srfi-142/srfi-142.html)
   - [SRFI 152: String Library](https://srfi.schemers.org/srfi-152/srfi-152.html)
+  - [SRFI 158: Generators and Accumulators](https://srfi.schemers.org/srfi-158/srfi-158.html)
 
 ## Architecture
 
