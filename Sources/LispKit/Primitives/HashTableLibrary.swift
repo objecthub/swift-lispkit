@@ -49,11 +49,13 @@ public final class HashTableLibrary: NativeLibrary {
   
   /// Dependencies of the library.
   public override func dependencies() {
-    self.`import`(from: ["lispkit", "base"],    "define", "lambda", "equal?", "eqv?", "eq?", "not")
+    self.`import`(from: ["lispkit", "base"],    "define", "lambda", "equal?", "eqv?", "eq?", "not",
+                                                "call-with-values")
     self.`import`(from: ["lispkit", "control"], "let*", "letrec", "if", "do")
     self.`import`(from: ["lispkit", "list"],    "cons", "car", "cdr", "pair?", "for-each", "value",
                                                 "null?")
     self.`import`(from: ["lispkit", "math"],    ">", "+", "*")
+    self.`import`(from: ["lispkit", "vector"],  "vector-for-each")
   }
   
   /// Access to imported native procedures.
@@ -150,8 +152,21 @@ public final class HashTableLibrary: NativeLibrary {
     self.define(Procedure("hashtable-copy", hashTableCopy))
     self.define(Procedure("hashtable-keys", hashTableKeys))
     self.define(Procedure("hashtable-values", hashTableValues))
+    self.define(Procedure("hashtable-entries", hashTableEntries))
     self.define(Procedure("hashtable-key-list", hashTableKeyList))
     self.define(Procedure("hashtable-value-list", hashTableValueList))
+    self.define("hashtable-for-each", via:
+      "(define (hashtable-for-each proc ht)",
+      "  (call-with-values",
+      "    (lambda () (hashtable-entries ht))",
+      "    (lambda (keys vals) (vector-for-each proc keys vals))))")
+    self.define("hashtable-map!", via:
+      "(define (hashtable-map! proc ht)",
+      "  (call-with-values",
+      "    (lambda () (hashtable-entries ht))",
+      "    (lambda (keys vals)",
+      "      (vector-for-each (lambda (key value) (hashtable-set! ht key (proc key value)))",
+      "                       keys vals))))")
     self.define(Procedure("hashtable->alist", hashTableToAlist))
     self.define("alist->hashtable!", via:
       "(define (alist->hashtable! hm alist)",
@@ -372,6 +387,13 @@ public final class HashTableLibrary: NativeLibrary {
   
   func hashTableValues(_ expr: Expr) throws -> Expr {
     return .vector(Collection(kind: .immutableVector, exprs: try expr.asHashTable().values))
+  }
+  
+  func hashTableEntries(_ expr: Expr) throws -> Expr {
+    return .values(
+      .pair(.vector(Collection(kind: .immutableVector, exprs: try expr.asHashTable().keys)),
+            .pair(.vector(Collection(kind: .immutableVector, exprs: try expr.asHashTable().values)),
+                  .null)))
   }
   
   func hashTableKeyList(_ expr: Expr) throws -> Expr {
