@@ -59,7 +59,7 @@ public struct StringBuilder: CustomStringConvertible {
   }
   
   public mutating func append(_ str: String, width: Int, alignRight: Bool = false) {
-    let pad = width - str.characters.count
+    let pad = width - str.count
     if alignRight {
       self.append(StringBuilder.padding(pad), str)
     } else {

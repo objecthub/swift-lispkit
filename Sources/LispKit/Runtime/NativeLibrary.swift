@@ -120,7 +120,7 @@ open class NativeLibrary: Library {
       preconditionFailure("cannot export library \(library) without importing it")
     }
     for (sym, internalName) in lib.exportDecls {
-      if self.exportDecls[sym] == nil && sym.identifier.characters.first != Character("_") {
+      if self.exportDecls[sym] == nil && sym.identifier.first != Character("_") {
         switch internalName {
           case .mutable(_):
             self.exportDecls[sym] = .mutable(sym)
