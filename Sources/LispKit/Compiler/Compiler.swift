@@ -669,11 +669,11 @@ public final class Compiler {
         switch binding {
           case .pair(.symbol(let sym), .pair(let def, .null)):
             bindings.append(.pair(.symbol(sym), .pair(def, .null)))
-          case .pair(.pair(.symbol(let sym), let args), .pair(let def, .null)):
+          case .pair(.pair(.symbol(let sym), let args), let def):
             bindings.append(
               .pair(.symbol(sym),
                     .pair(.pair(.symbol(Symbol(self.context.symbols.lambda, env.global)),
-                                .pair(args, .pair(def, .null))),
+                                .pair(args, def)),
                           .null)))
           default:
             break loop
