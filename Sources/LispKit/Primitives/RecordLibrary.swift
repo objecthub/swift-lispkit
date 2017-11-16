@@ -207,7 +207,7 @@ public final class RecordLibrary: NativeLibrary {
       preconditionFailure("broken record type encoding: \(type)")
     }
     return .record(
-      Collection(kind: .record(type), exprs: Array(repeating: .undef, count: Int(size))))
+      Collection(kind: .record(type), exprs: Exprs(repeating: .undef, count: Int(size))))
   }
   
   func recordRef(_ expr: Expr, index: Expr) throws -> Expr {

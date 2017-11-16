@@ -203,7 +203,7 @@ public final class DynamicControlLibrary: NativeLibrary {
     return .true
   }
   
-  func callWithUnprotectedContinuation(_ args: Arguments) throws -> (Procedure, [Expr]) {
+  func callWithUnprotectedContinuation(_ args: Arguments) throws -> (Procedure, Exprs) {
     guard args.count == 1 else {
       throw EvalError.argumentCountError(formals: 1, args: .makeList(args))
     }
@@ -315,7 +315,7 @@ public final class DynamicControlLibrary: NativeLibrary {
     return .false
   }
     
-  private func triggerExit(args: Arguments) throws -> (Procedure, [Expr]) {
+  private func triggerExit(args: Arguments) throws -> (Procedure, Exprs) {
     guard args.count == 2 else {
       throw EvalError.argumentCountError(formals: 2, args: .makeList(args))
     }
@@ -346,7 +346,7 @@ public final class DynamicControlLibrary: NativeLibrary {
     return .procedure(Procedure(setter ?? .null, value))
   }
   
-  func bindParameter(_ args: Arguments) throws -> (Procedure, [Expr]) {
+  func bindParameter(_ args: Arguments) throws -> (Procedure, Exprs) {
     guard args.count == 3 else {
       throw EvalError.argumentCountError(formals: 3, args: .makeList(args))
     }

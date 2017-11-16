@@ -40,7 +40,7 @@ public final class Procedure: Reference, CustomStringConvertible {
   ///    5. Transformers: User-defined macro transformers defined via `syntax-rules`
   public enum Kind {
     case primitive(String, Implementation, FormCompiler?)
-    case closure(String?, [Expr], Code)
+    case closure(String?, Exprs, Code)
     case continuation(VirtualMachineState)
     case parameter(Tuple)
     case transformer(SyntaxRules)
@@ -54,7 +54,7 @@ public final class Procedure: Reference, CustomStringConvertible {
   //       generated procedure without arguments.
   public enum Implementation {
     case eval((Arguments) throws -> Code)
-    case apply((Arguments) throws -> (Procedure, [Expr]))
+    case apply((Arguments) throws -> (Procedure, Exprs))
     case native0(() throws -> Expr)
     case native1((Expr) throws -> Expr)
     case native2((Expr, Expr) throws -> Expr)
@@ -101,7 +101,7 @@ public final class Procedure: Reference, CustomStringConvertible {
   
   /// Initializer for primitive applicators
   public init(_ name: String,
-              _ proc: @escaping (Arguments) throws -> (Procedure, [Expr]),
+              _ proc: @escaping (Arguments) throws -> (Procedure, Exprs),
               _ compiler: FormCompiler? = nil) {
     self.kind = .primitive(name, .apply(proc), compiler)
   }
@@ -219,7 +219,7 @@ public final class Procedure: Reference, CustomStringConvertible {
   }
   
   /// Initializer for closures
-  public init(_ name: String?, _ captured: [Expr], _ code: Code) {
+  public init(_ name: String?, _ captured: Exprs, _ code: Code) {
     self.kind = .closure(name, captured, code)
   }
   

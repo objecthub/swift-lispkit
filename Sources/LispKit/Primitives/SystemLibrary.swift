@@ -122,7 +122,7 @@ public final class SystemLibrary: NativeLibrary {
                                     relativeTo: self.currentDirectoryPath) == "/")
   }
   
-  private func load(args: Arguments) throws -> (Procedure, [Expr]) {
+  private func load(args: Arguments) throws -> (Procedure, Exprs) {
     guard args.count == 1 || args.count == 2  else {
       throw EvalError.argumentCountError(formals: 2, args: .makeList(args))
     }
@@ -145,7 +145,7 @@ public final class SystemLibrary: NativeLibrary {
     return (self.compileAndEvalFirstProc, [exprs, .makeString(sourceDir), .env(environment!)])
   }
   
-  private func compileAndEvalFirst(args: Arguments) throws -> (Procedure, [Expr]) {
+  private func compileAndEvalFirst(args: Arguments) throws -> (Procedure, Exprs) {
     guard args.count == 3 else {
       throw EvalError.argumentCountError(formals: 3, args: .makeList(args))
     }

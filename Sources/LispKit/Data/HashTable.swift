@@ -42,7 +42,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
   internal static let stats = Stats("HashTable")
   
   /// The hash buckets.
-  private var buckets: [Expr]
+  private var buckets: Exprs
   
   /// Number of mappings in this hash table
   public private(set) var count: Int
@@ -60,7 +60,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
   
   /// Create a new empty hash table with the given size.
   public init(capacity: Int = 127, mutable: Bool = true, equiv: Equivalence) {
-    self.buckets = [Expr](repeating: .null, count: capacity)
+    self.buckets = Exprs(repeating: .null, count: capacity)
     self.count = 0
     self.mutable = mutable
     self.equiv = equiv
@@ -69,7 +69,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
   
   /// Create a copy of another hash table. Make it immutable if `mutable` is set to false.
   public init(copy other: HashTable, mutable: Bool = true) {
-    self.buckets = [Expr]()
+    self.buckets = Exprs()
     for i in 0..<other.buckets.count {
       self.buckets.append(other.buckets[i])
     }
@@ -91,7 +91,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
       return false
     }
     if let capacity = capacity {
-      self.buckets = [Expr](repeating: .null, count: capacity)
+      self.buckets = Exprs(repeating: .null, count: capacity)
     } else {
       for i in self.buckets.indices {
         self.buckets[i] = .null
@@ -111,7 +111,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
     // Save old bucket array
     let oldBuckets = self.buckets
     // Create new bucket array
-    self.buckets = [Expr](repeating: .null, count: capacity)
+    self.buckets = Exprs(repeating: .null, count: capacity)
     // Rehash the mappings
     for bucket in oldBuckets {
       var current = bucket
@@ -166,8 +166,8 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
   // Key/value accessors
   
   /// Returns a list of all keys in the hash table
-  public var keys: [Expr] {
-    var res = [Expr]()
+  public var keys: Exprs {
+    var res = Exprs()
     for bucket in self.buckets {
       var current = bucket
       while case .pair(.pair(let key, _), let next) = current {
@@ -192,8 +192,8 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
   }
   
   /// Returns a list of all values in the hash table
-  public var values: [Expr] {
-    var res = [Expr]()
+  public var values: Exprs {
+    var res = Exprs()
     for bucket in self.buckets {
       var current = bucket
       while case .pair(.pair(_, let value), let next) = current {
@@ -430,7 +430,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
   
   /// Clear variable value
   public override func clean() {
-    self.buckets = [Expr](repeating: .null, count: 1)
+    self.buckets = Exprs(repeating: .null, count: 1)
     self.count = 0
     self.equiv = .eq
   }

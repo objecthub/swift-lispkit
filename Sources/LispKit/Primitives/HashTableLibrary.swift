@@ -267,7 +267,7 @@ public final class HashTableLibrary: NativeLibrary {
     return .makeNumber(Double(map.count) / Double(map.bucketCount))
   }
   
-  func hashTableGet(_ args: Arguments) throws -> (Procedure, [Expr]) {
+  func hashTableGet(_ args: Arguments) throws -> (Procedure, Exprs) {
     try EvalError.assert(args, count: 2)
     let map = try args[args.startIndex].asHashTable()
     let key = args[args.startIndex + 1]
@@ -277,7 +277,7 @@ public final class HashTableLibrary: NativeLibrary {
     return (procs.get, [.table(map), .procedure(self.bucketsProc), key])
   }
   
-  func hashTableAdd(_ args: Arguments) throws -> (Procedure, [Expr]) {
+  func hashTableAdd(_ args: Arguments) throws -> (Procedure, Exprs) {
     try EvalError.assert(args, count: 3)
     let map = try args.first!.asHashTable()
     let key = args[args.startIndex + 1]
@@ -298,7 +298,7 @@ public final class HashTableLibrary: NativeLibrary {
                         value])
   }
   
-  func hashTableDelete(_ args: Arguments) throws -> (Procedure, [Expr]) {
+  func hashTableDelete(_ args: Arguments) throws -> (Procedure, Exprs) {
     try EvalError.assert(args, count: 2)
     let map = try args.first!.asHashTable()
     let key = args[args.startIndex + 1]
@@ -333,7 +333,7 @@ public final class HashTableLibrary: NativeLibrary {
     return .void
   }
   
-  func hashTableUnion(_ args: Arguments) throws -> (Procedure, [Expr]) {
+  func hashTableUnion(_ args: Arguments) throws -> (Procedure, Exprs) {
     try EvalError.assert(args, count: 2)
     let map1 = try args.first!.asHashTable()
     let map2 = try args[args.startIndex + 1].asHashTable()
@@ -349,7 +349,7 @@ public final class HashTableLibrary: NativeLibrary {
     return (self.procedure(self.hashtableUnionLoc), [.table(map1), .table(map2)])
   }
   
-  func hashTableIntersection(_ args: Arguments) throws -> (Procedure, [Expr]) {
+  func hashTableIntersection(_ args: Arguments) throws -> (Procedure, Exprs) {
     try EvalError.assert(args, count: 2)
     let map1 = try args.first!.asHashTable()
     let map2 = try args[args.startIndex + 1].asHashTable()
@@ -365,7 +365,7 @@ public final class HashTableLibrary: NativeLibrary {
     return (self.procedure(self.hashtableIntersectionLoc), [.table(map1), .table(map2)])
   }
   
-  func hashTableDifference(_ args: Arguments) throws -> (Procedure, [Expr]) {
+  func hashTableDifference(_ args: Arguments) throws -> (Procedure, Exprs) {
     try EvalError.assert(args, count: 2)
     let map1 = try args.first!.asHashTable()
     let map2 = try args[args.startIndex + 1].asHashTable()

@@ -24,11 +24,11 @@
 /// closures, which combine a `Code` object with a list of captured variables.
 ///
 public struct Code: CustomStringConvertible {
-  public let instructions: [Instruction]
-  public let constants: [Expr]
-  public let fragments: [Code]
+  public let instructions: Instructions
+  public let constants: Exprs
+  public let fragments: Fragments
   
-  public init(_ instructions: [Instruction], _ constants: [Expr], _ fragments: [Code]) {
+  public init(_ instructions: Instructions, _ constants: Exprs, _ fragments: Fragments) {
     self.instructions = instructions
     self.constants = constants
     self.fragments = fragments
@@ -83,3 +83,6 @@ public struct Code: CustomStringConvertible {
     }
   }
 }
+
+/// A set of code fragments, represented as an array.
+public typealias Fragments = ContiguousArray<Code>

@@ -342,7 +342,7 @@ extension Expr {
   }
   
   public static func makeList(_ expr: Expr...) -> Expr {
-    return Expr.makeList(expr)
+    return Expr.makeList(fromStack: expr.reversed(), append: Expr.null)
   }
   
   public static func makeList(_ exprs: Exprs, append: Expr = Expr.null) -> Expr {
@@ -353,7 +353,7 @@ extension Expr {
     return Expr.makeList(fromStack: exprs.reversed(), append: append)
   }
   
-  public static func makeList(fromStack exprs: Exprs, append: Expr = Expr.null) -> Expr {
+  public static func makeList(fromStack exprs: [Expr], append: Expr = Expr.null) -> Expr {
     var res = append
     for expr in exprs {
       res = pair(expr, res)

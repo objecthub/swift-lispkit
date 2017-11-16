@@ -703,3 +703,7 @@ public enum Instruction: CustomStringConvertible {
     }
   }
 }
+
+/// A sequence of instructions, represented as an array.
+public typealias Instructions = ContiguousArray<Instruction>
+

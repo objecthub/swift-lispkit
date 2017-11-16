@@ -147,7 +147,7 @@ public final class BaseLibrary: NativeLibrary {
     return compiler.call(0, inTailPos: tail)
   }
   
-  func apply(args: Arguments) throws -> (Procedure, [Expr]) {
+  func apply(args: Arguments) throws -> (Procedure, Exprs) {
     guard args.count > 1 else {
       throw EvalError.leastArgumentCountError(formals: 2, args: .makeList(args))
     }

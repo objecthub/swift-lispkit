@@ -58,7 +58,7 @@ public final class VirtualMachine: TrackedObject {
     var fp: Int
     let initialFp: Int
     
-    init(code: Code, captured: [Expr], fp: Int, root: Bool) {
+    init(code: Code, captured: Exprs, fp: Int, root: Bool) {
       if root {
         self.rid = 0
       } else {
@@ -72,7 +72,7 @@ public final class VirtualMachine: TrackedObject {
       self.initialFp = fp
     }
     
-    @inline(__always) mutating func use(code: Code, captured: [Expr], fp: Int) {
+    @inline(__always) mutating func use(code: Code, captured: Exprs, fp: Int) {
       self.code = code
       self.captured = captured
       self.ip = 0
@@ -475,8 +475,8 @@ public final class VirtualMachine: TrackedObject {
     return res
   }
   
-  @inline(__always) private func captureExprs(_ n: Int) -> [Expr] {
-    var captures = [Expr]()
+  @inline(__always) private func captureExprs(_ n: Int) -> Exprs {
+    var captures = Exprs()
     var i = self.sp &- n
     while i < self.sp {
       captures.append(self.stack[i])
@@ -905,7 +905,7 @@ public final class VirtualMachine: TrackedObject {
     return try self.execute(code, args: 0, captured: noExprs)
   }
   
-  @inline(__always) private func execute(_ code: Code, args: Int, captured: [Expr]) throws -> Expr {
+  @inline(__always) private func execute(_ code: Code, args: Int, captured: Exprs) throws -> Expr {
     // Use new registers
     let savedRegisters = self.registers
     self.registers = Registers(code: code,

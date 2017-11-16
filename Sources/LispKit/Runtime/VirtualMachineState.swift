@@ -19,12 +19,12 @@
 //
 
 public final class VirtualMachineState: TrackedObject, CustomStringConvertible {
-  internal let stack: [Expr]
+  internal let stack: Exprs
   internal let sp: Int
   internal let registers: VirtualMachine.Registers
   internal let winders: VirtualMachine.Winder?
   
-  internal init(stack: [Expr],
+  internal init(stack: Exprs,
                 sp: Int,
                 spDelta: Int,
                 ipDelta: Int,

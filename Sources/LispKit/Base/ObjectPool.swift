@@ -32,10 +32,10 @@ public final class ObjectPool<T: AnyObject>: Sequence, CustomStringConvertible {
   }
   
   /// Weak references to objects in the pool
-  private var references: [WeakVariable]
+  private var references: ContiguousArray<WeakVariable>
   
   /// A set of indices of free weak references
-  private var free: [Int]
+  private var free: ContiguousArray<Int>
   
   /// How many references have been added after the last collection of free references
   private var added: Int

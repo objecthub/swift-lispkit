@@ -20,7 +20,7 @@
 
 
 /// A sequence of expressions, represented as an array.
-public typealias Exprs = [Expr]
+public typealias Exprs = ContiguousArray<Expr>
 
 /// An immutable empty set of expressions
 public let noExprs = Exprs()

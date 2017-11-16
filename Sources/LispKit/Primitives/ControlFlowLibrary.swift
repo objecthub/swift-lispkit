@@ -344,7 +344,7 @@ public final class ControlFlowLibrary: NativeLibrary {
     var bindings = bindingList
     var prevIndex = -1
     var doBindings = [Int]()
-    var stepExprs = [Expr]()
+    var stepExprs = Exprs()
     // Compile initial bindings
     while case .pair(let binding, let rest) = bindings {
       guard case .pair(.symbol(let sym), .pair(let start, let optStep)) = binding else {

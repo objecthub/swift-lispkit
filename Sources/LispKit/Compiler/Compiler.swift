@@ -54,13 +54,13 @@ public final class Compiler {
   private var arguments: BindingGroup?
   
   /// Constant pool
-  private var constants: [Expr] = []
+  private var constants: Exprs = []
   
   /// List of code fragments
-  private var fragments: [Code] = []
+  private var fragments: Fragments = []
   
   /// Instruction sequence
-  private var instructions: [Instruction] = []
+  private var instructions: Instructions = []
   
   /// Directory of the current source file
   internal var sourceDirectory: String
