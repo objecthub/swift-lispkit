@@ -467,7 +467,24 @@ open class Library: Reference, Trackable, CustomStringConvertible {
             let resolvedName =
               self.context.fileHandler.filePath(forFile: str, relativeTo: inDirectory) ??
               self.context.fileHandler.path(str, relativeTo: inDirectory)
-            let exprs = try self.context.machine.parseExprs(file: resolvedName)
+            let exprs = try self.context.machine.parseExprs(file: resolvedName, foldCase: false)
+            if exprs.count > 0 {
+              let sourceDirectory = self.context.fileHandler.directory(resolvedName)
+              self.initDeclBlocks.append(DeclBlock(decls: exprs, inDirectory: sourceDirectory))
+            }
+            filenames = next
+          }
+          guard filenames.isNull else {
+            throw EvalError.malformedLibraryDefinition(decls: decl)
+          }
+        case .pair(.symbol(self.context.symbols.includeCi), let filenameList):
+          var filenames = filenameList
+          while case .pair(let filename, let next) = filenames {
+            let str = try filename.asPath()
+            let resolvedName =
+              self.context.fileHandler.filePath(forFile: str, relativeTo: inDirectory) ??
+                self.context.fileHandler.path(str, relativeTo: inDirectory)
+            let exprs = try self.context.machine.parseExprs(file: resolvedName, foldCase: true)
             if exprs.count > 0 {
               let sourceDirectory = self.context.fileHandler.directory(resolvedName)
               self.initDeclBlocks.append(DeclBlock(decls: exprs, inDirectory: sourceDirectory))

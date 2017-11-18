@@ -13,14 +13,14 @@ Last update: 2017-09-03
 - [X] Support (define ...) in control flow special forms
 - [X] Refactor creation of compiler; checkpointer needs to be always passed explicitly
 - [X] Support compiled system functions
-- [ ] Support tail patterns in `syntax-rules`
-- [ ] Within library definitions, support: `include`, `include-ci`,
+- [X] Support tail patterns in `syntax-rules`
+- [X] Within library definitions, support: `include`, `include-ci`,
       `include-library-declarations`, `cond-expand`
 - [X] Support `define-values`
-- [ ] Support `cond-expand`
-- [ ] Support `include-ci`
-- [ ] Support features mechanism
-- [ ] Fix bug preventing to nest definitions three or more times
+- [X] Support `cond-expand`
+- [X] Support `include-ci`
+- [X] Support features mechanism
+- [X] Fix bug preventing to nest definitions three or more times
 
 ## Runtime
 

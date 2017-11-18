@@ -33,6 +33,9 @@ public final class Scanner {
   /// Buffer for characters read during one invocation of `next`
   private var buffer: ScanBuffer
   
+  /// Is this scanner in fold-case mode?
+  internal var foldCase: Bool
+  
   /// Last scanned character
   internal var ch: UniChar
   
@@ -46,28 +49,28 @@ public final class Scanner {
   internal var token: Token
   
   /// Creates a new scanner for the given string.
-  public convenience init(string: String, prescan: Bool = true) {
-    self.init(input: TextInput(string: string), prescan: prescan)
+  public convenience init(string: String, foldCase: Bool = false, prescan: Bool = true) {
+    self.init(input: TextInput(string: string), foldCase: foldCase, prescan: prescan)
   }
   
   /// Creates a new scanner for the given string.
-  public init(input: TextInput, prescan: Bool = true) {
+  public init(input: TextInput, foldCase: Bool = false, prescan: Bool = true) {
     self.input = input
     self.buffer = ScanBuffer()
+    self.foldCase = foldCase
     self.pos = Position(1, 1)
     self.lpos = Position(0, 0)
     self.ch = SPACE_CH
-    self.token = Token(
-      pos: Position(0, 0),
-      kind: .error,
-      strVal: "",
-      intVal: 0,
-      bigIntVal: 0,
-      ratVal: 0,
-      bigRatVal: 0,
-      floatVal: 0.0,
-      complexVal: 0.0,
-      errorVal: LexicalError.empty)
+    self.token = Token(pos: Position(0, 0),
+                       kind: .error,
+                       strVal: "",
+                       intVal: 0,
+                       bigIntVal: 0,
+                       ratVal: 0,
+                       bigRatVal: 0,
+                       floatVal: 0.0,
+                       complexVal: 0.0,
+                       errorVal: LexicalError.empty)
     if prescan {
       self.next()
     }
@@ -259,6 +262,25 @@ public final class Scanner {
                 self.nextCh()
               }
               continue
+            case BANG_CH:
+              self.nextCh()
+              while isSubsequentIdent(self.ch) {
+                self.nextCh()
+              }
+              let s = self.buffer.stringStartingAt(2)
+              switch s.lowercased() {
+                case "fold-case":
+                  self.foldCase = true
+                case "no-fold-case":
+                  self.foldCase = false
+                default:
+                  self.signal(.unknownDirective)
+                  return
+              }
+              if self.ch != EOF_CH {
+                self.nextCh()
+              }
+              continue
             case LPAREN_CH:
               self.nextCh()
               self.token.kind = .hashlparen
@@ -272,7 +294,8 @@ public final class Scanner {
               self.signal(.incompleteCharacterLiteral)
               return
             default:
-              while self.ch >= LA_CH && self.ch <= LZ_CH || self.ch >= UA_CH && self.ch <= UZ_CH {
+              while self.ch >= LA_CH && self.ch <= LZ_CH ||
+                    self.ch >= UA_CH && self.ch <= UZ_CH {
                 self.nextCh()
               }
               let s = self.buffer.stringStartingAt(1)
@@ -999,6 +1022,7 @@ let COMMA_CH           = UniChar(",")
 let SEMI_CH            = UniChar(";")
 let AT_CH              = UniChar("@")
 let HASH_CH            = UniChar("#")
+let BANG_CH            = UniChar("!")
 let MINUS_CH           = UniChar("-")
 let PLUS_CH            = UniChar("+")
 let LE_CH              = UniChar("e")

@@ -284,11 +284,15 @@ public final class VirtualMachine: TrackedObject {
   
   /// Loads the file at file patch `path`, compiles it in the interaction environment, and
   /// executes it using this virtual machine.
-  public func eval(file path: String, in env: Env, optimize: Bool = true) throws -> Expr {
+  public func eval(file path: String,
+                   in env: Env,
+                   optimize: Bool = true,
+                   foldCase: Bool = false) throws -> Expr {
     return try self.eval(str: try String(contentsOfFile: path, encoding: String.Encoding.utf8),
                          in: env,
                          optimize: optimize,
-                         inDirectory: self.context.fileHandler.directory(path))
+                         inDirectory: self.context.fileHandler.directory(path),
+                         foldCase: foldCase)
   }
   
   /// Parses the given string, compiles it in the interaction environment, and executes it using
@@ -296,8 +300,9 @@ public final class VirtualMachine: TrackedObject {
   public func eval(str: String,
                    in env: Env,
                    optimize: Bool = true,
-                   inDirectory: String? = nil) throws -> Expr {
-    return try self.eval(exprs: self.parse(str: str),
+                   inDirectory: String? = nil,
+                   foldCase: Bool = false) throws -> Expr {
+    return try self.eval(exprs: self.parse(str: str, foldCase: foldCase),
                          in: env,
                          optimize: optimize,
                          inDirectory: inDirectory)
@@ -339,24 +344,26 @@ public final class VirtualMachine: TrackedObject {
   }
   
   /// Parses the given file and returns a list of parsed expressions.
-  public func parse(file path: String) throws -> Expr {
-    return try self.parse(str: try String(contentsOfFile: path, encoding: String.Encoding.utf8))
+  public func parse(file path: String, foldCase: Bool = false) throws -> Expr {
+    return try self.parse(str: try String(contentsOfFile: path, encoding: String.Encoding.utf8),
+                          foldCase: foldCase)
   }
   
   /// Parses the given string and returns a list of parsed expressions.
-  public func parse(str: String) throws -> Expr {
-    return .makeList(try self.parseExprs(str: str))
+  public func parse(str: String, foldCase: Bool = false) throws -> Expr {
+    return .makeList(try self.parseExprs(str: str, foldCase: foldCase))
   }
   
   /// Parses the given string and returns an array of parsed expressions.
-  public func parseExprs(file path: String) throws -> Exprs {
+  public func parseExprs(file path: String, foldCase: Bool = false) throws -> Exprs {
     return try self.parseExprs(
-      str: try String(contentsOfFile: path, encoding: String.Encoding.utf8))
+      str: try String(contentsOfFile: path, encoding: String.Encoding.utf8),
+      foldCase: foldCase)
   }
   
   /// Parses the given string and returns an array of parsed expressions.
-  public func parseExprs(str: String) throws -> Exprs {
-    let parser = Parser(symbols: self.context.symbols, src: str)
+  public func parseExprs(str: String, foldCase: Bool = false) throws -> Exprs {
+    let parser = Parser(symbols: self.context.symbols, src: str, foldCase: foldCase)
     var exprs = Exprs()
     while !parser.finished {
       exprs.append(try parser.parse())

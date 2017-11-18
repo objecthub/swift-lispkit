@@ -62,6 +62,7 @@ public final class SymbolTable: Sequence {
   public let not             = Symbol("not")
   public let condExpand      = Symbol("cond-expand")
   public let include         = Symbol("include")
+  public let includeCi       = Symbol("include-ci")
   public let includeLibDecls = Symbol("include-library-declarations")
   
   public init() {

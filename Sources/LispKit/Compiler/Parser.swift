@@ -21,19 +21,19 @@
 import Foundation
 
 /// 
-/// Implementation of a simple Lisp parser. The parser requires access to a scanner and
+/// Implementation of a simple Scheme parser. The parser requires access to a scanner and
 /// a symbol table for creating `Symbol` objects.
 /// 
 public final class Parser {
-  private var symbols: SymbolTable
-  private var scanner: Scanner
+  private let symbols: SymbolTable
+  private let scanner: Scanner
   
-  public convenience init(symbols: SymbolTable, src: String) {
-    self.init(symbols: symbols, scanner: Scanner(string: src))
+  public convenience init(symbols: SymbolTable, src: String, foldCase: Bool = false) {
+    self.init(symbols: symbols, scanner: Scanner(string: src, foldCase: foldCase))
   }
   
-  public convenience init(symbols: SymbolTable, input: TextInput) {
-    self.init(symbols: symbols, scanner: Scanner(input: input))
+  public convenience init(symbols: SymbolTable, input: TextInput, foldCase: Bool = false) {
+    self.init(symbols: symbols, scanner: Scanner(input: input, foldCase: foldCase))
   }
   
   public init(symbols: SymbolTable, scanner: Scanner) {
@@ -60,7 +60,8 @@ public final class Parser {
         _ = try self.parse()
         return try self.parse(prescan)
       case .ident:
-        res = .symbol(self.symbols.intern(token.strVal))
+        res = .symbol(self.symbols.intern(
+                        self.scanner.foldCase ? token.strVal.lowercased() : token.strVal))
       case .truelit:
         res = .true
       case .falselit:

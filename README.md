@@ -59,9 +59,6 @@ _LispKit_ is incompatible or incomplete with respect to the following R7RS featu
   - Error support is incomplete; the following functions are missing: `read-error?`, `file-error?`
   - `current-input-port`, `current-output-port`, and `current-error-port` are functions
     (as required by R5RS) and not parameter objects (as required by R7RS)
-  - The R5RS-fallback mechanism for handling symbols in a case-insensitive manner is not
-    implemented yet; this includes support for special form `include-ci` as well as the `include-ci`
-    in library definitions.
   - Environment-support lacks the following functions: `scheme-report-environment`,
     `null-environment`.
   - Datum comments introduced via `#;` do not always work as expected.

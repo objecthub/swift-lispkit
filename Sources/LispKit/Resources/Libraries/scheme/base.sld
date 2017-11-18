@@ -114,7 +114,7 @@
           guard
           if
           include
-          ; include-ci                Undefined in LispKit
+          include-ci
           inexact
           inexact?
           input-port-open?

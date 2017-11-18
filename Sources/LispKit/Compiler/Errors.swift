@@ -246,6 +246,7 @@ public enum LexicalError: Int, LispError, Hashable {
   case tokenNotYetSupported
   case divisionByZero
   case exactComplexNumbersUnsupported
+  case unknownDirective
   
   public var type: LispErrorType {
     return .lexicalError
@@ -289,6 +290,8 @@ public enum LexicalError: Int, LispError, Hashable {
         return "division by zero"
       case .exactComplexNumbersUnsupported:
         return "exact complex numnbers are not supported"
+      case .unknownDirective:
+        return "unknown directive"
     }
   }
   

@@ -83,9 +83,10 @@ public final class BaseLibrary: NativeLibrary {
     self.define("or", as: SpecialForm(compileOr))
     self.define(Procedure("not", not, compileNot))
     
-    // Conditional compilation & inclusion compilation
+    // Conditional & inclusion compilation
     self.define("cond-expand", as: SpecialForm(compileCondExpand))
     self.define("include", as: SpecialForm(include))
+    self.define("include-ci", as: SpecialForm(includeCi))
     
     // Multiple values
     self.define(Procedure("values", values, compileValues))
@@ -850,13 +851,36 @@ public final class BaseLibrary: NativeLibrary {
     guard  case .pair(_, let filenameList) = expr else {
       preconditionFailure()
     }
+    return try self.include(compiler: compiler,
+                            filenameList: filenameList,
+                            foldCase: false,
+                            env: env,
+                            tail: tail)
+  }
+  
+  func includeCi(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    guard  case .pair(_, let filenameList) = expr else {
+      preconditionFailure()
+    }
+    return try self.include(compiler: compiler,
+                            filenameList: filenameList,
+                            foldCase: true,
+                            env: env,
+                            tail: tail)
+  }
+  
+  func include(compiler: Compiler,
+               filenameList: Expr,
+               foldCase: Bool,
+               env: Env,
+               tail: Bool) throws -> Bool {
     var filenames = filenameList
     while case .pair(let filename, let rest) = filenames {
       let str = try filename.asPath()
       let resolvedName =
         self.context.fileHandler.filePath(forFile: str, relativeTo: compiler.sourceDirectory) ??
-        self.context.fileHandler.path(str, relativeTo: compiler.sourceDirectory)
-      let exprs = try self.context.machine.parse(file: resolvedName)
+          self.context.fileHandler.path(str, relativeTo: compiler.sourceDirectory)
+      let exprs = try self.context.machine.parse(file: resolvedName, foldCase: foldCase)
       try compiler.compileSeq(exprs,
                               in: env,
                               inTailPos: false,

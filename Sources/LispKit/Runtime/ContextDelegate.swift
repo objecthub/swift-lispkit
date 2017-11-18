@@ -1,5 +1,5 @@
 //
-//  ContextObserver.swift
+//  ContextDelegate.swift
 //  LispKit
 //
 //  Created by Matthias Zenger on 29/12/2016.
