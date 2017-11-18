@@ -65,7 +65,7 @@
           a:fixn8b
           a:bool)
 
-  (import (except (scheme base) equal?))
+  (import (except (lispkit base) equal?))
 
   (begin
 

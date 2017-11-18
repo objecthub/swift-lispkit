@@ -39,7 +39,7 @@
           avl-delete
           avl-tree->list)
  
-  (import (scheme base)
+  (import (lispkit base)
           (lispkit datatype))
  
   (begin

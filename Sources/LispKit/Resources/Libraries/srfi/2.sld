@@ -22,7 +22,7 @@
 
 (define-library (srfi 2)
   (export and-let*)
-  (import (scheme base))
+  (import (lispkit base))
 
   (begin
     (define-syntax and-let*

@@ -24,7 +24,7 @@ public final class BaseLibrary: NativeLibrary {
   
   /// Name of the library.
   public override class var name: [String] {
-    return ["lispkit", "base"]
+    return ["lispkit", "core"]
   }
   
   internal static let idProc = Procedure("identity", BaseLibrary.identity)

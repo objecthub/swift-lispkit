@@ -28,7 +28,7 @@
 
 (define-library (srfi 8)
   (export receive)
-  (import (scheme base))
+  (import (lispkit base))
   
   (begin
     (define-syntax receive

@@ -51,7 +51,7 @@
           enum-set-complement
           enum-set-projection)
   
-  (import (scheme base))
+  (import (lispkit base))
   
   (begin
     (define (assert bool message . irritants)

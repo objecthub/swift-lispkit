@@ -97,7 +97,7 @@
           generator->ideque
           ideque->generator)
 
-  (import (scheme base)
+  (import (lispkit base)
           (srfi 1)
           (srfi 8)
           (srfi 121))

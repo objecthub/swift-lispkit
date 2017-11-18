@@ -23,7 +23,7 @@ public final class SchemeLibrary: NativeLibrary {
   
   /// Name of the library.
   public override class var name: [String] {
-    return ["scheme", "base"]
+    return ["lispkit", "base"]
   }
   
   /// Exported definitions.

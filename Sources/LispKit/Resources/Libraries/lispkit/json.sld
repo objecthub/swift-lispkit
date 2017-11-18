@@ -56,7 +56,7 @@
           json-null
           json-null?)
 
-  (import (scheme base))
+  (import (lispkit base))
 
   (begin
 

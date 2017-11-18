@@ -120,7 +120,7 @@
           test-on-final-simple
           test-on-test-end-simple)
 
-  (import (scheme base))
+  (import (lispkit base))
 
   (begin
 

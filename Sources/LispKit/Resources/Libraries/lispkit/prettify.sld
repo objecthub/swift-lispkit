@@ -50,7 +50,7 @@
           *pp-max-call-head-width*
           *max-expr-width*)
   
-  (import (scheme base))
+  (import (lispkit base))
 
   (begin
     

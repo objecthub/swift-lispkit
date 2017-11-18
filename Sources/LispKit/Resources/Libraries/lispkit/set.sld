@@ -57,7 +57,7 @@
           list->eqv-set
           list->equal-set)
   
-  (import (scheme base))
+  (import (lispkit base))
   
   (begin
 

@@ -37,7 +37,7 @@ public final class TypeLibrary: NativeLibrary {
   
   /// Dependencies of the library.
   public override func dependencies() {
-    self.`import`(from: ["lispkit", "base"], "define", "lambda", "values", "quote")
+    self.`import`(from: ["lispkit", "core"], "define", "lambda", "values", "quote")
     self.`import`(from: ["lispkit", "list"], "null?", "car")
     self.`import`(from: ["lispkit", "control"], "if")
     self.`import`(from: ["lispkit", "dynamic"], "error")

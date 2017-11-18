@@ -46,7 +46,7 @@
           stream-null?
           stream-pair?)
   
-  (import (scheme base))
+  (import (lispkit base))
   
   (begin
 

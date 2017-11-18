@@ -107,7 +107,7 @@
           define-pattern
           match)
 
-  (import (scheme base))
+  (import (lispkit base))
 
   (begin
 

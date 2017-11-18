@@ -92,7 +92,7 @@
           sum-accumulator
           product-accumulator)
   
-  (import (scheme base))
+  (import (lispkit base))
  
   (begin
  

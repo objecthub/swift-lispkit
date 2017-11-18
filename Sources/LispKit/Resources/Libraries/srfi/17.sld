@@ -35,7 +35,7 @@
   (export set!
           setter
           getter-with-setter)
-  (import (rename (scheme base) (set! %set!)))
+  (import (rename (lispkit base) (set! %set!)))
 
   (begin
     (define-syntax set!

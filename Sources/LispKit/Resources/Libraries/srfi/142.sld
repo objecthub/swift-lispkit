@@ -102,7 +102,7 @@
           bitwise-unfold
           make-bitwise-generator)
 
-  (import (scheme base))
+  (import (lispkit base))
 
   (begin
     (define (bitwise-not n) (- -1 n))

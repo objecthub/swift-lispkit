@@ -71,7 +71,7 @@
           wt-tree/delete-min!
           wt-tree/valid?)
 
-  (import (scheme base))
+  (import (lispkit base))
 
   (begin
 

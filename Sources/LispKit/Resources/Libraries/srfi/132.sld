@@ -52,7 +52,7 @@
           vector-select!
           vector-separate!)
 
-  (import (scheme base)
+  (import (lispkit base)
           (only (srfi 27) random-integer))
   
   (begin

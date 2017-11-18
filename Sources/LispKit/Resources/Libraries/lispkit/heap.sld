@@ -50,7 +50,7 @@
           list->heap
           vector->heap)
   
-  (import (scheme base))
+  (import (lispkit base))
 
   ;;;; INTERNAL
   

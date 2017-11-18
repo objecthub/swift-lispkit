@@ -67,7 +67,7 @@
           stream-unfolds
           stream-zip)
 
-  (import (scheme base)
+  (import (lispkit base)
           (srfi 41 primitive))
 
   (begin

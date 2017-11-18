@@ -41,7 +41,7 @@
           subtext
           textual-concatenate)
 
-  (import (scheme base))
+  (import (lispkit base))
 
   (begin
     (define (complain name . args)

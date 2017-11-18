@@ -49,7 +49,7 @@
           random-source-make-integers
           random-source-make-reals)
   
-  (import (scheme base))
+  (import (lispkit base))
 
 
   ; Record Data Type

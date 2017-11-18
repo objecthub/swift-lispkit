@@ -21,7 +21,7 @@
 
 (define-library (srfi 1)
   
-  (import (scheme base))
+  (import (lispkit base))
   
   ;; # Constructors
   ;; cons list

@@ -24,7 +24,7 @@
           loop
           exit-with)
 
-  (import (scheme base))
+  (import (lispkit base))
 
   (begin
 

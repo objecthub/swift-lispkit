@@ -149,7 +149,7 @@
           textual-replicate
           textual-split)
 
-  (import (scheme base)
+  (import (lispkit base)
           (srfi 135 kernel0))
 
   (begin

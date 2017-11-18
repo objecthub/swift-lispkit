@@ -45,6 +45,10 @@ _LispKit_ provides support for the following core features, many of which are ba
   - R7RS-compliant records
   - [R6RS](http://www.r6rs.org)-compliant hashtables
   - [R6RS](http://www.r6rs.org)-compliant enumerations
+  - All R7RS libraries: `(scheme base)`, `(scheme case-lambda)`, `(scheme complex)`, `(scheme cxr)`,
+    `(scheme eval)`, `(scheme file)`, `(scheme inexact)`, `(scheme lazy)`, `(scheme load)`,
+    `(scheme procss-context)`, `(scheme read)`, `(scheme repl)`, `(scheme time)`, `(scheme write)`,
+    `(scheme r5rs)`
   - LispKit-specific libraries: `(lispkit datatype)`, `(lispkit iteration)`, `(lispkit set)`, `(lispkit heap)`,
     `(lispkit wt-tree)`, `(lispkit prettify)`, `(lispkit json)`, and `(lispkit pdf)`
 
@@ -62,7 +66,7 @@ _LispKit_ is incompatible or incomplete with respect to the following R7RS featu
     `null-environment`.
   - Datum comments introduced via `#;` do not always work as expected.
 
-The following standard libraries have been ported to _LispKit_ and are included in the
+The following  [SRFI](https://srfi.schemers.org/) libraries have been ported to _LispKit_ and are included in the
 framework:
 
   - [SRFI 1: List Library](https://srfi.schemers.org/srfi-1/srfi-1.html)

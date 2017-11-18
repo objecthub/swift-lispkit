@@ -79,7 +79,7 @@
   (export reverse-vector->list
           reverse-list->vector)
 
-  (import (scheme base)
+  (import (lispkit base)
           (srfi 8))
   
   (begin

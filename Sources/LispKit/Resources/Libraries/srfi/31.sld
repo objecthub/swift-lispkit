@@ -25,7 +25,7 @@
 
 (define-library (srfi 31)
   (export rec)
-  (import (scheme base))
+  (import (lispkit base))
   
   (begin
     (define-syntax rec

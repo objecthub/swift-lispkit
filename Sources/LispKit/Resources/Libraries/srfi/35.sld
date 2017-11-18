@@ -61,7 +61,7 @@
           &serious
           &error)
   
-  (import (scheme base)
+  (import (lispkit base)
           (srfi 1))
   
   (begin

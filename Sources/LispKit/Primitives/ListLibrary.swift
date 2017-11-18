@@ -35,7 +35,7 @@ public final class ListLibrary: NativeLibrary {
   
   /// Dependencies of the library.
   public override func dependencies() {
-    self.`import`(from: ["lispkit", "base"],    "define", "apply", "quote", "and", "or",
+    self.`import`(from: ["lispkit", "core"],    "define", "apply", "quote", "and", "or",
                                                 "not", "equal?", "lambda", "identity", "set!",
                                                 "values")
     self.`import`(from: ["lispkit", "control"], "if", "cond", "let", "do")

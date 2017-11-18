@@ -34,7 +34,7 @@
 
   (export format)
   
-  (import (scheme base))
+  (import (lispkit base))
 
   (begin
     (define (format formatstr . objects)

@@ -88,7 +88,7 @@
           string-segment
           string-split)
 
-  (import (scheme base)
+  (import (lispkit base)
           (srfi 8))
   
   ;;; UTILITIES

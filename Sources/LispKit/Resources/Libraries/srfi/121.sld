@@ -69,7 +69,7 @@
           generator-every
           generator-unfold)
 
-  (import (scheme base))
+  (import (lispkit base))
 
   (begin
 

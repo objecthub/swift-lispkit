@@ -36,7 +36,7 @@
   (export format
           *pretty-print*)
 
-  (import (scheme base)
+  (import (lispkit base)
           (lispkit prettify))
 
   (begin

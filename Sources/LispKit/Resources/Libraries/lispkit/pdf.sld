@@ -124,7 +124,7 @@
           page-width
           page-height)
 
-  (import (scheme base)
+  (import (lispkit base)
           (srfi 48))
   
   (begin

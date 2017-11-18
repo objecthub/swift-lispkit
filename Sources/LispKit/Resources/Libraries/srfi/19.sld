@@ -117,7 +117,7 @@
           time>?
           time>=?)
   
-  (import (scheme base))
+  (import (lispkit base))
 
   (begin
   

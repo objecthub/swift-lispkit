@@ -35,7 +35,7 @@ let console = CommandLineConsole()
 do {
   try context.environment.import(SchemeLibrary.name)
 } catch let error {
-  preconditionFailure("cannot import (base scheme): \(error.localizedDescription)")
+  preconditionFailure("cannot import (lispkit base): \(error.localizedDescription)")
 }
 
 // Load standard Prelude

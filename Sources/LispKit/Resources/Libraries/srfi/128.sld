@@ -70,7 +70,7 @@
           >=?
           comparator-if<=>)
 
-  (import (scheme base))
+  (import (lispkit base))
 
   ;;; Main part of the SRFI 114 reference implementation
   ;;;
