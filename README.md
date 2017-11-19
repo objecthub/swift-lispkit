@@ -59,8 +59,6 @@ _LispKit_ is incompatible or incomplete with respect to the following R7RS featu
   - Error support is incomplete; the following functions are missing: `read-error?`, `file-error?`
   - `current-input-port`, `current-output-port`, and `current-error-port` are functions
     (as required by R5RS) and not parameter objects (as required by R7RS)
-  - Environment-support lacks the following functions: `scheme-report-environment`,
-    `null-environment`.
   - Datum comments introduced via `#;` do not always work as expected.
 
 The following  [SRFI](https://srfi.schemers.org/) libraries have been ported to _LispKit_ and are included in the

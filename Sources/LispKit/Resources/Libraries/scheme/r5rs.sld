@@ -167,7 +167,7 @@
           negative?
           newline
           not
-          ; null-environment TODO
+          null-environment
           null?
           number->string
           number?
@@ -193,7 +193,7 @@
           remainder
           reverse
           round
-          ; scheme-report-environment TODO
+          scheme-report-environment
           ; set-car!                  Not a syntax form in LispKit
           ; set-cdr!                  Not a syntax form in LispKit
           set!

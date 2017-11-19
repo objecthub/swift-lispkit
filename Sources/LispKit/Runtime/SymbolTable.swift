@@ -64,6 +64,9 @@ public final class SymbolTable: Sequence {
   public let include         = Symbol("include")
   public let includeCi       = Symbol("include-ci")
   public let includeLibDecls = Symbol("include-library-declarations")
+  public let scheme          = Symbol("scheme")
+  public let r5rs            = Symbol("r5rs")
+  public let r5rsSyntax      = Symbol("r5rs-syntax")
   
   public init() {
     func register(_ sym: Symbol) {
@@ -103,7 +106,11 @@ public final class SymbolTable: Sequence {
     register(self.not)
     register(self.condExpand)
     register(self.include)
+    register(self.includeCi)
     register(self.includeLibDecls)
+    register(self.scheme)
+    register(self.r5rs)
+    register(self.r5rsSyntax)
   }
   
   public func exists(_ ident: String) -> Bool {

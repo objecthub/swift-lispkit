@@ -97,6 +97,8 @@ public final class BaseLibrary: NativeLibrary {
     // Environments
     self.define(Procedure("environment?", isEnvironment))
     self.define(Procedure("environment", environment))
+    self.define(Procedure("scheme-report-environment", schemeReportEnvironment))
+    self.define(Procedure("null-environment", nullEnvironment))
     self.define(Procedure("interaction-environment", interactionEnvironment))
     
     // Syntax errors
@@ -970,6 +972,28 @@ public final class BaseLibrary: NativeLibrary {
       }
       importSets.append(importSet)
     }
+    return Expr.env(try Environment(in: self.context, importing: importSets))
+  }
+  
+  func schemeReportEnvironment(expr: Expr) throws -> Expr {
+    var importSets = [ImportSet]()
+    guard let importSet = ImportSet(.pair(.symbol(self.context.symbols.scheme),
+                                          .pair(.symbol(self.context.symbols.r5rs), .null)),
+                                    in: self.context) else {
+                                      throw EvalError.malformedImportSet(expr)
+    }
+    importSets.append(importSet)
+    return Expr.env(try Environment(in: self.context, importing: importSets))
+  }
+  
+  func nullEnvironment(expr: Expr) throws -> Expr {
+    var importSets = [ImportSet]()
+    guard let importSet = ImportSet(.pair(.symbol(self.context.symbols.scheme),
+                                          .pair(.symbol(self.context.symbols.r5rsSyntax), .null)),
+                                    in: self.context) else {
+      throw EvalError.malformedImportSet(expr)
+    }
+    importSets.append(importSet)
     return Expr.env(try Environment(in: self.context, importing: importSets))
   }
   

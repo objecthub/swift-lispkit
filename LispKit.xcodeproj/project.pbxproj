@@ -114,6 +114,7 @@
 		CC7F7C261FC0710200639166 /* repl.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC7F7C141FC03D1800639166 /* repl.sld */; };
 		CC7F7C271FC0710200639166 /* time.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC7F7C151FC03D7E00639166 /* time.sld */; };
 		CC7F7C281FC0710200639166 /* write.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC7F7C161FC03D9800639166 /* write.sld */; };
+		CC7F7C2A1FC1057C00639166 /* r5rs-syntax.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC7F7C291FC1011A00639166 /* r5rs-syntax.sld */; };
 		CC8169271D1FADEC003FADEA /* Ports.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC8169261D1FADE2003FADEA /* Ports.scm */; };
 		CC8213661D614A8600C1BE57 /* Records.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC8213651D614A8600C1BE57 /* Records.scm */; };
 		CC8218911E3FFFAB009CA653 /* SRFI19.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC8218901E3FFFAB009CA653 /* SRFI19.scm */; };
@@ -285,6 +286,7 @@
 			dstPath = LispKit/Resources/Libraries/scheme;
 			dstSubfolderSpec = 7;
 			files = (
+				CC7F7C2A1FC1057C00639166 /* r5rs-syntax.sld in Copy pre-installed Scheme libraries */,
 				CC7F7C201FC0710200639166 /* file.sld in Copy pre-installed Scheme libraries */,
 				CC7F7C211FC0710200639166 /* inexact.sld in Copy pre-installed Scheme libraries */,
 				CC7F7C221FC0710200639166 /* lazy.sld in Copy pre-installed Scheme libraries */,
@@ -470,6 +472,7 @@
 		CC7F7C151FC03D7E00639166 /* time.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = time.sld; sourceTree = "<group>"; };
 		CC7F7C161FC03D9800639166 /* write.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = write.sld; sourceTree = "<group>"; };
 		CC7F7C171FC03DCA00639166 /* r5rs.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = r5rs.sld; sourceTree = "<group>"; };
+		CC7F7C291FC1011A00639166 /* r5rs-syntax.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = "r5rs-syntax.sld"; sourceTree = "<group>"; };
 		CC8169261D1FADE2003FADEA /* Ports.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Ports.scm; sourceTree = "<group>"; };
 		CC8213651D614A8600C1BE57 /* Records.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Records.scm; sourceTree = "<group>"; };
 		CC8218901E3FFFAB009CA653 /* SRFI19.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SRFI19.scm; sourceTree = "<group>"; };
@@ -719,6 +722,7 @@
 				CC7F7C151FC03D7E00639166 /* time.sld */,
 				CC7F7C161FC03D9800639166 /* write.sld */,
 				CC7F7C171FC03DCA00639166 /* r5rs.sld */,
+				CC7F7C291FC1011A00639166 /* r5rs-syntax.sld */,
 			);
 			name = small;
 			sourceTree = "<group>";
