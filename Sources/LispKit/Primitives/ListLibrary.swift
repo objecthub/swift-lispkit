@@ -101,6 +101,20 @@ public final class ListLibrary: NativeLibrary {
     self.define("assoc", via:
       "(define (assoc x list . comp)",
       "  (_assoc x list (if (pair? comp) (car comp) equal?)))")
+    self.define("delete", via:
+      "(define (delete x list . comp)",
+      "  (let ((eq (if (pair? comp) (car comp) equal?)))",
+      "    (let lp ((ls list))",
+      "      (if (pair? ls)",
+      "          (if (eq x (car ls)) (lp (cdr ls)) (cons (car ls) (lp (cdr ls))))",
+      "          ls))))")
+    self.define("alist-delete", via:
+      "(define (alist-delete x list . comp)",
+      "  (let ((eq (if (pair? comp) (car comp) equal?)))",
+      "    (let lp ((ls list))",
+      "      (if (pair? ls)",
+      "          (if (eq x (caar ls)) (lp (cdr ls)) (cons (car ls) (lp (cdr ls))))",
+      "          ls))))")
     self.define("map", via:
       "(define (map f xs . xss)",
       "  (if (null? xss)",
@@ -121,6 +135,10 @@ public final class ListLibrary: NativeLibrary {
     self.define(Procedure("memv", memv))
     self.define(Procedure("assq", assq))
     self.define(Procedure("assv", assv))
+    self.define(Procedure("delq", delq))
+    self.define(Procedure("delv", delv))
+    self.define(Procedure("alist-delq", alistDelq))
+    self.define(Procedure("alist-delv", alistDelv))
     self.define("merge", via:
       "(define (merge pred l1 l2)",
       "  (cond ((null? l1)               l2)",
@@ -518,6 +536,66 @@ public final class ListLibrary: NativeLibrary {
       throw EvalError.typeError(expr, [.assocListType])
     }
     return .false
+  }
+  
+  func delq(_ obj: Expr, expr: Expr) throws -> Expr {
+    var list = expr
+    var elems = Exprs()
+    while case .pair(let car, let cdr) = list {
+      if !eqExpr(obj, car) {
+        elems.append(car)
+      }
+      list = cdr
+    }
+    guard list.isNull else {
+      throw EvalError.typeError(expr, [.properListType])
+    }
+    return .makeList(elems)
+  }
+  
+  func delv(_ obj: Expr, expr: Expr) throws -> Expr {
+    var list = expr
+    var elems = Exprs()
+    while case .pair(let car, let cdr) = list {
+      if !eqvExpr(obj, car) {
+        elems.append(car)
+      }
+      list = cdr
+    }
+    guard list.isNull else {
+      throw EvalError.typeError(expr, [.properListType])
+    }
+    return .makeList(elems)
+  }
+  
+  func alistDelq(_ obj: Expr, expr: Expr) throws -> Expr {
+    var list = expr
+    var elems = Exprs()
+    while case .pair(.pair(let key, let value), let cdr) = list {
+      if !eqExpr(obj, key) {
+        elems.append(.pair(key, value))
+      }
+      list = cdr
+    }
+    guard list.isNull else {
+      throw EvalError.typeError(expr, [.assocListType])
+    }
+    return .makeList(elems)
+  }
+  
+  func alistDelv(_ obj: Expr, expr: Expr) throws -> Expr {
+    var list = expr
+    var elems = Exprs()
+    while case .pair(.pair(let key, let value), let cdr) = list {
+      if !eqvExpr(obj, key) {
+        elems.append(.pair(key, value))
+      }
+      list = cdr
+    }
+    guard list.isNull else {
+      throw EvalError.typeError(expr, [.assocListType])
+    }
+    return .makeList(elems)
   }
   
   func decons(_ expr: Expr) throws -> Expr {
