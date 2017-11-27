@@ -118,7 +118,7 @@
       (elements enum-set->list))
     
     (define (make-enumeration symbol-list)
-      (assert (every symbol? symbol-list) "enumeration values must be symbols" symbol-list)
+      (assert (every? symbol? symbol-list) "enumeration values must be symbols" symbol-list)
       (letrec* ((indexer
                   (lambda (symbol)
                     (let loop ((i 0) (p symbol-list))
@@ -127,7 +127,7 @@
                             (else      (loop (+ i 1) (cdr p)))))))
                 (constructor
                   (lambda (elements)
-                    (assert (every (lambda (e) (memq e symbol-list)) elements)
+                    (assert (every? (lambda (e) (memq e symbol-list)) elements)
                             "some symbols not in enumeration set universe"
                             elements)
                     (let ((elements (sort-uniq elements symbol-list)))

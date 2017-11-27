@@ -203,7 +203,7 @@
     (define (gcombine proc seed . gens)
       (lambda ()
         (let ((items (map (lambda (x) (x)) gens)))
-          (if (any eof-object? items)
+          (if (any? eof-object? items)
               (eof-object)
               (let-values (((value newseed) (apply proc (append items (list seed)))))
                 (set! seed newseed)
@@ -342,7 +342,7 @@
     (define (generator-fold f seed . gs)
       (define (inner-fold seed)
         (let ((vs (map (lambda (g) (g)) gs)))
-          (if (any eof-object? vs)
+          (if (any? eof-object? vs)
               seed
               (inner-fold (apply f (append vs (list seed)))))))
       (inner-fold seed))
@@ -351,7 +351,7 @@
     (define (generator-for-each f . gs)
       (let loop ()
         (let ((vs (map (lambda (g) (g)) gs)))
-          (if (any eof-object? vs)
+          (if (any? eof-object? vs)
               (void)
               (begin (apply f vs) (loop))))))
 

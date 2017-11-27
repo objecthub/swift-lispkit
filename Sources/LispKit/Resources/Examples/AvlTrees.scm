@@ -179,13 +179,13 @@
 (define tree2 (avl-insert 50 tree1))
 
 (display "tree1 is a subset of tree2: ")
-(display (every (lambda (x) (avl-contains? x tree2)) (avl-tree->list tree1)))
+(display (every? (lambda (x) (avl-contains? x tree2)) (avl-tree->list tree1)))
 (newline)
 
 (define tree3 (avl-delete 21 tree2))
 
 (display "tree1 is a subset of tree3: ")
-(display (every (lambda (x) (avl-contains? x tree3)) (avl-tree->list tree1)))
+(display (every? (lambda (x) (avl-contains? x tree3)) (avl-tree->list tree1)))
 (newline)
 
 (display "elements in tree1: ")

@@ -76,6 +76,7 @@
 		CC5BBC7B1D52724800367E8F /* HashTableLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5BBC7A1D52724800367E8F /* HashTableLibrary.swift */; };
 		CC5C0A3F1D8EBE0A00CE2E98 /* MultiMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5C0A3E1D8EBE0A00CE2E98 /* MultiMap.swift */; };
 		CC5C713F1EBD3D3A00280CF4 /* NumberKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC5C713E1EBD3D3A00280CF4 /* NumberKit.framework */; };
+		CC68B3A91FCCCDEE00EB4AF9 /* object.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC68B3A81FCC73C300EB4AF9 /* object.sld */; };
 		CC6A3B5C1C52E71F00E962E2 /* ListLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B5B1C52E71F00E962E2 /* ListLibrary.swift */; };
 		CC6A3B5E1C52E8EF00E962E2 /* VectorLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B5D1C52E8EF00E962E2 /* VectorLibrary.swift */; };
 		CC6A3B601C52EBD700E962E2 /* StringLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B5F1C52EBD700E962E2 /* StringLibrary.swift */; };
@@ -256,6 +257,7 @@
 			dstPath = LispKit/Resources/Libraries/lispkit;
 			dstSubfolderSpec = 7;
 			files = (
+				CC68B3A91FCCCDEE00EB4AF9 /* object.sld in Copy pre-installed LispKit libraries */,
 				CCEEF3931FB3CB50006C4581 /* wt-tree.sld in Copy pre-installed LispKit libraries */,
 				CC3A025A1F97FD72009B959C /* json.sld in Copy pre-installed LispKit libraries */,
 				CCE7CA461F8EC07000FD7ECA /* iteration.sld in Copy pre-installed LispKit libraries */,
@@ -435,6 +437,7 @@
 		CC5C0A3E1D8EBE0A00CE2E98 /* MultiMap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MultiMap.swift; sourceTree = "<group>"; };
 		CC5C713E1EBD3D3A00280CF4 /* NumberKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NumberKit.framework; path = Carthage/Build/Mac/NumberKit.framework; sourceTree = "<group>"; };
 		CC5C71431EBD3F3F00280CF4 /* Cartfile */ = {isa = PBXFileReference; lastKnownFileType = text; path = Cartfile; sourceTree = "<group>"; };
+		CC68B3A81FCC73C300EB4AF9 /* object.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = object.sld; sourceTree = "<group>"; };
 		CC6A3B5B1C52E71F00E962E2 /* ListLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = ListLibrary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC6A3B5D1C52E8EF00E962E2 /* VectorLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = VectorLibrary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC6A3B5F1C52EBD700E962E2 /* StringLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = StringLibrary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -653,6 +656,7 @@
 			isa = PBXGroup;
 			children = (
 				CC2345401F655B8B00C38817 /* datatype.sld */,
+				CC68B3A81FCC73C300EB4AF9 /* object.sld */,
 				CCD6C3E81F35F95D0002F7D4 /* enum.sld */,
 				CCE7CA451F8D819600FD7ECA /* iteration.sld */,
 				CC5848021E5691B300BE6497 /* set.sld */,
