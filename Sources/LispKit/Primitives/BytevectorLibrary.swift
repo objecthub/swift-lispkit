@@ -1,5 +1,5 @@
 //
-//  ByteVectorLibrary.swift
+//  BytevectorLibrary.swift
 //  LispKit
 //
 //  Created by Matthias Zenger on 03/06/2016.
@@ -45,6 +45,8 @@ public final class BytevectorLibrary: NativeLibrary {
     self.define(Procedure("string->utf8", stringToUtf8))
     self.define(Procedure("bytevector->base64", bytevectorToBase64))
     self.define(Procedure("base64->bytevector", base64ToBytevector))
+    self.define(Procedure("bytevector-deflate", bytevectorDeflate))
+    self.define(Procedure("bytevector-inflate", bytevectorInflate))
   }
   
   func isBytevector(_ expr: Expr) -> Expr {
@@ -179,7 +181,29 @@ public final class BytevectorLibrary: NativeLibrary {
   func base64ToBytevector(_ string: Expr, args: Arguments) throws -> Expr {
     let substr = try self.subString(string, args)
     guard let data = Data(base64Encoded: substr, options: []) else {
-      return .null
+      throw EvalError.cannotDecodeBytevector(.makeString(substr))
+    }
+    let count = data.count
+    var res = [UInt8](repeating: 0, count: count)
+    data.copyBytes(to: &res, count: count)
+    return .bytes(MutableBox(res))
+  }
+  
+  private func bytevectorDeflate(_ bvec: Expr, args: Arguments) throws -> Expr {
+    let subvec = try self.subVector("bytevector-deflate", bvec, args)
+    guard let data = Data(bytes: subvec).deflate() else {
+      throw EvalError.cannotEncodeBytevector(.bytes(MutableBox(subvec)))
+    }
+    let count = data.count
+    var res = [UInt8](repeating: 0, count: count)
+    data.copyBytes(to: &res, count: count)
+    return .bytes(MutableBox(res))
+  }
+  
+  private func bytevectorInflate(_ bvec: Expr, args: Arguments) throws -> Expr {
+    let subvec = try self.subVector("bytevector-inflate", bvec, args)
+    guard let data = Data(bytes: subvec).inflate() else {
+      throw EvalError.cannotDecodeBytevector(.bytes(MutableBox(subvec)))
     }
     let count = data.count
     var res = [UInt8](repeating: 0, count: count)

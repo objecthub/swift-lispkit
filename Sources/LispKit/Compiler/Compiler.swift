@@ -194,9 +194,18 @@ public final class Compiler {
     return self.emit(.noOp)
   }
   
-  /// Replaces the instruction at the position `at` with the instruction `instr`.
+  /// Injects the name of a closure in form of an index into the constant pool into the
+  /// `.makeClosure` operation.
   public func patchMakeClosure(_ nameIdx: Int) {
     if case .some(.makeClosure(-1, let n, let index)) = self.instructions.last {
+      self.instructions[self.instructions.count - 1] = .makeClosure(nameIdx, n, index)
+    }
+  }
+  
+  /// Injects the name of a closure into the `.makeClosure` operation.
+  public func patchMakeClosure(_ sym: Symbol) {
+    if case .some(.makeClosure(-1, let n, let index)) = self.instructions.last {
+      let nameIdx = self.registerConstant(.symbol(sym))
       self.instructions[self.instructions.count - 1] = .makeClosure(nameIdx, n, index)
     }
   }
@@ -746,6 +755,7 @@ public final class Compiler {
         throw EvalError.malformedBindings(binding, bindingList)
       }
       try self.compile(expr, in: env, inTailPos: false)
+      self.patchMakeClosure(sym)
       let binding = group.allocBindingFor(sym)
       guard binding.index > prevIndex else {
         throw EvalError.duplicateBinding(sym, bindingList)

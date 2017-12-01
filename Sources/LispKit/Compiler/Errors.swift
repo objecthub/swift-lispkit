@@ -412,6 +412,8 @@ public enum EvalError: LispError, Hashable {
   case uninitializedExports([Symbol], Expr)
   case unknownFile(String)
   case unknownDirectory(String)
+  case cannotDecodeBytevector(Expr)
+  case cannotEncodeBytevector(Expr)
   
   public var type: LispErrorType {
     return .evalError
@@ -571,6 +573,10 @@ public enum EvalError: LispError, Hashable {
         return "file \"\(path)\" unknown or a directory"
       case .unknownDirectory(let path):
         return "directory \"\(path)\" unknown or a file"
+      case .cannotDecodeBytevector(let expr):
+        return "unable to decode \(expr) into bytevector"
+      case .cannotEncodeBytevector(let expr):
+        return "unable to encode bytevector \(expr)"
     }
   }
   
@@ -706,6 +712,10 @@ public enum EvalError: LispError, Hashable {
           return p1 == p2
         case (.unknownDirectory(let p1), .unknownDirectory(let p2)):
           return p1 == p2
+        case (.cannotDecodeBytevector(let e1), .cannotDecodeBytevector(let e2)):
+          return e1 == e2
+        case (.cannotEncodeBytevector(let e1), .cannotEncodeBytevector(let e2)):
+          return e1 == e2
         default:
           return false
       }
