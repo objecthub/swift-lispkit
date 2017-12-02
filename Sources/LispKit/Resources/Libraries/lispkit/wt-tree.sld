@@ -79,27 +79,27 @@
     ;;  ordering relation.
 
     ;; MIT-Scheme structure definition
-    ;;(define-structure
-    ;;    (tree-type
+    ;; (define-structure
+    ;;   (tree-type
     ;;     (conc-name tree-type/)
     ;;     (constructor %make-tree-type))
-    ;;  (key<?       #F read-only true)
-    ;;  (alist->tree #F read-only true)
-    ;;  (add         #F read-only true)
-    ;;  (insert!     #F read-only true)
-    ;;  (delete      #F read-only true)
-    ;;  (delete!     #F read-only true)
-    ;;  (member?     #F read-only true)
-    ;;  (lookup      #F read-only true)
-    ;;  (split-lt    #F read-only true)
-    ;;  (split-gt    #F read-only true)
-    ;;  (union       #F read-only true)
-    ;;  (union-merge #F read-only true)
-    ;;  (intersection #F read-only true)
-    ;;  (difference  #F read-only true)
-    ;;  (subset?     #F read-only true)
-    ;;  (rank        #F read-only true)
-    ;;)
+    ;;   (key<?       #F read-only true)
+    ;;   (alist->tree #F read-only true)
+    ;;   (add         #F read-only true)
+    ;;   (insert!     #F read-only true)
+    ;;   (delete      #F read-only true)
+    ;;   (delete!     #F read-only true)
+    ;;   (member?     #F read-only true)
+    ;;   (lookup      #F read-only true)
+    ;;   (split-lt    #F read-only true)
+    ;;   (split-gt    #F read-only true)
+    ;;   (union       #F read-only true)
+    ;;   (union-merge #F read-only true)
+    ;;   (intersection #F read-only true)
+    ;;   (difference  #F read-only true)
+    ;;   (subset?     #F read-only true)
+    ;;   (rank        #F read-only true)
+    ;; )
 
     ;; Written out by hand, using vectors:
     ;;

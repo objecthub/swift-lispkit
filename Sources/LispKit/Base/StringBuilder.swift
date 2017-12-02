@@ -105,7 +105,7 @@ public struct StringBuilder: CustomStringConvertible {
       case 8:
         return "        "
       default:
-        return String(repeating: " ", count: n)
+        return n < 0 ? "" : String(repeating: " ", count: n)
     }
   }
 }

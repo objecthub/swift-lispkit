@@ -81,6 +81,7 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("gc", self.gc))
     self.define(Procedure("compile", self.compile))
     self.define(Procedure("disassemble", self.disassemble))
+    self.define(Procedure("trace-calls", self.traceCalls))
     self.define(Procedure("available-symbols", self.availableSymbols))
     self.define(Procedure("loaded-libraries", self.loadedLibraries))
     self.define(Procedure("environment-info", self.environmentInfo))
@@ -408,6 +409,18 @@ public final class SystemLibrary: NativeLibrary {
       context.console.print("cannot disassemble \(expr)\n")
     }
     return .void
+  }
+  
+  private func traceCalls(_ expr: Expr?) throws -> Expr {
+    if let expr = expr {
+      switch (expr) {
+        case .false:
+          self.context.machine.traceCalls = false
+        default:
+          self.context.machine.traceCalls = true
+      }
+    }
+    return .makeBoolean(self.context.machine.traceCalls)
   }
   
   private func availableSymbols() -> Expr {

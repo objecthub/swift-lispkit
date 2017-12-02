@@ -198,6 +198,10 @@ public final class VirtualMachine: TrackedObject {
   /// Will be set to true if the `exit` function was invoked.
   public internal(set) var exitTriggered: Bool = false
   
+  /// When set to true, will print call and return traces
+  public var traceCalls: Bool = false
+  
+  
   /// Initializes a new virtual machine for the given context.
   public init(for context: Context) {
     self.context = context
@@ -563,23 +567,24 @@ public final class VirtualMachine: TrackedObject {
   */
   
   private func exitFrame() {
+    let fp = self.registers.fp
     // Determine former ip
-    guard case .fixnum(let newip) = self.stack[self.registers.fp &- 2] else {
+    guard case .fixnum(let newip) = self.stack[fp &- 2] else {
       preconditionFailure()
     }
     self.registers.ip = Int(newip)
     // Determine former fp
-    guard case .fixnum(let newfp) = self.stack[self.registers.fp &- 3] else {
+    guard case .fixnum(let newfp) = self.stack[fp &- 3] else {
       preconditionFailure()
     }
     // Shift result down
-    self.stack[self.registers.fp &- 3] = self.stack[self.sp &- 1]
+    self.stack[fp &- 3] = self.stack[self.sp &- 1]
     // Clean up stack that is freed up
-    for i in (self.registers.fp &- 2)..<self.sp {
+    for i in (fp &- 2)..<self.sp {
       self.stack[i] = .undef
     }
     // Set new fp and sp
-    self.sp = self.registers.fp &- 2
+    self.sp = fp &- 2
     self.registers.fp = Int(newfp)
     // Determine closure to which execution returns to
     guard case .procedure(let proc) = self.stack[Int(newfp) - 1] else {
@@ -594,17 +599,19 @@ public final class VirtualMachine: TrackedObject {
     self.registers.code = newcode
   }
   
-  private func getStackTrace() -> [Procedure] {
+  internal func getStackTrace() -> [Procedure] {
     var stackTrace: [Procedure] = []
     var fp = self.registers.fp
     while fp > 0 {
       guard case .procedure(let proc) = self.stack[fp &- 1] else {
-        preconditionFailure()
+        // This may happen if an error is thrown
+        return stackTrace
       }
       stackTrace.append(proc)
       if fp > 2 {
         guard case .fixnum(let newfp) = self.stack[fp &- 3] else {
-          preconditionFailure()
+          // This may happen if an error is thrown
+          return stackTrace
         }
         fp = Int(newfp)
       } else {
@@ -612,6 +619,42 @@ public final class VirtualMachine: TrackedObject {
       }
     }
     return stackTrace
+  }
+  
+  @inline(__always) private func printCallTrace(_ n: Int, tailCall: Bool = false) {
+    if self.traceCalls && self.sp > (n &+ 1) {
+      if case .procedure(let proc) = self.stack[self.sp &- n &- 1] {
+        let stackTrace = self.getStackTrace()
+        var builder = StringBuilder()
+        let offset = tailCall ? 0 : 1
+        builder.append(tailCall ? "↪︎ (" : "➝ (",
+                       width: (stackTrace.count + offset) * 2 + 3,
+                       alignRight: true)
+        builder.append(proc.originalName ?? proc.name)
+        for i in 0..<n {
+          builder.append(" ", self.stack[self.sp &- n &+ i].description)
+        }
+        builder.append(")")
+        if stackTrace.count > 1 {
+          builder.append(" in ", stackTrace.last!.originalName ?? stackTrace.last!.name)
+        }
+        builder.append("\n")
+        self.context.console.print(builder.description)
+      }
+    }
+  }
+  
+  @inline(__always) private func printReturnTrace(tailCall: Bool = false) {
+    if self.traceCalls && self.sp > 0 {
+      var builder = StringBuilder()
+      let offset = tailCall ? 0 : 1
+      builder.append(tailCall ? "↩︎ " : " ⃪ ",
+                     width: (self.getStackTrace().count + offset) * 2 + 2,
+                     alignRight: true)
+      builder.append(self.stack[self.sp &- 1].description)
+      builder.append("\n")
+      self.context.console.print(builder.description)
+    }
   }
   
   private func invoke(_ n: inout Int, _ overhead: Int) throws -> Procedure {
@@ -1184,14 +1227,18 @@ public final class VirtualMachine: TrackedObject {
           // Push top value onto stack again
           self.push(top)
         case .call(let n):
+          self.printCallTrace(n, tailCall: false)
           // Store instruction pointer
           self.stack[self.sp &- n &- 2] = .fixnum(Int64(self.registers.ip))
           // Invoke native function
           var m = n
           if case .closure(_, let newcaptured, let newcode) = try self.invoke(&m, 3).kind {
             self.registers.use(code: newcode, captured: newcaptured, fp: self.sp &- m)
+          } else {
+            self.printReturnTrace(tailCall: false)
           }
         case .tailCall(let m):
+          self.printCallTrace(m, tailCall: true)
           // Invoke native function
           var n = m
           let proc = try self.invoke(&n, 1)
@@ -1220,6 +1267,7 @@ public final class VirtualMachine: TrackedObject {
             self.sp = self.registers.initialFp &- 1
             return res
           } else {
+            self.printReturnTrace(tailCall: true)
             self.exitFrame()
           }
         case .assertArgCount(let n):
@@ -1267,6 +1315,7 @@ public final class VirtualMachine: TrackedObject {
             self.sp = self.registers.initialFp &- 1
             return res
           } else {
+            self.printReturnTrace(tailCall: false)
             self.exitFrame()
           }
         case .branch(let offset):
