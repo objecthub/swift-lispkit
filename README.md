@@ -49,8 +49,9 @@ _LispKit_ provides support for the following core features, many of which are ba
     `(scheme eval)`, `(scheme file)`, `(scheme inexact)`, `(scheme lazy)`, `(scheme load)`,
     `(scheme process-context)`, `(scheme read)`, `(scheme repl)`, `(scheme time)`, `(scheme write)`,
     `(scheme r5rs)`
-  - LispKit-specific libraries: `(lispkit datatype)`, `(lispkit iteration)`, `(lispkit set)`, `(lispkit heap)`,
-    `(lispkit wt-tree)`, `(lispkit prettify)`, `(lispkit json)`, and `(lispkit pdf)`
+  - LispKit-specific libraries: `(lispkit datatype)`, `(lispkit object)`, `(lispkit iteration)`,
+    `(lispkit set)`, `(lispkit heap)`, `(lispkit wt-tree)`, `(lispkit prettify)`, `(lispkit json)`,
+    and `(lispkit pdf)`
 
 _LispKit_ is incompatible or incomplete with respect to the following R7RS features:
 

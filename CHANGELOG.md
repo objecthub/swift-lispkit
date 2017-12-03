@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.3 (2017-12-03)
+- Support simple HTTP API
+- Support compression for bytevectors
+- Implement call tracing
+- Fixed bug preventing some internal definitions to not work
+- Support all standard R7RS small Scheme libraries
+- Support for: `(srfi 158)`, `(lispkit wt-tree)`, `(lispkit object)`
+
 ## 1.2 (2017-10-22)
 - Support for tail patterns in `syntax-rules`
 - Support for `features` and `cond-expand`

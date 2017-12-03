@@ -627,16 +627,16 @@ public final class VirtualMachine: TrackedObject {
         let stackTrace = self.getStackTrace()
         var builder = StringBuilder()
         let offset = tailCall ? 0 : 1
-        builder.append(tailCall ? "↪︎ (" : "➝ (",
-                       width: (stackTrace.count + offset) * 2 + 3,
+        builder.append(tailCall ? "↪︎" : "⟶",
+                       width: (stackTrace.count + offset) * 2 + 1,
                        alignRight: true)
-        builder.append(proc.originalName ?? proc.name)
+        builder.append(" (", proc.originalName ?? proc.name)
         for i in 0..<n {
           builder.append(" ", self.stack[self.sp &- n &+ i].description)
         }
         builder.append(")")
-        if stackTrace.count > 1 {
-          builder.append(" in ", stackTrace.last!.originalName ?? stackTrace.last!.name)
+        if let currentProc = stackTrace.last {
+          builder.append(" in ", currentProc.originalName ?? currentProc.name)
         }
         builder.append("\n")
         self.context.console.print(builder.description)
@@ -644,14 +644,14 @@ public final class VirtualMachine: TrackedObject {
     }
   }
   
-  @inline(__always) private func printReturnTrace(tailCall: Bool = false) {
+  @inline(__always) private func printReturnTrace(tailCall: Bool = false, noOffset: Bool = false) {
     if self.traceCalls && self.sp > 0 {
       var builder = StringBuilder()
-      let offset = tailCall ? 0 : 1
-      builder.append(tailCall ? "↩︎ " : " ⃪ ",
-                     width: (self.getStackTrace().count + offset) * 2 + 2,
+      let offset = tailCall || noOffset ? 0 : 1
+      builder.append(tailCall ? "↩︎" : "⟵",
+                     width: (self.getStackTrace().count + offset) * 2 + 1,
                      alignRight: true)
-      builder.append(self.stack[self.sp &- 1].description)
+      builder.append(" ", self.stack[self.sp &- 1].description)
       builder.append("\n")
       self.context.console.print(builder.description)
     }
@@ -1315,7 +1315,7 @@ public final class VirtualMachine: TrackedObject {
             self.sp = self.registers.initialFp &- 1
             return res
           } else {
-            self.printReturnTrace(tailCall: false)
+            self.printReturnTrace(tailCall: false, noOffset: true)
             self.exitFrame()
           }
         case .branch(let offset):
