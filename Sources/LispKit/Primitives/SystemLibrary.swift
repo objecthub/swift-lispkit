@@ -90,6 +90,11 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("current-second", self.currentSecond))
     self.define(Procedure("current-jiffy", self.currentJiffy))
     self.define(Procedure("jiffies-per-second", self.jiffiesPerSecond))
+    self.define(Procedure("time-zone", self.timeZone))
+    self.define(Procedure("second->date-time", self.secondToDateTime))
+    self.define(Procedure("date-time->second", self.dateTimeToSecond))
+    self.define(Procedure("date-time->string", self.dateTimeToString))
+    self.define(Procedure("string->date-time", self.stringToDateTime))
     self.define(Procedure("features", self.features))
     self.define(Procedure("implementation-name", self.implementationName))
     self.define(Procedure("implementation-version", self.implementationVersion))
@@ -100,6 +105,8 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("os-version", self.osVersion))
     self.define(Procedure("os-name", self.osName))
     self.define(Procedure("os-release", self.osRelease))
+    self.define(Procedure("current-user-name", self.currentUserName))
+    self.define(Procedure("user-data", self.userData))
     self.define(Procedure("http-get", httpGet))
   }
   
@@ -482,6 +489,198 @@ public final class SystemLibrary: NativeLibrary {
     return .fixnum(1000)
   }
   
+  private func timeZone(_ expr: Expr?) -> Expr {
+    guard let timeZone = self.getTimeZone(expr) else {
+      return .false
+    }
+    var abbrev = Expr.false
+    if let a = timeZone.abbreviation() {
+      abbrev = .makeString(a)
+    }
+    return .makeList(.makeString(timeZone.identifier),
+                     abbrev,
+                     .fixnum(Int64(timeZone.secondsFromGMT())))
+  }
+  
+  private func secondToDateTime(_ seconds: Expr, _ timeZone: Expr?) throws -> Expr {
+    guard let tzone = self.getTimeZone(timeZone) else {
+      throw EvalError.invalidTimeZone(timeZone!)
+    }
+    return self.getDateComponents(Date(timeIntervalSince1970: try seconds.asDouble()), tzone)
+  }
+  
+  private func dateTimeToSecond(_ dateTime: Expr, _ timeZone: Expr?) throws -> Expr {
+    guard let tzone = self.getTimeZone(timeZone) else {
+      throw EvalError.invalidTimeZone(timeZone!)
+    }
+    guard let (date, _) = self.getDate(dateTime, tzone) else {
+      throw EvalError.invalidDateTime(dateTime)
+    }
+    return .makeNumber(date.timeIntervalSince1970)
+  }
+  
+  private func dateTimeToString(_ dateTime: Expr, _ dateFormat: Expr?) throws -> Expr {
+    guard let (date, tzone) = self.getDate(dateTime, TimeZone.current) else {
+      throw EvalError.invalidDateTime(dateTime)
+    }
+    let formatter = DateFormatter()
+    formatter.timeZone = tzone
+    if let format = dateFormat {
+      switch format {
+        case .symbol(let sym):
+          formatter.locale = Locale(identifier: sym.identifier)
+          formatter.dateStyle = .short
+          formatter.timeStyle = .medium
+        default:
+          formatter.dateFormat = try format.asString()
+      }
+    } else {
+      formatter.locale = Locale.current
+      formatter.dateStyle = .short
+      formatter.timeStyle = .medium
+    }
+    return .makeString(formatter.string(from: date))
+  }
+  
+  private func stringToDateTime(_ str: Expr,
+                                _ timeZone: Expr?,
+                                _ dateFormat: Expr?) throws -> Expr {
+    guard let tzone = self.getTimeZone(timeZone) else {
+      throw EvalError.invalidTimeZone(timeZone!)
+    }
+    let formatter = DateFormatter()
+    formatter.timeZone = tzone
+    if let format = dateFormat {
+      switch format {
+        case .symbol(let sym):
+          formatter.locale = Locale(identifier: sym.identifier)
+          formatter.dateStyle = .short
+          formatter.timeStyle = .medium
+        default:
+          formatter.dateFormat = try format.asString()
+      }
+    } else {
+      formatter.locale = Locale.current
+      formatter.dateStyle = .short
+      formatter.timeStyle = .medium
+    }
+    guard let date = formatter.date(from: try str.asString()) else {
+      return .false
+    }
+    return self.getDateComponents(date, tzone)
+  }
+  
+  private func getDateComponents(_ date: Date, _ tz: TimeZone) -> Expr {
+    let dc = Calendar.current.dateComponents(in: tz, from: date)
+    let dstOffset = tz.daylightSavingTimeOffset(for: date)
+    return .makeList(.makeString(tz.identifier),
+                     .fixnum(Int64(dc.year!)),
+                     .fixnum(Int64(dc.month!)),
+                     .fixnum(Int64(dc.day!)),
+                     .fixnum(Int64(dc.hour!)),
+                     .fixnum(Int64(dc.minute!)),
+                     .fixnum(Int64(dc.second!)),
+                     .fixnum(Int64(dc.nanosecond!)),
+                     .fixnum(Int64(dc.weekday!)),
+                     .fixnum(Int64(dc.weekOfYear!)),
+                     .makeNumber(dstOffset))
+  }
+  
+  private func getDate(_ dateTime: Expr, _ tzone: TimeZone) -> (Date, TimeZone)? {
+    var dt = dateTime
+    var tz = tzone
+    switch dateTime {
+      case .pair(.string(let str), let rest):
+        guard let dttz = self.getTimeZone(.string(str)) else {
+          return nil
+        }
+        tz = dttz
+        dt = rest
+      case .pair(.pair(let car, let cdr), let rest):
+        guard let dttz = self.getTimeZone(.pair(car, cdr)) else {
+          return nil
+        }
+        tz = dttz
+        dt = rest
+      case .pair(.false, let rest):
+        dt = rest
+      default:
+        break
+    }
+    guard case .pair(.fixnum(let y), .pair(.fixnum(let m), .pair(.fixnum(let d), let time))) = dt,
+          y >= 0 && y < Int.max, m >= 1 && m <= 12, d >= 1 && d <= 31 else {
+      return nil
+    }
+    var hour: Int = 0
+    var minute: Int = 0
+    var second: Int = 0
+    var nanosecond: Int = 0
+    if case .pair(.fixnum(let hr), let rest) = time, hr >= 0 && hr <= 24 {
+      hour = Int(hr)
+      if case .pair(.fixnum(let min), let rest) = rest, min >= 0 && min <= 60 {
+        minute = Int(min)
+        if case .pair(.fixnum(let sec), let rest) = rest, sec >= 0 && sec <= 60 {
+          second = Int(sec)
+          if case .pair(.fixnum(let nano), _) = rest, nano >= 0 && nano <= Int.max {
+            nanosecond = Int(nano)
+          } else if !rest.isNull {
+            return nil
+          }
+        } else if !rest.isNull {
+          return nil
+        }
+      } else if !rest.isNull {
+        return nil
+      }
+    } else if !time.isNull {
+      return nil
+    }
+    let dc = DateComponents(calendar: Calendar.current,
+                            timeZone: tz,
+                            year: Int(y),
+                            month: Int(m),
+                            day: Int(d),
+                            hour: hour,
+                            minute: minute,
+                            second: second,
+                            nanosecond: nanosecond)
+    guard dc.isValidDate, let date = dc.date else {
+      return nil
+    }
+    return (date, tz)
+  }
+  
+  private func getTimeZone(_ expr: Expr?) -> TimeZone? {
+    guard let timezone = expr else {
+      return TimeZone.current
+    }
+    switch timezone {
+      case .pair(let tzid, let rest):
+        switch tzid {
+          case .fixnum(_), .string(_):
+            if let res = self.getTimeZone(tzid) {
+              return res
+            } else if case .pair(_, _) = rest {
+              return self.getTimeZone(rest)
+            } else {
+              return nil
+            }
+          default:
+            return nil
+        }
+      case .fixnum(let delta):
+        if delta > Int64(Int.min) && delta < Int64(Int.max) {
+          return TimeZone(secondsFromGMT: Int(delta))
+        } else {
+          return nil
+        }
+      case .string(let str):
+        return TimeZone(identifier: str as String) ?? TimeZone(abbreviation: str as String)
+      default:
+        return nil
+    }
+  }
+  
   private func features() -> Expr {
     var res: Expr = .null
     for feature in Feature.supported {
@@ -539,6 +738,29 @@ public final class SystemLibrary: NativeLibrary {
   private func osRelease() -> Expr {
     return .makeString("\(ProcessInfo.processInfo.operatingSystemVersion.majorVersion)." +
                        "\(ProcessInfo.processInfo.operatingSystemVersion.minorVersion)")
+  }
+  
+  private func currentUserName() -> Expr {
+    return .makeString(NSUserName())
+  }
+  
+  private func userData(_ expr: Expr) throws -> Expr {
+    let username = try expr.asString()
+    guard let pw = getpwnam(username) else {
+      return .false
+    }
+    let uid = pw.pointee.pw_uid
+    let gid = pw.pointee.pw_gid
+    let name = String(cString: pw.pointee.pw_name)
+    let dir = NSHomeDirectoryForUser(username) ?? String(cString: pw.pointee.pw_dir)
+    let gecos = String(cString: pw.pointee.pw_gecos)
+    let shell = String(cString: pw.pointee.pw_shell)
+    return .pair(.makeNumber(Int64(uid)),
+                 .pair(.makeNumber(Int64(gid)),
+                       .pair(.makeString(name),
+                             .pair(.makeString(gecos),
+                                   .pair(.makeString(dir),
+                                         .pair(.makeString(shell), .null))))))
   }
   
   func httpGet(_ expr: Expr, _ tout: Expr?) throws -> Expr {

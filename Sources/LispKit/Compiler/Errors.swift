@@ -414,6 +414,8 @@ public enum EvalError: LispError, Hashable {
   case unknownDirectory(String)
   case cannotDecodeBytevector(Expr)
   case cannotEncodeBytevector(Expr)
+  case invalidDateTime(Expr)
+  case invalidTimeZone(Expr)
   
   public var type: LispErrorType {
     return .evalError
@@ -577,6 +579,10 @@ public enum EvalError: LispError, Hashable {
         return "unable to decode \(expr) into bytevector"
       case .cannotEncodeBytevector(let expr):
         return "unable to encode bytevector \(expr)"
+      case .invalidDateTime(let expr):
+        return "invalid/incomplete date time component list: \(expr)"
+      case .invalidTimeZone(let expr):
+        return "invalid/incomplete time zone identifier: \(expr)"
     }
   }
   
@@ -715,6 +721,10 @@ public enum EvalError: LispError, Hashable {
         case (.cannotDecodeBytevector(let e1), .cannotDecodeBytevector(let e2)):
           return e1 == e2
         case (.cannotEncodeBytevector(let e1), .cannotEncodeBytevector(let e2)):
+          return e1 == e2
+        case (.invalidDateTime(let e1), .invalidDateTime(let e2)):
+          return e1 == e2
+        case (.invalidTimeZone(let e1), .invalidTimeZone(let e2)):
           return e1 == e2
         default:
           return false
