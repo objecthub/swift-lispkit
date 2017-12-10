@@ -763,7 +763,7 @@ public final class SystemLibrary: NativeLibrary {
                                          .pair(.makeString(shell), .null))))))
   }
   
-  func httpGet(_ expr: Expr, _ tout: Expr?) throws -> Expr {
+  private func httpGet(_ expr: Expr, _ tout: Expr?) throws -> Expr {
     let url = try expr.asURL()
     let timeout = try tout?.asDouble(coerce: true) ?? HTTPInputStream.defaultTimeout
     guard let stream = HTTPInputStream(url: url) else {
