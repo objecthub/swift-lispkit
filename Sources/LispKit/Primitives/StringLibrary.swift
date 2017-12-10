@@ -56,6 +56,8 @@ public final class StringLibrary: NativeLibrary {
     self.define(Procedure("string-ci>?", stringCiGreaterThan))
     self.define(Procedure("string-ci>=?", stringCiGreaterThanEquals))
     self.define(Procedure("string-contains?", stringContains))
+    self.define(Procedure("string-prefix?", stringPrefix))
+    self.define(Procedure("string-suffix?", stringSuffix))
     self.define(Procedure("string-upcase", stringUpcase))
     self.define(Procedure("string-downcase", stringDowncase))
     self.define(Procedure("string-titlecase", stringTitlecase))
@@ -70,6 +72,8 @@ public final class StringLibrary: NativeLibrary {
     self.define(Procedure("string-copy", stringCopy))
     self.define(Procedure("string-copy!", stringInsert))
     self.define(Procedure("string-fill!", stringFill))
+    self.define(Procedure("string-split", stringSplit))
+    self.define(Procedure("string-trim", stringTrim))
     self.define(Procedure("_string-list-ref", stringListRef))
     self.define(Procedure("_string-list-length", stringListLength))
     self.define("string-map", via:
@@ -311,6 +315,14 @@ public final class StringLibrary: NativeLibrary {
     return .makeBoolean(try expr.asString().contains(try other.asString()))
   }
   
+  func stringSuffix(_ expr: Expr, _ other: Expr) throws -> Expr {
+    return .makeBoolean(try expr.asString().hasSuffix(try other.asString()))
+  }
+  
+  func stringPrefix(_ expr: Expr, _ other: Expr) throws -> Expr {
+    return .makeBoolean(try expr.asString().hasPrefix(try other.asString()))
+  }
+  
   func stringUpcase(_ expr: Expr) throws -> Expr {
     return .string(NSMutableString(string: try expr.asMutableStr().uppercased))
   }
@@ -501,5 +513,35 @@ public final class StringLibrary: NativeLibrary {
                             with: String(utf16CodeUnits: uniChars, count: uniChars.count))
     }
     return .void
+  }
+  
+  private func stringSplit(_ expr: Expr, _ separator: Expr, _ allowEmpty: Expr?) throws -> Expr {
+    let str = try expr.asMutableStr()
+    let sep: String
+    switch separator {
+      case .char(let c):
+        sep = String(unicodeScalar(c))
+      default:
+        sep = try separator.asString()
+    }
+    let components = str.components(separatedBy: sep)
+    let includeEmpty = allowEmpty == nil ? true : !allowEmpty!.isFalse
+    var res = Exprs()
+    for component in components {
+      if includeEmpty || !component.isEmpty {
+        res.append(.makeString(component))
+      }
+    }
+    return .vector(Collection(kind: .vector, exprs: res))
+  }
+  
+  private func stringTrim(_ expr: Expr, _ trimChars: Expr?) throws -> Expr {
+    let str = try expr.asMutableStr()
+    if let chars = trimChars {
+      return .makeString(
+        str.trimmingCharacters(in: CharacterSet(charactersIn: try chars.asString())))
+    } else {
+      return .makeString(str.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines))
+    }
   }
 }
