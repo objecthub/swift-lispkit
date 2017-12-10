@@ -122,6 +122,24 @@ open class TextInput {
     return self.eof ? String(utf16CodeUnits: res, count: res.count) : nil
   }
   
+  open func readToken(delimiters: CharacterSet) -> String? {
+    guard self.readable() else {
+      return nil
+    }
+    var res: [UniChar] = []
+    var last: UniChar = 0
+    repeat {
+      let ch = self.buffer[self.next]
+      self.next = self.buffer.index(after: self.next)
+      if let scalar = UnicodeScalar(ch), delimiters.contains(scalar) {
+        return String(utf16CodeUnits: res, count: (last == RET_CH) ? res.count - 1 : res.count)
+      }
+      res.append(ch)
+      last = ch
+    } while self.readable()
+    return self.eof ? String(utf16CodeUnits: res, count: res.count) : nil
+  }
+  
   open var readMightBlock: Bool {
     if self.eof {
       return false

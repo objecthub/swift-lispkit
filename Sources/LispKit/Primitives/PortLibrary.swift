@@ -74,6 +74,7 @@ public final class PortLibrary: NativeLibrary {
     self.define(Procedure("read-char", readChar))
     self.define(Procedure("peek-char", peekChar))
     self.define(Procedure("char-ready?", isCharReady))
+    self.define(Procedure("read-token", readToken))
     self.define(Procedure("read-line", readLine))
     self.define(Procedure("read-string", readString))
     self.define(Procedure("read-u8", readU8))
@@ -433,6 +434,16 @@ public final class PortLibrary: NativeLibrary {
   func isCharReady(_ port: Expr?) throws -> Expr {
     let input = try self.textInputFrom(port)
     return .makeBoolean(!input.readMightBlock)
+  }
+  
+  func readToken(_ expr: Expr?, _ delim: Expr?) throws -> Expr {
+    let input = try self.textInputFrom(expr)
+    let delimiters = delim == nil ? CharacterSet.whitespacesAndNewlines
+                                  : CharacterSet(charactersIn: try delim!.asString())
+    guard let str = input.readToken(delimiters: delimiters) else {
+      return .eof
+    }
+    return .makeString(str)
   }
   
   func readLine(_ expr: Expr?) throws -> Expr {
