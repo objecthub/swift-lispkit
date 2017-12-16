@@ -275,7 +275,7 @@ public final class DynamicControlLibrary: NativeLibrary {
   }
   
   private func makeError(message: Expr, irritants: Expr) -> Expr {
-    return .error(AnyError(CustomError(kind: "custom error",
+    return .error(AnyError(CustomError(kind: "error",
                                        message: message.unescapedDescription,
                                        irritants: irritants.toExprs().0)))
   }

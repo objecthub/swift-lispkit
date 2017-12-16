@@ -130,6 +130,7 @@
 		CC90500B1D36F52F008CE60A /* DynamicControlLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC90500A1D36F52F008CE60A /* DynamicControlLibrary.swift */; };
 		CC90500F1D384C4E008CE60A /* Tuple.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC90500E1D384C4E008CE60A /* Tuple.swift */; };
 		CC9065B51C5557E4004A88B7 /* ObjectPool.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC9065B41C5557E4004A88B7 /* ObjectPool.swift */; };
+		CC90B2341FE55E8B0044F724 /* stack.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC90B2331FE55DFE0044F724 /* stack.sld */; };
 		CC93A65F1D077766008350C8 /* BinaryOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC93A65E1D077766008350C8 /* BinaryOutput.swift */; };
 		CC93A6611D0777A9008350C8 /* TextOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC93A6601D0777A9008350C8 /* TextOutput.swift */; };
 		CC97FA161CFA515E0008596E /* Definitions.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC97FA151CFA51520008596E /* Definitions.scm */; };
@@ -258,6 +259,7 @@
 			dstPath = LispKit/Resources/Libraries/lispkit;
 			dstSubfolderSpec = 7;
 			files = (
+				CC90B2341FE55E8B0044F724 /* stack.sld in Copy pre-installed LispKit libraries */,
 				CC68B3A91FCCCDEE00EB4AF9 /* object.sld in Copy pre-installed LispKit libraries */,
 				CCEEF3931FB3CB50006C4581 /* wt-tree.sld in Copy pre-installed LispKit libraries */,
 				CC3A025A1F97FD72009B959C /* json.sld in Copy pre-installed LispKit libraries */,
@@ -491,6 +493,7 @@
 		CC90500A1D36F52F008CE60A /* DynamicControlLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = DynamicControlLibrary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC90500E1D384C4E008CE60A /* Tuple.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tuple.swift; sourceTree = "<group>"; };
 		CC9065B41C5557E4004A88B7 /* ObjectPool.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObjectPool.swift; sourceTree = "<group>"; };
+		CC90B2331FE55DFE0044F724 /* stack.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = stack.sld; sourceTree = "<group>"; };
 		CC93A65E1D077766008350C8 /* BinaryOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BinaryOutput.swift; sourceTree = "<group>"; };
 		CC93A6601D0777A9008350C8 /* TextOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextOutput.swift; sourceTree = "<group>"; };
 		CC97FA151CFA51520008596E /* Definitions.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Definitions.scm; sourceTree = "<group>"; };
@@ -662,6 +665,7 @@
 				CCD6C3E81F35F95D0002F7D4 /* enum.sld */,
 				CCE7CA451F8D819600FD7ECA /* iteration.sld */,
 				CC5848021E5691B300BE6497 /* set.sld */,
+				CC90B2331FE55DFE0044F724 /* stack.sld */,
 				CC72862C1F52B2F600EEBC58 /* heap.sld */,
 				CC750BD91F5B772200CD82A2 /* prettify.sld */,
 				CC10404C1F5378660045144A /* pdf.sld */,
