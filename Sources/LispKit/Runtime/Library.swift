@@ -243,7 +243,9 @@ open class Library: Reference, Trackable, CustomStringConvertible {
       return nil
     }
     // Compute the location of the internal identifier
-    let locationRef = self.importLocation(internalIdent.identifier)
+    guard let locationRef = self.importLocation(internalIdent.identifier) else {
+      return nil
+    }
     // If imported identifier is mutable, let the export decide whether it's a mutable export
     if locationRef.isMutable {
       self.exports[ident] = internalIdent.located(at: locationRef.location)
@@ -255,7 +257,7 @@ open class Library: Reference, Trackable, CustomStringConvertible {
     return self.exports[ident]!
   }
   
-  public func importLocation(_ ident: Symbol) -> InternalLocationRef {
+  private func importLocation(_ ident: Symbol) -> InternalLocationRef? {
     // Return location if the internal identifier has a known location already
     if let locationRef = self.imports[ident] {
       return locationRef
@@ -264,7 +266,9 @@ open class Library: Reference, Trackable, CustomStringConvertible {
     let libraryReferences = self.imported.values(for: ident)
     for (library, expIdent) in libraryReferences {
       // Get a location from the library
-      if let locationRef = library.exportLocation(expIdent) {
+      if self === library {
+        // ignore imports of the library itself
+      } else if let locationRef = library.exportLocation(expIdent) {
         // Unify the new location with the existing location
         let currentLocationRef = self.imports[ident]
         if let unifiedLocationRef = locationRef.unify(with: currentLocationRef) {
@@ -280,8 +284,8 @@ open class Library: Reference, Trackable, CustomStringConvertible {
         // ERROR: signal cyclic dependency since the library isn't able to return a location
       }
     }
-    // Return the now guaranteed import location
-    return self.imports[ident]!
+    // Return the import location (is only nil for self references)
+    return self.imports[ident]
   }
   
   public func allocate() -> Bool {
@@ -293,9 +297,12 @@ open class Library: Reference, Trackable, CustomStringConvertible {
     // Collect imported identifiers and determine where they are imported from
     for importDecl in self.importDecls {
       if let (library, importSpec) = importDecl.expand(in: self.context) {
-        self.libraries.insert(library)
-        for (impIdent, expIdent) in importSpec {
-          self.imported.insert(impIdent, mapsTo: (library, expIdent))
+        // Ignore direct self imports
+        if self !== library {
+          self.libraries.insert(library)
+          for (impIdent, expIdent) in importSpec {
+            self.imported.insert(impIdent, mapsTo: (library, expIdent))
+          }
         }
       }
     }
