@@ -671,10 +671,10 @@
 				CC90B2331FE55DFE0044F724 /* stack.sld */,
 				CC90B2351FE5D7940044F724 /* queue.sld */,
 				CC72862C1F52B2F600EEBC58 /* heap.sld */,
-				CC750BD91F5B772200CD82A2 /* prettify.sld */,
-				CC10404C1F5378660045144A /* pdf.sld */,
-				CC3A02591F97F3E1009B959C /* json.sld */,
 				CCEEF3921FB3CB03006C4581 /* wt-tree.sld */,
+				CC750BD91F5B772200CD82A2 /* prettify.sld */,
+				CC3A02591F97F3E1009B959C /* json.sld */,
+				CC10404C1F5378660045144A /* pdf.sld */,
 			);
 			path = lispkit;
 			sourceTree = "<group>";
