@@ -476,7 +476,7 @@ public final class ControlFlowLibrary: NativeLibrary {
     // Iterate through all cases
     while case .pair(let cas, let rest) = cases {
       switch cas {
-        case .pair(.symbol(let sym), let exprs) where sym === compiler.context.symbols.else:
+        case .pair(.symbol(let s), let exprs) where s.interned == compiler.context.symbols.else:
           guard rest == .null else {
             throw EvalError.malformedCondClause(cases)
           }
@@ -484,8 +484,8 @@ public final class ControlFlowLibrary: NativeLibrary {
         case .pair(let test, .null):
           try compiler.compile(test, in: env, inTailPos: false)
           exitOrJumps.append(compiler.emitPlaceholder())
-        case .pair(let test, .pair(.symbol(let sym), .pair(let proc, .null)))
-            where sym === compiler.context.symbols.doubleArrow:
+        case .pair(let test, .pair(.symbol(let s), .pair(let proc, .null)))
+            where s.interned == compiler.context.symbols.doubleArrow:
           // Compile condition
           try compiler.compile(test, in: env, inTailPos: false)
           // Jump if it's false or inject stack frame
@@ -550,7 +550,7 @@ public final class ControlFlowLibrary: NativeLibrary {
     // Compile cases
     while case .pair(let cas, let rest) = cases {
       switch cas {
-        case .pair(.symbol(compiler.context.symbols.else), let exprs):
+        case .pair(.symbol(let s), let exprs) where s.interned == compiler.context.symbols.else:
           guard rest == .null else {
             throw EvalError.malformedCaseClause(cases)
           }

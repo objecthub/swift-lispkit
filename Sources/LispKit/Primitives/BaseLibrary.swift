@@ -258,16 +258,17 @@ public final class BaseLibrary: NativeLibrary {
         for expr in vector.exprs {
           if case .pair(let car, .pair(let elem, let cddr)) = expr {
             switch car {
-              case .symbol(context.symbols.unquote):
+              case .symbol(let s) where s.interned == self.context.symbols.unquote:
                 guard cddr == .null else {
-                  throw EvalError.invalidContextInQuasiquote(context.symbols.unquote, expr)
+                  throw EvalError.invalidContextInQuasiquote(self.context.symbols.unquote, expr)
                 }
                 try compiler.compile(elem, in: env, inTailPos: false)
                 nelem += 1
                 continue
-              case .symbol(context.symbols.unquoteSplicing):
+              case .symbol(let s) where s.interned == self.context.symbols.unquoteSplicing:
                 guard cddr == .null else {
-                  throw EvalError.invalidContextInQuasiquote(context.symbols.unquoteSplicing, expr)
+                  throw EvalError.invalidContextInQuasiquote(self.context.symbols.unquoteSplicing,
+                                                             expr)
                 }
                 if nelem > 0 {
                   compiler.emit(.vector(nelem))
@@ -305,30 +306,30 @@ public final class BaseLibrary: NativeLibrary {
   
   private func reduceQQ(_ expr: Expr, in env: Env) throws -> Expr {
     guard case .pair(let car, let cdr) = expr else {
-      return Expr.makeList(.symbol(Symbol(context.symbols.quote, env.global)), expr)
+      return Expr.makeList(.symbol(Symbol(self.context.symbols.quote, env.global)), expr)
     }
     switch car {
-      case .symbol(context.symbols.unquote):
+      case .symbol(let s) where s.interned == self.context.symbols.unquote:
         guard case .pair(let cadr, .null) = cdr else {
-          throw EvalError.invalidContextInQuasiquote(context.symbols.unquote, car)
+          throw EvalError.invalidContextInQuasiquote(self.context.symbols.unquote, car)
         }
         return cadr
-      case .symbol(context.symbols.quasiquote):
+      case .symbol(let s) where s.interned == self.context.symbols.quasiquote:
         guard case .pair(let cadr, .null) = cdr else {
-          throw EvalError.invalidContextInQuasiquote(context.symbols.quasiquote, car)
+          throw EvalError.invalidContextInQuasiquote(self.context.symbols.quasiquote, car)
         }
         return try reduceQQ(reduceQQ(cadr, in: env), in: env)
-      case .symbol(context.symbols.unquoteSplicing):
-        throw EvalError.invalidContextInQuasiquote(context.symbols.unquoteSplicing, car)
-      case .pair(.symbol(context.symbols.unquoteSplicing), let cdar):
+      case .symbol(let s) where s.interned == self.context.symbols.unquoteSplicing:
+        throw EvalError.invalidContextInQuasiquote(self.context.symbols.unquoteSplicing, car)
+      case .pair(.symbol(let s), let cdar) where s.interned == self.context.symbols.unquoteSplicing:
         guard case .pair(let cadar, .null) = cdar else {
-          throw EvalError.invalidContextInQuasiquote(context.symbols.unquoteSplicing, car)
+          throw EvalError.invalidContextInQuasiquote(self.context.symbols.unquoteSplicing, car)
         }
-        return Expr.makeList(.symbol(Symbol(context.symbols.append, env.global)),
+        return Expr.makeList(.symbol(Symbol(self.context.symbols.append, env.global)),
                              cadar,
                              try reduceQQ(cdr, in: env))
       default:
-        return Expr.makeList(.symbol(Symbol(context.symbols.cons, env.global)),
+        return Expr.makeList(.symbol(Symbol(self.context.symbols.cons, env.global)),
                              try reduceQQ(car, in: env),
                              try reduceQQ(cdr, in: env))
     }
@@ -396,7 +397,10 @@ public final class BaseLibrary: NativeLibrary {
     }
   }
   
-  private func compileDefineValues(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  private func compileDefineValues(compiler: Compiler,
+                                   expr: Expr,
+                                   env: Env,
+                                   tail: Bool) throws -> Bool {
     // Extract signature and definition
     guard case .pair(_, .pair(let sig, .pair(let value, .null))) = expr else {
       throw EvalError.leastArgumentCountError(formals: 2, args: expr)
@@ -702,7 +706,7 @@ public final class BaseLibrary: NativeLibrary {
   }
   
   private func gensym(expr: Expr?) throws -> Expr {
-    return .symbol(context.symbols.gensym(try expr?.asString() ?? "g"))
+    return .symbol(self.context.symbols.gensym(try expr?.asString() ?? "g"))
   }
   
   private func stringEquals(expr: Expr, args: Arguments) throws -> Expr {
@@ -716,7 +720,7 @@ public final class BaseLibrary: NativeLibrary {
   }
   
   private func stringToSymbol(expr: Expr) throws -> Expr {
-    return .symbol(context.symbols.intern(try expr.asString()))
+    return .symbol(self.context.symbols.intern(try expr.asString()))
   }
   
   private func symbolToString(expr: Expr) throws -> Expr {
