@@ -487,15 +487,14 @@ public final class Compiler {
     return res
   }
   
-  /// Compile expression `expr` in environment `env`. Parameter `tail` specifies if `expr`
-  /// is located in a tail position. This allows compile to generate code with tail calls.
-  public func expand(_ expr: Expr, in env: Env) throws -> Expr {
+  /// Expand expression `expr` in environment `env`.
+  private func expand(_ expr: Expr, in env: Env) throws -> Expr? {
     switch expr {
       case .pair(.symbol(let sym), let cdr):
         let cp = self.checkpointer.checkpoint()
         switch self.lookupLocalValueOf(sym, in: env) {
           case .success:
-            return expr
+            return nil
           case .globalLookupRequired(let lexicalSym, let environment):
             if let value = self.checkpointer.fromGlobalEnv(cp) ??
                            value(of: lexicalSym, in: environment) {
@@ -504,7 +503,7 @@ public final class Compiler {
                 case .special(let special):
                   switch special.kind {
                     case .primitive(_):
-                      return expr
+                      return nil
                     case .macro(let transformer):
                       let expanded = try
                         self.checkpointer.expansion(cp) ??
@@ -514,10 +513,10 @@ public final class Compiler {
                       return expanded
                   }
                 default:
-                  return expr
+                  return nil
               }
             } else {
-              return expr
+              return nil
             }
           case .macroExpansionRequired(let transformer):
             let expanded =
@@ -526,7 +525,28 @@ public final class Compiler {
             return expanded
         }
       default:
-        return expr
+        return nil
+    }
+  }
+  
+  /// Expand expression `expr` in environment `env`.
+  private func expand(_ expr: Expr, in env: Env, into: inout Exprs, depth: Int = 20) throws {
+    guard depth > 0 else {
+      into.append(expr)
+      return
+    }
+    if case .pair(.symbol(let fun), let embedded) = expr,
+       fun.interned == self.context.symbols.begin,
+       env.isImmutable(fun) {
+      var lst = embedded
+      while case .pair(let e, let next) = lst {
+        try self.expand(e, in: env, into: &into, depth: depth)
+        lst = next
+      }
+    } else if let expanded = try self.expand(expr, in: env) {
+      try self.expand(expanded, in: env, into: &into, depth: depth - 1)
+    } else {
+      into.append(expr)
     }
   }
   
@@ -658,7 +678,11 @@ public final class Compiler {
     var next = expr
     var exprs = Exprs()
     while case .pair(let car, let cdr) = next {
-      exprs.append(localDefine ? try self.expand(car, in: env) : car)
+      if localDefine {
+        try self.expand(car, in: env, into: &exprs)
+      } else {
+        exprs.append(car)
+      }
       next = cdr
     }
     // Throw error if the sequence is not a proper list
@@ -671,7 +695,8 @@ public final class Compiler {
     if localDefine {
       loop: while i < exprs.count {
         guard case .pair(.symbol(let fun), let binding) = exprs[i],
-              fun.interned == self.context.symbols.define && env.isImmutable(fun) else {
+              fun.interned == self.context.symbols.define,
+              env.isImmutable(fun) else {
           break loop
         }
         // Distinguish value definitions from function definitions
