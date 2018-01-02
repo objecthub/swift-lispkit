@@ -24,10 +24,9 @@
 ///
 public final class SyntaxRules {
   private let context: Context
-  private let ellipsisSym: Symbol
+  private let ellipsis: Symbol
   private let reserved: Set<Symbol>
   private let literals: Set<Symbol>
-  private let ellipsis: Expr
   private let patterns: Exprs
   private let templates: Exprs
   private let lexicalEnv: Env
@@ -39,9 +38,8 @@ public final class SyntaxRules {
               templates: Exprs,
               in env: Env) {
     self.context = context
-    self.ellipsisSym = ellipsis ?? context.symbols.ellipsis
-    self.reserved = [context.symbols.wildcard, self.ellipsisSym]
-    self.ellipsis = .symbol(self.ellipsisSym)
+    self.ellipsis = ellipsis ?? context.symbols.ellipsis
+    self.reserved = [context.symbols.wildcard, self.ellipsis]
     self.literals = literals
     self.patterns = patterns
     self.templates = templates
@@ -72,8 +70,12 @@ public final class SyntaxRules {
     //       "MATCH: \(pattern) WITH: \(input) MATCHING: \(matches)") //DEBUG
     switch pattern {
       case .symbol(let sym):
-        if self.literals.contains(sym) {
-          return pattern == input
+        if self.literals.contains(sym.interned) {
+          if case .symbol(let inputSym) = input {
+            return sym.interned == inputSym.interned
+          } else {
+            return false
+          }
         } else {
           matches.put(sym, input)
           return true
@@ -88,8 +90,10 @@ public final class SyntaxRules {
         var pat = pattern
         var inp = input
         while case .pair(let token, let rest) = pat {
-          if token != self.ellipsis {
-            if case .pair(self.ellipsis, let tail) = rest {
+          if case .symbol(let s) = token, s.interned == self.ellipsis {
+            // ignore ellipsis
+          } else {
+            if case .pair(.symbol(let s), let tail) = rest, s.interned == self.ellipsis {
               // Register variable
               matches.register(self.variables(in: token), at: depth + 1)
               // Determine maximum number of matches
@@ -118,9 +122,12 @@ public final class SyntaxRules {
         var inpIndex = 0
         for patIndex in patVector.exprs.indices {
           let token = patVector.exprs[patIndex]
-          if token != self.ellipsis {
-            if patIndex < patVector.exprs.count - 1 &&
-               patVector.exprs[patIndex + 1] == self.ellipsis {
+          if case .symbol(let s) = token, s.interned == self.ellipsis {
+            // ignore ellipsis
+          } else {
+            if patIndex < patVector.exprs.count - 1,
+               case .symbol(let s) = patVector.exprs[patIndex + 1],
+               s.interned == self.ellipsis {
               // Register variable
               matches.register(self.variables(in: token), at: depth + 1)
               // Determine maximum number of matches
@@ -155,7 +162,7 @@ public final class SyntaxRules {
     switch template {
       case .symbol(let sym):
         return matches.get(sym, in: self.lexicalEnv)
-      case .pair(self.ellipsis, let rest):
+      case .pair(.symbol(let s), let rest) where s.interned == self.ellipsis:
         guard case .pair(let car, _) = rest else {
           throw EvalError.typeError(rest, [.pairType])
         }
@@ -165,14 +172,14 @@ public final class SyntaxRules {
         var templ = template
         var repeater: Expr? = nil
         while case .pair(let token, let rest) = templ {
-          if case .pair(self.ellipsis, _) = rest {
-            guard token != self.ellipsis else {
-              throw EvalError.macroMismatchedRepetitionPatterns(self.ellipsisSym)
+          if case .pair(.symbol(let s), _) = rest, s.interned == self.ellipsis {
+            if case .symbol(let s) = token, s.interned == self.ellipsis {
+              throw EvalError.macroMismatchedRepetitionPatterns(self.ellipsis)
             }
             repeater = token
-          } else if token == self.ellipsis {
+          } else if case .symbol(let s) = token, s.interned == self.ellipsis {
             guard let repeaterTemplate = repeater else {
-              throw EvalError.macroMismatchedRepetitionPatterns(self.ellipsisSym)
+              throw EvalError.macroMismatchedRepetitionPatterns(self.ellipsis)
             }
             try matches.instantiate(template: repeaterTemplate,
                                     with: self,
@@ -190,13 +197,15 @@ public final class SyntaxRules {
       case .vector(let vector):
         var res = Exprs()
         for i in vector.exprs.indices {
-          if (i < vector.exprs.count - 1) && vector.exprs[i + 1] == self.ellipsis {
-            guard vector.exprs[i] != self.ellipsis else {
-              throw EvalError.macroMismatchedRepetitionPatterns(self.context.symbols.ellipsis)
+          if (i < vector.exprs.count - 1),
+             case .symbol(let s) = vector.exprs[i + 1],
+             s.interned == self.ellipsis {
+            if case .symbol(let s) = vector.exprs[i], s.interned == self.ellipsis {
+              throw EvalError.macroMismatchedRepetitionPatterns(self.ellipsis)
             }
-          } else if vector.exprs[i] == self.ellipsis {
+          } else if case .symbol(let s) = vector.exprs[i], s.interned == self.ellipsis {
             guard i > 0 else {
-              throw EvalError.macroMismatchedRepetitionPatterns(self.context.symbols.ellipsis)
+              throw EvalError.macroMismatchedRepetitionPatterns(self.ellipsis)
             }
             try matches.instantiate(template: vector.exprs[i - 1],
                                     with: self,
@@ -242,7 +251,7 @@ public final class SyntaxRules {
     func traverse(_ pattern: Expr) {
       switch pattern {
         case .symbol(let sym):
-          if !self.literals.contains(sym) && !self.reserved.contains(sym) {
+          if !self.literals.contains(sym.interned) && !self.reserved.contains(sym.interned) {
             vars.insert(sym)
           }
         case .pair(let car, let cdr):

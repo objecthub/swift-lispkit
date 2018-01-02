@@ -510,7 +510,7 @@ public final class BaseLibrary: NativeLibrary {
     var transRules: Expr = .null
     switch expr {
       case .pair(_, .pair(.symbol(let sym), .pair(let literals, let patTrans))):
-        ellipsis = sym
+        ellipsis = sym.interned
         lit = literals
         transRules = patTrans
       case .pair(_, .pair(let literals, let patTrans)):
@@ -541,7 +541,7 @@ public final class BaseLibrary: NativeLibrary {
     var literalSet = Set<Symbol>()
     var expr = lit
     while case .pair(.symbol(let sym), let cdr) = expr {
-      literalSet.insert(sym)
+      literalSet.insert(sym.interned)
       expr = cdr
     }
     guard expr == .null else {
