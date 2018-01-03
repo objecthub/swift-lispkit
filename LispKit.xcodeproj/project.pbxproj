@@ -38,6 +38,7 @@
 		CC35FD0F1C711FEA00C8B992 /* BindingGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35FD0E1C711FEA00C8B992 /* BindingGroup.swift */; };
 		CC3A025A1F97FD72009B959C /* json.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC3A02591F97F3E1009B959C /* json.sld */; };
 		CC3C92441D84C0D800016C28 /* Library.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC3C92431D84C0D800016C28 /* Library.swift */; };
+		CC436C401FFBD52F0095559E /* logic.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC436C3F1FFBD5090095559E /* logic.sld */; };
 		CC474EAF1ECFAC3F00B535E3 /* Pi.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCFBE5C31ECBA8DA0032254B /* Pi.scm */; };
 		CC474EB11ED03CB100B535E3 /* Queens.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC474EB01ED0390200B535E3 /* Queens.scm */; };
 		CC474EB31ED08D8D00B535E3 /* SRFI134.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC474EB21ED08C9700B535E3 /* SRFI134.scm */; };
@@ -260,6 +261,7 @@
 			dstPath = LispKit/Resources/Libraries/lispkit;
 			dstSubfolderSpec = 7;
 			files = (
+				CC436C401FFBD52F0095559E /* logic.sld in Copy pre-installed LispKit libraries */,
 				CC90B2361FE5D7BC0044F724 /* queue.sld in Copy pre-installed LispKit libraries */,
 				CC90B2341FE55E8B0044F724 /* stack.sld in Copy pre-installed LispKit libraries */,
 				CC68B3A91FCCCDEE00EB4AF9 /* object.sld in Copy pre-installed LispKit libraries */,
@@ -402,6 +404,7 @@
 		CC3A02591F97F3E1009B959C /* json.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = json.sld; sourceTree = "<group>"; };
 		CC3C4E051CD81C5E00C78F89 /* TODO.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = TODO.md; sourceTree = "<group>"; };
 		CC3C92431D84C0D800016C28 /* Library.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Library.swift; sourceTree = "<group>"; wrapsLines = 1; };
+		CC436C3F1FFBD5090095559E /* logic.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = logic.sld; sourceTree = "<group>"; };
 		CC474EB01ED0390200B535E3 /* Queens.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Queens.scm; sourceTree = "<group>"; };
 		CC474EB21ED08C9700B535E3 /* SRFI134.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SRFI134.scm; sourceTree = "<group>"; };
 		CC48055C1CFE366100D608B6 /* lispkit_logo_small.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lispkit_logo_small.png; sourceTree = "<group>"; };
@@ -666,6 +669,7 @@
 				CC2345401F655B8B00C38817 /* datatype.sld */,
 				CC68B3A81FCC73C300EB4AF9 /* object.sld */,
 				CCD6C3E81F35F95D0002F7D4 /* enum.sld */,
+				CC436C3F1FFBD5090095559E /* logic.sld */,
 				CCE7CA451F8D819600FD7ECA /* iteration.sld */,
 				CC5848021E5691B300BE6497 /* set.sld */,
 				CC90B2331FE55DFE0044F724 /* stack.sld */,
