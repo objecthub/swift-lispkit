@@ -20,13 +20,15 @@
 
 import Foundation
 
-
+///
+/// Data structure for accumulating characters in a buffer.
+///
 public struct ScanBuffer {
-  private var buffer: [UniChar]
+  private var buffer: ContiguousArray<UniChar>
   public private(set) var index: Int
   
   public init(capacity: Int = 256) {
-    self.buffer = Array<UniChar>(repeating: 0, count: capacity)
+    self.buffer = ContiguousArray<UniChar>(repeating: 0, count: capacity)
     self.index = 0
   }
   
@@ -47,14 +49,30 @@ public struct ScanBuffer {
   }
   
   public var stringValue: String {
-    return self.index > 0 ? String(utf16CodeUnits: self.buffer, count: self.index - 1) : ""
+    return self.index > 0 ? self.buffer.withUnsafeBufferPointer { ptr in
+                              if let adr = ptr.baseAddress {
+                                return String(utf16CodeUnits: adr, count: self.index - 1)
+                              } else {
+                                return ""
+                              }
+                            }
+                          : ""
   }
   
   public func stringStartingAt(_ start: Int) -> String {
     guard self.index > start else {
       return ""
     }
-    let temp = Array(self.buffer[start..<self.index - 1])
-    return String(utf16CodeUnits: temp, count: temp.count)
+    guard start > 0 else {
+      return self.stringValue
+    }
+    let temp = self.buffer[start..<self.index - 1]
+    return temp.withUnsafeBufferPointer { ptr in
+      if let adr = ptr.baseAddress {
+        return String(utf16CodeUnits: adr, count: temp.count)
+      } else {
+        return ""
+      }
+    }
   }
 }
