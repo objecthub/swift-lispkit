@@ -34,7 +34,7 @@ let package = Package(
     .executable(name: "LispKitRepl", targets: ["LispKitRepl"])
   ],
   dependencies: [
-    .package(url: "https://github.com/objecthub/swift-numberkit.git", from: "2.0.4")
+    .package(url: "https://github.com/objecthub/swift-numberkit.git", from: "2.0.5")
   ],
   targets: [
     .target(name: "LispKit",

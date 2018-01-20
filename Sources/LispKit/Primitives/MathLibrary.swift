@@ -144,15 +144,25 @@ public final class MathLibrary: NativeLibrary {
     self.define(Procedure("fxand", self.fxAnd))
     self.define(Procedure("fxior", self.fxIor))
     self.define(Procedure("fxxor", self.fxXor))
+    self.define(Procedure("fxif", self.fxIf))
     self.define(Procedure("fxnot", self.fxNot))
     self.define(Procedure("fxlshift", self.fxLshift))
     self.define(Procedure("fxrshift", self.fxRshift))
     self.define(Procedure("fxlrshift", self.fxLrshift))
+    self.define(Procedure("fxarithmetic-shift-left", self.fxLshift))
+    self.define(Procedure("fxarithmetic-shift-right", self.fxRshift))
+    self.define(Procedure("fxarithmetic-shift", self.fxShift))
+    self.define(Procedure("fxbit-count", self.fxBitCount))
+    self.define(Procedure("fxlength", self.fxLength))
+    self.define(Procedure("fxfirst-bit-set", self.fxFirstBitSet))
+    self.define(Procedure("fxbit-set?", self.fxIsBitSet))
+    self.define(Procedure("fxcopy-bit", self.fxCopyBit))
     self.define(Procedure("fxmin", self.fxMin))
     self.define(Procedure("fxmax", self.fxMax))
-    self.define("max-fixnum", via: "(define max-fixnum \(Int64.max))")
-    self.define("min-fixnum", via: "(define min-fixnum \(Int64.min))")
     self.define(Procedure("fxrandom", self.fxRandom))
+    self.define(Procedure("fixnum-width", self.fixnumWidth))
+    self.define(Procedure("least-fixnum", self.leastFixnum))
+    self.define(Procedure("greatest-fixnum", self.greatestFixnum))
     self.define(Procedure("fl+", self.flPlus, self.compileFlPlus))
     self.define(Procedure("fl-", self.flMinus, self.compileFlMinus))
     self.define(Procedure("fl*", self.flMult, self.compileFlMult))
@@ -1559,21 +1569,81 @@ public final class MathLibrary: NativeLibrary {
     return .fixnum(try x.asInt64() ^ y.asInt64())
   }
   
+  private func fxIf(_ x: Expr, _ y: Expr, _ z: Expr) throws -> Expr {
+    let v = try x.asInt64()
+    return .fixnum((try v & y.asInt64()) | (try ~v & z.asInt64()))
+  }
+  
   private func fxNot(_ x: Expr) throws -> Expr {
     return .fixnum(try ~x.asInt64())
   }
   
   private func fxLshift(_ x: Expr, _ y: Expr) throws -> Expr {
-    return .fixnum(try x.asInt64() << Int64(y.asInt(below: 64)))
+    return .fixnum(try x.asInt64() << Int64(y.asInt(below: Int64.bitWidth)))
   }
   
   private func fxRshift(_ x: Expr, _ y: Expr) throws -> Expr {
-    return .fixnum(try x.asInt64() >> Int64(y.asInt(below: 64)))
+    return .fixnum(try x.asInt64() >> Int64(y.asInt(below: Int64.bitWidth)))
   }
   
   private func fxLrshift(_ x: Expr, _ y: Expr) throws -> Expr {
     return .fixnum(
-      Int64(bitPattern: UInt64(bitPattern: try x.asInt64()) >> UInt64(try y.asInt(below: 64))))
+      Int64(bitPattern: UInt64(bitPattern: try x.asInt64()) >>
+                        UInt64(try y.asInt(below: Int64.bitWidth))))
+  }
+  
+  private func fxShift(_ x: Expr, _ y: Expr) throws -> Expr {
+    let n = try y.asInt64()
+    guard n > -Int64(Int64.bitWidth) && n < Int64(Int64.bitWidth) else {
+      throw EvalError.indexOutOfBounds(n, Int64(Int64.bitWidth), y)
+    }
+    if n < 0 {
+      return .fixnum(try x.asInt64() >> -n)
+    } else {
+      return .fixnum(try x.asInt64() << n)
+    }
+  }
+  
+  private func fxBitCount(_ x: Expr) throws -> Expr {
+    let v = try x.asInt64()
+    if v < 0 {
+      return .fixnum(~Int64(bitcount(~v)))
+    } else {
+      return .fixnum(Int64(bitcount(v)))
+    }
+  }
+  
+  private func fxLength(_ x: Expr) throws -> Expr {
+    let v = try x.asInt64()
+    var len = 0
+    var bits = v < 0 ? ~v : v
+    while bits != 0 {
+      bits >>= 1
+      len += 1
+    }
+    return .fixnum(Int64(len))
+  }
+  
+  private func fxFirstBitSet(_ x: Expr) throws -> Expr {
+    let v = try x.asInt64()
+    guard v != 0 else {
+      return .fixnum(-1)
+    }
+    return .fixnum(Int64(v.trailingZeroBitCount))
+  }
+  
+  private func fxIsBitSet(_ x: Expr, _ y: Expr) throws -> Expr {
+    return .makeBoolean((try (x.asInt64() >> y.asInt(below: Int64.bitWidth)) & 1) == 1)
+  }
+  
+  private func fxCopyBit(_ x: Expr, _ y: Expr, _ z: Expr) throws -> Expr {
+    let v = try x.asInt64()
+    let pos = try y.asInt(below: Int64.bitWidth)
+    if try z.asInt(below: 2) == 0 {
+      return .fixnum(v & ~(1 << pos))
+    } else {
+      return .fixnum(v | (1 << pos))
+    }
   }
   
   private func fxMin(_ x: Expr, _ y: Expr) throws -> Expr {
@@ -1608,6 +1678,18 @@ public final class MathLibrary: NativeLibrary {
       }
     }
     return .fixnum(Int64.random(min: min, max: max))
+  }
+  
+  private func fixnumWidth() -> Expr {
+    return .fixnum(Int64(Int64.bitWidth))
+  }
+  
+  private func leastFixnum() -> Expr {
+    return .fixnum(Int64.min)
+  }
+  
+  private func greatestFixnum() -> Expr {
+    return .fixnum(Int64.max)
   }
   
   private func flPlus(_ x: Expr, _ y: Expr) throws -> Expr {
