@@ -143,7 +143,7 @@ public final class StringLibrary: NativeLibrary {
     let k = try index.asInt()
     let i = str.index(str.startIndex, offsetBy: k)
     guard i < str.endIndex else {
-      throw EvalError.indexOutOfBounds(Int64(k), Int64(str.count - 1), expr)
+      throw EvalError.indexOutOfBounds(Int64(k), Int64(str.count - 1))
     }
     return .char(str[i])
   }

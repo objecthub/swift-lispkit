@@ -429,7 +429,7 @@ public final class ListLibrary: NativeLibrary {
   private func listTail(_ expr: Expr, _ count: Expr) throws -> Expr {
     var k = try count.asInt64()
     guard k >= 0 else {
-      throw EvalError.indexOutOfBounds(k, -1, expr)
+      throw EvalError.indexOutOfBounds(k, -1)
     }
     if k == 0 {
       return expr
@@ -444,7 +444,7 @@ public final class ListLibrary: NativeLibrary {
         len += 1
         list = cdr
       }
-      throw EvalError.indexOutOfBounds(try count.asInt64(), len, expr)
+      throw EvalError.indexOutOfBounds(try count.asInt64(), len)
     }
   }
   

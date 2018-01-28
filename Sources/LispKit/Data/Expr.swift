@@ -393,7 +393,7 @@ extension Expr {
       throw EvalError.typeError(self, [.exactIntegerType])
     }
     guard res >= 0 && res < Int64(below) else {
-      throw EvalError.indexOutOfBounds(res, Int64(below - 1), self)
+      throw EvalError.indexOutOfBounds(res, Int64(below - 1))
     }
     return Int(res)
   }

@@ -200,7 +200,7 @@ public final class VectorLibrary: NativeLibrary {
     let vector = try vec.vectorAsCollection()
     let i = try index.asInt64()
     guard i >= 0 && i < Int64(vector.exprs.count) else {
-      throw EvalError.indexOutOfBounds(i, Int64(vector.exprs.count - 1), vec)
+      throw EvalError.indexOutOfBounds(i, Int64(vector.exprs.count - 1))
     }
     return vector.exprs[Int(i)]
   }
@@ -228,7 +228,7 @@ public final class VectorLibrary: NativeLibrary {
     let vector = try vec.vectorAsCollection()
     let i = try index.asInt()
     guard i >= 0 && i < vector.exprs.count else {
-      throw EvalError.indexOutOfBounds(Int64(i), Int64(vector.exprs.count) - 1, vec)
+      throw EvalError.indexOutOfBounds(Int64(i), Int64(vector.exprs.count) - 1)
     }
     guard case .vector = vector.kind else {
       throw EvalError.attemptToModifyImmutableData(vec)

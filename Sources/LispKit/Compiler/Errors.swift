@@ -380,7 +380,7 @@ public enum EvalError: LispError, Hashable {
   case malformedCondExpandClause(Expr)
   case malformedCaseClause(Expr)
   case duplicateBinding(Symbol, Expr)
-  case indexOutOfBounds(Int64, Int64, Expr)
+  case indexOutOfBounds(Int64, Int64)
   case parameterOutOfBounds(String, Int, Int64, Int64, Int64)
   case nonApplicativeValue(Expr)
   case illegalRadix(Expr)
@@ -479,11 +479,11 @@ public enum EvalError: LispError, Hashable {
         return "malformed clause in case form: \(clause)"
       case .duplicateBinding(let sym, let expr):
         return "symbol \(sym) bound multiple times in \(expr)"
-      case .indexOutOfBounds(let index, let max, let expr):
+      case .indexOutOfBounds(let index, let max):
         if index < 0 {
-          return "index \(index) must not be negative when accessing \(expr)"
+          return "index \(index) is not a non-negative exact integer"
         } else {
-          return "index \(index) out of bounds [0..\(max)] when accessing \(expr)"
+          return "index \(index) is out of bounds [0..\(max)]"
         }
       case .parameterOutOfBounds(let fun, let n, let actual, let min, let max):
         return "parameter \(n) of \(fun) out of bounds [\(min)..\(max)]: \(actual)"
@@ -640,9 +640,8 @@ public enum EvalError: LispError, Hashable {
           return clause1 == clause2
         case (.duplicateBinding(let sym1, let expr1), .duplicateBinding(let sym2, let expr2)):
           return sym1 == sym2 && expr1 == expr2
-        case (.indexOutOfBounds(let i1, let m1, let expr1),
-              .indexOutOfBounds(let i2, let m2, let expr2)):
-          return i1 == i2 && m1 == m2 && expr1 == expr2
+        case (.indexOutOfBounds(let i1, let m1), .indexOutOfBounds(let i2, let m2)):
+          return i1 == i2 && m1 == m2
         case (.parameterOutOfBounds(let fun1, let n1, let actual1, let min1, let max1),
               .parameterOutOfBounds(let fun2, let n2, let actual2, let min2, let max2)):
           return fun1 == fun2 && n1 == n2 && actual1 == actual2 && min1 == min2 && max1 == max2

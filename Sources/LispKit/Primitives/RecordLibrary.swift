@@ -214,7 +214,7 @@ public final class RecordLibrary: NativeLibrary {
     let record = try expr.recordAsCollection()
     let idx = try index.asInt()
     guard idx >= 0 && idx < record.exprs.count else {
-      throw EvalError.indexOutOfBounds(Int64(idx), Int64(record.exprs.count - 1), expr)
+      throw EvalError.indexOutOfBounds(Int64(idx), Int64(record.exprs.count - 1))
     }
     return record.exprs[idx]
   }
@@ -227,7 +227,7 @@ public final class RecordLibrary: NativeLibrary {
     switch index {
       case .fixnum(let idx):
         guard idx >= 0 && idx < Int64(record.exprs.count) else {
-          throw EvalError.indexOutOfBounds(idx, Int64(record.exprs.count - 1), expr)
+          throw EvalError.indexOutOfBounds(idx, Int64(record.exprs.count - 1))
         }
         // Set record field value. Guarantee that cells for which `record-set!` is called are
         // managed by a managed object pool.
@@ -243,7 +243,7 @@ public final class RecordLibrary: NativeLibrary {
         var currentValue = value
         while case .pair(.fixnum(let idx), let nextIndex) = currentIndex {
           guard idx >= 0 && idx < Int64(record.exprs.count) else {
-            throw EvalError.indexOutOfBounds(idx, Int64(record.exprs.count - 1), expr)
+            throw EvalError.indexOutOfBounds(idx, Int64(record.exprs.count - 1))
           }
           guard case .pair(let v, let nextValue) = currentValue else {
             while case .pair(_, let nextIndex) = currentIndex {

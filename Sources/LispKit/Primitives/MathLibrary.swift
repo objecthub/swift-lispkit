@@ -64,17 +64,19 @@ public final class MathLibrary: NativeLibrary {
     self.define(Procedure("exact", self.exact))
     self.define(Procedure("approximate", self.approximate))
     self.define("rationalize", via:
-      "(define (rationalize x e)",
-      "  (letrec ((simplest (lambda (x y return)",
-      "                       (let ((fx (floor x)) (fy (floor y)))",
-      "                         (cond ((>= fx x) (return fx 1))",
-      "                               ((= fx fy) (simplest (/ (- y fy)) (/ (- x fx))",
-      "                                            (lambda (n d) (return (+ d (* fx n)) n))))",
-      "                               (else      (return (+ fx 1) 1))))))",
-      "           (ax (abs x))",
-      "           (ae (abs e)))",
-      "  (simplest (- ax ae) (+ ax ae)",
-      "    (if (negative? x) (lambda (num den) (/ (- num) den)) /))))")
+      """
+       (define (rationalize x e)
+         (letrec ((simplest (lambda (x y return)
+                              (let ((fx (floor x)) (fy (floor y)))
+                                (cond ((>= fx x) (return fx 1))
+                                      ((= fx fy) (simplest (/ (- y fy)) (/ (- x fx))
+                                                   (lambda (n d) (return (+ d (* fx n)) n))))
+                                      (else      (return (+ fx 1) 1))))))
+                  (ax (abs x))
+                  (ae (abs e)))
+         (simplest (- ax ae) (+ ax ae)
+           (if (negative? x) (lambda (num den) (/ (- num) den)) /))))
+       """)
     self.define(Procedure("floor", self.floor))
     self.define(Procedure("ceiling", self.ceiling))
     self.define(Procedure("truncate", self.truncate))
@@ -141,17 +143,17 @@ public final class MathLibrary: NativeLibrary {
     self.define(Procedure("fxremainder", self.fxRemainder))
     self.define(Procedure("fxmodulo", self.fxModulo))
     self.define(Procedure("fxabs", self.fxAbs))
+    self.define(Procedure("fxnot", self.fxNot))
     self.define(Procedure("fxand", self.fxAnd))
     self.define(Procedure("fxior", self.fxIor))
     self.define(Procedure("fxxor", self.fxXor))
     self.define(Procedure("fxif", self.fxIf))
-    self.define(Procedure("fxnot", self.fxNot))
     self.define(Procedure("fxlshift", self.fxLshift))
     self.define(Procedure("fxrshift", self.fxRshift))
     self.define(Procedure("fxlrshift", self.fxLrshift))
+    self.define(Procedure("fxarithmetic-shift", self.fxShift))
     self.define(Procedure("fxarithmetic-shift-left", self.fxLshift))
     self.define(Procedure("fxarithmetic-shift-right", self.fxRshift))
-    self.define(Procedure("fxarithmetic-shift", self.fxShift))
     self.define(Procedure("fxbit-count", self.fxBitCount))
     self.define(Procedure("fxlength", self.fxLength))
     self.define(Procedure("fxfirst-bit-set", self.fxFirstBitSet))
@@ -178,6 +180,23 @@ public final class MathLibrary: NativeLibrary {
     self.define(Procedure("flabs", self.flAbs))
     self.define(Procedure("flmin", self.flMin))
     self.define(Procedure("flmax", self.flMax))
+    self.define(Procedure("bitwise-not", self.bitwiseNot))
+    self.define(Procedure("bitwise-and", self.bitwiseAnd))
+    self.define(Procedure("bitwise-ior", self.bitwiseIor))
+    self.define(Procedure("bitwise-xor", self.bitwiseXor))
+    self.define("bitwise-if", via:
+      """
+       (define (bitwise-if x y z)
+         (bitwise-ior (bitwise-and x y) (bitwise-and (bitwise-not x) z)))
+      """)
+    self.define(Procedure("bit-count", self.bitCount))
+    self.define(Procedure("integer-length", self.integerLength))
+    self.define(Procedure("first-bit-set", self.firstBitSet))
+    self.define(Procedure("bit-set?", self.isBitSet))
+    self.define(Procedure("copy-bit", self.copyBit))
+    self.define(Procedure("arithmetic-shift", self.arithmeticShift))
+    self.define(Procedure("arithmetic-shift-left", self.arithmeticShiftLeft))
+    self.define(Procedure("arithmetic-shift-right", self.arithmeticShiftRight))
     self.define("pi", via: "(define pi \(Double.pi))")
     self.define("e", via: "(define e \(M_E))")
   }
@@ -1367,7 +1386,10 @@ public final class MathLibrary: NativeLibrary {
     return .fixnum(try x.asInt64() &+ y.asInt64())
   }
   
-  private func compileFxPlus(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  private func compileFxPlus(_ compiler: Compiler,
+                             expr: Expr,
+                             env: Env,
+                             tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let x, .pair(let y, .null))) = expr else {
       throw EvalError.argumentCountError(formals: 2, args: expr)
     }
@@ -1395,7 +1417,10 @@ public final class MathLibrary: NativeLibrary {
     return .fixnum(try x.asInt64() &- y.asInt64())
   }
   
-  private func compileFxMinus(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  private func compileFxMinus(_ compiler: Compiler,
+                              expr: Expr,
+                              env: Env,
+                              tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let x, .pair(let y, .null))) = expr else {
       throw EvalError.argumentCountError(formals: 2, args: expr)
     }
@@ -1417,7 +1442,10 @@ public final class MathLibrary: NativeLibrary {
     return .fixnum(try x.asInt64() &* y.asInt64())
   }
   
-  private func compileFxMult(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  private func compileFxMult(_ compiler: Compiler,
+                             expr: Expr,
+                             env: Env,
+                             tail: Bool) throws -> Bool {
     try self.compileBinOp(compiler, expr: expr, env: env)
     compiler.emit(.fxMult)
     return false
@@ -1427,7 +1455,10 @@ public final class MathLibrary: NativeLibrary {
     return .fixnum(try x.asInt64() / y.asInt64())
   }
   
-  private func compileFxDiv(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  private func compileFxDiv(_ compiler: Compiler,
+                            expr: Expr,
+                            env: Env,
+                            tail: Bool) throws -> Bool {
     try self.compileBinOp(compiler, expr: expr, env: env)
     compiler.emit(.fxDiv)
     return false
@@ -1437,7 +1468,10 @@ public final class MathLibrary: NativeLibrary {
     return .fixnum(try x.asInt64() &+ 1)
   }
   
-  private func compileFx1Plus(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  private func compileFx1Plus(_ compiler: Compiler,
+                              expr: Expr,
+                              env: Env,
+                              tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let x, .null)) = expr else {
       throw EvalError.argumentCountError(formals: 2, args: expr)
     }
@@ -1450,7 +1484,10 @@ public final class MathLibrary: NativeLibrary {
     return .fixnum(try x.asInt64() &- 1)
   }
   
-  private func compileFx1Minus(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  private func compileFx1Minus(_ compiler: Compiler,
+                               expr: Expr,
+                               env: Env,
+                               tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let x, .null)) = expr else {
       throw EvalError.argumentCountError(formals: 2, args: expr)
     }
@@ -1463,7 +1500,10 @@ public final class MathLibrary: NativeLibrary {
     return .makeBoolean(try x.asInt64() == 0)
   }
   
-  private func compileFxIsZero(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  private func compileFxIsZero(_ compiler: Compiler,
+                               expr: Expr,
+                               env: Env,
+                               tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let x, .null)) = expr else {
       throw EvalError.argumentCountError(formals: 2, args: expr)
     }
@@ -1526,7 +1566,10 @@ public final class MathLibrary: NativeLibrary {
     return .makeBoolean(try x.asInt64() <= y.asInt64())
   }
   
-  private func compileFxLtEq(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  private func compileFxLtEq(_ compiler: Compiler,
+                             expr: Expr,
+                             env: Env,
+                             tail: Bool) throws -> Bool {
     try self.compileBinOp(compiler, expr: expr, env: env)
     compiler.emit(.fxLtEq)
     return false
@@ -1536,7 +1579,10 @@ public final class MathLibrary: NativeLibrary {
     return .makeBoolean(try x.asInt64() >= y.asInt64())
   }
   
-  private func compileFxGtEq(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  private func compileFxGtEq(_ compiler: Compiler,
+                             expr: Expr,
+                             env: Env,
+                             tail: Bool) throws -> Bool {
     try self.compileBinOp(compiler, expr: expr, env: env)
     compiler.emit(.fxGtEq)
     return false
@@ -1595,7 +1641,7 @@ public final class MathLibrary: NativeLibrary {
   private func fxShift(_ x: Expr, _ y: Expr) throws -> Expr {
     let n = try y.asInt64()
     guard n > -Int64(Int64.bitWidth) && n < Int64(Int64.bitWidth) else {
-      throw EvalError.indexOutOfBounds(n, Int64(Int64.bitWidth), y)
+      throw EvalError.indexOutOfBounds(n, Int64(Int64.bitWidth))
     }
     if n < 0 {
       return .fixnum(try x.asInt64() >> -n)
@@ -1668,7 +1714,7 @@ public final class MathLibrary: NativeLibrary {
         throw EvalError.parameterOutOfBounds("random", 1, min, 0, Int64(Int.max) - 1)
       }
       guard max > min && max <= Int64(Int.max) else {
-        throw EvalError.parameterOutOfBounds("random", 1, max, min, Int64(Int.max))
+        throw EvalError.parameterOutOfBounds("random", 2, max, min, Int64(Int.max))
       }
     } else {
       min = 0
@@ -1696,7 +1742,10 @@ public final class MathLibrary: NativeLibrary {
     return .flonum(try x.asDouble() + y.asDouble())
   }
   
-  private func compileFlPlus(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  private func compileFlPlus(_ compiler: Compiler,
+                             expr: Expr,
+                             env: Env,
+                             tail: Bool) throws -> Bool {
     try self.compileBinOp(compiler, expr: expr, env: env)
     compiler.emit(.flPlus)
     return false
@@ -1706,7 +1755,10 @@ public final class MathLibrary: NativeLibrary {
     return .flonum(try x.asDouble() - y.asDouble())
   }
   
-  private func compileFlMinus(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  private func compileFlMinus(_ compiler: Compiler,
+                              expr: Expr,
+                              env: Env,
+                              tail: Bool) throws -> Bool {
     try self.compileBinOp(compiler, expr: expr, env: env)
     compiler.emit(.flMinus)
     return false
@@ -1716,7 +1768,10 @@ public final class MathLibrary: NativeLibrary {
     return .flonum(try x.asDouble() * y.asDouble())
   }
   
-  private func compileFlMult(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  private func compileFlMult(_ compiler: Compiler,
+                             expr: Expr,
+                             env: Env,
+                             tail: Bool) throws -> Bool {
     try self.compileBinOp(compiler, expr: expr, env: env)
     compiler.emit(.flMult)
     return false
@@ -1778,7 +1833,10 @@ public final class MathLibrary: NativeLibrary {
     return .makeBoolean(try x.asDouble() <= y.asDouble())
   }
   
-  private func compileFlLtEq(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  private func compileFlLtEq(_ compiler: Compiler,
+                             expr: Expr,
+                             env: Env,
+                             tail: Bool) throws -> Bool {
     try self.compileBinOp(compiler, expr: expr, env: env)
     compiler.emit(.flLtEq)
     return false
@@ -1788,7 +1846,10 @@ public final class MathLibrary: NativeLibrary {
     return .makeBoolean(try x.asDouble() >= y.asDouble())
   }
   
-  private func compileFlGtEq(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  private func compileFlGtEq(_ compiler: Compiler,
+                             expr: Expr,
+                             env: Env,
+                             tail: Bool) throws -> Bool {
     try self.compileBinOp(compiler, expr: expr, env: env)
     compiler.emit(.flLtEq)
     return false
@@ -1809,5 +1870,194 @@ public final class MathLibrary: NativeLibrary {
     let xint = try x.asDouble()
     let yint = try y.asDouble()
     return .flonum(xint > yint ? xint : yint)
+  }
+  
+  private func bitwiseNot(_ num: Expr) throws -> Expr {
+    switch num {
+      case .fixnum(let x):
+        return .fixnum(~x)
+      case .bignum(let x):
+        return .bignum(x.not)
+      default:
+        throw EvalError.typeError(num, [.integerType])
+    }
+  }
+  
+  private func bitwiseAnd(_ exprs: Arguments) throws -> Expr {
+    var acc = Expr.fixnum(-1)
+    for expr in exprs {
+      switch try NumberPair(acc, expr) {
+        case .fixnumPair(let lhs, let rhs):
+          acc = .fixnum(lhs & rhs)
+        case .bignumPair(let lhs, let rhs):
+          acc = .makeNumber(lhs & rhs)
+        default:
+          throw EvalError.typeError(expr, [.integerType])
+      }
+    }
+    return acc
+  }
+  
+  private func bitwiseIor(_ exprs: Arguments) throws -> Expr {
+    var acc = Expr.fixnum(0)
+    for expr in exprs {
+      switch try NumberPair(acc, expr) {
+      case .fixnumPair(let lhs, let rhs):
+        acc = .fixnum(lhs | rhs)
+      case .bignumPair(let lhs, let rhs):
+        acc = .makeNumber(lhs | rhs)
+      default:
+        throw EvalError.typeError(expr, [.integerType])
+      }
+    }
+    return acc
+  }
+  
+  private func bitwiseXor(_ exprs: Arguments) throws -> Expr {
+    var acc = Expr.fixnum(0)
+    for expr in exprs {
+      switch try NumberPair(acc, expr) {
+        case .fixnumPair(let lhs, let rhs):
+          acc = .fixnum(lhs ^ rhs)
+        case .bignumPair(let lhs, let rhs):
+          acc = .makeNumber(lhs ^ rhs)
+        default:
+          throw EvalError.typeError(expr, [.integerType])
+      }
+    }
+    return acc
+  }
+  
+  private func bitCount(_ num: Expr) throws -> Expr {
+    switch num {
+      case .fixnum(let x):
+        return .fixnum(Int64(bitcount(x)))
+      case .bignum(let x):
+        return .fixnum(Int64(x.bitCount))
+      default:
+        throw EvalError.typeError(num, [.integerType])
+    }
+  }
+  
+  private func integerLength(_ num: Expr) throws -> Expr {
+    switch num {
+      case .fixnum(let x):
+        return .fixnum(Int64(UInt64.bitWidth - (x < 0 ? ~x : x).leadingZeroBitCount))
+      case .bignum(let x):
+        return .fixnum(Int64(x.lastBitSet))
+      default:
+        throw EvalError.typeError(num, [.integerType])
+    }
+  }
+  
+  private func firstBitSet(_ num: Expr) throws -> Expr {
+    switch num {
+      case .fixnum(let x):
+        return .fixnum(Int64(x.trailingZeroBitCount))
+      case .bignum(let x):
+        return .fixnum(Int64(x.firstBitSet))
+      default:
+        throw EvalError.typeError(num, [.integerType])
+    }
+  }
+  
+  private func isBitSet(_ num: Expr, _ n: Expr) throws -> Expr {
+    let y = try n.asInt()
+    switch num {
+      case .fixnum(let x):
+        return .makeBoolean(y < 63 ? (x & (1 << y)) != 0 : BigInt(x).isBitSet(y))
+      case .bignum(let x):
+        return .makeBoolean(x.isBitSet(y))
+      default:
+        throw EvalError.typeError(num, [.integerType])
+    }
+  }
+  
+  private func copyBit(_ num: Expr, _ n: Expr, _ bit: Expr) throws -> Expr {
+    let y = try n.asInt()
+    let z = try bit.asInt(below: 2)
+    switch num {
+      case .fixnum(let x):
+        if y < 63 {
+          return .fixnum(z == 0 ? x & ~(1 << y) : x | (1 << y))
+        } else {
+          return .makeNumber(BigInt(x).set(bit: y, to: z != 0))
+        }
+      case .bignum(let x):
+        return .makeNumber(x.set(bit: y, to: z != 0))
+      default:
+        throw EvalError.typeError(num, [.integerType])
+    }
+  }
+  
+  private func arithmeticShift(_ num: Expr, _ n: Expr) throws -> Expr {
+    let y = try n.asInt64()
+    guard y >= Int.min && y <= Int.max else {
+      throw EvalError.parameterOutOfBounds("arithmetic-shift", 2, y, Int64(Int.min), Int64(Int.max))
+    }
+    switch num {
+      case .fixnum(let x):
+        if y <= 0 {
+          return .fixnum(x >> (-y))
+        } else if x == 0 {
+          return .fixnum(0)
+        } else if x > 0 {
+          if y < (x.leadingZeroBitCount - 1) {
+            return .fixnum(x << y)
+          } else {
+            return .makeNumber(BigInt(x).shift(Int(y)))
+          }
+        } else {
+          if y < ((~x).leadingZeroBitCount - 1) {
+            return .fixnum(x << y)
+          } else {
+            return .makeNumber(BigInt(x).shift(Int(y)))
+          }
+        }
+      case .bignum(let x):
+        return .makeNumber(x.shift(Int(y)))
+      default:
+        throw EvalError.typeError(num, [.integerType])
+    }
+  }
+  
+  private func arithmeticShiftLeft(_ num: Expr, _ n: Expr) throws -> Expr {
+    let y = try n.asInt()
+    switch num {
+      case .fixnum(let x):
+        if x == 0 {
+          return .fixnum(0)
+        } else if y == 0 {
+          return .fixnum(x)
+        } else if x > 0 {
+          if y < (x.leadingZeroBitCount - 1) {
+            return .fixnum(x << y)
+          } else {
+            return .makeNumber(BigInt(x).shift(y))
+          }
+        } else {
+          if y < ((~x).leadingZeroBitCount - 1) {
+            return .fixnum(x << y)
+          } else {
+            return .makeNumber(BigInt(x).shift(y))
+          }
+        }
+      case .bignum(let x):
+        return .makeNumber(x.shift(y))
+      default:
+        throw EvalError.typeError(num, [.integerType])
+    }
+  }
+  
+  private func arithmeticShiftRight(_ num: Expr, _ n: Expr) throws -> Expr {
+    let y = try n.asInt()
+    switch num {
+      case .fixnum(let x):
+        return .fixnum(x >> y)
+      case .bignum(let x):
+        return .makeNumber(x.shift(-y))
+      default:
+        throw EvalError.typeError(num, [.integerType])
+    }
   }
 }

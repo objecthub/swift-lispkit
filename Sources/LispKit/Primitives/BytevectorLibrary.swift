@@ -79,7 +79,7 @@ public final class BytevectorLibrary: NativeLibrary {
     let bvector = try bvec.asByteVector()
     let i = try index.asInt()
     guard i >= 0 && i < bvector.value.count else {
-      throw EvalError.indexOutOfBounds(Int64(i), Int64(bvector.value.count - 1), bvec)
+      throw EvalError.indexOutOfBounds(Int64(i), Int64(bvector.value.count - 1))
     }
     return .fixnum(Int64(bvector.value[i]))
   }
@@ -88,7 +88,7 @@ public final class BytevectorLibrary: NativeLibrary {
     let bvector = try bvec.asByteVector()
     let i = try index.asInt()
     guard i >= 0 && i < bvector.value.count else {
-      throw EvalError.indexOutOfBounds(Int64(i), Int64(bvector.value.count - 1), expr)
+      throw EvalError.indexOutOfBounds(Int64(i), Int64(bvector.value.count - 1))
     }
     bvector.value[i] = try expr.asUInt8()
     return .void
@@ -223,11 +223,11 @@ public final class BytevectorLibrary: NativeLibrary {
     }
     let sidx = str.index(str.startIndex, offsetBy: start)
     guard sidx <= str.endIndex else {
-      throw EvalError.indexOutOfBounds(Int64(start), Int64(str.count), s)
+      throw EvalError.indexOutOfBounds(Int64(start), Int64(str.count))
     }
     let eidx = str.index(str.startIndex, offsetBy: end)
     guard eidx <= str.endIndex && sidx <= eidx else {
-      throw EvalError.indexOutOfBounds(Int64(end), Int64(str.count), e)
+      throw EvalError.indexOutOfBounds(Int64(end), Int64(str.count))
     }
     var uniChars: [UniChar] = []
     for ch in str[sidx..<eidx] {
