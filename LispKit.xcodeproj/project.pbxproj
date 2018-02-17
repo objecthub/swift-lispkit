@@ -138,6 +138,7 @@
 		CC93A6611D0777A9008350C8 /* TextOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC93A6601D0777A9008350C8 /* TextOutput.swift */; };
 		CC96D10520386A40006AA27B /* 151.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC96D10420386860006AA27B /* 151.sld */; };
 		CC96D1072038AC59006AA27B /* 145.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC96D1062038AAB4006AA27B /* 145.sld */; };
+		CC96D1092038B17A006AA27B /* 137.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC96D1082038AEC1006AA27B /* 137.sld */; };
 		CC97FA161CFA515E0008596E /* Definitions.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC97FA151CFA51520008596E /* Definitions.scm */; };
 		CC98B4571EBD43C900BCD049 /* NumberKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CC5C713E1EBD3D3A00280CF4 /* NumberKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CC98B4581EBD43E500BCD049 /* NumberKit.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = CC5C713E1EBD3D3A00280CF4 /* NumberKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -346,6 +347,7 @@
 			dstPath = LispKit/Resources/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
+				CC96D1092038B17A006AA27B /* 137.sld in Copy pre-installed SRFI libraries */,
 				CC96D1072038AC59006AA27B /* 145.sld in Copy pre-installed SRFI libraries */,
 				CC96D10520386A40006AA27B /* 151.sld in Copy pre-installed SRFI libraries */,
 				CCEEF3911FAF4024006C4581 /* 158.sld in Copy pre-installed SRFI libraries */,
@@ -510,6 +512,7 @@
 		CC93A6601D0777A9008350C8 /* TextOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextOutput.swift; sourceTree = "<group>"; };
 		CC96D10420386860006AA27B /* 151.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 151.sld; sourceTree = "<group>"; };
 		CC96D1062038AAB4006AA27B /* 145.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 145.sld; sourceTree = "<group>"; };
+		CC96D1082038AEC1006AA27B /* 137.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 137.sld; sourceTree = "<group>"; };
 		CC97FA151CFA51520008596E /* Definitions.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Definitions.scm; sourceTree = "<group>"; };
 		CC98B4591EBD444400BCD049 /* NumberKit.framework.dSYM */ = {isa = PBXFileReference; lastKnownFileType = wrapper.dsym; name = NumberKit.framework.dSYM; path = Carthage/Build/Mac/NumberKit.framework.dSYM; sourceTree = "<group>"; };
 		CC9EB1141F5C9D4000697511 /* Topological.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Topological.scm; sourceTree = "<group>"; };
@@ -716,6 +719,7 @@
 				CC7AAE6F1EC9050B00B0F66C /* 134.sld */,
 				CC48EBCA1F3E5A2700233FA9 /* 135 */,
 				CC48EBC71F3E55F700233FA9 /* 135.sld */,
+				CC96D1082038AEC1006AA27B /* 137.sld */,
 				CCEFE6101ED804E900DFED9B /* 142.sld */,
 				CC96D1062038AAB4006AA27B /* 145.sld */,
 				CC96D10420386860006AA27B /* 151.sld */,
