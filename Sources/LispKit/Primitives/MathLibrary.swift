@@ -1672,10 +1672,7 @@ public final class MathLibrary: NativeLibrary {
   
   private func fxFirstBitSet(_ x: Expr) throws -> Expr {
     let v = try x.asInt64()
-    guard v != 0 else {
-      return .fixnum(-1)
-    }
-    return .fixnum(Int64(v.trailingZeroBitCount))
+    return v == 0 ? .fixnum(-1) : .fixnum(Int64(v.trailingZeroBitCount))
   }
   
   private func fxIsBitSet(_ x: Expr, _ y: Expr) throws -> Expr {
@@ -1953,7 +1950,7 @@ public final class MathLibrary: NativeLibrary {
   private func firstBitSet(_ num: Expr) throws -> Expr {
     switch num {
       case .fixnum(let x):
-        return .fixnum(Int64(x.trailingZeroBitCount))
+        return x == 0 ? .fixnum(-1) : .fixnum(Int64(x.trailingZeroBitCount))
       case .bignum(let x):
         return .fixnum(Int64(x.firstBitSet))
       default:
@@ -1975,7 +1972,20 @@ public final class MathLibrary: NativeLibrary {
   
   private func copyBit(_ num: Expr, _ n: Expr, _ bit: Expr) throws -> Expr {
     let y = try n.asInt()
-    let z = try bit.asInt(below: 2)
+    let z: Int
+    switch bit {
+      case .true:
+        z = 1
+      case .false:
+        z = 0
+      case .fixnum(let b):
+        guard b >= 0 && b < 2 else {
+          throw EvalError.indexOutOfBounds(b, 1)
+        }
+        z = Int(b)
+      default:
+        throw EvalError.typeError(bit, [.exactIntegerType])
+    }
     switch num {
       case .fixnum(let x):
         if y < 63 {
