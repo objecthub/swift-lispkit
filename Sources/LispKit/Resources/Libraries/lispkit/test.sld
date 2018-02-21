@@ -24,6 +24,7 @@
 
   (export test-begin
           test-end
+          test-failures
           test
           test-equal
           test-assert
@@ -158,8 +159,7 @@
       (syntax-rules ()
         ((_ name expr)
           (run-equal name
-                     (lambda () (with-exception-handler (lambda (e) internal-fail-token)
-                                                        (lambda () expr)))
+                     (lambda () (guard (e (#t internal-fail-token)) expr))
                      internal-fail-token
                      eq?))
         ((_ expr)
