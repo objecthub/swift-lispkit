@@ -139,6 +139,7 @@
 		CC96D10520386A40006AA27B /* 151.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC96D10420386860006AA27B /* 151.sld */; };
 		CC96D1072038AC59006AA27B /* 145.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC96D1062038AAB4006AA27B /* 145.sld */; };
 		CC96D1092038B17A006AA27B /* 137.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC96D1082038AEC1006AA27B /* 137.sld */; };
+		CC96D10B203997F0006AA27B /* test.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC96D10A20399770006AA27B /* test.sld */; };
 		CC97FA161CFA515E0008596E /* Definitions.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC97FA151CFA51520008596E /* Definitions.scm */; };
 		CC98B4571EBD43C900BCD049 /* NumberKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CC5C713E1EBD3D3A00280CF4 /* NumberKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CC98B4581EBD43E500BCD049 /* NumberKit.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = CC5C713E1EBD3D3A00280CF4 /* NumberKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -265,6 +266,7 @@
 			dstPath = LispKit/Resources/Libraries/lispkit;
 			dstSubfolderSpec = 7;
 			files = (
+				CC96D10B203997F0006AA27B /* test.sld in Copy pre-installed LispKit libraries */,
 				CC436C401FFBD52F0095559E /* logic.sld in Copy pre-installed LispKit libraries */,
 				CC90B2361FE5D7BC0044F724 /* queue.sld in Copy pre-installed LispKit libraries */,
 				CC90B2341FE55E8B0044F724 /* stack.sld in Copy pre-installed LispKit libraries */,
@@ -513,6 +515,7 @@
 		CC96D10420386860006AA27B /* 151.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 151.sld; sourceTree = "<group>"; };
 		CC96D1062038AAB4006AA27B /* 145.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 145.sld; sourceTree = "<group>"; };
 		CC96D1082038AEC1006AA27B /* 137.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 137.sld; sourceTree = "<group>"; };
+		CC96D10A20399770006AA27B /* test.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = test.sld; sourceTree = "<group>"; };
 		CC97FA151CFA51520008596E /* Definitions.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Definitions.scm; sourceTree = "<group>"; };
 		CC98B4591EBD444400BCD049 /* NumberKit.framework.dSYM */ = {isa = PBXFileReference; lastKnownFileType = wrapper.dsym; name = NumberKit.framework.dSYM; path = Carthage/Build/Mac/NumberKit.framework.dSYM; sourceTree = "<group>"; };
 		CC9EB1141F5C9D4000697511 /* Topological.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Topological.scm; sourceTree = "<group>"; };
@@ -678,6 +681,7 @@
 		CC5847FE1E506D7400BE6497 /* lispkit */ = {
 			isa = PBXGroup;
 			children = (
+				CC96D10A20399770006AA27B /* test.sld */,
 				CC2345401F655B8B00C38817 /* datatype.sld */,
 				CC68B3A81FCC73C300EB4AF9 /* object.sld */,
 				CCD6C3E81F35F95D0002F7D4 /* enum.sld */,
