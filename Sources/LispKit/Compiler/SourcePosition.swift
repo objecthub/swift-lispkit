@@ -65,10 +65,10 @@ public struct SourcePosition: Equatable, Hashable, CustomStringConvertible {
   }
   
   public func fullDescription(_ sourceManager: SourceManager) -> String {
-    guard let sourcePath = sourceManager.sourcePath(for: self.sourceId) else {
+    guard let sourceUrl = sourceManager.sourceUrl(for: self.sourceId) else {
       return self.description
     }
-    return "\(sourcePath) \(self.description)"
+    return "\(sourceUrl.lastPathComponent) \(self.description)"
   }
   
   public var description: String {

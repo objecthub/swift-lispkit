@@ -292,7 +292,7 @@ public final class VirtualMachine: TrackedObject {
                    in env: Env,
                    optimize: Bool = true,
                    foldCase: Bool = false) throws -> Expr {
-    return try self.eval(str: try String(contentsOfFile: path, encoding: String.Encoding.utf8),
+    return try self.eval(str: self.context.sourceManager.readSource(for: path),
                          in: env,
                          optimize: optimize,
                          inDirectory: self.context.fileHandler.directory(path),
@@ -349,7 +349,7 @@ public final class VirtualMachine: TrackedObject {
   
   /// Parses the given file and returns a list of parsed expressions.
   public func parse(file path: String, foldCase: Bool = false) throws -> Expr {
-    return try self.parse(str: try String(contentsOfFile: path, encoding: String.Encoding.utf8),
+    return try self.parse(str: self.context.sourceManager.readSource(for: path),
                           foldCase: foldCase)
   }
   
@@ -360,9 +360,8 @@ public final class VirtualMachine: TrackedObject {
   
   /// Parses the given string and returns an array of parsed expressions.
   public func parseExprs(file path: String, foldCase: Bool = false) throws -> Exprs {
-    return try self.parseExprs(
-      str: try String(contentsOfFile: path, encoding: String.Encoding.utf8),
-      foldCase: foldCase)
+    return try self.parseExprs(str: self.context.sourceManager.readSource(for: path),
+                               foldCase: foldCase)
   }
   
   /// Parses the given string and returns an array of parsed expressions.

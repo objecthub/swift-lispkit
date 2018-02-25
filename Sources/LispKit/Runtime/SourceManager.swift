@@ -21,47 +21,70 @@
 import Foundation
 
 public final class SourceManager {
-  private var sources: [String]
-  private var sourceIds: [String: UInt16]
+  internal var sourceUrls: [URL]
+  private var sourceIds: [URL: UInt16]
   
   init() {
-    self.sources = ["console"]
+    self.sourceUrls = [URL(string: "console")!]
     self.sourceIds = [:]
   }
   
   public static let consoleSourceId: UInt16 = 0
   public static let unknownSourceId: UInt16 = UInt16.max
   
+  public func sourceId(for url: URL) -> UInt16? {
+    return self.sourceIds[self.absoluteUrl(url)]
+  }
+  
   public func sourceId(for path: String) -> UInt16? {
-    return self.sourceIds[path]
+    return self.sourceIds[self.absoluteUrl(path)]
   }
   
   public func obtainSourceId(for path: String) -> UInt16 {
-    if let id = self.sourceId(for: path) {
+    return self.obtainSourceId(for: URL(fileURLWithPath: path))
+  }
+  
+  public func obtainSourceId(for url: URL) -> UInt16 {
+    let canonicalUrl = self.absoluteUrl(url)
+    if let id = self.sourceIds[canonicalUrl] {
       return id
-    } else if self.sources.count == UInt16.max {
+    } else if self.sourceUrls.count == UInt16.max {
       return SourceManager.unknownSourceId
     } else {
-      self.sources.append(path)
-      return UInt16(self.sources.count - 1)
+      let newSourceId = UInt16(self.sourceUrls.count)
+      self.sourceUrls.append(canonicalUrl)
+      self.sourceIds[canonicalUrl] = newSourceId
+      return newSourceId
     }
   }
   
-  public func sourcePath(for sourceId: UInt16) -> String? {
+  public func sourceUrl(for sourceId: UInt16) -> URL? {
     guard sourceId != SourceManager.unknownSourceId else {
       return nil
     }
-    return self.sources[Int(sourceId)]
+    return self.sourceUrls[Int(sourceId)]
   }
   
   public func readSource(for sourceId: UInt16) throws -> String {
-    guard let sourcePath = self.sourcePath(for: sourceId) else {
+    guard let sourceUrl = self.sourceUrl(for: sourceId) else {
       throw EvalError.unknownFile("<path for source id = \(sourceId)>")
     }
-    return try String(contentsOfFile: sourcePath, encoding: String.Encoding.utf8)
+    return try String(contentsOf: sourceUrl)
   }
   
-  public func readSource(for filepath: String) throws -> String {
-    return try self.readSource(for: self.obtainSourceId(for: filepath))
+  public func readSource(for url: URL) throws -> String {
+    return try self.readSource(for: self.obtainSourceId(for: url))
+  }
+  
+  public func readSource(for path: String) throws -> String {
+    return try self.readSource(for: self.obtainSourceId(for: path))
+  }
+  
+  private func absoluteUrl(_ url: URL) -> URL {
+    return url.standardizedFileURL.absoluteURL
+  }
+  
+  private func absoluteUrl(_ path: String) -> URL {
+    return self.absoluteUrl(URL(fileURLWithPath: path))
   }
 }

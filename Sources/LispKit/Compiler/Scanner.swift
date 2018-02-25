@@ -30,6 +30,9 @@ public final class Scanner {
   /// Input of source code
   private let input: TextInput
   
+  /// Source id of source code
+  internal let sourceId: UInt16
+  
   /// Buffer for characters read during one invocation of `next`
   private var buffer: ScanBuffer
   
@@ -49,13 +52,23 @@ public final class Scanner {
   internal var token: Token
   
   /// Creates a new scanner for the given string.
-  public convenience init(string: String, foldCase: Bool = false, prescan: Bool = true) {
-    self.init(input: TextInput(string: string), foldCase: foldCase, prescan: prescan)
+  public convenience init(string: String,
+                          sourceId: UInt16 = SourceManager.unknownSourceId,
+                          foldCase: Bool = false,
+                          prescan: Bool = true) {
+    self.init(input: TextInput(string: string),
+              sourceId: sourceId,
+              foldCase: foldCase,
+              prescan: prescan)
   }
   
   /// Creates a new scanner for the given string.
-  public init(input: TextInput, foldCase: Bool = false, prescan: Bool = true) {
+  public init(input: TextInput,
+              sourceId: UInt16 = SourceManager.unknownSourceId,
+              foldCase: Bool = false,
+              prescan: Bool = true) {
     self.input = input
+    self.sourceId = sourceId
     self.buffer = ScanBuffer()
     self.foldCase = foldCase
     self.pos = Position(1, 1)
@@ -74,6 +87,11 @@ public final class Scanner {
     if prescan {
       self.next()
     }
+  }
+  
+  /// Returns the source position of the current token.
+  public var sourcePosition: SourcePosition {
+    return SourcePosition(self.sourceId, self.lpos.line, self.lpos.col)
   }
   
   /// Returns true if the current token has one of the given token kinds.

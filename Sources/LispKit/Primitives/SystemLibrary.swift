@@ -84,6 +84,7 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("trace-calls", self.traceCalls))
     self.define(Procedure("available-symbols", self.availableSymbols))
     self.define(Procedure("loaded-libraries", self.loadedLibraries))
+    self.define(Procedure("loaded-sources", self.loadedSources))
     self.define(Procedure("environment-info", self.environmentInfo))
     self.define("time", as: SpecialForm(self.compileTime))
     self.define(Procedure("seconds-from-gmt", self.secondsFromGmt))
@@ -442,6 +443,14 @@ public final class SystemLibrary: NativeLibrary {
     var res = Expr.null
     for library in self.context.libraries.loaded {
       res = .pair(library.name, res)
+    }
+    return res
+  }
+  
+  private func loadedSources() -> Expr {
+    var res = Expr.null
+    for url in self.context.sourceManager.sourceUrls {
+      res = .pair(.makeString(url.path), res)
     }
     return res
   }
