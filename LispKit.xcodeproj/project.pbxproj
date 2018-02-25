@@ -181,6 +181,8 @@
 		CCDF99FC1D3D7A3100FD2A57 /* BoxLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDF99FB1D3D7A3100FD2A57 /* BoxLibrary.swift */; };
 		CCE0429E1C9E8C8B00CA7BC4 /* ManagedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE0429D1C9E8C8B00CA7BC4 /* ManagedObject.swift */; };
 		CCE2C47A1D9203DE0047E229 /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE2C4791D9203DE0047E229 /* Environment.swift */; };
+		CCE4AECE204212EC008BF7E8 /* SourceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE4AECD204212EC008BF7E8 /* SourceManager.swift */; };
+		CCE4AED0204217D8008BF7E8 /* SourcePosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE4AECF204217D8008BF7E8 /* SourcePosition.swift */; };
 		CCE7CA461F8EC07000FD7ECA /* iteration.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCE7CA451F8D819600FD7ECA /* iteration.sld */; };
 		CCEEF3911FAF4024006C4581 /* 158.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCEEF3901FAF3F70006C4581 /* 158.sld */; };
 		CCEEF3931FB3CB50006C4581 /* wt-tree.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCEEF3921FB3CB03006C4581 /* wt-tree.sld */; };
@@ -562,6 +564,8 @@
 		CCDF99FB1D3D7A3100FD2A57 /* BoxLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = BoxLibrary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CCE0429D1C9E8C8B00CA7BC4 /* ManagedObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManagedObject.swift; sourceTree = "<group>"; };
 		CCE2C4791D9203DE0047E229 /* Environment.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.swift; path = Environment.swift; sourceTree = "<group>"; tabWidth = 2; };
+		CCE4AECD204212EC008BF7E8 /* SourceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourceManager.swift; sourceTree = "<group>"; };
+		CCE4AECF204217D8008BF7E8 /* SourcePosition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourcePosition.swift; sourceTree = "<group>"; };
 		CCE7CA451F8D819600FD7ECA /* iteration.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = iteration.sld; sourceTree = "<group>"; };
 		CCEEF3901FAF3F70006C4581 /* 158.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 158.sld; sourceTree = "<group>"; };
 		CCEEF3921FB3CB03006C4581 /* wt-tree.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "wt-tree.sld"; sourceTree = "<group>"; };
@@ -881,6 +885,7 @@
 		CCAD52D71C48468F00DBD8EE /* Compiler */ = {
 			isa = PBXGroup;
 			children = (
+				CCE4AECF204217D8008BF7E8 /* SourcePosition.swift */,
 				CCAD52DC1C48468F00DBD8EE /* Scanner.swift */,
 				CCAD52DB1C48468F00DBD8EE /* Parser.swift */,
 				CC0980A61C62BDBC006B7FB1 /* Compiler.swift */,
@@ -946,6 +951,7 @@
 				CCB585BA1E15AA4D0064BB18 /* Heap.swift */,
 				CC5033B01CDBE4CD0045A8FA /* Console.swift */,
 				CCCEB3FE1DF2DAA9009BF66B /* FileHandler.swift */,
+				CCE4AECD204212EC008BF7E8 /* SourceManager.swift */,
 				CC3C92431D84C0D800016C28 /* Library.swift */,
 				CC5A47201C5295E600EFCF76 /* NativeLibrary.swift */,
 				CC2D124E1DB40E7F009BDC72 /* LibraryManager.swift */,
@@ -1157,6 +1163,7 @@
 				CC0980AB1C67E84C006B7FB1 /* Cell.swift in Sources */,
 				CC3C92441D84C0D800016C28 /* Library.swift in Sources */,
 				CCAD52E61C48468F00DBD8EE /* SyntaxRules.swift in Sources */,
+				CCE4AECE204212EC008BF7E8 /* SourceManager.swift in Sources */,
 				CCAD52E11C48468F00DBD8EE /* Errors.swift in Sources */,
 				CCAD52E71C48468F00DBD8EE /* Type.swift in Sources */,
 				CC5A47231C529D4A00EFCF76 /* BaseLibrary.swift in Sources */,
@@ -1221,6 +1228,7 @@
 				CC6A3B681C52F17200E962E2 /* SchemeLibrary.swift in Sources */,
 				CC5C0A3F1D8EBE0A00CE2E98 /* MultiMap.swift in Sources */,
 				CCCEB3FF1DF2DAA9009BF66B /* FileHandler.swift in Sources */,
+				CCE4AED0204217D8008BF7E8 /* SourcePosition.swift in Sources */,
 				CC55A82B1C5175B000772B02 /* SpecialForm.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

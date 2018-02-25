@@ -45,6 +45,9 @@ public final class Context {
   /// A centralized module for handling files.
   public let fileHandler: FileHandler
   
+  /// The source manager of this context.
+  public let sourceManager: SourceManager
+  
   /// The managed object pool for freeing up objects with cyclic dependencies.
   public let objects: ManagedObjectPool
   
@@ -99,6 +102,7 @@ public final class Context {
     self.heap = Heap()
     self.fileHandler = FileHandler(includeInternalResources: includeInternalResources,
                                    includeDocumentPath: includeDocumentPath)
+    self.sourceManager = SourceManager()
     self.objects = ManagedObjectPool()
     self.symbols = SymbolTable()
     self.inputPort = Port(input: TextInput(source: console))

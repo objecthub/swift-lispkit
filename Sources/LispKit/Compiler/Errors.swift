@@ -66,10 +66,10 @@ public extension LispError {
     }
     return res
   }
-}
-
-public func ==(lhs: LispError, rhs: LispError) -> Bool {
-  return lhs.equals(rhs)
+  
+  public static func ==(lhs: LispError, rhs: LispError) -> Bool {
+    return lhs.equals(rhs)
+  }
 }
 
 
