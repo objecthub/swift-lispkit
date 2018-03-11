@@ -15,6 +15,14 @@
 ;;; They have been incorporated into this SRFI. R6RS is a subset of SRFI 60, except that all
 ;;; procedure names begin with a bitwise- prefix. A few procedures have been added from the
 ;;; general vector SRFI 133.
+;;;
+;;; This SRFI differs from SRFI 142 in only three ways:
+;;;    1. The bitwise-if function has the argument ordering of SLIB, SRFI 60, and R6RS rather
+;;;       than the ordering of SRFI 33.
+;;;    2. The order in which bits are processed by the procedures listed in the "Bits conversion"
+;;;       section has been clarified and some of the procedures' names have been changed.
+;;;    3. The LispKit port for SRFI 151 is using native bitwise operations for fixnums and
+;;;       bignums. Its performance is significantly better than the one of SRFI 142.
 ;;; 
 ;;; Specification:
 ;;;   Copyright © 2016 John Cowan. All Rights Reserved.
@@ -216,7 +224,6 @@
     (define (bit-field-replace-same to from start end)
       (bitwise-if (arithmetic-shift (mask start end) start) from to))
 
-    ;;; Clever definition, assuming you have a fast BIT-COUNT.
     (define first-set-bit first-bit-set)
   )
 
