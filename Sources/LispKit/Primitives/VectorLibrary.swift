@@ -22,7 +22,7 @@ import Foundation
 
 ///
 /// Vector library: based on R7RS spec.
-/// 
+///
 public final class VectorLibrary: NativeLibrary {
   
   /// Name of the library.
@@ -124,7 +124,7 @@ public final class VectorLibrary: NativeLibrary {
   
   func compileIsVector(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let arg, .null)) = expr else {
-      throw EvalError.argumentCountError(formals: 1, args: expr)
+      throw RuntimeError.argumentCount(of: "vector?", min: 1, max: 1, args: expr)
     }
     try compiler.compile(arg, in: env, inTailPos: false)
     compiler.emit(.isVector)
@@ -146,7 +146,7 @@ public final class VectorLibrary: NativeLibrary {
       list = next
     }
     guard list.isNull else {
-      throw EvalError.typeError(vectors, [.properListType])
+      throw RuntimeError.type(vectors, expected: [.properListType])
     }
     return .fixnum(Int64(n))
   }
@@ -154,7 +154,7 @@ public final class VectorLibrary: NativeLibrary {
   func makeVector(_ count: Expr, fill: Expr?) throws -> Expr {
     let k = try count.asInt64()
     guard k >= 0 && k <= Int64(Int.max) else {
-      throw EvalError.parameterOutOfBounds("make-vector", 1, k, 0, Int64(Int.max))
+      throw RuntimeError.range(parameter: 1, of: "make-vector", count, min: 0)
     }
     return .vector(Collection(kind: .vector, count: Int(k), repeatedValue: fill ?? .null))
   }
@@ -191,7 +191,7 @@ public final class VectorLibrary: NativeLibrary {
       list = next
     }
     guard list.isNull else {
-      throw EvalError.typeError(expr, [.properListType])
+      throw RuntimeError.type(expr, expected: [.properListType])
     }
     return .vector(res)
   }
@@ -200,7 +200,11 @@ public final class VectorLibrary: NativeLibrary {
     let vector = try vec.vectorAsCollection()
     let i = try index.asInt64()
     guard i >= 0 && i < Int64(vector.exprs.count) else {
-      throw EvalError.indexOutOfBounds(i, Int64(vector.exprs.count - 1))
+      throw RuntimeError.range(parameter: 2,
+                               of: "vector-ref",
+                               index,
+                               min: 0,
+                               max: Int64(vector.exprs.count - 1))
     }
     return vector.exprs[Int(i)]
   }
@@ -218,7 +222,7 @@ public final class VectorLibrary: NativeLibrary {
       list = next
     }
     guard list.isNull else {
-      throw EvalError.typeError(vectors, [.properListType])
+      throw RuntimeError.type(vectors, expected: [.properListType])
     }
     return .makeList(res)
   }
@@ -228,10 +232,14 @@ public final class VectorLibrary: NativeLibrary {
     let vector = try vec.vectorAsCollection()
     let i = try index.asInt()
     guard i >= 0 && i < vector.exprs.count else {
-      throw EvalError.indexOutOfBounds(Int64(i), Int64(vector.exprs.count) - 1)
+      throw RuntimeError.range(parameter: 2,
+                               of: "vector-set!",
+                               index,
+                               min: Int64(i),
+                               max: Int64(vector.exprs.count - 1))
     }
     guard case .vector = vector.kind else {
-      throw EvalError.attemptToModifyImmutableData(vec)
+      throw RuntimeError.eval(.attemptToModifyImmutableData, vec)
     }
     // Set value at index `i`. Guarantee that vectors for which `vector-set!` is
     // called are managed by a managed object pool.
@@ -244,7 +252,7 @@ public final class VectorLibrary: NativeLibrary {
     let i = try index1.asInt(below: vector.exprs.count)
     let j = try index2.asInt(below: vector.exprs.count)
     guard case .vector = vector.kind else {
-      throw EvalError.attemptToModifyImmutableData(vec)
+      throw RuntimeError.eval(.attemptToModifyImmutableData, vec)
     }
     let temp = vector.exprs[i]
     vector.exprs[i] = vector.exprs[j]
@@ -254,7 +262,7 @@ public final class VectorLibrary: NativeLibrary {
   
   func listToVector(_ expr: Expr) throws -> Expr {
     guard case (let exprs, .null) = expr.toExprs() else {
-      throw EvalError.typeError(expr, [.properListType])
+      throw RuntimeError.type(expr, expected: [.properListType])
     }
     return .vector(Collection(kind: .vector, exprs: exprs))
   }
@@ -307,15 +315,18 @@ public final class VectorLibrary: NativeLibrary {
   func vectorOverwrite(_ trgt: Expr, at: Expr, src: Expr, start: Expr?, end: Expr?) throws -> Expr {
     let target = try trgt.vectorAsCollection()
     guard case .vector = target.kind else {
-      throw EvalError.attemptToModifyImmutableData(trgt)
+      throw RuntimeError.eval(.attemptToModifyImmutableData, trgt)
     }
     let from = try at.asInt(below: target.exprs.count + 1)
     let vector = try src.vectorAsCollection()
     let end = try end?.asInt(below: vector.exprs.count + 1) ?? vector.exprs.count
     let start = try start?.asInt(below: end + 1) ?? 0
     guard target.exprs.count - from >= end - start else {
-      throw EvalError.parameterOutOfBounds(
-        "vector-copy!", 2, Int64(from), Int64(0), Int64(start + target.exprs.count - end))
+      throw RuntimeError.range(parameter: 2,
+                               of: "vector-copy!",
+                               at,
+                               min: 0,
+                               max: Int64(start + target.exprs.count - end))
     }
     // Decide on right order in case `target` and `vector` are identical vectors
     var isAtom = true
@@ -339,7 +350,7 @@ public final class VectorLibrary: NativeLibrary {
   func vectorFill(_ vec: Expr, expr: Expr, start: Expr?, end: Expr?) throws -> Expr {
     let vector = try vec.vectorAsCollection()
     guard case .vector = vector.kind else {
-      throw EvalError.attemptToModifyImmutableData(vec)
+      throw RuntimeError.eval(.attemptToModifyImmutableData, vec)
     }
     let end = try end?.asInt(below: vector.exprs.count + 1) ?? vector.exprs.count
     let start = try start?.asInt(below: end + 1) ?? 0
@@ -355,7 +366,7 @@ public final class VectorLibrary: NativeLibrary {
   func vectorReverse(_ vec: Expr, _ start: Expr?, _ end: Expr?) throws -> Expr {
     let vector = try vec.vectorAsCollection()
     guard case .vector = vector.kind else {
-      throw EvalError.attemptToModifyImmutableData(vec)
+      throw RuntimeError.eval(.attemptToModifyImmutableData, vec)
     }
     let end = try end?.asInt(below: vector.exprs.count + 1) ?? vector.exprs.count
     let start = try start?.asInt(below: end + 1) ?? 0
@@ -368,7 +379,7 @@ public final class VectorLibrary: NativeLibrary {
     let hi = try ihi.asInt(below: vector.exprs.count)
     let lo = try ilo.asInt(below: hi &+ 1)
     guard case .vector = vector.kind else {
-      throw EvalError.attemptToModifyImmutableData(vec)
+      throw RuntimeError.eval(.attemptToModifyImmutableData, vec)
     }
     guard lo < hi else {
       return vector.exprs[lo]
@@ -382,3 +393,4 @@ public final class VectorLibrary: NativeLibrary {
     return temp
   }
 }
+

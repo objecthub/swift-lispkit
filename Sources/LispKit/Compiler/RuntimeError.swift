@@ -1,0 +1,542 @@
+//
+//  RuntimeError.swift
+//  LispKit
+//
+//  Created by Matthias Zenger on 20/11/2015.
+//  Copyright © 2015-2018 ObjectHub. All rights reserved.
+// 
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+//
+
+import Foundation
+
+
+///
+/// Class `RuntimeError` defines a universal representation of errors in LispKit. A runtime
+/// error consists of the following components:
+///    - `pos`: The position of the error in some source code (if available)
+///    - `descriptor`: A structured descriptor of the error
+///    - `irritants`: An array of expressions that the descriptor may refer to
+///    - `stackTrace`: An optional stack trace in terms of the invoked LispKit functions
+///
+public class RuntimeError: Error, Hashable, CustomStringConvertible {
+  public let pos: SourcePosition
+  public let descriptor: ErrorDescriptor
+  public let irritants: [Expr]
+  public private(set) var stackTrace: [Procedure]?
+  
+  private init(_ pos: SourcePosition,
+               _ descriptor: ErrorDescriptor,
+               _ irritants: [Expr],
+               _ stackTrace: [Procedure]? = nil) {
+    self.pos = pos
+    self.descriptor = descriptor
+    self.irritants = irritants
+    self.stackTrace = nil
+  }
+  
+  public class func lexical(_ error: LexicalError,
+                            at pos: SourcePosition = SourcePosition.unknown) -> RuntimeError {
+    return RuntimeError(pos, ErrorDescriptor.lexical(error), [])
+  }
+  
+  public class func syntax(_ error: SyntaxError,
+                           at pos: SourcePosition = SourcePosition.unknown) -> RuntimeError {
+    return RuntimeError(pos, ErrorDescriptor.syntax(error), [])
+  }
+  
+  public class func type(_ expr: Expr,
+                         expected: Set<Type>,
+                         at pos: SourcePosition = SourcePosition.unknown) -> RuntimeError {
+    return RuntimeError(pos, ErrorDescriptor.type(expr.type, expected), [expr])
+  }
+  
+  public class func range(parameter: Int? = nil,
+                          of: String? = nil,
+                          _ expr: Expr,
+                          min: Int64 = Int64.min,
+                          max: Int64 = Int64.max,
+                          at pos: SourcePosition = SourcePosition.unknown) -> RuntimeError {
+    return RuntimeError(pos, ErrorDescriptor.range(of, parameter, min, max), [expr])
+  }
+  
+  public class func argumentCount(of: String? = nil,
+                                  min: Int = 0,
+                                  max: Int = Int.max,
+                                  args: Expr,
+                                  at pos: SourcePosition = SourcePosition.unknown) -> RuntimeError {
+    return RuntimeError(pos,
+                        ErrorDescriptor.argumentCount(of, min, max),
+                        [.makeNumber(args.toExprs().0.count), args])
+  }
+  
+  public class func argumentCount(of: String? = nil,
+                                  num: Int,
+                                  args: Expr,
+                                  at pos: SourcePosition = SourcePosition.unknown) -> RuntimeError {
+    return RuntimeError(pos,
+                        ErrorDescriptor.argumentCount(of, num, num),
+                        [.makeNumber(args.toExprs().0.count), args])
+  }
+  
+  public class func eval(_ error: EvalError,
+                         _ irritants: Expr...,
+                         at pos: SourcePosition = SourcePosition.unknown) -> RuntimeError {
+    return RuntimeError(pos, ErrorDescriptor.eval(error), irritants)
+  }
+  
+  public class func os(_ error: NSError,
+                       at pos: SourcePosition = SourcePosition.unknown) -> RuntimeError {
+    return RuntimeError(SourcePosition.unknown, ErrorDescriptor.os(error), [])
+  }
+  
+  public class func abortion(at pos: SourcePosition = SourcePosition.unknown) -> RuntimeError {
+    return RuntimeError(pos, ErrorDescriptor.abortion, [])
+  }
+  
+  public class func custom(_ kind: String,
+                           _ template: String,
+                           _ irritants: [Expr],
+                           at pos: SourcePosition = SourcePosition.unknown) -> RuntimeError {
+    return RuntimeError(SourcePosition.unknown, ErrorDescriptor.custom(kind, template), irritants)
+  }
+  
+  public func at(_ pos: SourcePosition) -> RuntimeError {
+    return RuntimeError(pos, self.descriptor, self.irritants, self.stackTrace)
+  }
+  
+  public func attach(_ stackTrace: [Procedure]) {
+    self.stackTrace = stackTrace
+  }
+  
+  public var hashValue: Int {
+    var res = 0
+    for irritant in self.irritants {
+      res = res &* 31 &+ irritant.hashValue
+    }
+    res = res &* 31 &+ self.descriptor.hashValue
+    return res &* 31 &+ self.pos.hashValue
+  }
+  
+  public var message: String {
+    var usedIrritants = Set<Int>()
+    return self.replacePlaceholders(in: self.descriptor.messageTemplate,
+                                    with: self.irritants,
+                                    recordingUsage: &usedIrritants)
+  }
+  
+  public var description: String {
+    var usedIrritants = Set<Int>()
+    let message = self.replacePlaceholders(in: self.descriptor.messageTemplate,
+                                           with: self.irritants,
+                                           recordingUsage: &usedIrritants)
+    var builder = StringBuilder(prefix: "[\(self.descriptor.typeDescription)] \(message)",
+                                postfix: "",
+                                separator: ", ",
+                                initial: ": ")
+    for index in self.irritants.indices {
+      if !usedIrritants.contains(index) {
+        builder.append(self.irritants[index].description)
+      }
+    }
+    return builder.description
+  }
+  
+  public var inlineDescription: String {
+    var usedIrritants = Set<Int>()
+    let message = self.replacePlaceholders(in: self.descriptor.messageTemplate,
+                                           with: self.irritants,
+                                           recordingUsage: &usedIrritants)
+    return "\(self.descriptor.typeDescription): \(message)"
+  }
+  
+  public var printableDescription: String {
+    var usedIrritants = Set<Int>()
+    let message = self.replacePlaceholders(in: self.descriptor.messageTemplate,
+                                           with: self.irritants,
+                                           recordingUsage: &usedIrritants)
+    var builder = StringBuilder(prefix: "[\(self.descriptor.typeDescription)] \(message)",
+                                postfix: "",
+                                separator: ", ",
+                                initial: "\nirritants: ")
+    for index in self.irritants.indices {
+      if !usedIrritants.contains(index) {
+        builder.append(self.irritants[index].description)
+      }
+    }
+    if let stackTrace = self.stackTrace {
+      builder = StringBuilder(prefix: builder.description,
+                              postfix: "",
+                              separator: ", ",
+                              initial: "\nstack trace: ")
+      for proc in stackTrace {
+        builder.append(proc.name)
+      }
+    }
+    return builder.description
+  }
+  
+  public func mark(_ tag: UInt8) {
+    for irritant in self.irritants {
+      irritant.mark(tag)
+    }
+    if let stackTrace = self.stackTrace {
+      for procedure in stackTrace {
+        procedure.mark(tag)
+      }
+    }
+  }
+  
+  /// This method assumes the string contains variables of the form `$n` where `n` is a
+  /// variable index into the array `values`. It replaces occurences of `$n` with the value at
+  /// index `n`. If there is no such value or the index is not well-formed, the variable
+  /// reference remains in the string.
+  /// It is possible to terminate parsing the index `n` by using "~". For instance, "$0~1" gets
+  /// expanded into "zero1" assuming that "zero" is the value for variable `0`.
+  /// It is possible to escape both "$" and "~" by prefixing the characters with "$". For
+  /// instance, "$$0" gets expanded into "$0".
+  /// It is possible to use placeholders of the form `$,n` for embedding a value using
+  /// an unescaped string representation of the value.
+  private func replacePlaceholders(in template: String,
+                                   with values: [Expr],
+                                   recordingUsage used: inout Set<Int>) -> String {
+    var res: String = ""
+    var variable: String = ""
+    var parsingVariable = false
+    var embedVariable = false
+    for ch in template {
+      if parsingVariable {
+        switch ch {
+          case "0", "1", "2", "3", "4", "5", "6", "7", "8", "9":
+            variable.append(ch)
+            continue
+          case "~":
+            if variable.isEmpty {
+              if embedVariable {
+                res.append("$,~")
+              } else {
+                res.append(ch)
+              }
+              parsingVariable = false
+              embedVariable = false
+              continue
+            }
+          case "$":
+            if variable.isEmpty {
+              if embedVariable {
+                res.append("$,$")
+              } else {
+                res.append(ch)
+              }
+              parsingVariable = false
+              embedVariable = false
+              continue
+            }
+          case ",":
+            if variable.isEmpty {
+              if embedVariable {
+                res.append("$,,")
+                parsingVariable = false
+                embedVariable = false
+              } else {
+                embedVariable = true
+              }
+              continue
+            }
+          default:
+            if variable.isEmpty {
+              res.append("$")
+              if embedVariable {
+                res.append(",")
+              }
+              res.append(ch)
+              parsingVariable = false
+              embedVariable = false
+              continue
+            }
+            break
+        }
+        let varNum = Int(variable)
+        if varNum != nil && varNum! >= 0 && varNum! < values.count {
+          if embedVariable {
+            res.append(values[varNum!].unescapedDescription)
+          } else {
+            res.append(values[varNum!].description)
+          }
+          used.insert(varNum!)
+          variable = ""
+          parsingVariable = false
+          embedVariable = false
+        } else {
+          res.append("$")
+          if embedVariable {
+            res.append(",")
+          }
+          res.append(variable)
+          variable = ""
+          parsingVariable = false
+          embedVariable = false
+          if ch == "~" {
+            res.append("~")
+            continue
+          }
+        }
+        if ch == "$" {
+          parsingVariable = true
+        } else if ch != "~" {
+          res.append(ch)
+        }
+      } else if ch == "$" {
+        parsingVariable = true
+      } else {
+        res.append(ch)
+      }
+    }
+    if parsingVariable {
+      let varNum = Int(variable)
+      if varNum != nil && varNum! >= 0 && varNum! < values.count {
+        var value = values[varNum!]
+        if embedVariable {
+          switch value {
+            case .pair(_, _):
+              var builder = StringBuilder(prefix: "", postfix: "", separator: ", ")
+              while case .pair(let car, let cdr) = value {
+                builder.append(car.unescapedDescription)
+                value = cdr
+              }
+              res.append(builder.description)
+              if !value.isNull {
+                res.append(" (")
+                res.append(value.unescapedDescription)
+                res.append(")")
+              }
+            default:
+              res.append(value.unescapedDescription)
+          }
+        } else {
+          res.append(value.description)
+        }
+        used.insert(varNum!)
+      } else {
+        res.append("$")
+        if embedVariable {
+          res.append(",")
+        }
+        res.append(variable)
+      }
+    }
+    return res
+  }
+  
+  public static func ==(_ lhs: RuntimeError, _ rhs: RuntimeError) -> Bool {
+    return lhs.pos == rhs.pos &&
+           lhs.descriptor == rhs.descriptor &&
+           lhs.irritants == rhs.irritants &&
+           (lhs.stackTrace == nil && rhs.stackTrace == nil ||
+            lhs.stackTrace != nil && rhs.stackTrace != nil && lhs.stackTrace! == rhs.stackTrace!)
+  }
+}
+
+
+///
+/// An `ErrorDescriptor` value describes an error in a structured way. Error descriptors may
+/// not encapsulate expressions, but their textual description may refer to them via the reference
+/// `$n` or `$,n` (see method `replacePlaceholders` above).
+///
+public enum ErrorDescriptor: Hashable {
+  case lexical(LexicalError)
+  case syntax(SyntaxError)
+  case type(Type, Set<Type>)
+  case range(String?, Int?, Int64, Int64)
+  case argumentCount(String?, Int, Int)
+  case eval(EvalError)
+  case os(NSError)
+  case abortion
+  case custom(String, String)
+  
+  public var typeDescription: String {
+    switch self {
+      case .lexical(_):
+        return "lexical error"
+      case .syntax(_):
+        return "syntax error"
+      case .type(_, _):
+        return "type error"
+      case .range(_, _, _, _):
+        return "range error"
+      case .argumentCount(_, _, _):
+        return "argument count error"
+      case .eval(_):
+        return "eval error"
+      case .os(_):
+        return "os error"
+      case .abortion:
+        return "abortion"
+      case .custom(let type, _):
+        return type
+    }
+  }
+  
+  public var messageTemplate: String {
+    switch self {
+      case .lexical(let error):
+        return error.message
+      case .syntax(let error):
+        return error.message
+      case .type(let found, let expected):
+        guard expected.count > 0 else {
+          return "unexpected expression $0"
+        }
+        var tpe: Type? = nil
+        var res = ""
+        for type in expected {
+          if let t = tpe {
+            res += (res.isEmpty ? "" : ", ") + t.description
+          }
+          tpe = type
+        }
+        if res.isEmpty {
+          res = "a " + tpe!.description
+        } else {
+          res = "either a " + res + " or " + tpe!.description
+        }
+        return "$0 is of type \(found.description), but is required to be \(res) value"
+      case .range(let fun, let par, let low, let high):
+        if let fun = fun, let par = par {
+          if low == Int64.min {
+            if high == 0 {
+              return "expected argument \(par) of function \(fun) to be a negative integer " +
+                     "value; is $0 instead"
+            } else {
+              return "expected argument \(par) of function \(fun) to be an integer value less " +
+                     "than equals \(high); is $0 instead"
+            }
+          } else if high == Int64.max {
+            if low == 0 {
+              return "expected argument \(par) of function \(fun) to be a positive integer " +
+                     "value; is $0 instead"
+            } else {
+              return "expected argument \(par) of function \(fun) to be an integer value greater " +
+                     "than equals \(low); is $0 instead"
+            }
+          } else {
+            return "expected argument \(par) of function \(fun) to be an integer value within " +
+                   "the range [\(low), \(high)]; is $0 instead"
+          }
+        } else if low == Int64.min {
+          if high == 0 {
+            return "expected $0 to be a negative integer value"
+          } else {
+            return "expected $0 to be an integer value less than equals \(high)"
+          }
+        } else if high == Int64.max {
+          if low == 0 {
+            return "expected $0 to be a positive integer value"
+          } else {
+            return "expected $0 to be an integer value greater than equals \(low)"
+          }
+        } else {
+          return "expected $0 to be an integer value within the range [\(low), \(high)]"
+        }
+      case .argumentCount(let fun, let min, let max):
+        if let fun = fun {
+          if min == max {
+            return "\(fun) expected \(min) arguments, but received $0 arguments: $1"
+          } else if max == Int.max {
+            return "\(fun) expected at least \(min) arguments, but received only $0 arguments: $1"
+          } else {
+            return "\(fun) expected between \(min) and \(max) arguments, but received $0 " +
+                   "arguments: $1"
+          }
+        } else {
+          if min == max {
+            return "expected \(min) arguments, but received $0 arguments: $1"
+          } else if max == Int.max {
+            return "expected at least \(min) arguments, but received only $0 arguments: $1"
+          } else {
+            return "expected between \(min) and \(max) arguments, but received $0 arguments: $1"
+          }
+        }
+      case .eval(let error):
+        return error.message
+      case .os(let error):
+        return error.description
+      case .abortion:
+        return "abortion"
+      case .custom(_, let message):
+        return message
+    }
+  }
+  
+  public var hashValue: Int {
+    switch self {
+      case .lexical(let error):
+        return error.hashValue &* 31
+      case .syntax(let error):
+        return error.hashValue &* 31 &+ 1
+      case .type(let found, let expected):
+        return (found.hashValue &* 31 &+ expected.hashValue) &* 31 &+ 2
+      case .range(let fun, let argn, let low, let high):
+        var res = (low.hashValue &* 31 &+ high.hashValue) &* 31
+        if let fun = fun {
+          res = (res + fun.hashValue) &* 31
+        }
+        if let argn = argn {
+          res = (res + argn.hashValue) &* 31
+        }
+        return res &+ 3
+      case .argumentCount(let fun, let min, let max):
+        var res = (min.hashValue &* 31 &+ max.hashValue) &* 31
+        if let fun = fun {
+          res = (res + fun.hashValue) &* 31
+        }
+        return res &+ 4
+      case .eval(let error):
+        return error.hashValue &* 31 &+ 5
+      case .os(let error):
+        return error.hashValue &* 31 &+ 6
+      case .abortion:
+        return 7
+      case .custom(let kind, let message):
+        return (kind.hashValue &* 31 &+ message.hashValue) &* 31 &+ 8
+    }
+  }
+  
+  public static func ==(_ lhs: ErrorDescriptor, _ rhs: ErrorDescriptor) -> Bool {
+    switch (lhs, rhs) {
+      case (.lexical(let lerr), .lexical(let rerr)):
+        return lerr == rerr
+      case (.syntax(let lerr), .syntax(let rerr)):
+        return lerr == rerr
+      case (.type(let lfound, let lexp), .type(let rfound, let rexp)):
+          return lfound == rfound && lexp == rexp
+      case (.range(let lfun, let largn, let llow, let lhigh),
+            .range(let rfun, let rargn, let rlow, let rhigh)):
+        return lfun == rfun && largn == rargn && llow == rlow && lhigh == rhigh
+      case (.argumentCount(let lfun, let lmin, let lmax),
+            .argumentCount(let rfun, let rmin, let rmax)):
+        return lfun == rfun && lmin == rmin && lmax == rmax
+      case (.eval(let lerr), .eval(let rerr)):
+        return lerr == rerr
+      case (.os(let lerr), .os(let rerr)):
+        return lerr == rerr
+      case (.abortion, .abortion):
+        return true
+      case (.custom(let lkind, let lmessage), .custom(let rkind, let rmessage)):
+        return lkind == rkind && lmessage == rmessage
+     default:
+        return false
+    }
+  }
+}
+

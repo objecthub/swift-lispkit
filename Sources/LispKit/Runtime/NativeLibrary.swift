@@ -18,7 +18,7 @@
 //  limitations under the License.
 //
 
-/// 
+///
 /// `NativeLibrary` defines a framework for defining built-in functionality for LispKit in
 /// a modular fashion. Concrete implementations subclass `NativeLibrary` and override the
 /// `export` method with declarations of constants, procedures, and special forms.
@@ -222,7 +222,7 @@ open class NativeLibrary: Library {
       while !parser.finished {
         self.execute(expr: try parser.parse())
       }
-    } catch let error as LispError { // handle Lisp-related issues
+    } catch let error as RuntimeError { // handle Lisp-related issues
       preconditionFailure("compilation failure \(error) when compiling: \(code)")
     } catch { // handle internal issues
       preconditionFailure()
@@ -273,7 +273,7 @@ open class NativeLibrary: Library {
                      in env: Env,
                      for compiler: Compiler) throws -> Bool {
     guard case .pair(_, .pair(let arg, .null)) = expr else {
-      throw EvalError.argumentCountError(formals: 1, args: expr)
+      throw RuntimeError.argumentCount(min: 1, max: 1, args: expr)
     }
     try compiler.compile(arg, in: env, inTailPos: false)
     for instr in instrs {
@@ -282,3 +282,4 @@ open class NativeLibrary: Library {
     return false
   }
 }
+

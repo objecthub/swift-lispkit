@@ -53,14 +53,14 @@ public final class ControlFlowLibrary: NativeLibrary {
     var bindings = bindingList
     while case .pair(let binding, let rest) = bindings {
       guard case .pair(.symbol(let sym), .pair(let expr, .null)) = binding else {
-        throw EvalError.malformedBindings(binding, bindingList)
+        throw RuntimeError.eval(.malformedBinding, binding, bindingList)
       }
       symbols.append(.symbol(sym))
       exprs.append(expr)
       bindings = rest
     }
     guard bindings.isNull else {
-      throw EvalError.malformedBindings(nil, bindingList)
+      throw RuntimeError.eval(.malformedBindings, bindingList)
     }
     return (Expr.makeList(symbols), Expr.makeList(exprs))
   }
@@ -69,12 +69,15 @@ public final class ControlFlowLibrary: NativeLibrary {
     guard case .pair(_, let exprs) = expr else {
       preconditionFailure("malformed begin")
     }
-    return try compiler.compileSeq(exprs, in: env, inTailPos: tail, localDefine: false)
+    return try compiler.compileSeq(exprs,
+                                   in: env,
+                                   inTailPos: tail,
+                                   localDefine: false)
   }
 
   private func compileLet(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let first, let body)) = expr else {
-      throw EvalError.leastArgumentCountError(formals: 1, args: expr)
+      throw RuntimeError.argumentCount(of: "let", min: 1, args: expr)
     }
     let initialLocals = compiler.numLocals
     var res = false
@@ -82,12 +85,17 @@ public final class ControlFlowLibrary: NativeLibrary {
       case .null:
         return try compiler.compileSeq(body, in: env, inTailPos: tail)
       case .pair(_, _):
-        let group = try compiler.compileBindings(first, in: env, atomic: true, predef: false)
-        res = try compiler.compileSeq(body, in: Env(group), inTailPos: tail)
+        let group = try compiler.compileBindings(first,
+                                                 in: env,
+                                                 atomic: true,
+                                                 predef: false)
+        res = try compiler.compileSeq(body,
+                                      in: Env(group),
+                                      inTailPos: tail)
         group.finalize()
       case .symbol(let sym):
         guard case .pair(let bindings, let rest) = body else {
-          throw EvalError.leastArgumentCountError(formals: 2, args: expr)
+          throw RuntimeError.argumentCount(of: "let", min: 2, args: expr)
         }
         let (params, exprs) = try splitBindings(bindings)
         let group = BindingGroup(owner: compiler, parent: env)
@@ -95,11 +103,16 @@ public final class ControlFlowLibrary: NativeLibrary {
         compiler.emit(.pushUndef)
         compiler.emit(.makeLocalVariable(index))
         let nameIdx = compiler.registerConstant(first)
-        try compiler.compileLambda(nameIdx, params, rest, Env(group))
+        try compiler.compileLambda(nameIdx,
+                                   params,
+                                   rest,
+                                   Env(group))
         compiler.emit(.setLocalValue(index))
-        res = try compiler.compile(.pair(first, exprs), in: Env(group), inTailPos: tail)
+        res = try compiler.compile(.pair(first, exprs),
+                                    in: Env(group),
+                                    inTailPos: tail)
       default:
-        throw EvalError.typeError(first, [.listType, .symbolType])
+        throw RuntimeError.type(first, expected: [.listType, .symbolType])
     }
     if !res && compiler.numLocals > initialLocals {
       compiler.emit(.reset(initialLocals, compiler.numLocals - initialLocals))
@@ -113,18 +126,23 @@ public final class ControlFlowLibrary: NativeLibrary {
                               env: Env,
                               tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let first, let body)) = expr else {
-      throw EvalError.leastArgumentCountError(formals: 1, args: expr)
+      throw RuntimeError.argumentCount(of: "let*", min: 1, args: expr)
     }
     let initialLocals = compiler.numLocals
     switch first {
       case .null:
         return try compiler.compileSeq(body, in: env, inTailPos: tail)
       case .pair(_, _):
-        let group = try compiler.compileBindings(first, in: env, atomic: false, predef: false)
-        let res = try compiler.compileSeq(body, in: Env(group), inTailPos: tail)
+        let group = try compiler.compileBindings(first,
+                                                 in: env,
+                                                 atomic: false,
+                                                 predef: false)
+        let res = try compiler.compileSeq(body,
+                                          in: Env(group),
+                                          inTailPos: tail)
         return compiler.finalizeBindings(group, exit: res, initialLocals: initialLocals)
       default:
-        throw EvalError.typeError(first, [.listType])
+        throw RuntimeError.type(first, expected: [.listType])
     }
   }
 
@@ -133,22 +151,26 @@ public final class ControlFlowLibrary: NativeLibrary {
                              env: Env,
                              tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let first, let body)) = expr else {
-      throw EvalError.leastArgumentCountError(formals: 1, args: expr)
+      throw RuntimeError.argumentCount(of: "letrec", min: 1, args: expr)
     }
     let initialLocals = compiler.numLocals
     switch first {
     case .null:
-      return try compiler.compileSeq(body, in: env, inTailPos: tail)
+      return try compiler.compileSeq(body,
+                                     in: env,
+                                     inTailPos: tail)
     case .pair(_, _):
       let group = try compiler.compileBindings(first,
                                                in: env,
                                                atomic: true,
                                                predef: true,
                                                postset: true)
-      let res = try compiler.compileSeq(body, in: Env(group), inTailPos: tail)
+      let res = try compiler.compileSeq(body,
+                                        in: Env(group),
+                                        inTailPos: tail)
       return compiler.finalizeBindings(group, exit: res, initialLocals: initialLocals)
     default:
-      throw EvalError.typeError(first, [.listType])
+      throw RuntimeError.type(first, expected: [.listType])
     }
   }
 
@@ -157,18 +179,25 @@ public final class ControlFlowLibrary: NativeLibrary {
                                  env: Env,
                                  tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let first, let body)) = expr else {
-      throw EvalError.leastArgumentCountError(formals: 1, args: expr)
+      throw RuntimeError.argumentCount(of: "letrec*", min: 1, args: expr)
     }
     let initialLocals = compiler.numLocals
     switch first {
       case .null:
-        return try compiler.compileSeq(body, in: env, inTailPos: tail)
+        return try compiler.compileSeq(body,
+                                       in: env,
+                                       inTailPos: tail)
       case .pair(_, _):
-        let group = try compiler.compileBindings(first, in: env, atomic: true, predef: true)
-        let res = try compiler.compileSeq(body, in: Env(group), inTailPos: tail)
+        let group = try compiler.compileBindings(first,
+                                                 in: env,
+                                                 atomic: true,
+                                                 predef: true)
+        let res = try compiler.compileSeq(body,
+                                          in: Env(group),
+                                          inTailPos: tail)
         return compiler.finalizeBindings(group, exit: res, initialLocals: initialLocals)
       default:
-        throw EvalError.typeError(first, [.listType])
+        throw RuntimeError.type(first, expected: [.listType])
     }
   }
 
@@ -177,18 +206,24 @@ public final class ControlFlowLibrary: NativeLibrary {
                                 env: Env,
                                 tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let first, let body)) = expr else {
-      throw EvalError.leastArgumentCountError(formals: 1, args: expr)
+      throw RuntimeError.argumentCount(of: "let-values", min: 1, args: expr)
     }
     let initialLocals = compiler.numLocals
     switch first {
       case .null:
-        return try compiler.compileSeq(body, in: env, inTailPos: tail)
+        return try compiler.compileSeq(body,
+                                       in: env,
+                                       inTailPos: tail)
       case .pair(_, _):
-        let group = try compiler.compileMultiBindings(first, in: env, atomic: true)
-        let res = try compiler.compileSeq(body, in: Env(group), inTailPos: tail)
+        let group = try compiler.compileMultiBindings(first,
+                                                      in: env,
+                                                      atomic: true)
+        let res = try compiler.compileSeq(body,
+                                          in: Env(group),
+                                          inTailPos: tail)
         return compiler.finalizeBindings(group, exit: res, initialLocals: initialLocals)
       default:
-        throw EvalError.typeError(first, [.listType])
+        throw RuntimeError.type(first, expected: [.listType])
     }
   }
   
@@ -197,18 +232,24 @@ public final class ControlFlowLibrary: NativeLibrary {
                                     env: Env,
                                     tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let first, let body)) = expr else {
-      throw EvalError.leastArgumentCountError(formals: 1, args: expr)
+      throw RuntimeError.argumentCount(of: "let*-values", min: 1, args: expr)
     }
     let initialLocals = compiler.numLocals
     switch first {
       case .null:
-        return try compiler.compileSeq(body, in: env, inTailPos: tail)
+        return try compiler.compileSeq(body,
+                                       in: env,
+                                       inTailPos: tail)
       case .pair(_, _):
-        let group = try compiler.compileMultiBindings(first, in: env, atomic: false)
-        let res = try compiler.compileSeq(body, in: Env(group), inTailPos: tail)
+        let group = try compiler.compileMultiBindings(first,
+                                                      in: env,
+                                                      atomic: false)
+        let res = try compiler.compileSeq(body,
+                                          in: Env(group),
+                                          inTailPos: tail)
         return compiler.finalizeBindings(group, exit: res, initialLocals: initialLocals)
       default:
-        throw EvalError.typeError(first, [.listType])
+        throw RuntimeError.type(first, expected: [.listType])
     }
   }
   
@@ -217,20 +258,24 @@ public final class ControlFlowLibrary: NativeLibrary {
                                    env: Env,
                                    tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let optlist, .pair(let first, let body))) = expr else {
-      throw EvalError.leastArgumentCountError(formals: 2, args: expr)
+      throw RuntimeError.argumentCount(of: "let-optionals", min: 2, args: expr)
     }
     let initialLocals = compiler.numLocals
     switch first {
       case .null:
-        return try compiler.compileSeq(.pair(optlist, body), in: env, inTailPos: tail)
+        return try compiler.compileSeq(.pair(optlist, body),
+                                       in: env,
+                                       inTailPos: tail)
       case .pair(_, _):
         try compiler.compile(optlist, in: env, inTailPos: false)
         let group = try self.compileOptionalBindings(compiler, first, in: env, atomic: true)
         compiler.emit(.pop)
-        let res = try compiler.compileSeq(body, in: Env(group), inTailPos: tail)
+        let res = try compiler.compileSeq(body,
+                                          in: Env(group),
+                                          inTailPos: tail)
         return compiler.finalizeBindings(group, exit: res, initialLocals: initialLocals)
       default:
-        throw EvalError.typeError(first, [.listType])
+        throw RuntimeError.type(first, expected: [.listType])
     }
   }
   
@@ -239,20 +284,24 @@ public final class ControlFlowLibrary: NativeLibrary {
                                        env: Env,
                                        tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let optlist, .pair(let first, let body))) = expr else {
-      throw EvalError.leastArgumentCountError(formals: 2, args: expr)
+      throw RuntimeError.argumentCount(of: "let*-optionals", min: 2, args: expr)
     }
     let initialLocals = compiler.numLocals
     switch first {
       case .null:
-        return try compiler.compileSeq(.pair(optlist, body), in: env, inTailPos: tail)
+        return try compiler.compileSeq(.pair(optlist, body),
+                                       in: env,
+                                       inTailPos: tail)
       case .pair(_, _):
         try compiler.compile(optlist, in: env, inTailPos: false)
         let group = try self.compileOptionalBindings(compiler, first, in: env, atomic: false)
         compiler.emit(.pop)
-        let res = try compiler.compileSeq(body, in: Env(group), inTailPos: tail)
+        let res = try compiler.compileSeq(body,
+                                          in: Env(group),
+                                          inTailPos: tail)
         return compiler.finalizeBindings(group, exit: res, initialLocals: initialLocals)
       default:
-        throw EvalError.typeError(first, [.listType])
+        throw RuntimeError.type(first, expected: [.listType])
     }
   }
 
@@ -266,7 +315,7 @@ public final class ControlFlowLibrary: NativeLibrary {
     var prevIndex = -1
     while case .pair(let binding, let rest) = bindings {
       guard case .pair(.symbol(let sym), .pair(let expr, .null)) = binding else {
-        throw EvalError.malformedBindings(binding, bindingList)
+        throw RuntimeError.eval(.malformedBinding, binding, bindingList)
       }
       compiler.emit(.dup)
       compiler.emit(.isNull)
@@ -278,7 +327,7 @@ public final class ControlFlowLibrary: NativeLibrary {
       compiler.patch(.branch(compiler.offsetToNext(branchIp)), at: branchIp)
       let binding = group.allocBindingFor(sym)
       guard binding.index > prevIndex else {
-        throw EvalError.duplicateBinding(sym, bindingList)
+        throw RuntimeError.eval(.duplicateBinding, .symbol(sym), bindingList)
       }
       if binding.isValue {
         compiler.emit(.setLocal(binding.index))
@@ -289,7 +338,7 @@ public final class ControlFlowLibrary: NativeLibrary {
       bindings = rest
     }
     guard bindings.isNull else {
-      throw EvalError.malformedBindings(nil, bindingList)
+      throw RuntimeError.eval(.malformedBindings, bindingList)
     }
     return group
   }
@@ -298,16 +347,22 @@ public final class ControlFlowLibrary: NativeLibrary {
                                 expr: Expr,
                                 env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let first, let body)) = expr else {
-      throw EvalError.leastArgumentCountError(formals: 1, args: expr)
+      throw RuntimeError.argumentCount(of: "let-syntax", min: 1, args: expr)
     }
     switch first {
       case .null:
-        return try compiler.compileSeq(body, in: env, inTailPos: tail)
+        return try compiler.compileSeq(body,
+                                       in: env,
+                                       inTailPos: tail)
       case .pair(_, _):
-        let group = try compiler.compileMacros(first, in: env, recursive: false)
-        return try compiler.compileSeq(body, in: Env(group), inTailPos: tail)
+        let group = try compiler.compileMacros(first,
+                                               in: env,
+                                               recursive: false)
+        return try compiler.compileSeq(body,
+                                       in: Env(group),
+                                       inTailPos: tail)
       default:
-        throw EvalError.typeError(first, [.listType])
+        throw RuntimeError.type(first, expected: [.listType])
     }
   }
 
@@ -316,27 +371,33 @@ public final class ControlFlowLibrary: NativeLibrary {
                                    env: Env,
                                    tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let first, let body)) = expr else {
-      throw EvalError.leastArgumentCountError(formals: 1, args: expr)
+      throw RuntimeError.argumentCount(of: "letrec-syntax", min: 1, args: expr)
     }
     switch first {
       case .null:
-        return try compiler.compileSeq(body, in: env, inTailPos: tail)
+        return try compiler.compileSeq(body,
+                                      in: env,
+                                      inTailPos: tail)
       case .pair(_, _):
-        let group = try compiler.compileMacros(first, in: env, recursive: true)
-        return try compiler.compileSeq(body, in: Env(group), inTailPos: tail)
+        let group = try compiler.compileMacros(first,
+                                               in: env,
+                                               recursive: true)
+        return try compiler.compileSeq(body,
+                                       in: Env(group),
+                                       inTailPos: tail)
       default:
-        throw EvalError.typeError(first, [.listType])
+        throw RuntimeError.type(first, expected: [.listType])
     }
   }
 
   private func compileDo(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     // Decompose expression into bindings, exit, and body
     guard case .pair(_, .pair(let bindingList, .pair(let exit, let body))) = expr else {
-      throw EvalError.leastArgumentCountError(formals: 2, args: expr)
+      throw RuntimeError.argumentCount(of: "do", min: 2, args: expr)
     }
     // Extract test and terminal expressions
     guard case .pair(let test, let terminal) = exit else {
-      throw EvalError.malformedTest(exit)
+      throw RuntimeError.eval(.malformedTest, exit)
     }
     let initialLocals = compiler.numLocals
     // Setup bindings
@@ -348,12 +409,12 @@ public final class ControlFlowLibrary: NativeLibrary {
     // Compile initial bindings
     while case .pair(let binding, let rest) = bindings {
       guard case .pair(.symbol(let sym), .pair(let start, let optStep)) = binding else {
-        throw EvalError.malformedBindings(binding, bindingList)
+        throw RuntimeError.eval(.malformedBinding, binding, bindingList)
       }
       try compiler.compile(start, in: env, inTailPos: false)
       let index = group.allocBindingFor(sym).index
       guard index > prevIndex else {
-        throw EvalError.duplicateBinding(sym, bindingList)
+        throw RuntimeError.eval(.duplicateBinding, .symbol(sym), bindingList)
       }
       compiler.emit(.makeLocalVariable(index))
       switch optStep {
@@ -363,13 +424,13 @@ public final class ControlFlowLibrary: NativeLibrary {
         case .null:
           break;
         default:
-          throw EvalError.malformedBindings(binding, bindingList)
+          throw RuntimeError.eval(.malformedBinding, binding, bindingList)
       }
       prevIndex = index
       bindings = rest
     }
     guard bindings.isNull else {
-      throw EvalError.malformedBindings(nil, bindingList)
+      throw RuntimeError.eval(.malformedBindings, bindingList)
     }
     // Compile test expression
     let testIp = compiler.offsetToNext(0)
@@ -390,7 +451,9 @@ public final class ControlFlowLibrary: NativeLibrary {
     // Exit if the test expression evaluates to true
     compiler.patch(.branchIf(compiler.offsetToNext(exitJumpIp)), at: exitJumpIp)
     // Compile terminal expressions
-    let res = try compiler.compileSeq(terminal, in: Env(group), inTailPos: tail)
+    let res = try compiler.compileSeq(terminal,
+                                      in: Env(group),
+                                      inTailPos: tail)
     // Remove bindings from stack
     if !res && compiler.numLocals > initialLocals {
       compiler.emit(.reset(initialLocals, compiler.numLocals - initialLocals))
@@ -401,7 +464,7 @@ public final class ControlFlowLibrary: NativeLibrary {
 
   private func compileIf(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let cond, .pair(let thenp, let alternative))) = expr else {
-      throw EvalError.leastArgumentCountError(formals: 2, args: expr)
+      throw RuntimeError.argumentCount(of: "if", min: 2, args: expr)
     }
     var elsep = Expr.void
     if case .pair(let ep, .null) = alternative {
@@ -427,7 +490,7 @@ public final class ControlFlowLibrary: NativeLibrary {
   
   private func compileWhen(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let cond, let exprs)) = expr else {
-      throw EvalError.leastArgumentCountError(formals: 1, args: expr)
+      throw RuntimeError.argumentCount(of: "when", min: 1, args: expr)
     }
     try compiler.compile(cond, in: env, inTailPos: false)
     let elseJumpIp = compiler.emitPlaceholder()
@@ -447,7 +510,7 @@ public final class ControlFlowLibrary: NativeLibrary {
                              env: Env,
                              tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let cond, let exprs)) = expr else {
-      throw EvalError.leastArgumentCountError(formals: 1, args: expr)
+      throw RuntimeError.argumentCount(of: "unless", min: 1, args: expr)
     }
     try compiler.compile(cond, in: env, inTailPos: false)
     let elseJumpIp = compiler.emitPlaceholder()
@@ -478,9 +541,11 @@ public final class ControlFlowLibrary: NativeLibrary {
       switch cas {
         case .pair(.symbol(let s), let exprs) where s.interned == compiler.context.symbols.else:
           guard rest == .null else {
-            throw EvalError.malformedCondClause(cases)
+            throw RuntimeError.eval(.malformedCondClause, cases)
           }
-          elseCaseTailCall = try compiler.compileSeq(exprs, in: env, inTailPos: tail)
+          elseCaseTailCall = try compiler.compileSeq(exprs,
+                                                     in: env,
+                                                     inTailPos: tail)
         case .pair(let test, .null):
           try compiler.compile(test, in: env, inTailPos: false)
           exitOrJumps.append(compiler.emitPlaceholder())
@@ -507,12 +572,14 @@ public final class ControlFlowLibrary: NativeLibrary {
         case .pair(let test, let exprs):
           try compiler.compile(test, in: env, inTailPos: false)
           let escapeIp = compiler.emitPlaceholder()
-          if !(try compiler.compileSeq(exprs, in: env, inTailPos: tail)) {
+          if !(try compiler.compileSeq(exprs,
+                                       in: env,
+                                       inTailPos: tail)) {
             exitJumps.append(compiler.emitPlaceholder())
           }
           compiler.patch(.branchIfNot(compiler.offsetToNext(escapeIp)), at: escapeIp)
         default:
-          throw EvalError.malformedCondClause(cas)
+          throw RuntimeError.eval(.malformedCondClause, cas)
       }
       cases = rest
     }
@@ -538,7 +605,7 @@ public final class ControlFlowLibrary: NativeLibrary {
 
   private func compileCase(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let key, let caseList)) = expr else {
-      throw EvalError.leastArgumentCountError(formals: 3, args: expr)
+      throw RuntimeError.argumentCount(of: "case", min: 3, args: expr)
     }
     // Keep track of jumps for successful cases
     var exitJumps = [Int]()
@@ -552,10 +619,12 @@ public final class ControlFlowLibrary: NativeLibrary {
       switch cas {
         case .pair(.symbol(let s), let exprs) where s.interned == compiler.context.symbols.else:
           guard rest == .null else {
-            throw EvalError.malformedCaseClause(cases)
+            throw RuntimeError.eval(.malformedCaseClause, cases)
           }
           compiler.emit(.pop)
-          elseCaseTailCall = try compiler.compileSeq(exprs, in: env, inTailPos: tail)
+          elseCaseTailCall = try compiler.compileSeq(exprs,
+                                                     in: env,
+                                                     inTailPos: tail)
         case .pair(var keys, let exprs):
           var positiveJumps = [Int]()
           while case .pair(let value, let next) = keys {
@@ -566,19 +635,21 @@ public final class ControlFlowLibrary: NativeLibrary {
             keys = next
           }
           guard keys.isNull else {
-            throw EvalError.malformedCaseClause(cas)
+            throw RuntimeError.eval(.malformedCaseClause, cas)
           }
           let jumpToNextCase = compiler.emitPlaceholder()
           for ip in positiveJumps {
             compiler.patch(.branchIf(compiler.offsetToNext(ip)), at: ip)
           }
           compiler.emit(.pop)
-          if !(try compiler.compileSeq(exprs, in: env, inTailPos: tail)) {
+          if !(try compiler.compileSeq(exprs,
+                                       in: env,
+                                       inTailPos: tail)) {
             exitJumps.append(compiler.emitPlaceholder())
           }
           compiler.patch(.branch(compiler.offsetToNext(jumpToNextCase)), at: jumpToNextCase)
         default:
-          throw EvalError.malformedCaseClause(cas)
+          throw RuntimeError.eval(.malformedCaseClause, cas)
       }
       cases = rest
     }
@@ -600,3 +671,4 @@ public final class ControlFlowLibrary: NativeLibrary {
     return false
   }
 }
+

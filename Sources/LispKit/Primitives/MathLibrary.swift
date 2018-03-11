@@ -386,7 +386,7 @@ public final class MathLibrary: NativeLibrary {
       case .complex(let num):
         return num.value.isReal ? .makeBoolean(num.value.re > 0) : .false
       default:
-        throw EvalError.typeError(expr, [.numberType])
+        throw RuntimeError.type(expr, expected: [.numberType])
     }
   }
 
@@ -405,7 +405,7 @@ public final class MathLibrary: NativeLibrary {
       case .complex(let num):
         return num.value.isReal ? .makeBoolean(num.value.re < 0) : .false
       default:
-        throw EvalError.typeError(expr, [.numberType])
+        throw RuntimeError.type(expr, expected: [.numberType])
     }
   }
 
@@ -424,7 +424,7 @@ public final class MathLibrary: NativeLibrary {
       case .complex(let num):
         return num.value.isReal ? .makeBoolean(num.value.re.isZero) : .false
       default:
-        throw EvalError.typeError(expr, [.numberType])
+        throw RuntimeError.type(expr, expected: [.numberType])
     }
   }
 
@@ -436,11 +436,11 @@ public final class MathLibrary: NativeLibrary {
         return .makeBoolean(num % 2 == 0)
       case .flonum(let num):
         guard Foundation.trunc(num) == num else {
-          throw EvalError.typeError(expr, [.integerType])
+          throw RuntimeError.type(expr, expected: [.integerType])
         }
         return .makeBoolean(num.truncatingRemainder(dividingBy: 2) == 0.0)
       default:
-        throw EvalError.typeError(expr, [.integerType])
+        throw RuntimeError.type(expr, expected: [.integerType])
     }
   }
 
@@ -452,11 +452,11 @@ public final class MathLibrary: NativeLibrary {
         return .makeBoolean(num % 2 != 0)
       case .flonum(let num):
         guard Foundation.trunc(num) == num else {
-          throw EvalError.typeError(expr, [.integerType])
+          throw RuntimeError.type(expr, expected: [.integerType])
         }
         return .makeBoolean(num.truncatingRemainder(dividingBy: 2) != 0.0)
       default:
-        throw EvalError.typeError(expr, [.integerType])
+        throw RuntimeError.type(expr, expected: [.integerType])
     }
   }
 
@@ -476,7 +476,7 @@ public final class MathLibrary: NativeLibrary {
       case .flonum(_), .complex(_):
         return expr
       default:
-        throw EvalError.typeError(expr, [.numberType])
+        throw RuntimeError.type(expr, expected: [.numberType])
     }
   }
   
@@ -487,7 +487,7 @@ public final class MathLibrary: NativeLibrary {
       case .flonum(let num):
         return MathLibrary.approximateNumber(num)
       default:
-        throw EvalError.typeError(expr, [.realType])
+        throw RuntimeError.type(expr, expected: [.realType])
     }
   }
   
@@ -528,7 +528,7 @@ public final class MathLibrary: NativeLibrary {
     return Rational(n1, d1)
   }
   
-    
+  
   //-------- MARK: - Rounding primitives
 
   private func floor(_ expr: Expr) throws -> Expr {
@@ -542,7 +542,7 @@ public final class MathLibrary: NativeLibrary {
       case .flonum(let num):
         return .makeNumber(Foundation.floor(num))
       default:
-        throw EvalError.typeError(expr, [.realType])
+        throw RuntimeError.type(expr, expected: [.realType])
     }
   }
 
@@ -557,7 +557,7 @@ public final class MathLibrary: NativeLibrary {
       case .flonum(let num):
         return .makeNumber(ceil(num))
       default:
-        throw EvalError.typeError(expr, [.realType])
+        throw RuntimeError.type(expr, expected: [.realType])
     }
   }
 
@@ -572,7 +572,7 @@ public final class MathLibrary: NativeLibrary {
       case .flonum(let num):
         return .makeNumber(trunc(num))
       default:
-        throw EvalError.typeError(expr, [.realType])
+        throw RuntimeError.type(expr, expected: [.realType])
     }
   }
 
@@ -587,7 +587,7 @@ public final class MathLibrary: NativeLibrary {
       case .flonum(let num):
         return .makeNumber(Foundation.round(num))
       default:
-        throw EvalError.typeError(expr, [.realType])
+        throw RuntimeError.type(expr, expected: [.realType])
     }
   }
 
@@ -636,7 +636,7 @@ public final class MathLibrary: NativeLibrary {
         case .complex(let res):
           return .makeNumber(res.value.negate)
         default:
-          throw EvalError.typeError(first, [.numberType])
+          throw RuntimeError.type(first, expected: [.numberType])
       }
     }
     for expr in exprs {
@@ -693,22 +693,22 @@ public final class MathLibrary: NativeLibrary {
       switch acc {
         case .fixnum(let res):
           guard res != 0 else {
-            throw EvalError.divisionByZero
+            throw RuntimeError.eval(.divisionByZero)
           }
           return .makeNumber(Rational(1, res))
         case .bignum(let res):
           guard !res.isZero else {
-            throw EvalError.divisionByZero
+            throw RuntimeError.eval(.divisionByZero)
           }
           return .makeNumber(Rational(BigInt(1), res))
         case .rational(.fixnum(let n), .fixnum(let d)):
           guard n != 0 else {
-            throw EvalError.divisionByZero
+            throw RuntimeError.eval(.divisionByZero)
           }
           return .makeNumber(Rational(d, n))
         case .rational(.bignum(let n), .bignum(let d)):
           guard !n.isZero else {
-            throw EvalError.divisionByZero
+            throw RuntimeError.eval(.divisionByZero)
           }
           return .makeNumber(Rational(d, n))
         case .flonum(let res):
@@ -716,14 +716,14 @@ public final class MathLibrary: NativeLibrary {
         case .complex(let res):
           return .makeNumber(1.0 / res.value)
         default:
-          throw EvalError.typeError(first, [.numberType])
+          throw RuntimeError.type(first, expected: [.numberType])
       }
     }
     for expr in exprs {
       switch try NumberPair(acc, expr) {
         case .fixnumPair(let lhs, let rhs):
           guard rhs != 0 else {
-            throw EvalError.divisionByZero
+            throw RuntimeError.eval(.divisionByZero)
           }
           let (res, overflow) = Rational.rationalWithOverflow(lhs, rhs)
           acc = overflow ? .makeNumber(Rational(BigInt(lhs), BigInt(rhs))) : .makeNumber(res)
@@ -846,7 +846,7 @@ public final class MathLibrary: NativeLibrary {
       case .flonum(let num):
         return .flonum((num.sign == .minus) ? -num : num)
       default:
-        throw EvalError.typeError(expr, [.realType])
+        throw RuntimeError.type(expr, expected: [.realType])
     }
   }
   
@@ -871,7 +871,7 @@ public final class MathLibrary: NativeLibrary {
       case .complex(let  num):
         return .makeNumber(num.value * num.value)
       default:
-        throw EvalError.typeError(expr, [.numberType])
+        throw RuntimeError.type(expr, expected: [.numberType])
     }
   }
 
@@ -884,7 +884,7 @@ public final class MathLibrary: NativeLibrary {
       case .complex(let num):
         return .makeNumber(num.value.sqrt)
       default:
-        throw EvalError.typeError(expr, [.numberType])
+        throw RuntimeError.type(expr, expected: [.numberType])
     }
   }
   
@@ -910,7 +910,7 @@ public final class MathLibrary: NativeLibrary {
           return .values(.pair(.makeNumber(sr), .pair(.makeNumber(x - sr * sr), .null)))
         }
       default:
-        throw EvalError.typeError(expr, [.exactIntegerType])
+        throw RuntimeError.type(expr, expected: [.exactIntegerType])
     }
   }
   
@@ -948,7 +948,7 @@ public final class MathLibrary: NativeLibrary {
       case .complex(let num):
         return .makeNumber(num.value.exp)
       default:
-        throw EvalError.typeError(expr, [.numberType])
+        throw RuntimeError.type(expr, expected: [.numberType])
     }
   }
 
@@ -961,7 +961,7 @@ public final class MathLibrary: NativeLibrary {
       case .complex(let num):
         return .makeNumber(num.value.log)
       default:
-        throw EvalError.typeError(expr, [.numberType])
+        throw RuntimeError.type(expr, expected: [.numberType])
     }
   }
 
@@ -1000,7 +1000,7 @@ public final class MathLibrary: NativeLibrary {
       if base == 2 || base == 8 || base == 10 || base == 16 {
         radix = base
       } else {
-        throw EvalError.illegalRadix(rad!)
+        throw RuntimeError.eval(.illegalRadix, rad!)
       }
     }
     switch expr {
@@ -1016,16 +1016,16 @@ public final class MathLibrary: NativeLibrary {
                                                d.toString(base: BigInt.base(of: radix))))
       case .flonum(let num):
         if radix != 10 {
-          throw EvalError.illegalRadix(rad!)
+          throw RuntimeError.eval(.illegalRadix, rad!)
         }
         return .string(NSMutableString(string: String(num)))
       case .complex(let num):
         if radix != 10 {
-          throw EvalError.illegalRadix(rad!)
+          throw RuntimeError.eval(.illegalRadix, rad!)
         }
         return .string(NSMutableString(string: num.value.description))
       default:
-        throw EvalError.typeError(expr, [.numberType])
+        throw RuntimeError.type(expr, expected: [.numberType])
     }
   }
   
@@ -1035,19 +1035,19 @@ public final class MathLibrary: NativeLibrary {
       if base == 2 || base == 8 || base == 10 || base == 16 {
         radix = base
       } else {
-        throw EvalError.illegalRadix(rad!)
+        throw RuntimeError.eval(.illegalRadix, rad!)
       }
     }
     let scanner = Scanner(string: try expr.asString(), prescan: false)
     scanner.skipSpace()
     guard scanner.ch != EOF_CH else {
-      throw EvalError.typeError(expr, [.numberType])
+      throw RuntimeError.type(expr, expected: [.numberType])
     }
     scanner.scanSignedNumber(radix)
     let token = scanner.token
     scanner.skipSpace()
     guard scanner.ch == EOF_CH else {
-      throw EvalError.typeError(expr, [.numberType])
+      throw RuntimeError.type(expr, expected: [.numberType])
     }
     switch token.kind {
       case .int:
@@ -1063,7 +1063,7 @@ public final class MathLibrary: NativeLibrary {
       case .complex:
         return .complex(ImmutableBox(token.complexVal))
       default:
-        throw EvalError.typeError(expr, [.numberType])
+        throw RuntimeError.type(expr, expected: [.numberType])
     }
   }
 
@@ -1141,7 +1141,7 @@ public final class MathLibrary: NativeLibrary {
       case .flonum(let num):
         return try self.numerator(MathLibrary.approximateNumber(num))
       default:
-        throw EvalError.typeError(expr, [.numberType])
+        throw RuntimeError.type(expr, expected: [.numberType])
     }
   }
   
@@ -1154,7 +1154,7 @@ public final class MathLibrary: NativeLibrary {
       case .flonum(let num):
         return try self.denominator(MathLibrary.approximateNumber(num))
       default:
-        throw EvalError.typeError(expr, [.numberType])
+        throw RuntimeError.type(expr, expected: [.numberType])
     }
   }
   
@@ -1180,7 +1180,7 @@ public final class MathLibrary: NativeLibrary {
         case .bigRationalPair(let lhs, let rhs):
           acc = .makeNumber(Rational.gcd(lhs, rhs))
         default:
-          throw EvalError.typeError(expr, [.realType])
+          throw RuntimeError.type(expr, expected: [.realType])
       }
     }
     return acc
@@ -1208,7 +1208,7 @@ public final class MathLibrary: NativeLibrary {
         case .bigRationalPair(let lhs, let rhs):
           acc = .makeNumber(Rational.lcm(lhs, rhs))
         default:
-          throw EvalError.typeError(expr, [.realType])
+          throw RuntimeError.type(expr, expected: [.realType])
       }
     }
     return acc
@@ -1222,10 +1222,10 @@ public final class MathLibrary: NativeLibrary {
         return .values(.pair(.makeNumber(lhs / rhs), .pair(.makeNumber(lhs % rhs), .null)))
       case .flonumPair(let lhs, let rhs):
         guard Foundation.trunc(lhs) == lhs else {
-          throw EvalError.typeError(x, [.integerType])
+          throw RuntimeError.type(x, expected: [.integerType])
         }
         guard Foundation.trunc(rhs) == rhs else {
-          throw EvalError.typeError(y, [.integerType])
+          throw RuntimeError.type(y, expected: [.integerType])
         }
         return .values(.pair(.makeNumber(Foundation.trunc(lhs / rhs)),
                              .pair(.makeNumber(lhs.truncatingRemainder(dividingBy: rhs)), .null)))
@@ -1244,10 +1244,10 @@ public final class MathLibrary: NativeLibrary {
         return .makeNumber(lhs / rhs)
       case .flonumPair(let lhs, let rhs):
         guard Foundation.trunc(lhs) == lhs else {
-          throw EvalError.typeError(x, [.integerType])
+          throw RuntimeError.type(x, expected: [.integerType])
         }
         guard Foundation.trunc(rhs) == rhs else {
-          throw EvalError.typeError(y, [.integerType])
+          throw RuntimeError.type(y, expected: [.integerType])
         }
         return .makeNumber(Foundation.trunc(lhs / rhs))
       default:
@@ -1265,10 +1265,10 @@ public final class MathLibrary: NativeLibrary {
         return .makeNumber(lhs % rhs)
       case .flonumPair(let lhs, let rhs):
         guard Foundation.trunc(lhs) == lhs else {
-          throw EvalError.typeError(x, [.integerType])
+          throw RuntimeError.type(x, expected: [.integerType])
         }
         guard Foundation.trunc(rhs) == rhs else {
-          throw EvalError.typeError(y, [.integerType])
+          throw RuntimeError.type(y, expected: [.integerType])
         }
         return .makeNumber(lhs.truncatingRemainder(dividingBy: rhs))
       default:
@@ -1298,10 +1298,10 @@ public final class MathLibrary: NativeLibrary {
         }
       case .flonumPair(let lhs, let rhs):
         guard Foundation.trunc(lhs) == lhs else {
-          throw EvalError.typeError(x, [.integerType])
+          throw RuntimeError.type(x, expected: [.integerType])
         }
         guard Foundation.trunc(rhs) == rhs else {
-          throw EvalError.typeError(y, [.integerType])
+          throw RuntimeError.type(y, expected: [.integerType])
         }
         let res = lhs.truncatingRemainder(dividingBy: rhs)
         if (res < 0.0) == (rhs < 0.0) {
@@ -1328,10 +1328,10 @@ public final class MathLibrary: NativeLibrary {
                                                              : (lhs - res - rhs)) / rhs)
       case .flonumPair(let lhs, let rhs):
         guard Foundation.trunc(lhs) == lhs else {
-          throw EvalError.typeError(x, [.integerType])
+          throw RuntimeError.type(x, expected: [.integerType])
         }
         guard Foundation.trunc(rhs) == rhs else {
-          throw EvalError.typeError(y, [.integerType])
+          throw RuntimeError.type(y, expected: [.integerType])
         }
         let res = lhs.truncatingRemainder(dividingBy: rhs)
         if (res < 0.0) == (rhs < 0.0) {
@@ -1356,10 +1356,10 @@ public final class MathLibrary: NativeLibrary {
         return .makeNumber(res.isNegative == rhs.isNegative ? res : res + rhs)
       case .flonumPair(let lhs, let rhs):
         guard Foundation.trunc(lhs) == lhs else {
-          throw EvalError.typeError(x, [.integerType])
+          throw RuntimeError.type(x, expected: [.integerType])
         }
         guard Foundation.trunc(rhs) == rhs else {
-          throw EvalError.typeError(y, [.integerType])
+          throw RuntimeError.type(y, expected: [.integerType])
         }
         let res = lhs.truncatingRemainder(dividingBy: rhs)
         if (res < 0.0) == (rhs < 0.0) {
@@ -1376,7 +1376,7 @@ public final class MathLibrary: NativeLibrary {
   
   @inline(__always) private func compileBinOp(_ compiler: Compiler, expr: Expr, env: Env) throws {
     guard case .pair(_, .pair(let x, .pair(let y, .null))) = expr else {
-      throw EvalError.argumentCountError(formals: 2, args: expr)
+      throw RuntimeError.argumentCount(min: 2, max: 2, args: expr)
     }
     try compiler.compile(x, in: env, inTailPos: false)
     try compiler.compile(y, in: env, inTailPos: false)
@@ -1391,7 +1391,7 @@ public final class MathLibrary: NativeLibrary {
                              env: Env,
                              tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let x, .pair(let y, .null))) = expr else {
-      throw EvalError.argumentCountError(formals: 2, args: expr)
+      throw RuntimeError.argumentCount(min: 2, max: 2, args: expr)
     }
     if case .fixnum(1) = x {
       try compiler.compile(y, in: env, inTailPos: false)
@@ -1422,7 +1422,7 @@ public final class MathLibrary: NativeLibrary {
                               env: Env,
                               tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let x, .pair(let y, .null))) = expr else {
-      throw EvalError.argumentCountError(formals: 2, args: expr)
+      throw RuntimeError.argumentCount(min: 2, max: 2, args: expr)
     }
     if case .fixnum(1) = y {
       try compiler.compile(x, in: env, inTailPos: false)
@@ -1473,7 +1473,7 @@ public final class MathLibrary: NativeLibrary {
                               env: Env,
                               tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let x, .null)) = expr else {
-      throw EvalError.argumentCountError(formals: 2, args: expr)
+      throw RuntimeError.argumentCount(min: 1, max: 1, args: expr)
     }
     try compiler.compile(x, in: env, inTailPos: false)
     compiler.emit(.fxInc)
@@ -1489,7 +1489,7 @@ public final class MathLibrary: NativeLibrary {
                                env: Env,
                                tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let x, .null)) = expr else {
-      throw EvalError.argumentCountError(formals: 2, args: expr)
+      throw RuntimeError.argumentCount(min: 1, max: 1, args: expr)
     }
     try compiler.compile(x, in: env, inTailPos: false)
     compiler.emit(.fxDec)
@@ -1505,7 +1505,7 @@ public final class MathLibrary: NativeLibrary {
                                env: Env,
                                tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let x, .null)) = expr else {
-      throw EvalError.argumentCountError(formals: 2, args: expr)
+      throw RuntimeError.argumentCount(min: 1, max: 1, args: expr)
     }
     try compiler.compile(x, in: env, inTailPos: false)
     compiler.emit(.fxIsZero)
@@ -1526,7 +1526,7 @@ public final class MathLibrary: NativeLibrary {
   
   private func compileFxEq(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let x, .pair(let y, .null))) = expr else {
-      throw EvalError.argumentCountError(formals: 2, args: expr)
+      throw RuntimeError.argumentCount(min: 2, max: 2, args: expr)
     }
     if case .fixnum(0) = x {
       try compiler.compile(y, in: env, inTailPos: false)
@@ -1641,7 +1641,11 @@ public final class MathLibrary: NativeLibrary {
   private func fxShift(_ x: Expr, _ y: Expr) throws -> Expr {
     let n = try y.asInt64()
     guard n > -Int64(Int64.bitWidth) && n < Int64(Int64.bitWidth) else {
-      throw EvalError.indexOutOfBounds(n, Int64(Int64.bitWidth))
+      throw RuntimeError.range(parameter: 2,
+                               of: "fxarithmetic-shift",
+                               y,
+                               min: -Int64(Int64.bitWidth),
+                               max: Int64(Int64.bitWidth))
     }
     if n < 0 {
       return .fixnum(try x.asInt64() >> -n)
@@ -1708,16 +1712,16 @@ public final class MathLibrary: NativeLibrary {
       min = try expr.asInt64()
       max = try bound.asInt64()
       guard min >= 0 && min < Int64(Int.max) else {
-        throw EvalError.parameterOutOfBounds("random", 1, min, 0, Int64(Int.max) - 1)
+        throw RuntimeError.range(parameter: 1, of: "random", expr, min: 0, max: Int64(Int.max - 1))
       }
       guard max > min && max <= Int64(Int.max) else {
-        throw EvalError.parameterOutOfBounds("random", 2, max, min, Int64(Int.max))
+        throw RuntimeError.range(parameter: 2, of: "random", bound, min: min, max: Int64(Int.max))
       }
     } else {
       min = 0
       max = try expr.asInt64()
       guard max > 0 && max <= Int64(Int.max) else {
-        throw EvalError.parameterOutOfBounds("random", 1, max, 0, Int64(Int.max))
+        throw RuntimeError.range(parameter: 1, of: "random", expr, min: 0, max: Int64(Int.max))
       }
     }
     return .fixnum(Int64.random(min: min, max: max))
@@ -1876,7 +1880,7 @@ public final class MathLibrary: NativeLibrary {
       case .bignum(let x):
         return .bignum(x.not)
       default:
-        throw EvalError.typeError(num, [.integerType])
+        throw RuntimeError.type(num, expected: [.integerType])
     }
   }
   
@@ -1889,7 +1893,7 @@ public final class MathLibrary: NativeLibrary {
         case .bignumPair(let lhs, let rhs):
           acc = .makeNumber(lhs & rhs)
         default:
-          throw EvalError.typeError(expr, [.integerType])
+          throw RuntimeError.type(expr, expected: [.integerType])
       }
     }
     return acc
@@ -1904,7 +1908,7 @@ public final class MathLibrary: NativeLibrary {
       case .bignumPair(let lhs, let rhs):
         acc = .makeNumber(lhs | rhs)
       default:
-        throw EvalError.typeError(expr, [.integerType])
+        throw RuntimeError.type(expr, expected: [.integerType])
       }
     }
     return acc
@@ -1919,7 +1923,7 @@ public final class MathLibrary: NativeLibrary {
         case .bignumPair(let lhs, let rhs):
           acc = .makeNumber(lhs ^ rhs)
         default:
-          throw EvalError.typeError(expr, [.integerType])
+          throw RuntimeError.type(expr, expected: [.integerType])
       }
     }
     return acc
@@ -1932,7 +1936,7 @@ public final class MathLibrary: NativeLibrary {
       case .bignum(let x):
         return .fixnum(Int64(x.bitCount))
       default:
-        throw EvalError.typeError(num, [.integerType])
+        throw RuntimeError.type(num, expected: [.integerType])
     }
   }
   
@@ -1943,7 +1947,7 @@ public final class MathLibrary: NativeLibrary {
       case .bignum(let x):
         return .fixnum(Int64(x.lastBitSet))
       default:
-        throw EvalError.typeError(num, [.integerType])
+        throw RuntimeError.type(num, expected: [.integerType])
     }
   }
   
@@ -1954,7 +1958,7 @@ public final class MathLibrary: NativeLibrary {
       case .bignum(let x):
         return .fixnum(Int64(x.firstBitSet))
       default:
-        throw EvalError.typeError(num, [.integerType])
+        throw RuntimeError.type(num, expected: [.integerType])
     }
   }
   
@@ -1966,7 +1970,7 @@ public final class MathLibrary: NativeLibrary {
       case .bignum(let x):
         return .makeBoolean(x.isBitSet(y))
       default:
-        throw EvalError.typeError(num, [.integerType])
+        throw RuntimeError.type(num, expected: [.integerType])
     }
   }
   
@@ -1980,11 +1984,11 @@ public final class MathLibrary: NativeLibrary {
         z = 0
       case .fixnum(let b):
         guard b >= 0 && b < 2 else {
-          throw EvalError.indexOutOfBounds(b, 1)
+          throw RuntimeError.range(parameter: 3, of: "copy-bit", bit, min: 0, max: 1)
         }
         z = Int(b)
       default:
-        throw EvalError.typeError(bit, [.exactIntegerType])
+        throw RuntimeError.type(bit, expected: [.exactIntegerType])
     }
     switch num {
       case .fixnum(let x):
@@ -1996,14 +2000,15 @@ public final class MathLibrary: NativeLibrary {
       case .bignum(let x):
         return .makeNumber(x.set(bit: y, to: z != 0))
       default:
-        throw EvalError.typeError(num, [.integerType])
+        throw RuntimeError.type(num, expected: [.integerType])
     }
   }
   
   private func arithmeticShift(_ num: Expr, _ n: Expr) throws -> Expr {
     let y = try n.asInt64()
     guard y >= Int.min && y <= Int.max else {
-      throw EvalError.parameterOutOfBounds("arithmetic-shift", 2, y, Int64(Int.min), Int64(Int.max))
+      throw RuntimeError.range(
+        parameter: 2, of: "arithmetic-shift", n, min: Int64(Int.min), max: Int64(Int.max))
     }
     switch num {
       case .fixnum(let x):
@@ -2027,7 +2032,7 @@ public final class MathLibrary: NativeLibrary {
       case .bignum(let x):
         return .makeNumber(x.shift(Int(y)))
       default:
-        throw EvalError.typeError(num, [.integerType])
+        throw RuntimeError.type(num, expected: [.integerType])
     }
   }
   
@@ -2055,7 +2060,7 @@ public final class MathLibrary: NativeLibrary {
       case .bignum(let x):
         return .makeNumber(x.shift(y))
       default:
-        throw EvalError.typeError(num, [.integerType])
+        throw RuntimeError.type(num, expected: [.integerType])
     }
   }
   
@@ -2067,7 +2072,8 @@ public final class MathLibrary: NativeLibrary {
       case .bignum(let x):
         return .makeNumber(x.shift(-y))
       default:
-        throw EvalError.typeError(num, [.integerType])
+        throw RuntimeError.type(num, expected: [.integerType])
     }
   }
 }
+

@@ -73,8 +73,7 @@ while let line = console.read() {
     break
   // If closing parenthesis are missing, keep on reading
   } else if case .error(let err) = res,
-            let syntaxError = err.root as? SyntaxError,
-            syntaxError == SyntaxError.closingParenthesisMissing {
+            case .syntax(.closingParenthesisMissing) = err.descriptor {
     continue
   // For multiple values being returned, print each value on a separate line
   } else if case .values(let expr) = res {

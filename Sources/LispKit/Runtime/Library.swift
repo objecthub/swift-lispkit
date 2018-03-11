@@ -369,7 +369,11 @@ open class Library: Reference, Trackable, CustomStringConvertible {
       }
     }
     guard uninitializedExports.count == 0 else {
-      throw EvalError.uninitializedExports(uninitializedExports, self.name)
+      var uninits = Expr.null
+      for sym in uninitializedExports {
+        uninits = .pair(.symbol(sym), uninits)
+      }
+      throw RuntimeError.eval(.uninitializedExports, uninits, self.name)
     }
     return true
   }
@@ -381,12 +385,12 @@ open class Library: Reference, Trackable, CustomStringConvertible {
         case .fixnum(_), .symbol(_):
           break
         default:
-          throw EvalError.malformedLibraryName(name: name)
+          throw RuntimeError.eval(.malformedLibraryName, name)
       }
       expr = next
     }
     guard case .null = expr else {
-      throw EvalError.malformedLibraryName(name: name)
+      throw RuntimeError.eval(.malformedLibraryName, name)
     }
   }
   
@@ -401,7 +405,7 @@ open class Library: Reference, Trackable, CustomStringConvertible {
       defs = next
     }
     guard defs.isNull else {
-      throw EvalError.malformedLibraryDefinition(decls: defs)
+      throw RuntimeError.eval(.malformedLibraryDefinition, defs)
     }
     // Interpret the library definition statements
     var i = 0
@@ -418,12 +422,12 @@ open class Library: Reference, Trackable, CustomStringConvertible {
                          .pair(.symbol(let intSym), .pair(.symbol(let extSym), .null))):
                 self.exportDecls[extSym] = .mutable(intSym)
               default:
-                throw EvalError.malformedLibraryDefinition(decls: decl)
+                throw RuntimeError.eval(.malformedLibraryDefinition, decl)
             }
             exportList = next
           }
           guard exportList.isNull else {
-            throw EvalError.malformedLibraryDefinition(decls: decl)
+            throw RuntimeError.eval(.malformedLibraryDefinition, decl)
           }
         case .pair(.symbol(self.context.symbols.exportImmutable), let spec):
           var exportList = spec
@@ -435,24 +439,24 @@ open class Library: Reference, Trackable, CustomStringConvertible {
                          .pair(.symbol(let intSym), .pair(.symbol(let extSym), .null))):
                 self.exportDecls[extSym] = .immutable(intSym)
               default:
-                throw EvalError.malformedLibraryDefinition(decls: decl)
+                throw RuntimeError.eval(.malformedLibraryDefinition, decl)
             }
             exportList = next
           }
           guard exportList.isNull else {
-            throw EvalError.malformedLibraryDefinition(decls: decl)
+            throw RuntimeError.eval(.malformedLibraryDefinition, decl)
           }
         case .pair(.symbol(self.context.symbols.`import`), let exprs):
           var importList = exprs
           while case .pair(let spec, let next) = importList {
             guard let importSet = ImportSet(spec, in: self.context) else {
-              throw EvalError.malformedLibraryDefinition(decls: decl)
+              throw RuntimeError.eval(.malformedLibraryDefinition, decl)
             }
             importDecls.append(importSet)
             importList = next
           }
           guard importList.isNull else {
-            throw EvalError.malformedLibraryDefinition(decls: decl)
+            throw RuntimeError.eval(.malformedLibraryDefinition, decl)
           }
         case .pair(.symbol(self.context.symbols.begin), let exprs):
           let block = DeclBlock(inDirectory: inDirectory)
@@ -462,7 +466,7 @@ open class Library: Reference, Trackable, CustomStringConvertible {
             initExprs = next
           }
           guard initExprs.isNull else {
-            throw EvalError.malformedLibraryDefinition(decls: decl)
+            throw RuntimeError.eval(.malformedLibraryDefinition, decl)
           }
           if block.decls.count > 0 {
             self.initDeclBlocks.append(block)
@@ -482,7 +486,7 @@ open class Library: Reference, Trackable, CustomStringConvertible {
             filenames = next
           }
           guard filenames.isNull else {
-            throw EvalError.malformedLibraryDefinition(decls: decl)
+            throw RuntimeError.eval(.malformedLibraryDefinition, decl)
           }
         case .pair(.symbol(self.context.symbols.includeCi), let filenameList):
           var filenames = filenameList
@@ -499,7 +503,7 @@ open class Library: Reference, Trackable, CustomStringConvertible {
             filenames = next
           }
           guard filenames.isNull else {
-            throw EvalError.malformedLibraryDefinition(decls: decl)
+            throw RuntimeError.eval(.malformedLibraryDefinition, decl)
           }
         case .pair(.symbol(self.context.symbols.includeLibDecls), let filenameList):
           var filenames = filenameList
@@ -518,7 +522,7 @@ open class Library: Reference, Trackable, CustomStringConvertible {
             filenames = next
           }
           guard filenames.isNull else {
-            throw EvalError.malformedLibraryDefinition(decls: decl)
+            throw RuntimeError.eval(.malformedLibraryDefinition, decl)
           }
         case .pair(.symbol(self.context.symbols.condExpand), let clauseList):
           var clauses = clauseList
@@ -526,7 +530,7 @@ open class Library: Reference, Trackable, CustomStringConvertible {
             switch clause {
               case .pair(.symbol(self.context.symbols.else), let exprs):
                 guard next == .null else {
-                  throw EvalError.malformedLibraryDefinition(decls: decl)
+                  throw RuntimeError.eval(.malformedLibraryDefinition, decl)
                 }
                 defs = exprs
                 var j = i
@@ -536,11 +540,11 @@ open class Library: Reference, Trackable, CustomStringConvertible {
                   defs = next
                 }
                 guard defs.isNull else {
-                  throw EvalError.malformedLibraryDefinition(decls: defs)
+                  throw RuntimeError.eval(.malformedLibraryDefinition, defs)
                 }
               case .pair(let reqs, let exprs):
                 guard let featureReq = FeatureRequirement(reqs, in: self.context) else {
-                  throw EvalError.malformedCondExpandClause(clause)
+                  throw RuntimeError.eval(.malformedCondExpandClause, clause)
                 }
                 if featureReq.valid(in: self.context) {
                   defs = exprs
@@ -551,21 +555,21 @@ open class Library: Reference, Trackable, CustomStringConvertible {
                     defs = next
                   }
                   guard defs.isNull else {
-                    throw EvalError.malformedLibraryDefinition(decls: defs)
+                    throw RuntimeError.eval(.malformedLibraryDefinition, defs)
                   }
                   clauses = .null
                   break expand
                 }
               default:
-                throw EvalError.malformedCondExpandClause(clause)
+                throw RuntimeError.eval(.malformedCondExpandClause, clause)
             }
             clauses = next
           }
           guard clauses.isNull else {
-            throw EvalError.malformedLibraryDefinition(decls: decl)
+            throw RuntimeError.eval(.malformedLibraryDefinition, decl)
           }
         default:
-          throw EvalError.malformedLibraryDefinition(decls: decl)
+          throw RuntimeError.eval(.malformedLibraryDefinition, decl)
       }
       i += 1
     }

@@ -20,7 +20,7 @@
 
 ///
 /// Box library: based on Racket spec.
-/// 
+///
 public final class BoxLibrary: NativeLibrary {
   
   /// Name of the library.
@@ -60,14 +60,14 @@ public final class BoxLibrary: NativeLibrary {
   
   private func unbox(_ expr: Expr) throws -> Expr {
     guard case .box(let cell) = expr else {
-      throw EvalError.typeError(expr, [.boxType])
+      throw RuntimeError.type(expr, expected: [.boxType])
     }
     return cell.value
   }
   
   private func setBox(_ expr: Expr, value: Expr) throws -> Expr {
     guard case .box(let cell) = expr else {
-      throw EvalError.typeError(expr, [.boxType])
+      throw RuntimeError.type(expr, expected: [.boxType])
     }
     // Set cell value. Guarantee that cells for which `set-box!` is called are managed
     // by a managed object pool.
@@ -97,21 +97,21 @@ public final class BoxLibrary: NativeLibrary {
   
   private func mcar(_ expr: Expr) throws -> Expr {
     guard case .mpair(let tuple) = expr else {
-      throw EvalError.typeError(expr, [.mpairType])
+      throw RuntimeError.type(expr, expected: [.mpairType])
     }
     return tuple.fst
   }
   
   private func mcdr(_ expr: Expr) throws -> Expr {
     guard case .mpair(let tuple) = expr else {
-      throw EvalError.typeError(expr, [.mpairType])
+      throw RuntimeError.type(expr, expected: [.mpairType])
     }
     return tuple.snd
   }
   
   private func setMcar(_ expr: Expr, value: Expr) throws -> Expr {
     guard case .mpair(let tuple) = expr else {
-      throw EvalError.typeError(expr, [.mpairType])
+      throw RuntimeError.type(expr, expected: [.mpairType])
     }
     // Set car of tuple. Guarantee that tuples for which `set-mcar!` is called are managed
     // by a managed object pool.
@@ -121,7 +121,7 @@ public final class BoxLibrary: NativeLibrary {
   
   private func setMcdr(_ expr: Expr, value: Expr) throws -> Expr {
     guard case .mpair(let tuple) = expr else {
-      throw EvalError.typeError(expr, [.mpairType])
+      throw RuntimeError.type(expr, expected: [.mpairType])
     }
     // Set cdr of tuple. Guarantee that tuples for which `set-mcdr!` is called are managed
     // by a managed object pool.
@@ -129,3 +129,4 @@ public final class BoxLibrary: NativeLibrary {
     return .void
   }
 }
+

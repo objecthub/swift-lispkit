@@ -279,7 +279,7 @@ public final class ListLibrary: NativeLibrary {
   
   private func compileCons(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let head, .pair(let tail, .null))) = expr else {
-      throw EvalError.argumentCountError(formals: 2, args: expr)
+      throw RuntimeError.argumentCount(of: "cons", min: 2, max: 2, args: expr)
     }
     _ = try compiler.compile(head, in: env, inTailPos: false)
     _ = try compiler.compile(tail, in: env, inTailPos: false)
@@ -297,7 +297,7 @@ public final class ListLibrary: NativeLibrary {
   
   private func car(_ expr: Expr) throws -> Expr {
     guard case .pair(let car, _) = expr else {
-      throw EvalError.typeError(expr, [.pairType])
+      throw RuntimeError.type(expr, expected: [.pairType])
     }
     return car
   }
@@ -308,7 +308,7 @@ public final class ListLibrary: NativeLibrary {
   
   private func cdr(_ expr: Expr) throws -> Expr {
     guard case .pair(_, let cdr) = expr else {
-      throw EvalError.typeError(expr, [.pairType])
+      throw RuntimeError.type(expr, expected: [.pairType])
     }
     return cdr
   }
@@ -319,10 +319,10 @@ public final class ListLibrary: NativeLibrary {
   
   private func caar(_ expr: Expr) throws -> Expr {
     guard case .pair(let car, _) = expr else {
-      throw EvalError.typeError(expr, [.pairType])
+      throw RuntimeError.type(expr, expected: [.pairType])
     }
     guard case .pair(let caar, _) = car else {
-      throw EvalError.typeError(car, [.pairType])
+      throw RuntimeError.type(car, expected: [.pairType])
     }
     return caar
   }
@@ -333,10 +333,10 @@ public final class ListLibrary: NativeLibrary {
   
   private func cadr(_ expr: Expr) throws -> Expr {
     guard case .pair(_, let cdr) = expr else {
-      throw EvalError.typeError(expr, [.pairType])
+      throw RuntimeError.type(expr, expected: [.pairType])
     }
     guard case .pair(let cadr, _) = cdr else {
-      throw EvalError.typeError(cdr, [.pairType])
+      throw RuntimeError.type(cdr, expected: [.pairType])
     }
     return cadr
   }
@@ -347,10 +347,10 @@ public final class ListLibrary: NativeLibrary {
 
   private func cdar(_ expr: Expr) throws -> Expr {
     guard case .pair(let car, _) = expr else {
-      throw EvalError.typeError(expr, [.pairType])
+      throw RuntimeError.type(expr, expected: [.pairType])
     }
     guard case .pair(_, let cdar) = car else {
-      throw EvalError.typeError(car, [.pairType])
+      throw RuntimeError.type(car, expected: [.pairType])
     }
     return cdar
   }
@@ -361,10 +361,10 @@ public final class ListLibrary: NativeLibrary {
   
   private func cddr(_ expr: Expr) throws -> Expr {
     guard case .pair(_, let cdr) = expr else {
-      throw EvalError.typeError(expr, [.pairType])
+      throw RuntimeError.type(expr, expected: [.pairType])
     }
     guard case .pair(_, let cddr) = cdr else {
-      throw EvalError.typeError(cdr, [.pairType])
+      throw RuntimeError.type(cdr, expected: [.pairType])
     }
     return cddr
   }
@@ -383,14 +383,14 @@ public final class ListLibrary: NativeLibrary {
       expr = cdr
     }
     guard expr.isNull else {
-      throw EvalError.typeError(expr, [.properListType])
+      throw RuntimeError.type(expr, expected: [.properListType])
     }
     return .fixnum(len)
   }
   
   private func appendList(_ fst: Expr, _ tail: Expr) throws -> Expr {
     guard case (let exprs, .null) = fst.toExprs() else {
-      throw EvalError.typeError(fst, [.properListType])
+      throw RuntimeError.type(fst, expected: [.properListType])
     }
     return Expr.makeList(exprs, append: tail)
   }
@@ -421,7 +421,7 @@ public final class ListLibrary: NativeLibrary {
       list = cdr
     }
     guard list.isNull else {
-      throw EvalError.typeError(expr, [.properListType])
+      throw RuntimeError.type(expr, expected: [.properListType])
     }
     return res
   }
@@ -429,7 +429,7 @@ public final class ListLibrary: NativeLibrary {
   private func listTail(_ expr: Expr, _ count: Expr) throws -> Expr {
     var k = try count.asInt64()
     guard k >= 0 else {
-      throw EvalError.indexOutOfBounds(k, -1)
+      throw RuntimeError.range(count, min: 0, max: Int64.max)
     }
     if k == 0 {
       return expr
@@ -444,7 +444,7 @@ public final class ListLibrary: NativeLibrary {
         len += 1
         list = cdr
       }
-      throw EvalError.indexOutOfBounds(try count.asInt64(), len)
+      throw RuntimeError.range(count, min: 0, max: len)
     }
   }
   
@@ -471,7 +471,7 @@ public final class ListLibrary: NativeLibrary {
       list = cdr
     }
     guard list.isNull else {
-      throw EvalError.typeError(expr, [.properListType])
+      throw RuntimeError.type(expr, expected: [.properListType])
     }
     return .false
   }
@@ -485,7 +485,7 @@ public final class ListLibrary: NativeLibrary {
       list = cdr
     }
     guard list.isNull else {
-      throw EvalError.typeError(expr, [.properListType])
+      throw RuntimeError.type(expr, expected: [.properListType])
     }
     return .false
   }
@@ -499,7 +499,7 @@ public final class ListLibrary: NativeLibrary {
       list = cdr
     }
     guard list.isNull else {
-      throw EvalError.typeError(expr, [.assocListType])
+      throw RuntimeError.type(expr, expected: [.assocListType])
     }
     return .false
   }
@@ -513,7 +513,7 @@ public final class ListLibrary: NativeLibrary {
       list = cdr
     }
     guard list.isNull else {
-      throw EvalError.typeError(expr, [.assocListType])
+      throw RuntimeError.type(expr, expected: [.assocListType])
     }
     return .false
   }
@@ -528,7 +528,7 @@ public final class ListLibrary: NativeLibrary {
       list = cdr
     }
     guard list.isNull else {
-      throw EvalError.typeError(expr, [.properListType])
+      throw RuntimeError.type(expr, expected: [.properListType])
     }
     return .makeList(elems)
   }
@@ -543,7 +543,7 @@ public final class ListLibrary: NativeLibrary {
       list = cdr
     }
     guard list.isNull else {
-      throw EvalError.typeError(expr, [.properListType])
+      throw RuntimeError.type(expr, expected: [.properListType])
     }
     return .makeList(elems)
   }
@@ -558,7 +558,7 @@ public final class ListLibrary: NativeLibrary {
       list = cdr
     }
     guard list.isNull else {
-      throw EvalError.typeError(expr, [.assocListType])
+      throw RuntimeError.type(expr, expected: [.assocListType])
     }
     return .makeList(elems)
   }
@@ -573,14 +573,14 @@ public final class ListLibrary: NativeLibrary {
       list = cdr
     }
     guard list.isNull else {
-      throw EvalError.typeError(expr, [.assocListType])
+      throw RuntimeError.type(expr, expected: [.assocListType])
     }
     return .makeList(elems)
   }
   
   private func decons(_ expr: Expr) throws -> Expr {
     guard case (let lists, .null) = expr.toExprs() else {
-      throw EvalError.typeError(expr, [.properListType])
+      throw RuntimeError.type(expr, expected: [.properListType])
     }
     guard lists.count > 0 else {
       return .null
@@ -595,9 +595,10 @@ public final class ListLibrary: NativeLibrary {
           cars = .pair(car, cars)
           cdrs = .pair(cdr, cdrs)
         default:
-          throw EvalError.typeError(lists[i], [.properListType])
+          throw RuntimeError.type(lists[i], expected: [.properListType])
       }
     }
     return .pair(cars, cdrs)
   }
 }
+

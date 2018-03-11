@@ -238,7 +238,7 @@ public final class VirtualMachine: TrackedObject {
     }
   }
   
-  /// Executes an evaluation function at the top-level.
+   /// Executes an evaluation function at the top-level.
   public func onTopLevelDo(_ eval: () throws -> Expr) -> Expr {
     // Prepare for the evaluation
     self.assertTopLevel()
@@ -253,15 +253,13 @@ public final class VirtualMachine: TrackedObject {
       self.abortionRequested = false
     }
     // Perform evaluation
-    var exception: AnyError? = nil
+    var exception: RuntimeError? = nil
     do {
       return try eval()
-    } catch let error as AnyError { // handle Lisp-related issues that are wrapped already
+    } catch let error as RuntimeError { // handle Lisp-related issues
       exception = error
-    } catch let error as LispError { // handle Lisp-related issues
-      exception = AnyError(error)
     } catch let error as NSError { // handle OS-related issues
-      exception = AnyError(OsError(error))
+      exception = RuntimeError.os(error)
     }
     // Abortions ignore dynamic environments
     guard !self.abortionRequested else {
@@ -276,10 +274,10 @@ public final class VirtualMachine: TrackedObject {
     while let obj = exception {
       do {
         return try self.apply(.procedure(raiseProc), to: .pair(.error(obj), .null))
-      } catch let error as LispError { // handle Lisp-related issues
-        exception = AnyError(error)
+      } catch let error as RuntimeError { // handle Lisp-related issues
+        exception = error
       } catch let error as NSError { // handle OS-related issues
-        exception = AnyError(OsError(error))
+        exception = RuntimeError.os(error)
       }
     }
     // Never happens
@@ -330,7 +328,7 @@ public final class VirtualMachine: TrackedObject {
       exprlist = rest
     }
     guard exprlist.isNull else {
-      throw EvalError.typeError(exprs, [.properListType])
+      throw RuntimeError.type(exprs, expected: [.properListType])
     }
     return res
   }
@@ -401,7 +399,7 @@ public final class VirtualMachine: TrackedObject {
         return try self.execute()
       case .transformer(let rules):
         if n != 1 {
-          throw EvalError.argumentCountError(formals: 1, args: args)
+          throw RuntimeError.argumentCount(min: 1, max: 1, args: args)
         }
         let res = try rules.expand(self.pop())
         self.drop()
@@ -435,7 +433,7 @@ public final class VirtualMachine: TrackedObject {
       args = rest
     }
     guard args.isNull else {
-      throw EvalError.malformedArgumentList(arglist)
+      throw RuntimeError.eval(.malformedArgumentList, arglist)
     }
     return n
   }
@@ -659,7 +657,7 @@ public final class VirtualMachine: TrackedObject {
   private func invoke(_ n: inout Int, _ overhead: Int) throws -> Procedure {
     // Get procedure to call
     guard case .procedure(let p) = self.stack[self.sp &- n &- 1] else {
-      throw EvalError.nonApplicativeValue(self.stack[self.sp &- n &- 1])
+      throw RuntimeError.eval(.nonApplicativeValue, self.stack[self.sp &- n &- 1])
     }
     var proc = p
     // Handle parameter procedures
@@ -684,7 +682,7 @@ public final class VirtualMachine: TrackedObject {
           n = 3
           proc = try tuple.fst.asProcedure()
         default:
-          throw EvalError.argumentCountError(formals: 1, args: self.popAsList(n))
+          throw RuntimeError.argumentCount(min: 1, max: 1, args: self.popAsList(n))
       }
     }
     // Handle primitive procedures; this is required to loop because of applicators
@@ -707,14 +705,14 @@ public final class VirtualMachine: TrackedObject {
           proc = next
         case .native0(let exec):
           guard n == 0 else {
-            throw EvalError.argumentCountError(formals: 0, args: self.popAsList(n))
+            throw RuntimeError.argumentCount(min: 0, max: 0, args: self.popAsList(n))
           }
           self.pop(overhead)
           self.push(try exec())
           return proc
         case .native1(let exec):
           guard n == 1 else {
-            throw EvalError.argumentCountError(formals: 1, args: self.popAsList(n))
+            throw RuntimeError.argumentCount(min: 1, max: 1, args: self.popAsList(n))
           }
           let a0 = self.pop()
           self.pop(overhead)
@@ -722,7 +720,7 @@ public final class VirtualMachine: TrackedObject {
           return proc
         case .native2(let exec):
           guard n == 2 else {
-            throw EvalError.argumentCountError(formals: 2, args: self.popAsList(n))
+            throw RuntimeError.argumentCount(min: 2, max: 2, args: self.popAsList(n))
           }
           let a1 = self.pop()
           let a0 = self.pop()
@@ -731,7 +729,7 @@ public final class VirtualMachine: TrackedObject {
           return proc
         case .native3(let exec):
           guard n == 3 else {
-            throw EvalError.argumentCountError(formals: 3, args: self.popAsList(n))
+            throw RuntimeError.argumentCount(min: 3, max: 3, args: self.popAsList(n))
           }
           let a2 = self.pop()
           let a1 = self.pop()
@@ -741,7 +739,7 @@ public final class VirtualMachine: TrackedObject {
           return proc
         case .native4(let exec):
           guard n == 4 else {
-            throw EvalError.argumentCountError(formals: 4, args: self.popAsList(n))
+            throw RuntimeError.argumentCount(min: 4, max: 4, args: self.popAsList(n))
           }
           let a3 = self.pop()
           let a2 = self.pop()
@@ -759,7 +757,7 @@ public final class VirtualMachine: TrackedObject {
             self.pop(overhead)
             self.push(try exec(a0))
           } else {
-            throw EvalError.argumentCountError(formals: 1, args: self.popAsList(n))
+            throw RuntimeError.argumentCount(min: 1, max: 1, args: self.popAsList(n))
           }
           return proc
         case .native1O(let exec):
@@ -773,7 +771,7 @@ public final class VirtualMachine: TrackedObject {
             self.pop(overhead)
             self.push(try exec(a0, a1))
           } else {
-            throw EvalError.argumentCountError(formals: 2, args: self.popAsList(n))
+            throw RuntimeError.argumentCount(min: 2, max: 2, args: self.popAsList(n))
           }
           return proc
         case .native2O(let exec):
@@ -789,7 +787,7 @@ public final class VirtualMachine: TrackedObject {
             self.pop(overhead)
             self.push(try exec(a0, a1, a2))
           } else {
-            throw EvalError.argumentCountError(formals: 3, args: self.popAsList(n))
+            throw RuntimeError.argumentCount(min: 3, max: 3, args: self.popAsList(n))
           }
           return proc
         case .native3O(let exec):
@@ -807,7 +805,7 @@ public final class VirtualMachine: TrackedObject {
             self.pop(overhead)
             self.push(try exec(a0, a1, a2, a3))
           } else {
-            throw EvalError.argumentCountError(formals: 3, args: self.popAsList(n))
+            throw RuntimeError.argumentCount(min: 3, max: 3, args: self.popAsList(n))
           }
           return proc
         case .native1OO(let exec):
@@ -827,7 +825,7 @@ public final class VirtualMachine: TrackedObject {
             self.pop(overhead)
             self.push(try exec(a0, a1, a2))
           } else {
-            throw EvalError.argumentCountError(formals: 3, args: self.popAsList(n))
+            throw RuntimeError.argumentCount(min: 3, max: 3, args: self.popAsList(n))
           }
           return proc
         case .native2OO(let exec):
@@ -850,7 +848,7 @@ public final class VirtualMachine: TrackedObject {
             self.pop(overhead)
             self.push(try exec(a0, a1, a2, a3))
           } else {
-            throw EvalError.argumentCountError(formals: 4, args: self.popAsList(n))
+            throw RuntimeError.argumentCount(min: 4, max: 4, args: self.popAsList(n))
           }
           return proc
         case .native3OO(let exec):
@@ -876,7 +874,7 @@ public final class VirtualMachine: TrackedObject {
             self.pop(overhead)
             self.push(try exec(a0, a1, a2, a3, a4))
           } else {
-            throw EvalError.argumentCountError(formals: 5, args: self.popAsList(n))
+            throw RuntimeError.argumentCount(min: 5, max: 5, args: self.popAsList(n))
           }
           return proc
         case .native0R(let exec):
@@ -890,7 +888,7 @@ public final class VirtualMachine: TrackedObject {
             self.pop(n &+ overhead)
             self.push(res)
           } else {
-            throw EvalError.leastArgumentCountError(formals: 1, args: self.popAsList(n))
+            throw RuntimeError.argumentCount(min: 1, args: self.popAsList(n))
           }
           return proc
         case .native2R(let exec):
@@ -901,7 +899,7 @@ public final class VirtualMachine: TrackedObject {
             self.pop(n &+ overhead)
             self.push(res)
           } else {
-            throw EvalError.leastArgumentCountError(formals: 2, args: self.popAsList(n))
+            throw RuntimeError.argumentCount(min: 2, args: self.popAsList(n))
           }
           return proc
         case .native3R(let exec):
@@ -913,7 +911,7 @@ public final class VirtualMachine: TrackedObject {
             self.pop(n &+ overhead)
             self.push(res)
           } else {
-            throw EvalError.leastArgumentCountError(formals: 2, args: self.popAsList(n))
+            throw RuntimeError.argumentCount(min: 2, args: self.popAsList(n))
           }
           return proc
       }
@@ -922,11 +920,13 @@ public final class VirtualMachine: TrackedObject {
     if case .continuation(let vmState) = proc.kind {
       // Check that we apply the continuation in the right context
       guard vmState.registers.rid == self.registers.rid else {
-        throw EvalError.illegalContinuationApplication(proc, self.registers.rid)
+        throw RuntimeError.eval(.illegalContinuationApplication,
+                                .procedure(proc),
+                                .makeNumber(self.registers.rid))
       }
       // Continuations accept exactly one argument
       guard n == 1 else {
-        throw EvalError.argumentCountError(formals: 1, args: self.popAsList(n))
+        throw RuntimeError.argumentCount(min: 1, max: 1, args: self.popAsList(n))
       }
       // Retrieve argument
       let arg = self.pop()
@@ -967,17 +967,22 @@ public final class VirtualMachine: TrackedObject {
     }
     do {
       return try self.execute()
-    } catch let error as LispError {
-      throw ContextualError(error, self.getStackTrace())
+    } catch let error as RuntimeError {
+      if error.stackTrace == nil {
+        error.attach(self.getStackTrace())
+      }
+      throw error
     } catch let error as NSError {
-      throw ContextualError(OsError(error), self.getStackTrace())
+      let wrapped = RuntimeError.os(error)
+      wrapped.attach(self.getStackTrace())
+      throw wrapped
     }
   }
   
   private func execute() throws -> Expr {
     while self.registers.ip >= 0 && self.registers.ip < self.registers.code.instructions.count {
       guard !self.abortionRequested else {
-        throw AbortionError.value
+        throw RuntimeError.abortion()
       }
       self.collectGarbageIfNeeded()
       /*
@@ -1009,11 +1014,11 @@ public final class VirtualMachine: TrackedObject {
           let value = self.context.heap.locations[index]
           switch value {
             case .undef:
-              throw EvalError.variableUndefined(nil)
+              throw RuntimeError.eval(.variableUndefined, .undef)
             case .uninit(let sym):
-              throw EvalError.variableNotYetInitialized(sym)
+              throw RuntimeError.eval(.variableNotYetInitialized, .symbol(sym))
             case .special(_):
-              throw EvalError.illegalKeywordUsage(.undef) // TODO: can this really happen?
+              throw RuntimeError.eval(.illegalKeywordUsage, .undef) // TODO: can this really happen?
             default:
               self.push(value)
           }
@@ -1021,9 +1026,9 @@ public final class VirtualMachine: TrackedObject {
           let value = self.context.heap.locations[index]
           switch value {
             case .undef:
-              throw EvalError.variableNotYetInitialized(nil)
+              throw RuntimeError.eval(.variableNotYetInitialized, .undef)
             case .uninit(let sym):
-              throw EvalError.unboundVariable(sym)
+              throw RuntimeError.eval(.unboundVariable, .symbol(sym))
             default:
               self.context.heap.locations[index] = self.pop()
           }
@@ -1036,7 +1041,7 @@ public final class VirtualMachine: TrackedObject {
             preconditionFailure("pushCapturedValue cannot push \(self.registers.captured[index])")
           }
           if case .undef = cell.value {
-            throw EvalError.variableNotYetInitialized(nil)
+            throw RuntimeError.eval(.variableNotYetInitialized, .undef)
           }
           self.push(cell.value)
         case .setCapturedValue(let index):
@@ -1072,7 +1077,7 @@ public final class VirtualMachine: TrackedObject {
               "pushLocalValue cannot push \(self.stack[self.registers.fp &+ index])")
           }
           if case .undef = cell.value {
-            throw EvalError.variableNotYetInitialized(nil)
+            throw RuntimeError.eval(.variableNotYetInitialized, .undef)
           }
           self.push(cell.value)
         case .pushConstant(let index):
@@ -1113,7 +1118,7 @@ public final class VirtualMachine: TrackedObject {
           switch self.top() {
             case .void:
               guard n == 0 else {
-                throw EvalError.multiValueCountError(expected: n, found: .null)
+                throw RuntimeError.eval(.multiValueCountError, .makeNumber(n), .null)
               }
               self.drop()
               if overflow {
@@ -1128,7 +1133,7 @@ public final class VirtualMachine: TrackedObject {
                   if overflow {
                     break
                   } else {
-                    throw EvalError.multiValueCountError(expected: n, found: list)
+                    throw RuntimeError.eval(.multiValueCountError, .makeNumber(n), list)
                   }
                 }
                 self.push(value)
@@ -1136,7 +1141,7 @@ public final class VirtualMachine: TrackedObject {
                 next = rest
               }
               guard m == 0 else {
-                throw EvalError.multiValueCountError(expected: n, found: list)
+                throw RuntimeError.eval(.multiValueCountError, .makeNumber(n), list)
               }
               if overflow {
                 self.push(next)
@@ -1149,7 +1154,9 @@ public final class VirtualMachine: TrackedObject {
               } else if n == 0 && overflow {
                 self.push(.pair(self.popUnsafe(), .null))
               } else {
-                throw EvalError.multiValueCountError(expected: n, found: .pair(self.top(), .null))
+                throw RuntimeError.eval(.multiValueCountError,
+                                        .makeNumber(n),
+                                        .pair(self.top(), .null))
               }
           }
         case .makeClosure(let i, let n, let index):
@@ -1185,7 +1192,7 @@ public final class VirtualMachine: TrackedObject {
         case .makeSyntax:
           let transformer = self.pop()
           guard case .procedure(let proc) = transformer else {
-            throw EvalError.malformedTransformer(transformer)
+            throw RuntimeError.eval(.malformedTransformer, transformer)
           }
           self.push(.special(SpecialForm(proc)))
         case .compile:
@@ -1204,7 +1211,7 @@ public final class VirtualMachine: TrackedObject {
             args = rest
           }
           guard args.isNull else {
-            throw EvalError.malformedArgumentList(arglist)
+            throw RuntimeError.eval(.malformedArgumentList, arglist)
           }
           // Store instruction pointer
           self.stack[self.sp &- n &- 2] = .fixnum(Int64(self.registers.ip))
@@ -1271,17 +1278,19 @@ public final class VirtualMachine: TrackedObject {
           }
         case .assertArgCount(let n):
           guard self.sp &- n == self.registers.fp else {
-            throw EvalError.argumentCountError(
-              formals: n, args: self.popAsList(self.sp &- self.registers.fp))
+            throw RuntimeError.argumentCount(min: n,
+                                             max: n,
+                                             args: self.popAsList(self.sp &- self.registers.fp))
           }
         case .assertMinArgCount(let n):
           guard self.sp &- n >= self.registers.fp else {
-            throw EvalError.argumentCountError(
-              formals: n, args: self.popAsList(self.sp &- self.registers.fp))
+            throw RuntimeError.argumentCount(min: n,
+                                             args: self.popAsList(self.sp &- self.registers.fp))
           }
         case .noMatchingArgCount:
-          throw EvalError.noMatchingCase(
-            args: self.popAsList(self.sp &- self.registers.fp), proc: self.pop())
+          throw RuntimeError.eval(.noMatchingCase,
+                                  self.popAsList(self.sp &- self.registers.fp),
+                                  self.pop())
         case .collectRest(let n):
           var rest = Expr.null
           while self.sp > self.registers.fp &+ n {
@@ -1392,7 +1401,7 @@ public final class VirtualMachine: TrackedObject {
               guard case .promise(let result) = self.stack[self.sp &- 1],
                     future.kind == result.kind else {
                 let type: Type = future.kind == Promise.Kind.promise ? .promiseType : .streamType
-                throw EvalError.typeError(self.stack[self.sp &- 1], [type])
+                throw RuntimeError.type(self.stack[self.sp &- 1], expected: [type])
               }
               if !result.isAtom {
                 self.context.objects.manage(future)
@@ -1439,20 +1448,20 @@ public final class VirtualMachine: TrackedObject {
         case .decons:
           let expr = self.popUnsafe()
           guard case .pair(let car, let cdr) = expr else {
-            throw EvalError.typeError(expr, [.pairType])
+            throw RuntimeError.type(expr, expected: [.pairType])
           }
           self.push(cdr)
           self.push(car)
         case .car:
           let expr = self.popUnsafe()
           guard case .pair(let car, _) = expr else {
-            throw EvalError.typeError(expr, [.pairType])
+            throw RuntimeError.type(expr, expected: [.pairType])
           }
           self.push(car)
         case .cdr:
           let expr = self.popUnsafe()
           guard case .pair(_, let cdr) = expr else {
-            throw EvalError.typeError(expr, [.pairType])
+            throw RuntimeError.type(expr, expected: [.pairType])
           }
           self.push(cdr)
         case .list(let n):
@@ -1479,7 +1488,7 @@ public final class VirtualMachine: TrackedObject {
             list = cdr
           }
           guard list.isNull else {
-            throw EvalError.typeError(expr, [.properListType])
+            throw RuntimeError.type(expr, expected: [.properListType])
           }
           self.push(.vector(vector))
         case .vectorAppend(let n):
@@ -1521,7 +1530,7 @@ public final class VirtualMachine: TrackedObject {
             case .fixnum(let x):
               self.stack[idx] = .fixnum(x &+ 1)
             default:
-              throw EvalError.typeError(self.stack[idx], [.exactIntegerType])
+              throw RuntimeError.type(self.stack[idx], expected: [.exactIntegerType])
           }
         case .fxDec:
           let idx = self.sp &- 1
@@ -1529,7 +1538,7 @@ public final class VirtualMachine: TrackedObject {
             case .fixnum(let x):
               self.stack[idx] = .fixnum(x &- 1)
             default:
-              throw EvalError.typeError(self.stack[idx], [.exactIntegerType])
+              throw RuntimeError.type(self.stack[idx], expected: [.exactIntegerType])
           }
         case .fxIsZero:
           let idx = self.sp &- 1
@@ -1537,7 +1546,7 @@ public final class VirtualMachine: TrackedObject {
             case .fixnum(let x):
               self.stack[idx] = x == 0 ? .true : .false
             default:
-              throw EvalError.typeError(self.stack[idx], [.exactIntegerType])
+              throw RuntimeError.type(self.stack[idx], expected: [.exactIntegerType])
           }
         case .fxEq:
           let rhs = self.pop()
@@ -1613,3 +1622,4 @@ public final class VirtualMachine: TrackedObject {
     return res
   }
 }
+

@@ -133,7 +133,7 @@ public final class SystemLibrary: NativeLibrary {
   
   private func load(args: Arguments) throws -> (Procedure, Exprs) {
     guard args.count == 1 || args.count == 2  else {
-      throw EvalError.argumentCountError(formals: 2, args: .makeList(args))
+      throw RuntimeError.argumentCount(of: "load", min: 1, max: 2, args: .makeList(args))
     }
     // Extract arguments
     let path = try args.first!.asPath()
@@ -156,7 +156,7 @@ public final class SystemLibrary: NativeLibrary {
   
   private func compileAndEvalFirst(args: Arguments) throws -> (Procedure, Exprs) {
     guard args.count == 3 else {
-      throw EvalError.argumentCountError(formals: 3, args: .makeList(args))
+      throw RuntimeError.argumentCount(min: 3, max: 3, args: .makeList(args))
     }
     let sourceDir = args[args.startIndex + 1]
     let env = args[args.startIndex + 2]
@@ -179,7 +179,7 @@ public final class SystemLibrary: NativeLibrary {
                                         inDirectory: try sourceDir.asString())
         return (Procedure(code), [])
       default:
-        throw EvalError.typeError(args.first!, [.properListType])
+        throw RuntimeError.type(args.first!, expected: [.properListType])
     }
   }
   
@@ -216,7 +216,7 @@ public final class SystemLibrary: NativeLibrary {
                                               relativeTo: self.currentDirectoryPath)
       return .void
     } else {
-      throw EvalError.unknownFile(path)
+      throw RuntimeError.eval(.unknownFile, expr)
     }
   }
   
@@ -228,7 +228,7 @@ public final class SystemLibrary: NativeLibrary {
                                               relativeTo: self.currentDirectoryPath)
       return .void
     } else {
-      throw EvalError.unknownDirectory(path)
+      throw RuntimeError.eval(.unknownDirectory, expr)
     }
   }
   
@@ -247,7 +247,7 @@ public final class SystemLibrary: NativeLibrary {
                                             relativeTo: self.currentDirectoryPath)
       return .void
     } else {
-      throw EvalError.unknownFile(path)
+      throw RuntimeError.eval(.unknownFile, fromPath)
     }
   }
   
@@ -260,7 +260,7 @@ public final class SystemLibrary: NativeLibrary {
                                             relativeTo: self.currentDirectoryPath)
       return .void
     } else {
-      throw EvalError.unknownDirectory(path)
+      throw RuntimeError.eval(.unknownDirectory, fromPath)
     }
   }
   
@@ -281,7 +281,7 @@ public final class SystemLibrary: NativeLibrary {
                                             relativeTo: self.currentDirectoryPath)
       return .void
     } else {
-      throw EvalError.unknownFile(path)
+      throw RuntimeError.eval(.unknownFile, fromPath)
     }
   }
   
@@ -294,7 +294,7 @@ public final class SystemLibrary: NativeLibrary {
                                             relativeTo: self.currentDirectoryPath)
       return .void
     } else {
-      throw EvalError.unknownDirectory(path)
+      throw RuntimeError.eval(.unknownDirectory, fromPath)
     }
   }
   
@@ -309,7 +309,7 @@ public final class SystemLibrary: NativeLibrary {
   private func fileSize(expr: Expr) throws -> Expr {
     guard let size = self.context.fileHandler.fileSize(atPath: try expr.asPath(),
                                                        relativeTo: self.currentDirectoryPath) else {
-      throw EvalError.unknownFile(try expr.asPath())
+      throw RuntimeError.eval(.unknownFile, expr)
     }
     return .fixnum(size)
   }
@@ -364,7 +364,7 @@ public final class SystemLibrary: NativeLibrary {
   
   private func compileTime(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let exec, .null)) = expr else {
-      throw EvalError.argumentCountError(formals: 1, args: expr)
+      throw RuntimeError.argumentCount(of: "time", min: 1, max: 1, args: expr)
     }
     compiler.emit(.pushCurrentTime)
     try compiler.compile(exec, in: env, inTailPos: false)
@@ -393,7 +393,7 @@ public final class SystemLibrary: NativeLibrary {
   
   private func disassemble(expr: Expr) throws -> Expr {
     guard case .procedure(let proc) = expr else {
-      throw EvalError.typeError(expr, [.procedureType])
+      throw RuntimeError.type(expr, expected: [.procedureType])
     }
     switch proc.kind {
     case .closure(_, let captured, let code):
@@ -513,24 +513,24 @@ public final class SystemLibrary: NativeLibrary {
   
   private func secondToDateTime(_ seconds: Expr, _ timeZone: Expr?) throws -> Expr {
     guard let tzone = self.getTimeZone(timeZone) else {
-      throw EvalError.invalidTimeZone(timeZone!)
+      throw RuntimeError.eval(.invalidTimeZone, timeZone ?? .false)
     }
     return self.getDateComponents(Date(timeIntervalSince1970: try seconds.asDouble()), tzone)
   }
   
   private func dateTimeToSecond(_ dateTime: Expr, _ timeZone: Expr?) throws -> Expr {
     guard let tzone = self.getTimeZone(timeZone) else {
-      throw EvalError.invalidTimeZone(timeZone!)
+      throw RuntimeError.eval(.invalidTimeZone, timeZone ?? .false)
     }
     guard let (date, _) = self.getDate(dateTime, tzone) else {
-      throw EvalError.invalidDateTime(dateTime)
+      throw RuntimeError.eval(.invalidDateTime, dateTime)
     }
     return .makeNumber(date.timeIntervalSince1970)
   }
   
   private func dateTimeToString(_ dateTime: Expr, _ dateFormat: Expr?) throws -> Expr {
     guard let (date, tzone) = self.getDate(dateTime, TimeZone.current) else {
-      throw EvalError.invalidDateTime(dateTime)
+      throw RuntimeError.eval(.invalidDateTime, dateTime)
     }
     let formatter = DateFormatter()
     formatter.timeZone = tzone
@@ -555,7 +555,7 @@ public final class SystemLibrary: NativeLibrary {
                                 _ timeZone: Expr?,
                                 _ dateFormat: Expr?) throws -> Expr {
     guard let tzone = self.getTimeZone(timeZone) else {
-      throw EvalError.invalidTimeZone(timeZone!)
+      throw RuntimeError.eval(.invalidTimeZone, timeZone ?? .false)
     }
     let formatter = DateFormatter()
     formatter.timeZone = tzone
@@ -776,16 +776,16 @@ public final class SystemLibrary: NativeLibrary {
     let url = try expr.asURL()
     let timeout = try tout?.asDouble(coerce: true) ?? HTTPInputStream.defaultTimeout
     guard let stream = HTTPInputStream(url: url) else {
-      throw EvalError.cannotOpenUrl(url.description)
+      throw RuntimeError.eval(.cannotOpenUrl, .makeString(url.description))
     }
     stream.open(timeout: timeout)
     stream.waitForResponse()
     guard let input = BinaryInput(source: stream, url: url) else {
-      throw EvalError.cannotOpenUrl(url.description)
+      throw RuntimeError.eval(.cannotOpenUrl, .makeString(url.description))
     }
     var response = Expr.null
     guard let headerFields = stream.headerFields else {
-      throw EvalError.cannotOpenUrl(url.description)
+      throw RuntimeError.eval(.cannotOpenUrl, .makeString(url.description))
     }
     for (key, value) in headerFields {
       response = .pair(.pair(.makeString(key), .makeString(value)), response)
@@ -800,3 +800,4 @@ public final class SystemLibrary: NativeLibrary {
     return .values(.pair(response, .pair(.bytes(MutableBox(bytes)), .null)))
   }
 }
+

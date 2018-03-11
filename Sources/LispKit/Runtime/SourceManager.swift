@@ -67,7 +67,7 @@ public final class SourceManager {
   
   public func readSource(for sourceId: UInt16) throws -> String {
     guard let sourceUrl = self.sourceUrl(for: sourceId) else {
-      throw EvalError.unknownFile("<path for source id = \(sourceId)>")
+      throw RuntimeError.eval(.unknownFile, .makeString("<path for source id = \(sourceId)>"))
     }
     return try String(contentsOf: sourceUrl)
   }
@@ -88,3 +88,4 @@ public final class SourceManager {
     return self.absoluteUrl(URL(fileURLWithPath: path))
   }
 }
+

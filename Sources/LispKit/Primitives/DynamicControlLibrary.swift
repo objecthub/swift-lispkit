@@ -205,10 +205,10 @@ public final class DynamicControlLibrary: NativeLibrary {
   
   func callWithUnprotectedContinuation(_ args: Arguments) throws -> (Procedure, Exprs) {
     guard args.count == 1 else {
-      throw EvalError.argumentCountError(formals: 1, args: .makeList(args))
+      throw RuntimeError.argumentCount(min: 1, max: 1, args: .makeList(args))
     }
     guard case .procedure(let proc) = args.first! else {
-      throw EvalError.typeError(args.first!, [.procedureType])
+      throw RuntimeError.type(args.first!, expected: [.procedureType])
     }
     // Create continuation, removing current argument and the call/cc procedure from the
     // stack of the continuation
@@ -275,9 +275,9 @@ public final class DynamicControlLibrary: NativeLibrary {
   }
   
   private func makeError(message: Expr, irritants: Expr) -> Expr {
-    return .error(AnyError(CustomError(kind: "error",
-                                       message: message.unescapedDescription,
-                                       irritants: irritants.toExprs().0)))
+    return .error(RuntimeError.custom("error",
+                                      message.unescapedDescription,
+                                      Array(irritants.toExprs().0)))
   }
   
   private func errorObjectMessage(expr: Expr) throws -> Expr {
@@ -285,16 +285,16 @@ public final class DynamicControlLibrary: NativeLibrary {
       case .error(let err):
         return .makeString(err.message)
       default:
-        throw EvalError.typeError(expr, [.errorType])
+        throw RuntimeError.type(expr, expected: [.errorType])
     }
   }
   
   private func errorObjectIrritants(expr: Expr) throws -> Expr {
     switch expr {
       case .error(let err):
-        return .makeList(err.irritants)
+        return Expr.makeList(Exprs(err.irritants), append: .null)
       default:
-        throw EvalError.typeError(expr, [.errorType])
+        throw RuntimeError.type(expr, expected: [.errorType])
     }
   }
   
@@ -314,10 +314,10 @@ public final class DynamicControlLibrary: NativeLibrary {
   private func isFileError(expr: Expr) -> Expr {
     return .false
   }
-    
+  
   private func triggerExit(args: Arguments) throws -> (Procedure, Exprs) {
     guard args.count == 2 else {
-      throw EvalError.argumentCountError(formals: 2, args: .makeList(args))
+      throw RuntimeError.argumentCount(min: 2, max: 2, args: .makeList(args))
     }
     let exit = try args.first!.asProcedure()
     let obj: Expr
@@ -327,7 +327,7 @@ public final class DynamicControlLibrary: NativeLibrary {
       case .pair(let expr, .null):
         obj = expr
       default:
-        throw EvalError.argumentCountError(formals: 1, args: args[args.startIndex + 1])
+        throw RuntimeError.argumentCount(min: 1, max: 1, args: args[args.startIndex + 1])
     }
     self.context.machine.exitTriggered = true
     return (exit, [obj])
@@ -348,10 +348,10 @@ public final class DynamicControlLibrary: NativeLibrary {
   
   func bindParameter(_ args: Arguments) throws -> (Procedure, Exprs) {
     guard args.count == 3 else {
-      throw EvalError.argumentCountError(formals: 3, args: .makeList(args))
+      throw RuntimeError.argumentCount(min: 3, max: 3, args: .makeList(args))
     }
     guard case .parameter(let tuple) = try args.first!.asProcedure().kind else {
-      throw EvalError.typeError(args.first!, [.parameterType])
+      throw RuntimeError.type(args.first!, expected: [.parameterType])
     }
     if case .procedure(let proc) = tuple.fst {
       return (proc, [args.first!, args[args.startIndex + 1], args[args.startIndex + 2]])
@@ -373,3 +373,4 @@ public final class DynamicControlLibrary: NativeLibrary {
     return .void
   }
 }
+

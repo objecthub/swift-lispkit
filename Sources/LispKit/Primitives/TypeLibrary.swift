@@ -68,7 +68,7 @@ public final class TypeLibrary: NativeLibrary {
   
   func untag(_ expr: Expr) throws -> Expr {
     guard case .tagged(_, let untagged) = expr else {
-      throw EvalError.typeError(expr, [.taggedType])
+      throw RuntimeError.type(expr, expected: [.taggedType])
     }
     return untagged
   }
@@ -87,3 +87,4 @@ public final class TypeLibrary: NativeLibrary {
     return .false
   }
 }
+

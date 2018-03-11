@@ -20,25 +20,43 @@
 
 import Foundation
 
-/// 
+///
 /// Implementation of a simple Scheme parser. The parser requires access to a scanner and
 /// a symbol table for creating `Symbol` objects.
-/// 
+///
 public final class Parser {
+  
+  /// Symbol table used for instantiating symbols
   private let symbols: SymbolTable
+  
+  /// Scanner used for lexical parsing
   private let scanner: Scanner
   
-  public convenience init(symbols: SymbolTable, src: String, foldCase: Bool = false) {
-    self.init(symbols: symbols, scanner: Scanner(string: src, foldCase: foldCase))
+  /// Id of source code
+  internal let sourceId: UInt16
+  
+  public convenience init(symbols: SymbolTable,
+                          src: String,
+                          sourceId: UInt16 = SourceManager.unknownSourceId,
+                          foldCase: Bool = false) {
+    self.init(symbols: symbols,
+              scanner: Scanner(string: src, foldCase: foldCase),
+              sourceId: sourceId)
   }
   
-  public convenience init(symbols: SymbolTable, input: TextInput, foldCase: Bool = false) {
-    self.init(symbols: symbols, scanner: Scanner(input: input, foldCase: foldCase))
+  public convenience init(symbols: SymbolTable,
+                          input: TextInput,
+                          sourceId: UInt16 = SourceManager.unknownSourceId,
+                          foldCase: Bool = false) {
+    self.init(symbols: symbols,
+              scanner: Scanner(input: input, foldCase: foldCase),
+              sourceId: sourceId)
   }
   
-  public init(symbols: SymbolTable, scanner: Scanner) {
+  public init(symbols: SymbolTable, scanner: Scanner, sourceId: UInt16) {
     self.symbols = symbols
     self.scanner = scanner
+    self.sourceId = sourceId
   }
   
   public var finished: Bool {
@@ -52,9 +70,9 @@ public final class Parser {
       case .error:
         let lexicalError = token.errorVal!
         self.scanner.next()
-        throw lexicalError
+        throw RuntimeError.lexical(lexicalError)
       case .eof:
-        throw SyntaxError.empty
+        throw RuntimeError.syntax(.empty)
       case .hashsemi:
         self.scanner.next()
         _ = try self.parse()
@@ -97,11 +115,11 @@ public final class Parser {
           res = Expr.makeList(exprs)
         }
         if !self.scanner.hasToken(.rparen) {
-          throw SyntaxError.closingParenthesisMissing
+          throw RuntimeError.syntax(.closingParenthesisMissing)
         }
       case .rparen:
         self.scanner.next()
-        throw SyntaxError.unexpectedClosingParenthesis
+        throw RuntimeError.syntax(.unexpectedClosingParenthesis)
       case .hashlparen:
         self.scanner.next()
         var exprs = Exprs()
@@ -109,7 +127,7 @@ public final class Parser {
           exprs.append(try self.parse())
         }
         guard self.scanner.hasToken(.rparen) else {
-          throw SyntaxError.closingParenthesisMissing
+          throw RuntimeError.syntax(.closingParenthesisMissing)
         }
         res = .vector(Collection(kind: .immutableVector, exprs: exprs))
       case .u8LPAREN:
@@ -118,13 +136,13 @@ public final class Parser {
         while self.scanner.hasToken(.int) {
           let number = self.scanner.token.intVal
           guard number >= 0 && number <= 255 else {
-            throw SyntaxError.notAByteValue
+            throw RuntimeError.syntax(.notAByteValue)
           }
           bytes.append(UInt8(number))
           self.scanner.next()
         }
         guard self.scanner.hasToken(.rparen) else {
-          throw SyntaxError.closingParenthesisMissing
+          throw RuntimeError.syntax(.closingParenthesisMissing)
         }
         res = .bytes(MutableBox(bytes))
       case .quote:
@@ -141,12 +159,17 @@ public final class Parser {
         return Expr.makeList(.symbol(symbols.unquoteSplicing), try self.parse())
       case .dot:
         self.scanner.next()
-        throw SyntaxError.unexpectedDot
+        throw RuntimeError.syntax(.unexpectedDot)
     }
     if prescan {
       self.scanner.next()
     }
     return res
   }
+  
+  /// Returns the source position of the current token.
+  private var sourcePosition: SourcePosition {
+    return SourcePosition(self.sourceId, self.scanner.lpos.line, self.scanner.lpos.col)
+  }
+  
 }
-

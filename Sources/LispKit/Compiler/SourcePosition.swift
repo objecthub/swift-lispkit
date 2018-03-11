@@ -20,8 +20,10 @@
 
 import Foundation
 
+///
 /// Struct `Position` represents a position in the scanned string in terms of a line and
 /// column number.
+///
 public struct SourcePosition: Equatable, Hashable, CustomStringConvertible {
   public let sourceId: UInt16
   public let line: UInt16
@@ -29,6 +31,9 @@ public struct SourcePosition: Equatable, Hashable, CustomStringConvertible {
   
   public static let unknownLine: UInt16 = 0
   public static let unknownColumn: UInt16 = 0
+  public static let unknown: SourcePosition = SourcePosition(SourceManager.unknownSourceId,
+                                                             SourcePosition.unknownLine,
+                                                             SourcePosition.unknownColumn)
   
   public init(_ sourceId: UInt16, _ line: UInt16, _ column: UInt16) {
     self.sourceId = sourceId
@@ -53,7 +58,11 @@ public struct SourcePosition: Equatable, Hashable, CustomStringConvertible {
   }
   
   public var isUnknown: Bool {
-    return self.line == SourcePosition.unknownLine
+    return self.sourceIsUnknown && self.lineIsUnknown
+  }
+  
+  public var lineIsUnknown: Bool {
+    return self.column == SourcePosition.unknownLine
   }
   
   public var columnIsUnknown: Bool {
@@ -73,12 +82,13 @@ public struct SourcePosition: Equatable, Hashable, CustomStringConvertible {
   
   public var description: String {
     return self.isUnknown ? ""
-                          : (self.columnIsUnknown ? "\(self.line)" : "\(self.line):\(self.column)")
+      : (self.columnIsUnknown ? "\(self.line)" : "\(self.line):\(self.column)")
   }
   
   public static func ==(lhs: SourcePosition, rhs: SourcePosition) -> Bool {
     return lhs.sourceId == rhs.sourceId &&
-           lhs.line == rhs.line &&
-           lhs.column == rhs.column
+      lhs.line == rhs.line &&
+      lhs.column == rhs.column
   }
 }
+

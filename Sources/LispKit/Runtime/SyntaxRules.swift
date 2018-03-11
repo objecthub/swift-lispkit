@@ -164,7 +164,7 @@ public final class SyntaxRules {
         return matches.get(sym, in: self.lexicalEnv)
       case .pair(.symbol(let s), let rest) where s.interned == self.ellipsis:
         guard case .pair(let car, _) = rest else {
-          throw EvalError.typeError(rest, [.pairType])
+          throw RuntimeError.type(rest, expected: [.pairType])
         }
         return self.instantiateRaw(template: car, with: matches)
       case .pair(_, _):
@@ -174,12 +174,12 @@ public final class SyntaxRules {
         while case .pair(let token, let rest) = templ {
           if case .pair(.symbol(let s), _) = rest, s.interned == self.ellipsis {
             if case .symbol(let s) = token, s.interned == self.ellipsis {
-              throw EvalError.macroMismatchedRepetitionPatterns(self.ellipsis)
+              throw RuntimeError.eval(.macroMismatchedRepetitionPatterns, .symbol(self.ellipsis))
             }
             repeater = token
           } else if case .symbol(let s) = token, s.interned == self.ellipsis {
             guard let repeaterTemplate = repeater else {
-              throw EvalError.macroMismatchedRepetitionPatterns(self.ellipsis)
+              throw RuntimeError.eval(.macroMismatchedRepetitionPatterns, .symbol(self.ellipsis))
             }
             try matches.instantiate(template: repeaterTemplate,
                                     with: self,
@@ -201,11 +201,11 @@ public final class SyntaxRules {
              case .symbol(let s) = vector.exprs[i + 1],
              s.interned == self.ellipsis {
             if case .symbol(let s) = vector.exprs[i], s.interned == self.ellipsis {
-              throw EvalError.macroMismatchedRepetitionPatterns(self.ellipsis)
+              throw RuntimeError.eval(.macroMismatchedRepetitionPatterns, .symbol(self.ellipsis))
             }
           } else if case .symbol(let s) = vector.exprs[i], s.interned == self.ellipsis {
             guard i > 0 else {
-              throw EvalError.macroMismatchedRepetitionPatterns(self.ellipsis)
+              throw RuntimeError.eval(.macroMismatchedRepetitionPatterns, .symbol(self.ellipsis))
             }
             try matches.instantiate(template: vector.exprs[i - 1],
                                     with: self,
@@ -331,7 +331,7 @@ private final class Matches: CustomStringConvertible {
         let s = tree.numChildren(depth)
         if s > 0 {
           guard res == 0 || res == s else {
-            throw EvalError.macroMismatchedRepetitionPatterns(sym)
+            throw RuntimeError.eval(.macroMismatchedRepetitionPatterns, .symbol(sym))
           }
           res = s
         }
@@ -477,3 +477,4 @@ private final class MatchTree: CustomStringConvertible {
     return res + ")"
   }
 }
+

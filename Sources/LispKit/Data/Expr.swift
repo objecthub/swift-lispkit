@@ -54,7 +54,7 @@ public enum Expr: Trackable, Hashable {
   case env(Environment)
   case port(Port)
   indirect case tagged(Expr, Expr)
-  case error(AnyError)
+  case error(RuntimeError)
   
   /// Returns the type of this expression.
   public var type: Type {
@@ -291,7 +291,8 @@ public enum Expr: Trackable, Hashable {
         case .tagged(let etag, let data):
           etag.mark(tag)
           expr = data
-        case .error(_):
+        case .error(let err):
+          err.mark(tag)
           return
         default:
           return
@@ -370,7 +371,9 @@ extension Expr {
 /// This extension adds projections to `Expr`.
 ///
 extension Expr {
-  @inline(__always) public func assertType(_ types: Type...) throws {
+  
+  @inline(__always)
+  public func assertType(at pos: SourcePosition = SourcePosition.unknown, _ types: Type...) throws {
     for type in types {
       for subtype in type.included {
         if self.type == subtype {
@@ -378,29 +381,31 @@ extension Expr {
         }
       }
     }
-    throw EvalError.typeError(self, Set(types))
+    throw RuntimeError.type(self, expected: Set(types)).at(pos)
   }
   
-  @inline(__always) public func asInt64() throws -> Int64 {
+  @inline(__always)
+  public func asInt64(at pos: SourcePosition = SourcePosition.unknown) throws -> Int64 {
     guard case .fixnum(let res) = self else {
-      throw EvalError.typeError(self, [.exactIntegerType])
+      throw RuntimeError.type(self, expected: [.exactIntegerType]).at(pos)
     }
     return res
   }
   
-  @inline(__always) public func asInt(below: Int = Int.max) throws -> Int {
+  @inline(__always)
+  public func asInt(below: Int = Int.max) throws -> Int {
     guard case .fixnum(let res) = self else {
-      throw EvalError.typeError(self, [.exactIntegerType])
+      throw RuntimeError.type(self, expected: [.exactIntegerType])
     }
     guard res >= 0 && res < Int64(below) else {
-      throw EvalError.indexOutOfBounds(res, Int64(below - 1))
+      throw RuntimeError.range(self, min: 0, max: below == Int.max ? Int64.max : Int64(below - 1))
     }
     return Int(res)
   }
   
   @inline(__always) public func asUInt8() throws -> UInt8 {
     guard case .fixnum(let number) = self , number >= 0 && number <= 255 else {
-      throw EvalError.typeError(self, [.byteType])
+      throw RuntimeError.type(self, expected: [.byteType])
     }
     return UInt8(number)
   }
@@ -410,7 +415,7 @@ extension Expr {
       if case .flonum(let num) = self {
         return num
       }
-      throw EvalError.typeError(self, [.floatType])
+      throw RuntimeError.type(self, expected: [.floatType])
     }
     switch self.normalized {
       case .fixnum(let num):
@@ -424,10 +429,10 @@ extension Expr {
       case .flonum(let num):
         return num
       default:
-        throw EvalError.typeError(self, [.realType])
+        throw RuntimeError.type(self, expected: [.realType])
     }
   }
-    
+  
   public func asComplex(coerce: Bool = false) throws -> Complex<Double> {
     if !coerce {
       switch self {
@@ -436,7 +441,7 @@ extension Expr {
         case .complex(let complex):
           return complex.value
         default:
-          throw EvalError.typeError(self, [.complexType])
+          throw RuntimeError.type(self, expected: [.complexType])
       }
     }
     switch self.normalized {
@@ -453,7 +458,7 @@ extension Expr {
       case .complex(let num):
         return num.value
       default:
-        throw EvalError.typeError(self, [.complexType])
+        throw RuntimeError.type(self, expected: [.complexType])
     }
   }
   
@@ -462,7 +467,7 @@ extension Expr {
       case .symbol(let sym):
         return sym
       default:
-        throw EvalError.typeError(self, [.symbolType])
+        throw RuntimeError.type(self, expected: [.symbolType])
     }
   }
   
@@ -477,94 +482,94 @@ extension Expr {
   
   @inline(__always) public func asUniChar() throws -> UniChar {
     guard case .char(let res) = self else {
-      throw EvalError.typeError(self, [.charType])
+      throw RuntimeError.type(self, expected: [.charType])
     }
     return res
   }
   
   @inline(__always) public func charAsString() throws -> String {
     guard case .char(let res) = self else {
-      throw EvalError.typeError(self, [.charType])
+      throw RuntimeError.type(self, expected: [.charType])
     }
     return String(unicodeScalar(res))
   }
   
   @inline(__always) public func asString() throws -> String {
     guard case .string(let res) = self else {
-      throw EvalError.typeError(self, [.strType])
+      throw RuntimeError.type(self, expected: [.strType])
     }
     return res as String
   }
   
   @inline(__always) public func asMutableStr() throws -> NSMutableString {
     guard case .string(let res) = self else {
-      throw EvalError.typeError(self, [.strType])
+      throw RuntimeError.type(self, expected: [.strType])
     }
     return res
   }
   
   @inline(__always) public func asPath() throws -> String {
     guard case .string(let res) = self else {
-      throw EvalError.typeError(self, [.strType])
+      throw RuntimeError.type(self, expected: [.strType])
     }
     return res.expandingTildeInPath
   }
   
   @inline(__always) public func asURL() throws -> URL {
     guard case .string(let res) = self else {
-      throw EvalError.typeError(self, [.strType])
+      throw RuntimeError.type(self, expected: [.strType])
     }
     guard let url = URL(string: res as String) else {
-      throw EvalError.invalidUrl(self)
+      throw RuntimeError.eval(.invalidUrl, self)
     }
     return url
   }
   
   @inline(__always) public func asByteVector() throws -> ByteVector {
     guard case .bytes(let bvector) = self else {
-      throw EvalError.typeError(self, [.byteVectorType])
+      throw RuntimeError.type(self, expected: [.byteVectorType])
     }
     return bvector
   }
   
   @inline(__always) public func vectorAsCollection() throws -> Collection {
     guard case .vector(let res) = self else {
-      throw EvalError.typeError(self, [.vectorType])
+      throw RuntimeError.type(self, expected: [.vectorType])
     }
     return res
   }
   
   @inline(__always) public func recordAsCollection() throws -> Collection {
     guard case .record(let res) = self else {
-      throw EvalError.typeError(self, [.recordType])
+      throw RuntimeError.type(self, expected: [.recordType])
     }
     return res
   }
   
   @inline(__always) public func asHashTable() throws -> HashTable {
     guard case .table(let map) = self else {
-      throw EvalError.typeError(self, [.tableType])
+      throw RuntimeError.type(self, expected: [.tableType])
     }
     return map
   }
   
   @inline(__always) public func asProcedure() throws -> Procedure {
     guard case .procedure(let proc) = self else {
-      throw EvalError.typeError(self, [.procedureType])
+      throw RuntimeError.type(self, expected: [.procedureType])
     }
     return proc
   }
   
   @inline(__always) public func asEnvironment() throws -> Environment {
     guard case .env(let environment) = self else {
-      throw EvalError.typeError(self, [.envType])
+      throw RuntimeError.type(self, expected: [.envType])
     }
     return environment
   }
   
   @inline(__always) public func asPort() throws -> Port {
     guard case .port(let port) = self else {
-      throw EvalError.typeError(self, [.portType])
+      throw RuntimeError.type(self, expected: [.portType])
     }
     return port
   }
@@ -841,7 +846,7 @@ extension Expr: CustomStringConvertible {
         case .tagged(let tag, let expr):
           return "#<tag \(stringReprOf(tag)): \(stringReprOf(expr))>"
         case .error(let error):
-          return "#<\(error.description)>"
+          return "#<\(error.inlineDescription)>"
       }
     }
     return stringReprOf(self)

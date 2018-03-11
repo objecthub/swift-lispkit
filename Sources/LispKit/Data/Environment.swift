@@ -191,7 +191,7 @@ public final class Environment: Reference, CustomStringConvertible {
   public var count: Int {
     return self.bindings.count
   }
-    
+  
   /// Returns an array of all the symbols bound in this environment.
   public var boundSymbols: [Symbol] {
     return [Symbol](self.bindings.keys)
@@ -329,7 +329,7 @@ public final class Environment: Reference, CustomStringConvertible {
   @discardableResult public func `import`(_ importSet: ImportSet) throws -> Library {
     // Cannot import into libraries
     if case .library(let lib) = self.kind {
-      throw EvalError.importInLibrary(lib)
+      throw RuntimeError.eval(.importInLibrary, lib)
     }
     return try self.initialImport(importSet)
   }
@@ -340,7 +340,7 @@ public final class Environment: Reference, CustomStringConvertible {
     // Expand the import set
     guard let (library, importSpec) = importSet.expand(in: self.context) else {
       // Could not expand import set
-      throw EvalError.cannotExpandImportSet(importSet)
+      throw RuntimeError.eval(.cannotExpandImportSet, .makeString(importSet.description))
     }
     // Make sure the library from which symbols are imported is wired
     _ = library.wire()
@@ -353,7 +353,9 @@ public final class Environment: Reference, CustomStringConvertible {
              .some(.immutableImport(_)):
           guard case .repl = self.kind else {
             // Cannot redefine a local binding with an import in a program
-            throw EvalError.erroneousRedefinition(impIdent, library)
+            throw RuntimeError.eval(.erroneousRedefinition,
+                                    .makeString(impIdent.description),
+                                    .makeString(library.description))
           }
         default:
           break
@@ -409,15 +411,15 @@ public final class Environment: Reference, CustomStringConvertible {
                                     tail: Bool) throws -> Bool {
     // Extract import spec
     guard case .pair(_, .pair(let importSpec, .null)) = expr else {
-      throw EvalError.argumentCountError(formals: 1, args: expr)
+      throw RuntimeError.argumentCount(of: "import", min: 1, max: 1, args: expr)
     }
     // Check that import is not executed in a local environment
-    if case .local(let group) = env {
-      throw EvalError.importInLocalEnv(importSpec, group)
+    if case .local(_) = env {
+      throw RuntimeError.eval(.importInLocalEnv, importSpec)
     }
     // Map import spec into an import set
     guard let importSet = ImportSet(importSpec, in: compiler.context) else {
-      throw EvalError.malformedImportSet(importSpec)
+      throw RuntimeError.eval(.malformedImportSet, importSpec)
     }
     // Import definitions into global environment and initialize the library; do this only
     // once (i.e. skip this step if its done in the second optimization compiler run)
@@ -430,3 +432,4 @@ public final class Environment: Reference, CustomStringConvertible {
     return false
   }
 }
+

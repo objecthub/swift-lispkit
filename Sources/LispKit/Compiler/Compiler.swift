@@ -262,7 +262,7 @@ public final class Compiler {
           self.emit(.pushGlobal(locRef.location!))
         }
       case .macroExpansionRequired(_):
-        throw EvalError.illegalKeywordUsage(.symbol(sym))
+        throw RuntimeError.eval(.illegalKeywordUsage, .symbol(sym))
     }
   }
   
@@ -393,7 +393,7 @@ public final class Compiler {
            .port(_), .tagged(_, _), .error(_):
         self.pushConstant(expr)
       case .special(_):
-        throw EvalError.illegalKeywordUsage(expr)
+        throw RuntimeError.eval(.illegalKeywordUsage, expr)
       case .values(_):
         preconditionFailure("cannot push multiple values onto stack")
     }
@@ -648,7 +648,7 @@ public final class Compiler {
       next = cdr
     }
     guard next.isNull else {
-      throw EvalError.typeError(expr, [.properListType])
+      throw RuntimeError.type(expr, expected: [.properListType])
     }
     return n
   }
@@ -687,7 +687,7 @@ public final class Compiler {
     }
     // Throw error if the sequence is not a proper list
     guard next.isNull else {
-      throw EvalError.typeError(expr, [.properListType])
+      throw RuntimeError.type(expr, expected: [.properListType])
     }
     // Identify internal definitions
     var i = 0
@@ -777,13 +777,13 @@ public final class Compiler {
     var prevIndex = -1
     while case .pair(let binding, let rest) = bindings {
       guard case .pair(.symbol(let sym), .pair(let expr, .null)) = binding else {
-        throw EvalError.malformedBindings(binding, bindingList)
+        throw RuntimeError.eval(.malformedBinding, binding, bindingList)
       }
       try self.compile(expr, in: env, inTailPos: false)
       self.patchMakeClosure(sym)
       let binding = group.allocBindingFor(sym)
       guard binding.index > prevIndex else {
-        throw EvalError.duplicateBinding(sym, bindingList)
+        throw RuntimeError.eval(.duplicateBinding, .symbol(sym), bindingList)
       }
       if postset {
         definitions.append(binding)
@@ -798,7 +798,7 @@ public final class Compiler {
       bindings = rest
     }
     guard bindings.isNull else {
-      throw EvalError.malformedBindings(nil, bindingList)
+      throw RuntimeError.eval(.malformedBindings, bindingList)
     }
     for binding in definitions.reversed() {
       if binding.isValue {
@@ -822,7 +822,7 @@ public final class Compiler {
     var prevIndex = -1
     while case .pair(let binding, let rest) = bindings {
       guard case .pair(let variables, .pair(let expr, .null)) = binding else {
-        throw EvalError.malformedBindings(binding, bindingList)
+        throw RuntimeError.eval(.malformedBinding, binding, bindingList)
       }
       try self.compile(expr, in: env, inTailPos: false)
       var vars = variables
@@ -844,12 +844,12 @@ public final class Compiler {
           }
           prevIndex = binding.index
         default:
-          throw EvalError.malformedBindings(binding, bindingList)
+          throw RuntimeError.eval(.malformedBinding, binding, bindingList)
       }
       for sym in syms.reversed() {
         let binding = group.allocBindingFor(sym)
         guard binding.index > prevIndex else {
-          throw EvalError.duplicateBinding(sym, bindingList)
+          throw RuntimeError.eval(.duplicateBinding, .symbol(sym), bindingList)
         }
         if binding.isValue {
           self.emit(.setLocal(binding.index))
@@ -861,7 +861,7 @@ public final class Compiler {
       bindings = rest
     }
     guard bindings.isNull else {
-      throw EvalError.malformedBindings(nil, bindingList)
+      throw RuntimeError.eval(.malformedBindings, bindingList)
     }
     return group
   }
@@ -893,22 +893,22 @@ public final class Compiler {
     var bindings = bindingList
     while case .pair(let binding, let rest) = bindings {
       guard case .pair(.symbol(let sym), .pair(let transformer, .null)) = binding else {
-        throw EvalError.malformedBindings(binding, bindingList)
+        throw RuntimeError.eval(.malformedBinding, binding, bindingList)
       }
       let procExpr = try self.context.machine.compileAndEval(expr: transformer,
                                                              in: env.syntacticalEnv,
                                                              usingRulesEnv: env)
       guard case .procedure(let proc) = procExpr else {
-        throw EvalError.malformedTransformer(transformer) //FIXME: Find better error message
+        throw RuntimeError.eval(.malformedTransformer, transformer) //FIXME: Find better error message
       }
       guard group.bindingFor(sym) == nil else {
-        throw EvalError.duplicateBinding(sym, bindingList)
+        throw RuntimeError.eval(.duplicateBinding, .symbol(sym), bindingList)
       }
       group.defineMacro(sym, proc: proc)
       bindings = rest
     }
     guard bindings.isNull else {
-      throw EvalError.malformedBindings(nil, bindingList)
+      throw RuntimeError.eval(.malformedBindings, bindingList)
     }
     return group
   }
@@ -933,7 +933,7 @@ public final class Compiler {
         closureCompiler.emit(.collectRest(arguments.count))
         arguments.allocBindingFor(sym)
       default:
-        throw EvalError.malformedArgumentList(arglist)
+        throw RuntimeError.eval(.malformedArgumentList, arglist)
     }
     closureCompiler.arguments = arguments
     closureCompiler.env = .local(arguments)
@@ -990,7 +990,7 @@ public final class Compiler {
           closureCompiler.emit(.collectRest(arguments.count))
           arguments.allocBindingFor(sym)
         default:
-          throw EvalError.malformedArgumentList(args)
+          throw RuntimeError.eval(.malformedArgumentList, args)
       }
       closureCompiler.arguments = arguments
       closureCompiler.env = .local(arguments)
@@ -1016,7 +1016,7 @@ public final class Compiler {
       case .null:
         closureCompiler.emit(.noMatchingArgCount)
       default:
-        throw EvalError.malformedCaseLambda(current)
+        throw RuntimeError.eval(.malformedCaseLambda, current)
     }
     // Link compiled closure in the current compiler
     let codeIndex = self.fragments.count

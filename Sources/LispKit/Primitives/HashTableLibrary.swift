@@ -22,7 +22,7 @@ import Foundation
 
 ///
 /// Hashtable library: based on R6RS spec.
-/// 
+///
 public final class HashTableLibrary: NativeLibrary {
   
   private static let equalHashProc = Procedure("equal-hash", HashTableLibrary.equalHashVal)
@@ -183,8 +183,11 @@ public final class HashTableLibrary: NativeLibrary {
   
   func makeHashTable(_ capacity: Expr, _ eql: Expr, _ hsh: Expr, _ args: Arguments) throws -> Expr {
     guard args.count == 3 else {
-      throw EvalError.argumentCountError(
-        formals: 6, args: .pair(capacity, .pair(eql, .pair(hsh, .makeList(args)))))
+      throw RuntimeError.argumentCount(
+        of: "make-hashtable",
+        min: 6,
+        max: 6,
+        args: .pair(capacity, .pair(eql, .pair(hsh, .makeList(args)))))
     }
     let numBuckets = try capacity.asInt()
     let eqlProc = try eql.asProcedure()
@@ -283,7 +286,7 @@ public final class HashTableLibrary: NativeLibrary {
     let key = args[args.startIndex + 1]
     let value = args[args.startIndex + 2]
     guard map.mutable else {
-      throw EvalError.attemptToModifyImmutableData(.table(map))
+      throw RuntimeError.eval(.attemptToModifyImmutableData, .table(map))
     }
     guard case .custom(let procs) = map.equiv else {
       guard map.add(key: key, mapsTo: value) else {
@@ -303,7 +306,7 @@ public final class HashTableLibrary: NativeLibrary {
     let map = try args.first!.asHashTable()
     let key = args[args.startIndex + 1]
     guard map.mutable else {
-      throw EvalError.attemptToModifyImmutableData(.table(map))
+      throw RuntimeError.eval(.attemptToModifyImmutableData, .table(map))
     }
     guard case .custom(let procs) = map.equiv else {
       guard let res = map.remove(key: key) else {
@@ -325,7 +328,7 @@ public final class HashTableLibrary: NativeLibrary {
   func hashTableClear(_ expr: Expr, k: Expr?) throws -> Expr {
     let map = try expr.asHashTable()
     guard map.mutable else {
-      throw EvalError.attemptToModifyImmutableData(.table(map))
+      throw RuntimeError.eval(.attemptToModifyImmutableData, .table(map))
     }
     guard try map.clear(k?.asInt()) else {
       preconditionFailure("trying to clear immutable hash map")
@@ -338,7 +341,7 @@ public final class HashTableLibrary: NativeLibrary {
     let map1 = try args.first!.asHashTable()
     let map2 = try args[args.startIndex + 1].asHashTable()
     guard map1.mutable else {
-      throw EvalError.attemptToModifyImmutableData(.table(map1))
+      throw RuntimeError.eval(.attemptToModifyImmutableData, .table(map1))
     }
     guard case .custom(_) = map1.equiv else {
       guard map1.union(map2) else {
@@ -354,7 +357,7 @@ public final class HashTableLibrary: NativeLibrary {
     let map1 = try args.first!.asHashTable()
     let map2 = try args[args.startIndex + 1].asHashTable()
     guard map1.mutable else {
-      throw EvalError.attemptToModifyImmutableData(.table(map1))
+      throw RuntimeError.eval(.attemptToModifyImmutableData, .table(map1))
     }
     guard case .custom(_) = map1.equiv else {
       guard map1.difference(map2, intersect: true) else {
@@ -370,7 +373,7 @@ public final class HashTableLibrary: NativeLibrary {
     let map1 = try args.first!.asHashTable()
     let map2 = try args[args.startIndex + 1].asHashTable()
     guard map1.mutable else {
-      throw EvalError.attemptToModifyImmutableData(.table(map1))
+      throw RuntimeError.eval(.attemptToModifyImmutableData, .table(map1))
     }
     guard case .custom(_) = map1.equiv else {
       guard map1.difference(map2, intersect: false) else {
@@ -403,7 +406,7 @@ public final class HashTableLibrary: NativeLibrary {
   func hashTableValueList(_ expr: Expr) throws -> Expr {
     return try expr.asHashTable().valueList()
   }
-    
+  
   func hashTableToAlist(_ expr: Expr) throws -> Expr {
     return try expr.asHashTable().entryList()
   }
@@ -420,7 +423,7 @@ public final class HashTableLibrary: NativeLibrary {
       list = cdr
     }
     guard list.isNull else {
-      throw EvalError.typeError(expr, [.assocListType])
+      throw RuntimeError.type(expr, expected: [.assocListType])
     }
   }
   
@@ -480,21 +483,21 @@ public final class HashTableLibrary: NativeLibrary {
   
   func stringHashVal(_ expr: Expr) throws -> Expr {
     guard case .string(_) = expr else {
-      throw EvalError.typeError(expr, [.strType])
+      throw RuntimeError.type(expr, expected: [.strType])
     }
     return .fixnum(Int64(expr.hashValue))
   }
   
   func stringCiHashVal(_ expr: Expr) throws -> Expr {
     guard case .string(let str) = expr else {
-      throw EvalError.typeError(expr, [.strType])
+      throw RuntimeError.type(expr, expected: [.strType])
     }
     return .fixnum(Int64(str.lowercased.hashValue))
   }
   
   func symbolHashVal(_ expr: Expr) throws -> Expr {
     guard case .symbol(_) = expr else {
-      throw EvalError.typeError(expr, [.symbolType])
+      throw RuntimeError.type(expr, expected: [.symbolType])
     }
     return .fixnum(Int64(expr.hashValue))
   }
@@ -510,7 +513,7 @@ public final class HashTableLibrary: NativeLibrary {
   
   private func hBucketAdd(_ expr: Expr, hval: Expr, key: Expr, value: Expr) throws -> Expr {
     guard case .table(let map) = expr else {
-      throw EvalError.typeError(expr, [.tableType])
+      throw RuntimeError.type(expr, expected: [.tableType])
     }
     if !key.isAtom || !value.isAtom {
       self.context.objects.manage(map)
@@ -521,9 +524,10 @@ public final class HashTableLibrary: NativeLibrary {
   
   private func hBucketRepl(_ expr: Expr, hval: Expr, bucket: Expr) throws -> Expr {
     guard case .table(let map) = expr else {
-      throw EvalError.typeError(expr, [.tableType])
+      throw RuntimeError.type(expr, expected: [.tableType])
     }
     map.replace(Int(try hval.asInt64() % Int64(map.bucketCount)), bucket)
     return .void
   }
 }
+

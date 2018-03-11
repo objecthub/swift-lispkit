@@ -133,7 +133,7 @@ public final class StringLibrary: NativeLibrary {
       list = next
     }
     guard list.isNull else {
-      throw EvalError.typeError(strings, [.properListType])
+      throw RuntimeError.type(strings, expected: [.properListType])
     }
     return .fixnum(Int64(n))
   }
@@ -143,7 +143,11 @@ public final class StringLibrary: NativeLibrary {
     let k = try index.asInt()
     let i = str.index(str.startIndex, offsetBy: k)
     guard i < str.endIndex else {
-      throw EvalError.indexOutOfBounds(Int64(k), Int64(str.count - 1))
+      throw RuntimeError.range(parameter: 2,
+                               of: "string-ref",
+                               index,
+                               min: 0,
+                               max: Int64(str.count - 1))
     }
     return .char(str[i])
   }
@@ -162,7 +166,7 @@ public final class StringLibrary: NativeLibrary {
       list = next
     }
     guard list.isNull else {
-      throw EvalError.typeError(strings, [.properListType])
+      throw RuntimeError.type(strings, expected: [.properListType])
     }
     return .makeList(res)
   }
@@ -190,7 +194,7 @@ public final class StringLibrary: NativeLibrary {
       list = next
     }
     guard list.isNull else {
-      throw EvalError.typeError(expr, [.properListType])
+      throw RuntimeError.type(expr, expected: [.properListType])
     }
     return .string(res)
   }
@@ -343,7 +347,10 @@ public final class StringLibrary: NativeLibrary {
   func stringToList(_ expr: Expr, args: Arguments) throws -> Expr {
     let str = try expr.asString().utf16
     guard let (s, e) = args.optional(Expr.makeNumber(0), Expr.makeNumber(str.count)) else {
-      throw EvalError.argumentCountError(formals: 2, args: .pair(expr, .makeList(args)))
+      throw RuntimeError.argumentCount(of: "string->list",
+                                       min: 1,
+                                       max: 3,
+                                       args: .pair(expr, .makeList(args)))
     }
     var end = try e.asInt(below: str.count + 1)
     let start = try s.asInt(below: end + 1)
@@ -365,7 +372,7 @@ public final class StringLibrary: NativeLibrary {
       list = next
     }
     guard list.isNull else {
-      throw EvalError.typeError(expr, [.properListType])
+      throw RuntimeError.type(expr, expected: [.properListType])
     }
     return .string(NSMutableString(string: String(utf16CodeUnits: uniChars, count: uniChars.count)))
   }
@@ -392,8 +399,10 @@ public final class StringLibrary: NativeLibrary {
     let str = try expr.asMutableStr()
     let from = try sub.asString()
     guard let (s, e) = args.optional(Expr.makeNumber(0), Expr.makeNumber(str.length)) else {
-      throw EvalError.argumentCountError(formals: 4,
-                                         args: .pair(expr, .pair(sub, .makeList(args))))
+      throw RuntimeError.argumentCount(of: "string-contains",
+                                       min: 2,
+                                       max: 4,
+                                       args: .pair(expr, .pair(sub, .makeList(args))))
     }
     let end = try e.asInt(below: str.length + 1)
     let start = try s.asInt(below: end + 1)
@@ -410,8 +419,10 @@ public final class StringLibrary: NativeLibrary {
     let from = try sub.asString()
     let to = try repl.asString()
     guard let (s, e) = args.optional(Expr.makeNumber(0), Expr.makeNumber(str.length)) else {
-      throw EvalError.argumentCountError(formals: 5,
-        args: .pair(expr, .pair(sub, .pair(repl, .makeList(args)))))
+      throw RuntimeError.argumentCount(of: "string-replace!",
+                                       min: 3,
+                                       max: 5,
+                                       args: .pair(expr, .pair(sub, .pair(repl, .makeList(args)))))
     }
     let end = try e.asInt(below: str.length + 1)
     let start = try s.asInt(below: end + 1)
@@ -430,8 +441,10 @@ public final class StringLibrary: NativeLibrary {
     let from = try sub.asString()
     let to = try repl.asString()
     guard let (s, e) = args.optional(Expr.makeNumber(0), Expr.makeNumber(str.length)) else {
-      throw EvalError.argumentCountError(formals: 5,
-                                         args: .pair(expr, .pair(sub, .pair(repl, .makeList(args)))))
+      throw RuntimeError.argumentCount(of: "string-replace-first!",
+                                       min: 3,
+                                       max: 5,
+                                       args: .pair(expr, .pair(sub, .pair(repl, .makeList(args)))))
     }
     let end = try e.asInt(below: str.length + 1)
     let start = try s.asInt(below: end + 1)
@@ -448,8 +461,10 @@ public final class StringLibrary: NativeLibrary {
     let str = try expr.asMutableStr()
     let to = try repl.asString()
     guard let (s, e) = args.optional(Expr.makeNumber(0), Expr.makeNumber(str.length)) else {
-      throw EvalError.argumentCountError(formals: 4,
-                                         args: .pair(expr, .pair(repl, .makeList(args))))
+      throw RuntimeError.argumentCount(of: "string-insert!",
+                                       min: 2,
+                                       max: 4,
+                                       args: .pair(expr, .pair(repl, .makeList(args))))
     }
     let end = try e.asInt(below: str.length + 1)
     let start = try s.asInt(below: end + 1)
@@ -460,7 +475,10 @@ public final class StringLibrary: NativeLibrary {
   func stringCopy(_ expr: Expr, args: Arguments) throws -> Expr {
     let str = try expr.asString().utf16
     guard let (s, e) = args.optional(Expr.makeNumber(0), Expr.makeNumber(str.count)) else {
-      throw EvalError.argumentCountError(formals: 2, args: .pair(expr, .makeList(args)))
+      throw RuntimeError.argumentCount(of: "string-copy",
+                                       min: 1,
+                                       max: 3,
+                                       args: .pair(expr, .makeList(args)))
     }
     let end = try e.asInt(below: str.count + 1)
     let start = try s.asInt(below: end + 1)
@@ -482,7 +500,11 @@ public final class StringLibrary: NativeLibrary {
     let target = try expr.asMutableStr()
     let str = try from.asString().utf16
     guard let (s, e) = args.optional(Expr.makeNumber(0), Expr.makeNumber(str.count)) else {
-      throw EvalError.argumentCountError(formals: 2, args: .pair(expr, .makeList(args)))
+      throw RuntimeError.argumentCount(
+        of: "string-copy!",
+        min: 3,
+        max: 5,
+        args: .pair(expr, .pair(index, .pair(from, .makeList(args)))))
     }
     let end = try e.asInt(below: str.count + 1)
     var ei = str.index(str.startIndex, offsetBy: end)
@@ -503,7 +525,10 @@ public final class StringLibrary: NativeLibrary {
   func stringFill(_ expr: Expr, _ ch: Expr, _ args: Arguments) throws -> Expr {
     let str = try expr.asMutableStr()
     guard let (s, e) = args.optional(Expr.makeNumber(0), Expr.makeNumber(str.length)) else {
-      throw EvalError.argumentCountError(formals: 2, args: .pair(expr, .makeList(args)))
+      throw RuntimeError.argumentCount(of: "string-fill!",
+                                       min: 2,
+                                       max: 4,
+                                       args: .pair(expr, .pair(ch, .makeList(args))))
     }
     let end = try e.asInt(below: str.length + 1)
     let start = try s.asInt(below: end + 1)
@@ -545,3 +570,4 @@ public final class StringLibrary: NativeLibrary {
     }
   }
 }
+

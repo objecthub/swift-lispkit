@@ -20,7 +20,7 @@
 
 ///
 /// Record library: based on R7RS spec.
-/// 
+///
 public final class RecordLibrary: NativeLibrary {
   
   /// Name of the library.
@@ -124,13 +124,13 @@ public final class RecordLibrary: NativeLibrary {
     var current = fields
     while case .pair(let sym, let next) = current {
       guard case .symbol(_) = sym else {
-        throw EvalError.typeError(sym, [.symbolType])
+        throw RuntimeError.type(sym, expected: [.symbolType])
       }
       numFields += 1
       current = next
     }
     guard case .null = current else {
-      throw EvalError.typeError(fields, [.properListType])
+      throw RuntimeError.type(fields, expected: [.properListType])
     }
     // Return record type
     return .record(Collection(kind: .recordType, exprs: [name, .makeNumber(numFields), fields]))
@@ -160,7 +160,7 @@ public final class RecordLibrary: NativeLibrary {
     switch name {
       case .symbol(let field):
         guard let index = self.indexOfField(field, in: record.exprs[2]) else {
-          throw EvalError.unknownFieldOfRecordType(expr, field)
+          throw RuntimeError.eval(.unknownFieldOfRecordType, expr, name)
         }
         return .makeNumber(index)
       case .null:
@@ -171,17 +171,17 @@ public final class RecordLibrary: NativeLibrary {
         while case .pair(let sym, let next) = current {
           let field = try sym.asSymbol()
           guard let index = self.indexOfField(field, in: record.exprs[2]) else {
-            throw EvalError.unknownFieldOfRecordType(expr, field)
+            throw RuntimeError.eval(.unknownFieldOfRecordType, expr, sym)
           }
           indices.append(.makeNumber(index))
           current = next
         }
         guard current.isNull else {
-          throw EvalError.typeError(name, [.properListType])
+          throw RuntimeError.type(name, expected: [.properListType])
         }
         return .makeList(indices)
       default:
-        throw EvalError.typeError(name, [.symbolType])
+        throw RuntimeError.type(name, expected: [.symbolType])
     }
   }
   
@@ -214,7 +214,10 @@ public final class RecordLibrary: NativeLibrary {
     let record = try expr.recordAsCollection()
     let idx = try index.asInt()
     guard idx >= 0 && idx < record.exprs.count else {
-      throw EvalError.indexOutOfBounds(Int64(idx), Int64(record.exprs.count - 1))
+      throw RuntimeError.range(parameter: 2,
+                               of: "record-ref",
+                               index, min: 0,
+                               max: Int64(record.exprs.count - 1))
     }
     return record.exprs[idx]
   }
@@ -222,19 +225,23 @@ public final class RecordLibrary: NativeLibrary {
   func recordSet(_ expr: Expr, index: Expr, value: Expr) throws -> Expr {
     let record = try expr.recordAsCollection()
     guard case .record(_) = record.kind else {
-      throw EvalError.attemptToModifyImmutableData(expr)
+      throw RuntimeError.eval(.attemptToModifyImmutableData, expr)
     }
     switch index {
       case .fixnum(let idx):
         guard idx >= 0 && idx < Int64(record.exprs.count) else {
-          throw EvalError.indexOutOfBounds(idx, Int64(record.exprs.count - 1))
+          throw RuntimeError.range(parameter: 2,
+                                   of: "record-set!",
+                                   index,
+                                   min: 0,
+                                   max: Int64(record.exprs.count - 1))
         }
         // Set record field value. Guarantee that cells for which `record-set!` is called are
         // managed by a managed object pool.
         (value.isAtom ? record : self.context.objects.manage(record)).exprs[Int(idx)] = value
       case .null:
         guard value.isNull else {
-          throw EvalError.fieldCountError(0, value)
+          throw RuntimeError.eval(.fieldCountError, .makeNumber(0), value)
         }
       case .pair(_, _):
         var allSimple = true
@@ -243,14 +250,18 @@ public final class RecordLibrary: NativeLibrary {
         var currentValue = value
         while case .pair(.fixnum(let idx), let nextIndex) = currentIndex {
           guard idx >= 0 && idx < Int64(record.exprs.count) else {
-            throw EvalError.indexOutOfBounds(idx, Int64(record.exprs.count - 1))
+            throw RuntimeError.range(parameter: 2,
+                                     of: "record-set!",
+                                     index,
+                                     min: 0,
+                                     max: Int64(record.exprs.count - 1))
           }
           guard case .pair(let v, let nextValue) = currentValue else {
             while case .pair(_, let nextIndex) = currentIndex {
               numFields += 1
               currentIndex = nextIndex
             }
-            throw EvalError.fieldCountError(numFields, value)
+            throw RuntimeError.eval(.fieldCountError, .makeNumber(numFields), value)
           }
           record.exprs[Int(idx)] = v
           // Guarantee that we manage this record by a managed object pool if there was at least
@@ -264,13 +275,13 @@ public final class RecordLibrary: NativeLibrary {
           currentValue = nextValue
         }
         guard currentIndex.isNull else {
-          throw EvalError.typeError(index, [.properListType])
+          throw RuntimeError.type(index, expected: [.properListType])
         }
         guard currentValue.isNull else {
-          throw EvalError.fieldCountError(numFields, value)
+          throw RuntimeError.eval(.fieldCountError, .makeNumber(numFields), value)
         }
       default:
-        throw EvalError.typeError(index, [.exactIntegerType])
+        throw RuntimeError.type(index, expected: [.exactIntegerType])
     }
     return .void
   }
