@@ -49,9 +49,9 @@ _LispKit_ provides support for the following core features, many of which are ba
     `(scheme eval)`, `(scheme file)`, `(scheme inexact)`, `(scheme lazy)`, `(scheme load)`,
     `(scheme process-context)`, `(scheme read)`, `(scheme repl)`, `(scheme time)`, `(scheme write)`,
     `(scheme r5rs)`
-  - LispKit-specific libraries: `(lispkit datatype)`, `(lispkit object)`, `(lispkit enum)`,
-    `(lispkit iteration)`, `(lispkit set)`, `(lispkit stack)`, `(lispkit queue)`, `(lispkit heap)`,
-    `(lispkit wt-tree)`, `(lispkit prettify)`, `(lispkit json)`,
+  - LispKit-specific libraries: `(lispkit test)`, `(lispkit datatype)`, `(lispkit object)`, `(lispkit enum)`,
+    `(lispkit logic)`, `(lispkit iteration)`, `(lispkit set)`, `(lispkit stack)`, `(lispkit queue)`,
+    `(lispkit heap)`, `(lispkit wt-tree)`, `(lispkit prettify)`, `(lispkit json)`,
     and `(lispkit pdf)`
 
 _LispKit_ is incompatible or incomplete with respect to the following R7RS features:
@@ -86,7 +86,10 @@ framework:
   - [SRFI 133: Vector Library](https://srfi.schemers.org/srfi-133/srfi-133.html)
   - [SRFI 134: Immutable Deques](https://srfi.schemers.org/srfi-134/srfi-134.html)
   - [SRFI 135: Immutable Texts](https://srfi.schemers.org/srfi-135/srfi-135.html)
+  - [SRFI 137: Minimal Unique Types](https://srfi.schemers.org/srfi-137/srfi-137.html)]
   - [SRFI 142: Bitwise Operations](https://srfi.schemers.org/srfi-142/srfi-142.html)
+  - [SRFI 145: Assumptions](https://srfi.schemers.org/srfi-145/srfi-145.html)
+  - [SRFI 151: Bitwise Operations](https://srfi.schemers.org/srfi-151/srfi-151.html)
   - [SRFI 152: String Library](https://srfi.schemers.org/srfi-152/srfi-152.html)
   - [SRFI 158: Generators and Accumulators](https://srfi.schemers.org/srfi-158/srfi-158.html)
 
