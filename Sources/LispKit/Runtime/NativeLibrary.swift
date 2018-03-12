@@ -178,6 +178,12 @@ open class NativeLibrary: Library {
     return self.define(proc.name, as: .procedure(proc), export: export)
   }
   
+  /// Declares a new special form using the internal name of `spec`.
+  /// The optional parameter `export` determines whether the definition is exported or internal.
+  @discardableResult public func define(_ spec: SpecialForm, export: Bool = true) -> Int {
+    return self.define(spec.name, as: .special(spec), export: export)
+  }
+  
   /// Declares a new definition for the given procedure `proc` and name `name`. The optional
   /// parameter `export` determines whether the definition is exported or internal.
   @discardableResult public func define(_ name: String,

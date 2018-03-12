@@ -1018,7 +1018,7 @@ public final class VirtualMachine: TrackedObject {
             case .uninit(let sym):
               throw RuntimeError.eval(.variableNotYetInitialized, .symbol(sym))
             case .special(_):
-              throw RuntimeError.eval(.illegalKeywordUsage, .undef) // TODO: can this really happen?
+              throw RuntimeError.eval(.illegalKeywordUsage, value)
             default:
               self.push(value)
           }
@@ -1194,7 +1194,7 @@ public final class VirtualMachine: TrackedObject {
           guard case .procedure(let proc) = transformer else {
             throw RuntimeError.eval(.malformedTransformer, transformer)
           }
-          self.push(.special(SpecialForm(proc)))
+          self.push(.special(SpecialForm(nil, proc)))
         case .compile:
           let environment = try self.pop().asEnvironment()
           let code = try Compiler.compile(expr: .makeList(self.pop()),

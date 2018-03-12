@@ -86,7 +86,7 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("loaded-libraries", self.loadedLibraries))
     self.define(Procedure("loaded-sources", self.loadedSources))
     self.define(Procedure("environment-info", self.environmentInfo))
-    self.define("time", as: SpecialForm(self.compileTime))
+    self.define(SpecialForm("time", self.compileTime))
     self.define(Procedure("seconds-from-gmt", self.secondsFromGmt))
     self.define(Procedure("current-second", self.currentSecond))
     self.define(Procedure("current-jiffy", self.currentJiffy))

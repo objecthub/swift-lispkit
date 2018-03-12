@@ -818,7 +818,7 @@ extension Expr: CustomStringConvertible {
               return "#<procedure \(proc.name)>"
           }
         case .special(let special):
-          return "#<special \(special.identityString)>"
+          return "#<special \(special.name)>"
         case .env(let environment):
           var type: String = ""
           switch environment.kind {

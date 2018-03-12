@@ -41,32 +41,32 @@ public final class BaseLibrary: NativeLibrary {
     self.define(Procedure("equal?", isEqual, compileEqual))
     self.define(Procedure("eqv?", isEqv, compileEqv))
     self.define(Procedure("eq?", isEq, compileEq))
-    self.define("quote", as: SpecialForm(compileQuote))
-    self.define("quasiquote", as: SpecialForm(compileQuasiquote))
-    self.define("lambda", as: SpecialForm(compileLambda))
-    self.define("case-lambda", as: SpecialForm(compileCaseLambda))
+    self.define(SpecialForm("quote", compileQuote))
+    self.define(SpecialForm("quasiquote", compileQuasiquote))
+    self.define(SpecialForm("lambda", compileLambda))
+    self.define(SpecialForm("case-lambda", compileCaseLambda))
     
     // Definition primitives
-    self.define("define", as: SpecialForm(compileDefine))
-    self.define("define-values", as: SpecialForm(compileDefineValues))
-    self.define("define-syntax", as: SpecialForm(compileDefineSyntax))
-    self.define("define-library", as: SpecialForm(compileDefineLibrary))
-    self.define("syntax-rules", as: SpecialForm(compileSyntaxRules))
-    self.define("set!", as: SpecialForm(compileSet))
+    self.define(SpecialForm("define", compileDefine))
+    self.define(SpecialForm("define-values", compileDefineValues))
+    self.define(SpecialForm("define-syntax", compileDefineSyntax))
+    self.define(SpecialForm("define-library", compileDefineLibrary))
+    self.define(SpecialForm("syntax-rules", compileSyntaxRules))
+    self.define(SpecialForm("set!", compileSet))
     
     // Delayed execution
     self.define(Procedure("promise?", isPromise))
     self.define(Procedure("make-promise", makePromise))
     self.define(Procedure("eager", makePromise))
-    self.define("delay", as: SpecialForm(compileDelay))
-    self.define("delay-force", as: SpecialForm(compileDelayForce))
-    self.define("lazy", as: SpecialForm(compileDelayForce))
+    self.define(SpecialForm("delay", compileDelay))
+    self.define(SpecialForm("delay-force", compileDelayForce))
+    self.define(SpecialForm("lazy", compileDelayForce))
     self.define(Procedure("stream?", isStream))
     self.define(Procedure("make-stream", makeStream))
     self.define(Procedure("stream-eager", makeStream))
-    self.define("stream-delay", as: SpecialForm(compileStreamDelay))
-    self.define("stream-delay-force", as: SpecialForm(compileStreamDelayForce))
-    self.define("stream-lazy", as: SpecialForm(compileStreamDelayForce))
+    self.define(SpecialForm("stream-delay", compileStreamDelay))
+    self.define(SpecialForm("stream-delay-force", compileStreamDelayForce))
+    self.define(SpecialForm("stream-lazy", compileStreamDelayForce))
     self.define(Procedure("force", compileForce, in: self.context))
     
     // Symbol primitives
@@ -79,14 +79,14 @@ public final class BaseLibrary: NativeLibrary {
     // Boolean primitives
     self.define(Procedure("boolean?", isBoolean))
     self.define(Procedure("boolean=?", isBooleanEq))
-    self.define("and", as: SpecialForm(compileAnd))
-    self.define("or", as: SpecialForm(compileOr))
+    self.define(SpecialForm("and", compileAnd))
+    self.define(SpecialForm("or", compileOr))
     self.define(Procedure("not", not, compileNot))
     
     // Conditional & inclusion compilation
-    self.define("cond-expand", as: SpecialForm(compileCondExpand))
-    self.define("include", as: SpecialForm(include))
-    self.define("include-ci", as: SpecialForm(includeCi))
+    self.define(SpecialForm("cond-expand", compileCondExpand))
+    self.define(SpecialForm("include", include))
+    self.define(SpecialForm("include-ci", includeCi))
     
     // Multiple values
     self.define(Procedure("values", values, compileValues))
@@ -102,7 +102,7 @@ public final class BaseLibrary: NativeLibrary {
     self.define(Procedure("interaction-environment", interactionEnvironment))
     
     // Syntax errors
-    self.define("syntax-error", as: SpecialForm(compileSyntaxError))
+    self.define(SpecialForm("syntax-error", compileSyntaxError))
     
     // Helpers
     self.define(Procedure("void", BaseLibrary.voidConst))

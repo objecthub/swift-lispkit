@@ -261,7 +261,7 @@ public final class Procedure: Reference, CustomStringConvertible {
     }
   }
   
-  /// Returns the original name of this procedure if it exists and is known. This method either
+  /// Returns the original name of this procedure if it exists and is known.
   public var originalName: String? {
     switch self.kind {
       case .primitive(let str, _, _):

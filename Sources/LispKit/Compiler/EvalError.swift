@@ -85,7 +85,7 @@ public enum EvalError: Int, Hashable {
   public var message: String {
     switch self {
       case .illegalKeywordUsage:
-        return "syntactic keywords may not be used as expressions: $0"
+        return "illegal usage of syntactic keyword as expression: $0"
       case .illegalFormalParameter:
         return "illegal formal parameter: $0"
       case .illegalFormalRestParameter:

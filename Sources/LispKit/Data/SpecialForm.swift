@@ -35,14 +35,20 @@ public final class SpecialForm: Reference, CustomStringConvertible {
   /// Special form kind
   internal let kind: Kind
   
+  /// Original name of the special form, if available; this is the name of the special
+  /// form at definition time.
+  public let originalName: String?
+  
   /// Initializer for primitive special forms
-  public init(_ compiler: @escaping FormCompiler) {
+  public init(_ name: String?, _ compiler: @escaping FormCompiler) {
     self.kind = .primitive(compiler)
+    self.originalName = name
   }
   
   /// Initializer for special forms based on macro transformers
-  public init(_ transformer: Procedure) {
+  public init(_ name: String?, _ transformer: Procedure) {
     self.kind = .macro(transformer)
+    self.originalName = name
   }
   
   public func mark(_ tag: UInt8) {
@@ -54,8 +60,23 @@ public final class SpecialForm: Reference, CustomStringConvertible {
     }
   }
   
+  /// Returns the name of this special form. This method either returns the name of a primitive
+  /// special form or a macro transformer. If the name isn't available, the identity is returned
+  /// as a hex string.
+  public var name: String {
+    guard let originalName = self.originalName else {
+      return self.identityString
+    }
+    switch self.kind {
+      case .primitive(_):
+        return originalName
+      case .macro(_):
+        return "\(originalName)@\(self.identityString)"
+    }
+  }
+  
   /// A textual description
   public var description: String {
-    return "special:\(self.identityString)"
+    return "special:" + self.name
   }
 }

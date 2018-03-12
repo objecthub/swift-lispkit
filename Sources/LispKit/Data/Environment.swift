@@ -110,7 +110,9 @@ public final class Environment: Reference, CustomStringConvertible {
     self.bindings = [:]
     super.init()
     self.box = WeakBox(self)
-    self.define(context.symbols.`import`, as: .special(SpecialForm(Environment.compileImport)))
+    self.define(context.symbols.`import`,
+                as: .special(SpecialForm(context.symbols.`import`.description,
+                                         Environment.compileImport)))
   }
   
   /// Initializes an empty environment for executing a program read from `filename`.
