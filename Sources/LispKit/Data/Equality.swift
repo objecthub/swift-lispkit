@@ -196,6 +196,8 @@ public func equalExpr(_ this: Expr, _ that: Expr) -> Bool {
         return eqvExpr(t1, t2) && equals(e1, e2)
       case (.error(let e1), .error(let e2)):
         return e1 == e2
+      case (.syntax(let p1, let e1), .syntax(let p2, let e2)):
+        return p1 == p2 && equals(e1, e2)
       default:
         return false
     }
@@ -266,6 +268,8 @@ public func eqvExpr(_ lhs: Expr, _ rhs: Expr) -> Bool {
       return eqvExpr(t1, t2) && eqvExpr(e1, e2)
     case (.error(let e1), .error(let e2)):
       return e1 === e2
+    case (.syntax(let p1, let e1), .syntax(let p2, let e2)):
+      return p1 == p2 && eqvExpr(e1, e2)
     default:
       return false
   }
@@ -333,6 +337,8 @@ public func eqExpr(_ lhs: Expr, _ rhs: Expr) -> Bool {
       return eqvExpr(t1, t2) && eqExpr(e1, e2)
     case (.error(let e1), .error(let e2)):
       return e1 === e2
+    case (.syntax(let p1, let e1), .syntax(let p2, let e2)):
+      return p1 == p2 && eqExpr(e1, e2)
     default:
       return false
   }

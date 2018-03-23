@@ -226,7 +226,7 @@ open class NativeLibrary: Library {
     do {
       let parser = Parser(symbols: self.context.symbols, src: code)
       while !parser.finished {
-        self.execute(expr: try parser.parse())
+        self.execute(expr: try parser.parse().datum)
       }
     } catch let error as RuntimeError { // handle Lisp-related issues
       preconditionFailure("compilation failure \(error) when compiling: \(code)")

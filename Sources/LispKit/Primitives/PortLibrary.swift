@@ -407,7 +407,7 @@ public final class PortLibrary: NativeLibrary {
     let input = try self.textInputFrom(expr)
     let parser = Parser(symbols: self.context.symbols, input: input)
     do {
-      return try parser.parse(false)
+      return try parser.parse(false).datum
     } catch let error as RuntimeError {
       guard case .syntax(.empty) = error.descriptor else {
         throw error

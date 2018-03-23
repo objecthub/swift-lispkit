@@ -55,6 +55,7 @@ public enum Expr: Trackable, Hashable {
   case port(Port)
   indirect case tagged(Expr, Expr)
   case error(RuntimeError)
+  indirect case syntax(SourcePosition, Expr)
   
   /// Returns the type of this expression.
   public var type: Type {
@@ -117,6 +118,8 @@ public enum Expr: Trackable, Hashable {
        return .taggedType
       case .error(_):
         return .errorType
+      case .syntax(_, _):
+        return .syntaxType
     }
   }
   
@@ -196,6 +199,19 @@ public enum Expr: Trackable, Hashable {
     }
   }
   
+  /// Returns the source position associated with this expression, or `outer` in case there is
+  /// no syntax annotation.
+  public func pos(_ outer: SourcePosition = SourcePosition.unknown) -> SourcePosition {
+    switch self {
+      case .syntax(let p, _):
+        return p
+      case .pair(.syntax(let p, _), _):
+        return p
+      default:
+        return outer
+    }
+  }
+  
   /// Returns the given expression with all symbols getting interned.
   public var datum: Expr {
     switch self {
@@ -203,6 +219,8 @@ public enum Expr: Trackable, Hashable {
         return .symbol(sym.interned)
       case .pair(let car, let cdr):
         return .pair(car.datum, cdr.datum)
+      case .syntax(_, let expr):
+        return expr.datum
       default:
         return self
     }
@@ -247,6 +265,8 @@ public enum Expr: Trackable, Hashable {
     switch self {
       case .pair(let car, let cdr):
         return car.requiresTracking || cdr.requiresTracking
+      case .syntax(_, let expr):
+        return expr.requiresTracking
       case .box(_), .mpair(_), .vector(_), .record(_), .table(_), .promise(_),
            .procedure(_), .special(_), .error(_):
         return true
@@ -294,6 +314,8 @@ public enum Expr: Trackable, Hashable {
         case .error(let err):
           err.mark(tag)
           return
+        case .syntax(_, let datum):
+          expr = datum
         default:
           return
       }
@@ -847,8 +869,11 @@ extension Expr: CustomStringConvertible {
           return "#<tag \(stringReprOf(tag)): \(stringReprOf(expr))>"
         case .error(let error):
           return "#<\(error.inlineDescription)>"
+        case .syntax(_, let expr):
+          return stringReprOf(expr)
       }
     }
+    
     return stringReprOf(self)
   }
   

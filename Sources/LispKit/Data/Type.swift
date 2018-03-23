@@ -65,6 +65,7 @@ public enum Type: Int, CustomStringConvertible {
   case binaryInputPortType
   case binaryOutputPortType
   case taggedType
+  case syntaxType
   
   public var description: String {
     switch self {
@@ -154,6 +155,8 @@ public enum Type: Int, CustomStringConvertible {
         return "mpair"
       case .taggedType:
         return "tagged"
+      case .syntaxType:
+        return "syntax"
     }
   }
   

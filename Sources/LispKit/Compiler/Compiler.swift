@@ -358,7 +358,8 @@ public final class Compiler {
   }
   
   /// Generates instructions to push the given expression onto the stack.
-  public func pushValue(_ expr: Expr) throws {
+  public func pushValue(_ value: Expr) throws {
+    let expr = value.datum
     switch expr {
       case .undef, .uninit(_):
         self.emit(.pushUndef)
@@ -396,6 +397,8 @@ public final class Compiler {
         throw RuntimeError.eval(.illegalKeywordUsage, expr)
       case .values(_):
         preconditionFailure("cannot push multiple values onto stack")
+      case .syntax(_, _):
+        preconditionFailure("cannot push syntax onto stack")
     }
   }
   

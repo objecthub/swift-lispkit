@@ -139,6 +139,8 @@ public func equalHash(_ expr: Expr) -> Int {
         return (eqvHash(tag) &* 31 &+ hash(expr)) &* 31 &+ 28
       case .error(let err):
         return err.hashValue &* 31 &+ 29
+      case .syntax(let pos, let expr):
+        return ((pos.hashValue &* 31) &+ hash(expr)) &* 31 &+ 30
     }
   }
   
@@ -206,6 +208,8 @@ public func eqvHash(_ expr: Expr) -> Int {
       return (eqvHash(tag) &* 31 &+ eqvHash(expr)) &* 31 &+ 28
     case .error(let err):
       return err.hashValue &* 31 &+ 29
+    case .syntax(let pos, let expr):
+      return ((pos.hashValue &* 31) &+ eqvHash(expr)) &* 31 &+ 30
   }
 }
 
@@ -270,5 +274,7 @@ public func eqHash(_ expr: Expr) -> Int {
       return (eqvHash(tag) &* 31 &+ eqHash(expr)) &* 31 &+ 28
     case .error(let err):
       return err.hashValue &* 31 &+ 29
+    case .syntax(let pos, let expr):
+      return ((pos.hashValue &* 31) &+ eqHash(expr)) &* 31 &+ 30
   }
 }

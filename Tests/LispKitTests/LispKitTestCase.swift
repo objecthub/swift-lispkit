@@ -84,7 +84,7 @@ open class LispKitTestCase: XCTestCase {
   
   public func value(_ str: String) -> Expr {
     do {
-      return try Parser(symbols: self.context!.symbols, src: str).parse()
+      return try Parser(symbols: self.context!.symbols, src: str).parse().datum
     } catch {
       preconditionFailure("malformed expression: \(str)")
     }
@@ -118,7 +118,7 @@ open class LispKitTestCase: XCTestCase {
       let parser = Parser(symbols: self.context!.symbols, src: code)
       var res = [Test]()
       while !parser.finished {
-        let spec = try parser.parse()
+        let spec = try parser.parse().datum // TODO: remove .datum
         guard case .pair(.string(let descr), .pair(let target, let source)) = spec else {
           preconditionFailure("malformed test spec in file \(filename): \(spec)")
         }

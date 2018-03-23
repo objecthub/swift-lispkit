@@ -59,13 +59,16 @@ public final class Parser {
     self.sourceId = sourceId
   }
   
+  /// Returns true if the scanner has reached the end of the input.
   public var finished: Bool {
     return !self.scanner.hasNext()
   }
   
+  /// Parses the next expression.
   public func parse(_ prescan: Bool = true) throws -> Expr {
     var res: Expr
     let token = self.scanner.token
+    let pos = self.sourcePosition
     switch token.kind {
       case .error:
         let lexicalError = token.errorVal!
@@ -78,8 +81,8 @@ public final class Parser {
         _ = try self.parse()
         return try self.parse(prescan)
       case .ident:
-        res = .symbol(self.symbols.intern(
-                        self.scanner.foldCase ? token.strVal.lowercased() : token.strVal))
+        res = .symbol(
+          self.symbols.intern(self.scanner.foldCase ? token.strVal.lowercased() : token.strVal))
       case .truelit:
         res = .true
       case .falselit:
@@ -124,7 +127,7 @@ public final class Parser {
         self.scanner.next()
         var exprs = Exprs()
         while !self.scanner.hasToken(.eof, .rparen) {
-          exprs.append(try self.parse())
+          exprs.append(try self.parse().datum)
         }
         guard self.scanner.hasToken(.rparen) else {
           throw RuntimeError.syntax(.closingParenthesisMissing)
@@ -147,16 +150,16 @@ public final class Parser {
         res = .bytes(MutableBox(bytes))
       case .quote:
         self.scanner.next()
-        return Expr.makeList(.symbol(symbols.quote), try self.parse())
+        return Expr.makeList(.syntax(pos, .symbol(symbols.quote)), try self.parse())
       case .backquote:
         self.scanner.next()
-        return Expr.makeList(.symbol(symbols.quasiquote), try self.parse())
+        return Expr.makeList(.syntax(pos, .symbol(symbols.quasiquote)), try self.parse())
       case .comma:
         self.scanner.next()
-        return Expr.makeList(.symbol(symbols.unquote), try self.parse())
+        return Expr.makeList(.syntax(pos, .symbol(symbols.unquote)), try self.parse())
       case .commaat:
         self.scanner.next()
-        return Expr.makeList(.symbol(symbols.unquoteSplicing), try self.parse())
+        return Expr.makeList(.syntax(pos, .symbol(symbols.unquoteSplicing)), try self.parse())
       case .dot:
         self.scanner.next()
         throw RuntimeError.syntax(.unexpectedDot)
@@ -164,12 +167,11 @@ public final class Parser {
     if prescan {
       self.scanner.next()
     }
-    return res
+    return .syntax(pos, res)
   }
   
   /// Returns the source position of the current token.
   private var sourcePosition: SourcePosition {
     return SourcePosition(self.sourceId, self.scanner.lpos.line, self.scanner.lpos.col)
   }
-  
 }

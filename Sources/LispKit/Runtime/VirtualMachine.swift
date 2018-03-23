@@ -367,7 +367,7 @@ public final class VirtualMachine: TrackedObject {
     let parser = Parser(symbols: self.context.symbols, src: str, foldCase: foldCase)
     var exprs = Exprs()
     while !parser.finished {
-      exprs.append(try parser.parse())
+      exprs.append(try parser.parse().datum) // TODO: remove .datum
     }
     return exprs
   }
