@@ -124,7 +124,7 @@ public final class VectorLibrary: NativeLibrary {
   
   func compileIsVector(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let arg, .null)) = expr else {
-      throw RuntimeError.argumentCount(of: "vector?", min: 1, max: 1, args: expr)
+      throw RuntimeError.argumentCount(of: "vector?", min: 1, max: 1, expr: expr)
     }
     try compiler.compile(arg, in: env, inTailPos: false)
     compiler.emit(.isVector)

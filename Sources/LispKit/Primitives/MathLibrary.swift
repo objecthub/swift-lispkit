@@ -1376,7 +1376,7 @@ public final class MathLibrary: NativeLibrary {
   
   @inline(__always) private func compileBinOp(_ compiler: Compiler, expr: Expr, env: Env) throws {
     guard case .pair(_, .pair(let x, .pair(let y, .null))) = expr else {
-      throw RuntimeError.argumentCount(min: 2, max: 2, args: expr)
+      throw RuntimeError.argumentCount(min: 2, max: 2, expr: expr)
     }
     try compiler.compile(x, in: env, inTailPos: false)
     try compiler.compile(y, in: env, inTailPos: false)
@@ -1391,7 +1391,7 @@ public final class MathLibrary: NativeLibrary {
                              env: Env,
                              tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let x, .pair(let y, .null))) = expr else {
-      throw RuntimeError.argumentCount(min: 2, max: 2, args: expr)
+      throw RuntimeError.argumentCount(min: 2, max: 2, expr: expr)
     }
     if case .fixnum(1) = x {
       try compiler.compile(y, in: env, inTailPos: false)
@@ -1422,7 +1422,7 @@ public final class MathLibrary: NativeLibrary {
                               env: Env,
                               tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let x, .pair(let y, .null))) = expr else {
-      throw RuntimeError.argumentCount(min: 2, max: 2, args: expr)
+      throw RuntimeError.argumentCount(min: 2, max: 2, expr: expr)
     }
     if case .fixnum(1) = y {
       try compiler.compile(x, in: env, inTailPos: false)
@@ -1473,7 +1473,7 @@ public final class MathLibrary: NativeLibrary {
                               env: Env,
                               tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let x, .null)) = expr else {
-      throw RuntimeError.argumentCount(min: 1, max: 1, args: expr)
+      throw RuntimeError.argumentCount(min: 1, max: 1, expr: expr)
     }
     try compiler.compile(x, in: env, inTailPos: false)
     compiler.emit(.fxInc)
@@ -1489,7 +1489,7 @@ public final class MathLibrary: NativeLibrary {
                                env: Env,
                                tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let x, .null)) = expr else {
-      throw RuntimeError.argumentCount(min: 1, max: 1, args: expr)
+      throw RuntimeError.argumentCount(min: 1, max: 1, expr: expr)
     }
     try compiler.compile(x, in: env, inTailPos: false)
     compiler.emit(.fxDec)
@@ -1505,7 +1505,7 @@ public final class MathLibrary: NativeLibrary {
                                env: Env,
                                tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let x, .null)) = expr else {
-      throw RuntimeError.argumentCount(min: 1, max: 1, args: expr)
+      throw RuntimeError.argumentCount(min: 1, max: 1, expr: expr)
     }
     try compiler.compile(x, in: env, inTailPos: false)
     compiler.emit(.fxIsZero)
@@ -1526,7 +1526,7 @@ public final class MathLibrary: NativeLibrary {
   
   private func compileFxEq(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let x, .pair(let y, .null))) = expr else {
-      throw RuntimeError.argumentCount(min: 2, max: 2, args: expr)
+      throw RuntimeError.argumentCount(min: 2, max: 2, expr: expr)
     }
     if case .fixnum(0) = x {
       try compiler.compile(y, in: env, inTailPos: false)

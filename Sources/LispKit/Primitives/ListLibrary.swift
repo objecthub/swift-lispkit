@@ -279,7 +279,7 @@ public final class ListLibrary: NativeLibrary {
   
   private func compileCons(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let head, .pair(let tail, .null))) = expr else {
-      throw RuntimeError.argumentCount(of: "cons", min: 2, max: 2, args: expr)
+      throw RuntimeError.argumentCount(of: "cons", min: 2, max: 2, expr: expr)
     }
     _ = try compiler.compile(head, in: env, inTailPos: false)
     _ = try compiler.compile(tail, in: env, inTailPos: false)

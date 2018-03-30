@@ -413,7 +413,7 @@ public final class Environment: Reference, CustomStringConvertible {
                                     tail: Bool) throws -> Bool {
     // Extract import spec
     guard case .pair(_, .pair(let importSpec, .null)) = expr else {
-      throw RuntimeError.argumentCount(of: "import", min: 1, max: 1, args: expr)
+      throw RuntimeError.argumentCount(of: "import", min: 1, max: 1, expr: expr)
     }
     // Check that import is not executed in a local environment
     if case .local(_) = env {

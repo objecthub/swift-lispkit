@@ -133,9 +133,9 @@ public final class BaseLibrary: NativeLibrary {
                                 optimize: true)
   }
   
-  private func compileEval(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
-    guard case .pair(_, .pair(let expr, let rest)) = expr else {
-      throw RuntimeError.argumentCount(num: 1, args: .null)
+  private func compileEval(compiler: Compiler, e: Expr, env: Env, tail: Bool) throws -> Bool {
+    guard case .pair(_, .pair(let expr, let rest)) = e else {
+      throw RuntimeError.argumentCount(min: 1, max: 2, expr: e)
     }
     compiler.emit(.makeFrame)
     switch rest {
@@ -146,7 +146,7 @@ public final class BaseLibrary: NativeLibrary {
         try compiler.compile(expr, in: env, inTailPos: false)
         try compiler.compile(e, in: env, inTailPos: false)
       default:
-        throw RuntimeError.argumentCount(num: 1, args: .pair(expr, rest))
+        throw RuntimeError.argumentCount(min: 1, max: 2, args: .pair(expr, rest))
     }
     compiler.emit(.compile)
     return compiler.call(0, inTailPos: tail)
@@ -154,7 +154,7 @@ public final class BaseLibrary: NativeLibrary {
   
   private func apply(args: Arguments) throws -> (Procedure, Exprs) {
     guard args.count > 1 else {
-      throw RuntimeError.argumentCount(num: 2, args: .makeList(args))
+      throw RuntimeError.argumentCount(min: 2, args: .makeList(args))
     }
     guard case .procedure(let proc) = args.first! else {
       throw RuntimeError.type(args.first!, expected: [.procedureType])
@@ -176,7 +176,7 @@ public final class BaseLibrary: NativeLibrary {
   
   private func compileApply(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let fun, let arglist)) = expr else {
-      throw RuntimeError.argumentCount(num: 2, args: expr)
+      throw RuntimeError.argumentCount(min: 2, expr: expr)
     }
     compiler.emit(.makeFrame)
     try compiler.compile(fun, in: env, inTailPos: false)
@@ -191,7 +191,7 @@ public final class BaseLibrary: NativeLibrary {
       }
       next = rest
     }
-    throw RuntimeError.argumentCount(num: 2, args: expr)
+    throw RuntimeError.argumentCount(min: 2, expr: expr)
   }
   
   private func isEqual(this: Expr, that: Expr) -> Expr {
@@ -200,7 +200,7 @@ public final class BaseLibrary: NativeLibrary {
   
   private func compileEqual(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let this, .pair(let that, .null))) = expr else {
-      throw RuntimeError.argumentCount(num: 2, args: expr)
+      throw RuntimeError.argumentCount(num: 2, expr: expr)
     }
     _ = try compiler.compile(this, in: env, inTailPos: false)
     _ = try compiler.compile(that, in: env, inTailPos: false)
@@ -214,7 +214,7 @@ public final class BaseLibrary: NativeLibrary {
   
   private func compileEqv(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let this, .pair(let that, .null))) = expr else {
-      throw RuntimeError.argumentCount(num: 2, args: expr)
+      throw RuntimeError.argumentCount(num: 2, expr: expr)
     }
     _ = try compiler.compile(this, in: env, inTailPos: false)
     _ = try compiler.compile(that, in: env, inTailPos: false)
@@ -228,7 +228,7 @@ public final class BaseLibrary: NativeLibrary {
   
   private func compileEq(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let this, .pair(let that, .null))) = expr else {
-      throw RuntimeError.argumentCount(num: 2, args: expr)
+      throw RuntimeError.argumentCount(num: 2, expr: expr)
     }
     _ = try compiler.compile(this, in: env, inTailPos: false)
     _ = try compiler.compile(that, in: env, inTailPos: false)
@@ -238,7 +238,7 @@ public final class BaseLibrary: NativeLibrary {
   
   private func compileQuote(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let arg, .null)) = expr else {
-      throw RuntimeError.argumentCount(num: 1, args: expr)
+      throw RuntimeError.argumentCount(num: 1, expr: expr)
     }
     try compiler.pushValue(arg)
     return false
@@ -249,7 +249,7 @@ public final class BaseLibrary: NativeLibrary {
                                  env: Env,
                                  tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let arg, .null)) = expr else {
-      throw RuntimeError.argumentCount(num: 1, args: expr)
+      throw RuntimeError.argumentCount(num: 1, expr: expr)
     }
     switch arg {
       case .pair(_, _):
@@ -352,7 +352,7 @@ public final class BaseLibrary: NativeLibrary {
   
   private func compileLambda(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let arglist, let body)) = expr else {
-      throw RuntimeError.argumentCount(num: 1, args: expr)
+      throw RuntimeError.argumentCount(num: 1, expr: expr)
     }
     try compiler.compileLambda(nil, arglist, body, env)
     return false
@@ -381,7 +381,7 @@ public final class BaseLibrary: NativeLibrary {
   private func compileDefine(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     // Extract signature and definition
     guard case .pair(_, .pair(let sig, let def)) = expr else {
-      throw RuntimeError.argumentCount(num: 2, args: expr)
+      throw RuntimeError.argumentCount(num: 2, expr: expr)
     }
     // Check that define is not executed in a local environment
     if case .local(_) = env {
@@ -418,7 +418,7 @@ public final class BaseLibrary: NativeLibrary {
                                    tail: Bool) throws -> Bool {
     // Extract signature and definition
     guard case .pair(_, .pair(let sig, .pair(let value, .null))) = expr else {
-      throw RuntimeError.argumentCount(num: 2, args: expr)
+      throw RuntimeError.argumentCount(num: 2, expr: expr)
     }
     // Check that define is not executed in a local environment
     if case .local(_) = env {
@@ -486,7 +486,7 @@ public final class BaseLibrary: NativeLibrary {
                                    tail: Bool) throws -> Bool {
     // Extract keyword and transformer definition
     guard case .pair(_, .pair(let kword, .pair(let transformer, .null))) = expr else {
-      throw RuntimeError.argumentCount(num: 2, args: expr)
+      throw RuntimeError.argumentCount(num: 2, expr: expr)
     }
     // Check that the keyword is a symbol
     guard case .symbol(let sym) = kword else {
@@ -511,7 +511,7 @@ public final class BaseLibrary: NativeLibrary {
                                     env: Env,
                                     tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let name, let decls)) = expr else {
-      throw RuntimeError.argumentCount(num: 1, args: expr)
+      throw RuntimeError.argumentCount(num: 1, expr: expr)
     }
     try compiler.context.libraries.load(name: name,
                                         declarations: decls,
@@ -536,7 +536,7 @@ public final class BaseLibrary: NativeLibrary {
         lit = literals
         transRules = patTrans
       default:
-        throw RuntimeError.argumentCount(num: 1, args: expr)
+        throw RuntimeError.argumentCount(num: 1, expr: expr)
     }
     var patterns = Exprs()
     var templates = Exprs()
@@ -618,7 +618,7 @@ public final class BaseLibrary: NativeLibrary {
   
   private func compileSet(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let symbol, .pair(let value, .null))) = expr else {
-      throw RuntimeError.argumentCount(num: 2, args: expr)
+      throw RuntimeError.argumentCount(num: 2, expr: expr)
     }
     let sym = try symbol.asSymbol()
     try compiler.compile(value, in: env, inTailPos: false)
@@ -646,7 +646,7 @@ public final class BaseLibrary: NativeLibrary {
                                  env: Env,
                                  tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let delayed, .null)) = expr else {
-      throw RuntimeError.argumentCount(num: 1, args: expr)
+      throw RuntimeError.argumentCount(num: 1, expr: expr)
     }
     try compiler.compileLambda(nil,
                                .null,
@@ -658,7 +658,7 @@ public final class BaseLibrary: NativeLibrary {
   
   private func compileDelay(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let delayed, .null)) = expr else {
-      throw RuntimeError.argumentCount(num: 1, args: expr)
+      throw RuntimeError.argumentCount(num: 1, expr: expr)
     }
     let body = Expr.pair(.makeList(.symbol(compiler.context.symbols.makePromise), delayed), .null)
     try compiler.compileLambda(nil, .null, body, env)
@@ -668,7 +668,7 @@ public final class BaseLibrary: NativeLibrary {
   
   private func compileForce(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let promise, .null)) = expr else {
-      throw RuntimeError.argumentCount(num: 1, args: expr)
+      throw RuntimeError.argumentCount(num: 1, expr: expr)
     }
     try compiler.compile(promise, in: env, inTailPos: false)
     compiler.emit(.force)
@@ -693,7 +693,7 @@ public final class BaseLibrary: NativeLibrary {
                                        env: Env,
                                        tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let delayed, .null)) = expr else {
-      throw RuntimeError.argumentCount(num: 1, args: expr)
+      throw RuntimeError.argumentCount(num: 1, expr: expr)
     }
     try compiler.compileLambda(nil,
                                .null,
@@ -708,7 +708,7 @@ public final class BaseLibrary: NativeLibrary {
                                   env: Env,
                                   tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let delayed, .null)) = expr else {
-      throw RuntimeError.argumentCount(num: 1, args: expr)
+      throw RuntimeError.argumentCount(num: 1, expr: expr)
     }
     let body = Expr.pair(.makeList(.symbol(compiler.context.symbols.makeStream), delayed), .null)
     try compiler.compileLambda(nil, .null, body, env)
@@ -807,7 +807,7 @@ public final class BaseLibrary: NativeLibrary {
   
   private func compileNot(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let arg, .null)) = expr else {
-      throw RuntimeError.argumentCount(num: 1, args: expr)
+      throw RuntimeError.argumentCount(num: 1, expr: expr)
     }
     _ = try compiler.compile(arg, in: env, inTailPos: false)
     compiler.emit(.not)
@@ -1072,7 +1072,7 @@ public final class BaseLibrary: NativeLibrary {
                                   env: Env,
                                   tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let message, let irritants)) = expr else {
-      throw RuntimeError.argumentCount(num: 1, args: expr)
+      throw RuntimeError.argumentCount(num: 1, expr: expr)
     }
     throw RuntimeError.custom("syntax error",
                               message.unescapedDescription,

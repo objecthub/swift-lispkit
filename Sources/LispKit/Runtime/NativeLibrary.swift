@@ -279,7 +279,7 @@ open class NativeLibrary: Library {
                      in env: Env,
                      for compiler: Compiler) throws -> Bool {
     guard case .pair(_, .pair(let arg, .null)) = expr else {
-      throw RuntimeError.argumentCount(min: 1, max: 1, args: expr)
+      throw RuntimeError.argumentCount(min: 1, max: 1, expr: expr)
     }
     try compiler.compile(arg, in: env, inTailPos: false)
     for instr in instrs {

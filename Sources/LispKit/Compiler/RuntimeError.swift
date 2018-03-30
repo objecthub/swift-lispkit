@@ -73,11 +73,39 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
   public class func argumentCount(of: String? = nil,
                                   min: Int = 0,
                                   max: Int = Int.max,
+                                  expr: Expr,
+                                  at pos: SourcePosition = SourcePosition.unknown) -> RuntimeError {
+    guard case .pair(let fun, let args) = expr else {
+      return RuntimeError.argumentCount(of: of, min: min, max: max, args: expr, at: pos)
+    }
+    if of == nil, case .symbol(let sym) = fun {
+      return RuntimeError.argumentCount(
+               of: sym.description, min: min, max: max, args: args, at: pos)
+    }
+    return RuntimeError.argumentCount(of: of, min: min, max: max, args: args, at: pos)
+  }
+  
+  public class func argumentCount(of: String? = nil,
+                                  min: Int = 0,
+                                  max: Int = Int.max,
                                   args: Expr,
                                   at pos: SourcePosition = SourcePosition.unknown) -> RuntimeError {
     return RuntimeError(pos,
                         ErrorDescriptor.argumentCount(of, min, max),
                         [.makeNumber(args.toExprs().0.count), args])
+  }
+  
+  public class func argumentCount(of: String? = nil,
+                                  num: Int,
+                                  expr: Expr,
+                                  at pos: SourcePosition = SourcePosition.unknown) -> RuntimeError {
+    guard case .pair(let fun, let args) = expr else {
+      return RuntimeError.argumentCount(of: of, num: num, args: expr, at: pos)
+    }
+    if of == nil, case .symbol(let sym) = fun {
+      return RuntimeError.argumentCount(of: sym.description, num: num, args: args, at: pos)
+    }
+    return RuntimeError.argumentCount(of: of, num: num, args: args, at: pos)
   }
   
   public class func argumentCount(of: String? = nil,
@@ -460,20 +488,23 @@ public enum ErrorDescriptor: Hashable {
       case .argumentCount(let fun, let min, let max):
         if let fun = fun {
           if min == max {
-            return "\(fun) expected \(min) arguments, but received $0 arguments: $1"
+            return "\(fun) expects \(self.arguments(min)), but received $0 arguments: $1"
           } else if max == Int.max {
-            return "\(fun) expected at least \(min) arguments, but received only $0 arguments: $1"
+            return "\(fun) expects at least \(self.arguments(min)), but received only " +
+                   "$0 arguments: $1"
           } else {
-            return "\(fun) expected between \(min) and \(max) arguments, but received $0 " +
+            return "\(fun) expects between \(min) and \(self.arguments(max)), but received $0 " +
                    "arguments: $1"
           }
         } else {
           if min == max {
-            return "expected \(min) arguments, but received $0 arguments: $1"
+            return "function expects \(self.arguments(min)), but received $0 arguments: $1"
           } else if max == Int.max {
-            return "expected at least \(min) arguments, but received only $0 arguments: $1"
+            return "function expects at least \(self.arguments(min)), but received only " +
+                   "$0 arguments: $1"
           } else {
-            return "expected between \(min) and \(max) arguments, but received $0 arguments: $1"
+            return "function expects between \(min) and \(self.arguments(max)), but received " +
+                   "$0 arguments: $1"
           }
         }
       case .eval(let error):
@@ -484,6 +515,14 @@ public enum ErrorDescriptor: Hashable {
         return "abortion"
       case .custom(_, let message):
         return message
+    }
+  }
+  
+  private func arguments(_ n: Int) -> String {
+    if n == 1 {
+      return "1 argument"
+    } else {
+      return "\(n) arguments"
     }
   }
   

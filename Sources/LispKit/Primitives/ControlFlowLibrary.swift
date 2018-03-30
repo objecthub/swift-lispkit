@@ -77,7 +77,7 @@ public final class ControlFlowLibrary: NativeLibrary {
 
   private func compileLet(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let first, let body)) = expr else {
-      throw RuntimeError.argumentCount(of: "let", min: 1, args: expr)
+      throw RuntimeError.argumentCount(of: "let", min: 1, expr: expr)
     }
     let initialLocals = compiler.numLocals
     var res = false
@@ -95,7 +95,7 @@ public final class ControlFlowLibrary: NativeLibrary {
         group.finalize()
       case .symbol(let sym):
         guard case .pair(let bindings, let rest) = body else {
-          throw RuntimeError.argumentCount(of: "let", min: 2, args: expr)
+          throw RuntimeError.argumentCount(of: "let", min: 2, expr: expr)
         }
         let (params, exprs) = try splitBindings(bindings)
         let group = BindingGroup(owner: compiler, parent: env)
@@ -126,7 +126,7 @@ public final class ControlFlowLibrary: NativeLibrary {
                               env: Env,
                               tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let first, let body)) = expr else {
-      throw RuntimeError.argumentCount(of: "let*", min: 1, args: expr)
+      throw RuntimeError.argumentCount(of: "let*", min: 1, expr: expr)
     }
     let initialLocals = compiler.numLocals
     switch first {
@@ -151,7 +151,7 @@ public final class ControlFlowLibrary: NativeLibrary {
                              env: Env,
                              tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let first, let body)) = expr else {
-      throw RuntimeError.argumentCount(of: "letrec", min: 1, args: expr)
+      throw RuntimeError.argumentCount(of: "letrec", min: 1, expr: expr)
     }
     let initialLocals = compiler.numLocals
     switch first {
@@ -179,7 +179,7 @@ public final class ControlFlowLibrary: NativeLibrary {
                                  env: Env,
                                  tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let first, let body)) = expr else {
-      throw RuntimeError.argumentCount(of: "letrec*", min: 1, args: expr)
+      throw RuntimeError.argumentCount(of: "letrec*", min: 1, expr: expr)
     }
     let initialLocals = compiler.numLocals
     switch first {
@@ -206,7 +206,7 @@ public final class ControlFlowLibrary: NativeLibrary {
                                 env: Env,
                                 tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let first, let body)) = expr else {
-      throw RuntimeError.argumentCount(of: "let-values", min: 1, args: expr)
+      throw RuntimeError.argumentCount(of: "let-values", min: 1, expr: expr)
     }
     let initialLocals = compiler.numLocals
     switch first {
@@ -232,7 +232,7 @@ public final class ControlFlowLibrary: NativeLibrary {
                                     env: Env,
                                     tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let first, let body)) = expr else {
-      throw RuntimeError.argumentCount(of: "let*-values", min: 1, args: expr)
+      throw RuntimeError.argumentCount(of: "let*-values", min: 1, expr: expr)
     }
     let initialLocals = compiler.numLocals
     switch first {
@@ -258,7 +258,7 @@ public final class ControlFlowLibrary: NativeLibrary {
                                    env: Env,
                                    tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let optlist, .pair(let first, let body))) = expr else {
-      throw RuntimeError.argumentCount(of: "let-optionals", min: 2, args: expr)
+      throw RuntimeError.argumentCount(of: "let-optionals", min: 2, expr: expr)
     }
     let initialLocals = compiler.numLocals
     switch first {
@@ -284,7 +284,7 @@ public final class ControlFlowLibrary: NativeLibrary {
                                        env: Env,
                                        tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let optlist, .pair(let first, let body))) = expr else {
-      throw RuntimeError.argumentCount(of: "let*-optionals", min: 2, args: expr)
+      throw RuntimeError.argumentCount(of: "let*-optionals", min: 2, expr: expr)
     }
     let initialLocals = compiler.numLocals
     switch first {
@@ -347,7 +347,7 @@ public final class ControlFlowLibrary: NativeLibrary {
                                 expr: Expr,
                                 env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let first, let body)) = expr else {
-      throw RuntimeError.argumentCount(of: "let-syntax", min: 1, args: expr)
+      throw RuntimeError.argumentCount(of: "let-syntax", min: 1, expr: expr)
     }
     switch first {
       case .null:
@@ -371,7 +371,7 @@ public final class ControlFlowLibrary: NativeLibrary {
                                    env: Env,
                                    tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let first, let body)) = expr else {
-      throw RuntimeError.argumentCount(of: "letrec-syntax", min: 1, args: expr)
+      throw RuntimeError.argumentCount(of: "letrec-syntax", min: 1, expr: expr)
     }
     switch first {
       case .null:
@@ -393,7 +393,7 @@ public final class ControlFlowLibrary: NativeLibrary {
   private func compileDo(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     // Decompose expression into bindings, exit, and body
     guard case .pair(_, .pair(let bindingList, .pair(let exit, let body))) = expr else {
-      throw RuntimeError.argumentCount(of: "do", min: 2, args: expr)
+      throw RuntimeError.argumentCount(of: "do", min: 2, expr: expr)
     }
     // Extract test and terminal expressions
     guard case .pair(let test, let terminal) = exit else {
@@ -464,7 +464,7 @@ public final class ControlFlowLibrary: NativeLibrary {
 
   private func compileIf(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let cond, .pair(let thenp, let alternative))) = expr else {
-      throw RuntimeError.argumentCount(of: "if", min: 2, args: expr)
+      throw RuntimeError.argumentCount(of: "if", min: 2, expr: expr)
     }
     var elsep = Expr.void
     if case .pair(let ep, .null) = alternative {
@@ -490,7 +490,7 @@ public final class ControlFlowLibrary: NativeLibrary {
   
   private func compileWhen(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let cond, let exprs)) = expr else {
-      throw RuntimeError.argumentCount(of: "when", min: 1, args: expr)
+      throw RuntimeError.argumentCount(of: "when", min: 1, expr: expr)
     }
     try compiler.compile(cond, in: env, inTailPos: false)
     let elseJumpIp = compiler.emitPlaceholder()
@@ -510,7 +510,7 @@ public final class ControlFlowLibrary: NativeLibrary {
                              env: Env,
                              tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let cond, let exprs)) = expr else {
-      throw RuntimeError.argumentCount(of: "unless", min: 1, args: expr)
+      throw RuntimeError.argumentCount(of: "unless", min: 1, expr: expr)
     }
     try compiler.compile(cond, in: env, inTailPos: false)
     let elseJumpIp = compiler.emitPlaceholder()
@@ -605,7 +605,7 @@ public final class ControlFlowLibrary: NativeLibrary {
 
   private func compileCase(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let key, let caseList)) = expr else {
-      throw RuntimeError.argumentCount(of: "case", min: 3, args: expr)
+      throw RuntimeError.argumentCount(of: "case", min: 3, expr: expr)
     }
     // Keep track of jumps for successful cases
     var exitJumps = [Int]()
