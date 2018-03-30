@@ -160,25 +160,34 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
     return "\(self.descriptor.typeDescription): \(message)"
   }
   
-  public var printableDescription: String {
+  public func printableDescription(typeOpen: String = "[",
+                                   typeClose: String = "] ",
+                                   irritantHeader: String? = "\nirritants: ",
+                                   irritantSeparator: String = ", ",
+                                   stackTraceHeader: String? = "\nstack trace: ",
+                                   stackTraceSeparator: String = ", ") -> String {
     var usedIrritants = Set<Int>()
     let message = self.replacePlaceholders(in: self.descriptor.messageTemplate,
                                            with: self.irritants,
                                            recordingUsage: &usedIrritants)
-    var builder = StringBuilder(prefix: "[\(self.descriptor.typeDescription)] \(message)",
-                                postfix: "",
-                                separator: ", ",
-                                initial: "\nirritants: ")
-    for index in self.irritants.indices {
-      if !usedIrritants.contains(index) {
-        builder.append(self.irritants[index].description)
+    var builder = StringBuilder(
+          prefix: "\(typeOpen)\(self.descriptor.typeDescription)\(typeClose)\(message)",
+          postfix: "",
+          separator: irritantSeparator,
+          initial: irritantHeader ?? "")
+    if irritantHeader != nil {
+      for index in self.irritants.indices {
+        if !usedIrritants.contains(index) {
+          builder.append(self.irritants[index].description)
+        }
       }
     }
-    if let stackTrace = self.stackTrace {
+    if let stackTraceHeader = stackTraceHeader,
+       let stackTrace = self.stackTrace {
       builder = StringBuilder(prefix: builder.description,
                               postfix: "",
-                              separator: ", ",
-                              initial: "\nstack trace: ")
+                              separator: stackTraceSeparator,
+                              initial: stackTraceHeader)
       for proc in stackTrace {
         builder.append(proc.name)
       }

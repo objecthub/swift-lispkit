@@ -84,7 +84,7 @@ while let line = console.read() {
     }
   // For errors print the error message
   } else if case .error(let err) = res {
-    console.print("\(err.printableDescription)\n")
+    console.print("\(err.printableDescription())\n")
   // For non-void results, print result
   } else if res != .void {
     console.print("\(res.description)\n")
