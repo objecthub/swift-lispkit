@@ -28,7 +28,7 @@ let console = CommandLineConsole()
 #if SPM
   let context = Context(console: console,
                         implementationName: "LispKit",
-                        implementationVersion: "1.3.1")
+                        implementationVersion: "1.4.0")
 #else
   let context = Context(console: console)
 #endif

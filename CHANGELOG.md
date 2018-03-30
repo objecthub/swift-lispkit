@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.4 (2018-03-30)
+- Migrated project to Xcode 9.3 and Swift 4
+- Bug fixes (esp. in `syntax-rules`)
+- Fixed logic for referencing `unquote`, etc. in `backquote`.
+- Include native date/time operations and functionality for accessing user data
+- Native support for a few common string functions
+- Support for `read-token` (generalization of `read-line`)
+- Added libraries `(lispkit stack)`, `(lispkit queue)`, `(lispkit logic)`
+- Implement bitwise operations for exact integers of arbitrary size
+- Complete rewrite of the error reporting and representation sub-system
+- Preparations for managing source locations
+
 ## 1.3 (2017-12-03)
 - Support simple HTTP API
 - Support compression for bytevectors

@@ -2,8 +2,8 @@
 ========================
 
 [![Platform: macOS](https://img.shields.io/badge/Platform-macOS-blue.svg?style=flat)](https://developer.apple.com/osx/)
-[![Language: Swift 4.0](https://img.shields.io/badge/Language-Swift%204.0-green.svg?style=flat)](https://developer.apple.com/swift/)
-[![IDE: Xcode 9.2](https://img.shields.io/badge/IDE-Xcode%209.2-orange.svg?style=flat)](https://developer.apple.com/xcode/)
+[![Language: Swift 4.1](https://img.shields.io/badge/Language-Swift%204.1-green.svg?style=flat)](https://developer.apple.com/swift/)
+[![IDE: Xcode 9.3](https://img.shields.io/badge/IDE-Xcode%209.3-orange.svg?style=flat)](https://developer.apple.com/xcode/)
 [![Carthage: compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![License: Apache](http://img.shields.io/badge/License-Apache-lightgrey.svg?style=flat)](https://raw.githubusercontent.com/objecthub/swift-lispkit/master/LICENSE)
 
@@ -171,7 +171,7 @@ Linking ./.build/x86_64-apple-macosx10.10/release/LispKitRepl
 The read-eval-print loop can be built using the Swift Package Manager. Nevertheless, it is
 recommended to use Xcode 9 in combination with Carthage:
 
-- [Xcode 9.2](https://developer.apple.com/xcode/)
+- [Xcode 9.3](https://developer.apple.com/xcode/)
 - [Carthage](https://github.com/Carthage/Carthage)
-- [Swift 4.0](https://developer.apple.com/swift/)
+- [Swift 4.1](https://developer.apple.com/swift/)
 - [NumberKit](http://github.com/objecthub/swift-numberkit)
