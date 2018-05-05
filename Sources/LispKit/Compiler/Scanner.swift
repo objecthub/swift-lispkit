@@ -37,16 +37,16 @@ public final class Scanner {
   internal var foldCase: Bool
   
   /// Last scanned character
-  internal var ch: UniChar
+  internal private(set) var ch: UniChar
   
   /// Position of last scanned character
-  internal var lpos: Position
+  private var lpos: Position
   
   /// Next position
-  internal var pos: Position
+  private var pos: Position
   
   /// Last scanned token
-  internal var token: Token
+  public private(set) var token: Token
   
   /// Creates a new scanner for the given string.
   public convenience init(string: String,

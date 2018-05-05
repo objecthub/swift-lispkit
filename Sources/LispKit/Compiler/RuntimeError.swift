@@ -190,6 +190,7 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
   
   public func printableDescription(typeOpen: String = "[",
                                    typeClose: String = "] ",
+                                   positionHeader: String? = "\nat: ",
                                    irritantHeader: String? = "\nirritants: ",
                                    irritantSeparator: String = ", ",
                                    stackTraceHeader: String? = "\nstack trace: ",
@@ -198,8 +199,14 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
     let message = self.replacePlaceholders(in: self.descriptor.messageTemplate,
                                            with: self.irritants,
                                            recordingUsage: &usedIrritants)
+    let position: String
+    if let positionHeader = positionHeader, !self.pos.isUnknown {
+      position = positionHeader + self.pos.description
+    } else {
+      position = ""
+    }
     var builder = StringBuilder(
-          prefix: "\(typeOpen)\(self.descriptor.typeDescription)\(typeClose)\(message)",
+          prefix: "\(typeOpen)\(self.descriptor.typeDescription)\(typeClose)\(message)\(position)",
           postfix: "",
           separator: irritantSeparator,
           initial: irritantHeader ?? "")

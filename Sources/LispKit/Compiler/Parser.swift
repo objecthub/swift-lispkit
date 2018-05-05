@@ -73,9 +73,9 @@ public final class Parser {
       case .error:
         let lexicalError = token.errorVal!
         self.scanner.next()
-        throw RuntimeError.lexical(lexicalError)
+        throw RuntimeError.lexical(lexicalError, at: pos)
       case .eof:
-        throw RuntimeError.syntax(.empty)
+        throw RuntimeError.syntax(.empty, at: pos)
       case .hashsemi:
         self.scanner.next()
         _ = try self.parse()
@@ -118,11 +118,11 @@ public final class Parser {
           res = Expr.makeList(exprs)
         }
         if !self.scanner.hasToken(.rparen) {
-          throw RuntimeError.syntax(.closingParenthesisMissing)
+          throw RuntimeError.syntax(.closingParenthesisMissing, at: self.sourcePosition)
         }
       case .rparen:
         self.scanner.next()
-        throw RuntimeError.syntax(.unexpectedClosingParenthesis)
+        throw RuntimeError.syntax(.unexpectedClosingParenthesis, at: pos)
       case .hashlparen:
         self.scanner.next()
         var exprs = Exprs()
@@ -130,7 +130,7 @@ public final class Parser {
           exprs.append(try self.parse().datum)
         }
         guard self.scanner.hasToken(.rparen) else {
-          throw RuntimeError.syntax(.closingParenthesisMissing)
+          throw RuntimeError.syntax(.closingParenthesisMissing, at: self.sourcePosition)
         }
         res = .vector(Collection(kind: .immutableVector, exprs: exprs))
       case .u8LPAREN:
@@ -139,13 +139,13 @@ public final class Parser {
         while self.scanner.hasToken(.int) {
           let number = self.scanner.token.intVal
           guard number >= 0 && number <= 255 else {
-            throw RuntimeError.syntax(.notAByteValue)
+            throw RuntimeError.syntax(.notAByteValue, at: self.sourcePosition)
           }
           bytes.append(UInt8(number))
           self.scanner.next()
         }
         guard self.scanner.hasToken(.rparen) else {
-          throw RuntimeError.syntax(.closingParenthesisMissing)
+          throw RuntimeError.syntax(.closingParenthesisMissing, at: self.sourcePosition)
         }
         res = .bytes(MutableBox(bytes))
       case .quote:
@@ -162,7 +162,7 @@ public final class Parser {
         return Expr.makeList(.syntax(pos, .symbol(symbols.unquoteSplicing)), try self.parse())
       case .dot:
         self.scanner.next()
-        throw RuntimeError.syntax(.unexpectedDot)
+        throw RuntimeError.syntax(.unexpectedDot, at: pos)
     }
     if prescan {
       self.scanner.next()
@@ -172,6 +172,6 @@ public final class Parser {
   
   /// Returns the source position of the current token.
   private var sourcePosition: SourcePosition {
-    return SourcePosition(self.sourceId, self.scanner.lpos.line, self.scanner.lpos.col)
+    return SourcePosition(self.sourceId, self.scanner.token.pos.line, self.scanner.token.pos.col)
   }
 }
