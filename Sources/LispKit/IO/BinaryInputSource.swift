@@ -195,12 +195,12 @@ public final class HTTPInputStream: BinaryInputSource {
   }
 }
 
-class SessionDelegate: NSObject,
-                       URLSessionDelegate,
-                       URLSessionTaskDelegate,
-                       URLSessionDataDelegate {
+fileprivate class SessionDelegate: NSObject,
+                                   URLSessionDelegate,
+                                   URLSessionTaskDelegate,
+                                   URLSessionDataDelegate {
   
-  internal var inputStreamForTask: [Int : HTTPInputStream] = [:]
+  private var inputStreamForTask: [Int : HTTPInputStream] = [:]
   
   public func registerTask(_ task: URLSessionTask, forStream stream: HTTPInputStream) {
     self.inputStreamForTask[task.taskIdentifier] = stream

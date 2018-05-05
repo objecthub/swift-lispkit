@@ -123,6 +123,16 @@ public enum Expr: Trackable, Hashable {
     }
   }
   
+  /// Returns the position of this expression.
+  public var pos: SourcePosition {
+    switch self {
+      case .syntax(let sourcePos, _):
+        return sourcePos
+      default:
+        return SourcePosition.unknown
+    }
+  }
+  
   // Predicate methods
   
   /// Returns true if this expression is undefined.
@@ -212,7 +222,7 @@ public enum Expr: Trackable, Hashable {
     }
   }
   
-  /// Returns the given expression with all symbols getting interned.
+  /// Returns the given expression with all symbols getting interned and syntax nodes removed.
   public var datum: Expr {
     switch self {
       case .symbol(let sym):
@@ -223,6 +233,34 @@ public enum Expr: Trackable, Hashable {
         return expr.datum
       default:
         return self
+    }
+  }
+  
+  /// Returns the given expression with all syntax nodes removed up to `depth` nested expression
+  /// nodes.
+  public func removeSyntax(depth: Int = 4) -> Expr {
+    guard depth > 0 else {
+      return self
+    }
+    switch self {
+      case .pair(let car, let cdr):
+        return .pair(car.removeSyntax(depth: depth - 1), cdr.removeSyntax(depth: depth - 1))
+      case .syntax(_, let expr):
+        return expr.removeSyntax(depth: depth)
+      default:
+        return self
+    }
+  }
+  
+  /// Inject the given position into the expression.
+  public func at(pos: SourcePosition) -> Expr {
+    switch self {
+      case .pair(let car, let cdr):
+        return .syntax(pos, .pair(car.at(pos: pos), cdr.at(pos: pos)))
+      case .syntax(_, _):
+        return self
+      default:
+        return .syntax(pos, self)
     }
   }
   
