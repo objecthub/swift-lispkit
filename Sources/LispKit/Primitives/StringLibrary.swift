@@ -557,7 +557,7 @@ public final class StringLibrary: NativeLibrary {
         res.append(.makeString(component))
       }
     }
-    return .vector(Collection(kind: .vector, exprs: res))
+    return .makeList(res)
   }
   
   private func stringTrim(_ expr: Expr, _ trimChars: Expr?) throws -> Expr {
