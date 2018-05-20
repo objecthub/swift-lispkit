@@ -231,6 +231,11 @@ public final class VirtualMachine: TrackedObject {
     self.abortionRequested = true
   }
   
+  /// Returns true if an abortion was requested.
+  public func isAbortionRequested() -> Bool {
+    return self.abortionRequested
+  }
+  
   /// Checks that computation happens on top level and fails if the conditions are not met.
   private func assertTopLevel() {
     guard self.sp == 0 && !self.abortionRequested else {
@@ -364,7 +369,9 @@ public final class VirtualMachine: TrackedObject {
   
   /// Parses the given string and returns an array of parsed expressions.
   public func parseExprs(str: String, foldCase: Bool = false) throws -> Exprs {
-    let parser = Parser(symbols: self.context.symbols, src: str, foldCase: foldCase)
+    let input = TextInput(string: str,
+                          abortionCallback: self.context.machine.isAbortionRequested)
+    let parser = Parser(symbols: self.context.symbols, input: input, foldCase: foldCase)
     var exprs = Exprs()
     while !parser.finished {
       exprs.append(try parser.parse().datum) // TODO: remove .datum
@@ -966,7 +973,11 @@ public final class VirtualMachine: TrackedObject {
       self.registers = savedRegisters
     }
     do {
-      return try self.execute()
+      let res = try self.execute()
+      guard !self.abortionRequested else {
+        throw RuntimeError.abortion(stackTrace: self.getStackTrace())
+      }
+      return res
     } catch let error as RuntimeError {
       if error.stackTrace == nil {
         error.attach(self.getStackTrace())
@@ -982,7 +993,7 @@ public final class VirtualMachine: TrackedObject {
   private func execute() throws -> Expr {
     while self.registers.ip >= 0 && self.registers.ip < self.registers.code.instructions.count {
       guard !self.abortionRequested else {
-        throw RuntimeError.abortion()
+        throw RuntimeError.abortion(stackTrace: self.getStackTrace())
       }
       self.collectGarbageIfNeeded()
       /*

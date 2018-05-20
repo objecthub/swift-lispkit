@@ -21,10 +21,10 @@
 import Foundation
 
 ///
-/// `BinaryInput` represents a binary input port. This struct manages a byte buffer, an
-/// end of file indicator and an optional input stream from which all data is read. If there is
-/// no input stream, all data is contained in the buffer which gets initialized when the
-/// `BinaryInput` object is getting created.
+/// `BinaryInput` represents a binary input port. This class manages a byte buffer, an
+/// end of file indicator and an optional binary input source from which all data is read.
+/// If there is no input source, all data is contained in the buffer which gets initialized
+/// when the `BinaryInput` object is getting created.
 ///
 open class BinaryInput: IteratorProtocol {
   
@@ -46,37 +46,52 @@ open class BinaryInput: IteratorProtocol {
   /// The URL for the input stream. `url` is nil whenever `input` is nil.
   public let url: URL?
   
+  /// Callback to check if the binary input should abort its operation.
+  public let isAborted: () -> Bool
+  
   /// Relative paths are relative to the documents folder
   private static let documentsUrl =
     URL(fileURLWithPath:
       NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])
   
+  /// A default abortion callback
+  public static func neverAbort() -> Bool {
+    return false
+  }
+  
   /// Initializes a binary input from a byte array
-  public init(data: [UInt8]) {
+  public init(data: [UInt8],
+              abortionCallback: @escaping () -> Bool = BinaryInput.neverAbort) {
     self.buffer = data
     self.bufferSize = data.count
     self.input = nil
     self.url = nil
+    self.isAborted = abortionCallback
   }
   
   /// Initializes a binary input from a binary file given in terms of a local/absolute path.
   /// It is assumed that local paths are local to the documents folder. `capacity` determines
   /// the number of bytes used for caching data.
-  public convenience init?(path: String, capacity: Int = 4096) {
+  public convenience init?(path: String,
+                           capacity: Int = 4096,
+                           abortionCallback: @escaping () -> Bool = BinaryInput.neverAbort) {
     self.init(url: URL(fileURLWithPath: path, relativeTo: BinaryInput.documentsUrl),
-              capacity: capacity)
+              capacity: capacity,
+              abortionCallback: abortionCallback)
   }
   
   /// Initializes a binary input from a binary file at the given URL. `capacity` determines
   /// the number of bytes used for caching data.
-  public convenience init?(url: URL, capacity: Int = 4096) {
+  public convenience init?(url: URL,
+                           capacity: Int = 4096,
+                           abortionCallback: @escaping () -> Bool = BinaryInput.neverAbort) {
     switch url.scheme {
       case "http"?, "https"?:
         // Create a new HTTP input stream
         guard let input = HTTPInputStream(url: url) else {
           return nil
         }
-        self.init(source: input, url: url, capacity: capacity)
+        self.init(source: input, url: url, capacity: capacity, abortionCallback: abortionCallback)
       default:
         // Check if the file at the given URL exists
         guard (try? url.checkResourceIsReachable()) ?? false else {
@@ -86,17 +101,21 @@ open class BinaryInput: IteratorProtocol {
         guard let input = InputStream(url: url) else {
           return nil
         }
-        self.init(source: input, url: url, capacity: capacity)
+        self.init(source: input, url: url, capacity: capacity, abortionCallback: abortionCallback)
     }
   }
   
   /// Initializes a binary input from a binary file at the given URL. `capacity` determines
   /// the number of bytes used for caching data.
-  public init?(source: BinaryInputSource, url: URL, capacity: Int = 4096) {
+  public init?(source: BinaryInputSource,
+               url: URL,
+               capacity: Int = 4096,
+               abortionCallback: @escaping () -> Bool = BinaryInput.neverAbort) {
     // Set up `BinaryInput` object
     self.buffer = [UInt8](repeating: 0, count: capacity)
     self.input = source
     self.url = url
+    self.isAborted = abortionCallback
     // Open the stream
     source.open()
     // Read data into the buffer
@@ -204,7 +223,7 @@ open class BinaryInput: IteratorProtocol {
   /// Guarantees that there is at least one byte to read from the buffer. Returns false if the
   /// end of file is reached or there has been a read error.
   private func readable() -> Bool {
-    if self.eof {
+    if self.eof || self.isAborted() {
       return false
     } else if self.index >= self.bufferSize {
       if let input = self.input, input.hasBytesAvailable {

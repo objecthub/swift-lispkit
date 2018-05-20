@@ -128,8 +128,9 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
     return RuntimeError(SourcePosition.unknown, ErrorDescriptor.os(error), [])
   }
   
-  public class func abortion(at pos: SourcePosition = SourcePosition.unknown) -> RuntimeError {
-    return RuntimeError(pos, ErrorDescriptor.abortion, [])
+  public class func abortion(at pos: SourcePosition = SourcePosition.unknown,
+                             stackTrace: [Procedure]? = nil) -> RuntimeError {
+    return RuntimeError(pos, ErrorDescriptor.abortion, [], stackTrace)
   }
   
   public class func custom(_ kind: String,
@@ -144,7 +145,9 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
   }
   
   public func attach(_ stackTrace: [Procedure]) {
-    self.stackTrace = stackTrace
+    if self.stackTrace == nil {
+      self.stackTrace = stackTrace
+    }
   }
   
   public var hashValue: Int {

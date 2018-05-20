@@ -780,7 +780,9 @@ public final class SystemLibrary: NativeLibrary {
     }
     stream.open(timeout: timeout)
     stream.waitForResponse()
-    guard let input = BinaryInput(source: stream, url: url) else {
+    guard let input = BinaryInput(source: stream,
+                                  url: url,
+                                  abortionCallback: self.context.machine.isAbortionRequested) else {
       throw RuntimeError.eval(.cannotOpenUrl, .makeString(url.description))
     }
     var response = Expr.null

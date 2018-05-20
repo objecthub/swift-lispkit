@@ -48,14 +48,7 @@ public final class Scanner {
   /// Last scanned token
   public private(set) var token: Token
   
-  /// Creates a new scanner for the given string.
-  public convenience init(string: String,
-                          foldCase: Bool = false,
-                          prescan: Bool = true) {
-    self.init(input: TextInput(string: string), foldCase: foldCase, prescan: prescan)
-  }
-  
-  /// Creates a new scanner for the given string.
+  /// Creates a new scanner for the given text input.
   public init(input: TextInput,
               foldCase: Bool = false,
               prescan: Bool = true) {

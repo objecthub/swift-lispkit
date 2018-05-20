@@ -20,12 +20,17 @@
 
 import Foundation
 
-
+///
+/// Generalized source for a `TextInput` object.
+///
 public protocol TextInputSource {
   var nextReadMightBlock: Bool { get }
   mutating func readString() -> String?
 }
 
+///
+/// Default `TextInputSource` implementation for decoding UTF8 from a `BinaryInput` object.
+/// 
 public struct UTF8EncodedSource: TextInputSource {
   private var input: BinaryInput
   private let length: Int

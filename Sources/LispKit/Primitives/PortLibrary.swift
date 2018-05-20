@@ -167,7 +167,7 @@ public final class PortLibrary: NativeLibrary {
   
   
   func textInputFrom(_ expr: Expr?) throws -> TextInput {
-    let port = try expr?.asPort() ?? self.context.inputPort
+    let port = try expr?.asPort() ?? self.context.inputPort!
     guard case .textInputPort(let input) = port.kind else {
       throw RuntimeError.type(.port(port), expected: [.textInputPortType])
     }
@@ -175,7 +175,7 @@ public final class PortLibrary: NativeLibrary {
   }
   
   func binaryInputFrom(_ expr: Expr?) throws -> BinaryInput {
-    let port = try expr?.asPort() ?? self.context.inputPort
+    let port = try expr?.asPort() ?? self.context.inputPort!
     guard case .binaryInputPort(let input) = port.kind else {
       throw RuntimeError.type(.port(port), expected: [.binaryInputPortType])
     }
@@ -183,7 +183,7 @@ public final class PortLibrary: NativeLibrary {
   }
   
   func textOutputFrom(_ expr: Expr?) throws -> TextOutput {
-    let port = try expr?.asPort() ?? self.context.outputPort
+    let port = try expr?.asPort() ?? self.context.outputPort!
     guard case .textOutputPort(let output) = port.kind else {
       throw RuntimeError.type(.port(port), expected: [.textInputPortType])
     }
@@ -191,7 +191,7 @@ public final class PortLibrary: NativeLibrary {
   }
   
   func binaryOutputFrom(_ expr: Expr?) throws -> BinaryOutput {
-    let port = try expr?.asPort() ?? self.context.outputPort
+    let port = try expr?.asPort() ?? self.context.outputPort!
     guard case .binaryOutputPort(let output) = port.kind else {
       throw RuntimeError.type(.port(port), expected: [.binaryInputPortType])
     }
@@ -247,7 +247,8 @@ public final class PortLibrary: NativeLibrary {
     let filename =
       self.context.fileHandler.path(try expr.asPath(),
                                     relativeTo: self.systemLibrary.currentDirectoryPath)
-    guard let input = BinaryInput(path: filename) else {
+    guard let input = BinaryInput(path: filename,
+                                  abortionCallback: self.context.machine.isAbortionRequested) else {
       throw RuntimeError.eval(.cannotOpenFile, .makeString(filename))
     }
     return .port(Port(input: TextInput(input: input)))
@@ -257,7 +258,8 @@ public final class PortLibrary: NativeLibrary {
     let filename =
       self.context.fileHandler.path(try expr.asPath(),
                                     relativeTo: self.systemLibrary.currentDirectoryPath)
-    guard let input = BinaryInput(path: filename) else {
+    guard let input = BinaryInput(path: filename,
+                                  abortionCallback: self.context.machine.isAbortionRequested) else {
       throw RuntimeError.eval(.cannotOpenFile, .makeString(filename))
     }
     return .port(Port(input: input))
@@ -284,7 +286,8 @@ public final class PortLibrary: NativeLibrary {
   }
   
   func openInputString(_ expr: Expr) throws -> Expr {
-    return .port(Port(input: TextInput(string: try expr.asString())))
+    return .port(Port(input: TextInput(string: try expr.asString(),
+                                       abortionCallback: self.context.machine.isAbortionRequested)))
   }
   
   func openOutputString() -> Expr {
@@ -292,7 +295,9 @@ public final class PortLibrary: NativeLibrary {
   }
   
   func openInputBytevector(_ expr: Expr) throws -> Expr {
-    return .port(Port(input: BinaryInput(data: try expr.asByteVector().value)))
+    let input = BinaryInput(data: try expr.asByteVector().value,
+                            abortionCallback: self.context.machine.isAbortionRequested)
+    return .port(Port(input: input))
   }
   
   func openOutputBytevector() -> Expr {
@@ -301,7 +306,8 @@ public final class PortLibrary: NativeLibrary {
   
   func openInputUrl(_ expr: Expr) throws -> Expr {
     let url = try expr.asURL()
-    guard let input = BinaryInput(url: url) else {
+    guard let input = BinaryInput(url: url,
+                                  abortionCallback: self.context.machine.isAbortionRequested) else {
       throw RuntimeError.eval(.cannotOpenUrl, .makeString(url.description))
     }
     return .port(Port(input: TextInput(input: input)))
@@ -309,7 +315,8 @@ public final class PortLibrary: NativeLibrary {
   
   func openBinaryInputUrl(_ expr: Expr) throws -> Expr {
     let url = try expr.asURL()
-    guard let input = BinaryInput(url: url) else {
+    guard let input = BinaryInput(url: url,
+                                  abortionCallback: self.context.machine.isAbortionRequested) else {
       throw RuntimeError.eval(.cannotOpenUrl, .makeString(url.description))
     }
     return .port(Port(input: input))
@@ -659,7 +666,7 @@ public final class PortLibrary: NativeLibrary {
   }
   
   func flushOutputPort(_ port: Expr?) throws -> Expr {
-    let port = try port?.asPort() ?? self.context.outputPort
+    let port = try port?.asPort() ?? self.context.outputPort!
     switch port.kind {
       case .binaryOutputPort(let output):
         output.flush(true)

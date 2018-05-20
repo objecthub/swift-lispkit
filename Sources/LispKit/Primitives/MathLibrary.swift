@@ -1038,7 +1038,9 @@ public final class MathLibrary: NativeLibrary {
         throw RuntimeError.eval(.illegalRadix, rad!)
       }
     }
-    let scanner = Scanner(string: try expr.asString(), prescan: false)
+    let input = TextInput(string: try expr.asString(),
+                          abortionCallback: self.context.machine.isAbortionRequested)
+    let scanner = Scanner(input: input, prescan: false)
     scanner.skipSpace()
     guard scanner.ch != EOF_CH else {
       throw RuntimeError.type(expr, expected: [.numberType])

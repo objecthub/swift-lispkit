@@ -22,8 +22,9 @@ import Foundation
 
 ///
 /// `TextInput` implements a buffered textual input port. Textual input ports are
-/// not stream-based. They either get initialized with a string, or their content is read
-/// from a file when the `TextInput` object is initialized.
+/// not stream-based. They either get initialized with a string, with a `BinaryInput`,
+/// or with a `TextInputSource` object from which the buffer is filled when fully
+/// consumed.
 ///
 open class TextInput {
   
@@ -42,24 +43,34 @@ open class TextInput {
   /// The URL of this text input object.
   open var url: URL?
   
-  public init(string: String) {
+  /// Callback to check if the binary input should abort its operation.
+  public let isAborted: () -> Bool
+  
+  public init(string: String,
+              abortionCallback: @escaping () -> Bool = BinaryInput.neverAbort) {
     self.buffer = string.utf16
     self.next = self.buffer.startIndex
     self.source = nil
     self.url = nil
+    self.isAborted = abortionCallback
   }
   
   public convenience init(input: BinaryInput, capacity: Int = 4096) {
-    self.init(source: UTF8EncodedSource(input: input, length: capacity), url: input.url as URL?)
+    self.init(source: UTF8EncodedSource(input: input, length: capacity),
+              url: input.url as URL?,
+              abortionCallback: input.isAborted)
     self.eof = input.eof
   }
   
-  public init(source: TextInputSource, url: URL? = nil) {
+  public init(source: TextInputSource,
+              url: URL? = nil,
+              abortionCallback: @escaping () -> Bool = BinaryInput.neverAbort) {
     self.buffer = "".utf16
     self.next = self.buffer.startIndex
     self.eof = false
     self.source = source
     self.url = url
+    self.isAborted = abortionCallback
   }
   
   /// Makes sure that the input object is closed at garbage collection time.
@@ -151,7 +162,7 @@ open class TextInput {
   }
   
   private func readable() -> Bool {
-    if self.eof {
+    if self.eof || self.isAborted() {
       return false
     } else if self.next >= self.buffer.endIndex {
       guard self.source != nil else {

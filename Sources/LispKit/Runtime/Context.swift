@@ -64,13 +64,13 @@ public final class Context {
   public private(set) var machine: VirtualMachine! = nil
 
   /// The current input port.
-  public var inputPort: Port
+  public var inputPort: Port!
   
   /// The current output port.
-  public var outputPort: Port
+  public var outputPort: Port!
   
   /// The current error port.
-  public var errorPort: Port
+  public var errorPort: Port!
   
   /// Bundle of the LispKit module
   public static let bundle = Bundle(identifier: "net.objecthub.LispKit")
@@ -105,12 +105,13 @@ public final class Context {
     self.sourceManager = SourceManager()
     self.objects = ManagedObjectPool()
     self.symbols = SymbolTable()
-    self.inputPort = Port(input: TextInput(source: console))
-    self.outputPort = Port(output: TextOutput(target: console, threshold: 0))
-    self.errorPort = self.inputPort
     self.libraries = LibraryManager(for: self)
     self.environment = Environment(in: self)
     self.machine = VirtualMachine(for: self)
+    self.inputPort = Port(input: TextInput(source: console,
+                                           abortionCallback: self.machine.isAbortionRequested))
+    self.outputPort = Port(output: TextOutput(target: console, threshold: 0))
+    self.errorPort = self.inputPort
     // Register tracked objects
     self.objects.track(self.machine)
     self.objects.track(self.heap)

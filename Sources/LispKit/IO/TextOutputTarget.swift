@@ -20,12 +20,18 @@
 
 import Foundation
 
-
+///
+/// Generalized sink for a `TextOutput` object.
+///
 public protocol TextOutputTarget {
   func flush(_ completely: Bool) -> Bool
   func writeString(_ str: String) -> Bool
 }
 
+///
+/// Default `TextOutputSource` implementation for encoding strings via UTF8 into a
+/// `BinaryOutput` object.
+///
 public struct UTF8EncodedTarget: TextOutputTarget {
   private let output: BinaryOutput
   

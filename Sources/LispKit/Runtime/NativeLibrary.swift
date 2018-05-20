@@ -224,7 +224,9 @@ open class NativeLibrary: Library {
   /// declarations of this library.
   public func execute(code: String) {
     do {
-      let parser = Parser(symbols: self.context.symbols, src: code)
+      let input = TextInput(string: code,
+                            abortionCallback: self.context.machine.isAbortionRequested)
+      let parser = Parser(symbols: self.context.symbols, input: input)
       while !parser.finished {
         self.execute(expr: try parser.parse().datum)
       }

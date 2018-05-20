@@ -36,15 +36,6 @@ public final class Parser {
   internal let sourceId: UInt16
   
   public convenience init(symbols: SymbolTable,
-                          src: String,
-                          sourceId: UInt16 = SourceManager.unknownSourceId,
-                          foldCase: Bool = false) {
-    self.init(symbols: symbols,
-              scanner: Scanner(string: src, foldCase: foldCase),
-              sourceId: sourceId)
-  }
-  
-  public convenience init(symbols: SymbolTable,
                           input: TextInput,
                           sourceId: UInt16 = SourceManager.unknownSourceId,
                           foldCase: Bool = false) {
