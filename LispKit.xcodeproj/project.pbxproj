@@ -40,6 +40,7 @@
 		CC3C92441D84C0D800016C28 /* Library.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC3C92431D84C0D800016C28 /* Library.swift */; };
 		CC436C401FFBD52F0095559E /* logic.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC436C3F1FFBD5090095559E /* logic.sld */; };
 		CC436C421FFD96800095559E /* Logic.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC436C411FFD94870095559E /* Logic.scm */; };
+		CC4385BC20BABAA600055289 /* HTTP.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC4385BB20BAB79500055289 /* HTTP.scm */; };
 		CC474EAF1ECFAC3F00B535E3 /* Pi.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCFBE5C31ECBA8DA0032254B /* Pi.scm */; };
 		CC474EB11ED03CB100B535E3 /* Queens.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC474EB01ED0390200B535E3 /* Queens.scm */; };
 		CC474EB31ED08D8D00B535E3 /* SRFI134.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC474EB21ED08C9700B535E3 /* SRFI134.scm */; };
@@ -243,6 +244,7 @@
 			dstPath = LispKit/Resources/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC4385BC20BABAA600055289 /* HTTP.scm in Copy examples */,
 				CC14F4B31F93AE04000FB1E0 /* AvlTrees.scm in Copy examples */,
 				CC9EB1151F5C9DFF00697511 /* Topological.scm in Copy examples */,
 				CC750BD81F5AC71500CD82A2 /* PDF.scm in Copy examples */,
@@ -420,6 +422,7 @@
 		CC3C92431D84C0D800016C28 /* Library.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Library.swift; sourceTree = "<group>"; wrapsLines = 1; };
 		CC436C3F1FFBD5090095559E /* logic.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = logic.sld; sourceTree = "<group>"; };
 		CC436C411FFD94870095559E /* Logic.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Logic.scm; sourceTree = "<group>"; };
+		CC4385BB20BAB79500055289 /* HTTP.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = HTTP.scm; sourceTree = "<group>"; };
 		CC474EB01ED0390200B535E3 /* Queens.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Queens.scm; sourceTree = "<group>"; };
 		CC474EB21ED08C9700B535E3 /* SRFI134.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SRFI134.scm; sourceTree = "<group>"; };
 		CC48055C1CFE366100D608B6 /* lispkit_logo_small.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lispkit_logo_small.png; sourceTree = "<group>"; };
@@ -981,12 +984,13 @@
 			isa = PBXGroup;
 			children = (
 				CCFBE5C31ECBA8DA0032254B /* Pi.scm */,
-				CC750BD71F5AC68900CD82A2 /* PDF.scm */,
 				CC0EBFF81ED37A76004510B2 /* Math.scm */,
+				CC9EB1141F5C9D4000697511 /* Topological.scm */,
 				CC474EB01ED0390200B535E3 /* Queens.scm */,
 				CCBDB73A1EDB4AB3001606E2 /* Prolog.scm */,
-				CC9EB1141F5C9D4000697511 /* Topological.scm */,
 				CC14F4AE1F9385BF000FB1E0 /* AvlTrees.scm */,
+				CC750BD71F5AC68900CD82A2 /* PDF.scm */,
+				CC4385BB20BAB79500055289 /* HTTP.scm */,
 			);
 			path = Examples;
 			sourceTree = "<group>";

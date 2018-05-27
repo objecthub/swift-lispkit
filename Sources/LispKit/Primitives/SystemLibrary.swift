@@ -19,6 +19,7 @@
 //
 
 import Foundation
+import Cocoa
 
 public final class SystemLibrary: NativeLibrary {
   
@@ -75,6 +76,7 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("file-size", self.fileSize))
     self.define(Procedure("directory-list", self.directoryList))
     self.define(Procedure("make-directory", self.makeDirectory))
+    self.define(Procedure("open-file", self.openFile))
     self.define(Procedure("get-environment-variable", self.getEnvironmentVariable))
     self.define(Procedure("get-environment-variables", self.getEnvironmentVariables))
     self.define(Procedure("command-line", self.commandLine))
@@ -108,6 +110,7 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("os-release", self.osRelease))
     self.define(Procedure("current-user-name", self.currentUserName))
     self.define(Procedure("user-data", self.userData))
+    self.define(Procedure("open-url", self.openUrl))
     self.define(Procedure("http-get", httpGet))
   }
   
@@ -328,6 +331,23 @@ public final class SystemLibrary: NativeLibrary {
     try self.context.fileHandler.makeDirectory(atPath: try expr.asPath(),
                                                relativeTo: self.currentDirectoryPath)
     return .void
+  }
+  
+  private func openFile(expr: Expr, withApp: Expr?, deactivate: Expr?) throws -> Expr {
+    let path = self.context.fileHandler.path(try expr.asPath(),
+                                             relativeTo: self.currentDirectoryPath)
+    if let app = withApp {
+      if let deactivate = deactivate {
+        return .makeBoolean(NSWorkspace.shared.openFile(path,
+                                                        withApplication: try app.asString(),
+                                                        andDeactivate: deactivate.isTrue))
+      } else {
+        return .makeBoolean(NSWorkspace.shared.openFile(path,
+                                                        withApplication: try app.asString()))
+      }
+    } else {
+      return .makeBoolean(NSWorkspace.shared.openFile(path))
+    }
   }
   
   private func getEnvironmentVariable(expr: Expr) throws -> Expr {
@@ -770,6 +790,10 @@ public final class SystemLibrary: NativeLibrary {
                              .pair(.makeString(gecos),
                                    .pair(.makeString(dir),
                                          .pair(.makeString(shell), .null))))))
+  }
+  
+  private func openUrl(_ expr: Expr) throws -> Expr {
+    return .makeBoolean(NSWorkspace.shared.open(try expr.asURL()))
   }
   
   private func httpGet(_ expr: Expr, _ tout: Expr?) throws -> Expr {

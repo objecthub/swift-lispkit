@@ -4,8 +4,10 @@
 ;;; Marc Battyani for the Common Lisp library "cl-pdf". It is using a port of this
 ;;; library which is available for LispKit as library (lispkit pdf).
 ;;; 
-;;; An example PDF can be generated, for example, via: (pdfex1 "~/example1.pdf")
-;;; There are four examples provided: pdfex1, pdfex2, pdfex3, pdfex4
+;;; An example PDF can be generated, for example, via: (pdfex1 "example1.pdf").
+;;; There are four examples provided: pdfex1, pdfex2, pdfex3, pdfex4.
+;;; The absolut path of a generated PDF file can be determined using `file-path`; for
+;;; instance: (file-path "example1.pdf").
 ;;; 
 ;;; License of the original cl-pdf library:
 ;;; 
