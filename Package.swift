@@ -6,6 +6,9 @@
 //  Build targets by calling the Swift Package Manager in the following way for debug purposes:
 //  swift build -Xswiftc "-target" -Xswiftc "x86_64-apple-macosx10.11" -Xswiftc "-D" -Xswiftc "SPM"
 //
+//  Run REPL:
+//  swift run -Xswiftc "-target" -Xswiftc "x86_64-apple-macosx10.11" -Xswiftc "-D" -Xswiftc "SPM"
+//
 //  A release can be built with these options:
 //  swift build -c release -Xswiftc -static-stdlib -Xswiftc "-target" -Xswiftc "x86_64-apple-macosx10.11" -Xswiftc "-D" -Xswiftc "SPM"
 //
@@ -34,11 +37,12 @@ let package = Package(
     .executable(name: "LispKitRepl", targets: ["LispKitRepl"])
   ],
   dependencies: [
-    .package(url: "https://github.com/objecthub/swift-numberkit.git", from: "2.0.5")
+    .package(url: "https://github.com/objecthub/swift-numberkit.git", from: "2.2.1"),
+    .package(url: "https://github.com/objecthub/swift-commandlinekit.git", from: "0.2.1")
   ],
   targets: [
     .target(name: "LispKit",
-            dependencies: ["NumberKit"]),
+            dependencies: ["NumberKit", "CommandLineKit"]),
     .target(name: "LispKitRepl",
             dependencies: ["LispKit"],
             exclude: ["BuildMetadata.m", "BuildMetadata.h"]),

@@ -3,7 +3,7 @@
 //  LispKitRepl
 //
 //  Created by Matthias Zenger on 14/04/2016.
-//  Copyright © 2016, 2017 ObjectHub. All rights reserved.
+//  Copyright © 2016-2018 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -18,11 +18,39 @@
 //  limitations under the License.
 //
 
+import Foundation
 import LispKit
+import CommandLineKit
 
+// Instantiate line reader
+let ln = LineReader()
 
 // Create console
 let console = CommandLineConsole()
+
+func readCommand(withPrompt: Bool = true) -> String? {
+  if let ln = ln {
+    do {
+      return try ln.readLine(prompt: withPrompt ? AppInfo.prompt : "",
+                             maxCount: 4000,
+                             strippingNewline: true,
+                             promptProperties: TextProperties(.blue, nil, .bold),
+                             readProperties: TextProperties(.black, nil),
+                             parenProperties: TextProperties(.red, nil, .bold))
+    } catch LineReaderError.CTRLC {
+      console.print("\nterminated\n")
+      return nil
+    } catch {
+      console.print("\(error.localizedDescription)\n")
+      return nil
+    }
+  } else {
+    if withPrompt {
+      console.print(AppInfo.prompt)
+    }
+    return console.read()
+  }
+}
 
 // Create LispKit context and import (base scheme)
 #if SPM
@@ -32,13 +60,14 @@ let console = CommandLineConsole()
 #else
   let context = Context(console: console)
 #endif
+
 do {
   try context.environment.import(SchemeLibrary.name)
 } catch let error {
   preconditionFailure("cannot import (lispkit base): \(error.localizedDescription)")
 }
 
-// Load standard Prelude
+// Load standard prelude
 if let preludePath = Context.defaultPreludePath {
   do {
     _ = try context.machine.eval(file: preludePath, in: context.global)
@@ -54,14 +83,14 @@ if let dynamicLib = context.libraries.lookup("lispkit", "dynamic") as? DynamicCo
 }
 
 // Print header
-console.print("\(AppInfo.name) \(AppInfo.version)\(AppInfo.buildAnnotation)\n")
-console.print("\(AppInfo.copyright)\n")
+let props = Terminal.fullColorSupport ? TextStyle.bold.properties : TextProperties.none
+console.print(props.apply(to: "\(AppInfo.name) \(AppInfo.version)\(AppInfo.buildAnnotation)\n"))
+console.print(props.apply(to: "\(AppInfo.copyright)\n"))
 
 // Enter read-eval-print loop
 var buffer = ""
-console.print(AppInfo.prompt)
-while let line = console.read() {
-  buffer += line
+while let line = readCommand(withPrompt: buffer.isEmpty) {
+  buffer += line + " "
   let res = context.machine.onTopLevelDo {
     return try context.machine.eval(str: buffer, in: context.global)
   }
@@ -89,7 +118,8 @@ while let line = console.read() {
   } else if res != .void {
     console.print("\(res.description)\n")
   }
-  // Print prompt and empty buffer
-  console.print(AppInfo.prompt)
+  // Store buffer in the history of the line reader
+  ln?.addHistory(buffer.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines))
+  // Empty buffer
   buffer = ""
 }

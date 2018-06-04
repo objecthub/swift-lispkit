@@ -32,12 +32,12 @@ public struct AppInfo {
   // Version of the application
   public static let version =
     (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String) ??
-    "1.2"
+    "2.0.0"
   
   // Copyright message
   public static let copyright =
     (Bundle.main.infoDictionary?["NSHumanReadableCopyright"] as? String) ??
-    "Copyright © 2017 Matthias Zenger. All rights reserved."
+    "Copyright © 2016–2018 Matthias Zenger. All rights reserved."
   
   #if SPM
     public static let prompt = "> "
@@ -47,7 +47,7 @@ public struct AppInfo {
   
   // Build date/time
   #if SPM
-    public static let buildDate = "2017"
+    public static let buildDate = "2018"
     public static let buildTime = "?"
     public static let buildAnnotation = ""
   #else

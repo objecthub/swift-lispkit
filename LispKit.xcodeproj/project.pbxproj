@@ -80,6 +80,12 @@
 		CC5BBC7B1D52724800367E8F /* HashTableLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5BBC7A1D52724800367E8F /* HashTableLibrary.swift */; };
 		CC5C0A3F1D8EBE0A00CE2E98 /* MultiMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5C0A3E1D8EBE0A00CE2E98 /* MultiMap.swift */; };
 		CC5C713F1EBD3D3A00280CF4 /* NumberKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC5C713E1EBD3D3A00280CF4 /* NumberKit.framework */; };
+		CC5E473520C51BFE00F21B03 /* CommandLineKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC5E473420C51BFE00F21B03 /* CommandLineKit.framework */; };
+		CC5E473620C51C1300F21B03 /* CommandLineKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC5E473420C51BFE00F21B03 /* CommandLineKit.framework */; };
+		CC5E473720C51C1300F21B03 /* CommandLineKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC5E473420C51BFE00F21B03 /* CommandLineKit.framework */; };
+		CC5E473920C51E0A00F21B03 /* CommandLineKit.framework.dSYM in Copy dSYM data */ = {isa = PBXBuildFile; fileRef = CC5E473820C51C2D00F21B03 /* CommandLineKit.framework.dSYM */; };
+		CC5E473A20C51EC400F21B03 /* CommandLineKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CC5E473420C51BFE00F21B03 /* CommandLineKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		CC5E473B20C51ED900F21B03 /* CommandLineKit.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = CC5E473420C51BFE00F21B03 /* CommandLineKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CC68B3A91FCCCDEE00EB4AF9 /* object.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC68B3A81FCC73C300EB4AF9 /* object.sld */; };
 		CC6A3B5C1C52E71F00E962E2 /* ListLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B5B1C52E71F00E962E2 /* ListLibrary.swift */; };
 		CC6A3B5E1C52E8EF00E962E2 /* VectorLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B5D1C52E8EF00E962E2 /* VectorLibrary.swift */; };
@@ -222,6 +228,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				CC5E473A20C51EC400F21B03 /* CommandLineKit.framework in Embed Frameworks */,
 				CC1AAE3C1CC3CF0F00D1806F /* LispKit.framework in Embed Frameworks */,
 				CC98B4571EBD43C900BCD049 /* NumberKit.framework in Embed Frameworks */,
 			);
@@ -299,6 +306,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 16;
 			files = (
+				CC5E473920C51E0A00F21B03 /* CommandLineKit.framework.dSYM in Copy dSYM data */,
 				CC98B45A1EBD444400BCD049 /* NumberKit.framework.dSYM in Copy dSYM data */,
 			);
 			name = "Copy dSYM data";
@@ -348,6 +356,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				CC5E473B20C51ED900F21B03 /* CommandLineKit.framework in CopyFiles */,
 				CC98B4581EBD43E500BCD049 /* NumberKit.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -466,6 +475,8 @@
 		CC5C0A3E1D8EBE0A00CE2E98 /* MultiMap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MultiMap.swift; sourceTree = "<group>"; };
 		CC5C713E1EBD3D3A00280CF4 /* NumberKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NumberKit.framework; path = Carthage/Build/Mac/NumberKit.framework; sourceTree = "<group>"; };
 		CC5C71431EBD3F3F00280CF4 /* Cartfile */ = {isa = PBXFileReference; lastKnownFileType = text; path = Cartfile; sourceTree = "<group>"; };
+		CC5E473420C51BFE00F21B03 /* CommandLineKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CommandLineKit.framework; path = Carthage/Build/Mac/CommandLineKit.framework; sourceTree = "<group>"; };
+		CC5E473820C51C2D00F21B03 /* CommandLineKit.framework.dSYM */ = {isa = PBXFileReference; lastKnownFileType = wrapper.dsym; name = CommandLineKit.framework.dSYM; path = Carthage/Build/Mac/CommandLineKit.framework.dSYM; sourceTree = "<group>"; };
 		CC68B3A81FCC73C300EB4AF9 /* object.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = object.sld; sourceTree = "<group>"; };
 		CC6A3B5B1C52E71F00E962E2 /* ListLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = ListLibrary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC6A3B5D1C52E8EF00E962E2 /* VectorLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = VectorLibrary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -595,6 +606,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CC1AAE3B1CC3CF0F00D1806F /* LispKit.framework in Frameworks */,
+				CC5E473720C51C1300F21B03 /* CommandLineKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -602,6 +614,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CC5E473520C51BFE00F21B03 /* CommandLineKit.framework in Frameworks */,
 				CC5C713F1EBD3D3A00280CF4 /* NumberKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -611,6 +624,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CCAD52C51C48403900DBD8EE /* LispKit.framework in Frameworks */,
+				CC5E473620C51C1300F21B03 /* CommandLineKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -620,6 +634,8 @@
 		CC069FB71D7B7CFD004644B1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				CC5E473820C51C2D00F21B03 /* CommandLineKit.framework.dSYM */,
+				CC5E473420C51BFE00F21B03 /* CommandLineKit.framework */,
 				CC98B4591EBD444400BCD049 /* NumberKit.framework.dSYM */,
 				CC5C713E1EBD3D3A00280CF4 /* NumberKit.framework */,
 			);
@@ -1285,6 +1301,10 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/Mac",
+				);
 				INFOPLIST_FILE = Sources/LispKitRepl/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../Frameworks";
 				"OTHER_SWIFT_FLAGS[arch=*]" = "-D DEBUG";
@@ -1303,6 +1323,10 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/Mac",
+				);
 				INFOPLIST_FILE = Sources/LispKitRepl/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispKitRepl;
