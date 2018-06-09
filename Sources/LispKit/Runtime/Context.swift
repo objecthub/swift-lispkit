@@ -32,6 +32,9 @@ public final class Context {
   /// Version of the LispKit interpreter which is defined by this context.
   public let implementationVersion: String?
   
+  /// Command-line arguments
+  public let commandLineArguments: [String]
+  
   /// A delegate object which receives updates related to the virtual machine managed by
   /// this context. The virtual machine also delegates some functionality to this object.
   public var delegate: ContextDelegate?
@@ -91,6 +94,7 @@ public final class Context {
   public init(console: Console,
               implementationName: String? = nil,
               implementationVersion: String? = nil,
+              commandLineArguments: [String]? = nil,
               includeInternalResources: Bool = true,
               includeDocumentPath: String? = "LispKit",
               delegate: ContextDelegate? = nil) {
@@ -98,6 +102,7 @@ public final class Context {
     self.delegate = delegate
     self.implementationName = implementationName ?? Context.implementationName
     self.implementationVersion = implementationVersion ?? Context.implementationVersion
+    self.commandLineArguments = commandLineArguments ?? CommandLine.arguments
     self.console = console
     self.heap = Heap()
     self.fileHandler = FileHandler(includeInternalResources: includeInternalResources,

@@ -367,7 +367,7 @@ public final class SystemLibrary: NativeLibrary {
   }
   
   private func commandLine() -> Expr {
-    let args = CommandLine.arguments.reversed()
+    let args = self.context.commandLineArguments.reversed()
     var res = Expr.null
     for arg in args {
       res = .pair(.makeString(arg), res)

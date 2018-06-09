@@ -119,12 +119,15 @@ func printError(if issue: Bool = true, _ message: String) {
 }
 
 // Create LispKit context
+var cmdLineArgs = flags.parameters.isEmpty ? [CommandLine.arguments.first!] : flags.parameters
 #if SPM
   let context = Context(console: console,
                         implementationName: "LispKit",
-                        implementationVersion: "1.4.0")
+                        implementationVersion: "1.4.0",
+                        commandLineArguments: cmdLineArgs)
 #else
-  let context = Context(console: console)
+  let context = Context(console: console,
+                        commandLineArguments: cmdLineArgs)
 #endif
 
 // Set up LispKit engine
@@ -213,12 +216,35 @@ func printResult(_ res: Expr) {
 }
 
 // Distinguish interactive usage (via REPL) from non-interactive usage
-if flags.parameters.isEmpty {
+if let program = flags.parameters.first {
+  do {
+    let res = try context.machine.eval(file: program, in: context.global)
+    if context.machine.exitTriggered {
+      if res != .true {
+        print("abnormal exit: \(res.description)\n")
+        exit(1)
+      }
+    } else {
+      printResult(res)
+      if case .error(_) = res {
+        exit(1)
+      }
+    }
+  } catch let error as RuntimeError {
+    print("cannot execute \(program): \(error.message)")
+    exit(1)
+  } catch let error as NSError {
+    print("cannot execute \(program): \(error.localizedDescription)")
+    exit(1)
+  } catch {
+    print("cannot execute \(program)")
+    exit(1)
+  }
+} else {
   // Print header
   let props = Terminal.fullColorSupport ? TextStyle.bold.properties : TextProperties.none
   printOpt(props.apply(to: "\(AppInfo.name) \(AppInfo.version)\(AppInfo.buildAnnotation)"))
   printOpt(props.apply(to: "\(AppInfo.copyright)"))
-
   // Enter read-eval-print loop
   var buffer = ""
   while let line = readCommand(withPrompt: buffer.isEmpty) {
@@ -233,11 +259,11 @@ if flags.parameters.isEmpty {
         exit(1)
       }
       break
-    // If closing parenthesis are missing, keep on reading
+      // If closing parenthesis are missing, keep on reading
     } else if case .error(let err) = res,
-              case .syntax(.closingParenthesisMissing) = err.descriptor {
+      case .syntax(.closingParenthesisMissing) = err.descriptor {
       continue
-    // Else print result
+      // Else print result
     } else {
       printResult(res)
     }
@@ -246,33 +272,5 @@ if flags.parameters.isEmpty {
     // Empty buffer
     buffer = ""
   }
-} else {
-  var res = Expr.void
-  for program in flags.parameters {
-    do {
-      res = try context.machine.eval(file: program, in: context.global)
-      if context.machine.exitTriggered {
-        if res != .true {
-          print("abnormal exit: \(res.description)\n")
-          exit(1)
-        }
-        break
-      }
-    } catch let error as RuntimeError {
-      print("cannot execute \(program): \(error.message)")
-      exit(1)
-    } catch let error as NSError {
-      print("cannot execute \(program): \(error.localizedDescription)")
-      exit(1)
-    } catch {
-      print("cannot execute \(program)")
-      exit(1)
-    }
-  }
-  printResult(res)
-  if case .error(_) = res {
-    exit(1)
-  } else {
-    exit(0)
-  }
 }
+exit(0)
