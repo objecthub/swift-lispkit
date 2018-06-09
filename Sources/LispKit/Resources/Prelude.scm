@@ -13,6 +13,8 @@
 ;;; either express or implied. See the License for the specific language governing permissions
 ;;; and limitations under the License.
 
+(import (lispkit base))
+
 (define-syntax for
   (syntax-rules (in from)
     ((for element in list body ...) (map (lambda (element) body ...) list))

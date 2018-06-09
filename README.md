@@ -149,7 +149,8 @@ A debug binary can be built in the following way:
 > swift build -Xswiftc "-target" -Xswiftc "x86_64-apple-macosx10.11" \
   -Xswiftc "-D" -Xswiftc "SPM"
 Compile Swift Module 'NumberKit' (6 sources)
-Compile Swift Module 'LispKit' (75 sources)
+Compile Swift Module 'CommandLineKit' (15 sources)
+Compile Swift Module 'LispKit' (83 sources)
 Compile Swift Module 'LispKitRepl' (2 sources)
 Linking ./.build/x86_64-apple-macosx10.10/debug/LispKitRepl
 ```
@@ -160,7 +161,8 @@ A release binary can be built like this:
 > swift build -c release -Xswiftc -static-stdlib -Xswiftc "-target" \
   -Xswiftc "x86_64-apple-macosx10.11" -Xswiftc "-D" -Xswiftc "SPM"
 Compile Swift Module 'NumberKit' (6 sources)
-Compile Swift Module 'LispKit' (75 sources)
+Compile Swift Module 'CommandLineKit' (15 sources)
+Compile Swift Module 'LispKit' (83 sources)
 Compile Swift Module 'LispKitRepl' (2 sources)
 Linking ./.build/x86_64-apple-macosx10.10/release/LispKitRepl
 ```
@@ -168,10 +170,11 @@ Linking ./.build/x86_64-apple-macosx10.10/release/LispKitRepl
 
 ## Requirements
 
-The read-eval-print loop can be built using the Swift Package Manager. Nevertheless, it is
-recommended to use Xcode 9 in combination with Carthage:
+The read-eval-print loop can be built using the Swift Package Manager. Nevertheless, it is recommended
+to use Xcode 9.3 in combination with Carthage:
 
 - [Xcode 9.3](https://developer.apple.com/xcode/)
 - [Carthage](https://github.com/Carthage/Carthage)
 - [Swift 4.1](https://developer.apple.com/swift/)
 - [NumberKit](http://github.com/objecthub/swift-numberkit)
+- [CommandLineKit](http://github.com/objecthub/swift-commandlinekit)

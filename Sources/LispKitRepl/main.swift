@@ -22,16 +22,66 @@ import Foundation
 import LispKit
 import CommandLineKit
 
-// Instantiate line reader
-let ln = LineReader()
+// Define and parse command-line arguments
+var flags = Flags()
+let filePaths  = flags.strings("f", "filepath",
+                               description: "Adds file path in which programs are searched for.")
+let libPaths   = flags.strings("l", "libpath",
+                               description: "Adds file path in which libraries are searched for.")
+let heapSize   = flags.int("h", "heapsize",
+                           description: "initial capacity of the heap",
+                           value: 1000)
+let baseLib    = flags.string("b", "baselib",
+                              description: "Initial library which gets imported before prelude " +
+                                           "file is executed. Only used for REPL.")
+let prelude    = flags.string("p", "prelude",
+                              description: "Path to prelude file which gets executed before " +
+                                           "entering REPL. Only used for REPL.",
+                              value: Context.defaultPreludePath)
+let forceInit  = flags.option("i", "forceReplInit",
+                              description: "Forces initialization of base library and " +
+                                           "execution of prelude for non-REPL usage.")
+let prompt     = flags.string("r", "prompt",
+                              description: "String used as prompt in REPL.",
+                              value: AppInfo.prompt)
+let simple     = flags.option("m", "simple",
+                              description: "Use simple line reader.")
+let strict     = flags.option("s", "strict",
+                              description: "In strict mode, initialization warnings terminate " +
+                                           "the application.")
+let quiet      = flags.option("q", "quiet",
+                              description: "In quiet mode, optional messages are not printed.")
 
-// Create console
+do {
+  try flags.parse()
+} catch let error as FlagError {
+  let flagname = error.flag?.longName ?? error.flag?.shortName?.description
+  var message = error.flag == nil ? "error parsing flags: " : "error parsing flag `\(flagname!)`: "
+  switch error.kind {
+    case .unknownFlag(let str):
+      message += "unknown flag `\(str)`"
+    case .missingValue:
+      message += "missing value"
+    case .malformedValue(let str):
+      message += "malformed value `\(str)`"
+    case .illegalFlagCombination(let str):
+      message += "illegal flag combination with `\(str)`"
+    case .tooManyValues(let str):
+      message += "too many values from `\(str)`"
+  }
+  print(message)
+  exit(1)
+}
+
+// Instantiate line reader and console
+let ln = simple.wasSet ? nil : LineReader()
 let console = CommandLineConsole()
 
+// Define prompt/read logic based on `console`
 func readCommand(withPrompt: Bool = true) -> String? {
   if let ln = ln {
     do {
-      return try ln.readLine(prompt: withPrompt ? AppInfo.prompt : "",
+      return try ln.readLine(prompt: withPrompt ? (prompt.value ?? "> ") : "",
                              maxCount: 4000,
                              strippingNewline: true,
                              promptProperties: TextProperties(.blue, nil, .bold),
@@ -46,13 +96,29 @@ func readCommand(withPrompt: Bool = true) -> String? {
     }
   } else {
     if withPrompt {
-      console.print(AppInfo.prompt)
+      console.print(prompt.value ?? "> ")
     }
     return console.read()
   }
 }
 
-// Create LispKit context and import (base scheme)
+// Define how optional messages and errors are printed
+func printOpt(_ message: String) {
+  if !quiet.wasSet {
+    print(message)
+  }
+}
+
+func printError(if issue: Bool = true, _ message: String) {
+  if issue {
+    printOpt(message)
+    if strict.wasSet {
+      exit(1)
+    }
+  }
+}
+
+// Create LispKit context
 #if SPM
   let context = Context(console: console,
                         implementationName: "LispKit",
@@ -61,18 +127,52 @@ func readCommand(withPrompt: Bool = true) -> String? {
   let context = Context(console: console)
 #endif
 
-do {
-  try context.environment.import(SchemeLibrary.name)
-} catch let error {
-  preconditionFailure("cannot import (lispkit base): \(error.localizedDescription)")
+// Set up LispKit engine
+for p in filePaths.value {
+  printError(if: !context.fileHandler.addSearchPath(p), "cannot add search path: \(p)")
+}
+for p in libPaths.value {
+  printError(if: !context.fileHandler.addLibrarySearchPath(p), "cannot add library path: \(p)")
+}
+if let capacity = heapSize.value {
+  context.heap.reserveCapacity(capacity)
 }
 
-// Load standard prelude
-if let preludePath = Context.defaultPreludePath {
+// Guarantee that (lispkit dynamic) is imported
+do {
+  try context.environment.import(["lispkit", "dynamic"])
+} catch let error as RuntimeError {
+  print("cannot import core lispkit libraries: \(error.message)")
+  exit(1)
+} catch let error as NSError {
+  print("cannot import core lispkit libraries: \(error.localizedDescription)")
+  exit(1)
+} catch {
+  print("cannot import core lispkit libraries")
+  exit(1)
+}
+
+// Import initial library
+if forceInit.wasSet || flags.parameters.isEmpty, let baseLib = baseLib.value {
+  // Remove outer parenthesis if needed; this is to allow users to provide a more readable
+  // library name (same expression as within the repl)
+  var initialLib = baseLib
+  if initialLib.first == "(" && initialLib.last == ")" {
+    initialLib.removeFirst()
+    initialLib.removeLast()
+  }
+  var name: [String] = []
+  for s in initialLib.split(separator: " ") {
+    name.append(String(s))
+  }
   do {
-    _ = try context.machine.eval(file: preludePath, in: context.global)
-  } catch let error {
-    preconditionFailure("cannot evaluate prelude: \(error.localizedDescription)")
+    try context.environment.import(name)
+  } catch let error as RuntimeError {
+    printError("error importing (\(initialLib)): \(error.message)")
+  } catch let error as NSError {
+    printError("error importing (\(initialLib)): \(error.localizedDescription)")
+  } catch {
+    printError("error importing (\(initialLib))")
   }
 }
 
@@ -82,30 +182,22 @@ if let dynamicLib = context.libraries.lookup("lispkit", "dynamic") as? DynamicCo
   context.machine.raiseProc = raiseProc
 }
 
-// Print header
-let props = Terminal.fullColorSupport ? TextStyle.bold.properties : TextProperties.none
-console.print(props.apply(to: "\(AppInfo.name) \(AppInfo.version)\(AppInfo.buildAnnotation)\n"))
-console.print(props.apply(to: "\(AppInfo.copyright)\n"))
-
-// Enter read-eval-print loop
-var buffer = ""
-while let line = readCommand(withPrompt: buffer.isEmpty) {
-  buffer += line + " "
-  let res = context.machine.onTopLevelDo {
-    return try context.machine.eval(str: buffer, in: context.global)
+// Load prelude
+if forceInit.wasSet || flags.parameters.isEmpty, let preludePath = prelude.value {
+  do {
+    _ = try context.machine.eval(file: preludePath, in: context.global)
+  } catch let error as RuntimeError {
+    printError("cannot evaluate prelude: \(error.message)")
+  } catch let error as NSError {
+    printError("cannot evaluate prelude: \(error.localizedDescription)")
+  } catch {
+    printError("cannot evaluate prelude")
   }
-  // Exit loop if the machine has executed the `exit` function
-  if context.machine.exitTriggered {
-    if res != .true {
-      console.print("abnormal exit: \(res.description)\n")
-    }
-    break
-  // If closing parenthesis are missing, keep on reading
-  } else if case .error(let err) = res,
-            case .syntax(.closingParenthesisMissing) = err.descriptor {
-    continue
+}
+
+func printResult(_ res: Expr) {
   // For multiple values being returned, print each value on a separate line
-  } else if case .values(let expr) = res {
+  if case .values(let expr) = res {
     var next = expr
     while case .pair(let x, let rest) = next {
       console.print("\(x.description)\n")
@@ -118,8 +210,69 @@ while let line = readCommand(withPrompt: buffer.isEmpty) {
   } else if res != .void {
     console.print("\(res.description)\n")
   }
-  // Store buffer in the history of the line reader
-  ln?.addHistory(buffer.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines))
-  // Empty buffer
-  buffer = ""
+}
+
+// Distinguish interactive usage (via REPL) from non-interactive usage
+if flags.parameters.isEmpty {
+  // Print header
+  let props = Terminal.fullColorSupport ? TextStyle.bold.properties : TextProperties.none
+  printOpt(props.apply(to: "\(AppInfo.name) \(AppInfo.version)\(AppInfo.buildAnnotation)"))
+  printOpt(props.apply(to: "\(AppInfo.copyright)"))
+
+  // Enter read-eval-print loop
+  var buffer = ""
+  while let line = readCommand(withPrompt: buffer.isEmpty) {
+    buffer += line + " "
+    let res = context.machine.onTopLevelDo {
+      return try context.machine.eval(str: buffer, in: context.global)
+    }
+    // Exit loop if the machine has executed the `exit` function
+    if context.machine.exitTriggered {
+      if res != .true {
+        print("abnormal exit: \(res.description)\n")
+        exit(1)
+      }
+      break
+    // If closing parenthesis are missing, keep on reading
+    } else if case .error(let err) = res,
+              case .syntax(.closingParenthesisMissing) = err.descriptor {
+      continue
+    // Else print result
+    } else {
+      printResult(res)
+    }
+    // Store buffer in the history of the line reader
+    ln?.addHistory(buffer.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines))
+    // Empty buffer
+    buffer = ""
+  }
+} else {
+  var res = Expr.void
+  for program in flags.parameters {
+    do {
+      res = try context.machine.eval(file: program, in: context.global)
+      if context.machine.exitTriggered {
+        if res != .true {
+          print("abnormal exit: \(res.description)\n")
+          exit(1)
+        }
+        break
+      }
+    } catch let error as RuntimeError {
+      print("cannot execute \(program): \(error.message)")
+      exit(1)
+    } catch let error as NSError {
+      print("cannot execute \(program): \(error.localizedDescription)")
+      exit(1)
+    } catch {
+      print("cannot execute \(program)")
+      exit(1)
+    }
+  }
+  printResult(res)
+  if case .error(_) = res {
+    exit(1)
+  } else {
+    exit(0)
+  }
 }
