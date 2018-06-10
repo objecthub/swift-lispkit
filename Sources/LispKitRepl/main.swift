@@ -31,26 +31,23 @@ let libPaths   = flags.strings("l", "libpath",
 let heapSize   = flags.int("h", "heapsize",
                            description: "initial capacity of the heap",
                            value: 1000)
-let baseLib    = flags.string("b", "baselib",
-                              description: "Initial library which gets imported before prelude " +
-                                           "file is executed. Only used for REPL.")
+let importLibs = flags.strings("i", "import",
+                               description: "Imports library automatically after startup.")
 let prelude    = flags.string("p", "prelude",
-                              description: "Path to prelude file which gets executed before " +
-                                           "entering REPL. Only used for REPL.",
-                              value: Context.defaultPreludePath)
-let forceInit  = flags.option("i", "forceReplInit",
-                              description: "Forces initialization of base library and " +
-                                           "execution of prelude for non-REPL usage.")
+                              description: "Path to prelude file which gets executed after " +
+                                           "loading all provided libraries.")
 let prompt     = flags.string("r", "prompt",
                               description: "String used as prompt in REPL.",
                               value: AppInfo.prompt)
-let simple     = flags.option("m", "simple",
-                              description: "Use simple line reader.")
+let basic      = flags.option("b", "basic",
+                              description: "Use basic line reader only.")
 let strict     = flags.option("s", "strict",
                               description: "In strict mode, initialization warnings terminate " +
                                            "the application.")
 let quiet      = flags.option("q", "quiet",
                               description: "In quiet mode, optional messages are not printed.")
+let help       = flags.option("h", "help",
+                              description: "Show description of usage and options of this tools.")
 
 do {
   try flags.parse()
@@ -73,8 +70,18 @@ do {
   exit(1)
 }
 
+// If help flag was provided, print usage description and exit tool
+if help.wasSet {
+  print(flags.usageDescription(usageName: TextStyle.bold.properties.apply(to: "usage:"),
+                               synopsis: "[<option> ...] [--] [<program> <arg> ...]",
+                               usageStyle: TextProperties.none,
+                               optionsName: TextStyle.bold.properties.apply(to: "options:"),
+                               flagStyle: TextStyle.italic.properties))
+  exit(0)
+}
+
 // Instantiate line reader and console
-let ln = simple.wasSet ? nil : LineReader()
+let ln = basic.wasSet ? nil : LineReader()
 let console = CommandLineConsole()
 
 // Define prompt/read logic based on `console`
@@ -155,11 +162,17 @@ do {
   exit(1)
 }
 
-// Import initial library
-if forceInit.wasSet || flags.parameters.isEmpty, let baseLib = baseLib.value {
+// Install error handler
+if let dynamicLib = context.libraries.lookup("lispkit", "dynamic") as? DynamicControlLibrary,
+  let raiseProc = dynamicLib.raiseProc {
+  context.machine.raiseProc = raiseProc
+}
+
+// Import initial libraries
+for lib in importLibs.value {
   // Remove outer parenthesis if needed; this is to allow users to provide a more readable
   // library name (same expression as within the repl)
-  var initialLib = baseLib
+  var initialLib = lib
   if initialLib.first == "(" && initialLib.last == ")" {
     initialLib.removeFirst()
     initialLib.removeLast()
@@ -179,22 +192,17 @@ if forceInit.wasSet || flags.parameters.isEmpty, let baseLib = baseLib.value {
   }
 }
 
-// Install error handler
-if let dynamicLib = context.libraries.lookup("lispkit", "dynamic") as? DynamicControlLibrary,
-   let raiseProc = dynamicLib.raiseProc {
-  context.machine.raiseProc = raiseProc
-}
-
 // Load prelude
-if forceInit.wasSet || flags.parameters.isEmpty, let preludePath = prelude.value {
+print(Context.defaultPreludePath)
+if let ppath = prelude.value ?? (flags.parameters.isEmpty ? Context.defaultPreludePath : nil) {
   do {
-    _ = try context.machine.eval(file: preludePath, in: context.global)
+    _ = try context.machine.eval(file: ppath, in: context.global)
   } catch let error as RuntimeError {
-    printError("cannot evaluate prelude: \(error.message)")
+    printError("cannot evaluate prelude \(ppath): \(error.message)")
   } catch let error as NSError {
-    printError("cannot evaluate prelude: \(error.localizedDescription)")
+    printError("cannot evaluate prelude \(ppath): \(error.localizedDescription)")
   } catch {
-    printError("cannot evaluate prelude")
+    printError("cannot evaluate prelude \(ppath)")
   }
 }
 
