@@ -38,7 +38,7 @@ let package = Package(
   ],
   dependencies: [
     .package(url: "https://github.com/objecthub/swift-numberkit.git", from: "2.2.1"),
-    .package(url: "https://github.com/objecthub/swift-commandlinekit.git", from: "0.2.2")
+    .package(url: "https://github.com/objecthub/swift-commandlinekit.git", from: "0.2.3")
   ],
   targets: [
     .target(name: "LispKit",

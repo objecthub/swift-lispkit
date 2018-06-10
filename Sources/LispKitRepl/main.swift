@@ -24,15 +24,20 @@ import CommandLineKit
 
 // Define and parse command-line arguments
 var flags = Flags()
+
 let filePaths  = flags.strings("f", "filepath",
                                description: "Adds file path in which programs are searched for.")
 let libPaths   = flags.strings("l", "libpath",
                                description: "Adds file path in which libraries are searched for.")
 let heapSize   = flags.int("h", "heapsize",
-                           description: "initial capacity of the heap",
+                           description: "Initial capacity of the heap.",
                            value: 1000)
 let importLibs = flags.strings("i", "import",
                                description: "Imports library automatically after startup.")
+let r7rs       = flags.option(nil, "r7rs",
+                              description: "Imports library (scheme base).")
+let lispkit    = flags.option(nil, "lispkit",
+                              description: "Imports library (lispkit base).")
 let prelude    = flags.string("p", "prelude",
                               description: "Path to prelude file which gets executed after " +
                                            "loading all provided libraries.")
@@ -49,31 +54,15 @@ let quiet      = flags.option("q", "quiet",
 let help       = flags.option("h", "help",
                               description: "Show description of usage and options of this tools.")
 
-do {
-  try flags.parse()
-} catch let error as FlagError {
-  let flagname = error.flag?.longName ?? error.flag?.shortName?.description
-  var message = error.flag == nil ? "error parsing flags: " : "error parsing flag `\(flagname!)`: "
-  switch error.kind {
-    case .unknownFlag(let str):
-      message += "unknown flag `\(str)`"
-    case .missingValue:
-      message += "missing value"
-    case .malformedValue(let str):
-      message += "malformed value `\(str)`"
-    case .illegalFlagCombination(let str):
-      message += "illegal flag combination with `\(str)`"
-    case .tooManyValues(let str):
-      message += "too many values from `\(str)`"
-  }
-  print(message)
+if let failure = flags.parsingFailure() {
+  print(failure)
   exit(1)
 }
 
 // If help flag was provided, print usage description and exit tool
 if help.wasSet {
   print(flags.usageDescription(usageName: TextStyle.bold.properties.apply(to: "usage:"),
-                               synopsis: "[<option> ...] [--] [<program> <arg> ...]",
+                               synopsis: "[<option> ...] [---] [<program> <arg> ...]",
                                usageStyle: TextProperties.none,
                                optionsName: TextStyle.bold.properties.apply(to: "options:"),
                                flagStyle: TextStyle.italic.properties))
@@ -169,7 +158,14 @@ if let dynamicLib = context.libraries.lookup("lispkit", "dynamic") as? DynamicCo
 }
 
 // Import initial libraries
-for lib in importLibs.value {
+var libs: [String] = []
+if lispkit.wasSet {
+  libs.append("lispkit base")
+} else if r7rs.wasSet {
+  libs.append("scheme base")
+}
+libs.append(contentsOf: importLibs.value)
+for lib in libs {
   // Remove outer parenthesis if needed; this is to allow users to provide a more readable
   // library name (same expression as within the repl)
   var initialLib = lib
@@ -193,7 +189,6 @@ for lib in importLibs.value {
 }
 
 // Load prelude
-print(Context.defaultPreludePath)
 if let ppath = prelude.value ?? (flags.parameters.isEmpty ? Context.defaultPreludePath : nil) {
   do {
     _ = try context.machine.eval(file: ppath, in: context.global)
