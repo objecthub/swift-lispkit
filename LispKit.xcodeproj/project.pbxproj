@@ -86,6 +86,8 @@
 		CC5E473920C51E0A00F21B03 /* CommandLineKit.framework.dSYM in Copy dSYM data */ = {isa = PBXBuildFile; fileRef = CC5E473820C51C2D00F21B03 /* CommandLineKit.framework.dSYM */; };
 		CC5E473A20C51EC400F21B03 /* CommandLineKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CC5E473420C51BFE00F21B03 /* CommandLineKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CC5E473B20C51ED900F21B03 /* CommandLineKit.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = CC5E473420C51BFE00F21B03 /* CommandLineKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		CC5E473D20D2D92900F21B03 /* 69.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC5E473C20D2D8B600F21B03 /* 69.sld */; };
+		CC5E473F20D2DF5400F21B03 /* SRFI69.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC5E473E20D2D95E00F21B03 /* SRFI69.scm */; };
 		CC68B3A91FCCCDEE00EB4AF9 /* object.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC68B3A81FCC73C300EB4AF9 /* object.sld */; };
 		CC6A3B5C1C52E71F00E962E2 /* ListLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B5B1C52E71F00E962E2 /* ListLibrary.swift */; };
 		CC6A3B5E1C52E8EF00E962E2 /* VectorLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B5D1C52E8EF00E962E2 /* VectorLibrary.swift */; };
@@ -367,6 +369,7 @@
 			dstPath = LispKit/Resources/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
+				CC5E473D20D2D92900F21B03 /* 69.sld in Copy pre-installed SRFI libraries */,
 				CC96D1092038B17A006AA27B /* 137.sld in Copy pre-installed SRFI libraries */,
 				CC96D1072038AC59006AA27B /* 145.sld in Copy pre-installed SRFI libraries */,
 				CC96D10520386A40006AA27B /* 151.sld in Copy pre-installed SRFI libraries */,
@@ -477,6 +480,8 @@
 		CC5C71431EBD3F3F00280CF4 /* Cartfile */ = {isa = PBXFileReference; lastKnownFileType = text; path = Cartfile; sourceTree = "<group>"; };
 		CC5E473420C51BFE00F21B03 /* CommandLineKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CommandLineKit.framework; path = Carthage/Build/Mac/CommandLineKit.framework; sourceTree = "<group>"; };
 		CC5E473820C51C2D00F21B03 /* CommandLineKit.framework.dSYM */ = {isa = PBXFileReference; lastKnownFileType = wrapper.dsym; name = CommandLineKit.framework.dSYM; path = Carthage/Build/Mac/CommandLineKit.framework.dSYM; sourceTree = "<group>"; };
+		CC5E473C20D2D8B600F21B03 /* 69.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 69.sld; sourceTree = "<group>"; };
+		CC5E473E20D2D95E00F21B03 /* SRFI69.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = SRFI69.scm; sourceTree = "<group>"; };
 		CC68B3A81FCC73C300EB4AF9 /* object.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = object.sld; sourceTree = "<group>"; };
 		CC6A3B5B1C52E71F00E962E2 /* ListLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = ListLibrary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC6A3B5D1C52E8EF00E962E2 /* VectorLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = VectorLibrary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -674,6 +679,7 @@
 				CC2345421F655C0A00C38817 /* Datatypes.scm */,
 				CC436C411FFD94870095559E /* Logic.scm */,
 				CC8218901E3FFFAB009CA653 /* SRFI19.scm */,
+				CC5E473E20D2D95E00F21B03 /* SRFI69.scm */,
 				CC48EBC51F3E437300233FA9 /* SRFI35.scm */,
 				CC7AAE6D1EC8AEBE00B0F66C /* SRFI121.scm */,
 				CC5847F91E4FC55700BE6497 /* SRFI132.scm */,
@@ -748,6 +754,7 @@
 				CC8A2AB01F40672700D1E4D8 /* 48.sld */,
 				CC79DE031F883FED00CE7A5D /* 63.sld */,
 				CCC072451F9AA8B70063974E /* 64.sld */,
+				CC5E473C20D2D8B600F21B03 /* 69.sld */,
 				CC7AAE6B1EC859E100B0F66C /* 121.sld */,
 				CCC072471F9C047D0063974E /* 128.sld */,
 				CC58480C1E56BD1800BE6497 /* 132.sld */,
@@ -1140,6 +1147,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CCC41DC41D2649E9003CB4D0 /* DelayedEvaluation.scm in Resources */,
+				CC5E473F20D2DF5400F21B03 /* SRFI69.scm in Resources */,
 				CC131C521CDE840C006C030C /* LocalSyntaxRules.scm in Resources */,
 				CC48EBC61F3E460900233FA9 /* SRFI35.scm in Resources */,
 				CC8C6EC81CFA65F200126BDD /* ControlFlow.scm in Resources */,

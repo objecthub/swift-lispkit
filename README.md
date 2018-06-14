@@ -69,8 +69,7 @@ The following  [SRFI](https://srfi.schemers.org/) libraries have been ported to 
 framework:
 
   - [SRFI 1: List Library](https://srfi.schemers.org/srfi-1/srfi-1.html)
-  - [SRFI 2: AND-LET* - an AND with local bindings, a guarded LET* special
-             form](https://srfi.schemers.org/srfi-2/srfi-2.html)
+  - [SRFI 2: AND-LET* - an AND with local bindings, a guarded LET* special form](https://srfi.schemers.org/srfi-2/srfi-2.html)
   - [SRFI 8: receive - Binding to multiple values](https://srfi.schemers.org/srfi-8/srfi-8.html)
   - [SRFI 17: Generalized set!](https://srfi.schemers.org/srfi-17/srfi-17.html)
   - [SRFI 19: Time Data Types and Procedures](https://srfi.schemers.org/srfi-19/srfi-19.html)
@@ -82,6 +81,7 @@ framework:
   - [SRFI 48: Intermediate Format Strings](https://srfi.schemers.org/srfi-48/srfi-48.html)
   - [SRFI 63: Homogeneous and Heterogeneous Arrays](https://srfi.schemers.org/srfi-63/srfi-63.html)
   - [SRFI 64: A Scheme API for test suites](https://srfi.schemers.org/srfi-64/srfi-64.html)
+  - [SRFI 69: Basic hash tables](https://srfi.schemers.org/srfi-69/srfi-69.html)
   - [SRFI 121: Generators](https://srfi.schemers.org/srfi-121/srfi-121.html)
   - [SRFI 128: Comparators](https://srfi.schemers.org/srfi-128/srfi-128.html)
   - [SRFI 132: Sort Libraries](https://srfi.schemers.org/srfi-132/srfi-132.html)
