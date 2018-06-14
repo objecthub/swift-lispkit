@@ -88,6 +88,7 @@
 		CC5E473B20C51ED900F21B03 /* CommandLineKit.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = CC5E473420C51BFE00F21B03 /* CommandLineKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CC5E473D20D2D92900F21B03 /* 69.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC5E473C20D2D8B600F21B03 /* 69.sld */; };
 		CC5E473F20D2DF5400F21B03 /* SRFI69.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC5E473E20D2D95E00F21B03 /* SRFI69.scm */; };
+		CC5E474120D316AF00F21B03 /* 129.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC5E474020D315B300F21B03 /* 129.sld */; };
 		CC68B3A91FCCCDEE00EB4AF9 /* object.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC68B3A81FCC73C300EB4AF9 /* object.sld */; };
 		CC6A3B5C1C52E71F00E962E2 /* ListLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B5B1C52E71F00E962E2 /* ListLibrary.swift */; };
 		CC6A3B5E1C52E8EF00E962E2 /* VectorLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B5D1C52E8EF00E962E2 /* VectorLibrary.swift */; };
@@ -369,6 +370,7 @@
 			dstPath = LispKit/Resources/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
+				CC5E474120D316AF00F21B03 /* 129.sld in Copy pre-installed SRFI libraries */,
 				CC5E473D20D2D92900F21B03 /* 69.sld in Copy pre-installed SRFI libraries */,
 				CC96D1092038B17A006AA27B /* 137.sld in Copy pre-installed SRFI libraries */,
 				CC96D1072038AC59006AA27B /* 145.sld in Copy pre-installed SRFI libraries */,
@@ -482,6 +484,7 @@
 		CC5E473820C51C2D00F21B03 /* CommandLineKit.framework.dSYM */ = {isa = PBXFileReference; lastKnownFileType = wrapper.dsym; name = CommandLineKit.framework.dSYM; path = Carthage/Build/Mac/CommandLineKit.framework.dSYM; sourceTree = "<group>"; };
 		CC5E473C20D2D8B600F21B03 /* 69.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 69.sld; sourceTree = "<group>"; };
 		CC5E473E20D2D95E00F21B03 /* SRFI69.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = SRFI69.scm; sourceTree = "<group>"; };
+		CC5E474020D315B300F21B03 /* 129.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 129.sld; sourceTree = "<group>"; };
 		CC68B3A81FCC73C300EB4AF9 /* object.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = object.sld; sourceTree = "<group>"; };
 		CC6A3B5B1C52E71F00E962E2 /* ListLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = ListLibrary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC6A3B5D1C52E8EF00E962E2 /* VectorLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = VectorLibrary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -757,6 +760,7 @@
 				CC5E473C20D2D8B600F21B03 /* 69.sld */,
 				CC7AAE6B1EC859E100B0F66C /* 121.sld */,
 				CCC072471F9C047D0063974E /* 128.sld */,
+				CC5E474020D315B300F21B03 /* 129.sld */,
 				CC58480C1E56BD1800BE6497 /* 132.sld */,
 				CCEFE6121ED8F17700DFED9B /* 133.sld */,
 				CC7AAE6F1EC9050B00B0F66C /* 134.sld */,

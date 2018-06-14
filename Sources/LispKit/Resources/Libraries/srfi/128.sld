@@ -6,7 +6,7 @@
 ;;; Scheme object. By packaging these procedures together, they can be treated as a single
 ;;; item for use in the implementation of data structures.
 ;;;
-;;; Copyright (C) John Cowan (2015). All Rights Reserved.
+;;; Copyright © 2015 John Cowan. All Rights Reserved.
 ;;; 
 ;;; Permission is hereby granted, free of charge, to any person
 ;;; obtaining a copy of this software and associated documentation
