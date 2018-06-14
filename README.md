@@ -84,6 +84,7 @@ framework:
   - [SRFI 69: Basic hash tables](https://srfi.schemers.org/srfi-69/srfi-69.html)
   - [SRFI 121: Generators](https://srfi.schemers.org/srfi-121/srfi-121.html)
   - [SRFI 128: Comparators](https://srfi.schemers.org/srfi-128/srfi-128.html)
+  - [SRFI 129: Titlecase procedures](https://srfi.schemers.org/srfi-129/srfi-129.html)
   - [SRFI 132: Sort Libraries](https://srfi.schemers.org/srfi-132/srfi-132.html)
   - [SRFI 133: Vector Library](https://srfi.schemers.org/srfi-133/srfi-133.html)
   - [SRFI 134: Immutable Deques](https://srfi.schemers.org/srfi-134/srfi-134.html)
