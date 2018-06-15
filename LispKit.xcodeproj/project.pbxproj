@@ -89,6 +89,7 @@
 		CC5E473D20D2D92900F21B03 /* 69.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC5E473C20D2D8B600F21B03 /* 69.sld */; };
 		CC5E473F20D2DF5400F21B03 /* SRFI69.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC5E473E20D2D95E00F21B03 /* SRFI69.scm */; };
 		CC5E474120D316AF00F21B03 /* 129.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC5E474020D315B300F21B03 /* 129.sld */; };
+		CC5E474320D45AE500F21B03 /* Coroutines.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC5E474220D45A8900F21B03 /* Coroutines.scm */; };
 		CC68B3A91FCCCDEE00EB4AF9 /* object.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC68B3A81FCC73C300EB4AF9 /* object.sld */; };
 		CC6A3B5C1C52E71F00E962E2 /* ListLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B5B1C52E71F00E962E2 /* ListLibrary.swift */; };
 		CC6A3B5E1C52E8EF00E962E2 /* VectorLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B5D1C52E8EF00E962E2 /* VectorLibrary.swift */; };
@@ -255,6 +256,7 @@
 			dstPath = LispKit/Resources/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC5E474320D45AE500F21B03 /* Coroutines.scm in Copy examples */,
 				CC4385BE20BB5F3400055289 /* Compiler.scm in Copy examples */,
 				CC4385BC20BABAA600055289 /* HTTP.scm in Copy examples */,
 				CC14F4B31F93AE04000FB1E0 /* AvlTrees.scm in Copy examples */,
@@ -485,6 +487,7 @@
 		CC5E473C20D2D8B600F21B03 /* 69.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 69.sld; sourceTree = "<group>"; };
 		CC5E473E20D2D95E00F21B03 /* SRFI69.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = SRFI69.scm; sourceTree = "<group>"; };
 		CC5E474020D315B300F21B03 /* 129.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 129.sld; sourceTree = "<group>"; };
+		CC5E474220D45A8900F21B03 /* Coroutines.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Coroutines.scm; sourceTree = "<group>"; };
 		CC68B3A81FCC73C300EB4AF9 /* object.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = object.sld; sourceTree = "<group>"; };
 		CC6A3B5B1C52E71F00E962E2 /* ListLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = ListLibrary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC6A3B5D1C52E8EF00E962E2 /* VectorLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = VectorLibrary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -1017,6 +1020,7 @@
 				CC0EBFF81ED37A76004510B2 /* Math.scm */,
 				CC9EB1141F5C9D4000697511 /* Topological.scm */,
 				CC474EB01ED0390200B535E3 /* Queens.scm */,
+				CC5E474220D45A8900F21B03 /* Coroutines.scm */,
 				CCBDB73A1EDB4AB3001606E2 /* Prolog.scm */,
 				CC4385BD20BB5EE200055289 /* Compiler.scm */,
 				CC14F4AE1F9385BF000FB1E0 /* AvlTrees.scm */,
