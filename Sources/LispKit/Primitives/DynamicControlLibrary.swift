@@ -308,11 +308,17 @@ public final class DynamicControlLibrary: NativeLibrary {
   }
 
   private func isReadError(expr: Expr) -> Expr {
-    return .false
+    guard case .error(let err) = expr else {
+      return .false
+    }
+    return err.descriptor.isReadError ? .true : .false
   }
 
   private func isFileError(expr: Expr) -> Expr {
-    return .false
+    guard case .error(let err) = expr else {
+      return .false
+    }
+    return err.descriptor.isFileError ? .true : .false
   }
   
   private func triggerExit(args: Arguments) throws -> (Procedure, Exprs) {

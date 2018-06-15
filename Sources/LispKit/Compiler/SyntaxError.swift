@@ -20,7 +20,6 @@
 
 import Foundation
 
-
 ///
 /// Enumeration `SyntaxError` represents syntactical errors emitted by the parser.
 ///

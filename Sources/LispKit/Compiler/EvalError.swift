@@ -20,7 +20,6 @@
 
 import Foundation
 
-
 ///
 /// Enumeration `EvalError` represents errors occuring during the evaluation or compilation
 /// of LispKit expressions.

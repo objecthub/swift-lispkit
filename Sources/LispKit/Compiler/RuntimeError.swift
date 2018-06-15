@@ -20,7 +20,6 @@
 
 import Foundation
 
-
 ///
 /// Class `RuntimeError` defines a universal representation of errors in LispKit. A runtime
 /// error consists of the following components:
@@ -410,6 +409,28 @@ public enum ErrorDescriptor: Hashable {
   case os(NSError)
   case abortion
   case custom(String, String)
+  
+  
+  public var isFileError: Bool {
+    guard case .eval(let err) = self else {
+      return false
+    }
+    switch err {
+      case .cannotOpenFile, .cannotOpenUrl, .cannotWriteToPort:
+        return true
+      default:
+        return false
+    }
+  }
+  
+  public var isReadError: Bool {
+    switch self {
+      case .lexical(_), .syntax(_):
+        return true
+      default:
+        return false
+    }
+  }
   
   public var typeDescription: String {
     switch self {
