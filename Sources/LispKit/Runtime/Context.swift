@@ -35,6 +35,9 @@ public final class Context {
   /// Command-line arguments
   public let commandLineArguments: [String]
   
+  /// Initial home path used by the LispKit file system
+  public let initialHomePath: String?
+  
   /// A delegate object which receives updates related to the virtual machine managed by
   /// this context. The virtual machine also delegates some functionality to this object.
   public var delegate: ContextDelegate?
@@ -100,6 +103,7 @@ public final class Context {
               implementationName: String? = nil,
               implementationVersion: String? = nil,
               commandLineArguments: [String]? = nil,
+              initialHomePath: String? = nil,
               includeInternalResources: Bool = true,
               includeDocumentPath: String? = "LispKit",
               delegate: ContextDelegate? = nil) {
@@ -108,6 +112,7 @@ public final class Context {
     self.implementationName = implementationName ?? Context.implementationName
     self.implementationVersion = implementationVersion ?? Context.implementationVersion
     self.commandLineArguments = commandLineArguments ?? CommandLine.arguments
+    self.initialHomePath = initialHomePath
     self.console = console
     self.heap = Heap()
     self.fileHandler = FileHandler(includeInternalResources: includeInternalResources,

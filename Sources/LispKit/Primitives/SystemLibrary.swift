@@ -53,7 +53,8 @@ public final class SystemLibrary: NativeLibrary {
   public override func declarations() {
     self.currentDirectoryProc =
       Procedure(.procedure(Procedure("_validCurrentPath", self.validCurrentPath)),
-                .makeString(self.context.fileHandler.currentDirectoryPath))
+                .makeString(self.context.initialHomePath ??
+                            self.context.fileHandler.currentDirectoryPath))
     self.compileAndEvalFirstProc =
       Procedure("_compileAndEvalFirst", self.compileAndEvalFirst)
     self.define("current-directory", as: .procedure(self.currentDirectoryProc))
