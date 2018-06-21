@@ -23,7 +23,7 @@
 /// hygienic Scheme macros based on the "syntax-rules" standard.
 ///
 public final class SyntaxRules {
-  private let context: Context
+  private unowned let context: Context
   private let ellipsis: Symbol
   private let reserved: Set<Symbol>
   private let literals: Set<Symbol>

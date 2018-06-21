@@ -29,6 +29,9 @@ let filePaths  = flags.strings("f", "filepath",
                                description: "Adds file path in which programs are searched for.")
 let libPaths   = flags.strings("l", "libpath",
                                description: "Adds file path in which libraries are searched for.")
+let searchDocs = flags.string("d", "documents",
+                              description: "Search for files and libraries in " +
+                                           "~/Documents/LispKit folder.")
 let heapSize   = flags.int("h", "heapsize",
                            description: "Initial capacity of the heap.",
                            value: 1000)
@@ -65,7 +68,8 @@ if help.wasSet {
                                synopsis: "[<option> ...] [---] [<program> <arg> ...]",
                                usageStyle: TextProperties.none,
                                optionsName: TextStyle.bold.properties.apply(to: "options:"),
-                               flagStyle: TextStyle.italic.properties))
+                               flagStyle: TextStyle.italic.properties),
+        terminator: "")
   exit(0)
 }
 
@@ -120,13 +124,31 @@ var cmdLineArgs = flags.parameters.isEmpty ? [CommandLine.arguments.first!] : fl
   let context = Context(console: console,
                         implementationName: "LispKit",
                         implementationVersion: "1.4.0",
-                        commandLineArguments: cmdLineArgs)
+                        commandLineArguments: cmdLineArgs,
+                        includeInternalResources: false,
+                        includeDocumentPath: searchDocs.wasSet ? "LispKit" : nil)
 #else
   let context = Context(console: console,
-                        commandLineArguments: cmdLineArgs)
+                        commandLineArguments: cmdLineArgs,
+                        includeDocumentPath: searchDocs.wasSet ? "LispKit" : nil)
 #endif
 
 // Set up LispKit engine
+#if SPM
+if !searchDocs.wasSet {
+  let rootUrl = URL(fileURLWithPath: CommandLine.arguments[0]).absoluteURL
+                  .deletingLastPathComponent()
+                  .deletingLastPathComponent()
+                  .appendingPathComponent("lib", isDirectory: true)
+  _ = context.fileHandler.addSearchPath(rootUrl.path)
+  _ = context.fileHandler.addLibrarySearchPath(rootUrl
+        .appendingPathComponent("Libraries", isDirectory: true).path)
+  if !prelude.wasSet {
+    prelude.value = rootUrl.appendingPathComponent("Libraries", isDirectory: true)
+                           .appendingPathComponent("Prelude.scm", isDirectory: false).path
+  }
+}
+#endif
 for p in filePaths.value {
   printError(if: !context.fileHandler.addSearchPath(p), "cannot add search path: \(p)")
 }

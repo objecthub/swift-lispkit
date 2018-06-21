@@ -154,6 +154,10 @@ open class Library: Reference, Trackable, CustomStringConvertible {
     public var hashValue: Int {
       return self.identifier.hashValue
     }
+    
+    public static func ==(left: InternalIdent, right: InternalIdent) -> Bool {
+      return left.identifier == right.identifier
+    }
   }
   
   /// A block of initialization expressions coming from a file defined in the provided
@@ -602,8 +606,4 @@ open class Library: Reference, Trackable, CustomStringConvertible {
   public var description: String {
     return "<library \(self.name) exporting \(self.exports.keys)>"
   }
-}
-
-public func ==(left: Library.InternalIdent, right: Library.InternalIdent) -> Bool {
-  return left.identifier == right.identifier
 }

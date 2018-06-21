@@ -115,7 +115,7 @@ open class Port: Reference, CustomStringConvertible {
     }
   }
   
-  open var typeDescription: String {
+  override open var typeDescription: String {
     return (self.isTextualPort ? "text-" : "binary-") +
            (self.isInputPort ? "input-port" : "output-port")
   }

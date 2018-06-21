@@ -139,22 +139,21 @@ public enum CheckpointData: Hashable, CustomStringConvertible {
         return "Expansion(\(expr.description))"
     }
   }
-}
-
-public func ==(left: CheckpointData, right: CheckpointData) -> Bool {
-  switch (left, right) {
-    case (.systemDefined, .systemDefined):
-      return true
-    case (.imported, .imported):
-      return true
-    case (.fromGlobalEnv(let lexpr), .fromGlobalEnv(let rexpr)):
-      return eqExpr(rexpr, lexpr)
-    case (.valueBinding(let lsym), .valueBinding(let rsym)):
-      return lsym == rsym
-    case (.expansion(let lexpr), .expansion(let rexpr)):
-      return lexpr == rexpr
-    default:
-      return false
+  
+  public static func ==(left: CheckpointData, right: CheckpointData) -> Bool {
+    switch (left, right) {
+      case (.systemDefined, .systemDefined):
+        return true
+      case (.imported, .imported):
+        return true
+      case (.fromGlobalEnv(let lexpr), .fromGlobalEnv(let rexpr)):
+        return eqExpr(rexpr, lexpr)
+      case (.valueBinding(let lsym), .valueBinding(let rsym)):
+        return lsym == rsym
+      case (.expansion(let lexpr), .expansion(let rexpr)):
+        return lexpr == rexpr
+      default:
+        return false
+    }
   }
 }
-

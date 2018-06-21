@@ -182,21 +182,22 @@ public enum Env: CustomStringConvertible, Equatable {
         return "local " + group.identityString
     }
   }
-}
-
-/// Compares two env objects. Two weak environments are the same if they have the same
-/// type (i.e. same enumeration case) and for local environments, the bindings groups are
-/// identical (same object).
-public func ==(lhs: Env, rhs: Env) -> Bool {
-  switch (lhs, rhs) {
-    case (.expired, .expired):
-      return true
-    case (.global(let env1), .global(let env2)):
-      return env1 === env2
-    case (.local(let group1), .local(let group2)):
-      return group1 === group2
-    default:
-      return false
+  
+  
+  /// Compares two env objects. Two weak environments are the same if they have the same
+  /// type (i.e. same enumeration case) and for local environments, the bindings groups are
+  /// identical (same object).
+  public static func ==(lhs: Env, rhs: Env) -> Bool {
+    switch (lhs, rhs) {
+      case (.expired, .expired):
+        return true
+      case (.global(let env1), .global(let env2)):
+        return env1 === env2
+      case (.local(let group1), .local(let group2)):
+        return group1 === group2
+      default:
+        return false
+    }
   }
 }
 
@@ -227,18 +228,19 @@ public enum WeakEnv: Hashable {
         return ObjectIdentifier(box).hashValue
     }
   }
-}
-
-/// Compares two weak environments. Two weak environments are the same if they have the same
-/// type (i.e. same enumeration case) and for local environments, the bindings groups are
-/// identical (same object).
-public func ==(lhs: WeakEnv, rhs: WeakEnv) -> Bool {
-  switch (lhs, rhs) {
-    case (.global(let lbox), .global(let rbox)):
-      return lbox === rbox
-    case (.local(let lbox), .local(let rbox)):
-      return lbox === rbox
-    default:
-      return false
+  
+  
+  /// Compares two weak environments. Two weak environments are the same if they have the same
+  /// type (i.e. same enumeration case) and for local environments, the bindings groups are
+  /// identical (same object).
+  public static func ==(lhs: WeakEnv, rhs: WeakEnv) -> Bool {
+    switch (lhs, rhs) {
+      case (.global(let lbox), .global(let rbox)):
+        return lbox === rbox
+      case (.local(let lbox), .local(let rbox)):
+        return lbox === rbox
+      default:
+        return false
+    }
   }
 }

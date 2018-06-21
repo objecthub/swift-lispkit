@@ -29,7 +29,7 @@ import NumberKit
 public final class Compiler {
   
   /// Context in which this compiler is running
-  public let context: Context
+  public unowned let context: Context
   
   /// Environment in which expressions should be compiled
   internal var env: Env
@@ -391,7 +391,7 @@ public final class Compiler {
         self.emit(.pushChar(char))
       case .symbol(_), .string(_), .bytes(_), .pair(_, _), .box(_), .mpair(_),
            .vector(_), .record(_), .table(_), .promise(_), .procedure(_), .env(_),
-           .port(_), .tagged(_, _), .error(_):
+           .port(_), .object(_), .tagged(_, _), .error(_):
         self.pushConstant(expr)
       case .special(_):
         throw RuntimeError.eval(.illegalKeywordUsage, expr)

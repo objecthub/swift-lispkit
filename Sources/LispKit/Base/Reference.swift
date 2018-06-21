@@ -35,9 +35,12 @@ open class Reference: Hashable {
   public final var hashValue: Int {
     return ObjectIdentifier(self).hashValue
   }
-}
-
-/// Equality based on the identity of references
-public func ==(lhs: Reference, rhs: Reference) -> Bool {
-  return lhs === rhs
+  
+  open var typeDescription: String {
+    return "reference"
+  }
+  
+  public static func ==(lhs: Reference, rhs: Reference) -> Bool {
+    return lhs === rhs
+  }
 }

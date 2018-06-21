@@ -53,6 +53,7 @@ public enum Expr: Trackable, Hashable {
   case special(SpecialForm)
   case env(Environment)
   case port(Port)
+  case object(Reference)
   indirect case tagged(Expr, Expr)
   case error(RuntimeError)
   indirect case syntax(SourcePosition, Expr)
@@ -114,8 +115,10 @@ public enum Expr: Trackable, Hashable {
         return .envType
       case .port(_):
         return .portType
+      case .object(_):
+        return .objectType
       case .tagged(_, _):
-       return .taggedType
+        return .taggedType
       case .error(_):
         return .errorType
       case .syntax(_, _):
@@ -292,7 +295,7 @@ public enum Expr: Trackable, Hashable {
     switch self {
       case .undef, .void, .eof, .null, .true, .false, .uninit(_), .symbol(_),
            .fixnum(_), .bignum(_), .rational(_, _), .flonum(_), .complex(_),
-           .char(_), .string(_), .bytes(_), .env(_), .port(_):
+           .char(_), .string(_), .bytes(_), .env(_), .port(_), .object(_):
         return true
       default:
         return false
@@ -633,6 +636,13 @@ extension Expr {
     }
     return port
   }
+  
+  @inline(__always) public func asObject() throws -> Reference {
+    guard case .object(let obj) = self else {
+      throw RuntimeError.type(self, expected: [.objectType])
+    }
+    return obj
+  }
 }
 
 
@@ -901,6 +911,8 @@ extension Expr: CustomStringConvertible {
           return builder.description
         case .port(let port):
           return "#<\(port.typeDescription) \(port.identDescription)>"
+        case .object(let obj):
+          return "#<\(obj.typeDescription) \(obj.identityString)>"
         case .tagged(.mpair(let tuple), let expr):
           return "#\(stringReprOf(tuple.fst)):\(stringReprOf(expr))"
         case .tagged(let tag, let expr):
@@ -934,13 +946,11 @@ extension Expr: CustomStringConvertible {
     }
     return res
   }
-}
-
-public func ==(lhs: Expr, rhs: Expr) -> Bool {
-  return equalExpr(rhs, lhs)
+  
+  public static func ==(lhs: Expr, rhs: Expr) -> Bool {
+    return equalExpr(rhs, lhs)
+  }
 }
 
 public typealias ByteVector = MutableBox<[UInt8]>
-public typealias FixedRational = ImmutableBox<Rational<Int64>>
-public typealias BigRational = ImmutableBox<Rational<BigInt>>
 public typealias DoubleComplex = ImmutableBox<Complex<Double>>

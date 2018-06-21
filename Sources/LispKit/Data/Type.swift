@@ -53,6 +53,7 @@ public enum Type: Int, CustomStringConvertible {
   case specialType
   case envType
   case portType
+  case objectType
   case numberType
   case exactNumberType
   case listType
@@ -125,6 +126,8 @@ public enum Type: Int, CustomStringConvertible {
         return "environment"
       case .portType:
         return "port"
+      case .objectType:
+        return "object"
       case .numberType:
         return "number"
       case .exactNumberType:

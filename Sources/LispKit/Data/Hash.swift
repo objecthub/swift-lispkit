@@ -135,12 +135,14 @@ public func equalHash(_ expr: Expr) -> Int {
         return environment.hashValue &* 31 &+ 26
       case .port(let port):
         return port.hashValue &* 31 &+ 27
+      case .object(let obj):
+        return obj.hashValue &* 31 &+ 28
       case .tagged(let tag, let expr):
-        return (eqvHash(tag) &* 31 &+ hash(expr)) &* 31 &+ 28
+        return (eqvHash(tag) &* 31 &+ hash(expr)) &* 31 &+ 29
       case .error(let err):
-        return err.hashValue &* 31 &+ 29
+        return err.hashValue &* 31 &+ 30
       case .syntax(let pos, let expr):
-        return ((pos.hashValue &* 31) &+ hash(expr)) &* 31 &+ 30
+        return ((pos.hashValue &* 31) &+ hash(expr)) &* 31 &+ 31
     }
   }
   
@@ -204,12 +206,14 @@ public func eqvHash(_ expr: Expr) -> Int {
       return environment.hashValue &* 31 &+ 26
     case .port(let port):
       return port.hashValue &* 31 &+ 27
+    case .object(let obj):
+      return obj.hashValue &* 31 &+ 28
     case .tagged(let tag, let expr):
-      return (eqvHash(tag) &* 31 &+ eqvHash(expr)) &* 31 &+ 28
+      return (eqvHash(tag) &* 31 &+ eqvHash(expr)) &* 31 &+ 29
     case .error(let err):
-      return err.hashValue &* 31 &+ 29
+      return err.hashValue &* 31 &+ 30
     case .syntax(let pos, let expr):
-      return ((pos.hashValue &* 31) &+ eqvHash(expr)) &* 31 &+ 30
+      return ((pos.hashValue &* 31) &+ eqvHash(expr)) &* 31 &+ 31
   }
 }
 
@@ -235,7 +239,7 @@ public func eqHash(_ expr: Expr) -> Int {
     case .bignum(let num):
       return num.hashValue &* 31 &+ 8
     case .rational(let n, let d):
-      return ((eqHash(n) &* 31) &+ eqHash(d)) &* 31 + 9
+      return ((eqHash(n) &* 31) &+ eqHash(d)) &* 31 &+ 9
     case .flonum(let num):
       return num.hashValue &* 31 &+ 11
     case .complex(let num):
@@ -270,11 +274,13 @@ public func eqHash(_ expr: Expr) -> Int {
       return environment.hashValue &* 31 &+ 26
     case .port(let port):
       return port.hashValue &* 31 &+ 27
+    case .object(let obj):
+      return obj.hashValue &* 31 &+ 28
     case .tagged(let tag, let expr):
-      return (eqvHash(tag) &* 31 &+ eqHash(expr)) &* 31 &+ 28
+      return (eqvHash(tag) &* 31 &+ eqHash(expr)) &* 31 &+ 29
     case .error(let err):
-      return err.hashValue &* 31 &+ 29
+      return err.hashValue &* 31 &+ 30
     case .syntax(let pos, let expr):
-      return ((pos.hashValue &* 31) &+ eqHash(expr)) &* 31 &+ 30
+      return ((pos.hashValue &* 31) &+ eqHash(expr)) &* 31 &+ 31
   }
 }

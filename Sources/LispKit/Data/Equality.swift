@@ -36,11 +36,11 @@ struct Equality: Hashable {
   var hashValue: Int {
     return ref1.hashValue &+ ref2.hashValue
   }
-}
-
-func ==(lhs: Equality, rhs: Equality) -> Bool {
-  return lhs.ref1 == rhs.ref1 && lhs.ref2 == rhs.ref2 ||
-         lhs.ref1 == rhs.ref2 && lhs.ref2 == rhs.ref1
+  
+  static func ==(lhs: Equality, rhs: Equality) -> Bool {
+    return lhs.ref1 == rhs.ref1 && lhs.ref2 == rhs.ref2 ||
+           lhs.ref1 == rhs.ref2 && lhs.ref2 == rhs.ref1
+  }
 }
 
 public func equalExpr(_ this: Expr, _ that: Expr) -> Bool {
@@ -192,6 +192,8 @@ public func equalExpr(_ this: Expr, _ that: Expr) -> Bool {
         return e1 == e2
       case (.port(let p1), .port(let p2)):
         return p1 == p2
+      case (.object(let o1), .object(let o2)):
+        return o1 == o2
       case (.tagged(let t1, let e1), .tagged(let t2, let e2)):
         return eqvExpr(t1, t2) && equals(e1, e2)
       case (.error(let e1), .error(let e2)):
@@ -264,6 +266,8 @@ public func eqvExpr(_ lhs: Expr, _ rhs: Expr) -> Bool {
       return e1 === e2
     case (.port(let p1), .port(let p2)):
       return p1 === p2
+    case (.object(let o1), .object(let o2)):
+      return o1 === o2
     case (.tagged(let t1, let e1), .tagged(let t2, let e2)):
       return eqvExpr(t1, t2) && eqvExpr(e1, e2)
     case (.error(let e1), .error(let e2)):
@@ -333,6 +337,8 @@ public func eqExpr(_ lhs: Expr, _ rhs: Expr) -> Bool {
       return e1 === e2
     case (.port(let p1), .port(let p2)):
       return p1 === p2
+    case (.object(let o1), .object(let o2)):
+      return o1 === o2
     case (.tagged(let t1, let e1), .tagged(let t2, let e2)):
       return eqvExpr(t1, t2) && eqExpr(e1, e2)
     case (.error(let e1), .error(let e2)):

@@ -184,22 +184,21 @@ public indirect enum ImportSet: Equatable, CustomStringConvertible {
         return "(rename \(map) from \(importSet))"
     }
   }
-}
-
-public func ==(_ left: ImportSet, _ right: ImportSet) -> Bool {
-  switch (left, right) {
-    case (.library(let e1), .library(let e2)):
-      return e1 == e2
-    case (.only(let s1, let is1), .only(let s2, let is2)):
-      return s1 == s2 && is1 == is2
-    case (.except(let s1, let is1), .except(let s2, let is2)):
-      return s1 == s2 && is1 == is2
-    case (.prefix(let s1, let is1), .prefix(let s2, let is2)):
-      return s1 == s2 && is1 == is2
-    case (.rename(let m1, let is1), .rename(let m2, let is2)):
-      return m1 == m2 && is1 == is2
-    default:
-      return false
+  
+  public static func ==(_ left: ImportSet, _ right: ImportSet) -> Bool {
+    switch (left, right) {
+      case (.library(let e1), .library(let e2)):
+        return e1 == e2
+      case (.only(let s1, let is1), .only(let s2, let is2)):
+        return s1 == s2 && is1 == is2
+      case (.except(let s1, let is1), .except(let s2, let is2)):
+        return s1 == s2 && is1 == is2
+      case (.prefix(let s1, let is1), .prefix(let s2, let is2)):
+        return s1 == s2 && is1 == is2
+      case (.rename(let m1, let is1), .rename(let m2, let is2)):
+        return m1 == m2 && is1 == is2
+      default:
+        return false
+    }
   }
 }
-
