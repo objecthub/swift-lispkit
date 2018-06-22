@@ -87,16 +87,16 @@ public final class Procedure: Reference, CustomStringConvertible {
   public init(_ name: String,
               _ compiler: @escaping FormCompiler,
               in context: Context) {
-    func indirect(_ args: Arguments) throws -> Code {
-      let expr =
-        Expr.pair(
-          .symbol(Symbol(context.symbols.intern(name), context.global)),
-          .makeList(args))
-      return try Compiler.compile(expr: .pair(expr, .null),
-                                  in: context.global,
-                                  optimize: true)
-    }
-    self.kind = .primitive(name, .eval(indirect), compiler)
+    self.kind = .primitive(name, .eval(
+      { [unowned context] (args: Arguments) throws -> Code in
+        let expr =
+          Expr.pair(
+            .symbol(Symbol(context.symbols.intern(name), context.global)),
+            .makeList(args))
+        return try Compiler.compile(expr: .pair(expr, .null),
+                                    in: context.global,
+                                    optimize: true)
+      }), compiler)
   }
   
   /// Initializer for primitive applicators
