@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.4.1 (2018-06-23)
+- Fix memory leaks
+- Provide a comfortable command-line interface supporting both a read-eval-print loop and the execution of scripts
+- Prelude and libraries path preferences are now handled correctly and do not result in access issues anymore
+- Programs blocking on functions like `read` can now be terminated
+- Minor bugs in bitwise operations for exact integers of arbitrary size fixed
+- `string-split` now returns a list instead of a vector
+- Complete rewrite of the error reporting subsystem, including support for `file-error?` and `read-error?`
+- New library: `(lispkit test)`
+- New SRFI libraries: SRFI 69, SRFI 129, SRFI 137, SRFI 145, SRFI 151
+- New example code for coroutines, HTTP support, and a small compiler for arithmetic expressions
+
 ## 1.4 (2018-03-30)
 - Migrated project to Xcode 9.3 and Swift 4
 - Bug fixes (esp. in `syntax-rules`)

@@ -42,12 +42,27 @@ public final class ManagedObjectPool: CustomStringConvertible {
   /// Pool of managed objects.
   private var objectPool: ObjectPool<ManagedObject>
   
+  /// Does this managed object pool own the managed objects? If yes, the objects will be
+  /// cleaned as soon as this managed object pool is being de-initialized.
+  private let ownsManagedObjects: Bool
+  
   /// Initializes an empty managed object pool.
-  public init() {
+  public init(ownsManagedObjects: Bool = true) {
     self.tag = 0
     self.cycles = 0
     self.rootSet = ObjectPool<TrackedObject>()
     self.objectPool = ObjectPool<ManagedObject>()
+    self.ownsManagedObjects = ownsManagedObjects
+  }
+  
+  /// Destory all potential cyclic dependencies if this managed object pool owns the managed
+  /// objects.
+  deinit {
+    if self.ownsManagedObjects {
+      for obj in self.objectPool {
+        obj.clean()
+      }
+    }
   }
   
   /// Returns number of tracked objects.
