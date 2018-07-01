@@ -17,7 +17,7 @@
 ;;;     (empty)
 ;;;     (node left element right) where (and (tree? left) (tree? right)))
 ;;;
-;;; The datatype `tree` defines a predicate `tree?` for checking whether a value if of type
+;;; The datatype `tree` defines a predicate `tree?` for checking whether a value is of type
 ;;; `tree`. In addition, it defines two variants with corresponding constructors `empty` and
 ;;; `node` for creating values of type `tree`. Variant `node` defines an invariant that
 ;;; prevents nodes from being constructed unless `left` and `right` are also trees.
@@ -89,7 +89,7 @@
 ;;;
 ;;;
 ;;; Author: Matthias Zenger
-;;; Copyright © 2017 Matthias Zenger. All rights reserved.
+;;; Copyright © 2017-2018 Matthias Zenger. All rights reserved.
 ;;;
 ;;; Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 ;;; except in compliance with the License. You may obtain a copy of the License at

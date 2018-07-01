@@ -411,27 +411,34 @@ public final class Environment: Reference, CustomStringConvertible {
                                     expr: Expr,
                                     env: Env,
                                     tail: Bool) throws -> Bool {
-    // Extract import spec
-    guard case .pair(_, .pair(let importSpec, .null)) = expr else {
-      throw RuntimeError.argumentCount(of: "import", min: 1, max: 1, expr: expr)
+    guard case .pair(_, let args) = expr else {
+      preconditionFailure()
     }
     // Check that import is not executed in a local environment
     if case .local(_) = env {
-      throw RuntimeError.eval(.importInLocalEnv, importSpec)
+      throw RuntimeError.eval(.importInLocalEnv, args)
     }
-    // Map import spec into an import set
-    guard let importSet = ImportSet(importSpec, in: compiler.context) else {
-      throw RuntimeError.eval(.malformedImportSet, importSpec)
+    // Collect all import sets
+    var importSets: [ImportSet] = []
+    var imports = args
+    while case .pair(let importSpec, let rest) = imports {
+      // Map import spec into an import set
+      guard let importSet = ImportSet(importSpec, in: compiler.context) else {
+        throw RuntimeError.eval(.malformedImportSet, importSpec)
+      }
+      importSets.append(importSet)
+      imports = rest
     }
     // Import definitions into global environment and initialize the library; do this only
     // once (i.e. skip this step if its done in the second optimization compiler run)
     let cp = compiler.checkpointer.checkpoint()
     if !compiler.checkpointer.imported(cp) {
       compiler.checkpointer.associate(.imported, with: cp)
-      _ = try env.environment?.`import`(importSet).initialize()
+      for importSet in importSets {
+        _ = try env.environment?.`import`(importSet).initialize()
+      }
     }
     compiler.emit(.pushVoid)
     return false
   }
 }
-
