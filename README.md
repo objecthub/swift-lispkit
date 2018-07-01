@@ -155,7 +155,7 @@ scheme `LispKitRepl`:
 A debug binary can be built in the following way:
 ```sh
 > cd swift-lispkit
-> swift build -Xswiftc "-target" -Xswiftc "x86_64-apple-macosx10.11" \
+> swift build -Xswiftc "-target" -Xswiftc "x86_64-apple-macosx10.12" \
   -Xswiftc "-D" -Xswiftc "SPM"
 Compile Swift Module 'NumberKit' (6 sources)
 Compile Swift Module 'CommandLineKit' (15 sources)
@@ -168,7 +168,7 @@ A release binary can be built like this:
 ```sh
 > cd swift-lispkit
 > swift build -c release -Xswiftc -static-stdlib -Xswiftc "-target" \
-  -Xswiftc "x86_64-apple-macosx10.11" -Xswiftc "-D" -Xswiftc "SPM"
+  -Xswiftc "x86_64-apple-macosx10.12" -Xswiftc "-D" -Xswiftc "SPM"
 Compile Swift Module 'NumberKit' (6 sources)
 Compile Swift Module 'CommandLineKit' (15 sources)
 Compile Swift Module 'LispKit' (83 sources)

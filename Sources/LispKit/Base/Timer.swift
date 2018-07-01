@@ -18,7 +18,7 @@
 //  limitations under the License.
 //
 
-import Darwin
+import Foundation
 
 ///
 /// Timer utilities based on Darwin framework.

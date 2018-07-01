@@ -107,6 +107,11 @@
 		CC72862D1F52B32C00EEBC58 /* heap.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC72862C1F52B2F600EEBC58 /* heap.sld */; };
 		CC750BD81F5AC71500CD82A2 /* PDF.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC750BD71F5AC68900CD82A2 /* PDF.scm */; };
 		CC750BDA1F5B776700CD82A2 /* prettify.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC750BD91F5B772200CD82A2 /* prettify.sld */; };
+		CC76312120E9518F005F27CE /* Drawing.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC76312020E9518F005F27CE /* Drawing.swift */; };
+		CC76312320E951C2005F27CE /* Shape.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC76312220E951C2005F27CE /* Shape.swift */; };
+		CC76312520E95204005F27CE /* Transformation.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC76312420E95204005F27CE /* Transformation.swift */; };
+		CC76312720E95262005F27CE /* DrawingDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC76312620E95262005F27CE /* DrawingDocument.swift */; };
+		CC76312920E9550B005F27CE /* Owners.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC76312820E9550A005F27CE /* Owners.swift */; };
 		CC79DE041F88404600CE7A5D /* 63.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC79DE031F883FED00CE7A5D /* 63.sld */; };
 		CC79DE061F88D42600CE7A5D /* TypeLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC79DE051F88D42600CE7A5D /* TypeLibrary.swift */; };
 		CC79DE081F8993EE00CE7A5D /* LightweightTypes.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC79DE071F8993EE00CE7A5D /* LightweightTypes.scm */; };
@@ -505,6 +510,11 @@
 		CC72862C1F52B2F600EEBC58 /* heap.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = heap.sld; sourceTree = "<group>"; };
 		CC750BD71F5AC68900CD82A2 /* PDF.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = PDF.scm; sourceTree = "<group>"; };
 		CC750BD91F5B772200CD82A2 /* prettify.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = prettify.sld; sourceTree = "<group>"; };
+		CC76312020E9518F005F27CE /* Drawing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Drawing.swift; sourceTree = "<group>"; };
+		CC76312220E951C2005F27CE /* Shape.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shape.swift; sourceTree = "<group>"; };
+		CC76312420E95204005F27CE /* Transformation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transformation.swift; sourceTree = "<group>"; };
+		CC76312620E95262005F27CE /* DrawingDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawingDocument.swift; sourceTree = "<group>"; };
+		CC76312820E9550A005F27CE /* Owners.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Owners.swift; sourceTree = "<group>"; };
 		CC79DE031F883FED00CE7A5D /* 63.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 63.sld; sourceTree = "<group>"; };
 		CC79DE051F88D42600CE7A5D /* TypeLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TypeLibrary.swift; sourceTree = "<group>"; };
 		CC79DE071F8993EE00CE7A5D /* LightweightTypes.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LightweightTypes.scm; sourceTree = "<group>"; };
@@ -779,6 +789,17 @@
 			path = srfi;
 			sourceTree = "<group>";
 		};
+		CC76311F20E95144005F27CE /* Graphics */ = {
+			isa = PBXGroup;
+			children = (
+				CC76312020E9518F005F27CE /* Drawing.swift */,
+				CC76312220E951C2005F27CE /* Shape.swift */,
+				CC76312420E95204005F27CE /* Transformation.swift */,
+				CC76312620E95262005F27CE /* DrawingDocument.swift */,
+			);
+			path = Graphics;
+			sourceTree = "<group>";
+		};
 		CC7F7C001FBE4CC200639166 /* scheme */ = {
 			isa = PBXGroup;
 			children = (
@@ -889,6 +910,7 @@
 			children = (
 				CCE0429C1C9E870F00CA7BC4 /* Base */,
 				CC93A65D1D07770D008350C8 /* IO */,
+				CC76311F20E95144005F27CE /* Graphics */,
 				CC9050101D392706008CE60A /* Data */,
 				CCAD52D71C48468F00DBD8EE /* Compiler */,
 				CCE0429F1C9E8D2000CA7BC4 /* Runtime */,
@@ -978,8 +1000,9 @@
 				CCC62D911CA9ED6A00E2C43F /* TrackedObject.swift */,
 				CC9065B41C5557E4004A88B7 /* ObjectPool.swift */,
 				CC6A3B691C539DCA00E962E2 /* ManagedObjectPool.swift */,
-				CCF529971CBC73F7000C2959 /* StringBuilder.swift */,
 				CC5C0A3E1D8EBE0A00CE2E98 /* MultiMap.swift */,
+				CC76312820E9550A005F27CE /* Owners.swift */,
+				CCF529971CBC73F7000C2959 /* StringBuilder.swift */,
 				CC8EDE711D0727A4004E0636 /* ScanBuffer.swift */,
 				CC6BB1991E60F237009A9091 /* Random.swift */,
 				CCD839AA1FD0F6000097023E /* Compression.swift */,
@@ -1207,10 +1230,12 @@
 				CC5696791CBD48E700F6803E /* Global.swift in Sources */,
 				CC35FD0F1C711FEA00C8B992 /* BindingGroup.swift in Sources */,
 				CCE2C47A1D9203DE0047E229 /* Environment.swift in Sources */,
+				CC76312120E9518F005F27CE /* Drawing.swift in Sources */,
 				CC8EDE6E1D07263D004E0636 /* BinaryInput.swift in Sources */,
 				CC6BB19A1E60F237009A9091 /* Random.swift in Sources */,
 				CC0980AB1C67E84C006B7FB1 /* Cell.swift in Sources */,
 				CC3C92441D84C0D800016C28 /* Library.swift in Sources */,
+				CC76312920E9550B005F27CE /* Owners.swift in Sources */,
 				CCAD52E61C48468F00DBD8EE /* SyntaxRules.swift in Sources */,
 				CCE4AECE204212EC008BF7E8 /* SourceManager.swift in Sources */,
 				CCAD52E71C48468F00DBD8EE /* Type.swift in Sources */,
@@ -1218,6 +1243,7 @@
 				CCB480E21FA93C2200220328 /* BinaryInputSource.swift in Sources */,
 				CC90500B1D36F52F008CE60A /* DynamicControlLibrary.swift in Sources */,
 				CCA3127F204CB7900026FF13 /* LexicalError.swift in Sources */,
+				CC76312320E951C2005F27CE /* Shape.swift in Sources */,
 				CCC531A01D18595500FAED6E /* TextOutputTarget.swift in Sources */,
 				CC14F4B01F939486000FB1E0 /* Features.swift in Sources */,
 				CC5A47211C5295E600EFCF76 /* NativeLibrary.swift in Sources */,
@@ -1260,6 +1286,7 @@
 				CCC0724A1F9C11FA0063974E /* Sysctl.swift in Sources */,
 				CC882C921C9E93A600D20039 /* Timer.swift in Sources */,
 				CCAD52E21C48468F00DBD8EE /* Expr.swift in Sources */,
+				CC76312720E95262005F27CE /* DrawingDocument.swift in Sources */,
 				CC35FD0D1C6FA4B700C8B992 /* VirtualMachine.swift in Sources */,
 				CCA31281204CB7A60026FF13 /* SyntaxError.swift in Sources */,
 				CC5BBC7B1D52724800367E8F /* HashTableLibrary.swift in Sources */,
@@ -1277,6 +1304,7 @@
 				CC31A6981D3AC223008D7728 /* Hash.swift in Sources */,
 				CC5A47251C52E08900EFCF76 /* ControlFlowLibrary.swift in Sources */,
 				CCB585B81E15A6E70064BB18 /* ContextDelegate.swift in Sources */,
+				CC76312520E95204005F27CE /* Transformation.swift in Sources */,
 				CC6A3B681C52F17200E962E2 /* SchemeLibrary.swift in Sources */,
 				CC5C0A3F1D8EBE0A00CE2E98 /* MultiMap.swift in Sources */,
 				CCCEB3FF1DF2DAA9009BF66B /* FileHandler.swift in Sources */,
@@ -1400,7 +1428,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
@@ -1454,7 +1482,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
@@ -1481,7 +1509,7 @@
 				INFOPLIST_FILE = "$(SRCROOT)/Sources/LispKit/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				"OTHER_SWIFT_FLAGS[arch=*]" = "-D DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispKit;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1509,7 +1537,7 @@
 				INFOPLIST_FILE = "$(SRCROOT)/Sources/LispKit/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispKit;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;

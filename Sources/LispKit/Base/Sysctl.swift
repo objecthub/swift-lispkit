@@ -176,12 +176,12 @@ public struct Sysctl {
     return try! Sysctl.stringForKeys([CTL_KERN, KERN_OSRELEASE])
   }
   
-  /// e.g. 199506 or 199506
+  /// e.g. 199506
   public static var osRev: Int32 {
     return try! Sysctl.valueOfType(Int32.self, forKeys: [CTL_KERN, KERN_OSREV])
   }
   
-  /// e.g. "Darwin" or "Darwin"
+  /// e.g. "Darwin"
   public static var osType: String {
     return try! Sysctl.stringForKeys([CTL_KERN, KERN_OSTYPE])
   }

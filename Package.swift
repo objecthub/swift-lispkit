@@ -4,13 +4,13 @@
 //  LispKit
 //
 //  Build targets by calling the Swift Package Manager in the following way for debug purposes:
-//  swift build -Xswiftc "-target" -Xswiftc "x86_64-apple-macosx10.11" -Xswiftc "-D" -Xswiftc "SPM"
+//  swift build -Xswiftc "-target" -Xswiftc "x86_64-apple-macosx10.12" -Xswiftc "-D" -Xswiftc "SPM"
 //
 //  Run REPL:
-//  swift run -Xswiftc "-target" -Xswiftc "x86_64-apple-macosx10.11" -Xswiftc "-D" -Xswiftc "SPM"
+//  swift run -Xswiftc "-target" -Xswiftc "x86_64-apple-macosx10.12" -Xswiftc "-D" -Xswiftc "SPM"
 //
 //  A release can be built with these options:
-//  swift build -c release -Xswiftc -static-stdlib -Xswiftc "-target" -Xswiftc "x86_64-apple-macosx10.11" -Xswiftc "-D" -Xswiftc "SPM"
+//  swift build -c release -Xswiftc -static-stdlib -Xswiftc "-target" -Xswiftc "x86_64-apple-macosx10.12" -Xswiftc "-D" -Xswiftc "SPM"
 //
 //  Created by Matthias Zenger on 16/10/2017.
 //  Copyright © 2017 ObjectHub. All rights reserved.

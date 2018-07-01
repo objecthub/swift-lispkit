@@ -18,7 +18,9 @@
 //  limitations under the License.
 //
 
-/// Minimalistic multi map implementation
+///
+/// Minimalistic multi map implementation.
+/// 
 public struct MultiMap<Key: Hashable, Value>: CustomStringConvertible {
   private var map: [Key : [Value]]
   
