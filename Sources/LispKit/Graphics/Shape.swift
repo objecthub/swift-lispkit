@@ -97,6 +97,11 @@ public final class Shape: Reference {
     }
   }
   
+  /// Name of this reference type
+  public override var typeDescription: String {
+    return "shape"
+  }
+  
   /// Appends a new shape constructor to this shape. This method returns true if it was
   /// possible to include the constructor. On rare occasions, this is not possible. For
   /// instance, it is not possible to define mutually dependent shapes. It is guaranteed

@@ -18,7 +18,9 @@
 //  limitations under the License.
 //
 
-
+///
+/// Registry of all native libraries.
+/// 
 public struct LibraryRegistry {
   
   public static let nativeLibraries: [NativeLibrary.Type] = [

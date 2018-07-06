@@ -39,6 +39,11 @@ public final class Drawing: Reference {
     self.instructions = instructions
   }
   
+  /// Name of this reference type
+  public override var typeDescription: String {
+    return "drawing"
+  }
+  
   /// Appends a new drawing instruction.
   @discardableResult public func append(_ instruction: DrawingInstruction) -> Bool {
     switch instruction {

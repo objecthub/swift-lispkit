@@ -37,12 +37,22 @@ public final class Transformation: Reference {
   public private(set) var affineTransform: AffineTransform
   
   /// Initializer
+  public init(_ affineTransform: AffineTransform) {
+    self.affineTransform = affineTransform
+  }
+  
+  /// Initializer
   public init(_ transform: Transformation? = nil) {
     if let transform = transform {
       self.affineTransform = transform.affineTransform
     } else {
       self.affineTransform = AffineTransform()
     }
+  }
+  
+  /// Name of this reference type
+  public override var typeDescription: String {
+    return "transformation"
   }
   
   /// Shift coordinates by x/y.
