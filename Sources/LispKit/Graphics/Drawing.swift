@@ -220,7 +220,7 @@ public final class Drawing: Reference {
                                         samplesPerPixel: 4,
                                         hasAlpha: true,
                                         isPlanar: false,
-                                        colorSpaceName: NSColorSpaceName.deviceRGB,
+                                        colorSpaceName: Color.colorSpaceName,
                                         bytesPerRow: 0,
                                         bitsPerPixel: 0) else {
       return false
@@ -271,10 +271,10 @@ public final class Drawing: Reference {
 /// Enumeration of all supported drawing instructions.
 ///
 public enum DrawingInstruction {
-  case setStrokeColor(NSColor)
-  case setFillColor(NSColor)
+  case setStrokeColor(Color)
+  case setFillColor(Color)
   case setBlendMode(BlendMode)
-  case setShadow(NSColor, dx: Double, dy: Double, blurRadius: Double)
+  case setShadow(Color, dx: Double, dy: Double, blurRadius: Double)
   case removeShadow
   case setTransformation(Transformation)
   case concatTransformation(Transformation)
@@ -282,9 +282,9 @@ public enum DrawingInstruction {
   case stroke(Shape, width: Double)
   case strokeDashed(Shape, width: Double, lengths: [Double], phase: Double)
   case fill(Shape)
-  case fillLinearGradient(Shape, [NSColor], angle: Double)
-  case fillRadialGradient(Shape, [NSColor], relativeCenter: NSPoint)
-  case text(String, font: NSFont?, color: NSColor?, style: NSParagraphStyle?, at: ObjectLocation)
+  case fillLinearGradient(Shape, [Color], angle: Double)
+  case fillRadialGradient(Shape, [Color], relativeCenter: NSPoint)
+  case text(String, font: NSFont?, color: Color?, style: NSParagraphStyle?, at: ObjectLocation)
   case attributedText(NSAttributedString, at: ObjectLocation)
   case image(NSImage, ObjectLocation, operation: NSCompositingOperation, opacity: Double)
   case inline(Drawing)
@@ -293,16 +293,16 @@ public enum DrawingInstruction {
   fileprivate func draw() {
     switch self {
       case .setStrokeColor(let color):
-        color.setStroke()
+        color.nsColor.setStroke()
       case .setFillColor(let color):
-        color.setFill()
+        color.nsColor.setFill()
       case .setBlendMode(let blendMode):
         NSGraphicsContext.current?.cgContext.setBlendMode(blendMode)
       case .setShadow(let color, let dx, let dy, let blurRadius):
         let shadow = NSShadow()
         shadow.shadowOffset = NSSize(width: dx, height: dy)
         shadow.shadowBlurRadius = CGFloat(blurRadius)
-        shadow.shadowColor = color
+        shadow.shadowColor = color.nsColor
         shadow.set()
       case .removeShadow:
         let shadow = NSShadow()
@@ -325,9 +325,9 @@ public enum DrawingInstruction {
       case .fill(let shape):
         shape.fill()
       case .fillLinearGradient(let shape, let colors, let angle):
-        NSGradient(colors: colors)?.draw(in: shape.compile(), angle: CGFloat(angle * 180.0 / .pi))
+        NSGradient(colors: Color.nsColorArray(colors))?.draw(in: shape.compile(), angle: CGFloat(angle * 180.0 / .pi))
       case .fillRadialGradient(let shape, let colors, let center):
-        NSGradient(colors: colors)?.draw(in: shape.compile(), relativeCenterPosition: center)
+        NSGradient(colors: Color.nsColorArray(colors))?.draw(in: shape.compile(), relativeCenterPosition: center)
       case .text(let str, let font, let color, let paragraphStyle, let location):
         let pstyle: NSParagraphStyle
         if let style = paragraphStyle {
@@ -339,7 +339,7 @@ public enum DrawingInstruction {
         }
         let attributes = [
           .font: font ?? NSFont.systemFont(ofSize: NSFont.systemFontSize),
-          .foregroundColor: color ?? NSColor.black,
+          .foregroundColor: (color ?? Color.black).nsColor,
           .paragraphStyle: pstyle,
         ] as [NSAttributedStringKey: Any]
         let textRect: NSRect

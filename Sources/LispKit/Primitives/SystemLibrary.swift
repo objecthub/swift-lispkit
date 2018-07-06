@@ -166,7 +166,7 @@ public final class SystemLibrary: NativeLibrary {
     let env = args[args.startIndex + 2]
     switch args.first! {
       case .null:
-        return (BaseLibrary.voidProc, [])
+        return (CoreLibrary.voidProc, [])
       case .pair(let expr, let rest):
         let source = Expr.pair(
           expr,

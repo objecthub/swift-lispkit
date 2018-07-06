@@ -942,7 +942,7 @@ public final class VirtualMachine: TrackedObject {
       self.sp = vmState.sp
       self.registers = vmState.registers
       // Push identity function and argument onto restored virtual machine stack
-      self.push(.procedure(BaseLibrary.idProc))
+      self.push(.procedure(CoreLibrary.idProc))
       self.push(arg)
     }
     return proc

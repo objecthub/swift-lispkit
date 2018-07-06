@@ -275,7 +275,7 @@ public final class HashTableLibrary: NativeLibrary {
     let map = try args[args.startIndex].asHashTable()
     let key = args[args.startIndex + 1]
     guard case .custom(let procs) = map.equiv else {
-      return (BaseLibrary.idProc, [map.get(key) ?? .false])
+      return (CoreLibrary.idProc, [map.get(key) ?? .false])
     }
     return (procs.get, [.table(map), .procedure(self.bucketsProc), key])
   }
@@ -292,7 +292,7 @@ public final class HashTableLibrary: NativeLibrary {
       guard map.add(key: key, mapsTo: value) else {
         preconditionFailure("trying to set mapping in immutable hash map")
       }
-      return (BaseLibrary.idProc, [.void])
+      return (CoreLibrary.idProc, [.void])
     }
     return (procs.add, [.table(map),
                         .procedure(self.bucketsProc),
@@ -312,7 +312,7 @@ public final class HashTableLibrary: NativeLibrary {
       guard let res = map.remove(key: key) else {
         preconditionFailure("trying to delete mapping in immutable hash map")
       }
-      return (BaseLibrary.idProc, [res])
+      return (CoreLibrary.idProc, [res])
     }
     return (procs.del, [.table(map),
                         .procedure(self.bucketsProc),
@@ -347,7 +347,7 @@ public final class HashTableLibrary: NativeLibrary {
       guard map1.union(map2) else {
         preconditionFailure("trying to union mapping with immutable hash map")
       }
-      return (BaseLibrary.voidProc, [])
+      return (CoreLibrary.voidProc, [])
     }
     return (self.procedure(self.hashtableUnionLoc), [.table(map1), .table(map2)])
   }
@@ -363,7 +363,7 @@ public final class HashTableLibrary: NativeLibrary {
       guard map1.difference(map2, intersect: true) else {
         preconditionFailure("trying to intersect mapping with immutable hash map")
       }
-      return (BaseLibrary.voidProc, [])
+      return (CoreLibrary.voidProc, [])
     }
     return (self.procedure(self.hashtableIntersectionLoc), [.table(map1), .table(map2)])
   }
@@ -379,7 +379,7 @@ public final class HashTableLibrary: NativeLibrary {
       guard map1.difference(map2, intersect: false) else {
         preconditionFailure("trying to compute difference with immutable hash map")
       }
-      return (BaseLibrary.voidProc, [])
+      return (CoreLibrary.voidProc, [])
     }
     return (self.procedure(self.hashtableDifferenceLoc), [.table(map1), .table(map2)])
   }

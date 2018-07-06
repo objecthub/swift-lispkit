@@ -23,7 +23,7 @@ public struct LibraryRegistry {
   
   public static let nativeLibraries: [NativeLibrary.Type] = [
     ControlFlowLibrary.self,
-    BaseLibrary.self,
+    CoreLibrary.self,
     SystemLibrary.self,
     BoxLibrary.self,
     HashTableLibrary.self,
@@ -37,7 +37,8 @@ public struct LibraryRegistry {
     CharacterLibrary.self,
     StringLibrary.self,
     PortLibrary.self,
-    SchemeLibrary.self
+    BaseLibrary.self,
+    DrawingLibrary.self
   ]
   
 }

@@ -65,7 +65,7 @@ open class LispKitTestCase: XCTestCase {
     super.setUp()
     self.context = Context(console: console)
     do {
-      try self.context?.environment.import(SchemeLibrary.name)
+      try self.context?.environment.import(BaseLibrary.name)
     } catch {
       preconditionFailure("cannot import (lispkit base) into test context")
     }
