@@ -80,6 +80,9 @@ public enum EvalError: Int, Hashable {
   case cannotEncodeBytevector
   case invalidDateTime
   case invalidTimeZone
+  case invalidPoint
+  case invalidSize
+  case unknownFont
   
   public var message: String {
     switch self {
@@ -193,6 +196,12 @@ public enum EvalError: Int, Hashable {
         return "invalid/incomplete date time component list: $0"
       case .invalidTimeZone:
         return "invalid/incomplete time zone identifier: $0"
+      case .invalidPoint:
+        return "invalid point: $0"
+      case .invalidSize:
+        return "invalid size: $0"
+      case .unknownFont:
+        return "unknown font '$0' of size $1"
     }
   }
   

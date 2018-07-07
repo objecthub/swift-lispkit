@@ -19,11 +19,13 @@
 //
 
 ///
-/// Registry of all native libraries.
-/// 
+/// Registry of all native libraries. Libraries defined outside of the LispKit
+/// framework need to be registered with the function `register`. This needs to happen
+/// before the first `Context` object is created.
+///
 public struct LibraryRegistry {
   
-  public static let nativeLibraries: [NativeLibrary.Type] = [
+  public private(set) static var nativeLibraries: [NativeLibrary.Type] = [
     ControlFlowLibrary.self,
     CoreLibrary.self,
     SystemLibrary.self,
@@ -43,4 +45,14 @@ public struct LibraryRegistry {
     DrawingLibrary.self
   ]
   
+  public static func register(_ nativeLibrary: NativeLibrary.Type) {
+    LibraryRegistry.nativeLibraries.append(nativeLibrary)
+  }
+  
+  public static func register<T: Sequence>(_ nativeLibraries: T)
+                                            where T.Element == NativeLibrary.Type {
+    for library in nativeLibraries {
+      LibraryRegistry.register(library)
+    }
+  }
 }

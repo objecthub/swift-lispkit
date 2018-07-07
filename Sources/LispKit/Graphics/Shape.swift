@@ -76,6 +76,24 @@ public final class Shape: Reference {
   /// necessary to refresh dependent shapes whenever this shape changes.
   private var owners: Owners<Shape>
   
+  /// Initializer copying another shape.
+  public init(copy shape: Shape) {
+    self.prototype = shape.prototype
+    self.constructors = shape.constructors
+    self.flipped = shape.flipped
+    self.closed = shape.closed
+    self.bezierPath = nil
+    self.owners = Owners<Shape>()
+    super.init()
+    switch self.prototype {
+      case .shape(let shape), .transformed(let shape, _), .flattened(let shape):
+        shape.owners.compact()
+        shape.owners.include(self)
+      default:
+        break
+    }
+  }
+  
   /// Initializer of a shape. `Shape` objects are initialized with a prototype, and optionally,
   /// information on whether this shape is a closed and flipped shape.
   public init(_ prototype: ShapePrototype = ShapePrototype.none,
@@ -100,6 +118,11 @@ public final class Shape: Reference {
   /// Name of this reference type
   public override var typeDescription: String {
     return "shape"
+  }
+  
+  /// Returns true if there are no shape constructors yet
+  public var isEmpty: Bool {
+    return self.constructors.isEmpty
   }
   
   /// Appends a new shape constructor to this shape. This method returns true if it was
@@ -187,6 +210,11 @@ public final class Shape: Reference {
     if let bezierPath = self.bezierPath {
       return bezierPath
     }
+    self.bezierPath = self.compileNew()
+    return self.bezierPath!
+  }
+  
+  func compileNew() -> NSBezierPath {
     let bezierPath = self.prototype.compile()
     for constructor in self.constructors {
       constructor.compile(into: bezierPath)
@@ -201,7 +229,6 @@ public final class Shape: Reference {
     if self.closed {
       bezierPath.close()
     }
-    self.bezierPath = bezierPath
     return bezierPath
   }
   
@@ -275,7 +302,7 @@ public enum ShapePrototype {
       case .interpolated(let points, let method):
         return method.compile(points)
       case .shape(let shape):
-        return shape.compile().mutableCopy() as! NSBezierPath
+        return shape.compileNew()
       case .transformed(let shape, let transform):
         return NSAffineTransform(transform: transform.affineTransform).transform(shape.compile())
       case .flattened(let shape):

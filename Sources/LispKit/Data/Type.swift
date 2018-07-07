@@ -69,6 +69,8 @@ public enum Type: Int, CustomStringConvertible {
   case syntaxType
   case colorType
   case transformationType
+  case shapeType
+  case fontType
   
   public var description: String {
     switch self {
@@ -166,6 +168,10 @@ public enum Type: Int, CustomStringConvertible {
         return "color"
       case .transformationType:
         return "transformation"
+      case .shapeType:
+        return "shape"
+      case .fontType:
+        return "font"
     }
   }
   
@@ -250,6 +256,8 @@ private let inputPortSubtypes  : Set<Type> = [.inputPortType,
 private let outputPortSubtypes : Set<Type> = [.outputPortType,
                                               .textOutputPortType,
                                               .binaryOutputPortType]
-private let objectSubtypes: Set<Type> = [.objectType,
-                                         .colorType,
-                                         .transformationType]
+private let objectSubtypes     : Set<Type> = [.objectType,
+                                              .colorType,
+                                              .transformationType,
+                                              .shapeType,
+                                              .fontType]
