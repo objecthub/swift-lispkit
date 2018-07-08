@@ -23,13 +23,91 @@ import Cocoa
 
 public final class DrawingLibrary: NativeLibrary {
   
+  /// Imported native library
+  private var systemLibrary: SystemLibrary!
+  
+  /// Symbols used in enumeration values
+  
+  // Bitmap file types
+  private let formatPNG: Symbol
+  private let formatJPG: Symbol
+  private let formatGIF: Symbol
+  private let formatBMP: Symbol
+  private let formatTIFF: Symbol
+  
+  // Image composition operation
+  private let compositionClear: Symbol
+  private let compositionCopy: Symbol
+  private let compositionMultiply: Symbol
+  private let compositionOverlay: Symbol
+  private let compositionSourceOver: Symbol
+  private let compositionSourceIn: Symbol
+  private let compositionSourceOut: Symbol
+  private let compositionSourceAtop: Symbol
+  private let compositionDestinationOver: Symbol
+  private let compositionDestinationIn: Symbol
+  private let compositionDestinationOut: Symbol
+  private let compositionDestinationAtop: Symbol
+  
   /// Name of the library.
   public override class var name: [String] {
     return ["lispkit", "draw"]
   }
   
+  /// Initialization
+  public required init(in context: Context) throws {
+    self.formatPNG = context.symbols.intern("png")
+    self.formatJPG = context.symbols.intern("jpg")
+    self.formatGIF = context.symbols.intern("gif")
+    self.formatBMP = context.symbols.intern("bmp")
+    self.formatTIFF = context.symbols.intern("tiff")
+    self.compositionClear = context.symbols.intern("clear")
+    self.compositionCopy = context.symbols.intern("copy")
+    self.compositionMultiply = context.symbols.intern("multiply")
+    self.compositionOverlay = context.symbols.intern("overlay")
+    self.compositionSourceOver = context.symbols.intern("source-over")
+    self.compositionSourceIn = context.symbols.intern("source-in")
+    self.compositionSourceOut = context.symbols.intern("source-out")
+    self.compositionSourceAtop = context.symbols.intern("source-atop")
+    self.compositionDestinationOver = context.symbols.intern("destination-over")
+    self.compositionDestinationIn = context.symbols.intern("destination-in")
+    self.compositionDestinationOut = context.symbols.intern("destination-out")
+    self.compositionDestinationAtop = context.symbols.intern("destination-atop")
+    try super.init(in: context)
+  }
+  
+  /// Dependencies of the library.
+  public override func dependencies() {
+    self.`import`(from: ["lispkit", "system"],  "current-directory")
+  }
+  
   /// Declarations of the library.
   public override func declarations() {
+    // Drawings
+    self.define(Procedure("drawing?", isDrawing))
+    self.define(Procedure("make-drawing", makeDrawing))
+    self.define(Procedure("copy-drawing", copyDrawing))
+    self.define(Procedure("set-stroke-color", setStrokeColor))
+    self.define(Procedure("set-fill-color", setFillColor))
+    self.define(Procedure("set-shadow", setShadow))
+    self.define(Procedure("remove-shadow", removeShadow))
+    self.define(Procedure("enable-transformation", enableTransformation))
+    self.define(Procedure("disable-transformation", disableTransformation))
+    self.define(Procedure("draw-stroke", drawStroke))
+    self.define(Procedure("fill-shape", fillShape))
+    self.define(Procedure("draw-text", drawText))
+    self.define(Procedure("draw-image", drawImage))
+    self.define(Procedure("draw-drawing", drawDrawing))
+    self.define(Procedure("inline-drawing", inlineDrawing))
+    self.define(Procedure("save-drawing", saveDrawing))
+    
+    // Images/bitmaps
+    self.define(Procedure("image?", isImage))
+    self.define(Procedure("load-image", loadImage))
+    self.define(Procedure("image-size", imageSize))
+    self.define(Procedure("bitmap?", isBitmap))
+    self.define(Procedure("make-bitmap", makeBitmap))
+    self.define(Procedure("save-bitmap", saveBitmap))
     
     // Shapes
     self.define(Procedure("shape?", isShape))
@@ -65,14 +143,400 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("color-blue", colorBlue))
     self.define(Procedure("color-alpha", colorAlpha))
     
-    // Points/sizes
+    // Fonts/points/sizes/rects
     self.define(Procedure("font?", isFont))
     self.define(Procedure("font", font))
     self.define(Procedure("font-name", fontName))
     self.define(Procedure("font-size", fontSize))
     self.define(Procedure("point", point))
     self.define(Procedure("size", size))
+    self.define(Procedure("rect", rect))
+    self.define(Procedure("rect-point", rectPoint))
+    self.define(Procedure("rect-size", rectSize))
   }
+  
+  public override func initializations() {
+    self.systemLibrary = self.nativeLibrary(SystemLibrary.self)
+  }
+  
+  
+  // Drawings
+  
+  private func isDrawing(expr: Expr) -> Expr {
+    if case .object(let obj) = expr, obj is Drawing {
+      return .true
+    }
+    return .false
+  }
+  
+  private func makeDrawing() -> Expr {
+    return .object(Drawing())
+  }
+  
+  private func copyDrawing(expr: Expr) throws -> Expr {
+    return .object(Drawing(copy: try self.drawing(from: expr)))
+  }
+  
+  private func setStrokeColor(drawing: Expr, color: Expr) throws -> Expr {
+    try self.drawing(from: drawing).append(.setStrokeColor(try self.color(from: color)))
+    return .void
+  }
+  
+  private func setFillColor(drawing: Expr, color: Expr) throws -> Expr {
+    try self.drawing(from: drawing).append(.setFillColor(try self.color(from: color)))
+    return .void
+  }
+  
+  private func setShadow(drawing: Expr, color: Expr, size: Expr, r: Expr) throws -> Expr {
+    guard case .pair(.flonum(let w), .flonum(let h)) = size else {
+      throw RuntimeError.eval(.invalidSize, size)
+    }
+    try self.drawing(from: drawing).append(.setShadow(try self.color(from: color),
+                                                      dx: w,
+                                                      dy: h,
+                                                      blurRadius: try r.asDouble(coerce: true)))
+    return .void
+  }
+  
+  private func removeShadow(drawing: Expr) throws -> Expr {
+    try self.drawing(from: drawing).append(.removeShadow)
+    return .void
+  }
+  
+  private func enableTransformation(drawing: Expr, tf: Expr) throws -> Expr {
+    try self.drawing(from: drawing).append(.concatTransformation(try self.transformation(from: tf)))
+    return .void
+  }
+  
+  private func disableTransformation(drawing: Expr, tf: Expr) throws -> Expr {
+    try self.drawing(from: drawing).append(.undoTransformation(try self.transformation(from: tf)))
+    return .void
+  }
+  
+  private func drawStroke(drawing: Expr, shape: Expr, width: Expr?) throws -> Expr {
+    try self.drawing(from: drawing).append(.stroke(try self.shape(from: shape),
+                                                   width: try width?.asDouble(coerce: true) ?? 1.0))
+    return .void
+  }
+  
+  private func fillShape(drawing: Expr,
+                         shape: Expr,
+                         colors: Expr?,
+                         gradient: Expr?) throws -> Expr {
+    if let cols = colors {
+      var colors: [Color] = []
+      var colorList = cols
+      while case .pair(let color, let rest) = colorList {
+        colors.append(try self.color(from: color))
+        colorList = rest
+      }
+      if let gradient = gradient {
+        switch gradient {
+          case .pair(.flonum(let x), .flonum(let y)):
+            try self.drawing(from: drawing).append(
+              .fillRadialGradient(try self.shape(from: shape),
+                                  colors,
+                                  relativeCenter: NSPoint(x: x, y: y)))
+          default:
+            try self.drawing(from: drawing).append(
+              .fillLinearGradient(try self.shape(from: shape),
+                                  colors,
+                                  angle: try gradient.asDouble(coerce: true)))
+        }
+      } else {
+        try self.drawing(from: drawing).append(
+          .fillLinearGradient(try self.shape(from: shape), colors, angle: 0.0))
+      }
+    } else {
+      try self.drawing(from: drawing).append(.fill(try self.shape(from: shape)))
+    }
+    return .void
+  }
+  
+  private func drawText(drawing: Expr,
+                        text: Expr,
+                        location: Expr,
+                        args: Arguments) throws -> Expr {
+    guard let (color, font) = args.required2() else {
+      throw RuntimeError.argumentCount(
+        min: 5, max: 5, args: .pair(drawing, .pair(text, .pair(location, .makeList(args)))))
+    }
+    guard case .object(let obj) = font, let fnt = (obj as? ImmutableBox<NSFont>)?.value else {
+      throw RuntimeError.type(font, expected: [.fontType])
+    }
+    guard case .object(let obj2) = color, let clr = (obj2 as? ImmutableBox<Color>)?.value else {
+      throw RuntimeError.type(color, expected: [.colorType])
+    }
+    let loc: ObjectLocation
+    switch location {
+      case .pair(.flonum(let x), .flonum(let y)) where x >= 0.0 && y >= 0.0:
+        loc = .position(NSPoint(x: x, y: y))
+      case .pair(.pair(.flonum(let x), .flonum(let y)), .pair(.flonum(let w), .flonum(let h)))
+             where x >= 0.0 && y >= 0.0 && w > 0.0 && h > 0.0:
+        loc = .boundingBox(NSRect(x: x, y: y, width: w, height: h))
+      default:
+        throw RuntimeError.eval(.invalidPoint, location)
+    }
+    try self.drawing(from: drawing).append(.text(try text.asString(),
+                                                 font: fnt,
+                                                 color: clr,
+                                                 style: nil,
+                                                 at: loc))
+    return .void
+  }
+  
+  private func drawImage(drawing: Expr,
+                         bitmap: Expr,
+                         location: Expr,
+                         args: Arguments) throws -> Expr {
+    guard let (opacity, composition) =
+                args.optional(.flonum(1.0), .symbol(self.compositionCopy)) else {
+      throw RuntimeError.argumentCount(
+        min: 3, max: 5, args: .pair(drawing, .pair(bitmap, .pair(location, .makeList(args)))))
+    }
+    let loc: ObjectLocation
+    switch location {
+      case .pair(.flonum(let x), .flonum(let y)) where x >= 0.0 && y >= 0.0:
+        loc = .position(NSPoint(x: x, y: y))
+      case .pair(.pair(.flonum(let x), .flonum(let y)), .pair(.flonum(let w), .flonum(let h)))
+             where x >= 0.0 && y >= 0.0 && w > 0.0 && h > 0.0:
+        loc = .boundingBox(NSRect(x: x, y: y, width: w, height: h))
+      default:
+        throw RuntimeError.eval(.invalidPoint, location)
+    }
+    let opcty = try opacity.asDouble(coerce: true)
+    guard opcty >= 0.0 && opcty <= 1.0 else {
+      throw RuntimeError.range(parameter: 4,
+                               of: "draw-bitmap",
+                               opacity,
+                               min: 0,
+                               max: 1,
+                               at: SourcePosition.unknown)
+    }
+    guard case .symbol(let sym) = composition else {
+      throw RuntimeError.eval(.invalidCompositionOperation, composition)
+    }
+    let compositionOperation: NSCompositingOperation
+    switch sym {
+      case self.compositionClear:
+        compositionOperation = .clear
+      case self.compositionCopy:
+        compositionOperation = .copy
+      case self.compositionMultiply:
+        compositionOperation = .multiply
+      case self.compositionOverlay:
+        compositionOperation = .overlay
+      case self.compositionSourceOver:
+        compositionOperation = .sourceOver
+      case self.compositionSourceIn:
+        compositionOperation = .sourceIn
+      case self.compositionSourceOut:
+        compositionOperation = .sourceOut
+      case self.compositionSourceAtop:
+        compositionOperation = .sourceAtop
+      case self.compositionDestinationOver:
+        compositionOperation = .destinationOver
+      case self.compositionDestinationIn:
+        compositionOperation = .destinationIn
+      case self.compositionDestinationOut:
+        compositionOperation = .destinationOut
+      case self.compositionDestinationAtop:
+        compositionOperation = .destinationAtop
+      default:
+        throw RuntimeError.eval(.invalidCompositionOperation, composition)
+    }
+    try self.drawing(from: drawing).append(.image(try self.image(from: bitmap),
+                                                  loc,
+                                                  operation: compositionOperation,
+                                                  opacity: opcty))
+    return .void
+  }
+  
+  private func drawDrawing(drawing: Expr, other: Expr, clip: Expr?) throws -> Expr {
+    try self.drawing(from: drawing).append(
+      .include(try self.drawing(from: other),
+               clippedTo: clip != nil ? try self.shape(from: clip!) : nil))
+    return .void
+  }
+  
+  private func inlineDrawing(drawing: Expr, other: Expr) throws -> Expr {
+    try self.drawing(from: drawing).append(.inline(try self.drawing(from: other)))
+    return .void
+  }
+  
+  private func saveDrawing(drawing: Expr,
+                         path: Expr,
+                         size: Expr,
+                         title: Expr?,
+                         author: Expr?) throws -> Expr {
+    let url = URL(fileURLWithPath:
+      self.context.fileHandler.path(try path.asPath(),
+                                    relativeTo: self.systemLibrary.currentDirectoryPath))
+    guard case .pair(.flonum(let w), .flonum(let h)) = size,
+          w > 0.0 && w <= 1000000 && h > 0.0 && h <= 1000000 else {
+      throw RuntimeError.eval(.invalidSize, size)
+    }
+    return .makeBoolean(
+      try self.drawing(from: drawing).saveAsPDF(url: url,
+                                                width: Int(w),
+                                                height: Int(h),
+                                                flipped: true,
+                                                title: try title?.asString(),
+                                                author: try author?.asString()))
+  }
+  
+  private func drawing(from expr: Expr) throws -> Drawing {
+    guard case .object(let obj) = expr, let drawing = obj as? Drawing else {
+      throw RuntimeError.type(expr, expected: [.drawingType])
+    }
+    return drawing
+  }
+  
+  
+  // Images/bitmaps
+  
+  private func isImage(expr: Expr) -> Expr {
+    if case .object(let obj) = expr, obj is ImmutableBox<NSImage> {
+      return .true
+    }
+    return .false
+  }
+  
+  private func loadImage(filename: Expr) throws -> Expr {
+    let path = self.context.fileHandler.path(try filename.asPath(),
+                                             relativeTo: self.systemLibrary.currentDirectoryPath)
+    guard let nsimage = NSImage(contentsOfFile: path) else {
+      throw RuntimeError.eval(.cannotLoadImage, filename)
+    }
+    return .object(ImmutableBox(nsimage))
+  }
+  
+  private func imageSize(image: Expr) throws -> Expr {
+    let size = try self.image(from: image).size
+    if size.width == 0.0 && size.height == 0.0 {
+      return .false
+    } else {
+      return .pair(.flonum(Double(size.width)), .flonum(Double(size.width)))
+    }
+  }
+  
+  private func isBitmap(expr: Expr) -> Expr {
+    if case .object(let obj) = expr, let image = (obj as? ImmutableBox<NSImage>)?.value {
+      for repr in image.representations {
+        if repr is NSBitmapImageRep {
+          return .true
+        }
+      }
+    }
+    return .false
+  }
+  
+  private func makeBitmap(drawing: Expr, size: Expr, scle: Expr) throws -> Expr {
+    guard case .pair(.flonum(let w), .flonum(let h)) = size, w > 0.0 && h > 0.0 else {
+      throw RuntimeError.eval(.invalidSize, size)
+    }
+    let scale = try scle.asDouble(coerce: true)
+    guard scale > 0.0 && scale <= 10.0 else {
+      throw RuntimeError.range(parameter: 3,
+                               of: "make-bitmap",
+                               scle,
+                               min: 0,
+                               max: 10,
+                               at: SourcePosition.unknown)
+    }
+    // Create a bitmap suitable for storing the image in a PNG
+    guard let bitmap = NSBitmapImageRep(bitmapDataPlanes: nil,
+                                        pixelsWide: Int(w * scale),
+                                        pixelsHigh: Int(h * scale),
+                                        bitsPerSample: 8,
+                                        samplesPerPixel: 4,
+                                        hasAlpha: true,
+                                        isPlanar: false,
+                                        colorSpaceName: NSColorSpaceName.deviceRGB,
+                                        bytesPerRow: 0,
+                                        bitsPerPixel: 0) else {
+      throw RuntimeError.eval(.cannotCreateBitmap,
+                              .pair(drawing, .pair(size, .pair(scle, .null))))
+    }
+    // Set the intended size of the image (vs. size of the bitmap above)
+    bitmap.size = NSSize(width: w, height: h)
+    // Create a graphics context for drawing into the bitmap
+    guard let context = NSGraphicsContext(bitmapImageRep: bitmap) else {
+      throw RuntimeError.eval(.cannotCreateBitmap,
+                              .pair(drawing, .pair(size, .pair(scle, .null))))
+    }
+    let previous = NSGraphicsContext.current
+    // Create a flipped graphics context if required
+    NSGraphicsContext.current = NSGraphicsContext(cgContext: context.cgContext, flipped: true)
+    let transform = NSAffineTransform()
+    transform.translateX(by: 0.0, yBy: CGFloat(h))
+    transform.scaleX(by: 1.0, yBy: -1.0)
+    transform.concat()
+    defer {
+      NSGraphicsContext.current = previous
+    }
+    // Draw into the bitmap
+    try self.drawing(from: drawing).draw()
+    // Create an image and add the bitmap as a representation
+    let nsimage = NSImage(size: bitmap.size)
+    nsimage.addRepresentation(bitmap)
+    return .object(ImmutableBox(nsimage))
+  }
+  
+  private func saveBitmap(bitmap: Expr, filename: Expr, format: Expr) throws -> Expr {
+    guard case .symbol(let sym) = format else {
+      throw RuntimeError.eval(.invalidImageFileType, format)
+    }
+    let fileType: NSBitmapImageRep.FileType
+    switch sym {
+      case self.formatPNG:
+        fileType = .png
+      case self.formatJPG:
+        fileType = .jpeg
+      case self.formatGIF:
+        fileType = .gif
+      case self.formatBMP:
+        fileType = .bmp
+      case self.formatTIFF:
+        fileType = .tiff
+      default:
+        throw RuntimeError.eval(.invalidImageFileType, format)
+    }
+    return self.saveInFile(try self.image(from: bitmap),
+                           try filename.asPath(),
+                           fileType) ? .true : .false
+  }
+  
+  private func saveInFile(_ image: NSImage,
+                          _ filename: String,
+                          _ filetype: NSBitmapImageRep.FileType) -> Bool {
+    let url = URL(fileURLWithPath:
+      self.context.fileHandler.path(filename, relativeTo: self.systemLibrary.currentDirectoryPath))
+    // Go through all representations and try to encode them as PNG; return once the first
+    // succeeds
+    for repr in image.representations {
+      // Encode bitmap in PNG format
+      if let bitmapRepr = repr as? NSBitmapImageRep,
+        let data = bitmapRepr.representation(using: filetype, properties: [:]) {
+        // Write encoded data into a file
+        do {
+          try data.write(to: url, options: .atomic)
+          return true
+        } catch {
+          return false
+        }
+      }
+    }
+    return false
+  }
+  
+  private func image(from expr: Expr) throws -> NSImage {
+    guard case .object(let obj) = expr, let imageBox = obj as? ImmutableBox<NSImage> else {
+      throw RuntimeError.type(expr, expected: [.imageType])
+    }
+    return imageBox.value
+  }
+  
   
   // Shapes
   
@@ -93,21 +557,6 @@ public final class DrawingLibrary: NativeLibrary {
   private func copyShape(expr: Expr) throws -> Expr {
     return .object(Shape(copy: try self.shape(from: expr)))
   }
-  
-  //  (define (make-shape) ...)
-  //  (define (make-polygon points) ...)
-  //  (define (make-rect point size [xradius] [yradius]) ...)
-  //  (define (make-oval point size) ...)
-  //  (define (make-arc point radius [start end]) ...)
-  //  (define (copy-shape shape) ...)
-  //  (define (transform-shape shape transformation) ...)
-  //  (define (interpolate points [closed] [alpha]) ...)
-  //  (define (interpolate-catmull/rom points [closed] [alpha]) ...)
-  //  (define (move-to shape point) ...)
-  //  (define (line-to shape point) ...)
-  //  (define (curve-to shape point cntrl1 cntrl2) ...)
-  //  (define (add-glyphs shape text font size) ...)
-  //  (define (add-shape shape other) ...)
   
   private func shape(from expr: Expr) throws -> Shape {
     guard case .object(let obj) = expr, let shape = obj as? Shape else {
@@ -139,7 +588,7 @@ public final class DrawingLibrary: NativeLibrary {
     let shape = Shape(flipped: true)
     var pointList = self.pointList(args)
     while case .pair(let point, let rest) = pointList {
-      guard case .pair(.flonum(let x), .flonum(let y)) = point else {
+      guard case .pair(.flonum(let x), .flonum(let y)) = point, x >= 0.0 && y >= 0.0 else {
         throw RuntimeError.eval(.invalidPoint, point)
       }
       if shape.isEmpty {
@@ -153,10 +602,11 @@ public final class DrawingLibrary: NativeLibrary {
   }
   
   private func makeRect(point: Expr, size: Expr, xradius: Expr?, yradius: Expr?) throws -> Expr {
-    guard case .pair(.flonum(let x), .flonum(let y)) = point else {
+    guard case .pair(.flonum(let x), .flonum(let y)) = point, x >= 0.0 && y >= 0.0 else {
       throw RuntimeError.eval(.invalidPoint, point)
     }
-    guard case .pair(.flonum(let w), .flonum(let h)) = size else {
+    guard case .pair(.flonum(let w), .flonum(let h)) = size,
+          w > 0.0 && w <= 1000000 && h > 0.0 && h <= 1000000 else {
       throw RuntimeError.eval(.invalidSize, size)
     }
     if let xrad = try xradius?.asDouble(coerce: true) {
@@ -173,10 +623,11 @@ public final class DrawingLibrary: NativeLibrary {
   }
   
   private func makeOval(point: Expr, size: Expr) throws -> Expr {
-    guard case .pair(.flonum(let x), .flonum(let y)) = point else {
+    guard case .pair(.flonum(let x), .flonum(let y)) = point, x >= 0.0 && y >= 0.0 else {
       throw RuntimeError.eval(.invalidPoint, point)
     }
-    guard case .pair(.flonum(let w), .flonum(let h)) = size else {
+    guard case .pair(.flonum(let w), .flonum(let h)) = size,
+          w > 0.0 && w <= 1000000 && h > 0.0 && h <= 1000000 else {
       throw RuntimeError.eval(.invalidSize, size)
     }
     return .object(Shape(.oval(NSRect(x: x, y: y, width: w, height: h)), flipped: true))
@@ -187,7 +638,7 @@ public final class DrawingLibrary: NativeLibrary {
                        start: Expr,
                        end: Expr?,
                        clockwise: Expr?) throws -> Expr {
-    guard case .pair(.flonum(let x), .flonum(let y)) = point else {
+    guard case .pair(.flonum(let x), .flonum(let y)) = point, x >= 0.0 && y >= 0.0 else {
       throw RuntimeError.eval(.invalidPoint, point)
     }
     let rad = try radius.asDouble(coerce: true)
@@ -232,7 +683,7 @@ public final class DrawingLibrary: NativeLibrary {
     var nspoints: [NSPoint] = []
     var pointList = expr
     while case .pair(let point, let rest) = pointList {
-      guard case .pair(.flonum(let x), .flonum(let y)) = point else {
+      guard case .pair(.flonum(let x), .flonum(let y)) = point, x >= 0.0 && y >= 0.0 else {
         throw RuntimeError.eval(.invalidPoint, point)
       }
       nspoints.append(NSPoint(x: x, y: y))
@@ -242,7 +693,7 @@ public final class DrawingLibrary: NativeLibrary {
   }
   
   private func moveTo(shape: Expr, point: Expr) throws -> Expr {
-    guard case .pair(.flonum(let x), .flonum(let y)) = point else {
+    guard case .pair(.flonum(let x), .flonum(let y)) = point, x >= 0.0 && y >= 0.0 else {
       throw RuntimeError.eval(.invalidPoint, point)
     }
     (try self.shape(from: shape)).append(.move(to: NSPoint(x: x, y: y)))
@@ -253,7 +704,7 @@ public final class DrawingLibrary: NativeLibrary {
     let shape = try self.shape(from: shape)
     var points = self.pointList(args)
     while case .pair(let point, let rest) = points {
-      guard case .pair(.flonum(let x), .flonum(let y)) = point else {
+      guard case .pair(.flonum(let x), .flonum(let y)) = point, x >= 0.0 && y >= 0.0 else {
         throw RuntimeError.eval(.invalidPoint, point)
       }
       shape.append(.line(to: NSPoint(x: x, y: y)))
@@ -263,13 +714,13 @@ public final class DrawingLibrary: NativeLibrary {
   }
   
   private func curveTo(shape: Expr, point: Expr, ctrl1: Expr, ctrl2: Expr) throws -> Expr {
-    guard case .pair(.flonum(let x), .flonum(let y)) = point else {
+    guard case .pair(.flonum(let x), .flonum(let y)) = point, x >= 0.0 && y >= 0.0 else {
       throw RuntimeError.eval(.invalidPoint, point)
     }
-    guard case .pair(.flonum(let c1x), .flonum(let c1y)) = ctrl1 else {
+    guard case .pair(.flonum(let c1x), .flonum(let c1y)) = ctrl1, c1x >= 0.0 && c1y >= 0.0 else {
       throw RuntimeError.eval(.invalidPoint, ctrl1)
     }
-    guard case .pair(.flonum(let c2x), .flonum(let c2y)) = ctrl2 else {
+    guard case .pair(.flonum(let c2x), .flonum(let c2y)) = ctrl2, c2x >= 0.0 && c2y >= 0.0 else {
       throw RuntimeError.eval(.invalidPoint, ctrl2)
     }
     (try self.shape(from: shape)).append(
@@ -283,7 +734,8 @@ public final class DrawingLibrary: NativeLibrary {
     guard case .object(let obj) = font, let fontBox = obj as? ImmutableBox<NSFont> else {
       throw RuntimeError.type(font, expected: [.fontType])
     }
-    guard case .pair(.flonum(let w), .flonum(let h)) = size else {
+    guard case .pair(.flonum(let w), .flonum(let h)) = size,
+          w > 0.0 && w <= 1000000 && h > 0.0 && h <= 1000000 else {
       throw RuntimeError.eval(.invalidSize, size)
     }
     (try self.shape(from: shape)).append(
@@ -410,16 +862,83 @@ public final class DrawingLibrary: NativeLibrary {
     return .flonum(colorRef.value.alpha)
   }
   
-  // Points/sizes/fonts
-  
-  private func point(x: Expr, y: Expr) throws -> Expr {
-    return .pair(.flonum(try x.asDouble(coerce: true)),
-                 .flonum(try y.asDouble(coerce: true)))
+  private func color(from expr: Expr) throws -> Color {
+    guard case .object(let obj) = expr, let colorRef = obj as? ImmutableBox<Color> else {
+      throw RuntimeError.type(expr, expected: [.colorType])
+    }
+    return colorRef.value
   }
   
-  private func size(w: Expr, h: Expr) throws -> Expr {
-    return .pair(.flonum(try w.asDouble(coerce: true)),
-                 .flonum(try h.asDouble(coerce: true)))
+  
+  // Fonts/points/sizes/rects
+  
+  private func point(xc: Expr, yc: Expr) throws -> Expr {
+    let x = try xc.asDouble(coerce: true)
+    let y = try yc.asDouble(coerce: true)
+    guard x >= 0.0 && y >= 0.0 else {
+      throw RuntimeError.eval(.invalidPoint, .pair(xc, yc))
+    }
+    return .pair(.flonum(x), .flonum(y))
+  }
+  
+  private func size(wc: Expr, hc: Expr) throws -> Expr {
+    let w = try wc.asDouble(coerce: true)
+    let h = try hc.asDouble(coerce: true)
+    return .pair(.flonum(w), .flonum(h))
+  }
+  
+  private func rect(fst: Expr, snd: Expr, thrd: Expr?, fth: Expr?) throws -> Expr {
+    if let width = thrd {
+      let x = try fst.asDouble(coerce: true)
+      let y = try snd.asDouble(coerce: true)
+      let w = try width.asDouble(coerce: true)
+      let h = fth == nil ? w : try fth!.asDouble(coerce: true)
+      guard x >= 0.0 && y >= 0.0 else {
+        throw RuntimeError.eval(.invalidPoint, .pair(.flonum(x), .flonum(y)))
+      }
+      guard w >= 0.0 && h >= 0.0 else {
+        throw RuntimeError.eval(.invalidSize, .pair(.flonum(w), .flonum(h)))
+      }
+      return .pair(.pair(.flonum(x), .flonum(y)), .pair(.flonum(w), .flonum(h)))
+    } else {
+      guard case .pair(let xc, let yc) = fst else {
+        throw RuntimeError.eval(.invalidPoint, fst)
+      }
+      guard case .pair(let wc, let hc) = snd else {
+        throw RuntimeError.eval(.invalidSize, snd)
+      }
+      let x = try xc.asDouble(coerce: true)
+      let y = try yc.asDouble(coerce: true)
+      let w = try wc.asDouble(coerce: true)
+      let h = try hc.asDouble(coerce: true)
+      guard x >= 0.0 && y >= 0.0 else {
+        throw RuntimeError.eval(.invalidPoint, fst)
+      }
+      guard w >= 0.0 && h >= 0.0 else {
+        throw RuntimeError.eval(.invalidSize, snd)
+      }
+      return .pair(.pair(.flonum(x), .flonum(y)), .pair(.flonum(w), .flonum(h)))
+    }
+  }
+  
+  private func rectPoint(expr: Expr) throws -> Expr {
+    guard case .pair(let point, .pair(.flonum(_), .flonum(_))) = expr else {
+      throw RuntimeError.eval(.invalidRect, expr)
+    }
+    guard case .pair(.flonum(let x), .flonum(let y)) = point, x >= 0.0 && y >= 0.0 else {
+      throw RuntimeError.eval(.invalidRect, expr)
+    }
+    return point
+  }
+  
+  private func rectSize(expr: Expr) throws -> Expr {
+    guard case .pair(.pair(.flonum(_), .flonum(_)), let size) = expr else {
+      throw RuntimeError.eval(.invalidRect, expr)
+    }
+    guard case .pair(.flonum(let w), .flonum(let h)) = size, w >= 0.0 && h >= 0.0 else {
+      throw RuntimeError.eval(.invalidRect, expr)
+    }
+    return size
   }
   
   private func isFont(expr: Expr) -> Expr {

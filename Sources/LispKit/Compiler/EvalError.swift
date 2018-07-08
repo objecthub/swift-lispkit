@@ -82,7 +82,12 @@ public enum EvalError: Int, Hashable {
   case invalidTimeZone
   case invalidPoint
   case invalidSize
+  case invalidRect
   case unknownFont
+  case cannotLoadImage
+  case cannotCreateBitmap
+  case invalidImageFileType
+  case invalidCompositionOperation
   
   public var message: String {
     switch self {
@@ -200,8 +205,18 @@ public enum EvalError: Int, Hashable {
         return "invalid point: $0"
       case .invalidSize:
         return "invalid size: $0"
+      case .invalidRect:
+        return "invalid rect: $0"
       case .unknownFont:
-        return "unknown font '$0' of size $1"
+        return "unknown font $0 of size $1"
+      case .cannotLoadImage:
+        return "cannot load image from file $0"
+      case .cannotCreateBitmap:
+        return "cannot create bitmap; error in arguments: $0"
+      case .invalidImageFileType:
+        return "invalid image file type: $0"
+      case .invalidCompositionOperation:
+        return "invalid image composition operation: $0"
     }
   }
   

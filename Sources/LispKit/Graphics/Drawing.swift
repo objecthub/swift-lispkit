@@ -34,6 +34,11 @@ public final class Drawing: Reference {
   /// The sequence of drawing instructions.
   public private(set) var instructions: [DrawingInstruction]
   
+  /// Initializer copying another drawing.
+  public init(copy drawing: Drawing) {
+    self.instructions = drawing.instructions
+  }
+  
   /// Initializer providing an initial sequence of drawing instructions.
   public init(_ instructions: DrawingInstruction...) {
     self.instructions = instructions

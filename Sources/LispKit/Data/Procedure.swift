@@ -328,6 +328,20 @@ public extension ArraySlice {
         return nil
     }
   }
+  
+  public func required2() -> (Element, Element)? {
+    guard self.count == 2 else {
+      return nil
+    }
+    return (self[self.startIndex], self[self.startIndex + 1])
+  }
+  
+  public func required3() -> (Element, Element, Element)? {
+    guard self.count == 3 else {
+      return nil
+    }
+    return (self[self.startIndex], self[self.startIndex + 1], self[self.startIndex + 2])
+  }
 }
 
 ///
