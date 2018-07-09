@@ -86,7 +86,10 @@ public final class Shape: Reference {
     self.owners = Owners<Shape>()
     super.init()
     switch self.prototype {
-      case .shape(let shape), .transformed(let shape, _), .flattened(let shape):
+      case .shape(let shape),
+           .transformed(let shape, _),
+           .flipped(let shape, _, _, _),
+           .flattened(let shape):
         shape.owners.compact()
         shape.owners.include(self)
       default:
@@ -107,7 +110,10 @@ public final class Shape: Reference {
     self.owners = Owners<Shape>()
     super.init()
     switch prototype {
-      case .shape(let shape), .transformed(let shape, _), .flattened(let shape):
+      case .shape(let shape),
+           .transformed(let shape, _),
+           .flipped(let shape, _, _, _),
+           .flattened(let shape):
         shape.owners.compact()
         shape.owners.include(self)
       default:
@@ -148,7 +154,10 @@ public final class Shape: Reference {
       return true
     }
     switch self.prototype {
-      case .shape(let other), .transformed(let other, _), .flattened(let other):
+      case .shape(let other),
+           .transformed(let other, _),
+           .flipped(let other, _, _, _),
+           .flattened(let other):
         if other.includes(shape) {
           return true
         }
@@ -256,10 +265,15 @@ public final class Shape: Reference {
 ///    - _arc(center: NSPoint, radius: Double, startAngle: Double, endAngle: Double,
 ///      clockwise: Bool)_: An arc around a center defined by a radius, a start angle and an
 ///      end angle.
+///    - _glyphs(String, in: NSRect, font: NSFont):_ Includes glypths for the given text in
+///      the given font at the position `in.origin` assuming a bounding box defined by `in.size`.
 ///    - _interpolated([NSPoint], method: InterpolationMethod):_ A smooth curve drawn through the
 ///      given points via a provided interpolation method.
 ///    - _shape(Shape):_ Another shape object.
 ///    - _transformed(Shape, Transformation):_ Another shape transformed by a given transformation.
+///    - _flipped(Shape, NSRect?, vertical, horizontal):_ Flips the given shape in the given
+///      rectangle either horizontally, vertically or both. If no rectangle is given, the
+///      bounding box of the shape is used.
 ///    - _flattened(Shape)_: Another shape flattened (i.e. a polygon approximating the shape)
 ///
 public enum ShapePrototype {
@@ -269,9 +283,11 @@ public enum ShapePrototype {
   case roundedRect(NSRect, xradius: Double, yradius: Double)
   case oval(NSRect)
   case arc(center: NSPoint, radius: Double, startAngle: Double, endAngle: Double, clockwise: Bool)
+  case glyphs(String, in: NSRect, font: NSFont)
   case interpolated([NSPoint], method: InterpolationMethod)
   case shape(Shape)
   case transformed(Shape, Transformation)
+  case flipped(Shape, NSRect?, vertical: Bool, horizontal: Bool)
   case flattened(Shape)
   
   func compile() -> NSBezierPath {
@@ -290,7 +306,9 @@ public enum ShapePrototype {
       case .roundedRect(let rect, let xrad, let yrad):
         return NSBezierPath(roundedRect: rect, xRadius: CGFloat(xrad), yRadius: CGFloat(yrad))
       case .oval(let rect):
-        return NSBezierPath(ovalIn: rect)
+        let bezierPath = NSBezierPath(ovalIn: rect)
+        bezierPath.close()
+        return bezierPath
       case .arc(let center, let radius, let start, let end, let clockwise):
         let bezierPath = NSBezierPath()
         bezierPath.appendArc(withCenter: center,
@@ -299,12 +317,49 @@ public enum ShapePrototype {
                              endAngle: CGFloat(end),
                              clockwise: clockwise)
         return bezierPath
+      case .glyphs(let str, let rect, let font):
+        let bezierPath = NSBezierPath()
+        bezierPath.move(to: rect.origin)
+        let storage = NSTextStorage(string: str, attributes: [NSAttributedStringKey.font : font])
+        let manager = NSLayoutManager()
+        let container = NSTextContainer(size: rect.size)
+        storage.addLayoutManager(manager)
+        manager.addTextContainer(container)
+        let glyphRange = manager.glyphRange(for: container)
+        if #available(macOS 10.13, *) {
+          var glyphBuffer = [CGGlyph](repeating: 0, count: glyphRange.length)
+          let glyphCount = manager.getGlyphs(in: glyphRange,
+                                             glyphs: &glyphBuffer,
+                                             properties: nil,
+                                             characterIndexes: nil,
+                                             bidiLevels: nil)
+          bezierPath.append(withCGGlyphs: &glyphBuffer, count: glyphCount, in: font)
+        } else {
+          var glyphBuffer = [NSGlyph](repeating: 0, count: glyphRange.length)
+          let glyphCount = manager.getGlyphs(&glyphBuffer, range: glyphRange)
+          bezierPath.appendGlyphs(&glyphBuffer, count: glyphCount, in: font)
+        }
+        let bounds = bezierPath.bounds
+        bezierPath.transform(using: AffineTransform(translationByX: rect.origin.x - bounds.origin.x,
+                                                    byY: rect.origin.y - bounds.origin.y))
+        return bezierPath
       case .interpolated(let points, let method):
         return method.compile(points)
       case .shape(let shape):
         return shape.compileNew()
       case .transformed(let shape, let transform):
         return NSAffineTransform(transform: transform.affineTransform).transform(shape.compile())
+      case .flipped(let shape, let box, let vertical, let horizontal):
+        var bezierPath = shape.compile()
+        let bounds = box ?? bezierPath.bounds
+        bezierPath = NSAffineTransform(transform:
+          AffineTransform(translationByX: -bounds.origin.x,
+                          byY: -bounds.origin.y)).transform(bezierPath)
+        bezierPath.transform(using: AffineTransform(scaleByX: horizontal ? -1.0 : 1.0,
+                                                    byY: vertical ? -1.0 : 1.0))
+        bezierPath.transform(using: AffineTransform(translationByX: bounds.origin.x + (horizontal ? bounds.width : 0.0),
+                                                    byY: bounds.origin.y + (vertical ? bounds.height : 0.0)))
+        return bezierPath
       case .flattened(let shape):
         return shape.compile().flattened
     }
@@ -442,16 +497,22 @@ public enum InterpolationMethod {
 ///    - _curve(to: NSPoint, controlCurrent: NSPoint, controlTarget: NSPoint):_ Draws a
 ///      curve from the current point to the given point using a control point each
 ///      for determining the tangents of the curve at the end points.
-///    - _text(String, in: NSFont, width: Double, height: Double):_ Includes glypths
-///      for the given text in the given font at the current point assuming a bounding
-///      box defined by `width` and `height`.
+///    - _relativeMove(to: NSPoint):_ Sets a new point relative to the current point.
+///    - _relativeLine(to: NSPoint):_ Draws a line from the current point to the given point
+///      which is specified relative to the current point.
+///    - _relativeCurve(to: NSPoint, controlCurrent: NSPoint, controlTarget: NSPoint):_ Draws a
+///      curve from the current point to the given point using a control point each
+///      for determining the tangents of the curve at the end points. All points are relative to
+///      the current point.
 ///    - _include(Shape):_ Includes another `Shape` object at the current point.
 ///
 public enum ShapeConstructor {
   case move(to: NSPoint)
   case line(to: NSPoint)
   case curve(to: NSPoint, controlCurrent: NSPoint, controlTarget: NSPoint)
-  case text(String, in: NSFont, width: Double, height: Double)
+  case relativeMove(to: NSPoint)
+  case relativeLine(to: NSPoint)
+  case relativeCurve(to: NSPoint, controlCurrent: NSPoint, controlTarget: NSPoint)
   case include(Shape)
   
   func compile(into path: NSBezierPath) {
@@ -462,26 +523,12 @@ public enum ShapeConstructor {
         path.line(to: point)
       case .curve(let target, let controlCurrent, let controlTarget):
         path.curve(to: target, controlPoint1: controlCurrent, controlPoint2: controlTarget)
-      case .text(let str, let font, let width, let height):
-        let storage = NSTextStorage(string: str, attributes: [NSAttributedStringKey.font : font])
-        let manager = NSLayoutManager()
-        let container = NSTextContainer(size: NSSize(width: width, height: height))
-        storage.addLayoutManager(manager)
-        manager.addTextContainer(container)
-        let glyphRange = manager.glyphRange(for: container)
-        if #available(macOS 10.13, *) {
-          var glyphBuffer = [CGGlyph](repeating: 0, count: glyphRange.length)
-          let glyphCount = manager.getGlyphs(in: glyphRange,
-                                             glyphs: &glyphBuffer,
-                                             properties: nil,
-                                             characterIndexes: nil,
-                                             bidiLevels: nil)
-          path.append(withCGGlyphs: &glyphBuffer, count: glyphCount, in: font)
-        } else {
-          var glyphBuffer = [NSGlyph](repeating: 0, count: glyphRange.length)
-          let glyphCount = manager.getGlyphs(&glyphBuffer, range: glyphRange)
-          path.appendGlyphs(&glyphBuffer, count: glyphCount, in: font)
-        }
+      case .relativeMove(let point):
+        path.relativeMove(to: point)
+      case .relativeLine(let point):
+        path.relativeLine(to: point)
+      case .relativeCurve(let target, let controlCurrent, let controlTarget):
+        path.relativeCurve(to: target, controlPoint1: controlCurrent, controlPoint2: controlTarget)
       case .include(let shape):
         path.append(shape.compile())
     }

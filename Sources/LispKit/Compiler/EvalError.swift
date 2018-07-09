@@ -88,6 +88,9 @@ public enum EvalError: Int, Hashable {
   case cannotCreateBitmap
   case invalidImageFileType
   case invalidCompositionOperation
+  case invalidFlipOrientation
+  case unknownInterpolateAlgorithm
+  case unsupportedGradientColorSpec
   
   public var message: String {
     switch self {
@@ -217,6 +220,12 @@ public enum EvalError: Int, Hashable {
         return "invalid image file type: $0"
       case .invalidCompositionOperation:
         return "invalid image composition operation: $0"
+      case .invalidFlipOrientation:
+        return "invalid flip orientation: $0"
+      case .unknownInterpolateAlgorithm:
+        return "unknown interpolation algorithm: $0"
+      case .unsupportedGradientColorSpec:
+        return "unsupported gradient color specification: $0"
     }
   }
   

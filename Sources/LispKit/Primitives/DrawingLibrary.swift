@@ -35,6 +35,15 @@ public final class DrawingLibrary: NativeLibrary {
   private let formatBMP: Symbol
   private let formatTIFF: Symbol
   
+  // Shape flip orientation
+  private let orientationHorizontal: Symbol
+  private let orientationVertical: Symbol
+  private let orientationMirror: Symbol
+  
+  // Interpolation algorithm
+  private let interpolateHermite: Symbol
+  private let interpolateCatmullRom: Symbol
+  
   // Image composition operation
   private let compositionClear: Symbol
   private let compositionCopy: Symbol
@@ -73,6 +82,11 @@ public final class DrawingLibrary: NativeLibrary {
     self.compositionDestinationIn = context.symbols.intern("destination-in")
     self.compositionDestinationOut = context.symbols.intern("destination-out")
     self.compositionDestinationAtop = context.symbols.intern("destination-atop")
+    self.orientationHorizontal = context.symbols.intern("horizontal")
+    self.orientationVertical = context.symbols.intern("vertical")
+    self.orientationMirror = context.symbols.intern("mirror")
+    self.interpolateHermite = context.symbols.intern("hermite")
+    self.interpolateCatmullRom = context.symbols.intern("catmull-rom")
     try super.init(in: context)
   }
   
@@ -87,13 +101,13 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("drawing?", isDrawing))
     self.define(Procedure("make-drawing", makeDrawing))
     self.define(Procedure("copy-drawing", copyDrawing))
-    self.define(Procedure("set-stroke-color", setStrokeColor))
+    self.define(Procedure("set-color", setColor))
     self.define(Procedure("set-fill-color", setFillColor))
     self.define(Procedure("set-shadow", setShadow))
     self.define(Procedure("remove-shadow", removeShadow))
     self.define(Procedure("enable-transformation", enableTransformation))
     self.define(Procedure("disable-transformation", disableTransformation))
-    self.define(Procedure("draw-stroke", drawStroke))
+    self.define(Procedure("draw-shape", drawShape))
     self.define(Procedure("fill-shape", fillShape))
     self.define(Procedure("draw-text", drawText))
     self.define(Procedure("draw-image", drawImage))
@@ -117,14 +131,15 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("make-rect", makeRect))
     self.define(Procedure("make-oval", makeOval))
     self.define(Procedure("make-arc", makeArc))
+    self.define(Procedure("make-glyphs", makeGlyphs))
     self.define(Procedure("transform-shape", transformShape))
+    self.define(Procedure("flip-shape", flipShape))
     self.define(Procedure("interpolate", interpolate))
-    self.define(Procedure("interpolate-catmull/rom", interpolateCatmullRom))
     self.define(Procedure("move-to", moveTo))
     self.define(Procedure("line-to", lineTo))
     self.define(Procedure("curve-to", curveTo))
-    self.define(Procedure("add-glyphs", addGlyphs))
     self.define(Procedure("add-shape", addShape))
+    self.define(Procedure("shape-bounds", shapeBounds))
     
     // Transformations
     self.define(Procedure("transformation?", isTransformation))
@@ -177,7 +192,7 @@ public final class DrawingLibrary: NativeLibrary {
     return .object(Drawing(copy: try self.drawing(from: expr)))
   }
   
-  private func setStrokeColor(drawing: Expr, color: Expr) throws -> Expr {
+  private func setColor(drawing: Expr, color: Expr) throws -> Expr {
     try self.drawing(from: drawing).append(.setStrokeColor(try self.color(from: color)))
     return .void
   }
@@ -213,7 +228,7 @@ public final class DrawingLibrary: NativeLibrary {
     return .void
   }
   
-  private func drawStroke(drawing: Expr, shape: Expr, width: Expr?) throws -> Expr {
+  private func drawShape(drawing: Expr, shape: Expr, width: Expr?) throws -> Expr {
     try self.drawing(from: drawing).append(.stroke(try self.shape(from: shape),
                                                    width: try width?.asDouble(coerce: true) ?? 1.0))
     return .void
@@ -229,6 +244,9 @@ public final class DrawingLibrary: NativeLibrary {
       while case .pair(let color, let rest) = colorList {
         colors.append(try self.color(from: color))
         colorList = rest
+      }
+      guard colors.count > 0 else {
+        throw RuntimeError.eval(.unsupportedGradientColorSpec, cols)
       }
       if let gradient = gradient {
         switch gradient {
@@ -269,10 +287,9 @@ public final class DrawingLibrary: NativeLibrary {
     }
     let loc: ObjectLocation
     switch location {
-      case .pair(.flonum(let x), .flonum(let y)) where x >= 0.0 && y >= 0.0:
+      case .pair(.flonum(let x), .flonum(let y)):
         loc = .position(NSPoint(x: x, y: y))
-      case .pair(.pair(.flonum(let x), .flonum(let y)), .pair(.flonum(let w), .flonum(let h)))
-             where x >= 0.0 && y >= 0.0 && w > 0.0 && h > 0.0:
+      case .pair(.pair(.flonum(let x), .flonum(let y)), .pair(.flonum(let w), .flonum(let h))):
         loc = .boundingBox(NSRect(x: x, y: y, width: w, height: h))
       default:
         throw RuntimeError.eval(.invalidPoint, location)
@@ -296,10 +313,9 @@ public final class DrawingLibrary: NativeLibrary {
     }
     let loc: ObjectLocation
     switch location {
-      case .pair(.flonum(let x), .flonum(let y)) where x >= 0.0 && y >= 0.0:
+      case .pair(.flonum(let x), .flonum(let y)):
         loc = .position(NSPoint(x: x, y: y))
-      case .pair(.pair(.flonum(let x), .flonum(let y)), .pair(.flonum(let w), .flonum(let h)))
-             where x >= 0.0 && y >= 0.0 && w > 0.0 && h > 0.0:
+      case .pair(.pair(.flonum(let x), .flonum(let y)), .pair(.flonum(let w), .flonum(let h))):
         loc = .boundingBox(NSRect(x: x, y: y, width: w, height: h))
       default:
         throw RuntimeError.eval(.invalidPoint, location)
@@ -549,9 +565,9 @@ public final class DrawingLibrary: NativeLibrary {
   
   private func makeShape(expr: Expr?) throws -> Expr {
     if let prototype = expr {
-      return .object(Shape(.shape(try self.shape(from: prototype)), flipped: true))
+      return .object(Shape(.shape(try self.shape(from: prototype))))
     }
-    return .object(Shape(flipped: true))
+    return .object(Shape())
   }
   
   private func copyShape(expr: Expr) throws -> Expr {
@@ -585,10 +601,10 @@ public final class DrawingLibrary: NativeLibrary {
   }
   
   private func makePolygon(args: Arguments) throws -> Expr {
-    let shape = Shape(flipped: true)
+    let shape = Shape()
     var pointList = self.pointList(args)
     while case .pair(let point, let rest) = pointList {
-      guard case .pair(.flonum(let x), .flonum(let y)) = point, x >= 0.0 && y >= 0.0 else {
+      guard case .pair(.flonum(let x), .flonum(let y)) = point else {
         throw RuntimeError.eval(.invalidPoint, point)
       }
       if shape.isEmpty {
@@ -602,35 +618,33 @@ public final class DrawingLibrary: NativeLibrary {
   }
   
   private func makeRect(point: Expr, size: Expr, xradius: Expr?, yradius: Expr?) throws -> Expr {
-    guard case .pair(.flonum(let x), .flonum(let y)) = point, x >= 0.0 && y >= 0.0 else {
+    guard case .pair(.flonum(let x), .flonum(let y)) = point else {
       throw RuntimeError.eval(.invalidPoint, point)
     }
-    guard case .pair(.flonum(let w), .flonum(let h)) = size,
-          w > 0.0 && w <= 1000000 && h > 0.0 && h <= 1000000 else {
+    guard case .pair(.flonum(let w), .flonum(let h)) = size else {
       throw RuntimeError.eval(.invalidSize, size)
     }
     if let xrad = try xradius?.asDouble(coerce: true) {
       if let yrad = try yradius?.asDouble(coerce: true) {
         return .object(Shape(.roundedRect(NSRect(x: x, y: y, width: w, height: h),
                                           xradius: xrad,
-                                          yradius: yrad), flipped: true))
+                                          yradius: yrad)))
       }
       return .object(Shape(.roundedRect(NSRect(x: x, y: y, width: w, height: h),
                                         xradius: xrad,
-                                        yradius: xrad), flipped: true))
+                                        yradius: xrad)))
     }
-    return .object(Shape(.rect(NSRect(x: x, y: y, width: w, height: h)), flipped: true))
+    return .object(Shape(.rect(NSRect(x: x, y: y, width: w, height: h))))
   }
   
   private func makeOval(point: Expr, size: Expr) throws -> Expr {
-    guard case .pair(.flonum(let x), .flonum(let y)) = point, x >= 0.0 && y >= 0.0 else {
+    guard case .pair(.flonum(let x), .flonum(let y)) = point else {
       throw RuntimeError.eval(.invalidPoint, point)
     }
-    guard case .pair(.flonum(let w), .flonum(let h)) = size,
-          w > 0.0 && w <= 1000000 && h > 0.0 && h <= 1000000 else {
+    guard case .pair(.flonum(let w), .flonum(let h)) = size else {
       throw RuntimeError.eval(.invalidSize, size)
     }
-    return .object(Shape(.oval(NSRect(x: x, y: y, width: w, height: h)), flipped: true))
+    return .object(Shape(.oval(NSRect(x: x, y: y, width: w, height: h))))
   }
   
   private func makeArc(point: Expr,
@@ -638,7 +652,7 @@ public final class DrawingLibrary: NativeLibrary {
                        start: Expr,
                        end: Expr?,
                        clockwise: Expr?) throws -> Expr {
-    guard case .pair(.flonum(let x), .flonum(let y)) = point, x >= 0.0 && y >= 0.0 else {
+    guard case .pair(.flonum(let x), .flonum(let y)) = point else {
       throw RuntimeError.eval(.invalidPoint, point)
     }
     let rad = try radius.asDouble(coerce: true)
@@ -648,42 +662,103 @@ public final class DrawingLibrary: NativeLibrary {
                                 radius: rad,
                                 startAngle: start,
                                 endAngle: end,
-                                clockwise: clockwise?.isTrue ?? true), flipped: true))
+                                clockwise: clockwise?.isTrue ?? true)))
+    } else {
+      return .object(Shape(.oval(NSRect(x: x - rad,
+                                        y: y - rad,
+                                        width: 2.0 * rad,
+                                        height: 2.0 * rad))))
     }
-    return .object(Shape(.arc(center: NSPoint(x: x, y: y),
-                              radius: rad,
-                              startAngle: 0,
-                              endAngle: Double.pi * 2.0,
-                              clockwise: clockwise?.isTrue ?? true), flipped: true))
+  }
+  
+  private func makeGlyphs(text: Expr, point: Expr, size: Expr, font: Expr) throws -> Expr {
+    guard case .pair(.flonum(let x), .flonum(let y)) = point else {
+      throw RuntimeError.eval(.invalidPoint, point)
+    }
+    guard case .pair(.flonum(let w), .flonum(let h)) = size else {
+      throw RuntimeError.eval(.invalidSize, size)
+    }
+    guard case .object(let obj) = font, let fontBox = obj as? ImmutableBox<NSFont> else {
+      throw RuntimeError.type(font, expected: [.fontType])
+    }
+    return .object(Shape(.glyphs(try text.asString(),
+                                 in: NSRect(x: x, y: y, width: w, height: h),
+                                 font: fontBox.value),
+                         flipped: true))
   }
   
   private func transformShape(shape: Expr, transformation: Expr) throws -> Expr {
     return .object(Shape(.transformed(try self.shape(from: shape),
-                                      try self.transformation(from: transformation)),
-                         flipped: true))
+                                      try self.transformation(from: transformation))))
   }
   
-  private func interpolate(points: Expr, closed: Expr?, alpha: Expr?) throws -> Expr {
-    let nspoints = try self.nsPoints(from: points)
-    return .object(Shape(.interpolated(nspoints,
-                     method: .hermite(closed: closed?.isTrue ?? false,
-                                      alpha: try alpha?.asDouble(coerce: true) ?? 1.0/3.0)),
-             flipped: true))
+  private func flipShape(shape: Expr, box: Expr?, orientation: Expr?) throws -> Expr {
+    let bounds: NSRect?
+    if let box = box {
+      guard case .pair(.pair(.flonum(let x), .flonum(let y)),
+                       .pair(.flonum(let w), .flonum(let h))) = box else {
+        throw RuntimeError.eval(.invalidRect, box)
+      }
+      bounds = NSRect(x: x, y: y, width: w, height: h)
+    } else {
+      bounds = nil
+    }
+    let horizontal: Bool
+    let vertical: Bool
+    if let orientation = orientation {
+      guard case .symbol(let sym) = orientation else {
+        throw RuntimeError.eval(.invalidFlipOrientation, orientation)
+      }
+      switch sym {
+        case self.orientationHorizontal:
+          horizontal = true
+          vertical = false
+        case self.orientationVertical:
+          horizontal = false
+          vertical = true
+        case self.orientationMirror:
+          horizontal = true
+          vertical = true
+        default:
+          throw RuntimeError.eval(.invalidFlipOrientation, orientation)
+      }
+    } else {
+      horizontal = false
+      vertical = true
+    }
+    return .object(Shape(.flipped(try self.shape(from: shape),
+                                  bounds,
+                                  vertical: vertical,
+                                  horizontal: horizontal)))
   }
   
-  private func interpolateCatmullRom(points: Expr, closed: Expr?, alpha: Expr?) throws -> Expr {
+  private func interpolate(points: Expr, args: Arguments) throws -> Expr {
+    guard let (closed, alpha, algo) = args.optional(.false,
+                                                    .flonum(1.0 / 3.0),
+                                                    .symbol(self.interpolateHermite)) else {
+      throw RuntimeError.argumentCount(min: 1, max: 4, args: .pair(points, .makeList(args)))
+    }
+    guard case .symbol(let sym) = algo else {
+      throw RuntimeError.eval(.unknownInterpolateAlgorithm, algo)
+    }
+    let method: InterpolationMethod
+    switch sym {
+      case self.interpolateHermite:
+        method = .hermite(closed: closed.isTrue, alpha: try alpha.asDouble(coerce: true))
+      case self.interpolateCatmullRom:
+        method = .catmullRom(closed: closed.isTrue, alpha: try alpha.asDouble(coerce: true))
+      default:
+        throw RuntimeError.eval(.unknownInterpolateAlgorithm, algo)
+    }
     let nspoints = try self.nsPoints(from: points)
-    return .object(Shape(.interpolated(nspoints,
-                     method: .catmullRom(closed: closed?.isTrue ?? false,
-                                         alpha: try alpha?.asDouble(coerce: true) ?? 1.0/3.0)),
-             flipped: true))
+    return .object(Shape(.interpolated(nspoints, method: method)))
   }
   
   private func nsPoints(from expr: Expr) throws -> [NSPoint] {
     var nspoints: [NSPoint] = []
     var pointList = expr
     while case .pair(let point, let rest) = pointList {
-      guard case .pair(.flonum(let x), .flonum(let y)) = point, x >= 0.0 && y >= 0.0 else {
+      guard case .pair(.flonum(let x), .flonum(let y)) = point else {
         throw RuntimeError.eval(.invalidPoint, point)
       }
       nspoints.append(NSPoint(x: x, y: y))
@@ -693,7 +768,7 @@ public final class DrawingLibrary: NativeLibrary {
   }
   
   private func moveTo(shape: Expr, point: Expr) throws -> Expr {
-    guard case .pair(.flonum(let x), .flonum(let y)) = point, x >= 0.0 && y >= 0.0 else {
+    guard case .pair(.flonum(let x), .flonum(let y)) = point else {
       throw RuntimeError.eval(.invalidPoint, point)
     }
     (try self.shape(from: shape)).append(.move(to: NSPoint(x: x, y: y)))
@@ -704,7 +779,7 @@ public final class DrawingLibrary: NativeLibrary {
     let shape = try self.shape(from: shape)
     var points = self.pointList(args)
     while case .pair(let point, let rest) = points {
-      guard case .pair(.flonum(let x), .flonum(let y)) = point, x >= 0.0 && y >= 0.0 else {
+      guard case .pair(.flonum(let x), .flonum(let y)) = point else {
         throw RuntimeError.eval(.invalidPoint, point)
       }
       shape.append(.line(to: NSPoint(x: x, y: y)))
@@ -714,13 +789,13 @@ public final class DrawingLibrary: NativeLibrary {
   }
   
   private func curveTo(shape: Expr, point: Expr, ctrl1: Expr, ctrl2: Expr) throws -> Expr {
-    guard case .pair(.flonum(let x), .flonum(let y)) = point, x >= 0.0 && y >= 0.0 else {
+    guard case .pair(.flonum(let x), .flonum(let y)) = point else {
       throw RuntimeError.eval(.invalidPoint, point)
     }
-    guard case .pair(.flonum(let c1x), .flonum(let c1y)) = ctrl1, c1x >= 0.0 && c1y >= 0.0 else {
+    guard case .pair(.flonum(let c1x), .flonum(let c1y)) = ctrl1 else {
       throw RuntimeError.eval(.invalidPoint, ctrl1)
     }
-    guard case .pair(.flonum(let c2x), .flonum(let c2y)) = ctrl2, c2x >= 0.0 && c2y >= 0.0 else {
+    guard case .pair(.flonum(let c2x), .flonum(let c2y)) = ctrl2 else {
       throw RuntimeError.eval(.invalidPoint, ctrl2)
     }
     (try self.shape(from: shape)).append(
@@ -730,23 +805,17 @@ public final class DrawingLibrary: NativeLibrary {
     return .void
   }
   
-  private func addGlyphs(shape: Expr, text: Expr, font: Expr, size: Expr) throws -> Expr {
-    guard case .object(let obj) = font, let fontBox = obj as? ImmutableBox<NSFont> else {
-      throw RuntimeError.type(font, expected: [.fontType])
-    }
-    guard case .pair(.flonum(let w), .flonum(let h)) = size,
-          w > 0.0 && w <= 1000000 && h > 0.0 && h <= 1000000 else {
-      throw RuntimeError.eval(.invalidSize, size)
-    }
-    (try self.shape(from: shape)).append(
-      .text(try text.asString(), in: fontBox.value, width: w, height: h))
-    return .void
-  }
-  
   private func addShape(shape: Expr, other: Expr) throws -> Expr {
     (try self.shape(from: shape)).append(.include((try self.shape(from: other))))
     return .void
   }
+  
+  private func shapeBounds(shape: Expr) throws -> Expr {
+    let box = (try self.shape(from: shape)).bounds
+    return .pair(.pair(.flonum(Double(box.origin.x)), .flonum(Double(box.origin.y))),
+                 .pair(.flonum(Double(box.width)), .flonum(Double(box.height))))
+  }
+  
   
   // Transformations
   
@@ -824,7 +893,7 @@ public final class DrawingLibrary: NativeLibrary {
     return .object(ImmutableBox(Color(red: try red.asDouble(coerce: true),
                                       green: try green.asDouble(coerce: true),
                                       blue: try blue.asDouble(coerce: true),
-                                      alpha: try (alpha ?? .flonum(0.0)).asDouble(coerce: true))))
+                                      alpha: try (alpha ?? .flonum(1.0)).asDouble(coerce: true))))
   }
   
   private func color(_ expr: Expr) -> Expr {
@@ -875,9 +944,6 @@ public final class DrawingLibrary: NativeLibrary {
   private func point(xc: Expr, yc: Expr) throws -> Expr {
     let x = try xc.asDouble(coerce: true)
     let y = try yc.asDouble(coerce: true)
-    guard x >= 0.0 && y >= 0.0 else {
-      throw RuntimeError.eval(.invalidPoint, .pair(xc, yc))
-    }
     return .pair(.flonum(x), .flonum(y))
   }
   
@@ -893,12 +959,6 @@ public final class DrawingLibrary: NativeLibrary {
       let y = try snd.asDouble(coerce: true)
       let w = try width.asDouble(coerce: true)
       let h = fth == nil ? w : try fth!.asDouble(coerce: true)
-      guard x >= 0.0 && y >= 0.0 else {
-        throw RuntimeError.eval(.invalidPoint, .pair(.flonum(x), .flonum(y)))
-      }
-      guard w >= 0.0 && h >= 0.0 else {
-        throw RuntimeError.eval(.invalidSize, .pair(.flonum(w), .flonum(h)))
-      }
       return .pair(.pair(.flonum(x), .flonum(y)), .pair(.flonum(w), .flonum(h)))
     } else {
       guard case .pair(let xc, let yc) = fst else {
@@ -911,12 +971,6 @@ public final class DrawingLibrary: NativeLibrary {
       let y = try yc.asDouble(coerce: true)
       let w = try wc.asDouble(coerce: true)
       let h = try hc.asDouble(coerce: true)
-      guard x >= 0.0 && y >= 0.0 else {
-        throw RuntimeError.eval(.invalidPoint, fst)
-      }
-      guard w >= 0.0 && h >= 0.0 else {
-        throw RuntimeError.eval(.invalidSize, snd)
-      }
       return .pair(.pair(.flonum(x), .flonum(y)), .pair(.flonum(w), .flonum(h)))
     }
   }
@@ -925,7 +979,7 @@ public final class DrawingLibrary: NativeLibrary {
     guard case .pair(let point, .pair(.flonum(_), .flonum(_))) = expr else {
       throw RuntimeError.eval(.invalidRect, expr)
     }
-    guard case .pair(.flonum(let x), .flonum(let y)) = point, x >= 0.0 && y >= 0.0 else {
+    guard case .pair(.flonum(_), .flonum(_)) = point else {
       throw RuntimeError.eval(.invalidRect, expr)
     }
     return point
@@ -935,7 +989,7 @@ public final class DrawingLibrary: NativeLibrary {
     guard case .pair(.pair(.flonum(_), .flonum(_)), let size) = expr else {
       throw RuntimeError.eval(.invalidRect, expr)
     }
-    guard case .pair(.flonum(let w), .flonum(let h)) = size, w >= 0.0 && h >= 0.0 else {
+    guard case .pair(.flonum(_), .flonum(_)) = size else {
       throw RuntimeError.eval(.invalidRect, expr)
     }
     return size

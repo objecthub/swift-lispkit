@@ -39,7 +39,8 @@ public final class ListLibrary: NativeLibrary {
                                                 "not", "equal?", "lambda", "identity", "set!",
                                                 "values")
     self.`import`(from: ["lispkit", "control"], "if", "cond", "let", "do")
-    self.`import`(from: ["lispkit", "math"],    "=", "truncate-quotient", "-")
+    self.`import`(from: ["lispkit", "math"],    "+", "-", "*", "=", "truncate-quotient",
+                                                "fxnegative?", "fx1-")
   }
   
   /// Declarations of the library.
@@ -199,6 +200,18 @@ public final class ListLibrary: NativeLibrary {
       "  (do ((xs xs (cdr xs)) (ys '()) (zs '()))",
       "      ((null? xs) (values (reverse ys) (reverse zs)))",
       "    (if (pred (car xs)) (set! ys (cons (car xs) ys)) (set! zs (cons (car xs) zs)))))")
+    self.define("tabulate", via:
+      "(define (tabulate count proc)",
+      "  (do ((count (fx1- count) (fx1- count))",
+      "       (acc   '() (cons (proc count) acc)))",
+      "      ((fxnegative? count) acc)))")
+    self.define("iota", via:
+      "(define (iota count . lst)",
+      "  (let ((start (if (pair? lst) (car lst) 0))",
+      "        (step  (if (and (pair? lst) (pair? (cdr lst))) (cadr lst) 1)))",
+      "    (do ((count (fx1- count) (fx1- count))",
+      "         (acc   '() (cons (+ start (* count step)) acc)))",
+      "        ((fxnegative? count) acc))))")
   }
   
   //---------MARK: - List predicates
