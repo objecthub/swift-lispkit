@@ -138,6 +138,9 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("move-to", moveTo))
     self.define(Procedure("line-to", lineTo))
     self.define(Procedure("curve-to", curveTo))
+    self.define(Procedure("relative-move-to", relativeMoveTo))
+    self.define(Procedure("relative-line-to", relativeLineTo))
+    self.define(Procedure("relative-curve-to", relativeCurveTo))
     self.define(Procedure("add-shape", addShape))
     self.define(Procedure("shape-bounds", shapeBounds))
     
@@ -683,8 +686,8 @@ public final class DrawingLibrary: NativeLibrary {
     }
     return .object(Shape(.glyphs(try text.asString(),
                                  in: NSRect(x: x, y: y, width: w, height: h),
-                                 font: fontBox.value),
-                         flipped: true))
+                                 font: fontBox.value,
+                                 flipped: true)))
   }
   
   private func transformShape(shape: Expr, transformation: Expr) throws -> Expr {
@@ -802,6 +805,44 @@ public final class DrawingLibrary: NativeLibrary {
       .curve(to: NSPoint(x: x, y: y),
              controlCurrent: NSPoint(x: c1x, y: c1y),
              controlTarget: NSPoint(x: c2x, y: c2y)))
+    return .void
+  }
+  
+  private func relativeMoveTo(shape: Expr, point: Expr) throws -> Expr {
+    guard case .pair(.flonum(let x), .flonum(let y)) = point else {
+      throw RuntimeError.eval(.invalidPoint, point)
+    }
+    (try self.shape(from: shape)).append(.relativeMove(to: NSPoint(x: x, y: y)))
+    return .void
+  }
+  
+  private func relativeLineTo(shape: Expr, args: Arguments) throws -> Expr {
+    let shape = try self.shape(from: shape)
+    var points = self.pointList(args)
+    while case .pair(let point, let rest) = points {
+      guard case .pair(.flonum(let x), .flonum(let y)) = point else {
+        throw RuntimeError.eval(.invalidPoint, point)
+      }
+      shape.append(.relativeLine(to: NSPoint(x: x, y: y)))
+      points = rest
+    }
+    return .void
+  }
+  
+  private func relativeCurveTo(shape: Expr, point: Expr, ctrl1: Expr, ctrl2: Expr) throws -> Expr {
+    guard case .pair(.flonum(let x), .flonum(let y)) = point else {
+      throw RuntimeError.eval(.invalidPoint, point)
+    }
+    guard case .pair(.flonum(let c1x), .flonum(let c1y)) = ctrl1 else {
+      throw RuntimeError.eval(.invalidPoint, ctrl1)
+    }
+    guard case .pair(.flonum(let c2x), .flonum(let c2y)) = ctrl2 else {
+      throw RuntimeError.eval(.invalidPoint, ctrl2)
+    }
+    (try self.shape(from: shape)).append(
+      .relativeCurve(to: NSPoint(x: x, y: y),
+                     controlCurrent: NSPoint(x: c1x, y: c1y),
+                     controlTarget: NSPoint(x: c2x, y: c2y)))
     return .void
   }
   

@@ -283,7 +283,7 @@ public enum ShapePrototype {
   case roundedRect(NSRect, xradius: Double, yradius: Double)
   case oval(NSRect)
   case arc(center: NSPoint, radius: Double, startAngle: Double, endAngle: Double, clockwise: Bool)
-  case glyphs(String, in: NSRect, font: NSFont)
+  case glyphs(String, in: NSRect, font: NSFont, flipped: Bool)
   case interpolated([NSPoint], method: InterpolationMethod)
   case shape(Shape)
   case transformed(Shape, Transformation)
@@ -317,7 +317,7 @@ public enum ShapePrototype {
                              endAngle: CGFloat(end),
                              clockwise: clockwise)
         return bezierPath
-      case .glyphs(let str, let rect, let font):
+      case .glyphs(let str, let rect, let font, let flipped):
         let bezierPath = NSBezierPath()
         bezierPath.move(to: rect.origin)
         let storage = NSTextStorage(string: str, attributes: [NSAttributedStringKey.font : font])
@@ -339,9 +339,16 @@ public enum ShapePrototype {
           let glyphCount = manager.getGlyphs(&glyphBuffer, range: glyphRange)
           bezierPath.appendGlyphs(&glyphBuffer, count: glyphCount, in: font)
         }
-        let bounds = bezierPath.bounds
+        var bounds = bezierPath.bounds
         bezierPath.transform(using: AffineTransform(translationByX: rect.origin.x - bounds.origin.x,
                                                     byY: rect.origin.y - bounds.origin.y))
+        if flipped {
+          bounds = bezierPath.bounds
+          bezierPath.transform(using: AffineTransform(translationByX: 0.0, byY: -bounds.origin.y))
+          bezierPath.transform(using: AffineTransform(scaleByX: 1.0, byY: -1.0))
+          bezierPath.transform(using: AffineTransform(translationByX: 0.0,
+                                                      byY: bounds.origin.y + bounds.height))
+        }
         return bezierPath
       case .interpolated(let points, let method):
         return method.compile(points)
