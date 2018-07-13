@@ -96,7 +96,7 @@ public func equalExpr(_ this: Expr, _ that: Expr) -> Bool {
           return true
         }
         equalities.insert(equality)
-        return cell1.value == cell2.value
+        return equals(cell1.value, cell2.value)
       case (.mpair(let tuple1), .mpair(let tuple2)):
         guard tuple1 !== tuple2 else {
           return true
@@ -106,7 +106,7 @@ public func equalExpr(_ this: Expr, _ that: Expr) -> Bool {
           return true
         }
         equalities.insert(equality)
-        return tuple1.fst == tuple2.fst && tuple1.snd == tuple2.snd
+        return equals(tuple1.fst, tuple2.fst) && equals(tuple1.snd, tuple2.snd)
       case (.vector(let vector1), .vector(let vector2)):
         guard vector1 !== vector2 else {
           return true
@@ -169,12 +169,16 @@ public func equalExpr(_ this: Expr, _ that: Expr) -> Bool {
         // TODO: Consider optimizing this; the algorithm currently has complexity O(n*n)
         let mappings1 = map1.mappings
         var count2 = 0
+        var checkpointEqualities = equalities
         outer:
         for (key2, value2) in map2.mappings {
           count2 += 1
           for (key1, value1) in mappings1 {
             if equals(key1, key2) && equals(value1, value2) {
+              checkpointEqualities = equalities
               continue outer
+            } else {
+              equalities = checkpointEqualities
             }
           }
           return false

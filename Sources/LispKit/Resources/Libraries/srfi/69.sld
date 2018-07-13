@@ -287,7 +287,7 @@
     ;; Returns a new hash table with the same equivalence predicate, hash function and
     ;; mappings as in hash-table.
     (define (hash-table-copy ht)
-      (new-hash-table (hashtable-copy (get-hashtable ht))))
+      (new-hash-table (hashtable-copy (get-hashtable ht) #t)))
 
     ;; (hash-table-merge! hash-table1 hash-table2) -> hash-table
     ;;

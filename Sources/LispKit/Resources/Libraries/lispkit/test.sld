@@ -24,13 +24,15 @@
 
   (export test-begin
           test-end
+          test-exit
           test-failures
           test
           test-equal
           test-assert
           test-error
           test-group
-          approx-equal?)
+          approx-equal?
+          current-test-comparator)
 
   (import (lispkit base))
 
@@ -40,6 +42,8 @@
     (define tests-failed 0)
     (define tests-start-time 0)
     (define internal-fail-token (gensym))
+
+    (define current-test-comparator (make-parameter equal?))
 
     (define (test-begin)
       (set! tests-passed 0)
@@ -53,7 +57,7 @@
         (display "║ ")
         (display total)
         (display " tests completed in ")
-        (display (format-float (inexact (/ (- end tests-start-time) 1000)) 3))
+        (display (format-float (inexact (- end tests-start-time)) 3))
         (display " seconds")
         (newline)
         (display "║ ")
@@ -68,6 +72,8 @@
       	(display (format-percent tests-failed total))
         (display "%) tests failed")
         (newline)))
+
+    (define test-exit test-end)
 
     (define (test-failures) tests-failed)
 
@@ -128,14 +134,14 @@
         ((_ expect expr)
           (test (write-to-string 'expr) expect expr))
         ((_ name expect (expr ...))
-          (test-equal name expect (expr ...) equal?))
+          (test-equal name expect (expr ...) (current-test-comparator)))
         ((_ name (quote expect) expr)
-          (test-equal name (quote expect) expr equal?))
+          (test-equal name (quote expect) expr (current-test-comparator)))
         ((_ name (expect ...) expr)
           (syntax-error "the test expression should come last: (test <expected> (<expr> ...))"
                         '(test name (expect ...) expr)))
         ((_ name expect expr)
-          (test-equal name expect expr equal?))
+          (test-equal name expect expr (current-test-comparator)))
         ((_ a ...)
           (syntax-error "a test requires 2 or 3 arguments" '(test a ...)))))
 
@@ -144,7 +150,7 @@
         ((_ name value expr eq)
           (run-equal name (lambda () expr) value eq))
         ((_ name value expr)
-          (run-equal name (lambda () expr) value equal?))
+          (run-equal name (lambda () expr) value (current-test-comparator)))
         ((_ value expr)
           (test-equal (write-to-string 'expr) value expr))))
 
@@ -221,4 +227,3 @@
          (call-with-output-string (lambda (out) (display x out)))))
   )
 )
-
