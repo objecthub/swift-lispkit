@@ -1,6 +1,6 @@
 # Todo
 
-Last update: 2018-03-11
+Last update: 2018-07-13
 
 
 ## Compiler
@@ -59,7 +59,7 @@ Last update: 2018-03-11
 
 - [X] Build regression testing framework
 - [X] Add simple regression tests 
-- [ ] Add unit tests
+- [X] Add unit tests
 
 
 ## Documentation

@@ -53,7 +53,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     `(scheme r5rs)`
   - LispKit-specific libraries: `(lispkit test)`, `(lispkit datatype)`, `(lispkit object)`, `(lispkit enum)`,
     `(lispkit logic)`, `(lispkit iteration)`, `(lispkit set)`, `(lispkit stack)`, `(lispkit queue)`,
-    `(lispkit heap)`, `(lispkit wt-tree)`, `(lispkit prettify)`, `(lispkit json)`,
+    `(lispkit heap)`, `(lispkit wt-tree)`, `(lispkit prettify)`, `(lispkit json)`, `(lispkit draw)`,
     and `(lispkit pdf)`
 
 _LispKit_ is incompatible or incomplete with respect to the following R7RS features:
@@ -83,6 +83,7 @@ framework:
   - [SRFI 69: Basic hash tables](https://srfi.schemers.org/srfi-69/srfi-69.html)
   - [SRFI 111: Boxes](https://srfi.schemers.org/srfi-111/srfi-111.html)
   - [SRFI 112: Environment inquiry](https://srfi.schemers.org/srfi-112/srfi-112.html)
+  - [SRFI 113: Sets and bags](https://srfi.schemers.org/srfi-113/srfi-113.html)
   - [SRFI 121: Generators](https://srfi.schemers.org/srfi-121/srfi-121.html)
   - [SRFI 128: Comparators](https://srfi.schemers.org/srfi-128/srfi-128.html)
   - [SRFI 129: Titlecase procedures](https://srfi.schemers.org/srfi-129/srfi-129.html)
