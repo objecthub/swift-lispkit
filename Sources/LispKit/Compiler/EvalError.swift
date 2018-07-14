@@ -83,7 +83,6 @@ public enum EvalError: Int, Hashable {
   case invalidPoint
   case invalidSize
   case invalidRect
-  case unknownFont
   case cannotLoadImage
   case cannotCreateBitmap
   case invalidImageFileType
@@ -210,8 +209,6 @@ public enum EvalError: Int, Hashable {
         return "invalid size: $0"
       case .invalidRect:
         return "invalid rect: $0"
-      case .unknownFont:
-        return "unknown font $0 of size $1"
       case .cannotLoadImage:
         return "cannot load image from file $0"
       case .cannotCreateBitmap:

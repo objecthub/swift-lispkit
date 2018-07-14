@@ -21,6 +21,9 @@
 import Foundation
 import Cocoa
 
+///
+/// This class implements the library `(lispkit draw)`. 
+///
 public final class DrawingLibrary: NativeLibrary {
   
   /// Imported native library
@@ -1046,7 +1049,7 @@ public final class DrawingLibrary: NativeLibrary {
   private func font(font: Expr, size: Expr) throws -> Expr {
     guard let nsfont = NSFont(name: try font.asString(),
                               size: CGFloat(try size.asDouble(coerce: true))) else {
-      throw RuntimeError.eval(.unknownFont, font, size)
+      return .false
     }
     return .object(ImmutableBox(nsfont))
   }
