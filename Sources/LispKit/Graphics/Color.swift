@@ -45,7 +45,7 @@ public struct Color {
   public let alpha: Double
   
   /// Initializer
-  public init(red: Double, green: Double, blue: Double, alpha: Double = 0.0) {
+  public init(red: Double, green: Double, blue: Double, alpha: Double = 1.0) {
     self.red = red
     self.green = green
     self.blue = blue
