@@ -54,6 +54,7 @@ public final class DynamicControlLibrary: NativeLibrary {
     
     // Continuations
     self.define(Procedure("continuation?", isContinuation))
+    self.define(SpecialForm("_continuation", compileContinuation))
     self.define(Procedure("_call-with-unprotected-continuation", callWithUnprotectedContinuation))
     self.define(Procedure("_wind-down", windDown))
     self.define(Procedure("_wind-up", windUp))
@@ -65,7 +66,7 @@ public final class DynamicControlLibrary: NativeLibrary {
       "(define (call-with-current-continuation f)",
       "  (_call-with-unprotected-continuation",
       "     (lambda (cont)",
-      "       (f (lambda args",
+      "       (f (_continuation args",
       "            (do ((base (_dynamic-wind-base cont)))",
       "                ((eqv? (_dynamic-wind-current) base))",
       "              ((cdr (_wind-down))))",
@@ -197,10 +198,24 @@ public final class DynamicControlLibrary: NativeLibrary {
     guard case .procedure(let proc) = expr else {
       return .false
     }
-    guard case .continuation(_) = proc.kind else {
-      return .false
+    switch proc.kind {
+      case .rawContinuation(_),
+           .closure(.continuation, _, _):
+        return .true
+      default:
+        return .false
     }
-    return .true
+  }
+  
+  private func compileContinuation(compiler: Compiler,
+                                   expr: Expr,
+                                   env: Env,
+                                   tail: Bool) throws -> Bool {
+    guard case .pair(_, .pair(let arglist, let body)) = expr else {
+      throw RuntimeError.argumentCount(num: 1, expr: expr)
+    }
+    try compiler.compileLambda(nil, arglist, body, env, continuation: true)
+    return false
   }
   
   func callWithUnprotectedContinuation(_ args: Arguments) throws -> (Procedure, Exprs) {
@@ -249,7 +264,7 @@ public final class DynamicControlLibrary: NativeLibrary {
   }
   
   func dynamicWindBase(_ cont: Expr) throws -> Expr {
-    guard case .continuation(let vmState) = try cont.asProcedure().kind else {
+    guard case .rawContinuation(let vmState) = try cont.asProcedure().kind else {
       preconditionFailure("_dynamic-wind-base(\(cont))")
     }
     let base = self.context.machine.winders?.commonPrefix(vmState.winders)
@@ -261,7 +276,7 @@ public final class DynamicControlLibrary: NativeLibrary {
   }
   
   func dynamicWinders(_ cont: Expr) throws -> Expr {
-    guard case .continuation(let vmState) = try cont.asProcedure().kind else {
+    guard case .rawContinuation(let vmState) = try cont.asProcedure().kind else {
       preconditionFailure("_dynamic-winders(\(cont))")
     }
     let base = self.context.machine.winders

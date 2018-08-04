@@ -110,7 +110,7 @@ public enum Instruction: CustomStringConvertible {
   /// fragment. The capture list is created from the top _n_ elements on the stack. _f_ is
   /// an index into the list of code fragments of the currently executed code. _i_ is a
   /// reference into the constant pool referring to the name of the closure (-1 indicates that
-  /// the closure is anonymous)
+  /// the closure is anonymous, -2 indicates that the closure is a continuation).
   case makeClosure(Int, Int, Int)
   
   /// **`make_frame`**: Pushes a new stack frame onto the stack.
@@ -468,7 +468,7 @@ public enum Instruction: CustomStringConvertible {
       case .pushConstant(let index):
         return code.constants[index].description
       case .makeClosure(let i, _, _):
-        return i >= 0 ? code.constants[i].description : nil
+        return i >= 0 ? code.constants[i].description : (i == -2 ? "continuation" : nil)
       case .makeVariableArgument(_):
         return nil
       case .pushChar(let char):

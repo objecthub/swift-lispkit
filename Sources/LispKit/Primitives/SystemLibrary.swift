@@ -417,25 +417,25 @@ public final class SystemLibrary: NativeLibrary {
       throw RuntimeError.type(expr, expected: [.procedureType])
     }
     switch proc.kind {
-    case .closure(_, let captured, let code):
-      context.console.print(code.description)
-      if captured.count > 0 {
-        context.console.print("CAPTURED:\n")
-        for i in captured.indices {
-          context.console.print("  \(i): \(captured[i])\n")
+      case .closure(_, let captured, let code):
+        context.console.print(code.description)
+        if captured.count > 0 {
+          context.console.print("CAPTURED:\n")
+          for i in captured.indices {
+            context.console.print("  \(i): \(captured[i])\n")
+          }
         }
-      }
-    case .continuation(let vmState):
-      context.console.print(vmState.description + "\n")
-      context.console.print(vmState.registers.code.description)
-      if vmState.registers.captured.count > 0 {
-        context.console.print("CAPTURED:\n")
-        for i in vmState.registers.captured.indices {
-          context.console.print("  \(i): \(vmState.registers.captured[i])\n")
+      case .rawContinuation(let vmState):
+        context.console.print(vmState.description + "\n")
+        context.console.print(vmState.registers.code.description)
+        if vmState.registers.captured.count > 0 {
+          context.console.print("CAPTURED:\n")
+          for i in vmState.registers.captured.indices {
+            context.console.print("  \(i): \(vmState.registers.captured[i])\n")
+          }
         }
-      }
-    default:
-      context.console.print("cannot disassemble \(expr)\n")
+      default:
+        context.console.print("cannot disassemble \(expr)\n")
     }
     return .void
   }

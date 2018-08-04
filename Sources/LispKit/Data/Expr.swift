@@ -882,7 +882,9 @@ extension Expr: CustomStringConvertible {
                 enclObjs.remove(proc)
                 return fixString(proc, res)
               }
-            case .continuation(_):
+            case .rawContinuation(_):
+              return "#<raw-continuation \(proc.name)>"
+            case .closure(.continuation, _, _):
               return "#<continuation \(proc.name)>"
             default:
               return "#<procedure \(proc.name)>"

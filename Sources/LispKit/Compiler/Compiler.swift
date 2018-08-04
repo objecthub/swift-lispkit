@@ -919,7 +919,11 @@ public final class Compiler {
   /// Compiles a closure consisting of a list of formal arguments `arglist`, a list of
   /// expressions `body`, and a local environment `env`. It puts the closure on top of the
   /// stack.
-  public func compileLambda(_ nameIdx: Int?, _ arglist: Expr, _ body: Expr, _ env: Env) throws {
+  public func compileLambda(_ nameIdx: Int?,
+                            _ arglist: Expr,
+                            _ body: Expr,
+                            _ env: Env,
+                            continuation: Bool = false) throws {
     // Create closure compiler as child of the current compiler
     let closureCompiler = Compiler(in: env,
                                    and: env,
@@ -957,7 +961,7 @@ public final class Compiler {
       }
     }
     // Return captured binding count and index of compiled closure
-    self.emit(.makeClosure(nameIdx ?? -1,
+    self.emit(.makeClosure(nameIdx ?? (continuation ? -2 : -1),
                            closureCompiler.captures.count,
                            codeIndex))
   }

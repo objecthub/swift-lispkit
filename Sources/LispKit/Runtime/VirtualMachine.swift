@@ -402,7 +402,7 @@ public final class VirtualMachine: TrackedObject {
     switch proc.kind {
       case .closure(_, let captured, let code):
         return try self.execute(code, args: n, captured: captured)
-      case .continuation(_):
+      case .rawContinuation(_):
         return try self.execute()
       case .transformer(let rules):
         if n != 1 {
@@ -924,7 +924,7 @@ public final class VirtualMachine: TrackedObject {
       }
     }
     // Handle continuations
-    if case .continuation(let vmState) = proc.kind {
+    if case .rawContinuation(let vmState) = proc.kind {
       // Check that we apply the continuation in the right context
       guard vmState.registers.rid == self.registers.rid else {
         throw RuntimeError.eval(.illegalContinuationApplication,
@@ -1176,11 +1176,15 @@ public final class VirtualMachine: TrackedObject {
               preconditionFailure(
                 "makeClosure has broken closure name \(self.registers.code.constants[i])")
             }
-            self.push(.procedure(Procedure(sym.description,
+            self.push(.procedure(Procedure(.named(sym.description),
+                                           self.captureExprs(n),
+                                           self.registers.code.fragments[index])))
+          } else if i == -2 {
+            self.push(.procedure(Procedure(.continuation,
                                            self.captureExprs(n),
                                            self.registers.code.fragments[index])))
           } else {
-            self.push(.procedure(Procedure(nil,
+            self.push(.procedure(Procedure(.anonymous,
                                            self.captureExprs(n),
                                            self.registers.code.fragments[index])))
           }
@@ -1272,7 +1276,7 @@ public final class VirtualMachine: TrackedObject {
             }
             // Adjust the stack pointer
             self.sp = self.registers.fp &+ n
-          } else if case .continuation(_) = proc.kind {
+          } else if case .rawContinuation(_) = proc.kind {
             break
           } else if self.registers.topLevel {
             // Return to interactive environment
