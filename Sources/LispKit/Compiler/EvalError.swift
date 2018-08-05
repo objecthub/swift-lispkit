@@ -67,6 +67,7 @@ public enum EvalError: Int, Hashable {
   case cannotOpenUrl
   case invalidUrl
   case cannotWriteToPort
+  case invalidDefaultPort
   case illegalContinuationApplication
   case attemptToModifyImmutableData
   case unknownFieldOfRecordType
@@ -177,6 +178,8 @@ public enum EvalError: Int, Hashable {
         return "invalid URL: $,0"
       case .cannotWriteToPort:
         return "cannot write to port $0"
+      case .invalidDefaultPort:
+        return "invalid default port: $0"
       case .illegalContinuationApplication:
         return "continuation application in wrong context ($0 in $1)"
       case .attemptToModifyImmutableData:

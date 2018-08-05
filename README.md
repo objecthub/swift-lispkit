@@ -60,9 +60,7 @@ _LispKit_ is incompatible or incomplete with respect to the following R7RS featu
 
   - Lists are immutable. Mutable cons-cells are supported in a way similar to
     [Racket](https://racket-lang.org)
-  - `current-input-port`, `current-output-port`, and `current-error-port` are functions
-    (as required by R5RS) and not parameter objects (as required by R7RS)
-  - Datum comments introduced via `#;` do not always work as expected.
+  - Datum comments introduced via `#;` do not always work as in other Scheme dialects.
 
 The following  [SRFI](https://srfi.schemers.org/) libraries have been ported to _LispKit_ and are included in the
 framework:

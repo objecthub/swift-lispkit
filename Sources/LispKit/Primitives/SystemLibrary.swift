@@ -57,7 +57,7 @@ public final class SystemLibrary: NativeLibrary {
                             self.context.fileHandler.currentDirectoryPath))
     self.compileAndEvalFirstProc =
       Procedure("_compileAndEvalFirst", self.compileAndEvalFirst)
-    self.define("current-directory", as: .procedure(self.currentDirectoryProc))
+    self.define("current-directory", as: self.currentDirectoryProc)
     self.define(Procedure("file-path", self.filePath))
     self.define(Procedure("parent-file-path", self.parentFilePath))
     self.define(Procedure("file-path-root?", self.filePathRoot))

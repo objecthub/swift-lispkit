@@ -189,7 +189,7 @@ open class NativeLibrary: Library {
   @discardableResult public func define(_ name: String,
                                         as proc: Procedure,
                                         export: Bool = true) -> Int {
-    return self.define(proc.name, as: .procedure(proc), export: export)
+    return self.define(name, as: .procedure(proc), export: export)
   }
   
   /// Declares a new syntactical definition for the given special form `special` and name

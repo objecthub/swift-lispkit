@@ -69,14 +69,11 @@ public final class Context {
   /// The virtual machine for executing Lisp code.
   public private(set) var machine: VirtualMachine! = nil
 
-  /// The current input port.
-  public var inputPort: Port!
+  /// The default input port.
+  internal var inputPort: Port!
   
-  /// The current output port.
-  public var outputPort: Port!
-  
-  /// The current error port.
-  public var errorPort: Port!
+  /// The default output port.
+  internal var outputPort: Port!
   
   /// Bundle of the LispKit module
   public static let bundle = Bundle(identifier: "net.objecthub.LispKit")
@@ -126,7 +123,6 @@ public final class Context {
     self.inputPort = Port(input: TextInput(source: console,
                                            abortionCallback: self.machine.isAbortionRequested))
     self.outputPort = Port(output: TextOutput(target: console, threshold: 0))
-    self.errorPort = self.inputPort
     // Register tracked objects
     self.objects.track(self.machine)
     self.objects.track(self.heap)
