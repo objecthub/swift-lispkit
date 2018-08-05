@@ -40,29 +40,28 @@
     (define s (flip-shape (interpolate ps)))
     ; Draw a bounding box
     (define box (shape-bounds s))
-    (draw-shape d (make-rect (rect-point rect) (rect-size rect)) 0.5)
+    (draw (rectangular (rect-point rect) (rect-size rect)) 0.5 d)
     ; Draw the graph and coordinate axis
-    (enable-transformation d shift)
+    (enable-transformation shift d)
     (if (and (<= xmin 0.0) (>= xmax 0.0))
-        (draw-shape d (make-polygon (point (* xfac (- xmin)) 0)
-                                     (point (* xfac (- xmin)) (cdr (rect-size rect))))
-                     0.3))
+        (draw (polygon (point (* xfac (- xmin)) 0)
+                       (point (* xfac (- xmin)) (cdr (rect-size rect)))) 0.3 d))
     (if (and (<= ymin 0.0) (>= ymax 0.0))
-        (draw-shape d (make-polygon (point 0
-                                            (+ (cdr (rect-size rect)) (* yfac ymin)))
-                                     (point (car (rect-size rect))
-                                            (+ (cdr (rect-size rect)) (* yfac ymin))))
-                     0.3))
-    (set-color d (make-color 0.0 0.0 1.0 1.0))
-    (draw-shape d s)
+        (draw (polygon (point 0 (+ (cdr (rect-size rect)) (* yfac ymin)))
+                       (point (car (rect-size rect)) (+ (cdr (rect-size rect)) (* yfac ymin))))
+              0.3 d))
+    (set-color (make-color 0.0 0.0 1.0 1.0) d)
+    (draw s 1.0 d)
     ; Draw interpolation points
-    (set-color d (make-color 0.0 0.0 0.0))
-    (set-fill-color d (make-color 0.0 0.0 0.0))
-    (for-each (lambda (p) (fill-shape d (flip-shape (make-arc p 1 0) box))) ps)
+    (set-color (make-color 0.0 0.0 0.0) d)
+    (set-fill-color (make-color 0.0 0.0 0.0) d)
+    (for-each (lambda (p) (fill (flip-shape (arc p 1 0) box) d)) ps)
     ; Draw the label
-    (draw-text d label (point 30 (- (cdr (rect-size rect)) 12))
-      (make-color 0.3 0.3 0.3) (font "Times-Italic" 7))
-    (disable-transformation d shift)
+    (draw-text label
+               (point 30 (- (cdr (rect-size rect)) 12))
+               (font "Times-Italic" 7)
+               (make-color 0.3 0.3 0.3) d)
+    (disable-transformation shift d)
     d))
 
 ;; Creates a demo page consisting of a header and four graphs
@@ -70,14 +69,13 @@
   ; Create a new drawing
   (define page (make-drawing))
   ; Draw a header in font "Helvetica" of size 8
-  (draw-text page "Demo of library (lispkit draw)"
-    (point 160 8) (make-color 0.0 0.0 0.0) (font "Helvetica" 8))
+  (draw-text "Demo of library (lispkit draw)"
+    (point 160 8) (font "Helvetica" 8) (make-color 0.0 0.0 0.0) page)
   ; Plot four graphs
-  (draw-drawing page (plot sin -1 6.3 50 (rect 10 30 200 100) "sin(x)"))
-  (draw-drawing page (plot cos -1 6.3 50 (rect 220 30 200 100) "cos(x)"))
-  (draw-drawing page (plot (lambda (x) (* (sin (* x 2)) (cos (/ x 4))))
-    -1 6.3 50 (rect 10 140 200 100) "sin(x*2)*cos(x/4)"))
-  (draw-drawing page (plot (lambda (x) (/ (* x x) 40)) -1 6.3 50 (rect 220 140 200 100) "x*x/40"))
+  (draw-drawing (plot sin -1 6.3 50 (rect 10 30 200 100) "sin(x)") page)
+  (draw-drawing (plot cos -1 6.3 50 (rect 220 30 200 100) "cos(x)") page)
+  (draw-drawing (plot (lambda (x) (* (sin (* x 2)) (cos (/ x 4))))
+    -1 6.3 50 (rect 10 140 200 100) "sin(x*2)*cos(x/4)") page)
+  (draw-drawing (plot (lambda (x) (/ (* x x) 40)) -1 6.3 50 (rect 220 140 200 100) "x*x/40") page)
   ; Save drawing in a PDF file
   (save-drawing page path (size 430 250)))
-
