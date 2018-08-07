@@ -101,6 +101,9 @@ public final class DrawingLibrary: NativeLibrary {
   
   /// Dependencies of the library.
   public override func dependencies() {
+    self.`import`(from: ["lispkit", "core"],    "define-syntax", "syntax-rules")
+    self.`import`(from: ["lispkit", "control"], "let")
+    self.`import`(from: ["lispkit", "dynamic"], "parameterize")
     self.`import`(from: ["lispkit", "system"],  "current-directory")
   }
   
@@ -180,11 +183,61 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("font", font))
     self.define(Procedure("font-name", fontName))
     self.define(Procedure("font-size", fontSize))
+    self.define(Procedure("point?", isPoint))
     self.define(Procedure("point", point))
+    self.define(Procedure("point-x", pointX))
+    self.define(Procedure("point-y", pointY))
+    self.define(Procedure("size?", isSize))
     self.define(Procedure("size", size))
+    self.define(Procedure("size-width", sizeWidth))
+    self.define(Procedure("size-height", sizeHeight))
+    self.define(Procedure("rect?", isRect))
     self.define(Procedure("rect", rect))
     self.define(Procedure("rect-point", rectPoint))
     self.define(Procedure("rect-size", rectSize))
+    self.define(Procedure("rect-x", rectX))
+    self.define(Procedure("rect-y", rectY))
+    self.define(Procedure("rect-width", rectWidth))
+    self.define(Procedure("rect-height", rectHeight))
+    
+    // Syntax definitions
+    self.define("drawing", via: """
+      (define-syntax drawing
+        (syntax-rules ()
+          ((_ body ...)
+            (let ((d (make-drawing)))
+              (parameterize ((current-drawing d)) body ...)
+              d))))
+    """)
+    self.define("with-drawing", via: """
+      (define-syntax with-drawing
+        (syntax-rules ()
+          ((_ d body ...)
+            (parameterize ((current-drawing d)) body ...))))
+    """)
+    self.define("transform", via: """
+      (define-syntax transform
+        (syntax-rules ()
+          ((_ tf body ...)
+            (let ((t tf))
+              (enable-transformation t)
+              body ...
+              (disable-transformation t)))))
+    """)
+    self.define("shape", via: """
+      (define-syntax shape
+        (syntax-rules ()
+          ((_ body ...)
+            (let ((s (make-shape)))
+              (parameterize ((current-shape s)) body ...)
+              s))))
+    """)
+    self.define("with-shape", via: """
+      (define-syntax with-shape
+        (syntax-rules ()
+          ((_ s body ...)
+            (parameterize ((current-shape s)) body ...))))
+    """)
   }
   
   public override func initializations() {
@@ -1045,16 +1098,65 @@ public final class DrawingLibrary: NativeLibrary {
   
   // Fonts/points/sizes/rects
   
+  private func isPoint(expr: Expr) throws -> Expr {
+    guard case .pair(.flonum(_), .flonum(_)) = expr else {
+      return .false
+    }
+    return .true
+  }
+  
   private func point(xc: Expr, yc: Expr) throws -> Expr {
     let x = try xc.asDouble(coerce: true)
     let y = try yc.asDouble(coerce: true)
     return .pair(.flonum(x), .flonum(y))
   }
   
+  private func pointX(expr: Expr) throws -> Expr {
+    guard case .pair(.flonum(let x), .flonum(_)) = expr else {
+      throw RuntimeError.eval(.invalidPoint, expr)
+    }
+    return .flonum(x)
+  }
+  
+  private func pointY(expr: Expr) throws -> Expr {
+    guard case .pair(.flonum(_), .flonum(let y)) = expr else {
+      throw RuntimeError.eval(.invalidPoint, expr)
+    }
+    return .flonum(y)
+  }
+  
+  private func isSize(expr: Expr) throws -> Expr {
+    guard case .pair(.flonum(_), .flonum(_)) = expr else {
+      return .false
+    }
+    return .true
+  }
+  
   private func size(wc: Expr, hc: Expr) throws -> Expr {
     let w = try wc.asDouble(coerce: true)
     let h = try hc.asDouble(coerce: true)
     return .pair(.flonum(w), .flonum(h))
+  }
+  
+  private func sizeWidth(expr: Expr) throws -> Expr {
+    guard case .pair(.flonum(let w), .flonum(_)) = expr else {
+      throw RuntimeError.eval(.invalidSize, expr)
+    }
+    return .flonum(w)
+  }
+  
+  private func sizeHeight(expr: Expr) throws -> Expr {
+    guard case .pair(.flonum(_), .flonum(let h)) = expr else {
+      throw RuntimeError.eval(.invalidSize, expr)
+    }
+    return .flonum(h)
+  }
+  
+  private func isRect(expr: Expr) throws -> Expr {
+    guard case .pair(.pair(.flonum(_), .flonum(_)), .pair(.flonum(_), .flonum(_))) = expr else {
+      return .false
+    }
+    return .true
   }
   
   private func rect(fst: Expr, snd: Expr, thrd: Expr?, fth: Expr?) throws -> Expr {
@@ -1089,6 +1191,20 @@ public final class DrawingLibrary: NativeLibrary {
     return point
   }
   
+  private func rectX(expr: Expr) throws -> Expr {
+    guard case .pair(.pair(.flonum(let x), .flonum(_)), .pair(.flonum(_), .flonum(_))) = expr else {
+      throw RuntimeError.eval(.invalidRect, expr)
+    }
+    return .flonum(x)
+  }
+  
+  private func rectY(expr: Expr) throws -> Expr {
+    guard case .pair(.pair(.flonum(_), .flonum(let y)), .pair(.flonum(_), .flonum(_))) = expr else {
+      throw RuntimeError.eval(.invalidRect, expr)
+    }
+    return .flonum(y)
+  }
+  
   private func rectSize(expr: Expr) throws -> Expr {
     guard case .pair(.pair(.flonum(_), .flonum(_)), let size) = expr else {
       throw RuntimeError.eval(.invalidRect, expr)
@@ -1097,6 +1213,20 @@ public final class DrawingLibrary: NativeLibrary {
       throw RuntimeError.eval(.invalidRect, expr)
     }
     return size
+  }
+  
+  private func rectWidth(expr: Expr) throws -> Expr {
+    guard case .pair(.pair(.flonum(_), .flonum(_)), .pair(.flonum(let w), .flonum(_))) = expr else {
+      throw RuntimeError.eval(.invalidRect, expr)
+    }
+    return .flonum(w)
+  }
+  
+  private func rectHeight(expr: Expr) throws -> Expr {
+    guard case .pair(.pair(.flonum(_), .flonum(_)), .pair(.flonum(_), .flonum(let h))) = expr else {
+      throw RuntimeError.eval(.invalidRect, expr)
+    }
+    return .flonum(h)
   }
   
   private func isFont(expr: Expr) -> Expr {
