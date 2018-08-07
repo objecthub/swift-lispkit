@@ -101,7 +101,7 @@ public final class DrawingLibrary: NativeLibrary {
   
   /// Dependencies of the library.
   public override func dependencies() {
-    self.`import`(from: ["lispkit", "core"],    "define-syntax", "syntax-rules")
+    self.`import`(from: ["lispkit", "core"],    "define", "define-syntax", "syntax-rules")
     self.`import`(from: ["lispkit", "control"], "let")
     self.`import`(from: ["lispkit", "dynamic"], "parameterize")
     self.`import`(from: ["lispkit", "system"],  "current-directory")
@@ -199,6 +199,16 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("rect-y", rectY))
     self.define(Procedure("rect-width", rectWidth))
     self.define(Procedure("rect-height", rectHeight))
+    
+    // Define constants
+    self.define("zero-point", via: "(define zero-point (point 0 0))")
+    self.define("black", via: "(define black (make-color 0 0 0))")
+    self.define("gray", via: "(define gray (make-color 0.5 0.5 0.5))")
+    self.define("white", via: "(define white (make-color 1 1 1))")
+    self.define("red", via: "(define red (make-color 1 0 0))")
+    self.define("green", via: "(define green (make-color 0 1 0))")
+    self.define("blue", via: "(define blue (make-color 0 0 1))")
+    self.define("yellow", via: "(define yellow (make-color 1 1 0))")
     
     // Syntax definitions
     self.define("drawing", via: """

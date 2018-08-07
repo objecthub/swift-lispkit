@@ -42,7 +42,7 @@
       ; Move rest of drawing into the bounding box
       (transform (translate (rect-x rect) (rect-y rect))
         ; Draw the coordinate axis
-        (make-color 0.3 0.3 0.3)
+        (set-color (make-color 0.3 0.3 0.3))
         (if (and (<= xmin 0.0) (>= xmax 0.0))
           (draw (line (point (* xfac (- xmin)) 0)
                       (point (* xfac (- xmin)) (rect-height rect))) 0.3))
@@ -50,12 +50,13 @@
           (draw (line (point 0 (+ (rect-height rect) (* yfac ymin)))
                       (point (rect-width rect) (+ (rect-height rect) (* yfac ymin)))) 0.3))
         ; Draw flipped interpolation shape
-        (set-color (make-color 0 0 1))
+        (set-color blue)
         (draw graph)
         ; Draw interpolation points
-        (set-color (make-color 0 0 0))
-        (set-fill-color (make-color 0 0 0))
-        (for-each (lambda (p) (fill (flip-shape (circle p 1) (shape-bounds graph)))) ps)
+        (set-fill-color white)
+        (for-each (lambda (p)
+                    (let ((s (flip-shape (circle p 1) (shape-bounds graph))))
+                      (fill s) (draw s 0.3))) ps)
         ; Draw the label
         (draw-text label
                    (point 30 (- (rect-height rect) 12))
@@ -68,10 +69,7 @@
   (define page
     (drawing
       ; Draw a header in font "Helvetica-Bold" of size 8
-      (draw-text "Demo of library (lispkit draw)"
-                 (point 160 8)
-                 (font "Helvetica-Bold" 8)
-                 (make-color 0 0 0))
+      (draw-text "Demo of library (lispkit draw)" (point 160 8) (font "Helvetica-Bold" 8) black)
       ; Plot four graphs
       (draw-drawing (plot sin -1 6.3 50 (rect 10 30 200 100) "sin(x)"))
       (draw-drawing (plot cos -1 6.3 50 (rect 220 30 200 100) "cos(x)"))
