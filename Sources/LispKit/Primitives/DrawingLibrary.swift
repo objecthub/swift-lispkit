@@ -123,6 +123,7 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("enable-transformation", enableTransformation))
     self.define(Procedure("disable-transformation", disableTransformation))
     self.define(Procedure("draw", draw))
+    self.define(Procedure("draw-dashed", drawDashed))
     self.define(Procedure("fill", fill))
     self.define(Procedure("draw-text", drawText))
     self.define(Procedure("draw-image", drawImage))
@@ -326,9 +327,9 @@ public final class DrawingLibrary: NativeLibrary {
       throw RuntimeError.eval(.invalidSize, size)
     }
     try self.drawing(from: drawing).append(.setShadow(try self.color(from: color),
-                                                         dx: w,
-                                                         dy: h,
-                                                         blurRadius: try r.asDouble(coerce: true)))
+                                                      dx: w,
+                                                      dy: h,
+                                                      blurRadius: try r.asDouble(coerce: true)))
     return .void
   }
   
@@ -350,6 +351,28 @@ public final class DrawingLibrary: NativeLibrary {
   private func draw(shape: Expr, width: Expr?, drawing: Expr?) throws -> Expr {
     let width = try width?.asDouble(coerce: true) ?? 1.0
     try self.drawing(from: drawing).append(.stroke(try self.shape(from: shape), width: width))
+    return .void
+  }
+  
+  private func drawDashed(shape: Expr,
+                          lengths: Expr,
+                          phase: Expr,
+                          width: Expr?,
+                          drawing: Expr?) throws -> Expr {
+    let shape = try self.shape(from: shape)
+    var dashLengths: [Double] = []
+    var list = lengths
+    while case .pair(let len, let rest) = list {
+      dashLengths.append(try len.asDouble(coerce: true))
+      list = rest
+    }
+    guard list.isNull else {
+      throw RuntimeError.type(lengths, expected: [.properListType])
+    }
+    let phase = try phase.asDouble(coerce: true)
+    let width = try width?.asDouble(coerce: true) ?? 1.0
+    try self.drawing(from: drawing).append(
+      .strokeDashed(shape, width: width, lengths: dashLengths, phase: phase))
     return .void
   }
   

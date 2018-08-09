@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.5.0 (2018-08-10)
+- Allow importing multiple libraries with one `import` invocation
+- Mark continuations correctly and fix `continuation?`
+- Turn `current-input-port`, `current-output-port`, and `current-error-port` into parameter objects
+- New library: `(lispkit draw)`
+- New SRFI libraries: SRFI 111, SRFI 112, SRFI 113
+- Fixed bugs in SRFI 69
+- Extend `(lispkit test)` to be more compatible to similar libraries
+
 ## 1.4.1 (2018-06-23)
 - Fix memory leaks
 - Provide a comfortable command-line interface supporting both a read-eval-print loop and the execution of scripts
