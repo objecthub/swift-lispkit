@@ -112,6 +112,7 @@ public final class DrawingLibrary: NativeLibrary {
     // Parameter objects
     self.define("current-drawing", as: self.drawingParam)
     self.define("current-shape", as: self.shapeParam)
+    
     // Drawings
     self.define(Procedure("drawing?", isDrawing))
     self.define(Procedure("make-drawing", makeDrawing))
@@ -125,6 +126,7 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("draw", draw))
     self.define(Procedure("draw-dashed", drawDashed))
     self.define(Procedure("fill", fill))
+    self.define(Procedure("fill-gradient", fillGradient))
     self.define(Procedure("draw-text", drawText))
     self.define(Procedure("draw-image", drawImage))
     self.define(Procedure("draw-drawing", drawDrawing))
@@ -164,7 +166,7 @@ public final class DrawingLibrary: NativeLibrary {
     
     // Transformations
     self.define(Procedure("transformation?", isTransformation))
-    self.define(Procedure("make-transformation", makeTransformation))
+    self.define(Procedure("transformation", transformation))
     self.define(Procedure("invert", invert))
     self.define(Procedure("translate", translate))
     self.define(Procedure("scale", scale))
@@ -172,7 +174,6 @@ public final class DrawingLibrary: NativeLibrary {
     
     // Colors
     self.define(Procedure("color?", isColor))
-    self.define(Procedure("make-color", makeColor))
     self.define(Procedure("color", color))
     self.define(Procedure("color-red", colorRed))
     self.define(Procedure("color-green", colorGreen))
@@ -203,13 +204,13 @@ public final class DrawingLibrary: NativeLibrary {
     
     // Define constants
     self.define("zero-point", via: "(define zero-point (point 0 0))")
-    self.define("black", via: "(define black (make-color 0 0 0))")
-    self.define("gray", via: "(define gray (make-color 0.5 0.5 0.5))")
-    self.define("white", via: "(define white (make-color 1 1 1))")
-    self.define("red", via: "(define red (make-color 1 0 0))")
-    self.define("green", via: "(define green (make-color 0 1 0))")
-    self.define("blue", via: "(define blue (make-color 0 0 1))")
-    self.define("yellow", via: "(define yellow (make-color 1 1 0))")
+    self.define("black", via: "(define black (color 0 0 0))")
+    self.define("gray", via: "(define gray (color 0.5 0.5 0.5))")
+    self.define("white", via: "(define white (color 1 1 1))")
+    self.define("red", via: "(define red (color 1 0 0))")
+    self.define("green", via: "(define green (color 0 1 0))")
+    self.define("blue", via: "(define blue (color 0 0 1))")
+    self.define("yellow", via: "(define yellow (color 1 1 0))")
     
     // Syntax definitions
     self.define("drawing", via: """
@@ -339,12 +340,12 @@ public final class DrawingLibrary: NativeLibrary {
   }
   
   private func enableTransformation(tf: Expr, drawing: Expr?) throws -> Expr {
-    try self.drawing(from: drawing).append(.concatTransformation(try self.transformation(from: tf)))
+    try self.drawing(from: drawing).append(.concatTransformation(try self.tformation(from: tf)))
     return .void
   }
   
   private func disableTransformation(tf: Expr, drawing: Expr?) throws -> Expr {
-    try self.drawing(from: drawing).append(.undoTransformation(try self.transformation(from: tf)))
+    try self.drawing(from: drawing).append(.undoTransformation(try self.tformation(from: tf)))
     return .void
   }
   
@@ -831,7 +832,7 @@ public final class DrawingLibrary: NativeLibrary {
   
   private func transformShape(shape: Expr, transformation: Expr) throws -> Expr {
     return .object(Shape(.transformed(try self.shape(from: shape),
-                                      try self.transformation(from: transformation))))
+                                      try self.tformation(from: transformation))))
   }
   
   private func flipShape(shape: Expr, box: Expr?, orientation: Expr?) throws -> Expr {
@@ -1016,7 +1017,7 @@ public final class DrawingLibrary: NativeLibrary {
     return .false
   }
   
-  private func makeTransformation(args: Arguments) throws -> Expr {
+  private func transformation(args: Arguments) throws -> Expr {
     var transform = AffineTransform()
     for arg in args {
       transform.append(try self.affineTransform(arg))
@@ -1053,7 +1054,7 @@ public final class DrawingLibrary: NativeLibrary {
     return .object(Transformation(transform))
   }
   
-  private func transformation(from expr: Expr) throws -> Transformation {
+  private func tformation(from expr: Expr) throws -> Transformation {
     guard case .object(let obj) = expr, let transform = obj as? Transformation else {
       throw RuntimeError.type(expr, expected: [.transformationType])
     }
@@ -1079,18 +1080,11 @@ public final class DrawingLibrary: NativeLibrary {
     return .false
   }
   
-  private func makeColor(red: Expr, green: Expr, blue: Expr, alpha: Expr?) throws -> Expr {
+  private func color(red: Expr, green: Expr, blue: Expr, alpha: Expr?) throws -> Expr {
     return .object(ImmutableBox(Color(red: try red.asDouble(coerce: true),
                                       green: try green.asDouble(coerce: true),
                                       blue: try blue.asDouble(coerce: true),
                                       alpha: try (alpha ?? .flonum(1.0)).asDouble(coerce: true))))
-  }
-  
-  private func color(_ expr: Expr) -> Expr {
-    if case .char(_) = expr {
-      return .true
-    }
-    return .false
   }
   
   private func colorRed(_ expr: Expr) throws -> Expr {

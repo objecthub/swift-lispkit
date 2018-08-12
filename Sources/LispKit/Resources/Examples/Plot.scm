@@ -42,7 +42,7 @@
       ; Move rest of drawing into the bounding box
       (transform (translate (rect-x rect) (rect-y rect))
         ; Draw the coordinate axis
-        (set-color (make-color 0.3 0.3 0.3))
+        (set-color (color 0.3 0.3 0.3))
         (if (and (<= xmin 0.0) (>= xmax 0.0))
           (draw (line (point (* xfac (- xmin)) 0)
                       (point (* xfac (- xmin)) (rect-height rect))) 0.3))
@@ -61,7 +61,7 @@
         (draw-text label
                    (point 30 (- (rect-height rect) 12))
                    (font "Times-Italic" 7)
-                   (make-color 0.3 0.3 0.3))))))
+                   (color 0.3 0.3 0.3))))))
 
 ;; Creates a demo page consisting of a header and four graphs
 (define (plot-demo-page path)
