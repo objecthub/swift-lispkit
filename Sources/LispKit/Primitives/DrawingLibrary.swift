@@ -147,7 +147,7 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("copy-shape", copyShape))
     self.define(Procedure("line", line))
     self.define(Procedure("polygon", polygon))
-    self.define(Procedure("rectangular", rectangular))
+    self.define(Procedure("rectangle", rectangle))
     self.define(Procedure("circle", circle))
     self.define(Procedure("oval", oval))
     self.define(Procedure("arc", arc))
@@ -751,7 +751,7 @@ public final class DrawingLibrary: NativeLibrary {
     return .object(shape)
   }
   
-  private func rectangular(point: Expr, size: Expr, xradius: Expr?, yradius: Expr?) throws -> Expr {
+  private func rectangle(point: Expr, size: Expr, xradius: Expr?, yradius: Expr?) throws -> Expr {
     guard case .pair(.flonum(let x), .flonum(let y)) = point else {
       throw RuntimeError.eval(.invalidPoint, point)
     }

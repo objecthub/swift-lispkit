@@ -38,7 +38,7 @@
          (graph (flip-shape (interpolate ps))))
     (drawing
       ; Draw a bounding box
-      (draw (rectangular (rect-point rect) (rect-size rect)) 0.5)
+      (draw (rectangle (rect-point rect) (rect-size rect)) 0.5)
       ; Move rest of drawing into the bounding box
       (transform (translate (rect-x rect) (rect-y rect))
         ; Draw the coordinate axis
