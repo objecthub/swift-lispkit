@@ -1,6 +1,10 @@
 # Changelog
 
-## 1.5.0 (2018-08-10)
+## 1.5.1 (2018-08-19)
+- Bugfixes and name changes in `(lispkit draw)`
+- New example code showcasing `(lispkit draw)` features
+
+## 1.5 (2018-08-10)
 - Allow importing multiple libraries with one `import` invocation
 - Mark continuations correctly and fix `continuation?`
 - Turn `current-input-port`, `current-output-port`, and `current-error-port` into parameter objects
