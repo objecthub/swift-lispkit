@@ -288,6 +288,19 @@ public final class DrawingLibrary: NativeLibrary {
     return shape
   }
   
+  private func shape(from args: Arguments) throws -> (Shape, Bool) {
+    if case .some(.object(let obj)) = args.last, let shape = obj as? Shape {
+      return (shape, true)
+    }
+    guard let value = self.context.machine.getParam(self.shapeParam) else {
+      throw RuntimeError.eval(.invalidDefaultShape, .false)
+    }
+    guard case .object(let obj) = value, let shape = obj as? Shape else {
+      throw RuntimeError.eval(.invalidDefaultShape, value)
+    }
+    return (shape, false)
+  }
+  
   private func image(from expr: Expr) throws -> NSImage {
     guard case .object(let obj) = expr,
           let imageBox = obj as? ImmutableBox<NSImage> else {
@@ -919,12 +932,7 @@ public final class DrawingLibrary: NativeLibrary {
   }
   
   private func lineTo(args: Arguments) throws -> Expr {
-    var shape = try self.shape(from: nil)
-    var skipLast = false
-    if case .some(.object(let obj)) = args.last, let sh = obj as? Shape {
-      shape = sh
-      skipLast = true
-    }
+    let (shape, skipLast) = try self.shape(from: args)
     var points = self.pointList(args, skipLast: skipLast)
     while case .pair(let point, let rest) = points {
       guard case .pair(.flonum(let x), .flonum(let y)) = point else {
@@ -962,12 +970,7 @@ public final class DrawingLibrary: NativeLibrary {
   }
   
   private func relativeLineTo(args: Arguments) throws -> Expr {
-    var shape = try self.shape(from: nil)
-    var skipLast = false
-    if case .some(.object(let obj)) = args.last, let sh = obj as? Shape {
-      shape = sh
-      skipLast = true
-    }
+    let (shape, skipLast) = try self.shape(from: args)
     var points = self.pointList(args, skipLast: skipLast)
     while case .pair(let point, let rest) = points {
       guard case .pair(.flonum(let x), .flonum(let y)) = point else {
