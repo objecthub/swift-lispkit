@@ -289,6 +289,9 @@ public enum DrawingInstruction {
   case setTransformation(Transformation)
   case concatTransformation(Transformation)
   case undoTransformation(Transformation)
+  case strokeLine(NSPoint, NSPoint)
+  case strokeRect(NSRect)
+  case fillRect(NSRect)
   case stroke(Shape, width: Double)
   case strokeDashed(Shape, width: Double, lengths: [Double], phase: Double)
   case fill(Shape)
@@ -328,6 +331,17 @@ public enum DrawingInstruction {
         let transform = NSAffineTransform(transform: transformation.affineTransform)
         transform.invert()
         transform.concat()
+      case .strokeLine(let start, let end):
+        if let context = NSGraphicsContext.current?.cgContext {
+          context.beginPath()
+          context.move(to: start)
+          context.addLine(to: end)
+          context.drawPath(using: .stroke)
+        }
+      case .strokeRect(let rct):
+        NSGraphicsContext.current?.cgContext.stroke(rct)
+      case .fillRect(let rct):
+        NSGraphicsContext.current?.cgContext.fill(rct)
       case .stroke(let shape, let width):
         shape.stroke(lineWidth: width)
       case .strokeDashed(let shape, let width, let dashLengths, let dashPhase):
@@ -343,9 +357,10 @@ public enum DrawingInstruction {
         if let style = paragraphStyle {
           pstyle = style
         } else {
-          let style = NSMutableParagraphStyle()
-          style.alignment = .left
-          pstyle = style
+          // let style = NSMutableParagraphStyle()
+          // style.alignment = .left
+          // pstyle = style
+          pstyle = .default
         }
         let attributes = [
           .font: font ?? NSFont.systemFont(ofSize: NSFont.systemFontSize),

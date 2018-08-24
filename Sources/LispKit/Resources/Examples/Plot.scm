@@ -77,4 +77,4 @@
         -1 6.3 50 (rect 10 140 200 100) "sin(x*2)*cos(x/4)"))
       (draw-drawing (plot (lambda (x) (/ (* x x) 40)) -1 6.3 50 (rect 220 140 200 100) "x*x/40"))))
   ; Save drawing in a PDF file
-  (save-drawing page path (size 430 250)))
+  (save-drawing path page (size 430 250)))
