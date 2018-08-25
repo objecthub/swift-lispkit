@@ -110,4 +110,3 @@
             ((DIV) (/ (read-register vm (cadar code)) (read-register vm (caddar code))))
             (else  (error "unknown instruction" (car code)))))
         (execute vm (cdr code)))))
-

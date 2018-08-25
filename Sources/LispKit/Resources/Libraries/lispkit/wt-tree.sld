@@ -314,7 +314,7 @@
           (loop node index))))
 
     (define (error:empty owner)
-      (error "Operation requires non-empty tree:" owner))
+      (error "operation requires non-empty tree: $0" owner))
 
     (define (local:make-wt-tree-type key<?)
 
@@ -578,8 +578,8 @@
       (guarantee-tree tree1 procedure)
       (guarantee-tree tree2 procedure)
       (if (not (eq? (tree/type tree1) (tree/type tree2)))
-        (error "The trees" tree1 'and tree2 'have 'incompatible 'types
-                    (tree/type tree1) 'and (tree/type tree2))))
+        (error "the trees $0 and $1 have incompatible types: $2 vs. $3"
+               tree1 tree2 (tree/type tree1) (tree/type tree2))))
 
     (define (valid? tree)
       (let ((root (tree/root tree)))

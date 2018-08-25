@@ -66,7 +66,7 @@
       (let* ((ref (stack-ref s))
              (lst (mcdr ref)))
         (if (zero? (mcar ref))
-          (error "cannot pop value off empty stack" s)
+          (error "cannot pop value off empty stack $0" s)
           (begin (set-mcdr! ref (cdr lst))
                  (set-mcar! ref (fx1- (mcar ref)))
                  (car lst)))))

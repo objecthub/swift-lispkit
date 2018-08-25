@@ -138,7 +138,7 @@
     ;; an error is signaled.
     (define (heap-delete-max! hp)
       (if (heap-empty? hp)
-          (error "heap underflow" hp)
+          (error "heap underflow: $0" hp)
           (let ((max (heap-ref hp 1)))
             (heap-set! hp 1 (heap-ref hp (heap-size hp)))
             (set-size! hp (fx1- (heap-size hp)))

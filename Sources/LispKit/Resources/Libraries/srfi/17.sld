@@ -55,7 +55,7 @@
                                 (let ((probe (assv proc setters)))
                                   (if probe
                                       (cdr probe)
-                                      (error "missing setter for " proc)))))
+                                      (error "missing setter for $0" proc)))))
                  (set-setter! (lambda (proc setter)
                                 (set! setters (cons (cons proc setter) setters))
                                 (void))))

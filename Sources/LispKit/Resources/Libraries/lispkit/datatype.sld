@@ -208,7 +208,7 @@
                  (res (match-cases cases x)))
             (if (pair? res)
                 (car res)
-                (error "no matching case" x))))))
+                (error "no matching case: $0" x))))))
 
     (define-syntax match-cases
       (syntax-rules (else where)

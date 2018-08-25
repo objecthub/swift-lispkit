@@ -41,7 +41,7 @@ public final class TypeLibrary: NativeLibrary {
     self.`import`(from: ["lispkit", "list"], "null?", "car")
     self.`import`(from: ["lispkit", "control"], "if")
     self.`import`(from: ["lispkit", "dynamic"], "error")
-    self.`import`(from: ["lispkit", "box"], "mcons")
+    self.`import`(from: ["lispkit", "box"], "mcons", "mcar")
   }
   
   /// Declarations of the library.
@@ -55,7 +55,7 @@ public final class TypeLibrary: NativeLibrary {
                 (lambda (expr) (_instance? expr type))                              ; predicate
                 (lambda (expr) (if (_instance? expr type)                           ; accessor
                                    (_untag expr)
-                                   (error "not an instance of the required type" expr type)))
+                                   (error "not an instance of type $1: $0" expr (mcar type))))
                 (lambda id (_typeproc (mcons (if (null? id) #f (car id)) type)))))  ; make subtype
       """)
       self.define("make-type", via:

@@ -51,9 +51,15 @@ _LispKit_ provides support for the following core features, many of which are ba
     `(scheme eval)`, `(scheme file)`, `(scheme inexact)`, `(scheme lazy)`, `(scheme load)`,
     `(scheme process-context)`, `(scheme read)`, `(scheme repl)`, `(scheme time)`, `(scheme write)`,
     `(scheme r5rs)`
-  - LispKit-specific libraries: `(lispkit test)`, `(lispkit datatype)`, `(lispkit object)`, `(lispkit enum)`,
+  - LispKit-specific libraries: [`(lispkit box)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Box),
+    [`(lispkit type)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Type),
+    [`(lispkit hashtable)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Hashtable),
+    `(lispkit test)`, 
+    [`(lispkit datatype)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Datatype),
+    `(lispkit object)`, `(lispkit enum)`,
     `(lispkit logic)`, `(lispkit iteration)`, `(lispkit set)`, `(lispkit stack)`, `(lispkit queue)`,
-    `(lispkit heap)`, `(lispkit wt-tree)`, `(lispkit prettify)`, `(lispkit json)`, `(lispkit draw)`,
+    `(lispkit heap)`, `(lispkit wt-tree)`, `(lispkit prettify)`, `(lispkit json)`,
+    [`(lispkit draw)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Draw),
     and `(lispkit pdf)`
 
 _LispKit_ is incompatible or incomplete with respect to the following R7RS features:

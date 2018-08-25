@@ -137,7 +137,7 @@
 ;;;
 ;;;   (define-class (colored-point x y color) (point)
 ;;;     (if (or (< x 0) (< y 0))
-;;;         (error "coordinates are negative"))
+;;;         (error "coordinates are negative: ($0; $1)" x y))
 ;;;     (object ((super (make-instance point x y)))
 ;;;       ((point-color self) color)
 ;;;       ((object->string self)
@@ -241,8 +241,8 @@
       (letrec* ((proc (if (pair? impl)
                           (if (procedure? (car impl))
                               (car impl)
-                              (error "generic implementation not a procedure" (car impl)))
-                          (lambda (obj . params) (error "method not supported for object" obj))))
+                              (error "generic implementation not a procedure: $0" (car impl)))
+                          (lambda (obj . params) (error "method not supported for object $0" obj))))
                 (generic (lambda (obj . args)
                            (apply (or (and (object? obj) (method obj generic)) proc)
                                   obj
@@ -309,9 +309,9 @@
     ;; New sub-classes
     (define (make-class name superclasses constructor)
       (if (not (symbol? name))
-          (error "class name required to be a symbol" name))
+          (error "class name required to be a symbol: $0" name))
       (for-each
-        (lambda (super) (if (not (class? super)) (error "illegal superclass" name super)))
+        (lambda (super) (if (not (class? super)) (error "illegal superclass of $0: $1" name super)))
         superclasses)
       (if (not (procedure? constructor))
           (error "class constructor required to be a procedure" name constructor))

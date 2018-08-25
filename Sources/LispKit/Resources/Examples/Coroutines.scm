@@ -33,7 +33,7 @@
 ;; (let ((cc (current-continuation)))
 ;;   (cond ((procedure? cc)    body)
 ;;         ((future-value? cc) handling-body)
-;;         (else               (error "Contract violation!"))))
+;;         (else               (error "contract violation!"))))
 ;; ```
 (define (current-continuation)
   (call-with-current-continuation (lambda (cc) (cc cc))))
