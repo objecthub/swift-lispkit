@@ -113,21 +113,24 @@ public final class HashTableLibrary: NativeLibrary {
     self.define(Procedure("hashtable-load", hashTableLoad))
     self.define(Procedure("hashtable-get", hashTableGet))
     self.define(Procedure("hashtable-add!", hashTableAdd))
+    self.define(Procedure("hashtable-remove!", hashTableRemove))
     self.define("hashtable-contains?", via:
       "(define (hashtable-contains? map key) (pair? (hashtable-get map key)))")
     self.define("hashtable-ref", via:
       "(define (hashtable-ref map key default) (value (hashtable-get map key) default))")
     self.define("hashtable-set!", via:
       "(define (hashtable-set! map key value)",
-      "  (hashtable-delete! map key)(hashtable-add! map key value))")
+      "  (hashtable-remove! map key)(hashtable-add! map key value))")
     self.define("hashtable-update!", via:
       "(define (hashtable-update! map key proc default)" +
-      "  (hashtable-add! map key (proc (value (hashtable-delete! map key) default))))")
-    self.define(Procedure("hashtable-delete!", hashTableDelete))
+      "  (hashtable-add! map key (proc (value (hashtable-remove! map key) default))))")
+    self.define("hashtable-delete!", via:
+      "(define (hashtable-delete! map key)",
+      "  (if (hashtable-remove! map key) (hashtable-delete! map key)))")
     self.define(Procedure("hashtable-clear!", hashTableClear))
     self.hashtableUnionLoc =
-      self.define("xhashtable-union!", via:
-        "(define (xhashtable-union! ht1 ht2)",
+      self.define("_hashtable-union!", via:
+        "(define (_hashtable-union! ht1 ht2)",
         "  (do ((ks (hashtable->alist ht2) (cdr ks)))",
         "      ((null? ks))",
         "    (if (not (hashtable-contains? ht1 (car (car ks))))",
@@ -163,9 +166,9 @@ public final class HashTableLibrary: NativeLibrary {
     self.define("hashtable-map!", via:
       "(define (hashtable-map! proc ht)",
       "  (call-with-values",
-      "    (lambda () (hashtable-entries ht))",
+      "    (lambda () (let ((res (hashtable-entries ht))) (hashtable-clear! ht) res))",
       "    (lambda (keys vals)",
-      "      (vector-for-each (lambda (key value) (hashtable-set! ht key (proc key value)))",
+      "      (vector-for-each (lambda (key value) (hashtable-add! ht key (proc key value)))",
       "                       keys vals))))")
     self.define(Procedure("hashtable->alist", hashTableToAlist))
     self.define("alist->hashtable!", via:
@@ -301,7 +304,7 @@ public final class HashTableLibrary: NativeLibrary {
                         value])
   }
   
-  func hashTableDelete(_ args: Arguments) throws -> (Procedure, Exprs) {
+  func hashTableRemove(_ args: Arguments) throws -> (Procedure, Exprs) {
     try EvalError.assert(args, count: 2)
     let map = try args.first!.asHashTable()
     let key = args[args.startIndex + 1]
