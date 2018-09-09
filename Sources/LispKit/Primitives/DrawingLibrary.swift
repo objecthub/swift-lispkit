@@ -188,7 +188,13 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("font?", isFont))
     self.define(Procedure("font", font))
     self.define(Procedure("font-name", fontName))
+    self.define(Procedure("font-family-name", fontFamilyName))
+    self.define(Procedure("font-weight", fontWeight))
+    self.define(Procedure("font-traits", fontTraits))
+    self.define(Procedure("font-has-traits", fontHasTraits))
     self.define(Procedure("font-size", fontSize))
+    self.define(Procedure("available-fonts", availableFonts))
+    self.define(Procedure("available-font-families", availableFontFamilies))
     self.define(Procedure("point?", isPoint))
     self.define(Procedure("point", point))
     self.define(Procedure("point-x", pointX))
@@ -220,6 +226,35 @@ public final class DrawingLibrary: NativeLibrary {
     self.define("green", via: "(define green (color 0 1 0))")
     self.define("blue", via: "(define blue (color 0 0 1))")
     self.define("yellow", via: "(define yellow (color 1 1 0))")
+    self.define("italic", via: "(define italic \(NSFontTraitMask.italicFontMask.rawValue))")
+    self.define("boldface", via: "(define boldface \(NSFontTraitMask.boldFontMask.rawValue))")
+    self.define("unitalic", via: "(define unitalic \(NSFontTraitMask.unitalicFontMask.rawValue))")
+    self.define("unboldface", via: "(define unboldface \(NSFontTraitMask.unboldFontMask.rawValue))")
+    self.define("narrow", via: "(define narrow \(NSFontTraitMask.narrowFontMask.rawValue))")
+    self.define("expanded", via: "(define expanded \(NSFontTraitMask.expandedFontMask.rawValue))")
+    self.define("condensed", via:
+      "(define condensed \(NSFontTraitMask.condensedFontMask.rawValue))")
+    self.define("small-caps", via:
+      "(define small-caps \(NSFontTraitMask.smallCapsFontMask.rawValue))")
+    self.define("poster", via: "(define poster \(NSFontTraitMask.posterFontMask.rawValue))")
+    self.define("compressed", via:
+      "(define compressed \(NSFontTraitMask.compressedFontMask.rawValue))")
+    self.define("monospace", via:
+      "(define monospace \(NSFontTraitMask.fixedPitchFontMask.rawValue))")
+    self.define("ultralight", via: "(define ultralight 1)")
+    self.define("thin", via: "(define thin 2)")
+    self.define("light", via: "(define light 3)")
+    self.define("book", via: "(define book 4)")
+    self.define("normal", via: "(define normal 5)")
+    self.define("medium", via: "(define medium 6)")
+    self.define("demi", via: "(define demi 7)")
+    self.define("semi", via: "(define semi 8)")
+    self.define("bold", via: "(define bold 9)")
+    self.define("extra", via: "(define extra 10)")
+    self.define("heavy", via: "(define heavy 11)")
+    self.define("super", via: "(define super 12)")
+    self.define("ultra", via: "(define ultra 13)")
+    self.define("extrablack", via: "(define extrablack 14)")
     
     // Syntax definitions
     self.define("drawing", via: """
@@ -1344,12 +1379,34 @@ public final class DrawingLibrary: NativeLibrary {
     return .false
   }
   
-  private func font(font: Expr, size: Expr) throws -> Expr {
-    guard let nsfont = NSFont(name: try font.asString(),
-                              size: CGFloat(try size.asDouble(coerce: true))) else {
-      return .false
+  private func font(font: Expr, s: Expr, args: Arguments) throws -> Expr {
+    let name = try font.asString()
+    let size = try s.asDouble(coerce: true)
+    // A variant of `font` which loads the font based on a font name and a size
+    if args.isEmpty {
+      guard let nsfont = NSFont(name: name, size: CGFloat(size)) else {
+        return .false
+      }
+      return .object(ImmutableBox(nsfont))
+    // A variant of `font` which loads the font based on a font family, a size, weight, and traits
+    } else {
+      var weight: Int? = nil
+      var traits: Int = 0
+      for arg in args {
+        if weight == nil {
+          weight = try arg.asInt(below: 16)
+        } else {
+          traits |= try arg.asInt()
+        }
+      }
+      guard let nsfont = NSFontManager.shared.font(withFamily: name,
+                                                   traits: NSFontTraitMask(rawValue: UInt(traits)),
+                                                   weight: weight!,
+                                                   size: CGFloat(size)) else {
+        return .false
+      }
+      return .object(ImmutableBox(nsfont))
     }
-    return .object(ImmutableBox(nsfont))
   }
   
   private func fontName(expr: Expr) throws -> Expr {
@@ -1359,11 +1416,84 @@ public final class DrawingLibrary: NativeLibrary {
     return .makeString(fontBox.value.fontName)
   }
   
+  private func fontFamilyName(expr: Expr) throws -> Expr {
+    guard case .object(let obj) = expr, let fontBox = obj as? ImmutableBox<NSFont> else {
+      throw RuntimeError.type(expr, expected: [.fontType])
+    }
+    guard let familyName = fontBox.value.familyName else {
+      return .false
+    }
+    return .makeString(familyName)
+  }
+  
+  private func fontWeight(expr: Expr) throws -> Expr {
+    guard case .object(let obj) = expr, let fontBox = obj as? ImmutableBox<NSFont> else {
+      throw RuntimeError.type(expr, expected: [.fontType])
+    }
+    let weight = NSFontManager.shared.weight(of: fontBox.value)
+    return .fixnum(Int64(weight))
+  }
+  
+  private func fontTraits(expr: Expr) throws -> Expr {
+    guard case .object(let obj) = expr, let fontBox = obj as? ImmutableBox<NSFont> else {
+      throw RuntimeError.type(expr, expected: [.fontType])
+    }
+    let traits = NSFontManager.shared.traits(of: fontBox.value).rawValue
+    guard traits < Int64.max else {
+      return .false
+    }
+    return .fixnum(Int64(traits))
+  }
+  
+  private func fontHasTraits(expr: Expr, args: Arguments) throws -> Expr {
+    guard case .object(let obj) = expr, let fontBox = obj as? ImmutableBox<NSFont> else {
+      throw RuntimeError.type(expr, expected: [.fontType])
+    }
+    var traits: Int = 0
+    for arg in args {
+      traits |= try arg.asInt()
+    }
+    return .makeBoolean(
+      NSFontManager.shared.fontNamed(fontBox.value.fontName,
+                                     hasTraits: NSFontTraitMask(rawValue: UInt(traits))))
+  }
+  
   private func fontSize(expr: Expr) throws -> Expr {
     guard case .object(let obj) = expr, let fontBox = obj as? ImmutableBox<NSFont> else {
       throw RuntimeError.type(expr, expected: [.fontType])
     }
     return .flonum(Double(fontBox.value.pointSize))
+  }
+  
+  private func availableFonts(args: Arguments) throws -> Expr {
+    let fonts: [String]
+    if args.isEmpty {
+      fonts = NSFontManager.shared.availableFonts.reversed()
+    } else {
+      var traits: Int = 0
+      for arg in args {
+        traits |= try arg.asInt()
+      }
+      guard let fnts = NSFontManager.shared.availableFontNames(with:
+                         NSFontTraitMask(rawValue: UInt(traits))) else {
+          return .false
+      }
+      fonts = fnts.reversed()
+    }
+    var res: Expr = .null
+    for font in fonts {
+      res = .pair(.makeString(font), res)
+    }
+    return res
+  }
+  
+  private func availableFontFamilies() throws -> Expr {
+    let fontFamilies = NSFontManager.shared.availableFontFamilies.reversed()
+    var res: Expr = .null
+    for fontFamily in fontFamilies {
+      res = .pair(.makeString(fontFamily), res)
+    }
+    return res
   }
   
   private func textBounds(text: Expr,
