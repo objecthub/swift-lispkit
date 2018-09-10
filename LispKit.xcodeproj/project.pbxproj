@@ -726,6 +726,13 @@
 			path = Code;
 			sourceTree = "<group>";
 		};
+		CC26AD3E21470AC90090D9EE /* draw */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = draw;
+			sourceTree = "<group>";
+		};
 		CC48055B1CFE366100D608B6 /* Assets */ = {
 			isa = PBXGroup;
 			children = (
@@ -768,6 +775,7 @@
 				CC750BD91F5B772200CD82A2 /* prettify.sld */,
 				CC3A02591F97F3E1009B959C /* json.sld */,
 				CC10404C1F5378660045144A /* pdf.sld */,
+				CC26AD3E21470AC90090D9EE /* draw */,
 			);
 			path = lispkit;
 			sourceTree = "<group>";

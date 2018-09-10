@@ -119,6 +119,7 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("copy-drawing", copyDrawing))
     self.define(Procedure("set-color", setColor))
     self.define(Procedure("set-fill-color", setFillColor))
+    self.define(Procedure("set-line-width", setLineWidth))
     self.define(Procedure("set-shadow", setShadow))
     self.define(Procedure("remove-shadow", removeShadow))
     self.define(Procedure("enable-transformation", enableTransformation))
@@ -130,6 +131,8 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("draw-line", drawLine))
     self.define(Procedure("draw-rect", drawRect))
     self.define(Procedure("fill-rect", fillRect))
+    self.define(Procedure("draw-ellipse", drawEllipse))
+    self.define(Procedure("fill-ellipse", fillEllipse))
     self.define(Procedure("draw-text", drawText))
     self.define(Procedure("draw-image", drawImage))
     self.define(Procedure("draw-drawing", drawDrawing))
@@ -380,6 +383,11 @@ public final class DrawingLibrary: NativeLibrary {
     return .void
   }
   
+  private func setLineWidth(width: Expr, drawing: Expr?) throws -> Expr {
+    try self.drawing(from: drawing).append(.setStrokeWidth(try width.asDouble(coerce: true)))
+    return .void
+  }
+  
   private func setShadow(color: Expr, size: Expr, r: Expr, drawing: Expr?) throws -> Expr {
     guard case .pair(.flonum(let w), .flonum(let h)) = size else {
       throw RuntimeError.eval(.invalidSize, size)
@@ -498,6 +506,24 @@ public final class DrawingLibrary: NativeLibrary {
                       throw RuntimeError.eval(.invalidRect, expr)
     }
     try self.drawing(from: drawing).append(.fillRect(NSRect(x: x, y: y, width: w, height: h)))
+    return .void
+  }
+  
+  private func drawEllipse(expr: Expr, drawing: Expr?) throws -> Expr {
+    guard case .pair(.pair(.flonum(let x), .flonum(let y)),
+                     .pair(.flonum(let w), .flonum(let h))) = expr else {
+      throw RuntimeError.eval(.invalidRect, expr)
+    }
+    try self.drawing(from: drawing).append(.strokeEllipse(NSRect(x: x, y: y, width: w, height: h)))
+    return .void
+  }
+  
+  private func fillEllipse(expr: Expr, drawing: Expr?) throws -> Expr {
+    guard case .pair(.pair(.flonum(let x), .flonum(let y)),
+                     .pair(.flonum(let w), .flonum(let h))) = expr else {
+      throw RuntimeError.eval(.invalidRect, expr)
+    }
+    try self.drawing(from: drawing).append(.fillEllipse(NSRect(x: x, y: y, width: w, height: h)))
     return .void
   }
   

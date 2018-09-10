@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.5.2 (2018-09-10)
+- Several substantial extensions of library `(lispkit draw)`
+
 ## 1.5.1 (2018-08-19)
 - Bugfixes and name changes in `(lispkit draw)`
 - New example code showcasing `(lispkit draw)` features

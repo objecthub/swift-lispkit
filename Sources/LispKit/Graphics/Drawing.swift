@@ -283,6 +283,7 @@ public final class Drawing: Reference {
 public enum DrawingInstruction {
   case setStrokeColor(Color)
   case setFillColor(Color)
+  case setStrokeWidth(Double)
   case setBlendMode(BlendMode)
   case setShadow(Color, dx: Double, dy: Double, blurRadius: Double)
   case removeShadow
@@ -292,6 +293,8 @@ public enum DrawingInstruction {
   case strokeLine(NSPoint, NSPoint)
   case strokeRect(NSRect)
   case fillRect(NSRect)
+  case strokeEllipse(NSRect)
+  case fillEllipse(NSRect)
   case stroke(Shape, width: Double)
   case strokeDashed(Shape, width: Double, lengths: [Double], phase: Double)
   case fill(Shape)
@@ -309,6 +312,8 @@ public enum DrawingInstruction {
         color.nsColor.setStroke()
       case .setFillColor(let color):
         color.nsColor.setFill()
+      case .setStrokeWidth(let width):
+        NSGraphicsContext.current?.cgContext.setLineWidth(CGFloat(width))
       case .setBlendMode(let blendMode):
         NSGraphicsContext.current?.cgContext.setBlendMode(blendMode)
       case .setShadow(let color, let dx, let dy, let blurRadius):
@@ -336,12 +341,16 @@ public enum DrawingInstruction {
           context.beginPath()
           context.move(to: start)
           context.addLine(to: end)
-          context.drawPath(using: .stroke)
+          context.strokePath()
         }
       case .strokeRect(let rct):
         NSGraphicsContext.current?.cgContext.stroke(rct)
       case .fillRect(let rct):
         NSGraphicsContext.current?.cgContext.fill(rct)
+      case .strokeEllipse(let rct):
+        NSGraphicsContext.current?.cgContext.strokeEllipse(in: rct)
+      case .fillEllipse(let rct):
+        NSGraphicsContext.current?.cgContext.fillEllipse(in: rct)
       case .stroke(let shape, let width):
         shape.stroke(lineWidth: width)
       case .strokeDashed(let shape, let width, let dashLengths, let dashPhase):
