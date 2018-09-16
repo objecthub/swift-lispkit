@@ -121,6 +121,11 @@ public final class Drawing: Reference {
                         title: String? = nil,
                         author: String? = nil,
                         creator: String? = nil) -> Bool {
+    // First check if we can write to the URL
+    guard FileManager.default.isWritableFile(atPath: url.path) else {
+      return false
+    }
+    // Define a media box
     var mediaBox = NSRect(x: 0, y: 0, width: Double(width), height: Double(height))
     // Create a core graphics context suitable for drawing the image into a PDF file
     var pdfInfo = NSMutableDictionary()
