@@ -83,6 +83,15 @@ public final class DrawingDocument: Reference {
   
   /// Save the collection as a PDF file to URL `url`.
   public func saveAsPDF(url: URL) -> Bool {
+    // First check if we can write to the URL
+    var dir: ObjCBool = false
+    let parent = url.deletingLastPathComponent().path
+    guard FileManager.default.fileExists(atPath: parent, isDirectory: &dir) && dir.boolValue else {
+      return false
+    }
+    guard FileManager.default.isWritableFile(atPath: parent) else {
+      return false
+    }
     // Define PDF document information
     var pdfInfo: NSMutableDictionary = [
       kCGPDFContextAllowsPrinting: (self.allowsPrinting ? kCFBooleanTrue : kCFBooleanFalse) as Any,

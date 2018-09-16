@@ -122,7 +122,12 @@ public final class Drawing: Reference {
                         author: String? = nil,
                         creator: String? = nil) -> Bool {
     // First check if we can write to the URL
-    guard FileManager.default.isWritableFile(atPath: url.path) else {
+    var dir: ObjCBool = false
+    let parent = url.deletingLastPathComponent().path
+    guard FileManager.default.fileExists(atPath: parent, isDirectory: &dir) && dir.boolValue else {
+      return false
+    }
+    guard FileManager.default.isWritableFile(atPath: parent) else {
       return false
     }
     // Define a media box
