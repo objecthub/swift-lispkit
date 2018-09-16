@@ -28,6 +28,7 @@
 		CC14F4B31F93AE04000FB1E0 /* AvlTrees.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC14F4AE1F9385BF000FB1E0 /* AvlTrees.scm */; };
 		CC1AAE3B1CC3CF0F00D1806F /* LispKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCAD52BA1C48403800DBD8EE /* LispKit.framework */; };
 		CC1AAE3C1CC3CF0F00D1806F /* LispKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CCAD52BA1C48403800DBD8EE /* LispKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		CC1EA5C9214E6CD8006BBE7E /* Turtle.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC1EA5C8214E6BF3006BBE7E /* Turtle.scm */; };
 		CC201A6D1DBD72C100045A4D /* LibraryRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC201A6C1DBD72C100045A4D /* LibraryRegistry.swift */; };
 		CC2345411F655BD800C38817 /* datatype.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC2345401F655B8B00C38817 /* datatype.sld */; };
 		CC2345431F655C0A00C38817 /* Datatypes.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC2345421F655C0A00C38817 /* Datatypes.scm */; };
@@ -280,6 +281,7 @@
 			dstPath = LispKit/Resources/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC1EA5C9214E6CD8006BBE7E /* Turtle.scm in Copy examples */,
 				CC26264420FA007800AC08E8 /* Plot.scm in Copy examples */,
 				CC5E474320D45AE500F21B03 /* Coroutines.scm in Copy examples */,
 				CC4385BE20BB5F3400055289 /* Compiler.scm in Copy examples */,
@@ -455,6 +457,7 @@
 		CC14F4AE1F9385BF000FB1E0 /* AvlTrees.scm */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = text; path = AvlTrees.scm; sourceTree = "<group>"; tabWidth = 2; };
 		CC14F4AF1F939486000FB1E0 /* Features.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Features.swift; sourceTree = "<group>"; };
 		CC14F4B11F93A455000FB1E0 /* FeatureRequirement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureRequirement.swift; sourceTree = "<group>"; };
+		CC1EA5C8214E6BF3006BBE7E /* Turtle.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Turtle.scm; sourceTree = "<group>"; };
 		CC201A6C1DBD72C100045A4D /* LibraryRegistry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryRegistry.swift; sourceTree = "<group>"; };
 		CC2345401F655B8B00C38817 /* datatype.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = datatype.sld; sourceTree = "<group>"; };
 		CC2345421F655C0A00C38817 /* Datatypes.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Datatypes.scm; sourceTree = "<group>"; };
@@ -1094,6 +1097,7 @@
 				CC4385BD20BB5EE200055289 /* Compiler.scm */,
 				CC14F4AE1F9385BF000FB1E0 /* AvlTrees.scm */,
 				CC26264320FA003700AC08E8 /* Plot.scm */,
+				CC1EA5C8214E6BF3006BBE7E /* Turtle.scm */,
 				CC750BD71F5AC68900CD82A2 /* PDF.scm */,
 				CC4385BB20BAB79500055289 /* HTTP.scm */,
 			);

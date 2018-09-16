@@ -36,6 +36,7 @@
 
   (export turtle?
           make-turtle
+          current-turtle
           turtle-drawing
           pen-up
           pen-down
@@ -69,52 +70,65 @@
         (enable-transformation (scale sc sc (translate x y)) drawing)
         (new-turtle drawing 0.0 0.0 0.0 #t)))
 
-    (define (pen-up plane)
-      (set-turtle-pen-down! plane #f))
+    (define current-turtle (make-parameter #f))
 
-    (define (pen-down plane)
-      (set-turtle-pen-down! plane #t))
+    (define (pen-up . args)
+      (let-optionals args ((turtle (current-turtle)))
+        (set-turtle-pen-down! turtle #f)))
 
-    (define (pen-color color plane)
-      (set-color color (turtle-drawing plane)))
+    (define (pen-down . args)
+      (let-optionals args ((turtle (current-turtle)))
+        (set-turtle-pen-down! turtle #t)))
 
-    (define (pen-size size plane)
-      (set-line-width size (turtle-drawing plane)))
+    (define (pen-color color . args)
+      (let-optionals args ((turtle (current-turtle)))
+        (set-color color (turtle-drawing turtle))))
 
-    (define (home plane)
-      (move 0.0 0.0 plane))
+    (define (pen-size size . args)
+      (let-optionals args ((turtle (current-turtle)))
+        (set-line-width size (turtle-drawing turtle))))
 
-    (define (move x y plane)
-      (set-turtle-x! plane x)
-      (set-turtle-y! plane y))
+    (define (home . args)
+      (let-optionals args ((turtle (current-turtle)))
+        (move 0.0 0.0 turtle)))
 
-    (define (heading angle plane)
-      (set-turtle-angle! plane (radian angle)))
+    (define (move x y . args)
+      (let-optionals args ((turtle (current-turtle)))
+        (set-turtle-x! turtle x)
+        (set-turtle-y! turtle y)))
 
-    (define (turn angle plane)
-      (set-turtle-angle! plane (+ (radian angle) (turtle-angle plane))))
+    (define (heading angle . args)
+      (let-optionals args ((turtle (current-turtle)))
+        (set-turtle-angle! turtle (radian angle))))
 
-    (define (left angle plane)
-      (turn (- angle) plane))
+    (define (turn angle . args)
+      (let-optionals args ((turtle (current-turtle)))
+        (set-turtle-angle! turtle (+ (radian angle) (turtle-angle turtle)))))
 
-    (define (right angle plane)
-      (turn angle plane))
+    (define (left angle . args)
+      (let-optionals args ((turtle (current-turtle)))
+        (turn (- angle) turtle)))
 
-    (define (forward len plane)
-      (let* ((angle (turtle-angle plane))
-             (ox (turtle-x plane))
-             (oy (turtle-y plane))
-             (x (+ ox (* (cos angle) len)))
-             (y (+ oy (* (sin angle) len))))
-        (if (turtle-pen-down? plane)
-          (draw-line (point ox oy) (point x y) (turtle-drawing plane)))
-        (move x y plane)))
+    (define (right angle . args)
+      (let-optionals args ((turtle (current-turtle)))
+        (turn angle turtle)))
 
-    (define (backward len plane)
-      (forward (- len) plane))
+    (define (forward len . args)
+      (let-optionals args ((turtle (current-turtle)))
+        (let* ((angle (turtle-angle turtle))
+               (ox (turtle-x turtle))
+               (oy (turtle-y turtle))
+               (x (+ ox (* (cos angle) len)))
+               (y (+ oy (* (sin angle) len))))
+          (if (turtle-pen-down? turtle)
+            (draw-line (point ox oy) (point x y) (turtle-drawing turtle)))
+          (move x y turtle))))
+
+    (define (backward len . args)
+      (let-optionals args ((turtle (current-turtle)))
+        (forward (- len) turtle)))
 
     (define (radian angle)
       (inexact (/ (* angle pi) 180.0)))
   )
 )
-
