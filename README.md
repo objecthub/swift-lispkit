@@ -59,7 +59,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     `(lispkit object)`, `(lispkit enum)`,
     `(lispkit logic)`, `(lispkit iteration)`, `(lispkit set)`, `(lispkit stack)`, `(lispkit queue)`,
     `(lispkit heap)`, `(lispkit wt-tree)`, `(lispkit prettify)`, `(lispkit json)`,
-    [`(lispkit draw)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Draw),
+    [`(lispkit draw)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Draw), `(lispkit draw turtle)`,
     and `(lispkit pdf)`
 
 _LispKit_ is incompatible or incomplete with respect to the following R7RS features:
@@ -101,6 +101,7 @@ framework:
   - [SRFI 151: Bitwise Operations](https://srfi.schemers.org/srfi-151/srfi-151.html)
   - [SRFI 152: String Library](https://srfi.schemers.org/srfi-152/srfi-152.html)
   - [SRFI 158: Generators and Accumulators](https://srfi.schemers.org/srfi-158/srfi-158.html)
+  - [SRFI 161: Unifiable Boxes](https://srfi.schemers.org/srfi-161/srfi-161.html)
 
 
 ## Architecture
