@@ -4,7 +4,7 @@
 - Several substantial extensions of library `(lispkit draw)`
 - Support for turtle graphics via library `(lispkit draw turtle)`
 - New example code showcasing `(lispkit draw turtle)` features
-- New SRFI library: SRFI 161
+- New SRFI library: SRFI 11, SRFI 51, SRFI 161
 
 ## 1.5.1 (2018-08-19)
 - Bugfixes and name changes in `(lispkit draw)`
