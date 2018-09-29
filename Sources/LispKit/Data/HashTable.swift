@@ -116,7 +116,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
     for bucket in oldBuckets {
       var current = bucket
       while case .pair(.pair(let key, let value), let next) = current {
-        let bid = self.hash(key) % capacity
+        let bid = self.hash(key) %% capacity
         self.buckets[bid] = .pair(.pair(key, value), self.buckets[bid])
         current = next
       }
@@ -311,7 +311,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
   }
   
   public func get(_ key: Expr) -> Expr? {
-    return self.get(self.hash(key) % self.buckets.count, key, self.eql)
+    return self.get(self.hash(key) %% self.buckets.count, key, self.eql)
   }
   
   @discardableResult public func set(key: Expr, mapsTo value: Expr) -> Bool {
@@ -319,14 +319,14 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
   }
   
   @discardableResult public func add(key: Expr, mapsTo value: Expr) -> Bool {
-    return self.add(self.hash(key) % self.buckets.count, key, value)
+    return self.add(self.hash(key) %% self.buckets.count, key, value)
   }
   
   public func remove(key: Expr) -> Expr? {
     guard self.mutable else {
       return nil
     }
-    return self.remove(self.hash(key) % self.buckets.count, key: key)
+    return self.remove(self.hash(key) %% self.buckets.count, key: key)
   }
   
   private func remove(_ bid: Int, key: Expr) -> Expr? {
@@ -355,7 +355,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
     for bucket in map.buckets {
       var current = bucket
       while case .pair(.pair(let key, let value), let next) = current {
-        let bid = self.hash(key) % self.buckets.count
+        let bid = self.hash(key) %% self.buckets.count
         if self.get(bid, key, self.eql) == nil {
           self.add(bid, key, value)
         }

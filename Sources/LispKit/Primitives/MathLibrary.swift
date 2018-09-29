@@ -1595,9 +1595,7 @@ public final class MathLibrary: NativeLibrary {
   }
   
   private func fxModulo(_ x: Expr, _ y: Expr) throws -> Expr {
-    let rhs = try y.asInt64()
-    let res = try x.asInt64() % rhs
-    return .fixnum((res < 0) == (rhs < 0) ? res : res + rhs)
+    return .fixnum(try x.asInt64() %% y.asInt64())
   }
   
   private func fxAbs(_ x: Expr) throws -> Expr {
