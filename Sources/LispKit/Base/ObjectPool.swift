@@ -60,7 +60,7 @@ public final class ObjectPool<T: AnyObject>: Sequence, CustomStringConvertible {
   }
   
   /// Returns true if the object pool is empty.
-  open var isEmpty: Bool {
+  public var isEmpty: Bool {
     return self.count == 0
   }
   

@@ -29,7 +29,7 @@ open class Port: Reference, CustomStringConvertible {
     case binaryOutputPort(BinaryOutput)
   }
   
-  open let kind: Kind
+  public let kind: Kind
   open var isOpen: Bool = true
   
   public init(input: TextInput) {

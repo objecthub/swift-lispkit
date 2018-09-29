@@ -37,7 +37,7 @@ open class BinaryOutput {
   private var output: OutputStream?
   
   /// The URL for the output stream. `url` is nil whenever `output` is nil.
-  open let url: URL?
+  public let url: URL?
   
   /// Relative paths are relative to the documents folder
   private static let documentsUrl =

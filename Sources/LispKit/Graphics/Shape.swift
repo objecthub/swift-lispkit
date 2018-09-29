@@ -320,7 +320,7 @@ public enum ShapePrototype {
       case .glyphs(let str, let rect, let font, let flipped):
         let bezierPath = NSBezierPath()
         bezierPath.move(to: rect.origin)
-        let storage = NSTextStorage(string: str, attributes: [NSAttributedStringKey.font : font])
+        let storage = NSTextStorage(string: str, attributes: [NSAttributedString.Key.font : font])
         let manager = NSLayoutManager()
         let container = NSTextContainer(size: rect.size)
         storage.addLayoutManager(manager)
@@ -442,7 +442,7 @@ public enum InterpolationMethod {
       let d2 = pointLength(pointSub(p2, p1))
       let d3 = pointLength(pointSub(p3, p2))
       var b1: NSPoint
-      if fabs(d1) < InterpolationMethod.epsilon {
+      if abs(d1) < InterpolationMethod.epsilon {
         b1 = p1
       } else {
         b1 = pointMult(p2, pow(d1, 2.0 * alpha))
@@ -453,7 +453,7 @@ public enum InterpolationMethod {
         b1 = pointMult(b1, 1.0 / (3.0 * pow(d1, alpha) * (pow(d1, alpha) + pow(d2, alpha))))
       }
       var b2: NSPoint
-      if fabs(d3) < InterpolationMethod.epsilon {
+      if abs(d3) < InterpolationMethod.epsilon {
         b2 = p2
       } else {
         b2 = pointMult(p1, pow(d3, 2.0 * alpha))

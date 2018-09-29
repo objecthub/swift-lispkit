@@ -1545,7 +1545,7 @@ public final class DrawingLibrary: NativeLibrary {
         throw RuntimeError.eval(.invalidSize, dimensions!)
     }
     let pstyle: NSParagraphStyle = .default
-    let attributes = [.font: fnt, .paragraphStyle: pstyle] as [NSAttributedStringKey: Any]
+    let attributes = [.font: fnt, .paragraphStyle: pstyle] as [NSAttributedString.Key: Any]
     let rect = str.boundingRect(with: size, attributes: attributes)
     return .pair(.pair(.flonum(Double(rect.minX)), .flonum(Double(rect.minY))),
                  .pair(.flonum(Double(rect.width)), .flonum(Double(rect.height))))

@@ -385,7 +385,7 @@ public enum DrawingInstruction {
           .font: font ?? NSFont.systemFont(ofSize: NSFont.systemFontSize),
           .foregroundColor: (color ?? Color.black).nsColor,
           .paragraphStyle: pstyle,
-        ] as [NSAttributedStringKey: Any]
+          ] as [NSAttributedString.Key: Any]
         let textRect: NSRect
         switch location {
           case .position(let point):

@@ -2,8 +2,8 @@
 ========================
 
 [![Platform: macOS](https://img.shields.io/badge/Platform-macOS-blue.svg?style=flat)](https://developer.apple.com/osx/)
-[![Language: Swift 4.1](https://img.shields.io/badge/Language-Swift%204.1-green.svg?style=flat)](https://developer.apple.com/swift/)
-[![IDE: Xcode 9.4](https://img.shields.io/badge/IDE-Xcode%209.4-orange.svg?style=flat)](https://developer.apple.com/xcode/)
+[![Language: Swift 4.2](https://img.shields.io/badge/Language-Swift%204.2-green.svg?style=flat)](https://developer.apple.com/swift/)
+[![IDE: Xcode 10.0](https://img.shields.io/badge/IDE-Xcode%2010.0-orange.svg?style=flat)](https://developer.apple.com/xcode/)
 [![Carthage: compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![License: Apache](http://img.shields.io/badge/License-Apache-lightgrey.svg?style=flat)](https://raw.githubusercontent.com/objecthub/swift-lispkit/master/LICENSE)
 

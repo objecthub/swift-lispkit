@@ -1,4 +1,4 @@
-// swift-tools-version:4.1
+// swift-tools-version:4.2
 //
 //  Package.swift
 //  LispKit
@@ -37,7 +37,7 @@ let package = Package(
     .executable(name: "LispKitRepl", targets: ["LispKitRepl"])
   ],
   dependencies: [
-    .package(url: "https://github.com/objecthub/swift-numberkit.git", from: "2.2.1"),
+    .package(url: "https://github.com/objecthub/swift-numberkit.git", from: "2.2.2"),
     .package(url: "https://github.com/objecthub/swift-commandlinekit.git", from: "0.2.3")
   ],
   targets: [
@@ -48,5 +48,6 @@ let package = Package(
             exclude: ["BuildMetadata.m", "BuildMetadata.h"]),
     .testTarget(name: "LispKitTests",
                 dependencies: ["LispKit"])
-  ]
+  ],
+  swiftLanguageVersions: [.v4_2]
 )
