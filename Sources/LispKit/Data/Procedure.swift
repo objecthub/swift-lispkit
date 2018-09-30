@@ -263,6 +263,10 @@ public final class Procedure: Reference, CustomStringConvertible {
     self.kind = .transformer(rules)
   }
   
+  public override init() {
+    preconditionFailure()
+  }
+  
   /// Returns the name of this procedure. This method either returns the name of a primitive
   /// procedure or the identity as a hex string.
   public var name: String {

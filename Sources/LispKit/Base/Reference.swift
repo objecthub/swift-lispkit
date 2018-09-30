@@ -32,8 +32,8 @@ open class Reference: Hashable {
     return String(self.identity, radix: 16)
   }
   
-  public final var hashValue: Int {
-    return ObjectIdentifier(self).hashValue
+  public final func hash(into hasher: inout Hasher) {
+    hasher.combine(ObjectIdentifier(self))
   }
   
   open var typeDescription: String {

@@ -27,12 +27,16 @@ import Foundation
 public struct Owners<T: Reference>: Sequence {
   
   fileprivate struct Entry: Hashable {
-    let hashValue: Int
+    let hash: Int
     weak var owner: T?
     
     init(_ owner: T) {
-      self.hashValue = Int(bitPattern: owner.identity)
+      self.hash = Int(bitPattern: owner.identity)
       self.owner = owner
+    }
+    
+    func hash(into hasher: inout Hasher) {
+      hasher.combine(self.hash)
     }
     
     static func ==(lhs: Owners<T>.Entry, rhs: Owners<T>.Entry) -> Bool {

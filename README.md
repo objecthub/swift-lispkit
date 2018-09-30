@@ -193,9 +193,9 @@ The following technologies are needed to build the components of the LispKit fra
 command-line tool, Xcode and Carthage are not strictly needed. Just for compiling the framework and trying
 the command-line tool in Xcode, the Swift Package Manager is not needed.
 
-- [Xcode 9.4](https://developer.apple.com/xcode/)
+- [Xcode 10.0](https://developer.apple.com/xcode/)
 - [Carthage](https://github.com/Carthage/Carthage)
 - [Swift Package Manager](https://swift.org/package-manager/)
-- [Swift 4.1](https://developer.apple.com/swift/)
+- [Swift 4.2](https://developer.apple.com/swift/)
 - [NumberKit](http://github.com/objecthub/swift-numberkit)
 - [CommandLineKit](http://github.com/objecthub/swift-commandlinekit)

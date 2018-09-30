@@ -110,18 +110,21 @@ public enum CheckpointData: Hashable, CustomStringConvertible {
   case valueBinding(Symbol)
   case expansion(Expr)
   
-  public var hashValue: Int {
+  public func hash(into hasher: inout Hasher) {
     switch self {
       case .systemDefined:
-        return 1
+        hasher.combine(1)
       case .imported:
-        return 2
+        hasher.combine(2)
       case .fromGlobalEnv(let expr):
-        return expr.hashValue &* 31 &+ 3
+        hasher.combine(3)
+        hasher.combine(expr)
       case .valueBinding(let sym):
-        return sym.hashValue &* 31 &+ 4
+        hasher.combine(4)
+        hasher.combine(sym)
       case .expansion(let expr):
-        return expr.hashValue &* 31 &+ 5
+        hasher.combine(5)
+        hasher.combine(expr)
     }
   }
   

@@ -53,8 +53,10 @@ public struct SourcePosition: Equatable, Hashable, CustomStringConvertible {
               pos.col > UInt16.max ? SourcePosition.unknownColumn : UInt16(pos.col))
   }
   
-  public var hashValue: Int {
-    return ((self.sourceId.hashValue &* 31) &+ self.line.hashValue) &* 31 &+ self.column.hashValue
+  public func hash(into hasher: inout Hasher) {
+    hasher.combine(self.sourceId)
+    hasher.combine(self.line)
+    hasher.combine(self.column)
   }
   
   public var isUnknown: Bool {

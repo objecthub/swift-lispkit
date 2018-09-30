@@ -149,13 +149,12 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
     }
   }
   
-  public var hashValue: Int {
-    var res = 0
+  public func hash(into hasher: inout Hasher) {
     for irritant in self.irritants {
-      res = res &* 31 &+ irritant.hashValue
+      hasher.combine(irritant)
     }
-    res = res &* 31 &+ self.descriptor.hashValue
-    return res &* 31 &+ self.pos.hashValue
+    hasher.combine(self.descriptor)
+    hasher.combine(self.pos)
   }
   
   public var message: String {
@@ -554,37 +553,40 @@ public enum ErrorDescriptor: Hashable {
     }
   }
   
-  public var hashValue: Int {
+  public func hash(into hasher: inout Hasher) {
     switch self {
       case .lexical(let error):
-        return error.hashValue &* 31
+        hasher.combine(error)
       case .syntax(let error):
-        return error.hashValue &* 31 &+ 1
+        hasher.combine(1)
+        hasher.combine(error)
       case .type(let found, let expected):
-        return (found.hashValue &* 31 &+ expected.hashValue) &* 31 &+ 2
+        hasher.combine(2)
+        hasher.combine(found)
+        hasher.combine(expected)
       case .range(let fun, let argn, let low, let high):
-        var res = (low.hashValue &* 31 &+ high.hashValue) &* 31
-        if let fun = fun {
-          res = (res + fun.hashValue) &* 31
-        }
-        if let argn = argn {
-          res = (res + argn.hashValue) &* 31
-        }
-        return res &+ 3
+        hasher.combine(3)
+        hasher.combine(fun)
+        hasher.combine(argn)
+        hasher.combine(low)
+        hasher.combine(high)
       case .argumentCount(let fun, let min, let max):
-        var res = (min.hashValue &* 31 &+ max.hashValue) &* 31
-        if let fun = fun {
-          res = (res + fun.hashValue) &* 31
-        }
-        return res &+ 4
+        hasher.combine(4)
+        hasher.combine(fun)
+        hasher.combine(min)
+        hasher.combine(max)
       case .eval(let error):
-        return error.hashValue &* 31 &+ 5
+        hasher.combine(5)
+        hasher.combine(error)
       case .os(let error):
-        return error.hashValue &* 31 &+ 6
+        hasher.combine(6)
+        hasher.combine(error)
       case .abortion:
-        return 7
+        hasher.combine(7)
       case .custom(let kind, let message):
-        return (kind.hashValue &* 31 &+ message.hashValue) &* 31 &+ 8
+        hasher.combine(8)
+        hasher.combine(kind)
+        hasher.combine(message)
     }
   }
   

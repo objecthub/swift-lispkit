@@ -33,8 +33,8 @@ struct Equality: Hashable {
     self.ref2 = ref2
   }
   
-  var hashValue: Int {
-    return ref1.hashValue &+ ref2.hashValue
+  func hash(into hasher: inout Hasher) {
+    hasher.combine(ref1.hashValue &+ ref2.hashValue)
   }
   
   static func ==(lhs: Equality, rhs: Equality) -> Bool {

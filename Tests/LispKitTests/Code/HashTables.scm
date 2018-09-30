@@ -78,7 +78,7 @@
 
 (
   "Custom hash tables"
-  (2 #t #t #t (("two" . 3) ("one" . 4)) 4 3 3 0)
+  (2 #t #t #t (("one" . 4) ("two" . 3)) 4 3 3 0)
   (define (my-equal-hash x) (equal-hash x))
   (define (my-equal? x y) (equal? x y))
   (define h (make-hashtable my-equal-hash my-equal?))
@@ -93,7 +93,7 @@
         (eq? (hashtable-equivalence-function h) my-equal?)
         (eq? (hashtable-hash-function h) my-equal-hash)
         (equal? h (hashtable-copy h #t))
-        (hashtable->alist h)
+        (sort (lambda (p1 p2) (string<? (car p1) (car p2))) (hashtable->alist h))
         (hashtable-ref h key1 0)
         (hashtable-ref h key2a 0)
         (hashtable-ref h key2b 0)
@@ -119,10 +119,10 @@
 
 (
   "Custom hash table update"
-  (2 (("two" . 3) ("one" . 104)) #t #f 104)
+  (2 (("one" . 104) ("two" . 3)) #t #f 104)
   (hashtable-update! h firstkey (lambda (n) (+ n 100)) 0)
   (list (hashtable-size h)
-        (hashtable->alist h)
+        (sort (lambda (p1 p2) (string<? (car p1) (car p2))) (hashtable->alist h))
         (hashtable-contains? h firstkey)
         (hashtable-contains? h "three")
         (hashtable-ref h firstkey 0))

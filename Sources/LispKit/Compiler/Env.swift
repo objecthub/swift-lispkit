@@ -220,15 +220,14 @@ public enum WeakEnv: Hashable {
   }
   
   /// Hash value of this weak environment
-  public var hashValue: Int {
+  public func hash(into hasher: inout Hasher) {
     switch self {
       case .global(let box):
-        return ObjectIdentifier(box).hashValue
+        return hasher.combine(ObjectIdentifier(box))
       case .local(let box):
-        return ObjectIdentifier(box).hashValue
+        return hasher.combine(ObjectIdentifier(box))
     }
   }
-  
   
   /// Compares two weak environments. Two weak environments are the same if they have the same
   /// type (i.e. same enumeration case) and for local environments, the bindings groups are

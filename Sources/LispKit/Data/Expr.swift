@@ -363,8 +363,8 @@ public enum Expr: Trackable, Hashable {
     }
   }
   
-  public var hashValue: Int {
-    return equalHash(self)
+  public func hash(into hasher: inout Hasher) {
+    equalHash(self, into: &hasher)
   }
 }
 

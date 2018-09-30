@@ -20,8 +20,13 @@
 
 import Foundation
 
-
 public func equalHash(_ expr: Expr) -> Int {
+  var hasher = Hasher()
+  equalHash(expr, into: &hasher)
+  return hasher.finalize()
+}
+
+public func equalHash(_ expr: Expr, into hasher: inout Hasher) {
   var visited = Set<Reference>()
   
   func alreadyVisited(_ ref: Reference) -> Bool {
@@ -32,117 +37,138 @@ public func equalHash(_ expr: Expr) -> Int {
     return false
   }
   
-  func hash(_ expr: Expr) -> Int {
+  func hash(_ expr: Expr) {
     switch expr.normalized {
       case .undef,
            .uninit(_):
-        return 0
+        hasher.combine(0)
       case .void:
-        return 1
+        hasher.combine(1)
       case .eof:
-        return 2
+        hasher.combine(2)
       case .null:
-        return 3
+        hasher.combine(3)
       case .true:
-        return 4
+        hasher.combine(4)
       case .false:
-        return 5
+        hasher.combine(5)
       case .symbol(let sym):
-        return sym.hashValue &* 31 &+ 6
+        hasher.combine(6)
+        hasher.combine(sym)
       case .fixnum(let num):
-        return num.hashValue &* 31 &+ 7
+        hasher.combine(7)
+        hasher.combine(num)
       case .bignum(let num):
-        return num.hashValue &* 31 &+ 8
+        hasher.combine(8)
+        hasher.combine(num)
       case .rational(let n, let d):
-        return ((hash(n) &* 31) &+ hash(d)) &* 31 &+ 9
+        hasher.combine(9)
+        hash(n)
+        hash(d)
       case .flonum(let num):
-        return num.hashValue &* 31 &+ 11
+        hasher.combine(10)
+        hasher.combine(num)
       case .complex(let num):
-        return num.value.hashValue &* 31 &+ 12
+        hasher.combine(11)
+        hasher.combine(num)
       case .char(let char):
-        return char.hashValue &* 31 &+ 13
+        hasher.combine(12)
+        hasher.combine(char)
       case .string(let str):
-        return str.hashValue &* 31 &+ 14
+        hasher.combine(13)
+        hasher.combine(str)
       case .bytes(let bvector):
-        var res = 0
+        hasher.combine(14)
         for byte in bvector.value {
-          res = res &* 31 &+ byte.hashValue
+          hasher.combine(byte)
         }
-        return res &* 31 &+ 15
       case .pair(let car, let cdr):
-        return ((hash(car) &* 31) &+ hash(cdr)) &* 31 &+ 16
+        hasher.combine(15)
+        hash(car)
+        hash(cdr)
       case .box(let cell):
-        if alreadyVisited(cell) {
-          return 0
+        hasher.combine(16)
+        guard alreadyVisited(cell) else {
+          hash(cell.value)
+          visited.remove(cell)
+          break
         }
-        let res = hash(cell.value)
-        visited.remove(cell)
-        return res &* 31 &+ 17
       case .mpair(let tuple):
-        if alreadyVisited(tuple) {
-          return 0
+        hasher.combine(17)
+        guard alreadyVisited(tuple) else {
+          hash(tuple.fst)
+          hash(tuple.snd)
+          visited.remove(tuple)
+          break
         }
-        let res = hash(tuple.fst) &* 31 &+ hash(tuple.snd)
-        visited.remove(tuple)
-        return res &* 31 &+ 18
       case .vector(let vector):
-        if alreadyVisited(vector) {
-          return 0
+        hasher.combine(18)
+        guard alreadyVisited(vector) else {
+          for expr in vector.exprs {
+            hash(expr)
+          }
+          visited.remove(vector)
+          break
         }
-        var res = 0
-        for expr in vector.exprs {
-          res = res &* 31 &+ hash(expr)
-        }
-        visited.remove(vector)
-        return res &* 31 &+ 19
       case .record(let record):
-        if alreadyVisited(record) {
-          return 0
+        hasher.combine(19)
+        guard alreadyVisited(record) else {
+          switch record.kind {
+            case .recordType:
+              hasher.combine(1)
+            case .record(let type):
+              hasher.combine(type)
+            default:
+              break
+          }
+          for expr in record.exprs {
+            hash(expr)
+          }
+          visited.remove(record)
+          break
         }
-        var res: Int
-        switch record.kind {
-          case .recordType:
-            res = 1
-          case .record(let type):
-            res = type.hashValue
-          default:
-            res = 0
-        }
-        for expr in record.exprs {
-          res = res &* 31 &+ hash(expr)
-        }
-        visited.remove(record)
-        return res &* 31 &+ 20
       case .table(let map):
-        if alreadyVisited(map) {
-          return 0
+        hasher.combine(20)
+        guard alreadyVisited(map) else {
+          for (key, value) in map.mappings {
+            hash(key)
+            hash(value)
+          }
+          visited.remove(map)
+          break
         }
-        var res = 0
-        for (key, value) in map.mappings {
-          res = res &+ (hash(key) &* 31) &+ hash(value)
-        }
-        visited.remove(map)
-        return res &* 31 &+ 21
       case .promise(let promise):
-        return promise.hashValue &* 31 &+ 22
+        hasher.combine(21)
+        hasher.combine(promise)
       case .values(let expr):
-        return hash(expr) &* 31 &+ 23
+        hasher.combine(22)
+        hash(expr)
       case .procedure(let proc):
-        return proc.hashValue &* 31 &+ 24
+        hasher.combine(23)
+        hasher.combine(proc)
       case .special(let special):
-        return special.hashValue &* 31 &+ 25
+        hasher.combine(24)
+        hasher.combine(special)
       case .env(let environment):
-        return environment.hashValue &* 31 &+ 26
+        hasher.combine(25)
+        hasher.combine(environment)
       case .port(let port):
-        return port.hashValue &* 31 &+ 27
+        hasher.combine(26)
+        hasher.combine(port)
       case .object(let obj):
-        return obj.hashValue &* 31 &+ 28
+        hasher.combine(27)
+        hasher.combine(obj)
       case .tagged(let tag, let expr):
-        return (eqvHash(tag) &* 31 &+ hash(expr)) &* 31 &+ 29
+        hasher.combine(28)
+        eqvHash(tag, into: &hasher)
+        hash(expr)
       case .error(let err):
-        return err.hashValue &* 31 &+ 30
+        hasher.combine(29)
+        hasher.combine(err)
       case .syntax(let pos, let expr):
-        return ((pos.hashValue &* 31) &+ hash(expr)) &* 31 &+ 31
+        hasher.combine(30)
+        hasher.combine(pos)
+        hash(expr)
     }
   }
   
@@ -150,137 +176,207 @@ public func equalHash(_ expr: Expr) -> Int {
 }
 
 public func eqvHash(_ expr: Expr) -> Int {
+  var hasher = Hasher()
+  eqvHash(expr, into: &hasher)
+  return hasher.finalize()
+}
+
+public func eqvHash(_ expr: Expr, into hasher: inout Hasher) {
   switch expr.normalized {
     case .undef,
          .uninit(_):
-      return 0
+      hasher.combine(0)
     case .void:
-      return 1
+      hasher.combine(1)
     case .eof:
-      return 2
+      hasher.combine(2)
     case .null:
-      return 3
+      hasher.combine(3)
     case .true:
-      return 4
+      hasher.combine(4)
     case .false:
-      return 5
+      hasher.combine(5)
     case .symbol(let sym):
-      return sym.hashValue &* 31 &+ 6
+      hasher.combine(6)
+      hasher.combine(sym)
     case .fixnum(let num):
-      return num.hashValue &* 31 &+ 7
+      hasher.combine(7)
+      hasher.combine(num)
     case .bignum(let num):
-      return num.hashValue &* 31 &+ 8
+      hasher.combine(8)
+      hasher.combine(num)
     case .rational(let n, let d):
-      return ((eqvHash(n) &* 31) &+ eqvHash(d)) &* 31 &+ 9
+      hasher.combine(9)
+      eqvHash(n, into: &hasher)
+      eqvHash(d, into: &hasher)
     case .flonum(let num):
-      return num.hashValue &* 31 &+ 11
+      hasher.combine(10)
+      hasher.combine(num)
     case .complex(let num):
-      return num.value.hashValue &* 31 &+ 12
+      hasher.combine(11)
+      hasher.combine(num)
     case .char(let char):
-      return char.hashValue &* 31 &+ 13
+      hasher.combine(12)
+      hasher.combine(char)
     case .string(let str):
-      return ObjectIdentifier(str).hashValue &* 31 &+ 14
+      hasher.combine(13)
+      hasher.combine(ObjectIdentifier(str))
     case .bytes(let bvector):
-      return bvector.hashValue &* 31 &+ 15
+      hasher.combine(14)
+      hasher.combine(bvector)
     case .pair(let car, let cdr):
-      return ((eqvHash(car) &* 31) &+ eqvHash(cdr)) &* 31 &+ 16
+      hasher.combine(15)
+      eqvHash(car, into: &hasher)
+      eqvHash(cdr, into: &hasher)
     case .box(let cell):
-      return cell.hashValue &* 31 &+ 17
+      hasher.combine(16)
+      hasher.combine(cell)
     case .mpair(let tuple):
-      return tuple.hashValue &* 31 &+ 18
+      hasher.combine(17)
+      hasher.combine(tuple)
     case .vector(let vector):
-      return vector.hashValue &* 31 &+ 19
+      hasher.combine(18)
+      hasher.combine(vector)
     case .record(let record):
-      return record.hashValue &* 31 &+ 20
+      hasher.combine(19)
+      hasher.combine(record)
     case .table(let map):
-      return map.hashValue &* 31 &+ 21
+      hasher.combine(20)
+      hasher.combine(map)
     case .promise(let promise):
-      return promise.hashValue &* 31 &+ 22
+      hasher.combine(21)
+      hasher.combine(promise)
     case .values(let expr):
-      return eqvHash(expr) &* 31 &+ 23
+      hasher.combine(22)
+      eqvHash(expr, into: &hasher)
     case .procedure(let proc):
-      return proc.hashValue &* 31 &+ 24
+      hasher.combine(23)
+      hasher.combine(proc)
     case .special(let special):
-      return special.hashValue &* 31 &+ 25
+      hasher.combine(24)
+      hasher.combine(special)
     case .env(let environment):
-      return environment.hashValue &* 31 &+ 26
+      hasher.combine(25)
+      hasher.combine(environment)
     case .port(let port):
-      return port.hashValue &* 31 &+ 27
+      hasher.combine(26)
+      hasher.combine(port)
     case .object(let obj):
-      return obj.hashValue &* 31 &+ 28
+      hasher.combine(27)
+      hasher.combine(obj)
     case .tagged(let tag, let expr):
-      return (eqvHash(tag) &* 31 &+ eqvHash(expr)) &* 31 &+ 29
+      hasher.combine(28)
+      eqvHash(tag, into: &hasher)
+      eqvHash(expr, into: &hasher)
     case .error(let err):
-      return err.hashValue &* 31 &+ 30
+      hasher.combine(29)
+      hasher.combine(err)
     case .syntax(let pos, let expr):
-      return ((pos.hashValue &* 31) &+ eqvHash(expr)) &* 31 &+ 31
+      hasher.combine(30)
+      hasher.combine(pos)
+      eqvHash(expr, into: &hasher)
   }
 }
 
 public func eqHash(_ expr: Expr) -> Int {
-  switch expr {
+  var hasher = Hasher()
+  eqHash(expr, into: &hasher)
+  return hasher.finalize()
+}
+
+public func eqHash(_ expr: Expr, into hasher: inout Hasher) {
+  switch expr.normalized {
     case .undef,
          .uninit(_):
-      return 0
+      hasher.combine(0)
     case .void:
-      return 1
+      hasher.combine(1)
     case .eof:
-      return 2
+      hasher.combine(2)
     case .null:
-      return 3
+      hasher.combine(3)
     case .true:
-      return 4
+      hasher.combine(4)
     case .false:
-      return 5
+      hasher.combine(5)
     case .symbol(let sym):
-      return sym.hashValue &* 31 &+ 6
+      hasher.combine(6)
+      hasher.combine(sym)
     case .fixnum(let num):
-      return num.hashValue &* 31 &+ 7
+      hasher.combine(7)
+      hasher.combine(num)
     case .bignum(let num):
-      return num.hashValue &* 31 &+ 8
+      hasher.combine(8)
+      hasher.combine(num)
     case .rational(let n, let d):
-      return ((eqHash(n) &* 31) &+ eqHash(d)) &* 31 &+ 9
+      hasher.combine(9)
+      eqHash(n, into: &hasher)
+      eqHash(d, into: &hasher)
     case .flonum(let num):
-      return num.hashValue &* 31 &+ 11
+      hasher.combine(10)
+      hasher.combine(num)
     case .complex(let num):
-      return num.value.hashValue &* 31 &+ 12
+      hasher.combine(11)
+      hasher.combine(num)
     case .char(let char):
-      return char.hashValue &* 31 &+ 13
+      hasher.combine(12)
+      hasher.combine(char)
     case .string(let str):
-      return ObjectIdentifier(str).hashValue &* 31 &+ 14
+      hasher.combine(13)
+      hasher.combine(ObjectIdentifier(str))
     case .bytes(let bvector):
-      return bvector.hashValue &* 31 &+ 15
+      hasher.combine(14)
+      hasher.combine(bvector)
     case .pair(let car, let cdr):
-      return ((eqHash(car) &* 31) &+ eqHash(cdr)) &* 31 &+ 16
+      hasher.combine(15)
+      eqHash(car, into: &hasher)
+      eqHash(cdr, into: &hasher)
     case .box(let cell):
-      return cell.hashValue &* 31 &+ 17
+      hasher.combine(16)
+      hasher.combine(cell)
     case .mpair(let tuple):
-      return tuple.hashValue &* 31 &+ 18
+      hasher.combine(17)
+      hasher.combine(tuple)
     case .vector(let vector):
-      return vector.hashValue &* 31 &+ 19
+      hasher.combine(18)
+      hasher.combine(vector)
     case .record(let record):
-      return record.hashValue &* 31 &+ 20
+      hasher.combine(19)
+      hasher.combine(record)
     case .table(let map):
-      return map.hashValue &* 31 &+ 21
+      hasher.combine(20)
+      hasher.combine(map)
     case .promise(let promise):
-      return promise.hashValue &* 31 &+ 22
+      hasher.combine(21)
+      hasher.combine(promise)
     case .values(let expr):
-      return eqHash(expr) &* 31 &+ 23
+      hasher.combine(22)
+      eqHash(expr, into: &hasher)
     case .procedure(let proc):
-      return proc.hashValue &* 31 &+ 24
+      hasher.combine(23)
+      hasher.combine(proc)
     case .special(let special):
-      return special.hashValue &* 31 &+ 25
+      hasher.combine(24)
+      hasher.combine(special)
     case .env(let environment):
-      return environment.hashValue &* 31 &+ 26
+      hasher.combine(25)
+      hasher.combine(environment)
     case .port(let port):
-      return port.hashValue &* 31 &+ 27
+      hasher.combine(26)
+      hasher.combine(port)
     case .object(let obj):
-      return obj.hashValue &* 31 &+ 28
+      hasher.combine(27)
+      hasher.combine(obj)
     case .tagged(let tag, let expr):
-      return (eqvHash(tag) &* 31 &+ eqHash(expr)) &* 31 &+ 29
+      hasher.combine(28)
+      eqvHash(tag, into: &hasher)
+      eqHash(expr, into: &hasher)
     case .error(let err):
-      return err.hashValue &* 31 &+ 30
+      hasher.combine(29)
+      hasher.combine(err)
     case .syntax(let pos, let expr):
-      return ((pos.hashValue &* 31) &+ eqHash(expr)) &* 31 &+ 31
+      hasher.combine(30)
+      hasher.combine(pos)
+      eqHash(expr, into: &hasher)
   }
 }

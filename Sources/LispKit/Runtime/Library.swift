@@ -151,8 +151,8 @@ open class Library: Reference, Trackable, CustomStringConvertible {
       }
     }
     
-    public var hashValue: Int {
-      return self.identifier.hashValue
+    public func hash(into hasher: inout Hasher) {
+      hasher.combine(self.identifier)
     }
     
     public static func ==(left: InternalIdent, right: InternalIdent) -> Bool {
