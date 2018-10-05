@@ -19,6 +19,7 @@
 //
 
 import Foundation
+import NumberKit
 
 ///
 /// Hashtable library: based on R6RS spec.
@@ -505,10 +506,23 @@ public final class HashTableLibrary: NativeLibrary {
     return .fixnum(Int64(expr.hashValue))
   }
   
+  private func bucket(_ hval: Expr, _ numBuckets: Int) throws -> Int {
+    switch hval {
+      case .fixnum(let num):
+        return Int(num %% Int64(numBuckets))
+      case .bignum(let num):
+        let n = BigInt(numBuckets)
+        let rem = num % n
+        return Int(rem.isNegative ? (rem + n).intValue! : rem.intValue!)
+      default:
+        throw RuntimeError.type(hval, expected: [.exactIntegerType])
+    }
+  }
+  
   private func hBuckets(_ expr: Expr, hval: Expr?) throws -> Expr {
     let map = try expr.asHashTable()
-    if let hashValue = try hval?.asInt64() {
-      return map.bucketList(Int(hashValue %% Int64(map.bucketCount)))
+    if let hashValue = hval {
+      return map.bucketList(try self.bucket(hashValue, map.bucketCount))
     } else {
       return map.bucketList()
     }
@@ -521,7 +535,7 @@ public final class HashTableLibrary: NativeLibrary {
     if !key.isAtom || !value.isAtom {
       self.context.objects.manage(map)
     }
-    map.add(Int(try hval.asInt64() %% Int64(map.bucketCount)), key, value)
+    map.add(try self.bucket(hval, map.bucketCount), key, value)
     return .void
   }
   
@@ -529,8 +543,7 @@ public final class HashTableLibrary: NativeLibrary {
     guard case .table(let map) = expr else {
       throw RuntimeError.type(expr, expected: [.tableType])
     }
-    map.replace(Int(try hval.asInt64() %% Int64(map.bucketCount)), bucket)
+    map.replace(try self.bucket(hval, map.bucketCount), bucket)
     return .void
   }
 }
-

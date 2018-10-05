@@ -162,6 +162,7 @@ public final class MathLibrary: NativeLibrary {
     self.define(Procedure("fxmin", self.fxMin))
     self.define(Procedure("fxmax", self.fxMax))
     self.define(Procedure("fxrandom", self.fxRandom))
+    self.define(Procedure("integer->fx", self.integerToFx))
     self.define(Procedure("fixnum-width", self.fixnumWidth))
     self.define(Procedure("least-fixnum", self.leastFixnum))
     self.define(Procedure("greatest-fixnum", self.greatestFixnum))
@@ -1725,6 +1726,19 @@ public final class MathLibrary: NativeLibrary {
       }
     }
     return .fixnum(Int64.random(min: min, max: max))
+  }
+  
+  private static let maxFx = BigInt(Int64.max) + 1
+  
+  private func integerToFx(_ expr: Expr) throws -> Expr {
+    switch expr {
+    case .fixnum(_):
+      return expr
+    case .bignum(let num):
+      return .fixnum((num % MathLibrary.maxFx).intValue!)
+    default:
+      throw RuntimeError.type(expr, expected: [.exactIntegerType])
+    }
   }
   
   private func fixnumWidth() -> Expr {
