@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.5.3 (2018-10-21)
+- Migrated project to Xcode 10.0 and ported code to Swift 4.2
+- Small bug fixes in library `(lispkit draw)`
+- Fixed serious hashing bug (crashing LispKit)
+- New SRFI library: SRFI 14, SRFI 16
+
 ## 1.5.2 (2018-09-16)
 - Several substantial extensions of library `(lispkit draw)`
 - Support for turtle graphics via library `(lispkit draw turtle)`

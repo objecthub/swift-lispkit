@@ -768,7 +768,7 @@ public final class DrawingLibrary: NativeLibrary {
     return .object(ImmutableBox(nsimage))
   }
   
-  private func saveBitmap(bitmap: Expr, filename: Expr, format: Expr) throws -> Expr {
+  private func saveBitmap(filename: Expr, bitmap: Expr, format: Expr) throws -> Expr {
     guard case .symbol(let sym) = format else {
       throw RuntimeError.eval(.invalidImageFileType, format)
     }

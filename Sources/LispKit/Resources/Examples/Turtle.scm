@@ -9,7 +9,7 @@
 ;;;
 ;;; Author: Matthias Zenger
 ;;; Copyright © 2018 Matthias Zenger. All rights reserved.
-;;; Original copyright © 1994-03-06 Matthias Zenger
+;;; Original copyright © 1994-03-06, Matthias Zenger.
 ;;;
 ;;; Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 ;;; except in compliance with the License. You may obtain a copy of the License at
@@ -103,4 +103,3 @@
     (display filename)
     (newline)
     (save-drawings filename pages "Demo of library (lispkit draw turtle)")))
-

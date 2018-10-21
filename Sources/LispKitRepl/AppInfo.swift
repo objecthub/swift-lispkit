@@ -3,7 +3,7 @@
 //  LispKit
 //
 //  Created by Matthias Zenger on 05/05/2016.
-//  Copyright © 2016, 2017 ObjectHub. All rights reserved.
+//  Copyright © 2016-2018 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ public struct AppInfo {
   // Version of the application
   public static let version =
     (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String) ??
-    "2.0.1"
+    "2.0.2"
   
   // Copyright message
   public static let copyright =
