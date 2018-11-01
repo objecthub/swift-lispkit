@@ -116,6 +116,11 @@
 		CC6A3B721C54DF7F00E962E2 /* Exprs.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B711C54DF7F00E962E2 /* Exprs.swift */; };
 		CC6AB0871C5C28FE008E9460 /* Equality.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6AB0861C5C28FE008E9460 /* Equality.swift */; };
 		CC6BB19A1E60F237009A9091 /* Random.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6BB1991E60F237009A9091 /* Random.swift */; };
+		CC703A13218BC4C100E71EA9 /* 23.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC703A12218BC40600E71EA9 /* 23.sld */; };
+		CC703A14218BC53600E71EA9 /* 14.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCC1DBFB216BA1750019A374 /* 14.sld */; };
+		CC703A15218BC54800E71EA9 /* 16.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCC1DBFC216BA2600019A374 /* 16.sld */; };
+		CC703A18218BC8D800E71EA9 /* 34.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC703A16218BC61D00E71EA9 /* 34.sld */; };
+		CC703A19218BC8E400E71EA9 /* 39.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC703A17218BC7D000E71EA9 /* 39.sld */; };
 		CC72862D1F52B32C00EEBC58 /* heap.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC72862C1F52B2F600EEBC58 /* heap.sld */; };
 		CC750BD81F5AC71500CD82A2 /* PDF.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC750BD71F5AC68900CD82A2 /* PDF.scm */; };
 		CC750BDA1F5B776700CD82A2 /* prettify.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC750BD91F5B772200CD82A2 /* prettify.sld */; };
@@ -402,6 +407,11 @@
 			dstPath = LispKit/Resources/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
+				CC703A19218BC8E400E71EA9 /* 39.sld in Copy pre-installed SRFI libraries */,
+				CC703A18218BC8D800E71EA9 /* 34.sld in Copy pre-installed SRFI libraries */,
+				CC703A15218BC54800E71EA9 /* 16.sld in Copy pre-installed SRFI libraries */,
+				CC703A14218BC53600E71EA9 /* 14.sld in Copy pre-installed SRFI libraries */,
+				CC703A13218BC4C100E71EA9 /* 23.sld in Copy pre-installed SRFI libraries */,
 				CC3F78312157D73700F88F9B /* 11.sld in Copy pre-installed SRFI libraries */,
 				CC3F782F2157D49000F88F9B /* 51.sld in Copy pre-installed SRFI libraries */,
 				CC1EA5CB214EF30E006BBE7E /* 161.sld in Copy pre-installed SRFI libraries */,
@@ -550,6 +560,9 @@
 		CC6A3B711C54DF7F00E962E2 /* Exprs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Exprs.swift; sourceTree = "<group>"; };
 		CC6AB0861C5C28FE008E9460 /* Equality.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Equality.swift; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC6BB1991E60F237009A9091 /* Random.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Random.swift; sourceTree = "<group>"; };
+		CC703A12218BC40600E71EA9 /* 23.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 23.sld; sourceTree = "<group>"; };
+		CC703A16218BC61D00E71EA9 /* 34.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 34.sld; sourceTree = "<group>"; };
+		CC703A17218BC7D000E71EA9 /* 39.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 39.sld; sourceTree = "<group>"; };
 		CC72862C1F52B2F600EEBC58 /* heap.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = heap.sld; sourceTree = "<group>"; };
 		CC750BD71F5AC68900CD82A2 /* PDF.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = PDF.scm; sourceTree = "<group>"; };
 		CC750BD91F5B772200CD82A2 /* prettify.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = prettify.sld; sourceTree = "<group>"; };
@@ -819,10 +832,13 @@
 				CCC1DBFC216BA2600019A374 /* 16.sld */,
 				CC8A2AAE1F405CDD00D1E4D8 /* 17.sld */,
 				CC5848081E56BD0B00BE6497 /* 19.sld */,
+				CC703A12218BC40600E71EA9 /* 23.sld */,
 				CC5848091E56BD0B00BE6497 /* 27.sld */,
 				CC58480A1E56BD0B00BE6497 /* 28.sld */,
 				CC48EBC11F3A645C00233FA9 /* 31.sld */,
+				CC703A16218BC61D00E71EA9 /* 34.sld */,
 				CC48EBC21F3A6BFF00233FA9 /* 35.sld */,
+				CC703A17218BC7D000E71EA9 /* 39.sld */,
 				CC48EBCD1F3E5AC700233FA9 /* 41 */,
 				CC58480B1E56BD1800BE6497 /* 41.sld */,
 				CC8A2AB01F40672700D1E4D8 /* 48.sld */,
