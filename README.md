@@ -3,7 +3,7 @@
 
 [![Platform: macOS](https://img.shields.io/badge/Platform-macOS-blue.svg?style=flat)](https://developer.apple.com/osx/)
 [![Language: Swift 4.2](https://img.shields.io/badge/Language-Swift%204.2-green.svg?style=flat)](https://developer.apple.com/swift/)
-[![IDE: Xcode 10.0](https://img.shields.io/badge/IDE-Xcode%2010.0-orange.svg?style=flat)](https://developer.apple.com/xcode/)
+[![IDE: Xcode 10.1](https://img.shields.io/badge/IDE-Xcode%2010.1-orange.svg?style=flat)](https://developer.apple.com/xcode/)
 [![Carthage: compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![License: Apache](http://img.shields.io/badge/License-Apache-lightgrey.svg?style=flat)](https://raw.githubusercontent.com/objecthub/swift-lispkit/master/LICENSE)
 
@@ -56,10 +56,15 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit hashtable)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Hashtable),
     `(lispkit test)`, 
     [`(lispkit datatype)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Datatype),
-    `(lispkit object)`, `(lispkit enum)`,
-    `(lispkit logic)`, `(lispkit iteration)`, `(lispkit set)`, `(lispkit stack)`, `(lispkit queue)`,
+    [`(lispkit object)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Object),
+    `(lispkit clos)`,
+    `(lispkit enum)`,
+    `(lispkit logic)`, `(lispkit iteration)`,
+    [`(lispkit set)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Set),
+    `(lispkit stack)`, `(lispkit queue)`,
     `(lispkit heap)`, `(lispkit wt-tree)`, `(lispkit prettify)`, `(lispkit json)`,
-    [`(lispkit draw)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Draw), `(lispkit draw turtle)`,
+    [`(lispkit draw)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Draw),
+    [`(lispkit draw turtle)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Draw-Turtle),
     and `(lispkit pdf)`
 
 _LispKit_ is incompatible or incomplete with respect to the following R7RS features:
@@ -79,16 +84,20 @@ framework:
   - [SRFI 16: Syntax for procedures of variable arity](https://srfi.schemers.org/srfi-16/srfi-16.html)
   - [SRFI 17: Generalized set!](https://srfi.schemers.org/srfi-17/srfi-17.html)
   - [SRFI 19: Time Data Types and Procedures](https://srfi.schemers.org/srfi-19/srfi-19.html)
+  - [SRFI 23: Error reporting mechanism](https://srfi.schemers.org/srfi-23/srfi-23.html)
   - [SRFI 27: Sources of Random Bits](https://srfi.schemers.org/srfi-27/srfi-27.html)
   - [SRFI 28: Basic Format Strings](https://srfi.schemers.org/srfi-28/srfi-28.html)
   - [SRFI 31: A special form rec for recursive evaluation](https://srfi.schemers.org/srfi-31/srfi-31.html)
+  - [SRFI 34: Exception Handling for Programs](https://srfi.schemers.org/srfi-34/srfi-34.html)
   - [SRFI 35: Conditions](https://srfi.schemers.org/srfi-35/srfi-35.html)
+  - [SRFI 39: Parameter objects](https://srfi.schemers.org/srfi-39/srfi-39.html)
   - [SRFI 41: Streams](https://srfi.schemers.org/srfi-41/srfi-41.html)
   - [SRFI 48: Intermediate Format Strings](https://srfi.schemers.org/srfi-48/srfi-48.html)
   - [SRFI 51: Handling rest list](https://srfi.schemers.org/srfi-51/srfi-51.html)
   - [SRFI 63: Homogeneous and Heterogeneous Arrays](https://srfi.schemers.org/srfi-63/srfi-63.html)
   - [SRFI 64: A Scheme API for test suites](https://srfi.schemers.org/srfi-64/srfi-64.html)
   - [SRFI 69: Basic hash tables](https://srfi.schemers.org/srfi-69/srfi-69.html)
+  - [SRFI 95: Sorting and Merging](https://srfi.schemers.org/srfi-95/srfi-95.html)
   - [SRFI 111: Boxes](https://srfi.schemers.org/srfi-111/srfi-111.html)
   - [SRFI 112: Environment inquiry](https://srfi.schemers.org/srfi-112/srfi-112.html)
   - [SRFI 113: Sets and bags](https://srfi.schemers.org/srfi-113/srfi-113.html)
@@ -195,7 +204,7 @@ The following technologies are needed to build the components of the LispKit fra
 command-line tool, Xcode and Carthage are not strictly needed. Just for compiling the framework and trying
 the command-line tool in Xcode, the Swift Package Manager is not needed.
 
-- [Xcode 10.0](https://developer.apple.com/xcode/)
+- [Xcode 10.1](https://developer.apple.com/xcode/)
 - [Carthage](https://github.com/Carthage/Carthage)
 - [Swift Package Manager](https://swift.org/package-manager/)
 - [Swift 4.2](https://developer.apple.com/swift/)

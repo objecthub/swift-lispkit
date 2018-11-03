@@ -123,7 +123,7 @@ var cmdLineArgs = flags.parameters.isEmpty ? [CommandLine.arguments.first!] : fl
 #if SPM
   let context = Context(console: console,
                         implementationName: "LispKit",
-                        implementationVersion: "1.5.3",
+                        implementationVersion: "1.5.4",
                         commandLineArguments: cmdLineArgs,
                         includeInternalResources: false,
                         includeDocumentPath: searchDocs.wasSet ? "LispKit" : nil)

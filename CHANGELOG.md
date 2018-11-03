@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.5.4 (2018-11-03)
+- Migrated project to Xcode 10.1 and ported code to Swift 4.2.1
+- Included implementation of "Tiny CLOS" as library `(lispkit clos)`
+- New SRFI libraries: SRFI 23, SRFI 34, SRFI 39, SRFI 95
+
 ## 1.5.3 (2018-10-21)
 - Migrated project to Xcode 10.0 and ported code to Swift 4.2
 - Small bug fixes in library `(lispkit draw)`
