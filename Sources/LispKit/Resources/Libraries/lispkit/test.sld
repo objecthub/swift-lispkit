@@ -31,63 +31,52 @@
           test-assert
           test-error
           test-group
+          test-group-failures
           approx-equal?
           current-test-comparator)
 
-  (import (lispkit base))
+  (import (lispkit base)
+          (lispkit stack))
 
+  ;; Manage test groups
   (begin
+    
+    (define open-test-groups (make-stack))
 
-    (define tests-passed 0)
-    (define tests-failed 0)
-    (define tests-start-time 0)
-    (define internal-fail-token (gensym))
+    (define-record-type test-group
+      (make-test-group name passed failed start-time)
+      test-group?
+      (name test-group-name)
+      (passed test-group-passed set-test-group-passed!)
+      (failed test-group-failed set-test-group-failed!)
+      (start-time test-group-start-time))
 
-    (define current-test-comparator (make-parameter equal?))
+    (define (push-test-group name)
+      (stack-push! open-test-groups (make-test-group name 0 0 (current-second))))
 
-    (define (test-begin)
-      (set! tests-passed 0)
-      (set! tests-failed 0)
-      (set! tests-start-time (current-second)))
+    (define (pop-test-group)
+      (stack-pop! open-test-groups))
 
-    (define (test-end)
-      (let ((end (current-second))
-            (total (+ tests-passed tests-failed)))
-        (newline)
-        (display "║ ")
-        (display total)
-        (display " tests completed in ")
-        (display (format-float (inexact (- end tests-start-time)) 3))
-        (display " seconds")
-        (newline)
-        (display "║ ")
-        (display tests-passed)
-        (display " (")
-        (display (format-percent tests-passed total))
-        (display "%) tests passed")
-        (newline)
-        (display "║ ")
-        (display tests-failed)
-        (display " (")
-      	(display (format-percent tests-failed total))
-        (display "%) tests failed")
-        (newline)))
+    (define (current-test-group)
+      (if (stack-empty? open-test-groups)
+          #f
+          (stack-top open-test-groups)))
 
-    (define test-exit test-end)
+    (define (inc-passed)
+      (let ((group (current-test-group)))
+        (set-test-group-passed! group (fx1+ (test-group-passed group)))))
 
-    (define (test-failures) tests-failed)
+    (define (inc-failed)
+      (let ((group (current-test-group)))
+        (set-test-group-failed! group (fx1+ (test-group-failed group)))))
 
-    (define (format-result spec name expect result)
-      (do ((ls spec (cdr ls)))
-          ((null? ls) (newline))
-        (cond ((eq? (car ls) 'expect)
-                 (write expect))
-              ((eq? (car ls) 'result)
-                 (write result))
-              ((eq? (car ls) 'name)
-                 (if name (begin (display #\space) (display name))))
-              (else
-                 (display (car ls))))))
+    (define (test-group-failures)
+      (test-group-failed (current-test-group)))
+
+    (define (test-failures)
+      (fold-left (lambda (acc g) (fx+ acc (test-group-failed g)))
+                 0
+                 (stack->list open-test-groups)))
 
     (define (format-float n prec)
       (let* ((str (number->string n))
@@ -110,13 +99,90 @@
       (let ((x (if (zero? denom) num (inexact (/ num denom)))))
         (format-float (* 100 x) 2)))
 
+    (define (display-test-group group end-time)
+      (let* ((passed (test-group-passed group))
+             (failed (test-group-failed group))
+             (total (+ passed failed)))
+        (display "╔═════ ")
+        (if (test-group-name group) (display (test-group-name group)))
+        (newline)
+        (display "║ ")
+        (display total)
+        (display " tests completed in ")
+        (display (format-float (inexact (- end-time (test-group-start-time group))) 3))
+        (display " seconds")
+        (if (positive? failed)
+            (begin (newline)
+                   (display "║ ")
+                   (display (test-group-passed group))
+                   (display " (")
+                   (display (format-percent (test-group-passed group) total))
+                   (display "%) tests passed")
+                   (newline)
+                   (display "║ ")
+                   (display (test-group-failed group))
+                   (display " (")
+                   (display (format-percent (test-group-failed group) total))
+                   (display "%) tests failed")))
+        (newline)
+        (display "╚═══════════════════════════════════════")))
+  )
+
+  ;; Execute tests
+  (begin
+
+    (define internal-fail-token (gensym))
+
+    (define current-test-comparator (make-parameter equal?))
+
+    (define (test-begin . args)
+      (let-optionals args ((name #f))
+        (newline)
+        (display "╔═══════════════════════════════════════")
+        (if name
+            (begin (display "║ ")
+                   (display name)))
+        (newline)
+        (display "╚═════")
+        (newline)
+        (push-test-group name)))
+
+    (define (test-end . args)
+      (let-optionals args ((name #f))
+        (let* ((g (pop-test-group))
+               (n (test-group-name g)))
+          (display-test-group g (current-second))
+          (cond ((and name (not (equal? name n)))
+                  (error "ending test group $0, but expected end of $1" name n))
+                ((current-test-group) => (lambda (o)
+                  (set-test-group-passed! o (fx+ (test-group-passed o) (test-group-passed g)))
+                  (set-test-group-failed! o (fx+ (test-group-failed o) (test-group-failed g)))))))))
+
+    (define (test-exit . args)
+      (cond ((current-test-group) => (lambda (g)
+              (error "test group $0 not closed" (test-group-name g))))
+            (else
+              (void))))
+
+    (define (format-result spec name expect result)
+      (do ((ls spec (cdr ls)))
+          ((null? ls) (newline))
+        (cond ((eq? (car ls) 'expect)
+                 (write expect))
+              ((eq? (car ls) 'result)
+                 (write result))
+              ((eq? (car ls) 'name)
+                 (if name (begin (display #\space) (display name))))
+              (else
+                 (display (car ls))))))
+
     (define (run-test name thunk expect eq pass-msg fail-msg)
       (let ((result (thunk)))
         (cond ((eq expect result)
-                 (set! tests-passed (+ tests-passed 1))
+                 (inc-passed)
                  (format-result pass-msg name expect result))
               (else
-                 (set! tests-failed (+ tests-failed 1))
+                 (inc-failed)
                  (format-result fail-msg name expect result)))))
 
     (define (run-equal name thunk expect eq)
@@ -175,11 +241,9 @@
       (syntax-rules ()
         ((_ name body ...)
           (begin
-            (newline)
-            (display name)
-            (display ":")
-            (newline)
-            body ...))))
+            (test-begin name)
+            body ...
+            (test-end)))))
 
     (define (approx-equal? a b epsilon)
       (cond ((> (abs a) (abs b))
