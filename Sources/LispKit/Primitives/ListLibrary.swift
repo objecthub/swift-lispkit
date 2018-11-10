@@ -158,10 +158,10 @@ public final class ListLibrary: NativeLibrary {
     self.define("fold-left", via:
       "(define (fold-left f z xs . xss)",
       "  (if (null? xss)",
-      "      (do ((acc z (f (car xs) acc))",
+      "      (do ((acc z (f acc (car xs)))",
       "           (xs xs (cdr xs)))",
       "          ((null? xs) acc))",
-      "      (do ((acc z (apply f (append (car pair) (list acc))))",
+      "      (do ((acc z (apply f acc (car pair)))",
       "           (pair (decons (cons xs xss)) (decons (cdr pair))))",
       "          ((null? pair) acc))))")
     self.define("fold-right", via:
