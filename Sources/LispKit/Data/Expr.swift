@@ -188,6 +188,16 @@ public enum Expr: Trackable, Hashable {
     }
   }
   
+  /// Returns true if this is an inexact number.
+  public var isInexactNumber: Bool {
+    switch self {
+      case .flonum(_), .complex(_):
+        return true
+      default:
+        return false
+    }
+  }
+  
   /// Normalizes the representation (relevant for numeric datatypes)
   public var normalized: Expr {
     switch self {

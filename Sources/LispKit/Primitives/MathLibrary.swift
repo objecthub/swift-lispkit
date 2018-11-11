@@ -812,23 +812,27 @@ public final class MathLibrary: NativeLibrary {
   private func max(_ first: Expr, _ exprs: Arguments) throws -> Expr {
     try first.assertType(.numberType)
     var res = first
+    var inexact = first.isInexactNumber
     for expr in exprs {
+      inexact = inexact || expr.isInexactNumber
       if try compareNumber(res, with: expr) < 0 {
         res = expr
       }
     }
-    return res
+    return inexact ? try self.inexact(res) : res
   }
 
   private func min(_ first: Expr, _ exprs: Arguments) throws -> Expr {
     try first.assertType(.numberType)
     var res = first
+    var inexact = first.isInexactNumber
     for expr in exprs {
+      inexact = inexact || expr.isInexactNumber
       if try compareNumber(res, with: expr) > 0 {
         res = expr
       }
     }
-    return res
+    return inexact ? try self.inexact(res) : res
   }
 
 
@@ -1142,7 +1146,7 @@ public final class MathLibrary: NativeLibrary {
       case .rational(let numerator, _):
         return numerator
       case .flonum(let num):
-        return try self.numerator(MathLibrary.approximateNumber(num))
+        return try self.inexact(try self.numerator(MathLibrary.approximateNumber(num)))
       default:
         throw RuntimeError.type(expr, expected: [.numberType])
     }
@@ -1155,7 +1159,7 @@ public final class MathLibrary: NativeLibrary {
       case .rational(_, let denominator):
         return denominator
       case .flonum(let num):
-        return try self.denominator(MathLibrary.approximateNumber(num))
+        return try self.inexact(try self.denominator(MathLibrary.approximateNumber(num)))
       default:
         throw RuntimeError.type(expr, expected: [.numberType])
     }
@@ -1163,9 +1167,11 @@ public final class MathLibrary: NativeLibrary {
   
   private func gcd(_ exprs: Arguments) throws -> Expr {
     var acc = Expr.fixnum(0)
+    var inexact = false
     for expr in exprs {
-      var e = expr
+      var e = try self.absolute(expr)
       if case .flonum(let num) = expr {
+        inexact = true
         e = MathLibrary.approximateNumber(num)
       }
       switch try NumberPair(acc, e) {
@@ -1186,14 +1192,16 @@ public final class MathLibrary: NativeLibrary {
           throw RuntimeError.type(expr, expected: [.realType])
       }
     }
-    return acc
+    return inexact ? try self.inexact(acc) : acc
   }
   
   private func lcm(_ exprs: Arguments) throws -> Expr {
     var acc = Expr.fixnum(1)
+    var inexact = false
     for expr in exprs {
-      var e = expr
+      var e = try self.absolute(expr)
       if case .flonum(let num) = expr {
+        inexact = true
         e = MathLibrary.approximateNumber(num)
       }
       switch try NumberPair(acc, e) {
@@ -1214,7 +1222,7 @@ public final class MathLibrary: NativeLibrary {
           throw RuntimeError.type(expr, expected: [.realType])
       }
     }
-    return acc
+    return inexact ? try self.inexact(acc) : acc
   }
   
   private func truncateDiv(_ x: Expr, _ y: Expr) throws -> Expr {

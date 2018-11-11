@@ -14,6 +14,7 @@
 		CC0980A91C67E81C006B7FB1 /* Code.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0980A81C67E81C006B7FB1 /* Code.swift */; };
 		CC0980AB1C67E84C006B7FB1 /* Cell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0980AA1C67E84C006B7FB1 /* Cell.swift */; };
 		CC09ECF42198B8C100F84713 /* R7RS-Tests.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC09ECF22198B87200F84713 /* R7RS-Tests.scm */; };
+		CC09ECF52198DB3800F84713 /* char.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC09ECF02198912000F84713 /* char.sld */; };
 		CC0AEFF81F522BF600119BF6 /* 152.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC0AEFF71F522A7500119BF6 /* 152.sld */; };
 		CC0AEFFA1F52311600119BF6 /* SRFI152.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC0AEFF91F52303400119BF6 /* SRFI152.scm */; };
 		CC0BA16C1DFC843C0063B9DE /* SystemLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0BA16B1DFC843C0063B9DE /* SystemLibrary.swift */; };
@@ -385,6 +386,7 @@
 			dstPath = LispKit/Resources/Libraries/scheme;
 			dstSubfolderSpec = 7;
 			files = (
+				CC09ECF52198DB3800F84713 /* char.sld in Copy pre-installed Scheme libraries */,
 				CC7F7C2A1FC1057C00639166 /* r5rs-syntax.sld in Copy pre-installed Scheme libraries */,
 				CC7F7C201FC0710200639166 /* file.sld in Copy pre-installed Scheme libraries */,
 				CC7F7C211FC0710200639166 /* inexact.sld in Copy pre-installed Scheme libraries */,

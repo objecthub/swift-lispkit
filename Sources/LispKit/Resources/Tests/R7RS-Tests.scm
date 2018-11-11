@@ -746,8 +746,7 @@
                  '(a (b) c)))
 (test #t (equal? "abc" "abc"))
 (test #t (equal? 2 2))
-(test #t (equal? (make-vector 5 'a)
-                 (make-vector 5 'a)))
+(test #t (equal? (make-vector 5 'a) (make-vector 5 'a)))
 
 (test-end)
 
@@ -757,7 +756,7 @@
 (test #t (complex? 3))
 (test #t (real? 3))
 (test #t (real? -2.5+0i))
-(test #f (real? -2.5+0.0i))
+(test #t (real? -2.5+0.0i))   ;; INTENDED (was #f)
 (test #t (real? #e1e10))
 (test #t (real? +inf.0))
 (test #f (rational? -inf.0))
