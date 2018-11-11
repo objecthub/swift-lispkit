@@ -44,7 +44,7 @@ public final class Symbol: Reference, CustomStringConvertible {
   }
   
   public var identifier: String {
-    return self.interned.description
+    return self.interned.rawIdentifier
   }
   
   public var rawIdentifier: String {

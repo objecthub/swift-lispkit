@@ -745,7 +745,7 @@ public final class CoreLibrary: NativeLibrary {
   }
   
   private func symbolToString(expr: Expr) throws -> Expr {
-    return .makeString(try expr.asSymbol().description)
+    return .makeString(try expr.asSymbol().rawIdentifier)
   }
   
   //-------- MARK: - Boolean primitives

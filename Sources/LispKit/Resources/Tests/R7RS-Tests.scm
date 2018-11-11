@@ -7,7 +7,7 @@
 ;;; Tests that fail fatally for LispKit are commented out. They will be re-enabled
 ;;; one by one as bugs are getting fixed. Some tests are failing intentionally,
 ;;; mostly related to R7RS requiring mutable cons cells. Those tests are marked with
-;;; the tag "INTENTIONAL".
+;;; the tag "INTENDED".
 ;;;
 ;;;
 ;;; Copyright (c) 2009-2018 Alex Shinn
@@ -211,7 +211,7 @@
             (mean / /))))
 (let*-values (((a b c) (means '(8 5 99 1 22))))
   (test 27 a)
-  (test #t (approx-equal? 9.728 b 0.0001))
+  (test-approx 9.728 b)
   (test 1800/497 c))
 
 (let*-values (((root rem) (exact-integer-sqrt 32)))
@@ -699,9 +699,8 @@
 (test #t (eqv? 2 2))
 (test #t (eqv? '() '()))
 (test #t (eqv? 100000000 100000000))
-(test #f (eqv? (cons 1 2) (cons 1 2)))
-(test #f (eqv? (lambda () 1)
-               (lambda () 2)))
+#;(test #f (eqv? (cons 1 2) (cons 1 2)))   ;; INTENDED
+(test #f (eqv? (lambda () 1) (lambda () 2)))
 (test #f (eqv? #f 'nil))
 
 (define gen-counter
@@ -729,7 +728,7 @@
       (eqv? x x)))
 
 (test #t (eq? 'a 'a))
-(test #f (eq? (list 'a) (list 'a)))
+#;(test #f (eq? (list 'a) (list 'a)))    ;; INTENDED
 (test #t (eq? '() '()))
 (test #t
     (let ((x '(a)))
@@ -895,17 +894,16 @@
 (test 7 (abs -7))
 (test 7 (abs 7))
 
-;; TODO
-;(test-values (values 2 1) (floor/ 5 2))
-;(test-values (values -3 1) (floor/ -5 2))
-;(test-values (values -3 -1) (floor/ 5 -2))
-;(test-values (values 2 -1) (floor/ -5 -2))
-;(test-values (values 2 1) (truncate/ 5 2))
-;(test-values (values -2 -1) (truncate/ -5 2))
-;(test-values (values -2 1) (truncate/ 5 -2))
-;(test-values (values 2 -1) (truncate/ -5 -2))
-;(test-values (values 2.0 -1.0) (truncate/ -5.0 -2))
-;
+(test-values (values 2 1) (floor/ 5 2))
+(test-values (values -3 1) (floor/ -5 2))
+(test-values (values -3 -1) (floor/ 5 -2))
+(test-values (values 2 -1) (floor/ -5 -2))
+(test-values (values 2 1) (truncate/ 5 2))
+(test-values (values -2 -1) (truncate/ -5 2))
+(test-values (values -2 1) (truncate/ 5 -2))
+(test-values (values 2 -1) (truncate/ -5 -2))
+(test-values (values 2.0 -1.0) (truncate/ -5.0 -2))
+
 (test 1 (modulo 13 4))
 (test 1 (remainder 13 4))
 
@@ -951,7 +949,7 @@
 (test #i1/3 (rationalize .3 1/10))
 
 (test 1.0 (inexact (exp 0))) ;; may return exact number
-(test 20.0855369231877 (exp 3))
+(test-approx 20.0855369231877 (exp 3))
 
 (test 0.0 (inexact (log 1))) ;; may return exact number
 (test 1.0 (log (exp 1)))
@@ -964,33 +962,33 @@
 (test 1.0 (inexact (cos 0))) ;; may return exact number
 (test -1.0 (cos 3.14159265358979))
 (test 0.0 (inexact (tan 0))) ;; may return exact number
-(test 1.5574077246549 (tan 1))
+(test-approx 1.5574077246549 (tan 1))
 
 (test 0.0 (inexact (asin 0))) ;; may return exact number
-(test 1.5707963267949 (asin 1))
+(test-approx 1.5707963267949 (asin 1))
 (test 0.0 (inexact (acos 1))) ;; may return exact number
-(test 3.14159265358979 (acos -1))
+(test-approx 3.14159265358979 (acos -1))
 
 ;; (test 0.0-0.0i (asin 0+0.0i))
 ;; (test 1.5707963267948966+0.0i (acos 0+0.0i))
 
 (test 0.0 (atan 0.0 1.0))
 (test -0.0 (atan -0.0 1.0))
-(test 0.785398163397448 (atan 1.0 1.0))
-(test 1.5707963267949 (atan 1.0 0.0))
-(test 2.35619449019234 (atan 1.0 -1.0))
-(test 3.14159265358979 (atan 0.0 -1.0))
-(test -3.14159265358979 (atan -0.0 -1.0)) ;
-(test -2.35619449019234 (atan -1.0 -1.0))
-(test -1.5707963267949 (atan -1.0 0.0))
-(test -0.785398163397448 (atan -1.0 1.0))
+(test-approx 0.785398163397448 (atan 1.0 1.0))
+(test-approx 1.5707963267949 (atan 1.0 0.0))
+(test-approx 2.35619449019234 (atan 1.0 -1.0))
+(test-approx 3.14159265358979 (atan 0.0 -1.0))
+(test-approx -3.14159265358979 (atan -0.0 -1.0))
+(test-approx -2.35619449019234 (atan -1.0 -1.0))
+(test-approx -1.5707963267949 (atan -1.0 0.0))
+(test-approx -0.785398163397448 (atan -1.0 1.0))
 ;; (test undefined (atan 0.0 0.0))
 
 (test 1764 (square 42))
 (test 4 (square 2))
 
 (test 3.0 (inexact (sqrt 9)))
-(test 1.4142135623731 (sqrt 2))
+(test-approx 1.4142135623731 (sqrt 2))
 (test 0.0+1.0i (inexact (sqrt -1)))
 
 (test '(2 0) (call-with-values (lambda () (exact-integer-sqrt 4)) list))
@@ -1004,15 +1002,15 @@
 
 (test 1+2i (make-rectangular 1 2))
 
-(test 0.54030230586814+0.841470984807897i (make-polar 1 1))
+(test 0.5403023058681398+0.8414709848078965i (make-polar 1 1))
 
-(test 1 (real-part 1+2i))
+(test 1.0 (real-part 1+2i)) ;; INTENDED (was 1)
 
-(test 2 (imag-part 1+2i))
+(test 2.0 (imag-part 1+2i)) ;; INTENDED (was 2)
 
 (test 2.23606797749979 (magnitude 1+2i))
 
-(test 1.10714871779409 (angle 1+2i))
+(test-approx 1.10714871779409 (angle 1+2i))
 
 (test 1.0 (inexact 1))
 (test #t (inexact? (inexact 1)))
@@ -1121,7 +1119,7 @@
 (test '(a b c) (memq 'a '(a b c)))
 (test '(b c) (memq 'b '(a b c)))
 (test #f (memq 'a '(b c d)))
-(test #f (memq (list 'a) '(b (a) c)))
+(test '((a) c) (memq (list 'a) '(b (a) c)))   ;; INTENDED (was #f)
 (test '((a) c) (member (list 'a) '(b (a) c)))
 (test '("b" "c") (member "B" '("a" "b" "c") string-ci=?))
 (test '(101 102) (memv 101 '(100 101 102)))
@@ -1132,7 +1130,7 @@
   (test '(b 2) (assq 'b e))
   (test #f (assq 'd e)))
 
-(test #f (assq (list 'a) '(((a)) ((b)) ((c)))))
+(test '((a)) (assq (list 'a) '(((a)) ((b)) ((c)))))   ;; INTENDED (was #f)
 (test '((a)) (assoc (list 'a) '(((a)) ((b)) ((c)))))
 (test '(2 4) (assoc 2.0 '((1 1) (2 4) (3 9)) =))
 (test '(5 7) (assv 5 '((2 3) (5 7) (11 13))))
@@ -1167,8 +1165,7 @@
 (test #t (symbol=? 'a 'a 'a))
 (test #f (symbol=? 'a 'a 'A))
 
-(test "flying-fish"
-(symbol->string 'flying-fish))
+(test "flying-fish" (symbol->string 'flying-fish))
 (test "Martin" (symbol->string 'Martin))
 (test "Malvina" (symbol->string (string->symbol "Malvina")))
 

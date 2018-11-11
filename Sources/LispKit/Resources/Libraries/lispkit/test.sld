@@ -22,25 +22,44 @@
 
 (define-library (lispkit test)
 
-  (export test-begin
+  (export epsilon
+          approx-equal?
+          test-begin
           test-end
           test-exit
           test-failures
           test
           test-equal
+          test-approx
           test-assert
+          test-not
+          test-values
           test-error
           test-group
           test-group-failures
-          approx-equal?
           current-test-comparator)
 
   (import (lispkit base)
           (lispkit stack))
 
+  ;; Convenience equality predicate for inexact values
+  (begin
+
+    (define epsilon (make-parameter 0.000000001))
+
+    (define (approx-equal? a b . args)
+      (let-optionals args ((eps (epsilon)))
+        (cond ((> (abs a) (abs b))
+                (approx-equal? b a eps))
+              ((zero? a)
+                (< (abs b) eps))
+              (else
+                (< (abs (/ (- a b) b)) eps)))))
+  )
+
   ;; Manage test groups
   (begin
-    
+
     (define open-test-groups (make-stack))
 
     (define-record-type test-group
@@ -103,29 +122,33 @@
       (let* ((passed (test-group-passed group))
              (failed (test-group-failed group))
              (total (+ passed failed)))
-        (display "╔═════ ")
-        (if (test-group-name group) (display (test-group-name group)))
+        (display top1)
         (newline)
-        (display "║ ")
+        (cond ((test-group-name group)
+                (display "│ ")
+                (display (test-group-name group))
+                (newline)))
+        (display "│ ")
         (display total)
         (display " tests completed in ")
         (display (format-float (inexact (- end-time (test-group-start-time group))) 3))
         (display " seconds")
-        (if (positive? failed)
-            (begin (newline)
-                   (display "║ ")
-                   (display (test-group-passed group))
-                   (display " (")
-                   (display (format-percent (test-group-passed group) total))
-                   (display "%) tests passed")
-                   (newline)
-                   (display "║ ")
-                   (display (test-group-failed group))
-                   (display " (")
-                   (display (format-percent (test-group-failed group) total))
-                   (display "%) tests failed")))
+        (cond ((positive? failed)
+                (newline)
+                (display "│ ")
+                (display (test-group-passed group))
+                (display " (")
+                (display (format-percent (test-group-passed group) total))
+                (display "%) tests passed")
+                (newline)
+                (display "│ ")
+                (display (test-group-failed group))
+                (display " (")
+                (display (format-percent (test-group-failed group) total))
+                (display "%) tests failed")))
         (newline)
-        (display "╚═══════════════════════════════════════")))
+        (display bot2)
+        (newline)))
   )
 
   ;; Execute tests
@@ -137,13 +160,15 @@
 
     (define (test-begin . args)
       (let-optionals args ((name #f))
-        (newline)
-        (display "╔═══════════════════════════════════════")
-        (if name
-            (begin (display "║ ")
-                   (display name)))
-        (newline)
-        (display "╚═════")
+        (cond (name
+                (display top2)
+                (newline)
+                (display "│ ")
+                (display name)
+                (newline)
+                (display bot1))
+              (else
+                (display line)))
         (newline)
         (push-test-group name)))
 
@@ -220,12 +245,32 @@
         ((_ value expr)
           (test-equal (write-to-string 'expr) value expr))))
 
+    (define-syntax test-approx
+      (syntax-rules ()
+        ((_ name value expr)
+          (run-equal name (lambda () expr) value approx-equal?))
+        ((_ value expr)
+          (test-approx (write-to-string 'expr) value expr))))
+
     (define-syntax test-assert
       (syntax-rules ()
         ((_ name expr)
           (run-equal name (lambda () (if expr #t #f)) #t eq?))
         ((_ expr)
           (test-assert (write-to-string 'expr) expr))))
+
+    (define-syntax test-not
+      (syntax-rules ()
+        ((_ expr) (test-assert (not expr)))
+        ((_ name expr) (test-assert name (not expr)))))
+
+    (define-syntax test-values
+      (syntax-rules ()
+        ((_ expect expr)
+          (test-values #f expect expr))
+        ((_ name expect expr)
+          (test name (call-with-values (lambda () expect) (lambda results results))
+                     (call-with-values (lambda () expr) (lambda results results))))))
 
     (define-syntax test-error
       (syntax-rules ()
@@ -244,14 +289,6 @@
             (test-begin name)
             body ...
             (test-end)))))
-
-    (define (approx-equal? a b epsilon)
-      (cond ((> (abs a) (abs b))
-              (approx-equal? b a epsilon))
-            ((zero? a)
-              (< (abs b) epsilon))
-            (else
-              (< (abs (/ (- a b) b)) epsilon))))
 
    (define (call-with-output-string proc)
      (let ((out (open-output-string)))
@@ -289,5 +326,15 @@
      (if (string? x)
          x
          (call-with-output-string (lambda (out) (display x out)))))
+  )
+
+  ;; Internal UI support
+  (begin
+
+    (define top2 "╒═══════════════════════════════════════════════════════════════════════════════")
+    (define top1 "┌───────────────────────────────────────────────────────────────────────────────")
+    (define line "════════════════════════════════════════════════════════════════════════════════")
+    (define bot2 "╘═══════════════════════════════════════════════════════════════════════════════")
+    (define bot1 "└───────────────────────────────────────────────────────────────────────────────")
   )
 )
