@@ -89,7 +89,7 @@ public indirect enum FeatureRequirement: CustomStringConvertible {
   public func valid(in context: Context) -> Bool {
     switch self {
       case .feature(let name):
-        return Feature.isSupported(name)
+        return context.features.contains(name)
       case .library(let expr):
         return context.libraries.lookup(expr) != nil
       case .and(let left, let right):

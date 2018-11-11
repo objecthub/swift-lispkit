@@ -713,8 +713,8 @@ public final class SystemLibrary: NativeLibrary {
   
   private func features() -> Expr {
     var res: Expr = .null
-    for feature in Feature.supported {
-      res = .pair(.symbol(self.context.symbols.intern(feature.rawValue)), res)
+    for feature in self.context.features {
+      res = .pair(.symbol(self.context.symbols.intern(feature)), res)
     }
     return res
   }

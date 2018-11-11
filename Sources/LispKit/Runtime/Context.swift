@@ -68,7 +68,10 @@ public final class Context {
   
   /// The virtual machine for executing Lisp code.
   public private(set) var machine: VirtualMachine! = nil
-
+  
+  /// The features exposed by the LispKit interpreter defined by this context
+  public let features: Set<String>
+  
   /// The default input port.
   internal var inputPort: Port!
   
@@ -103,6 +106,7 @@ public final class Context {
               initialHomePath: String? = nil,
               includeInternalResources: Bool = true,
               includeDocumentPath: String? = "LispKit",
+              features: [String] = [],
               delegate: ContextDelegate? = nil) {
     // Initialize components
     self.delegate = delegate
@@ -117,6 +121,11 @@ public final class Context {
     self.sourceManager = SourceManager()
     self.objects = ManagedObjectPool()
     self.symbols = SymbolTable()
+    var supported = Feature.supported
+    for feature in features {
+      supported.insert(feature)
+    }
+    self.features = supported
     self.libraries = LibraryManager(for: self)
     self.environment = Environment(in: self)
     self.machine = VirtualMachine(for: self)

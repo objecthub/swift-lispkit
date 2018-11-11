@@ -41,40 +41,37 @@ public enum Feature: String {
   case arm64 = "arm64"
   case arm = "arm"
   
-  public static func isSupported(_ featureName: String) -> Bool {
-    return Feature(rawValue: featureName) != nil
-  }
-  
-  public static let supported: Set<Feature> = {
-    var set = Set<Feature>()
-    set.insert(.lispkit)
-    set.insert(.r7rs)
-    set.insert(.ratios)
-    set.insert(.complex)
-    set.insert(.syntaxRules)
-    set.insert(.dynamicLoading)
-    set.insert(.modules)
-    set.insert(CFByteOrderGetCurrent() == 1 ? .littleEndian : .bigEndian)
+  public static let supported: Set<String> = {
+    var set = Set<String>()
+    set.insert(Feature.lispkit.rawValue)
+    set.insert(Feature.r7rs.rawValue)
+    set.insert(Feature.ratios.rawValue)
+    set.insert(Feature.complex.rawValue)
+    set.insert(Feature.syntaxRules.rawValue)
+    set.insert(Feature.dynamicLoading.rawValue)
+    set.insert(Feature.modules.rawValue)
+    set.insert(CFByteOrderGetCurrent() == 1 ? Feature.littleEndian.rawValue
+                                            : Feature.bigEndian.rawValue)
     #if arch(i386)
-      set.insert(.i386)
-      set.insert(.bit32)
+      set.insert(Feature.i386.rawValue)
+      set.insert(Feature.bit32.rawValue)
     #elseif arch(x86_64)
-      set.insert(.x8664)
-      set.insert(.bit64)
+      set.insert(Feature.x8664.rawValue)
+      set.insert(Feature.bit64.rawValue)
     #elseif arch(arm)
-      set.insert(.arm)
-      set.insert(.bit32)
+      set.insert(Feature.arm.rawValue)
+      set.insert(Feature.bit32.rawValue)
     #elseif arch(arm64)
-      set.insert(.arm64)
-      set.insert(.bit64)
+      set.insert(Feature.arm64.rawValue)
+      set.insert(Feature.bit64.rawValue)
     #endif
     #if os(macOS)
-      set.insert(.macos)
-      set.insert(.macosx)
+      set.insert(Feature.macos.rawValue)
+      set.insert(Feature.macosx.rawValue)
     #elseif os(iOS)
-      set.insert(.ios)
+      set.insert(Feature.ios.rawValue)
     #elseif os(Linux)
-      set.insert(.linux)
+      set.insert(Feature.linux.rawValue)
     #endif
     return set
   }()
