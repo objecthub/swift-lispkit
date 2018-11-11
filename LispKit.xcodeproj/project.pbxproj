@@ -13,6 +13,7 @@
 		CC0980A71C62BDBC006B7FB1 /* Compiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0980A61C62BDBC006B7FB1 /* Compiler.swift */; };
 		CC0980A91C67E81C006B7FB1 /* Code.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0980A81C67E81C006B7FB1 /* Code.swift */; };
 		CC0980AB1C67E84C006B7FB1 /* Cell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0980AA1C67E84C006B7FB1 /* Cell.swift */; };
+		CC09ECF42198B8C100F84713 /* R7RS-Tests.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC09ECF22198B87200F84713 /* R7RS-Tests.scm */; };
 		CC0AEFF81F522BF600119BF6 /* 152.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC0AEFF71F522A7500119BF6 /* 152.sld */; };
 		CC0AEFFA1F52311600119BF6 /* SRFI152.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC0AEFF91F52303400119BF6 /* SRFI152.scm */; };
 		CC0BA16C1DFC843C0063B9DE /* SystemLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0BA16B1DFC843C0063B9DE /* SystemLibrary.swift */; };
@@ -251,6 +252,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		CC09ECF32198B8B100F84713 /* Copy tests */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = LispKit/Resources/Tests;
+			dstSubfolderSpec = 7;
+			files = (
+				CC09ECF42198B8C100F84713 /* R7RS-Tests.scm in Copy tests */,
+			);
+			name = "Copy tests";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CC1AAE3F1CC3CF0F00D1806F /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -474,6 +486,8 @@
 		CC0980A61C62BDBC006B7FB1 /* Compiler.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Compiler.swift; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC0980A81C67E81C006B7FB1 /* Code.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Code.swift; sourceTree = "<group>"; };
 		CC0980AA1C67E84C006B7FB1 /* Cell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cell.swift; sourceTree = "<group>"; };
+		CC09ECF02198912000F84713 /* char.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = char.sld; sourceTree = "<group>"; };
+		CC09ECF22198B87200F84713 /* R7RS-Tests.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "R7RS-Tests.scm"; sourceTree = "<group>"; };
 		CC0AEFF71F522A7500119BF6 /* 152.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 152.sld; sourceTree = "<group>"; };
 		CC0AEFF91F52303400119BF6 /* SRFI152.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SRFI152.scm; sourceTree = "<group>"; };
 		CC0BA16B1DFC843C0063B9DE /* SystemLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SystemLibrary.swift; sourceTree = "<group>"; };
@@ -740,6 +754,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		CC09ECF12198B7D300F84713 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				CC09ECF22198B87200F84713 /* R7RS-Tests.scm */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
 		CC1227371CBFE74500821EB7 /* LispKitRepl */ = {
 			isa = PBXGroup;
 			children = (
@@ -923,6 +945,7 @@
 			children = (
 				CC7F7C081FC03B9A00639166 /* base.sld */,
 				CC7F7C091FC03BA900639166 /* case-lambda.sld */,
+				CC09ECF02198912000F84713 /* char.sld */,
 				CC7F7C0B1FC03BC900639166 /* complex.sld */,
 				CC7F7C0C1FC03BD900639166 /* cxr.sld */,
 				CC7F7C071FC03B8100639166 /* eval.sld */,
@@ -1052,6 +1075,7 @@
 				CCAD52D51C48467D00DBD8EE /* Prelude.scm */,
 				CCA752F51DEF9EFB0098C34A /* Libraries */,
 				CCFBE5C21ECBA8A60032254B /* Examples */,
+				CC09ECF12198B7D300F84713 /* Tests */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -1215,6 +1239,7 @@
 				CC703A1E218D0AF500E71EA9 /* Copy pre-installed LispKit library: LispKit CLOS Support */,
 				CC7F7C191FC04B8A00639166 /* Copy pre-installed Scheme libraries */,
 				CC474EAE1ECFAC1300B535E3 /* Copy examples */,
+				CC09ECF32198B8B100F84713 /* Copy tests */,
 			);
 			buildRules = (
 			);
