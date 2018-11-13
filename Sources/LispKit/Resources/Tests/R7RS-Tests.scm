@@ -124,20 +124,20 @@
       ((2 3 5 7) 'prime)
       ((1 4 6 8 9) 'composite)))
 
-#;(test 'c
+(test 'c
     (case (car '(c d))
       ((a e i o u) 'vowel)
       ((w y) 'semivowel)
-      (else => (lambda (x) x))))  ;; TODO
+      (else => (lambda (x) x))))
 
-#;(test '((other . z) (semivowel . y) (other . x)
+(test '((other . z) (semivowel . y) (other . x)
         (semivowel . w) (vowel . u))
     (map (lambda (x)
            (case x
              ((a e i o u) => (lambda (w) (cons 'vowel w)))
              ((w y) (cons 'semivowel x))
              (else => (lambda (w) (cons 'other w)))))
-         '(z y x w u)))  ;; TODO
+         '(z y x w u)))
 
 (test #t (and (= 2 2) (> 2 1)))
 (test #f (and (= 2 2) (< 2 1)))
@@ -500,11 +500,11 @@
     ((foo _) '_)))
 (test '_ (underscore foo))
 
-#;(let ()
+(let ()
   (define-syntax underscore2
     (syntax-rules ()
       ((underscore2 (a _) ...) 42)))
-  (test 42 (underscore2 (1 2))))  ;; TODO
+  (test 42 (underscore2 (1 2))))
 
 (define-syntax count-to-2
   (syntax-rules ()
@@ -536,7 +536,7 @@
 (jabberwocky mad-hatter)
 (test 42 (mad-hatter))
 
-#;(test 'ok (let ((=> #f)) (cond (#t => 'ok))))  ;; TODO
+(test 'ok (let ((=> #f)) (cond (#t => 'ok))))
 
 (let ()
   (define x 1)
@@ -789,7 +789,7 @@
 (test #f (nan? 1+2i))
 
 (test #t (= 1 1.0 1.0+0.0i))
-#;(test #f (= 1.0 1.0+1.0i))  ;; TODO
+(test #f (= 1.0 1.0+1.0i))
 (test #t (< 1 2 3))
 (test #f (< 1 1 2))
 (test #t (> 3.0 2.0 1.0))
@@ -953,8 +953,8 @@
 (test 0.0 (inexact (log 1))) ;; may return exact number
 (test 1.0 (log (exp 1)))
 (test 42.0 (log (exp 42)))
-#;(test 2.0 (log 100 10))  ;; TODO
-#;(test 12.0 (log 4096 2))  ;; TODO
+(test 2.0 (log 100 10))
+(test 12.0 (log 4096 2))
 
 (test 0.0 (inexact (sin 0))) ;; may return exact number
 (test 1.0 (sin 1.5707963267949))
@@ -1617,11 +1617,11 @@
 
 (test 7 (apply + (list 3 4)))
 (test 7 (apply + 3 4 (list)))
-#;(test-error (apply +)) ;; not enough args    ;; TODO
-#;(test-error (apply + 3)) ;; final arg not a list    ;; TODO
-#;(test-error (apply + 3 4)) ;; final arg not a list    ;; TODO
-#;(test-error (apply + '(2 3 . 4))) ;; final arg is improper    ;; TODO
-
+(define myapply apply)  ;; INTENDED
+(test-error (myapply +)) ;; not enough args
+(test-error (myapply + 3)) ;; final arg not a list
+(test-error (myapply + 3 4)) ;; final arg not a list
+(test-error (myapply + '(2 3 . 4))) ;; final arg is improper
 
 (define compose
   (lambda (f g)

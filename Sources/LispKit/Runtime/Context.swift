@@ -98,7 +98,7 @@ public final class Context {
                                            .userDomainMask,
                                            true)[0])).absoluteURL.path
   
-  /// Initializes a new object
+  /// Initializes a new context.
   public init(console: Console,
               implementationName: String? = nil,
               implementationVersion: String? = nil,
@@ -143,6 +143,18 @@ public final class Context {
       }
     } catch let error {
       preconditionFailure("cannot load native libraries: \(error)")
+    }
+  }
+  
+  /// Prepares context to be ready to execute code. Library `(lispkit dynamic)` gets loaded
+  /// as a result of this.
+  public func bootstrap() throws {
+    // Guarantee that (lispkit dynamic) is imported
+    try self.environment.import(["lispkit", "dynamic"])
+    // Install error handler
+    if let dynamicLib = self.libraries.lookup("lispkit", "dynamic") as? DynamicControlLibrary,
+       let raiseProc = dynamicLib.raiseProc {
+      self.machine.raiseProc = raiseProc
     }
   }
   

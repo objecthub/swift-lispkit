@@ -118,7 +118,7 @@ func printError(if issue: Bool = true, _ message: String) {
   }
 }
 
-// Create LispKit context
+// Create initial LispKit context
 var cmdLineArgs = flags.parameters.isEmpty ? [CommandLine.arguments.first!] : flags.parameters
 #if SPM
   let context = Context(console: console,
@@ -133,7 +133,7 @@ var cmdLineArgs = flags.parameters.isEmpty ? [CommandLine.arguments.first!] : fl
                         includeDocumentPath: searchDocs.wasSet ? "LispKit" : nil)
 #endif
 
-// Set up LispKit engine
+// Configure the initial LispKit context
 #if SPM
 if !searchDocs.wasSet {
   let rootUrl = URL(fileURLWithPath: CommandLine.arguments[0]).absoluteURL
@@ -159,9 +159,9 @@ if let capacity = heapSize.value {
   context.heap.reserveCapacity(capacity)
 }
 
-// Guarantee that (lispkit dynamic) is imported
+// Bootstrap the context to get it ready for executing code
 do {
-  try context.environment.import(["lispkit", "dynamic"])
+  try context.bootstrap()
 } catch let error as RuntimeError {
   print("cannot import core lispkit libraries: \(error.message)")
   exit(1)
@@ -171,12 +171,6 @@ do {
 } catch {
   print("cannot import core lispkit libraries")
   exit(1)
-}
-
-// Install error handler
-if let dynamicLib = context.libraries.lookup("lispkit", "dynamic") as? DynamicControlLibrary,
-  let raiseProc = dynamicLib.raiseProc {
-  context.machine.raiseProc = raiseProc
 }
 
 // Import initial libraries
@@ -242,28 +236,19 @@ func printResult(_ res: Expr) {
 
 // Distinguish interactive usage (via REPL) from non-interactive usage
 if let program = flags.parameters.first {
-  do {
-    let res = try context.machine.eval(file: program, in: context.global)
-    if context.machine.exitTriggered {
-      if res != .true {
-        print("abnormal exit: \(res.description)\n")
-        exit(1)
-      }
-    } else {
-      printResult(res)
-      if case .error(_) = res {
-        exit(1)
-      }
+  let res = context.machine.onTopLevelDo {
+    return try context.machine.eval(file: program, in: context.global)
+  }
+  if context.machine.exitTriggered {
+    if res != .true {
+      print("abnormal exit: \(res.description)\n")
+      exit(1)
     }
-  } catch let error as RuntimeError {
-    print("cannot execute \(program): \(error.message)")
-    exit(1)
-  } catch let error as NSError {
-    print("cannot execute \(program): \(error.localizedDescription)")
-    exit(1)
-  } catch {
-    print("cannot execute \(program)")
-    exit(1)
+  } else {
+    printResult(res)
+    if case .error(_) = res {
+      exit(1)
+    }
   }
 } else {
   // Print header

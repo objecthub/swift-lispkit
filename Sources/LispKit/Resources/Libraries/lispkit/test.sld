@@ -202,7 +202,7 @@
                  (display (car ls))))))
 
     (define (run-test name thunk expect eq pass-msg fail-msg)
-      (let ((result (thunk)))
+      (let ((result (guard (x (else x)) (thunk))))
         (cond ((eq expect result)
                  (inc-passed)
                  (format-result pass-msg name expect result))
