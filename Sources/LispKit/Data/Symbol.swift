@@ -85,13 +85,68 @@ public final class Symbol: Reference, CustomStringConvertible {
     let mcs = NSMutableCharacterSet()
     mcs.formUnion(with: CharacterSet.whitespacesAndNewlines)
     mcs.formUnion(with: CharacterSet.controlCharacters)
+    mcs.addCharacters(in: ",\"\'")
     return mcs.copy() as! CharacterSet
   }()
+  
+  private static func escapingNeeded(_ ident: String) -> Bool {
+    if ident.rangeOfCharacter(from: Symbol.escapeChars) != nil {
+      return true
+    }
+    let lowident = ident.lowercased()
+    var index = lowident.startIndex
+    func next() -> Character? {
+      guard index < lowident.endIndex else {
+        return nil
+      }
+      let res = lowident[index]
+      index = lowident.index(after: index)
+      return res
+    }
+    guard let fst = next() else {
+      return false
+    }
+    switch fst {
+      case "0", "1", "2", "3", "4", "5", "6", "7", "8", "9":
+        return true
+      case ".":
+        guard let snd = next() else {
+          return true
+        }
+        switch snd {
+          case "0", "1", "2", "3", "4", "5", "6", "7", "8", "9":
+            return true
+          default:
+            return false
+        }
+      case "+", "-":
+        guard let snd = next() else {
+          return false
+        }
+        switch snd {
+          case "0", "1", "2", "3", "4", "5", "6", "7", "8", "9":
+            return true
+          case ".":
+            return true
+          case "n":
+            return next() == "a" && next() == "n"
+          case "i":
+            guard let trd = next() else {
+              return true
+            }
+            return trd == "n" && next() == "f"
+          default:
+            return false
+        }
+      default:
+        return false
+    }
+  }
   
   public var description: String {
     switch self.kind {
       case .interned(let ident):
-        if ident.rangeOfCharacter(from: Symbol.escapeChars) != nil {
+        if Symbol.escapingNeeded(ident) {
           return "|\(Expr.escapeStr(ident))|"
         } else {
           return ident

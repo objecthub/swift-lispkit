@@ -143,6 +143,6 @@ open class Port: Reference, CustomStringConvertible {
       case .binaryOutputPort(let output):
         output.close()
     }
+    self.isOpen = false
   }
 }
-

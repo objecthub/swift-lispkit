@@ -191,32 +191,44 @@ public final class PortLibrary: NativeLibrary {
     return port
   }
   
-  func textInputFrom(_ expr: Expr?) throws -> TextInput {
+  func textInputFrom(_ expr: Expr?, open: Bool = false) throws -> TextInput {
     let port = try expr?.asPort() ?? self.defaultPort(self.inputPortParam)
+    guard !open || port.isOpen else {
+      throw RuntimeError.eval(.portClosed, .port(port))
+    }
     guard case .textInputPort(let input) = port.kind else {
       throw RuntimeError.type(.port(port), expected: [.textInputPortType])
     }
     return input
   }
   
-  func binaryInputFrom(_ expr: Expr?) throws -> BinaryInput {
+  func binaryInputFrom(_ expr: Expr?, open: Bool = false) throws -> BinaryInput {
     let port = try expr?.asPort() ?? self.defaultPort(self.inputPortParam)
+    guard !open || port.isOpen else {
+      throw RuntimeError.eval(.portClosed, .port(port))
+    }
     guard case .binaryInputPort(let input) = port.kind else {
       throw RuntimeError.type(.port(port), expected: [.binaryInputPortType])
     }
     return input
   }
   
-  func textOutputFrom(_ expr: Expr?) throws -> TextOutput {
+  func textOutputFrom(_ expr: Expr?, open: Bool = false) throws -> TextOutput {
     let port = try expr?.asPort() ?? self.defaultPort(self.outputPortParam)
+    guard !open || port.isOpen else {
+      throw RuntimeError.eval(.portClosed, .port(port))
+    }
     guard case .textOutputPort(let output) = port.kind else {
       throw RuntimeError.type(.port(port), expected: [.textInputPortType])
     }
     return output
   }
   
-  func binaryOutputFrom(_ expr: Expr?) throws -> BinaryOutput {
+  func binaryOutputFrom(_ expr: Expr?, open: Bool = false) throws -> BinaryOutput {
     let port = try expr?.asPort() ?? self.defaultPort(self.outputPortParam)
+    guard !open || port.isOpen else {
+      throw RuntimeError.eval(.portClosed, .port(port))
+    }
     guard case .binaryOutputPort(let output) = port.kind else {
       throw RuntimeError.type(.port(port), expected: [.binaryInputPortType])
     }
@@ -391,7 +403,7 @@ public final class PortLibrary: NativeLibrary {
   }
   
   func read(_ expr: Expr?) throws -> Expr {
-    let input = try self.textInputFrom(expr)
+    let input = try self.textInputFrom(expr, open: true)
     let parser = Parser(symbols: self.context.symbols, input: input)
     do {
       return try parser.parse(false).datum
@@ -404,7 +416,7 @@ public final class PortLibrary: NativeLibrary {
   }
   
   func readChar(_ expr: Expr?) throws -> Expr {
-    let input = try self.textInputFrom(expr)
+    let input = try self.textInputFrom(expr, open: true)
     guard let ch = input.read() else {
       return .eof
     }
@@ -412,7 +424,7 @@ public final class PortLibrary: NativeLibrary {
   }
   
   func peekChar(_ expr: Expr?) throws -> Expr {
-    let input = try self.textInputFrom(expr)
+    let input = try self.textInputFrom(expr, open: true)
     guard let ch = input.peek() else {
       return .eof
     }
@@ -425,7 +437,7 @@ public final class PortLibrary: NativeLibrary {
   }
   
   func readToken(_ expr: Expr?, _ delim: Expr?) throws -> Expr {
-    let input = try self.textInputFrom(expr)
+    let input = try self.textInputFrom(expr, open: true)
     let delimiters = delim == nil ? CharacterSet.whitespacesAndNewlines
                                   : CharacterSet(charactersIn: try delim!.asString())
     guard let str = input.readToken(delimiters: delimiters) else {
@@ -435,7 +447,7 @@ public final class PortLibrary: NativeLibrary {
   }
   
   func readLine(_ expr: Expr?) throws -> Expr {
-    let input = try self.textInputFrom(expr)
+    let input = try self.textInputFrom(expr, open: true)
     guard let str = input.readLine() else {
       return .eof
     }
@@ -443,7 +455,7 @@ public final class PortLibrary: NativeLibrary {
   }
   
   func readString(_ nchars: Expr, expr: Expr?) throws -> Expr {
-    let input = try self.textInputFrom(expr)
+    let input = try self.textInputFrom(expr, open: true)
     guard let str = input.readString(try nchars.asInt()) else {
       return .eof
     }
@@ -451,7 +463,7 @@ public final class PortLibrary: NativeLibrary {
   }
   
   func readU8(_ expr: Expr?) throws -> Expr {
-    let input = try self.binaryInputFrom(expr)
+    let input = try self.binaryInputFrom(expr, open: true)
     guard let byte = input.read() else {
       return .eof
     }
@@ -459,7 +471,7 @@ public final class PortLibrary: NativeLibrary {
   }
   
   func peekU8(_ expr: Expr?) throws -> Expr {
-    let input = try self.binaryInputFrom(expr)
+    let input = try self.binaryInputFrom(expr, open: true)
     guard let byte = input.peek() else {
       return .eof
     }
@@ -472,7 +484,7 @@ public final class PortLibrary: NativeLibrary {
   }
   
   func readBytevector(_ nbytes: Expr, expr: Expr?) throws -> Expr {
-    let input = try self.binaryInputFrom(expr)
+    let input = try self.binaryInputFrom(expr, open: true)
     guard let bytes = input.readMany(try nbytes.asInt()) else {
       return .eof
     }
@@ -509,7 +521,7 @@ public final class PortLibrary: NativeLibrary {
   }
   
   func write(_ expr: Expr, port: Expr?) throws -> Expr {
-    let output = try self.textOutputFrom(port)
+    let output = try self.textOutputFrom(port, open: true)
     guard output.writeString(expr.description) else {
       let outPort = try port ?? .port(self.defaultPort(self.outputPortParam))
       throw RuntimeError.eval(.cannotWriteToPort, outPort)
@@ -520,7 +532,7 @@ public final class PortLibrary: NativeLibrary {
   /// TODO: Implement this function correctly; i.e. force usage of datum labels for shared
   /// structures.
   func writeShared(_ expr: Expr, port: Expr?) throws -> Expr {
-    let output = try self.textOutputFrom(port)
+    let output = try self.textOutputFrom(port, open: true)
     guard output.writeString(expr.description) else {
       let outPort = try port ?? .port(self.defaultPort(self.outputPortParam))
       throw RuntimeError.eval(.cannotWriteToPort, outPort)
@@ -531,7 +543,7 @@ public final class PortLibrary: NativeLibrary {
   /// TODO: Implement this function correctly; i.e. never use datum labels for shared
   /// structures.
   func writeSimple(_ expr: Expr, port: Expr?) throws -> Expr {
-    let output = try self.textOutputFrom(port)
+    let output = try self.textOutputFrom(port, open: true)
     guard output.writeString(expr.description) else {
       let outPort = try port ?? .port(self.defaultPort(self.outputPortParam))
       throw RuntimeError.eval(.cannotWriteToPort, outPort)
@@ -540,7 +552,7 @@ public final class PortLibrary: NativeLibrary {
   }
   
   func display(_ expr: Expr, port: Expr? = nil) throws -> Expr {
-    let output = try self.textOutputFrom(port)
+    let output = try self.textOutputFrom(port, open: true)
     guard output.writeString(expr.unescapedDescription) else {
       let outPort = try port ?? .port(self.defaultPort(self.outputPortParam))
       throw RuntimeError.eval(.cannotWriteToPort, outPort)
@@ -549,7 +561,7 @@ public final class PortLibrary: NativeLibrary {
   }
   
   func newline(_ port: Expr?) throws -> Expr {
-    guard try self.textOutputFrom(port).writeString("\n") else {
+    guard try self.textOutputFrom(port, open: true).writeString("\n") else {
       let outPort = try port ?? .port(self.defaultPort(self.outputPortParam))
       throw RuntimeError.eval(.cannotWriteToPort, outPort)
     }
@@ -557,7 +569,7 @@ public final class PortLibrary: NativeLibrary {
   }
   
   func writeChar(_ expr: Expr, port: Expr?) throws -> Expr {
-    guard try self.textOutputFrom(port).write(expr.asUniChar()) else {
+    guard try self.textOutputFrom(port, open: true).write(expr.asUniChar()) else {
       let outPort = try port ?? .port(self.defaultPort(self.outputPortParam))
       throw RuntimeError.eval(.cannotWriteToPort, outPort)
     }
@@ -566,7 +578,7 @@ public final class PortLibrary: NativeLibrary {
   
   func writeString(_ expr: Expr, args: Arguments) throws -> Expr {
     if args.count < 2 {
-      guard try self.textOutputFrom(args.first).writeString(expr.asString()) else {
+      guard try self.textOutputFrom(args.first, open: true).writeString(expr.asString()) else {
         let outPort = try args.first ?? .port(self.defaultPort(self.outputPortParam))
         throw RuntimeError.eval(.cannotWriteToPort, outPort)
       }
@@ -608,7 +620,7 @@ public final class PortLibrary: NativeLibrary {
   }
   
   func writeU8(_ expr: Expr, port: Expr?) throws -> Expr {
-    guard try self.binaryOutputFrom(port).write(expr.asUInt8()) else {
+    guard try self.binaryOutputFrom(port, open: true).write(expr.asUInt8()) else {
       let outPort = try port ?? .port(self.defaultPort(self.outputPortParam))
       throw RuntimeError.eval(.cannotWriteToPort, outPort)
     }
@@ -618,7 +630,7 @@ public final class PortLibrary: NativeLibrary {
   func writeBytevector(_ expr: Expr, args: Arguments) throws -> Expr {
     let bvector = try expr.asByteVector().value
     if args.count < 2 {
-      guard try self.binaryOutputFrom(args.first)
+      guard try self.binaryOutputFrom(args.first, open: true)
                     .writeFrom(bvector, start: 0, end: bvector.count) else {
         let outPort = try args.first ?? .port(self.defaultPort(self.outputPortParam))
         throw RuntimeError.eval(.cannotWriteToPort, outPort)
@@ -667,4 +679,3 @@ public final class PortLibrary: NativeLibrary {
     return .void
   }
 }
-

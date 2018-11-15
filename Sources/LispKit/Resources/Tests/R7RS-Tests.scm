@@ -2127,6 +2127,8 @@
                  '("(#0=(1 2 3) #0#)" "(#1=(1 2 3) #1#)"))
          #t))
 
+(test-end)
+
 (test-begin "Read syntax")
 
 ;; check reading boolean followed by eof
@@ -2188,12 +2190,12 @@
         #f)))
 
 ;; TODO
-;(test-read-error "(#;a . b)")
-;(test-read-error "(a . #;b)")
-;(test-read-error "(a #;. b)")
-;(test-read-error "(#;x #;y . z)")
-;(test-read-error "(#; #;x #;y . z)")
-;(test-read-error "(#; #;x . z)")
+(test-read-error "(#;a . b)")
+(test-read-error "(a . #;b)")
+(test-read-error "(a #;. b)")
+(test-read-error "(#;x #;y . z)")
+(test-read-error "(#; #;x #;y . z)")
+(test-read-error "(#; #;x . z)")
 
 (test #\a (read (open-input-string "#\\a")))
 (test #\space (read (open-input-string "#\\space")))
@@ -2237,9 +2239,9 @@
 (test-write-syntax "|.|" '|.|)
 (test-write-syntax "|a b|" '|a b|)
 (test-write-syntax "|,a|" '|,a|)
-(test-write-syntax "|\"|" '|\"|)
+(test-write-syntax "|\\\"|" '|\"|)  ;; INTENDED (was "|\"|")
 (test-write-syntax "a" '|a|)
-;; (test-write-syntax "a.b" '|a.b|)
+(test-write-syntax "a.b" '|a.b|)
 (test-write-syntax "|2|" '|2|)
 (test-write-syntax "|+3|" '|+3|)
 (test-write-syntax "|-.4|" '|-.4|)
@@ -2441,8 +2443,6 @@
 (test-precision "1.4489974452386991" "1.4489975")
 (test-precision "0.14285714285714282" "0.14285714285714288" "0.14285715")
 (test-precision "1.7976931348623157e+308" "+inf.0")
-
-(test-end)
 
 (test-end)
 
