@@ -42,6 +42,10 @@
 		CC26264220F9491E00AC08E8 /* SRFI113.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC26264120F9469100AC08E8 /* SRFI113.scm */; };
 		CC26264420FA007800AC08E8 /* Plot.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC26264320FA003700AC08E8 /* Plot.scm */; };
 		CC26AD41214722960090D9EE /* turtle.sld in Copy pre-installed LispKit library: LispKit Draw Turtle */ = {isa = PBXBuildFile; fileRef = CC26AD3F214722120090D9EE /* turtle.sld */; };
+		CC2C73C8219E2F8400B18661 /* comparator.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC2C73C4219E26D900B18661 /* comparator.sld */; };
+		CC2C73C9219E2F8400B18661 /* generator.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC2C73C5219E286D00B18661 /* generator.sld */; };
+		CC2C73CA219E2F8400B18661 /* ideque.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC2C73C6219E295200B18661 /* ideque.sld */; };
+		CC2C73CB219E2F8400B18661 /* list.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC2C73C7219E2F2D00B18661 /* list.sld */; };
 		CC2D124F1DB40E7F009BDC72 /* LibraryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2D124E1DB40E7F009BDC72 /* LibraryManager.swift */; };
 		CC31A6981D3AC223008D7728 /* Hash.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC31A6971D3AC223008D7728 /* Hash.swift */; };
 		CC35FD0D1C6FA4B700C8B992 /* VirtualMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */; };
@@ -386,6 +390,10 @@
 			dstPath = LispKit/Resources/Libraries/scheme;
 			dstSubfolderSpec = 7;
 			files = (
+				CC2C73C8219E2F8400B18661 /* comparator.sld in Copy pre-installed Scheme libraries */,
+				CC2C73C9219E2F8400B18661 /* generator.sld in Copy pre-installed Scheme libraries */,
+				CC2C73CA219E2F8400B18661 /* ideque.sld in Copy pre-installed Scheme libraries */,
+				CC2C73CB219E2F8400B18661 /* list.sld in Copy pre-installed Scheme libraries */,
 				CC09ECF52198DB3800F84713 /* char.sld in Copy pre-installed Scheme libraries */,
 				CC7F7C2A1FC1057C00639166 /* r5rs-syntax.sld in Copy pre-installed Scheme libraries */,
 				CC7F7C201FC0710200639166 /* file.sld in Copy pre-installed Scheme libraries */,
@@ -517,6 +525,10 @@
 		CC26264120F9469100AC08E8 /* SRFI113.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = SRFI113.scm; sourceTree = "<group>"; };
 		CC26264320FA003700AC08E8 /* Plot.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Plot.scm; sourceTree = "<group>"; };
 		CC26AD3F214722120090D9EE /* turtle.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = turtle.sld; sourceTree = "<group>"; };
+		CC2C73C4219E26D900B18661 /* comparator.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = comparator.sld; sourceTree = "<group>"; };
+		CC2C73C5219E286D00B18661 /* generator.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = generator.sld; sourceTree = "<group>"; };
+		CC2C73C6219E295200B18661 /* ideque.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = ideque.sld; sourceTree = "<group>"; };
+		CC2C73C7219E2F2D00B18661 /* list.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = list.sld; sourceTree = "<group>"; };
 		CC2D124E1DB40E7F009BDC72 /* LibraryManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryManager.swift; sourceTree = "<group>"; };
 		CC31A6971D3AC223008D7728 /* Hash.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Hash.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = VirtualMachine.swift; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -817,6 +829,17 @@
 			path = draw;
 			sourceTree = "<group>";
 		};
+		CC2C73C3219E26A500B18661 /* large */ = {
+			isa = PBXGroup;
+			children = (
+				CC2C73C4219E26D900B18661 /* comparator.sld */,
+				CC2C73C5219E286D00B18661 /* generator.sld */,
+				CC2C73C6219E295200B18661 /* ideque.sld */,
+				CC2C73C7219E2F2D00B18661 /* list.sld */,
+			);
+			name = large;
+			sourceTree = "<group>";
+		};
 		CC48055B1CFE366100D608B6 /* Assets */ = {
 			isa = PBXGroup;
 			children = (
@@ -938,6 +961,7 @@
 			isa = PBXGroup;
 			children = (
 				CC7F7C121FC03CA100639166 /* small */,
+				CC2C73C3219E26A500B18661 /* large */,
 			);
 			path = scheme;
 			sourceTree = "<group>";
