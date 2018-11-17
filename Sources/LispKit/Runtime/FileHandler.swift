@@ -139,24 +139,23 @@ public final class FileHandler {
   public func path(_ path: String, relativeTo root: String? = nil) -> String {
     if let root = root {
       return URL(fileURLWithPath: path,
-                 relativeTo: URL(fileURLWithPath: root)).standardizedFileURL.path
+                 relativeTo: URL(fileURLWithPath: root, isDirectory: true)).absoluteURL.path
     } else {
       return URL(fileURLWithPath: path,
-                 relativeTo: URL(fileURLWithPath: self.currentDirectoryPath))
-             .standardizedFileURL.path
+                 relativeTo: URL(fileURLWithPath: self.currentDirectoryPath, isDirectory: true))
+             .absoluteURL.path
     }
   }
   
   public func directory(_ path: String, relativeTo root: String? = nil) -> String {
     if let root = root {
       return URL(fileURLWithPath: path,
-                 relativeTo: URL(fileURLWithPath: root)).deletingLastPathComponent()
-             .standardizedFileURL.path
+                 relativeTo: URL(fileURLWithPath: root, isDirectory: true)).deletingLastPathComponent()
+             .absoluteURL.path
     } else {
       return URL(fileURLWithPath: path,
-                 relativeTo: URL(fileURLWithPath: self.currentDirectoryPath))
-             .deletingLastPathComponent().standardizedFileURL.path
-
+                 relativeTo: URL(fileURLWithPath: self.currentDirectoryPath, isDirectory: true))
+             .deletingLastPathComponent().absoluteURL.path
     }
   }
   

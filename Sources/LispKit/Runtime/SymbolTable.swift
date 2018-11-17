@@ -70,7 +70,7 @@ public final class SymbolTable: Sequence {
   
   public init() {
     func register(_ sym: Symbol) {
-      self.symTable[sym.description] = sym
+      self.symTable[sym.identifier] = sym
     }
     register(self.undef)
     register(self.ellipsis)
