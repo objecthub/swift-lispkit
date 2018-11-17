@@ -47,10 +47,11 @@ _LispKit_ provides support for the following core features, many of which are ba
   - R7RS-compliant records
   - [R6RS](http://www.r6rs.org)-compliant hashtables
   - [R6RS](http://www.r6rs.org)-compliant enumerations
-  - All R7RS libraries: `(scheme base)`, `(scheme case-lambda)`, `(scheme char)`, `(scheme complex)`,
+  - All R7RS (small) libraries: `(scheme base)`, `(scheme case-lambda)`, `(scheme char)`, `(scheme complex)`,
     `(scheme cxr)`, `(scheme eval)`, `(scheme file)`, `(scheme inexact)`, `(scheme lazy)`,
-    `(scheme load)`, `(scheme process-context)`, `(scheme read)`, `(scheme repl)`, `(scheme time)`,
-    `(scheme write)`, `(scheme r5rs)`
+    `(scheme load)`, `(scheme process-context)`, `(scheme read)`, `(scheme repl)`, `(scheme time)`
+  - Some R7RS (large) libraries from `(scheme red)`:
+     `(scheme comparator)`, `(scheme generator)`, `(scheme ideque)`, `(scheme list)`
   - LispKit-specific libraries: [`(lispkit box)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Box),
     [`(lispkit type)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Type),
     [`(lispkit hashtable)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Hashtable),

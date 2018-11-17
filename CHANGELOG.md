@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.5.5 (2018-11-18)
+TODO
+
 ## 1.5.4 (2018-11-03)
 - Migrated project to Xcode 10.1 and ported code to Swift 4.2.1
 - Included implementation of "Tiny CLOS" as library `(lispkit clos)`
