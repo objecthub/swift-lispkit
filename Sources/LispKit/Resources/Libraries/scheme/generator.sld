@@ -1,6 +1,7 @@
 ;;; SCHEME GENERATOR
 ;;;
-;;; Library implementing generators. This library is part of the R7RS standard.
+;;; Library implementing generators. This library is part of the Scheme Red edition of the
+;;; R7RS large language.
 ;;;
 ;;; Author: Matthias Zenger
 ;;; Copyright © 2018 Matthias Zenger. All rights reserved.

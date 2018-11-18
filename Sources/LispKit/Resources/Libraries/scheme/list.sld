@@ -1,7 +1,8 @@
 ;;; SCHEME LIST
 ;;;
-;;; Library providing list functions. This library is part of the R7RS standard but is not
-;;; fully compatible due to the lack of immutable lists in LispKit.
+;;; Scheme list library. This library is part of the Scheme Red edition of the R7RS
+;;; large language. The LispKit implementation is not fully compatible due to the lack
+;;; of immutable lists.
 ;;;
 ;;; Author: Matthias Zenger
 ;;; Copyright © 2018 Matthias Zenger. All rights reserved.
