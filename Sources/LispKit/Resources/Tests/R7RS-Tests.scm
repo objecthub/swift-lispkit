@@ -9,8 +9,7 @@
 ;;; mostly related to R7RS requiring mutable cons cells. Those tests are marked with
 ;;; the tag "INTENDED".
 ;;;
-;;;
-;;; Copyright (c) 2009-2018 Alex Shinn
+;;; Copyright © 2009-2018 Alex Shinn
 ;;; All rights reserved.
 ;;;
 ;;; Redistribution and use in source and binary forms, with or without
@@ -34,6 +33,9 @@
 ;;; THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 ;;; (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 ;;; THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+;;;
+;;; LispKit Port:
+;;;   Copyright © 2018 Matthias Zenger. All rights reserved.
 
 (import (scheme base)
         (scheme char)

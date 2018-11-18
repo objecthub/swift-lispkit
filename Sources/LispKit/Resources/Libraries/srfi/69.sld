@@ -71,28 +71,10 @@
           (lispkit list)
           (lispkit math)
           (lispkit string)
-          (lispkit type)
-          (lispkit box)
           (except (lispkit hashtable) string-hash string-ci-hash symbol-hash equal-hash eq-hash)
-          (prefix (only (lispkit hashtable)
-                    string-hash string-ci-hash symbol-hash equal-hash eq-hash) native:))
+          (srfi 69 internal))
 
   (begin
-
-    (define *default-table-size* 64)
-
-    (define *undefined* (box 'undefined))
-
-    (define *default-bound* (greatest-fixnum))
-
-    ;; The new hash-table type mostly defines internal functions. Only the hash-table?
-    ;; function gets exported.
-    ;;
-    ;; (hash-table? obj) -> boolean
-    ;;
-    ;; A predicate to test whether a given object obj is a hash table. The hash table type
-    ;; should be disjoint from all other types, if possible.
-    (define-values (new-hash-table hash-table? get-hashtable _htst) (make-type 'hash-table))
 
     ;; (make-hash-table [ equal? [ hash [ args … ]]]) -> hash-table
     ;;
@@ -109,13 +91,9 @@
     ;; Implementations are allowed to use the rest args for implementation-specific extensions.
     ;; Be warned, though, that using these extensions will make your program less portable.
     (define (make-hash-table . args)
-      (let* ((comparison (if (null? args) equal? (car args)))
-             (hash       (if (or (null? args) (null? (cdr args)))
-    	                       (appropriate-hash-function-for comparison)
-    	                       (cadr args)))
-             (size       (if (or (null? args) (null? (cdr args)) (null? (cddr args)))
-                             *default-table-size*
-                             (caddr args))))
+      (let*-optionals args ((comparison equal?)
+                            (hash (appropriate-hash-function-for comparison))
+                            (size default-table-size))
         (new-hash-table (make-hashtable hash comparison size))))
 
     ;; (alist->hash-table alist [ equal? [ hash [ args … ]]]) -> hash-table
@@ -129,24 +107,13 @@
     ;; The rest args are passed to make-hash-table and can thus be used for
     ;; implementation-specific extensions.
     (define (alist->hash-table alist . args)
-      (let* ((comparison (if (null? args) equal? (car args)))
-             (hash       (if (or (null? args) (null? (cdr args)))
-    	                       (appropriate-hash-function-for comparison)
-    	                       (cadr args)))
-             (size       (if (or (null? args) (null? (cdr args)) (null? (cddr args)))
-                             *default-table-size*
-                             (caddr args)))
-             (hashtable  (make-hashtable hash comparison size)))
-        (for-each (lambda (elem)
-                    (hashtable-update! hashtable (car elem) identity (cdr elem)))
-                  alist)
-        (new-hash-table hashtable)))
-
-    (define (appropriate-hash-function-for comparison)
-      (or (and (eq? comparison eq?) hash-by-identity)
-          (and (eq? comparison string=?) string-hash)
-          (and (eq? comparison string-ci=?) string-ci-hash)
-          hash))
+      (let*-optionals args ((comparison equal?)
+                            (hash (appropriate-hash-function-for comparison))
+                            (size default-table-size))
+        (let ((hashtable (make-hashtable hash comparison size)))
+          (for-each (lambda (elem) (hashtable-update! hashtable (car elem) identity (cdr elem)))
+                    alist)
+          (new-hash-table hashtable))))
 
     ;; (hash-table-equivalence-function hash-table) -> procedure
     ;;
@@ -168,8 +135,8 @@
     ;; function, this operation should have an (amortised) complexity of O(1) with respect
     ;; to the number of associations in hash-table.
     (define (hash-table-ref ht key . maybe-default)
-      (let ((value (hashtable-ref (get-hashtable ht) key *undefined*)))
-        (if (eq? value *undefined*)
+      (let ((value (hashtable-ref (get-hashtable ht) key missing-key)))
+        (if (eq? value missing-key)
             (if (null? maybe-default)
                 (error "hash-table-ref: no value associated with" key)
                 ((car maybe-default)))
@@ -218,12 +185,12 @@
       (hashtable-update! (get-hashtable ht)
                          key
                          (lambda (x)
-                           (if (eq? x *undefined*)
+                           (if (eq? x missing-key)
                                (if (null? maybe-default)
                                    (error "hash-table-update!: no value exists for key" key)
                                    (function ((car maybe-default))))
                                (function x)))
-                         *undefined*))
+                         missing-key))
 
     ;; (hash-table-update!/default hash-table key function default)
     ;;
@@ -295,41 +262,5 @@
     ;; table. This function may modify hash-table1 destructively.
     (define (hash-table-merge! ht1 ht2)
       (hashtable-union! (get-hashtable ht1) (get-hashtable ht2)))
-
-    ;; (hash object [ bound ]) -> integer
-    ;;
-    ;; Produces a hash value for object in the range ( 0, bound (. If bound is not given,
-    ;; the implementation is free to choose any bound, given that the default bound is
-    ;; greater than the size of any imaginable hash table in a normal application.
-    (define (hash obj . maybe-bound)
-      (modulo (native:equal-hash obj) (if (null? maybe-bound) *default-bound* (car maybe-bound))))
-
-    ;; (string-hash string [ bound ]) -> integer
-    ;;
-    ;; The same as hash, except that the argument string must be a string.
-    (define (string-hash s . maybe-bound)
-      (modulo (native:string-hash s) (if (null? maybe-bound) *default-bound* (car maybe-bound))))
-
-    ;; (string-ci-hash string [ bound ]) -> integer
-    ;;
-    ;; The same as string-hash, except that the case of characters in string does not affect
-    ;; the hash value produced.
-    (define (string-ci-hash s . maybe-bound)
-      (modulo (native:string-ci-hash s) (if (null? maybe-bound) *default-bound* (car maybe-bound))))
-
-    ;; (symbol-hash string [ bound ]) -> integer
-    ;;
-    ;; The same as hash, except that the argument must be a symbol.
-    (define (symbol-hash s . maybe-bound)
-      (modulo (native:symbol-hash s) (if (null? maybe-bound) *default-bound* (car maybe-bound))))
-
-    ;; (hash-by-identity object [ bound ]) -> integer
-    ;;
-    ;; The same as hash, except that this function is only guaranteed to be acceptable
-    ;; for eq?. The reason for providing this function is that it might be implemented
-    ;; significantly more efficiently than hash.
-    (define (hash-by-identity obj . maybe-bound)
-      (modulo (native:eq-hash obj) (if (null? maybe-bound) *default-bound* (car maybe-bound))))
   )
 )
-
