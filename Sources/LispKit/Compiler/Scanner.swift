@@ -399,7 +399,7 @@ public final class Scanner {
         self.signal(.malformedCharacterLiteral)
       case X_CH:
         self.nextCh()
-        if let ch = self.scanHexNumber(2) {
+        if let ch = self.scanHexNumber(4) {
           self.token.kind = .char
           self.token.intVal = ch
         } else if self.ch >= LA_CH && self.ch <= LZ_CH || self.ch >= UA_CH && self.ch <= UZ_CH {

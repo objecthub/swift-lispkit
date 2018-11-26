@@ -956,8 +956,8 @@ public final class MathLibrary: NativeLibrary {
         throw RuntimeError.type(expr, expected: [.numberType])
     }
   }
-
-  private func log(_ expr: Expr) throws -> Expr {
+  
+  private func logNat(_ expr: Expr) throws -> Expr {
     switch expr {
       case .fixnum(_), .bignum(_), .rational(_), .flonum(_):
         let dbl = try expr.asDouble(coerce: true)
@@ -970,6 +970,15 @@ public final class MathLibrary: NativeLibrary {
     }
   }
 
+  private func log(_ expr: Expr, base: Expr?) throws -> Expr {
+    let numerator = try self.logNat(expr)
+    guard let base = base else {
+      return numerator
+    }
+    let denominator = try self.logNat(base)
+    return try self.div(numerator, [denominator])
+  }
+  
   private func sin(_ expr: Expr) throws -> Expr {
     return .makeNumber(Foundation.sin(try expr.asDouble(coerce: true)))
   }

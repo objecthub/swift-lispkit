@@ -102,7 +102,7 @@ public final class Compiler {
     }
     try compiler.compileBody(expr)
     if optimize {
-      log(checkpointer.description)
+      // log(checkpointer.description)
       checkpointer.reset()
       compiler = Compiler(in: env,
                           and: rulesEnv ?? env,
@@ -111,7 +111,7 @@ public final class Compiler {
         compiler.sourceDirectory = dir
       }
       try compiler.compileBody(expr)
-      log(checkpointer.description)
+      // log(checkpointer.description)
     }
     return compiler.bundle()
   }
@@ -512,7 +512,7 @@ public final class Compiler {
                         self.checkpointer.expansion(cp) ??
                         self.context.machine.apply(.procedure(transformer), to: .pair(cdr, .null))
                       self.checkpointer.associate(.expansion(expanded), with: cp)
-                      log("expanded = \(expanded)")
+                      // log("expanded = \(expanded)")
                       return expanded
                   }
                 default:
@@ -524,7 +524,7 @@ public final class Compiler {
           case .macroExpansionRequired(let transformer):
             let expanded =
               try self.context.machine.apply(.procedure(transformer), to: .pair(cdr, .null))
-            log("expanded = \(expanded)")
+            // log("expanded = \(expanded)")
             return expanded
         }
       default:
@@ -592,7 +592,7 @@ public final class Compiler {
                         self.checkpointer.expansion(cp) ??
                         self.context.machine.apply(.procedure(transformer), to: .pair(cdr, .null))
                       self.checkpointer.associate(.expansion(expanded), with: cp)
-                      log("expanded = \(expanded)")
+                      // log("expanded = \(expanded)")
                       return try self.compile(expanded, in: env, inTailPos: tail)
                   }
                 default:
@@ -614,7 +614,7 @@ public final class Compiler {
           case .macroExpansionRequired(let transformer):
             let expanded =
               try self.context.machine.apply(.procedure(transformer), to: .pair(cdr, .null))
-            log("expanded = \(expanded)")
+            // log("expanded = \(expanded)")
             return try self.compile(expanded, in: env, inTailPos: tail)
         }
         // Push arguments and call function

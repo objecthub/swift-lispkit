@@ -328,7 +328,7 @@ public final class VirtualMachine: TrackedObject {
                                       in: env,
                                       optimize: optimize,
                                       inDirectory: inDirectory)
-      log(code.description)
+      // log(code.description)
       res = try self.execute(code)
       exprlist = rest
     }
@@ -952,7 +952,7 @@ public final class VirtualMachine: TrackedObject {
     self.execInstr = self.execInstr &+ 1
     if self.execInstr % 0b011111111111111111111 == 0 {
       let res = self.context.objects.collectGarbage()
-      log("[collect garbage; freed up objects: \(res)]")
+      // log("[collect garbage; freed up objects: \(res)]")
     }
   }
   

@@ -763,9 +763,11 @@ extension Expr: CustomStringConvertible {
                  ILLEGAL_CHARS.contains(unicodeScalar(ch)) ||
                  MODIFIER_CHARS.contains(unicodeScalar(ch)) ||
                  ch > 0xd7ff {
-                return "#\\u\(String(ch, radix:16))"
+                return "#\\x\(String(ch, radix:16))"
+              } else if let scalar = UnicodeScalar(ch) {
+                return "#\\\(Character(scalar))"
               } else {
-                return "#\\\(Character(UnicodeScalar(ch)!))"
+                return "#\\x\(String(ch, radix:16))"
               }
           }
         case .string(let str):

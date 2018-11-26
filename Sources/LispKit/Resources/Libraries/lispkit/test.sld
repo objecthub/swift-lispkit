@@ -45,7 +45,7 @@
   ;; Convenience equality predicate for inexact values
   (begin
 
-    (define epsilon (make-parameter 0.000000001))
+    (define epsilon (make-parameter 0.0000001))
 
     (define (approx-equal? a b . args)
       (let-optionals args ((eps (epsilon)))

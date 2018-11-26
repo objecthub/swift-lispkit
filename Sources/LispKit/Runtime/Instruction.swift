@@ -473,7 +473,7 @@ public enum Instruction: CustomStringConvertible {
         return nil
       case .pushChar(let char):
         var res = "'"
-        res.append(Character(UnicodeScalar(char)!))
+        res.append(Character(unicodeScalar(char)))
         res.append(Character("'"))
         return res
       case .call(_):
