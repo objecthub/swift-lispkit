@@ -537,7 +537,12 @@ public enum ErrorDescriptor: Hashable {
       case .eval(let error):
         return error.message
       case .os(let error):
-        return error.description
+        if let underlying = error.userInfo[NSUnderlyingErrorKey] as? NSError {
+          let prefix = underlying.localizedFailureReason ?? underlying.localizedDescription
+          return "\(prefix): \(error.localizedDescription) (\(error.code))"
+        } else {
+          return "\(error.localizedDescription) (\(error.code))"
+        }
       case .abortion:
         return "abortion"
       case .custom(_, let message):

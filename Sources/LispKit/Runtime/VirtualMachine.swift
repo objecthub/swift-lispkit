@@ -951,7 +951,8 @@ public final class VirtualMachine: TrackedObject {
   @inline(__always) private func collectGarbageIfNeeded() {
     self.execInstr = self.execInstr &+ 1
     if self.execInstr % 0b011111111111111111111 == 0 {
-      let res = self.context.objects.collectGarbage()
+      // let res =
+      _ = self.context.objects.collectGarbage()
       // log("[collect garbage; freed up objects: \(res)]")
     }
   }
