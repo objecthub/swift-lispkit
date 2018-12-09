@@ -607,10 +607,14 @@ public final class Scanner {
         switch self.ch {
           case PLUS_CH:
             self.nextCh()
-            return scanImaginaryPart(neg ? -dbl : dbl, neg: false)
+            scanImaginaryPart(neg ? -dbl : dbl, neg: false)
           case MINUS_CH:
             self.nextCh()
-            return scanImaginaryPart(neg ? -dbl : dbl, neg: true)
+            scanImaginaryPart(neg ? -dbl : dbl, neg: true)
+          case LI_CH, UI_CH:
+            self.nextCh()
+            self.token.kind = .complex
+            self.token.complexVal = Complex(0.0, neg ? -dbl : dbl)
           default:
             self.token.kind = .float
             self.token.floatVal = neg ? -dbl : dbl
@@ -646,10 +650,14 @@ public final class Scanner {
           }
         case PLUS_CH:
           self.nextCh()
-          return scanImaginaryPart(numer.doubleValue, neg: false)
+          scanImaginaryPart(numer.doubleValue, neg: false)
         case MINUS_CH:
           self.nextCh()
-          return scanImaginaryPart(numer.doubleValue, neg: true)
+          scanImaginaryPart(numer.doubleValue, neg: true)
+        case LI_CH, UI_CH:
+          self.nextCh()
+          self.token.kind = .complex
+          self.token.complexVal = Complex(0.0, numer.doubleValue)
         default:
           if let i = numer.intValue {
             self.token.kind = .int
@@ -669,7 +677,7 @@ public final class Scanner {
     guard self.ch != LI_CH && self.ch != N_CH else {
       self.scanIdent()
       let s = self.buffer.stringStartingAt(start)
-      switch s {
+      switch s.lowercased() {
         case "inf.0i":
           self.token.kind = .complex
           self.token.complexVal = Complex(realPart, neg ? -Double.infinity : Double.infinity)

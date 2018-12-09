@@ -1141,7 +1141,20 @@ public final class MathLibrary: NativeLibrary {
   }
   
   private func magnitude(_ expr: Expr) throws -> Expr {
-    return .flonum(try expr.asComplex(coerce: true).abs)
+    switch expr {
+      case .fixnum(let num):
+        return .makeNumber(num < 0 ? -num : num)
+      case .bignum(let num):
+        return .makeNumber(num.isNegative ? -num : num)
+      case .rational(.fixnum(let n), .fixnum(let d)):
+        return n < 0 ? .rational(.fixnum(-n), .fixnum(d)) : expr
+      case .rational(.bignum(let n), .bignum(let d)):
+        return n.isNegative ? .rational(.bignum(-n), .bignum(d)) : expr
+      case .flonum(let num):
+        return .flonum((num.sign == .minus) ? -num : num)
+      default:
+        return .flonum(try expr.asComplex(coerce: true).abs)
+    }
   }
   
   private func angle(_ expr: Expr) throws -> Expr {
