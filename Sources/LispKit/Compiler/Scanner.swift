@@ -138,6 +138,18 @@ public final class Scanner {
               realPart = Double.infinity
             case "-nan.0", "+nan.0":
               realPart = Double.nan
+            case "-inf.0i":
+              self.token.kind = .complex
+              self.token.complexVal = Complex(0.0, -Double.infinity)
+            case "+inf.0i":
+              self.token.kind = .complex
+              self.token.complexVal = Complex(0.0, Double.infinity)
+            case "+i":
+              self.token.kind = .complex
+              self.token.complexVal = Complex(0.0, 1.0)
+            case "-i":
+              self.token.kind = .complex
+              self.token.complexVal = Complex(0.0, -1.0)
             default:
               realPart = nil
               while isSubsequentIdent(self.ch) {
@@ -674,7 +686,7 @@ public final class Scanner {
   /// imaginary part of a complex number
   private func scanImaginaryPart(_ realPart: Double, neg: Bool) {
     let start = self.buffer.index - 1
-    guard self.ch != LI_CH && self.ch != N_CH else {
+    guard self.ch != LI_CH && self.ch != UI_CH && self.ch != N_CH && self.ch != UN_CH else {
       self.scanIdent()
       let s = self.buffer.stringStartingAt(start)
       switch s.lowercased() {
@@ -685,6 +697,10 @@ public final class Scanner {
         case "nan.0i":
           self.token.kind = .complex
           self.token.complexVal = Complex(realPart, Double.nan)
+          self.token.strVal = ""
+        case "i":
+          self.token.kind = .complex
+          self.token.complexVal = Complex(realPart, neg ? -1.0 : 1.0)
           self.token.strVal = ""
         default:
           self.signal(.malformedComplexLiteral)
@@ -699,14 +715,14 @@ public final class Scanner {
       while isDigit(self.ch) {
         self.nextCh()
       }
-      if self.ch == LE_CH || self.ch == UE_CH {
+    }
+    if self.ch == LE_CH || self.ch == UE_CH {
+      self.nextCh()
+      if self.ch == PLUS_CH || self.ch == MINUS_CH {
         self.nextCh()
-        if self.ch == PLUS_CH || self.ch == MINUS_CH {
-          self.nextCh()
-        }
-        while isDigit(self.ch) {
-          self.nextCh()
-        }
+      }
+      while isDigit(self.ch) {
+        self.nextCh()
       }
     }
     if self.ch == LI_CH || self.ch == UI_CH {
@@ -1041,6 +1057,7 @@ let X_CH               = UniChar("x")
 let T_CH               = UniChar("t")
 let R_CH               = UniChar("r")
 let N_CH               = UniChar("n")
+let UN_CH              = UniChar("N")
 let V_CH               = UniChar("v")
 let F_CH               = UniChar("f")
 let U_CH               = UniChar("u")
