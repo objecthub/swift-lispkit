@@ -74,6 +74,8 @@ public final class StringLibrary: NativeLibrary {
     self.define(Procedure("string-fill!", stringFill))
     self.define(Procedure("string-split", stringSplit))
     self.define(Procedure("string-trim", stringTrim))
+    self.define(Procedure("string-pad-left", stringPadLeft))
+    self.define(Procedure("string-pad-right", stringPadRight))
     self.define(Procedure("_string-list-ref", stringListRef))
     self.define(Procedure("_string-list-length", stringListLength))
     self.define("string-map", via:
@@ -569,5 +571,35 @@ public final class StringLibrary: NativeLibrary {
       return .makeString(str.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines))
     }
   }
+  
+  private func stringPadLeft(_ expr: Expr,
+                             _ padChar: Expr,
+                             _ length: Expr,
+                             _ forceLength: Expr?) throws -> Expr {
+    let str = try expr.asMutableStr()
+    let char = try padChar.asUniChar()
+    let len = try length.asInt()
+    let force = forceLength?.isTrue ?? false
+    guard str.length <= len else {
+      return force ? .makeString(str.substring(from: str.length - len)) : expr
+    }
+    var res = String(repeating: Character(unicodeScalar(char)), count: len - str.length)
+    res.append(str as String)
+    return .makeString(res)
+  }
+  
+  private func stringPadRight(_ expr: Expr,
+                              _ padChar: Expr,
+                              _ length: Expr,
+                              _ forceLength: Expr?) throws -> Expr {
+    let str = try expr.asMutableStr()
+    let char = try padChar.asUniChar()
+    let len = try length.asInt()
+    let force = forceLength?.isTrue ?? false
+    guard str.length <= len else {
+      return force ? .makeString(str.substring(to: len)) : expr
+    }
+    return .makeString(str.appending(
+             String(repeating: Character(unicodeScalar(char)), count: len - str.length)))
+  }
 }
-
