@@ -32,7 +32,8 @@
   ;; Severities
   (export severity?
           severity->level
-          severity->string)
+          severity->string
+          default-severity)
 
   ;; Logger datatype
   (export logger?
@@ -77,16 +78,25 @@
 
   (begin
 
+    (define default-severity 'debug)
+
     (define default-log-formatter short-log-formatter)
 
     (define (make-port-logger port . args)
       (let-optionals args ((formatter default-log-formatter)
-                           (severity 'debug))
+                           (severity default-severity))
         (make-port-logger-internal port formatter (vector severity))))
 
     (define (make-file-logger path . args)
       (let-optionals args ((formatter default-log-formatter)
-                           (severity 'debug))
+                           (severity default-severity))
         (make-file-logger-internal path formatter (vector severity))))
+
+    (define-syntax log-into-file
+      (syntax-rules ()
+        ((_ file expr0 expr1 ...)
+          (let ((logger (make-file-logger file long-log-formatter (vector default-severity))))
+            (parameterize ((current-logger logger))
+              (let ((res (begin expr0 expr1 ...))) (close-logger logger) res))))))
   )
 )

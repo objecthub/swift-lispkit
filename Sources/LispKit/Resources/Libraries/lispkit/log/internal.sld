@@ -59,12 +59,12 @@
           make-filter-logger
           make-port-logger
           make-file-logger
+          tags->string
           long-log-formatter
           short-log-formatter)
 
   ;; Syntax extensions
   (export log-using
-          log-into-file
           log-from-severity
           log-with-tag
           log-dropping-below-severity
@@ -232,13 +232,6 @@
       (syntax-rules ()
         ((_ logger expr0 expr1 ...)
           (parameterize ((current-logger logger)) expr0 expr1 ...))))
-
-    (define-syntax log-into-file
-      (syntax-rules ()
-        ((_ file expr0 expr1 ...)
-          (let ((logger (make-file-logger file long-log-formatter (vector 'debug))))
-            (parameterize ((current-logger logger))
-              (let ((res (begin expr0 expr1 ...))) (close-logger logger) res))))))
 
     (define-syntax log-with-tag
       (syntax-rules ()
