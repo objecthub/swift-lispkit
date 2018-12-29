@@ -174,6 +174,8 @@
 		CC8169271D1FADEC003FADEA /* Ports.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC8169261D1FADE2003FADEA /* Ports.scm */; };
 		CC8213661D614A8600C1BE57 /* Records.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC8213651D614A8600C1BE57 /* Records.scm */; };
 		CC8218911E3FFFAB009CA653 /* SRFI19.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC8218901E3FFFAB009CA653 /* SRFI19.scm */; };
+		CC82933021D6E992003E1D3C /* log.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC82932F21D6E91D003E1D3C /* log.sld */; };
+		CC82933221D6E9BD003E1D3C /* internal.sld in Copy pre-installed LispKit library: LispKit Log Internal */ = {isa = PBXBuildFile; fileRef = CC82932E21D6E8E7003E1D3C /* internal.sld */; };
 		CC882C921C9E93A600D20039 /* Timer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC882C911C9E93A600D20039 /* Timer.swift */; };
 		CC8A2AAF1F405E2500D1E4D8 /* 17.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC8A2AAE1F405CDD00D1E4D8 /* 17.sld */; };
 		CC8A2AB11F40681500D1E4D8 /* 48.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC8A2AB01F40672700D1E4D8 /* 48.sld */; };
@@ -364,6 +366,7 @@
 			dstPath = LispKit/Resources/Libraries/lispkit;
 			dstSubfolderSpec = 7;
 			files = (
+				CC82933021D6E992003E1D3C /* log.sld in Copy pre-installed LispKit libraries */,
 				CC703A1D218D0AE400E71EA9 /* clos.sld in Copy pre-installed LispKit libraries */,
 				CC96D10B203997F0006AA27B /* test.sld in Copy pre-installed LispKit libraries */,
 				CC436C401FFBD52F0095559E /* logic.sld in Copy pre-installed LispKit libraries */,
@@ -442,6 +445,17 @@
 				CC7F7C1A1FC04BBD00639166 /* base.sld in Copy pre-installed Scheme libraries */,
 			);
 			name = "Copy pre-installed Scheme libraries";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC82933121D6E9A6003E1D3C /* Copy pre-installed LispKit library: LispKit Log Internal */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = LispKit/Resources/Libraries/lispkit/log;
+			dstSubfolderSpec = 7;
+			files = (
+				CC82933221D6E9BD003E1D3C /* internal.sld in Copy pre-installed LispKit library: LispKit Log Internal */,
+			);
+			name = "Copy pre-installed LispKit library: LispKit Log Internal";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		CC8E2BA01E3361C50080299A /* Copy pre-installed LispKit library: SRFI 41 */ = {
@@ -683,6 +697,8 @@
 		CC8169261D1FADE2003FADEA /* Ports.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Ports.scm; sourceTree = "<group>"; };
 		CC8213651D614A8600C1BE57 /* Records.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Records.scm; sourceTree = "<group>"; };
 		CC8218901E3FFFAB009CA653 /* SRFI19.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SRFI19.scm; sourceTree = "<group>"; };
+		CC82932E21D6E8E7003E1D3C /* internal.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = internal.sld; sourceTree = "<group>"; };
+		CC82932F21D6E91D003E1D3C /* log.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = log.sld; sourceTree = "<group>"; };
 		CC882C911C9E93A600D20039 /* Timer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Timer.swift; sourceTree = "<group>"; };
 		CC8A2AAE1F405CDD00D1E4D8 /* 17.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 17.sld; sourceTree = "<group>"; };
 		CC8A2AB01F40672700D1E4D8 /* 48.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 48.sld; sourceTree = "<group>"; };
@@ -924,6 +940,7 @@
 		CC5847FE1E506D7400BE6497 /* lispkit */ = {
 			isa = PBXGroup;
 			children = (
+				CC82932F21D6E91D003E1D3C /* log.sld */,
 				CC96D10A20399770006AA27B /* test.sld */,
 				CC2345401F655B8B00C38817 /* datatype.sld */,
 				CC68B3A81FCC73C300EB4AF9 /* object.sld */,
@@ -939,6 +956,7 @@
 				CC3A02591F97F3E1009B959C /* json.sld */,
 				CC10404C1F5378660045144A /* pdf.sld */,
 				CC703A1A218D09B600E71EA9 /* clos.sld */,
+				CC82932D21D6E8C2003E1D3C /* log */,
 				CC703A1B218D09D100E71EA9 /* clos */,
 				CC26AD3E21470AC90090D9EE /* draw */,
 			);
@@ -1046,6 +1064,14 @@
 				CC7F7C291FC1011A00639166 /* r5rs-syntax.sld */,
 			);
 			name = small;
+			sourceTree = "<group>";
+		};
+		CC82932D21D6E8C2003E1D3C /* log */ = {
+			isa = PBXGroup;
+			children = (
+				CC82932E21D6E8E7003E1D3C /* internal.sld */,
+			);
+			path = log;
 			sourceTree = "<group>";
 		};
 		CC9050101D392706008CE60A /* Data */ = {
@@ -1322,6 +1348,7 @@
 				CC5848001E50ABE100BE6497 /* Copy pre-installed LispKit libraries */,
 				CC26AD40214722710090D9EE /* Copy pre-installed LispKit library: LispKit Draw Turtle */,
 				CC703A1E218D0AF500E71EA9 /* Copy pre-installed LispKit library: LispKit CLOS Support */,
+				CC82933121D6E9A6003E1D3C /* Copy pre-installed LispKit library: LispKit Log Internal */,
 				CC7F7C191FC04B8A00639166 /* Copy pre-installed Scheme libraries */,
 				CC474EAE1ECFAC1300B535E3 /* Copy examples */,
 				CC09ECF32198B8B100F84713 /* Copy tests */,
