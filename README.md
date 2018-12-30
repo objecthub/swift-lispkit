@@ -50,11 +50,14 @@ _LispKit_ provides support for the following core features, many of which are ba
   - All R7RS (small) libraries: `(scheme base)`, `(scheme case-lambda)`, `(scheme char)`, `(scheme complex)`,
     `(scheme cxr)`, `(scheme eval)`, `(scheme file)`, `(scheme inexact)`, `(scheme lazy)`,
     `(scheme load)`, `(scheme process-context)`, `(scheme read)`, `(scheme repl)`, `(scheme time)`
-  - Some R7RS (large) libraries from `(scheme red)`:
-     `(scheme comparator)`, `(scheme generator)`, `(scheme ideque)`, `(scheme list)`
+  - Some R7RS (large) libraries from Scheme Red edition:
+    `(scheme box)`,  `(scheme comparator)`, `(scheme generator)`, `(scheme hash-table)`,
+    `(scheme ideque)`, `(scheme list)`, `(scheme rlist)`, `(scheme set)`, `(scheme sort)`,
+    `(scheme stream)`, `(scheme text)`, `(scheme vector)`
   - LispKit-specific libraries: [`(lispkit box)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Box),
     [`(lispkit type)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Type),
     [`(lispkit hashtable)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Hashtable),
+    `(lispkit log)`, 
     `(lispkit test)`, 
     [`(lispkit datatype)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Datatype),
     [`(lispkit object)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Object),
