@@ -81,11 +81,27 @@ public final class FileHandler {
     return true
   }
   
+  public func prependSearchPath(_ path: String) -> Bool {
+    guard self.isDirectory(atPath: path) else {
+      return false
+    }
+    self.searchUrls.insert(URL(fileURLWithPath: path, isDirectory: true), at: 0)
+    return true
+  }
+  
   public func addLibrarySearchPath(_ path: String) -> Bool {
     guard self.isDirectory(atPath: path) else {
       return false
     }
     self.librarySearchUrls.append(URL(fileURLWithPath: path, isDirectory: true))
+    return true
+  }
+  
+  public func prependLibrarySearchPath(_ path: String) -> Bool {
+    guard self.isDirectory(atPath: path) else {
+      return false
+    }
+    self.librarySearchUrls.insert(URL(fileURLWithPath: path, isDirectory: true), at: 0)
     return true
   }
   
