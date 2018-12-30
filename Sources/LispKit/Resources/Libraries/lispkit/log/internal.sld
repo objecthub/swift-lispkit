@@ -13,7 +13,7 @@
 ;;; Logging functions take the logger as an optional argument. If it is not provided, the
 ;;; _current logger_ is chosen. The current logger is represented via the parameter object
 ;;; `current-logger`. The current logger is initially set to the `default-logger`.
-;;; 
+;;;
 ;;; Author: Matthias Zenger
 ;;; Copyright © 2019 Matthias Zenger. All rights reserved.
 ;;;
@@ -37,6 +37,7 @@
   ;; Logger datatype
   (export logger?
           make-logger
+          make-logger-object
           close-logger
           logger-addproc
           logger-closeproc
@@ -53,8 +54,7 @@
           log-fatal)
 
   ;; Logger implementations
-  (export default-logger
-          current-logger
+  (export current-logger
           make-tag-logger
           make-filter-logger
           make-port-logger
@@ -98,13 +98,22 @@
                      ('error "ERROR")
                      ('fatal "FATAL")
                      (else   (error "unknown severity" severity))))
-    
+
     ;; Logger datatype
 
     (define-values (new-logger logger? logger-ref make-logger-subtype) (make-type 'logger))
 
-    (define (make-logger addproc closeproc state)
+    (define (make-logger-object addproc closeproc state)
       (new-logger (cons (cons addproc closeproc) state)))
+
+    (define make-logger
+      (case-lambda
+        ((addproc logger)
+          (make-logger-object addproc (logger-closeproc logger) (logger-state logger)))
+        ((addproc closeproc logger)
+          (make-logger-object addproc
+                              (lambda () (closeproc) ((logger-closeproc logger)))
+                              (logger-state logger)))))
 
     (define (logger-addproc logger)
       (caar (logger-ref logger)))
@@ -128,7 +137,7 @@
           (if (string? message)
               (if (null? args)
                   (log-entry (current-logger) severity message '())
-                  (if (string? (car args))
+                  (if (symbol? (car args))
                       (if (null? (cdr args))
                           (log-entry (current-logger) severity message (list (car args)))
                           (log-entry (cadr args) severity message (list (car args))))
@@ -164,33 +173,32 @@
       (make-logger
         (lambda (time severity message tags)
           ((logger-addproc logger) time severity message (cons tag tags)))
-        (logger-closeproc logger)
-        (logger-state logger)))
+        logger))
 
     (define (make-filter-logger filter logger)
       (make-logger
         (lambda (time severity message tags)
           (if (filter time severity message tags)
               ((logger-addproc logger) time severity message tags)))
-        (logger-closeproc logger)
-        (logger-state logger)))
+        logger))
 
-    (define (make-port-logger port formatter state)
+    (define (make-port-logger port formatter logger)
       (make-logger
         (lambda (time severity message tags)
           (display (formatter time severity message tags) port)
-          (newline port))
-        (void)
-        state))
+          (newline port)
+          ((logger-addproc logger) time severity message tags))
+        logger))
 
-    (define (make-file-logger path formatter state)
+    (define (make-file-logger path formatter logger)
       (let* ((port (open-output-file path)))
         (make-logger
           (lambda (time severity message tags)
             (display (formatter time severity message tags) port)
-            (newline port))
+            (newline port)
+            ((logger-addproc logger) time severity message tags))
           (lambda () (close-output-port port))
-          state)))
+          logger)))
 
     (define (tags->string tags)
       (if (null? tags)
@@ -201,30 +209,27 @@
             (set! res (string-append res "/" (symbol->string (car lst)))))))
 
     (define (short-log-formatter time severity message tags)
-      (string-append
-        (date-time->string (second->date-time time) "HH:mm:ss ")
-        (string-pad-right (severity->string severity) #\space 7)
-        "["
-        (tags->string tags)
-        "] "
-        message))
+      (string-append (date-time->string (second->date-time time) "HH:mm:ss ")
+                     (string-pad-right (severity->string severity) #\space 6)
+                     (if (null? tags)
+                         ""
+                         (string-append "|" (tags->string tags)))
+                     "| "
+                     message))
 
     (define (long-log-formatter time severity message tags)
-      (string-append
-        (date-time->string (second->date-time time) "yyyy-MM-dd HH:mm:ss ")
-        (string-pad-right (severity->string severity) #\space 7)
-        "["
-        (tags->string tags)
-        "] "
-        message))
+      (string-append (date-time->string (second->date-time time) "yyyy-MM-dd HH:mm:ss ")
+                     (string-pad-right (severity->string severity) #\space 6)
+                     (if (null? tags)
+                         ""
+                         (string-append "|" (tags->string tags)))
+                     "| "
+                     message))
 
-    ;; Current and default logger
+    ;; Current logger; needs to be set by the concrete logger interface, e.g. library
+    ;; (lispkit log)
 
-    ;; change to default-output-port
-    (define default-logger
-      (make-port-logger (current-output-port) short-log-formatter (vector 'warn)))
-
-    (define current-logger (make-parameter default-logger))
+    (define current-logger (make-parameter #f))
 
     ;; Syntactic sugar
 

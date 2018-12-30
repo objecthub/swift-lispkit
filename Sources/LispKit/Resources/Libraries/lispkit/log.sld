@@ -40,7 +40,6 @@
           make-logger
           close-logger
           logger-addproc
-          logger-closeproc
           logger-severity
           logger-severity-set!)
 
@@ -82,20 +81,31 @@
 
     (define default-log-formatter short-log-formatter)
 
+    (define (logger . args)
+      (let-optionals args ((severity default-severity))
+        (make-logger-object (lambda (time severity message tags)) void (vector severity))))
+
     (define (make-port-logger port . args)
       (let-optionals args ((formatter default-log-formatter)
-                           (severity default-severity))
-        (make-port-logger-internal port formatter (vector severity))))
+                           (arg #f))
+        (make-port-logger-internal
+          port formatter (if arg (if (logger? arg) arg (logger arg)) (logger)))))
 
     (define (make-file-logger path . args)
       (let-optionals args ((formatter default-log-formatter)
-                           (severity default-severity))
-        (make-file-logger-internal path formatter (vector severity))))
+                           (arg #f))
+        (make-file-logger-internal
+          path formatter (if arg (if (logger? arg) arg (logger arg)) (logger)))))
+
+    (define default-logger
+      (make-port-logger-internal default-output-port default-log-formatter (logger)))
+
+    (current-logger default-logger)
 
     (define-syntax log-into-file
       (syntax-rules ()
         ((_ file expr0 expr1 ...)
-          (let ((logger (make-file-logger file long-log-formatter (vector default-severity))))
+          (let ((logger (make-file-logger file)))
             (parameterize ((current-logger logger))
               (let ((res (begin expr0 expr1 ...))) (close-logger logger) res))))))
   )

@@ -59,6 +59,8 @@ public final class PortLibrary: NativeLibrary {
     self.define("current-output-port", as: self.outputPortParam)
     self.define("current-input-port", as: self.inputPortParam)
     self.define("current-error-port", as: self.errorPortParam)
+    self.define("default-output-port", as: .port(context.outputPort))
+    self.define("default-input-port", as: .port(context.inputPort))
     self.define(Procedure("port?", isPort))
     self.define(Procedure("input-port?", isInputPort))
     self.define(Procedure("output-port?", isOutputPort))
