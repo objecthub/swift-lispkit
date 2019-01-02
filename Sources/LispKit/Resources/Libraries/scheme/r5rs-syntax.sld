@@ -17,6 +17,7 @@
 ;;; and limitations under the License.
 
 (define-library (scheme r5rs-syntax)
+
   (export and
           begin
           case
@@ -37,5 +38,6 @@
           quote
           set!
           syntax-rules)
+
   (import (lispkit base))
 )

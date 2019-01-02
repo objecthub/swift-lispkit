@@ -17,6 +17,7 @@
 ;;; and limitations under the License.
 
 (define-library (scheme r5rs)
+
   (export +
           -
           *
@@ -239,6 +240,7 @@
           write
           write-char
           zero?)
+
   (import (rename (lispkit base)
             (exact inexact->exact)
             (inexact exact->inexact)))

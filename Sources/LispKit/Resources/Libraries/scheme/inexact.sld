@@ -16,6 +16,7 @@
 ;;; and limitations under the License.
 
 (define-library (scheme inexact)
+
   (export acos
           asin
           atan
@@ -28,5 +29,6 @@
           sin
           sqrt
           tan)
+
   (import (lispkit math))
 )

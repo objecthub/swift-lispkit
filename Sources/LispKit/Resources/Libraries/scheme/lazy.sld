@@ -16,10 +16,12 @@
 ;;; and limitations under the License.
 
 (define-library (scheme lazy)
+
   (export delay
           delay-force
           force
           make-promise
           promise?)
+
   (import (lispkit core))
 )

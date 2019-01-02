@@ -17,9 +17,11 @@
 ;;; and limitations under the License.
 
 (define-library (scheme write)
+
   (export display
           write
           write-shared
           write-simple)
+
   (import (lispkit port))
 )

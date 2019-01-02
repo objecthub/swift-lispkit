@@ -51,9 +51,9 @@ _LispKit_ provides support for the following core features, many of which are ba
     `(scheme cxr)`, `(scheme eval)`, `(scheme file)`, `(scheme inexact)`, `(scheme lazy)`,
     `(scheme load)`, `(scheme process-context)`, `(scheme read)`, `(scheme repl)`, `(scheme time)`
   - Some R7RS (large) libraries from Scheme Red edition:
-    `(scheme box)`,  `(scheme comparator)`, `(scheme generator)`, `(scheme hash-table)`,
-    `(scheme ideque)`, `(scheme list)`, `(scheme rlist)`, `(scheme set)`, `(scheme sort)`,
-    `(scheme stream)`, `(scheme text)`, `(scheme vector)`
+    `(scheme box)`,  `(scheme charset)`, `(scheme comparator)`, `(scheme generator)`,
+    `(scheme hash-table)`, `(scheme ideque)`, `(scheme list)`, `(scheme rlist)`, `(scheme set)`,
+    `(scheme sort)`, `(scheme stream)`, `(scheme text)`, `(scheme vector)`
   - LispKit-specific libraries: [`(lispkit box)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Box),
     [`(lispkit type)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Type),
     [`(lispkit hashtable)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Hashtable),
@@ -67,6 +67,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit set)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Set),
     `(lispkit stack)`, `(lispkit queue)`,
     `(lispkit heap)`, `(lispkit wt-tree)`, `(lispkit prettify)`, `(lispkit json)`,
+    `(lispkit char-set)`,
     [`(lispkit draw)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Draw),
     [`(lispkit draw turtle)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Draw-Turtle),
     and `(lispkit pdf)`

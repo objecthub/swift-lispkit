@@ -16,6 +16,7 @@
 ;;; and limitations under the License.
 
 (define-library (scheme file)
+
   (export call-with-input-file
           call-with-output-file
           delete-file
@@ -26,6 +27,7 @@
           open-output-file
           with-input-from-file
           with-output-to-file)
+
   (import (lispkit port)
           (lispkit system))
 )

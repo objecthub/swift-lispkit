@@ -16,7 +16,9 @@
 ;;; and limitations under the License.
 
 (define-library (scheme eval)
+
   (export eval
           environment)
+
   (import (lispkit core))
 )

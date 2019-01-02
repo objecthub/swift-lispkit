@@ -16,6 +16,8 @@
 ;;; and limitations under the License.
 
 (define-library (scheme repl)
+
   (export interaction-environment)
+
   (import (lispkit core))
 )
