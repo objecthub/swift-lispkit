@@ -926,7 +926,19 @@ extension Expr: CustomStringConvertible {
         case .port(let port):
           return "#<\(port.typeDescription) \(port.identDescription)>"
         case .object(let obj):
-          return "#<\(obj.typeDescription) \(obj.identityString)>"
+          if let bx = obj as? ImmutableBox<NSFont>  {
+            return "#<font \(bx.value.fontName) \(bx.value.pointSize)>"
+          } else if let bx = obj as? ImmutableBox<Color> {
+            if bx.value.alpha < 1.0 {
+              return "#<color \(bx.value.red) \(bx.value.green) \(bx.value.blue) \(bx.value.alpha)>"
+            } else {
+              return "#<color \(bx.value.red) \(bx.value.green) \(bx.value.blue)>"
+            }
+          } else if obj is ImmutableBox<NSImage> {
+            return "#<image \(obj.identityString)>"
+          } else {
+            return "#<\(obj.typeDescription) \(obj.identityString)>"
+          }
         case .tagged(.mpair(let tuple), let expr):
           return "#\(stringReprOf(tuple.fst)):\(stringReprOf(expr))"
         case .tagged(let tag, let expr):

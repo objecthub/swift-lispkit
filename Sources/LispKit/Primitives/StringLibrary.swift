@@ -544,13 +544,7 @@ public final class StringLibrary: NativeLibrary {
   
   private func stringSplit(_ expr: Expr, _ separator: Expr, _ allowEmpty: Expr?) throws -> Expr {
     let str = try expr.asMutableStr()
-    let sep: String
-    switch separator {
-      case .char(let c):
-        sep = String(unicodeScalar(c))
-      default:
-        sep = try separator.asString()
-    }
+    let sep = try self.charAsString(separator)
     let components = str.components(separatedBy: sep)
     let includeEmpty = allowEmpty == nil ? true : !allowEmpty!.isFalse
     var res = Exprs()
@@ -577,13 +571,13 @@ public final class StringLibrary: NativeLibrary {
                              _ length: Expr,
                              _ forceLength: Expr?) throws -> Expr {
     let str = try expr.asMutableStr()
-    let char = try padChar.asUniChar()
+    let char = try self.charAsString(padChar)
     let len = try length.asInt()
     let force = forceLength?.isTrue ?? false
     guard str.length <= len else {
       return force ? .makeString(str.substring(from: str.length - len)) : expr
     }
-    var res = String(repeating: Character(unicodeScalar(char)), count: len - str.length)
+    var res = String(repeating: char.first ?? " ", count: len - str.length)
     res.append(str as String)
     return .makeString(res)
   }
@@ -593,13 +587,22 @@ public final class StringLibrary: NativeLibrary {
                               _ length: Expr,
                               _ forceLength: Expr?) throws -> Expr {
     let str = try expr.asMutableStr()
-    let char = try padChar.asUniChar()
+    let char = try self.charAsString(padChar)
     let len = try length.asInt()
     let force = forceLength?.isTrue ?? false
     guard str.length <= len else {
       return force ? .makeString(str.substring(to: len)) : expr
     }
     return .makeString(str.appending(
-             String(repeating: Character(unicodeScalar(char)), count: len - str.length)))
+             String(repeating: char.first ?? " ", count: len - str.length)))
+  }
+  
+  private func charAsString(_ expr: Expr) throws -> String {
+    switch expr {
+      case .char(let c):
+        return String(unicodeScalar(c))
+      default:
+        return try expr.asString()
+    }
   }
 }

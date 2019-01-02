@@ -45,7 +45,7 @@ public final class BaseLibrary: NativeLibrary {
     self.import(from: VectorLibrary.name)
     self.import(from: RecordLibrary.name)
     self.import(from: BytevectorLibrary.name)
-    self.import(from: CharacterLibrary.name)
+    self.import(from: CharLibrary.name)
     self.import(from: StringLibrary.name)
     self.import(from: PortLibrary.name)
   }

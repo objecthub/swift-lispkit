@@ -1,5 +1,5 @@
 //
-//  CharacterLibrary.swift
+//  CharLibrary.swift
 //  LispKit
 //
 //  Created by Matthias Zenger on 23/01/2016.
@@ -20,11 +20,11 @@
 
 import Foundation
 
-public final class CharacterLibrary: NativeLibrary {
+public final class CharLibrary: NativeLibrary {
   
   /// Name of the library.
   public override class var name: [String] {
-    return ["lispkit", "character"]
+    return ["lispkit", "char"]
   }
   
   /// Declarations of the library.

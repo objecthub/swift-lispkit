@@ -38,6 +38,6 @@
           string-downcase
           string-foldcase
           string-upcase)
-  (import (lispkit character)
+  (import (lispkit char)
           (lispkit string))
 )

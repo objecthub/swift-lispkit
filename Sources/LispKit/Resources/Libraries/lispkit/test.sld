@@ -37,7 +37,8 @@
           test-error
           test-group
           test-group-failures
-          current-test-comparator)
+          current-test-comparator
+          write-to-string)
 
   (import (lispkit base)
           (lispkit stack))

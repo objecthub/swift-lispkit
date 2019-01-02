@@ -1,14 +1,9 @@
-;;; SRFI 14
+;;; SCHEME CHARSET
 ;;;
-;;; The ability to efficiently represent and manipulate sets of characters is an unglamorous
-;;; but very useful capability for text-processing code -- one that tends to pop up in the
-;;; definitions of other libraries. Hence it is useful to specify a general substrate for this
-;;; functionality early. SRFI 14 defines a general library that provides this functionality.
+;;; Library implementing character sets. This library is part of the Scheme Red edition of the
+;;; R7RS large language.
 ;;;
-;;; This implementation is LispKit-specific and is based on characters being UTF16 code units.
-;;;
-;;; Author of spec: Olin Shivers
-;;;
+;;; Author: Matthias Zenger
 ;;; Copyright © 2019 Matthias Zenger. All rights reserved.
 ;;;
 ;;; Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
@@ -21,7 +16,7 @@
 ;;; either express or implied. See the License for the specific language governing permissions
 ;;; and limitations under the License.
 
-(define-library (srfi 14)
+(define-library (scheme charset)
 
   (export char-set?
           char-set=
@@ -88,10 +83,5 @@
           char-set:empty
           char-set:full)
 
-  (import (lispkit base)
-          (rename (lispkit char-set)
-                  (char-set=? char-set=)
-                  (char-set<=? char-set<=)
-                  (char-set-every? char-set-every)
-                  (char-set-any? char-set-any)))
+  (import (srfi 14))
 )
