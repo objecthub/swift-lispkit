@@ -408,7 +408,12 @@ public final class PortLibrary: NativeLibrary {
     let input = try self.textInputFrom(expr, open: true)
     let parser = Parser(symbols: self.context.symbols, input: input)
     do {
-      return try parser.parse(false).datum
+      let res = try parser.parse(false).datum
+      if case .eof = res {
+        return res
+      }
+      input.unread() // put the look-ahead character back into the input stream
+      return res
     } catch let error as RuntimeError {
       guard case .syntax(.empty) = error.descriptor else {
         throw error

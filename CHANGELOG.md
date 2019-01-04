@@ -1,7 +1,17 @@
 # Changelog
 
-## 1.5.5 (2018-11-18)
-TODO
+## 1.6 (2019-01-04)
+- New libraries: `(lispkit log)`, `(lispkit char-set)`, `(scheme char)`, `(srfi 14 ascii)`, `(srfi 101)`, `(srfi 125)`
+- Support Scheme libraries from R7RS large/Red edition:  `(scheme box)`,  `(scheme charset)`,
+  `(scheme comparator)`, `(scheme generator)`,
+  `(scheme hash-table)`, `(scheme ideque)`, `(scheme list)`, `(scheme rlist)`, `(scheme set)`,
+  `(scheme sort)`, `(scheme stream)`, `(scheme text)`, `(scheme vector)`
+- Extended library `(lispkit test)`: support nested test groups, approximate tests, and handle exceptions correctly
+- Handle closing of ports correctly in library `(lispkit port)`
+- Fix major bug in library `(lispkit system)` affecting the composition of file paths
+- Bug fixes affecting `fold-left`, `max`, `min`, `numerator`, `denominator`, `log`, `magnitude`, `gcd` and `lcm`, as well as the escaping of symbols
+- Move from `#\dx????` syntax to `#\x????` to represent character literals
+- Return more user-friendly error messages for operating system errors
 
 ## 1.5.4 (2018-11-03)
 - Migrated project to Xcode 10.1 and ported code to Swift 4.2.1

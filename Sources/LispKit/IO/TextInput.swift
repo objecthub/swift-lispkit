@@ -99,6 +99,13 @@ open class TextInput {
     return self.buffer[self.next]
   }
   
+  open func unread() {
+    guard self.next > self.buffer.startIndex else {
+      return
+    }
+    self.next = self.buffer.index(before: self.next)
+  }
+  
   open func readString(_ n: Int) -> String? {
     assert(n >= 0, "TextInput.readString called with negative count")
     guard n > 0 else {

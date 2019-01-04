@@ -68,6 +68,7 @@
 		CC436C421FFD96800095559E /* Logic.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC436C411FFD94870095559E /* Logic.scm */; };
 		CC4385BC20BABAA600055289 /* HTTP.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC4385BB20BAB79500055289 /* HTTP.scm */; };
 		CC4385BE20BB5F3400055289 /* Compiler.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC4385BD20BB5EE200055289 /* Compiler.scm */; };
+		CC44E5B221DECD7B0009969C /* All.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC44E5B121DECB850009969C /* All.scm */; };
 		CC4575C620F00C4400116F0F /* DrawingLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC4575C520F00C4400116F0F /* DrawingLibrary.swift */; };
 		CC4575C820F00EE000116F0F /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC4575C720F00EE000116F0F /* Color.swift */; };
 		CC474EAF1ECFAC3F00B535E3 /* Pi.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCFBE5C31ECBA8DA0032254B /* Pi.scm */; };
@@ -283,6 +284,7 @@
 			dstPath = LispKit/Resources/Tests;
 			dstSubfolderSpec = 7;
 			files = (
+				CC44E5B221DECD7B0009969C /* All.scm in Copy tests */,
 				CC54924721DCDFE2004A0652 /* SRFI-14-Tests.scm in Copy tests */,
 				CC54923B21D9828B004A0652 /* SRFI-101-Tests.scm in Copy tests */,
 				CC2C73DF21A22D2B00B18661 /* SRFI-125-Tests.scm in Copy tests */,
@@ -620,6 +622,7 @@
 		CC436C411FFD94870095559E /* Logic.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Logic.scm; sourceTree = "<group>"; };
 		CC4385BB20BAB79500055289 /* HTTP.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = HTTP.scm; sourceTree = "<group>"; };
 		CC4385BD20BB5EE200055289 /* Compiler.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Compiler.scm; sourceTree = "<group>"; };
+		CC44E5B121DECB850009969C /* All.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = All.scm; sourceTree = "<group>"; };
 		CC4575C520F00C4400116F0F /* DrawingLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawingLibrary.swift; sourceTree = "<group>"; };
 		CC4575C720F00EE000116F0F /* Color.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Color.swift; sourceTree = "<group>"; };
 		CC474EB01ED0390200B535E3 /* Queens.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Queens.scm; sourceTree = "<group>"; };
@@ -859,6 +862,7 @@
 		CC09ECF12198B7D300F84713 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				CC44E5B121DECB850009969C /* All.scm */,
 				CC09ECF22198B87200F84713 /* R7RS-Tests.scm */,
 				CC54924421DCDEA1004A0652 /* SRFI-14-Tests.scm */,
 				CC54923A21D9823B004A0652 /* SRFI-101-Tests.scm */,

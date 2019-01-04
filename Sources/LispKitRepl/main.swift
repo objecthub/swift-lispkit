@@ -3,7 +3,7 @@
 //  LispKitRepl
 //
 //  Created by Matthias Zenger on 14/04/2016.
-//  Copyright © 2016-2018 ObjectHub. All rights reserved.
+//  Copyright © 2016-2019 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -123,7 +123,7 @@ var cmdLineArgs = flags.parameters.isEmpty ? [CommandLine.arguments.first!] : fl
 #if SPM
   let context = Context(console: console,
                         implementationName: "LispKit",
-                        implementationVersion: "1.5.5",
+                        implementationVersion: "1.6",
                         commandLineArguments: cmdLineArgs,
                         includeInternalResources: false,
                         includeDocumentPath: searchDocs.wasSet ? "LispKit" : nil)
@@ -142,7 +142,7 @@ if !searchDocs.wasSet {
                   .appendingPathComponent("lib", isDirectory: true)
   _ = context.fileHandler.addSearchPath(rootUrl.path)
   _ = context.fileHandler.addLibrarySearchPath(rootUrl
-        .appendingPathComponent("Libraries", isDirectory: true).path)
+                           .appendingPathComponent("Libraries", isDirectory: true).path)
   if !prelude.wasSet {
     prelude.value = rootUrl.appendingPathComponent("Libraries", isDirectory: true)
                            .appendingPathComponent("Prelude.scm", isDirectory: false).path

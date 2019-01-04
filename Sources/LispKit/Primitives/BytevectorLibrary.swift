@@ -169,8 +169,14 @@ public final class BytevectorLibrary: NativeLibrary {
     guard toStart + end - start - 1 < toVec.value.count else {
       throw RuntimeError.eval(.targetBytevectorTooSmall, to)
     }
-    for i in start..<end {
-      toVec.value[toStart + i - start] = fromVec.value[i]
+    if toStart <= start {
+      for i in start..<end {
+        toVec.value[toStart + i - start] = fromVec.value[i]
+      }
+    } else if toStart > start {
+      for i in (start..<end).reversed() {
+        toVec.value[toStart + i - start] = fromVec.value[i]
+      }
     }
     return .void
   }

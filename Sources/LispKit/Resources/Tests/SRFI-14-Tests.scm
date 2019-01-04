@@ -36,7 +36,7 @@
 
 (define (vowel? c) (member c '(#\a #\e #\i #\o #\u)))
 
-(test-begin "srfi-14: char-sets")
+(test-begin "SRFI 14: Character sets")
 
 (test-not (char-set? 5))
 

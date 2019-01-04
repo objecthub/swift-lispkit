@@ -34,7 +34,8 @@ struct Equality: Hashable {
   }
   
   func hash(into hasher: inout Hasher) {
-    hasher.combine(ref1.hashValue &+ ref2.hashValue)
+    let value: Int = ObjectIdentifier(ref1).hashValue ^ ObjectIdentifier(ref2).hashValue
+    hasher.combine(value)
   }
   
   static func ==(lhs: Equality, rhs: Equality) -> Bool {
