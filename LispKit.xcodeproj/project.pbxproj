@@ -779,6 +779,7 @@
 		CCB585B71E15A6E70064BB18 /* ContextDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContextDelegate.swift; sourceTree = "<group>"; };
 		CCB585BA1E15AA4D0064BB18 /* Heap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Heap.swift; sourceTree = "<group>"; };
 		CCB91C971D57E784001A95DC /* Parameters.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Parameters.scm; sourceTree = "<group>"; };
+		CCBD755D21E224A7008CD7C8 /* csv.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = csv.sld; sourceTree = "<group>"; };
 		CCBDB73A1EDB4AB3001606E2 /* Prolog.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Prolog.scm; sourceTree = "<group>"; };
 		CCC072451F9AA8B70063974E /* 64.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 64.sld; sourceTree = "<group>"; };
 		CCC072471F9C047D0063974E /* 128.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 128.sld; sourceTree = "<group>"; };
@@ -1001,6 +1002,7 @@
 				CC72862C1F52B2F600EEBC58 /* heap.sld */,
 				CCEEF3921FB3CB03006C4581 /* wt-tree.sld */,
 				CC750BD91F5B772200CD82A2 /* prettify.sld */,
+				CCBD755D21E224A7008CD7C8 /* csv.sld */,
 				CC3A02591F97F3E1009B959C /* json.sld */,
 				CC10404C1F5378660045144A /* pdf.sld */,
 				CC703A1A218D09B600E71EA9 /* clos.sld */,
