@@ -3,7 +3,7 @@
 //  LispKit
 //
 //  Created by Matthias Zenger on 16/07/2016.
-//  Copyright © 2016 ObjectHub. All rights reserved.
+//  Copyright © 2016-2019 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -101,8 +101,17 @@ public func equalHash(_ expr: Expr, into hasher: inout Hasher) {
           visited.remove(tuple)
           break
         }
-      case .vector(let vector):
+      case .array(let array):
         hasher.combine(18)
+        guard alreadyVisited(array) else {
+          for expr in array.exprs {
+            hash(expr)
+          }
+          visited.remove(array)
+          break
+        }
+      case .vector(let vector):
+        hasher.combine(19)
         guard alreadyVisited(vector) else {
           for expr in vector.exprs {
             hash(expr)
@@ -111,7 +120,7 @@ public func equalHash(_ expr: Expr, into hasher: inout Hasher) {
           break
         }
       case .record(let record):
-        hasher.combine(19)
+        hasher.combine(20)
         guard alreadyVisited(record) else {
           switch record.kind {
             case .recordType:
@@ -128,7 +137,7 @@ public func equalHash(_ expr: Expr, into hasher: inout Hasher) {
           break
         }
       case .table(let map):
-        hasher.combine(20)
+        hasher.combine(21)
         guard alreadyVisited(map) else {
           for (key, value) in map.mappings {
             hash(key)
@@ -138,35 +147,35 @@ public func equalHash(_ expr: Expr, into hasher: inout Hasher) {
           break
         }
       case .promise(let promise):
-        hasher.combine(21)
+        hasher.combine(22)
         hasher.combine(promise)
       case .values(let expr):
-        hasher.combine(22)
+        hasher.combine(23)
         hash(expr)
       case .procedure(let proc):
-        hasher.combine(23)
+        hasher.combine(24)
         hasher.combine(proc)
       case .special(let special):
-        hasher.combine(24)
+        hasher.combine(25)
         hasher.combine(special)
       case .env(let environment):
-        hasher.combine(25)
+        hasher.combine(26)
         hasher.combine(environment)
       case .port(let port):
-        hasher.combine(26)
+        hasher.combine(27)
         hasher.combine(port)
       case .object(let obj):
-        hasher.combine(27)
+        hasher.combine(28)
         hasher.combine(obj)
       case .tagged(let tag, let expr):
-        hasher.combine(28)
+        hasher.combine(29)
         eqvHash(tag, into: &hasher)
         hash(expr)
       case .error(let err):
-        hasher.combine(29)
+        hasher.combine(30)
         hasher.combine(err)
       case .syntax(let pos, let expr):
-        hasher.combine(30)
+        hasher.combine(31)
         hasher.combine(pos)
         hash(expr)
     }
@@ -234,45 +243,48 @@ public func eqvHash(_ expr: Expr, into hasher: inout Hasher) {
     case .mpair(let tuple):
       hasher.combine(17)
       hasher.combine(tuple)
-    case .vector(let vector):
+    case .array(let array):
       hasher.combine(18)
+      hasher.combine(array)
+    case .vector(let vector):
+      hasher.combine(19)
       hasher.combine(vector)
     case .record(let record):
-      hasher.combine(19)
+      hasher.combine(20)
       hasher.combine(record)
     case .table(let map):
-      hasher.combine(20)
+      hasher.combine(21)
       hasher.combine(map)
     case .promise(let promise):
-      hasher.combine(21)
+      hasher.combine(22)
       hasher.combine(promise)
     case .values(let expr):
-      hasher.combine(22)
+      hasher.combine(23)
       eqvHash(expr, into: &hasher)
     case .procedure(let proc):
-      hasher.combine(23)
+      hasher.combine(24)
       hasher.combine(proc)
     case .special(let special):
-      hasher.combine(24)
+      hasher.combine(25)
       hasher.combine(special)
     case .env(let environment):
-      hasher.combine(25)
+      hasher.combine(26)
       hasher.combine(environment)
     case .port(let port):
-      hasher.combine(26)
+      hasher.combine(27)
       hasher.combine(port)
     case .object(let obj):
-      hasher.combine(27)
+      hasher.combine(28)
       hasher.combine(obj)
     case .tagged(let tag, let expr):
-      hasher.combine(28)
+      hasher.combine(29)
       eqvHash(tag, into: &hasher)
       eqvHash(expr, into: &hasher)
     case .error(let err):
-      hasher.combine(29)
+      hasher.combine(30)
       hasher.combine(err)
     case .syntax(let pos, let expr):
-      hasher.combine(30)
+      hasher.combine(31)
       hasher.combine(pos)
       eqvHash(expr, into: &hasher)
   }
@@ -337,45 +349,48 @@ public func eqHash(_ expr: Expr, into hasher: inout Hasher) {
     case .mpair(let tuple):
       hasher.combine(17)
       hasher.combine(tuple)
-    case .vector(let vector):
+    case .array(let array):
       hasher.combine(18)
+      hasher.combine(array)
+    case .vector(let vector):
+      hasher.combine(19)
       hasher.combine(vector)
     case .record(let record):
-      hasher.combine(19)
+      hasher.combine(20)
       hasher.combine(record)
     case .table(let map):
-      hasher.combine(20)
+      hasher.combine(21)
       hasher.combine(map)
     case .promise(let promise):
-      hasher.combine(21)
+      hasher.combine(22)
       hasher.combine(promise)
     case .values(let expr):
-      hasher.combine(22)
+      hasher.combine(23)
       eqHash(expr, into: &hasher)
     case .procedure(let proc):
-      hasher.combine(23)
+      hasher.combine(24)
       hasher.combine(proc)
     case .special(let special):
-      hasher.combine(24)
+      hasher.combine(25)
       hasher.combine(special)
     case .env(let environment):
-      hasher.combine(25)
+      hasher.combine(26)
       hasher.combine(environment)
     case .port(let port):
-      hasher.combine(26)
+      hasher.combine(27)
       hasher.combine(port)
     case .object(let obj):
-      hasher.combine(27)
+      hasher.combine(28)
       hasher.combine(obj)
     case .tagged(let tag, let expr):
-      hasher.combine(28)
+      hasher.combine(29)
       eqvHash(tag, into: &hasher)
       eqHash(expr, into: &hasher)
     case .error(let err):
-      hasher.combine(29)
+      hasher.combine(30)
       hasher.combine(err)
     case .syntax(let pos, let expr):
-      hasher.combine(30)
+      hasher.combine(31)
       hasher.combine(pos)
       eqHash(expr, into: &hasher)
   }

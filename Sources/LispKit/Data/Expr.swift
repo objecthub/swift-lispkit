@@ -3,7 +3,7 @@
 //  LispKit
 //
 //  Created by Matthias Zenger on 08/11/2015.
-//  Copyright © 2016 ObjectHub. All rights reserved.
+//  Copyright © 2016-2019 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -44,6 +44,7 @@ public enum Expr: Trackable, Hashable {
   indirect case pair(Expr, Expr)
   case box(Cell)
   case mpair(Tuple)
+  case array(Collection)
   case vector(Collection)
   case record(Collection)
   case table(HashTable)
@@ -97,6 +98,8 @@ public enum Expr: Trackable, Hashable {
         return .boxType
       case .mpair(_):
         return .mpairType
+      case .array(_):
+        return .arrayType
       case .vector(_):
         return .vectorType
       case .record(_):
@@ -318,7 +321,7 @@ public enum Expr: Trackable, Hashable {
         return car.requiresTracking || cdr.requiresTracking
       case .syntax(_, let expr):
         return expr.requiresTracking
-      case .box(_), .mpair(_), .vector(_), .record(_), .table(_), .promise(_),
+      case .box(_), .mpair(_), .array(_), .vector(_), .record(_), .table(_), .promise(_),
            .procedure(_), .special(_), .error(_):
         return true
       default:
@@ -338,6 +341,9 @@ public enum Expr: Trackable, Hashable {
           return
         case .mpair(let tuple):
           tuple.mark(tag)
+          return
+        case .array(let array):
+          array.mark(tag)
           return
         case .vector(let vector):
           vector.mark(tag)
@@ -605,6 +611,13 @@ extension Expr {
     return bvector
   }
   
+  @inline(__always) public func arrayAsCollection() throws -> Collection {
+    guard case .array(let res) = self else {
+      throw RuntimeError.type(self, expected: [.arrayType])
+    }
+    return res
+  }
+  
   @inline(__always) public func vectorAsCollection() throws -> Collection {
     guard case .vector(let res) = self else {
       throw RuntimeError.type(self, expected: [.vectorType])
@@ -807,6 +820,20 @@ extension Expr: CustomStringConvertible {
             let res = "#<pair \(stringReprOf(tuple.fst)) \(stringReprOf(tuple.snd))>"
             enclObjs.remove(tuple)
             return fixString(tuple, res)
+          }
+        case .array(let array):
+          if let res = objIdString(array) {
+            return res
+          } else if array.exprs.count == 0 {
+            return "#<array>"
+          } else {
+            enclObjs.insert(array)
+            var builder = StringBuilder(prefix: "#<array ", postfix: ">", separator: " ")
+            for expr in array.exprs {
+              builder.append(stringReprOf(expr))
+            }
+            enclObjs.remove(array)
+            return fixString(array, builder.description)
           }
         case .vector(let vector):
           if let res = objIdString(vector) {

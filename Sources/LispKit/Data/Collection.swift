@@ -3,7 +3,7 @@
 //  LispKit
 //
 //  Created by Matthias Zenger on 23/01/2016.
-//  Copyright © 2016 ObjectHub. All rights reserved.
+//  Copyright © 2016-2019 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -20,8 +20,9 @@
 
 /// 
 /// Class `Collection` is an indexed sequence of expressions which is used to represent
-/// vectors, records, and record types in LispKit. A `Collection` object is a boxed
+/// arrays, vectors, records, and record types in LispKit. A `Collection` object is a boxed
 /// expression array of one of the following kinds:
+///    - Array
 ///    - Vector
 ///    - Immutable vector
 ///    - Record type
@@ -30,6 +31,7 @@
 public final class Collection: ManagedObject, CustomStringConvertible {
   
   public enum Kind: CustomStringConvertible {
+    case array
     case vector
     case immutableVector
     case recordType
@@ -37,6 +39,8 @@ public final class Collection: ManagedObject, CustomStringConvertible {
     
     public var description: String {
       switch self {
+        case .array:
+          return "array"
         case .vector:
           return "vector"
         case .immutableVector:
@@ -77,14 +81,15 @@ public final class Collection: ManagedObject, CustomStringConvertible {
   
   public func sameKindAs(_ other: Collection) -> Bool {
     switch (self.kind, other.kind) {
-      case (.vector, .vector),
+      case (.array, .array),
+           (.vector, .vector),
            (.immutableVector, .immutableVector),
            (.recordType, .recordType):
         return true
       case (.record(let type1), .record(let type2)):
         return type1 == type2
       default:
-        return true
+        return false
     }
   }
   
@@ -107,6 +112,8 @@ public final class Collection: ManagedObject, CustomStringConvertible {
   
   public var description: String {
     switch self.kind {
+      case .array:
+        return "#<array \(self.identityString)>"
       case .vector:
         return "#<vector \(self.identityString)>"
       case .immutableVector:

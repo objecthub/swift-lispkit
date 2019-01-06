@@ -389,7 +389,7 @@ public final class Compiler {
         self.emit(.pushComplex(num.value))
       case .char(let char):
         self.emit(.pushChar(char))
-      case .symbol(_), .string(_), .bytes(_), .pair(_, _), .box(_), .mpair(_),
+      case .symbol(_), .string(_), .bytes(_), .pair(_, _), .box(_), .mpair(_), .array(_),
            .vector(_), .record(_), .table(_), .promise(_), .procedure(_), .env(_),
            .port(_), .object(_), .tagged(_, _), .error(_):
         self.pushConstant(expr)

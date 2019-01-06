@@ -3,7 +3,7 @@
 //  LispKit
 //
 //  Created by Matthias Zenger on 30/12/2015.
-//  Copyright © 2016 ObjectHub. All rights reserved.
+//  Copyright © 2016-2019 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ public enum Type: Int, CustomStringConvertible {
   case pairType
   case boxType
   case mpairType
+  case arrayType
   case vectorType
   case tableType
   case recordType
@@ -109,6 +110,8 @@ public enum Type: Int, CustomStringConvertible {
         return "string"
       case .pairType:
         return "pair"
+      case .arrayType:
+        return "array"
       case .vectorType:
         return "vector"
       case .byteVectorType:

@@ -3,7 +3,7 @@
 //  LispKit
 //
 //  Created by Matthias Zenger on 30/01/2016.
-//  Copyright © 2016 ObjectHub. All rights reserved.
+//  Copyright © 2016-2019 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -108,6 +108,24 @@ public func equalExpr(_ this: Expr, _ that: Expr) -> Bool {
         }
         equalities.insert(equality)
         return equals(tuple1.fst, tuple2.fst) && equals(tuple1.snd, tuple2.snd)
+      case (.array(let array1), .array(let array2)):
+        guard array1 !== array2 else {
+          return true
+        }
+        let equality = Equality(array1, array2)
+        guard !equalities.contains(equality) else {
+          return true
+        }
+        guard array1.exprs.count == array2.exprs.count else {
+          return false
+        }
+        equalities.insert(equality)
+        for i in array1.exprs.indices {
+          guard equals(array1.exprs[i], array2.exprs[i]) else {
+            return false
+          }
+        }
+        return true
       case (.vector(let vector1), .vector(let vector2)):
         guard vector1 !== vector2 else {
           return true
@@ -253,6 +271,8 @@ public func eqvExpr(_ lhs: Expr, _ rhs: Expr) -> Bool {
       return c1 === c2
     case (.mpair(let t1), .mpair(let t2)):
       return t1 === t2
+    case (.array(let array1), .array(let array2)):
+      return array1 === array2
     case (.vector(let vector1), .vector(let vector2)):
       return vector1 === vector2
     case (.record(let record1), .record(let record2)):
@@ -324,6 +344,8 @@ public func eqExpr(_ lhs: Expr, _ rhs: Expr) -> Bool {
       return c1 === c2
     case (.mpair(let t1), .mpair(let t2)):
       return t1 === t2
+    case (.array(let array1), .array(let array2)):
+      return array1 === array2
     case (.vector(let vector1), .vector(let vector2)):
       return vector1 === vector2
     case (.record(let record1), .record(let record2)):
