@@ -50,10 +50,12 @@ public final class SyntaxRules {
   }
   
   internal func expand(_ input: Expr) throws -> Expr {
-    // log("---- EXPAND: \(input)") //DEBUG
+    // Swift.print("---- EXPAND: \(Expr.pair(.symbol(self.name ?? self.context.symbols.wildcard), input))") //DEBUG
     for index in self.patterns.indices {
       if let matches = self.match(self.patterns[index], with: input) {
-        return try self.instantiate(template: self.templates[index], with: matches, at: 0)
+        let res = try self.instantiate(template: self.templates[index], with: matches, at: 0)
+        // Swift.print("---- RES: \(res)")
+        return res
       }
     }
     throw RuntimeError.eval(.noExpansion, .pair(.symbol(self.name ?? self.context.symbols.wildcard),
