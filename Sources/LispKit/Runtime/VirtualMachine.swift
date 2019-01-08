@@ -1205,12 +1205,20 @@ public final class VirtualMachine: TrackedObject {
           let future = Promise(kind: .stream, thunk: proc)
           self.context.objects.manage(future)
           self.push(.promise(future))
-        case .makeSyntax:
+        case .makeSyntax(let i):
           let transformer = self.pop()
           guard case .procedure(let proc) = transformer else {
             throw RuntimeError.eval(.malformedTransformer, transformer)
           }
-          self.push(.special(SpecialForm(nil, proc)))
+          if i >= 0 {
+            guard case .symbol(let sym) = self.registers.code.constants[i] else {
+              preconditionFailure(
+                "makeSyntax has broken syntax name \(self.registers.code.constants[i])")
+            }
+            self.push(.special(SpecialForm(sym.identifier, proc)))
+          } else {
+            self.push(.special(SpecialForm(nil, proc)))
+          }
         case .compile:
           let environment = try self.pop().asEnvironment()
           let code = try Compiler.compile(expr: .makeList(self.pop()),

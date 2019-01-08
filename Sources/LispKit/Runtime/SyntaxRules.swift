@@ -24,6 +24,7 @@
 ///
 public final class SyntaxRules {
   private unowned let context: Context
+  internal let name: Symbol?
   private let ellipsis: Symbol
   private let reserved: Set<Symbol>
   private let literals: Set<Symbol>
@@ -32,12 +33,14 @@ public final class SyntaxRules {
   private let lexicalEnv: Env
   
   public init(context: Context,
+              name: Symbol?,
               literals: Set<Symbol>,
               ellipsis: Symbol? = nil,
               patterns: Exprs,
               templates: Exprs,
               in env: Env) {
     self.context = context
+    self.name = name
     self.ellipsis = ellipsis ?? context.symbols.ellipsis
     self.reserved = [context.symbols.wildcard, self.ellipsis]
     self.literals = literals
@@ -53,7 +56,8 @@ public final class SyntaxRules {
         return try self.instantiate(template: self.templates[index], with: matches, at: 0)
       }
     }
-    return input // TODO: should we throw an error instead?
+    throw RuntimeError.eval(.noExpansion, .pair(.symbol(self.name ?? self.context.symbols.wildcard),
+                                                input))
   }
   
   private func match(_ pattern: Expr, with input: Expr) -> Matches? {

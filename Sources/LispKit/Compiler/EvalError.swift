@@ -40,6 +40,7 @@ public enum EvalError: Int, Hashable {
   case malformedPatternInSyntaxRule
   case malformedSyntaxRulePattern
   case malformedSyntaxRuleLiterals
+  case noExpansion
   case invalidContextInQuasiquote
   case macroMismatchedRepetitionPatterns
   case malformedBinding
@@ -127,6 +128,8 @@ public enum EvalError: Int, Hashable {
         return "malformed syntax rule pattern: $0"
       case .malformedSyntaxRuleLiterals:
         return "malformed list of syntax rule literals: $0"
+      case .noExpansion:
+        return "no expansion for: $0"
       case .invalidContextInQuasiquote:
         return "usage of $0 in invalid context within quasiquote: $1"
       case .macroMismatchedRepetitionPatterns:

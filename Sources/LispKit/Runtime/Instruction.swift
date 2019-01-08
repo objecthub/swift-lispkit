@@ -158,7 +158,7 @@ public enum Instruction: CustomStringConvertible {
   
   /// **`make_syntax`**: Pops a syntax transformer function off the stack, creates a special
   /// form from it and pushes it onto the stack.
-  case makeSyntax
+  case makeSyntax(Int)
   
   
   // Promises and streams ---------------------------------------------------------------------
@@ -469,6 +469,8 @@ public enum Instruction: CustomStringConvertible {
         return code.constants[index].description
       case .makeClosure(let i, _, _):
         return i >= 0 ? code.constants[i].description : (i == -2 ? "continuation" : nil)
+      case .makeSyntax(let i):
+        return i >= 0 ? code.constants[i].description : nil
       case .makeVariableArgument(_):
         return nil
       case .pushChar(let char):
@@ -572,8 +574,8 @@ public enum Instruction: CustomStringConvertible {
         return "make_promise"
       case .makeStream:
         return "make_stream"
-      case .makeSyntax:
-        return "make_syntax"
+      case .makeSyntax(let i):
+        return "make_syntax \(i)"
       case .compile:
         return "compile"
       case .apply(let n):

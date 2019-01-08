@@ -498,9 +498,12 @@ public final class CoreLibrary: NativeLibrary {
     }
     // Compile transformer and store it as global keyword
     let index = compiler.registerConstant(kword)
+    let oldSyntaxSym = compiler.syntaxSym
+    compiler.syntaxSym = sym
     try compiler.compile(transformer, in: env, inTailPos: false)
+    compiler.syntaxSym = oldSyntaxSym
     let loc = env.environment!.forceDefinedLocationRef(for: sym).location!
-    compiler.emit(.makeSyntax)
+    compiler.emit(.makeSyntax(index))
     compiler.emit(.defineGlobal(loc))
     compiler.emit(.pushConstant(index))
     return false
@@ -567,6 +570,7 @@ public final class CoreLibrary: NativeLibrary {
       throw RuntimeError.eval(.malformedSyntaxRuleLiterals, lit)
     }
     let rules = SyntaxRules(context: self.context,
+                            name: compiler.syntaxSym,
                             literals: literalSet,
                             ellipsis: ellipsis,
                             patterns: patterns,

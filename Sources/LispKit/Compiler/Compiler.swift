@@ -31,6 +31,9 @@ public final class Compiler {
   /// Context in which this compiler is running
   public unowned let context: Context
   
+  /// Set to the current syntax name
+  internal var syntaxSym: Symbol? = nil
+  
   /// Environment in which expressions should be compiled
   internal var env: Env
   
