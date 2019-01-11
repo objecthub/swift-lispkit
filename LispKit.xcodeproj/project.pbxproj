@@ -160,6 +160,8 @@
 		CC79DE041F88404600CE7A5D /* 63.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC79DE031F883FED00CE7A5D /* 63.sld */; };
 		CC79DE061F88D42600CE7A5D /* TypeLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC79DE051F88D42600CE7A5D /* TypeLibrary.swift */; };
 		CC79DE081F8993EE00CE7A5D /* LightweightTypes.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC79DE071F8993EE00CE7A5D /* LightweightTypes.scm */; };
+		CC7A125821E93E1700ABEA17 /* match.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC7A125721E93DAF00ABEA17 /* match.sld */; };
+		CC7A125921E93E3000ABEA17 /* csv.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCBD755D21E224A7008CD7C8 /* csv.sld */; };
 		CC7AAE6C1EC8A87F00B0F66C /* 121.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC7AAE6B1EC859E100B0F66C /* 121.sld */; };
 		CC7AAE6E1EC8AEC600B0F66C /* SRFI121.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC7AAE6D1EC8AEBE00B0F66C /* SRFI121.scm */; };
 		CC7AAE701EC90D3900B0F66C /* 134.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC7AAE6F1EC9050B00B0F66C /* 134.sld */; };
@@ -389,6 +391,8 @@
 			dstPath = LispKit/Resources/Libraries/lispkit;
 			dstSubfolderSpec = 7;
 			files = (
+				CC7A125921E93E3000ABEA17 /* csv.sld in Copy pre-installed LispKit libraries */,
+				CC7A125821E93E1700ABEA17 /* match.sld in Copy pre-installed LispKit libraries */,
 				CC82933021D6E992003E1D3C /* log.sld in Copy pre-installed LispKit libraries */,
 				CC703A1D218D0AE400E71EA9 /* clos.sld in Copy pre-installed LispKit libraries */,
 				CC96D10B203997F0006AA27B /* test.sld in Copy pre-installed LispKit libraries */,
@@ -710,6 +714,7 @@
 		CC79DE031F883FED00CE7A5D /* 63.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 63.sld; sourceTree = "<group>"; };
 		CC79DE051F88D42600CE7A5D /* TypeLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TypeLibrary.swift; sourceTree = "<group>"; };
 		CC79DE071F8993EE00CE7A5D /* LightweightTypes.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LightweightTypes.scm; sourceTree = "<group>"; };
+		CC7A125721E93DAF00ABEA17 /* match.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = match.sld; sourceTree = "<group>"; };
 		CC7AAE6B1EC859E100B0F66C /* 121.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 121.sld; sourceTree = "<group>"; };
 		CC7AAE6D1EC8AEBE00B0F66C /* SRFI121.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SRFI121.scm; sourceTree = "<group>"; };
 		CC7AAE6F1EC9050B00B0F66C /* 134.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 134.sld; sourceTree = "<group>"; };
@@ -991,6 +996,7 @@
 			children = (
 				CC82932F21D6E91D003E1D3C /* log.sld */,
 				CC96D10A20399770006AA27B /* test.sld */,
+				CC7A125721E93DAF00ABEA17 /* match.sld */,
 				CC2345401F655B8B00C38817 /* datatype.sld */,
 				CC68B3A81FCC73C300EB4AF9 /* object.sld */,
 				CCD6C3E81F35F95D0002F7D4 /* enum.sld */,
