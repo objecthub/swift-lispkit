@@ -1,5 +1,5 @@
 ;;; LISPKIT MATCH
-;;; 
+;;;
 ;;; This is Alex Shinn's portable hygienic pattern matcher library ported to LispKit.
 ;;; This library is a full superset of the popular match package written by Andrew Wright.
 ;;; The most notable extensions are the ability to use non-linear patterns, i.e. patterns
@@ -472,8 +472,8 @@
                           i))
              (if (pair? v)
                  (let ((w (car v)) (x (cdr v)))
-                   (match-one w p ((car v))
-                              (match-one x q ((cdr v)) sk fk)
+                   (match-one w p ((car v) (set-car! v))
+                              (match-one x q ((cdr v) (set-cdr! v)) sk fk)
                               fk
                               i))
                  fk)))

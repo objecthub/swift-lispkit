@@ -18,10 +18,11 @@
 
 (test-begin "LispKit regression tests")
 
-(load "Tests/R7RS-Tests")
-(load "Tests/SRFI-14-Tests")
-(load "Tests/SRFI-101-Tests")
-(load "Tests/SRFI-125-Tests")
+(load "Tests/R7RS")
+(load "Tests/LispKit-Match")
+(load "Tests/SRFI-14")
+(load "Tests/SRFI-101")
+(load "Tests/SRFI-125")
 
 (test-end)
 
