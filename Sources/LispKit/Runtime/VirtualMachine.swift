@@ -201,7 +201,6 @@ public final class VirtualMachine: TrackedObject {
   /// When set to true, will print call and return traces
   public var traceCalls: Bool = false
   
-  
   /// Initializes a new virtual machine for the given context.
   public init(for context: Context) {
     self.context = context
@@ -603,8 +602,11 @@ public final class VirtualMachine: TrackedObject {
     self.registers.code = newcode
   }
   
-  internal func getStackTrace() -> [Procedure] {
+  internal func getStackTrace(current: Procedure? = nil) -> [Procedure] {
     var stackTrace: [Procedure] = []
+    if let current = current {
+      stackTrace.append(current)
+    }
     var fp = self.registers.fp
     while fp > 0 {
       guard case .procedure(let proc) = self.stack[fp &- 1] else {
@@ -693,235 +695,246 @@ public final class VirtualMachine: TrackedObject {
       }
     }
     // Handle primitive procedures; this is required to loop because of applicators
-    loop: while case .primitive(_, let impl, _) = proc.kind {
-      switch impl {
-        case .eval(let eval):
-          let generated = Procedure(try eval(self.stack[(self.sp &- n)..<self.sp]))
-          self.pop(n + 1)
-          self.push(.procedure(generated))
-          n = 0
-          return generated
-        case .apply(let apply):
-          let (next, args) = try apply(self.stack[(self.sp &- n)..<self.sp])
-          self.pop(n + 1)
-          self.push(.procedure(next))
-          for arg in args {
-            self.push(arg)
-          }
-          n = args.count
-          proc = next
-        case .native0(let exec):
-          guard n == 0 else {
-            throw RuntimeError.argumentCount(min: 0, max: 0, args: self.popAsList(n))
-          }
-          self.pop(overhead)
-          self.push(try exec())
-          return proc
-        case .native1(let exec):
-          guard n == 1 else {
-            throw RuntimeError.argumentCount(min: 1, max: 1, args: self.popAsList(n))
-          }
-          let a0 = self.pop()
-          self.pop(overhead)
-          self.push(try exec(a0))
-          return proc
-        case .native2(let exec):
-          guard n == 2 else {
-            throw RuntimeError.argumentCount(min: 2, max: 2, args: self.popAsList(n))
-          }
-          let a1 = self.pop()
-          let a0 = self.pop()
-          self.pop(overhead)
-          self.push(try exec(a0, a1))
-          return proc
-        case .native3(let exec):
-          guard n == 3 else {
-            throw RuntimeError.argumentCount(min: 3, max: 3, args: self.popAsList(n))
-          }
-          let a2 = self.pop()
-          let a1 = self.pop()
-          let a0 = self.pop()
-          self.pop(overhead)
-          self.push(try exec(a0, a1, a2))
-          return proc
-        case .native4(let exec):
-          guard n == 4 else {
-            throw RuntimeError.argumentCount(min: 4, max: 4, args: self.popAsList(n))
-          }
-          let a3 = self.pop()
-          let a2 = self.pop()
-          let a1 = self.pop()
-          let a0 = self.pop()
-          self.pop(overhead)
-          self.push(try exec(a0, a1, a2, a3))
-          return proc
-        case .native0O(let exec):
-          if n == 0 {
+    do {
+      loop: while case .primitive(_, let impl, _) = proc.kind {
+        switch impl {
+          case .eval(let eval):
+            let generated = Procedure(try eval(self.stack[(self.sp &- n)..<self.sp]))
+            self.pop(n + 1)
+            self.push(.procedure(generated))
+            n = 0
+            return generated
+          case .apply(let apply):
+            let (next, args) = try apply(self.stack[(self.sp &- n)..<self.sp])
+            self.pop(n + 1)
+            self.push(.procedure(next))
+            for arg in args {
+              self.push(arg)
+            }
+            n = args.count
+            proc = next
+          case .native0(let exec):
+            guard n == 0 else {
+              throw RuntimeError.argumentCount(min: 0, max: 0, args: self.popAsList(n))
+            }
             self.pop(overhead)
-            self.push(try exec(nil))
-          } else if n == 1 {
+            self.push(try exec())
+            return proc
+          case .native1(let exec):
+            guard n == 1 else {
+              throw RuntimeError.argumentCount(min: 1, max: 1, args: self.popAsList(n))
+            }
             let a0 = self.pop()
             self.pop(overhead)
             self.push(try exec(a0))
-          } else {
-            throw RuntimeError.argumentCount(min: 1, max: 1, args: self.popAsList(n))
-          }
-          return proc
-        case .native1O(let exec):
-          if n == 1 {
-            let a0 = self.pop()
-            self.pop(overhead)
-            self.push(try exec(a0, nil))
-          } else if n == 2 {
+            return proc
+          case .native2(let exec):
+            guard n == 2 else {
+              throw RuntimeError.argumentCount(min: 2, max: 2, args: self.popAsList(n))
+            }
             let a1 = self.pop()
             let a0 = self.pop()
             self.pop(overhead)
             self.push(try exec(a0, a1))
-          } else {
-            throw RuntimeError.argumentCount(min: 2, max: 2, args: self.popAsList(n))
-          }
-          return proc
-        case .native2O(let exec):
-          if n == 2 {
-            let a1 = self.pop()
-            let a0 = self.pop()
-            self.pop(overhead)
-            self.push(try exec(a0, a1, nil))
-          } else if n == 3 {
+            return proc
+          case .native3(let exec):
+            guard n == 3 else {
+              throw RuntimeError.argumentCount(min: 3, max: 3, args: self.popAsList(n))
+            }
             let a2 = self.pop()
             let a1 = self.pop()
             let a0 = self.pop()
             self.pop(overhead)
             self.push(try exec(a0, a1, a2))
-          } else {
-            throw RuntimeError.argumentCount(min: 3, max: 3, args: self.popAsList(n))
-          }
-          return proc
-        case .native3O(let exec):
-          if n == 3 {
-            let a2 = self.pop()
-            let a1 = self.pop()
-            let a0 = self.pop()
-            self.pop(overhead)
-            self.push(try exec(a0, a1, a2, nil))
-          } else if n == 4 {
+            return proc
+          case .native4(let exec):
+            guard n == 4 else {
+              throw RuntimeError.argumentCount(min: 4, max: 4, args: self.popAsList(n))
+            }
             let a3 = self.pop()
             let a2 = self.pop()
             let a1 = self.pop()
             let a0 = self.pop()
             self.pop(overhead)
             self.push(try exec(a0, a1, a2, a3))
-          } else {
-            throw RuntimeError.argumentCount(min: 3, max: 3, args: self.popAsList(n))
-          }
-          return proc
-        case .native1OO(let exec):
-          if n == 1 {
-            let a0 = self.pop()
-            self.pop(overhead)
-            self.push(try exec(a0, nil, nil))
-          } else if n == 2 {
-            let a1 = self.pop()
-            let a0 = self.pop()
-            self.pop(overhead)
-            self.push(try exec(a0, a1, nil))
-          } else if n == 3 {
-            let a2 = self.pop()
-            let a1 = self.pop()
-            let a0 = self.pop()
-            self.pop(overhead)
-            self.push(try exec(a0, a1, a2))
-          } else {
-            throw RuntimeError.argumentCount(min: 3, max: 3, args: self.popAsList(n))
-          }
-          return proc
-        case .native2OO(let exec):
-          if n == 2 {
-            let a1 = self.pop()
-            let a0 = self.pop()
-            self.pop(overhead)
-            self.push(try exec(a0, a1, nil, nil))
-          } else if n == 3 {
-            let a2 = self.pop()
-            let a1 = self.pop()
-            let a0 = self.pop()
-            self.pop(overhead)
-            self.push(try exec(a0, a1, a2, nil))
-          } else if n == 4 {
-            let a3 = self.pop()
-            let a2 = self.pop()
-            let a1 = self.pop()
-            let a0 = self.pop()
-            self.pop(overhead)
-            self.push(try exec(a0, a1, a2, a3))
-          } else {
-            throw RuntimeError.argumentCount(min: 4, max: 4, args: self.popAsList(n))
-          }
-          return proc
-        case .native3OO(let exec):
-          if n == 3 {
-            let a2 = self.pop()
-            let a1 = self.pop()
-            let a0 = self.pop()
-            self.pop(overhead)
-            self.push(try exec(a0, a1, a2, nil, nil))
-          } else if n == 4 {
-            let a3 = self.pop()
-            let a2 = self.pop()
-            let a1 = self.pop()
-            let a0 = self.pop()
-            self.pop(overhead)
-            self.push(try exec(a0, a1, a2, a3, nil))
-          } else if n == 5 {
-            let a4 = self.pop()
-            let a3 = self.pop()
-            let a2 = self.pop()
-            let a1 = self.pop()
-            let a0 = self.pop()
-            self.pop(overhead)
-            self.push(try exec(a0, a1, a2, a3, a4))
-          } else {
-            throw RuntimeError.argumentCount(min: 5, max: 5, args: self.popAsList(n))
-          }
-          return proc
-        case .native0R(let exec):
-          let res = try exec(self.stack[(self.sp &- n)..<self.sp])
-          self.pop(n &+ overhead)
-          self.push(res)
-          return proc
-        case .native1R(let exec):
-          if n >= 1 {
-            let res = try exec(self.stack[self.sp &- n], self.stack[(self.sp &- n &+ 1)..<self.sp])
+            return proc
+          case .native0O(let exec):
+            if n == 0 {
+              self.pop(overhead)
+              self.push(try exec(nil))
+            } else if n == 1 {
+              let a0 = self.pop()
+              self.pop(overhead)
+              self.push(try exec(a0))
+            } else {
+              throw RuntimeError.argumentCount(min: 1, max: 1, args: self.popAsList(n))
+            }
+            return proc
+          case .native1O(let exec):
+            if n == 1 {
+              let a0 = self.pop()
+              self.pop(overhead)
+              self.push(try exec(a0, nil))
+            } else if n == 2 {
+              let a1 = self.pop()
+              let a0 = self.pop()
+              self.pop(overhead)
+              self.push(try exec(a0, a1))
+            } else {
+              throw RuntimeError.argumentCount(min: 2, max: 2, args: self.popAsList(n))
+            }
+            return proc
+          case .native2O(let exec):
+            if n == 2 {
+              let a1 = self.pop()
+              let a0 = self.pop()
+              self.pop(overhead)
+              self.push(try exec(a0, a1, nil))
+            } else if n == 3 {
+              let a2 = self.pop()
+              let a1 = self.pop()
+              let a0 = self.pop()
+              self.pop(overhead)
+              self.push(try exec(a0, a1, a2))
+            } else {
+              throw RuntimeError.argumentCount(min: 3, max: 3, args: self.popAsList(n))
+            }
+            return proc
+          case .native3O(let exec):
+            if n == 3 {
+              let a2 = self.pop()
+              let a1 = self.pop()
+              let a0 = self.pop()
+              self.pop(overhead)
+              self.push(try exec(a0, a1, a2, nil))
+            } else if n == 4 {
+              let a3 = self.pop()
+              let a2 = self.pop()
+              let a1 = self.pop()
+              let a0 = self.pop()
+              self.pop(overhead)
+              self.push(try exec(a0, a1, a2, a3))
+            } else {
+              throw RuntimeError.argumentCount(min: 3, max: 3, args: self.popAsList(n))
+            }
+            return proc
+          case .native1OO(let exec):
+            if n == 1 {
+              let a0 = self.pop()
+              self.pop(overhead)
+              self.push(try exec(a0, nil, nil))
+            } else if n == 2 {
+              let a1 = self.pop()
+              let a0 = self.pop()
+              self.pop(overhead)
+              self.push(try exec(a0, a1, nil))
+            } else if n == 3 {
+              let a2 = self.pop()
+              let a1 = self.pop()
+              let a0 = self.pop()
+              self.pop(overhead)
+              self.push(try exec(a0, a1, a2))
+            } else {
+              throw RuntimeError.argumentCount(min: 3, max: 3, args: self.popAsList(n))
+            }
+            return proc
+          case .native2OO(let exec):
+            if n == 2 {
+              let a1 = self.pop()
+              let a0 = self.pop()
+              self.pop(overhead)
+              self.push(try exec(a0, a1, nil, nil))
+            } else if n == 3 {
+              let a2 = self.pop()
+              let a1 = self.pop()
+              let a0 = self.pop()
+              self.pop(overhead)
+              self.push(try exec(a0, a1, a2, nil))
+            } else if n == 4 {
+              let a3 = self.pop()
+              let a2 = self.pop()
+              let a1 = self.pop()
+              let a0 = self.pop()
+              self.pop(overhead)
+              self.push(try exec(a0, a1, a2, a3))
+            } else {
+              throw RuntimeError.argumentCount(min: 4, max: 4, args: self.popAsList(n))
+            }
+            return proc
+          case .native3OO(let exec):
+            if n == 3 {
+              let a2 = self.pop()
+              let a1 = self.pop()
+              let a0 = self.pop()
+              self.pop(overhead)
+              self.push(try exec(a0, a1, a2, nil, nil))
+            } else if n == 4 {
+              let a3 = self.pop()
+              let a2 = self.pop()
+              let a1 = self.pop()
+              let a0 = self.pop()
+              self.pop(overhead)
+              self.push(try exec(a0, a1, a2, a3, nil))
+            } else if n == 5 {
+              let a4 = self.pop()
+              let a3 = self.pop()
+              let a2 = self.pop()
+              let a1 = self.pop()
+              let a0 = self.pop()
+              self.pop(overhead)
+              self.push(try exec(a0, a1, a2, a3, a4))
+            } else {
+              throw RuntimeError.argumentCount(min: 5, max: 5, args: self.popAsList(n))
+            }
+            return proc
+          case .native0R(let exec):
+            let res = try exec(self.stack[(self.sp &- n)..<self.sp])
             self.pop(n &+ overhead)
             self.push(res)
-          } else {
-            throw RuntimeError.argumentCount(min: 1, args: self.popAsList(n))
-          }
-          return proc
-        case .native2R(let exec):
-          if n >= 2 {
-            let res = try exec(self.stack[self.sp &- n],
-                               self.stack[self.sp &- n &+ 1],
-                               self.stack[(self.sp &- n &+ 2)..<self.sp])
-            self.pop(n &+ overhead)
-            self.push(res)
-          } else {
-            throw RuntimeError.argumentCount(min: 2, args: self.popAsList(n))
-          }
-          return proc
-        case .native3R(let exec):
-          if n >= 2 {
-            let res = try exec(self.stack[self.sp &- n],
-                               self.stack[self.sp &- n &+ 1],
-                               self.stack[self.sp &- n &+ 2],
-                               self.stack[(self.sp &- n &+ 3)..<self.sp])
-            self.pop(n &+ overhead)
-            self.push(res)
-          } else {
-            throw RuntimeError.argumentCount(min: 2, args: self.popAsList(n))
-          }
-          return proc
+            return proc
+          case .native1R(let exec):
+            if n >= 1 {
+              let res = try exec(self.stack[self.sp &- n], self.stack[(self.sp &- n &+ 1)..<self.sp])
+              self.pop(n &+ overhead)
+              self.push(res)
+            } else {
+              throw RuntimeError.argumentCount(min: 1, args: self.popAsList(n))
+            }
+            return proc
+          case .native2R(let exec):
+            if n >= 2 {
+              let res = try exec(self.stack[self.sp &- n],
+                                 self.stack[self.sp &- n &+ 1],
+                                 self.stack[(self.sp &- n &+ 2)..<self.sp])
+              self.pop(n &+ overhead)
+              self.push(res)
+            } else {
+              throw RuntimeError.argumentCount(min: 2, args: self.popAsList(n))
+            }
+            return proc
+          case .native3R(let exec):
+            if n >= 2 {
+              let res = try exec(self.stack[self.sp &- n],
+                                 self.stack[self.sp &- n &+ 1],
+                                 self.stack[self.sp &- n &+ 2],
+                                 self.stack[(self.sp &- n &+ 3)..<self.sp])
+              self.pop(n &+ overhead)
+              self.push(res)
+            } else {
+              throw RuntimeError.argumentCount(min: 2, args: self.popAsList(n))
+            }
+            return proc
+        }
       }
+    } catch let error as RuntimeError {
+      if error.stackTrace == nil {
+        error.attach(self.getStackTrace(current: proc))
+      }
+      throw error
+    } catch let error as NSError {
+      let wrapped = RuntimeError.os(error)
+      wrapped.attach(self.getStackTrace(current: proc))
+      throw wrapped
     }
     // Handle continuations
     if case .rawContinuation(let vmState) = proc.kind {
