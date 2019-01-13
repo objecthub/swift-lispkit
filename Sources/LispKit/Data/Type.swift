@@ -75,6 +75,7 @@ public enum Type: Int, CustomStringConvertible {
   case drawingType
   case imageType
   case charSetType
+  case regexpType
   
   public var description: String {
     switch self {
@@ -184,6 +185,8 @@ public enum Type: Int, CustomStringConvertible {
         return "image"
       case .charSetType:
         return "character set"
+     case .regexpType:
+        return "regular expression"
     }
   }
   
@@ -275,4 +278,5 @@ private let objectSubtypes     : Set<Type> = [.objectType,
                                               .fontType,
                                               .drawingType,
                                               .imageType,
-                                              .charSetType]
+                                              .charSetType,
+                                              .regexpType]

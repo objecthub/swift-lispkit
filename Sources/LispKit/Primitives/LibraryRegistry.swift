@@ -41,6 +41,7 @@ public struct LibraryRegistry {
     CharLibrary.self,
     CharSetLibrary.self,
     StringLibrary.self,
+    RegexpLibrary.self,
     PortLibrary.self,
     BaseLibrary.self,
     DrawingLibrary.self

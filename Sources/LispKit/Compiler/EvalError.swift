@@ -95,6 +95,7 @@ public enum EvalError: Int, Hashable {
   case invalidFlipOrientation
   case unknownInterpolateAlgorithm
   case unsupportedGradientColorSpec
+  case invalidRegexpMatchingOption
   
   public var message: String {
     switch self {
@@ -238,6 +239,8 @@ public enum EvalError: Int, Hashable {
         return "unknown interpolation algorithm: $0"
       case .unsupportedGradientColorSpec:
         return "unsupported gradient color specification: $0"
+      case .invalidRegexpMatchingOption:
+        return "invalid regexp matching option: $0"
     }
   }
   

@@ -380,21 +380,11 @@ public final class StringLibrary: NativeLibrary {
   }
   
   func substring(_ expr: Expr, _ s: Expr, _ e: Expr) throws -> Expr {
-    let str = try expr.asString().utf16
-    let end = try e.asInt(below: str.count + 1)
+    let str = try expr.asMutableStr()
+    let end = try e.asInt(below: str.length + 1)
     let start = try s.asInt(below: end + 1)
-    // short-cut if this is a full copy
-    if start == 0 && end == str.count {
-      return .string(NSMutableString(string: try expr.asString()))
-    }
-    // extract substring
-    let ei = str.index(str.startIndex, offsetBy: end)
-    let si = str.index(str.startIndex, offsetBy: start)
-    var uniChars: [UniChar] = []
-    for ch in str[si..<ei] {
-      uniChars.append(ch)
-    }
-    return .string(NSMutableString(string: String(utf16CodeUnits: uniChars, count: uniChars.count)))
+    return .string(NSMutableString(string: str.substring(with: NSRange(location: start,
+                                                                       length: end - start))))
   }
   
   func stringContainsIndex(_ expr: Expr, _ sub: Expr, _ args: Arguments) throws -> Expr {
@@ -475,27 +465,22 @@ public final class StringLibrary: NativeLibrary {
   }
   
   func stringCopy(_ expr: Expr, args: Arguments) throws -> Expr {
-    let str = try expr.asString().utf16
-    guard let (s, e) = args.optional(Expr.makeNumber(0), Expr.makeNumber(str.count)) else {
+    let str = try expr.asMutableStr()
+    guard let (s, e) = args.optional(Expr.makeNumber(0), Expr.makeNumber(str.length)) else {
       throw RuntimeError.argumentCount(of: "string-copy",
                                        min: 1,
                                        max: 3,
                                        args: .pair(expr, .makeList(args)))
     }
-    let end = try e.asInt(below: str.count + 1)
+    let end = try e.asInt(below: str.length + 1)
     let start = try s.asInt(below: end + 1)
     // short-cut if this is a full copy
-    if start == 0 && end == str.count {
-      return .string(NSMutableString(string: try expr.asString()))
+    if start == 0 && end == str.length {
+      return .string(NSMutableString(string: str as String))
     }
     // extract substring to copy
-    let ei = str.index(str.startIndex, offsetBy: end)
-    let si = str.index(str.startIndex, offsetBy: start)
-    var uniChars: [UniChar] = []
-    for ch in str[si..<ei] {
-      uniChars.append(ch)
-    }
-    return .string(NSMutableString(string: String(utf16CodeUnits: uniChars, count: uniChars.count)))
+    return .string(NSMutableString(string: str.substring(with: NSRange(location: start,
+                                                                       length: end - start))))
   }
   
   func stringInsert(_ expr: Expr, _ index: Expr, _ from: Expr, args: Arguments) throws -> Expr {

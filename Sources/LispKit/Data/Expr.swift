@@ -118,8 +118,26 @@ public enum Expr: Trackable, Hashable {
         return .envType
       case .port(_):
         return .portType
-      case .object(_):
-        return .objectType
+      case .object(let obj):
+        if obj is Drawing {
+          return .drawingType
+        } else if obj is Shape {
+          return .shapeType
+        } else if obj is Transformation {
+          return .transformationType
+        } else if obj is CharSet {
+          return .charSetType
+        } else if obj is ImmutableBox<NSFont>  {
+          return .fontType
+        } else if obj is ImmutableBox<Color> {
+          return .colorType
+        } else if obj is ImmutableBox<NSImage> {
+          return .imageType
+        } else if obj is ImmutableBox<NSRegularExpression> {
+          return .regexpType
+        } else {
+          return .objectType
+        }
       case .tagged(_, _):
         return .taggedType
       case .error(_):
@@ -963,6 +981,8 @@ extension Expr: CustomStringConvertible {
             }
           } else if obj is ImmutableBox<NSImage> {
             return "#<image \(obj.identityString)>"
+          } else if obj is ImmutableBox<NSRegularExpression> {
+            return "#<regexp \(obj.identityString)>"
           } else {
             return "#<\(obj.typeDescription) \(obj.identityString)>"
           }
