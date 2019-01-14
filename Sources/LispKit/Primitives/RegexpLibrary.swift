@@ -50,10 +50,11 @@ public final class RegexpLibrary: NativeLibrary {
   
   /// Dependencies of the library.
   public override func dependencies() {
-    self.`import`(from: ["lispkit", "control"], "let", "let*", "do", "unless", "when", "if")
-    self.`import`(from: ["lispkit", "core"],    "define", "set!", "or", "not", "apply")
-    self.`import`(from: ["lispkit", "list"],    "cons", "null?")
-    self.`import`(from: ["lispkit", "math"],    "fx1+", "fx1-", "fx=", "fx>", "fx<", "fx<=", "fx>=")
+    self.`import`(from: ["lispkit", "control"], "let", "let-optionals", "cond", "if")
+    self.`import`(from: ["lispkit", "core"],    "define", "lambda", "and")
+    self.`import`(from: ["lispkit", "list"],    "cdar")
+    self.`import`(from: ["lispkit", "math"],    "fx1+", "fx<", "fx=")
+    self.`import`(from: ["lispkit", "string"],  "string-length")
   }
   
   /// Declarations of the library.
@@ -73,13 +74,24 @@ public final class RegexpLibrary: NativeLibrary {
     self.define(Procedure("regexp-partition", regexpPartition))
     self.define(Procedure("regexp-replace", regexpReplace))
     self.define(Procedure("regexp-replace!", regexpReplaceDestructive))
-    self.define("string-for-each", via:
-      "(define (string-for-each f xs . xss)",
-      "  (let* ((strs (cons xs xss))",
-      "         (len (_string-list-length strs)))",
-      "    (do ((i 0 (fx1+ i)))",
-      "         ((fx>= i len))",
-      "      (apply f (_string-list-ref i strs)))))")
+    self.define("regexp-fold", via: """
+      (define (regexp-fold rx kons knil str . args)
+        (let-optionals args ((finish (lambda (from md str acc) acc))
+                             (start 0)
+                             (end (string-length str)))
+          (let lp ((i start)
+                   (from start)
+                   (acc knil))
+            (cond
+              ((and (fx< i end) (regexp-search rx str i end))
+                => (lambda (md)
+                     (let ((j (cdar md)))
+                       (lp (if (and (fx= i j) (fx< j end)) (fx1+ j) j)
+                           j
+                           (kons from md str acc)))))
+              (else
+                (finish from #f str acc))))))
+    """)
   }
   
   private func isRegexp(_ expr: Expr) -> Expr {
