@@ -243,6 +243,11 @@ public final class Procedure: Reference, CustomStringConvertible {
     self.kind = .closure(.anonymous, [], code)
   }
   
+  /// Initializer for named closures
+  public init(_ name: String, _ code: Code) {
+    self.kind = .closure(.named(name), [], code)
+  }
+  
   /// Initializer for parameters
   public init(_ setter: Expr, _ initial: Expr) {
     self.kind = .parameter(Tuple(setter, initial))
@@ -274,9 +279,9 @@ public final class Procedure: Reference, CustomStringConvertible {
       case .primitive(let str, _, _):
         return str
       case .closure(.named(let str), _, _):
-        return "\(str)@\(self.identityString)"
+        return Context.simplifiedDescriptions ? str : "\(str)@\(self.identityString)"
       default:
-        return self.identityString
+        return Context.simplifiedDescriptions ? "<closure>" : self.identityString
     }
   }
   

@@ -905,7 +905,9 @@ extension Expr: CustomStringConvertible {
             return res
           } else {
             enclObjs.insert(map)
-            var builder = StringBuilder(prefix: "#<hashtable \(map.identityString)",
+            let prefix = Context.simplifiedDescriptions ?
+                           "#<hashtable" : "#<hashtable \(map.identityString)"
+            var builder = StringBuilder(prefix: prefix,
                                         postfix: ">",
                                         separator: ", ",
                                         initial: ": ")
@@ -981,8 +983,8 @@ extension Expr: CustomStringConvertible {
             }
           } else if obj is ImmutableBox<NSImage> {
             return "#<image \(obj.identityString)>"
-          } else if obj is ImmutableBox<NSRegularExpression> {
-            return "#<regexp \(obj.identityString)>"
+          } else if let bx = obj as? ImmutableBox<NSRegularExpression> {
+            return "#<regexp \"\(Expr.escapeStr(bx.value.pattern))\">"
           } else {
             return "#<\(obj.typeDescription) \(obj.identityString)>"
           }

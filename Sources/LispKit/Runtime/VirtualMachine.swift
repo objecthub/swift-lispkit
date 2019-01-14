@@ -292,10 +292,12 @@ public final class VirtualMachine: TrackedObject {
   /// executes it using this virtual machine.
   public func eval(file path: String,
                    in env: Env,
+                   as name: String? = nil,
                    optimize: Bool = true,
                    foldCase: Bool = false) throws -> Expr {
     return try self.eval(str: self.context.sourceManager.readSource(for: path),
                          in: env,
+                         as: name,
                          optimize: optimize,
                          inDirectory: self.context.fileHandler.directory(path),
                          foldCase: foldCase)
@@ -305,11 +307,13 @@ public final class VirtualMachine: TrackedObject {
   /// this virtual machine.
   public func eval(str: String,
                    in env: Env,
+                   as name: String? = nil,
                    optimize: Bool = true,
                    inDirectory: String? = nil,
                    foldCase: Bool = false) throws -> Expr {
     return try self.eval(exprs: self.parse(str: str, foldCase: foldCase),
                          in: env,
+                         as: name,
                          optimize: optimize,
                          inDirectory: inDirectory)
   }
@@ -318,6 +322,7 @@ public final class VirtualMachine: TrackedObject {
   /// it using this virtual machine.
   public func eval(exprs: Expr,
                    in env: Env,
+                   as name: String? = nil,
                    optimize: Bool = true,
                    inDirectory: String? = nil) throws -> Expr {
     var exprlist = exprs
@@ -328,7 +333,11 @@ public final class VirtualMachine: TrackedObject {
                                       optimize: optimize,
                                       inDirectory: inDirectory)
       // log(code.description)
-      res = try self.execute(code)
+      if let name = name {
+        res = try self.execute(code, as: name)
+      } else {
+        res = try self.execute(code)
+      }
       exprlist = rest
     }
     guard exprlist.isNull else {
@@ -341,10 +350,12 @@ public final class VirtualMachine: TrackedObject {
   /// virtual machine.
   public func eval(expr: Expr,
                    in env: Env,
+                   as name: String? = nil,
                    optimize: Bool = true,
                    inDirectory: String? = nil) throws -> Expr {
     return try self.eval(exprs: .makeList(expr),
                          in: env,
+                         as: name,
                          optimize: optimize,
                          inDirectory: inDirectory)
   }
@@ -968,6 +979,11 @@ public final class VirtualMachine: TrackedObject {
       _ = self.context.objects.collectGarbage()
       // log("[collect garbage; freed up objects: \(res)]")
     }
+  }
+  
+  @inline(__always) private func execute(_ code: Code, as name: String) throws -> Expr {
+    self.push(.procedure(Procedure(name, code)))
+    return try self.execute(code, args: 0, captured: noExprs)
   }
   
   @inline(__always) private func execute(_ code: Code) throws -> Expr {

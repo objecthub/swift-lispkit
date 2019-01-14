@@ -49,6 +49,8 @@ let prompt     = flags.string("r", "prompt",
                               value: AppInfo.prompt)
 let basic      = flags.option("b", "basic",
                               description: "Use basic line reader only.")
+let simplified = flags.option("n", "simplenames",
+                              description: "Use simplified names.")
 let strict     = flags.option("s", "strict",
                               description: "In strict mode, initialization warnings terminate " +
                                            "the application.")
@@ -72,6 +74,9 @@ if help.wasSet {
         terminator: "")
   exit(0)
 }
+
+// Set simplified names
+Context.simplifiedDescriptions = simplified.wasSet
 
 // Instantiate line reader and console
 let ln = basic.wasSet ? nil : LineReader()
@@ -260,7 +265,7 @@ if let program = flags.parameters.first {
   while let line = readCommand(withPrompt: buffer.isEmpty) {
     buffer += line + " "
     let res = context.machine.onTopLevelDo {
-      return try context.machine.eval(str: buffer, in: context.global)
+      return try context.machine.eval(str: buffer, in: context.global, as: "<repl>")
     }
     // Exit loop if the machine has executed the `exit` function
     if context.machine.exitTriggered {

@@ -98,6 +98,9 @@ public final class Context {
                                            .userDomainMask,
                                            true)[0])).absoluteURL.path
   
+  /// Use simplified descriptions?
+  public static var simplifiedDescriptions: Bool = false
+  
   /// Initializes a new context.
   public init(console: Console,
               implementationName: String? = nil,
