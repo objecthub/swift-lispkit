@@ -44,6 +44,7 @@ public enum Type: Int, CustomStringConvertible {
   case mpairType
   case arrayType
   case vectorType
+  case gvectorType
   case tableType
   case recordType
   case promiseType
@@ -115,6 +116,8 @@ public enum Type: Int, CustomStringConvertible {
         return "array"
       case .vectorType:
         return "vector"
+      case .gvectorType:
+        return "gvector"
       case .byteVectorType:
         return "bytevector"
       case .tableType:

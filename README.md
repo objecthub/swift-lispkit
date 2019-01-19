@@ -64,7 +64,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit object)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Object),
     `(lispkit clos)`,
     `(lispkit enum)`,
-    `(lispkit logic)`, `(lispkit iteration)`,
+    `(lispkit logic)`, `(lispkit iteration)`, `(lispkit gvector)`,
     [`(lispkit set)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Set),
     `(lispkit stack)`, `(lispkit queue)`,
     `(lispkit heap)`, `(lispkit wt-tree)`, `(lispkit prettify)`, `(lispkit json)`, `(lispkit csv)`,

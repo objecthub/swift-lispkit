@@ -38,6 +38,7 @@ public final class CharSetLibrary: NativeLibrary {
   /// Declarations of the library.
   public override func declarations() {
     self.define(Procedure("char-set", charSet))
+    self.define(Procedure("immutable-char-set", immutableCharSet))
     self.define(Procedure("list->char-set", listToCharSet))
     self.define(Procedure("string->char-set", stringToCharSet))
     self.define(Procedure("ucs-range->char-set", ucsRangeToCharSet))
@@ -176,6 +177,14 @@ public final class CharSetLibrary: NativeLibrary {
   
   private func charSet(_ args: Arguments) throws -> Expr {
     let cs = CharSet()
+    for arg in args {
+      cs.insert(try arg.asUniChar())
+    }
+    return .object(cs)
+  }
+  
+  private func immutableCharSet(_ args: Arguments) throws -> Expr {
+    let cs = CharSet(immutable: true)
     for arg in args {
       cs.insert(try arg.asUniChar())
     }

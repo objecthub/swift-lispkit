@@ -100,14 +100,14 @@ public enum Expr: Trackable, Hashable {
         return .mpairType
       case .array(_):
         return .arrayType
-      case .vector(_):
-        return .vectorType
+      case .vector(let vec):
+        return vec.isGrowableVector ? .gvectorType : .vectorType
       case .record(_):
         return .recordType
       case .table(_):
         return .tableType
       case .promise(let future):
-        return future.kind == Promise.Kind.promise ? .promiseType : .streamType
+        return future.isStream ? .streamType : .promiseType
       case .values(_):
         return .valuesType
       case .procedure(_):
@@ -339,8 +339,16 @@ public enum Expr: Trackable, Hashable {
         return car.requiresTracking || cdr.requiresTracking
       case .syntax(_, let expr):
         return expr.requiresTracking
-      case .box(_), .mpair(_), .array(_), .vector(_), .record(_), .table(_), .promise(_),
-           .procedure(_), .special(_), .error(_):
+      case .box(_),
+           .mpair(_),
+           .array(_),
+           .vector(_),
+           .record(_),
+           .table(_),
+           .promise(_),
+           .procedure(_),
+           .special(_),
+           .error(_):
         return true
       default:
         return false
@@ -636,11 +644,16 @@ extension Expr {
     return res
   }
   
-  @inline(__always) public func vectorAsCollection() throws -> Collection {
-    guard case .vector(let res) = self else {
-      throw RuntimeError.type(self, expected: [.vectorType])
+  @inline(__always) public func vectorAsCollection(growable: Bool? = nil) throws -> Collection {
+    guard case .vector(let vec) = self else {
+      let exp: Set<Type> = growable == nil ? [.vectorType, .gvectorType]
+                                           : growable! ? [.gvectorType] : [.vectorType]
+      throw RuntimeError.type(self, expected: exp)
     }
-    return res
+    if let growable = growable, growable != vec.isGrowableVector {
+      throw RuntimeError.type(self, expected: growable ? [.gvectorType] : [.vectorType])
+    }
+    return vec
   }
   
   @inline(__always) public func recordAsCollection() throws -> Collection {
@@ -857,10 +870,12 @@ extension Expr: CustomStringConvertible {
           if let res = objIdString(vector) {
             return res
           } else if vector.exprs.count == 0 {
-            return "#()"
+            return vector.isGrowableVector ? "#g()" : "#()"
           } else {
             enclObjs.insert(vector)
-            var builder = StringBuilder(prefix: "#(", postfix: ")", separator: " ")
+            var builder = StringBuilder(prefix: vector.isGrowableVector ? "#g(" : "#(",
+                                        postfix: ")",
+                                        separator: " ")
             for expr in vector.exprs {
               builder.append(stringReprOf(expr))
             }

@@ -72,6 +72,7 @@ public enum EvalError: Int, Hashable {
   case portClosed
   case illegalContinuationApplication
   case attemptToModifyImmutableData
+  case vectorEmpty
   case unknownFieldOfRecordType
   case fieldCountError
   case malformedLibraryDefinition
@@ -193,6 +194,8 @@ public enum EvalError: Int, Hashable {
         return "continuation application in wrong context ($0 in $1)"
       case .attemptToModifyImmutableData:
         return "attempt to modify immutable data structure: $0"
+      case .vectorEmpty:
+        return "vector empty: $0"
       case .unknownFieldOfRecordType:
         return "unknown field $1 of record type $0"
       case .fieldCountError:

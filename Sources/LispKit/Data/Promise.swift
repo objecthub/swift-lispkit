@@ -100,6 +100,11 @@ public final class Promise: ManagedObject, CustomStringConvertible {
     }
   }
   
+  /// Is this promise a stream?
+  public var isStream: Bool {
+    return self.kind == .stream
+  }
+  
   /// String representation of the future.
   public var description: String {
     return "\(self.kind)#\(self.state)"

@@ -50,18 +50,19 @@ public final class DynamicControlLibrary: NativeLibrary {
   /// Declarations of the library.
   public override func declarations() {
     // Multiple values
-    self.define(Procedure("_make-values", makeValues))
+    self.define(Procedure("_make-values", makeValues), export: false)
     
     // Continuations
     self.define(Procedure("continuation?", isContinuation))
-    self.define(SpecialForm("_continuation", compileContinuation))
-    self.define(Procedure("_call-with-unprotected-continuation", callWithUnprotectedContinuation))
-    self.define(Procedure("_wind-down", windDown))
-    self.define(Procedure("_wind-up", windUp))
-    self.define(Procedure("_wind-up-raise", windUpRaise))
-    self.define(Procedure("_dynamic-wind-base", dynamicWindBase))
-    self.define(Procedure("_dynamic-wind-current", dynamicWindCurrent))
-    self.define(Procedure("_dynamic-winders", dynamicWinders))
+    self.define(SpecialForm("_continuation", compileContinuation), export: false)
+    self.define(Procedure("_call-with-unprotected-continuation", callWithUnprotectedContinuation),
+                export: false)
+    self.define(Procedure("_wind-down", windDown), export: false)
+    self.define(Procedure("_wind-up", windUp), export: false)
+    self.define(Procedure("_wind-up-raise", windUpRaise), export: false)
+    self.define(Procedure("_dynamic-wind-base", dynamicWindBase), export: false)
+    self.define(Procedure("_dynamic-wind-current", dynamicWindCurrent), export: false)
+    self.define(Procedure("_dynamic-winders", dynamicWinders), export: false)
     self.define("call-with-current-continuation", via:
       "(define (call-with-current-continuation f)",
       "  (_call-with-unprotected-continuation",
@@ -142,7 +143,7 @@ public final class DynamicControlLibrary: NativeLibrary {
       "                (lambda args (guard-k (lambda () (_make-values args)))))))))))))")
     self.define("error", via:
       "(define (error message . irritants) (raise (make-error message irritants)))")
-    self.define(Procedure("_trigger-exit", triggerExit))
+    self.define(Procedure("_trigger-exit", triggerExit), export: false)
     self.define("exit", mutable: true, via: "(define exit 0)")
     self.execute("(call-with-current-continuation " +
       "  (lambda (cont) (set! exit (lambda args (_trigger-exit cont args)))))")
@@ -152,9 +153,9 @@ public final class DynamicControlLibrary: NativeLibrary {
     self.define(Procedure("dynamic-environment", dynamicEnvironment))
     self.define(Procedure("make-dynamic-environment", makeDynamicEnvironment))
     self.define(Procedure("set-dynamic-environment!", setDynamicEnvironment))
-    self.define(Procedure("_make-parameter", makeParameter))
-    self.define(Procedure("_bind-parameter", bindParameter))
-    self.define("_dynamic-bind", via:
+    self.define(Procedure("_make-parameter", makeParameter), export: false)
+    self.define(Procedure("_bind-parameter", bindParameter), export: false)
+    self.define("_dynamic-bind", export: false, via:
       "(define (_dynamic-bind parameters values body)" +
       "  (let* ((old-env (dynamic-environment))" +
       "         (new-env (make-dynamic-environment)))" +

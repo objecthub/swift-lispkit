@@ -124,7 +124,17 @@ public final class Parser {
           throw RuntimeError.syntax(.closingParenthesisMissing, at: self.sourcePosition)
         }
         res = .vector(Collection(kind: .immutableVector, exprs: exprs))
-      case .u8LPAREN:
+      case .hashglparen:
+        self.scanner.next()
+        var exprs = Exprs()
+        while !self.scanner.hasToken(.eof, .rparen) {
+          exprs.append(try self.parse().datum)
+        }
+        guard self.scanner.hasToken(.rparen) else {
+          throw RuntimeError.syntax(.closingParenthesisMissing, at: self.sourcePosition)
+        }
+        res = .vector(Collection(kind: .growableVector, exprs: exprs))
+      case .u8lparen:
         self.scanner.next()
         var bytes = [UInt8]()
         while self.scanner.hasToken(.int) {

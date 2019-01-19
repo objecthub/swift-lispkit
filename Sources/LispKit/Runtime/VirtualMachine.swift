@@ -1554,7 +1554,7 @@ public final class VirtualMachine: TrackedObject {
           self.pop(n)
           self.push(.vector(vector))
         case .isVector:
-          if case .vector(_) = self.popUnsafe() {
+          if case .vector(let vector) = self.popUnsafe(), !vector.isGrowableVector {
             self.push(.true)
           } else {
             self.push(.false)

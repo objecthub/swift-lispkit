@@ -36,6 +36,7 @@ public struct LibraryRegistry {
     MathLibrary.self,
     ListLibrary.self,
     VectorLibrary.self,
+    GrowableVectorLibrary.self,
     RecordLibrary.self,
     BytevectorLibrary.self,
     CharLibrary.self,

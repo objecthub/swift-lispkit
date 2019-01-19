@@ -719,6 +719,7 @@
                    (or (null? vec2+)
                        (and (binary-vector= elt=? vec1 (car vec2+))
                             (loop vec2+)))))))))
+
     (define (binary-vector= elt=? vector-a vector-b)
       (or (eq? vector-a vector-b)           ;+++
           (let ((length-a (vector-length vector-a))

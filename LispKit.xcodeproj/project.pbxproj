@@ -13,6 +13,8 @@
 		CC0980A71C62BDBC006B7FB1 /* Compiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0980A61C62BDBC006B7FB1 /* Compiler.swift */; };
 		CC0980A91C67E81C006B7FB1 /* Code.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0980A81C67E81C006B7FB1 /* Code.swift */; };
 		CC0980AB1C67E84C006B7FB1 /* Cell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0980AA1C67E84C006B7FB1 /* Cell.swift */; };
+		CC09CC5121F12C7800C16864 /* GrowableVectorLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC09CC5021F12C7800C16864 /* GrowableVectorLibrary.swift */; };
+		CC09CC5321F2992800C16864 /* Vectors.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC09CC5221F2974B00C16864 /* Vectors.scm */; };
 		CC09ECF42198B8C100F84713 /* R7RS.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC09ECF22198B87200F84713 /* R7RS.scm */; };
 		CC09ECF52198DB3800F84713 /* char.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC09ECF02198912000F84713 /* char.sld */; };
 		CC0AEFF81F522BF600119BF6 /* 152.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC0AEFF71F522A7500119BF6 /* 152.sld */; };
@@ -573,6 +575,8 @@
 		CC0980A61C62BDBC006B7FB1 /* Compiler.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Compiler.swift; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC0980A81C67E81C006B7FB1 /* Code.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Code.swift; sourceTree = "<group>"; };
 		CC0980AA1C67E84C006B7FB1 /* Cell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cell.swift; sourceTree = "<group>"; };
+		CC09CC5021F12C7800C16864 /* GrowableVectorLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrowableVectorLibrary.swift; sourceTree = "<group>"; };
+		CC09CC5221F2974B00C16864 /* Vectors.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Vectors.scm; sourceTree = "<group>"; };
 		CC09ECF02198912000F84713 /* char.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = char.sld; sourceTree = "<group>"; };
 		CC09ECF22198B87200F84713 /* R7RS.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = R7RS.scm; sourceTree = "<group>"; };
 		CC0AEFF71F522A7500119BF6 /* 152.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 152.sld; sourceTree = "<group>"; };
@@ -909,6 +913,7 @@
 				CCB91C971D57E784001A95DC /* Parameters.scm */,
 				CCC41DC31D2649E9003CB4D0 /* DelayedEvaluation.scm */,
 				CC79DE071F8993EE00CE7A5D /* LightweightTypes.scm */,
+				CC09CC5221F2974B00C16864 /* Vectors.scm */,
 				CCDAD5511D4813E900A7EE4F /* HashTables.scm */,
 				CC8169261D1FADE2003FADEA /* Ports.scm */,
 				CC8213651D614A8600C1BE57 /* Records.scm */,
@@ -1288,6 +1293,7 @@
 				CC90500A1D36F52F008CE60A /* DynamicControlLibrary.swift */,
 				CC79DE051F88D42600CE7A5D /* TypeLibrary.swift */,
 				CC6A3B5D1C52E8EF00E962E2 /* VectorLibrary.swift */,
+				CC09CC5021F12C7800C16864 /* GrowableVectorLibrary.swift */,
 				CC4D2C9E1D5EDA2A00A02256 /* RecordLibrary.swift */,
 				CC050F131D017D3400D32132 /* BytevectorLibrary.swift */,
 				CC6A3B611C52ED7D00E962E2 /* CharLibrary.swift */,
@@ -1497,6 +1503,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CC09CC5321F2992800C16864 /* Vectors.scm in Resources */,
 				CC26264220F9491E00AC08E8 /* SRFI113.scm in Resources */,
 				CCC41DC41D2649E9003CB4D0 /* DelayedEvaluation.scm in Resources */,
 				CC5E473F20D2DF5400F21B03 /* SRFI69.scm in Resources */,
@@ -1626,6 +1633,7 @@
 				CC6A3B6A1C539DCA00E962E2 /* ManagedObjectPool.swift in Sources */,
 				CCC62D921CA9ED6A00E2C43F /* TrackedObject.swift in Sources */,
 				CC6A3B721C54DF7F00E962E2 /* Exprs.swift in Sources */,
+				CC09CC5121F12C7800C16864 /* GrowableVectorLibrary.swift in Sources */,
 				CC31A6981D3AC223008D7728 /* Hash.swift in Sources */,
 				CC5A47251C52E08900EFCF76 /* ControlFlowLibrary.swift in Sources */,
 				CCB585B81E15A6E70064BB18 /* ContextDelegate.swift in Sources */,

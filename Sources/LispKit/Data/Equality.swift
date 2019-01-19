@@ -130,6 +130,9 @@ public func equalExpr(_ this: Expr, _ that: Expr) -> Bool {
         guard vector1 !== vector2 else {
           return true
         }
+        guard vector1.isGrowableVector == vector2.isGrowableVector else {
+          return false
+        }
         let equality = Equality(vector1, vector2)
         guard !equalities.contains(equality) else {
           return true

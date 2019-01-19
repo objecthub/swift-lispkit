@@ -259,7 +259,7 @@ public final class Scanner {
                 return
               }
               self.nextCh()
-              self.token.kind = .u8LPAREN
+              self.token.kind = .u8lparen
             case BAR_CH:
               self.nextCh()
               var bar = false
@@ -293,6 +293,14 @@ public final class Scanner {
             case LPAREN_CH:
               self.nextCh()
               self.token.kind = .hashlparen
+            case G_CH:
+              self.nextCh()
+              guard self.ch == LPAREN_CH else {
+                self.signal(.incompleteCharacterLiteral)
+                return
+              }
+              self.nextCh()
+              self.token.kind = .hashglparen
             case SEMI_CH:
               self.nextCh()
               self.token.kind = .hashsemi
@@ -910,18 +918,18 @@ public struct Token: CustomStringConvertible {
   
   public var description: String {
     switch self.kind {
-      case .error     : return self.errorVal == nil ? "<error>" : "<error: \(self.errorVal!)>"
-      case .eof       : return "<eof>"
-      case .ident     : return self.strVal
-      case .truelit   : return "#t"
-      case .falselit  : return "#f"
-      case .int       : return self.intVal.description
-      case .bigint    : return self.bigIntVal.description
-      case .rat       : return self.ratVal.description
-      case .bigrat    : return self.bigRatVal.description
-      case .float     : return self.floatVal.description
-      case .complex   : return self.complexVal.description
-      case .char      :
+      case .error      : return self.errorVal == nil ? "<error>" : "<error: \(self.errorVal!)>"
+      case .eof        : return "<eof>"
+      case .ident      : return self.strVal
+      case .truelit    : return "#t"
+      case .falselit   : return "#f"
+      case .int        : return self.intVal.description
+      case .bigint     : return self.bigIntVal.description
+      case .rat        : return self.ratVal.description
+      case .bigrat     : return self.bigRatVal.description
+      case .float      : return self.floatVal.description
+      case .complex    : return self.complexVal.description
+      case .char       :
         switch self.intVal {
           case   7: return "#\\alarm"
           case   8: return "#\\backspace"
@@ -934,17 +942,18 @@ public struct Token: CustomStringConvertible {
           case   9: return "#\\tab"
           default : return "#\\\(self.strVal)"
         }
-      case .string    : return "\"\(self.strVal)\""
-      case .lparen    : return "("
-      case .rparen    : return ")"
-      case .hashlparen: return "#("
-      case .u8LPAREN  : return "#u8("
-      case .quote     : return "'"
-      case .backquote : return "`"
-      case .comma     : return ","
-      case .commaat   : return ",@"
-      case .dot       : return "."
-      case .hashsemi  : return "#;"
+      case .string     : return "\"\(self.strVal)\""
+      case .lparen     : return "("
+      case .rparen     : return ")"
+      case .hashlparen : return "#("
+      case .hashglparen: return "#g("
+      case .u8lparen   : return "#u8("
+      case .quote      : return "'"
+      case .backquote  : return "`"
+      case .comma      : return ","
+      case .commaat    : return ",@"
+      case .dot        : return "."
+      case .hashsemi   : return "#;"
     }
   }
   
@@ -979,7 +988,8 @@ public enum TokenKind: Int, CustomStringConvertible {
   case lparen
   case rparen
   case hashlparen
-  case u8LPAREN
+  case hashglparen
+  case u8lparen
   case quote
   case backquote
   case comma
@@ -989,29 +999,30 @@ public enum TokenKind: Int, CustomStringConvertible {
   
   public var description: String {
     switch self {
-      case .error     : return "ERROR"
-      case .eof       : return "EOF"
-      case .ident     : return "IDENT"
-      case .truelit   : return "TRUELIT"
-      case .falselit  : return "FALSELIT"
-      case .int       : return "INT"
-      case .bigint    : return "BIGINT"
-      case .rat       : return "RAT"
-      case .bigrat    : return "BIGRAT"
-      case .float     : return "FLOAT"
-      case .complex   : return "COMPLEX"
-      case .char      : return "CHAR"
-      case .string    : return "STRING"
-      case .lparen    : return "LPAREN"
-      case .rparen    : return "RPAREN"
-      case .hashlparen: return "HASHLPAREN"
-      case .u8LPAREN  : return "U8LPAREN"
-      case .quote     : return "quote"
-      case .backquote : return "BACKQUOTE"
-      case .comma     : return "COMMA"
-      case .commaat   : return "COMMAAT"
-      case .dot       : return "DOT"
-      case .hashsemi  : return "HASHSEMI"
+      case .error      : return "ERROR"
+      case .eof        : return "EOF"
+      case .ident      : return "IDENT"
+      case .truelit    : return "TRUELIT"
+      case .falselit   : return "FALSELIT"
+      case .int        : return "INT"
+      case .bigint     : return "BIGINT"
+      case .rat        : return "RAT"
+      case .bigrat     : return "BIGRAT"
+      case .float      : return "FLOAT"
+      case .complex    : return "COMPLEX"
+      case .char       : return "CHAR"
+      case .string     : return "STRING"
+      case .lparen     : return "LPAREN"
+      case .rparen     : return "RPAREN"
+      case .hashlparen : return "HASHLPAREN"
+      case .hashglparen: return "HASHGLPAREN"
+      case .u8lparen   : return "U8LPAREN"
+      case .quote      : return "quote"
+      case .backquote  : return "BACKQUOTE"
+      case .comma      : return "COMMA"
+      case .commaat    : return "COMMAAT"
+      case .dot        : return "DOT"
+      case .hashsemi   : return "HASHSEMI"
     }
   }
 }
@@ -1061,6 +1072,7 @@ let UN_CH              = UniChar("N")
 let V_CH               = UniChar("v")
 let F_CH               = UniChar("f")
 let U_CH               = UniChar("u")
+let G_CH               = UniChar("g")
 let EIGHT_CH           = UniChar("8")
 let LPAREN_CH          = UniChar("(")
 let RPAREN_CH          = UniChar(")")

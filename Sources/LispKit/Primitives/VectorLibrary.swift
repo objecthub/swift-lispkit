@@ -35,15 +35,17 @@ public final class VectorLibrary: NativeLibrary {
     self.`import`(from: ["lispkit", "core"],    "define", "set!", "or", "not", "apply")
     self.`import`(from: ["lispkit", "control"], "let", "let*", "do", "unless", "when", "if")
     self.`import`(from: ["lispkit", "math"],    "fx1+", "fx1-", "fx=", "fx>", "fx<", "fx<=", "fx>=")
-    self.`import`(from: ["lispkit", "list"],    "cons", "null?")
+    self.`import`(from: ["lispkit", "list"],    "null?", "cons", "car", "cdr")
   }
   
   /// Declarations of the library.
   public override func declarations() {
-    self.define(Procedure("vector?", isVector, compileIsVector))
-    self.define(Procedure("vector", vector, compileVector))
-    self.define(Procedure("vector-length", vectorLength))
     self.define(Procedure("make-vector", makeVector))
+    self.define(Procedure("vector", vector, compileVector))
+    self.define(Procedure("immutable-vector", immutableVector))
+    self.define(Procedure("vector?", isVector, compileIsVector))
+    self.define(Procedure("immutable-vector?", isImmutableVector))
+    self.define(Procedure("vector-length", vectorLength))
     self.define(Procedure("vector-append", vectorAppend))
     self.define(Procedure("vector-concatenate", vectorConcatenate))
     self.define(Procedure("vector-ref", vectorRef))
@@ -58,71 +60,128 @@ public final class VectorLibrary: NativeLibrary {
     self.define(Procedure("vector-fill!", vectorFill))
     self.define(Procedure("vector-reverse!", vectorReverse))
     self.define(Procedure("_vector-pivot!", vectorPivot))
-    self.define("_vector-partition!", via:
-      "(define (_vector-partition! pred v lo hi)",
-      "  (do ((i (fx1+ lo) (fx1+ i))",
-      "       (j (fx1+ hi))",
-      "       (pivot (_vector-pivot! v lo hi)))",
-      "      ((fx> i j) (vector-swap! v lo j) j)",
-      "    (do () ((or (fx= i hi) (not (pred (vector-ref v i) pivot))))",
-      "      (set! i (fx1+ i)))",
-      "    (set! j (fx1- j))",
-      "    (do () ((or (fx= j lo) (not (pred pivot (vector-ref v j)))))",
-      "      (set! j (fx1- j)))",
-      "    (when (fx< i j) (vector-swap! v i j))))")
-    self.define("_quick-sort!", via:
-      "(define (_quick-sort! pred v lo hi)",
-      "  (unless (fx<= hi lo)",
-      "    (let ((j (_vector-partition! pred v lo hi)))",
-      "      (_quick-sort! pred v lo (fx1- j))",
-      "      (_quick-sort! pred v (fx1+ j) hi))))")
-    self.define("vector-sort!", via:
-      "(define (vector-sort! pred v)",
-      "  (_quick-sort! pred v 0 (fx1- (vector-length v))))")
+    self.define("_vector-partition!", via: """
+      (define (_vector-partition! pred v lo hi)
+        (do ((i (fx1+ lo) (fx1+ i))
+             (j (fx1+ hi))
+             (pivot (_vector-pivot! v lo hi)))
+            ((fx> i j) (vector-swap! v lo j) j)
+          (do () ((or (fx= i hi) (not (pred (vector-ref v i) pivot))))
+            (set! i (fx1+ i)))
+          (set! j (fx1- j))
+          (do () ((or (fx= j lo) (not (pred pivot (vector-ref v j)))))
+            (set! j (fx1- j)))
+          (when (fx< i j) (vector-swap! v i j))))
+    """)
+    self.define("_quick-sort!", via: """
+      (define (_quick-sort! pred v lo hi)
+        (unless (fx<= hi lo)
+          (let ((j (_vector-partition! pred v lo hi)))
+            (_quick-sort! pred v lo (fx1- j))
+            (_quick-sort! pred v (fx1+ j) hi))))
+    """)
+    self.define("vector-sort!", via: """
+      (define (vector-sort! pred v)
+        (_quick-sort! pred v 0 (fx1- (vector-length v))))
+    """)
     self.define(Procedure("_vector-list-ref", vectorListRef))
     self.define(Procedure("_vector-list-length", vectorListLength))
-    self.define("vector-map", via:
-      "(define (vector-map f xs . xss)",
-      "  (let* ((vecs (cons xs xss))",
-      "         (len (_vector-list-length vecs))",
-      "         (res (make-vector len)))",
-      "    (if (null? xss)",
-      "        (do ((i 0 (fx1+ i)))",
-      "            ((fx>= i len) res)",
-      "          (vector-set! res i (f (vector-ref xs i))))",
-      "        (do ((i 0 (fx1+ i)))",
-      "            ((fx>= i len) res)",
-      "          (vector-set! res i (apply f (_vector-list-ref i vecs)))))))")
-    self.define("vector-map!", via:
-      "(define (vector-map! f xs . xss)",
-      "  (let* ((vecs (cons xs xss))",
-      "         (len (_vector-list-length vecs)))",
-      "    (if (null? xss)",
-      "        (do ((i 0 (fx1+ i)))",
-      "            ((fx>= i len))",
-      "          (vector-set! xs i (f (vector-ref xs i))))",
-      "        (do ((i 0 (fx1+ i)))",
-      "            ((fx>= i len))",
-      "          (vector-set! xs i (apply f (_vector-list-ref i vecs)))))))")
-    self.define("vector-for-each", via:
-      "(define (vector-for-each f xs . xss)",
-      "  (let* ((vecs (cons xs xss))",
-      "         (len (_vector-list-length vecs)))",
-      "    (do ((i 0 (fx1+ i)))",
-      "         ((fx>= i len))",
-      "      (apply f (_vector-list-ref i vecs)))))")
+    self.define("vector-map", via: """
+      (define (vector-map f xs . xss)
+        (let* ((vecs (cons xs xss))
+               (len (_vector-list-length vecs))
+               (res (make-vector len)))
+          (if (null? xss)
+              (do ((i 0 (fx1+ i)))
+                  ((fx>= i len) res)
+                (vector-set! res i (f (vector-ref xs i))))
+              (do ((i 0 (fx1+ i)))
+                  ((fx>= i len) res)
+                (vector-set! res i (apply f (_vector-list-ref i vecs)))))))
+    """)
+    self.define("vector-map!", via: """
+      (define (vector-map! f xs . xss)
+        (let* ((vecs (cons xs xss))
+               (len (_vector-list-length vecs)))
+          (if (null? xss)
+              (do ((i 0 (fx1+ i)))
+                  ((fx>= i len))
+                (vector-set! xs i (f (vector-ref xs i))))
+              (do ((i 0 (fx1+ i)))
+                  ((fx>= i len))
+                (vector-set! xs i (apply f (_vector-list-ref i vecs)))))))
+    """)
+    self.define("vector-for-each", via: """
+      (define (vector-for-each f xs . xss)
+        (let* ((vecs (cons xs xss))
+               (len (_vector-list-length vecs)))
+          (do ((i 0 (fx1+ i)))
+               ((fx>= i len))
+            (apply f (_vector-list-ref i vecs)))))
+    """)
+    self.define("vector=", via: """
+      (define (vector= pred . vs)
+        (if (null? vs)
+            #t
+            (let ((len (vector-length (car vs))))
+              (if (do ((ws (cdr vs) (cdr ws)))
+                      ((or (null? ws) (not (fx= (vector-length (car ws)) len))) (null? ws)))
+                  (do ((i 0 (fx1+ i)))
+                      ((or (fx= i len)
+                           (let ((elems (_vector-list-ref i vs)))
+                              (do ((x (car elems))
+                                   (xs (cdr elems) (cdr xs)))
+                                  ((or (null? xs) (not (pred x (car xs)))) (not (null? xs))))))
+                       (fx= i len)))
+                  #f))))
+    """)
   }
   
-  func isVector(_ expr: Expr) -> Expr {
+  private func makeVector(_ count: Expr, fill: Expr?) throws -> Expr {
+    let k = try count.asInt64()
+    guard k >= 0 && k <= Int64(Int.max) else {
+      throw RuntimeError.range(parameter: 1, of: "make-vector", count, min: 0)
+    }
+    return .vector(Collection(kind: .vector, count: Int(k), repeatedValue: fill ?? .null))
+  }
+  
+  private func vector(_ args: Arguments) -> Expr {
+    let res = Collection(kind: .vector)
+    for arg in args {
+      res.exprs.append(arg)
+    }
+    return .vector(res)
+  }
+  
+  private func compileVector(_ compiler: Compiler,
+                             expr: Expr,
+                             env: Env,
+                             tail: Bool) throws -> Bool {
+    guard case .pair(_, let cdr) = expr else {
+      preconditionFailure()
+    }
+    compiler.emit(.vector(try compiler.compileExprs(cdr, in: env)))
+    return false
+  }
+  
+  private func immutableVector(_ args: Arguments) -> Expr {
+    let res = Collection(kind: .immutableVector)
+    for arg in args {
+      res.exprs.append(arg)
+    }
+    return .vector(res)
+  }
+  
+  private func isVector(_ expr: Expr) -> Expr {
     switch expr {
-      case .vector(_):
-        return .true
-      default:
-        return .false
+    case .vector(let vector):
+      return .makeBoolean(!vector.isGrowableVector)
+    default:
+      return .false
     }
   }
   
-  func compileIsVector(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+  private func compileIsVector(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let arg, .null)) = expr else {
       throw RuntimeError.argumentCount(of: "vector?", min: 1, max: 1, expr: expr)
     }
@@ -131,11 +190,20 @@ public final class VectorLibrary: NativeLibrary {
     return false
   }
   
-  func vectorLength(vec: Expr) throws -> Expr {
+  private func isImmutableVector(_ expr: Expr) -> Expr {
+    switch expr {
+    case .vector(let vector):
+      return .makeBoolean(!vector.isGrowableVector && !vector.isMutableVector)
+    default:
+      return .false
+    }
+  }
+  
+  private func vectorLength(vec: Expr) throws -> Expr {
     return .fixnum(Int64(try vec.vectorAsCollection().exprs.count))
   }
   
-  func vectorListLength(vectors: Expr) throws -> Expr {
+  private func vectorListLength(vectors: Expr) throws -> Expr {
     var n = Int.max
     var list = vectors
     while case .pair(let vec, let next) = list {
@@ -151,65 +219,7 @@ public final class VectorLibrary: NativeLibrary {
     return .fixnum(Int64(n))
   }
   
-  func makeVector(_ count: Expr, fill: Expr?) throws -> Expr {
-    let k = try count.asInt64()
-    guard k >= 0 && k <= Int64(Int.max) else {
-      throw RuntimeError.range(parameter: 1, of: "make-vector", count, min: 0)
-    }
-    return .vector(Collection(kind: .vector, count: Int(k), repeatedValue: fill ?? .null))
-  }
-  
-  func vector(_ args: Arguments) -> Expr {
-    let res = Collection(kind: .vector)
-    for arg in args {
-      res.exprs.append(arg)
-    }
-    return .vector(res)
-  }
-  
-  func compileVector(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
-    guard case .pair(_, let cdr) = expr else {
-      preconditionFailure()
-    }
-    compiler.emit(.vector(try compiler.compileExprs(cdr, in: env)))
-    return false
-  }
-  
-  func vectorAppend(_ exprs: Arguments) throws -> Expr {
-    let res = Collection(kind: .vector)
-    for expr in exprs {
-      res.exprs.append(contentsOf: try expr.vectorAsCollection().exprs)
-    }
-    return .vector(res)
-  }
-  
-  func vectorConcatenate(_ expr: Expr) throws -> Expr {
-    let res = Collection(kind: .vector)
-    var list = expr
-    while case .pair(let vec, let next) = list {
-      res.exprs.append(contentsOf: try vec.vectorAsCollection().exprs)
-      list = next
-    }
-    guard list.isNull else {
-      throw RuntimeError.type(expr, expected: [.properListType])
-    }
-    return .vector(res)
-  }
-  
-  func vectorRef(_ vec: Expr, index: Expr) throws -> Expr {
-    let vector = try vec.vectorAsCollection()
-    let i = try index.asInt64()
-    guard i >= 0 && i < Int64(vector.exprs.count) else {
-      throw RuntimeError.range(parameter: 2,
-                               of: "vector-ref",
-                               index,
-                               min: 0,
-                               max: Int64(vector.exprs.count - 1))
-    }
-    return vector.exprs[Int(i)]
-  }
-  
-  func vectorListRef(_ index: Expr, _ vectors: Expr) throws -> Expr {
+  private func vectorListRef(_ index: Expr, _ vectors: Expr) throws -> Expr {
     let i = try index.asInt64()
     var res = Exprs()
     var list = vectors
@@ -227,7 +237,41 @@ public final class VectorLibrary: NativeLibrary {
     return .makeList(res)
   }
   
-  func vectorSet(_ vec: Expr, index: Expr, expr: Expr) throws -> Expr {
+  private func vectorAppend(_ exprs: Arguments) throws -> Expr {
+    let res = Collection(kind: .vector)
+    for expr in exprs {
+      res.exprs.append(contentsOf: try expr.vectorAsCollection().exprs)
+    }
+    return .vector(res)
+  }
+  
+  private func vectorConcatenate(_ expr: Expr) throws -> Expr {
+    let res = Collection(kind: .vector)
+    var list = expr
+    while case .pair(let vec, let next) = list {
+      res.exprs.append(contentsOf: try vec.vectorAsCollection().exprs)
+      list = next
+    }
+    guard list.isNull else {
+      throw RuntimeError.type(expr, expected: [.properListType])
+    }
+    return .vector(res)
+  }
+  
+  private func vectorRef(_ vec: Expr, index: Expr) throws -> Expr {
+    let vector = try vec.vectorAsCollection()
+    let i = try index.asInt64()
+    guard i >= 0 && i < Int64(vector.exprs.count) else {
+      throw RuntimeError.range(parameter: 2,
+                               of: "vector-ref",
+                               index,
+                               min: 0,
+                               max: Int64(vector.exprs.count - 1))
+    }
+    return vector.exprs[Int(i)]
+  }
+  
+  private func vectorSet(_ vec: Expr, index: Expr, expr: Expr) throws -> Expr {
     // Extract arguments
     let vector = try vec.vectorAsCollection()
     let i = try index.asInt()
@@ -238,7 +282,7 @@ public final class VectorLibrary: NativeLibrary {
                                min: Int64(i),
                                max: Int64(vector.exprs.count - 1))
     }
-    guard case .vector = vector.kind else {
+    guard vector.isMutableVector else {
       throw RuntimeError.eval(.attemptToModifyImmutableData, vec)
     }
     // Set value at index `i`. Guarantee that vectors for which `vector-set!` is
@@ -247,11 +291,11 @@ public final class VectorLibrary: NativeLibrary {
     return .void
   }
   
-  func vectorSwap(_ vec: Expr, index1: Expr, index2: Expr) throws -> Expr {
+  private func vectorSwap(_ vec: Expr, index1: Expr, index2: Expr) throws -> Expr {
     let vector = try vec.vectorAsCollection()
     let i = try index1.asInt(below: vector.exprs.count)
     let j = try index2.asInt(below: vector.exprs.count)
-    guard case .vector = vector.kind else {
+    guard vector.isMutableVector else {
       throw RuntimeError.eval(.attemptToModifyImmutableData, vec)
     }
     let temp = vector.exprs[i]
@@ -260,14 +304,14 @@ public final class VectorLibrary: NativeLibrary {
     return .void
   }
   
-  func listToVector(_ expr: Expr) throws -> Expr {
+  private func listToVector(_ expr: Expr) throws -> Expr {
     guard case (let exprs, .null) = expr.toExprs() else {
       throw RuntimeError.type(expr, expected: [.properListType])
     }
     return .vector(Collection(kind: .vector, exprs: exprs))
   }
   
-  func vectorToList(_ vec: Expr, start: Expr?, end: Expr?) throws -> Expr {
+  private func vectorToList(_ vec: Expr, start: Expr?, end: Expr?) throws -> Expr {
     let vector = try vec.vectorAsCollection()
     let end = try end?.asInt(below: vector.exprs.count + 1) ?? vector.exprs.count
     let start = try start?.asInt(below: end + 1) ?? 0
@@ -278,7 +322,7 @@ public final class VectorLibrary: NativeLibrary {
     return res
   }
   
-  func stringToVector(_ expr: Expr, start: Expr?, end: Expr?) throws -> Expr {
+  private func stringToVector(_ expr: Expr, start: Expr?, end: Expr?) throws -> Expr {
     let str = try expr.asString().utf16
     let max = try end?.asInt(below: str.count + 1) ?? str.count
     let end = str.index(str.startIndex, offsetBy: max)
@@ -290,7 +334,7 @@ public final class VectorLibrary: NativeLibrary {
     return .vector(res)
   }
   
-  func vectorToString(_ vec: Expr, start: Expr?, end: Expr?) throws -> Expr {
+  private func vectorToString(_ vec: Expr, start: Expr?, end: Expr?) throws -> Expr {
     let vector = try vec.vectorAsCollection()
     let end = try end?.asInt(below: vector.exprs.count + 1) ?? vector.exprs.count
     let start = try start?.asInt(below: end + 1) ?? 0
@@ -301,20 +345,50 @@ public final class VectorLibrary: NativeLibrary {
     return .string(NSMutableString(string: String(utf16CodeUnits: uniChars, count: uniChars.count)))
   }
   
-  func vectorCopy(_ vec: Expr, start: Expr?, end: Expr?) throws -> Expr {
+  private func vectorCopy(_ vec: Expr, _ args: Arguments) throws -> Expr {
     let vector = try vec.vectorAsCollection()
-    let end = try end?.asInt(below: vector.exprs.count + 1) ?? vector.exprs.count
-    let start = try start?.asInt(below: end + 1) ?? 0
-    let res = Collection(kind: .vector)
-    for expr in vector.exprs[start..<end] {
+    guard let (start, end, mutable) = args.optional(.fixnum(0),
+                                                    .makeNumber(vector.exprs.count),
+                                                    .true) else {
+      throw RuntimeError.argumentCount(of: "vector-copy",
+                                       min: 1,
+                                       max: 4,
+                                       args: .pair(vec, .makeList(args)))
+    }
+    if args.count == 1 {
+      switch start {
+        case .fixnum(_):
+          break;
+        case .false:
+          let res = Collection(kind: .immutableVector)
+          for expr in vector.exprs {
+            res.exprs.append(expr)
+          }
+          return .vector(res)
+        default:
+          let res = Collection(kind: .vector)
+          for expr in vector.exprs {
+            res.exprs.append(expr)
+          }
+          return .vector(res)
+      }
+    }
+    let e = try end.asInt(below: vector.exprs.count + 1)
+    let s = try start.asInt(below: e + 1)
+    let res = Collection(kind: mutable.isFalse ? .immutableVector : .vector)
+    for expr in vector.exprs[s..<e] {
       res.exprs.append(expr)
     }
     return .vector(res)
   }
 
-  func vectorOverwrite(_ trgt: Expr, at: Expr, src: Expr, start: Expr?, end: Expr?) throws -> Expr {
+  private func vectorOverwrite(_ trgt: Expr,
+                               at: Expr,
+                               src: Expr,
+                               start: Expr?,
+                               end: Expr?) throws -> Expr {
     let target = try trgt.vectorAsCollection()
-    guard case .vector = target.kind else {
+    guard target.isMutableVector else {
       throw RuntimeError.eval(.attemptToModifyImmutableData, trgt)
     }
     let from = try at.asInt(below: target.exprs.count + 1)
@@ -347,9 +421,9 @@ public final class VectorLibrary: NativeLibrary {
     return .void
   }
   
-  func vectorFill(_ vec: Expr, expr: Expr, start: Expr?, end: Expr?) throws -> Expr {
-    let vector = try vec.vectorAsCollection()
-    guard case .vector = vector.kind else {
+  private func vectorFill(_ vec: Expr, expr: Expr, start: Expr?, end: Expr?) throws -> Expr {
+    let vector = try vec.vectorAsCollection(growable: false)
+    guard vector.isMutableVector else {
       throw RuntimeError.eval(.attemptToModifyImmutableData, vec)
     }
     let end = try end?.asInt(below: vector.exprs.count + 1) ?? vector.exprs.count
@@ -363,9 +437,9 @@ public final class VectorLibrary: NativeLibrary {
     return .void
   }
   
-  func vectorReverse(_ vec: Expr, _ start: Expr?, _ end: Expr?) throws -> Expr {
+  private func vectorReverse(_ vec: Expr, _ start: Expr?, _ end: Expr?) throws -> Expr {
     let vector = try vec.vectorAsCollection()
-    guard case .vector = vector.kind else {
+    guard vector.isMutableVector else {
       throw RuntimeError.eval(.attemptToModifyImmutableData, vec)
     }
     let end = try end?.asInt(below: vector.exprs.count + 1) ?? vector.exprs.count
@@ -374,11 +448,11 @@ public final class VectorLibrary: NativeLibrary {
     return .void
   }
   
-  func vectorPivot(_ vec: Expr, ilo: Expr, ihi: Expr) throws -> Expr {
+  private func vectorPivot(_ vec: Expr, ilo: Expr, ihi: Expr) throws -> Expr {
     let vector = try vec.vectorAsCollection()
     let hi = try ihi.asInt(below: vector.exprs.count)
     let lo = try ilo.asInt(below: hi &+ 1)
-    guard case .vector = vector.kind else {
+    guard vector.isMutableVector else {
       throw RuntimeError.eval(.attemptToModifyImmutableData, vec)
     }
     guard lo < hi else {
@@ -393,4 +467,3 @@ public final class VectorLibrary: NativeLibrary {
     return temp
   }
 }
-

@@ -25,6 +25,7 @@
 ///    - Array
 ///    - Vector
 ///    - Immutable vector
+///    - Growable vector
 ///    - Record type
 ///    - Record instance
 ///
@@ -34,6 +35,7 @@ public final class Collection: ManagedObject, CustomStringConvertible {
     case array
     case vector
     case immutableVector
+    case growableVector
     case recordType
     case record(Collection)
     
@@ -45,6 +47,8 @@ public final class Collection: ManagedObject, CustomStringConvertible {
           return "vector"
         case .immutableVector:
           return "immutable vector"
+        case .growableVector:
+          return "growable vector"
         case .recordType:
           return "record type"
         case .record(let type):
@@ -84,10 +88,38 @@ public final class Collection: ManagedObject, CustomStringConvertible {
       case (.array, .array),
            (.vector, .vector),
            (.immutableVector, .immutableVector),
+           (.growableVector, .growableVector),
            (.recordType, .recordType):
         return true
       case (.record(let type1), .record(let type2)):
         return type1 == type2
+      default:
+        return false
+    }
+  }
+  
+  public var isVector: Bool {
+    switch self.kind {
+      case .vector, .immutableVector, .growableVector:
+        return true
+      default:
+        return false
+    }
+  }
+  
+  public var isMutableVector: Bool {
+    switch self.kind {
+      case .vector, .growableVector:
+        return true
+      default:
+        return false
+    }
+  }
+  
+  public var isGrowableVector: Bool {
+    switch self.kind {
+      case .growableVector:
+        return true
       default:
         return false
     }
@@ -118,6 +150,8 @@ public final class Collection: ManagedObject, CustomStringConvertible {
         return "#<vector \(self.identityString)>"
       case .immutableVector:
         return "#<immutable-vector \(self.identityString)>"
+      case .growableVector:
+        return "#<gvector \(self.identityString)>"
       case .recordType:
         return "#<record-type:\((try? self.exprs[0].asString()) ?? self.exprs[0].description) " +
                "\(self.identityString)>"
