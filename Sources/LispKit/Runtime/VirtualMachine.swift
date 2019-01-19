@@ -3,7 +3,7 @@
 //  LispKit
 //
 //  Created by Matthias Zenger on 13/02/2016.
-//  Copyright © 2016 ObjectHub. All rights reserved.
+//  Copyright © 2016-2019 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -638,39 +638,31 @@ public final class VirtualMachine: TrackedObject {
     return stackTrace
   }
   
-  @inline(__always) private func printCallTrace(_ n: Int, tailCall: Bool = false) {
+  @inline(__always) private func printCallTrace(_ n: Int, tailCall: Bool = false) -> Procedure? {
     if self.traceCalls && self.sp > (n &+ 1) {
       if case .procedure(let proc) = self.stack[self.sp &- n &- 1] {
-        let stackTrace = self.getStackTrace()
-        var builder = StringBuilder()
-        let offset = tailCall ? 0 : 1
-        builder.append(tailCall ? "↪︎" : "⟶",
-                       width: (stackTrace.count + offset) * 2 + 1,
-                       alignRight: true)
-        builder.append(" (", proc.originalName ?? proc.name)
+        var args = Exprs()
         for i in 0..<n {
-          builder.append(" ", self.stack[self.sp &- n &+ i].description)
+          args.append(self.stack[self.sp &- n &+ i])
         }
-        builder.append(")")
-        if let currentProc = stackTrace.last {
-          builder.append(" in ", currentProc.originalName ?? currentProc.name)
-        }
-        builder.append("\n")
-        self.context.console.print(builder.description)
+        self.context.delegate.trace(call: proc,
+                                    args: args,
+                                    tailCall: tailCall,
+                                    callStack: self.getStackTrace(),
+                                    in: self)
+        return proc
       }
     }
+    return nil
   }
   
-  @inline(__always) private func printReturnTrace(tailCall: Bool = false, noOffset: Bool = false) {
+  @inline(__always) private func printReturnTrace(_ proc: Procedure, tailCall: Bool = false) {
     if self.traceCalls && self.sp > 0 {
-      var builder = StringBuilder()
-      let offset = tailCall || noOffset ? 0 : 1
-      builder.append(tailCall ? "↩︎" : "⟵",
-                     width: (self.getStackTrace().count + offset) * 2 + 1,
-                     alignRight: true)
-      builder.append(" ", self.stack[self.sp &- 1].description)
-      builder.append("\n")
-      self.context.console.print(builder.description)
+      self.context.delegate.trace(return: proc,
+                                  result: self.stack[self.sp &- 1],
+                                  tailCall: tailCall,
+                                  callStack: self.getStackTrace(),
+                                  in: self)
     }
   }
   
@@ -1286,18 +1278,18 @@ public final class VirtualMachine: TrackedObject {
           // Push top value onto stack again
           self.push(top)
         case .call(let n):
-          self.printCallTrace(n, tailCall: false)
+          let tproc = self.printCallTrace(n, tailCall: false)
           // Store instruction pointer
           self.stack[self.sp &- n &- 2] = .fixnum(Int64(self.registers.ip))
           // Invoke native function
           var m = n
           if case .closure(_, let newcaptured, let newcode) = try self.invoke(&m, 3).kind {
             self.registers.use(code: newcode, captured: newcaptured, fp: self.sp &- m)
-          } else {
-            self.printReturnTrace(tailCall: false)
+          } else if let tproc = tproc {
+            self.printReturnTrace(tproc, tailCall: false)
           }
         case .tailCall(let m):
-          self.printCallTrace(m, tailCall: true)
+          _ = self.printCallTrace(m, tailCall: true)
           // Invoke native function
           var n = m
           let proc = try self.invoke(&n, 1)
@@ -1317,6 +1309,10 @@ public final class VirtualMachine: TrackedObject {
           } else if case .rawContinuation(_) = proc.kind {
             break
           } else if self.registers.topLevel {
+            if self.registers.fp > 0,
+               case .procedure(let tproc) = self.stack[self.registers.fp - 1] {
+              self.printReturnTrace(tproc, tailCall: true)
+            }
             // Return to interactive environment
             let res = self.pop()
             // Wipe the stack
@@ -1326,7 +1322,9 @@ public final class VirtualMachine: TrackedObject {
             self.sp = self.registers.initialFp &- 1
             return res
           } else {
-            self.printReturnTrace(tailCall: true)
+            if case .procedure(let tproc) = self.stack[self.registers.fp - 1] {
+              self.printReturnTrace(tproc, tailCall: true)
+            }
             self.exitFrame()
           }
         case .assertArgCount(let n):
@@ -1367,6 +1365,10 @@ public final class VirtualMachine: TrackedObject {
         case .return:
           // Return to interactive environment
           if self.registers.topLevel {
+            if self.registers.fp > 0,
+               case .procedure(let tproc) = self.stack[self.registers.fp - 1] {
+              self.printReturnTrace(tproc, tailCall: true)
+            }
             let res = self.pop()
             // Wipe the stack
             for i in (self.registers.initialFp &- 1)..<self.sp {
@@ -1376,7 +1378,9 @@ public final class VirtualMachine: TrackedObject {
             self.sp = self.registers.initialFp &- 1
             return res
           } else {
-            self.printReturnTrace(tailCall: false, noOffset: true)
+            if case .procedure(let tproc) = self.stack[self.registers.fp - 1] {
+              self.printReturnTrace(tproc, tailCall: true)
+            }
             self.exitFrame()
           }
         case .branch(let offset):
@@ -1475,12 +1479,12 @@ public final class VirtualMachine: TrackedObject {
           let obj = self.pop()
           switch obj {
             case .string(let str):
-              context.console.print(str as String)
+              self.context.delegate.print(str as String)
             default:
-              context.console.print(obj.description)
+              self.context.delegate.print(obj.description)
           }
         case .newline:
-          context.console.print("\n")
+          self.context.delegate.print("\n")
         case .eq:
           self.push(.makeBoolean(eqExpr(self.pop(), self.popUnsafe())))
         case .eqv:

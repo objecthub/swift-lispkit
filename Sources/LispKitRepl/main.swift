@@ -78,11 +78,11 @@ if help.wasSet {
 // Set simplified names
 Context.simplifiedDescriptions = simplified.wasSet
 
-// Instantiate line reader and console
+// Instantiate line reader and terminal
 let ln = basic.wasSet ? nil : LineReader()
-let console = CommandLineConsole()
+let terminal = CommandLineDelegate()
 
-// Define prompt/read logic based on `console`
+// Define prompt/read logic based on `terminal`
 func readCommand(withPrompt: Bool = true) -> String? {
   if let ln = ln {
     do {
@@ -93,17 +93,17 @@ func readCommand(withPrompt: Bool = true) -> String? {
                              readProperties: TextProperties(.black, nil),
                              parenProperties: TextProperties(.red, nil, .bold))
     } catch LineReaderError.CTRLC {
-      console.print("\nterminated\n")
+      terminal.print("\nterminated\n")
       return nil
     } catch {
-      console.print("\(error.localizedDescription)\n")
+      terminal.print("\(error.localizedDescription)\n")
       return nil
     }
   } else {
     if withPrompt {
-      console.print(prompt.value ?? "> ")
+      terminal.print(prompt.value ?? "> ")
     }
-    return console.read()
+    return terminal.read()
   }
 }
 
@@ -126,14 +126,14 @@ func printError(if issue: Bool = true, _ message: String) {
 // Create initial LispKit context
 var cmdLineArgs = flags.parameters.isEmpty ? [CommandLine.arguments.first!] : flags.parameters
 #if SPM
-  let context = Context(console: console,
+  let context = Context(delegate: terminal,
                         implementationName: "LispKit",
                         implementationVersion: "1.6.1",
                         commandLineArguments: cmdLineArgs,
                         includeInternalResources: false,
                         includeDocumentPath: searchDocs.wasSet ? "LispKit" : nil)
 #else
-  let context = Context(console: console,
+  let context = Context(delegate: terminal,
                         commandLineArguments: cmdLineArgs,
                         includeDocumentPath: searchDocs.wasSet ? "LispKit" : nil)
 #endif
@@ -227,15 +227,15 @@ func printResult(_ res: Expr) {
   if case .values(let expr) = res {
     var next = expr
     while case .pair(let x, let rest) = next {
-      console.print("\(x.description)\n")
+      terminal.print("\(x.description)\n")
       next = rest
     }
   // For errors print the error message
   } else if case .error(let err) = res {
-    console.print("\(err.printableDescription())\n")
+    terminal.print("\(err.printableDescription())\n")
   // For non-void results, print result
   } else if res != .void {
-    console.print("\(res.description)\n")
+    terminal.print("\(res.description)\n")
   }
 }
 

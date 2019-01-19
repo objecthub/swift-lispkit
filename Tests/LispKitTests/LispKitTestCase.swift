@@ -49,7 +49,7 @@ import XCTest
 open class LispKitTestCase: XCTestCase {
   
   /// Default console implementation
-  public let console = CommandLineConsole()
+  public let terminal = CommandLineDelegate()
   
   /// LispKit context object; created on demand before every test method is executed
   public var context: Context? = nil
@@ -63,7 +63,7 @@ open class LispKitTestCase: XCTestCase {
   
   override open func setUp() {
     super.setUp()
-    self.context = Context(console: console)
+    self.context = Context(delegate: terminal)
     do {
       try self.context?.environment.import(BaseLibrary.name)
     } catch {

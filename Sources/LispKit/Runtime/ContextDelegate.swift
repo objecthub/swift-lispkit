@@ -3,7 +3,7 @@
 //  LispKit
 //
 //  Created by Matthias Zenger on 29/12/2016.
-//  Copyright © 2016 ObjectHub. All rights reserved.
+//  Copyright © 2016-2019 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -20,21 +20,139 @@
 
 import Cocoa
 
-public protocol ContextDelegate {
+///
+/// `ContextDelegate` provides functionality for customizing the behavior of the
+/// virtual machine. The most important use case is the interaction with the console window.
+/// For this use case, `ContextDelegate` provides methods to set the console window status,
+/// to write strings as well as to read strings.
+///
+public protocol ContextDelegate: TextInputSource, TextOutputTarget {
+  
+  /// Prints the given string into the console window.
+  func print(_ str: String)
+  
+  /// Reads a string from the console window.
+  func read() -> String?
+  
+  /// Is called whenever a procedure that is being traced is called
+  func trace(call: Procedure,
+             args: Exprs,
+             tailCall: Bool,
+             callStack: [Procedure],
+             in: VirtualMachine)
+  
+  /// Is called whenever a procedure that is being traced returns
+  func trace(return: Procedure,
+             result: Expr,
+             tailCall: Bool,
+             callStack: [Procedure],
+             in: VirtualMachine)
+  
+  /// This is called whenever a new library is loaded
   func loaded(library: Library, by: LibraryManager)
+  
+  /// This is called whenever a symbol is bound in an environment
   func bound(symbol: Symbol, in: Environment)
+  
+  /// This is called by the `exit` function of LispKit.
   func emergencyExit(obj: Expr?)
 }
 
+///
+/// Default implementations for context delegates. In particular, these defaults implement
+/// the `TextInputSource` and `TextOutputTarget` functionality of the delegate via methods
+/// `print` and `read`.
+///
 public extension ContextDelegate {
   
-  func loaded(library: Library, by: LibraryManager) {
-  }
-    
-  func bound(symbol: Symbol, in: Environment) {
+  /// The console always blocks before providing a new string.
+  public var nextReadMightBlock: Bool {
+    return true
   }
   
-  func emergencyExit(obj: Expr?) {
+  /// Read the next string from the console. This operation always blocks.
+  public func readString() -> String? {
+    return self.read()
+  }
+  
+  /// `flush` always succeeds.
+  public func flush(_ completely: Bool = false) -> Bool {
+    return true
+  }
+  
+  /// Print the given string to the console.
+  public func writeString(_ str: String) -> Bool {
+    self.print(str)
+    return true
+  }
+  
+  public func trace(call proc: Procedure,
+                    args: Exprs,
+                    tailCall: Bool,
+                    callStack: [Procedure],
+                    in: VirtualMachine) {
+    var builder = StringBuilder()
+    let offset = tailCall ? 0 : 1
+    builder.append(tailCall ? "↪︎" : "⟶",
+                   width: (callStack.count + offset) * 2 + 1,
+                   alignRight: true)
+    builder.append(" (", proc.originalName ?? proc.name)
+    for arg in args {
+      builder.append(" ", arg.description)
+    }
+    builder.append(")")
+    if let currentProc = callStack.last {
+      builder.append(" in ", currentProc.originalName ?? currentProc.name)
+    }
+    builder.append("\n")
+    self.print(builder.description)
+  }
+  
+  public func trace(return proc: Procedure,
+                    result: Expr,
+                    tailCall: Bool,
+                    callStack: [Procedure],
+                    in vm: VirtualMachine) {
+    var builder = StringBuilder()
+    let offset = tailCall ? 0 : 1
+    builder.append(tailCall ? "↩︎" : "⟵",
+                   width: (callStack.count + offset) * 2 + 1,
+                   alignRight: true)
+    builder.append(" ", result.description)
+    builder.append(" from ", proc.originalName ?? proc.name)
+    if let currentProc = callStack.last {
+      builder.append(" in ", currentProc.originalName ?? currentProc.name)
+    }
+    builder.append("\n")
+    self.print(builder.description)
+  }
+  
+  public func loaded(library: Library, by: LibraryManager) {
+  }
+  
+  public func bound(symbol: Symbol, in: Environment) {
+  }
+  
+  public func emergencyExit(obj: Expr?) {
     NSApplication.shared.terminate(self)
+  }
+}
+
+///
+/// Struct `CommandLineDelegate` implements `ContextDelegate` with Swift's built in `print` and
+/// `readLine` functions to allow for a simple read-eval-print loop on a terminal interface.
+///
+public struct CommandLineDelegate: ContextDelegate {
+  
+  public init() {}
+  
+  /// Prints the given string into the console window.
+  public func print(_ str: String) {
+    Swift.print(str, separator: "", terminator: "")
+  }
+  
+  /// Reads a string from the console window.
+  public func read() -> String? {
+    return Swift.readLine(strippingNewline: false)
   }
 }

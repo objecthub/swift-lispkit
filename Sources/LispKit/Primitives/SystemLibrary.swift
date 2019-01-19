@@ -377,9 +377,9 @@ public final class SystemLibrary: NativeLibrary {
   }
   
   private func gc() -> Expr {
-    context.console.print("BEFORE: " + context.objects.description + "\n")
+    self.context.delegate.print("BEFORE: " + context.objects.description + "\n")
     let res = Expr.fixnum(Int64(self.context.objects.collectGarbage()))
-    context.console.print("AFTER: " + context.objects.description + "\n")
+    self.context.delegate.print("AFTER: " + context.objects.description + "\n")
     return res
   }
   
@@ -408,7 +408,7 @@ public final class SystemLibrary: NativeLibrary {
     let code = try Compiler.compile(expr: seq,
                                     in: self.context.global,
                                     optimize: true)
-    context.console.print(code.description)
+    self.context.delegate.print(code.description)
     return .void
   }
   
@@ -418,24 +418,24 @@ public final class SystemLibrary: NativeLibrary {
     }
     switch proc.kind {
       case .closure(_, let captured, let code):
-        context.console.print(code.description)
+        self.context.delegate.print(code.description)
         if captured.count > 0 {
-          context.console.print("CAPTURED:\n")
+          self.context.delegate.print("CAPTURED:\n")
           for i in captured.indices {
-            context.console.print("  \(i): \(captured[i])\n")
+            self.context.delegate.print("  \(i): \(captured[i])\n")
           }
         }
       case .rawContinuation(let vmState):
-        context.console.print(vmState.description + "\n")
-        context.console.print(vmState.registers.code.description)
+        self.context.delegate.print(vmState.description + "\n")
+        self.context.delegate.print(vmState.registers.code.description)
         if vmState.registers.captured.count > 0 {
-          context.console.print("CAPTURED:\n")
+          self.context.delegate.print("CAPTURED:\n")
           for i in vmState.registers.captured.indices {
-            context.console.print("  \(i): \(vmState.registers.captured[i])\n")
+            self.context.delegate.print("  \(i): \(vmState.registers.captured[i])\n")
           }
         }
       default:
-        context.console.print("cannot disassemble \(expr)\n")
+        self.context.delegate.print("cannot disassemble \(expr)\n")
     }
     return .void
   }
@@ -477,25 +477,26 @@ public final class SystemLibrary: NativeLibrary {
   }
   
   private func environmentInfo() -> Expr {
-    context.console.print("OBJECT SIZES\n")
-    context.console.print("  atom size          : \(MemoryLayout<Expr>.size) bytes\n")
-    context.console.print("  atom stride size   : \(MemoryLayout<Expr>.stride) bytes\n")
-    context.console.print("  instr size         : \(MemoryLayout<Instruction>.size) bytes\n")
-    context.console.print("  instr stride size  : \(MemoryLayout<Instruction>.stride) bytes\n")
-    context.console.print("MANAGED OBJECT POOL\n")
-    context.console.print("  tracked objects    : \(self.context.objects.numTrackedObjects)\n")
-    context.console.print("  tracked capacity   : \(self.context.objects.trackedObjectCapacity)\n")
-    context.console.print("  managed objects    : \(self.context.objects.numManagedObjects)\n")
-    context.console.print("  managed capacity   : \(self.context.objects.managedObjectCapacity)\n")
-    context.console.print("MANAGED OBJECT DISTRIBUTION\n")
+    let console = self.context.delegate
+    console.print("OBJECT SIZES\n")
+    console.print("  atom size          : \(MemoryLayout<Expr>.size) bytes\n")
+    console.print("  atom stride size   : \(MemoryLayout<Expr>.stride) bytes\n")
+    console.print("  instr size         : \(MemoryLayout<Instruction>.size) bytes\n")
+    console.print("  instr stride size  : \(MemoryLayout<Instruction>.stride) bytes\n")
+    console.print("MANAGED OBJECT POOL\n")
+    console.print("  tracked objects    : \(self.context.objects.numTrackedObjects)\n")
+    console.print("  tracked capacity   : \(self.context.objects.trackedObjectCapacity)\n")
+    console.print("  managed objects    : \(self.context.objects.numManagedObjects)\n")
+    console.print("  managed capacity   : \(self.context.objects.managedObjectCapacity)\n")
+    console.print("MANAGED OBJECT DISTRIBUTION\n")
     for (typeName, count) in self.context.objects.managedObjectDistribution {
-      context.console.print("  \(typeName): \(count)\n")
+      console.print("  \(typeName): \(count)\n")
     }
-    context.console.print("GARBAGE COLLECTOR\n")
-    context.console.print("  gc cycles          : \(self.context.objects.cycles)\n")
-    context.console.print("  last tag           : \(self.context.objects.tag)\n")
-    context.console.print("GLOBAL LOCATIONS\n")
-    context.console.print("  allocated locations: \(self.context.heap.locations.count)\n")
+    console.print("GARBAGE COLLECTOR\n")
+    console.print("  gc cycles          : \(self.context.objects.cycles)\n")
+    console.print("  last tag           : \(self.context.objects.tag)\n")
+    console.print("GLOBAL LOCATIONS\n")
+    console.print("  allocated locations: \(self.context.heap.locations.count)\n")
     return .void
   }
   

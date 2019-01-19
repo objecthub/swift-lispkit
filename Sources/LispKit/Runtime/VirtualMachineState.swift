@@ -18,12 +18,28 @@
 //  limitations under the License.
 //
 
+///
+/// `VirtualMachineState` encapsulates per-continuation state of a virtual machine, such as:
+///    - the stack
+///    - the stack pointer
+///    - the registers
+///    - the winders stack
+///
 public final class VirtualMachineState: TrackedObject, CustomStringConvertible {
+  
+  /// The stack
   internal let stack: Exprs
+  
+  /// The stack pointer
   internal let sp: Int
+  
+  /// The set of registers
   internal let registers: VirtualMachine.Registers
+  
+  /// The stack of winders
   internal let winders: VirtualMachine.Winder?
   
+  /// Creates a new virtual machine state
   internal init(stack: Exprs,
                 sp: Int,
                 spDelta: Int,

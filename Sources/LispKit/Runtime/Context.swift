@@ -40,10 +40,7 @@ public final class Context {
   
   /// A delegate object which receives updates related to the virtual machine managed by
   /// this context. The virtual machine also delegates some functionality to this object.
-  public var delegate: ContextDelegate?
-  
-  /// The console for reading and writing strings from the default port.
-  public let console: Console
+  public let delegate: ContextDelegate
   
   /// The global expression heap.
   public let heap: Heap
@@ -102,22 +99,20 @@ public final class Context {
   public static var simplifiedDescriptions: Bool = false
   
   /// Initializes a new context.
-  public init(console: Console,
+  public init(delegate: ContextDelegate,
               implementationName: String? = nil,
               implementationVersion: String? = nil,
               commandLineArguments: [String]? = nil,
               initialHomePath: String? = nil,
               includeInternalResources: Bool = true,
               includeDocumentPath: String? = "LispKit",
-              features: [String] = [],
-              delegate: ContextDelegate? = nil) {
+              features: [String] = []) {
     // Initialize components
     self.delegate = delegate
     self.implementationName = implementationName ?? Context.implementationName
     self.implementationVersion = implementationVersion ?? Context.implementationVersion
     self.commandLineArguments = commandLineArguments ?? CommandLine.arguments
     self.initialHomePath = initialHomePath
-    self.console = console
     self.heap = Heap()
     self.fileHandler = FileHandler(includeInternalResources: includeInternalResources,
                                    includeDocumentPath: includeDocumentPath)
@@ -132,9 +127,9 @@ public final class Context {
     self.libraries = LibraryManager(for: self)
     self.environment = Environment(in: self)
     self.machine = VirtualMachine(for: self)
-    self.inputPort = Port(input: TextInput(source: console,
+    self.inputPort = Port(input: TextInput(source: delegate,
                                            abortionCallback: self.machine.isAbortionRequested))
-    self.outputPort = Port(output: TextOutput(target: console, threshold: 0))
+    self.outputPort = Port(output: TextOutput(target: delegate, threshold: 0))
     // Register tracked objects
     self.objects.track(self.machine)
     self.objects.track(self.heap)

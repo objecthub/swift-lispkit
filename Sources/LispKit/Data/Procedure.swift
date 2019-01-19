@@ -91,6 +91,10 @@ public final class Procedure: Reference, CustomStringConvertible {
   /// Procedure kind
   public let kind: Kind
   
+  /// Is this procedure traced; i.e. should the virtual machine print debugging information
+  /// for this procedure?
+  public var traced: Bool = false
+  
   /// Initializer for primitive evaluators
   public init(_ name: String,
               _ proc: @escaping (Arguments) throws -> Code,
