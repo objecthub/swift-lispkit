@@ -154,6 +154,12 @@ public final class VirtualMachine: TrackedObject {
     }
   }
   
+  public enum CallTracingMode {
+    case on
+    case off
+    case byProc
+  }
+  
   /// Counter for managing register ids
   private static var nextRid: Int = 0
   
@@ -199,7 +205,7 @@ public final class VirtualMachine: TrackedObject {
   public internal(set) var exitTriggered: Bool = false
   
   /// When set to true, will print call and return traces
-  public var traceCalls: Bool = false
+  public var traceCalls: CallTracingMode = .off
   
   /// Initializes a new virtual machine for the given context.
   public init(for context: Context) {
@@ -613,7 +619,7 @@ public final class VirtualMachine: TrackedObject {
     self.registers.code = newcode
   }
   
-  internal func getStackTrace(current: Procedure? = nil) -> [Procedure] {
+  public func getStackTrace(current: Procedure? = nil) -> [Procedure] {
     var stackTrace: [Procedure] = []
     if let current = current {
       stackTrace.append(current)
@@ -639,8 +645,9 @@ public final class VirtualMachine: TrackedObject {
   }
   
   @inline(__always) private func printCallTrace(_ n: Int, tailCall: Bool = false) -> Procedure? {
-    if self.traceCalls && self.sp > (n &+ 1) {
-      if case .procedure(let proc) = self.stack[self.sp &- n &- 1] {
+    if self.traceCalls != .off && self.sp > (n &+ 1) {
+      if case .procedure(let proc) = self.stack[self.sp &- n &- 1],
+         self.traceCalls == .on || proc.traced {
         var args = Exprs()
         for i in 0..<n {
           args.append(self.stack[self.sp &- n &+ i])
@@ -648,7 +655,6 @@ public final class VirtualMachine: TrackedObject {
         self.context.delegate.trace(call: proc,
                                     args: args,
                                     tailCall: tailCall,
-                                    callStack: self.getStackTrace(),
                                     in: self)
         return proc
       }
@@ -657,11 +663,10 @@ public final class VirtualMachine: TrackedObject {
   }
   
   @inline(__always) private func printReturnTrace(_ proc: Procedure, tailCall: Bool = false) {
-    if self.traceCalls && self.sp > 0 {
+    if (self.traceCalls == .on || (self.traceCalls == .byProc && proc.traced)) && self.sp > 0 {
       self.context.delegate.trace(return: proc,
                                   result: self.stack[self.sp &- 1],
                                   tailCall: tailCall,
-                                  callStack: self.getStackTrace(),
                                   in: self)
     }
   }

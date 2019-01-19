@@ -38,14 +38,12 @@ public protocol ContextDelegate: TextInputSource, TextOutputTarget {
   func trace(call: Procedure,
              args: Exprs,
              tailCall: Bool,
-             callStack: [Procedure],
              in: VirtualMachine)
   
   /// Is called whenever a procedure that is being traced returns
   func trace(return: Procedure,
              result: Expr,
              tailCall: Bool,
-             callStack: [Procedure],
              in: VirtualMachine)
   
   /// This is called whenever a new library is loaded
@@ -86,16 +84,29 @@ public extension ContextDelegate {
     return true
   }
   
+  public func countTracedProcedures(_ callStack: [Procedure]) -> Int {
+    var num = 0
+    for proc in callStack {
+      if proc.traced {
+        num += 1
+      }
+    }
+    return num
+  }
+  
   public func trace(call proc: Procedure,
                     args: Exprs,
                     tailCall: Bool,
-                    callStack: [Procedure],
-                    in: VirtualMachine) {
+                    in machine: VirtualMachine) {
     var builder = StringBuilder()
-    let offset = tailCall ? 0 : 1
-    builder.append(tailCall ? "↪︎" : "⟶",
-                   width: (callStack.count + offset) * 2 + 1,
-                   alignRight: true)
+    var offset = tailCall ? 0 : 1
+    let callStack = machine.getStackTrace()
+    if machine.traceCalls == .byProc {
+      offset += self.countTracedProcedures(callStack)
+    } else {
+      offset += callStack.count
+    }
+    builder.append(tailCall ? "↪︎" : "⟶", width: offset * 2 + 1, alignRight: true)
     builder.append(" (", proc.originalName ?? proc.name)
     for arg in args {
       builder.append(" ", arg.description)
@@ -111,13 +122,16 @@ public extension ContextDelegate {
   public func trace(return proc: Procedure,
                     result: Expr,
                     tailCall: Bool,
-                    callStack: [Procedure],
-                    in vm: VirtualMachine) {
+                    in machine: VirtualMachine) {
     var builder = StringBuilder()
-    let offset = tailCall ? 0 : 1
-    builder.append(tailCall ? "↩︎" : "⟵",
-                   width: (callStack.count + offset) * 2 + 1,
-                   alignRight: true)
+    var offset = tailCall ? 0 : 1
+    let callStack = machine.getStackTrace()
+    if machine.traceCalls == .byProc {
+      offset += self.countTracedProcedures(callStack)
+    } else {
+      offset += callStack.count
+    }
+    builder.append("⟵", width: offset * 2 + 1, alignRight: true)
     builder.append(" ", result.description)
     builder.append(" from ", proc.originalName ?? proc.name)
     if let currentProc = callStack.last {

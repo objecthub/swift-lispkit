@@ -85,6 +85,8 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("compile", self.compile))
     self.define(Procedure("disassemble", self.disassemble))
     self.define(Procedure("trace-calls", self.traceCalls))
+    self.define(Procedure("procedure-trace?", self.procedureTrace))
+    self.define(Procedure("set-procedure-trace", self.setProcedureTrace))
     self.define(Procedure("available-symbols", self.availableSymbols))
     self.define(Procedure("loaded-libraries", self.loadedLibraries))
     self.define(Procedure("loaded-sources", self.loadedSources))
@@ -443,13 +445,37 @@ public final class SystemLibrary: NativeLibrary {
   private func traceCalls(_ expr: Expr?) throws -> Expr {
     if let expr = expr {
       switch (expr) {
+        case .fixnum(let level):
+          if level == 0 {
+            self.context.machine.traceCalls = .off
+          } else if level == 1 {
+            self.context.machine.traceCalls = .byProc
+          } else {
+            self.context.machine.traceCalls = .on
+          }
         case .false:
-          self.context.machine.traceCalls = false
+          self.context.machine.traceCalls = .off
         default:
-          self.context.machine.traceCalls = true
+          self.context.machine.traceCalls = .on
       }
     }
-    return .makeBoolean(self.context.machine.traceCalls)
+    switch context.machine.traceCalls {
+      case .off:
+        return .fixnum(0)
+      case .byProc:
+        return .fixnum(1)
+      case .on:
+        return .fixnum(2)
+    }
+  }
+  
+  private func procedureTrace(_ expr: Expr) throws -> Expr {
+    return .makeBoolean(try expr.asProcedure().traced)
+  }
+  
+  private func setProcedureTrace(_ expr: Expr, _ value: Expr) throws -> Expr {
+    try expr.asProcedure().traced = value.isTrue
+    return .void
   }
   
   private func availableSymbols() -> Expr {
