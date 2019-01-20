@@ -44,6 +44,7 @@ public final class VectorLibrary: NativeLibrary {
     self.define(Procedure("vector", vector, compileVector))
     self.define(Procedure("immutable-vector", immutableVector))
     self.define(Procedure("vector?", isVector, compileIsVector))
+    self.define(Procedure("mutable-vector?", isMutableVector))
     self.define(Procedure("immutable-vector?", isImmutableVector))
     self.define(Procedure("vector-length", vectorLength))
     self.define(Procedure("vector-append", vectorAppend))
@@ -52,6 +53,7 @@ public final class VectorLibrary: NativeLibrary {
     self.define(Procedure("vector-set!", vectorSet))
     self.define(Procedure("vector-swap!", vectorSwap))
     self.define(Procedure("list->vector", listToVector))
+    self.define(Procedure("list->immutable-vector", listToImmutableVector))
     self.define(Procedure("vector->list", vectorToList))
     self.define(Procedure("string->vector", stringToVector))
     self.define(Procedure("vector->string", vectorToString))
@@ -111,6 +113,31 @@ public final class VectorLibrary: NativeLibrary {
                   ((fx>= i len))
                 (vector-set! xs i (apply f (_vector-list-ref i vecs)))))))
     """)
+    self.define("vector-map/index", via: """
+      (define (vector-map/index f xs . xss)
+        (let* ((vecs (cons xs xss))
+               (len (_vector-list-length vecs))
+               (res (make-vector len)))
+          (if (null? xss)
+              (do ((i 0 (fx1+ i)))
+                  ((fx>= i len) res)
+                (vector-set! res i (f i (vector-ref xs i))))
+              (do ((i 0 (fx1+ i)))
+                  ((fx>= i len) res)
+                (vector-set! res i (apply f (cons i (_vector-list-ref i vecs))))))))
+    """)
+    self.define("vector-map/index!", via: """
+      (define (vector-map/index! f xs . xss)
+        (let* ((vecs (cons xs xss))
+               (len (_vector-list-length vecs)))
+          (if (null? xss)
+              (do ((i 0 (fx1+ i)))
+                  ((fx>= i len))
+                (vector-set! xs i (f i (vector-ref xs i))))
+              (do ((i 0 (fx1+ i)))
+                  ((fx>= i len))
+                (vector-set! xs i (apply f (cons i (_vector-list-ref i vecs))))))))
+    """)
     self.define("vector-for-each", via: """
       (define (vector-for-each f xs . xss)
         (let* ((vecs (cons xs xss))
@@ -118,6 +145,14 @@ public final class VectorLibrary: NativeLibrary {
           (do ((i 0 (fx1+ i)))
                ((fx>= i len))
             (apply f (_vector-list-ref i vecs)))))
+    """)
+    self.define("vector-for-each/index", via: """
+      (define (vector-for-each/index f xs . xss)
+        (let* ((vecs (cons xs xss))
+               (len (_vector-list-length vecs)))
+          (do ((i 0 (fx1+ i)))
+               ((fx>= i len))
+            (apply f (cons i (_vector-list-ref i vecs))))))
     """)
     self.define("vector=", via: """
       (define (vector= pred . vs)
@@ -174,10 +209,10 @@ public final class VectorLibrary: NativeLibrary {
   
   private func isVector(_ expr: Expr) -> Expr {
     switch expr {
-    case .vector(let vector):
-      return .makeBoolean(!vector.isGrowableVector)
-    default:
-      return .false
+      case .vector(let vector):
+        return .makeBoolean(!vector.isGrowableVector)
+      default:
+        return .false
     }
   }
   
@@ -190,12 +225,21 @@ public final class VectorLibrary: NativeLibrary {
     return false
   }
   
+  private func isMutableVector(_ expr: Expr) -> Expr {
+    switch expr {
+      case .vector(let vector):
+        return .makeBoolean(vector.isGrowableVector || vector.isMutableVector)
+      default:
+        return .false
+    }
+  }
+  
   private func isImmutableVector(_ expr: Expr) -> Expr {
     switch expr {
-    case .vector(let vector):
-      return .makeBoolean(!vector.isGrowableVector && !vector.isMutableVector)
-    default:
-      return .false
+      case .vector(let vector):
+        return .makeBoolean(!vector.isGrowableVector && !vector.isMutableVector)
+      default:
+        return .false
     }
   }
   
@@ -311,6 +355,13 @@ public final class VectorLibrary: NativeLibrary {
     return .vector(Collection(kind: .vector, exprs: exprs))
   }
   
+  private func listToImmutableVector(_ expr: Expr) throws -> Expr {
+    guard case (let exprs, .null) = expr.toExprs() else {
+      throw RuntimeError.type(expr, expected: [.properListType])
+    }
+    return .vector(Collection(kind: .immutableVector, exprs: exprs))
+  }
+  
   private func vectorToList(_ vec: Expr, start: Expr?, end: Expr?) throws -> Expr {
     let vector = try vec.vectorAsCollection()
     let end = try end?.asInt(below: vector.exprs.count + 1) ?? vector.exprs.count
@@ -422,7 +473,7 @@ public final class VectorLibrary: NativeLibrary {
   }
   
   private func vectorFill(_ vec: Expr, expr: Expr, start: Expr?, end: Expr?) throws -> Expr {
-    let vector = try vec.vectorAsCollection(growable: false)
+    let vector = try vec.vectorAsCollection()
     guard vector.isMutableVector else {
       throw RuntimeError.eval(.attemptToModifyImmutableData, vec)
     }

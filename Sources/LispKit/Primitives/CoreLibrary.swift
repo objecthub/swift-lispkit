@@ -44,7 +44,9 @@ public final class CoreLibrary: NativeLibrary {
     self.define(SpecialForm("quote", compileQuote))
     self.define(SpecialForm("quasiquote", compileQuasiquote))
     self.define(SpecialForm("lambda", compileLambda))
+    self.define(SpecialForm("λ", compileLambda))
     self.define(SpecialForm("case-lambda", compileCaseLambda))
+    self.define(SpecialForm("case-λ", compileCaseLambda))
     
     // Definition primitives
     self.define(SpecialForm("define", compileDefine))

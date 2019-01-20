@@ -41,10 +41,10 @@ public final class GrowableVectorLibrary: NativeLibrary {
   
   /// Declarations of the library.
   public override func declarations() {
-    self.define(Procedure("gvector", gvector))
     self.define(Procedure("gvector?", isGvector))
     self.define(Procedure("gvector-empty?", isGvectorEmpty))
     self.define(Procedure("gvector-length", gvectorLength))
+    self.define(Procedure("gvector", gvector))
     self.define(Procedure("make-gvector", makeGvector))
     self.define(Procedure("gvector-append", gvectorAppend))
     self.define(Procedure("gvector-concatenate", gvectorConcatenate))
@@ -98,6 +98,18 @@ public final class GrowableVectorLibrary: NativeLibrary {
       "        (do ((i 0 (fx1+ i)))",
       "            ((fx>= i len) res)",
       "          (gvector-set! res i (apply f (_gvector-list-ref i vecs)))))))")
+    self.define("gvector-map/index", via:
+      "(define (gvector-map/index f xs . xss)",
+      "  (let* ((vecs (cons xs xss))",
+      "         (len (_gvector-list-length vecs))",
+      "         (res (make-gvector len)))",
+      "    (if (null? xss)",
+      "        (do ((i 0 (fx1+ i)))",
+      "            ((fx>= i len) res)",
+      "          (gvector-set! res i (f i (gvector-ref xs i))))",
+      "        (do ((i 0 (fx1+ i)))",
+      "            ((fx>= i len) res)",
+      "          (gvector-set! res i (apply f (cons i (_gvector-list-ref i vecs))))))))")
     self.define("gvector-map!", via:
       "(define (gvector-map! f xs . xss)",
       "  (let* ((vecs (cons xs xss))",
@@ -109,6 +121,17 @@ public final class GrowableVectorLibrary: NativeLibrary {
       "        (do ((i 0 (fx1+ i)))",
       "            ((fx>= i len))",
       "          (gvector-set! xs i (apply f (_gvector-list-ref i vecs)))))))")
+    self.define("gvector-map/index!", via:
+      "(define (gvector-map/index! f xs . xss)",
+      "  (let* ((vecs (cons xs xss))",
+      "         (len (_gvector-list-length vecs)))",
+      "    (if (null? xss)",
+      "        (do ((i 0 (fx1+ i)))",
+      "            ((fx>= i len))",
+      "          (gvector-set! xs i (f i (gvector-ref xs i))))",
+      "        (do ((i 0 (fx1+ i)))",
+      "            ((fx>= i len))",
+      "          (gvector-set! xs i (apply f (cons i (_gvector-list-ref i vecs))))))))")
     self.define("gvector-for-each", via:
       "(define (gvector-for-each f xs . xss)",
       "  (let* ((vecs (cons xs xss))",
@@ -116,6 +139,13 @@ public final class GrowableVectorLibrary: NativeLibrary {
       "    (do ((i 0 (fx1+ i)))",
       "         ((fx>= i len))",
       "      (apply f (_gvector-list-ref i vecs)))))")
+    self.define("gvector-for-each/index", via:
+      "(define (gvector-for-each/index f xs . xss)",
+      "  (let* ((vecs (cons xs xss))",
+      "         (len (_gvector-list-length vecs)))",
+      "    (do ((i 0 (fx1+ i)))",
+      "         ((fx>= i len))",
+      "      (apply f (cons i (_gvector-list-ref i vecs))))))")
   }
   
   private func isGvector(_ expr: Expr) -> Expr {
