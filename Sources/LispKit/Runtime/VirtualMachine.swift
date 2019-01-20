@@ -1315,7 +1315,7 @@ public final class VirtualMachine: TrackedObject {
             break
           } else if self.registers.topLevel {
             if self.registers.fp > 0,
-               case .procedure(let tproc) = self.stack[self.registers.fp - 1] {
+               case .procedure(let tproc) = self.stack[self.registers.fp &- 1] {
               self.printReturnTrace(tproc, tailCall: true)
             }
             // Return to interactive environment
@@ -1327,7 +1327,7 @@ public final class VirtualMachine: TrackedObject {
             self.sp = self.registers.initialFp &- 1
             return res
           } else {
-            if case .procedure(let tproc) = self.stack[self.registers.fp - 1] {
+            if case .procedure(let tproc) = self.stack[self.registers.fp &- 1] {
               self.printReturnTrace(tproc, tailCall: true)
             }
             self.exitFrame()
@@ -1371,7 +1371,7 @@ public final class VirtualMachine: TrackedObject {
           // Return to interactive environment
           if self.registers.topLevel {
             if self.registers.fp > 0,
-               case .procedure(let tproc) = self.stack[self.registers.fp - 1] {
+               case .procedure(let tproc) = self.stack[self.registers.fp &- 1] {
               self.printReturnTrace(tproc, tailCall: true)
             }
             let res = self.pop()
@@ -1383,7 +1383,7 @@ public final class VirtualMachine: TrackedObject {
             self.sp = self.registers.initialFp &- 1
             return res
           } else {
-            if case .procedure(let tproc) = self.stack[self.registers.fp - 1] {
+            if case .procedure(let tproc) = self.stack[self.registers.fp &- 1] {
               self.printReturnTrace(tproc, tailCall: true)
             }
             self.exitFrame()

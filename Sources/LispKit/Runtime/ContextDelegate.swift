@@ -112,7 +112,7 @@ public extension ContextDelegate {
       builder.append(" ", arg.description)
     }
     builder.append(")")
-    if let currentProc = callStack.last {
+    if let currentProc = callStack.first {
       builder.append(" in ", currentProc.originalName ?? currentProc.name)
     }
     builder.append("\n")
@@ -134,7 +134,8 @@ public extension ContextDelegate {
     builder.append("⟵", width: offset * 2 + 1, alignRight: true)
     builder.append(" ", result.description)
     builder.append(" from ", proc.originalName ?? proc.name)
-    if let currentProc = callStack.last {
+    if callStack.count > 1 {
+      let currentProc = callStack[1]
       builder.append(" in ", currentProc.originalName ?? currentProc.name)
     }
     builder.append("\n")

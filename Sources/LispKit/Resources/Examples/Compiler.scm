@@ -80,7 +80,7 @@
       (list (list 'MOV reg expr))))
 
 (define (compile-op oper reg args)
-  (fold-left (lambda (arg code)
+  (fold-left (lambda (code arg)
                (append code (compile arg (+ reg 1)) (list (list oper reg (+ reg 1)))))
              (compile (car args) reg)
              (cdr args)))

@@ -86,7 +86,7 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("disassemble", self.disassemble))
     self.define(Procedure("trace-calls", self.traceCalls))
     self.define(Procedure("procedure-trace?", self.procedureTrace))
-    self.define(Procedure("set-procedure-trace", self.setProcedureTrace))
+    self.define(Procedure("set-procedure-trace!", self.setProcedureTrace))
     self.define(Procedure("available-symbols", self.availableSymbols))
     self.define(Procedure("loaded-libraries", self.loadedLibraries))
     self.define(Procedure("loaded-sources", self.loadedSources))

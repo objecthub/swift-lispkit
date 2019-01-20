@@ -49,8 +49,8 @@ let prompt     = flags.string("r", "prompt",
                               value: AppInfo.prompt)
 let basic      = flags.option("b", "basic",
                               description: "Use basic line reader only.")
-let simplified = flags.option("n", "simplenames",
-                              description: "Use simplified names.")
+let extended   = flags.option("e", "extendednames",
+                              description: "Use extended procedure names.")
 let strict     = flags.option("s", "strict",
                               description: "In strict mode, initialization warnings terminate " +
                                            "the application.")
@@ -76,7 +76,7 @@ if help.wasSet {
 }
 
 // Set simplified names
-Context.simplifiedDescriptions = simplified.wasSet
+Context.simplifiedDescriptions = !extended.wasSet
 
 // Instantiate line reader and terminal
 let ln = basic.wasSet ? nil : LineReader()
