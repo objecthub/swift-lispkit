@@ -166,7 +166,7 @@ if let capacity = heapSize.value {
 
 // Bootstrap the context to get it ready for executing code
 do {
-  try context.bootstrap()
+  try context.bootstrap(forRepl: true)
 } catch let error as RuntimeError {
   print("cannot import core lispkit libraries: \(error.message)")
   exit(1)
@@ -274,13 +274,14 @@ if let program = flags.parameters.first {
         exit(1)
       }
       break
-      // If closing parenthesis are missing, keep on reading
+    // If closing parenthesis are missing, keep on reading
     } else if case .error(let err) = res,
       case .syntax(.closingParenthesisMissing) = err.descriptor {
       continue
-      // Else print result
+    // Else print result
     } else {
       printResult(res)
+      context.update(withReplResult: res)
     }
     // Store buffer in the history of the line reader
     ln?.addHistory(buffer.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines))

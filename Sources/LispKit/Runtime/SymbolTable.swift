@@ -67,6 +67,9 @@ public final class SymbolTable: Sequence {
   public let scheme          = Symbol("scheme")
   public let r5rs            = Symbol("r5rs")
   public let r5rsSyntax      = Symbol("r5rs-syntax")
+  public let starOne         = Symbol("*1")
+  public let starTwo         = Symbol("*2")
+  public let starThree       = Symbol("*3")
   
   public init() {
     func register(_ sym: Symbol) {
@@ -111,6 +114,9 @@ public final class SymbolTable: Sequence {
     register(self.scheme)
     register(self.r5rs)
     register(self.r5rsSyntax)
+    register(self.starOne)
+    register(self.starTwo)
+    register(self.starThree)
   }
   
   public func exists(_ ident: String) -> Bool {

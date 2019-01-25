@@ -145,8 +145,10 @@ public final class Context {
   }
   
   /// Prepares context to be ready to execute code. Library `(lispkit dynamic)` gets loaded
-  /// as a result of this.
-  public func bootstrap() throws {
+  /// as a result of this. If `forRepl` is set to true, `bootstrap` will also introduce the
+  /// variables `*1`, `*2`, and `*3` in the global environment. These will be used by a
+  /// REPL to store the last three results.
+  public func bootstrap(forRepl: Bool = false) throws {
     // Guarantee that (lispkit dynamic) is imported
     try self.environment.import(["lispkit", "dynamic"])
     // Install error handler
@@ -154,6 +156,23 @@ public final class Context {
        let raiseProc = dynamicLib.raiseProc {
       self.machine.raiseProc = raiseProc
     }
+    if forRepl {
+      _ = self.environment.define(self.symbols.starOne, as: .undef)
+      _ = self.environment.define(self.symbols.starTwo, as: .undef)
+      _ = self.environment.define(self.symbols.starThree, as: .undef)
+    }
+  }
+  
+  /// This method updates the variables `*1`, `*2`, and `*3` in the global environment
+  /// to match the last three results that were being evaluated via a REPL.
+  public func update(withReplResult expr: Expr) {
+    if let expr = self.environment[self.symbols.starTwo] {
+      self.environment.set(self.symbols.starThree, to: expr)
+    }
+    if let expr = self.environment[self.symbols.starOne] {
+      self.environment.set(self.symbols.starTwo, to: expr)
+    }
+    self.environment.set(self.symbols.starOne, to: expr)
   }
   
   /// Returns the global environment of this context.
