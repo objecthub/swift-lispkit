@@ -88,7 +88,13 @@
           string-segment
           string-split)
 
-  (import (lispkit base)
+  (import (except (lispkit base) string-pad-left
+                                 string-pad-right
+                                 string-trim
+                                 string-split
+                                 string-prefix?
+                                 string-suffix?
+                                 string-contains)
           (srfi 8))
   
   ;;; UTILITIES

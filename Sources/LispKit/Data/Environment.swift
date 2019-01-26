@@ -39,7 +39,6 @@ public final class Environment: Reference, CustomStringConvertible {
   /// Tagged reference to a location
   public enum LocationRef: CustomStringConvertible {
     case undefined
-    case reserved(Int)
     case mutable(Int)
     case mutableImport(Int)
     case immutableImport(Int)
@@ -62,8 +61,6 @@ public final class Environment: Reference, CustomStringConvertible {
       switch self {
         case .undefined:
           return nil
-        case .reserved(let loc):
-          return loc
         case .mutable(let loc):
           return loc
         case .mutableImport(let loc):
@@ -77,8 +74,6 @@ public final class Environment: Reference, CustomStringConvertible {
       switch self {
         case .undefined:
           return "?"
-        case .reserved(let loc):
-          return "?\(loc)"
         case .mutable(let loc):
           return String(loc)
         case .mutableImport(let loc):
@@ -148,31 +143,7 @@ public final class Environment: Reference, CustomStringConvertible {
     for (extIdent, intIdent) in library.exportDecls {
       if !library.imported.hasValues(for: intIdent.identifier) {
         let iref = library.exports[extIdent]!
-        // Include internally defined primitive procedures with a form compiler such that
-        // the compiler can do some inter-library optimizations
-        if intIdent.isMutable {
-          self.bind(intIdent.identifier, to: .mutable(iref.location))
-        } else {
-          self.bind(intIdent.identifier, to: .immutableImport(iref.location))
-        }
-        /*
-        OPTION 1:
-        if iref.isMutable {
-          self.bind(intIdent.identifier, to: .mutable(iref.location))
-        } else {
-          self.bind(intIdent.identifier, to: .immutableImport(iref.location))
-        }
-        OPTION 2:
-        switch context.heap.locations[iref.location] {
-          case .procedure(let proc):
-            if case .primitive(_, _, .some(_)) = proc.kind {
-              self.bind(intIdent.identifier, to: .immutableImport(iref.location))
-            } else {
-              self.bind(intIdent.identifier, to: .mutable(iref.location))
-            }
-          default:
-            self.bind(intIdent.identifier, to: .mutable(iref.location))
-        } */
+        self.bind(intIdent.identifier, to: .mutable(iref.location))
       }
     }
   }
@@ -241,9 +212,14 @@ public final class Environment: Reference, CustomStringConvertible {
   /// returns `LocationRef.undefined`.
   public func forceDefinedLocationRef(for sym: Symbol) -> LocationRef {
     if let locRef = self.bindings[sym] {
-      return locRef
+      switch locRef {
+        case .undefined, .immutableImport(_):
+          break;
+        default:
+          return locRef
+      }
     }
-    let locRef = LocationRef.reserved(self.context.heap.allocateLocation(for: .uninit(sym)))
+    let locRef = LocationRef.mutable(self.context.heap.allocateLocation(for: .uninit(sym)))
     self.bind(sym, to: locRef)
     return locRef
   }
@@ -268,15 +244,6 @@ public final class Environment: Reference, CustomStringConvertible {
             return false
           default:
             self.bind(sym, to: .mutable(self.context.heap.allocateLocation(for: expr)))
-            return true
-        }
-      case .reserved(let loc):
-        switch self.kind {
-          case .custom:
-            return false
-          default:
-            self.context.heap.locations[loc] = expr
-            self.bind(sym, to: .mutable(loc))
             return true
         }
       case .mutable(let loc):
@@ -304,7 +271,7 @@ public final class Environment: Reference, CustomStringConvertible {
     let interned = sym
     let lref = self.bindings[interned] ?? .undefined
     switch lref {
-      case .undefined, .reserved(_):
+      case .undefined:
         return false
       case .mutable(let loc), .mutableImport(let loc):
         switch self.kind {
@@ -349,8 +316,7 @@ public final class Environment: Reference, CustomStringConvertible {
     // Check that bindings can be imported
     for impIdent in importSpec.keys {
       switch self.bindings[impIdent] {
-        case .some(.reserved(_)),
-             .some(.mutable(_)),
+        case .some(.mutable(_)),
              .some(.mutableImport(_)),
              .some(.immutableImport(_)):
           guard case .repl = self.kind else {

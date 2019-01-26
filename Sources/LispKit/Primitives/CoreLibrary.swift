@@ -99,6 +99,12 @@ public final class CoreLibrary: NativeLibrary {
     // Environments
     self.define(Procedure("environment?", isEnvironment))
     self.define(Procedure("environment", environment))
+    self.define(Procedure("environment-bound-names", environmentBoundNames))
+    self.define(Procedure("environment-bindings", environmentBindings))
+    self.define(Procedure("environment-bound?", environmentBound))
+    self.define(Procedure("environment-lookup", environmentLookup))
+    self.define(Procedure("environment-assignable?", environmentAssignable))
+    self.define(Procedure("environment-assign!", environmentAssign))
     self.define(Procedure("scheme-report-environment", schemeReportEnvironment))
     self.define(Procedure("null-environment", nullEnvironment))
     self.define(Procedure("interaction-environment", interactionEnvironment))
@@ -1045,6 +1051,67 @@ public final class CoreLibrary: NativeLibrary {
     return Expr.env(try Environment(in: self.context, importing: importSets))
   }
   
+  private func environmentBoundNames(expr: Expr) throws -> Expr {
+    guard case .env(let environment) = expr else {
+      throw RuntimeError.type(expr, expected: [.envType])
+    }
+    var res = Expr.null
+    for sym in environment.boundSymbols {
+      res = .pair(.symbol(sym), res)
+    }
+    return res
+  }
+  
+  private func environmentBindings(expr: Expr) throws -> Expr {
+    guard case .env(let environment) = expr else {
+      throw RuntimeError.type(expr, expected: [.envType])
+    }
+    var res = Expr.null
+    for sym in environment.boundSymbols {
+      if let value = environment[sym] {
+        res = .pair(.pair(.symbol(sym), value), res)
+      }
+    }
+    return res
+  }
+  
+  private func environmentBound(expr: Expr, symbol: Expr) throws -> Expr {
+    guard case .env(let environment) = expr else {
+      throw RuntimeError.type(expr, expected: [.envType])
+    }
+    return .makeBoolean(!environment.isUndefined(try symbol.asSymbol()))
+  }
+  
+  private func environmentLookup(expr: Expr, symbol: Expr) throws -> Expr {
+    guard case .env(let environment) = expr else {
+      throw RuntimeError.type(expr, expected: [.envType])
+    }
+    guard let value = environment[try symbol.asSymbol()] else {
+      throw RuntimeError.eval(.notBoundInEnvironment, symbol)
+    }
+    return value
+  }
+  
+  private func environmentAssignable(expr: Expr, symbol: Expr) throws -> Expr {
+    guard case .env(let environment) = expr else {
+      throw RuntimeError.type(expr, expected: [.envType])
+    }
+    let sym = try symbol.asSymbol()
+    return .makeBoolean(!environment.isUndefined(sym) && !environment.isImmutable(sym))
+  }
+  
+  private func environmentAssign(expr: Expr, symbol: Expr, value: Expr) throws -> Expr {
+    guard case .env(let environment) = expr else {
+      throw RuntimeError.type(expr, expected: [.envType])
+    }
+    let sym = try symbol.asSymbol()
+    guard !environment.isUndefined(sym) && !environment.isImmutable(sym) else {
+      throw RuntimeError.eval(.bindingImmutable, symbol)
+    }
+    _ = environment.set(sym, to: value)
+    return .void
+  }
+  
   private func schemeReportEnvironment(expr: Expr) throws -> Expr {
     var importSets = [ImportSet]()
     guard let importSet = ImportSet(.pair(.symbol(self.context.symbols.scheme),
@@ -1068,7 +1135,7 @@ public final class CoreLibrary: NativeLibrary {
   }
   
   private func interactionEnvironment() -> Expr {
-    return Expr.env(self.context.environment)
+    return .env(self.context.environment)
   }
   
   //-------- MARK: - Syntax errors

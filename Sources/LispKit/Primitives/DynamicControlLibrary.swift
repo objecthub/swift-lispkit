@@ -86,6 +86,7 @@ public final class DynamicControlLibrary: NativeLibrary {
     self.define(Procedure("make-error", makeError))
     self.define(Procedure("error-object-message", errorObjectMessage))
     self.define(Procedure("error-object-irritants", errorObjectIrritants))
+    self.define(Procedure("error-object-stacktrace", errorObjectStackTrace))
     self.define(Procedure("error-object?", isErrorObject))
     self.define(Procedure("read-error?", isReadError))
     self.define(Procedure("file-error?", isFileError))
@@ -309,6 +310,22 @@ public final class DynamicControlLibrary: NativeLibrary {
     switch expr {
       case .error(let err):
         return Expr.makeList(Exprs(err.irritants), append: .null)
+      default:
+        throw RuntimeError.type(expr, expected: [.errorType])
+    }
+  }
+  
+  private func errorObjectStackTrace(expr: Expr) throws -> Expr {
+    switch expr {
+      case .error(let err):
+        guard let callStack = err.stackTrace else {
+          return .false
+        }
+        var res = Expr.null
+        for proc in callStack.reversed() {
+          res = .pair(.procedure(proc), res)
+        }
+        return res
       default:
         throw RuntimeError.type(expr, expected: [.errorType])
     }

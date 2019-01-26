@@ -50,6 +50,8 @@ public enum EvalError: Int, Hashable {
   case malformedCondExpandClause
   case malformedCaseClause
   case duplicateBinding
+  case notBoundInEnvironment
+  case bindingImmutable
   case nonApplicativeValue
   case illegalRadix
   case argumentError
@@ -150,6 +152,10 @@ public enum EvalError: Int, Hashable {
         return "malformed clause in case form: $0"
       case .duplicateBinding:
         return "symbol $0 bound multiple times in $1"
+      case .notBoundInEnvironment:
+        return "symbol $0 not bound in environment"
+      case .bindingImmutable:
+        return "unable to assign value to immutable binding for symbol $0"
       case .nonApplicativeValue:
         return "cannot apply arguments to $0"
       case .illegalRadix:

@@ -163,11 +163,7 @@ open class NativeLibrary: Library {
         self.exportDecls[ident] = .immutable(ident)
       }
     } else {
-      if mutable {
-        self.imports[ident] = .mutable(location)
-      } else {
-        self.imports[ident] = .immutable(location)
-      }
+      self.imports[ident] = .mutable(location)
     }
     return location
   }
