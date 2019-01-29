@@ -120,7 +120,7 @@ public final class Environment: Reference, CustomStringConvertible {
   }
   
   /// Initializes an environment for executing the declarations of a library.
-  public init(in context: Context, for library: Library) {
+  public init(in context: Context, for library: Library) throws {
     // Set up empty environment
     self.kind = .library(library.name)
     self.context = context
@@ -128,7 +128,7 @@ public final class Environment: Reference, CustomStringConvertible {
     super.init()
     self.box = WeakBox(self)
     // Wire the library
-    _ = library.wire()
+    _ = try library.wire()
     // Set up environment based on wired library
     // Include imports in the environment
     for (ident, importLocation) in library.imports {
@@ -312,7 +312,7 @@ public final class Environment: Reference, CustomStringConvertible {
       throw RuntimeError.eval(.cannotExpandImportSet, .makeString(importSet.description))
     }
     // Make sure the library from which symbols are imported is wired
-    _ = library.wire()
+    _ = try library.wire()
     // Check that bindings can be imported
     for impIdent in importSpec.keys {
       switch self.bindings[impIdent] {

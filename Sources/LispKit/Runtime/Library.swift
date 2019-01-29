@@ -184,6 +184,9 @@ open class Library: Reference, Trackable, CustomStringConvertible {
   /// Maps imported internal identifiers to location references (immutable/mutable)
   public internal(set) var imports: [Symbol : InternalLocationRef]
   
+  /// Used to detect cyclic references
+  private var unresolvedExports: Set<Symbol>
+  
   /// Maps imported internal identifiers to a set of (library, identifier) pairs
   internal var imported: MultiMap<Symbol, (Library, Symbol)>
   
@@ -211,6 +214,7 @@ open class Library: Reference, Trackable, CustomStringConvertible {
     self.name = name
     self.exports = [:]
     self.imports = [:]
+    self.unresolvedExports = []
     self.imported = MultiMap()
     self.libraries = Set<Library>()
     self.exportDecls = [:]
@@ -235,8 +239,11 @@ open class Library: Reference, Trackable, CustomStringConvertible {
     return AnySequence(self.exportDecls.keys)
   }
   
-  public func exportLocation(_ ident: Symbol) -> InternalLocationRef? {
+  public func exportLocation(_ ident: Symbol) throws -> InternalLocationRef? {
     assert(self.state.isAllocated, "calling exportLocation on not allocated library")
+    if self.unresolvedExports.contains(ident) {
+      throw RuntimeError.eval(.cyclicImportExport, .symbol(ident), self.name)
+    }
     // If an export location is known already, return it
     if let locationRef = self.exports[ident] {
       return locationRef
@@ -246,10 +253,13 @@ open class Library: Reference, Trackable, CustomStringConvertible {
       // ERRROR: Identifier not exported by library
       return nil
     }
+    self.unresolvedExports.insert(ident)
     // Compute the location of the internal identifier
-    guard let locationRef = self.importLocation(internalIdent.identifier) else {
+    guard let locationRef = try self.importLocation(internalIdent.identifier) else {
+      self.unresolvedExports.remove(ident)
       return nil
     }
+    self.unresolvedExports.remove(ident)
     // If imported identifier is mutable, let the export decide whether it's a mutable export
     if locationRef.isMutable {
       self.exports[ident] = internalIdent.located(at: locationRef.location)
@@ -261,31 +271,35 @@ open class Library: Reference, Trackable, CustomStringConvertible {
     return self.exports[ident]!
   }
   
-  private func importLocation(_ ident: Symbol) -> InternalLocationRef? {
+  private func importLocation(_ ident: Symbol) throws -> InternalLocationRef? {
     // Return location if the internal identifier has a known location already
     if let locationRef = self.imports[ident] {
       return locationRef
     }
     // Determine all imports for the internal identifier
     let libraryReferences = self.imported.values(for: ident)
+    var importOrigin: Library? = nil
     for (library, expIdent) in libraryReferences {
       // Get a location from the library
       if self === library {
         // ignore imports of the library itself
-      } else if let locationRef = library.exportLocation(expIdent) {
+      } else if let locationRef = try library.exportLocation(expIdent) {
         // Unify the new location with the existing location
         let currentLocationRef = self.imports[ident]
         if let unifiedLocationRef = locationRef.unify(with: currentLocationRef) {
           self.imports[ident] = unifiedLocationRef
+          importOrigin = library
         } else {
-          print("*** INCONSISTENT IMPORT OF \(ident) ***")
-          // ERROR: inconsistent import of `import` involving `library` and one of the
-          // previous library values (just pick the first from libraryReferences?) since
-          // a unification wasn't possible
+          // Inconsistent import of `ident` involving `library` and one of the previous library
+          // values, stored in `importOrigin` (which cannot be nil)
+          throw RuntimeError.eval(.inconsistentImports,
+                                  .symbol(ident),
+                                  importOrigin?.name ?? library.name,
+                                  library.name)
         }
       } else {
-        print("*** CYCLIC DEPENDENCY OF \(ident) ***")
         // ERROR: signal cyclic dependency since the library isn't able to return a location
+        throw RuntimeError.eval(.cyclicImportExport, .symbol(ident), self.name)
       }
     }
     // Return the import location (is only nil for self references)
@@ -325,7 +339,7 @@ open class Library: Reference, Trackable, CustomStringConvertible {
     return true
   }
   
-  public func wire() -> Bool {
+  public func wire() throws -> Bool {
     _ = self.allocate()
     guard case .allocated = self.state else {
       return false
@@ -334,11 +348,11 @@ open class Library: Reference, Trackable, CustomStringConvertible {
     self.state = .wired
     // Resolve dependencies for the imported identifiers
     for importedIdent in self.imported.keys {
-      _ = self.importLocation(importedIdent)
+      _ = try self.importLocation(importedIdent)
     }
     // Backfill dependencies for the exported identifiers which are imported
     for exportedIdent in self.exportDecls.keys {
-      guard self.exportLocation(exportedIdent) != nil else {
+      guard try self.exportLocation(exportedIdent) != nil else {
         preconditionFailure("cannot export \(exportedIdent) from \(self.name)")
       }
     }
@@ -346,7 +360,7 @@ open class Library: Reference, Trackable, CustomStringConvertible {
   }
   
   public func initialize() throws -> Bool {
-    _ = self.wire()
+    _ = try self.wire()
     guard case .wired = self.state else {
       return false
     }
@@ -357,7 +371,7 @@ open class Library: Reference, Trackable, CustomStringConvertible {
       _ = try library.initialize()
     }
     // Compile and run
-    let env = Env(Environment(in: self.context, for: self))
+    let env = try Env(Environment(in: self.context, for: self))
     for block in self.initDeclBlocks {
       for decl in block.decls {
         _ = try self.context.machine.compileAndEval(expr: decl,

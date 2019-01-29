@@ -141,7 +141,15 @@ open class LispKitTestCase: XCTestCase {
         return try self.context!.machine.eval(exprs: test.source, in: context!.global)
       }
       print("computed: \(res)")
-      XCTAssertEqual(res, test.target, "🛑 \(test.description)")
+      if case .symbol(let sym) = test.target, sym.rawIdentifier == "<error>" {
+        if case .error(_) = res {
+          // expected error
+        } else {
+          XCTFail("🛑 \(test.description)")
+        }
+      } else {
+        XCTAssertEqual(res, test.target, "🛑 \(test.description)")
+      }
       assertStackEmpty(after: test.description)
     }
   }

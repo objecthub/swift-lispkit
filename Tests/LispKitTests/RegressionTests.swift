@@ -79,6 +79,10 @@ class RegressionTests: LispKitTestCase {
     self.execute(file: "Records")
   }
   
+  func testLibraries() {
+    self.execute(file: "Libraries")
+  }
+  
   func testDatatypes() {
     self.execute(file: "Datatypes")
   }

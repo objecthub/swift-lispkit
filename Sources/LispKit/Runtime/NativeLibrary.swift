@@ -50,8 +50,8 @@ open class NativeLibrary: Library {
   
   /// This method overrides `wire` from the `Library` initialization protocol to provide
   /// a hook for getting access to imported definitions.
-  public override func wire() -> Bool {
-    if super.wire() {
+  public override func wire() throws -> Bool {
+    if try super.wire() {
       self.initializations()
       return true
     }

@@ -80,6 +80,8 @@ public enum EvalError: Int, Hashable {
   case malformedLibraryDefinition
   case malformedLibraryName
   case uninitializedExports
+  case inconsistentImports
+  case cyclicImportExport
   case unknownFile
   case unknownDirectory
   case cannotDecodeBytevector
@@ -212,6 +214,10 @@ public enum EvalError: Int, Hashable {
         return "malformed library name: $,0"
       case .uninitializedExports:
         return "library $1 does not initialize the exported definitions $,0"
+      case .inconsistentImports:
+        return "inconsistent import of $0 from library $1 and library $2"
+      case .cyclicImportExport:
+        return "exported definition $0 imported in a cyclic fashion in library $1"
       case .unknownFile:
         return "file '$,0' unknown or a directory"
       case .unknownDirectory:
