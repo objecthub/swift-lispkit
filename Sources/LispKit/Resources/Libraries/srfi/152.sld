@@ -94,7 +94,10 @@
                                  string-split
                                  string-prefix?
                                  string-suffix?
-                                 string-contains)
+                                 string-contains
+                                 string-map
+                                 string->vector
+                                 string-concatenate)
           (srfi 8))
   
   ;;; UTILITIES

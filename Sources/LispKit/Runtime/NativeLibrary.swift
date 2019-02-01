@@ -25,11 +25,25 @@
 ///
 open class NativeLibrary: Library {
   
+  /// Maps internal identifiers of internal mutable definitions to locations
+  public internal(set) var internals: [Symbol : Int]
+  
   /// Initialize native library by providing a hook that programmatically sets up the
   /// declarations of this library.
   public required init(in context: Context) throws {
+    self.internals = [:]
     try super.init(name: Library.name(type(of: self).name, in: context), in: context)
     self.declarations()
+  }
+  
+  /// This method overrides `initializationEnvironment` to also include the internal definitions
+  /// in the environment.
+  internal override func initializationEnvironment() throws -> Environment {
+    let environment = try Environment(in: self.context, for: self)
+    for (ident, loc) in self.internals {
+      environment.bind(ident, to: .mutable(loc))
+    }
+    return environment
   }
   
   /// This method overrides `allocate` from the `Library` initialization protocol to provide
@@ -163,7 +177,7 @@ open class NativeLibrary: Library {
         self.exportDecls[ident] = .immutable(ident)
       }
     } else {
-      self.imports[ident] = .mutable(location)
+      self.internals[ident] = location
     }
     return location
   }

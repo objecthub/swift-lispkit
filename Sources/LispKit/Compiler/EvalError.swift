@@ -82,6 +82,7 @@ public enum EvalError: Int, Hashable {
   case uninitializedExports
   case inconsistentImports
   case cyclicImportExport
+  case redefinitionOfImport
   case unknownFile
   case unknownDirectory
   case cannotDecodeBytevector
@@ -181,7 +182,7 @@ public enum EvalError: Int, Hashable {
       case .erroneousRedefinition:
         return "attempted to redefine $0 with definition from $,1"
       case .cannotExpandImportSet:
-        return "cannot expand import set $0"
+        return "cannot expand import set $,0"
       case .defineSyntaxInLocalEnv:
         return "syntax definition of $0 in local environment"
       case .targetBytevectorTooSmall:
@@ -215,9 +216,11 @@ public enum EvalError: Int, Hashable {
       case .uninitializedExports:
         return "library $1 does not initialize the exported definitions $,0"
       case .inconsistentImports:
-        return "inconsistent import of $0 from library $1 and library $2"
+        return "inconsistent import of $0 from library $1 and $2 in library $3"
       case .cyclicImportExport:
         return "exported definition $0 imported in a cyclic fashion in library $1"
+      case .redefinitionOfImport:
+        return "redefinition of imported definition $0 in library $1"
       case .unknownFile:
         return "file '$,0' unknown or a directory"
       case .unknownDirectory:

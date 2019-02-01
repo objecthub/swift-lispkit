@@ -33,7 +33,8 @@ public final class VectorLibrary: NativeLibrary {
   /// Dependencies of the library.
   public override func dependencies() {
     self.`import`(from: ["lispkit", "core"],    "define", "set!", "or", "not", "apply")
-    self.`import`(from: ["lispkit", "control"], "let", "let*", "do", "unless", "when", "if")
+    self.`import`(from: ["lispkit", "control"], "let", "let*", "let-optionals", "do", "unless",
+                                                "when", "if")
     self.`import`(from: ["lispkit", "math"],    "fx1+", "fx1-", "fx=", "fx>", "fx<", "fx<=", "fx>=")
     self.`import`(from: ["lispkit", "list"],    "null?", "cons", "car", "cdr")
   }
@@ -82,9 +83,19 @@ public final class VectorLibrary: NativeLibrary {
             (_quick-sort! pred v lo (fx1- j))
             (_quick-sort! pred v (fx1+ j) hi))))
     """)
+    self.define("vector-sort", via: """
+      (define (vector-sort pred v . args)
+        (let-optionals args ((start 0)
+                             (end (vector-length v)))
+          (let ((sv (vector-copy v start end)))
+            (_quick-sort! pred sv 0 (fx1- (vector-length sv)))
+            sv)))
+    """)
     self.define("vector-sort!", via: """
-      (define (vector-sort! pred v)
-        (_quick-sort! pred v 0 (fx1- (vector-length v))))
+      (define (vector-sort! pred v . args)
+        (let-optionals args ((start 0)
+                             (end (vector-length v)))
+          (_quick-sort! pred v start (fx1- end))))
     """)
     self.define(Procedure("_vector-list-ref", vectorListRef))
     self.define(Procedure("_vector-list-length", vectorListLength))

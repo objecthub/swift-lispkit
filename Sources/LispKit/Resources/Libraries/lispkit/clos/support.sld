@@ -46,7 +46,7 @@
           compute-std-cpl
           top-sort)
 
-  (import (lispkit base))
+  (import (except (lispkit base) remove))
 
   (begin
 

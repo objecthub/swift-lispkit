@@ -195,6 +195,11 @@ public final class ListLibrary: NativeLibrary {
       "  (do ((xs xs (cdr xs))",
       "       (res '() (if (pred (car xs)) (cons (car xs) res) res)))",
       "      ((null? xs) (reverse res))))")
+    self.define("remove", via:
+      "(define (remove pred xs)",
+      "  (do ((xs xs (cdr xs))",
+      "       (res '() (if (not (pred (car xs))) (cons (car xs) res) res)))",
+      "      ((null? xs) (reverse res))))")
     self.define("partition", via:
       "(define (partition pred xs)",
       "  (do ((xs xs (cdr xs)) (ys '()) (zs '()))",

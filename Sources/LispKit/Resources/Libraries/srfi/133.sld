@@ -79,7 +79,7 @@
   (export reverse-vector->list
           reverse-list->vector)
 
-  (import (lispkit base)
+  (import (except (lispkit base) vector-copy vector-copy! vector-map vector-map! list->vector)
           (srfi 8))
   
   (begin
@@ -586,8 +586,8 @@
     ;;; (VECTOR-APPEND <vector> ...) -> vector
     ;;;   Append VECTOR ... into a newly allocated vector and return that
     ;;;   new vector.
-    (define (vector-append . vectors)
-      (vector-concatenate:aux vectors vector-append))
+    ; (define (vector-append . vectors)
+    ;   (vector-concatenate:aux vectors vector-append))
 
     ;;; (VECTOR-CONCATENATE <vector-list>) -> vector
     ;;;   Concatenate the vectors in VECTOR-LIST.  This is equivalent to
@@ -597,8 +597,8 @@
     ;;;   a function to is too long.
     ;;;
     ;;; Actually, they're both implemented in terms of an internal routine.
-    (define (vector-concatenate vector-list)
-      (vector-concatenate:aux vector-list vector-concatenate))
+    ; (define (vector-concatenate vector-list)
+    ;   (vector-concatenate:aux vector-list vector-concatenate))
 
     ;;; Auxiliary for VECTOR-APPEND and VECTOR-CONCATENATE
     (define vector-concatenate:aux
@@ -705,20 +705,19 @@
     ;;;   compared; if they are equal, the vectors VECTOR_2 ... VECTOR_N
     ;;;   are compared.  The precise order in which ELT=? is applied is not
     ;;;   specified.
-    (define (vector= elt=? . vectors)
-      (let ((elt=? (check-type procedure? elt=? vector=)))
-        (cond ((null? vectors)
-               #t)
-              ((null? (cdr vectors))
-               (check-type vector? (car vectors) vector=)
-               #t)
-              (else
-               (let loop ((vecs vectors))
-                 (let ((vec1 (check-type vector? (car vecs) vector=))
-                       (vec2+ (cdr vecs)))
-                   (or (null? vec2+)
-                       (and (binary-vector= elt=? vec1 (car vec2+))
-                            (loop vec2+)))))))))
+    ; (define (vector= elt=? . vectors)
+    ;   (let ((elt=? (check-type procedure? elt=? vector=)))
+    ;         (cond ((null? vectors) #t)
+    ;               ((null? (cdr vectors))
+    ;                 (check-type vector? (car vectors) vector=)
+    ;                 #t)
+    ;               (else
+    ;                 (let loop ((vecs vectors))
+    ;                   (let ((vec1 (check-type vector? (car vecs) vector=))
+    ;                         (vec2+ (cdr vecs)))
+    ;                     (or (null? vec2+)
+    ;                         (and (binary-vector= elt=? vec1 (car vec2+))
+    ;                              (loop vec2+)))))))))
 
     (define (binary-vector= elt=? vector-a vector-b)
       (or (eq? vector-a vector-b)           ;+++
@@ -852,26 +851,26 @@
     ;;;   contrast with VECTOR-MAP, F is reliably applied to each
     ;;;   subsequent elements, starting at index 0 from left to right, in
     ;;;   the vectors.
-    (define vector-for-each
-      (letrec ((for-each1
-                (lambda (f vec i len)
-                  (cond ((< i len)
-                         (f (vector-ref vec i))
-                         (for-each1 f vec (+ i 1) len)))))
-               (for-each2+
-                (lambda (f vecs i len)
-                  (cond ((< i len)
-                         (apply f (vectors-ref vecs i))
-                         (for-each2+ f vecs (+ i 1) len))))))
-        (lambda (f vec . vectors)
-          (let ((f   (check-type procedure? f   vector-for-each))
-                (vec (check-type vector?    vec vector-for-each)))
-            (if (null? vectors)
-                (for-each1 f vec 0 (vector-length vec))
-                (for-each2+ f (cons vec vectors) 0
-                            (%smallest-length vectors
-                                              (vector-length vec)
-                                              vector-for-each)))))))
+    ;    (define vector-for-each
+    ;      (letrec ((for-each1
+    ;                (lambda (f vec i len)
+    ;                  (cond ((< i len)
+    ;                         (f (vector-ref vec i))
+    ;                         (for-each1 f vec (+ i 1) len)))))
+    ;               (for-each2+
+    ;                (lambda (f vecs i len)
+    ;                  (cond ((< i len)
+    ;                         (apply f (vectors-ref vecs i))
+    ;                         (for-each2+ f vecs (+ i 1) len))))))
+    ;        (lambda (f vec . vectors)
+    ;          (let ((f   (check-type procedure? f   vector-for-each))
+    ;                (vec (check-type vector?    vec vector-for-each)))
+    ;            (if (null? vectors)
+    ;                (for-each1 f vec 0 (vector-length vec))
+    ;                (for-each2+ f (cons vec vectors) 0
+    ;                            (%smallest-length vectors
+    ;                                              (vector-length vec)
+    ;                                              vector-for-each)))))))
 
     ;;; (VECTOR-COUNT <predicate?> <vector> ...)
     ;;;       -> exact, nonnegative integer
@@ -1122,24 +1121,24 @@
 
     ;;; (VECTOR-SWAP! <vector> <index1> <index2>) -> unspecified
     ;;;   Swap the values in the locations at INDEX1 and INDEX2.
-    (define (vector-swap! vec i j)
-      (let ((vec (check-type vector? vec vector-swap!)))
-        (let ((i (check-index vec i vector-swap!))
-              (j (check-index vec j vector-swap!)))
-          (let ((x (vector-ref vec i)))
-            (vector-set! vec i (vector-ref vec j))
-            (vector-set! vec j x)))))
+    ; (define (vector-swap! vec i j)
+    ;   (let ((vec (check-type vector? vec vector-swap!)))
+    ;     (let ((i (check-index vec i vector-swap!))
+    ;           (j (check-index vec j vector-swap!)))
+    ;       (let ((x (vector-ref vec i)))
+    ;         (vector-set! vec i (vector-ref vec j))
+    ;         (vector-set! vec j x)))))
 
     ;;; (VECTOR-FILL! <vector> <value> [<start> <end>]) -> unspecified
     ;;;   [R5RS+] Fill the locations in VECTOR between START, whose default
     ;;;   is 0, and END, whose default is the length of VECTOR, with VALUE.
     ;;;
     ;;; This one can probably be made really fast natively.
-    (define (vector-fill! vec value . maybe-start+end)
-       (let-vector-start+end vector-fill! vec maybe-start+end (start end)
-         (do ((i start (+ i 1)))
-             ((= i end))
-           (vector-set! vec i value))))
+    ; (define (vector-fill! vec value . maybe-start+end)
+    ;   (let-vector-start+end vector-fill! vec maybe-start+end (start end)
+    ;     (do ((i start (+ i 1)))
+    ;          ((= i end))
+    ;       (vector-set! vec i value))))
 
     ;;; (VECTOR-COPY! <target> <tstart> <source> [<sstart> <send>])
     ;;;       -> unspecified
@@ -1222,12 +1221,9 @@
     ;;;   Destructively reverse the contents of the sequence of locations
     ;;;   in VECTOR between START, whose default is 0, and END, whose
     ;;;   default is the length of VECTOR.
-    (define (vector-reverse! vec . start+end)
-      (let-vector-start+end vector-reverse! vec start+end
-                            (start end)
-        (%vector-reverse! vec start end)))
-
-    
+    ; (define (vector-reverse! vec . start+end)
+    ;   (let-vector-start+end vector-reverse! vec start+end (start end)
+    ;     (%vector-reverse! vec start end)))
 
     ;;; --------------------
     ;;; Conversion
@@ -1236,11 +1232,11 @@
     ;;;   [R5RS+] Produce a list containing the elements in the locations
     ;;;   between START, whose default is 0, and END, whose default is the
     ;;;   length of VECTOR, from VECTOR.
-    (define (vector->list vec . maybe-start+end)
-      (let-vector-start+end vector->list vec maybe-start+end (start end)
-        (do ((i (- end 1) (- i 1))
-             (result '() (cons (vector-ref vec i) result)))
-            ((< i start) result))))
+    ; (define (vector->list vec . maybe-start+end)
+    ;   (let-vector-start+end vector->list vec maybe-start+end (start end)
+    ;     (do ((i (- end 1) (- i 1))
+    ;          (result '() (cons (vector-ref vec i) result)))
+    ;       ((< i start) result))))
 
     ;;; (REVERSE-VECTOR->LIST <vector> [<start> <end>]) -> list
     ;;;   Produce a list containing the elements in the locations between
@@ -1329,38 +1325,38 @@
     ;;;   Produce a string containing the elements in the locations
     ;;;   between START, whose default is 0, and END, whose default is the
     ;;;   length of VECTOR, from VECTOR.
-    (define (vector->string vec . maybe-start+end)
-      (let* ((len (vector-length vec))
-             (start (if (null? maybe-start+end) 0 (car maybe-start+end)))
-             (end (if (null? maybe-start+end)
-                      len
-                      (if (null? (cdr maybe-start+end)) len (cadr maybe-start+end))))
-             (size (- end start)))
-        (define result (make-string size))
-        (let loop ((at 0) (i start))
-          (if (= i end)
-            result
-            (begin
-              (string-set! result at (vector-ref vec i))
-              (loop (+ at 1) (+ i 1)))))))
+    ;    (define (vector->string vec . maybe-start+end)
+    ;      (let* ((len (vector-length vec))
+    ;             (start (if (null? maybe-start+end) 0 (car maybe-start+end)))
+    ;             (end (if (null? maybe-start+end)
+    ;                      len
+    ;                      (if (null? (cdr maybe-start+end)) len (cadr maybe-start+end))))
+    ;             (size (- end start)))
+    ;        (define result (make-string size))
+    ;        (let loop ((at 0) (i start))
+    ;          (if (= i end)
+    ;            result
+    ;            (begin
+    ;              (string-set! result at (vector-ref vec i))
+    ;              (loop (+ at 1) (+ i 1)))))))
 
     ;;; (STRING->VECTOR <string> [<start> <end>]) -> vector
     ;;;   Produce a vector containing the elements in STRING
     ;;;   between START, whose default is 0, & END,
     ;;;   whose default is the length of STRING, from STRING.
-    (define (string->vector str . maybe-start+end)
-      (let* ((len (string-length str))
-             (start (if (null? maybe-start+end) 0 (car maybe-start+end)))
-             (end (if (null? maybe-start+end)
-                      len
-                      (if (null? (cdr maybe-start+end)) len (cadr maybe-start+end))))
-             (size (- end start)))
-        (define result (make-vector size))
-        (let loop ((at 0) (i start))
-          (if (= i end)
-            result
-            (begin
-              (vector-set! result at (string-ref str i))
-              (loop (+ at 1) (+ i 1)))))))
+    ;    (define (string->vector str . maybe-start+end)
+    ;      (let* ((len (string-length str))
+    ;             (start (if (null? maybe-start+end) 0 (car maybe-start+end)))
+    ;             (end (if (null? maybe-start+end)
+    ;                      len
+    ;                      (if (null? (cdr maybe-start+end)) len (cadr maybe-start+end))))
+    ;             (size (- end start)))
+    ;        (define result (make-vector size))
+    ;        (let loop ((at 0) (i start))
+    ;          (if (= i end)
+    ;            result
+    ;            (begin
+    ;              (vector-set! result at (string-ref str i))
+    ;              (loop (+ at 1) (+ i 1)))))))
   )
 )

@@ -295,7 +295,8 @@ open class Library: Reference, Trackable, CustomStringConvertible {
           throw RuntimeError.eval(.inconsistentImports,
                                   .symbol(ident),
                                   importOrigin?.name ?? library.name,
-                                  library.name)
+                                  library.name,
+                                  self.name)
         }
       } else {
         // ERROR: signal cyclic dependency since the library isn't able to return a location
@@ -304,6 +305,10 @@ open class Library: Reference, Trackable, CustomStringConvertible {
     }
     // Return the import location (is only nil for self references)
     return self.imports[ident]
+  }
+  
+  internal func initializationEnvironment() throws -> Environment {
+    return try Environment(in: self.context, for: self)
   }
   
   public func allocate() -> Bool {
@@ -371,7 +376,7 @@ open class Library: Reference, Trackable, CustomStringConvertible {
       _ = try library.initialize()
     }
     // Compile and run
-    let env = try Env(Environment(in: self.context, for: self))
+    let env = try Env(self.initializationEnvironment())
     for block in self.initDeclBlocks {
       for decl in block.decls {
         _ = try self.context.machine.compileAndEval(expr: decl,

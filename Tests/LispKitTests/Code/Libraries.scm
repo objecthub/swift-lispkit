@@ -106,3 +106,18 @@
   (import (ilib))
   (foo)
 )
+
+(
+  "Hidden library import"
+  <error>
+  (define-library (jlib)
+    (export foo)
+    (import (lispkit base))
+    (begin (define (foo) 3)))
+  (define-library (klib)
+    (export foo)
+    (import (lispkit base) (jlib))
+    (begin (define (foo) 4)))
+  (import (klib))
+  (foo)
+)

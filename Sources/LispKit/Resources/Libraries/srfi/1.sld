@@ -20,9 +20,9 @@
 ;;;   Copyright © 2017 Matthias Zenger. All rights reserved.
 
 (define-library (srfi 1)
-  
+
   (import (lispkit base))
-  
+
   ;; # Constructors
   ;; cons list
   ;; xcons cons* make-list list-tabulate
@@ -31,26 +31,28 @@
   (begin
     (define (xcons d a) (cons a d))
 
-    (define (cons* first . rest)
-      (let recur ((x first) (rest rest))
-        (if (pair? rest)
-        (cons x (recur (car rest) (cdr rest))) x)))
+    ; (define (cons* first . rest)
+    ;   (let recur ((x first) (rest rest))
+    ;      (if (pair? rest)
+    ;          (cons x (recur (car rest) (cdr rest)))
+    ;          x)))
 
     (define (list-tabulate len proc)
       (do ((i (- len 1) (- i 1))
            (ans '() (cons (proc i) ans)))
           ((< i 0) ans)))
 
-    (define (iota count . lst)
-      (let ((start (if (pair? lst) (car lst) 0))
-            (step (if (and (pair? lst)
-                      (pair? (cdr lst)))
-                      (cadr lst) 1)))
-        (let rec ((count (- count 1))
-                  (acc '()))
-          (if (zero? count)
-              (cons start acc)
-              (rec (- count 1) (cons (+ start (* count step)) acc)))))))
+    ; (define (iota count . lst)
+    ;   (let ((start (if (pair? lst) (car lst) 0))
+    ;         (step (if (and (pair? lst)
+    ;                   (pair? (cdr lst)))
+    ;                   (cadr lst) 1)))
+    ;     (let rec ((count (- count 1))
+    ;               (acc '()))
+    ;       (if (zero? count)
+    ;           (cons start acc)
+    ;           (rec (- count 1) (cons (+ start (* count step)) acc))))))
+  )
 
   (export cons list xcons cons* make-list list-tabulate iota)
 
@@ -169,8 +171,8 @@
   ;; count
 
   (begin
-    (define (concatenate lists)
-      (apply append lists))
+    ; (define (concatenate lists)
+    ;   (apply append lists))
 
     (define (append-reverse rev-head tail)
       (if (null? rev-head)
@@ -236,19 +238,19 @@
                 (rec (apply kons (append (map car clists) (list acc)))
                      (map cdr clists))
                 acc))))
-    
-    (define (fold-right kons knil clist . clists)
-      (if (null? clists)
-          (let rec ((clist clist) (cont values))
-            (if (null? clist)
-                (cont knil)
-                (rec (cdr clist) (lambda (x) (cont (kons (car clist) x))))))
-          (let rec ((clists (cons clist clists)) (cont values))
-            (if (every pair? clists)
-                (rec (map cdr clists)
-                     (lambda (x)
-                       (cont (apply kons (append (map car clists) (list x))))))
-                (cont knil)))))
+
+    ; (define (fold-right kons knil clist . clists)
+    ;      (if (null? clists)
+    ;          (let rec ((clist clist) (cont values))
+    ;            (if (null? clist)
+    ;                (cont knil)
+    ;                (rec (cdr clist) (lambda (x) (cont (kons (car clist) x))))))
+    ;          (let rec ((clists (cons clist clists)) (cont values))
+    ;            (if (every pair? clists)
+    ;                (rec (map cdr clists)
+    ;                     (lambda (x)
+    ;                       (cont (apply kons (append (map car clists) (list x))))))
+    ;                (cont knil)))))
 
     (define (pair-fold kons knil clist . clists)
       (if (null? clists)
@@ -343,16 +345,17 @@
   ;; filter partition remove
 
   (begin
-    (define (filter pred list)
-      (let ((pcons (lambda (v acc) (if (pred v) (cons v acc) acc))))
-        (reverse (fold pcons '() list))))
+    ; (define (filter pred list)
+    ;   (let ((pcons (lambda (v acc) (if (pred v) (cons v acc) acc))))
+    ;     (reverse (fold pcons '() list))))
 
-    (define (remove pred list)
-      (filter (lambda (x) (not (pred x))) list))
+    ; (define (remove pred list)
+    ;   (filter (lambda (x) (not (pred x))) list))
 
-    (define (partition pred list)
-      (values (filter pred list)
-              (remove pred list))))
+    ; (define (partition pred list)
+    ;   (values (filter pred list)
+    ;           (remove pred list)))
+  )
 
   (export filter partition remove)
 
@@ -451,9 +454,9 @@
   ;; delete delete-duplicates
 
   (begin
-    (define (delete x list . =)
-      (let ((= (if (null? =) equal? (car =))))
-        (remove (lambda (a) (= x a)) list)))
+    ; (define (delete x list . =)
+    ;   (let ((= (if (null? =) equal? (car =))))
+    ;     (remove (lambda (a) (= x a)) list)))
 
     (define (delete-duplicates list . =)
       (let ((= (if (null? =) equal? (car =))))
@@ -479,9 +482,10 @@
     (define (alist-copy alist)
       (map (lambda (elt) (cons (car elt) (cdr elt))) alist))
 
-    (define (alist-delete key alist . =)
-      (let ((= (if (null? =) equal? (car =))))
-        (remove (lambda (x) (= key (car x))) alist))))
+    ; (define (alist-delete key alist . =)
+    ;   (let ((= (if (null? =) equal? (car =))))
+    ;     (remove (lambda (x) (= key (car x))) alist)))
+  )
 
   (export assoc assq assv
           alist-cons alist-copy
@@ -573,9 +577,12 @@
       (values (apply lset-difference = list lists)
               (lset-intersection = list (apply lset-union lists)))))
 
-  (export lset<= lset= lset-adjoin
+  (export lset<=
+          lset=
+          lset-adjoin
           lset-union
           lset-intersection
           lset-difference
           lset-xor
-          lset-diff+intersection))
+          lset-diff+intersection)
+)

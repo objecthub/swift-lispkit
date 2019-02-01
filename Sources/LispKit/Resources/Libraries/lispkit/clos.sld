@@ -242,7 +242,7 @@
           <input-port>
           <output-port>)
 
-  (import (lispkit base)
+  (import (except (lispkit base) remove)
           (lispkit clos support))
 
   (begin

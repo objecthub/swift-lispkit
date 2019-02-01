@@ -101,7 +101,7 @@
           (srfi 1)
           (srfi 8)
           (srfi 121))
-
+  
   (begin
     ;; This implements banker's deque as described in Chris Okasaki's "Purely Functional
     ;; Data Structures". It provides amortized O(1) basic operations.

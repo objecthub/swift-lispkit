@@ -220,14 +220,8 @@
           (< (imag-part a) (imag-part b))
           (< (real-part a) (real-part b))))
 
-    (define (string-ci-hash obj)
-        (string-hash (string-foldcase obj)))
-
     (define (symbol<? a b)
       (string<? (symbol->string a) (symbol->string b)))
-
-    (define (symbol-hash obj)
-      (string-hash (symbol->string obj)))
 
     ;; Wrapped equality predicates
     ;; These comparators don't have ordering functions.
@@ -393,13 +387,13 @@
                   (else      (acc (elem-hash (ref obj n)))
                              (loop (+ n 1))))))))
 
-    (define (string-hash obj)
-      (let ((acc (make-hasher))
-            (len (string-length obj)))
-        (let loop ((n 0))
-          (cond ((= n len) (acc))
-                (else      (acc (char->integer (string-ref obj n)))
-                           (loop (+ n 1)))))))
+    ; (define (string-hash obj)
+    ;   (let ((acc (make-hasher))
+    ;         (len (string-length obj)))
+    ;     (let loop ((n 0))
+    ;       (cond ((= n len) (acc))
+    ;             (else      (acc (char->integer (string-ref obj n)))
+    ;                        (loop (+ n 1)))))))
   )
 
   ;;; The default comparator

@@ -124,7 +124,7 @@
           page-width
           page-height)
 
-  (import (lispkit base)
+  (import (except (lispkit base) with-output-to-string)
           (srfi 48))
   
   (begin

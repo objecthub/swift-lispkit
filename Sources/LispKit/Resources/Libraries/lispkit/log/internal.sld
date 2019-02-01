@@ -70,7 +70,7 @@
           log-dropping-below-severity
           log-from-severity)
 
-  (import (lispkit base))
+  (import (except (lispkit base) log))
 
   (begin
 

@@ -179,7 +179,7 @@ public final class Environment: Reference, CustomStringConvertible {
   }
   
   /// Binds symbol `sym` to the given location reference `loc`.
-  private func bind(_ sym: Symbol, to loc: LocationRef) {
+  internal func bind(_ sym: Symbol, to loc: LocationRef) {
     switch self.kind {
       case .repl:
         let new = self.isUndefined(sym)
@@ -200,6 +200,31 @@ public final class Environment: Reference, CustomStringConvertible {
   /// Returns true if the given symbol is imported in an immutable fashion.
   public func isImmutable(_ sym: Symbol) -> Bool {
     return self.bindings[sym]?.isImmutable ?? false
+  }
+  
+  /// Returns true if the given symbol is imported
+  public func isImported(_ sym: Symbol, immutable: Bool? = nil) -> Bool {
+    guard let locRef = self.bindings[sym] else {
+      return false
+    }
+    switch locRef {
+      case .mutableImport(_):
+        return immutable == nil ? true : !(immutable!)
+      case .immutableImport(_):
+        return immutable == nil ? true : immutable!
+      default:
+        return false
+    }
+  }
+  
+  /// Returns the name of library if this is an environment for a library, `nil` otherwise.
+  public var libraryName: Expr? {
+    switch self.kind {
+      case .library(let lib):
+        return lib
+      default:
+        return nil
+    }
   }
   
   /// Returns the location reference associated with `sym`.

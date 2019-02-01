@@ -70,7 +70,7 @@
           log-dropping-below-severity
           log-from-severity)
 
-  (import (lispkit base)
+  (import (except (lispkit base) log)
           (rename (lispkit log internal)
             (make-port-logger make-port-logger-internal)
             (make-file-logger make-file-logger-internal)))

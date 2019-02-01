@@ -403,7 +403,11 @@ public final class CoreLibrary: NativeLibrary {
         }
         let index = compiler.registerConstant(sig)
         try compiler.compile(value, in: env, inTailPos: false)
-        let loc = env.environment!.forceDefinedLocationRef(for: sym).location!
+        let environment = env.environment!
+        if let libName = environment.libraryName, environment.isImported(sym) {
+          throw RuntimeError.eval(.redefinitionOfImport, sig, libName)
+        }
+        let loc = environment.forceDefinedLocationRef(for: sym).location!
         compiler.patchMakeClosure(index)
         compiler.emit(.defineGlobal(loc))
         compiler.emit(.pushConstant(index))
@@ -411,7 +415,11 @@ public final class CoreLibrary: NativeLibrary {
       case .pair(.symbol(let sym), let arglist):
         let index = compiler.registerConstant(.symbol(sym))
         try compiler.compileLambda(index, arglist, def, env)
-        let loc = env.environment!.forceDefinedLocationRef(for: sym).location!
+        let environment = env.environment!
+        if let libName = environment.libraryName, environment.isImported(sym) {
+          throw RuntimeError.eval(.redefinitionOfImport, .symbol(sym), libName)
+        }
+        let loc = environment.forceDefinedLocationRef(for: sym).location!
         compiler.emit(.defineGlobal(loc))
         compiler.emit(.pushConstant(index))
         return false
@@ -442,18 +450,25 @@ public final class CoreLibrary: NativeLibrary {
       case .symbol(let sym):
         let index = compiler.registerConstant(sig)
         try compiler.compile(value, in: env, inTailPos: false)
+        let environment = env.environment!
+        if let libName = environment.libraryName, environment.isImported(sym) {
+          throw RuntimeError.eval(.redefinitionOfImport, sig, libName)
+        }
         compiler.emit(.unpack(0, true))
-        let loc = env.environment!.forceDefinedLocationRef(for: sym).location!
+        let loc = environment.forceDefinedLocationRef(for: sym).location!
         compiler.emit(.defineGlobal(loc))
         compiler.emit(.pushConstant(index))
         return false
       case .pair(_, _):
         try compiler.compile(value, in: env, inTailPos: false)
+        let environment = env.environment!
         var vars = sig
         var syms = [Symbol]()
         while case .pair(.symbol(let sym), let rest) = vars {
           if syms.contains(sym) {
             throw RuntimeError.eval(.duplicateBinding, .symbol(sym), sig)
+          } else if let libName = environment.libraryName, environment.isImported(sym) {
+            throw RuntimeError.eval(.redefinitionOfImport, .symbol(sym), libName)
           }
           syms.append(sym)
           vars = rest
@@ -469,7 +484,7 @@ public final class CoreLibrary: NativeLibrary {
         }
         var res: Expr = .null
         for sym in syms.reversed() {
-          let loc = env.environment!.forceDefinedLocationRef(for: sym).location!
+          let loc = environment.forceDefinedLocationRef(for: sym).location!
           compiler.emit(.defineGlobal(loc))
           res = .pair(.symbol(sym), res)
         }
@@ -510,7 +525,11 @@ public final class CoreLibrary: NativeLibrary {
     compiler.syntaxSym = sym
     try compiler.compile(transformer, in: env, inTailPos: false)
     compiler.syntaxSym = oldSyntaxSym
-    let loc = env.environment!.forceDefinedLocationRef(for: sym).location!
+    let environment = env.environment!
+    if let libName = environment.libraryName, environment.isImported(sym) {
+      throw RuntimeError.eval(.redefinitionOfImport, .symbol(sym), libName)
+    }
+    let loc = environment.forceDefinedLocationRef(for: sym).location!
     compiler.emit(.makeSyntax(index))
     compiler.emit(.defineGlobal(loc))
     compiler.emit(.pushConstant(index))
