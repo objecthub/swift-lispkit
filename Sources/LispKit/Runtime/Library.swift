@@ -458,10 +458,10 @@ open class Library: Reference, Trackable, CustomStringConvertible {
           while case .pair(let export, let next) = exportList {
             switch export {
               case .symbol(let sym):
-                self.exportDecls[sym] = .mutable(sym)
+                self.exportDecls[sym] = .immutable(sym)
               case .pair(.symbol(self.context.symbols.rename),
                          .pair(.symbol(let intSym), .pair(.symbol(let extSym), .null))):
-                self.exportDecls[extSym] = .mutable(intSym)
+                self.exportDecls[extSym] = .immutable(intSym)
               default:
                 throw RuntimeError.eval(.malformedLibraryDefinition, decl)
             }
@@ -470,15 +470,15 @@ open class Library: Reference, Trackable, CustomStringConvertible {
           guard exportList.isNull else {
             throw RuntimeError.eval(.malformedLibraryDefinition, decl)
           }
-        case .pair(.symbol(self.context.symbols.exportImmutable), let spec):
+        case .pair(.symbol(self.context.symbols.exportOpen), let spec):
           var exportList = spec
           while case .pair(let export, let next) = exportList {
             switch export {
               case .symbol(let sym):
-                self.exportDecls[sym] = .immutable(sym)
+                self.exportDecls[sym] = .mutable(sym)
               case .pair(.symbol(self.context.symbols.rename),
                          .pair(.symbol(let intSym), .pair(.symbol(let extSym), .null))):
-                self.exportDecls[extSym] = .immutable(intSym)
+                self.exportDecls[extSym] = .mutable(intSym)
               default:
                 throw RuntimeError.eval(.malformedLibraryDefinition, decl)
             }

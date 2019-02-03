@@ -203,7 +203,7 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
                                    typeClose: String = "] ",
                                    irritantHeader: String? = "irritants: ",
                                    irritantSeparator: String = ", ",
-                                   positionHeader: String? = "nat: ",
+                                   positionHeader: String? = "at: ",
                                    libraryHeader: String? = "library: ",
                                    stackTraceHeader: String? = "stack trace: ",
                                    stackTraceSeparator: String = ", ") -> String {
