@@ -48,15 +48,15 @@ open class NativeLibrary: Library {
   
   /// This method overrides `allocate` from the `Library` initialization protocol to provide
   /// a hook for importing definitions used later during initialization.
-  public override func allocate() -> Bool {
+  public override func allocate() throws -> Bool {
     if self.state == .loaded {
       self.dependencies()
-      if super.allocate() {
-        self.reexports()
+      if try super.allocate() {
+        try self.reexports()
         return true
       }
-    } else if super.allocate() {
-      self.reexports()
+    } else if try super.allocate() {
+      try self.reexports()
       return true
     }
     return false
@@ -93,7 +93,7 @@ open class NativeLibrary: Library {
   
   /// The `exports` method needs to be overridden in subclasses of `NativeLibrary`. It can be
   /// used to declare exported bindings from imports.
-  open func reexports() {
+  open func reexports() throws {
     // This method needs to be overridden for concrete native libraries.
   }
   
@@ -126,8 +126,8 @@ open class NativeLibrary: Library {
   /// Exports all bindings from this library that are also exported by the imported library
   /// `library`. This method fails if the library is unknown or was not imported before.
   /// Bindings whose identifier starts with `_` are not re-exported.
-  public func export(from library: Expr) {
-    guard let lib = self.context.libraries.lookup(library) else {
+  public func export(from library: Expr) throws {
+    guard let lib = try self.context.libraries.lookup(library) else {
       preconditionFailure("cannot export from unknown library \(library)")
     }
     guard self.libraries.contains(lib) else {
@@ -148,14 +148,14 @@ open class NativeLibrary: Library {
   /// Exports all bindings from this library that are also exported by the library identified
   /// by `library`. This method fails if the library is unknown or was not imported before.
   /// Bindings whose identifier starts with `_` are not re-exported.
-  public func export(from library: [String]) {
-    self.export(from: self.context.libraries.name(library))
+  public func export(from library: [String]) throws {
+    try self.export(from: self.context.libraries.name(library))
   }
   
   /// Exports all bindings from all libraries imported by this library.
-  public func exportAll() {
+  public func exportAll() throws {
     for library in self.libraries {
-      self.export(from: library.name)
+      try self.export(from: library.name)
     }
   }
   

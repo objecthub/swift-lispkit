@@ -49,7 +49,7 @@ public final class Context {
   public let fileHandler: FileHandler
   
   /// The source manager of this context.
-  public let sourceManager: SourceManager
+  public let sources: SourceManager
   
   /// The managed object pool for freeing up objects with cyclic dependencies.
   public let objects: ManagedObjectPool
@@ -116,7 +116,7 @@ public final class Context {
     self.heap = Heap()
     self.fileHandler = FileHandler(includeInternalResources: includeInternalResources,
                                    includeDocumentPath: includeDocumentPath)
-    self.sourceManager = SourceManager()
+    self.sources = SourceManager()
     self.objects = ManagedObjectPool()
     self.symbols = SymbolTable()
     var supported = Feature.supported
@@ -152,7 +152,7 @@ public final class Context {
     // Guarantee that (lispkit dynamic) is imported
     try self.environment.import(["lispkit", "dynamic"])
     // Install error handler
-    if let dynamicLib = self.libraries.lookup("lispkit", "dynamic") as? DynamicControlLibrary,
+    if let dynamicLib = try self.libraries.lookup("lispkit", "dynamic") as? DynamicControlLibrary,
        let raiseProc = dynamicLib.raiseProc {
       self.machine.raiseProc = raiseProc
     }

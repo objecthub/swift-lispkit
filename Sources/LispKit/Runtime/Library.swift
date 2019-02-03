@@ -311,55 +311,67 @@ open class Library: Reference, Trackable, CustomStringConvertible {
     return try Environment(in: self.context, for: self)
   }
   
-  public func allocate() -> Bool {
+  public func allocate() throws -> Bool {
     guard case .loaded = self.state else {
       return false
     }
     // Mark the state of the library as allocated
     self.state = .allocated
-    // Collect imported identifiers and determine where they are imported from
-    for importDecl in self.importDecls {
-      if let (library, importSpec) = importDecl.expand(in: self.context) {
-        // Ignore direct self imports
-        if self !== library {
-          self.libraries.insert(library)
-          for (impIdent, expIdent) in importSpec {
-            self.imported.insert(impIdent, mapsTo: (library, expIdent))
+    do {
+      // Collect imported identifiers and determine where they are imported from
+      for importDecl in self.importDecls {
+        if let (library, importSpec) = try importDecl.expand(in: self.context) {
+          // Ignore direct self imports
+          if self !== library {
+            self.libraries.insert(library)
+            for (impIdent, expIdent) in importSpec {
+              self.imported.insert(impIdent, mapsTo: (library, expIdent))
+            }
           }
         }
       }
-    }
-    // Allocate locations for the exported identifiers which are not imported
-    for (extIdent, intIdent) in self.exportDecls {
-      if !self.imported.hasValues(for: intIdent.identifier) && self.exports[extIdent] == nil {
-        self.exports[extIdent] =
-          intIdent.located(at:
-            self.context.heap.allocateLocation(for: .uninit(intIdent.identifier)))
+      // Allocate locations for the exported identifiers which are not imported
+      for (extIdent, intIdent) in self.exportDecls {
+        if !self.imported.hasValues(for: intIdent.identifier) && self.exports[extIdent] == nil {
+          self.exports[extIdent] =
+            intIdent.located(at:
+              self.context.heap.allocateLocation(for: .uninit(intIdent.identifier)))
+        }
       }
+    } catch let error as RuntimeError {
+      throw error.attach(library: self.name)
+    } catch let error as NSError {
+      throw RuntimeError.os(error).attach(library: self.name)
     }
     // Allocate all libraries from which identifiers are imported
     for library in self.libraries {
-      _ = library.allocate()
+      _ = try library.allocate()
     }
     return true
   }
   
   public func wire() throws -> Bool {
-    _ = self.allocate()
+    _ = try self.allocate()
     guard case .allocated = self.state else {
       return false
     }
     // Mark the state of the library as wired
     self.state = .wired
-    // Resolve dependencies for the imported identifiers
-    for importedIdent in self.imported.keys {
-      _ = try self.importLocation(importedIdent)
-    }
-    // Backfill dependencies for the exported identifiers which are imported
-    for exportedIdent in self.exportDecls.keys {
-      guard try self.exportLocation(exportedIdent) != nil else {
-        preconditionFailure("cannot export \(exportedIdent) from \(self.name)")
+    do {
+      // Resolve dependencies for the imported identifiers
+      for importedIdent in self.imported.keys {
+        _ = try self.importLocation(importedIdent)
       }
+      // Backfill dependencies for the exported identifiers which are imported
+      for exportedIdent in self.exportDecls.keys {
+        guard try self.exportLocation(exportedIdent) != nil else {
+          preconditionFailure("cannot export \(exportedIdent) from \(self.name)")
+        }
+      }
+    } catch let error as RuntimeError {
+      throw error.attach(library: self.name)
+    } catch let error as NSError {
+      throw RuntimeError.os(error).attach(library: self.name)
     }
     return true
   }
@@ -371,32 +383,38 @@ open class Library: Reference, Trackable, CustomStringConvertible {
     }
     // Mark the state of the library as initialized
     self.state = .initialized
-    // Initialize libraries on which this library depends
-    for library in self.libraries {
-      _ = try library.initialize()
-    }
-    // Compile and run
-    let env = try Env(self.initializationEnvironment())
-    for block in self.initDeclBlocks {
-      for decl in block.decls {
-        _ = try self.context.machine.compileAndEval(expr: decl,
-                                                    in: env,
-                                                    inDirectory: block.sourceDirectory)
+    do {
+      // Initialize libraries on which this library depends
+      for library in self.libraries {
+        _ = try library.initialize()
       }
-    }
-    // Check that all exported declarations are initialized
-    var uninitializedExports: [Symbol] = []
-    for (sym, lref) in self.exports {
-      if case .uninit(_) = self.context.heap.locations[lref.location] {
-        uninitializedExports.append(sym)
+      // Compile and run
+      let env = try Env(self.initializationEnvironment())
+      for block in self.initDeclBlocks {
+        for decl in block.decls {
+          _ = try self.context.machine.compileAndEval(expr: decl,
+                                                      in: env,
+                                                      inDirectory: block.sourceDirectory)
+        }
       }
-    }
-    guard uninitializedExports.count == 0 else {
-      var uninits = Expr.null
-      for sym in uninitializedExports {
-        uninits = .pair(.symbol(sym), uninits)
+      // Check that all exported declarations are initialized
+      var uninitializedExports: [Symbol] = []
+      for (sym, lref) in self.exports {
+        if case .uninit(_) = self.context.heap.locations[lref.location] {
+          uninitializedExports.append(sym)
+        }
       }
-      throw RuntimeError.eval(.uninitializedExports, uninits, self.name)
+      guard uninitializedExports.count == 0 else {
+        var uninits = Expr.null
+        for sym in uninitializedExports {
+          uninits = .pair(.symbol(sym), uninits)
+        }
+        throw RuntimeError.eval(.uninitializedExports, uninits, self.name)
+      }
+    } catch let error as RuntimeError {
+      throw error.attach(library: self.name)
+    } catch let error as NSError {
+      throw RuntimeError.os(error).attach(library: self.name)
     }
     return true
   }
@@ -475,7 +493,7 @@ open class Library: Reference, Trackable, CustomStringConvertible {
             guard let importSet = ImportSet(spec, in: self.context) else {
               throw RuntimeError.eval(.malformedLibraryDefinition, decl)
             }
-            importDecls.append(importSet)
+            self.importDecls.append(importSet)
             importList = next
           }
           guard importList.isNull else {
@@ -569,7 +587,7 @@ open class Library: Reference, Trackable, CustomStringConvertible {
                 guard let featureReq = FeatureRequirement(reqs, in: self.context) else {
                   throw RuntimeError.eval(.malformedCondExpandClause, clause)
                 }
-                if featureReq.valid(in: self.context) {
+                if try featureReq.valid(in: self.context) {
                   defs = exprs
                   var j = i
                   while case .pair(let decl, let next) = defs {

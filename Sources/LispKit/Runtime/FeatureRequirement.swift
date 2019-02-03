@@ -86,18 +86,18 @@ public indirect enum FeatureRequirement: CustomStringConvertible {
   /// `expand` returns, for this import set, a reference to the library from which definitions
   /// are imported. In addition, a mapping is returned that maps renamed definitions to the
   /// definitions as exported by the library.
-  public func valid(in context: Context) -> Bool {
+  public func valid(in context: Context) throws -> Bool {
     switch self {
       case .feature(let name):
         return context.features.contains(name)
       case .library(let expr):
-        return context.libraries.lookup(expr) != nil
+        return try context.libraries.lookup(expr) != nil
       case .and(let left, let right):
-        return left.valid(in: context) && right.valid(in: context)
+        return try left.valid(in: context) && right.valid(in: context)
       case .or(let left, let right):
-        return left.valid(in: context) || right.valid(in: context)
+        return try left.valid(in: context) || right.valid(in: context)
       case .not(let req):
-        return !req.valid(in: context)
+        return try !req.valid(in: context)
     }
   }
   

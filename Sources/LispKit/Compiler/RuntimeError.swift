@@ -32,6 +32,7 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
   public let pos: SourcePosition
   public let descriptor: ErrorDescriptor
   public let irritants: [Expr]
+  public private(set) var library: Expr?
   public private(set) var stackTrace: [Procedure]?
   
   private init(_ pos: SourcePosition,
@@ -143,10 +144,18 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
     return RuntimeError(pos, self.descriptor, self.irritants, self.stackTrace)
   }
   
-  public func attach(_ stackTrace: [Procedure]) {
+  @discardableResult public func attach(stackTrace: [Procedure]) -> RuntimeError {
     if self.stackTrace == nil {
       self.stackTrace = stackTrace
     }
+    return self
+  }
+  
+  @discardableResult public func attach(library: Expr) -> RuntimeError {
+    if self.library == nil {
+      self.library = library
+    }
+    return self
   }
   
   public func hash(into hasher: inout Hasher) {
@@ -189,12 +198,14 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
     return "\(self.descriptor.typeDescription): \(message)"
   }
   
-  public func printableDescription(typeOpen: String = "[",
+  public func printableDescription(context: Context,
+                                   typeOpen: String = "[",
                                    typeClose: String = "] ",
-                                   irritantHeader: String? = "\nirritants: ",
+                                   irritantHeader: String? = "irritants: ",
                                    irritantSeparator: String = ", ",
-                                   positionHeader: String? = "\nat: ",
-                                   stackTraceHeader: String? = "\nstack trace: ",
+                                   positionHeader: String? = "nat: ",
+                                   libraryHeader: String? = "library: ",
+                                   stackTraceHeader: String? = "stack trace: ",
                                    stackTraceSeparator: String = ", ") -> String {
     var usedIrritants = Set<Int>()
     let message = self.replacePlaceholders(in: self.descriptor.messageTemplate,
@@ -203,24 +214,37 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
     var builder = StringBuilder(
           prefix: "\(typeOpen)\(self.descriptor.typeDescription)\(typeClose)\(message)",
           postfix: "",
-          separator: irritantSeparator,
-          initial: irritantHeader ?? "")
-    if irritantHeader != nil {
+          separator: "\n",
+          initial: "")
+    if let irritantHeader = irritantHeader {
+      var irritantBuilder = StringBuilder(prefix: "",
+                                          postfix: "",
+                                          separator: irritantSeparator,
+                                          initial: irritantHeader)
       for index in self.irritants.indices {
         if !usedIrritants.contains(index) {
-          builder.append(self.irritants[index].description)
+          irritantBuilder.append(self.irritants[index].description)
         }
       }
+      builder.append(irritantBuilder.description)
     }
     if let positionHeader = positionHeader, !self.pos.isUnknown {
-      builder.append(positionHeader + self.pos.description)
+      if let filename = context.sources.sourcePath(for: pos.sourceId) {
+        builder.append("\(positionHeader)\(self.pos.description):\(filename)")
+      } else {
+        builder.append("\(positionHeader)\(self.pos.description)")
+      }
+    }
+    if let libraryHeader = libraryHeader,
+       let libraryName = self.library?.description {
+      builder.append("\(libraryHeader)\(libraryName)")
     }
     if let stackTraceHeader = stackTraceHeader,
        let stackTrace = self.stackTrace {
       builder = StringBuilder(prefix: builder.description,
                               postfix: "",
                               separator: stackTraceSeparator,
-                              initial: stackTraceHeader)
+                              initial: "\n\(stackTraceHeader)")
       for proc in stackTrace {
         builder.append(proc.name)
       }

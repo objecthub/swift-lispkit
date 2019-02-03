@@ -232,7 +232,7 @@ func printResult(_ res: Expr) {
     }
   // For errors print the error message
   } else if case .error(let err) = res {
-    terminal.print("\(err.printableDescription())\n")
+    terminal.print("\(err.printableDescription(context: context))\n")
   // For non-void results, print result
   } else if res != .void {
     terminal.print("\(res.description)\n")
@@ -265,7 +265,9 @@ if let program = flags.parameters.first {
   while let line = readCommand(withPrompt: buffer.isEmpty) {
     buffer += line + " "
     let res = context.machine.onTopLevelDo {
-      return try context.machine.eval(str: buffer, in: context.global, as: "<repl>")
+      return try context.machine.eval(str: buffer,
+                                      sourceId: SourceManager.consoleSourceId,
+                                      in: context.global, as: "<repl>")
     }
     // Exit loop if the machine has executed the `exit` function
     if context.machine.exitTriggered {
@@ -276,7 +278,8 @@ if let program = flags.parameters.first {
       break
     // If closing parenthesis are missing, keep on reading
     } else if case .error(let err) = res,
-      case .syntax(.closingParenthesisMissing) = err.descriptor {
+      context.sources.consoleIsSource(sourceId: err.pos.sourceId),
+              case .syntax(.closingParenthesisMissing) = err.descriptor {
       continue
     // Else print result
     } else {

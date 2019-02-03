@@ -113,20 +113,20 @@ public indirect enum ImportSet: Equatable, CustomStringConvertible {
   /// `expand` returns, for this import set, a reference to the library from which definitions
   /// are imported. In addition, a mapping is returned that maps renamed definitions to the
   /// definitions as exported by the library.
-  public func expand(in context: Context) -> (Library, [Symbol : Symbol])? {
+  public func expand(in context: Context) throws -> (Library, [Symbol : Symbol])? {
     switch self {
       case .library(let name):
-        guard let library = context.libraries.lookup(name) else {
+        guard let library = try context.libraries.lookup(name) else {
           return nil
         }
-        _ = library.allocate()
+        _ = try library.allocate()
         var imports = [Symbol : Symbol]()
         for export in library.exported {
           imports[export] = export
         }
         return (library, imports)
       case .only(let restricted, let importSet):
-        guard let (library, currentImports) = importSet.expand(in: context) else {
+        guard let (library, currentImports) = try importSet.expand(in: context) else {
           return nil
         }
         var imports = [Symbol : Symbol]()
@@ -138,7 +138,7 @@ public indirect enum ImportSet: Equatable, CustomStringConvertible {
         }
         return (library, imports)
       case .except(let excluded, let importSet):
-        guard let (library, currentImports) = importSet.expand(in: context) else {
+        guard let (library, currentImports) = try importSet.expand(in: context) else {
           return nil
         }
         var imports = [Symbol : Symbol]()
@@ -149,7 +149,7 @@ public indirect enum ImportSet: Equatable, CustomStringConvertible {
         }
         return (library, imports)
       case .prefix(let prefix, let importSet):
-        guard let (library, currentImports) = importSet.expand(in: context) else {
+        guard let (library, currentImports) = try importSet.expand(in: context) else {
           return nil
         }
         var imports = [Symbol : Symbol]()
@@ -159,7 +159,7 @@ public indirect enum ImportSet: Equatable, CustomStringConvertible {
         }
         return (library, imports)
       case .rename(let renamings, let importSet):
-        guard let (library, currentImports) = importSet.expand(in: context) else {
+        guard let (library, currentImports) = try importSet.expand(in: context) else {
           return nil
         }
         var imports = [Symbol : Symbol]()

@@ -496,7 +496,7 @@ public final class SystemLibrary: NativeLibrary {
   
   private func loadedSources() -> Expr {
     var res = Expr.null
-    for url in self.context.sourceManager.sourceUrls {
+    for url in self.context.sources.sourceUrls {
       res = .pair(.makeString(url.path), res)
     }
     return res

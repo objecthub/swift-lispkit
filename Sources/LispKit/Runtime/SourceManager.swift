@@ -32,6 +32,10 @@ public final class SourceManager {
   public static let consoleSourceId: UInt16 = 0
   public static let unknownSourceId: UInt16 = UInt16.max
   
+  public func consoleIsSource(sourceId: UInt16) -> Bool {
+    return sourceId == SourceManager.consoleSourceId
+  }
+  
   public func sourceId(for url: URL) -> UInt16? {
     return self.sourceIds[self.absoluteUrl(url)]
   }
@@ -59,10 +63,16 @@ public final class SourceManager {
   }
   
   public func sourceUrl(for sourceId: UInt16) -> URL? {
-    guard sourceId != SourceManager.unknownSourceId else {
+    guard sourceId != SourceManager.unknownSourceId &&
+          sourceId >= 0 &&
+          sourceId < self.sourceUrls.count else {
       return nil
     }
     return self.sourceUrls[Int(sourceId)]
+  }
+  
+  public func sourcePath(for sourceId: UInt16) -> String? {
+    return self.sourceUrl(for: sourceId)?.path
   }
   
   public func readSource(for sourceId: UInt16) throws -> String {
@@ -72,12 +82,14 @@ public final class SourceManager {
     return try String(contentsOf: sourceUrl)
   }
   
-  public func readSource(for url: URL) throws -> String {
-    return try self.readSource(for: self.obtainSourceId(for: url))
+  public func readSource(for url: URL) throws -> (UInt16, String) {
+    let sourceId = self.obtainSourceId(for: url)
+    return (sourceId, try self.readSource(for: sourceId))
   }
   
-  public func readSource(for path: String) throws -> String {
-    return try self.readSource(for: self.obtainSourceId(for: path))
+  public func readSource(for path: String) throws -> (UInt16, String) {
+    let sourceId = self.obtainSourceId(for: path)
+    return (sourceId, try self.readSource(for: sourceId))
   }
   
   private func absoluteUrl(_ url: URL) -> URL {

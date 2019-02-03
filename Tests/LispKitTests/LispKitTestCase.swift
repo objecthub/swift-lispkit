@@ -57,6 +57,7 @@ open class LispKitTestCase: XCTestCase {
   /// Representation of an individual regression test
   public struct Test {
     let description: String
+    let sourceId: UInt16
     let source: Expr
     let target: Expr
   }
@@ -78,7 +79,9 @@ open class LispKitTestCase: XCTestCase {
   
   public func eval(_ string: String) -> Expr {
     return self.context!.machine.onTopLevelDo {
-      return try self.context!.machine.eval(str: string, in: context!.global)
+      return try self.context!.machine.eval(str: string,
+                                            sourceId: SourceManager.consoleSourceId,
+                                            in: context!.global)
     }
   }
   
@@ -99,11 +102,11 @@ open class LispKitTestCase: XCTestCase {
     }
   }
   
-  public func loadTestCode(from filename: String) -> String? {
+  public func loadTestCode(from filename: String) -> (UInt16, String)? {
     let bundle = Bundle(for: type(of: self))
     if let path = bundle.path(forResource: filename, ofType: "scm") {
       do {
-        return try String(contentsOfFile: path, encoding: String.Encoding.utf8)
+        return try self.context?.sources.readSource(for: path)
       } catch {
         return nil
       }
@@ -112,19 +115,22 @@ open class LispKitTestCase: XCTestCase {
   }
   
   public func loadTests(from filename: String) -> [Test] {
-    guard let code = loadTestCode(from: filename) else {
+    guard let (sourceId, code) = self.loadTestCode(from: filename) else {
       preconditionFailure("cannot open test file: \(filename)")
     }
     do {
       let input = TextInput(string: code)
-      let parser = Parser(symbols: self.context!.symbols, input: input)
+      let parser = Parser(symbols: self.context!.symbols, input: input, sourceId: sourceId)
       var res = [Test]()
       while !parser.finished {
         let spec = try parser.parse().datum // TODO: remove .datum
         guard case .pair(.string(let descr), .pair(let target, let source)) = spec else {
           preconditionFailure("malformed test spec in file \(filename): \(spec)")
         }
-        res.append(Test(description: descr.description, source: source, target: target))
+        res.append(Test(description: descr.description,
+                        sourceId: sourceId,
+                        source: source,
+                        target: target))
       }
       return res
     } catch let error {

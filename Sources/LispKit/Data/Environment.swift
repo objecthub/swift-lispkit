@@ -332,7 +332,7 @@ public final class Environment: Reference, CustomStringConvertible {
   /// libraries do not support imports. This method does not force the library to be initialized.
   private func initialImport(_ importSet: ImportSet) throws -> Library {
     // Expand the import set
-    guard let (library, importSpec) = importSet.expand(in: self.context) else {
+    guard let (library, importSpec) = try importSet.expand(in: self.context) else {
       // Could not expand import set
       throw RuntimeError.eval(.cannotExpandImportSet, .makeString(importSet.description))
     }

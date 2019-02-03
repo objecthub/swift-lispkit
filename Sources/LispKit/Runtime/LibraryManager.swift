@@ -54,27 +54,27 @@ public final class LibraryManager: TrackedObject, CustomStringConvertible {
   }
   
   /// Returns the library loaded by this library manager with the given name.
-  public func lookup(_ name: Expr) -> Library? {
+  public func lookup(_ name: Expr) throws -> Library? {
     guard let library = self.libraries[name] else {
-      self.load(name: name)
+      try self.load(name: name)
       return self.libraries[name]
     }
     return library
   }
   
   /// Returns the library loaded by this library manager with the given name.
-  public func lookup(_ name: [String]) -> Library? {
-    return self.lookup(self.name(name))
+  public func lookup(_ name: [String]) throws -> Library? {
+    return try self.lookup(self.name(name))
   }
   
   /// Returns the library loaded by this library manager with the given name.
-  public func lookup(_ nameComponents: String...) -> Library? {
-    return self.lookup(self.name(nameComponents))
+  public func lookup(_ nameComponents: String...) throws -> Library? {
+    return try self.lookup(self.name(nameComponents))
   }
   
   /// Attempt to load library `name` from disk. This method only loads a library definition
   /// if the library isn't loaded yet and hasn't been tried loading previously.
-  public func load(name: Expr) {
+  private func load(name: Expr) throws {
     guard self.libraries[name] == nil && !self.unknownLibraries.contains(name) else {
       return
     }
@@ -84,9 +84,10 @@ public final class LibraryManager: TrackedObject, CustomStringConvertible {
         _ = try self.context.machine.eval(
                   file: self.context.fileHandler.libraryFilePath(forFile: filename) ?? filename,
                   in: self.context.global)
-      } catch {
-        // TODO: figure out how to best propagate an error in such a case
-        // ignore
+      } catch let error as RuntimeError {
+        throw error.attach(library: name)
+      } catch let error as NSError {
+        throw RuntimeError.os(error).attach(library: name)
       }
     }
   }

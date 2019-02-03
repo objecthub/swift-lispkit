@@ -27,8 +27,8 @@ public final class BaseLibrary: NativeLibrary {
   }
   
   /// Exported definitions.
-  public override func reexports() {
-    self.exportAll()
+  public override func reexports() throws {
+    try self.exportAll()
   }
   
   /// Dependencies of the library.

@@ -301,7 +301,9 @@ public final class VirtualMachine: TrackedObject {
                    as name: String? = nil,
                    optimize: Bool = true,
                    foldCase: Bool = false) throws -> Expr {
-    return try self.eval(str: self.context.sourceManager.readSource(for: path),
+    let (sourceId, text) = try self.context.sources.readSource(for: path)
+    return try self.eval(str: text,
+                         sourceId: sourceId,
                          in: env,
                          as: name,
                          optimize: optimize,
@@ -312,12 +314,13 @@ public final class VirtualMachine: TrackedObject {
   /// Parses the given string, compiles it in the interaction environment, and executes it using
   /// this virtual machine.
   public func eval(str: String,
+                   sourceId: UInt16,
                    in env: Env,
                    as name: String? = nil,
                    optimize: Bool = true,
                    inDirectory: String? = nil,
                    foldCase: Bool = false) throws -> Expr {
-    return try self.eval(exprs: self.parse(str: str, foldCase: foldCase),
+    return try self.eval(exprs: self.parse(str: str, sourceId: sourceId, foldCase: foldCase),
                          in: env,
                          as: name,
                          optimize: optimize,
@@ -368,26 +371,31 @@ public final class VirtualMachine: TrackedObject {
   
   /// Parses the given file and returns a list of parsed expressions.
   public func parse(file path: String, foldCase: Bool = false) throws -> Expr {
-    return try self.parse(str: self.context.sourceManager.readSource(for: path),
-                          foldCase: foldCase)
+    let (sourceId, text) = try self.context.sources.readSource(for: path)
+    return try self.parse(str: text, sourceId: sourceId, foldCase: foldCase)
   }
   
   /// Parses the given string and returns a list of parsed expressions.
-  public func parse(str: String, foldCase: Bool = false) throws -> Expr {
-    return .makeList(try self.parseExprs(str: str, foldCase: foldCase))
+  public func parse(str: String, sourceId: UInt16, foldCase: Bool = false) throws -> Expr {
+    return .makeList(try self.parseExprs(str: str, sourceId: sourceId, foldCase: foldCase))
   }
   
   /// Parses the given string and returns an array of parsed expressions.
   public func parseExprs(file path: String, foldCase: Bool = false) throws -> Exprs {
-    return try self.parseExprs(str: self.context.sourceManager.readSource(for: path),
+    let (sourceId, text) = try self.context.sources.readSource(for: path)
+    return try self.parseExprs(str: text,
+                               sourceId: sourceId,
                                foldCase: foldCase)
   }
   
   /// Parses the given string and returns an array of parsed expressions.
-  public func parseExprs(str: String, foldCase: Bool = false) throws -> Exprs {
+  public func parseExprs(str: String, sourceId: UInt16, foldCase: Bool = false) throws -> Exprs {
     let input = TextInput(string: str,
                           abortionCallback: self.context.machine.isAbortionRequested)
-    let parser = Parser(symbols: self.context.symbols, input: input, foldCase: foldCase)
+    let parser = Parser(symbols: self.context.symbols,
+                        input: input,
+                        sourceId: sourceId,
+                        foldCase: foldCase)
     var exprs = Exprs()
     while !parser.finished {
       exprs.append(try parser.parse().datum) // TODO: remove .datum
@@ -936,13 +944,11 @@ public final class VirtualMachine: TrackedObject {
       }
     } catch let error as RuntimeError {
       if error.stackTrace == nil {
-        error.attach(self.getStackTrace(current: proc))
+        error.attach(stackTrace: self.getStackTrace(current: proc))
       }
       throw error
     } catch let error as NSError {
-      let wrapped = RuntimeError.os(error)
-      wrapped.attach(self.getStackTrace(current: proc))
-      throw wrapped
+      throw RuntimeError.os(error).attach(stackTrace: self.getStackTrace(current: proc))
     }
     // Handle continuations
     if case .rawContinuation(let vmState) = proc.kind {
@@ -1007,13 +1013,11 @@ public final class VirtualMachine: TrackedObject {
       return res
     } catch let error as RuntimeError {
       if error.stackTrace == nil {
-        error.attach(self.getStackTrace())
+        error.attach(stackTrace: self.getStackTrace())
       }
       throw error
     } catch let error as NSError {
-      let wrapped = RuntimeError.os(error)
-      wrapped.attach(self.getStackTrace())
-      throw wrapped
+      throw RuntimeError.os(error).attach(stackTrace: self.getStackTrace())
     }
   }
   
