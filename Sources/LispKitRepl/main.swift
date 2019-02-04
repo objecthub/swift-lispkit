@@ -278,8 +278,8 @@ if let program = flags.parameters.first {
       break
     // If closing parenthesis are missing, keep on reading
     } else if case .error(let err) = res,
-      context.sources.consoleIsSource(sourceId: err.pos.sourceId),
-              case .syntax(.closingParenthesisMissing) = err.descriptor {
+          context.sources.consoleIsSource(sourceId: err.pos.sourceId),
+          case .syntax(.closingParenthesisMissing) = err.descriptor {
       continue
     // Else print result
     } else {

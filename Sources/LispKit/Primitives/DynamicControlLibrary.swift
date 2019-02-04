@@ -292,9 +292,13 @@ public final class DynamicControlLibrary: NativeLibrary {
   }
   
   private func makeError(message: Expr, irritants: Expr) -> Expr {
+    var stackTrace = self.context.machine.getStackTrace()
+    if !stackTrace.isEmpty {
+      stackTrace.removeFirst()
+    }
     return .error(RuntimeError.custom("error",
                                       message.unescapedDescription,
-                                      Array(irritants.toExprs().0)))
+                                      Array(irritants.toExprs().0)).attach(stackTrace: stackTrace))
   }
   
   private func errorObjectMessage(expr: Expr) throws -> Expr {

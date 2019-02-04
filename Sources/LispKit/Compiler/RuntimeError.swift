@@ -201,7 +201,7 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
   public func printableDescription(context: Context,
                                    typeOpen: String = "[",
                                    typeClose: String = "] ",
-                                   irritantHeader: String? = "irritants: ",
+                                   irritantHeader: String? = "\nirritants: ",
                                    irritantSeparator: String = ", ",
                                    positionHeader: String? = "at: ",
                                    libraryHeader: String? = "library: ",
@@ -221,12 +221,16 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
                                           postfix: "",
                                           separator: irritantSeparator,
                                           initial: irritantHeader)
+      var count = 0
       for index in self.irritants.indices {
         if !usedIrritants.contains(index) {
+          count += 1
           irritantBuilder.append(self.irritants[index].description)
         }
       }
-      builder.append(irritantBuilder.description)
+      if count > 0 {
+        builder.append(irritantBuilder.description)
+      }
     }
     if let positionHeader = positionHeader, !self.pos.isUnknown {
       if let filename = context.sources.sourcePath(for: pos.sourceId) {
