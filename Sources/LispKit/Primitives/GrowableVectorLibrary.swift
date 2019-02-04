@@ -62,8 +62,8 @@ public final class GrowableVectorLibrary: NativeLibrary {
     self.define(Procedure("gvector-copy", gvectorCopy))
     self.define(Procedure("gvector-copy!", gvectorOverwrite))
     self.define(Procedure("gvector-reverse!", gvectorReverse))
-    self.define(Procedure("_gvector-pivot!", gvectorPivot))
-    self.define("_gvector-partition!", via:
+    self.define(Procedure("_gvector-pivot!", gvectorPivot), export: false)
+    self.define("_gvector-partition!", export: false, via:
       "(define (_gvector-partition! pred v lo hi)",
       "  (do ((i (fx1+ lo) (fx1+ i))",
       "       (j (fx1+ hi))",
@@ -75,7 +75,7 @@ public final class GrowableVectorLibrary: NativeLibrary {
       "    (do () ((or (fx= j lo) (not (pred pivot (gvector-ref v j)))))",
       "      (set! j (fx1- j)))",
       "    (when (fx< i j) (vector-swap! v i j))))")
-    self.define("_quick-sort!", via:
+    self.define("_quick-sort!", export: false, via:
       "(define (_quick-sort! pred v lo hi)",
       "  (unless (fx<= hi lo)",
       "    (let ((j (_gvector-partition! pred v lo hi)))",
@@ -84,8 +84,8 @@ public final class GrowableVectorLibrary: NativeLibrary {
     self.define("gvector-sort!", via:
       "(define (gvector-sort! pred v)",
       "  (_quick-sort! pred v 0 (fx1- (gvector-length v))))")
-    self.define(Procedure("_gvector-list-ref", gvectorListRef))
-    self.define(Procedure("_gvector-list-length", gvectorListLength))
+    self.define(Procedure("_gvector-list-ref", gvectorListRef), export: false)
+    self.define(Procedure("_gvector-list-length", gvectorListLength), export: false)
     self.define("gvector-map", via:
       "(define (gvector-map f xs . xss)",
       "  (let* ((vecs (cons xs xss))",
