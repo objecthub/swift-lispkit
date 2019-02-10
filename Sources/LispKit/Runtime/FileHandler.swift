@@ -186,7 +186,7 @@ public final class FileHandler {
     }
     do {
       let attr = try self.fileManager.attributesOfItem(atPath: filePath)
-      return attr[FileAttributeKey.size] as? Int64
+      return attr[.size] as? Int64
     } catch {
       return nil
     }

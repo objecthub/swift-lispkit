@@ -217,7 +217,7 @@ open class NativeLibrary: Library {
                                         export: Bool = true,
                                         via: String...) -> Int {
     let res = self.define(name, as: nil, mutable: mutable, export: export)
-    self.execute(code: via.reduce("", +))
+    self.execute(code: via.joined())
     return res
   }
 
@@ -248,7 +248,7 @@ open class NativeLibrary: Library {
   }
 
   public func execute(_ source: String...) {
-    self.execute(code: source.reduce("", +))
+    self.execute(code: source.joined())
   }
 
   /// Returns the location of the imported symbol. This method can only be used in the
@@ -266,8 +266,8 @@ open class NativeLibrary: Library {
   /// Returns the native library for the given implementation (if imported).
   public func nativeLibrary<T: NativeLibrary>(_: T.Type) -> T? {
     for library in self.libraries {
-      if library is T {
-        return (library as! T)
+      if let l = library as? T {
+        return l
       }
     }
     return nil
