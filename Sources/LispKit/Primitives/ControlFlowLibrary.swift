@@ -37,6 +37,8 @@ public final class ControlFlowLibrary: NativeLibrary {
     self.define(SpecialForm("let*-values", self.compileLetStarValues))
     self.define(SpecialForm("let-optionals", self.compileLetOptionals))
     self.define(SpecialForm("let*-optionals", self.compileLetStarOptionals))
+    self.define(SpecialForm("let-keywords", self.compileLetKeywords))
+    self.define(SpecialForm("let*-keywords", self.compileLetStarKeywords))
     self.define(SpecialForm("let-syntax", self.compileLetSyntax))
     self.define(SpecialForm("letrec-syntax", self.compileLetRecSyntax))
     self.define(SpecialForm("do", self.compileDo))
@@ -340,6 +342,129 @@ public final class ControlFlowLibrary: NativeLibrary {
     guard bindings.isNull else {
       throw RuntimeError.eval(.malformedBindings, bindingList)
     }
+    return group
+  }
+  
+  private func compileLetKeywords(_ compiler: Compiler,
+                                  expr: Expr,
+                                  env: Env,
+                                  tail: Bool) throws -> Bool {
+    guard case .pair(_, .pair(let optlist, .pair(let first, let body))) = expr else {
+      throw RuntimeError.argumentCount(of: "let-keywords", min: 2, expr: expr)
+    }
+    let initialLocals = compiler.numLocals
+    switch first {
+      case .null:
+        return try compiler.compileSeq(.pair(optlist, body),
+                                       in: env,
+                                       inTailPos: tail)
+      case .pair(_, _):
+        try compiler.compile(optlist, in: env, inTailPos: false)
+        let group = try self.compileKeywordBindings(compiler, first, in: env, atomic: true)
+        compiler.emit(.pop)
+        let res = try compiler.compileSeq(body,
+                                          in: Env(group),
+                                          inTailPos: tail)
+        return compiler.finalizeBindings(group, exit: res, initialLocals: initialLocals)
+      default:
+        throw RuntimeError.type(first, expected: [.listType])
+    }
+  }
+  
+  private func compileLetStarKeywords(_ compiler: Compiler,
+                                      expr: Expr,
+                                      env: Env,
+                                      tail: Bool) throws -> Bool {
+    guard case .pair(_, .pair(let optlist, .pair(let first, let body))) = expr else {
+      throw RuntimeError.argumentCount(of: "let*-keywords", min: 2, expr: expr)
+    }
+    let initialLocals = compiler.numLocals
+    switch first {
+      case .null:
+        return try compiler.compileSeq(.pair(optlist, body),
+                                       in: env,
+                                       inTailPos: tail)
+      case .pair(_, _):
+        try compiler.compile(optlist, in: env, inTailPos: false)
+        let group = try self.compileKeywordBindings(compiler, first, in: env, atomic: false)
+        compiler.emit(.pop)
+        let res = try compiler.compileSeq(body,
+                                          in: Env(group),
+                                          inTailPos: tail)
+        return compiler.finalizeBindings(group, exit: res, initialLocals: initialLocals)
+      default:
+        throw RuntimeError.type(first, expected: [.listType])
+    }
+  }
+
+  private func compileKeywordBindings(_ compiler: Compiler,
+                                      _ bindingList: Expr,
+                                      in lenv: Env,
+                                      atomic: Bool) throws -> BindingGroup {
+    let group = BindingGroup(owner: compiler, parent: lenv)
+    let env = atomic ? lenv : .local(group)
+    var bindings = bindingList
+    var prevIndex = -1
+    let initialIp = compiler.emitPlaceholder()
+    let backfillIp = compiler.offsetToNext(0)
+    // Backfill keyword bindings with defaults
+    while case .pair(let binding, let rest) = bindings {
+      guard case .pair(.symbol(let sym), .pair(let expr, .null)) = binding else {
+        throw RuntimeError.eval(.malformedBinding, binding, bindingList)
+      }
+      compiler.emit(.pushUndef)
+      let pushValueIp = compiler.emitPlaceholder()
+      compiler.emit(.eq)
+      let alreadySetIp = compiler.emitPlaceholder()
+      try compiler.compile(expr, in: env, inTailPos: false)
+      let binding = group.allocBindingFor(sym)
+      guard binding.index > prevIndex else {
+        throw RuntimeError.eval(.duplicateBinding, .symbol(sym), bindingList)
+      }
+      compiler.emit(binding.isValue ? .setLocal(binding.index) : .setLocalValue(binding.index))
+      compiler.patch(binding.isValue ? .pushLocal(binding.index) : .pushLocalValue(binding.index),
+                     at: pushValueIp)
+      compiler.patch(.branchIfNot(compiler.offsetToNext(alreadySetIp)), at: alreadySetIp)
+      prevIndex = binding.index
+      bindings = rest
+    }
+    guard bindings.isNull else {
+      throw RuntimeError.eval(.malformedBindings, bindingList)
+    }
+    let finalIp = compiler.emitPlaceholder()
+    compiler.patch(.branch(compiler.offsetToNext(initialIp)), at: initialIp)
+    // Allocate space for all the bindings
+    bindings = bindingList
+    while case .pair(.pair(.symbol(let sym), _), let rest) = bindings {
+      let binding = group.allocBindingFor(sym)
+      compiler.emit(.pushUndef)
+      compiler.emit(binding.isValue ? .setLocal(binding.index) : .makeLocalVariable(binding.index))
+      bindings = rest
+    }
+    // Process keyword list
+    bindings = bindingList
+    let loopIp = compiler.emit(.dup)
+    compiler.emit(.isNull)
+    let listEmptyIp = compiler.emitPlaceholder()
+    compiler.emit(.deconsKeyword)
+    while case .pair(.pair(.symbol(let sym), _), let rest) = bindings {
+      let binding = group.allocBindingFor(sym)
+      compiler.emit(.dup)
+      compiler.pushConstant(.symbol(compiler.context.symbols.intern(sym.identifier + ":")))
+      compiler.emit(.eq)
+      let keywordCompIp = compiler.emitPlaceholder()
+      compiler.emit(.pop)
+      compiler.emit(binding.isValue ? .setLocal(binding.index) : .makeLocalVariable(binding.index))
+      compiler.emit(.branch(-compiler.offsetToNext(loopIp)))
+      compiler.patch(.branchIfNot(compiler.offsetToNext(keywordCompIp)), at: keywordCompIp)
+      bindings = rest
+    }
+    compiler.emit(.raiseError(EvalError.unknownKeyword.rawValue, 2))
+    compiler.patch(.branchIf(compiler.offsetToNext(listEmptyIp)), at: listEmptyIp)
+    // Jumop to the default backfill
+    compiler.emit(.branch(-compiler.offsetToNext(backfillIp)))
+    // Patch instructions jumping to the end
+    compiler.patch(.branch(compiler.offsetToNext(finalIp)), at: finalIp)
     return group
   }
   

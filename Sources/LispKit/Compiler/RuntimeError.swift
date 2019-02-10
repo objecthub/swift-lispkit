@@ -35,10 +35,10 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
   public private(set) var library: Expr?
   public private(set) var stackTrace: [Procedure]?
   
-  private init(_ pos: SourcePosition,
-               _ descriptor: ErrorDescriptor,
-               _ irritants: [Expr],
-               _ stackTrace: [Procedure]? = nil) {
+  internal init(_ pos: SourcePosition,
+                _ descriptor: ErrorDescriptor,
+                _ irritants: [Expr],
+                _ stackTrace: [Procedure]? = nil) {
     self.pos = pos
     self.descriptor = descriptor
     self.irritants = irritants

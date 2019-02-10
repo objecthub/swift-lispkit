@@ -1482,6 +1482,14 @@ public final class VirtualMachine: TrackedObject {
           self.stack[self.sp] = .undef
           // Re-execute force
           self.registers.ip = self.registers.ip &- 2
+        case .raiseError(let err, let n):
+          var irritants: [Expr] = []
+          for _ in 0..<n {
+            irritants.insert(self.pop(), at: 0)
+          }
+          throw RuntimeError(SourcePosition.unknown,
+                             ErrorDescriptor.eval(EvalError(rawValue: err)!),
+                             irritants)
         case .pushCurrentTime:
           self.push(.flonum(Timer.currentTimeInSec))
         case .display:
@@ -1508,6 +1516,8 @@ public final class VirtualMachine: TrackedObject {
           }
         case .isNull:
           self.push(.makeBoolean(self.popUnsafe() == .null))
+        case .isUndef:
+          self.push(.makeBoolean(self.popUnsafe() == .undef))
         case .cons:
           let cdr = self.pop()
           self.push(.pair(self.popUnsafe(), cdr))
@@ -1518,6 +1528,14 @@ public final class VirtualMachine: TrackedObject {
           }
           self.push(cdr)
           self.push(car)
+        case .deconsKeyword:
+          let expr = self.popUnsafe()
+          guard case .pair(let fst, .pair(let snd, let cdr)) = expr else {
+            throw RuntimeError.eval(.expectedKeywordArg, expr)
+          }
+          self.push(cdr)
+          self.push(snd)
+          self.push(fst)
         case .car:
           let expr = self.popUnsafe()
           guard case .pair(let car, _) = expr else {

@@ -317,6 +317,10 @@ public enum Instruction: CustomStringConvertible {
   /// the stack is not null.
   case isNull
   
+  /// **`is_undef`**: Pushes `#false` onto the stack if the current value on top of
+  /// the stack is not undefined.
+  case isUndef
+  
   /// **`list` _n_**: Pops the top _n_ values off the stack and constructs a list out of
   /// them on top of the stack.
   case list(Int)
@@ -328,6 +332,10 @@ public enum Instruction: CustomStringConvertible {
   /// **`decons`**: Pops a pair off the stack and pushes first its tail and then its head
   /// onto the stack.
   case decons
+  
+  /// **`decons_keyword`**: Pops a list off the stack, pushing the first two elements as well as the
+  /// tail of the second pair onto the stack
+  case deconsKeyword
   
   /// **`car`**: Pops a pair off the stack and pushes its head onto the stack.
   case car
@@ -425,6 +433,10 @@ public enum Instruction: CustomStringConvertible {
   
   // Miscellaneous ----------------------------------------------------------------------------
 
+  /// **`raise_error` _err_,_n_**: Raises the given evaluation error _err_ using the top _n_
+  /// elements on top of the stack as irritants.
+  case raiseError(Int, Int)
+  
   /// **`push_current_time`**: Pushes the current time as a flonum onto the stack. The time
   /// is expressed as seconds since January 1, 1970 at 00:00.
   case pushCurrentTime
@@ -624,6 +636,8 @@ public enum Instruction: CustomStringConvertible {
         return "store_in_promise"
       case .swap:
         return "swap"
+      case .raiseError(let err, let n):
+        return "raise_error \(err), \(n)"
       case .pushCurrentTime:
         return "push_current_time"
       case .display:
@@ -640,10 +654,14 @@ public enum Instruction: CustomStringConvertible {
         return "is_pair"
       case .isNull:
         return "is_null"
+      case .isUndef:
+        return "is_undef"
       case .cons:
         return "cons"
       case .decons:
         return "decons"
+      case .deconsKeyword:
+        return "decons_keyword"
       case .car:
         return "car"
       case .cdr:
