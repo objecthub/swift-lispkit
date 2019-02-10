@@ -201,7 +201,7 @@ public final class DynamicControlLibrary: NativeLibrary {
       return .false
     }
     switch proc.kind {
-      case .rawContinuation(_),
+      case .rawContinuation,
            .closure(.continuation, _, _):
         return .true
       default:
@@ -337,7 +337,7 @@ public final class DynamicControlLibrary: NativeLibrary {
 
   private func isErrorObject(expr: Expr) -> Expr {
     switch expr {
-      case .error(_):
+      case .error:
         return .true
       default:
         return .false

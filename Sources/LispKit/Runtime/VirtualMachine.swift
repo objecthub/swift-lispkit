@@ -426,7 +426,7 @@ public final class VirtualMachine: TrackedObject {
     switch proc.kind {
       case .closure(_, let captured, let code):
         return try self.execute(code, args: n, captured: captured)
-      case .rawContinuation(_):
+      case .rawContinuation:
         return try self.execute()
       case .transformer(let rules):
         if n != 1 {
@@ -1059,7 +1059,7 @@ public final class VirtualMachine: TrackedObject {
               throw RuntimeError.eval(.variableUndefined, .undef)
             case .uninit(let sym):
               throw RuntimeError.eval(.variableNotYetInitialized, .symbol(sym))
-            case .special(_):
+            case .special:
               throw RuntimeError.eval(.illegalKeywordUsage, value)
             default:
               self.push(value)
@@ -1315,7 +1315,7 @@ public final class VirtualMachine: TrackedObject {
             }
             // Adjust the stack pointer
             self.sp = self.registers.fp &+ n
-          } else if case .rawContinuation(_) = proc.kind {
+          } else if case .rawContinuation = proc.kind {
             break
           } else if self.registers.topLevel {
             if self.registers.fp > 0,
@@ -1463,7 +1463,7 @@ public final class VirtualMachine: TrackedObject {
             preconditionFailure()
           }
           switch future.state {
-            case .lazy(_), .shared(_):
+            case .lazy, .shared:
               guard case .promise(let result) = self.stack[self.sp &- 1],
                     future.kind == result.kind else {
                 let type: Type = future.kind == Promise.Kind.promise ? .promiseType : .streamType
@@ -1509,7 +1509,7 @@ public final class VirtualMachine: TrackedObject {
         case .equal:
           self.push(.makeBoolean(equalExpr(self.pop(), self.popUnsafe())))
         case .isPair:
-          if case .pair(_, _) = self.popUnsafe() {
+          if case .pair = self.popUnsafe() {
             self.push(.true)
           } else {
             self.push(.false)

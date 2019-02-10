@@ -52,7 +52,7 @@ public enum Env: CustomStringConvertible, Equatable {
 
   /// Is this an environment for the system scope?
   public var isGlobal: Bool {
-    if case .global(_) = self {
+    if case .global = self {
       return true
     }
     return false
@@ -60,7 +60,7 @@ public enum Env: CustomStringConvertible, Equatable {
 
   /// Is this a local environment?
   public var isLocal: Bool {
-    if case .local(_) = self {
+    if case .local = self {
       return true
     }
     return false

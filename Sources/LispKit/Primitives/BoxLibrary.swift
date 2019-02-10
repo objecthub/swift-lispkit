@@ -76,7 +76,7 @@ public final class BoxLibrary: NativeLibrary {
   }
 
   private func isBox(_ expr: Expr) -> Expr {
-    guard case .box(_) = expr else {
+    guard case .box = expr else {
       return .false
     }
     return .true
@@ -85,7 +85,7 @@ public final class BoxLibrary: NativeLibrary {
   //-------- MARK: - Mutable pairs
 
   private func isMpair(_ expr: Expr) -> Expr {
-    guard case .mpair(_) = expr else {
+    guard case .mpair = expr else {
       return .false
     }
     return .true

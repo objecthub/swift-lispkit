@@ -65,7 +65,7 @@ public indirect enum FeatureRequirement: CustomStringConvertible {
         var libraryName = name
         while case .pair(let component, let next) = libraryName {
           switch component {
-          case .symbol(_), .fixnum(_), .flonum(_):
+          case .symbol, .fixnum, .flonum:
             break
           default:
             return nil

@@ -238,7 +238,7 @@ public final class PortLibrary: NativeLibrary {
   }
 
   func isPort(_ expr: Expr) -> Expr {
-    if case .port(_) = expr {
+    if case .port = expr {
       return .true
     }
     return .false

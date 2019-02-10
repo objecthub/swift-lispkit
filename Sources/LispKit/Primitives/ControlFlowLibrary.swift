@@ -86,7 +86,7 @@ public final class ControlFlowLibrary: NativeLibrary {
     switch first {
       case .null:
         return try compiler.compileSeq(body, in: env, inTailPos: tail)
-      case .pair(_, _):
+      case .pair:
         let group = try compiler.compileBindings(first,
                                                  in: env,
                                                  atomic: true,
@@ -134,7 +134,7 @@ public final class ControlFlowLibrary: NativeLibrary {
     switch first {
       case .null:
         return try compiler.compileSeq(body, in: env, inTailPos: tail)
-      case .pair(_, _):
+      case .pair:
         let group = try compiler.compileBindings(first,
                                                  in: env,
                                                  atomic: false,
@@ -161,7 +161,7 @@ public final class ControlFlowLibrary: NativeLibrary {
       return try compiler.compileSeq(body,
                                      in: env,
                                      inTailPos: tail)
-    case .pair(_, _):
+    case .pair:
       let group = try compiler.compileBindings(first,
                                                in: env,
                                                atomic: true,
@@ -189,7 +189,7 @@ public final class ControlFlowLibrary: NativeLibrary {
         return try compiler.compileSeq(body,
                                        in: env,
                                        inTailPos: tail)
-      case .pair(_, _):
+      case .pair:
         let group = try compiler.compileBindings(first,
                                                  in: env,
                                                  atomic: true,
@@ -216,7 +216,7 @@ public final class ControlFlowLibrary: NativeLibrary {
         return try compiler.compileSeq(body,
                                        in: env,
                                        inTailPos: tail)
-      case .pair(_, _):
+      case .pair:
         let group = try compiler.compileMultiBindings(first,
                                                       in: env,
                                                       atomic: true)
@@ -242,7 +242,7 @@ public final class ControlFlowLibrary: NativeLibrary {
         return try compiler.compileSeq(body,
                                        in: env,
                                        inTailPos: tail)
-      case .pair(_, _):
+      case .pair:
         let group = try compiler.compileMultiBindings(first,
                                                       in: env,
                                                       atomic: false)
@@ -268,7 +268,7 @@ public final class ControlFlowLibrary: NativeLibrary {
         return try compiler.compileSeq(.pair(optlist, body),
                                        in: env,
                                        inTailPos: tail)
-      case .pair(_, _):
+      case .pair:
         try compiler.compile(optlist, in: env, inTailPos: false)
         let group = try self.compileOptionalBindings(compiler, first, in: env, atomic: true)
         compiler.emit(.pop)
@@ -294,7 +294,7 @@ public final class ControlFlowLibrary: NativeLibrary {
         return try compiler.compileSeq(.pair(optlist, body),
                                        in: env,
                                        inTailPos: tail)
-      case .pair(_, _):
+      case .pair:
         try compiler.compile(optlist, in: env, inTailPos: false)
         let group = try self.compileOptionalBindings(compiler, first, in: env, atomic: false)
         compiler.emit(.pop)
@@ -358,7 +358,7 @@ public final class ControlFlowLibrary: NativeLibrary {
         return try compiler.compileSeq(.pair(optlist, body),
                                        in: env,
                                        inTailPos: tail)
-      case .pair(_, _):
+      case .pair:
         try compiler.compile(optlist, in: env, inTailPos: false)
         let group = try self.compileKeywordBindings(compiler, first, in: env, atomic: true)
         compiler.emit(.pop)
@@ -384,7 +384,7 @@ public final class ControlFlowLibrary: NativeLibrary {
         return try compiler.compileSeq(.pair(optlist, body),
                                        in: env,
                                        inTailPos: tail)
-      case .pair(_, _):
+      case .pair:
         try compiler.compile(optlist, in: env, inTailPos: false)
         let group = try self.compileKeywordBindings(compiler, first, in: env, atomic: false)
         compiler.emit(.pop)
@@ -479,7 +479,7 @@ public final class ControlFlowLibrary: NativeLibrary {
         return try compiler.compileSeq(body,
                                        in: env,
                                        inTailPos: tail)
-      case .pair(_, _):
+      case .pair:
         let group = try compiler.compileMacros(first,
                                                in: env,
                                                recursive: false)
@@ -503,7 +503,7 @@ public final class ControlFlowLibrary: NativeLibrary {
         return try compiler.compileSeq(body,
                                       in: env,
                                       inTailPos: tail)
-      case .pair(_, _):
+      case .pair:
         let group = try compiler.compileMacros(first,
                                                in: env,
                                                recursive: true)

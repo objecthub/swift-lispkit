@@ -86,9 +86,9 @@ public final class SyntaxRules {
           matches.put(sym, input)
           return true
         }
-      case .pair(_, _):
+      case .pair:
         switch input {
-          case .null, .pair(_, _):
+          case .null, .pair:
             break
           default:
             return false
@@ -173,7 +173,7 @@ public final class SyntaxRules {
           throw RuntimeError.type(rest, expected: [.pairType])
         }
         return self.instantiateRaw(template: car, with: matches)
-      case .pair(_, _):
+      case .pair:
         var res = Exprs()
         var templ = template
         var repeater: Expr? = nil
@@ -233,7 +233,7 @@ public final class SyntaxRules {
     switch template {
       case .symbol(let sym):
         return matches.get(sym, in: self.lexicalEnv)
-      case .pair(_, _):
+      case .pair:
         var res = Exprs()
         var templ = template
         while case .pair(let token, let rest) = templ {
@@ -395,7 +395,7 @@ private final class MatchTree: CustomStringConvertible {
 
     fileprivate var numChildren: Int {
       switch self {
-        case .leaf(_):
+        case .leaf:
           return 0
         case .parent(let children):
           return children.value.count
@@ -407,14 +407,8 @@ private final class MatchTree: CustomStringConvertible {
         case .leaf(let expr):
           return expr.description
         case .parent(let children):
-          var res = "["
-          var sep = ""
-          for child in children.value {
-            res += sep
-            res += child.description
-            sep = ", "
-          }
-          return res + "]"
+          let content = children.lazy.map { $0.value.description }.joined(separator: ", ")
+          return "[\(content)]"
       }
     }
   }

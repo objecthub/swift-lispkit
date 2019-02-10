@@ -378,7 +378,7 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
         var value = values[varNum!]
         if embedVariable {
           switch value {
-            case .pair(_, _):
+            case .pair:
               var builder = StringBuilder(prefix: "", postfix: "", separator: ", ")
               while case .pair(let car, let cdr) = value {
                 builder.append(car.unescapedDescription)
@@ -449,7 +449,7 @@ public enum ErrorDescriptor: Hashable {
 
   public var isReadError: Bool {
     switch self {
-      case .lexical(_), .syntax(_):
+      case .lexical, .syntax:
         return true
       default:
         return false
@@ -458,19 +458,19 @@ public enum ErrorDescriptor: Hashable {
 
   public var typeDescription: String {
     switch self {
-      case .lexical(_):
+      case .lexical:
         return "lexical error"
-      case .syntax(_):
+      case .syntax:
         return "syntax error"
-      case .type(_, _):
+      case .type:
         return "type error"
       case .range(_, _, _, _):
         return "range error"
       case .argumentCount(_, _, _):
         return "argument count error"
-      case .eval(_):
+      case .eval:
         return "eval error"
-      case .os(_):
+      case .os:
         return "os error"
       case .abortion:
         return "abortion"

@@ -264,7 +264,7 @@ public final class Compiler {
         } else {
           self.emit(.pushGlobal(locRef.location!))
         }
-      case .macroExpansionRequired(_):
+      case .macroExpansionRequired:
         throw RuntimeError.eval(.illegalKeywordUsage, .symbol(sym))
     }
   }
@@ -316,13 +316,13 @@ public final class Compiler {
     // If `sym` wasn't found, look into the lexical environment
     if let (lexicalSym, lexicalEnv) = sym.lexical {
       // If the lexical environment is a global environment, return that a global lookup is needed
-      if case .global(_) = lexicalEnv {
+      if case .global = lexicalEnv {
         return .globalLookupRequired(sym, env.environment!)
       }
       // Find the new lexical symbol in the new lexcial environment
       let res = self.pushLocalValueOf(lexicalSym, in: lexicalEnv)
       // If this didn't succeed, return that a global lookup is needed
-      guard case .globalLookupRequired(_, _) = res else {
+      guard case .globalLookupRequired = res else {
         return res
       }
     }
@@ -346,13 +346,13 @@ public final class Compiler {
     // If `sym` wasn't found, look into the lexical environment
     if let (lexicalSym, lexicalEnv) = sym.lexical {
       // If the lexical environment is a global environment, return that a global lookup is needed
-      if case .global(_) = lexicalEnv {
+      if case .global = lexicalEnv {
         return .globalLookupRequired(sym, env.environment!)
       }
       // Find the new lexical symbol in the new lexcial environment
       let res = self.lookupLocalValueOf(lexicalSym, in: lexicalEnv)
       // If this didn't succeed, return that a global lookup is needed
-      guard case .globalLookupRequired(_, _) = res else {
+      guard case .globalLookupRequired = res else {
         return res
       }
     }
@@ -364,7 +364,7 @@ public final class Compiler {
   public func pushValue(_ value: Expr) throws {
     let expr = value.datum
     switch expr {
-      case .undef, .uninit(_):
+      case .undef, .uninit:
         self.emit(.pushUndef)
       case .void:
         self.emit(.pushVoid)
@@ -384,7 +384,7 @@ public final class Compiler {
         self.emit(.pushRat(Rational(n, d)))
       case .rational(.bignum(let n), .bignum(let d)):
         self.emit(.pushBigrat(Rational(n, d)))
-      case .rational(_, _):
+      case .rational:
         preconditionFailure("incorrectly encoded rational number")
       case .flonum(let num):
         self.emit(.pushFlonum(num))
@@ -392,15 +392,15 @@ public final class Compiler {
         self.emit(.pushComplex(num.value))
       case .char(let char):
         self.emit(.pushChar(char))
-      case .symbol(_), .string(_), .bytes(_), .pair(_, _), .box(_), .mpair(_), .array(_),
-           .vector(_), .record(_), .table(_), .promise(_), .procedure(_), .env(_),
-           .port(_), .object(_), .tagged(_, _), .error(_):
+      case .symbol, .string, .bytes, .pair, .box, .mpair, .array,
+           .vector, .record, .table, .promise, .procedure, .env,
+           .port, .object, .tagged, .error:
         self.pushConstant(expr)
-      case .special(_):
+      case .special:
         throw RuntimeError.eval(.illegalKeywordUsage, expr)
-      case .values(_):
+      case .values:
         preconditionFailure("cannot push multiple values onto stack")
-      case .syntax(_, _):
+      case .syntax:
         preconditionFailure("cannot push syntax onto stack")
     }
   }
@@ -413,7 +413,7 @@ public final class Compiler {
       case .globalLookupRequired(let lexicalSym, let environment):
         let loc = self.forceDefinedLocationRef(for: lexicalSym, in: environment).location!
         self.emit(.setGlobal(loc))
-      case .macroExpansionRequired(_):
+      case .macroExpansionRequired:
         preconditionFailure("setting bindings should never trigger macro expansion")
     }
   }
@@ -439,13 +439,13 @@ public final class Compiler {
     // If `sym` wasn't found, look into the lexical environment
     if let (lexicalSym, lexicalEnv) = sym.lexical {
       // If the lexical environment is a global environment, return that a global lookup is needed
-      if case .global(_) = lexicalEnv {
+      if case .global = lexicalEnv {
         return .globalLookupRequired(sym, env.environment!)
       }
       // Find the new lexical symbol in the new lexcial environment
       let res = self.setLocalValueOf(lexicalSym, in: lexicalEnv)
       // If this didn't succeed, return that a global lookup is needed
-      guard case .globalLookupRequired(_, _) = res else {
+      guard case .globalLookupRequired = res else {
         return res
       }
     }
@@ -508,7 +508,7 @@ public final class Compiler {
               switch value {
                 case .special(let special):
                   switch special.kind {
-                    case .primitive(_):
+                    case .primitive:
                       return nil
                     case .macro(let transformer):
                       let expanded = try
@@ -1021,7 +1021,7 @@ public final class Compiler {
     }
     // Compile final "else" case
     switch current {
-      case .pair(.pair(_, _), _):
+      case .pair(.pair, _):
         break // early exit
       case .null:
         closureCompiler.emit(.noMatchingArgCount)
@@ -1061,13 +1061,13 @@ public final class Compiler {
   private func optimize() {
     var ip = 0
     switch self.instructions[ip] {
-      case .assertArgCount(_), .assertMinArgCount(_):
+      case .assertArgCount, .assertMinArgCount:
         ip += 1
       default:
         break
     }
     self.eliminateNoOpsAt(ip)
-    if case .makeVariableArgument(_) = self.instructions[ip] {
+    if case .makeVariableArgument = self.instructions[ip] {
       ip += 1
     }
     self.eliminateNoOpsAt(ip)

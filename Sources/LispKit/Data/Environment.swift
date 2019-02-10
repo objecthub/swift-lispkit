@@ -51,7 +51,7 @@ public final class Environment: Reference, CustomStringConvertible {
     }
 
     public var isImmutable: Bool {
-      guard case .immutableImport(_) = self else {
+      guard case .immutableImport = self else {
         return false
       }
       return true
@@ -208,9 +208,9 @@ public final class Environment: Reference, CustomStringConvertible {
       return false
     }
     switch locRef {
-      case .mutableImport(_):
+      case .mutableImport:
         return immutable == nil ? true : !(immutable!)
-      case .immutableImport(_):
+      case .immutableImport:
         return immutable == nil ? true : immutable!
       default:
         return false
@@ -238,7 +238,7 @@ public final class Environment: Reference, CustomStringConvertible {
   public func forceDefinedLocationRef(for sym: Symbol) -> LocationRef {
     if let locRef = self.bindings[sym] {
       switch locRef {
-        case .undefined, .immutableImport(_):
+        case .undefined, .immutableImport:
           break;
         default:
           return locRef
@@ -279,7 +279,7 @@ public final class Environment: Reference, CustomStringConvertible {
             self.context.heap.locations[loc] = expr
             return true
         }
-      case .mutableImport(_), .immutableImport(_):
+      case .mutableImport, .immutableImport:
         switch self.kind {
           case .custom, .library, .program: // illegal redefinition of a binding
             return false
@@ -306,7 +306,7 @@ public final class Environment: Reference, CustomStringConvertible {
             self.context.heap.locations[loc] = expr
             return true
         }
-      case .immutableImport(_):
+      case .immutableImport:
         return false
     }
   }
@@ -341,9 +341,9 @@ public final class Environment: Reference, CustomStringConvertible {
     // Check that bindings can be imported
     for impIdent in importSpec.keys {
       switch self.bindings[impIdent] {
-        case .some(.mutable(_)),
-             .some(.mutableImport(_)),
-             .some(.immutableImport(_)):
+        case .some(.mutable),
+             .some(.mutableImport),
+             .some(.immutableImport):
           guard case .repl = self.kind else {
             // Cannot redefine a local binding with an import in a program
             throw RuntimeError.eval(.erroneousRedefinition,
@@ -406,7 +406,7 @@ public final class Environment: Reference, CustomStringConvertible {
       preconditionFailure()
     }
     // Check that import is not executed in a local environment
-    if case .local(_) = env {
+    if case .local = env {
       throw RuntimeError.eval(.importInLocalEnv, args)
     }
     // Collect all import sets

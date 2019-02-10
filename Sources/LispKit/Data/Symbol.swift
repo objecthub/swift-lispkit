@@ -56,16 +56,16 @@ public final class Symbol: Reference, CustomStringConvertible {
 
   public var isGenerated: Bool {
     switch self.kind {
-      case .interned(_):
+      case .interned:
         return false
-      case .generated(_, _):
+      case .generated:
         return true
     }
   }
 
   public var lexical: (Symbol, Env)? {
     switch self.kind {
-      case .interned(_):
+      case .interned:
         return nil
       case .generated(let sym, let weakEnv):
         return (sym, weakEnv.env)
@@ -74,7 +74,7 @@ public final class Symbol: Reference, CustomStringConvertible {
 
   public var interned: Symbol {
     switch self.kind {
-      case .interned(_):
+      case .interned:
         return self
       case .generated(let sym, _):
         return sym.interned

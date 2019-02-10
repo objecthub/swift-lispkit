@@ -260,7 +260,7 @@ public final class CoreLibrary: NativeLibrary {
       throw RuntimeError.argumentCount(num: 1, expr: expr)
     }
     switch arg {
-      case .pair(_, _):
+      case .pair:
         return try compiler.compile(reduceQQ(arg, in: env),
                                     in: env,
                                     inTailPos: tail)
@@ -378,7 +378,7 @@ public final class CoreLibrary: NativeLibrary {
   }
 
   private func isProcedure(expr: Expr) -> Expr {
-    if case .procedure(_) = expr {
+    if case .procedure = expr {
       return .true
     }
     return .false
@@ -392,7 +392,7 @@ public final class CoreLibrary: NativeLibrary {
       throw RuntimeError.argumentCount(num: 2, expr: expr)
     }
     // Check that define is not executed in a local environment
-    if case .local(_) = env {
+    if case .local = env {
       throw RuntimeError.eval(.defineInLocalEnv, sig, def)
     }
     // Compile definition and store result in global environment
@@ -437,7 +437,7 @@ public final class CoreLibrary: NativeLibrary {
       throw RuntimeError.argumentCount(num: 2, expr: expr)
     }
     // Check that define is not executed in a local environment
-    if case .local(_) = env {
+    if case .local = env {
       throw RuntimeError.eval(.defineInLocalEnv, sig, value)
     }
     // Compile definition and store result in global environment
@@ -459,7 +459,7 @@ public final class CoreLibrary: NativeLibrary {
         compiler.emit(.defineGlobal(loc))
         compiler.emit(.pushConstant(index))
         return false
-      case .pair(_, _):
+      case .pair:
         try compiler.compile(value, in: env, inTailPos: false)
         let environment = env.environment!
         var vars = sig
@@ -516,7 +516,7 @@ public final class CoreLibrary: NativeLibrary {
       throw RuntimeError.type(kword, expected: [.symbolType])
     }
     // Check that define is not executed in a local environment
-    if case .local(_) = env {
+    if case .local = env {
       throw RuntimeError.eval(.defineSyntaxInLocalEnv, .symbol(sym), transformer)
     }
     // Compile transformer and store it as global keyword
@@ -624,8 +624,8 @@ public final class CoreLibrary: NativeLibrary {
       expr = cdr
     }
     switch expr {
-      case .eof, .null, .true, .false, .symbol(_), .string(_), .char(_),
-           .fixnum(_), .bignum(_), .rational(_, _), .flonum(_), .complex(_):
+      case .eof, .null, .true, .false, .symbol, .string, .char,
+           .fixnum, .bignum, .rational, .flonum, .complex:
         return nil
       case .vector(let vector):
         ellipsisFound = false
@@ -751,7 +751,7 @@ public final class CoreLibrary: NativeLibrary {
   //-------- MARK: - Symbol primitives
 
   private func isSymbol(expr: Expr) -> Expr {
-    if case .symbol(_) = expr {
+    if case .symbol = expr {
       return .true
     }
     return .false
@@ -1052,7 +1052,7 @@ public final class CoreLibrary: NativeLibrary {
 
   private func isEnvironment(expr: Expr) -> Expr {
     switch expr {
-      case .env(_):
+      case .env:
         return .true
       default:
         return .false

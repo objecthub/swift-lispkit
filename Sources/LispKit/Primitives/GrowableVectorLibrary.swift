@@ -387,7 +387,7 @@ public final class GrowableVectorLibrary: NativeLibrary {
     }
     if args.count == 1 {
       switch start {
-        case .fixnum(_):
+        case .fixnum:
           break;
         case .false:
           let res = Collection(kind: .immutableVector)

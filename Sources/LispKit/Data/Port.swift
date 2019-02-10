@@ -54,7 +54,7 @@ open class Port: Reference, CustomStringConvertible {
 
   open var isBinaryPort: Bool {
     switch self.kind {
-      case .binaryInputPort(_), .binaryOutputPort(_):
+      case .binaryInputPort, .binaryOutputPort:
         return true
       default:
         return false
@@ -63,7 +63,7 @@ open class Port: Reference, CustomStringConvertible {
 
   open var isTextualPort: Bool {
     switch self.kind {
-      case .textInputPort(_), .textOutputPort(_):
+      case .textInputPort, .textOutputPort:
         return true
       default:
         return false
@@ -72,7 +72,7 @@ open class Port: Reference, CustomStringConvertible {
 
   open var isInputPort: Bool {
     switch self.kind {
-      case .textInputPort(_), .binaryInputPort(_):
+      case .textInputPort, .binaryInputPort:
         return true
       default:
         return false
@@ -81,7 +81,7 @@ open class Port: Reference, CustomStringConvertible {
 
   open var isOutputPort: Bool {
     switch self.kind {
-      case .textOutputPort(_), .binaryOutputPort(_):
+      case .textOutputPort, .binaryOutputPort:
         return true
       default:
         return false

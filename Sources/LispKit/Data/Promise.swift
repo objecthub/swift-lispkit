@@ -89,13 +89,13 @@ public final class Promise: ManagedObject, CustomStringConvertible {
   /// cyclic references)
   public var isAtom: Bool {
     switch self.state {
-      case .lazy(_):
+      case .lazy:
         return true
       case .shared(let future):
         return future.isAtom
       case .value(let expr):
         return expr.isAtom
-      case .thrown(_):
+      case .thrown:
         return false
     }
   }
@@ -121,7 +121,7 @@ public final class Promise: ManagedObject, CustomStringConvertible {
           future.mark(tag)
         case .value(let expr):
           expr.mark(tag)
-        case .thrown(_):
+        case .thrown:
           // TODO: Figure out how to mark errors
           break
       }

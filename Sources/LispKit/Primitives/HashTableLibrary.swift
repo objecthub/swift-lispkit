@@ -228,7 +228,7 @@ public final class HashTableLibrary: NativeLibrary {
   }
 
   func isHashTable(_ expr: Expr) -> Expr {
-    guard case .table(_) = expr else {
+    guard case .table = expr else {
       return .false
     }
     return .true
@@ -347,7 +347,7 @@ public final class HashTableLibrary: NativeLibrary {
     guard map1.mutable else {
       throw RuntimeError.eval(.attemptToModifyImmutableData, .table(map1))
     }
-    guard case .custom(_) = map1.equiv else {
+    guard case .custom = map1.equiv else {
       guard map1.union(map2) else {
         preconditionFailure("trying to union mapping with immutable hash map")
       }
@@ -363,7 +363,7 @@ public final class HashTableLibrary: NativeLibrary {
     guard map1.mutable else {
       throw RuntimeError.eval(.attemptToModifyImmutableData, .table(map1))
     }
-    guard case .custom(_) = map1.equiv else {
+    guard case .custom = map1.equiv else {
       guard map1.difference(map2, intersect: true) else {
         preconditionFailure("trying to intersect mapping with immutable hash map")
       }
@@ -379,7 +379,7 @@ public final class HashTableLibrary: NativeLibrary {
     guard map1.mutable else {
       throw RuntimeError.eval(.attemptToModifyImmutableData, .table(map1))
     }
-    guard case .custom(_) = map1.equiv else {
+    guard case .custom = map1.equiv else {
       guard map1.difference(map2, intersect: false) else {
         preconditionFailure("trying to compute difference with immutable hash map")
       }
@@ -486,7 +486,7 @@ public final class HashTableLibrary: NativeLibrary {
   }
 
   func stringHashVal(_ expr: Expr) throws -> Expr {
-    guard case .string(_) = expr else {
+    guard case .string = expr else {
       throw RuntimeError.type(expr, expected: [.strType])
     }
     return .fixnum(Int64(expr.hashValue))
@@ -500,7 +500,7 @@ public final class HashTableLibrary: NativeLibrary {
   }
 
   func symbolHashVal(_ expr: Expr) throws -> Expr {
-    guard case .symbol(_) = expr else {
+    guard case .symbol = expr else {
       throw RuntimeError.type(expr, expected: [.symbolType])
     }
     return .fixnum(Int64(expr.hashValue))

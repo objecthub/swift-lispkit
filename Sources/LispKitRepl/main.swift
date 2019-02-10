@@ -251,7 +251,7 @@ if let program = flags.parameters.first {
     }
   } else {
     printResult(res)
-    if case .error(_) = res {
+    if case .error = res {
       exit(1)
     }
   }

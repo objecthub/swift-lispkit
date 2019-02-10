@@ -63,7 +63,7 @@ open class Library: Reference, Trackable, CustomStringConvertible {
 
     var isMutable: Bool {
       switch self {
-        case .mutable(_):
+        case .mutable:
           return true
         default:
           return false
@@ -126,7 +126,7 @@ open class Library: Reference, Trackable, CustomStringConvertible {
 
     var isMutable: Bool {
       switch self {
-        case .mutable(_):
+        case .mutable:
           return true
         default:
           return false
@@ -144,9 +144,9 @@ open class Library: Reference, Trackable, CustomStringConvertible {
 
     func located(at location: Int) -> InternalLocationRef {
       switch self {
-        case .mutable(_):
+        case .mutable:
           return .mutable(location)
-        case .immutable(_):
+        case .immutable:
           return .immutable(location)
       }
     }
@@ -400,7 +400,7 @@ open class Library: Reference, Trackable, CustomStringConvertible {
       // Check that all exported declarations are initialized
       var uninitializedExports: [Symbol] = []
       for (sym, lref) in self.exports {
-        if case .uninit(_) = self.context.heap.locations[lref.location] {
+        if case .uninit = self.context.heap.locations[lref.location] {
           uninitializedExports.append(sym)
         }
       }
@@ -423,7 +423,7 @@ open class Library: Reference, Trackable, CustomStringConvertible {
     var expr = name
     while case .pair(let comp, let next) = expr {
       switch comp {
-        case .fixnum(_), .symbol(_):
+        case .fixnum, .symbol:
           break
         default:
           throw RuntimeError.eval(.malformedLibraryName, name)

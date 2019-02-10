@@ -457,25 +457,25 @@ public enum Instruction: CustomStringConvertible {
   /// Provides supplemental information about this instruction in a given code context.
   public func comment(for code: Code, at ip: Int) -> String? {
     switch self {
-      case .pushGlobal(_):
+      case .pushGlobal:
         return nil
-      case .setGlobal(_):
+      case .setGlobal:
         return nil
-      case .defineGlobal(_):
+      case .defineGlobal:
         return nil
-      case .pushCaptured(_):
+      case .pushCaptured:
         return nil
-      case .pushCapturedValue(_):
+      case .pushCapturedValue:
         return nil
-      case .setCapturedValue(_):
+      case .setCapturedValue:
         return nil
-      case .pushLocal(_):
+      case .pushLocal:
         return nil
-      case .pushLocalValue(_):
+      case .pushLocalValue:
         return nil
-      case .setLocal(_):
+      case .setLocal:
         return nil
-      case .setLocalValue(_):
+      case .setLocalValue:
         return nil
       case .pushConstant(let index):
         return code.constants[index].description
@@ -483,16 +483,16 @@ public enum Instruction: CustomStringConvertible {
         return i >= 0 ? code.constants[i].description : (i == -2 ? "continuation" : nil)
       case .makeSyntax(let i):
         return i >= 0 ? code.constants[i].description : nil
-      case .makeVariableArgument(_):
+      case .makeVariableArgument:
         return nil
       case .pushChar(let char):
         var res = "'"
         res.append(Character(unicodeScalar(char)))
         res.append(Character("'"))
         return res
-      case .call(_):
+      case .call:
         return nil
-      case .tailCall(_):
+      case .tailCall:
         return nil
       case .branch(let offset):
         return "jump to \(ip + offset - 1)"

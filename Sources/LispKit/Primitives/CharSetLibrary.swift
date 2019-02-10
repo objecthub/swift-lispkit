@@ -283,9 +283,9 @@ public final class CharSetLibrary: NativeLibrary {
 
   private func coerceToCharSet(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .string(_):
+      case .string:
         return try self.stringToCharSet(expr, nil)
-      case .char(_):
+      case .char:
         return try self.listToCharSet(.pair(expr, .null), nil)
       case .object(let ref):
         guard ref is CharSet else {
@@ -374,7 +374,7 @@ public final class CharSetLibrary: NativeLibrary {
 
   private func charSetRef(_ expr: Expr, _ cursor: Expr) throws -> Expr {
     _ = try self.characterSet(expr)
-    guard case .char(_) = cursor else {
+    guard case .char = cursor else {
       throw RuntimeError.type(cursor, expected: [.charType])
     }
     return cursor
@@ -398,7 +398,7 @@ public final class CharSetLibrary: NativeLibrary {
     if cursor.isFalse {
       return .true
     }
-    guard case .char(_) = cursor else {
+    guard case .char = cursor else {
       throw RuntimeError.type(cursor, expected: [.charType])
     }
     return .false

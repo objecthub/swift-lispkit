@@ -123,7 +123,7 @@ public final class RecordLibrary: NativeLibrary {
     var numFields = 0
     var current = fields
     while case .pair(let sym, let next) = current {
-      guard case .symbol(_) = sym else {
+      guard case .symbol = sym else {
         throw RuntimeError.type(sym, expected: [.symbolType])
       }
       numFields += 1
@@ -165,7 +165,7 @@ public final class RecordLibrary: NativeLibrary {
         return .makeNumber(index)
       case .null:
         return .null
-      case .pair(_, _):
+      case .pair:
         var indices = Exprs()
         var current = name
         while case .pair(let sym, let next) = current {
@@ -224,7 +224,7 @@ public final class RecordLibrary: NativeLibrary {
 
   func recordSet(_ expr: Expr, index: Expr, value: Expr) throws -> Expr {
     let record = try expr.recordAsCollection()
-    guard case .record(_) = record.kind else {
+    guard case .record = record.kind else {
       throw RuntimeError.eval(.attemptToModifyImmutableData, expr)
     }
     switch index {
@@ -243,7 +243,7 @@ public final class RecordLibrary: NativeLibrary {
         guard value.isNull else {
           throw RuntimeError.eval(.fieldCountError, .makeNumber(0), value)
         }
-      case .pair(_, _):
+      case .pair:
         var allSimple = true
         var numFields = 0
         var currentIndex = index

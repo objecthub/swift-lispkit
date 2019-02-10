@@ -222,7 +222,7 @@ public final class ListLibrary: NativeLibrary {
   //---------MARK: - List predicates
 
   private func isPair(_ expr: Expr) -> Expr {
-    if case .pair(_, _) = expr {
+    if case .pair = expr {
       return .true
     }
     return .false

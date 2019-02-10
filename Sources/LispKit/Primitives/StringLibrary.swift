@@ -100,7 +100,7 @@ public final class StringLibrary: NativeLibrary {
   }
 
   func isString(_ expr: Expr) -> Expr {
-    if case .string(_) = expr {
+    if case .string = expr {
       return .true
     }
     return .false

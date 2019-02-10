@@ -75,7 +75,7 @@ public final class Definition: Reference, CustomStringConvertible {
         self.kind = .mutatedVariable
       case .mutatedVariable:
         break
-      case .macro(_):
+      case .macro:
         preconditionFailure("cannot declare macro mutable")
     }
   }
@@ -178,7 +178,7 @@ public final class BindingGroup: Reference, CustomStringConvertible {
     env = .local(self)
     while case .local(let group) = env {
       for (sym, bind) in group.bindings {
-        if case .macro(_) = bind.kind , macroGroup.bindingFor(sym) == nil {
+        if case .macro = bind.kind , macroGroup.bindingFor(sym) == nil {
           macroGroup.bindings[sym] = bind
         }
       }

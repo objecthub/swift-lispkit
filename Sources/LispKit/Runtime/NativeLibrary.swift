@@ -136,9 +136,9 @@ open class NativeLibrary: Library {
     for (sym, internalName) in lib.exportDecls {
       if self.exportDecls[sym] == nil && sym.identifier.first != Character("_") {
         switch internalName {
-          case .mutable(_):
+          case .mutable:
             self.exportDecls[sym] = .mutable(sym)
-          case .immutable(_):
+          case .immutable:
             self.exportDecls[sym] = .immutable(sym)
         }
       }

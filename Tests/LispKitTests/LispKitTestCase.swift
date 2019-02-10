@@ -148,7 +148,7 @@ open class LispKitTestCase: XCTestCase {
       }
       print("computed: \(res)")
       if case .symbol(let sym) = test.target, sym.rawIdentifier == "<error>" {
-        if case .error(_) = res {
+        if case .error = res {
           // expected error
         } else {
           XCTFail("🛑 \(test.description)")

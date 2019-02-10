@@ -207,7 +207,7 @@ public final class MathLibrary: NativeLibrary {
 
   private func isNumber(_ expr: Expr) -> Expr {
     switch expr {
-      case .fixnum(_), .bignum(_), .rational(_), .flonum(_), .complex(_):
+      case .fixnum, .bignum, .rational, .flonum, .complex:
         return .true
       default:
         return .false
@@ -216,7 +216,7 @@ public final class MathLibrary: NativeLibrary {
 
   private func isComplex(_ expr: Expr) -> Expr {
     switch expr {
-      case .fixnum(_), .bignum(_), .rational(_), .flonum(_), .complex(_):
+      case .fixnum, .bignum, .rational, .flonum, .complex:
         return .true
       default:
         return .false
@@ -225,7 +225,7 @@ public final class MathLibrary: NativeLibrary {
 
   private func isReal(_ expr: Expr) -> Expr {
     switch expr {
-      case .fixnum(_), .bignum(_), .rational(_), .flonum(_):
+      case .fixnum, .bignum, .rational, .flonum:
         return .true
       case .complex(let num):
         return .makeBoolean(num.value.isReal)
@@ -236,7 +236,7 @@ public final class MathLibrary: NativeLibrary {
 
   private func isInteger(_ expr: Expr) -> Expr {
     switch expr {
-      case .fixnum(_), .bignum(_):
+      case .fixnum, .bignum:
         return .true
       case .rational(_, .fixnum(let d)):
         return .makeBoolean(d == 1)
@@ -251,7 +251,7 @@ public final class MathLibrary: NativeLibrary {
 
   private func isRational(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .fixnum(_), .bignum(_), .rational(_):
+      case .fixnum, .bignum, .rational:
         return .true
       case .flonum(let num):
         return .makeBoolean(!num.isInfinite && !num.isNaN)
@@ -265,7 +265,7 @@ public final class MathLibrary: NativeLibrary {
 
   private func isFixnum(_ expr: Expr) -> Expr {
     switch expr {
-      case .fixnum(_):
+      case .fixnum:
         return .true
       default:
         return .false
@@ -274,7 +274,7 @@ public final class MathLibrary: NativeLibrary {
 
   private func isRatnum(_ expr: Expr) -> Expr {
     switch expr {
-      case .rational(_):
+      case .rational:
         return .true
       default:
         return .false
@@ -283,7 +283,7 @@ public final class MathLibrary: NativeLibrary {
 
   private func isBignum(_ expr: Expr) -> Expr {
     switch expr {
-      case .bignum(_):
+      case .bignum:
         return .true
       default:
         return .false
@@ -292,7 +292,7 @@ public final class MathLibrary: NativeLibrary {
 
   private func isFlonum(_ expr: Expr) -> Expr {
     switch expr {
-      case .flonum(_):
+      case .flonum:
         return .true
       default:
         return .false
@@ -301,7 +301,7 @@ public final class MathLibrary: NativeLibrary {
 
   private func isCflonum(_ expr: Expr) -> Expr {
     switch expr {
-      case .complex(_):
+      case .complex:
         return .true
       default:
         return .false
@@ -310,7 +310,7 @@ public final class MathLibrary: NativeLibrary {
 
   private func isExact(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .fixnum(_), .bignum(_), .rational(_):
+      case .fixnum, .bignum, .rational:
         return .true
       default:
         return .false
@@ -319,7 +319,7 @@ public final class MathLibrary: NativeLibrary {
 
   private func isInexact(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .flonum(_), .complex(_):
+      case .flonum, .complex:
         return .true
       default:
         return .false
@@ -328,7 +328,7 @@ public final class MathLibrary: NativeLibrary {
 
   private func isExactInteger(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .fixnum(_), .bignum(_):
+      case .fixnum, .bignum:
         return .true
       case .rational(_, .fixnum(let d)):
         return .makeBoolean(d == 1)
@@ -474,7 +474,7 @@ public final class MathLibrary: NativeLibrary {
         return .makeNumber(Double(n) / Double(d))
       case .rational(.bignum(let n), .bignum(let d)):
         return .makeNumber(n.doubleValue / d.doubleValue)
-      case .flonum(_), .complex(_):
+      case .flonum, .complex:
         return expr
       default:
         throw RuntimeError.type(expr, expected: [.numberType])
@@ -483,7 +483,7 @@ public final class MathLibrary: NativeLibrary {
 
   private func exact(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .fixnum(_), .bignum(_), .rational(_):
+      case .fixnum, .bignum, .rational:
         return expr
       case .flonum(let num):
         return MathLibrary.approximateNumber(num)
@@ -534,7 +534,7 @@ public final class MathLibrary: NativeLibrary {
 
   private func floor(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .fixnum(_), .bignum(_):
+      case .fixnum, .bignum:
         return expr
       case .rational(.fixnum(let n), .fixnum(let d)):
         return .makeNumber(Int64(Foundation.floor(Double(n) / Double(d))))
@@ -549,7 +549,7 @@ public final class MathLibrary: NativeLibrary {
 
   private func ceiling(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .fixnum(_), .bignum(_):
+      case .fixnum, .bignum:
         return expr
       case .rational(.fixnum(let n), .fixnum(let d)):
         return .makeNumber(Int64(Foundation.ceil(Double(n) / Double(d))))
@@ -564,7 +564,7 @@ public final class MathLibrary: NativeLibrary {
 
   private func truncate(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .fixnum(_), .bignum(_):
+      case .fixnum, .bignum:
         return expr
       case .rational(.fixnum(let n), .fixnum(let d)):
         return .makeNumber(Int64(Foundation.trunc(Double(n) / Double(d))))
@@ -579,7 +579,7 @@ public final class MathLibrary: NativeLibrary {
 
   private func round(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .fixnum(_), .bignum(_):
+      case .fixnum, .bignum:
         return expr
       case .rational(.fixnum(let n), .fixnum(let d)):
         return .makeNumber(Int64(Foundation.round(Double(n) / Double(d))))
@@ -882,7 +882,7 @@ public final class MathLibrary: NativeLibrary {
 
   private func sqrt(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .fixnum(_), .bignum(_), .rational(_), .flonum(_):
+      case .fixnum, .bignum, .rational, .flonum:
         let dbl = try expr.asDouble(coerce: true)
         let res = Foundation.sqrt(dbl)
         return res.isNaN ? .makeNumber(Complex(dbl).sqrt) : .makeNumber(res)
@@ -946,7 +946,7 @@ public final class MathLibrary: NativeLibrary {
 
   private func exp(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .fixnum(_), .bignum(_), .rational(_), .flonum(_):
+      case .fixnum, .bignum, .rational, .flonum:
         let dbl = try expr.asDouble(coerce: true)
         let res = Foundation.exp(dbl)
         return res.isNaN ? .makeNumber(Complex(dbl).exp) : .makeNumber(res)
@@ -959,7 +959,7 @@ public final class MathLibrary: NativeLibrary {
 
   private func logNat(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .fixnum(_), .bignum(_), .rational(_), .flonum(_):
+      case .fixnum, .bignum, .rational, .flonum:
         let dbl = try expr.asDouble(coerce: true)
         let res = Foundation.log(dbl)
         return res.isNaN ? .makeNumber(Complex(dbl).log) : .makeNumber(res)
@@ -1163,7 +1163,7 @@ public final class MathLibrary: NativeLibrary {
 
   private func numerator(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .fixnum(_), .bignum(_):
+      case .fixnum, .bignum:
         return expr
       case .rational(let numerator, _):
         return numerator
@@ -1176,7 +1176,7 @@ public final class MathLibrary: NativeLibrary {
 
   private func denominator(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .fixnum(_), .bignum(_):
+      case .fixnum, .bignum:
         return .fixnum(1)
       case .rational(_, let denominator):
         return denominator
@@ -1762,7 +1762,7 @@ public final class MathLibrary: NativeLibrary {
 
   private func integerToFx(_ expr: Expr) throws -> Expr {
     switch expr {
-    case .fixnum(_):
+    case .fixnum:
       return expr
     case .bignum(let num):
       return .fixnum((num % MathLibrary.maxFx).intValue!)

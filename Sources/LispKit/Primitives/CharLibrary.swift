@@ -54,7 +54,7 @@ public final class CharLibrary: NativeLibrary {
   }
 
   func isChar(_ expr: Expr) -> Expr {
-    if case .char(_) = expr {
+    if case .char = expr {
       return .true
     }
     return .false

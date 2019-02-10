@@ -714,10 +714,10 @@ public final class SystemLibrary: NativeLibrary {
     switch timezone {
       case .pair(let tzid, let rest):
         switch tzid {
-          case .fixnum(_), .string(_):
+          case .fixnum, .string:
             if let res = self.getTimeZone(tzid) {
               return res
-            } else if case .pair(_, _) = rest {
+            } else if case .pair = rest {
               return self.getTimeZone(rest)
             } else {
               return nil

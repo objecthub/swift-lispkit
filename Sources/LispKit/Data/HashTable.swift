@@ -105,7 +105,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
   /// hash tables.
   public func rehash(_ capacity: Int) {
     // Skip custom hash tables
-    if case .custom(_) = self.equiv {
+    if case .custom = self.equiv {
       return
     }
     // Save old bucket array
@@ -291,7 +291,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
         return eqvExpr(right, left)
       case .equal:
         return equalExpr(right, left)
-      case .custom(_):
+      case .custom:
         preconditionFailure("cannot access custom HashTable internally")
     }
   }
@@ -305,7 +305,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
         return eqvHash(expr)
       case .equal:
         return equalHash(expr)
-      case .custom(_):
+      case .custom:
         preconditionFailure("cannot access custom HashTable internally")
     }
   }

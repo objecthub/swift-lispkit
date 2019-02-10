@@ -844,7 +844,7 @@ public final class DrawingLibrary: NativeLibrary {
         skip = false
       } else if first {
         switch arg {
-          case .null, .pair(.pair(.flonum(_), .flonum(_)), _):
+          case .null, .pair(.pair(.flonum, .flonum), _):
             res = arg
           default:
             res = .pair(arg, .null)
@@ -1252,7 +1252,7 @@ public final class DrawingLibrary: NativeLibrary {
   // Fonts/points/sizes/rects
 
   private func isPoint(expr: Expr) throws -> Expr {
-    guard case .pair(.flonum(_), .flonum(_)) = expr else {
+    guard case .pair(.flonum, .flonum) = expr else {
       return .false
     }
     return .true
@@ -1265,14 +1265,14 @@ public final class DrawingLibrary: NativeLibrary {
   }
 
   private func pointX(expr: Expr) throws -> Expr {
-    guard case .pair(.flonum(let x), .flonum(_)) = expr else {
+    guard case .pair(.flonum(let x), .flonum) = expr else {
       throw RuntimeError.eval(.invalidPoint, expr)
     }
     return .flonum(x)
   }
 
   private func pointY(expr: Expr) throws -> Expr {
-    guard case .pair(.flonum(_), .flonum(let y)) = expr else {
+    guard case .pair(.flonum, .flonum(let y)) = expr else {
       throw RuntimeError.eval(.invalidPoint, expr)
     }
     return .flonum(y)
@@ -1287,7 +1287,7 @@ public final class DrawingLibrary: NativeLibrary {
   }
 
   private func isSize(expr: Expr) throws -> Expr {
-    guard case .pair(.flonum(_), .flonum(_)) = expr else {
+    guard case .pair(.flonum, .flonum) = expr else {
       return .false
     }
     return .true
@@ -1300,21 +1300,21 @@ public final class DrawingLibrary: NativeLibrary {
   }
 
   private func sizeWidth(expr: Expr) throws -> Expr {
-    guard case .pair(.flonum(let w), .flonum(_)) = expr else {
+    guard case .pair(.flonum(let w), .flonum) = expr else {
       throw RuntimeError.eval(.invalidSize, expr)
     }
     return .flonum(w)
   }
 
   private func sizeHeight(expr: Expr) throws -> Expr {
-    guard case .pair(.flonum(_), .flonum(let h)) = expr else {
+    guard case .pair(.flonum, .flonum(let h)) = expr else {
       throw RuntimeError.eval(.invalidSize, expr)
     }
     return .flonum(h)
   }
 
   private func isRect(expr: Expr) throws -> Expr {
-    guard case .pair(.pair(.flonum(_), .flonum(_)), .pair(.flonum(_), .flonum(_))) = expr else {
+    guard case .pair(.pair(.flonum, .flonum), .pair(.flonum, .flonum)) = expr else {
       return .false
     }
     return .true
@@ -1343,48 +1343,48 @@ public final class DrawingLibrary: NativeLibrary {
   }
 
   private func rectPoint(expr: Expr) throws -> Expr {
-    guard case .pair(let point, .pair(.flonum(_), .flonum(_))) = expr else {
+    guard case .pair(let point, .pair(.flonum, .flonum)) = expr else {
       throw RuntimeError.eval(.invalidRect, expr)
     }
-    guard case .pair(.flonum(_), .flonum(_)) = point else {
+    guard case .pair(.flonum, .flonum) = point else {
       throw RuntimeError.eval(.invalidRect, expr)
     }
     return point
   }
 
   private func rectX(expr: Expr) throws -> Expr {
-    guard case .pair(.pair(.flonum(let x), .flonum(_)), .pair(.flonum(_), .flonum(_))) = expr else {
+    guard case .pair(.pair(.flonum(let x), .flonum), .pair(.flonum, .flonum)) = expr else {
       throw RuntimeError.eval(.invalidRect, expr)
     }
     return .flonum(x)
   }
 
   private func rectY(expr: Expr) throws -> Expr {
-    guard case .pair(.pair(.flonum(_), .flonum(let y)), .pair(.flonum(_), .flonum(_))) = expr else {
+    guard case .pair(.pair(.flonum, .flonum(let y)), .pair(.flonum, .flonum)) = expr else {
       throw RuntimeError.eval(.invalidRect, expr)
     }
     return .flonum(y)
   }
 
   private func rectSize(expr: Expr) throws -> Expr {
-    guard case .pair(.pair(.flonum(_), .flonum(_)), let size) = expr else {
+    guard case .pair(.pair(.flonum, .flonum), let size) = expr else {
       throw RuntimeError.eval(.invalidRect, expr)
     }
-    guard case .pair(.flonum(_), .flonum(_)) = size else {
+    guard case .pair(.flonum, .flonum) = size else {
       throw RuntimeError.eval(.invalidRect, expr)
     }
     return size
   }
 
   private func rectWidth(expr: Expr) throws -> Expr {
-    guard case .pair(.pair(.flonum(_), .flonum(_)), .pair(.flonum(let w), .flonum(_))) = expr else {
+    guard case .pair(.pair(.flonum, .flonum), .pair(.flonum(let w), .flonum)) = expr else {
       throw RuntimeError.eval(.invalidRect, expr)
     }
     return .flonum(w)
   }
 
   private func rectHeight(expr: Expr) throws -> Expr {
-    guard case .pair(.pair(.flonum(_), .flonum(_)), .pair(.flonum(_), .flonum(let h))) = expr else {
+    guard case .pair(.pair(.flonum, .flonum), .pair(.flonum, .flonum(let h))) = expr else {
       throw RuntimeError.eval(.invalidRect, expr)
     }
     return .flonum(h)

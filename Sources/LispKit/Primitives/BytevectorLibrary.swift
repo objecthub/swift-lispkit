@@ -51,7 +51,7 @@ public final class BytevectorLibrary: NativeLibrary {
 
   func isBytevector(_ expr: Expr) -> Expr {
     switch expr {
-      case .bytes(_):
+      case .bytes:
         return .true
       default:
         return .false

@@ -40,7 +40,7 @@ public func equalHash(_ expr: Expr, into hasher: inout Hasher) {
   func hash(_ expr: Expr) {
     switch expr.normalized {
       case .undef,
-           .uninit(_):
+           .uninit:
         hasher.combine(0)
       case .void:
         hasher.combine(1)
@@ -193,7 +193,7 @@ public func eqvHash(_ expr: Expr) -> Int {
 public func eqvHash(_ expr: Expr, into hasher: inout Hasher) {
   switch expr.normalized {
     case .undef,
-         .uninit(_):
+         .uninit:
       hasher.combine(0)
     case .void:
       hasher.combine(1)
@@ -299,7 +299,7 @@ public func eqHash(_ expr: Expr) -> Int {
 public func eqHash(_ expr: Expr, into hasher: inout Hasher) {
   switch expr.normalized {
     case .undef,
-         .uninit(_):
+         .uninit:
       hasher.combine(0)
     case .void:
       hasher.combine(1)

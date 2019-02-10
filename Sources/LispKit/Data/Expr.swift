@@ -62,7 +62,7 @@ public enum Expr: Trackable, Hashable {
   /// Returns the type of this expression.
   public var type: Type {
     switch self {
-      case .undef, .uninit(_):
+      case .undef, .uninit:
         return .undefinedType
       case .void:
         return .voidType
@@ -74,49 +74,49 @@ public enum Expr: Trackable, Hashable {
         return .booleanType
       case .false:
         return .booleanType
-      case .symbol(_):
+      case .symbol:
         return .symbolType
-      case .fixnum(_):
+      case .fixnum:
         return .exactIntegerType
-      case .bignum(_):
+      case .bignum:
         return .exactIntegerType
-      case .rational(_):
+      case .rational:
         return .rationalType
       case .flonum(let num):
         return Foundation.trunc(num) == num ? .integerType : .floatType
-      case .complex(_):
+      case .complex:
         return .complexType
-      case .char(_):
+      case .char:
         return .charType
-      case .string(_):
+      case .string:
         return .strType
-      case .bytes(_):
+      case .bytes:
         return .byteVectorType
-      case .pair(_, _):
+      case .pair:
         return .pairType
-      case .box(_):
+      case .box:
         return .boxType
-      case .mpair(_):
+      case .mpair:
         return .mpairType
-      case .array(_):
+      case .array:
         return .arrayType
       case .vector(let vec):
         return vec.isGrowableVector ? .gvectorType : .vectorType
-      case .record(_):
+      case .record:
         return .recordType
-      case .table(_):
+      case .table:
         return .tableType
       case .promise(let future):
         return future.isStream ? .streamType : .promiseType
-      case .values(_):
+      case .values:
         return .valuesType
-      case .procedure(_):
+      case .procedure:
         return .procedureType
-      case .special(_):
+      case .special:
         return .specialType
-      case .env(_):
+      case .env:
         return .envType
-      case .port(_):
+      case .port:
         return .portType
       case .object(let obj):
         if obj is Drawing {
@@ -138,11 +138,11 @@ public enum Expr: Trackable, Hashable {
         } else {
           return .objectType
         }
-      case .tagged(_, _):
+      case .tagged:
         return .taggedType
-      case .error(_):
+      case .error:
         return .errorType
-      case .syntax(_, _):
+      case .syntax:
         return .syntaxType
     }
   }
@@ -202,7 +202,7 @@ public enum Expr: Trackable, Hashable {
   /// Returns true if this is an exact number.
   public var isExactNumber: Bool {
     switch self {
-      case .fixnum(_), .bignum(_), .rational(_):
+      case .fixnum, .bignum, .rational:
         return true
       default:
         return false
@@ -212,7 +212,7 @@ public enum Expr: Trackable, Hashable {
   /// Returns true if this is an inexact number.
   public var isInexactNumber: Bool {
     switch self {
-      case .flonum(_), .complex(_):
+      case .flonum, .complex:
         return true
       default:
         return false
@@ -291,7 +291,7 @@ public enum Expr: Trackable, Hashable {
     switch self {
       case .pair(let car, let cdr):
         return .syntax(pos, .pair(car.at(pos: pos), cdr.at(pos: pos)))
-      case .syntax(_, _):
+      case .syntax:
         return self
       default:
         return .syntax(pos, self)
@@ -324,9 +324,9 @@ public enum Expr: Trackable, Hashable {
   /// indirectly.
   public var isAtom: Bool {
     switch self {
-      case .undef, .void, .eof, .null, .true, .false, .uninit(_), .symbol(_),
-           .fixnum(_), .bignum(_), .rational(_, _), .flonum(_), .complex(_),
-           .char(_), .string(_), .bytes(_), .env(_), .port(_), .object(_):
+      case .undef, .void, .eof, .null, .true, .false, .uninit, .symbol,
+           .fixnum, .bignum, .rational, .flonum, .complex,
+           .char, .string, .bytes, .env, .port, .object:
         return true
       default:
         return false
@@ -339,16 +339,16 @@ public enum Expr: Trackable, Hashable {
         return car.requiresTracking || cdr.requiresTracking
       case .syntax(_, let expr):
         return expr.requiresTracking
-      case .box(_),
-           .mpair(_),
-           .array(_),
-           .vector(_),
-           .record(_),
-           .table(_),
-           .promise(_),
-           .procedure(_),
-           .special(_),
-           .error(_):
+      case .box,
+           .mpair,
+           .array,
+           .vector,
+           .record,
+           .table,
+           .promise,
+           .procedure,
+           .special,
+           .error:
         return true
       default:
         return false
@@ -956,7 +956,7 @@ extension Expr: CustomStringConvertible {
                 enclObjs.remove(proc)
                 return fixString(proc, res)
               }
-            case .rawContinuation(_):
+            case .rawContinuation:
               return "#<raw-continuation \(proc.name)>"
             case .closure(.continuation, _, _):
               return "#<continuation \(proc.name)>"
