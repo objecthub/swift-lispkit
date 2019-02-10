@@ -33,7 +33,7 @@ import Compression
 
 /// Extensions providing compression and decompression functionality.
 public extension Data {
-  
+
   /// Returns a new `Data` object containing the same data compressed via zlib's deflate
   /// algorithm fixed at compression level 5.
   public func deflate() -> Data? {
@@ -44,7 +44,7 @@ public extension Data {
                           count: count)
     }
   }
-  
+
   /// Returns a new `Data` object containing the decompressed data of this object, which is
   /// assumed to be a raw deflate stream. Decompression is done using the zlib's deflate
   /// algorithm.
@@ -56,7 +56,7 @@ public extension Data {
                           count: count)
     }
   }
-  
+
   /// Returns a new `Data` object containing the same data compressed via zlib's deflate
   /// algorithm fixed at compression level 5. This method is packaging up the raw deflate
   /// stream in zip format.
@@ -70,7 +70,7 @@ public extension Data {
     res.append(Data(bytes: &crc, count: MemoryLayout<UInt32>.size))
     return res
   }
-  
+
   /// Returns a new `Data` object containing the decompressed data of this object, which is
   /// assumed to be a raw deflate stream in zip format. Decompression is done using the zlib's
   /// deflate algorithm.
@@ -108,7 +108,7 @@ public extension Data {
       return cksum == inflated.adler32Checksum() ? inflated : nil
     }
   }
-  
+
   /// Handles all low level compression and decompression operations.
   private static func process(operation: compression_stream_operation,
                               algorithm: compression_algorithm,
@@ -157,7 +157,7 @@ public extension Data {
       }
     }
   }
-  
+
   private func adler32Checksum() -> UInt32 {
     let modAdler: UInt32 = 65521
     var a: UInt32 = 1

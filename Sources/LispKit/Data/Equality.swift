@@ -27,17 +27,17 @@ import NumberKit
 struct Equality: Hashable {
   let ref1: Reference
   let ref2: Reference
-  
+
   init(_ ref1: Reference, _ ref2: Reference) {
     self.ref1 = ref1
     self.ref2 = ref2
   }
-  
+
   func hash(into hasher: inout Hasher) {
     let value: Int = ObjectIdentifier(ref1).hashValue ^ ObjectIdentifier(ref2).hashValue
     hasher.combine(value)
   }
-  
+
   static func ==(lhs: Equality, rhs: Equality) -> Bool {
     return lhs.ref1 == rhs.ref1 && lhs.ref2 == rhs.ref2 ||
            lhs.ref1 == rhs.ref2 && lhs.ref2 == rhs.ref1
@@ -46,7 +46,7 @@ struct Equality: Hashable {
 
 public func equalExpr(_ this: Expr, _ that: Expr) -> Bool {
   var equalities = Set<Equality>()
-  
+
   func equals(_ lhs: Expr, _ rhs: Expr) -> Bool {
     switch (lhs.normalized, rhs.normalized) {
       case (.undef, .undef),
@@ -230,7 +230,7 @@ public func equalExpr(_ this: Expr, _ that: Expr) -> Bool {
         return false
     }
   }
-  
+
   return equals(this, that)
 }
 
@@ -390,7 +390,7 @@ enum NumberPair {
   case bigRationalPair(Rational<BigInt>, Rational<BigInt>)
   case flonumPair(Double, Double)
   case complexPair(Complex<Double>, Complex<Double>)
-  
+
   init(_ fst: Expr, _ snd: Expr) throws {
     guard let res = NumberPair(fst, and: snd) else {
       try snd.assertType(.numberType)
@@ -399,7 +399,7 @@ enum NumberPair {
     }
     self = res
   }
-  
+
   init?(_ fst: Expr, and snd: Expr) {
     switch (fst, snd) {
       case (.fixnum(let lhs), .fixnum(let rhs)):

@@ -27,7 +27,7 @@
 public final class SymbolTable: Sequence {
   private var symTable = [String : Symbol]()
   private var gensymCounter: UInt64 = 0
-  
+
   public let undef           = Symbol("<undef>")
   public let ellipsis        = Symbol("...")
   public let wildcard        = Symbol("_")
@@ -71,7 +71,7 @@ public final class SymbolTable: Sequence {
   public let starOne         = Symbol("*1")
   public let starTwo         = Symbol("*2")
   public let starThree       = Symbol("*3")
-  
+
   public init() {
     func register(_ sym: Symbol) {
       self.symTable[sym.identifier] = sym
@@ -120,11 +120,11 @@ public final class SymbolTable: Sequence {
     register(self.starTwo)
     register(self.starThree)
   }
-  
+
   public func exists(_ ident: String) -> Bool {
     return self.symTable[ident] != nil
   }
-  
+
   public func intern(_ ident: String) -> Symbol {
     if let sym = self.symTable[ident] {
       return sym
@@ -134,7 +134,7 @@ public final class SymbolTable: Sequence {
       return sym
     }
   }
-  
+
   public func gensym(_ basename: String) -> Symbol {
     var ident: String
     repeat {
@@ -143,11 +143,11 @@ public final class SymbolTable: Sequence {
     } while self.exists(ident)
     return self.intern(ident)
   }
-  
+
   public func prefix(_ sym: Symbol, with prefix: Symbol) -> Symbol {
     return self.intern(prefix.identifier + sym.identifier)
   }
-  
+
   /// Returns a generator for iterating over all symbols of this symbol table.
   public func makeIterator() -> AnyIterator<Symbol> {
     var generator = self.symTable.values.makeIterator()

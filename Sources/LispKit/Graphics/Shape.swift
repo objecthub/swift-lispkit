@@ -51,31 +51,31 @@ import CoreGraphics
 /// each other.
 ///
 public final class Shape: Reference {
-  
+
   /// The prototype of this shape.
   public let prototype: ShapePrototype
-  
+
   /// The constructors refining the prototype.
   public private(set) var constructors: [ShapeConstructor]
-  
+
   /// If this shape is drawn in a graphics context with a flipped coordinate system and
   /// the construction of the shape does not consider this, then setting `flipped` to
   /// true will automatically flip the shape vertically. This is, in particular, important
   /// for the inclusion of glypths which are otherwise mirrored vertically.
   public let flipped: Bool
-  
+
   /// If a shape is defined as a closed shape, then the start and end point are the same;
   /// e.g. in this case, it will be drawn as a closed polygon.
   public let closed: Bool
-  
+
   /// This is the internally generated `NSBezierPath` object. This is a cache only and gets
   /// reset whenever a shape gets changed directly or indirectly.
   private var bezierPath: NSBezierPath?
-  
+
   /// Other `Shape` objects in which this shape is included. Dependency management is
   /// necessary to refresh dependent shapes whenever this shape changes.
   private var owners: Owners<Shape>
-  
+
   /// Initializer copying another shape.
   public init(copy shape: Shape) {
     self.prototype = shape.prototype
@@ -96,7 +96,7 @@ public final class Shape: Reference {
         break
     }
   }
-  
+
   /// Initializer of a shape. `Shape` objects are initialized with a prototype, and optionally,
   /// information on whether this shape is a closed and flipped shape.
   public init(_ prototype: ShapePrototype = ShapePrototype.none,
@@ -120,17 +120,17 @@ public final class Shape: Reference {
         break
     }
   }
-  
+
   /// Name of this reference type
   public override var typeDescription: String {
     return "shape"
   }
-  
+
   /// Returns true if there are no shape constructors yet
   public var isEmpty: Bool {
     return self.constructors.isEmpty
   }
-  
+
   /// Appends a new shape constructor to this shape. This method returns true if it was
   /// possible to include the constructor. On rare occasions, this is not possible. For
   /// instance, it is not possible to define mutually dependent shapes. It is guaranteed
@@ -147,7 +147,7 @@ public final class Shape: Reference {
     self.constructors.append(constructor)
     return true
   }
-  
+
   /// Checks if this shape depends on the given shape.
   public func includes(_ shape: Shape) -> Bool {
     guard self !== shape else {
@@ -171,12 +171,12 @@ public final class Shape: Reference {
     }
     return false
   }
-  
+
   /// Returns true if the given point is contained in this shape.
   public func contains(_ point: NSPoint) -> Bool {
     return self.compile().contains(point)
   }
-  
+
   /// Draws this shape as a stroke with the given line width into the current graphics context.
   /// This method uses the current stroke color of the drawing.
   public func stroke(lineWidth: Double = 1.0) {
@@ -185,7 +185,7 @@ public final class Shape: Reference {
     path.setLineDash(nil, count: 0, phase: 0.0)
     path.stroke()
   }
-  
+
   /// Draws this shape as a dashed stroke with the given line width, dash phase, and dash lengths
   /// into the current graphics context. This method uses the current stroke color of the
   /// drawing.
@@ -203,17 +203,17 @@ public final class Shape: Reference {
                      phase: CGFloat(lineDashPhase))
     path.stroke()
   }
-  
+
   /// Fills this shape in the current graphics context with the current fill color.
   public func fill() {
     self.compile().fill()
   }
-  
+
   /// Returns a bounding box for this shape.
   public var bounds: NSRect {
     return self.compile().bounds
   }
-  
+
   /// Internal method for computing the `NSBezierPath` object from the shape definition.
   func compile() -> NSBezierPath {
     if let bezierPath = self.bezierPath {
@@ -222,7 +222,7 @@ public final class Shape: Reference {
     self.bezierPath = self.compileNew()
     return self.bezierPath!
   }
-  
+
   func compileNew() -> NSBezierPath {
     let bezierPath = self.prototype.compile()
     for constructor in self.constructors {
@@ -240,7 +240,7 @@ public final class Shape: Reference {
     }
     return bezierPath
   }
-  
+
   /// Internal method for invalidating the cached `NSBezierPath` object of this shape and all
   /// shapes that depend on it either directly or indirectly.
   func markDirty() {
@@ -289,7 +289,7 @@ public enum ShapePrototype {
   case transformed(Shape, Transformation)
   case flipped(Shape, NSRect?, vertical: Bool, horizontal: Bool)
   case flattened(Shape)
-  
+
   func compile() -> NSBezierPath {
     switch self {
       case .none:
@@ -381,7 +381,7 @@ public enum ShapePrototype {
 public enum InterpolationMethod {
   case catmullRom(closed: Bool, alpha: Double)
   case hermite(closed: Bool, alpha: Double)
-  
+
   func compile(_ points: [NSPoint]) -> NSBezierPath {
     switch self {
       case .catmullRom(let closed, let alpha):
@@ -390,7 +390,7 @@ public enum InterpolationMethod {
         return self.hermite(points: points, closed: closed, alpha: CGFloat(alpha))! // FIXME
     }
   }
-  
+
   func hermite(points: [NSPoint],
                closed: Bool,
                alpha: CGFloat = 1.0 / 3.0) -> NSBezierPath? {
@@ -422,7 +422,7 @@ public enum InterpolationMethod {
     }
     return path
   }
-  
+
   func catmullRom(points: [NSPoint],
                   closed: Bool,
                   alpha: CGFloat = 1.0 / 3.0) -> NSBezierPath? {
@@ -477,23 +477,23 @@ public enum InterpolationMethod {
     }
     return path
   }
-  
+
   private func pointLength(_ v: NSPoint) -> CGFloat {
     return (v.x * v.x + v.y * v.y).squareRoot()
   }
-  
+
   private func pointAdd(_ v1: NSPoint, _ v2: NSPoint) -> NSPoint {
     return NSPoint(x: v1.x + v2.x, y: v1.y + v2.y)
   }
-  
+
   private func pointSub(_ v1: NSPoint, _ v2: NSPoint) -> NSPoint {
     return NSPoint(x: v1.x - v2.x, y: v1.y - v2.y)
   }
-  
+
   private func pointMult(_ v: NSPoint, _ s: CGFloat) -> NSPoint {
     return NSPoint(x: v.x * CGFloat(s), y: v.y * CGFloat(s))
   }
-  
+
   public static let epsilon: CGFloat = 1.0e-5
 }
 
@@ -521,7 +521,7 @@ public enum ShapeConstructor {
   case relativeLine(to: NSPoint)
   case relativeCurve(to: NSPoint, controlCurrent: NSPoint, controlTarget: NSPoint)
   case include(Shape)
-  
+
   func compile(into path: NSBezierPath) {
     switch self {
       case .move(let point):

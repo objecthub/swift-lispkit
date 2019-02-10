@@ -30,7 +30,7 @@ public enum SyntaxError: Int, Hashable {
   case unexpectedDot
   case notAByteValue
   case syntaxNotYetSupported
-  
+
   public var message: String {
     switch self {
       case .empty:
@@ -47,7 +47,7 @@ public enum SyntaxError: Int, Hashable {
         return "syntax not yet supported"
     }
   }
-  
+
   public static func ==(_ lhs: SyntaxError, _ rhs: SyntaxError) -> Bool {
     return lhs.rawValue == rhs.rawValue
   }

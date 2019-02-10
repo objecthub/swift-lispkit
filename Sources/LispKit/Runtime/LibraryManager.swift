@@ -24,15 +24,15 @@ import Foundation
 /// Class `LibraryManager` manages libraries that are loaded into a LispKit context. This
 /// component doesn't need to be a `TrackedObject` because it only stores expressions
 /// consisting of pairs, symbols, and integers.
-/// 
+///
 public final class LibraryManager: TrackedObject, CustomStringConvertible {
 
   /// The owner of this library manager.
   private unowned let context: Context
-  
+
   /// Table of loaded libraries
   private var libraries: [Expr : Library]
-  
+
   /// Set of unknown libraries
   private var unknownLibraries: Set<Expr>
 
@@ -42,17 +42,17 @@ public final class LibraryManager: TrackedObject, CustomStringConvertible {
     self.libraries = [:]
     self.unknownLibraries = []
   }
-  
+
   /// Returns the libraries loaded by this library manager.
   public var loaded: AnySequence<Library> {
     return AnySequence(self.libraries.values)
   }
-  
+
   /// Returns the libraries loaded by this library manager.
   public var loadedLibraryNames: AnySequence<Expr> {
     return AnySequence(self.libraries.keys)
   }
-  
+
   /// Returns the library loaded by this library manager with the given name.
   public func lookup(_ name: Expr) throws -> Library? {
     guard let library = self.libraries[name] else {
@@ -61,17 +61,17 @@ public final class LibraryManager: TrackedObject, CustomStringConvertible {
     }
     return library
   }
-  
+
   /// Returns the library loaded by this library manager with the given name.
   public func lookup(_ name: [String]) throws -> Library? {
     return try self.lookup(self.name(name))
   }
-  
+
   /// Returns the library loaded by this library manager with the given name.
   public func lookup(_ nameComponents: String...) throws -> Library? {
     return try self.lookup(self.name(nameComponents))
   }
-  
+
   /// Attempt to load library `name` from disk. This method only loads a library definition
   /// if the library isn't loaded yet and hasn't been tried loading previously.
   private func load(name: Expr) throws {
@@ -91,7 +91,7 @@ public final class LibraryManager: TrackedObject, CustomStringConvertible {
       }
     }
   }
-  
+
   /// Load library with the given name and library declarations.
   public func load(name: Expr, declarations: Expr, origin: String) throws {
     let library = try Library(name: name,
@@ -101,20 +101,20 @@ public final class LibraryManager: TrackedObject, CustomStringConvertible {
     self.libraries[name] = library
     self.context.delegate.loaded(library: library, by: self)
   }
-  
+
   /// Load native library.
   public func load(libraryType: NativeLibrary.Type) throws {
     let library = try libraryType.init(in: self.context)
     self.libraries[self.name(libraryType.name)] = library
     self.context.delegate.loaded(library: library, by: self)
   }
-  
+
   /// Returns the library name for the given string components. Strings that can be converted
   /// to an integer are represented as fixnum values, all other strings are converted to symbols.
   public func name(_ components: String...) -> Expr {
     return self.name(components)
   }
-  
+
   /// Returns the library name for the given string components. Strings that can be converted
   /// to an integer are represented as fixnum values, all other strings are converted to symbols.
   public func name(_ components: [String]) -> Expr {
@@ -128,7 +128,7 @@ public final class LibraryManager: TrackedObject, CustomStringConvertible {
     }
     return res
   }
-  
+
   /// Returns a filename from which a definition of the library `name` can be loaded.
   public func filename(_ name: Expr) -> String? {
     var components: [String] = []
@@ -149,7 +149,7 @@ public final class LibraryManager: TrackedObject, CustomStringConvertible {
     }
     return NSURL.fileURL(withPathComponents: components)?.relativePath
   }
-  
+
   /// Returns a textual description of all the libraries and their current state.
   public var description: String {
     var builder = StringBuilder(prefix: "{", postfix: "}", separator: ", ")
@@ -158,7 +158,7 @@ public final class LibraryManager: TrackedObject, CustomStringConvertible {
     }
     return builder.description
   }
-  
+
   /// Mark all registered libraries
   public override func mark(_ tag: UInt8) {
     for library in self.libraries.values {

@@ -27,7 +27,7 @@ import XCTest
 /// being re-created from scratch for every invocation of test functions. Each
 /// `LispKitTestCase` provides functionality for parsing LispKit expressions and
 /// evaluating them.
-/// 
+///
 /// There is also support for data-driven regression tests. These regression tests
 /// are specified in .scm files that are stored in the bundle associated with the
 /// `LispKitTests` target of this project. Such regression test files have the
@@ -38,7 +38,7 @@ import XCTest
 ///    TestName         =  String
 ///    TargetValue      =  LispKitExpr
 ///    SourceExpr       =  LispKitExpr
-/// 
+///
 /// Method `loadTests` reads such a file and parses its content into individual `Test`
 /// struct objects. Method `executeTests` iterates through all tests and executes each
 /// in the following way:
@@ -47,13 +47,13 @@ import XCTest
 ///    3. If the two values are not equivalent using `equals?`, the test fails
 ///
 open class LispKitTestCase: XCTestCase {
-  
+
   /// Default console implementation
   public let terminal = CommandLineDelegate()
-  
+
   /// LispKit context object; created on demand before every test method is executed
   public var context: Context? = nil
-  
+
   /// Representation of an individual regression test
   public struct Test {
     let description: String
@@ -61,7 +61,7 @@ open class LispKitTestCase: XCTestCase {
     let source: Expr
     let target: Expr
   }
-  
+
   override open func setUp() {
     super.setUp()
     self.context = Context(delegate: terminal)
@@ -71,12 +71,12 @@ open class LispKitTestCase: XCTestCase {
       preconditionFailure("cannot import (lispkit base) into test context")
     }
   }
-  
+
   override open func tearDown() {
     self.context = nil
     super.tearDown()
   }
-  
+
   public func eval(_ string: String) -> Expr {
     return self.context!.machine.onTopLevelDo {
       return try self.context!.machine.eval(str: string,
@@ -84,7 +84,7 @@ open class LispKitTestCase: XCTestCase {
                                             in: context!.global)
     }
   }
-  
+
   public func value(_ str: String) -> Expr {
     do {
       let input = TextInput(string: str)
@@ -93,7 +93,7 @@ open class LispKitTestCase: XCTestCase {
       preconditionFailure("malformed expression: \(str)")
     }
   }
-  
+
   public func assertStackEmpty(after: String? = nil) {
     if let after = after {
       XCTAssertEqual(self.context!.machine.sp, 0, "stack not empty: \(after)")
@@ -101,7 +101,7 @@ open class LispKitTestCase: XCTestCase {
       XCTAssertEqual(self.context!.machine.sp, 0, "stack not empty")
     }
   }
-  
+
   public func loadTestCode(from filename: String) -> (UInt16, String)? {
     let bundle = Bundle(for: type(of: self))
     if let path = bundle.path(forResource: filename, ofType: "scm") {
@@ -113,7 +113,7 @@ open class LispKitTestCase: XCTestCase {
     }
     return nil
   }
-  
+
   public func loadTests(from filename: String) -> [Test] {
     guard let (sourceId, code) = self.loadTestCode(from: filename) else {
       preconditionFailure("cannot open test file: \(filename)")
@@ -137,7 +137,7 @@ open class LispKitTestCase: XCTestCase {
       preconditionFailure("error while loading tests \(filename): \(error)")
     }
   }
-  
+
   public func execute(tests: [Test]) {
     for test in tests {
       print("───────────────────────────────────────────────────────────────────────")
@@ -159,7 +159,7 @@ open class LispKitTestCase: XCTestCase {
       assertStackEmpty(after: test.description)
     }
   }
-  
+
   public func execute(file filename: String) {
     self.execute(tests: self.loadTests(from: filename))
   }

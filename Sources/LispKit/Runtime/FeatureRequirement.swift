@@ -1,7 +1,7 @@
 //
 //  FeatureRequirement.swift
 //  LispKit
-//  
+//
 //  Created by Matthias Zenger on 15/10/2017.
 //  Copyright © 2017 ObjectHub. All rights reserved.
 //
@@ -24,7 +24,7 @@ public indirect enum FeatureRequirement: CustomStringConvertible {
   case and(FeatureRequirement, FeatureRequirement)
   case or(FeatureRequirement, FeatureRequirement)
   case not(FeatureRequirement)
-  
+
   /// Constructs a feature requirement from an expression for a given context.
   public init?(_ featureRequirement: Expr, in context: Context) {
     switch featureRequirement {
@@ -82,7 +82,7 @@ public indirect enum FeatureRequirement: CustomStringConvertible {
         return nil
     }
   }
-  
+
   /// `expand` returns, for this import set, a reference to the library from which definitions
   /// are imported. In addition, a mapping is returned that maps renamed definitions to the
   /// definitions as exported by the library.
@@ -100,7 +100,7 @@ public indirect enum FeatureRequirement: CustomStringConvertible {
         return try !req.valid(in: context)
     }
   }
-  
+
   public var description: String {
     switch self {
       case .feature(let name):

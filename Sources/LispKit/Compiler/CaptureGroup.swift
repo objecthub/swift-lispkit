@@ -23,23 +23,23 @@ public final class CaptureGroup: CustomStringConvertible {
   internal unowned let owner: Compiler
   internal let parent: CaptureGroup?
   private var captures: [Definition: Capture]
-  
+
   public final class Capture {
     public let index: Int
     public unowned var origin: BindingGroup
-    
+
     fileprivate init(index: Int, origin: BindingGroup) {
       self.index = index
       self.origin = origin
     }
   }
-  
+
   public init(owner: Compiler, parent: CaptureGroup? = nil) {
     self.owner = owner
     self.parent = parent
     self.captures = [Definition: Capture]()
   }
-  
+
   public func capture(_ def: Definition, from: BindingGroup) -> Int {
     if let capture = self.captures[def] {
       return capture.index
@@ -49,15 +49,15 @@ public final class CaptureGroup: CustomStringConvertible {
       return capture.index
     }
   }
-  
+
   public func captureFor(_ def: Definition) -> Capture? {
     return self.captures[def]
   }
-  
+
   public var count: Int {
     return self.captures.count
   }
-  
+
   public var definitions: [Definition?] {
     var seq = [Definition?](repeating: nil, count: self.captures.count)
     for (def, capture) in self.captures {
@@ -65,7 +65,7 @@ public final class CaptureGroup: CustomStringConvertible {
     }
     return seq
   }
-  
+
   public var description: String {
     var seq = self.definitions
     var builder = StringBuilder()

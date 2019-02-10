@@ -33,7 +33,7 @@
 ///       raw continuations for encapsulating the state of a virtual machine.
 ///
 public final class Procedure: Reference, CustomStringConvertible {
-  
+
   /// There are four kinds of procedures:
   ///    1. Primitives: Built-in procedures
   ///    2. Closures: User-defined procedures, e.g. via `lambda`
@@ -50,7 +50,7 @@ public final class Procedure: Reference, CustomStringConvertible {
     case transformer(SyntaxRules)
     case rawContinuation(VirtualMachineState)
   }
-  
+
   /// There are three types of closures:
   ///    1. Anonymous closures: closures that are not named
   ///    2. Named closures: Closures that are given a name
@@ -60,7 +60,7 @@ public final class Procedure: Reference, CustomStringConvertible {
     case named(String)
     case continuation
   }
-  
+
   /// There are three different types of primitive implementations:
   ///    1. Evaluators: They turn the arguments into code that the VM executes
   ///    2. Applicators: They map the arguments to a continuation procedure and an argument list
@@ -87,21 +87,21 @@ public final class Procedure: Reference, CustomStringConvertible {
     case native2R((Expr, Expr, Arguments) throws -> Expr)
     case native3R((Expr, Expr, Expr, Arguments) throws -> Expr)
   }
-  
+
   /// Procedure kind
   public let kind: Kind
-  
+
   /// Is this procedure traced; i.e. should the virtual machine print debugging information
   /// for this procedure?
   public var traced: Bool = false
-  
+
   /// Initializer for primitive evaluators
   public init(_ name: String,
               _ proc: @escaping (Arguments) throws -> Code,
               _ compiler: FormCompiler? = nil) {
     self.kind = .primitive(name, .eval(proc), compiler)
   }
-  
+
   /// Initializer for primitive evaluators
   public init(_ name: String,
               _ compiler: @escaping FormCompiler,
@@ -117,49 +117,49 @@ public final class Procedure: Reference, CustomStringConvertible {
                                     optimize: true)
       }), compiler)
   }
-  
+
   /// Initializer for primitive applicators
   public init(_ name: String,
               _ proc: @escaping (Arguments) throws -> (Procedure, Exprs),
               _ compiler: FormCompiler? = nil) {
     self.kind = .primitive(name, .apply(proc), compiler)
   }
-  
+
   /// Initializer for primitive procedures
   public init(_ name: String,
               _ proc: @escaping () throws -> Expr,
               _ compiler: FormCompiler? = nil) {
     self.kind = .primitive(name, .native0(proc), compiler)
   }
-  
+
   /// Initializer for primitive procedures
   public init(_ name: String,
               _ proc: @escaping (Expr) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
     self.kind = .primitive(name, .native1(proc), compiler)
   }
-  
+
   /// Initializer for primitive procedures
   public init(_ name: String,
               _ proc: @escaping (Expr, Expr) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
     self.kind = .primitive(name, .native2(proc), compiler)
   }
-  
+
   /// Initializer for primitive procedures
   public init(_ name: String,
               _ proc: @escaping (Expr, Expr, Expr) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
     self.kind = .primitive(name, .native3(proc), compiler)
   }
-  
+
   /// Initializer for primitive procedures
   public init(_ name: String,
               _ proc: @escaping (Expr, Expr, Expr, Expr) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
     self.kind = .primitive(name, .native4(proc), compiler)
   }
-  
+
   /// Initializer for primitive procedures
   public init(_ name: String,
               _ proc: @escaping (Expr?) throws -> Expr,
@@ -173,109 +173,109 @@ public final class Procedure: Reference, CustomStringConvertible {
               _ compiler: FormCompiler? = nil) {
     self.kind = .primitive(name, .native1O(proc), compiler)
   }
-  
+
   /// Initializer for primitive procedures
   public init(_ name: String,
               _ proc: @escaping (Expr, Expr, Expr?) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
     self.kind = .primitive(name, .native2O(proc), compiler)
   }
-  
+
   /// Initializer for primitive procedures
   public init(_ name: String,
               _ proc: @escaping (Expr, Expr, Expr, Expr?) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
     self.kind = .primitive(name, .native3O(proc), compiler)
   }
-  
+
   /// Initializer for primitive procedures
   public init(_ name: String,
               _ proc: @escaping (Expr, Expr?, Expr?) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
     self.kind = .primitive(name, .native1OO(proc), compiler)
   }
-  
+
   /// Initializer for primitive procedures
   public init(_ name: String,
               _ proc: @escaping (Expr, Expr, Expr?, Expr?) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
     self.kind = .primitive(name, .native2OO(proc), compiler)
   }
-  
+
   /// Initializer for primitive procedures
   public init(_ name: String,
               _ proc: @escaping (Expr, Expr, Expr, Expr?, Expr?) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
     self.kind = .primitive(name, .native3OO(proc), compiler)
   }
-  
+
   /// Initializer for primitive procedures
   public init(_ name: String,
               _ proc: @escaping (Arguments) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
     self.kind = .primitive(name, .native0R(proc), compiler)
   }
-  
+
   /// Initializer for primitive procedures
   public init(_ name: String,
               _ proc: @escaping (Expr, Arguments) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
     self.kind = .primitive(name, .native1R(proc), compiler)
   }
-  
+
   /// Initializer for primitive procedures
   public init(_ name: String,
               _ proc: @escaping (Expr, Expr, Arguments) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
     self.kind = .primitive(name, .native2R(proc), compiler)
   }
-  
+
   /// Initializer for primitive procedures
   public init(_ name: String,
               _ proc: @escaping (Expr, Expr, Expr, Arguments) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
     self.kind = .primitive(name, .native3R(proc), compiler)
   }
-  
+
   /// Initializer for closures
   public init(_ type: ClosureType, _ captured: Exprs, _ code: Code) {
     self.kind = .closure(type, captured, code)
   }
-  
+
   /// Initializer for closures
   public init(_ code: Code) {
     self.kind = .closure(.anonymous, [], code)
   }
-  
+
   /// Initializer for named closures
   public init(_ name: String, _ code: Code) {
     self.kind = .closure(.named(name), [], code)
   }
-  
+
   /// Initializer for parameters
   public init(_ setter: Expr, _ initial: Expr) {
     self.kind = .parameter(Tuple(setter, initial))
   }
-  
+
   /// Initializer for parameters
   public init(_ tuple: Tuple) {
     self.kind = .parameter(tuple)
   }
-  
+
   /// Initializer for continuations
   public init(_ vmState: VirtualMachineState) {
     self.kind = .rawContinuation(vmState)
   }
-  
+
   /// Initializer for transformers
   public init(_ rules: SyntaxRules) {
     self.kind = .transformer(rules)
   }
-  
+
   public override init() {
     preconditionFailure()
   }
-  
+
   /// Returns the name of this procedure. This method either returns the name of a primitive
   /// procedure or the identity as a hex string.
   public var name: String {
@@ -288,7 +288,7 @@ public final class Procedure: Reference, CustomStringConvertible {
         return Context.simplifiedDescriptions ? "<closure>" : self.identityString
     }
   }
-  
+
   /// Returns the original name of this procedure if it exists and is known.
   public var originalName: String? {
     switch self.kind {
@@ -300,7 +300,7 @@ public final class Procedure: Reference, CustomStringConvertible {
         return nil
     }
   }
-  
+
   public func mark(_ tag: UInt8) {
     switch self.kind {
       case .closure(_, let captures, let code):
@@ -316,7 +316,7 @@ public final class Procedure: Reference, CustomStringConvertible {
         break
     }
   }
-  
+
   /// A textual description
   public var description: String {
     return "proc:" + self.name
@@ -326,7 +326,7 @@ public final class Procedure: Reference, CustomStringConvertible {
 public typealias Arguments = ArraySlice<Expr>
 
 public extension ArraySlice {
-    
+
   public func optional(_ fst: Element, _ snd: Element) -> (Element, Element)? {
     switch self.count {
       case 0:
@@ -339,7 +339,7 @@ public extension ArraySlice {
         return nil
     }
   }
-  
+
   public func optional(_ fst: Element,
                        _ snd: Element,
                        _ trd: Element) -> (Element, Element, Element)? {
@@ -356,14 +356,14 @@ public extension ArraySlice {
         return nil
     }
   }
-  
+
   public func required2() -> (Element, Element)? {
     guard self.count == 2 else {
       return nil
     }
     return (self[self.startIndex], self[self.startIndex + 1])
   }
-  
+
   public func required3() -> (Element, Element, Element)? {
     guard self.count == 3 else {
       return nil

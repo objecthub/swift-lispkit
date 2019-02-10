@@ -19,27 +19,27 @@
 //
 
 public final class Definition: Reference, CustomStringConvertible {
-  
+
   public enum Kind {
     case value
     case variable
     case mutatedVariable
     case macro(Procedure)
   }
-  
+
   public let index: Int
   public var kind: Kind
-  
+
   fileprivate init(index: Int, isVar: Bool = true) {
     self.index = index
     self.kind = isVar ? .variable : .value
   }
-  
+
   fileprivate init(proc: Procedure) {
     self.index = 0
     self.kind = .macro(proc)
   }
-  
+
   public var isValue: Bool {
     switch self.kind {
       case .value:
@@ -48,7 +48,7 @@ public final class Definition: Reference, CustomStringConvertible {
         return false
     }
   }
-  
+
   public var isVariable: Bool {
     switch self.kind {
       case .variable, .mutatedVariable:
@@ -57,7 +57,7 @@ public final class Definition: Reference, CustomStringConvertible {
         return false
     }
   }
-  
+
   public var isImmutableVariable: Bool {
     switch self.kind {
       case .variable:
@@ -66,7 +66,7 @@ public final class Definition: Reference, CustomStringConvertible {
         return false
     }
   }
-  
+
   public func wasMutated() {
     switch self.kind {
       case .value:
@@ -79,7 +79,7 @@ public final class Definition: Reference, CustomStringConvertible {
         preconditionFailure("cannot declare macro mutable")
     }
   }
-  
+
   public var description: String {
     switch self.kind {
       case .value:
@@ -101,7 +101,7 @@ public final class BindingGroup: Reference, CustomStringConvertible {
   private let nextIndex: () -> Int
   internal let checkpoint: UInt
   public private(set) var box: WeakBox<BindingGroup>!
-  
+
   public init(owner: Compiler, parent: Env, nextIndex: (() -> Int)? = nil) {
     self.owner = owner
     self.parent = parent
@@ -111,13 +111,13 @@ public final class BindingGroup: Reference, CustomStringConvertible {
     super.init()
     self.box = WeakBox(self)
   }
-  
+
   @discardableResult public func defineMacro(_ sym: Symbol, proc: Procedure) -> Definition {
     let def = Definition(proc: proc)
     self.bindings[sym] = def
     return def
   }
-  
+
   @discardableResult public func allocBindingFor(_ sym: Symbol) -> Definition {
     let variable = !owner.checkpointer.isValueBinding(sym, at: self.checkpoint)
     if let binding = self.bindings[sym] {
@@ -127,11 +127,11 @@ public final class BindingGroup: Reference, CustomStringConvertible {
     self.bindings[sym] = binding
     return binding
   }
-  
+
   public func bindingFor(_ sym: Symbol) -> Definition? {
     return self.bindings[sym]
   }
-  
+
   public func symbol(at index: Int) -> Symbol? {
     for (sym, bind) in self.bindings {
       if bind.index == index {
@@ -140,7 +140,7 @@ public final class BindingGroup: Reference, CustomStringConvertible {
     }
     return nil
   }
-  
+
   public func covers(_ group: BindingGroup) -> Bool {
     var env: Env = .local(self)
     while case .local(let this) = env {
@@ -151,11 +151,11 @@ public final class BindingGroup: Reference, CustomStringConvertible {
     }
     return false
   }
-  
+
   public var count: Int {
     return self.bindings.count
   }
-  
+
   public var symbols: [Symbol?] {
     var seq = [Symbol?](repeating: nil, count: self.bindings.count)
     for (sym, bind) in self.bindings {
@@ -168,7 +168,7 @@ public final class BindingGroup: Reference, CustomStringConvertible {
     }
     return seq
   }
-    
+
   public func macroGroup() -> BindingGroup {
     var env = self.parent
     while case .local(let group) = env {
@@ -186,7 +186,7 @@ public final class BindingGroup: Reference, CustomStringConvertible {
     }
     return macroGroup
   }
-  
+
   public func finalize() {
     for (sym, binding) in self.bindings {
       if binding.isImmutableVariable {
@@ -194,7 +194,7 @@ public final class BindingGroup: Reference, CustomStringConvertible {
       }
     }
   }
-  
+
   public var description: String {
     var seq = self.symbols
     var builder = StringBuilder()

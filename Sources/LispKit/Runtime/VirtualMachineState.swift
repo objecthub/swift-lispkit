@@ -26,19 +26,19 @@
 ///    - the winders stack
 ///
 public final class VirtualMachineState: TrackedObject, CustomStringConvertible {
-  
+
   /// The stack
   internal let stack: Exprs
-  
+
   /// The stack pointer
   internal let sp: Int
-  
+
   /// The set of registers
   internal let registers: VirtualMachine.Registers
-  
+
   /// The stack of winders
   internal let winders: VirtualMachine.Winder?
-  
+
   /// Creates a new virtual machine state
   internal init(stack: Exprs,
                 sp: Int,
@@ -57,7 +57,7 @@ public final class VirtualMachineState: TrackedObject, CustomStringConvertible {
     self.registers = adjustedRegisters
     self.winders = winders
   }
-  
+
   public var description: String {
     var builder = StringBuilder(prefix: "vmstate {")
     if self.sp == 0 {
@@ -78,7 +78,7 @@ public final class VirtualMachineState: TrackedObject, CustomStringConvertible {
     builder.append("}")
     return builder.description
   }
-  
+
   public override func mark(_ tag: UInt8) {
     super.mark(tag)
     for i in 0..<self.sp {

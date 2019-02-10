@@ -28,7 +28,7 @@ public func equalHash(_ expr: Expr) -> Int {
 
 public func equalHash(_ expr: Expr, into hasher: inout Hasher) {
   var visited = Set<Reference>()
-  
+
   func alreadyVisited(_ ref: Reference) -> Bool {
     if visited.contains(ref) {
       return true
@@ -36,7 +36,7 @@ public func equalHash(_ expr: Expr, into hasher: inout Hasher) {
     visited.insert(ref)
     return false
   }
-  
+
   func hash(_ expr: Expr) {
     switch expr.normalized {
       case .undef,
@@ -180,7 +180,7 @@ public func equalHash(_ expr: Expr, into hasher: inout Hasher) {
         hash(expr)
     }
   }
-  
+
   return hash(expr)
 }
 

@@ -22,10 +22,10 @@
 /// `Cell` implements a mutable expression.
 ///
 public final class Cell: ManagedObject, CustomStringConvertible {
-  
+
   /// The current value of the cell.
   public var value: Expr
-  
+
   /// Maintain object statistics.
   internal static let stats = Stats("Cell")
 
@@ -33,13 +33,13 @@ public final class Cell: ManagedObject, CustomStringConvertible {
   deinit {
     Cell.stats.dealloc()
   }
-  
+
   /// Create a new cell with a given initial value.
   public init(_ value: Expr) {
     self.value = value
     super.init(Cell.stats)
   }
-  
+
   /// Mark variable object.
   public override func mark(_ tag: UInt8) {
     if self.tag != tag {
@@ -47,12 +47,12 @@ public final class Cell: ManagedObject, CustomStringConvertible {
       self.value.mark(tag)
     }
   }
-  
+
   /// Clear cell value.
   public override func clean() {
     self.value = .undef
   }
-  
+
   /// A string representation of this cell.
   public var description: String {
     return "«\(self.value)»"

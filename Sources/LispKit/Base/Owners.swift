@@ -25,27 +25,27 @@ import Foundation
 /// owners; i.e. other objects that refer to them.
 ///
 public struct Owners<T: Reference>: Sequence {
-  
+
   fileprivate struct Entry: Hashable {
     let hash: Int
     weak var owner: T?
-    
+
     init(_ owner: T) {
       self.hash = Int(bitPattern: owner.identity)
       self.owner = owner
     }
-    
+
     func hash(into hasher: inout Hasher) {
       hasher.combine(self.hash)
     }
-    
+
     static func ==(lhs: Owners<T>.Entry, rhs: Owners<T>.Entry) -> Bool {
       return lhs.owner === rhs.owner && lhs.hashValue == rhs.hashValue
     }
   }
-  
+
   private var entries: Set<Entry>
-  
+
   public init() {
     self.entries = Set<Entry>()
   }
@@ -53,15 +53,15 @@ public struct Owners<T: Reference>: Sequence {
   public mutating func include(_ owner: T) {
     self.entries.insert(Entry(owner))
   }
-  
+
   public func contains(_ owner: T) -> Bool {
     return self.entries.contains(Entry(owner))
   }
-  
+
   public func makeIterator() -> OwnersIterator<T> {
     return OwnersIterator(self.entries.makeIterator())
   }
-  
+
   public mutating func compact() {
     for entry in self.entries {
       if entry.owner == nil {
@@ -73,11 +73,11 @@ public struct Owners<T: Reference>: Sequence {
 
 public struct OwnersIterator<T: Reference>: IteratorProtocol {
   private var entryIterator: SetIterator<Owners<T>.Entry>
-  
+
   fileprivate init(_ entryIterator: SetIterator<Owners<T>.Entry>) {
     self.entryIterator = entryIterator
   }
-  
+
   public mutating func next() -> T? {
     while true {
       guard let entry = self.entryIterator.next() else {

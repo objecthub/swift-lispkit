@@ -27,31 +27,31 @@ import Cocoa
 /// to write strings as well as to read strings.
 ///
 public protocol ContextDelegate: TextInputSource, TextOutputTarget {
-  
+
   /// Prints the given string into the console window.
   func print(_ str: String)
-  
+
   /// Reads a string from the console window.
   func read() -> String?
-  
+
   /// Is called whenever a procedure that is being traced is called
   func trace(call: Procedure,
              args: Exprs,
              tailCall: Bool,
              in: VirtualMachine)
-  
+
   /// Is called whenever a procedure that is being traced returns
   func trace(return: Procedure,
              result: Expr,
              tailCall: Bool,
              in: VirtualMachine)
-  
+
   /// This is called whenever a new library is loaded
   func loaded(library: Library, by: LibraryManager)
-  
+
   /// This is called whenever a symbol is bound in an environment
   func bound(symbol: Symbol, in: Environment)
-  
+
   /// This is called by the `exit` function of LispKit.
   func emergencyExit(obj: Expr?)
 }
@@ -62,28 +62,28 @@ public protocol ContextDelegate: TextInputSource, TextOutputTarget {
 /// `print` and `read`.
 ///
 public extension ContextDelegate {
-  
+
   /// The console always blocks before providing a new string.
   public var nextReadMightBlock: Bool {
     return true
   }
-  
+
   /// Read the next string from the console. This operation always blocks.
   public func readString() -> String? {
     return self.read()
   }
-  
+
   /// `flush` always succeeds.
   public func flush(_ completely: Bool = false) -> Bool {
     return true
   }
-  
+
   /// Print the given string to the console.
   public func writeString(_ str: String) -> Bool {
     self.print(str)
     return true
   }
-  
+
   public func countTracedProcedures(_ callStack: [Procedure]) -> Int {
     var num = 0
     for proc in callStack {
@@ -93,7 +93,7 @@ public extension ContextDelegate {
     }
     return num
   }
-  
+
   public func trace(call proc: Procedure,
                     args: Exprs,
                     tailCall: Bool,
@@ -118,7 +118,7 @@ public extension ContextDelegate {
     builder.append("\n")
     self.print(builder.description)
   }
-  
+
   public func trace(return proc: Procedure,
                     result: Expr,
                     tailCall: Bool,
@@ -141,13 +141,13 @@ public extension ContextDelegate {
     builder.append("\n")
     self.print(builder.description)
   }
-  
+
   public func loaded(library: Library, by: LibraryManager) {
   }
-  
+
   public func bound(symbol: Symbol, in: Environment) {
   }
-  
+
   public func emergencyExit(obj: Expr?) {
     NSApplication.shared.terminate(self)
   }
@@ -158,14 +158,14 @@ public extension ContextDelegate {
 /// `readLine` functions to allow for a simple read-eval-print loop on a terminal interface.
 ///
 public struct CommandLineDelegate: ContextDelegate {
-  
+
   public init() {}
-  
+
   /// Prints the given string into the console window.
   public func print(_ str: String) {
     Swift.print(str, separator: "", terminator: "")
   }
-  
+
   /// Reads a string from the console window.
   public func read() -> String? {
     return Swift.readLine(strippingNewline: false)

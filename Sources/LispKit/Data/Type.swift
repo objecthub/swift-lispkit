@@ -18,7 +18,7 @@
 //  limitations under the License.
 //
 
-/// 
+///
 /// `Type` represents a type of an expression/value
 ///
 public enum Type: Int, CustomStringConvertible {
@@ -77,7 +77,7 @@ public enum Type: Int, CustomStringConvertible {
   case imageType
   case charSetType
   case regexpType
-  
+
   public var description: String {
     switch self {
       case .undefinedType:
@@ -192,7 +192,7 @@ public enum Type: Int, CustomStringConvertible {
         return "regular expression"
     }
   }
-  
+
   public var included: Set<Type> {
     switch self {
       case .procedureType:
@@ -223,7 +223,7 @@ public enum Type: Int, CustomStringConvertible {
         return [self]
     }
   }
-  
+
   public func includes(_ type: Type) -> Bool {
     return self.included.contains(type)
   }

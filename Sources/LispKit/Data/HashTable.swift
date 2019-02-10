@@ -22,7 +22,7 @@
 /// `HashTable` implements hash maps natively.
 ///
 public final class HashTable: ManagedObject, CustomStringConvertible {
-  
+
   public struct CustomProcedures {
     let eql: Procedure
     let hsh: Procedure
@@ -30,34 +30,34 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
     let add: Procedure
     let del: Procedure
   }
-  
+
   public enum Equivalence {
     case eq
     case eqv
     case equal
     case custom(CustomProcedures)
   }
-  
+
   /// Maintain object statistics.
   internal static let stats = Stats("HashTable")
-  
+
   /// The hash buckets.
   private var buckets: Exprs
-  
+
   /// Number of mappings in this hash table
   public private(set) var count: Int
-  
+
   /// Is this `HashTable` object mutable?
   public let mutable: Bool
-  
+
   /// What equivalence relation is used?
   public private(set) var equiv: Equivalence
-  
+
   /// Update object statistics.
   deinit {
     HashTable.stats.dealloc()
   }
-  
+
   /// Create a new empty hash table with the given size.
   public init(capacity: Int = 127, mutable: Bool = true, equiv: Equivalence) {
     self.buckets = Exprs(repeating: .null, count: capacity)
@@ -66,7 +66,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
     self.equiv = equiv
     super.init(HashTable.stats)
   }
-  
+
   /// Create a copy of another hash table. Make it immutable if `mutable` is set to false.
   public init(copy other: HashTable, mutable: Bool = true) {
     self.buckets = Exprs()
@@ -78,12 +78,12 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
     self.equiv = other.equiv
     super.init(HashTable.stats)
   }
-  
+
   /// A string representation of this variable.
   public var description: String {
     return "«\(self.buckets)»"
   }
-  
+
   /// Clear entries in hash table and resize if capacity is supposed to change. This
   /// method creates a new array of buckets if the `capacity` parameter is provided.
   public func clear(_ capacity: Int? = nil) -> Bool {
@@ -100,7 +100,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
     self.count = 0
     return true
   }
-  
+
   /// Recreates the hash table for the given capacity; this only works for non-custom
   /// hash tables.
   public func rehash(_ capacity: Int) {
@@ -122,7 +122,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
       }
     }
   }
-  
+
   /// Array of mappings
   public var mappings: [(Expr, Expr)] {
     var res = [(Expr, Expr)]()
@@ -131,7 +131,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
     }
     return res
   }
-  
+
   /// Insert the mappings from the given bucket list into the array `arr`.
   private static func insertMappings(into arr: inout [(Expr, Expr)], from bucket: Expr) {
     var current = bucket
@@ -140,12 +140,12 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
       current = next
     }
   }
-  
+
   /// Returns the number of hash buckets in the hash table.
   public var bucketCount: Int {
     return self.buckets.count
   }
-  
+
   /// Returns the mappings in the hash table as an association list with boxed values
   public func bucketList(_ bid: Int? = nil) -> Expr {
     if let bid = bid {
@@ -162,9 +162,9 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
       return res
     }
   }
-  
+
   // Key/value accessors
-  
+
   /// Returns a list of all keys in the hash table
   public var keys: Exprs {
     var res = Exprs()
@@ -177,7 +177,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
     }
     return res
   }
-  
+
   /// Returns a list of all keys in the hash table
   public func keyList() -> Expr {
     var res: Expr = .null
@@ -190,7 +190,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
     }
     return res
   }
-  
+
   /// Returns a list of all values in the hash table
   public var values: Exprs {
     var res = Exprs()
@@ -203,7 +203,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
     }
     return res
   }
-  
+
   /// Returns a list of all values in the hash table
   public func valueList() -> Expr {
     var res: Expr = .null
@@ -216,7 +216,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
     }
     return res
   }
-  
+
   /// Array of mappings
   public var entries: [(Expr, Expr)] {
     var res = [(Expr, Expr)]()
@@ -225,7 +225,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
     }
     return res
   }
-  
+
   /// Returns the mappings in the hash table as an association list
   public func entryList() -> Expr {
     var res: Expr = .null
@@ -238,9 +238,9 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
     }
     return res
   }
-  
+
   // Setting and getting mappings
-  
+
   /// Returns the value associated with `key` in bucket `bid`.
   public func get(_ bid: Int, _ key: Expr, _ eql: (Expr, Expr) -> Bool) -> Expr? {
     var current = self.buckets[bid]
@@ -266,7 +266,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
     }
     return true
   }
-  
+
   /// Replaces bucket `bid` with a new bucket expression.
   @discardableResult public func replace(_ bid: Int, _ bucket: Expr) -> Bool {
     guard self.mutable else {
@@ -279,9 +279,9 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
     }
     return true
   }
-  
+
   // Support for non-custom HashMaps
-  
+
   /// Compares two expressions for non-custom HashMaps.
   internal func eql(_ left: Expr, _ right: Expr) -> Bool {
     switch self.equiv {
@@ -295,7 +295,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
         preconditionFailure("cannot access custom HashTable internally")
     }
   }
-  
+
   /// Computes the hash value for non-custom HashMaps.
   internal func hash(_ expr: Expr) -> Int {
     switch self.equiv {
@@ -309,26 +309,26 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
         preconditionFailure("cannot access custom HashTable internally")
     }
   }
-  
+
   public func get(_ key: Expr) -> Expr? {
     return self.get(self.hash(key) %% self.buckets.count, key, self.eql)
   }
-  
+
   @discardableResult public func set(key: Expr, mapsTo value: Expr) -> Bool {
     return self.remove(key: key) != nil && self.add(key: key, mapsTo: value)
   }
-  
+
   @discardableResult public func add(key: Expr, mapsTo value: Expr) -> Bool {
     return self.add(self.hash(key) %% self.buckets.count, key, value)
   }
-  
+
   public func remove(key: Expr) -> Expr? {
     guard self.mutable else {
       return nil
     }
     return self.remove(self.hash(key) %% self.buckets.count, key: key)
   }
-  
+
   private func remove(_ bid: Int, key: Expr) -> Expr? {
     var ms = [(Expr, Expr)]()
     var current = self.buckets[bid]
@@ -347,7 +347,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
     }
     return .false
   }
-  
+
   public func union(_ map: HashTable) -> Bool {
     guard self.mutable else {
       return false
@@ -364,7 +364,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
     }
     return true
   }
-  
+
   public func difference(_ map: HashTable, intersect: Bool) -> Bool {
     guard self.mutable else {
       return false
@@ -403,9 +403,9 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
     }
     return true
   }
-  
+
   // Support for managed objects
-  
+
   /// Mark hash table content.
   public override func mark(_ tag: UInt8) {
     if self.tag != tag {
@@ -427,7 +427,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
       }
     }
   }
-  
+
   /// Clear variable value
   public override func clean() {
     self.buckets = Exprs(repeating: .null, count: 1)

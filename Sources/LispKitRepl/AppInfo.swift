@@ -25,26 +25,26 @@ import Foundation
 /// information.
 ///
 public struct AppInfo {
-  
+
   // Name of the application
   public static let name = "LispKit Shell"
-  
+
   // Version of the application
   public static let version =
     (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String) ??
     "2.0.6"
-  
+
   // Copyright message
   public static let copyright =
     (Bundle.main.infoDictionary?["NSHumanReadableCopyright"] as? String) ??
     "Copyright © 2016–2019 Matthias Zenger. All rights reserved."
-  
+
   #if SPM
     public static let prompt = "> "
   #else
     public static let prompt = "⟹ "
   #endif
-  
+
   // Build date/time
   #if SPM
     public static let buildDate = "2018"

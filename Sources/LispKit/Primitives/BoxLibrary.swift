@@ -22,17 +22,17 @@
 /// Box library: based on Racket spec.
 ///
 public final class BoxLibrary: NativeLibrary {
-  
+
   /// Name of the library.
   public override class var name: [String] {
     return ["lispkit", "box"]
   }
-  
+
   /// Dependencies of the library.
   public override func dependencies() {
     self.`import`(from: ["lispkit", "core"], "define")
   }
-  
+
   /// Declarations of the library.
   public override func declarations() {
     // Boxes
@@ -42,7 +42,7 @@ public final class BoxLibrary: NativeLibrary {
     self.define(Procedure("set-box!", self.setBox))
     self.define("update-box!", via:
       "(define (update-box! box proc) (set-box! box (proc (unbox box))))")
-    
+
     // Mutable pairs
     self.define(Procedure("mpair?", self.isMpair))
     self.define(Procedure("mcons", self.mcons))
@@ -51,20 +51,20 @@ public final class BoxLibrary: NativeLibrary {
     self.define(Procedure("set-mcar!", self.setMcar))
     self.define(Procedure("set-mcdr!", self.setMcdr))
   }
-  
+
   //-------- MARK: - Boxes
-  
+
   private func box(_ expr: Expr?) -> Expr {
     return .box(Cell(expr ?? .undef))
   }
-  
+
   private func unbox(_ expr: Expr) throws -> Expr {
     guard case .box(let cell) = expr else {
       throw RuntimeError.type(expr, expected: [.boxType])
     }
     return cell.value
   }
-  
+
   private func setBox(_ expr: Expr, value: Expr) throws -> Expr {
     guard case .box(let cell) = expr else {
       throw RuntimeError.type(expr, expected: [.boxType])
@@ -74,16 +74,16 @@ public final class BoxLibrary: NativeLibrary {
     (value.isAtom ? cell : self.context.objects.manage(cell)).value = value
     return .void
   }
-  
+
   private func isBox(_ expr: Expr) -> Expr {
     guard case .box(_) = expr else {
       return .false
     }
     return .true
   }
-  
+
   //-------- MARK: - Mutable pairs
-  
+
   private func isMpair(_ expr: Expr) -> Expr {
     guard case .mpair(_) = expr else {
       return .false
@@ -94,21 +94,21 @@ public final class BoxLibrary: NativeLibrary {
   private func mcons(_ car: Expr, cdr: Expr) throws -> Expr {
     return .mpair(Tuple(car, cdr))
   }
-  
+
   private func mcar(_ expr: Expr) throws -> Expr {
     guard case .mpair(let tuple) = expr else {
       throw RuntimeError.type(expr, expected: [.mpairType])
     }
     return tuple.fst
   }
-  
+
   private func mcdr(_ expr: Expr) throws -> Expr {
     guard case .mpair(let tuple) = expr else {
       throw RuntimeError.type(expr, expected: [.mpairType])
     }
     return tuple.snd
   }
-  
+
   private func setMcar(_ expr: Expr, value: Expr) throws -> Expr {
     guard case .mpair(let tuple) = expr else {
       throw RuntimeError.type(expr, expected: [.mpairType])
@@ -118,7 +118,7 @@ public final class BoxLibrary: NativeLibrary {
     (value.isAtom ? tuple : self.context.objects.manage(tuple)).fst = value
     return .void
   }
-  
+
   private func setMcdr(_ expr: Expr, value: Expr) throws -> Expr {
     guard case .mpair(let tuple) = expr else {
       throw RuntimeError.type(expr, expected: [.mpairType])

@@ -24,12 +24,12 @@ import Foundation
 /// Vector library: based on R7RS spec.
 ///
 public final class VectorLibrary: NativeLibrary {
-  
+
   /// Name of the library.
   public override class var name: [String] {
     return ["lispkit", "vector"]
   }
-  
+
   /// Dependencies of the library.
   public override func dependencies() {
     self.`import`(from: ["lispkit", "core"],    "define", "set!", "or", "not", "apply")
@@ -38,7 +38,7 @@ public final class VectorLibrary: NativeLibrary {
     self.`import`(from: ["lispkit", "math"],    "fx1+", "fx1-", "fx=", "fx>", "fx<", "fx<=", "fx>=")
     self.`import`(from: ["lispkit", "list"],    "null?", "cons", "car", "cdr")
   }
-  
+
   /// Declarations of the library.
   public override func declarations() {
     self.define(Procedure("make-vector", makeVector))
@@ -182,7 +182,7 @@ public final class VectorLibrary: NativeLibrary {
                   #f))))
     """)
   }
-  
+
   private func makeVector(_ count: Expr, fill: Expr?) throws -> Expr {
     let k = try count.asInt64()
     guard k >= 0 && k <= Int64(Int.max) else {
@@ -190,7 +190,7 @@ public final class VectorLibrary: NativeLibrary {
     }
     return .vector(Collection(kind: .vector, count: Int(k), repeatedValue: fill ?? .null))
   }
-  
+
   private func vector(_ args: Arguments) -> Expr {
     let res = Collection(kind: .vector)
     for arg in args {
@@ -198,7 +198,7 @@ public final class VectorLibrary: NativeLibrary {
     }
     return .vector(res)
   }
-  
+
   private func compileVector(_ compiler: Compiler,
                              expr: Expr,
                              env: Env,
@@ -209,7 +209,7 @@ public final class VectorLibrary: NativeLibrary {
     compiler.emit(.vector(try compiler.compileExprs(cdr, in: env)))
     return false
   }
-  
+
   private func immutableVector(_ args: Arguments) -> Expr {
     let res = Collection(kind: .immutableVector)
     for arg in args {
@@ -217,7 +217,7 @@ public final class VectorLibrary: NativeLibrary {
     }
     return .vector(res)
   }
-  
+
   private func isVector(_ expr: Expr) -> Expr {
     switch expr {
       case .vector(let vector):
@@ -226,7 +226,7 @@ public final class VectorLibrary: NativeLibrary {
         return .false
     }
   }
-  
+
   private func compileIsVector(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let arg, .null)) = expr else {
       throw RuntimeError.argumentCount(of: "vector?", min: 1, max: 1, expr: expr)
@@ -235,7 +235,7 @@ public final class VectorLibrary: NativeLibrary {
     compiler.emit(.isVector)
     return false
   }
-  
+
   private func isMutableVector(_ expr: Expr) -> Expr {
     switch expr {
       case .vector(let vector):
@@ -244,7 +244,7 @@ public final class VectorLibrary: NativeLibrary {
         return .false
     }
   }
-  
+
   private func isImmutableVector(_ expr: Expr) -> Expr {
     switch expr {
       case .vector(let vector):
@@ -253,11 +253,11 @@ public final class VectorLibrary: NativeLibrary {
         return .false
     }
   }
-  
+
   private func vectorLength(vec: Expr) throws -> Expr {
     return .fixnum(Int64(try vec.vectorAsCollection().exprs.count))
   }
-  
+
   private func vectorListLength(vectors: Expr) throws -> Expr {
     var n = Int.max
     var list = vectors
@@ -273,7 +273,7 @@ public final class VectorLibrary: NativeLibrary {
     }
     return .fixnum(Int64(n))
   }
-  
+
   private func vectorListRef(_ index: Expr, _ vectors: Expr) throws -> Expr {
     let i = try index.asInt64()
     var res = Exprs()
@@ -291,7 +291,7 @@ public final class VectorLibrary: NativeLibrary {
     }
     return .makeList(res)
   }
-  
+
   private func vectorAppend(_ exprs: Arguments) throws -> Expr {
     let res = Collection(kind: .vector)
     for expr in exprs {
@@ -299,7 +299,7 @@ public final class VectorLibrary: NativeLibrary {
     }
     return .vector(res)
   }
-  
+
   private func vectorConcatenate(_ expr: Expr) throws -> Expr {
     let res = Collection(kind: .vector)
     var list = expr
@@ -312,7 +312,7 @@ public final class VectorLibrary: NativeLibrary {
     }
     return .vector(res)
   }
-  
+
   private func vectorRef(_ vec: Expr, index: Expr) throws -> Expr {
     let vector = try vec.vectorAsCollection()
     let i = try index.asInt64()
@@ -325,7 +325,7 @@ public final class VectorLibrary: NativeLibrary {
     }
     return vector.exprs[Int(i)]
   }
-  
+
   private func vectorSet(_ vec: Expr, index: Expr, expr: Expr) throws -> Expr {
     // Extract arguments
     let vector = try vec.vectorAsCollection()
@@ -345,7 +345,7 @@ public final class VectorLibrary: NativeLibrary {
     (expr.isAtom ? vector : self.context.objects.manage(vector)).exprs[i] = expr
     return .void
   }
-  
+
   private func vectorSwap(_ vec: Expr, index1: Expr, index2: Expr) throws -> Expr {
     let vector = try vec.vectorAsCollection()
     let i = try index1.asInt(below: vector.exprs.count)
@@ -358,21 +358,21 @@ public final class VectorLibrary: NativeLibrary {
     vector.exprs[j] = temp
     return .void
   }
-  
+
   private func listToVector(_ expr: Expr) throws -> Expr {
     guard case (let exprs, .null) = expr.toExprs() else {
       throw RuntimeError.type(expr, expected: [.properListType])
     }
     return .vector(Collection(kind: .vector, exprs: exprs))
   }
-  
+
   private func listToImmutableVector(_ expr: Expr) throws -> Expr {
     guard case (let exprs, .null) = expr.toExprs() else {
       throw RuntimeError.type(expr, expected: [.properListType])
     }
     return .vector(Collection(kind: .immutableVector, exprs: exprs))
   }
-  
+
   private func vectorToList(_ vec: Expr, start: Expr?, end: Expr?) throws -> Expr {
     let vector = try vec.vectorAsCollection()
     let end = try end?.asInt(below: vector.exprs.count + 1) ?? vector.exprs.count
@@ -383,7 +383,7 @@ public final class VectorLibrary: NativeLibrary {
     }
     return res
   }
-  
+
   private func stringToVector(_ expr: Expr, start: Expr?, end: Expr?) throws -> Expr {
     let str = try expr.asString().utf16
     let max = try end?.asInt(below: str.count + 1) ?? str.count
@@ -395,7 +395,7 @@ public final class VectorLibrary: NativeLibrary {
     }
     return .vector(res)
   }
-  
+
   private func vectorToString(_ vec: Expr, start: Expr?, end: Expr?) throws -> Expr {
     let vector = try vec.vectorAsCollection()
     let end = try end?.asInt(below: vector.exprs.count + 1) ?? vector.exprs.count
@@ -406,7 +406,7 @@ public final class VectorLibrary: NativeLibrary {
     }
     return .string(NSMutableString(string: String(utf16CodeUnits: uniChars, count: uniChars.count)))
   }
-  
+
   private func vectorCopy(_ vec: Expr, _ args: Arguments) throws -> Expr {
     let vector = try vec.vectorAsCollection()
     guard let (start, end, mutable) = args.optional(.fixnum(0),
@@ -482,7 +482,7 @@ public final class VectorLibrary: NativeLibrary {
     }
     return .void
   }
-  
+
   private func vectorFill(_ vec: Expr, expr: Expr, start: Expr?, end: Expr?) throws -> Expr {
     let vector = try vec.vectorAsCollection()
     guard vector.isMutableVector else {
@@ -498,7 +498,7 @@ public final class VectorLibrary: NativeLibrary {
     }
     return .void
   }
-  
+
   private func vectorReverse(_ vec: Expr, _ start: Expr?, _ end: Expr?) throws -> Expr {
     let vector = try vec.vectorAsCollection()
     guard vector.isMutableVector else {
@@ -509,7 +509,7 @@ public final class VectorLibrary: NativeLibrary {
     vector.exprs[start..<end].reverse()
     return .void
   }
-  
+
   private func vectorPivot(_ vec: Expr, ilo: Expr, ihi: Expr) throws -> Expr {
     let vector = try vec.vectorAsCollection()
     let hi = try ihi.asInt(below: vector.exprs.count)

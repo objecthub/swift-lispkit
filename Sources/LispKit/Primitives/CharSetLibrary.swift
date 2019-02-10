@@ -21,12 +21,12 @@
 import Foundation
 
 public final class CharSetLibrary: NativeLibrary {
-  
+
   /// Name of the library.
   public override class var name: [String] {
     return ["lispkit", "char-set"]
   }
-  
+
   /// Dependencies of the library.
   public override func dependencies() {
     self.`import`(from: ["lispkit", "core"],    "define", "and", "or", "not", "lambda", "set!")
@@ -34,7 +34,7 @@ public final class CharSetLibrary: NativeLibrary {
     self.`import`(from: ["lispkit", "list"],    "car", "null?")
     self.`import`(from: ["lispkit", "math"],    "fx1+")
   }
-  
+
   /// Declarations of the library.
   public override func declarations() {
     self.define(Procedure("char-set", charSet))
@@ -174,7 +174,7 @@ public final class CharSetLibrary: NativeLibrary {
     self.define("char-set:full",
                 as: .object(CharSet.full()), mutable: false, export: true)
   }
-  
+
   private func charSet(_ args: Arguments) throws -> Expr {
     let cs = CharSet()
     for arg in args {
@@ -182,7 +182,7 @@ public final class CharSetLibrary: NativeLibrary {
     }
     return .object(cs)
   }
-  
+
   private func immutableCharSet(_ args: Arguments) throws -> Expr {
     let cs = CharSet(immutable: true)
     for arg in args {
@@ -190,7 +190,7 @@ public final class CharSetLibrary: NativeLibrary {
     }
     return .object(cs)
   }
-  
+
   private func listToCharSet(_ expr: Expr, _ charset: Expr?) throws -> Expr {
     let cs = try self.characterSetCopy(charset)
     var lst = expr
@@ -200,13 +200,13 @@ public final class CharSetLibrary: NativeLibrary {
     }
     return .object(cs)
   }
-  
+
   private func stringToCharSet(_ expr: Expr, _ charset: Expr?) throws -> Expr {
     let cs = try self.characterSetCopy(charset)
     cs.insert(charsIn: try expr.asString())
     return .object(cs)
   }
-  
+
   private func ucsRangeToCharSet(_ lower: Expr,
                                  _ upper: Expr,
                                  _ fst: Expr?,
@@ -229,7 +229,7 @@ public final class CharSetLibrary: NativeLibrary {
     }
     return .object(cs)
   }
-  
+
   private func listToCharSetDestructive(_ expr: Expr, _ charset: Expr) throws -> Expr {
     let cs = try self.characterSet(charset)
     guard !cs.immutable else {
@@ -242,7 +242,7 @@ public final class CharSetLibrary: NativeLibrary {
     }
     return .object(cs)
   }
-  
+
   private func stringToCharSetDestructive(_ expr: Expr, _ charset: Expr) throws -> Expr {
     let cs = try self.characterSet(charset)
     guard !cs.immutable else {
@@ -251,7 +251,7 @@ public final class CharSetLibrary: NativeLibrary {
     cs.insert(charsIn: try expr.asString())
     return .object(cs)
   }
-  
+
   private func ucsRangeToCharSetDestructive(_ lower: Expr,
                                             _ upper: Expr,
                                             _ fst: Expr?,
@@ -280,7 +280,7 @@ public final class CharSetLibrary: NativeLibrary {
     }
     return .object(cs)
   }
-  
+
   private func coerceToCharSet(_ expr: Expr) throws -> Expr {
     switch expr {
       case .string(_):
@@ -296,25 +296,25 @@ public final class CharSetLibrary: NativeLibrary {
         throw RuntimeError.type(expr, expected: [.strType, .charType, .charSetType])
     }
   }
-  
+
   private func charSetCopy(_ expr: Expr, _ mutable: Expr?) throws -> Expr {
     guard case .object(let obj) = expr, let res = obj as? CharSet else {
       throw RuntimeError.type(expr, expected: [.charSetType])
     }
     return .object(CharSet(copy: res, immutable: mutable?.isFalse ?? false))
   }
-  
+
   private func isCharSet(_ expr: Expr) -> Expr {
     guard case .object(let obj) = expr, obj is CharSet else {
       return .false
     }
     return .true
   }
-  
+
   private func isCharSetEmpty(_ expr: Expr) throws -> Expr {
     return .makeBoolean(try self.characterSet(expr).isEmpty)
   }
-  
+
   private func charSetEqual(_ args: Arguments) throws -> Expr {
     var first: CharSet? = nil
     for arg in args {
@@ -327,7 +327,7 @@ public final class CharSetLibrary: NativeLibrary {
     }
     return .true
   }
-  
+
   private func charSetIncluded(_ args: Arguments) throws -> Expr {
     var left: CharSet? = nil
     for arg in args {
@@ -340,12 +340,12 @@ public final class CharSetLibrary: NativeLibrary {
     }
     return .true
   }
-  
+
   private func charSetDisjoint(_ first: Expr, _ second: Expr) throws -> Expr {
     return .makeBoolean(try self.characterSet(first).isDisjoint(with:
                           try self.characterSet(second)))
   }
-  
+
   private func charSetHash(_ expr: Expr, _ bound: Expr?) throws -> Expr {
     let cs = try self.characterSet(expr)
     let bnd = try bound?.asInt64() ?? 0
@@ -355,23 +355,23 @@ public final class CharSetLibrary: NativeLibrary {
       return .fixnum(Int64(cs.charSetHashValue) %% bnd)
     }
   }
-  
+
   private func charSetContains(_ expr: Expr, _ char: Expr) throws -> Expr {
     let cs = try self.characterSet(expr)
     return .makeBoolean(cs.contains(try char.asUniChar()))
   }
-  
+
   private func charSetSize(_ expr: Expr) throws -> Expr {
     return .fixnum(Int64(try self.characterSet(expr).count))
   }
-  
+
   private func charSetCursor(_ expr: Expr) throws -> Expr {
     guard let cursor = try self.characterSet(expr).first else {
       return .false
     }
     return .char(cursor)
   }
-  
+
   private func charSetRef(_ expr: Expr, _ cursor: Expr) throws -> Expr {
     _ = try self.characterSet(expr)
     guard case .char(_) = cursor else {
@@ -379,7 +379,7 @@ public final class CharSetLibrary: NativeLibrary {
     }
     return cursor
   }
-  
+
   private func charSetCursorNext(_ expr: Expr, _ cursor: Expr) throws -> Expr {
     let cs = try self.characterSet(expr)
     if cursor.isFalse {
@@ -393,7 +393,7 @@ public final class CharSetLibrary: NativeLibrary {
     }
     return .char(new)
   }
-  
+
   private func endOfCharSet(_ cursor: Expr) throws -> Expr {
     if cursor.isFalse {
       return .true
@@ -403,7 +403,7 @@ public final class CharSetLibrary: NativeLibrary {
     }
     return .false
   }
-  
+
   private func charSetToList(_ expr: Expr) throws -> Expr {
     let cs = try self.characterSet(expr)
     var res: Expr = .null
@@ -412,16 +412,16 @@ public final class CharSetLibrary: NativeLibrary {
     }
     return res
   }
-  
+
   private func charSetToString(_ expr: Expr) throws -> Expr {
     let uniChars = try self.characterSet(expr).array
     return .makeString(String(utf16CodeUnits: uniChars, count: uniChars.count))
   }
-  
+
   private func charSetComplement(_ expr: Expr) throws -> Expr {
     return .object(try self.characterSet(expr).inverted)
   }
-  
+
   private func charSetAdjoin(_ expr: Expr, _ args: Arguments) throws -> Expr {
     let cs = try self.characterSetCopy(expr)
     for arg in args {
@@ -429,7 +429,7 @@ public final class CharSetLibrary: NativeLibrary {
     }
     return .object(cs)
   }
-  
+
   private func charSetDelete(_ expr: Expr, _ args: Arguments) throws -> Expr {
     let cs = try self.characterSetCopy(expr)
     for arg in args {
@@ -437,7 +437,7 @@ public final class CharSetLibrary: NativeLibrary {
     }
     return .object(cs)
   }
-  
+
   private func charSetUnion(_ args: Arguments) throws -> Expr {
     let res = CharSet()
     for arg in args {
@@ -445,7 +445,7 @@ public final class CharSetLibrary: NativeLibrary {
     }
     return .object(res)
   }
-  
+
   private func charSetIntersection(_ args: Arguments) throws -> Expr {
     var res: CharSet? = nil
     for arg in args {
@@ -461,7 +461,7 @@ public final class CharSetLibrary: NativeLibrary {
       return .object(res!)
     }
   }
-  
+
   private func charSetDifference(_ first: Expr, _ args: Arguments) throws -> Expr {
     let cs = try self.characterSetCopy(first)
     for arg in args {
@@ -469,7 +469,7 @@ public final class CharSetLibrary: NativeLibrary {
     }
     return .object(cs)
   }
-  
+
   private func charSetXor(_ args: Arguments) throws -> Expr {
     let cs = CharSet()
     for arg in args {
@@ -477,7 +477,7 @@ public final class CharSetLibrary: NativeLibrary {
     }
     return .object(cs)
   }
-  
+
   private func charSetDiffIntersection(_ first: Expr, _ args: Arguments) throws -> Expr {
     let one = try self.characterSetCopy(first)
     let union = CharSet()
@@ -490,7 +490,7 @@ public final class CharSetLibrary: NativeLibrary {
     two.formIntersection(union)
     return .values(.pair(.object(one), .pair(.object(two), .null)))
   }
-  
+
   private func charSetComplementDestructive(_ expr: Expr) throws -> Expr {
     let cs = try self.characterSet(expr)
     guard !cs.immutable else {
@@ -499,7 +499,7 @@ public final class CharSetLibrary: NativeLibrary {
     cs.invert()
     return .object(cs)
   }
-  
+
   private func charSetAdjoinDestructive(_ expr: Expr, _ args: Arguments) throws -> Expr {
     let cs = try self.characterSet(expr)
     guard !cs.immutable else {
@@ -510,7 +510,7 @@ public final class CharSetLibrary: NativeLibrary {
     }
     return .object(cs)
   }
-  
+
   private func charSetDeleteDestructive(_ expr: Expr, _ args: Arguments) throws -> Expr {
     let cs = try self.characterSet(expr)
     guard !cs.immutable else {
@@ -521,7 +521,7 @@ public final class CharSetLibrary: NativeLibrary {
     }
     return .object(cs)
   }
-  
+
   private func charSetUnionDestructive(_ first: Expr, _ args: Arguments) throws -> Expr {
     let res = try self.characterSet(first)
     guard !res.immutable else {
@@ -532,7 +532,7 @@ public final class CharSetLibrary: NativeLibrary {
     }
     return .object(res)
   }
-  
+
   private func charSetIntersectionDestructive(_ first: Expr, _ args: Arguments) throws -> Expr {
     let res = try self.characterSet(first)
     guard !res.immutable else {
@@ -543,7 +543,7 @@ public final class CharSetLibrary: NativeLibrary {
     }
     return .object(res)
   }
-  
+
   private func charSetDifferenceDestructive(_ first: Expr, _ args: Arguments) throws -> Expr {
     let res = try self.characterSet(first)
     guard !res.immutable else {
@@ -554,7 +554,7 @@ public final class CharSetLibrary: NativeLibrary {
     }
     return .object(res)
   }
-  
+
   private func charSetXorDestructive(_ first: Expr, _ args: Arguments) throws -> Expr {
     let res = try self.characterSet(first)
     guard !res.immutable else {
@@ -565,7 +565,7 @@ public final class CharSetLibrary: NativeLibrary {
     }
     return .object(res)
   }
-  
+
   private func charSetDiffIntersectionDestructive(_ first: Expr,
                                                   _ second: Expr,
                                                   _ args: Arguments) throws -> Expr {
@@ -587,7 +587,7 @@ public final class CharSetLibrary: NativeLibrary {
     two.formIntersection(fst)
     return .values(.pair(.object(one), .pair(.object(two), .null)))
   }
-  
+
   private func characterSet(_ expr: Expr?) throws -> CharSet {
     guard let expr = expr else {
       return CharSet()
@@ -597,7 +597,7 @@ public final class CharSetLibrary: NativeLibrary {
     }
     return res
   }
-  
+
   private func characterSetCopy(_ expr: Expr?) throws -> CharSet {
     guard let expr = expr else {
       return CharSet()

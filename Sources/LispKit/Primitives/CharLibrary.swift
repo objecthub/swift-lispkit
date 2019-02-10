@@ -21,12 +21,12 @@
 import Foundation
 
 public final class CharLibrary: NativeLibrary {
-  
+
   /// Name of the library.
   public override class var name: [String] {
     return ["lispkit", "char"]
   }
-  
+
   /// Declarations of the library.
   public override func declarations() {
     self.define(Procedure("char?", isChar))
@@ -52,14 +52,14 @@ public final class CharLibrary: NativeLibrary {
     self.define(Procedure("char-downcase", charDowncase))
     self.define(Procedure("char-foldcase", charFoldcase))
   }
-  
+
   func isChar(_ expr: Expr) -> Expr {
     if case .char(_) = expr {
       return .true
     }
     return .false
   }
-  
+
   func charEquals(_ expr: Expr, _ args: Arguments) throws -> Expr {
     let ch = try expr.asUniChar()
     for arg in args {
@@ -69,7 +69,7 @@ public final class CharLibrary: NativeLibrary {
     }
     return .true
   }
-  
+
   func charLessThan(_ expr: Expr, _ args: Arguments) throws -> Expr {
     var ch = try expr.asUniChar()
     for arg in args {
@@ -81,7 +81,7 @@ public final class CharLibrary: NativeLibrary {
     }
     return .true
   }
-  
+
   func charLessThanEquals(_ expr: Expr, _ args: Arguments) throws -> Expr {
     var ch = try expr.asUniChar()
     for arg in args {
@@ -93,7 +93,7 @@ public final class CharLibrary: NativeLibrary {
     }
     return .true
   }
-  
+
   func charGreaterThan(_ expr: Expr, _ args: Arguments) throws -> Expr {
     var ch = try expr.asUniChar()
     for arg in args {
@@ -105,7 +105,7 @@ public final class CharLibrary: NativeLibrary {
     }
     return .true
   }
-  
+
   func charGreaterThanEquals(_ expr: Expr, _ args: Arguments) throws -> Expr {
     var ch = try expr.asUniChar()
     for arg in args {
@@ -117,7 +117,7 @@ public final class CharLibrary: NativeLibrary {
     }
     return .true
   }
-  
+
   func charCiEquals(_ expr: Expr, _ args: Arguments) throws -> Expr {
     let str = try expr.charAsString().lowercased()
     for arg in args {
@@ -127,7 +127,7 @@ public final class CharLibrary: NativeLibrary {
     }
     return .true
   }
-  
+
   func charCiLessThan(_ expr: Expr, _ args: Arguments) throws -> Expr {
     var str = try expr.charAsString().lowercased()
     for arg in args {
@@ -139,7 +139,7 @@ public final class CharLibrary: NativeLibrary {
     }
     return .true
   }
-  
+
   func charCiLessThanEquals(_ expr: Expr, _ args: Arguments) throws -> Expr {
     var str = try expr.charAsString().lowercased()
     for arg in args {
@@ -151,7 +151,7 @@ public final class CharLibrary: NativeLibrary {
     }
     return .true
   }
-  
+
   func charCiGreaterThan(_ expr: Expr, _ args: Arguments) throws -> Expr {
     var str = try expr.charAsString().lowercased()
     for arg in args {
@@ -163,7 +163,7 @@ public final class CharLibrary: NativeLibrary {
     }
     return .true
   }
-  
+
   func charCiGreaterThanEquals(_ expr: Expr, _ args: Arguments) throws -> Expr {
     var str = try expr.charAsString().lowercased()
     for arg in args {
@@ -175,27 +175,27 @@ public final class CharLibrary: NativeLibrary {
     }
     return .true
   }
-  
+
   func charIsAlphabetic(_ expr: Expr) throws -> Expr {
     return .makeBoolean(LETTERS.contains(unicodeScalar(try expr.asUniChar())))
   }
-  
+
   func charIsNumeric(_ expr: Expr) throws -> Expr {
     return .makeBoolean(DIGITS.contains(unicodeScalar(try expr.asUniChar())))
   }
-  
+
   func charIsWhitespace(_ expr: Expr) throws -> Expr {
     return .makeBoolean(WHITESPACES_NL.contains(unicodeScalar(try expr.asUniChar())))
   }
-  
+
   func charIsUpperCase(_ expr: Expr) throws -> Expr {
     return .makeBoolean(UPPER_LETTERS.contains(unicodeScalar(try expr.asUniChar())))
   }
-  
+
   func charIsLowerCase(_ expr: Expr) throws -> Expr {
     return .makeBoolean(LOWER_LETTERS.contains(unicodeScalar(try expr.asUniChar())))
   }
-  
+
   func digitValue(_ expr: Expr) throws -> Expr {
     let ch = try expr.asUniChar()
     guard DIGITS.contains(unicodeScalar(ch)) else {
@@ -203,23 +203,23 @@ public final class CharLibrary: NativeLibrary {
     }
     return .fixnum(Int64(ch - ZERO_CH))
   }
-  
+
   func charToInteger(_ expr: Expr) throws -> Expr {
     return .fixnum(Int64(try expr.asUniChar()))
   }
-  
+
   func integerToChar(_ expr: Expr) throws -> Expr {
     return .char(UInt16(try expr.asInt(below: Int(UInt16.max) + 1)))
   }
-  
+
   func charUpcase(_ expr: Expr) throws -> Expr {
     return .char(try expr.charAsString().uppercased().utf16.first!)
   }
-  
+
   func charDowncase(_ expr: Expr) throws -> Expr {
     return .char(try expr.charAsString().lowercased().utf16.first!)
   }
-  
+
   func charFoldcase(_ expr: Expr) throws -> Expr {
     return .char(try expr.charAsString().folding(
       options: [.caseInsensitive], locale: nil).utf16.first!)

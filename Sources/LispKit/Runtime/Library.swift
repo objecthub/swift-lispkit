@@ -24,14 +24,14 @@
 /// and initialization declarations.
 ///
 open class Library: Reference, Trackable, CustomStringConvertible {
-  
+
   /// State of a library
   public enum State: CustomStringConvertible {
     case loaded
     case allocated
     case wired
     case initialized
-    
+
     var isAllocated: Bool {
       switch self {
         case .allocated, .wired, .initialized:
@@ -40,7 +40,7 @@ open class Library: Reference, Trackable, CustomStringConvertible {
           return false
       }
     }
-    
+
     public var description: String {
       switch self {
         case .loaded:
@@ -54,13 +54,13 @@ open class Library: Reference, Trackable, CustomStringConvertible {
       }
     }
   }
-  
+
   /// Internal location references are tagged references to a location. The tag determines
   /// whether the library has read-only or read/write access.
   public enum InternalLocationRef: CustomStringConvertible {
     case mutable(Int)
     case immutable(Int)
-    
+
     var isMutable: Bool {
       switch self {
         case .mutable(_):
@@ -69,7 +69,7 @@ open class Library: Reference, Trackable, CustomStringConvertible {
           return false
         }
     }
-    
+
     var location: Int {
       switch self {
         case .mutable(let loc):
@@ -78,7 +78,7 @@ open class Library: Reference, Trackable, CustomStringConvertible {
           return loc
       }
     }
-    
+
     func unify(with that: InternalLocationRef?) -> InternalLocationRef? {
       guard let other = that else {
         return self
@@ -106,7 +106,7 @@ open class Library: Reference, Trackable, CustomStringConvertible {
           return .immutable(loc1)
       }
     }
-    
+
     public var description: String {
       switch self {
         case .mutable(let loc):
@@ -116,14 +116,14 @@ open class Library: Reference, Trackable, CustomStringConvertible {
       }
     }
   }
-  
+
   /// Internal identifiers are tagged symbols. The tag determines whether the library provides
   /// read-only or read/write access to the location to which the symbol refers to. This data
   /// structure is used for representing exported symbols.
   public enum InternalIdent: Hashable {
     case mutable(Symbol)
     case immutable(Symbol)
-    
+
     var isMutable: Bool {
       switch self {
         case .mutable(_):
@@ -132,7 +132,7 @@ open class Library: Reference, Trackable, CustomStringConvertible {
           return false
       }
     }
-    
+
     var identifier: Symbol {
       switch self {
         case .mutable(let sym):
@@ -141,7 +141,7 @@ open class Library: Reference, Trackable, CustomStringConvertible {
           return sym
       }
     }
-    
+
     func located(at location: Int) -> InternalLocationRef {
       switch self {
         case .mutable(_):
@@ -150,63 +150,63 @@ open class Library: Reference, Trackable, CustomStringConvertible {
           return .immutable(location)
       }
     }
-    
+
     public func hash(into hasher: inout Hasher) {
       hasher.combine(self.identifier)
     }
-    
+
     public static func ==(left: InternalIdent, right: InternalIdent) -> Bool {
       return left.identifier == right.identifier
     }
   }
-  
+
   /// A block of initialization expressions coming from a file defined in the provided
   /// source directory.
   public final class DeclBlock {
     let sourceDirectory: String?
     var decls: Exprs
-    
+
     init(decls: Exprs = [], inDirectory: String? = nil) {
       self.sourceDirectory = inDirectory
       self.decls = decls
     }
   }
-  
+
   /// The context in which this library is defined
   public unowned let context: Context
-  
+
   /// The name of a library is a list of symbols
   public let name: Expr
-  
+
   /// Maps exported identifiers to location references (immutable/mutable)
   public internal(set) var exports: [Symbol : InternalLocationRef]
-  
+
   /// Maps imported internal identifiers to location references (immutable/mutable)
   public internal(set) var imports: [Symbol : InternalLocationRef]
-  
+
   /// Used to detect cyclic references
   private var unresolvedExports: Set<Symbol>
-  
+
   /// Maps imported internal identifiers to a set of (library, identifier) pairs
   internal var imported: MultiMap<Symbol, (Library, Symbol)>
-  
+
   /// Libraries on which this library is dependent on
   internal var libraries: Set<Library>
-  
+
   /// Parsed export declarations, mapping exported identifiers to internal identifiers
   /// (with mutable/immutable annotations)
   internal var exportDecls: [Symbol : InternalIdent]
-  
+
   /// Parsed import declarations
   internal var importDecls: [ImportSet]
-  
+
   /// Parsed initialization declarations
   internal var initDeclBlocks: [DeclBlock]
-  
+
   /// State of the library
   public private(set) var state: State
-  
-  
+
+
   /// Initialize a new empty library in the given context.
   internal init(name: Expr, in context: Context) throws {
     try Library.checkLibraryName(name)
@@ -223,7 +223,7 @@ open class Library: Reference, Trackable, CustomStringConvertible {
     self.state = .loaded
     super.init()
   }
-  
+
   /// Initialize a new library based on its definition, its origin (the source directory),
   /// and context.
   internal convenience init(name: Expr,
@@ -233,12 +233,12 @@ open class Library: Reference, Trackable, CustomStringConvertible {
     try self.init(name: name, in: context)
     try self.parseLibraryDefinition(declarations, inDirectory: origin)
   }
-  
+
   /// Returns a sequence of exported symbols
   public var exported: AnySequence<Symbol> {
     return AnySequence(self.exportDecls.keys)
   }
-  
+
   public func exportLocation(_ ident: Symbol) throws -> InternalLocationRef? {
     assert(self.state.isAllocated, "calling exportLocation on not allocated library")
     if self.unresolvedExports.contains(ident) {
@@ -270,7 +270,7 @@ open class Library: Reference, Trackable, CustomStringConvertible {
     // Return the now guaranteed export location
     return self.exports[ident]!
   }
-  
+
   private func importLocation(_ ident: Symbol) throws -> InternalLocationRef? {
     // Return location if the internal identifier has a known location already
     if let locationRef = self.imports[ident] {
@@ -306,11 +306,11 @@ open class Library: Reference, Trackable, CustomStringConvertible {
     // Return the import location (is only nil for self references)
     return self.imports[ident]
   }
-  
+
   internal func initializationEnvironment() throws -> Environment {
     return try Environment(in: self.context, for: self)
   }
-  
+
   public func allocate() throws -> Bool {
     guard case .loaded = self.state else {
       return false
@@ -349,7 +349,7 @@ open class Library: Reference, Trackable, CustomStringConvertible {
     }
     return true
   }
-  
+
   public func wire() throws -> Bool {
     _ = try self.allocate()
     guard case .allocated = self.state else {
@@ -375,7 +375,7 @@ open class Library: Reference, Trackable, CustomStringConvertible {
     }
     return true
   }
-  
+
   public func initialize() throws -> Bool {
     _ = try self.wire()
     guard case .wired = self.state else {
@@ -418,7 +418,7 @@ open class Library: Reference, Trackable, CustomStringConvertible {
     }
     return true
   }
-  
+
   private static func checkLibraryName(_ name: Expr) throws {
     var expr = name
     while case .pair(let comp, let next) = expr {
@@ -434,7 +434,7 @@ open class Library: Reference, Trackable, CustomStringConvertible {
       throw RuntimeError.eval(.malformedLibraryName, name)
     }
   }
-  
+
   private func parseLibraryDefinition(_ def: Expr, inDirectory: String?) throws {
     // Array of all library definition statements. Each library definition statement consists
     // of an optional source directory and an expression.
@@ -615,7 +615,7 @@ open class Library: Reference, Trackable, CustomStringConvertible {
       i += 1
     }
   }
-  
+
   /// Returns the library name for the given string components. Strings that can be converted
   /// to an integer are represented as fixnum values, all other strings are converted to symbols.
   public static func name(_ components: [String], in context: Context) -> Expr {
@@ -629,7 +629,7 @@ open class Library: Reference, Trackable, CustomStringConvertible {
     }
     return res
   }
-  
+
   /// Libraries do not mark other referenced libraries; this is assuming that all libraries
   /// are tracked individually. Only the initializing declarations need to be marked.
   public func mark(_ tag: UInt8) {
@@ -639,7 +639,7 @@ open class Library: Reference, Trackable, CustomStringConvertible {
       }
     }
   }
-  
+
   public var description: String {
     return "<library \(self.name) exporting \(self.exports.keys)>"
   }

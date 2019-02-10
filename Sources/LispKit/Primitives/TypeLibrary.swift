@@ -29,12 +29,12 @@ import Foundation
 /// Type library
 ///
 public final class TypeLibrary: NativeLibrary {
-  
+
   /// Name of the library.
   public override class var name: [String] {
     return ["lispkit", "type"]
   }
-  
+
   /// Dependencies of the library.
   public override func dependencies() {
     self.`import`(from: ["lispkit", "core"], "define", "lambda", "values", "quote")
@@ -43,7 +43,7 @@ public final class TypeLibrary: NativeLibrary {
     self.`import`(from: ["lispkit", "dynamic"], "error")
     self.`import`(from: ["lispkit", "box"], "mcons", "mcar")
   }
-  
+
   /// Declarations of the library.
   public override func declarations() {
     self.define(Procedure("_tag", self.tag))
@@ -61,18 +61,18 @@ public final class TypeLibrary: NativeLibrary {
       self.define("make-type", via:
         "(define (make-type . id) (_typeproc (mcons (if (null? id) #f (car id)) '())))")
   }
-  
+
   func tag(_ tag: Expr, _ expr: Expr) -> Expr {
     return .tagged(tag, expr)
   }
-  
+
   func untag(_ expr: Expr) throws -> Expr {
     guard case .tagged(_, let untagged) = expr else {
       throw RuntimeError.type(expr, expected: [.taggedType])
     }
     return untagged
   }
-  
+
   func isInstance(_ expr: Expr, _ supertype: Expr) throws -> Expr {
     guard case .tagged(let type, _) = expr else {
       return .false

@@ -27,38 +27,38 @@ import Foundation
 /// when the `BinaryInput` object is getting created.
 ///
 open class BinaryInput: IteratorProtocol {
-  
+
   /// Buffer for fetching bigger chunks of data at once.
   private var buffer: [UInt8]
-  
+
   /// Size of the buffer; invariant `bufferSize` <= `buffer.count`
   private var bufferSize: Int = 0
-  
+
   /// Index into buffer pointing at the next byte to read.
   private var index: Int = 0
-  
+
   /// Eof is true if all bytes have been consumed.
   public private(set) var eof: Bool = false
-  
+
   /// Input stream. If this property is nil, only the content in the buffer is relevant.
   private var input: BinaryInputSource?
-  
+
   /// The URL for the input stream. `url` is nil whenever `input` is nil.
   public let url: URL?
-  
+
   /// Callback to check if the binary input should abort its operation.
   public let isAborted: () -> Bool
-  
+
   /// Relative paths are relative to the documents folder
   private static let documentsUrl =
     URL(fileURLWithPath:
       NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])
-  
+
   /// A default abortion callback
   public static func neverAbort() -> Bool {
     return false
   }
-  
+
   /// Initializes a binary input from a byte array
   public init(data: [UInt8],
               abortionCallback: @escaping () -> Bool = BinaryInput.neverAbort) {
@@ -68,7 +68,7 @@ open class BinaryInput: IteratorProtocol {
     self.url = nil
     self.isAborted = abortionCallback
   }
-  
+
   /// Initializes a binary input from a binary file given in terms of a local/absolute path.
   /// It is assumed that local paths are local to the documents folder. `capacity` determines
   /// the number of bytes used for caching data.
@@ -79,7 +79,7 @@ open class BinaryInput: IteratorProtocol {
               capacity: capacity,
               abortionCallback: abortionCallback)
   }
-  
+
   /// Initializes a binary input from a binary file at the given URL. `capacity` determines
   /// the number of bytes used for caching data.
   public convenience init?(url: URL,
@@ -104,7 +104,7 @@ open class BinaryInput: IteratorProtocol {
         self.init(source: input, url: url, capacity: capacity, abortionCallback: abortionCallback)
     }
   }
-  
+
   /// Initializes a binary input from a binary file at the given URL. `capacity` determines
   /// the number of bytes used for caching data.
   public init?(source: BinaryInputSource,
@@ -135,12 +135,12 @@ open class BinaryInput: IteratorProtocol {
       self.eof = true
     }
   }
-  
+
   /// Makes sure that the input stream is closed when the object gets deallocated.
   deinit {
     self.close()
   }
-  
+
   /// Closes the `BinaryInput`.
   open func close() {
     if let input = self.input {
@@ -148,13 +148,13 @@ open class BinaryInput: IteratorProtocol {
       input.close()
     }
   }
-  
+
   /// Reads the next byte. Returns nil if all input is consumed or an error was encountered.
   /// Clients can disambiguate the current state by checking property `eof`.
   open func read() -> UInt8? {
     return self.next()
   }
-  
+
   /// Reads the next byte. Returns nil if all input is consumed or an error was encountered.
   /// Clients can disambiguate the current state by checking property `eof`.
   open func next() -> UInt8? {
@@ -164,7 +164,7 @@ open class BinaryInput: IteratorProtocol {
     self.index += 1
     return self.buffer[self.index - 1]
   }
-  
+
   /// Returns the next byte without consuming it. Returns nil if all input is consumed or an
   /// error was encountered. Clients can disambiguate the current state by checking property `eof`.
   open func peek() -> UInt8? {
@@ -173,7 +173,7 @@ open class BinaryInput: IteratorProtocol {
     }
     return self.buffer[self.index]
   }
-  
+
   /// Reads up to `n` bytes into a new byte array. Returns nil if all input is consumed or an
   /// error was encountered. Clients can disambiguate the current state by checking property `eof`.
   open func readMany(_ n: Int) -> [UInt8]? {
@@ -191,7 +191,7 @@ open class BinaryInput: IteratorProtocol {
     }
     return res
   }
-  
+
   /// Reads bytes into `target` starting from `start` up to and excluding `end`. Returns nil if
   /// all input is consumed or an error was encountered. Clients can disambiguate the current
   /// state by checking property `eof`.
@@ -209,7 +209,7 @@ open class BinaryInput: IteratorProtocol {
     }
     return to - start
   }
-  
+
   open var readMightBlock: Bool {
     if self.eof {
       return false
@@ -219,7 +219,7 @@ open class BinaryInput: IteratorProtocol {
       return false
     }
   }
-  
+
   /// Guarantees that there is at least one byte to read from the buffer. Returns false if the
   /// end of file is reached or there has been a read error.
   private func readable() -> Bool {
@@ -246,7 +246,7 @@ open class BinaryInput: IteratorProtocol {
     }
     return true
   }
-  
+
   /// Returns a function that decodes the binary input as UTF8 and returns strings of at most
   /// `length` characters (where a character is a unicode scalar).
   public func textProvider(_ length: Int) -> () -> String? {

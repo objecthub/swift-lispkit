@@ -26,22 +26,22 @@ import Foundation
 /// written. If there is no output object attached, all data will be accumulated in the buffer.
 ///
 open class TextOutput {
-  
+
   /// Internal character buffer.
   private var buffer: [UniChar]
-  
+
   /// Index of the next character to write.
   private var next: Int
-  
+
   /// Soft threshold for triggering a `flush`. Invariant: `threshold` <= `buffer.count`.
   private let threshold: Int
-  
+
   /// Text output target object to which the character sequences are written as a stream of bytes.
   private var target: TextOutputTarget?
-  
+
   /// The URL of this text output.
   open var url: URL?
-  
+
   /// Returns the characters that are currently in the buffer as a string.
   open var currentBuffer: String {
     return String(utf16CodeUnits: self.buffer, count: self.next)
@@ -54,14 +54,14 @@ open class TextOutput {
     self.target = nil
     self.url = nil
   }
-  
+
   public convenience init(output: BinaryOutput, capacity: Int = 4096) {
     self.init(target: UTF8EncodedTarget(output: output),
               url: output.url as URL?,
               capacity: capacity,
               threshold: capacity)
   }
-  
+
   public init(target: TextOutputTarget,
               url: URL? = nil,
               capacity: Int = 4096,
@@ -75,19 +75,19 @@ open class TextOutput {
     self.target = target
     self.url = url
   }
-  
+
   /// Closes the output object at garbage collection time.
   deinit {
     self.close()
   }
-  
+
   /// Closes the output object. From that point on, writing to the `TextOutput` is still
   /// possible and will be accumulated in the internal buffer.
   open func close() {
     self.flush()
     self.target = nil
   }
-  
+
   @discardableResult open func flush(_ completely: Bool = false) -> Bool {
     if self.target != nil && self.next > 0 {
       let str = String(utf16CodeUnits: self.buffer, count: self.next)
@@ -98,7 +98,7 @@ open class TextOutput {
     }
     return true
   }
-  
+
   open func write(_ ch: UniChar) -> Bool {
     guard self.writeToBuffer(ch) else {
       return false
@@ -108,7 +108,7 @@ open class TextOutput {
     }
     return true
   }
-  
+
   open func writeString(_ str: String) -> Bool {
     for ch in str.utf16 {
       guard self.writeToBuffer(ch) else {
@@ -120,7 +120,7 @@ open class TextOutput {
     }
     return true
   }
-  
+
   private func writeToBuffer(_ ch: UniChar) -> Bool {
     if self.next < self.buffer.count {
       self.buffer[self.next] = ch

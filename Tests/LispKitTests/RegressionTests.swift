@@ -26,11 +26,11 @@ import XCTest
 /// regression test.
 ///
 class RegressionTests: LispKitTestCase {
-  
+
   func testDefinitions() {
     self.execute(file: "Definitions")
   }
-  
+
   func testControlFlow() {
     self.execute(file: "ControlFlow")
   }
@@ -42,91 +42,91 @@ class RegressionTests: LispKitTestCase {
   func testLocalSyntaxRules() {
     self.execute(file: "LocalSyntaxRules")
   }
-  
+
   func testCallCC() {
     self.execute(file: "CallCC")
   }
-  
+
   func testDynamicWind() {
     self.execute(file: "DynamicWind")
   }
-  
+
   func testParameters() {
     self.execute(file: "Parameters")
   }
-  
+
   func testDelayedEvaluation() {
     self.execute(file: "DelayedEvaluation")
   }
-  
+
   func testLightweightTypes() {
     self.execute(file: "LightweightTypes")
   }
-  
+
   func testVectors() {
     self.execute(file: "Vectors")
   }
-  
+
   func testHashTables() {
     self.execute(file: "HashTables")
   }
-  
+
   func testPorts() {
     self.execute(file: "Ports")
   }
-  
+
   func testRecords() {
     self.execute(file: "Records")
   }
-  
+
   func testLibraries() {
     self.execute(file: "Libraries")
   }
-  
+
   func testDatatypes() {
     self.execute(file: "Datatypes")
   }
-  
+
   func testLogic() {
     self.execute(file: "Logic")
   }
-  
+
   func testSRFI19() {
     self.execute(file: "SRFI19")
   }
-  
+
   func testSRFI35() {
     self.execute(file: "SRFI35")
   }
-  
+
   func testSRFI69() {
     self.execute(file: "SRFI69")
   }
-  
+
   func testSRFI113() {
     self.execute(file: "SRFI113")
   }
-  
+
   func testSRFI121() {
     self.execute(file: "SRFI121")
   }
-  
+
   func testSRFI132() {
     self.execute(file: "SRFI132")
   }
-  
+
   func testSRFI133() {
     self.execute(file: "SRFI133")
   }
-  
+
   func testSRFI134() {
     self.execute(file: "SRFI134")
   }
-  
+
   func testSRFI135() {
     self.execute(file: "SRFI135")
   }
-  
+
   func testSRFI152() {
     self.execute(file: "SRFI152")
   }

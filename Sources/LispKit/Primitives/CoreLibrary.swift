@@ -21,18 +21,18 @@
 import Foundation
 
 public final class CoreLibrary: NativeLibrary {
-  
+
   /// Name of the library.
   public override class var name: [String] {
     return ["lispkit", "core"]
   }
-  
+
   internal static let idProc = Procedure("identity", CoreLibrary.identity)
   internal static let voidProc = Procedure("void", CoreLibrary.voidConst)
-  
+
   /// Declarations of the library.
   public override func declarations() {
-    
+
     // Basic primitives
     self.define(CoreLibrary.idProc)
     self.define(Procedure("procedure?", isProcedure))
@@ -47,7 +47,7 @@ public final class CoreLibrary: NativeLibrary {
     self.define(SpecialForm("λ", compileLambda))
     self.define(SpecialForm("case-lambda", compileCaseLambda))
     self.define(SpecialForm("case-λ", compileCaseLambda))
-    
+
     // Definition primitives
     self.define(SpecialForm("define", compileDefine))
     self.define(SpecialForm("define-values", compileDefineValues))
@@ -55,7 +55,7 @@ public final class CoreLibrary: NativeLibrary {
     self.define(SpecialForm("define-library", compileDefineLibrary))
     self.define(SpecialForm("syntax-rules", compileSyntaxRules))
     self.define(SpecialForm("set!", compileSet))
-    
+
     // Delayed execution
     self.define(Procedure("promise?", isPromise))
     self.define(Procedure("make-promise", makePromise))
@@ -70,32 +70,32 @@ public final class CoreLibrary: NativeLibrary {
     self.define(SpecialForm("stream-delay-force", compileStreamDelayForce))
     self.define(SpecialForm("stream-lazy", compileStreamDelayForce))
     self.define(Procedure("force", compileForce, in: self.context))
-    
+
     // Symbol primitives
     self.define(Procedure("symbol?", isSymbol))
     self.define(Procedure("gensym", gensym))
     self.define(Procedure("symbol=?", stringEquals))
     self.define(Procedure("string->symbol", stringToSymbol))
     self.define(Procedure("symbol->string", symbolToString))
-    
+
     // Boolean primitives
     self.define(Procedure("boolean?", isBoolean))
     self.define(Procedure("boolean=?", isBooleanEq))
     self.define(SpecialForm("and", compileAnd))
     self.define(SpecialForm("or", compileOr))
     self.define(Procedure("not", not, compileNot))
-    
+
     // Conditional & inclusion compilation
     self.define(SpecialForm("cond-expand", compileCondExpand))
     self.define(SpecialForm("include", include))
     self.define(SpecialForm("include-ci", includeCi))
-    
+
     // Multiple values
     self.define(Procedure("values", values, compileValues))
     self.define(Procedure("apply-with-values", applyWithValues))
     self.define("call-with-values", via:
       "(define (call-with-values producer consumer) (apply-with-values consumer (producer)))")
-    
+
     // Environments
     self.define(Procedure("environment?", isEnvironment))
     self.define(Procedure("environment", environment))
@@ -108,23 +108,23 @@ public final class CoreLibrary: NativeLibrary {
     self.define(Procedure("scheme-report-environment", schemeReportEnvironment))
     self.define(Procedure("null-environment", nullEnvironment))
     self.define(Procedure("interaction-environment", interactionEnvironment))
-    
+
     // Syntax errors
     self.define(SpecialForm("syntax-error", compileSyntaxError))
-    
+
     // Helpers
     self.define(Procedure("void", CoreLibrary.voidConst))
     self.define(Procedure("void?", CoreLibrary.isVoid))
     self.define(CoreLibrary.idProc)
   }
-  
-  
+
+
   //-------- MARK: - Basic primitives
-  
+
   static func identity(expr: Expr) -> Expr {
     return expr
   }
-  
+
   private func eval(args: Arguments) throws -> Code {
     guard args.count > 0 else {
       throw RuntimeError.argumentCount(num: 1, args: .makeList(args))
@@ -140,7 +140,7 @@ public final class CoreLibrary: NativeLibrary {
                                 in: env,
                                 optimize: true)
   }
-  
+
   private func compileEval(compiler: Compiler, e: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let expr, let rest)) = e else {
       throw RuntimeError.argumentCount(min: 1, max: 2, expr: e)
@@ -159,7 +159,7 @@ public final class CoreLibrary: NativeLibrary {
     compiler.emit(.compile)
     return compiler.call(0, inTailPos: tail)
   }
-  
+
   private func apply(args: Arguments) throws -> (Procedure, Exprs) {
     guard args.count > 1 else {
       throw RuntimeError.argumentCount(min: 2, args: .makeList(args))
@@ -181,7 +181,7 @@ public final class CoreLibrary: NativeLibrary {
     }
     return (proc, exprs)
   }
-  
+
   private func compileApply(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let fun, let arglist)) = expr else {
       throw RuntimeError.argumentCount(min: 2, expr: expr)
@@ -201,11 +201,11 @@ public final class CoreLibrary: NativeLibrary {
     }
     throw RuntimeError.argumentCount(min: 2, expr: expr)
   }
-  
+
   private func isEqual(this: Expr, that: Expr) -> Expr {
     return .makeBoolean(equalExpr(that, this))
   }
-  
+
   private func compileEqual(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let this, .pair(let that, .null))) = expr else {
       throw RuntimeError.argumentCount(num: 2, expr: expr)
@@ -215,11 +215,11 @@ public final class CoreLibrary: NativeLibrary {
     compiler.emit(.equal)
     return false
   }
-  
+
   private func isEqv(this: Expr, that: Expr) -> Expr {
     return .makeBoolean(eqvExpr(that, this))
   }
-  
+
   private func compileEqv(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let this, .pair(let that, .null))) = expr else {
       throw RuntimeError.argumentCount(num: 2, expr: expr)
@@ -229,11 +229,11 @@ public final class CoreLibrary: NativeLibrary {
     compiler.emit(.eqv)
     return false
   }
-  
+
   private func isEq(this: Expr, that: Expr) -> Expr {
     return .makeBoolean(eqExpr(that, this))
   }
-  
+
   private func compileEq(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let this, .pair(let that, .null))) = expr else {
       throw RuntimeError.argumentCount(num: 2, expr: expr)
@@ -243,7 +243,7 @@ public final class CoreLibrary: NativeLibrary {
     compiler.emit(.eq)
     return false
   }
-  
+
   private func compileQuote(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let arg, .null)) = expr else {
       throw RuntimeError.argumentCount(num: 1, expr: expr)
@@ -251,7 +251,7 @@ public final class CoreLibrary: NativeLibrary {
     try compiler.pushValue(arg)
     return false
   }
-  
+
   private func compileQuasiquote(compiler: Compiler,
                                  expr: Expr,
                                  env: Env,
@@ -318,7 +318,7 @@ public final class CoreLibrary: NativeLibrary {
     }
     return false
   }
-  
+
   private func reduceQQ(_ expr: Expr, in env: Env) throws -> Expr {
     guard case .pair(let car, let cdr) = expr else {
       return Expr.makeList(.symbol(Symbol(self.context.symbols.quote, env.global)), expr)
@@ -357,7 +357,7 @@ public final class CoreLibrary: NativeLibrary {
                              try reduceQQ(cdr, in: env))
     }
   }
-  
+
   private func compileLambda(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let arglist, let body)) = expr else {
       throw RuntimeError.argumentCount(num: 1, expr: expr)
@@ -365,7 +365,7 @@ public final class CoreLibrary: NativeLibrary {
     try compiler.compileLambda(nil, arglist, body, env)
     return false
   }
-  
+
   private func compileCaseLambda(compiler: Compiler,
                                  expr: Expr,
                                  env: Env,
@@ -376,16 +376,16 @@ public final class CoreLibrary: NativeLibrary {
     try compiler.compileCaseLambda(nil, cases, env)
     return false
   }
-  
+
   private func isProcedure(expr: Expr) -> Expr {
     if case .procedure(_) = expr {
       return .true
     }
     return .false
   }
-  
+
   //-------- MARK: - Definition primitives
-  
+
   private func compileDefine(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     // Extract signature and definition
     guard case .pair(_, .pair(let sig, let def)) = expr else {
@@ -427,7 +427,7 @@ public final class CoreLibrary: NativeLibrary {
         throw RuntimeError.eval(.malformedDefinition, .pair(sig, Expr.makeList(def)))
     }
   }
-  
+
   private func compileDefineValues(compiler: Compiler,
                                    expr: Expr,
                                    env: Env,
@@ -502,7 +502,7 @@ public final class CoreLibrary: NativeLibrary {
         throw RuntimeError.eval(.malformedDefinition, .pair(sig, Expr.makeList(value)))
     }
   }
-  
+
   private func compileDefineSyntax(compiler: Compiler,
                                    expr: Expr,
                                    env: Env,
@@ -535,7 +535,7 @@ public final class CoreLibrary: NativeLibrary {
     compiler.emit(.pushConstant(index))
     return false
   }
-  
+
   private func compileDefineLibrary(compiler: Compiler,
                                     expr: Expr,
                                     env: Env,
@@ -549,7 +549,7 @@ public final class CoreLibrary: NativeLibrary {
     compiler.emit(.pushVoid)
     return false
   }
-  
+
   private func compileSyntaxRules(compiler: Compiler,
                                   expr: Expr,
                                   env: Env,
@@ -606,7 +606,7 @@ public final class CoreLibrary: NativeLibrary {
     compiler.emit(.pushConstant(compiler.registerConstant(.procedure(Procedure(rules)))))
     return false
   }
-  
+
   private func check(pattern: Expr, ellipsis: Symbol) -> Expr? {
     var expr = pattern
     var ellipsisFound = false
@@ -646,7 +646,7 @@ public final class CoreLibrary: NativeLibrary {
         return expr
     }
   }
-  
+
   private func compileSet(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let symbol, .pair(let value, .null))) = expr else {
       throw RuntimeError.argumentCount(num: 2, expr: expr)
@@ -657,9 +657,9 @@ public final class CoreLibrary: NativeLibrary {
     compiler.emit(.pushVoid)
     return false
   }
-  
+
   //-------- MARK: - Delayed execution
-  
+
   private func isPromise(expr: Expr) -> Expr {
     if case .promise(let future) = expr,
        case .promise = future.kind {
@@ -667,11 +667,11 @@ public final class CoreLibrary: NativeLibrary {
     }
     return .false
   }
-  
+
   private func makePromise(expr: Expr) -> Expr {
     return .promise(Promise(kind: .promise, value: expr))
   }
-  
+
   private func compileDelayForce(compiler: Compiler,
                                  expr: Expr,
                                  env: Env,
@@ -686,7 +686,7 @@ public final class CoreLibrary: NativeLibrary {
     compiler.emit(.makePromise)
     return false
   }
-  
+
   private func compileDelay(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let delayed, .null)) = expr else {
       throw RuntimeError.argumentCount(num: 1, expr: expr)
@@ -696,7 +696,7 @@ public final class CoreLibrary: NativeLibrary {
     compiler.emit(.makePromise)
     return false
   }
-  
+
   private func compileForce(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let promise, .null)) = expr else {
       throw RuntimeError.argumentCount(num: 1, expr: expr)
@@ -706,7 +706,7 @@ public final class CoreLibrary: NativeLibrary {
     compiler.emit(.storeInPromise)
     return false
   }
-  
+
   private func isStream(expr: Expr) -> Expr {
     if case .promise(let future) = expr,
        case .stream = future.kind {
@@ -714,11 +714,11 @@ public final class CoreLibrary: NativeLibrary {
     }
     return .false
   }
-  
+
   private func makeStream(expr: Expr) -> Expr {
     return .promise(Promise(kind: .stream, value: expr))
   }
-  
+
   private func compileStreamDelayForce(compiler: Compiler,
                                        expr: Expr,
                                        env: Env,
@@ -733,7 +733,7 @@ public final class CoreLibrary: NativeLibrary {
     compiler.emit(.makeStream)
     return false
   }
-  
+
   private func compileStreamDelay(compiler: Compiler,
                                   expr: Expr,
                                   env: Env,
@@ -747,20 +747,20 @@ public final class CoreLibrary: NativeLibrary {
     return false
   }
 
-  
+
   //-------- MARK: - Symbol primitives
-  
+
   private func isSymbol(expr: Expr) -> Expr {
     if case .symbol(_) = expr {
       return .true
     }
     return .false
   }
-  
+
   private func gensym(expr: Expr?) throws -> Expr {
     return .symbol(self.context.symbols.gensym(try expr?.asString() ?? "g"))
   }
-  
+
   private func stringEquals(expr: Expr, args: Arguments) throws -> Expr {
     let sym = try expr.asSymbol()
     for arg in args {
@@ -770,17 +770,17 @@ public final class CoreLibrary: NativeLibrary {
     }
     return .true
   }
-  
+
   private func stringToSymbol(expr: Expr) throws -> Expr {
     return .symbol(self.context.symbols.intern(try expr.asString()))
   }
-  
+
   private func symbolToString(expr: Expr) throws -> Expr {
     return .makeString(try expr.asSymbol().rawIdentifier)
   }
-  
+
   //-------- MARK: - Boolean primitives
-  
+
   private func isBoolean(expr: Expr) -> Expr {
     switch expr {
       case .true, .false:
@@ -789,7 +789,7 @@ public final class CoreLibrary: NativeLibrary {
         return .false
     }
   }
-  
+
   private func isBooleanEq(_ expr1: Expr, _ expr2: Expr, args: Arguments) throws -> Expr {
     var fst: Bool
     switch expr1 {
@@ -828,14 +828,14 @@ public final class CoreLibrary: NativeLibrary {
     }
     return .true
   }
-  
+
   private func not(expr: Expr) -> Expr {
     if case .false = expr {
       return .true
     }
     return .false
   }
-  
+
   private func compileNot(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let arg, .null)) = expr else {
       throw RuntimeError.argumentCount(num: 1, expr: expr)
@@ -844,7 +844,7 @@ public final class CoreLibrary: NativeLibrary {
     compiler.emit(.not)
     return false
   }
-  
+
   private func compileAnd(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, let exprs) = expr else {
       preconditionFailure()
@@ -870,7 +870,7 @@ public final class CoreLibrary: NativeLibrary {
     compiler.emit(.pushTrue)
     return false
   }
-  
+
   private func compileOr(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, let exprs) = expr else {
       preconditionFailure()
@@ -896,7 +896,7 @@ public final class CoreLibrary: NativeLibrary {
     compiler.emit(.pushFalse)
     return false
   }
-  
+
   private func compileCondExpand(compiler: Compiler,
                                  expr: Expr,
                                  env: Env,
@@ -937,7 +937,7 @@ public final class CoreLibrary: NativeLibrary {
                                    inTailPos: tail,
                                    localDefine: false)
   }
-  
+
   private func include(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard  case .pair(_, let filenameList) = expr else {
       preconditionFailure()
@@ -948,7 +948,7 @@ public final class CoreLibrary: NativeLibrary {
                             env: env,
                             tail: tail)
   }
-  
+
   private func includeCi(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard  case .pair(_, let filenameList) = expr else {
       preconditionFailure()
@@ -959,7 +959,7 @@ public final class CoreLibrary: NativeLibrary {
                             env: env,
                             tail: tail)
   }
-  
+
   private func include(compiler: Compiler,
                        filenameList: Expr,
                        foldCase: Bool,
@@ -987,9 +987,9 @@ public final class CoreLibrary: NativeLibrary {
                                    inTailPos: tail,
                                    localDefine: false)
   }
-  
+
   //-------- MARK: - Multiple values
-  
+
   private func values(args: Arguments) -> Expr {
     switch args.count {
       case 0:
@@ -1006,7 +1006,7 @@ public final class CoreLibrary: NativeLibrary {
         return .values(res)
     }
   }
-  
+
   private func compileValues(_ compiler: Compiler,
                              expr: Expr,
                              env: Env,
@@ -1024,7 +1024,7 @@ public final class CoreLibrary: NativeLibrary {
     }
     return false
   }
-  
+
   private func applyWithValues(args: Arguments) throws -> (Procedure, Exprs) {
     guard args.count == 2 else {
       throw RuntimeError.argumentCount(num: 2, args: .makeList(args))
@@ -1049,7 +1049,7 @@ public final class CoreLibrary: NativeLibrary {
   }
 
   //-------- MARK: - Environments
-  
+
   private func isEnvironment(expr: Expr) -> Expr {
     switch expr {
       case .env(_):
@@ -1058,7 +1058,7 @@ public final class CoreLibrary: NativeLibrary {
         return .false
     }
   }
-  
+
   private func environment(exprs: Arguments) throws -> Expr {
     var importSets = [ImportSet]()
     for expr in exprs {
@@ -1069,7 +1069,7 @@ public final class CoreLibrary: NativeLibrary {
     }
     return Expr.env(try Environment(in: self.context, importing: importSets))
   }
-  
+
   private func environmentBoundNames(expr: Expr) throws -> Expr {
     guard case .env(let environment) = expr else {
       throw RuntimeError.type(expr, expected: [.envType])
@@ -1080,7 +1080,7 @@ public final class CoreLibrary: NativeLibrary {
     }
     return res
   }
-  
+
   private func environmentBindings(expr: Expr) throws -> Expr {
     guard case .env(let environment) = expr else {
       throw RuntimeError.type(expr, expected: [.envType])
@@ -1093,14 +1093,14 @@ public final class CoreLibrary: NativeLibrary {
     }
     return res
   }
-  
+
   private func environmentBound(expr: Expr, symbol: Expr) throws -> Expr {
     guard case .env(let environment) = expr else {
       throw RuntimeError.type(expr, expected: [.envType])
     }
     return .makeBoolean(!environment.isUndefined(try symbol.asSymbol()))
   }
-  
+
   private func environmentLookup(expr: Expr, symbol: Expr) throws -> Expr {
     guard case .env(let environment) = expr else {
       throw RuntimeError.type(expr, expected: [.envType])
@@ -1110,7 +1110,7 @@ public final class CoreLibrary: NativeLibrary {
     }
     return value
   }
-  
+
   private func environmentAssignable(expr: Expr, symbol: Expr) throws -> Expr {
     guard case .env(let environment) = expr else {
       throw RuntimeError.type(expr, expected: [.envType])
@@ -1118,7 +1118,7 @@ public final class CoreLibrary: NativeLibrary {
     let sym = try symbol.asSymbol()
     return .makeBoolean(!environment.isUndefined(sym) && !environment.isImmutable(sym))
   }
-  
+
   private func environmentAssign(expr: Expr, symbol: Expr, value: Expr) throws -> Expr {
     guard case .env(let environment) = expr else {
       throw RuntimeError.type(expr, expected: [.envType])
@@ -1130,7 +1130,7 @@ public final class CoreLibrary: NativeLibrary {
     _ = environment.set(sym, to: value)
     return .void
   }
-  
+
   private func schemeReportEnvironment(expr: Expr) throws -> Expr {
     var importSets = [ImportSet]()
     guard let importSet = ImportSet(.pair(.symbol(self.context.symbols.scheme),
@@ -1141,7 +1141,7 @@ public final class CoreLibrary: NativeLibrary {
     importSets.append(importSet)
     return Expr.env(try Environment(in: self.context, importing: importSets))
   }
-  
+
   private func nullEnvironment(expr: Expr) throws -> Expr {
     var importSets = [ImportSet]()
     guard let importSet = ImportSet(.pair(.symbol(self.context.symbols.scheme),
@@ -1152,13 +1152,13 @@ public final class CoreLibrary: NativeLibrary {
     importSets.append(importSet)
     return Expr.env(try Environment(in: self.context, importing: importSets))
   }
-  
+
   private func interactionEnvironment() -> Expr {
     return .env(self.context.environment)
   }
-  
+
   //-------- MARK: - Syntax errors
-  
+
   private func compileSyntaxError(compiler: Compiler,
                                   expr: Expr,
                                   env: Env,
@@ -1170,14 +1170,14 @@ public final class CoreLibrary: NativeLibrary {
                               message.unescapedDescription,
                               Array(irritants.toExprs().0))
   }
-  
-  
+
+
   //-------- MARK: - System primitives
-  
+
   static func voidConst() -> Expr {
     return .void
   }
-  
+
   static func isVoid(expr: Expr) -> Expr {
     switch expr {
       case .void:

@@ -4,7 +4,7 @@
 //
 //  Created by Matthias Zenger on 06/03/2016.
 //  Copyright © 2016 ObjectHub. All rights reserved.
-// 
+//
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
 //  You may obtain a copy of the License at
@@ -23,23 +23,23 @@
 /// equality and the hash value.
 ///
 open class Reference: Hashable {
-  
+
   public final var identity: UInt {
     return UInt(bitPattern: ObjectIdentifier(self))
   }
-  
+
   public final var identityString: String {
     return String(self.identity, radix: 16)
   }
-  
+
   public final func hash(into hasher: inout Hasher) {
     hasher.combine(ObjectIdentifier(self))
   }
-  
+
   open var typeDescription: String {
     return "reference"
   }
-  
+
   public static func ==(lhs: Reference, rhs: Reference) -> Bool {
     return lhs === rhs
   }

@@ -25,66 +25,66 @@ import Foundation
 /// access to components shared by all environments.
 ///
 public final class Context {
-  
+
   /// The name of the LispKit interpreter which is defined by this context.
   public let implementationName: String?
-  
+
   /// Version of the LispKit interpreter which is defined by this context.
   public let implementationVersion: String?
-  
+
   /// Command-line arguments
   public let commandLineArguments: [String]
-  
+
   /// Initial home path used by the LispKit file system
   public let initialHomePath: String?
-  
+
   /// A delegate object which receives updates related to the virtual machine managed by
   /// this context. The virtual machine also delegates some functionality to this object.
   public let delegate: ContextDelegate
-  
+
   /// The global expression heap.
   public let heap: Heap
-  
+
   /// A centralized module for handling files.
   public let fileHandler: FileHandler
-  
+
   /// The source manager of this context.
   public let sources: SourceManager
-  
+
   /// The managed object pool for freeing up objects with cyclic dependencies.
   public let objects: ManagedObjectPool
-  
+
   /// The symbol table for managing interned symbols.
   public let symbols: SymbolTable
-  
+
   /// The library manager of this context.
   public private(set) var libraries: LibraryManager! = nil
-  
+
   /// The global environment is typically used for read-eval-print loops.
   public private(set) var environment: Environment! = nil
-  
+
   /// The virtual machine for executing Lisp code.
   public private(set) var machine: VirtualMachine! = nil
-  
+
   /// The features exposed by the LispKit interpreter defined by this context
   public let features: Set<String>
-  
+
   /// The default input port.
   internal var inputPort: Port!
-  
+
   /// The default output port.
   internal var outputPort: Port!
-  
+
   /// Bundle of the LispKit module
   public static let bundle = Bundle(identifier: "net.objecthub.LispKit")
-  
+
   /// Name of the LispKit implementation
   public static let implementationName = Context.bundle?.infoDictionary?["CFBundleName"] as? String
-  
+
   /// Version of the LispKit implementation
   public static let implementationVersion =
     Context.bundle?.infoDictionary?["CFBundleShortVersionString"] as? String
-  
+
   /// Path to default prelude file. Set it to the prelude provided by the bundle, if this exists,
   /// or fall back to the LispKit directory contained in the Documents folder.
   public static let defaultPreludePath =
@@ -94,10 +94,10 @@ public final class Context {
                                            .documentDirectory,
                                            .userDomainMask,
                                            true)[0])).absoluteURL.path
-  
+
   /// Use simplified descriptions?
   public static var simplifiedDescriptions: Bool = false
-  
+
   /// Initializes a new context.
   public init(delegate: ContextDelegate,
               implementationName: String? = nil,
@@ -143,7 +143,7 @@ public final class Context {
       preconditionFailure("cannot load native libraries: \(error)")
     }
   }
-  
+
   /// Prepares context to be ready to execute code. Library `(lispkit dynamic)` gets loaded
   /// as a result of this. If `forRepl` is set to true, `bootstrap` will also introduce the
   /// variables `*1`, `*2`, and `*3` in the global environment. These will be used by a
@@ -162,7 +162,7 @@ public final class Context {
       _ = self.environment.define(self.symbols.starThree, as: .undef)
     }
   }
-  
+
   /// This method updates the variables `*1`, `*2`, and `*3` in the global environment
   /// to match the last three results that were being evaluated via a REPL.
   public func update(withReplResult expr: Expr) {
@@ -174,7 +174,7 @@ public final class Context {
     }
     self.environment.set(self.symbols.starOne, to: expr)
   }
-  
+
   /// Returns the global environment of this context.
   public var global: Env {
     return .global(self.environment)

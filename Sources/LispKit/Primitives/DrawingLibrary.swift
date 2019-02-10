@@ -22,35 +22,35 @@ import Foundation
 import Cocoa
 
 ///
-/// This class implements the library `(lispkit draw)`. 
+/// This class implements the library `(lispkit draw)`.
 ///
 public final class DrawingLibrary: NativeLibrary {
-  
+
   /// Imported native library
   private var systemLibrary: SystemLibrary!
-  
+
   /// Exported parameter objects
   public let drawingParam: Procedure
   public let shapeParam: Procedure
-  
+
   /// Symbols used in enumeration values
-  
+
   // Bitmap file types
   private let formatPNG: Symbol
   private let formatJPG: Symbol
   private let formatGIF: Symbol
   private let formatBMP: Symbol
   private let formatTIFF: Symbol
-  
+
   // Shape flip orientation
   private let orientationHorizontal: Symbol
   private let orientationVertical: Symbol
   private let orientationMirror: Symbol
-  
+
   // Interpolation algorithm
   private let interpolateHermite: Symbol
   private let interpolateCatmullRom: Symbol
-  
+
   // Image composition operation
   private let compositionClear: Symbol
   private let compositionCopy: Symbol
@@ -64,7 +64,7 @@ public final class DrawingLibrary: NativeLibrary {
   private let compositionDestinationIn: Symbol
   private let compositionDestinationOut: Symbol
   private let compositionDestinationAtop: Symbol
-  
+
   /// Initialize drawing library, in particular its parameter objects.
   public required init(in context: Context) throws {
     self.drawingParam = Procedure(.null, .false)
@@ -93,12 +93,12 @@ public final class DrawingLibrary: NativeLibrary {
     self.interpolateCatmullRom = context.symbols.intern("catmull-rom")
     try super.init(in: context)
   }
-  
+
   /// Name of the library.
   public override class var name: [String] {
     return ["lispkit", "draw"]
   }
-  
+
   /// Dependencies of the library.
   public override func dependencies() {
     self.`import`(from: ["lispkit", "core"],    "define", "define-syntax", "syntax-rules")
@@ -106,13 +106,13 @@ public final class DrawingLibrary: NativeLibrary {
     self.`import`(from: ["lispkit", "dynamic"], "parameterize")
     self.`import`(from: ["lispkit", "system"],  "current-directory")
   }
-  
+
   /// Declarations of the library.
   public override func declarations() {
     // Parameter objects
     self.define("current-drawing", as: self.drawingParam)
     self.define("current-shape", as: self.shapeParam)
-    
+
     // Drawings
     self.define(Procedure("drawing?", isDrawing))
     self.define(Procedure("make-drawing", makeDrawing))
@@ -139,7 +139,7 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("inline-drawing", inlineDrawing))
     self.define(Procedure("save-drawing", saveDrawing))
     self.define(Procedure("save-drawings", saveDrawings))
-    
+
     // Images/bitmaps
     self.define(Procedure("image?", isImage))
     self.define(Procedure("load-image", loadImage))
@@ -147,7 +147,7 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("bitmap?", isBitmap))
     self.define(Procedure("make-bitmap", makeBitmap))
     self.define(Procedure("save-bitmap", saveBitmap))
-    
+
     // Shapes
     self.define(Procedure("shape?", isShape))
     self.define(Procedure("make-shape", makeShape))
@@ -170,7 +170,7 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("relative-curve-to", relativeCurveTo))
     self.define(Procedure("add-shape", addShape))
     self.define(Procedure("shape-bounds", shapeBounds))
-    
+
     // Transformations
     self.define(Procedure("transformation?", isTransformation))
     self.define(Procedure("transformation", transformation))
@@ -178,7 +178,7 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("translate", translate))
     self.define(Procedure("scale", scale))
     self.define(Procedure("rotate", rotate))
-    
+
     // Colors
     self.define(Procedure("color?", isColor))
     self.define(Procedure("color", color))
@@ -186,7 +186,7 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("color-green", colorGreen))
     self.define(Procedure("color-blue", colorBlue))
     self.define(Procedure("color-alpha", colorAlpha))
-    
+
     // Fonts/points/sizes/rects
     self.define(Procedure("font?", isFont))
     self.define(Procedure("font", font))
@@ -216,10 +216,10 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("rect-width", rectWidth))
     self.define(Procedure("rect-height", rectHeight))
     self.define(Procedure("move-rect", moveRect))
-    
+
     // Utilities
     self.define(Procedure("text-bounds", textBounds))
-    
+
     // Define constants
     self.define("zero-point", via: "(define zero-point (point 0 0))")
     self.define("black", via: "(define black (color 0 0 0))")
@@ -258,7 +258,7 @@ public final class DrawingLibrary: NativeLibrary {
     self.define("super", via: "(define super 12)")
     self.define("ultra", via: "(define ultra 13)")
     self.define("extrablack", via: "(define extrablack 14)")
-    
+
     // Syntax definitions
     self.define("drawing", via: """
       (define-syntax drawing
@@ -298,11 +298,11 @@ public final class DrawingLibrary: NativeLibrary {
             (parameterize ((current-shape s)) body ...))))
     """)
   }
-  
+
   public override func initializations() {
     self.systemLibrary = self.nativeLibrary(SystemLibrary.self)
   }
-  
+
   private func drawing(from expr: Expr?) throws -> Drawing {
     if let expr = expr {
       guard case .object(let obj) = expr, let drawing = obj as? Drawing else {
@@ -318,7 +318,7 @@ public final class DrawingLibrary: NativeLibrary {
     }
     return drawing
   }
-  
+
   private func shape(from expr: Expr?) throws -> Shape {
     if let expr = expr {
       guard case .object(let obj) = expr, let shape = obj as? Shape else {
@@ -334,7 +334,7 @@ public final class DrawingLibrary: NativeLibrary {
     }
     return shape
   }
-  
+
   private func shape(from args: Arguments) throws -> (Shape, Bool) {
     if case .some(.object(let obj)) = args.last, let shape = obj as? Shape {
       return (shape, true)
@@ -347,7 +347,7 @@ public final class DrawingLibrary: NativeLibrary {
     }
     return (shape, false)
   }
-  
+
   private func image(from expr: Expr) throws -> NSImage {
     guard case .object(let obj) = expr,
           let imageBox = obj as? ImmutableBox<NSImage> else {
@@ -355,39 +355,39 @@ public final class DrawingLibrary: NativeLibrary {
     }
     return imageBox.value
   }
-  
+
   // Drawings
-  
+
   private func isDrawing(expr: Expr) -> Expr {
     if case .object(let obj) = expr, obj is Drawing {
       return .true
     }
     return .false
   }
-  
+
   private func makeDrawing() -> Expr {
     return .object(Drawing())
   }
-  
+
   private func copyDrawing(drawing: Expr) throws -> Expr {
     return .object(Drawing(copy: try self.drawing(from: drawing)))
   }
-  
+
   private func setColor(color: Expr, drawing: Expr?) throws -> Expr {
     try self.drawing(from: drawing).append(.setStrokeColor(try self.color(from: color)))
     return .void
   }
-  
+
   private func setFillColor(color: Expr, drawing: Expr?) throws -> Expr {
     try self.drawing(from: drawing).append(.setFillColor(try self.color(from: color)))
     return .void
   }
-  
+
   private func setLineWidth(width: Expr, drawing: Expr?) throws -> Expr {
     try self.drawing(from: drawing).append(.setStrokeWidth(try width.asDouble(coerce: true)))
     return .void
   }
-  
+
   private func setShadow(color: Expr, size: Expr, r: Expr, drawing: Expr?) throws -> Expr {
     guard case .pair(.flonum(let w), .flonum(let h)) = size else {
       throw RuntimeError.eval(.invalidSize, size)
@@ -398,28 +398,28 @@ public final class DrawingLibrary: NativeLibrary {
                                                       blurRadius: try r.asDouble(coerce: true)))
     return .void
   }
-  
+
   private func removeShadow(drawing: Expr?) throws -> Expr {
     try self.drawing(from: drawing).append(.removeShadow)
     return .void
   }
-  
+
   private func enableTransformation(tf: Expr, drawing: Expr?) throws -> Expr {
     try self.drawing(from: drawing).append(.concatTransformation(try self.tformation(from: tf)))
     return .void
   }
-  
+
   private func disableTransformation(tf: Expr, drawing: Expr?) throws -> Expr {
     try self.drawing(from: drawing).append(.undoTransformation(try self.tformation(from: tf)))
     return .void
   }
-  
+
   private func draw(shape: Expr, width: Expr?, drawing: Expr?) throws -> Expr {
     let width = try width?.asDouble(coerce: true) ?? 1.0
     try self.drawing(from: drawing).append(.stroke(try self.shape(from: shape), width: width))
     return .void
   }
-  
+
   private func drawDashed(shape: Expr,
                           lengths: Expr,
                           phase: Expr,
@@ -441,12 +441,12 @@ public final class DrawingLibrary: NativeLibrary {
       .strokeDashed(shape, width: width, lengths: dashLengths, phase: phase))
     return .void
   }
-  
+
   private func fill(shape: Expr, drawing: Expr?) throws -> Expr {
     try self.drawing(from: drawing).append(.fill(try self.shape(from: shape)))
     return .void
   }
-  
+
   private func fillGradient(shape: Expr,
                             cols: Expr,
                             gradient: Expr?,
@@ -478,7 +478,7 @@ public final class DrawingLibrary: NativeLibrary {
     }
     return .void
   }
-  
+
   private func drawLine(start: Expr, end: Expr, drawing: Expr?) throws -> Expr {
     guard case .pair(.flonum(let sx), .flonum(let sy)) = start else {
       throw RuntimeError.eval(.invalidPoint, start)
@@ -490,7 +490,7 @@ public final class DrawingLibrary: NativeLibrary {
                                                        NSPoint(x: ex, y: ey)))
     return .void
   }
-  
+
   private func drawRect(expr: Expr, drawing: Expr?) throws -> Expr {
     guard case .pair(.pair(.flonum(let x), .flonum(let y)),
                      .pair(.flonum(let w), .flonum(let h))) = expr else {
@@ -499,7 +499,7 @@ public final class DrawingLibrary: NativeLibrary {
     try self.drawing(from: drawing).append(.strokeRect(NSRect(x: x, y: y, width: w, height: h)))
     return .void
   }
-  
+
   private func fillRect(expr: Expr, drawing: Expr?) throws -> Expr {
     guard case .pair(.pair(.flonum(let x), .flonum(let y)),
                      .pair(.flonum(let w), .flonum(let h))) = expr else {
@@ -508,7 +508,7 @@ public final class DrawingLibrary: NativeLibrary {
     try self.drawing(from: drawing).append(.fillRect(NSRect(x: x, y: y, width: w, height: h)))
     return .void
   }
-  
+
   private func drawEllipse(expr: Expr, drawing: Expr?) throws -> Expr {
     guard case .pair(.pair(.flonum(let x), .flonum(let y)),
                      .pair(.flonum(let w), .flonum(let h))) = expr else {
@@ -517,7 +517,7 @@ public final class DrawingLibrary: NativeLibrary {
     try self.drawing(from: drawing).append(.strokeEllipse(NSRect(x: x, y: y, width: w, height: h)))
     return .void
   }
-  
+
   private func fillEllipse(expr: Expr, drawing: Expr?) throws -> Expr {
     guard case .pair(.pair(.flonum(let x), .flonum(let y)),
                      .pair(.flonum(let w), .flonum(let h))) = expr else {
@@ -526,7 +526,7 @@ public final class DrawingLibrary: NativeLibrary {
     try self.drawing(from: drawing).append(.fillEllipse(NSRect(x: x, y: y, width: w, height: h)))
     return .void
   }
-  
+
   private func drawText(text: Expr,
                         location: Expr,
                         font: Expr,
@@ -555,7 +555,7 @@ public final class DrawingLibrary: NativeLibrary {
                                                  at: loc))
     return .void
   }
-  
+
   private func drawImage(bitmap: Expr,
                          location: Expr,
                          args: Arguments) throws -> Expr {
@@ -620,23 +620,23 @@ public final class DrawingLibrary: NativeLibrary {
                                                   opacity: opcty))
     return .void
   }
-  
+
   private func drawDrawing(other: Expr, drawing: Expr?) throws -> Expr {
     try self.drawing(from: drawing).append(.include(try self.drawing(from: other), clippedTo: nil))
     return .void
   }
-  
+
   private func clipDrawing(other: Expr, clip: Expr, drawing: Expr?) throws -> Expr {
     try self.drawing(from: drawing).append(
       .include(try self.drawing(from: other), clippedTo: try self.shape(from: clip)))
     return .void
   }
-  
+
   private func inlineDrawing(other: Expr, drawing: Expr?) throws -> Expr {
     try self.drawing(from: drawing).append(.inline(try self.drawing(from: other)))
     return .void
   }
-  
+
   private func saveDrawing(path: Expr,
                            drawing: Expr,
                            size: Expr,
@@ -657,7 +657,7 @@ public final class DrawingLibrary: NativeLibrary {
                                                 title: try title?.asString(),
                                                 author: try author?.asString()))
   }
-  
+
   private func saveDrawings(path: Expr, pages: Expr, title: Expr?, author: Expr?) throws -> Expr {
     let url = URL(fileURLWithPath:
       self.context.fileHandler.path(try path.asPath(),
@@ -677,16 +677,16 @@ public final class DrawingLibrary: NativeLibrary {
     }
     return .makeBoolean(document.saveAsPDF(url: url))
   }
-  
+
   // Images/bitmaps
-  
+
   private func isImage(expr: Expr) -> Expr {
     if case .object(let obj) = expr, obj is ImmutableBox<NSImage> {
       return .true
     }
     return .false
   }
-  
+
   private func loadImage(filename: Expr) throws -> Expr {
     let path = self.context.fileHandler.path(try filename.asPath(),
                                              relativeTo: self.systemLibrary.currentDirectoryPath)
@@ -695,7 +695,7 @@ public final class DrawingLibrary: NativeLibrary {
     }
     return .object(ImmutableBox(nsimage))
   }
-  
+
   private func imageSize(image: Expr) throws -> Expr {
     let size = try self.image(from: image).size
     if size.width == 0.0 && size.height == 0.0 {
@@ -704,7 +704,7 @@ public final class DrawingLibrary: NativeLibrary {
       return .pair(.flonum(Double(size.width)), .flonum(Double(size.width)))
     }
   }
-  
+
   private func isBitmap(expr: Expr) -> Expr {
     if case .object(let obj) = expr, let image = (obj as? ImmutableBox<NSImage>)?.value {
       for repr in image.representations {
@@ -715,7 +715,7 @@ public final class DrawingLibrary: NativeLibrary {
     }
     return .false
   }
-  
+
   private func makeBitmap(drawing: Expr, size: Expr, scle: Expr) throws -> Expr {
     guard case .pair(.flonum(let w), .flonum(let h)) = size, w > 0.0 && h > 0.0 else {
       throw RuntimeError.eval(.invalidSize, size)
@@ -767,7 +767,7 @@ public final class DrawingLibrary: NativeLibrary {
     nsimage.addRepresentation(bitmap)
     return .object(ImmutableBox(nsimage))
   }
-  
+
   private func saveBitmap(filename: Expr, bitmap: Expr, format: Expr) throws -> Expr {
     guard case .symbol(let sym) = format else {
       throw RuntimeError.eval(.invalidImageFileType, format)
@@ -791,7 +791,7 @@ public final class DrawingLibrary: NativeLibrary {
                            try filename.asPath(),
                            fileType) ? .true : .false
   }
-  
+
   private func saveInFile(_ image: NSImage,
                           _ filename: String,
                           _ filetype: NSBitmapImageRep.FileType) -> Bool {
@@ -814,27 +814,27 @@ public final class DrawingLibrary: NativeLibrary {
     }
     return false
   }
-  
+
   // Shapes
-  
+
   private func isShape(expr: Expr) -> Expr {
     if case .object(let obj) = expr, obj is Shape {
       return .true
     }
     return .false
   }
-  
+
   private func makeShape(expr: Expr?) throws -> Expr {
     if let prototype = expr {
       return .object(Shape(.shape(try self.shape(from: prototype))))
     }
     return .object(Shape())
   }
-  
+
   private func copyShape(expr: Expr) throws -> Expr {
     return .object(Shape(copy: try self.shape(from: expr)))
   }
-  
+
   private func pointList(_ args: Arguments, skipLast: Bool) -> Expr {
     var first = true
     var res: Expr = .null
@@ -856,7 +856,7 @@ public final class DrawingLibrary: NativeLibrary {
     }
     return res
   }
-  
+
   private func line(start: Expr, end: Expr) throws -> Expr {
     let shape = Shape()
     guard case .pair(.flonum(let sx), .flonum(let sy)) = start else {
@@ -869,7 +869,7 @@ public final class DrawingLibrary: NativeLibrary {
     shape.append(.line(to: NSPoint(x: ex, y: ey)))
     return .object(shape)
   }
-  
+
   private func polygon(args: Arguments) throws -> Expr {
     let shape = Shape()
     var pointList = self.pointList(args, skipLast: false)
@@ -886,7 +886,7 @@ public final class DrawingLibrary: NativeLibrary {
     }
     return .object(shape)
   }
-  
+
   private func rectangle(point: Expr, size: Expr, xradius: Expr?, yradius: Expr?) throws -> Expr {
     guard case .pair(.flonum(let x), .flonum(let y)) = point else {
       throw RuntimeError.eval(.invalidPoint, point)
@@ -906,7 +906,7 @@ public final class DrawingLibrary: NativeLibrary {
     }
     return .object(Shape(.rect(NSRect(x: x, y: y, width: w, height: h))))
   }
-  
+
   private func circle(point: Expr, radius: Expr) throws -> Expr {
     guard case .pair(.flonum(let x), .flonum(let y)) = point else {
       throw RuntimeError.eval(.invalidPoint, point)
@@ -915,7 +915,7 @@ public final class DrawingLibrary: NativeLibrary {
     return .object(Shape(.oval(NSRect(x: x - rad, y: y - rad,
                                       width: 2.0 * rad, height: 2.0 * rad))))
   }
-  
+
   private func oval(point: Expr, size: Expr) throws -> Expr {
     guard case .pair(.flonum(let x), .flonum(let y)) = point else {
       throw RuntimeError.eval(.invalidPoint, point)
@@ -925,7 +925,7 @@ public final class DrawingLibrary: NativeLibrary {
     }
     return .object(Shape(.oval(NSRect(x: x, y: y, width: w, height: h))))
   }
-  
+
   private func arc(point: Expr,
                    radius: Expr,
                    start: Expr,
@@ -949,7 +949,7 @@ public final class DrawingLibrary: NativeLibrary {
                                         height: 2.0 * rad))))
     }
   }
-  
+
   private func glyphs(text: Expr, point: Expr, size: Expr, font: Expr) throws -> Expr {
     guard case .pair(.flonum(let x), .flonum(let y)) = point else {
       throw RuntimeError.eval(.invalidPoint, point)
@@ -965,12 +965,12 @@ public final class DrawingLibrary: NativeLibrary {
                                  font: fontBox.value,
                                  flipped: true)))
   }
-  
+
   private func transformShape(shape: Expr, transformation: Expr) throws -> Expr {
     return .object(Shape(.transformed(try self.shape(from: shape),
                                       try self.tformation(from: transformation))))
   }
-  
+
   private func flipShape(shape: Expr, box: Expr?, orientation: Expr?) throws -> Expr {
     let bounds: NSRect?
     if let box = box {
@@ -1010,7 +1010,7 @@ public final class DrawingLibrary: NativeLibrary {
                                   vertical: vertical,
                                   horizontal: horizontal)))
   }
-  
+
   private func interpolate(points: Expr, args: Arguments) throws -> Expr {
     guard let (closed, alpha, algo) = args.optional(.false,
                                                     .flonum(1.0 / 3.0),
@@ -1032,7 +1032,7 @@ public final class DrawingLibrary: NativeLibrary {
     let nspoints = try self.nsPoints(from: points)
     return .object(Shape(.interpolated(nspoints, method: method)))
   }
-  
+
   private func nsPoints(from expr: Expr) throws -> [NSPoint] {
     var nspoints: [NSPoint] = []
     var pointList = expr
@@ -1045,7 +1045,7 @@ public final class DrawingLibrary: NativeLibrary {
     }
     return nspoints
   }
-  
+
   private func moveTo(point: Expr, shape: Expr?) throws -> Expr {
     guard case .pair(.flonum(let x), .flonum(let y)) = point else {
       throw RuntimeError.eval(.invalidPoint, point)
@@ -1053,7 +1053,7 @@ public final class DrawingLibrary: NativeLibrary {
     (try self.shape(from: shape)).append(.move(to: NSPoint(x: x, y: y)))
     return .void
   }
-  
+
   private func lineTo(args: Arguments) throws -> Expr {
     let (shape, skipLast) = try self.shape(from: args)
     var points = self.pointList(args, skipLast: skipLast)
@@ -1066,7 +1066,7 @@ public final class DrawingLibrary: NativeLibrary {
     }
     return .void
   }
-  
+
   private func curveTo(point: Expr, ctrl1: Expr, ctrl2: Expr, shape: Expr?) throws -> Expr {
     guard case .pair(.flonum(let x), .flonum(let y)) = point else {
       throw RuntimeError.eval(.invalidPoint, point)
@@ -1083,7 +1083,7 @@ public final class DrawingLibrary: NativeLibrary {
              controlTarget: NSPoint(x: c2x, y: c2y)))
     return .void
   }
-  
+
   private func relativeMoveTo(point: Expr, shape: Expr?) throws -> Expr {
     guard case .pair(.flonum(let x), .flonum(let y)) = point else {
       throw RuntimeError.eval(.invalidPoint, point)
@@ -1091,7 +1091,7 @@ public final class DrawingLibrary: NativeLibrary {
     (try self.shape(from: shape)).append(.relativeMove(to: NSPoint(x: x, y: y)))
     return .void
   }
-  
+
   private func relativeLineTo(args: Arguments) throws -> Expr {
     let (shape, skipLast) = try self.shape(from: args)
     var points = self.pointList(args, skipLast: skipLast)
@@ -1104,7 +1104,7 @@ public final class DrawingLibrary: NativeLibrary {
     }
     return .void
   }
-  
+
   private func relativeCurveTo(point: Expr, ctrl1: Expr, ctrl2: Expr, shape: Expr?) throws -> Expr {
     guard case .pair(.flonum(let x), .flonum(let y)) = point else {
       throw RuntimeError.eval(.invalidPoint, point)
@@ -1121,28 +1121,28 @@ public final class DrawingLibrary: NativeLibrary {
                      controlTarget: NSPoint(x: c2x, y: c2y)))
     return .void
   }
-  
+
   private func addShape(other: Expr, shape: Expr?) throws -> Expr {
     (try self.shape(from: shape)).append(.include((try self.shape(from: other))))
     return .void
   }
-  
+
   private func shapeBounds(shape: Expr) throws -> Expr {
     let box = (try self.shape(from: shape)).bounds
     return .pair(.pair(.flonum(Double(box.origin.x)), .flonum(Double(box.origin.y))),
                  .pair(.flonum(Double(box.width)), .flonum(Double(box.height))))
   }
-  
-  
+
+
   // Transformations
-  
+
   private func isTransformation(expr: Expr) -> Expr {
     if case .object(let obj) = expr, obj is Transformation {
       return .true
     }
     return .false
   }
-  
+
   private func transformation(args: Arguments) throws -> Expr {
     var transform = AffineTransform()
     for arg in args {
@@ -1150,7 +1150,7 @@ public final class DrawingLibrary: NativeLibrary {
     }
     return .object(Transformation(transform))
   }
-  
+
   private func invert(expr: Expr) throws -> Expr {
     guard case .object(let obj) = expr, let tf = obj as? Transformation else {
       throw RuntimeError.type(expr, expected: [.transformationType])
@@ -1159,34 +1159,34 @@ public final class DrawingLibrary: NativeLibrary {
     affineTransform.invert()
     return .object(Transformation(affineTransform))
   }
-  
+
   private func translate(dx: Expr, dy: Expr, expr: Expr?) throws -> Expr {
     var transform = try self.affineTransform(expr)
     transform.translate(x: CGFloat(try dx.asDouble(coerce: true)),
                         y: CGFloat(try dy.asDouble(coerce: true)))
     return .object(Transformation(transform))
   }
-  
+
   private func scale(dx: Expr, dy: Expr, expr: Expr?) throws -> Expr {
     var transform = try self.affineTransform(expr)
     transform.scale(x: CGFloat(try dx.asDouble(coerce: true)),
                     y: CGFloat(try dy.asDouble(coerce: true)))
     return .object(Transformation(transform))
   }
-  
+
   private func rotate(angle: Expr, expr: Expr?) throws -> Expr {
     var transform = try self.affineTransform(expr)
     transform.rotate(byRadians: CGFloat(try angle.asDouble(coerce: true)))
     return .object(Transformation(transform))
   }
-  
+
   private func tformation(from expr: Expr) throws -> Transformation {
     guard case .object(let obj) = expr, let transform = obj as? Transformation else {
       throw RuntimeError.type(expr, expected: [.transformationType])
     }
     return transform
   }
-  
+
   private func affineTransform(_ expr: Expr?) throws -> AffineTransform {
     guard let tf = expr else {
       return AffineTransform()
@@ -1196,88 +1196,88 @@ public final class DrawingLibrary: NativeLibrary {
     }
     return transform.affineTransform
   }
-  
+
   // Colors
-  
+
   private func isColor(expr: Expr) -> Expr {
     if case .object(let obj) = expr, obj is ImmutableBox<Color> {
       return .true
     }
     return .false
   }
-  
+
   private func color(red: Expr, green: Expr, blue: Expr, alpha: Expr?) throws -> Expr {
     return .object(ImmutableBox(Color(red: try red.asDouble(coerce: true),
                                       green: try green.asDouble(coerce: true),
                                       blue: try blue.asDouble(coerce: true),
                                       alpha: try (alpha ?? .flonum(1.0)).asDouble(coerce: true))))
   }
-  
+
   private func colorRed(_ expr: Expr) throws -> Expr {
     guard case .object(let obj) = expr, let colorRef = obj as? ImmutableBox<Color> else {
       throw RuntimeError.type(expr, expected: [.colorType])
     }
     return .flonum(colorRef.value.red)
   }
-  
+
   private func colorGreen(_ expr: Expr) throws -> Expr {
     guard case .object(let obj) = expr, let colorRef = obj as? ImmutableBox<Color> else {
       throw RuntimeError.type(expr, expected: [.colorType])
     }
     return .flonum(colorRef.value.green)
   }
-  
+
   private func colorBlue(_ expr: Expr) throws -> Expr {
     guard case .object(let obj) = expr, let colorRef = obj as? ImmutableBox<Color> else {
       throw RuntimeError.type(expr, expected: [.colorType])
     }
     return .flonum(colorRef.value.blue)
   }
-  
+
   private func colorAlpha(_ expr: Expr) throws -> Expr {
     guard case .object(let obj) = expr, let colorRef = obj as? ImmutableBox<Color> else {
       throw RuntimeError.type(expr, expected: [.colorType])
     }
     return .flonum(colorRef.value.alpha)
   }
-  
+
   private func color(from expr: Expr) throws -> Color {
     guard case .object(let obj) = expr, let colorRef = obj as? ImmutableBox<Color> else {
       throw RuntimeError.type(expr, expected: [.colorType])
     }
     return colorRef.value
   }
-  
-  
+
+
   // Fonts/points/sizes/rects
-  
+
   private func isPoint(expr: Expr) throws -> Expr {
     guard case .pair(.flonum(_), .flonum(_)) = expr else {
       return .false
     }
     return .true
   }
-  
+
   private func point(xc: Expr, yc: Expr) throws -> Expr {
     let x = try xc.asDouble(coerce: true)
     let y = try yc.asDouble(coerce: true)
     return .pair(.flonum(x), .flonum(y))
   }
-  
+
   private func pointX(expr: Expr) throws -> Expr {
     guard case .pair(.flonum(let x), .flonum(_)) = expr else {
       throw RuntimeError.eval(.invalidPoint, expr)
     }
     return .flonum(x)
   }
-  
+
   private func pointY(expr: Expr) throws -> Expr {
     guard case .pair(.flonum(_), .flonum(let y)) = expr else {
       throw RuntimeError.eval(.invalidPoint, expr)
     }
     return .flonum(y)
   }
-  
+
   private func movePoint(expr: Expr, dx: Expr, dy: Expr) throws -> Expr {
     guard case .pair(.flonum(let x), .flonum(let y)) = expr else {
       throw RuntimeError.eval(.invalidPoint, expr)
@@ -1285,41 +1285,41 @@ public final class DrawingLibrary: NativeLibrary {
     return try .pair(.flonum(x + dx.asDouble(coerce: true)),
                      .flonum(y + dy.asDouble(coerce: true)))
   }
-  
+
   private func isSize(expr: Expr) throws -> Expr {
     guard case .pair(.flonum(_), .flonum(_)) = expr else {
       return .false
     }
     return .true
   }
-  
+
   private func size(wc: Expr, hc: Expr) throws -> Expr {
     let w = try wc.asDouble(coerce: true)
     let h = try hc.asDouble(coerce: true)
     return .pair(.flonum(w), .flonum(h))
   }
-  
+
   private func sizeWidth(expr: Expr) throws -> Expr {
     guard case .pair(.flonum(let w), .flonum(_)) = expr else {
       throw RuntimeError.eval(.invalidSize, expr)
     }
     return .flonum(w)
   }
-  
+
   private func sizeHeight(expr: Expr) throws -> Expr {
     guard case .pair(.flonum(_), .flonum(let h)) = expr else {
       throw RuntimeError.eval(.invalidSize, expr)
     }
     return .flonum(h)
   }
-  
+
   private func isRect(expr: Expr) throws -> Expr {
     guard case .pair(.pair(.flonum(_), .flonum(_)), .pair(.flonum(_), .flonum(_))) = expr else {
       return .false
     }
     return .true
   }
-  
+
   private func rect(fst: Expr, snd: Expr, thrd: Expr?, fth: Expr?) throws -> Expr {
     if let width = thrd {
       let x = try fst.asDouble(coerce: true)
@@ -1341,7 +1341,7 @@ public final class DrawingLibrary: NativeLibrary {
       return .pair(.pair(.flonum(x), .flonum(y)), .pair(.flonum(w), .flonum(h)))
     }
   }
-  
+
   private func rectPoint(expr: Expr) throws -> Expr {
     guard case .pair(let point, .pair(.flonum(_), .flonum(_))) = expr else {
       throw RuntimeError.eval(.invalidRect, expr)
@@ -1351,21 +1351,21 @@ public final class DrawingLibrary: NativeLibrary {
     }
     return point
   }
-  
+
   private func rectX(expr: Expr) throws -> Expr {
     guard case .pair(.pair(.flonum(let x), .flonum(_)), .pair(.flonum(_), .flonum(_))) = expr else {
       throw RuntimeError.eval(.invalidRect, expr)
     }
     return .flonum(x)
   }
-  
+
   private func rectY(expr: Expr) throws -> Expr {
     guard case .pair(.pair(.flonum(_), .flonum(let y)), .pair(.flonum(_), .flonum(_))) = expr else {
       throw RuntimeError.eval(.invalidRect, expr)
     }
     return .flonum(y)
   }
-  
+
   private func rectSize(expr: Expr) throws -> Expr {
     guard case .pair(.pair(.flonum(_), .flonum(_)), let size) = expr else {
       throw RuntimeError.eval(.invalidRect, expr)
@@ -1375,21 +1375,21 @@ public final class DrawingLibrary: NativeLibrary {
     }
     return size
   }
-  
+
   private func rectWidth(expr: Expr) throws -> Expr {
     guard case .pair(.pair(.flonum(_), .flonum(_)), .pair(.flonum(let w), .flonum(_))) = expr else {
       throw RuntimeError.eval(.invalidRect, expr)
     }
     return .flonum(w)
   }
-  
+
   private func rectHeight(expr: Expr) throws -> Expr {
     guard case .pair(.pair(.flonum(_), .flonum(_)), .pair(.flonum(_), .flonum(let h))) = expr else {
       throw RuntimeError.eval(.invalidRect, expr)
     }
     return .flonum(h)
   }
-  
+
   private func moveRect(expr: Expr, dx: Expr, dy: Expr) throws -> Expr {
     guard case .pair(.pair(.flonum(let x), .flonum(let y)), let dim) = expr else {
       throw RuntimeError.eval(.invalidRect, expr)
@@ -1397,14 +1397,14 @@ public final class DrawingLibrary: NativeLibrary {
     return try .pair(.pair(.flonum(x + dx.asDouble(coerce: true)),
                            .flonum(y + dy.asDouble(coerce: true))), dim)
   }
-  
+
   private func isFont(expr: Expr) -> Expr {
     if case .object(let obj) = expr, obj is ImmutableBox<NSFont> {
       return .true
     }
     return .false
   }
-  
+
   private func font(font: Expr, s: Expr, args: Arguments) throws -> Expr {
     let name = try font.asString()
     let size = try s.asDouble(coerce: true)
@@ -1434,14 +1434,14 @@ public final class DrawingLibrary: NativeLibrary {
       return .object(ImmutableBox(nsfont))
     }
   }
-  
+
   private func fontName(expr: Expr) throws -> Expr {
     guard case .object(let obj) = expr, let fontBox = obj as? ImmutableBox<NSFont> else {
       throw RuntimeError.type(expr, expected: [.fontType])
     }
     return .makeString(fontBox.value.fontName)
   }
-  
+
   private func fontFamilyName(expr: Expr) throws -> Expr {
     guard case .object(let obj) = expr, let fontBox = obj as? ImmutableBox<NSFont> else {
       throw RuntimeError.type(expr, expected: [.fontType])
@@ -1451,7 +1451,7 @@ public final class DrawingLibrary: NativeLibrary {
     }
     return .makeString(familyName)
   }
-  
+
   private func fontWeight(expr: Expr) throws -> Expr {
     guard case .object(let obj) = expr, let fontBox = obj as? ImmutableBox<NSFont> else {
       throw RuntimeError.type(expr, expected: [.fontType])
@@ -1459,7 +1459,7 @@ public final class DrawingLibrary: NativeLibrary {
     let weight = NSFontManager.shared.weight(of: fontBox.value)
     return .fixnum(Int64(weight))
   }
-  
+
   private func fontTraits(expr: Expr) throws -> Expr {
     guard case .object(let obj) = expr, let fontBox = obj as? ImmutableBox<NSFont> else {
       throw RuntimeError.type(expr, expected: [.fontType])
@@ -1470,7 +1470,7 @@ public final class DrawingLibrary: NativeLibrary {
     }
     return .fixnum(Int64(traits))
   }
-  
+
   private func fontHasTraits(expr: Expr, args: Arguments) throws -> Expr {
     guard case .object(let obj) = expr, let fontBox = obj as? ImmutableBox<NSFont> else {
       throw RuntimeError.type(expr, expected: [.fontType])
@@ -1483,14 +1483,14 @@ public final class DrawingLibrary: NativeLibrary {
       NSFontManager.shared.fontNamed(fontBox.value.fontName,
                                      hasTraits: NSFontTraitMask(rawValue: UInt(traits))))
   }
-  
+
   private func fontSize(expr: Expr) throws -> Expr {
     guard case .object(let obj) = expr, let fontBox = obj as? ImmutableBox<NSFont> else {
       throw RuntimeError.type(expr, expected: [.fontType])
     }
     return .flonum(Double(fontBox.value.pointSize))
   }
-  
+
   private func availableFonts(args: Arguments) throws -> Expr {
     let fonts: [String]
     if args.isEmpty {
@@ -1512,7 +1512,7 @@ public final class DrawingLibrary: NativeLibrary {
     }
     return res
   }
-  
+
   private func availableFontFamilies() throws -> Expr {
     let fontFamilies = NSFontManager.shared.availableFontFamilies.reversed()
     var res: Expr = .null
@@ -1521,7 +1521,7 @@ public final class DrawingLibrary: NativeLibrary {
     }
     return res
   }
-  
+
   private func textBounds(text: Expr,
                           font: Expr?,
                           dimensions: Expr?) throws -> Expr {

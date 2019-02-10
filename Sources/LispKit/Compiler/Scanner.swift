@@ -26,28 +26,28 @@ import NumberKit
 /// of the string for parsing purposes.
 ///
 public final class Scanner {
-  
+
   /// Input of source code
   private let input: TextInput
-  
+
   /// Buffer for characters read during one invocation of `next`
   private var buffer: ScanBuffer
-  
+
   /// Is this scanner in fold-case mode?
   internal var foldCase: Bool
-  
+
   /// Last scanned character
   internal private(set) var ch: UniChar
-  
+
   /// Position of last scanned character
   private var lpos: Position
-  
+
   /// Next position
   private var pos: Position
-  
+
   /// Last scanned token
   public private(set) var token: Token
-  
+
   /// Creates a new scanner for the given text input.
   public init(input: TextInput,
               foldCase: Bool = false,
@@ -72,7 +72,7 @@ public final class Scanner {
       self.next()
     }
   }
-  
+
   /// Returns true if the current token has one of the given token kinds.
   public func hasToken(_ kind: TokenKind...) -> Bool {
     for k in kind {
@@ -82,13 +82,13 @@ public final class Scanner {
     }
     return false
   }
-  
+
   /// Returns true if there is another token available. The token can be accessed via the
   /// `token` property.
   public func hasNext() -> Bool {
     return self.token.kind != .eof
   }
-  
+
   /// Parses the next token.
   public func next() {
     while self.ch != EOF_CH {
@@ -338,13 +338,13 @@ public final class Scanner {
     }
     self.token.kind = .eof
   }
-  
+
   /// Signals a lexical error
   private func signal(_ error: LexicalError) {
     self.token.kind = .error
     self.token.errorVal = error
   }
-  
+
   /// Reads the next character and makes it available via the `ch` property.
   private func nextCh() {
     // Check if we reached EOF already
@@ -379,7 +379,7 @@ public final class Scanner {
     // Write new character into buffer
     self.buffer.append(self.ch)
   }
-  
+
   /// Finds the next non-whitespace character.
   internal func skipSpace() {
     self.skipComment()
@@ -391,7 +391,7 @@ public final class Scanner {
       self.skipComment()
     }
   }
-  
+
   /// Skips consecutive comment lines
   private func skipComment() {
     while self.ch == SEMI_CH {
@@ -401,7 +401,7 @@ public final class Scanner {
       }
     }
   }
-  
+
   /// Scans the next characters as an identifier.
   private func scanIdent() {
     self.nextCh()
@@ -411,7 +411,7 @@ public final class Scanner {
     self.token.kind = .ident
     self.token.strVal = self.buffer.stringValue
   }
-  
+
   /// Scans a character literal
   private func scanCharacterLiteral() {
     switch self.ch {
@@ -486,7 +486,7 @@ public final class Scanner {
         }
     }
   }
-  
+
   /// Scans a hex number with a given number of digits.
   private func scanHexNumber(_ maxDigits: Int) -> Int64? {
     guard isDigitForRadix(self.ch, 16) else {
@@ -505,7 +505,7 @@ public final class Scanner {
     }
     return res
   }
-  
+
   /// Scans an exact or inexact number
   private func scanGeneralNumber(exact: Bool? = nil) {
     if self.ch == HASH_CH {
@@ -573,7 +573,7 @@ public final class Scanner {
       }
     }
   }
-  
+
   /// Scans the next characters as a signed integer or floating point number.
   internal func scanSignedNumber(_ radix: Int) {
     switch self.ch {
@@ -587,7 +587,7 @@ public final class Scanner {
         self.scanNumber(radix, neg: false, dot: false)
     }
   }
-  
+
   /// Scans the next characters as an unsigned integer or floating point number.
   private func scanNumber(_ radix: Int, neg: Bool, dot: Bool) {
     var digits: [UInt8] = []
@@ -689,7 +689,7 @@ public final class Scanner {
         }
     }
   }
-  
+
   /// Scans the next characters as an unsigned floating point number representing the
   /// imaginary part of a complex number
   private func scanImaginaryPart(_ realPart: Double, neg: Bool) {
@@ -746,7 +746,7 @@ public final class Scanner {
       self.signal(.malformedComplexLiteral)
     }
   }
-  
+
   /// Scans the next characters as a string literal.
   private func scanString() {
     switch self.scanCharSequenceUntil(DQ_CH) {
@@ -765,7 +765,7 @@ public final class Scanner {
         self.signal(.tokenNotYetSupported)
     }
   }
-  
+
   /// Scans the next characters as an identifier.
   private func scanDelimitedIdent() {
     switch self.scanCharSequenceUntil(BAR_CH) {
@@ -784,7 +784,7 @@ public final class Scanner {
         self.signal(.tokenNotYetSupported)
     }
   }
-  
+
   /// Result type of `scanCharSequenceUntil`.
   private enum CharSequenceResult {
     case success(String)
@@ -794,7 +794,7 @@ public final class Scanner {
     case illegalHexChar
     case unsupported
   }
-  
+
   /// Scans the next characters until the given terminator character and returns the character
   /// sequence as a string.
   private func scanCharSequenceUntil(_ terminator: UniChar) -> CharSequenceResult {
@@ -863,7 +863,7 @@ public final class Scanner {
     self.nextCh()
     return .success(String(utf16CodeUnits: uniChars, count: uniChars.count))
   }
-  
+
   /// Scans a hex number with a given number of digits.
   private func scanHexChar() -> UniChar? {
     guard isDigitForRadix(self.ch, 16) else {
@@ -891,12 +891,12 @@ public final class Scanner {
 public struct Position: CustomStringConvertible {
   public var line: UInt
   public var col: UInt
-  
+
   init(_ line: UInt, _ col: UInt) {
     self.line = line
     self.col = col
   }
-  
+
   public var description: String {
     return self.line == 0 ? "" : (self.col == 0 ? "\(self.line)" : "\(self.line):\(self.col)")
   }
@@ -915,7 +915,7 @@ public struct Token: CustomStringConvertible {
   public var floatVal: Double
   public var complexVal: Complex<Double>
   public var errorVal: LexicalError?
-  
+
   public var description: String {
     switch self.kind {
       case .error      : return self.errorVal == nil ? "<error>" : "<error: \(self.errorVal!)>"
@@ -956,7 +956,7 @@ public struct Token: CustomStringConvertible {
       case .hashsemi   : return "#;"
     }
   }
-  
+
   mutating func reset(_ pos: Position) {
     self.pos = pos
     self.kind = .error
@@ -996,7 +996,7 @@ public enum TokenKind: Int, CustomStringConvertible {
   case commaat
   case dot
   case hashsemi
-  
+
   public var description: String {
     switch self {
       case .error      : return "ERROR"

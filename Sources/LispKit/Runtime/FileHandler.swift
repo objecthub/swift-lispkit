@@ -16,7 +16,7 @@
 //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
-//  
+//
 
 import Foundation
 
@@ -24,12 +24,12 @@ import Foundation
 /// The `FileHandler` class is used to load LispKit source files (suffix ".scm") as well as
 /// LispKit library definition files (suffix ".sld"). Furthermore, the class provides a
 /// high-level file interface which used by the LispKit core library.
-/// 
+///
 public final class FileHandler {
   private let fileManager: FileManager
   public var searchUrls: [URL]
   public var librarySearchUrls: [URL]
-  
+
   public var currentDirectoryPath: String {
     get {
       return self.fileManager.currentDirectoryPath
@@ -38,7 +38,7 @@ public final class FileHandler {
       self.fileManager.changeCurrentDirectoryPath(newValue)
     }
   }
-  
+
   public init(includeInternalResources: Bool = true,
               includeDocumentPath: String? = "LispKit") {
     self.fileManager = FileManager.default
@@ -72,7 +72,7 @@ public final class FileHandler {
       }
     }
   }
-  
+
   public func addSearchPath(_ path: String) -> Bool {
     guard self.isDirectory(atPath: path) else {
       return false
@@ -80,7 +80,7 @@ public final class FileHandler {
     self.searchUrls.append(URL(fileURLWithPath: path, isDirectory: true))
     return true
   }
-  
+
   public func prependSearchPath(_ path: String) -> Bool {
     guard self.isDirectory(atPath: path) else {
       return false
@@ -88,7 +88,7 @@ public final class FileHandler {
     self.searchUrls.insert(URL(fileURLWithPath: path, isDirectory: true), at: 0)
     return true
   }
-  
+
   public func addLibrarySearchPath(_ path: String) -> Bool {
     guard self.isDirectory(atPath: path) else {
       return false
@@ -96,7 +96,7 @@ public final class FileHandler {
     self.librarySearchUrls.append(URL(fileURLWithPath: path, isDirectory: true))
     return true
   }
-  
+
   public func prependLibrarySearchPath(_ path: String) -> Bool {
     guard self.isDirectory(atPath: path) else {
       return false
@@ -104,21 +104,21 @@ public final class FileHandler {
     self.librarySearchUrls.insert(URL(fileURLWithPath: path, isDirectory: true), at: 0)
     return true
   }
-  
+
   public func filePath(forFile name: String, relativeTo root: String? = nil) -> String? {
     return self.searchFile(withName: name,
                            ofType: "scm",
                            relativeTo: root,
                            findIn: self.searchUrls)
   }
-  
+
   public func libraryFilePath(forFile name: String, relativeTo root: String? = nil) -> String? {
     return self.searchFile(withName: name,
                            ofType: "sld",
                            relativeTo: root,
                            findIn: self.librarySearchUrls)
   }
-  
+
   private func searchFile(withName name: String,
                           ofType type: String,
                           relativeTo root: String? = nil,
@@ -151,7 +151,7 @@ public final class FileHandler {
     }
     return nil
   }
-  
+
   public func path(_ path: String, relativeTo root: String? = nil) -> String {
     if let root = root {
       return URL(fileURLWithPath: path,
@@ -162,7 +162,7 @@ public final class FileHandler {
              .absoluteURL.path
     }
   }
-  
+
   public func directory(_ path: String, relativeTo root: String? = nil) -> String {
     if let root = root {
       return URL(fileURLWithPath: path,
@@ -174,7 +174,7 @@ public final class FileHandler {
              .deletingLastPathComponent().absoluteURL.path
     }
   }
-  
+
   public func fileSize(atPath path: String, relativeTo root: String? = nil) -> Int64? {
     let filePath = self.path(path, relativeTo: root)
     var isDir: ObjCBool = false
@@ -191,11 +191,11 @@ public final class FileHandler {
       return nil
     }
   }
-  
+
   public func itemExists(atPath path: String, relativeTo root: String? = nil) -> Bool {
     return self.fileManager.fileExists(atPath: self.path(path, relativeTo: root))
   }
-  
+
   public func isFile(atPath path: String, relativeTo root: String? = nil) -> Bool {
     var isDir: ObjCBool = false
     guard self.fileManager.fileExists(atPath: self.path(path, relativeTo: root),
@@ -204,7 +204,7 @@ public final class FileHandler {
     }
     return !isDir.boolValue
   }
-  
+
   public func isDirectory(atPath path: String, relativeTo root: String? = nil) -> Bool {
     var isDir: ObjCBool = false
     guard self.fileManager.fileExists(atPath: self.path(path, relativeTo: root),
@@ -213,30 +213,30 @@ public final class FileHandler {
     }
     return isDir.boolValue
   }
-  
+
   public func contentsOfDirectory(atPath path: String,
                                   relativeTo root: String? = nil) throws -> [String] {
     return try self.fileManager.contentsOfDirectory(atPath: self.path(path, relativeTo: root))
   }
-  
+
   public func makeDirectory(atPath path: String,
                             relativeTo root: String? = nil) throws {
     try self.fileManager.createDirectory(atPath: self.path(path, relativeTo: root),
                                          withIntermediateDirectories: false,
                                          attributes: nil)
   }
-  
+
   public func deleteItem(atPath path: String, relativeTo root: String? = nil) throws {
     try self.fileManager.removeItem(atPath: self.path(path, relativeTo: root))
   }
-  
+
   public func copyItem(atPath path: String,
                        toPath dest: String,
                        relativeTo root: String? = nil) throws {
     try self.fileManager.copyItem(atPath: self.path(path, relativeTo: root),
                                   toPath: self.path(dest, relativeTo: root))
   }
-  
+
   public func moveItem(atPath path: String,
                        toPath dest: String,
                        relativeTo root: String? = nil) throws {

@@ -21,37 +21,37 @@
 import Foundation
 
 open class Port: Reference, CustomStringConvertible {
-  
+
   public enum Kind {
     case textInputPort(TextInput)
     case textOutputPort(TextOutput)
     case binaryInputPort(BinaryInput)
     case binaryOutputPort(BinaryOutput)
   }
-  
+
   public let kind: Kind
   open var isOpen: Bool = true
-  
+
   public init(input: TextInput) {
     self.kind = .textInputPort(input)
   }
-  
+
   public init(output: TextOutput) {
     self.kind = .textOutputPort(output)
   }
-  
+
   public init(input: BinaryInput) {
     self.kind = .binaryInputPort(input)
   }
-  
+
   public init(output: BinaryOutput) {
     self.kind = .binaryOutputPort(output)
   }
-  
+
   private init(_ kind: Kind) {
     self.kind = kind
   }
-  
+
   open var isBinaryPort: Bool {
     switch self.kind {
       case .binaryInputPort(_), .binaryOutputPort(_):
@@ -60,7 +60,7 @@ open class Port: Reference, CustomStringConvertible {
         return false
     }
   }
-  
+
   open var isTextualPort: Bool {
     switch self.kind {
       case .textInputPort(_), .textOutputPort(_):
@@ -69,7 +69,7 @@ open class Port: Reference, CustomStringConvertible {
         return false
     }
   }
-  
+
   open var isInputPort: Bool {
     switch self.kind {
       case .textInputPort(_), .binaryInputPort(_):
@@ -78,7 +78,7 @@ open class Port: Reference, CustomStringConvertible {
         return false
     }
   }
-  
+
   open var isOutputPort: Bool {
     switch self.kind {
       case .textOutputPort(_), .binaryOutputPort(_):
@@ -87,21 +87,21 @@ open class Port: Reference, CustomStringConvertible {
         return false
     }
   }
-  
+
   open var outputString: String? {
     guard case .textOutputPort(let output) = self.kind else {
       return nil
     }
     return output.currentBuffer
   }
-  
+
   open var outputBinary: [UInt8]? {
     guard case .binaryOutputPort(let output) = self.kind else {
       return nil
     }
     return output.currentBuffer
   }
-  
+
   open var url: URL? {
     switch self.kind {
       case .textInputPort(let input):
@@ -114,12 +114,12 @@ open class Port: Reference, CustomStringConvertible {
         return output.url
     }
   }
-  
+
   override open var typeDescription: String {
     return (self.isTextualPort ? "text-" : "binary-") +
            (self.isInputPort ? "input-port" : "output-port")
   }
-  
+
   open var identDescription: String {
     if let url = self.url {
       return url.path
@@ -127,11 +127,11 @@ open class Port: Reference, CustomStringConvertible {
       return self.isBinaryPort ? "bytevector" : "string"
     }
   }
-  
+
   open var description: String {
     return "\(self.typeDescription):\(self.identDescription)"
   }
-  
+
   open func close() {
     switch self.kind {
       case .textInputPort(let input):

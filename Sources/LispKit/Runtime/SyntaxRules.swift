@@ -31,7 +31,7 @@ public final class SyntaxRules {
   private let patterns: Exprs
   private let templates: Exprs
   private let lexicalEnv: Env
-  
+
   public init(context: Context,
               name: Symbol?,
               literals: Set<Symbol>,
@@ -48,7 +48,7 @@ public final class SyntaxRules {
     self.templates = templates
     self.lexicalEnv = env
   }
-  
+
   internal func expand(_ input: Expr) throws -> Expr {
     // Swift.print("---- EXPAND: \(Expr.pair(.symbol(self.name ?? self.context.symbols.wildcard), input))") //DEBUG
     for index in self.patterns.indices {
@@ -61,13 +61,13 @@ public final class SyntaxRules {
     throw RuntimeError.eval(.noExpansion, .pair(.symbol(self.name ?? self.context.symbols.wildcard),
                                                 input))
   }
-  
+
   private func match(_ pattern: Expr, with input: Expr) -> Matches? {
     // print("MATCH: \(pattern) WITH: \(input)") //DEBUG
     let matches = Matches(self.variables(in: pattern))
     return self.match(pattern, with: input, in: matches, at: 0) ? matches : nil
   }
-  
+
   private func match(_ pattern: Expr,
                      with input: Expr,
                      in matches: Matches,
@@ -159,7 +159,7 @@ public final class SyntaxRules {
         return pattern == input
     }
   }
-  
+
   fileprivate func instantiate(template: Expr,
                                with matches: Matches,
                                at depth: Int) throws -> Expr {
@@ -228,7 +228,7 @@ public final class SyntaxRules {
         return template
     }
   }
-  
+
   fileprivate func instantiateRaw(template: Expr, with matches: Matches) -> Expr {
     switch template {
       case .symbol(let sym):
@@ -251,7 +251,7 @@ public final class SyntaxRules {
         return template
     }
   }
-  
+
   fileprivate func variables(in pattern: Expr) -> Set<Symbol> {
     var vars = Set<Symbol>()
     func traverse(_ pattern: Expr) {
@@ -285,7 +285,7 @@ public final class SyntaxRules {
 private final class Matches: CustomStringConvertible {
   private var generatedSym: [Symbol : Symbol]
   private var matchedVal: [Symbol : MatchTree]
-  
+
   fileprivate init(_ syms: Set<Symbol>) {
     self.generatedSym = [Symbol : Symbol]()
     self.matchedVal = [Symbol : MatchTree]()
@@ -293,7 +293,7 @@ private final class Matches: CustomStringConvertible {
       self.matchedVal[sym] = MatchTree()
     }
   }
-  
+
   fileprivate func get(_ sym: Symbol, in lexicalEnv: Env) -> Expr {
     guard let value = self.matchedVal[sym]?.value else {
       if let gensym = self.generatedSym[sym] {
@@ -306,17 +306,17 @@ private final class Matches: CustomStringConvertible {
     }
     return value
   }
-  
+
   fileprivate func put(_ sym: Symbol, _ expr: Expr) {
     self.matchedVal[sym]?.enter(expr)
   }
-  
+
   fileprivate func register(_ syms: Set<Symbol>, at depth: Int) {
     for sym in syms {
       self.matchedVal[sym]?.descendAt(depth)
     }
   }
-  
+
   fileprivate func instantiate(template: Expr,
                                with rules: SyntaxRules,
                                at depth: Int,
@@ -329,7 +329,7 @@ private final class Matches: CustomStringConvertible {
       }
     }
   }
-  
+
   private func numChildren(of syms: Set<Symbol>, at depth: Int) throws -> Int {
     var res = 0
     for sym in syms {
@@ -345,7 +345,7 @@ private final class Matches: CustomStringConvertible {
     }
     return res
   }
-  
+
   fileprivate var description: String {
     var res = "{", sep = ""
     for (sym, tree) in self.matchedVal {
@@ -364,35 +364,35 @@ private final class MatchTree: CustomStringConvertible {
   private var root: Node = Node()
   private var depth: Int = 0
   private var complete: Bool = false
-  
+
   lazy var pos: [Int] = {
     [unowned self] in
       self.complete = true
       return [Int](repeating: 0, count: self.depth + 1)
   }()
-  
+
   fileprivate enum Node: CustomStringConvertible {
     case leaf(Expr)
     case parent(MutableBox<[Node]>)
-    
+
     fileprivate init() {
       self = .parent(MutableBox([Node]()))
     }
-    
+
     fileprivate func appendChild(_ node: Node) {
       guard case .parent(let children) = self else {
         preconditionFailure("cannot append child to a leaf")
       }
       children.value.append(node)
     }
-    
+
     fileprivate var lastChild: Node {
       guard case .parent(let children) = self else {
         preconditionFailure("a leaf does not have children")
       }
       return children.value.last!
     }
-    
+
     fileprivate var numChildren: Int {
       switch self {
         case .leaf(_):
@@ -401,7 +401,7 @@ private final class MatchTree: CustomStringConvertible {
           return children.value.count
       }
     }
-    
+
     fileprivate var description: String {
       switch self {
         case .leaf(let expr):
@@ -418,7 +418,7 @@ private final class MatchTree: CustomStringConvertible {
       }
     }
   }
-  
+
   fileprivate var value: Expr? {
     guard case .some(.parent(let children)) = self.currentNode(self.depth) else {
       return nil
@@ -428,7 +428,7 @@ private final class MatchTree: CustomStringConvertible {
     }
     return expr
   }
-  
+
   fileprivate func enter(_ expr: Expr) {
     self.tailNode(self.depth).appendChild(.leaf(expr))
   }
@@ -440,7 +440,7 @@ private final class MatchTree: CustomStringConvertible {
     }
     return res
   }
-  
+
   private func currentNode(_ depth: Int) -> Node? {
     var res = self.root
     for i in 0..<depth {
@@ -451,19 +451,19 @@ private final class MatchTree: CustomStringConvertible {
     }
     return res
   }
-  
+
   fileprivate func numChildren(_ depth: Int) -> Int {
     guard depth <= self.depth else {
       return 0
     }
     return self.currentNode(depth)?.numChildren ?? 0
   }
-  
+
   fileprivate func descendAt(_ depth: Int) {
     self.tailNode(depth - 1).appendChild(Node())
     self.depth = max(self.depth, depth)
   }
-  
+
   fileprivate func rotateAt(_ depth: Int) {
     if depth <= self.depth {
       self.pos[depth] += 1
@@ -472,7 +472,7 @@ private final class MatchTree: CustomStringConvertible {
       }
     }
   }
-  
+
   fileprivate var description: String {
     var res = "(\(self.depth); \(self.root); "
     if self.complete {

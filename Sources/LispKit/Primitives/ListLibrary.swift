@@ -27,12 +27,12 @@ import Foundation
 /// `mcons` is based on Racket (see BoxLibrary.swift).
 ///
 public final class ListLibrary: NativeLibrary {
-  
+
   /// Name of the library.
   public override class var name: [String] {
     return ["lispkit", "list"]
   }
-  
+
   /// Dependencies of the library.
   public override func dependencies() {
     self.`import`(from: ["lispkit", "core"],    "define", "apply", "quote", "and", "or",
@@ -42,7 +42,7 @@ public final class ListLibrary: NativeLibrary {
     self.`import`(from: ["lispkit", "math"],    "+", "-", "*", "=", "truncate-quotient",
                                                 "fxnegative?", "fx1-")
   }
-  
+
   /// Declarations of the library.
   public override func declarations() {
     self.define(Procedure("pair?", isPair, compileIsPair))
@@ -218,23 +218,23 @@ public final class ListLibrary: NativeLibrary {
       "         (acc   '() (cons (+ start (* count step)) acc)))",
       "        ((fxnegative? count) acc))))")
   }
-  
+
   //---------MARK: - List predicates
-  
+
   private func isPair(_ expr: Expr) -> Expr {
     if case .pair(_, _) = expr {
       return .true
     }
     return .false
   }
-  
+
   private func compileIsPair(_ compiler: Compiler,
                              expr: Expr,
                              env: Env,
                              tail: Bool) throws -> Bool {
     return try self.invoke(.isPair, with: expr, in: env, for: compiler)
   }
-  
+
   private func isList(_ expr: Expr) -> Expr {
     var expr = expr
     while case .pair(_, let cdr) = expr {
@@ -242,20 +242,20 @@ public final class ListLibrary: NativeLibrary {
     }
     return Expr.makeBoolean(expr.isNull)
   }
-  
+
   private func isNull(_ expr: Expr) -> Expr {
     return Expr.makeBoolean(expr.isNull)
   }
-  
+
   private func compileIsNull(_ compiler: Compiler,
                              expr: Expr,
                              env: Env,
                              tail: Bool) throws -> Bool {
     return try self.invoke(.isNull, with: expr, in: env, for: compiler)
   }
-  
+
   //-------- MARK: - Construction and deconstruction
-  
+
   private func makeList(_ k: Expr, expr: Expr?) throws -> Expr {
     let def = expr ?? .null
     var res: Expr = .null
@@ -266,7 +266,7 @@ public final class ListLibrary: NativeLibrary {
     }
     return res
   }
-  
+
   private func list(_ exprs: Arguments) -> Expr {
     var res = Expr.null
     for expr in exprs.reversed() {
@@ -274,7 +274,7 @@ public final class ListLibrary: NativeLibrary {
     }
     return res
   }
-  
+
   private func compileList(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, let cdr) = expr else {
       preconditionFailure()
@@ -290,11 +290,11 @@ public final class ListLibrary: NativeLibrary {
     }
     return false
   }
-  
+
   private func cons(_ car: Expr, _ cdr: Expr) -> Expr {
     return .pair(car, cdr)
   }
-  
+
   private func compileCons(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let head, .pair(let tail, .null))) = expr else {
       throw RuntimeError.argumentCount(of: "cons", min: 2, max: 2, expr: expr)
@@ -304,7 +304,7 @@ public final class ListLibrary: NativeLibrary {
     compiler.emit(.cons)
     return false
   }
-  
+
   private func consStar(_ expr: Expr, _ args: Arguments) -> Expr {
     var res: Expr? = nil
     for arg in args.reversed() {
@@ -312,29 +312,29 @@ public final class ListLibrary: NativeLibrary {
     }
     return res == nil ? expr : Expr.pair(expr, res!)
   }
-  
+
   private func car(_ expr: Expr) throws -> Expr {
     guard case .pair(let car, _) = expr else {
       throw RuntimeError.type(expr, expected: [.pairType])
     }
     return car
   }
-  
+
   private func compileCar(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     return try self.invoke(.car, with: expr, in: env, for: compiler)
   }
-  
+
   private func cdr(_ expr: Expr) throws -> Expr {
     guard case .pair(_, let cdr) = expr else {
       throw RuntimeError.type(expr, expected: [.pairType])
     }
     return cdr
   }
-  
+
   private func compileCdr(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     return try self.invoke(.cdr, with: expr, in: env, for: compiler)
   }
-  
+
   private func caar(_ expr: Expr) throws -> Expr {
     guard case .pair(let car, _) = expr else {
       throw RuntimeError.type(expr, expected: [.pairType])
@@ -344,11 +344,11 @@ public final class ListLibrary: NativeLibrary {
     }
     return caar
   }
-  
+
   private func compileCaar(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     return try self.invoke(.car, .car, with: expr, in: env, for: compiler)
   }
-  
+
   private func cadr(_ expr: Expr) throws -> Expr {
     guard case .pair(_, let cdr) = expr else {
       throw RuntimeError.type(expr, expected: [.pairType])
@@ -358,7 +358,7 @@ public final class ListLibrary: NativeLibrary {
     }
     return cadr
   }
-  
+
   private func compileCadr(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     return try self.invoke(.cdr, .car, with: expr, in: env, for: compiler)
   }
@@ -372,11 +372,11 @@ public final class ListLibrary: NativeLibrary {
     }
     return cdar
   }
-  
+
   private func compileCdar(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     return try self.invoke(.car, .cdr, with: expr, in: env, for: compiler)
   }
-  
+
   private func cddr(_ expr: Expr) throws -> Expr {
     guard case .pair(_, let cdr) = expr else {
       throw RuntimeError.type(expr, expected: [.pairType])
@@ -386,13 +386,13 @@ public final class ListLibrary: NativeLibrary {
     }
     return cddr
   }
-  
+
   private func compileCddr(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     return try self.invoke(.cdr, .cdr, with: expr, in: env, for: compiler)
   }
-  
+
   //-------- MARK: - Basic list functions
-  
+
   private func length(_ expr: Expr) throws -> Expr {
     var expr = expr
     var len: Int64 = 0
@@ -405,14 +405,14 @@ public final class ListLibrary: NativeLibrary {
     }
     return .fixnum(len)
   }
-  
+
   private func appendList(_ fst: Expr, _ tail: Expr) throws -> Expr {
     guard case (let exprs, .null) = fst.toExprs() else {
       throw RuntimeError.type(fst, expected: [.properListType])
     }
     return Expr.makeList(exprs, append: tail)
   }
-  
+
   private func append(_ exprs: Arguments) throws -> Expr {
     var res: Expr? = nil
     for expr in exprs.reversed() {
@@ -420,7 +420,7 @@ public final class ListLibrary: NativeLibrary {
     }
     return res ?? .null
   }
-  
+
   private func concatenate(_ expr: Expr) throws -> Expr {
     var res: Expr? = nil
     var lists = try self.reverse(expr)
@@ -430,7 +430,7 @@ public final class ListLibrary: NativeLibrary {
     }
     return res ?? .null
   }
-  
+
   private func reverse(_ expr: Expr) throws -> Expr {
     var res = Expr.null
     var list = expr
@@ -443,7 +443,7 @@ public final class ListLibrary: NativeLibrary {
     }
     return res
   }
-  
+
   private func listTail(_ expr: Expr, _ count: Expr) throws -> Expr {
     var k = try count.asInt64()
     guard k >= 0 else {
@@ -465,21 +465,21 @@ public final class ListLibrary: NativeLibrary {
       throw RuntimeError.range(count, min: 0, max: len)
     }
   }
-  
+
   private func key(_ expr: Expr, def: Expr?) throws -> Expr {
     guard case .pair(let car, _) = expr else {
       return def ?? .false
     }
     return car
   }
-  
+
   private func value(_ expr: Expr, def: Expr?) throws -> Expr {
     guard case .pair(_, let cdr) = expr else {
       return def ?? .false
     }
     return cdr
   }
-  
+
   private func memq(_ obj: Expr, expr: Expr) throws -> Expr {
     var list = expr
     while case .pair(let car, let cdr) = list {
@@ -493,7 +493,7 @@ public final class ListLibrary: NativeLibrary {
     }
     return .false
   }
-  
+
   private func memv(_ obj: Expr, expr: Expr) throws -> Expr {
     var list = expr
     while case .pair(let car, let cdr) = list {
@@ -507,7 +507,7 @@ public final class ListLibrary: NativeLibrary {
     }
     return .false
   }
-  
+
   private func assq(_ obj: Expr, expr: Expr) throws -> Expr {
     var list = expr
     while case .pair(.pair(let key, let value), let cdr) = list {
@@ -521,7 +521,7 @@ public final class ListLibrary: NativeLibrary {
     }
     return .false
   }
-  
+
   private func assv(_ obj: Expr, expr: Expr) throws -> Expr {
     var list = expr
     while case .pair(.pair(let key, let value), let cdr) = list {
@@ -535,7 +535,7 @@ public final class ListLibrary: NativeLibrary {
     }
     return .false
   }
-  
+
   private func delq(_ obj: Expr, expr: Expr) throws -> Expr {
     var list = expr
     var elems = Exprs()
@@ -550,7 +550,7 @@ public final class ListLibrary: NativeLibrary {
     }
     return .makeList(elems)
   }
-  
+
   private func delv(_ obj: Expr, expr: Expr) throws -> Expr {
     var list = expr
     var elems = Exprs()
@@ -565,7 +565,7 @@ public final class ListLibrary: NativeLibrary {
     }
     return .makeList(elems)
   }
-  
+
   private func alistDelq(_ obj: Expr, expr: Expr) throws -> Expr {
     var list = expr
     var elems = Exprs()
@@ -580,7 +580,7 @@ public final class ListLibrary: NativeLibrary {
     }
     return .makeList(elems)
   }
-  
+
   private func alistDelv(_ obj: Expr, expr: Expr) throws -> Expr {
     var list = expr
     var elems = Exprs()
@@ -595,7 +595,7 @@ public final class ListLibrary: NativeLibrary {
     }
     return .makeList(elems)
   }
-  
+
   private func decons(_ expr: Expr) throws -> Expr {
     guard case (let lists, .null) = expr.toExprs() else {
       throw RuntimeError.type(expr, expected: [.properListType])

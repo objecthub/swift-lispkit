@@ -30,22 +30,22 @@ public protocol TextInputSource {
 
 ///
 /// Default `TextInputSource` implementation for decoding UTF8 from a `BinaryInput` object.
-/// 
+///
 public struct UTF8EncodedSource: TextInputSource {
   private var input: BinaryInput
   private let length: Int
   private var codec: UTF8
-  
+
   public init(input: BinaryInput, length: Int) {
     self.input = input
     self.length = length
     self.codec = UTF8()
   }
-  
+
   public var nextReadMightBlock: Bool {
     return self.input.readMightBlock
   }
-  
+
   /// Decodes the binary input as UTF8 and returns strings of at most
   /// `length` characters (where a character is a unicode scalar).
   public mutating func readString() -> String? {

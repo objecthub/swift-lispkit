@@ -30,17 +30,17 @@ public enum Env: CustomStringConvertible, Equatable {
   case expired
   case global(Environment)
   case local(BindingGroup)
-  
+
   /// Initializes a global environment
   public init(_ environment: Environment) {
     self = .global(environment)
   }
-  
+
   /// Initializes a local environment
   public init(_ group: BindingGroup) {
     self = .local(group)
   }
-  
+
   /// Is this an expired environment? Expired environments play a role for environments
   /// derived from weak environments (which are needed for making the macro mechanism work).
   public var isExpired: Bool {
@@ -49,7 +49,7 @@ public enum Env: CustomStringConvertible, Equatable {
     }
     return false
   }
-  
+
   /// Is this an environment for the system scope?
   public var isGlobal: Bool {
     if case .global(_) = self {
@@ -57,7 +57,7 @@ public enum Env: CustomStringConvertible, Equatable {
     }
     return false
   }
-  
+
   /// Is this a local environment?
   public var isLocal: Bool {
     if case .local(_) = self {
@@ -65,7 +65,7 @@ public enum Env: CustomStringConvertible, Equatable {
     }
     return false
   }
-  
+
   /// Is this symbol bound in an immutable fashion?
   public func isImmutable(_ sym: Symbol) -> Bool {
     var env = self
@@ -83,7 +83,7 @@ public enum Env: CustomStringConvertible, Equatable {
     }
     return environment.locationRef(for: sym).isImmutable
   }
-  
+
   /// Is this environment in scope of environment `env`? An environment is in scope of
   /// another environment is an "outer" environment for the other environment. As a consequence,
   /// the global environment is in scope of all other environments.
@@ -97,7 +97,7 @@ public enum Env: CustomStringConvertible, Equatable {
         return false
     }
   }
-  
+
   /// Returns the global environment
   public var environment: Environment? {
     switch self {
@@ -109,7 +109,7 @@ public enum Env: CustomStringConvertible, Equatable {
         return group.parent.environment
     }
   }
-  
+
   /// Returns the global env
   public var global: Env {
     switch self {
@@ -119,7 +119,7 @@ public enum Env: CustomStringConvertible, Equatable {
         return self
     }
   }
-  
+
   /// Returns the binding group of a local environment.
   public var bindingGroup: BindingGroup? {
     guard case .local(let group) = self else {
@@ -127,7 +127,7 @@ public enum Env: CustomStringConvertible, Equatable {
     }
     return group
   }
-  
+
   /// Returns a weak environment that matches this environment. Only weak environments can be
   /// used for persisting an environment, e.g. in an expression or a generated symbol.
   /// Converting weak environments back into regular environments is possible, but is subject
@@ -143,7 +143,7 @@ public enum Env: CustomStringConvertible, Equatable {
         return .local(group.box)
     }
   }
-  
+
   /// Creates a "meta environment" from a compilation environment for executing syntax
   /// transformers.
   public var syntacticalEnv: Env {
@@ -156,7 +156,7 @@ public enum Env: CustomStringConvertible, Equatable {
         return .local(group.macroGroup())
     }
   }
-  
+
   /// Returns a unique identifier for this symbol in the given environment. This can,
   /// for instance, be used to print symbols such that generated and interned symbols
   /// can be distinguished.
@@ -170,7 +170,7 @@ public enum Env: CustomStringConvertible, Equatable {
         return sym.identifier + "@l" + group.identityString
     }
   }
-  
+
   /// Returns a string representation of this environment.
   public var description: String {
     switch self {
@@ -182,8 +182,8 @@ public enum Env: CustomStringConvertible, Equatable {
         return "local " + group.identityString
     }
   }
-  
-  
+
+
   /// Compares two env objects. Two weak environments are the same if they have the same
   /// type (i.e. same enumeration case) and for local environments, the bindings groups are
   /// identical (same object).
@@ -208,7 +208,7 @@ public enum Env: CustomStringConvertible, Equatable {
 public enum WeakEnv: Hashable {
   case global(WeakBox<Environment>)
   case local(WeakBox<BindingGroup>)
-  
+
   /// Returns a regular environment for this weak environment.
   public var env: Env {
     switch self {
@@ -218,7 +218,7 @@ public enum WeakEnv: Hashable {
         return box.value == nil ? .expired : .local(box.value!)
     }
   }
-  
+
   /// Hash value of this weak environment
   public func hash(into hasher: inout Hasher) {
     switch self {
@@ -228,7 +228,7 @@ public enum WeakEnv: Hashable {
         return hasher.combine(ObjectIdentifier(box))
     }
   }
-  
+
   /// Compares two weak environments. Two weak environments are the same if they have the same
   /// type (i.e. same enumeration case) and for local environments, the bindings groups are
   /// identical (same object).

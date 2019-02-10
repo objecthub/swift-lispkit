@@ -27,25 +27,25 @@ import Foundation
 /// consumed.
 ///
 open class TextInput {
-  
+
   /// Internal character buffer.
   private var buffer: String.UTF16View
-  
+
   /// Index into the buffer pointing at the next character to read.
   private var next: String.UTF16View.Index
-  
+
   /// Eof is true if all bytes have been consumed.
   open private(set) var eof: Bool = false
-  
+
   /// Text provider. If this property is nil, only the content in the buffer is relevant.
   private var source: TextInputSource?
-  
+
   /// The URL of this text input object.
   open var url: URL?
-  
+
   /// Callback to check if the binary input should abort its operation.
   public let isAborted: () -> Bool
-  
+
   public init(string: String,
               abortionCallback: @escaping () -> Bool = BinaryInput.neverAbort) {
     self.buffer = string.utf16
@@ -54,14 +54,14 @@ open class TextInput {
     self.url = nil
     self.isAborted = abortionCallback
   }
-  
+
   public convenience init(input: BinaryInput, capacity: Int = 4096) {
     self.init(source: UTF8EncodedSource(input: input, length: capacity),
               url: input.url as URL?,
               abortionCallback: input.isAborted)
     self.eof = input.eof
   }
-  
+
   public init(source: TextInputSource,
               url: URL? = nil,
               abortionCallback: @escaping () -> Bool = BinaryInput.neverAbort) {
@@ -72,17 +72,17 @@ open class TextInput {
     self.url = url
     self.isAborted = abortionCallback
   }
-  
+
   /// Makes sure that the input object is closed at garbage collection time.
   deinit {
     self.close()
   }
-  
+
   /// Closes the `TextInput` object.
   open func close() {
     self.source = nil
   }
-  
+
   open func read() -> UniChar? {
     guard self.readable() else {
       return nil
@@ -91,21 +91,21 @@ open class TextInput {
     self.next = self.buffer.index(after: self.next)
     return res
   }
-  
+
   open func peek() -> UniChar? {
     guard self.readable() else {
       return nil
     }
     return self.buffer[self.next]
   }
-  
+
   open func unread() {
     guard self.next > self.buffer.startIndex else {
       return
     }
     self.next = self.buffer.index(before: self.next)
   }
-  
+
   open func readString(_ n: Int) -> String? {
     assert(n >= 0, "TextInput.readString called with negative count")
     guard n > 0 else {
@@ -121,7 +121,7 @@ open class TextInput {
     }
     return String(utf16CodeUnits: res, count: res.count)
   }
-  
+
   open func readLine() -> String? {
     guard self.readable() else {
       return nil
@@ -139,7 +139,7 @@ open class TextInput {
     } while self.readable()
     return self.eof ? String(utf16CodeUnits: res, count: res.count) : nil
   }
-  
+
   open func readToken(delimiters: CharacterSet) -> String? {
     guard self.readable() else {
       return nil
@@ -157,7 +157,7 @@ open class TextInput {
     } while self.readable()
     return self.eof ? String(utf16CodeUnits: res, count: res.count) : nil
   }
-  
+
   open var readMightBlock: Bool {
     if self.eof {
       return false
@@ -167,7 +167,7 @@ open class TextInput {
       return false
     }
   }
-  
+
   private func readable() -> Bool {
     if self.eof || self.isAborted() {
       return false

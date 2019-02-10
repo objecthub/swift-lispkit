@@ -29,7 +29,7 @@ public indirect enum ImportSet: Equatable, CustomStringConvertible {
   case except(Set<Symbol>, ImportSet)
   case prefix(Symbol, ImportSet)
   case rename([Symbol : Symbol], ImportSet)
-  
+
   /// Constructs an import set from an expression for a given context.
   public init?(_ importSet: Expr, in context: Context) {
     switch importSet {
@@ -109,7 +109,7 @@ public indirect enum ImportSet: Equatable, CustomStringConvertible {
     }
     return nil
   }
-  
+
   /// `expand` returns, for this import set, a reference to the library from which definitions
   /// are imported. In addition, a mapping is returned that maps renamed definitions to the
   /// definitions as exported by the library.
@@ -169,7 +169,7 @@ public indirect enum ImportSet: Equatable, CustomStringConvertible {
         return (library, imports)
     }
   }
-  
+
   public var description: String {
     switch self {
       case .library(let expr):
@@ -184,7 +184,7 @@ public indirect enum ImportSet: Equatable, CustomStringConvertible {
         return "(rename \(map) from \(importSet))"
     }
   }
-  
+
   public static func ==(_ left: ImportSet, _ right: ImportSet) -> Bool {
     switch (left, right) {
       case (.library(let e1), .library(let e2)):

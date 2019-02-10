@@ -4,7 +4,7 @@
 //
 //  Created by Matthias Zenger on 20/11/2015.
 //  Copyright © 2015-2018 ObjectHub. All rights reserved.
-// 
+//
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
 //  You may obtain a copy of the License at
@@ -34,7 +34,7 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
   public let irritants: [Expr]
   public private(set) var library: Expr?
   public private(set) var stackTrace: [Procedure]?
-  
+
   internal init(_ pos: SourcePosition,
                 _ descriptor: ErrorDescriptor,
                 _ irritants: [Expr],
@@ -44,23 +44,23 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
     self.irritants = irritants
     self.stackTrace = nil
   }
-  
+
   public class func lexical(_ error: LexicalError,
                             at pos: SourcePosition = SourcePosition.unknown) -> RuntimeError {
     return RuntimeError(pos, ErrorDescriptor.lexical(error), [])
   }
-  
+
   public class func syntax(_ error: SyntaxError,
                            at pos: SourcePosition = SourcePosition.unknown) -> RuntimeError {
     return RuntimeError(pos, ErrorDescriptor.syntax(error), [])
   }
-  
+
   public class func type(_ expr: Expr,
                          expected: Set<Type>,
                          at pos: SourcePosition = SourcePosition.unknown) -> RuntimeError {
     return RuntimeError(pos, ErrorDescriptor.type(expr.type, expected), [expr])
   }
-  
+
   public class func range(parameter: Int? = nil,
                           of: String? = nil,
                           _ expr: Expr,
@@ -69,7 +69,7 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
                           at pos: SourcePosition = SourcePosition.unknown) -> RuntimeError {
     return RuntimeError(pos, ErrorDescriptor.range(of, parameter, min, max), [expr])
   }
-  
+
   public class func argumentCount(of: String? = nil,
                                   min: Int = 0,
                                   max: Int = Int.max,
@@ -84,7 +84,7 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
     }
     return RuntimeError.argumentCount(of: of, min: min, max: max, args: args, at: pos)
   }
-  
+
   public class func argumentCount(of: String? = nil,
                                   min: Int = 0,
                                   max: Int = Int.max,
@@ -94,7 +94,7 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
                         ErrorDescriptor.argumentCount(of, min, max),
                         [.makeNumber(args.toExprs().0.count), args])
   }
-  
+
   public class func argumentCount(of: String? = nil,
                                   num: Int,
                                   expr: Expr,
@@ -107,7 +107,7 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
     }
     return RuntimeError.argumentCount(of: of, num: num, args: args, at: pos)
   }
-  
+
   public class func argumentCount(of: String? = nil,
                                   num: Int,
                                   args: Expr,
@@ -116,48 +116,48 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
                         ErrorDescriptor.argumentCount(of, num, num),
                         [.makeNumber(args.toExprs().0.count), args])
   }
-  
+
   public class func eval(_ error: EvalError,
                          _ irritants: Expr...,
                          at pos: SourcePosition = SourcePosition.unknown) -> RuntimeError {
     return RuntimeError(pos, ErrorDescriptor.eval(error), irritants)
   }
-  
+
   public class func os(_ error: NSError,
                        at pos: SourcePosition = SourcePosition.unknown) -> RuntimeError {
     return RuntimeError(SourcePosition.unknown, ErrorDescriptor.os(error), [])
   }
-  
+
   public class func abortion(at pos: SourcePosition = SourcePosition.unknown,
                              stackTrace: [Procedure]? = nil) -> RuntimeError {
     return RuntimeError(pos, ErrorDescriptor.abortion, [], stackTrace)
   }
-  
+
   public class func custom(_ kind: String,
                            _ template: String,
                            _ irritants: [Expr],
                            at pos: SourcePosition = SourcePosition.unknown) -> RuntimeError {
     return RuntimeError(SourcePosition.unknown, ErrorDescriptor.custom(kind, template), irritants)
   }
-  
+
   public func at(_ pos: SourcePosition) -> RuntimeError {
     return RuntimeError(pos, self.descriptor, self.irritants, self.stackTrace)
   }
-  
+
   @discardableResult public func attach(stackTrace: [Procedure]) -> RuntimeError {
     if self.stackTrace == nil {
       self.stackTrace = stackTrace
     }
     return self
   }
-  
+
   @discardableResult public func attach(library: Expr) -> RuntimeError {
     if self.library == nil {
       self.library = library
     }
     return self
   }
-  
+
   public func hash(into hasher: inout Hasher) {
     for irritant in self.irritants {
       hasher.combine(irritant)
@@ -165,14 +165,14 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
     hasher.combine(self.descriptor)
     hasher.combine(self.pos)
   }
-  
+
   public var message: String {
     var usedIrritants = Set<Int>()
     return self.replacePlaceholders(in: self.descriptor.messageTemplate,
                                     with: self.irritants,
                                     recordingUsage: &usedIrritants)
   }
-  
+
   public var description: String {
     var usedIrritants = Set<Int>()
     let message = self.replacePlaceholders(in: self.descriptor.messageTemplate,
@@ -189,7 +189,7 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
     }
     return builder.description
   }
-  
+
   public var inlineDescription: String {
     var usedIrritants = Set<Int>()
     let message = self.replacePlaceholders(in: self.descriptor.messageTemplate,
@@ -197,7 +197,7 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
                                            recordingUsage: &usedIrritants)
     return "\(self.descriptor.typeDescription): \(message)"
   }
-  
+
   public func printableDescription(context: Context,
                                    typeOpen: String = "[",
                                    typeClose: String = "] ",
@@ -255,7 +255,7 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
     }
     return builder.description
   }
-  
+
   public func mark(_ tag: UInt8) {
     for irritant in self.irritants {
       irritant.mark(tag)
@@ -266,7 +266,7 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
       }
     }
   }
-  
+
   /// This method assumes the string contains variables of the form `$n` where `n` is a
   /// variable index into the array `values`. It replaces occurences of `$n` with the value at
   /// index `n`. If there is no such value or the index is not well-formed, the variable
@@ -407,7 +407,7 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
     }
     return res
   }
-  
+
   public static func ==(_ lhs: RuntimeError, _ rhs: RuntimeError) -> Bool {
     return lhs.pos == rhs.pos &&
            lhs.descriptor == rhs.descriptor &&
@@ -433,8 +433,8 @@ public enum ErrorDescriptor: Hashable {
   case os(NSError)
   case abortion
   case custom(String, String)
-  
-  
+
+
   public var isFileError: Bool {
     guard case .eval(let err) = self else {
       return false
@@ -446,7 +446,7 @@ public enum ErrorDescriptor: Hashable {
         return false
     }
   }
-  
+
   public var isReadError: Bool {
     switch self {
       case .lexical(_), .syntax(_):
@@ -455,7 +455,7 @@ public enum ErrorDescriptor: Hashable {
         return false
     }
   }
-  
+
   public var typeDescription: String {
     switch self {
       case .lexical(_):
@@ -478,7 +478,7 @@ public enum ErrorDescriptor: Hashable {
         return type
     }
   }
-  
+
   public var messageTemplate: String {
     switch self {
       case .lexical(let error):
@@ -577,7 +577,7 @@ public enum ErrorDescriptor: Hashable {
         return message
     }
   }
-  
+
   private func arguments(_ n: Int) -> String {
     if n == 1 {
       return "1 argument"
@@ -585,7 +585,7 @@ public enum ErrorDescriptor: Hashable {
       return "\(n) arguments"
     }
   }
-  
+
   public func hash(into hasher: inout Hasher) {
     switch self {
       case .lexical(let error):
@@ -622,7 +622,7 @@ public enum ErrorDescriptor: Hashable {
         hasher.combine(message)
     }
   }
-  
+
   public static func ==(_ lhs: ErrorDescriptor, _ rhs: ErrorDescriptor) -> Bool {
     switch (lhs, rhs) {
       case (.lexical(let lerr), .lexical(let rerr)):

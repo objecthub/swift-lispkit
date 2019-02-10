@@ -23,7 +23,7 @@
 /// types.
 ///
 public final class SpecialForm: Reference, CustomStringConvertible {
-  
+
   /// There are two kinds of special forms:
   ///    1. Primitives: These are built-in special forms
   ///    2. Macros: These are user-defined and expressed in terms of a macro transformer
@@ -31,26 +31,26 @@ public final class SpecialForm: Reference, CustomStringConvertible {
     case primitive(FormCompiler)
     case macro(Procedure)
   }
-  
+
   /// Special form kind
   internal let kind: Kind
-  
+
   /// Original name of the special form, if available; this is the name of the special
   /// form at definition time.
   public let originalName: String?
-  
+
   /// Initializer for primitive special forms
   public init(_ name: String?, _ compiler: @escaping FormCompiler) {
     self.kind = .primitive(compiler)
     self.originalName = name
   }
-  
+
   /// Initializer for special forms based on macro transformers
   public init(_ name: String?, _ transformer: Procedure) {
     self.kind = .macro(transformer)
     self.originalName = name
   }
-  
+
   public func mark(_ tag: UInt8) {
     switch self.kind {
       case .primitive(_):
@@ -59,7 +59,7 @@ public final class SpecialForm: Reference, CustomStringConvertible {
         proc.mark(tag)
     }
   }
-  
+
   /// Returns the name of this special form. This method either returns the name of a primitive
   /// special form or a macro transformer. If the name isn't available, the identity is returned
   /// as a hex string.
@@ -74,7 +74,7 @@ public final class SpecialForm: Reference, CustomStringConvertible {
         return "\(originalName)@\(self.identityString)"
     }
   }
-  
+
   /// A textual description
   public var description: String {
     return "special:" + self.name

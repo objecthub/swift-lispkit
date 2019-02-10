@@ -26,19 +26,19 @@ import Foundation
 /// written. If there is no output stream, all data will be accumulated in the buffer.
 ///
 open class BinaryOutput {
-  
+
   /// Buffer into which bytes are written first before they are written into an output stream.
   private var buffer: [UInt8]
-  
+
   /// Index into the buffer indicating the next byte to write.
   private var next: Int
-  
+
   /// The output stream into which content in the buffer is flushed.
   private var output: OutputStream?
-  
+
   /// The URL for the output stream. `url` is nil whenever `output` is nil.
   public let url: URL?
-  
+
   /// Relative paths are relative to the documents folder
   private static let documentsUrl =
     URL(fileURLWithPath:
@@ -51,7 +51,7 @@ open class BinaryOutput {
     self.output = nil
     self.url = nil
   }
-  
+
   /// Initializes a new `BinaryOutput` that is backed by an output steam to a file at
   /// a given path. Relative paths are relative to the documents folder. `append` determines
   /// if the content should be appended in case the output stream refers to an existing file.
@@ -60,7 +60,7 @@ open class BinaryOutput {
     self.init(url: URL(fileURLWithPath: path, relativeTo: BinaryOutput.documentsUrl),
               capacity: capacity)
   }
-  
+
   /// Initializes a new `BinaryOutput` that is backed by an output steam to a file at the
   /// given URL. `append` determines if the content should be appended in case the output
   /// stream refers to an existing file. `capacity` indicates the size of the buffer in terms
@@ -83,12 +83,12 @@ open class BinaryOutput {
     self.output = output
     self.url = url
   }
-  
+
   /// Closes the output stream when the object gets garbage collected.
   deinit {
     self.close()
   }
-  
+
   /// Closes the output stream. From that point on, writing to the `BinaryOutput` is still
   /// possible and will be accumulated in the internal buffer.
   open func close() {
@@ -98,7 +98,7 @@ open class BinaryOutput {
       output.close()
     }
   }
-  
+
   /// Returns true if there is at least one byte that can be written into the buffer.
   private func writeable() -> Bool {
     guard self.output == nil || self.next < self.buffer.count else {
@@ -106,7 +106,7 @@ open class BinaryOutput {
     }
     return true
   }
-  
+
   /// Flushes the buffer by writing it into the output steam. For `BinaryOutput` objects that
   /// are not backed by an output stream, flush does nothing.
   @discardableResult open func flush(_ completely: Bool = false) -> Bool {
@@ -119,7 +119,7 @@ open class BinaryOutput {
     }
     return true
   }
-  
+
   /// Writes the given byte into the `BinaryOutput`.
   open func write(_ byte: UInt8) -> Bool {
     guard self.writeable() else {
@@ -134,7 +134,7 @@ open class BinaryOutput {
     self.next += 1
     return true
   }
-  
+
   /// Writes the given sequence of bytes into the `BinaryOutput`.
   open func writeFrom(_ source: [UInt8], start: Int, end: Int) -> Bool {
     guard start < source.count && start <= end else {
@@ -148,7 +148,7 @@ open class BinaryOutput {
     }
     return true
   }
-  
+
   /// Returns the bytes that are currently in the buffer as a new byte array.
   open var currentBuffer: [UInt8] {
     return [UInt8](self.buffer[0..<self.next])

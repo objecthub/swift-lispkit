@@ -27,25 +27,25 @@
 ///    - Tracked objects: Are maintained for figuring out which managed objects are still
 ///      referenced and thus can't be garbage collected. A managed object pool keeps only week
 ///      references to such tracked objects.
-/// 
+///
 public final class ManagedObjectPool: CustomStringConvertible {
-  
+
   /// Last tag used for the mark/sweep garbage collector.
   internal private(set) var tag: UInt8
-  
+
   /// Number of garbage collection cycles.
   public private(set) var cycles: UInt64
-  
+
   /// Root set of tracked objects.
   private var rootSet: ObjectPool<TrackedObject>
-  
+
   /// Pool of managed objects.
   private var objectPool: ObjectPool<ManagedObject>
-  
+
   /// Does this managed object pool own the managed objects? If yes, the objects will be
   /// cleaned as soon as this managed object pool is being de-initialized.
   private let ownsManagedObjects: Bool
-  
+
   /// Initializes an empty managed object pool.
   public init(ownsManagedObjects: Bool = true) {
     self.tag = 0
@@ -54,7 +54,7 @@ public final class ManagedObjectPool: CustomStringConvertible {
     self.objectPool = ObjectPool<ManagedObject>()
     self.ownsManagedObjects = ownsManagedObjects
   }
-  
+
   /// Destory all potential cyclic dependencies if this managed object pool owns the managed
   /// objects.
   deinit {
@@ -64,41 +64,41 @@ public final class ManagedObjectPool: CustomStringConvertible {
       }
     }
   }
-  
+
   /// Returns number of tracked objects.
   public var numTrackedObjects: Int {
     return self.rootSet.count
   }
-  
+
   /// Returns number of managed objects.
   public var numManagedObjects: Int {
     return self.objectPool.count
   }
-  
+
   /// Returns capacity of tracked objects; i.e. the number of tracked objects that can be
   /// registered without reallocating memory for the root set.
   public var trackedObjectCapacity: Int {
     return self.rootSet.capacity
   }
-  
+
   /// Returns capacity of managed objects; i.e. the number of managed objects that can be
   /// registered without reallocating memory for the object pool.
   public var managedObjectCapacity: Int {
     return self.objectPool.capacity
   }
-  
+
   /// Track the given tracked object.
   public func track(_ obj: TrackedObject) {
     self.rootSet.add(obj)
   }
-  
+
   /// Track the given trackable object and return a tracked object acting as a proxy.
   public func track<T: Trackable>(_ obj: T) -> Tracked<T> {
     let res = Tracked(obj)
     self.rootSet.add(res)
     return res
   }
-  
+
   /// Manage the given managed object.
   @discardableResult public func manage<T: ManagedObject>(_ obj: T) -> T {
     if !obj.managed {
@@ -107,7 +107,7 @@ public final class ManagedObjectPool: CustomStringConvertible {
     }
     return obj
   }
-  
+
   /// Perform garbage collection.
   public func collectGarbage() -> Int {
     // Increment cycle counter
@@ -131,14 +131,14 @@ public final class ManagedObjectPool: CustomStringConvertible {
     // Return number of freed up objects
     return oldManagedObjectCount - self.numManagedObjects
   }
-  
+
   /// Returns a description of the current managed object pool state.
   public var description: String {
     return "ManagedObjectPool{ tracked \(self.numTrackedObjects) of " +
            "\(self.trackedObjectCapacity), managed \(self.numManagedObjects) of " +
            "\(self.managedObjectCapacity), gc cycles = \(self.cycles), last tag = \(self.tag) }"
   }
-  
+
   /// Returns a distribution of type names of managed objects
   public var managedObjectDistribution: [String : Int] {
     var distrib: [String : Int] = [:]

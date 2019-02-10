@@ -44,7 +44,7 @@ public enum LexicalError: Int, Hashable {
   case divisionByZero
   case exactComplexNumbersUnsupported
   case unknownDirective
-  
+
   public var message: String {
     switch self {
       case .empty:
@@ -87,7 +87,7 @@ public enum LexicalError: Int, Hashable {
         return "unknown directive"
     }
   }
-  
+
   public static func ==(_ lhs: LexicalError, _ rhs: LexicalError) -> Bool {
     return lhs.rawValue == rhs.rawValue
   }

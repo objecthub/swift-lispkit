@@ -29,18 +29,18 @@ import CoreGraphics
 /// functionality available to invert this matrix (= undo the transformation).
 ///
 public final class Transformation: Reference {
-  
+
   /// The identify transformation (= no mapping).
   public static let identity = Transformation()
-  
+
   /// The internal representation using an `AffineTransform` object.
   public private(set) var affineTransform: AffineTransform
-  
+
   /// Initializer
   public init(_ affineTransform: AffineTransform) {
     self.affineTransform = affineTransform
   }
-  
+
   /// Initializer
   public init(_ transform: Transformation? = nil) {
     if let transform = transform {
@@ -49,37 +49,37 @@ public final class Transformation: Reference {
       self.affineTransform = AffineTransform()
     }
   }
-  
+
   /// Name of this reference type
   public override var typeDescription: String {
     return "transformation"
   }
-  
+
   /// Shift coordinates by x/y.
   public func translate(x: Double, y: Double) {
     self.affineTransform.translate(x: CGFloat(x), y: CGFloat(y))
   }
-  
+
   /// Scale coordinates by factors x/y
   public func scale(x: Double, y: Double) {
     self.affineTransform.scale(x: CGFloat(x), y: CGFloat(y))
   }
-  
+
   /// Rotate coordinates by a given angle (around the origin)
   public func rotate(angle: Double) {
     self.affineTransform.rotate(byRadians: CGFloat(angle))
   }
-  
+
   /// Append a transformation.
   public func append(_ tf: Transformation) {
     self.affineTransform.append(tf.affineTransform)
   }
-  
+
   /// Prepend a transformation.
   public func prepend(_ tf: Transformation) {
     self.affineTransform.prepend(tf.affineTransform)
   }
-  
+
   /// Inver the transformation matrix
   public func invert() {
     self.affineTransform.invert()

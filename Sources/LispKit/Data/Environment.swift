@@ -23,7 +23,7 @@
 /// references (i.e. references into the locations array).
 ///
 public final class Environment: Reference, CustomStringConvertible {
-  
+
   /// Three different kinds of environments are supported. Some operations behave differently
   /// depending on the kind of the environment.
   ///    1. Libraries
@@ -35,28 +35,28 @@ public final class Environment: Reference, CustomStringConvertible {
     case repl
     case custom
   }
-  
+
   /// Tagged reference to a location
   public enum LocationRef: CustomStringConvertible {
     case undefined
     case mutable(Int)
     case mutableImport(Int)
     case immutableImport(Int)
-    
+
     public var isUndefined: Bool {
       guard case .undefined = self else {
         return false
       }
       return true
     }
-    
+
     public var isImmutable: Bool {
       guard case .immutableImport(_) = self else {
         return false
       }
       return true
     }
-    
+
     public var location: Int? {
       switch self {
         case .undefined:
@@ -69,7 +69,7 @@ public final class Environment: Reference, CustomStringConvertible {
           return loc
       }
     }
-    
+
     public var description: String {
       switch self {
         case .undefined:
@@ -83,21 +83,21 @@ public final class Environment: Reference, CustomStringConvertible {
       }
     }
   }
-  
+
   /// The environment kind.
   public let kind: Kind
-  
+
   /// The context in which this environment is defined in. This is an unowned reference only
   /// since the context is the most long-lived object in a LispKit session.
   public unowned let context: Context
-  
+
   /// The bindings are associations between symbols and locations. Each association is tagged
   /// with information on mutability and whether it's an imported binding.
   private var bindings: [Symbol : LocationRef]
-  
+
   /// A weak box object pointing at this environment
   public private(set) var box: WeakBox<Environment>!
-  
+
   /// Initializes an empty interactive environment for read-eval-print loops.
   public init(in context: Context) {
     self.kind = .repl
@@ -109,7 +109,7 @@ public final class Environment: Reference, CustomStringConvertible {
                 as: .special(SpecialForm(context.symbols.`import`.description,
                                          Environment.compileImport)))
   }
-  
+
   /// Initializes an empty environment for executing a program read from `filename`.
   public init(in context: Context, for filename: String) {
     self.kind = .program(filename)
@@ -118,7 +118,7 @@ public final class Environment: Reference, CustomStringConvertible {
     super.init()
     self.box = WeakBox(self)
   }
-  
+
   /// Initializes an environment for executing the declarations of a library.
   public init(in context: Context, for library: Library) throws {
     // Set up empty environment
@@ -147,7 +147,7 @@ public final class Environment: Reference, CustomStringConvertible {
       }
     }
   }
-  
+
   /// Initializes a custom environment with the given import sets.
   public init(in context: Context, importing importSets: [ImportSet]) throws {
     self.kind = .custom
@@ -159,17 +159,17 @@ public final class Environment: Reference, CustomStringConvertible {
       _ = try self.initialImport(importSet)
     }
   }
-  
+
   /// Returns the number of bindings in this environment.
   public var count: Int {
     return self.bindings.count
   }
-  
+
   /// Returns an array of all the symbols bound in this environment.
   public var boundSymbols: [Symbol] {
     return [Symbol](self.bindings.keys)
   }
-  
+
   /// Looks up value associated with `sym` in this environment.
   public subscript(sym: Symbol) -> Expr? {
     guard let loc = self.bindings[sym]?.location else {
@@ -177,7 +177,7 @@ public final class Environment: Reference, CustomStringConvertible {
     }
     return self.context.heap.locations[loc]
   }
-  
+
   /// Binds symbol `sym` to the given location reference `loc`.
   internal func bind(_ sym: Symbol, to loc: LocationRef) {
     switch self.kind {
@@ -191,17 +191,17 @@ public final class Environment: Reference, CustomStringConvertible {
         self.bindings[sym] = loc
     }
   }
-  
+
   /// Returns true if the given symbol is not defined in this environment.
   public func isUndefined(_ sym: Symbol) -> Bool {
     return self.bindings[sym]?.isUndefined ?? true
   }
-  
+
   /// Returns true if the given symbol is imported in an immutable fashion.
   public func isImmutable(_ sym: Symbol) -> Bool {
     return self.bindings[sym]?.isImmutable ?? false
   }
-  
+
   /// Returns true if the given symbol is imported
   public func isImported(_ sym: Symbol, immutable: Bool? = nil) -> Bool {
     guard let locRef = self.bindings[sym] else {
@@ -216,7 +216,7 @@ public final class Environment: Reference, CustomStringConvertible {
         return false
     }
   }
-  
+
   /// Returns the name of library if this is an environment for a library, `nil` otherwise.
   public var libraryName: Expr? {
     switch self.kind {
@@ -226,12 +226,12 @@ public final class Environment: Reference, CustomStringConvertible {
         return nil
     }
   }
-  
+
   /// Returns the location reference associated with `sym`.
   public func locationRef(for sym: Symbol) -> LocationRef {
     return self.bindings[sym] ?? .undefined
   }
-  
+
   /// Returns the location reference associated with `sym`. If the location reference is
   /// undefined, this method will reserve a location, guaranteeing that this method never
   /// returns `LocationRef.undefined`.
@@ -248,7 +248,7 @@ public final class Environment: Reference, CustomStringConvertible {
     self.bind(sym, to: locRef)
     return locRef
   }
-  
+
   /// Sets the location reference of `sym` to `lref`.
   internal func setLocationRef(for sym: Symbol, to lref: LocationRef) {
     if case .undefined = lref {
@@ -256,7 +256,7 @@ public final class Environment: Reference, CustomStringConvertible {
     }
     self.bind(sym, to: lref)
   }
-  
+
   /// Defines a new binding in this environment from `sym` to `expr`. This function returns
   /// false only if this is an environment for a program or a library and the symbol was
   /// previously bound already.
@@ -289,7 +289,7 @@ public final class Environment: Reference, CustomStringConvertible {
         }
     }
   }
-  
+
   /// Redefines a binding in this environment from `sym` to `expr`. This function returns
   /// false if there either was no previous binding, or the previous binding was immutable.
   @discardableResult public func set(_ sym: Symbol, to expr: Expr) -> Bool {
@@ -310,14 +310,14 @@ public final class Environment: Reference, CustomStringConvertible {
         return false
     }
   }
-  
+
   /// Imports all the bindings defined by the library identified by the name `library` into this
   /// environment. Environments of libraries do not support imports. This method forces the
   /// library to get initialized.
   public func `import`(_ library: [String]) throws {
     _ = try self.import(.library(self.context.libraries.name(library))).initialize()
   }
-  
+
   /// Imports the bindings defined by `importSet` into this environment. Environments of
   /// libraries do not support imports. This method does not force the library to be initialized.
   @discardableResult public func `import`(_ importSet: ImportSet) throws -> Library {
@@ -327,7 +327,7 @@ public final class Environment: Reference, CustomStringConvertible {
     }
     return try self.initialImport(importSet)
   }
-  
+
   /// Imports the bindings defined by `importSet` into this environment. Environments of
   /// libraries do not support imports. This method does not force the library to be initialized.
   private func initialImport(_ importSet: ImportSet) throws -> Library {
@@ -373,7 +373,7 @@ public final class Environment: Reference, CustomStringConvertible {
     }
     return library
   }
-  
+
   /// A description of the bindings in this environment.
   public var description: String {
     var type: String = ""
@@ -396,7 +396,7 @@ public final class Environment: Reference, CustomStringConvertible {
     }
     return builder.description
   }
-  
+
   /// Implements `import` for programs and REPLs.
   private static func compileImport(_ compiler: Compiler,
                                     expr: Expr,

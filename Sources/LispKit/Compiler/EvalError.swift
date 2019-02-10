@@ -104,7 +104,7 @@ public enum EvalError: Int, Hashable {
   case invalidRegexpMatchingOption
   case unknownKeyword
   case expectedKeywordArg
-  
+
   public var message: String {
     switch self {
       case .illegalKeywordUsage:
@@ -267,13 +267,13 @@ public enum EvalError: Int, Hashable {
         return "expected keyword argument: $0"
     }
   }
-  
+
   public static func assert(_ args: Arguments, count: Int) throws {
     guard args.count == count else {
       throw RuntimeError.argumentCount(min: count, max: count, args: .makeList(args))
     }
   }
-  
+
   public static func ==(_ lhs: EvalError, _ rhs: EvalError) -> Bool {
     return lhs.rawValue == rhs.rawValue
   }

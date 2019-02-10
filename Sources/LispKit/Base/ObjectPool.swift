@@ -18,52 +18,52 @@
 //  limitations under the License.
 //
 
-/// 
+///
 /// An object pool refers to a set of objects via weak references. Objects are added
 /// to the pool via method `add`. They are automatically removed as soon as there is no
 /// strong reference to this object anymore.
 ///
 public final class ObjectPool<T: AnyObject>: Sequence, CustomStringConvertible {
-  
+
   /// Internal representation of a weak variable that can be recycled.
   private struct WeakVariable {
     var recycled: Bool
     weak var obj: T?
   }
-  
+
   /// Weak references to objects in the pool
   private var references: ContiguousArray<WeakVariable>
-  
+
   /// A set of indices of free weak references
   private var free: ContiguousArray<Int>
-  
+
   /// How many references have been added after the last collection of free references
   private var added: Int
-  
+
   /// Initializes an empty object pool
   public init() {
     self.references = []
     self.free = []
     self.added = 0
   }
-  
+
   /// Returns the capacity of the object pool. This is the number of allocated
   /// weak references.
   public var capacity: Int {
     return references.count
   }
-  
+
   /// Returns the number of weakly referenced objects in the pool.
   public var count: Int {
     collectFreeReferences()
     return references.count - free.count
   }
-  
+
   /// Returns true if the object pool is empty.
   public var isEmpty: Bool {
     return self.count == 0
   }
-  
+
   /// Adds the given object to the object pool.
   public func add(_ obj: T) {
     // Collect free references on a regular basis; frequency is based on the capacity
@@ -87,14 +87,14 @@ public final class ObjectPool<T: AnyObject>: Sequence, CustomStringConvertible {
       references.append(WeakVariable(recycled: false, obj: obj))
     }
   }
-  
+
   /// Removes all objects from the object pool.
   public func clear() {
     self.references.removeAll()
     self.free.removeAll()
     self.added = 0
   }
-  
+
   /// Finds all free references in the object pool.
   private func collectFreeReferences() {
     for i in self.references.indices {
@@ -104,7 +104,7 @@ public final class ObjectPool<T: AnyObject>: Sequence, CustomStringConvertible {
       }
     }
   }
-  
+
   /// Returns a generator for iterating over all objects in the object pool.
   public func makeIterator() -> AnyIterator<T> {
     var i = 0
@@ -119,7 +119,7 @@ public final class ObjectPool<T: AnyObject>: Sequence, CustomStringConvertible {
       return nil
     }
   }
-  
+
   /// Returns a textual representation of this object pool.
   public var description: String {
     return "ObjectPool{refcount = \(self.references.count), freecount = \(self.free.count), " +

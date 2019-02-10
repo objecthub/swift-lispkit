@@ -18,7 +18,7 @@
 //  limitations under the License.
 //
 
-/// 
+///
 /// Class `Collection` is an indexed sequence of expressions which is used to represent
 /// arrays, vectors, records, and record types in LispKit. A `Collection` object is a boxed
 /// expression array of one of the following kinds:
@@ -30,7 +30,7 @@
 ///    - Record instance
 ///
 public final class Collection: ManagedObject, CustomStringConvertible {
-  
+
   public enum Kind: CustomStringConvertible {
     case array
     case vector
@@ -38,7 +38,7 @@ public final class Collection: ManagedObject, CustomStringConvertible {
     case growableVector
     case recordType
     case record(Collection)
-    
+
     public var description: String {
       switch self {
         case .array:
@@ -56,33 +56,33 @@ public final class Collection: ManagedObject, CustomStringConvertible {
       }
     }
   }
-  
+
   /// The kind of this collection
   public private(set) var kind: Kind
-  
+
   /// The collection values
   public var exprs: Exprs
-  
+
   /// Maintain object statistics.
   internal static var stats = Stats("Collection")
-  
+
   /// Update object statistics.
   deinit {
     Collection.stats.dealloc()
   }
-  
+
   /// Creates an immutable Collection from the given array
   public init(kind: Kind, exprs: Exprs = []) {
     self.kind = kind
     self.exprs = exprs
     super.init(Collection.stats)
   }
-  
+
   /// Creates a mutable Collection of the given length and prefilled with the given value
   public convenience init(kind: Kind, count n: Int, repeatedValue value: Expr = .null) {
     self.init(kind: kind, exprs: Exprs(repeating: value, count: n))
   }
-  
+
   public func sameKindAs(_ other: Collection) -> Bool {
     switch (self.kind, other.kind) {
       case (.array, .array),
@@ -97,7 +97,7 @@ public final class Collection: ManagedObject, CustomStringConvertible {
         return false
     }
   }
-  
+
   public var isVector: Bool {
     switch self.kind {
       case .vector, .immutableVector, .growableVector:
@@ -106,7 +106,7 @@ public final class Collection: ManagedObject, CustomStringConvertible {
         return false
     }
   }
-  
+
   public var isMutableVector: Bool {
     switch self.kind {
       case .vector, .growableVector:
@@ -115,7 +115,7 @@ public final class Collection: ManagedObject, CustomStringConvertible {
         return false
     }
   }
-  
+
   public var isGrowableVector: Bool {
     switch self.kind {
       case .growableVector:
@@ -124,7 +124,7 @@ public final class Collection: ManagedObject, CustomStringConvertible {
         return false
     }
   }
-  
+
   public override func mark(_ tag: UInt8) {
     if self.tag != tag {
       self.tag = tag
@@ -136,12 +136,12 @@ public final class Collection: ManagedObject, CustomStringConvertible {
       }
     }
   }
-  
+
   public override func clean() {
     self.kind = .vector
     self.exprs.removeAll()
   }
-  
+
   public var description: String {
     switch self.kind {
       case .array:

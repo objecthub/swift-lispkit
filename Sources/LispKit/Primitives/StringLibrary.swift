@@ -21,12 +21,12 @@
 import Foundation
 
 public final class StringLibrary: NativeLibrary {
-  
+
   /// Name of the library.
   public override class var name: [String] {
     return ["lispkit", "string"]
   }
-  
+
   /// Dependencies of the library.
   public override func dependencies() {
     self.`import`(from: ["lispkit", "control"], "let", "let*", "do", "unless", "when", "if")
@@ -34,7 +34,7 @@ public final class StringLibrary: NativeLibrary {
     self.`import`(from: ["lispkit", "list"],    "cons", "null?")
     self.`import`(from: ["lispkit", "math"],    "fx1+", "fx1-", "fx=", "fx>", "fx<", "fx<=", "fx>=")
   }
-  
+
   /// Declarations of the library.
   public override func declarations() {
     self.define(Procedure("string?", isString))
@@ -98,20 +98,20 @@ public final class StringLibrary: NativeLibrary {
       "         ((fx>= i len))",
       "      (apply f (_string-list-ref i strs)))))")
   }
-  
+
   func isString(_ expr: Expr) -> Expr {
     if case .string(_) = expr {
       return .true
     }
     return .false
   }
-  
+
   func makeString(_ k: Expr, ch: Expr?) throws -> Expr {
     let uniChars = Array<UniChar>(repeating: try ch?.asUniChar() ?? UniChar(" "),
                                   count: try k.asInt())
     return .string(NSMutableString(string: String(utf16CodeUnits: uniChars, count: uniChars.count)))
   }
-  
+
   func string(_ exprs: Arguments) throws -> Expr {
     var uniChars: [UniChar] = []
     for expr in exprs {
@@ -119,11 +119,11 @@ public final class StringLibrary: NativeLibrary {
     }
     return .string(NSMutableString(string: String(utf16CodeUnits: uniChars, count: uniChars.count)))
   }
-  
+
   func stringLength(_ expr: Expr) throws -> Expr {
     return .fixnum(Int64(try expr.asString().utf16.count))
   }
-  
+
   func stringListLength(_ strings: Expr) throws -> Expr {
     var n = Int.max
     var list = strings
@@ -139,7 +139,7 @@ public final class StringLibrary: NativeLibrary {
     }
     return .fixnum(Int64(n))
   }
-  
+
   func stringRef(_ expr: Expr, _ index: Expr) throws -> Expr {
     let str = try expr.asString().utf16
     let k = try index.asInt()
@@ -153,7 +153,7 @@ public final class StringLibrary: NativeLibrary {
     }
     return .char(str[i])
   }
-  
+
   func stringListRef(_ index: Expr, _ strings: Expr) throws -> Expr {
     let k = try index.asInt()
     var res = Exprs()
@@ -172,14 +172,14 @@ public final class StringLibrary: NativeLibrary {
     }
     return .makeList(res)
   }
-  
+
   func stringSet(_ expr: Expr, _ index: Expr, char: Expr) throws -> Expr {
     let str = try expr.asMutableStr()
     str.replaceCharacters(in: NSRange(location: try index.asInt(below: str.length), length: 1),
                           with: String(utf16CodeUnits: [try char.asUniChar()], count: 1))
     return .void
   }
-  
+
   func stringAppend(_ exprs: Arguments) throws -> Expr {
     let str = NSMutableString()
     for expr in exprs {
@@ -187,7 +187,7 @@ public final class StringLibrary: NativeLibrary {
     }
     return .string(str)
   }
-  
+
   func stringConcatenate(_ expr: Expr) throws -> Expr {
     let res = NSMutableString()
     var list = expr
@@ -200,7 +200,7 @@ public final class StringLibrary: NativeLibrary {
     }
     return .string(res)
   }
-  
+
   func stringEquals(_ expr: Expr, _ args: Arguments) throws -> Expr {
     let str = try expr.asString()
     for arg in args {
@@ -210,7 +210,7 @@ public final class StringLibrary: NativeLibrary {
     }
     return .true
   }
-  
+
   func stringLessThan(_ expr: Expr, _ args: Arguments) throws -> Expr {
     var str = try expr.asString()
     for arg in args {
@@ -222,7 +222,7 @@ public final class StringLibrary: NativeLibrary {
     }
     return .true
   }
-  
+
   func stringLessThanEquals(_ expr: Expr, _ args: Arguments) throws -> Expr {
     var str = try expr.asString()
     for arg in args {
@@ -234,7 +234,7 @@ public final class StringLibrary: NativeLibrary {
     }
     return .true
   }
-  
+
   func stringGreaterThan(_ expr: Expr, _ args: Arguments) throws -> Expr {
     var str = try expr.asString()
     for arg in args {
@@ -246,7 +246,7 @@ public final class StringLibrary: NativeLibrary {
     }
     return .true
   }
-  
+
   func stringGreaterThanEquals(_ expr: Expr, _ args: Arguments) throws -> Expr {
     var str = try expr.asString()
     for arg in args {
@@ -258,7 +258,7 @@ public final class StringLibrary: NativeLibrary {
     }
     return .true
   }
-  
+
   func stringCiEquals(_ expr: Expr, _ args: Arguments) throws -> Expr {
     let str = try expr.asString().lowercased()
     for arg in args {
@@ -268,7 +268,7 @@ public final class StringLibrary: NativeLibrary {
     }
     return .true
   }
-  
+
   func stringCiLessThan(_ expr: Expr, _ args: Arguments) throws -> Expr {
     var str = try expr.asString().lowercased()
     for arg in args {
@@ -280,7 +280,7 @@ public final class StringLibrary: NativeLibrary {
     }
     return .true
   }
-  
+
   func stringCiLessThanEquals(_ expr: Expr, _ args: Arguments) throws -> Expr {
     var str = try expr.asString().lowercased()
     for arg in args {
@@ -292,7 +292,7 @@ public final class StringLibrary: NativeLibrary {
     }
     return .true
   }
-  
+
   func stringCiGreaterThan(_ expr: Expr, _ args: Arguments) throws -> Expr {
     var str = try expr.asString().lowercased()
     for arg in args {
@@ -304,7 +304,7 @@ public final class StringLibrary: NativeLibrary {
     }
     return .true
   }
-  
+
   func stringCiGreaterThanEquals(_ expr: Expr, _ args: Arguments) throws -> Expr {
     var str = try expr.asString().lowercased()
     for arg in args {
@@ -316,36 +316,36 @@ public final class StringLibrary: NativeLibrary {
     }
     return .true
   }
-  
+
   func stringContains(_ expr: Expr, _ other: Expr) throws -> Expr {
     return .makeBoolean(try expr.asString().contains(try other.asString()))
   }
-  
+
   func stringSuffix(_ expr: Expr, _ other: Expr) throws -> Expr {
     return .makeBoolean(try expr.asString().hasSuffix(try other.asString()))
   }
-  
+
   func stringPrefix(_ expr: Expr, _ other: Expr) throws -> Expr {
     return .makeBoolean(try expr.asString().hasPrefix(try other.asString()))
   }
-  
+
   func stringUpcase(_ expr: Expr) throws -> Expr {
     return .string(NSMutableString(string: try expr.asMutableStr().uppercased))
   }
-  
+
   func stringDowncase(_ expr: Expr) throws -> Expr {
     return .string(NSMutableString(string: try expr.asMutableStr().lowercased))
   }
-  
+
   func stringTitlecase(_ expr: Expr) throws -> Expr {
     return .string(NSMutableString(string: try expr.asMutableStr().capitalized))
   }
-  
+
   func stringFoldcase(_ expr: Expr) throws -> Expr {
     return .string(NSMutableString(
       string: try expr.asMutableStr().folding(options: [.caseInsensitive], locale: nil)))
   }
-  
+
   func stringToList(_ expr: Expr, args: Arguments) throws -> Expr {
     let str = try expr.asString().utf16
     guard let (s, e) = args.optional(Expr.makeNumber(0), Expr.makeNumber(str.count)) else {
@@ -365,7 +365,7 @@ public final class StringLibrary: NativeLibrary {
     }
     return res
   }
-  
+
   func listToString(_ expr: Expr) throws -> Expr {
     var list = expr
     var uniChars: [UniChar] = []
@@ -378,7 +378,7 @@ public final class StringLibrary: NativeLibrary {
     }
     return .string(NSMutableString(string: String(utf16CodeUnits: uniChars, count: uniChars.count)))
   }
-  
+
   func substring(_ expr: Expr, _ s: Expr, _ e: Expr) throws -> Expr {
     let str = try expr.asMutableStr()
     let end = try e.asInt(below: str.length + 1)
@@ -386,7 +386,7 @@ public final class StringLibrary: NativeLibrary {
     return .string(NSMutableString(string: str.substring(with: NSRange(location: start,
                                                                        length: end - start))))
   }
-  
+
   func stringContainsIndex(_ expr: Expr, _ sub: Expr, _ args: Arguments) throws -> Expr {
     let str = try expr.asMutableStr()
     let from = try sub.asString()
@@ -405,7 +405,7 @@ public final class StringLibrary: NativeLibrary {
       return .makeNumber(range.location)
     }
   }
-  
+
   func stringReplace(_ expr: Expr, _ sub: Expr, _ repl: Expr, _ args: Arguments) throws -> Expr {
     let str = try expr.asMutableStr()
     let from = try sub.asString()
@@ -424,7 +424,7 @@ public final class StringLibrary: NativeLibrary {
                                      range: NSMakeRange(start, end - start))
     return .makeNumber(num)
   }
-  
+
   func stringReplaceFirst(_ expr: Expr,
                           _ sub: Expr,
                           _ repl: Expr,
@@ -448,7 +448,7 @@ public final class StringLibrary: NativeLibrary {
       return .true
     }
   }
-  
+
   func stringReplaceRange(_ expr: Expr, _ repl: Expr, _ args: Arguments) throws -> Expr {
     let str = try expr.asMutableStr()
     let to = try repl.asString()
@@ -463,7 +463,7 @@ public final class StringLibrary: NativeLibrary {
     str.replaceCharacters(in: NSMakeRange(start, end - start), with: to)
     return .void
   }
-  
+
   func stringCopy(_ expr: Expr, args: Arguments) throws -> Expr {
     let str = try expr.asMutableStr()
     guard let (s, e) = args.optional(Expr.makeNumber(0), Expr.makeNumber(str.length)) else {
@@ -482,7 +482,7 @@ public final class StringLibrary: NativeLibrary {
     return .string(NSMutableString(string: str.substring(with: NSRange(location: start,
                                                                        length: end - start))))
   }
-  
+
   func stringInsert(_ expr: Expr, _ index: Expr, _ from: Expr, args: Arguments) throws -> Expr {
     let target = try expr.asMutableStr()
     let str = try from.asString().utf16
@@ -508,7 +508,7 @@ public final class StringLibrary: NativeLibrary {
                              with: String(utf16CodeUnits: uniChars, count: uniChars.count))
     return .void
   }
-  
+
   func stringFill(_ expr: Expr, _ ch: Expr, _ args: Arguments) throws -> Expr {
     let str = try expr.asMutableStr()
     guard let (s, e) = args.optional(Expr.makeNumber(0), Expr.makeNumber(str.length)) else {
@@ -526,7 +526,7 @@ public final class StringLibrary: NativeLibrary {
     }
     return .void
   }
-  
+
   private func stringSplit(_ expr: Expr, _ separator: Expr, _ allowEmpty: Expr?) throws -> Expr {
     let str = try expr.asMutableStr()
     let sep = try self.charAsString(separator)
@@ -540,7 +540,7 @@ public final class StringLibrary: NativeLibrary {
     }
     return .makeList(res)
   }
-  
+
   private func stringTrim(_ expr: Expr, _ trimChars: Expr?) throws -> Expr {
     let str = try expr.asMutableStr()
     if let chars = trimChars {
@@ -550,7 +550,7 @@ public final class StringLibrary: NativeLibrary {
       return .makeString(str.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines))
     }
   }
-  
+
   private func stringPadLeft(_ expr: Expr,
                              _ padChar: Expr,
                              _ length: Expr,
@@ -566,7 +566,7 @@ public final class StringLibrary: NativeLibrary {
     res.append(str as String)
     return .makeString(res)
   }
-  
+
   private func stringPadRight(_ expr: Expr,
                               _ padChar: Expr,
                               _ length: Expr,
@@ -581,7 +581,7 @@ public final class StringLibrary: NativeLibrary {
     return .makeString(str.appending(
              String(repeating: char.first ?? " ", count: len - str.length)))
   }
-  
+
   private func charAsString(_ expr: Expr) throws -> String {
     switch expr {
       case .char(let c):

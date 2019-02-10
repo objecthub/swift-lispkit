@@ -58,7 +58,7 @@ public enum Expr: Trackable, Hashable {
   indirect case tagged(Expr, Expr)
   case error(RuntimeError)
   indirect case syntax(SourcePosition, Expr)
-  
+
   /// Returns the type of this expression.
   public var type: Type {
     switch self {
@@ -146,7 +146,7 @@ public enum Expr: Trackable, Hashable {
         return .syntaxType
     }
   }
-  
+
   /// Returns the position of this expression.
   public var pos: SourcePosition {
     switch self {
@@ -156,9 +156,9 @@ public enum Expr: Trackable, Hashable {
         return SourcePosition.unknown
     }
   }
-  
+
   // Predicate methods
-  
+
   /// Returns true if this expression is undefined.
   public var isUndef: Bool {
     switch self {
@@ -168,7 +168,7 @@ public enum Expr: Trackable, Hashable {
         return false
     }
   }
-  
+
   /// Returns true if this expression is null.
   public var isNull: Bool {
     switch self {
@@ -178,7 +178,7 @@ public enum Expr: Trackable, Hashable {
         return false
     }
   }
-  
+
   /// Returns true if this is not the `#f` value.
   public var isTrue: Bool {
     switch self {
@@ -188,7 +188,7 @@ public enum Expr: Trackable, Hashable {
         return true
     }
   }
-  
+
   /// Returns true if this is the `#f` value.
   public var isFalse: Bool {
     switch self {
@@ -198,7 +198,7 @@ public enum Expr: Trackable, Hashable {
         return false
     }
   }
-  
+
   /// Returns true if this is an exact number.
   public var isExactNumber: Bool {
     switch self {
@@ -208,7 +208,7 @@ public enum Expr: Trackable, Hashable {
         return false
     }
   }
-  
+
   /// Returns true if this is an inexact number.
   public var isInexactNumber: Bool {
     switch self {
@@ -218,7 +218,7 @@ public enum Expr: Trackable, Hashable {
         return false
     }
   }
-  
+
   /// Normalizes the representation (relevant for numeric datatypes)
   public var normalized: Expr {
     switch self {
@@ -242,7 +242,7 @@ public enum Expr: Trackable, Hashable {
         return self
     }
   }
-  
+
   /// Returns the source position associated with this expression, or `outer` in case there is
   /// no syntax annotation.
   public func pos(_ outer: SourcePosition = SourcePosition.unknown) -> SourcePosition {
@@ -255,7 +255,7 @@ public enum Expr: Trackable, Hashable {
         return outer
     }
   }
-  
+
   /// Returns the given expression with all symbols getting interned and syntax nodes removed.
   public var datum: Expr {
     switch self {
@@ -269,7 +269,7 @@ public enum Expr: Trackable, Hashable {
         return self
     }
   }
-  
+
   /// Returns the given expression with all syntax nodes removed up to `depth` nested expression
   /// nodes.
   public func removeSyntax(depth: Int = 4) -> Expr {
@@ -285,7 +285,7 @@ public enum Expr: Trackable, Hashable {
         return self
     }
   }
-  
+
   /// Inject the given position into the expression.
   public func at(pos: SourcePosition) -> Expr {
     switch self {
@@ -297,7 +297,7 @@ public enum Expr: Trackable, Hashable {
         return .syntax(pos, self)
     }
   }
-  
+
   /// Maps a list into an array of expressions and a tail (= null for proper lists)
   public func toExprs() -> (Exprs, Expr) {
     var exprs = Exprs()
@@ -308,7 +308,7 @@ public enum Expr: Trackable, Hashable {
     }
     return (exprs, expr)
   }
-  
+
   /// The length of this expression (all non-pair expressions have length 1).
   var length: Int {
     var expr = self
@@ -319,7 +319,7 @@ public enum Expr: Trackable, Hashable {
     }
     return len
   }
-  
+
   /// Returns true if the expression isn't referring to other expressions directly or
   /// indirectly.
   public var isAtom: Bool {
@@ -332,7 +332,7 @@ public enum Expr: Trackable, Hashable {
         return false
     }
   }
-  
+
   public var requiresTracking: Bool {
     switch self {
       case .pair(let car, let cdr):
@@ -354,7 +354,7 @@ public enum Expr: Trackable, Hashable {
         return false
     }
   }
-  
+
   public func mark(_ tag: UInt8) {
     var expr = self
     while true {
@@ -404,7 +404,7 @@ public enum Expr: Trackable, Hashable {
       }
     }
   }
-  
+
   public func hash(into hasher: inout Hasher) {
     equalHash(self, into: &hasher)
   }
@@ -414,51 +414,51 @@ public enum Expr: Trackable, Hashable {
 /// Extension adding static factory methods to `Expr`.
 ///
 extension Expr {
-  
+
   public static func makeBoolean(_ val: Bool) -> Expr {
     return val ? .true : .false
   }
-  
+
   public static func makeNumber(_ num: Int) -> Expr {
     return .fixnum(Int64(num))
   }
-  
+
   public static func makeNumber(_ num: Int64) -> Expr {
     return .fixnum(num)
   }
-  
+
   public static func makeNumber(_ num: BigInt) -> Expr {
     return Expr.bignum(num).normalized
   }
-  
+
   public static func makeNumber(_ num: Rational<Int64>) -> Expr {
     return Expr.rational(.fixnum(num.numerator), .fixnum(num.denominator)).normalized
   }
-  
+
   public static func makeNumber(_ num: Rational<BigInt>) -> Expr {
     return Expr.rational(.bignum(num.numerator), .bignum(num.denominator)).normalized
   }
-  
+
   public static func makeNumber(_ num: Double) -> Expr {
     return .flonum(num)
   }
-  
+
   public static func makeNumber(_ num: Complex<Double>) -> Expr {
     return Expr.complex(ImmutableBox(num)).normalized
   }
-  
+
   public static func makeList(_ expr: Expr...) -> Expr {
     return Expr.makeList(fromStack: expr.reversed(), append: Expr.null)
   }
-  
+
   public static func makeList(_ exprs: Exprs, append: Expr = Expr.null) -> Expr {
     return Expr.makeList(fromStack: exprs.reversed(), append: append)
   }
-  
+
   public static func makeList(_ exprs: Arguments, append: Expr = Expr.null) -> Expr {
     return Expr.makeList(fromStack: exprs.reversed(), append: append)
   }
-  
+
   public static func makeList(fromStack exprs: [Expr], append: Expr = Expr.null) -> Expr {
     var res = append
     for expr in exprs {
@@ -466,7 +466,7 @@ extension Expr {
     }
     return res
   }
-  
+
   public static func makeString(_ str: String) -> Expr {
     return .string(NSMutableString(string: str))
   }
@@ -476,7 +476,7 @@ extension Expr {
 /// This extension adds projections to `Expr`.
 ///
 extension Expr {
-  
+
   @inline(__always)
   public func assertType(at pos: SourcePosition = SourcePosition.unknown, _ types: Type...) throws {
     for type in types {
@@ -488,7 +488,7 @@ extension Expr {
     }
     throw RuntimeError.type(self, expected: Set(types)).at(pos)
   }
-  
+
   @inline(__always)
   public func asInt64(at pos: SourcePosition = SourcePosition.unknown) throws -> Int64 {
     guard case .fixnum(let res) = self else {
@@ -496,7 +496,7 @@ extension Expr {
     }
     return res
   }
-  
+
   @inline(__always)
   public func asInt(below: Int = Int.max) throws -> Int {
     guard case .fixnum(let res) = self else {
@@ -507,14 +507,14 @@ extension Expr {
     }
     return Int(res)
   }
-  
+
   @inline(__always) public func asUInt8() throws -> UInt8 {
     guard case .fixnum(let number) = self , number >= 0 && number <= 255 else {
       throw RuntimeError.type(self, expected: [.byteType])
     }
     return UInt8(number)
   }
-  
+
   public func asDouble(coerce: Bool = false) throws -> Double {
     if !coerce {
       if case .flonum(let num) = self {
@@ -537,7 +537,7 @@ extension Expr {
         throw RuntimeError.type(self, expected: [.realType])
     }
   }
-  
+
   public func asComplex(coerce: Bool = false) throws -> Complex<Double> {
     if !coerce {
       switch self {
@@ -566,7 +566,7 @@ extension Expr {
         throw RuntimeError.type(self, expected: [.complexType])
     }
   }
-  
+
   @inline(__always) public func asSymbol() throws -> Symbol {
     switch self {
       case .symbol(let sym):
@@ -575,7 +575,7 @@ extension Expr {
         throw RuntimeError.type(self, expected: [.symbolType])
     }
   }
-  
+
   @inline(__always) public func toSymbol() -> Symbol? {
     switch self {
       case .symbol(let sym):
@@ -584,42 +584,42 @@ extension Expr {
         return nil
     }
   }
-  
+
   @inline(__always) public func asUniChar() throws -> UniChar {
     guard case .char(let res) = self else {
       throw RuntimeError.type(self, expected: [.charType])
     }
     return res
   }
-  
+
   @inline(__always) public func charAsString() throws -> String {
     guard case .char(let res) = self else {
       throw RuntimeError.type(self, expected: [.charType])
     }
     return String(unicodeScalar(res))
   }
-  
+
   @inline(__always) public func asString() throws -> String {
     guard case .string(let res) = self else {
       throw RuntimeError.type(self, expected: [.strType])
     }
     return res as String
   }
-  
+
   @inline(__always) public func asMutableStr() throws -> NSMutableString {
     guard case .string(let res) = self else {
       throw RuntimeError.type(self, expected: [.strType])
     }
     return res
   }
-  
+
   @inline(__always) public func asPath() throws -> String {
     guard case .string(let res) = self else {
       throw RuntimeError.type(self, expected: [.strType])
     }
     return res.expandingTildeInPath
   }
-  
+
   @inline(__always) public func asURL() throws -> URL {
     guard case .string(let res) = self else {
       throw RuntimeError.type(self, expected: [.strType])
@@ -629,21 +629,21 @@ extension Expr {
     }
     return url
   }
-  
+
   @inline(__always) public func asByteVector() throws -> ByteVector {
     guard case .bytes(let bvector) = self else {
       throw RuntimeError.type(self, expected: [.byteVectorType])
     }
     return bvector
   }
-  
+
   @inline(__always) public func arrayAsCollection() throws -> Collection {
     guard case .array(let res) = self else {
       throw RuntimeError.type(self, expected: [.arrayType])
     }
     return res
   }
-  
+
   @inline(__always) public func vectorAsCollection(growable: Bool? = nil) throws -> Collection {
     guard case .vector(let vec) = self else {
       let exp: Set<Type> = growable == nil ? [.vectorType, .gvectorType]
@@ -655,42 +655,42 @@ extension Expr {
     }
     return vec
   }
-  
+
   @inline(__always) public func recordAsCollection() throws -> Collection {
     guard case .record(let res) = self else {
       throw RuntimeError.type(self, expected: [.recordType])
     }
     return res
   }
-  
+
   @inline(__always) public func asHashTable() throws -> HashTable {
     guard case .table(let map) = self else {
       throw RuntimeError.type(self, expected: [.tableType])
     }
     return map
   }
-  
+
   @inline(__always) public func asProcedure() throws -> Procedure {
     guard case .procedure(let proc) = self else {
       throw RuntimeError.type(self, expected: [.procedureType])
     }
     return proc
   }
-  
+
   @inline(__always) public func asEnvironment() throws -> Environment {
     guard case .env(let environment) = self else {
       throw RuntimeError.type(self, expected: [.envType])
     }
     return environment
   }
-  
+
   @inline(__always) public func asPort() throws -> Port {
     guard case .port(let port) = self else {
       throw RuntimeError.type(self, expected: [.portType])
     }
     return port
   }
-  
+
   @inline(__always) public func asObject() throws -> Reference {
     guard case .object(let obj) = self else {
       throw RuntimeError.type(self, expected: [.objectType])
@@ -703,19 +703,19 @@ extension Expr {
 /// This extension makes `Expr` implement the `CustomStringConvertible`.
 ///
 extension Expr: CustomStringConvertible {
-  
+
   public var description: String {
     return self.toString()
   }
-  
+
   public var unescapedDescription: String {
     return self.toString(escape: false)
   }
-  
+
   public func toString(escape: Bool = true) -> String {
     var enclObjs = Set<Reference>()
     var objId = [Reference: Int]()
-    
+
     func objIdString(_ ref: Reference) -> String? {
       if let id = objId[ref] {
         return "#\(id)#"
@@ -726,7 +726,7 @@ extension Expr: CustomStringConvertible {
         return nil
       }
     }
-    
+
     func fixString(_ ref: Reference, _ str: String) -> String {
       if let id = objId[ref] {
         return "#\(id)=\(str)"
@@ -734,7 +734,7 @@ extension Expr: CustomStringConvertible {
         return str
       }
     }
-    
+
     func doubleString(_ val: Double) -> String {
       if val.isInfinite {
         return (val.sign == .minus) ? "-inf.0" : "+inf.0"
@@ -744,7 +744,7 @@ extension Expr: CustomStringConvertible {
         return String(val)
       }
     }
-    
+
     func stringReprOf(_ expr: Expr) -> String {
       switch expr {
         case .undef:
@@ -1013,10 +1013,10 @@ extension Expr: CustomStringConvertible {
           return stringReprOf(expr)
       }
     }
-    
+
     return stringReprOf(self)
   }
-  
+
   internal static func escapeStr(_ str: String) -> String {
     var res = ""
     for c in str {
@@ -1036,7 +1036,7 @@ extension Expr: CustomStringConvertible {
     }
     return res
   }
-  
+
   public static func ==(lhs: Expr, rhs: Expr) -> Bool {
     return equalExpr(rhs, lhs)
   }

@@ -22,11 +22,11 @@ import Foundation
 import Cocoa
 
 public final class SystemLibrary: NativeLibrary {
-  
+
   /// Container for the current directory path parameter.
   private var currentDirectoryProc: Procedure!
   private var compileAndEvalFirstProc: Procedure!
-  
+
   public var currentDirectoryPath: String {
     get {
       do {
@@ -39,16 +39,16 @@ public final class SystemLibrary: NativeLibrary {
       _ = self.context.machine.setParam(self.currentDirectoryProc, to: .makeString(newValue))
     }
   }
-  
+
   /// Name of the library.
   public override class var name: [String] {
     return ["lispkit", "system"]
   }
-  
+
   /// Dependencies of the library.
   public override func dependencies() {
   }
-  
+
   /// Declarations of the library.
   public override func declarations() {
     self.currentDirectoryProc =
@@ -116,7 +116,7 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("open-url", self.openUrl))
     self.define(Procedure("http-get", httpGet))
   }
-  
+
   private func filePath(expr: Expr, base: Expr?) throws -> Expr {
     var root = self.currentDirectoryPath
     if let base = try base?.asPath() {
@@ -124,19 +124,19 @@ public final class SystemLibrary: NativeLibrary {
     }
     return .makeString(self.context.fileHandler.path(try expr.asString(), relativeTo: root))
   }
-  
+
   private func parentFilePath(expr: Expr) throws -> Expr {
     return .makeString(
       self.context.fileHandler.directory(try expr.asString(),
                                          relativeTo: self.currentDirectoryPath))
   }
-  
+
   private func filePathRoot(expr: Expr) throws -> Expr {
     return .makeBoolean(
       self.context.fileHandler.path(try expr.asString(),
                                     relativeTo: self.currentDirectoryPath) == "/")
   }
-  
+
   private func load(args: Arguments) throws -> (Procedure, Exprs) {
     guard args.count == 1 || args.count == 2  else {
       throw RuntimeError.argumentCount(of: "load", min: 1, max: 2, args: .makeList(args))
@@ -159,7 +159,7 @@ public final class SystemLibrary: NativeLibrary {
     // Hand over work to `compileAndEvalFirst`
     return (self.compileAndEvalFirstProc, [exprs, .makeString(sourceDir), .env(environment!)])
   }
-  
+
   private func compileAndEvalFirst(args: Arguments) throws -> (Procedure, Exprs) {
     guard args.count == 3 else {
       throw RuntimeError.argumentCount(min: 3, max: 3, args: .makeList(args))
@@ -188,32 +188,32 @@ public final class SystemLibrary: NativeLibrary {
         throw RuntimeError.type(args.first!, expected: [.properListType])
     }
   }
-  
+
   private func validCurrentPath(param: Expr, expr: Expr, setter: Expr) throws -> Expr {
     self.currentDirectoryPath =
       self.context.fileHandler.path(try expr.asPath(),
                                     relativeTo: self.currentDirectoryPath)
     return .makeString(self.currentDirectoryPath)
   }
-  
+
   private func fileExists(expr: Expr) throws -> Expr {
     return .makeBoolean(
       self.context.fileHandler.isFile(atPath: try expr.asPath(),
                                       relativeTo: self.currentDirectoryPath))
   }
-  
+
   private func directoryExists(expr: Expr) throws -> Expr {
     return .makeBoolean(
       self.context.fileHandler.isDirectory(atPath: try expr.asPath(),
                                            relativeTo: self.currentDirectoryPath))
   }
-  
+
   private func fileOrDirectoryExists(expr: Expr) throws -> Expr {
     return .makeBoolean(
       self.context.fileHandler.itemExists(atPath: try expr.asPath(),
                                           relativeTo: self.currentDirectoryPath))
   }
-  
+
   private func deleteFile(expr: Expr) throws -> Expr {
     let path = try expr.asPath()
     if self.context.fileHandler.isFile(atPath: path,
@@ -225,7 +225,7 @@ public final class SystemLibrary: NativeLibrary {
       throw RuntimeError.eval(.unknownFile, expr)
     }
   }
-  
+
   private func deleteDirectory(expr: Expr) throws -> Expr {
     let path = try expr.asPath()
     if self.context.fileHandler.isDirectory(atPath: path,
@@ -237,13 +237,13 @@ public final class SystemLibrary: NativeLibrary {
       throw RuntimeError.eval(.unknownDirectory, expr)
     }
   }
-  
+
   private func deleteFileOrDirectory(expr: Expr) throws -> Expr {
     try self.context.fileHandler.deleteItem(atPath: try expr.asPath(),
                                             relativeTo: self.currentDirectoryPath)
     return .void
   }
-  
+
   private func copyFile(fromPath: Expr, toPath: Expr) throws -> Expr {
     let path = try fromPath.asPath()
     if self.context.fileHandler.isFile(atPath: path,
@@ -256,7 +256,7 @@ public final class SystemLibrary: NativeLibrary {
       throw RuntimeError.eval(.unknownFile, fromPath)
     }
   }
-  
+
   private func copyDirectory(fromPath: Expr, toPath: Expr) throws -> Expr {
     let path = try fromPath.asPath()
     if self.context.fileHandler.isDirectory(atPath: path,
@@ -269,15 +269,15 @@ public final class SystemLibrary: NativeLibrary {
       throw RuntimeError.eval(.unknownDirectory, fromPath)
     }
   }
-  
-  
+
+
   private func copyFileOrDirectory(fromPath: Expr, toPath: Expr) throws -> Expr {
     try self.context.fileHandler.copyItem(atPath: try fromPath.asPath(),
                                           toPath: try toPath.asPath(),
                                           relativeTo: self.currentDirectoryPath)
     return .void
   }
-  
+
   private func moveFile(fromPath: Expr, toPath: Expr) throws -> Expr {
     let path = try fromPath.asPath()
     if self.context.fileHandler.isFile(atPath: path,
@@ -290,7 +290,7 @@ public final class SystemLibrary: NativeLibrary {
       throw RuntimeError.eval(.unknownFile, fromPath)
     }
   }
-  
+
   private func moveDirectory(fromPath: Expr, toPath: Expr) throws -> Expr {
     let path = try fromPath.asPath()
     if self.context.fileHandler.isDirectory(atPath: path,
@@ -303,15 +303,15 @@ public final class SystemLibrary: NativeLibrary {
       throw RuntimeError.eval(.unknownDirectory, fromPath)
     }
   }
-  
-  
+
+
   private func moveFileOrDirectory(fromPath: Expr, toPath: Expr) throws -> Expr {
     try self.context.fileHandler.moveItem(atPath: try fromPath.asPath(),
                                           toPath: try toPath.asPath(),
                                           relativeTo: self.currentDirectoryPath)
     return .void
   }
-  
+
   private func fileSize(expr: Expr) throws -> Expr {
     guard let size = self.context.fileHandler.fileSize(atPath: try expr.asPath(),
                                                        relativeTo: self.currentDirectoryPath) else {
@@ -319,7 +319,7 @@ public final class SystemLibrary: NativeLibrary {
     }
     return .fixnum(size)
   }
-  
+
   private func directoryList(expr: Expr) throws -> Expr {
     let contents = try self.context.fileHandler.contentsOfDirectory(
       atPath: try expr.asPath(), relativeTo: self.currentDirectoryPath)
@@ -329,13 +329,13 @@ public final class SystemLibrary: NativeLibrary {
     }
     return res
   }
-  
+
   private func makeDirectory(expr: Expr) throws -> Expr {
     try self.context.fileHandler.makeDirectory(atPath: try expr.asPath(),
                                                relativeTo: self.currentDirectoryPath)
     return .void
   }
-  
+
   private func openFile(expr: Expr, withApp: Expr?, deactivate: Expr?) throws -> Expr {
     let path = self.context.fileHandler.path(try expr.asPath(),
                                              relativeTo: self.currentDirectoryPath)
@@ -352,7 +352,7 @@ public final class SystemLibrary: NativeLibrary {
       return .makeBoolean(NSWorkspace.shared.openFile(path))
     }
   }
-  
+
   private func getEnvironmentVariable(expr: Expr) throws -> Expr {
     let name = try expr.asString()
     guard let value = ProcessInfo.processInfo.environment[name] else {
@@ -360,7 +360,7 @@ public final class SystemLibrary: NativeLibrary {
     }
     return .makeString(value)
   }
-  
+
   private func getEnvironmentVariables() -> Expr {
     var alist = Expr.null
     for (name, value) in ProcessInfo.processInfo.environment {
@@ -368,7 +368,7 @@ public final class SystemLibrary: NativeLibrary {
     }
     return alist
   }
-  
+
   private func commandLine() -> Expr {
     let args = self.context.commandLineArguments.reversed()
     var res = Expr.null
@@ -377,14 +377,14 @@ public final class SystemLibrary: NativeLibrary {
     }
     return res
   }
-  
+
   private func gc() -> Expr {
     self.context.delegate.print("BEFORE: " + context.objects.description + "\n")
     let res = Expr.fixnum(Int64(self.context.objects.collectGarbage()))
     self.context.delegate.print("AFTER: " + context.objects.description + "\n")
     return res
   }
-  
+
   private func compileTime(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let exec, .null)) = expr else {
       throw RuntimeError.argumentCount(of: "time", num: 1, expr: expr)
@@ -401,7 +401,7 @@ public final class SystemLibrary: NativeLibrary {
     compiler.emit(.newline)
     return false
   }
-  
+
   private func compile(exprs: Arguments) throws -> Expr {
     var seq = Expr.null
     for expr in exprs.reversed() {
@@ -413,7 +413,7 @@ public final class SystemLibrary: NativeLibrary {
     self.context.delegate.print(code.description)
     return .void
   }
-  
+
   private func disassemble(expr: Expr) throws -> Expr {
     guard case .procedure(let proc) = expr else {
       throw RuntimeError.type(expr, expected: [.procedureType])
@@ -441,7 +441,7 @@ public final class SystemLibrary: NativeLibrary {
     }
     return .void
   }
-  
+
   private func traceCalls(_ expr: Expr?) throws -> Expr {
     if let expr = expr {
       switch (expr) {
@@ -468,16 +468,16 @@ public final class SystemLibrary: NativeLibrary {
         return .fixnum(2)
     }
   }
-  
+
   private func procedureTrace(_ expr: Expr) throws -> Expr {
     return .makeBoolean(try expr.asProcedure().traced)
   }
-  
+
   private func setProcedureTrace(_ expr: Expr, _ value: Expr) throws -> Expr {
     try expr.asProcedure().traced = value.isTrue
     return .void
   }
-  
+
   private func availableSymbols() -> Expr {
     var res = Expr.null
     for sym in self.context.symbols {
@@ -485,7 +485,7 @@ public final class SystemLibrary: NativeLibrary {
     }
     return res
   }
-  
+
   private func loadedLibraries() -> Expr {
     var res = Expr.null
     for library in self.context.libraries.loaded {
@@ -493,7 +493,7 @@ public final class SystemLibrary: NativeLibrary {
     }
     return res
   }
-  
+
   private func loadedSources() -> Expr {
     var res = Expr.null
     for url in self.context.sources.sourceUrls {
@@ -501,7 +501,7 @@ public final class SystemLibrary: NativeLibrary {
     }
     return res
   }
-  
+
   private func environmentInfo() -> Expr {
     let console = self.context.delegate
     console.print("OBJECT SIZES\n")
@@ -525,27 +525,27 @@ public final class SystemLibrary: NativeLibrary {
     console.print("  allocated locations: \(self.context.heap.locations.count)\n")
     return .void
   }
-  
+
   private func secondsFromGmt() -> Expr {
     return .fixnum(Int64(NSTimeZone.local.secondsFromGMT()))
   }
-  
+
   private func currentSecond() -> Expr {
     var time = timeval(tv_sec: 0, tv_usec: 0)
     gettimeofday(&time, nil)
     return .flonum(Double(time.tv_sec) + (Double(time.tv_usec) / 1000000.0))
   }
-  
+
   private func currentJiffy() -> Expr {
     var time = timeval(tv_sec: 0, tv_usec: 0)
     gettimeofday(&time, nil)
     return .fixnum(Int64(time.tv_sec) * 1000 + Int64(time.tv_usec / 1000))
   }
-  
+
   private func jiffiesPerSecond() -> Expr {
     return .fixnum(1000)
   }
-  
+
   private func timeZone(_ expr: Expr?) -> Expr {
     guard let timeZone = self.getTimeZone(expr) else {
       return .false
@@ -558,14 +558,14 @@ public final class SystemLibrary: NativeLibrary {
                      abbrev,
                      .fixnum(Int64(timeZone.secondsFromGMT())))
   }
-  
+
   private func secondToDateTime(_ seconds: Expr, _ timeZone: Expr?) throws -> Expr {
     guard let tzone = self.getTimeZone(timeZone) else {
       throw RuntimeError.eval(.invalidTimeZone, timeZone ?? .false)
     }
     return self.getDateComponents(Date(timeIntervalSince1970: try seconds.asDouble()), tzone)
   }
-  
+
   private func dateTimeToSecond(_ dateTime: Expr, _ timeZone: Expr?) throws -> Expr {
     guard let tzone = self.getTimeZone(timeZone) else {
       throw RuntimeError.eval(.invalidTimeZone, timeZone ?? .false)
@@ -575,7 +575,7 @@ public final class SystemLibrary: NativeLibrary {
     }
     return .makeNumber(date.timeIntervalSince1970)
   }
-  
+
   private func dateTimeToString(_ dateTime: Expr, _ dateFormat: Expr?) throws -> Expr {
     guard let (date, tzone) = self.getDate(dateTime, TimeZone.current) else {
       throw RuntimeError.eval(.invalidDateTime, dateTime)
@@ -598,7 +598,7 @@ public final class SystemLibrary: NativeLibrary {
     }
     return .makeString(formatter.string(from: date))
   }
-  
+
   private func stringToDateTime(_ str: Expr,
                                 _ timeZone: Expr?,
                                 _ dateFormat: Expr?) throws -> Expr {
@@ -626,7 +626,7 @@ public final class SystemLibrary: NativeLibrary {
     }
     return self.getDateComponents(date, tzone)
   }
-  
+
   private func getDateComponents(_ date: Date, _ tz: TimeZone) -> Expr {
     let dc = Calendar.current.dateComponents(in: tz, from: date)
     let dstOffset = tz.daylightSavingTimeOffset(for: date)
@@ -642,7 +642,7 @@ public final class SystemLibrary: NativeLibrary {
                      .fixnum(Int64(dc.weekOfYear!)),
                      .makeNumber(dstOffset))
   }
-  
+
   private func getDate(_ dateTime: Expr, _ tzone: TimeZone) -> (Date, TimeZone)? {
     var dt = dateTime
     var tz = tzone
@@ -706,7 +706,7 @@ public final class SystemLibrary: NativeLibrary {
     }
     return (date, tz)
   }
-  
+
   private func getTimeZone(_ expr: Expr?) -> TimeZone? {
     guard let timezone = expr else {
       return TimeZone.current
@@ -737,7 +737,7 @@ public final class SystemLibrary: NativeLibrary {
         return nil
     }
   }
-  
+
   private func features() -> Expr {
     var res: Expr = .null
     for feature in self.context.features {
@@ -745,7 +745,7 @@ public final class SystemLibrary: NativeLibrary {
     }
     return res
   }
-  
+
   private func implementationName() -> Expr {
     if let name = self.context.implementationName {
       return .makeString(name)
@@ -753,7 +753,7 @@ public final class SystemLibrary: NativeLibrary {
       return .false
     }
   }
-  
+
   private func implementationVersion() -> Expr {
     if let version = self.context.implementationVersion {
       return .makeString(version)
@@ -761,27 +761,27 @@ public final class SystemLibrary: NativeLibrary {
       return .false
     }
   }
-  
+
   private func cpuArchitecture() -> Expr {
     return .makeString(Sysctl.machine)
   }
-  
+
   private func machineName() -> Expr {
     return .makeString(Sysctl.hostName)
   }
-  
+
   private func machineModel() -> Expr {
     return .makeString(Sysctl.model)
   }
-  
+
   private func osType() -> Expr {
     return .makeString(Sysctl.osType)
   }
-  
+
   private func osVersion() -> Expr {
     return .makeString(Sysctl.osVersion)
   }
-  
+
   private func osName() -> Expr {
     #if os(macOS)
       return .makeString("macOS")
@@ -791,16 +791,16 @@ public final class SystemLibrary: NativeLibrary {
       return .makeString("Linux")
     #endif
   }
-  
+
   private func osRelease() -> Expr {
     return .makeString("\(ProcessInfo.processInfo.operatingSystemVersion.majorVersion)." +
                        "\(ProcessInfo.processInfo.operatingSystemVersion.minorVersion)")
   }
-  
+
   private func currentUserName() -> Expr {
     return .makeString(NSUserName())
   }
-  
+
   private func userData(_ expr: Expr) throws -> Expr {
     let username = try expr.asString()
     guard let pw = getpwnam(username) else {
@@ -819,11 +819,11 @@ public final class SystemLibrary: NativeLibrary {
                                    .pair(.makeString(dir),
                                          .pair(.makeString(shell), .null))))))
   }
-  
+
   private func openUrl(_ expr: Expr) throws -> Expr {
     return .makeBoolean(NSWorkspace.shared.open(try expr.asURL()))
   }
-  
+
   private func httpGet(_ expr: Expr, _ tout: Expr?) throws -> Expr {
     let url = try expr.asURL()
     let timeout = try tout?.asDouble(coerce: true) ?? HTTPInputStream.defaultTimeout

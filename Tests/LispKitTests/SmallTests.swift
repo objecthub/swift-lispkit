@@ -23,12 +23,12 @@ import XCTest
 
 
 class SmallTests: LispKitTestCase {
-  
+
   func testPlus() {
     XCTAssertEqual(self.eval("(+ 1 2 3 4)"), self.value("10"))
     assertStackEmpty()
   }
-  
+
   func testCapturesInLetrec() {
     XCTAssertEqual(
       self.eval("(define (foo x) " +

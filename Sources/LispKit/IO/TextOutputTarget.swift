@@ -34,7 +34,7 @@ public protocol TextOutputTarget {
 ///
 public struct UTF8EncodedTarget: TextOutputTarget {
   private let output: BinaryOutput
-  
+
   public init(output: BinaryOutput) {
     self.output = output
   }
@@ -42,7 +42,7 @@ public struct UTF8EncodedTarget: TextOutputTarget {
   @discardableResult public func flush(_ completely: Bool = false) -> Bool {
     return self.output.flush(completely)
   }
-  
+
   public func writeString(_ str: String) -> Bool {
     for byte in str.utf8 {
       guard self.output.write(byte) else {

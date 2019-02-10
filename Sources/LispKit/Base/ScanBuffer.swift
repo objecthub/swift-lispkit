@@ -26,19 +26,19 @@ import Foundation
 public struct ScanBuffer {
   private var buffer: ContiguousArray<UniChar>
   public private(set) var index: Int
-  
+
   public init(capacity: Int = 256) {
     self.buffer = ContiguousArray<UniChar>(repeating: 0, count: capacity)
     self.index = 0
   }
-  
+
   public mutating func reset() {
     if self.index > 0 {
       self.buffer[0] = self.buffer[self.index - 1]
       self.index = 1
     }
   }
-  
+
   public mutating func append(_ ch: UniChar) {
     if self.index < self.buffer.count {
       self.buffer[self.index] = ch
@@ -47,7 +47,7 @@ public struct ScanBuffer {
     }
     self.index += 1
   }
-  
+
   public var stringValue: String {
     return self.index > 0 ? self.buffer.withUnsafeBufferPointer { ptr in
                               if let adr = ptr.baseAddress {
@@ -58,7 +58,7 @@ public struct ScanBuffer {
                             }
                           : ""
   }
-  
+
   public func stringStartingAt(_ start: Int) -> String {
     guard self.index > start else {
       return ""

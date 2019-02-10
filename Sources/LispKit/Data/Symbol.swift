@@ -27,33 +27,33 @@ import Foundation
 /// corresponding lexical environment.
 ///
 public final class Symbol: Reference, CustomStringConvertible {
-  
+
   private enum Kind {
     case interned(String)
     case generated(Symbol, WeakEnv)
   }
-  
+
   private let kind: Kind
-  
+
   internal init(_ ident: String) {
     self.kind = .interned(ident)
   }
-  
+
   public init(_ sym: Symbol, _ env: Env) {
     self.kind = .generated(sym, env.weakEnv)
   }
-  
+
   public var identifier: String {
     return self.interned.rawIdentifier
   }
-  
+
   public var rawIdentifier: String {
     guard case .interned(let ident) = self.interned.kind else {
       preconditionFailure("no interned symbol")
     }
     return ident
   }
-  
+
   public var isGenerated: Bool {
     switch self.kind {
       case .interned(_):
@@ -62,7 +62,7 @@ public final class Symbol: Reference, CustomStringConvertible {
         return true
     }
   }
-    
+
   public var lexical: (Symbol, Env)? {
     switch self.kind {
       case .interned(_):
@@ -71,7 +71,7 @@ public final class Symbol: Reference, CustomStringConvertible {
         return (sym, weakEnv.env)
     }
   }
-  
+
   public var interned: Symbol {
     switch self.kind {
       case .interned(_):
@@ -80,7 +80,7 @@ public final class Symbol: Reference, CustomStringConvertible {
         return sym.interned
     }
   }
-  
+
   private static let escapeChars = { () -> CharacterSet in
     let mcs = NSMutableCharacterSet()
     mcs.formUnion(with: CharacterSet.whitespacesAndNewlines)
@@ -88,7 +88,7 @@ public final class Symbol: Reference, CustomStringConvertible {
     mcs.addCharacters(in: ",\"\'")
     return mcs.copy() as! CharacterSet
   }()
-  
+
   private static func escapingNeeded(_ ident: String) -> Bool {
     if ident.rangeOfCharacter(from: Symbol.escapeChars) != nil {
       return true
@@ -142,7 +142,7 @@ public final class Symbol: Reference, CustomStringConvertible {
         return false
     }
   }
-  
+
   public var description: String {
     switch self.kind {
       case .interned(let ident):

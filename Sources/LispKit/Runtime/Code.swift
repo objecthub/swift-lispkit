@@ -27,13 +27,13 @@ public struct Code: CustomStringConvertible {
   public let instructions: Instructions
   public let constants: Exprs
   public let fragments: Fragments
-  
+
   public init(_ instructions: Instructions, _ constants: Exprs, _ fragments: Fragments) {
     self.instructions = instructions
     self.constants = constants
     self.fragments = fragments
   }
-  
+
   public var description: String {
     var builder = StringBuilder(prefix: "CONSTANTS:")
     var n = 0
@@ -73,7 +73,7 @@ public struct Code: CustomStringConvertible {
     builder.appendNewline()
     return builder.description
   }
-  
+
   public func mark(_ tag: UInt8) {
     for i in self.constants.indices {
       self.constants[i].mark(tag)

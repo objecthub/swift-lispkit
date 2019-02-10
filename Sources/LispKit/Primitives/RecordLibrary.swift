@@ -22,19 +22,19 @@
 /// Record library: based on R7RS spec.
 ///
 public final class RecordLibrary: NativeLibrary {
-  
+
   /// Name of the library.
   public override class var name: [String] {
     return ["lispkit", "record"]
   }
-  
+
   /// Dependencies of the library.
   public override func dependencies() {
     self.`import`(from: ["lispkit", "core"],    "define", "define-syntax", "syntax-rules",
                                                 "lambda", "quote", "void", "symbol->string")
     self.`import`(from: ["lispkit", "control"], "let", "begin")
   }
-  
+
   /// Declarations of the library.
   public override func declarations() {
     self.define(Procedure("record?", isRecord))
@@ -82,7 +82,7 @@ public final class RecordLibrary: NativeLibrary {
       "        (define pred (record-predicate type))",
       "        (define-record-field type field accessor . mutator) ... (void)))))")
   }
-  
+
   func isRecord(_ expr: Expr, rtype: Expr?) -> Expr {
     guard case .record(let record) = expr else {
       return .false
@@ -99,7 +99,7 @@ public final class RecordLibrary: NativeLibrary {
     }
     return .makeBoolean(type === exprtype)
   }
-  
+
   func isRecordType(_ expr: Expr) -> Expr {
     guard case .record(let record) = expr,
           case .recordType = record.kind else {
@@ -107,7 +107,7 @@ public final class RecordLibrary: NativeLibrary {
     }
     return .true
   }
-  
+
   func recordType(_ expr: Expr) -> Expr {
     guard case .record(let record) = expr,
           case .record(let type) = record.kind else {
@@ -115,7 +115,7 @@ public final class RecordLibrary: NativeLibrary {
     }
     return .record(type)
   }
-  
+
   func makeRecordType(_ name: Expr, fields: Expr) throws -> Expr {
     // Check that first argument is a string
     let _ = try name.asMutableStr()
@@ -135,7 +135,7 @@ public final class RecordLibrary: NativeLibrary {
     // Return record type
     return .record(Collection(kind: .recordType, exprs: [name, .makeNumber(numFields), fields]))
   }
-  
+
   func recordTypeName(_ expr: Expr) -> Expr {
     guard case .record(let record) = expr,
           case .recordType = record.kind else {
@@ -143,7 +143,7 @@ public final class RecordLibrary: NativeLibrary {
     }
     return record.exprs[0]
   }
-  
+
   func recordTypeFieldNames(_ expr: Expr) -> Expr {
     guard case .record(let record) = expr,
           case .recordType = record.kind else {
@@ -151,7 +151,7 @@ public final class RecordLibrary: NativeLibrary {
     }
     return record.exprs[2]
   }
-  
+
   func recordTypeFieldIndex(_ expr: Expr, name: Expr) throws -> Expr {
     let record = try expr.recordAsCollection()
     guard case .recordType = record.kind else {
@@ -184,7 +184,7 @@ public final class RecordLibrary: NativeLibrary {
         throw RuntimeError.type(name, expected: [.symbolType])
     }
   }
-  
+
   private func indexOfField(_ field: Symbol, in fields: Expr) -> Int? {
     var index = 0
     var current = fields
@@ -197,7 +197,7 @@ public final class RecordLibrary: NativeLibrary {
     }
     return nil
   }
-  
+
   func makeRecord(_ expr: Expr) throws -> Expr {
     let type = try expr.recordAsCollection()
     guard case .recordType = type.kind else {
@@ -209,7 +209,7 @@ public final class RecordLibrary: NativeLibrary {
     return .record(
       Collection(kind: .record(type), exprs: Exprs(repeating: .undef, count: Int(size))))
   }
-  
+
   func recordRef(_ expr: Expr, index: Expr) throws -> Expr {
     let record = try expr.recordAsCollection()
     let idx = try index.asInt()
@@ -221,7 +221,7 @@ public final class RecordLibrary: NativeLibrary {
     }
     return record.exprs[idx]
   }
-  
+
   func recordSet(_ expr: Expr, index: Expr, value: Expr) throws -> Expr {
     let record = try expr.recordAsCollection()
     guard case .record(_) = record.kind else {

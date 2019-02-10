@@ -25,25 +25,25 @@ import Cocoa
 /// Representation of a RGB color.
 ///
 public struct Color {
-  
+
   /// The color space for colors represented by this struct
   public static var colorSpaceName: NSColorSpaceName {
     return NSColorSpaceName.deviceRGB
   }
-  
+
   // Predefined colors
   public static let black = Color(red: 0.0, green: 0.0, blue: 0.0)
   public static let white = Color(red: 1.0, green: 1.0, blue: 1.0)
   public static let red = Color(red: 1.0, green: 0.0, blue: 0.0)
   public static let green = Color(red: 0.0, green: 1.0, blue: 0.0)
   public static let blue = Color(red: 0.0, green: 0.0, blue: 1.0)
-  
+
   // Color components
   public let red: Double
   public let green: Double
   public let blue: Double
   public let alpha: Double
-  
+
   /// Initializer
   public init(red: Double, green: Double, blue: Double, alpha: Double = 1.0) {
     self.red = red
@@ -51,7 +51,7 @@ public struct Color {
     self.blue = blue
     self.alpha = alpha
   }
-  
+
   /// The corresponding `NSColor` object
   public var nsColor: NSColor {
     return NSColor(calibratedRed: CGFloat(self.red),
@@ -59,7 +59,7 @@ public struct Color {
                    blue: CGFloat(self.blue),
                    alpha: CGFloat(self.alpha))
   }
-  
+
   /// Returns an array of `NSColor` objects for a given array of `Color` structs
   public static func nsColorArray(_ colors: [Color]) -> [NSColor] {
     var res: [NSColor] = []

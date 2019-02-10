@@ -22,11 +22,11 @@
 /// Class `Promise` is used to represent promises natively in LispKit.
 ///
 public final class Promise: ManagedObject, CustomStringConvertible {
-  
+
   public enum Kind: CustomStringConvertible {
     case promise
     case stream
-    
+
     public var description: String {
       switch self {
         case .promise:
@@ -36,13 +36,13 @@ public final class Promise: ManagedObject, CustomStringConvertible {
       }
     }
   }
-  
+
   public indirect enum State: CustomStringConvertible {
     case lazy(Procedure)       // Thunk of promises
     case shared(Promise)       // Shared future
     case value(Expr)           // Evaluated future
     case thrown(Error)         // Failed evaluation of future
-    
+
     public var description: String {
       switch self {
         case .lazy(let proc):
@@ -56,20 +56,20 @@ public final class Promise: ManagedObject, CustomStringConvertible {
       }
     }
   }
-  
+
   public let kind: Kind
-  
+
   /// State of the future; this state is modified externally.
   public var state: State
-  
+
   /// Maintain object statistics.
   internal static let stats = Stats("Promise")
-  
+
   /// Update object statistics.
   deinit {
     Promise.stats.dealloc()
   }
-  
+
   /// Initializes a future with a `thunk` that yields a promise; this promise's state is
   /// copied over into this future as part of the protocol to force a promise.
   public init(kind: Kind, thunk: Procedure) {
@@ -77,14 +77,14 @@ public final class Promise: ManagedObject, CustomStringConvertible {
     self.state = .lazy(thunk)
     super.init(Promise.stats)
   }
-  
+
   /// Initializes a future with a given value; no evaluation will happen.
   public init(kind: Kind, value: Expr) {
     self.kind = kind
     self.state = .value(value)
     super.init(Promise.stats)
   }
-  
+
   /// Returns true if this refers to only "simple" values (i.e. values which won't lead to
   /// cyclic references)
   public var isAtom: Bool {
@@ -99,17 +99,17 @@ public final class Promise: ManagedObject, CustomStringConvertible {
         return false
     }
   }
-  
+
   /// Is this promise a stream?
   public var isStream: Bool {
     return self.kind == .stream
   }
-  
+
   /// String representation of the future.
   public var description: String {
     return "\(self.kind)#\(self.state)"
   }
-  
+
   /// Mark the expressions referenced from this future.
   public override func mark(_ tag: UInt8) {
     if self.tag != tag {
@@ -127,7 +127,7 @@ public final class Promise: ManagedObject, CustomStringConvertible {
       }
     }
   }
-  
+
   /// Remove references to expressions from this future.
   public override func clean() {
     self.state = .value(.null)

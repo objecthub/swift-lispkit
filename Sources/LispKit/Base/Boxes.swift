@@ -23,7 +23,7 @@
 ///
 public final class ImmutableBox<T>: Reference {
   public let value: T
-  
+
   public init(_ value: T) {
     self.value = value
   }
@@ -34,7 +34,7 @@ public final class ImmutableBox<T>: Reference {
 ///
 public final class MutableBox<T>: Reference {
   public var value: T
-  
+
   public init(_ value: T) {
     self.value = value
   }
@@ -45,7 +45,7 @@ public final class MutableBox<T>: Reference {
 ///
 public final class WeakBox<T: AnyObject>: Reference {
   public weak var value: T?
-  
+
   public init(_ value: T?) {
     self.value = value
   }

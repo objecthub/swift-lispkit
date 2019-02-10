@@ -24,7 +24,7 @@
 /// before the first `Context` object is created.
 ///
 public struct LibraryRegistry {
-  
+
   public private(set) static var nativeLibraries: [NativeLibrary.Type] = [
     ControlFlowLibrary.self,
     CoreLibrary.self,
@@ -47,11 +47,11 @@ public struct LibraryRegistry {
     BaseLibrary.self,
     DrawingLibrary.self
   ]
-  
+
   public static func register(_ nativeLibrary: NativeLibrary.Type) {
     LibraryRegistry.nativeLibraries.append(nativeLibrary)
   }
-  
+
   public static func register<T: Sequence>(_ nativeLibraries: T)
                                             where T.Element == NativeLibrary.Type {
     for library in nativeLibraries {

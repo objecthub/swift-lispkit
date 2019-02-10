@@ -30,25 +30,25 @@ import CoreGraphics
 ///   - The drawing can be written to a file. Natively supported are PDF, PNG, and JPEG.
 ///
 public final class Drawing: Reference {
-  
+
   /// The sequence of drawing instructions.
   public private(set) var instructions: [DrawingInstruction]
-  
+
   /// Initializer copying another drawing.
   public init(copy drawing: Drawing) {
     self.instructions = drawing.instructions
   }
-  
+
   /// Initializer providing an initial sequence of drawing instructions.
   public init(_ instructions: DrawingInstruction...) {
     self.instructions = instructions
   }
-  
+
   /// Name of this reference type
   public override var typeDescription: String {
     return "drawing"
   }
-  
+
   /// Appends a new drawing instruction.
   @discardableResult public func append(_ instruction: DrawingInstruction) -> Bool {
     switch instruction {
@@ -62,7 +62,7 @@ public final class Drawing: Reference {
     self.instructions.append(instruction)
     return true
   }
-  
+
   /// Draws the drawing to the current graphics context clipped to a given shape. The drawing is
   /// put into a new transparency layer. Upon exit, the previous graphics state is being
   /// restored.
@@ -78,7 +78,7 @@ public final class Drawing: Reference {
       self.drawInline()
     }
   }
-  
+
   /// Draw the drawing into the current graphics context without saving and restoring the
   /// graphics state.
   public func drawInline() {
@@ -86,7 +86,7 @@ public final class Drawing: Reference {
       instruction.draw()
     }
   }
-  
+
   /// Returns true if the given drawing is included or inlined into this drawing.
   public func includes(_ drawing: Drawing) -> Bool {
     guard self !== drawing else {
@@ -104,7 +104,7 @@ public final class Drawing: Reference {
     }
     return false
   }
-  
+
   /// Saves the drawing into a PDF file at URL `url`. The canvas's size is provide via the
   /// `width` and `height` parameters. If `flipped` is set to false, it is assumed that the
   /// origin of the coordinate system is in the lower-left corner of the canvas with x values
@@ -169,7 +169,7 @@ public final class Drawing: Reference {
     cgc.closePDF()
     return true
   }
-  
+
   /// Saves the drawing into a PNG file at URL `url`. The canvas's size is provide via the
   /// `width` and `height` parameters. The `scale` factor determines the actual size of the
   /// bitmap when multiplied with `width` and `height`. For instance, setting `scale` to 2.0
@@ -192,7 +192,7 @@ public final class Drawing: Reference {
                              format: NSBitmapImageRep.FileType.png,
                              flipped: flipped)
   }
-  
+
   /// Saves the drawing into a JPEF file at URL `url`. The canvas's size is provide via the
   /// `width` and `height` parameters. The `scale` factor determines the actual size of the
   /// bitmap when multiplied with `width` and `height`. For instance, setting `scale` to 2.0
@@ -215,7 +215,7 @@ public final class Drawing: Reference {
                              format: NSBitmapImageRep.FileType.jpeg,
                              flipped: flipped)
   }
-  
+
   /// Saves the drawing into a file at URL `url` of format `format`. The canvas's size is
   /// provide via the `width` and `height` parameters. The `scale` factor determines the
   /// actual size of the bitmap when multiplied with `width` and `height`. For instance,
@@ -279,7 +279,7 @@ public final class Drawing: Reference {
       return false
     }
   }
-  
+
   public func flush() {
     for instruction in self.instructions {
       instruction.markDirty()
@@ -315,7 +315,7 @@ public enum DrawingInstruction {
   case image(NSImage, ObjectLocation, operation: NSCompositingOperation, opacity: Double)
   case inline(Drawing)
   case include(Drawing, clippedTo: Shape?)
-  
+
   fileprivate func draw() {
     switch self {
       case .setStrokeColor(let color):
@@ -428,7 +428,7 @@ public enum DrawingInstruction {
         drawing.drawInline()
     }
   }
-  
+
   func markDirty() {
     switch self {
       case .stroke(let shape, _):

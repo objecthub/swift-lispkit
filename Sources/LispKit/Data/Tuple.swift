@@ -22,26 +22,26 @@
 /// `Tuple` implements a mutable pair of expressions.
 ///
 public final class Tuple: ManagedObject, CustomStringConvertible {
-  
+
   /// The current value of the variable.
   public var fst: Expr
   public var snd: Expr
-  
+
   /// Maintain object statistics.
   internal static let stats = Stats("Tuple")
-  
+
   /// Update object statistics.
   deinit {
     Tuple.stats.dealloc()
   }
-  
+
   /// Create a new tuple with initial values for `fst` and `snd`.
   public init(_ fst: Expr = .undef, _ snd: Expr = .undef) {
     self.fst = fst
     self.snd = snd
     super.init(Tuple.stats)
   }
-  
+
   /// Mark tuple object.
   public override func mark(_ tag: UInt8) {
     if self.tag != tag {
@@ -50,13 +50,13 @@ public final class Tuple: ManagedObject, CustomStringConvertible {
       self.snd.mark(tag)
     }
   }
-  
+
   /// Clear tuple
   public override func clean() {
     self.fst = .undef
     self.snd = .undef
   }
-  
+
   /// A string representation of this tuple.
   public var description: String {
     return "«\(self.fst), \(self.snd)»"

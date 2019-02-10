@@ -40,7 +40,7 @@ public enum Feature: String {
   case x8664 = "x86-64"
   case arm64 = "arm64"
   case arm = "arm"
-  
+
   public static let supported: Set<String> = {
     var set = Set<String>()
     set.insert(Feature.lispkit.rawValue)

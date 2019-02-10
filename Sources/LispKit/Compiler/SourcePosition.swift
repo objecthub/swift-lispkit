@@ -28,65 +28,65 @@ public struct SourcePosition: Equatable, Hashable, CustomStringConvertible {
   public let sourceId: UInt16
   public let line: UInt16
   public let column: UInt16
-  
+
   public static let unknownLine: UInt16 = 0
   public static let unknownColumn: UInt16 = 0
   public static let unknown: SourcePosition = SourcePosition(SourceManager.unknownSourceId,
                                                              SourcePosition.unknownLine,
                                                              SourcePosition.unknownColumn)
-  
+
   public init(_ sourceId: UInt16, _ line: UInt16, _ column: UInt16) {
     self.sourceId = sourceId
     self.line = line
     self.column = line == SourcePosition.unknownLine ? SourcePosition.unknownColumn : column
   }
-  
+
   public init(_ sourceId: UInt16, _ line: UInt, _ column: UInt) {
     self.init(sourceId,
               line > UInt16.max ? SourcePosition.unknownLine : UInt16(line),
               column > UInt16.max ? SourcePosition.unknownColumn : UInt16(column))
   }
-  
+
   public init(_ sourceId: UInt16, _ pos: Position) {
     self.init(sourceId,
               pos.line > UInt16.max ? SourcePosition.unknownLine : UInt16(pos.line),
               pos.col > UInt16.max ? SourcePosition.unknownColumn : UInt16(pos.col))
   }
-  
+
   public func hash(into hasher: inout Hasher) {
     hasher.combine(self.sourceId)
     hasher.combine(self.line)
     hasher.combine(self.column)
   }
-  
+
   public var isUnknown: Bool {
     return self.sourceIsUnknown && self.lineIsUnknown
   }
-  
+
   public var lineIsUnknown: Bool {
     return self.column == SourcePosition.unknownLine
   }
-  
+
   public var columnIsUnknown: Bool {
     return self.column == SourcePosition.unknownColumn
   }
-  
+
   public var sourceIsUnknown: Bool {
     return self.sourceId == SourceManager.unknownSourceId
   }
-  
+
   public func fullDescription(_ sourceManager: SourceManager) -> String {
     guard let sourceUrl = sourceManager.sourceUrl(for: self.sourceId) else {
       return self.description
     }
     return "\(sourceUrl.lastPathComponent) \(self.description)"
   }
-  
+
   public var description: String {
     return self.isUnknown ? ""
       : (self.columnIsUnknown ? "\(self.line)" : "\(self.line):\(self.column)")
   }
-  
+
   public static func ==(lhs: SourcePosition, rhs: SourcePosition) -> Bool {
     return lhs.sourceId == rhs.sourceId &&
       lhs.line == rhs.line &&

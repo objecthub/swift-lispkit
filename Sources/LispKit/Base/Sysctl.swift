@@ -25,7 +25,7 @@ import Foundation
 /// returned from the `Darwin.sysctl` function
 ///
 public struct Sysctl {
-  
+
   /// Possible errors.
   public enum Error: Swift.Error {
     case unknown
@@ -33,7 +33,7 @@ public struct Sysctl {
     case invalidSize
     case posixError(POSIXErrorCode)
   }
-  
+
   /// Access the raw data for an array of sysctl identifiers.
   public static func dataForKeys(_ keys: [Int32]) throws -> [Int8] {
     return try keys.withUnsafeBufferPointer() { keysPointer throws -> [Int8] in
@@ -98,21 +98,21 @@ public struct Sysctl {
       return baseAddress.withMemoryRebound(to: T.self, capacity: 1) { $0.pointee }
     }
   }
-  
+
   /// Invoke `sysctl` with an array of identifers, interpreting the returned buffer as the
   /// specified type. This function will throw `Error.invalidSize` if the size of buffer
   /// returned from `sysctl` fails to match the size of `T`.
   public static func valueOfType<T>(_ type: T.Type, forKeys keys: Int32...) throws -> T {
     return try valueOfType(type, forKeys: keys)
   }
-  
+
   /// Invoke `sysctl` with the specified name, interpreting the returned buffer as the
   /// specified type. This function will throw `Error.invalidSize` if the size of buffer
   /// returned from `sysctl` fails to match the size of `T`.
   public static func valueOfType<T>(_ type: T.Type, forName name: String) throws -> T {
     return try valueOfType(type, forKeys: keysForName(name))
   }
-  
+
   /// Invoke `sysctl` with an array of identifers, interpreting the returned buffer as
   /// a `String`. This function will throw `Error.malformedUTF8` if the buffer returned
   /// from `sysctl` cannot be interpreted as a UTF8 buffer.
@@ -125,27 +125,27 @@ public struct Sysctl {
     }
     return s
   }
-  
+
   /// Invoke `sysctl` with an array of identifers, interpreting the returned buffer as
   /// a `String`. This function will throw `Error.malformedUTF8` if the buffer returned
   /// from `sysctl` cannot be interpreted as a UTF8 buffer.
   public static func stringForKeys(_ keys: Int32...) throws -> String {
     return try stringForKeys(keys)
   }
-  
+
   /// Invoke `sysctl` with the specified name, interpreting the returned buffer as a
   /// `String`. This function will throw `Error.malformedUTF8` if the buffer returned
   /// from `sysctl` cannot be interpreted as a UTF8 buffer.
   public static func stringForName(_ name: String) throws -> String {
     return try stringForKeys(keysForName(name))
   }
-  
+
   /// e.g. "MyComputer.local" (from System Preferences -> Sharing -> Computer Name) or
   /// "My-Name-iPhone" (from Settings -> General -> About -> Name)
   public static var hostName: String {
     return try! Sysctl.stringForKeys([CTL_KERN, KERN_HOSTNAME])
   }
-  
+
   /// e.g. "x86_64" or "N71mAP"
   /// NOTE: this is *corrected* on iOS devices to fetch hw.model
   public static var machine: String {
@@ -155,7 +155,7 @@ public struct Sysctl {
       return try! Sysctl.stringForKeys([CTL_HW, HW_MACHINE])
     #endif
   }
-  
+
   /// e.g. "MacPro4,1" or "iPhone8,1"
   /// NOTE: this is *corrected* on iOS devices to fetch hw.machine
   public static var model: String {
@@ -165,32 +165,32 @@ public struct Sysctl {
       return try! Sysctl.stringForKeys([CTL_HW, HW_MODEL])
     #endif
   }
-  
+
   /// e.g. "8" or "2"
   public static var activeCPUs: Int32 {
     return try! Sysctl.valueOfType(Int32.self, forKeys: [CTL_HW, HW_AVAILCPU])
   }
-  
+
   /// e.g. "15.3.0" or "15.0.0"
   public static var osRelease: String {
     return try! Sysctl.stringForKeys([CTL_KERN, KERN_OSRELEASE])
   }
-  
+
   /// e.g. 199506
   public static var osRev: Int32 {
     return try! Sysctl.valueOfType(Int32.self, forKeys: [CTL_KERN, KERN_OSREV])
   }
-  
+
   /// e.g. "Darwin"
   public static var osType: String {
     return try! Sysctl.stringForKeys([CTL_KERN, KERN_OSTYPE])
   }
-  
+
   /// e.g. "15D21" or "13D20"
   public static var osVersion: String {
     return try! Sysctl.stringForKeys([CTL_KERN, KERN_OSVERSION])
   }
-  
+
   /// e.g. "Darwin Kernel Version 15.3.0: Thu Dec 10 18:40:58 PST 2015;
   /// root:xnu-3248.30.4~1/RELEASE_X86_64" or
   /// "Darwin Kernel Version 15.0.0: Wed Dec  9 22:19:38 PST 2015;
@@ -198,7 +198,7 @@ public struct Sysctl {
   public static var version: String {
     return try! Sysctl.stringForKeys([CTL_KERN, KERN_VERSION])
   }
-  
+
   #if os(macOS)
     /// e.g. 2659000000 (not available on iOS)
     public static var cpuFreq: Int64 {

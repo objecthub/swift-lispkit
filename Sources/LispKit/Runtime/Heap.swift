@@ -22,32 +22,32 @@
 /// Class encapsulating all objects referenced from global environments.
 ///
 public final class Heap: TrackedObject {
-  
+
   /// Global locations.
   public var locations: Exprs
-  
+
   /// Capacity of the heap.
   public var capacity: Int {
     return self.locations.capacity
   }
-  
+
   /// Number of globally allocated locations.
   public var count: Int {
     return self.locations.count
   }
-  
+
   /// Initializer
   public init(capacity: Int = 1000) {
     self.locations = Exprs()
     self.locations.reserveCapacity(capacity)
   }
-  
+
   /// Allocates a new global location and initializes it with `expr`.
   public func allocateLocation(for expr: Expr = .undef) -> Int {
     self.locations.append(expr)
     return self.locations.count - 1
   }
-  
+
   /// Reserve at least the given capacity to avoid continuous reallocations of the underlying
   /// locations array.
   public func reserveCapacity(_ capacity: Int) {
@@ -55,7 +55,7 @@ public final class Heap: TrackedObject {
       self.locations.reserveCapacity(capacity)
     }
   }
-  
+
   /// Mark all elements on the heap
   public override func mark(_ tag: UInt8) {
     for i in self.locations.indices {

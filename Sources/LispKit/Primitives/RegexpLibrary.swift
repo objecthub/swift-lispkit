@@ -21,7 +21,7 @@
 import Foundation
 
 public final class RegexpLibrary: NativeLibrary {
-  
+
   /// Regular expression pattern matching options
   private let caseInsensitive: Symbol
   private let allowComments: Symbol
@@ -30,7 +30,7 @@ public final class RegexpLibrary: NativeLibrary {
   private let anchorsMatchLines: Symbol
   private let unixOnlyLineSeparators: Symbol
   private let unicodeWords: Symbol
-  
+
   /// Initialize symbols
   public required init(in context: Context) throws {
     self.caseInsensitive = context.symbols.intern("case-insensitive")
@@ -42,12 +42,12 @@ public final class RegexpLibrary: NativeLibrary {
     self.unicodeWords = context.symbols.intern("unicode-words")
     try super.init(in: context)
   }
-  
+
   /// Name of the library.
   public override class var name: [String] {
     return ["lispkit", "regexp"]
   }
-  
+
   /// Dependencies of the library.
   public override func dependencies() {
     self.`import`(from: ["lispkit", "control"], "let", "let-optionals", "cond", "if")
@@ -56,7 +56,7 @@ public final class RegexpLibrary: NativeLibrary {
     self.`import`(from: ["lispkit", "math"],    "fx1+", "fx<", "fx=")
     self.`import`(from: ["lispkit", "string"],  "string-length")
   }
-  
+
   /// Declarations of the library.
   public override func declarations() {
     self.define(Procedure("regexp?", isRegexp))
@@ -93,14 +93,14 @@ public final class RegexpLibrary: NativeLibrary {
                 (finish from #f str acc))))))
     """)
   }
-  
+
   private func isRegexp(_ expr: Expr) -> Expr {
     guard case .object(let obj) = expr, obj is ImmutableBox<NSRegularExpression> else {
       return .false
     }
     return .true
   }
-  
+
   private func regexp(_ expr: Expr, _ args: Arguments) throws -> Expr {
     var options: NSRegularExpression.Options = []
     for arg in args {
@@ -129,23 +129,23 @@ public final class RegexpLibrary: NativeLibrary {
     return .object(ImmutableBox(try NSRegularExpression(pattern: expr.asString(),
                                                         options: options)))
   }
-  
+
   private func regexpPattern(_ expr: Expr) throws -> Expr {
     return .makeString(try self.asRegexp(expr).pattern)
   }
-  
+
   private func regexpCaptureGroups(_ expr: Expr) throws -> Expr {
     return .fixnum(Int64(try self.asRegexp(expr).numberOfCaptureGroups))
   }
-  
+
   private func escapeRegexpPattern(_ expr: Expr) throws -> Expr {
     return .makeString(NSRegularExpression.escapedPattern(for: try expr.asString()))
   }
-  
+
   private func escapeRegexpTemplate(_ expr: Expr) throws -> Expr {
     return .makeString(NSRegularExpression.escapedTemplate(for: try expr.asString()))
   }
-  
+
   private func regexpMatches(_ expr: Expr,
                              _ str: Expr,
                              _ start: Expr?,
@@ -167,7 +167,7 @@ public final class RegexpLibrary: NativeLibrary {
     }
     return self.expr(from: match)
   }
-  
+
   private func isRegexpMatches(_ expr: Expr,
                                _ str: Expr,
                                _ start: Expr?,
@@ -189,7 +189,7 @@ public final class RegexpLibrary: NativeLibrary {
     }
     return .true
   }
-  
+
   private func regexpSearch(_ expr: Expr,
                             _ str: Expr,
                             _ start: Expr?,
@@ -208,7 +208,7 @@ public final class RegexpLibrary: NativeLibrary {
     }
     return self.expr(from: match)
   }
-  
+
   private func regexpSearchAll(_ expr: Expr,
                                _ str: Expr,
                                _ start: Expr?,
@@ -229,7 +229,7 @@ public final class RegexpLibrary: NativeLibrary {
     }
     return res
   }
-  
+
   private func regexpExtract(_ expr: Expr,
                              _ str: Expr,
                              _ start: Expr?,
@@ -252,7 +252,7 @@ public final class RegexpLibrary: NativeLibrary {
     }
     return res
   }
-  
+
   private func regexpSplit(_ expr: Expr,
                            _ str: Expr,
                            _ start: Expr?,
@@ -280,7 +280,7 @@ public final class RegexpLibrary: NativeLibrary {
     res = .pair(.makeString(ms.substring(with: NSRange(location: 0, length: last))), res)
     return res
   }
-  
+
   private func regexpPartition(_ expr: Expr,
                                _ str: Expr,
                                _ start: Expr?,
@@ -309,7 +309,7 @@ public final class RegexpLibrary: NativeLibrary {
     res = .pair(.makeString(ms.substring(with: NSRange(location: 0, length: last))), res)
     return res
   }
-  
+
   private func regexpReplace(_ expr: Expr,
                              _ str: Expr,
                              _ templ: Expr,
@@ -328,7 +328,7 @@ public final class RegexpLibrary: NativeLibrary {
                                           withTemplate: try templ.asString())
     return .makeString(res)
   }
-  
+
   private func regexpReplaceDestructive(_ expr: Expr,
                                         _ str: Expr,
                                         _ templ: Expr,
@@ -347,7 +347,7 @@ public final class RegexpLibrary: NativeLibrary {
                                 withTemplate: try templ.asString())
     return .makeNumber(res)
   }
-  
+
   private func expr(from match: NSTextCheckingResult) -> Expr {
     var res = Expr.null
     for i in (0..<match.numberOfRanges).reversed() {
@@ -358,7 +358,7 @@ public final class RegexpLibrary: NativeLibrary {
     }
     return res
   }
-  
+
   private func asRegexp(_ expr: Expr) throws -> NSRegularExpression {
     guard case .object(let obj) = expr, let box = obj as? ImmutableBox<NSRegularExpression> else {
       throw RuntimeError.type(expr, expected: [.regexpType])

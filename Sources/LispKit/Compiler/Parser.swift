@@ -25,16 +25,16 @@ import Foundation
 /// a symbol table for creating `Symbol` objects.
 ///
 public final class Parser {
-  
+
   /// Symbol table used for instantiating symbols
   private let symbols: SymbolTable
-  
+
   /// Scanner used for lexical parsing
   private let scanner: Scanner
-  
+
   /// Id of source code
   internal let sourceId: UInt16
-  
+
   public convenience init(symbols: SymbolTable,
                           input: TextInput,
                           sourceId: UInt16 = SourceManager.unknownSourceId,
@@ -43,18 +43,18 @@ public final class Parser {
               scanner: Scanner(input: input, foldCase: foldCase),
               sourceId: sourceId)
   }
-  
+
   public init(symbols: SymbolTable, scanner: Scanner, sourceId: UInt16) {
     self.symbols = symbols
     self.scanner = scanner
     self.sourceId = sourceId
   }
-  
+
   /// Returns true if the scanner has reached the end of the input.
   public var finished: Bool {
     return !self.scanner.hasNext()
   }
-  
+
   /// Parses the next expression.
   public func parse(_ prescan: Bool = true) throws -> Expr {
     var res: Expr
@@ -170,7 +170,7 @@ public final class Parser {
     }
     return .syntax(pos, res)
   }
-  
+
   /// Returns the source position of the current token.
   private var sourcePosition: SourcePosition {
     return SourcePosition(self.sourceId, self.scanner.token.pos.line, self.scanner.token.pos.col)

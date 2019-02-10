@@ -24,12 +24,12 @@ import Foundation
 /// Growable vector library: based on corresponding Racket library
 ///
 public final class GrowableVectorLibrary: NativeLibrary {
-  
+
   /// Name of the library.
   public override class var name: [String] {
     return ["lispkit", "gvector"]
   }
-  
+
   /// Dependencies of the library.
   public override func dependencies() {
     self.`import`(from: ["lispkit", "core"],    "define", "set!", "or", "not", "apply")
@@ -38,7 +38,7 @@ public final class GrowableVectorLibrary: NativeLibrary {
     self.`import`(from: ["lispkit", "list"],    "cons", "null?")
     self.`import`(from: ["lispkit", "vector"],  "vector-swap!")
   }
-  
+
   /// Declarations of the library.
   public override func declarations() {
     self.define(Procedure("gvector?", isGvector))
@@ -147,22 +147,22 @@ public final class GrowableVectorLibrary: NativeLibrary {
       "         ((fx>= i len))",
       "      (apply f (cons i (_gvector-list-ref i vecs))))))")
   }
-  
+
   private func isGvector(_ expr: Expr) -> Expr {
     guard case .vector(let vector) = expr, vector.isGrowableVector else {
       return .false
     }
     return .true
   }
-  
+
   private func isGvectorEmpty(_ expr: Expr) throws -> Expr {
     return .makeBoolean(try expr.vectorAsCollection(growable: true).exprs.isEmpty)
   }
-  
+
   private func gvectorLength(vec: Expr) throws -> Expr {
     return .fixnum(Int64(try vec.vectorAsCollection(growable: true).exprs.count))
   }
-  
+
   private func gvectorListLength(vectors: Expr) throws -> Expr {
     var n = Int.max
     var list = vectors
@@ -178,7 +178,7 @@ public final class GrowableVectorLibrary: NativeLibrary {
     }
     return .fixnum(Int64(n))
   }
-  
+
   private func makeGvector(_ capacity: Expr?) throws -> Expr {
     let res = Collection(kind: .growableVector)
     if let capacity = try capacity?.asInt() {
@@ -186,7 +186,7 @@ public final class GrowableVectorLibrary: NativeLibrary {
     }
     return .vector(res)
   }
-  
+
   private func gvector(_ args: Arguments) -> Expr {
     let res = Collection(kind: .growableVector)
     for arg in args {
@@ -194,7 +194,7 @@ public final class GrowableVectorLibrary: NativeLibrary {
     }
     return .vector(res)
   }
-  
+
   private func gvectorAppend(_ exprs: Arguments) throws -> Expr {
     let res = Collection(kind: .growableVector)
     for expr in exprs {
@@ -202,7 +202,7 @@ public final class GrowableVectorLibrary: NativeLibrary {
     }
     return .vector(res)
   }
-  
+
   private func gvectorConcatenate(_ expr: Expr) throws -> Expr {
     let res = Collection(kind: .growableVector)
     var list = expr
@@ -215,7 +215,7 @@ public final class GrowableVectorLibrary: NativeLibrary {
     }
     return .vector(res)
   }
-  
+
   private func gvectorAppendDestructive(_ expr: Expr, _ args: Arguments) throws -> Expr {
     let vec = try expr.vectorAsCollection(growable: true)
     for arg in args {
@@ -223,7 +223,7 @@ public final class GrowableVectorLibrary: NativeLibrary {
     }
     return .void
   }
-  
+
   private func gvectorRef(_ vec: Expr, index: Expr) throws -> Expr {
     let vector = try vec.vectorAsCollection(growable: true)
     let i = try index.asInt64()
@@ -236,7 +236,7 @@ public final class GrowableVectorLibrary: NativeLibrary {
     }
     return vector.exprs[Int(i)]
   }
-  
+
   private func gvectorListRef(_ index: Expr, _ vectors: Expr) throws -> Expr {
     let i = try index.asInt64()
     var res = Exprs()
@@ -254,7 +254,7 @@ public final class GrowableVectorLibrary: NativeLibrary {
     }
     return .makeList(res)
   }
-  
+
   private func gvectorSet(_ vec: Expr, index: Expr, expr: Expr) throws -> Expr {
     // Extract arguments
     let vector = try vec.vectorAsCollection(growable: true)
@@ -271,7 +271,7 @@ public final class GrowableVectorLibrary: NativeLibrary {
     (expr.isAtom ? vector : self.context.objects.manage(vector)).exprs[i] = expr
     return .void
   }
-  
+
   private func gvectorAdd(_ vec: Expr, _ args: Arguments) throws -> Expr {
     // Extract arguments
     let vector = try vec.vectorAsCollection(growable: true)
@@ -287,7 +287,7 @@ public final class GrowableVectorLibrary: NativeLibrary {
     }
     return .void
   }
-  
+
   private func gvectorInsert(_ vec: Expr, _ index: Expr, _ expr: Expr) throws -> Expr {
     let vector = try vec.vectorAsCollection(growable: true)
     let i = try index.asInt()
@@ -301,7 +301,7 @@ public final class GrowableVectorLibrary: NativeLibrary {
     (expr.isAtom ? vector : self.context.objects.manage(vector)).exprs.insert(expr, at: i)
     return .void
   }
-  
+
   private func gvectorRemove(_ vec: Expr, _ index: Expr) throws -> Expr {
     let vector = try vec.vectorAsCollection(growable: true)
     let i = try index.asInt()
@@ -316,7 +316,7 @@ public final class GrowableVectorLibrary: NativeLibrary {
     vector.exprs.remove(at: i)
     return res
   }
-  
+
   private func gvectorRemoveLast(_ vec: Expr, _ num: Expr?) throws -> Expr {
     let vector = try vec.vectorAsCollection(growable: true)
     if let n = try num?.asInt() {
@@ -336,14 +336,14 @@ public final class GrowableVectorLibrary: NativeLibrary {
       throw RuntimeError.eval(.vectorEmpty, vec)
     }
   }
-  
+
   private func listToGvector(_ expr: Expr) throws -> Expr {
     guard case (let exprs, .null) = expr.toExprs() else {
       throw RuntimeError.type(expr, expected: [.properListType])
     }
     return .vector(Collection(kind: .growableVector, exprs: exprs))
   }
-  
+
   private func gvectorToList(_ vec: Expr, start: Expr?, end: Expr?) throws -> Expr {
     let vector = try vec.vectorAsCollection(growable: true)
     let end = try end?.asInt(below: vector.exprs.count + 1) ?? vector.exprs.count
@@ -354,7 +354,7 @@ public final class GrowableVectorLibrary: NativeLibrary {
     }
     return res
   }
-  
+
   private func vectorToGvector(_ expr: Expr) throws -> Expr {
     let vector = try expr.vectorAsCollection()
     let res = Collection(kind: .growableVector)
@@ -363,7 +363,7 @@ public final class GrowableVectorLibrary: NativeLibrary {
     }
     return .vector(res)
   }
-  
+
   private func gvectorToVector(_ vec: Expr, start: Expr?, end: Expr?) throws -> Expr {
     let vector = try vec.vectorAsCollection(growable: true)
     let end = try end?.asInt(below: vector.exprs.count + 1) ?? vector.exprs.count
@@ -374,7 +374,7 @@ public final class GrowableVectorLibrary: NativeLibrary {
     }
     return .vector(res)
   }
-  
+
   private func gvectorCopy(_ vec: Expr, _ args: Arguments) throws -> Expr {
     let vector = try vec.vectorAsCollection(growable: true)
     guard let (start, end, mutable) = args.optional(.fixnum(0),
@@ -411,7 +411,7 @@ public final class GrowableVectorLibrary: NativeLibrary {
     }
     return .vector(res)
   }
-  
+
   private func gvectorOverwrite(_ trgt: Expr,
                                 at: Expr,
                                 src: Expr,
@@ -447,7 +447,7 @@ public final class GrowableVectorLibrary: NativeLibrary {
     }
     return .void
   }
-  
+
   private func gvectorReverse(_ vec: Expr, _ start: Expr?, _ end: Expr?) throws -> Expr {
     let vector = try vec.vectorAsCollection(growable: true)
     let end = try end?.asInt(below: vector.exprs.count + 1) ?? vector.exprs.count
@@ -455,7 +455,7 @@ public final class GrowableVectorLibrary: NativeLibrary {
     vector.exprs[start..<end].reverse()
     return .void
   }
-  
+
   private func gvectorPivot(_ vec: Expr, ilo: Expr, ihi: Expr) throws -> Expr {
     let vector = try vec.vectorAsCollection(growable: true)
     let hi = try ihi.asInt(below: vector.exprs.count)

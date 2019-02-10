@@ -48,7 +48,7 @@ import Foundation
 ///    │        ...        │
 ///
 public final class VirtualMachine: TrackedObject {
-  
+
   /// Collects all registers in a single struct
   internal struct Registers {
     let rid: Int
@@ -57,7 +57,7 @@ public final class VirtualMachine: TrackedObject {
     var ip: Int
     var fp: Int
     let initialFp: Int
-    
+
     init(code: Code, captured: Exprs, fp: Int, root: Bool) {
       if root {
         self.rid = 0
@@ -71,22 +71,22 @@ public final class VirtualMachine: TrackedObject {
       self.fp = fp
       self.initialFp = fp
     }
-    
+
     @inline(__always) mutating func use(code: Code, captured: Exprs, fp: Int) {
       self.code = code
       self.captured = captured
       self.ip = 0
       self.fp = fp
     }
-    
+
     var topLevel: Bool {
       return self.fp == self.initialFp
     }
-    
+
     var isInitialized: Bool {
       return self.rid == 0 && self.code.instructions.count > 0
     }
-    
+
     func mark(_ tag: UInt8) {
       self.code.mark(tag)
       for i in self.captured.indices {
@@ -94,24 +94,24 @@ public final class VirtualMachine: TrackedObject {
       }
     }
   }
-  
+
   internal final class Winder: Reference {
     let before: Procedure
     let after: Procedure
     let handlers: Expr?
     let next: Winder?
-    
+
     init(before: Procedure, after: Procedure, handlers: Expr?, next: Winder?) {
       self.before = before
       self.after = after
       self.handlers = handlers
       self.next = next
     }
-    
+
     var id: Int64 {
       return Int64(bitPattern: UInt64(self.identity))
     }
-    
+
     var count: Int {
       var ws: Winder? = self
       var n = 0
@@ -121,7 +121,7 @@ public final class VirtualMachine: TrackedObject {
       }
       return n
     }
-    
+
     func commonPrefix(_ with: Winder?) -> Winder? {
       guard with != nil else {
         return nil
@@ -145,7 +145,7 @@ public final class VirtualMachine: TrackedObject {
       }
       return this
     }
-    
+
     func mark(_ tag: UInt8) {
       self.before.mark(tag)
       self.after.mark(tag)
@@ -153,22 +153,22 @@ public final class VirtualMachine: TrackedObject {
       self.next?.mark(tag)
     }
   }
-  
+
   public enum CallTracingMode {
     case on
     case off
     case byProc
   }
-  
+
   /// Counter for managing register ids
   private static var nextRid: Int = 0
-  
+
   /// The context of this virtual machine
   private unowned let context: Context
-  
+
   /// The stack used by this virtual machine
   private var stack: Exprs
-  
+
   /// The stack pointer (pointing at the next available position on the stack); this variable
   /// should be private, but since it's needed in tests, it remains internal.
   internal var sp: Int {
@@ -178,35 +178,35 @@ public final class VirtualMachine: TrackedObject {
       }
     }
   }
-  
+
   /// The maximum value of the stack pointer so far (used for debugging)
   public private(set) var maxSp: Int
-  
+
   /// Registers
   private var registers: Registers
-  
+
   /// Winders
   internal private(set) var winders: Winder?
-  
+
   /// Parameters
   public internal(set) var parameters: HashTable
   private var setParameterProc: Procedure!
-  
+
   /// Internal counter used for triggering the garbage collector.
   private var execInstr: UInt64
-  
+
   /// Error handler procedure.
   public var raiseProc: Procedure? = nil
-  
+
   /// When set to true, it will trigger an abortion of the machine evaluator as soon as possible.
   private var abortionRequested: Bool = false
-  
+
   /// Will be set to true if the `exit` function was invoked.
   public internal(set) var exitTriggered: Bool = false
-  
+
   /// When set to true, will print call and return traces
   public var traceCalls: CallTracingMode = .off
-  
+
   /// Initializes a new virtual machine for the given context.
   public init(for context: Context) {
     self.context = context
@@ -220,7 +220,7 @@ public final class VirtualMachine: TrackedObject {
     super.init()
     self.setParameterProc = Procedure("_set-parameter", self.setParameter, nil)
   }
-  
+
   /// Returns a copy of the current virtual machine state.
   public func getState() -> VirtualMachineState {
     return VirtualMachineState(stack: self.stack,
@@ -230,24 +230,24 @@ public final class VirtualMachine: TrackedObject {
                                registers: self.registers,
                                winders: self.winders)
   }
-  
+
   /// Requests abortion of the machine evaluator.
   public func abort() {
     self.abortionRequested = true
   }
-  
+
   /// Returns true if an abortion was requested.
   public func isAbortionRequested() -> Bool {
     return self.abortionRequested
   }
-  
+
   /// Checks that computation happens on top level and fails if the conditions are not met.
   private func assertTopLevel() {
     guard self.sp == 0 && !self.abortionRequested else {
       preconditionFailure("preconditions for top-level evaluation not met")
     }
   }
-  
+
    /// Executes an evaluation function at the top-level.
   public func onTopLevelDo(_ eval: () throws -> Expr) -> Expr {
     // Prepare for the evaluation
@@ -293,7 +293,7 @@ public final class VirtualMachine: TrackedObject {
     // Never happens
     return .void
   }
-  
+
   /// Loads the file at file patch `path`, compiles it in the interaction environment, and
   /// executes it using this virtual machine.
   public func eval(file path: String,
@@ -310,7 +310,7 @@ public final class VirtualMachine: TrackedObject {
                          inDirectory: self.context.fileHandler.directory(path),
                          foldCase: foldCase)
   }
-  
+
   /// Parses the given string, compiles it in the interaction environment, and executes it using
   /// this virtual machine.
   public func eval(str: String,
@@ -326,7 +326,7 @@ public final class VirtualMachine: TrackedObject {
                          optimize: optimize,
                          inDirectory: inDirectory)
   }
-  
+
   /// Compiles the given list of expressions in the interaction environment and executes
   /// it using this virtual machine.
   public func eval(exprs: Expr,
@@ -354,7 +354,7 @@ public final class VirtualMachine: TrackedObject {
     }
     return res
   }
-  
+
   /// Compiles the given expression in the interaction environment and executes it using this
   /// virtual machine.
   public func eval(expr: Expr,
@@ -368,18 +368,18 @@ public final class VirtualMachine: TrackedObject {
                          optimize: optimize,
                          inDirectory: inDirectory)
   }
-  
+
   /// Parses the given file and returns a list of parsed expressions.
   public func parse(file path: String, foldCase: Bool = false) throws -> Expr {
     let (sourceId, text) = try self.context.sources.readSource(for: path)
     return try self.parse(str: text, sourceId: sourceId, foldCase: foldCase)
   }
-  
+
   /// Parses the given string and returns a list of parsed expressions.
   public func parse(str: String, sourceId: UInt16, foldCase: Bool = false) throws -> Expr {
     return .makeList(try self.parseExprs(str: str, sourceId: sourceId, foldCase: foldCase))
   }
-  
+
   /// Parses the given string and returns an array of parsed expressions.
   public func parseExprs(file path: String, foldCase: Bool = false) throws -> Exprs {
     let (sourceId, text) = try self.context.sources.readSource(for: path)
@@ -387,7 +387,7 @@ public final class VirtualMachine: TrackedObject {
                                sourceId: sourceId,
                                foldCase: foldCase)
   }
-  
+
   /// Parses the given string and returns an array of parsed expressions.
   public func parseExprs(str: String, sourceId: UInt16, foldCase: Bool = false) throws -> Exprs {
     let input = TextInput(string: str,
@@ -402,7 +402,7 @@ public final class VirtualMachine: TrackedObject {
     }
     return exprs
   }
-  
+
   /// Compiles the given expression `expr` in the environment `env` and executes it using
   /// this virtual machine.
   public func compileAndEval(expr: Expr,
@@ -417,7 +417,7 @@ public final class VirtualMachine: TrackedObject {
                                     inDirectory: inDirectory)
     return try self.apply(.procedure(Procedure(code)), to: .null)
   }
-  
+
   /// Applies `args` to the function `fun` in environment `env`.
   public func apply(_ fun: Expr, to args: Expr) throws -> Expr {
     self.push(fun)
@@ -439,7 +439,7 @@ public final class VirtualMachine: TrackedObject {
         return self.pop()
     }
   }
-  
+
   /// Pushes the given expression onto the stack.
   @inline(__always) private func push(_ expr: Expr) {
     if self.sp < self.stack.count {
@@ -452,7 +452,7 @@ public final class VirtualMachine: TrackedObject {
     }
     self.sp += 1
   }
-  
+
   /// Pushes the given list of arguments onto the stack and returns the number of arguments pushed
   /// onto the stack.
   @inline(__always) @discardableResult private func pushArguments(_ arglist: Expr) throws -> Int {
@@ -468,7 +468,7 @@ public final class VirtualMachine: TrackedObject {
     }
     return n
   }
-  
+
   /// Removes the top `n` elements from the stack.
   @inline(__always) private func pop(_ n: Int) {
     var i = self.sp
@@ -478,18 +478,18 @@ public final class VirtualMachine: TrackedObject {
       self.stack[self.sp] = .undef
     }
   }
-  
+
   /// Removes the top element from the stack without resetting it and returns its value.
   @inline(__always) private func popUnsafe() -> Expr {
     self.sp = self.sp &- 1
     return self.stack[self.sp]
   }
-  
+
   /// Returns the top element of the stack.
   @inline(__always) private func top() -> Expr {
     return self.stack[self.sp &- 1]
   }
-  
+
   /// Removes the top element from the stack and returns it.
   @inline(__always) private func pop() -> Expr {
     self.sp = self.sp &- 1
@@ -497,13 +497,13 @@ public final class VirtualMachine: TrackedObject {
     self.stack[self.sp] = .undef
     return res
   }
-  
+
   /// Removes the top element from the stack
   @inline(__always) private func drop() {
     self.sp = self.sp &- 1
     self.stack[self.sp] = .undef
   }
-  
+
   @inline(__always) private func popAsList(_ n: Int) -> Expr {
     var res = Expr.null
     var i = n
@@ -513,7 +513,7 @@ public final class VirtualMachine: TrackedObject {
     }
     return res
   }
-  
+
   @inline(__always) private func captureExprs(_ n: Int) -> Exprs {
     var captures = Exprs()
     var i = self.sp &- n
@@ -525,11 +525,11 @@ public final class VirtualMachine: TrackedObject {
     self.sp = self.sp &- n
     return captures
   }
-  
+
   internal func windUp(before: Procedure, after: Procedure, handlers: Expr? = nil) {
     self.winders = Winder(before: before, after: after, handlers: handlers , next: self.winders)
   }
-  
+
   internal func windDown() -> Winder? {
     guard let res = self.winders else {
       return nil
@@ -537,7 +537,7 @@ public final class VirtualMachine: TrackedObject {
     self.winders = res.next
     return res
   }
-  
+
   internal func currentHandlers() -> Expr? {
     var winders = self.winders
     while let w = winders, w.handlers == nil {
@@ -545,11 +545,11 @@ public final class VirtualMachine: TrackedObject {
     }
     return winders?.handlers
   }
-  
+
   internal func getParam(_ param: Procedure) -> Expr? {
     return self.getParameter(.procedure(param))
   }
-  
+
   internal func getParameter(_ param: Expr) -> Expr? {
     guard case .some(.pair(_, .box(let cell))) = self.parameters.get(param) else {
       guard case .procedure(let proc) = param,
@@ -560,11 +560,11 @@ public final class VirtualMachine: TrackedObject {
     }
     return cell.value
   }
-  
+
   internal func setParam(_ param: Procedure, to value: Expr) -> Expr {
     return self.setParameter(.procedure(param), to: value)
   }
-  
+
   internal func setParameter(_ param: Expr, to value: Expr) -> Expr {
     guard case .some(.pair(_, .box(let cell))) = self.parameters.get(param) else {
       guard case .procedure(let proc) = param,
@@ -577,12 +577,12 @@ public final class VirtualMachine: TrackedObject {
     cell.value = value
     return .void
   }
-  
+
   internal func bindParameter(_ param: Expr, to value: Expr) -> Expr {
     self.parameters.add(key: param, mapsTo: .box(Cell(value)))
     return .void
   }
-  
+
   /*
   internal func bindParameters(_ alist: Expr) {
     self.parameters = HashTable(copy: self.parameters, mutable: true)
@@ -593,7 +593,7 @@ public final class VirtualMachine: TrackedObject {
     }
   }
   */
-  
+
   private func exitFrame() {
     let fp = self.registers.fp
     // Determine former ip
@@ -626,7 +626,7 @@ public final class VirtualMachine: TrackedObject {
     self.registers.captured = newcaptured
     self.registers.code = newcode
   }
-  
+
   public func getStackTrace(current: Procedure? = nil) -> [Procedure] {
     var stackTrace: [Procedure] = []
     if let current = current {
@@ -651,7 +651,7 @@ public final class VirtualMachine: TrackedObject {
     }
     return stackTrace
   }
-  
+
   @inline(__always) private func printCallTrace(_ n: Int, tailCall: Bool = false) -> Procedure? {
     if self.traceCalls != .off && self.sp > (n &+ 1) {
       if case .procedure(let proc) = self.stack[self.sp &- n &- 1],
@@ -669,7 +669,7 @@ public final class VirtualMachine: TrackedObject {
     }
     return nil
   }
-  
+
   @inline(__always) private func printReturnTrace(_ proc: Procedure, tailCall: Bool = false) {
     if (self.traceCalls == .on || (self.traceCalls == .byProc && proc.traced)) && self.sp > 0 {
       self.context.delegate.trace(return: proc,
@@ -678,7 +678,7 @@ public final class VirtualMachine: TrackedObject {
                                   in: self)
     }
   }
-  
+
   private func invoke(_ n: inout Int, _ overhead: Int) throws -> Procedure {
     // Get procedure to call
     guard case .procedure(let p) = self.stack[self.sp &- n &- 1] else {
@@ -974,7 +974,7 @@ public final class VirtualMachine: TrackedObject {
     }
     return proc
   }
-  
+
   @inline(__always) private func collectGarbageIfNeeded() {
     self.execInstr = self.execInstr &+ 1
     if self.execInstr % 0b011111111111111111111 == 0 {
@@ -983,17 +983,17 @@ public final class VirtualMachine: TrackedObject {
       // log("[collect garbage; freed up objects: \(res)]")
     }
   }
-  
+
   @inline(__always) private func execute(_ code: Code, as name: String) throws -> Expr {
     self.push(.procedure(Procedure(name, code)))
     return try self.execute(code, args: 0, captured: noExprs)
   }
-  
+
   @inline(__always) private func execute(_ code: Code) throws -> Expr {
     self.push(.procedure(Procedure(code)))
     return try self.execute(code, args: 0, captured: noExprs)
   }
-  
+
   @inline(__always) private func execute(_ code: Code, args: Int, captured: Exprs) throws -> Expr {
     // Use new registers
     let savedRegisters = self.registers
@@ -1020,7 +1020,7 @@ public final class VirtualMachine: TrackedObject {
       throw RuntimeError.os(error).attach(stackTrace: self.getStackTrace())
     }
   }
-  
+
   private func execute() throws -> Expr {
     while self.registers.ip >= 0 && self.registers.ip < self.registers.code.instructions.count {
       guard !self.abortionRequested else {
@@ -1678,7 +1678,7 @@ public final class VirtualMachine: TrackedObject {
     }
     return .null
   }
-  
+
   public override func mark(_ tag: UInt8) {
     for i in 0..<self.sp {
       self.stack[i].mark(tag)
@@ -1688,7 +1688,7 @@ public final class VirtualMachine: TrackedObject {
     self.parameters.mark(tag)
     self.raiseProc?.mark(tag)
   }
-  
+
   /// Debugging output
   private func stackFragmentDescr(_ ip: Int, _ fp: Int, header: String? = nil) -> String {
     var res = header ?? "╔══════════════════════════════════════════════════════\n"

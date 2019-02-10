@@ -24,12 +24,12 @@ import Foundation
 /// Bytevector library: based on R7RS spec.
 ///
 public final class BytevectorLibrary: NativeLibrary {
-  
+
   /// Name of the library.
   public override class var name: [String] {
     return ["lispkit", "bytevector"]
   }
-  
+
   /// Declarations of the library.
   public override func declarations() {
     self.define(Procedure("bytevector?", isBytevector))
@@ -48,7 +48,7 @@ public final class BytevectorLibrary: NativeLibrary {
     self.define(Procedure("bytevector-deflate", bytevectorDeflate))
     self.define(Procedure("bytevector-inflate", bytevectorInflate))
   }
-  
+
   func isBytevector(_ expr: Expr) -> Expr {
     switch expr {
       case .bytes(_):
@@ -57,7 +57,7 @@ public final class BytevectorLibrary: NativeLibrary {
         return .false
     }
   }
-  
+
   func bytevector(_ args: Arguments) throws -> Expr {
     var res = [UInt8]()
     for arg in args {
@@ -65,16 +65,16 @@ public final class BytevectorLibrary: NativeLibrary {
     }
     return .bytes(MutableBox(res))
   }
-  
+
   func makeBytevector(_ len: Expr, byte: Expr?) throws -> Expr {
     return .bytes(MutableBox([UInt8](repeating: try byte?.asUInt8() ?? 0,
                                      count: try len.asInt())))
   }
-  
+
   func bytevectorLength(_ expr: Expr) throws -> Expr {
     return .makeNumber(try expr.asByteVector().value.count)
   }
-  
+
   func bytevectorU8Ref(_ bvec: Expr, index: Expr) throws -> Expr {
     let bvector = try bvec.asByteVector()
     let i = try index.asInt()
@@ -87,7 +87,7 @@ public final class BytevectorLibrary: NativeLibrary {
     }
     return .fixnum(Int64(bvector.value[i]))
   }
-  
+
   func bytevectorU8Set(_ bvec: Expr, index: Expr, expr: Expr) throws -> Expr {
     let bvector = try bvec.asByteVector()
     let i = try index.asInt()
@@ -101,7 +101,7 @@ public final class BytevectorLibrary: NativeLibrary {
     bvector.value[i] = try expr.asUInt8()
     return .void
   }
-  
+
   func bytevectorCopy(_ bvec: Expr, args: Arguments) throws -> Expr {
     let bvector = try bvec.asByteVector()
     guard let (s, e) = args.optional(Expr.makeNumber(bvector.value.count),
@@ -132,7 +132,7 @@ public final class BytevectorLibrary: NativeLibrary {
     }
     return .bytes(MutableBox(res))
   }
-  
+
   func bytevectorCopyInto(_ to: Expr, at: Expr, from: Expr, args: Arguments) throws -> Expr {
     let toVec = try to.asByteVector()
     let toStart = try at.asInt()
@@ -180,7 +180,7 @@ public final class BytevectorLibrary: NativeLibrary {
     }
     return .void
   }
-  
+
   func bytevectorAppend(_ exprs: Arguments) throws -> Expr {
     var res = [UInt8]()
     for expr in exprs {
@@ -188,7 +188,7 @@ public final class BytevectorLibrary: NativeLibrary {
     }
     return .bytes(MutableBox(res))
   }
-  
+
   func utf8ToString(_ bvec: Expr, args: Arguments) throws -> Expr {
     let subvec = try self.subVector("utf8->string", bvec, args)
     var generator = subvec.makeIterator()
@@ -199,7 +199,7 @@ public final class BytevectorLibrary: NativeLibrary {
     }
     return .makeString(str)
   }
-  
+
   func stringToUtf8(_ string: Expr, args: Arguments) throws -> Expr {
     let substr = try self.subString("string->utf8", string, args)
     var res = [UInt8]()
@@ -208,12 +208,12 @@ public final class BytevectorLibrary: NativeLibrary {
     }
     return .bytes(MutableBox(res))
   }
-  
+
   func bytevectorToBase64(_ bvec: Expr, args: Arguments) throws -> Expr {
     return .makeString(Data(bytes:
       try self.subVector("bytevector->base64", bvec, args)).base64EncodedString())
   }
-  
+
   func base64ToBytevector(_ string: Expr, args: Arguments) throws -> Expr {
     let substr = try self.subString("base64->bytevector", string, args)
     guard let data = Data(base64Encoded: substr, options: []) else {
@@ -224,7 +224,7 @@ public final class BytevectorLibrary: NativeLibrary {
     data.copyBytes(to: &res, count: count)
     return .bytes(MutableBox(res))
   }
-  
+
   private func bytevectorDeflate(_ bvec: Expr, args: Arguments) throws -> Expr {
     let subvec = try self.subVector("bytevector-deflate", bvec, args)
     guard let data = Data(bytes: subvec).deflate() else {
@@ -235,7 +235,7 @@ public final class BytevectorLibrary: NativeLibrary {
     data.copyBytes(to: &res, count: count)
     return .bytes(MutableBox(res))
   }
-  
+
   private func bytevectorInflate(_ bvec: Expr, args: Arguments) throws -> Expr {
     let subvec = try self.subVector("bytevector-inflate", bvec, args)
     guard let data = Data(bytes: subvec).inflate() else {
@@ -246,7 +246,7 @@ public final class BytevectorLibrary: NativeLibrary {
     data.copyBytes(to: &res, count: count)
     return .bytes(MutableBox(res))
   }
-  
+
   private func subString(_ procname: String, _ string: Expr, _ args: Arguments) throws -> String {
     let st = try string.asString()
     let str = st.utf16
@@ -278,7 +278,7 @@ public final class BytevectorLibrary: NativeLibrary {
     }
     return String(utf16CodeUnits: uniChars, count: uniChars.count)
   }
-  
+
   private func subVector(_ name: String, _ bvec: Expr, _ args: Arguments) throws -> [UInt8] {
     let bvector = try bvec.asByteVector()
     guard let (s, e) = args.optional(Expr.makeNumber(0),

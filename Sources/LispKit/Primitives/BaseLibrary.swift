@@ -20,17 +20,17 @@
 
 
 public final class BaseLibrary: NativeLibrary {
-  
+
   /// Name of the library.
   public override class var name: [String] {
     return ["lispkit", "base"]
   }
-  
+
   /// Exported definitions.
   public override func reexports() throws {
     try self.exportAll()
   }
-  
+
   /// Dependencies of the library.
   public override func dependencies() {
     self.import(from: CoreLibrary.name)

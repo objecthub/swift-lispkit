@@ -35,35 +35,35 @@ public final class HTTPInputStream: BinaryInputSource {
 
   /// A condition object used to synchronize changes between tasks and the input stream object
   fileprivate let condition = NSCondition()
-  
+
   /// The target URL of the request
   public let url: URL
-  
+
   /// The network task associated with this input stream
   private var task: URLSessionTask? = nil
-  
+
   /// The HTTP response header object once it was received
   fileprivate var response: HTTPURLResponse? = nil
-  
+
   /// Data of the body of the HTTP response
   public fileprivate(set) var data: Data
-  
+
   public private(set) var readIndex: Data.Index
-  
+
   /// Number of bytes that were received from the HTTP GET request
   public fileprivate(set) var bytesReceived: Int64 = 0
-  
+
   /// If an error was encountered, it is being stored here
   public fileprivate(set) var error: Error? = nil
-  
+
   /// Returns `false` as long as this input stream is connected to a network task.
   public fileprivate(set) var completed: Bool = false
-  
+
   private static let sessionDelegate = SessionDelegate()
-  
+
   /// The default request timeout
   public static let defaultTimeout: Double = 60.0
-  
+
   public private(set) static var session: URLSession = {
     let configuration = URLSessionConfiguration.default
     configuration.requestCachePolicy = .useProtocolCachePolicy
@@ -72,7 +72,7 @@ public final class HTTPInputStream: BinaryInputSource {
                       delegate: HTTPInputStream.sessionDelegate,
                       delegateQueue: nil)
   }()
-  
+
   public init?(url: URL) {
     guard let scheme = url.scheme, scheme == "http" || scheme == "https" else {
       return nil
@@ -81,11 +81,11 @@ public final class HTTPInputStream: BinaryInputSource {
     self.data = Data()
     self.readIndex = self.data.startIndex
   }
-  
+
   public func open() {
     self.open(timeout: HTTPInputStream.defaultTimeout)
   }
-  
+
   public func open(timeout: Double) {
     guard self.task == nil && !self.completed else {
       return
@@ -100,7 +100,7 @@ public final class HTTPInputStream: BinaryInputSource {
     self.task = task
     task.resume()
   }
-  
+
   public func close() {
     if !self.completed {
       if let task = self.task {
@@ -111,7 +111,7 @@ public final class HTTPInputStream: BinaryInputSource {
       }
     }
   }
-  
+
   public func read(_ buffer: UnsafeMutablePointer<UInt8>, maxLength len: Int) -> Int {
     self.condition.lock()
     while !self.completed && self.readIndex == self.data.endIndex {
@@ -124,11 +124,11 @@ public final class HTTPInputStream: BinaryInputSource {
     self.condition.unlock()
     return bytesRead
   }
-  
+
   public var hasBytesAvailable: Bool {
     return !self.completed || self.readIndex < self.data.endIndex
   }
-  
+
   /// Waits until a response was received (or the request was terminated)
   public func waitForResponse() {
     self.condition.lock()
@@ -137,7 +137,7 @@ public final class HTTPInputStream: BinaryInputSource {
     }
     self.condition.unlock()
   }
-  
+
   /// Waits until all data was received (or the request was terminated)
   public func waitForData() {
     self.condition.lock()
@@ -146,12 +146,12 @@ public final class HTTPInputStream: BinaryInputSource {
     }
     self.condition.unlock()
   }
-  
+
   /// The status code of the HTTP response
   public var statusCode: Int? {
     return self.response?.statusCode
   }
-  
+
   /// A textual description of the status code of the HTTP response
   public var statusCodeDescription: String? {
     guard let statusCode = self.statusCode else {
@@ -159,27 +159,27 @@ public final class HTTPInputStream: BinaryInputSource {
     }
     return HTTPURLResponse.localizedString(forStatusCode: statusCode)
   }
-  
+
   /// The number of bytes that are supposed to be read
   public var expectedContentLength: Int64? {
     return self.response?.expectedContentLength
   }
-  
+
   /// The name of the text encoding.
   public var textEncodingName: String? {
     return self.response?.textEncodingName
   }
-  
+
   /// The mime type name.
   public var mimeType: String? {
     return self.response?.mimeType
   }
-  
+
   /// The URL of the response.
   public var responseUrl: URL? {
     return self.response?.url
   }
-  
+
   /// All header fields of the HTTP response.
   public var headerFields: [String : String]? {
     guard let response = self.response else {
@@ -199,13 +199,13 @@ fileprivate class SessionDelegate: NSObject,
                                    URLSessionDelegate,
                                    URLSessionTaskDelegate,
                                    URLSessionDataDelegate {
-  
+
   private var inputStreamForTask: [Int : HTTPInputStream] = [:]
-  
+
   public func registerTask(_ task: URLSessionTask, forStream stream: HTTPInputStream) {
     self.inputStreamForTask[task.taskIdentifier] = stream
   }
-  
+
   /// This callback is the last one done for each task. Mark the
   public func urlSession(_ session: URLSession,
                          task: URLSessionTask,
@@ -220,7 +220,7 @@ fileprivate class SessionDelegate: NSObject,
     inputStream.condition.signal()
     inputStream.condition.unlock()
   }
-  
+
   public func urlSession(_ session: URLSession,
                          dataTask task: URLSessionDataTask,
                          didReceive response: URLResponse,
@@ -237,7 +237,7 @@ fileprivate class SessionDelegate: NSObject,
     inputStream.condition.unlock()
     completionHandler(.allow)
   }
-  
+
   public func urlSession(_ session: URLSession,
                          dataTask task: URLSessionDataTask,
                          didReceive data: Data) {

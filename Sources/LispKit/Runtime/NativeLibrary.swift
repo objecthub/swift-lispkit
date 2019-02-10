@@ -24,10 +24,10 @@
 /// `export` method with declarations of constants, procedures, and special forms.
 ///
 open class NativeLibrary: Library {
-  
+
   /// Maps internal identifiers of internal mutable definitions to locations
   public internal(set) var internals: [Symbol : Int]
-  
+
   /// Initialize native library by providing a hook that programmatically sets up the
   /// declarations of this library.
   public required init(in context: Context) throws {
@@ -35,7 +35,7 @@ open class NativeLibrary: Library {
     try super.init(name: Library.name(type(of: self).name, in: context), in: context)
     self.declarations()
   }
-  
+
   /// This method overrides `initializationEnvironment` to also include the internal definitions
   /// in the environment.
   internal override func initializationEnvironment() throws -> Environment {
@@ -45,7 +45,7 @@ open class NativeLibrary: Library {
     }
     return environment
   }
-  
+
   /// This method overrides `allocate` from the `Library` initialization protocol to provide
   /// a hook for importing definitions used later during initialization.
   public override func allocate() throws -> Bool {
@@ -61,7 +61,7 @@ open class NativeLibrary: Library {
     }
     return false
   }
-  
+
   /// This method overrides `wire` from the `Library` initialization protocol to provide
   /// a hook for getting access to imported definitions.
   public override func wire() throws -> Bool {
@@ -71,44 +71,44 @@ open class NativeLibrary: Library {
     }
     return false
   }
-  
+
   /// This is the name of the native library. This needs to be overridden in subclasses.
   open class var name: [String] {
     preconditionFailure("native library missing name")
   }
-  
+
   /// The `declarations` method needs to be overridden in subclasses of `NativeLibrary`. These
   /// overriding implementations declare all bindings that are exported or used
   /// internally by the library.
   open func declarations() {
     // This method needs to be overridden for concrete native libraries.
   }
-  
+
   /// The `dependencies` method needs to be overridden in subclasses of `NativeLibrary`.
   /// These overriding implementations import all bindings that are needed in declarations
   /// that are getting compiled during initialization.
   open func dependencies() {
     // This method needs to be overridden for concrete native libraries.
   }
-  
+
   /// The `exports` method needs to be overridden in subclasses of `NativeLibrary`. It can be
   /// used to declare exported bindings from imports.
   open func reexports() throws {
     // This method needs to be overridden for concrete native libraries.
   }
-  
+
   /// The `initializations` method needs to be overrideen in subclasses of `NativeLibrary` if the
   /// subclass needs access to the locations of imported methods.
   open func initializations() {
     // This method needs to be overridden for concrete native libraries.
   }
-  
+
   /// Imports the definitions described by the given import set. This method can only be used in
   /// the `dependencies` method of a subclass.
   public func `import`(_ importSet: ImportSet) {
     self.importDecls.append(importSet)
   }
-  
+
   /// Imports the definitions `idents` from `library`. This method can only be used in the
   /// `dependencies` method of a subclass.
   public func `import`(from library: [String], _ idents: String...) {
@@ -122,7 +122,7 @@ open class NativeLibrary: Library {
       self.importDecls.append(.only(syms, .library(Library.name(library, in: self.context))))
     }
   }
-  
+
   /// Exports all bindings from this library that are also exported by the imported library
   /// `library`. This method fails if the library is unknown or was not imported before.
   /// Bindings whose identifier starts with `_` are not re-exported.
@@ -144,21 +144,21 @@ open class NativeLibrary: Library {
       }
     }
   }
-  
+
   /// Exports all bindings from this library that are also exported by the library identified
   /// by `library`. This method fails if the library is unknown or was not imported before.
   /// Bindings whose identifier starts with `_` are not re-exported.
   public func export(from library: [String]) throws {
     try self.export(from: self.context.libraries.name(library))
   }
-  
+
   /// Exports all bindings from all libraries imported by this library.
   public func exportAll() throws {
     for library in self.libraries {
       try self.export(from: library.name)
     }
   }
-  
+
   /// Declares a new definition for name `name` assigned to `expr`. The optional parameter
   /// `mutable` determines whether the definition can be mutated. `export` determines whether
   /// the definition is exported or internal.
@@ -181,19 +181,19 @@ open class NativeLibrary: Library {
     }
     return location
   }
-  
+
   /// Declares a new definition for the given procedure `proc` using the internal name of `proc`.
   /// The optional parameter `export` determines whether the definition is exported or internal.
   @discardableResult public func define(_ proc: Procedure, export: Bool = true) -> Int {
     return self.define(proc.name, as: .procedure(proc), export: export)
   }
-  
+
   /// Declares a new special form using the internal name of `spec`.
   /// The optional parameter `export` determines whether the definition is exported or internal.
   @discardableResult public func define(_ spec: SpecialForm, export: Bool = true) -> Int {
     return self.define(spec.name, as: .special(spec), export: export)
   }
-  
+
   /// Declares a new definition for the given procedure `proc` and name `name`. The optional
   /// parameter `export` determines whether the definition is exported or internal.
   @discardableResult public func define(_ name: String,
@@ -201,7 +201,7 @@ open class NativeLibrary: Library {
                                         export: Bool = true) -> Int {
     return self.define(name, as: .procedure(proc), export: export)
   }
-  
+
   /// Declares a new syntactical definition for the given special form `special` and name
   /// `name`. The optional parameter `export` determines whether the definition is exported
   /// or internal.
@@ -210,7 +210,7 @@ open class NativeLibrary: Library {
                                         export: Bool = true) -> Int {
     return self.define(name, as: .special(special), export: export)
   }
-  
+
   /// Declares a new exported definition expressed in terms of source code.
   @discardableResult public func define(_ name: String,
                                         mutable: Bool = false,
@@ -220,7 +220,7 @@ open class NativeLibrary: Library {
     self.execute(code: via.reduce("", +))
     return res
   }
-  
+
   /// Adds the given expression to the initialization declarations of this library.
   public func execute(expr: Expr) {
     if let block = self.initDeclBlocks.last, block.sourceDirectory == nil {
@@ -229,7 +229,7 @@ open class NativeLibrary: Library {
       self.initDeclBlocks.append(DeclBlock(decls: [expr]))
     }
   }
-  
+
   /// Parses the given string and adds the resulting expression to the initialization
   /// declarations of this library.
   public func execute(code: String) {
@@ -246,23 +246,23 @@ open class NativeLibrary: Library {
       preconditionFailure()
     }
   }
-  
+
   public func execute(_ source: String...) {
     self.execute(code: source.reduce("", +))
   }
-  
+
   /// Returns the location of the imported symbol. This method can only be used in the
   /// `dependencies` method of subclasses.
   public func imported(_ symbol: Symbol) -> Int {
     return self.imports[symbol]!.location
   }
-  
+
   /// Returns the location of the imported symbol, identified by string `str`. This method can
   /// only be used in the `dependencies` method of subclasses.
   public func imported(_ str: String) -> Int {
     return self.imported(self.context.symbols.intern(str))
   }
-  
+
   /// Returns the native library for the given implementation (if imported).
   public func nativeLibrary<T: NativeLibrary>(_: T.Type) -> T? {
     for library in self.libraries {
@@ -272,7 +272,7 @@ open class NativeLibrary: Library {
     }
     return nil
   }
-  
+
   /// Returns the procedure at the given location. This method fails if there is no procedure
   /// at the given location. This method can only be used in native procedure implementations to
   /// refer to other procedures (that are imported, or defined internally).
@@ -283,7 +283,7 @@ open class NativeLibrary: Library {
     }
     return proc
   }
-  
+
   /// Invokes the given instruction `instr` with parameter `expr` in environment `env` for
   /// compiler `compiler`. This method must only be used in form compilers.
   public func invoke(_ instrs: Instruction...,

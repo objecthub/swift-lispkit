@@ -27,7 +27,7 @@ public struct StringBuilder: CustomStringConvertible {
   private let separator: String?
   private var initial: String?
   private var requiresSeparator: Bool
-  
+
   public init(prefix: String = "",
               postfix: String = "",
               separator: String? = nil,
@@ -38,11 +38,11 @@ public struct StringBuilder: CustomStringConvertible {
     self.initial = initial
     self.requiresSeparator = false
   }
-  
+
   public var description: String {
     return buffer + postfix
   }
-  
+
   public mutating func append(_ strs: String...) {
     if self.requiresSeparator {
       self.buffer += self.separator!
@@ -57,7 +57,7 @@ public struct StringBuilder: CustomStringConvertible {
       self.buffer += str
     }
   }
-  
+
   public mutating func append(_ str: String, width: Int, alignRight: Bool = false) {
     let pad = width - str.count
     if alignRight {
@@ -66,15 +66,15 @@ public struct StringBuilder: CustomStringConvertible {
       self.append(str, StringBuilder.padding(pad))
     }
   }
-  
+
   public mutating func append(_ num: Int) {
     self.append(String(num))
   }
-  
+
   public mutating func append(_ num: Int, width: Int, alignRight: Bool = false) {
     self.append(String(num), width: width, alignRight: alignRight)
   }
-  
+
   public mutating func appendNewline() {
     if self.requiresSeparator {
       self.buffer += separator!

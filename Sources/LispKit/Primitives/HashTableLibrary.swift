@@ -25,29 +25,29 @@ import NumberKit
 /// Hashtable library: based on R6RS spec.
 ///
 public final class HashTableLibrary: NativeLibrary {
-  
+
   private static let equalHashProc = Procedure("equal-hash", HashTableLibrary.equalHashVal)
   private static let eqvHashProc   = Procedure("eqv-hash", HashTableLibrary.eqvHashVal)
   private static let eqHashProc    = Procedure("eq-hash", HashTableLibrary.eqHashVal)
-  
+
   private static let defaultCapacity = 127
-  
+
   private var bucketsProc: Procedure! = nil
   private var bucketAddProc: Procedure! = nil
   private var bucketDelProc: Procedure! = nil
   private var equalProc: Procedure! = nil
   private var eqvProc: Procedure! = nil
   private var eqProc: Procedure! = nil
-  
+
   private var hashtableUnionLoc = 0
   private var hashtableIntersectionLoc = 0
   private var hashtableDifferenceLoc = 0
-  
+
   /// Name of the library.
   public override class var name: [String] {
     return ["lispkit", "hashtable"]
   }
-  
+
   /// Dependencies of the library.
   public override func dependencies() {
     self.`import`(from: ["lispkit", "core"],    "define", "lambda", "equal?", "eqv?", "eq?", "not",
@@ -58,14 +58,14 @@ public final class HashTableLibrary: NativeLibrary {
     self.`import`(from: ["lispkit", "math"],    ">", "+", "*")
     self.`import`(from: ["lispkit", "vector"],  "vector-for-each")
   }
-  
+
   /// Access to imported native procedures.
   public override func initializations() {
     self.equalProc = self.procedure(self.imported("equal?"))
     self.eqvProc = self.procedure(self.imported("eqv?"))
     self.eqProc = self.procedure(self.imported("eq?"))
   }
-  
+
   /// Declarations of the library.
   public override func declarations() {
     self.bucketsProc = Procedure("_buckets", self.hBuckets)
@@ -184,7 +184,7 @@ public final class HashTableLibrary: NativeLibrary {
     self.define(Procedure("string-ci-hash", stringCiHashVal))
     self.define(Procedure("symbol-hash", symbolHashVal))
   }
-  
+
   func makeHashTable(_ capacity: Expr, _ eql: Expr, _ hsh: Expr, _ args: Arguments) throws -> Expr {
     guard args.count == 3 else {
       throw RuntimeError.argumentCount(
@@ -211,29 +211,29 @@ public final class HashTableLibrary: NativeLibrary {
       return .table(HashTable(capacity: numBuckets, mutable: true, equiv: .custom(procs)))
     }
   }
-  
+
   func makeEqHashTable(_ capacity: Expr?) throws -> Expr {
     let numBuckets = try capacity?.asInt() ?? HashTableLibrary.defaultCapacity
     return .table(HashTable(capacity: numBuckets, mutable: true, equiv: .eq))
   }
-  
+
   func makeEqvHashTable(_ capacity: Expr?) throws -> Expr {
     let numBuckets = try capacity?.asInt() ?? HashTableLibrary.defaultCapacity
     return .table(HashTable(capacity: numBuckets, mutable: true, equiv: .eqv))
   }
-  
+
   func makeEqualHashTable(_ capacity: Expr?) throws -> Expr {
     let numBuckets = try capacity?.asInt() ?? HashTableLibrary.defaultCapacity
     return .table(HashTable(capacity: numBuckets, mutable: true, equiv: .equal))
   }
-  
+
   func isHashTable(_ expr: Expr) -> Expr {
     guard case .table(_) = expr else {
       return .false
     }
     return .true
   }
-  
+
   func isEqHashTable(_ expr: Expr) -> Expr {
     guard case .table(let table) = expr,
           case .eq = table.equiv else {
@@ -241,7 +241,7 @@ public final class HashTableLibrary: NativeLibrary {
     }
     return .true
   }
-  
+
   func isEqvHashTable(_ expr: Expr) -> Expr {
     guard case .table(let table) = expr,
           case .eqv = table.equiv else {
@@ -249,7 +249,7 @@ public final class HashTableLibrary: NativeLibrary {
     }
     return .true
   }
-  
+
   func isEqualHashTable(_ expr: Expr) -> Expr {
     guard case .table(let table) = expr,
           case .equal = table.equiv else {
@@ -257,23 +257,23 @@ public final class HashTableLibrary: NativeLibrary {
     }
     return .true
   }
-  
+
   func isHashTableMutable(_ expr: Expr) -> Expr {
     guard case .table(let table) = expr else {
       return .false
     }
     return .makeBoolean(table.mutable)
   }
-  
+
   func hashTableSize(_ expr: Expr) throws -> Expr {
     return .fixnum(Int64(try expr.asHashTable().count))
   }
-  
+
   func hashTableLoad(_ expr: Expr) throws -> Expr {
     let map = try expr.asHashTable()
     return .makeNumber(Double(map.count) / Double(map.bucketCount))
   }
-  
+
   func hashTableGet(_ args: Arguments) throws -> (Procedure, Exprs) {
     try EvalError.assert(args, count: 2)
     let map = try args[args.startIndex].asHashTable()
@@ -283,7 +283,7 @@ public final class HashTableLibrary: NativeLibrary {
     }
     return (procs.get, [.table(map), .procedure(self.bucketsProc), key])
   }
-  
+
   func hashTableAdd(_ args: Arguments) throws -> (Procedure, Exprs) {
     try EvalError.assert(args, count: 3)
     let map = try args.first!.asHashTable()
@@ -304,7 +304,7 @@ public final class HashTableLibrary: NativeLibrary {
                         key,
                         value])
   }
-  
+
   func hashTableRemove(_ args: Arguments) throws -> (Procedure, Exprs) {
     try EvalError.assert(args, count: 2)
     let map = try args.first!.asHashTable()
@@ -323,12 +323,12 @@ public final class HashTableLibrary: NativeLibrary {
                         .procedure(self.bucketDelProc),
                         key])
   }
-  
+
   func hashTableCopy(_ expr: Expr, mutable: Expr?) throws -> Expr {
     let map = try expr.asHashTable()
     return .table(HashTable(copy: map, mutable: mutable == .true))
   }
-  
+
   func hashTableClear(_ expr: Expr, k: Expr?) throws -> Expr {
     let map = try expr.asHashTable()
     guard map.mutable else {
@@ -339,7 +339,7 @@ public final class HashTableLibrary: NativeLibrary {
     }
     return .void
   }
-  
+
   func hashTableUnion(_ args: Arguments) throws -> (Procedure, Exprs) {
     try EvalError.assert(args, count: 2)
     let map1 = try args.first!.asHashTable()
@@ -355,7 +355,7 @@ public final class HashTableLibrary: NativeLibrary {
     }
     return (self.procedure(self.hashtableUnionLoc), [.table(map1), .table(map2)])
   }
-  
+
   func hashTableIntersection(_ args: Arguments) throws -> (Procedure, Exprs) {
     try EvalError.assert(args, count: 2)
     let map1 = try args.first!.asHashTable()
@@ -371,7 +371,7 @@ public final class HashTableLibrary: NativeLibrary {
     }
     return (self.procedure(self.hashtableIntersectionLoc), [.table(map1), .table(map2)])
   }
-  
+
   func hashTableDifference(_ args: Arguments) throws -> (Procedure, Exprs) {
     try EvalError.assert(args, count: 2)
     let map1 = try args.first!.asHashTable()
@@ -387,39 +387,39 @@ public final class HashTableLibrary: NativeLibrary {
     }
     return (self.procedure(self.hashtableDifferenceLoc), [.table(map1), .table(map2)])
   }
-  
+
   func hashTableKeys(_ expr: Expr) throws -> Expr {
     return .vector(Collection(kind: .immutableVector, exprs: try expr.asHashTable().keys))
   }
-  
+
   func hashTableValues(_ expr: Expr) throws -> Expr {
     return .vector(Collection(kind: .immutableVector, exprs: try expr.asHashTable().values))
   }
-  
+
   func hashTableEntries(_ expr: Expr) throws -> Expr {
     return .values(
       .pair(.vector(Collection(kind: .immutableVector, exprs: try expr.asHashTable().keys)),
             .pair(.vector(Collection(kind: .immutableVector, exprs: try expr.asHashTable().values)),
                   .null)))
   }
-  
+
   func hashTableKeyList(_ expr: Expr) throws -> Expr {
     return try expr.asHashTable().keyList()
   }
-  
+
   func hashTableValueList(_ expr: Expr) throws -> Expr {
     return try expr.asHashTable().valueList()
   }
-  
+
   func hashTableToAlist(_ expr: Expr) throws -> Expr {
     return try expr.asHashTable().entryList()
   }
-  
+
   private func newHashTable(_ equiv: HashTable.Equivalence, capacity: Int?) -> HashTable {
     let numBuckets = capacity ?? HashTableLibrary.defaultCapacity
     return HashTable(capacity: numBuckets, mutable: true, equiv: equiv)
   }
-  
+
   private func enterAlist(_ expr: Expr, into map: HashTable) throws {
     var list = expr
     while case .pair(.pair(let key, let value), let cdr) = list {
@@ -430,25 +430,25 @@ public final class HashTableLibrary: NativeLibrary {
       throw RuntimeError.type(expr, expected: [.assocListType])
     }
   }
-  
+
   func alistToEqHashTable(_ expr: Expr, capacity: Expr?) throws -> Expr {
     let table = self.newHashTable(.eq, capacity: try capacity?.asInt())
     try self.enterAlist(expr, into: table)
     return .table(table)
   }
-  
+
   func alistToEqvHashTable(_ expr: Expr, capacity: Expr?) throws -> Expr {
     let table = self.newHashTable(.eqv, capacity: try capacity?.asInt())
     try self.enterAlist(expr, into: table)
     return .table(table)
   }
-  
+
   func alistToEqualHashTable(_ expr: Expr, capacity: Expr?) throws -> Expr {
     let table = self.newHashTable(.equal, capacity: try capacity?.asInt())
     try self.enterAlist(expr, into: table)
     return .table(table)
   }
-  
+
   func hashTableEquivalenceFunction(_ expr: Expr) throws -> Expr {
     switch try expr.asHashTable().equiv {
       case .eq:
@@ -461,7 +461,7 @@ public final class HashTableLibrary: NativeLibrary {
         return .procedure(procs.eql)
     }
   }
-  
+
   func hashTableHashFunction(_ expr: Expr) throws -> Expr {
     switch try expr.asHashTable().equiv {
       case .eq, .eqv:
@@ -472,40 +472,40 @@ public final class HashTableLibrary: NativeLibrary {
         return .procedure(procs.hsh)
     }
   }
-  
+
   private static func eqHashVal(_ expr: Expr) -> Expr {
     return .fixnum(Int64(eqHash(expr)))
   }
-  
+
   private static func eqvHashVal(_ expr: Expr) -> Expr {
     return .fixnum(Int64(eqvHash(expr)))
   }
-  
+
   private static func equalHashVal(_ expr: Expr) -> Expr {
     return .fixnum(Int64(equalHash(expr)))
   }
-  
+
   func stringHashVal(_ expr: Expr) throws -> Expr {
     guard case .string(_) = expr else {
       throw RuntimeError.type(expr, expected: [.strType])
     }
     return .fixnum(Int64(expr.hashValue))
   }
-  
+
   func stringCiHashVal(_ expr: Expr) throws -> Expr {
     guard case .string(let str) = expr else {
       throw RuntimeError.type(expr, expected: [.strType])
     }
     return .fixnum(Int64(str.lowercased.hashValue))
   }
-  
+
   func symbolHashVal(_ expr: Expr) throws -> Expr {
     guard case .symbol(_) = expr else {
       throw RuntimeError.type(expr, expected: [.symbolType])
     }
     return .fixnum(Int64(expr.hashValue))
   }
-  
+
   private func bucket(_ hval: Expr, _ numBuckets: Int) throws -> Int {
     switch hval {
       case .fixnum(let num):
@@ -518,7 +518,7 @@ public final class HashTableLibrary: NativeLibrary {
         throw RuntimeError.type(hval, expected: [.exactIntegerType])
     }
   }
-  
+
   private func hBuckets(_ expr: Expr, hval: Expr?) throws -> Expr {
     let map = try expr.asHashTable()
     if let hashValue = hval {
@@ -527,7 +527,7 @@ public final class HashTableLibrary: NativeLibrary {
       return map.bucketList()
     }
   }
-  
+
   private func hBucketAdd(_ expr: Expr, hval: Expr, key: Expr, value: Expr) throws -> Expr {
     guard case .table(let map) = expr else {
       throw RuntimeError.type(expr, expected: [.tableType])
@@ -538,7 +538,7 @@ public final class HashTableLibrary: NativeLibrary {
     map.add(try self.bucket(hval, map.bucketCount), key, value)
     return .void
   }
-  
+
   private func hBucketRepl(_ expr: Expr, hval: Expr, bucket: Expr) throws -> Expr {
     guard case .table(let map) = expr else {
       throw RuntimeError.type(expr, expected: [.tableType])

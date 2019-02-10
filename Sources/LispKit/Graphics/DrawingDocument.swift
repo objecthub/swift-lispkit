@@ -28,37 +28,37 @@ import CoreGraphics
 /// a PDF document.
 ///
 public final class DrawingDocument: Reference {
-  
+
   /// The title of the collection.
   public var title: String?
-  
+
   /// The author of the collection.
   public var author: String?
-  
+
   /// The creator of the collection.
   public var creator: String?
-  
+
   /// The subject of the collection.
   public var subject: String?
-  
+
   /// Keywords describing the collection
   public var keywords: String?
-  
+
   /// The owner's password
   public var ownerPassword: String?
-  
+
   /// A user password
   public var userPassword: String?
-  
+
   /// Can this collection be printed?
   public var allowsPrinting: Bool = true
-  
+
   /// Can this collection be copied (copy/pasted)?
   public var allowsCopying: Bool = true
-  
+
   /// Internal representation of the various pages of the drawing collection.
   public private(set) var pages: [Page]
-  
+
   /// Initializer
   public init (title: String? = nil,
                author: String? = nil,
@@ -72,7 +72,7 @@ public final class DrawingDocument: Reference {
     self.subject = subject
     self.keywords = keywords
   }
-  
+
   /// Append a new drawing to the collection.
   public func append(_ drawing: Drawing,
                      flipped: Bool = false,
@@ -80,7 +80,7 @@ public final class DrawingDocument: Reference {
                      height: Int) {
     self.pages.append(Page(drawing: drawing, flipped: flipped, width: width, height: height))
   }
-  
+
   /// Save the collection as a PDF file to URL `url`.
   public func saveAsPDF(url: URL) -> Bool {
     // First check if we can write to the URL
@@ -134,14 +134,14 @@ public final class DrawingDocument: Reference {
     cgc.closePDF()
     return true
   }
-  
+
   /// Representation of a page.
   public struct Page {
     public let drawing: Drawing
     public let flipped: Bool
     public let width: Int
     public let height: Int
-    
+
     fileprivate func createPDFPage(in cgc: CGContext) {
       var mediaBox = NSRect(x: 0, y: 0, width: Double(self.width), height: Double(self.height))
       let pageInfo: NSDictionary = [
