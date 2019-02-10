@@ -202,58 +202,58 @@ public final class CharSet: Reference {
   // Definiton of default character sets
 
   public class func lowercaseLetters() -> CharSet {
-    return CharSet.mapCharacterSet(nscs: CharacterSet.lowercaseLetters as NSCharacterSet)
+    return CharSet.mapCharacterSet(cs: .lowercaseLetters)
   }
 
   public class func uppercaseLetters() -> CharSet {
-    return CharSet.mapCharacterSet(nscs: CharacterSet.uppercaseLetters as NSCharacterSet)
+    return CharSet.mapCharacterSet(cs: .uppercaseLetters)
   }
 
   public class func titlecaseLetters() -> CharSet {
-    return CharSet.mapCharacterSet(nscs: CharacterSet.capitalizedLetters as NSCharacterSet)
+    return CharSet.mapCharacterSet(cs: .capitalizedLetters)
   }
 
   public class func letters() -> CharSet {
-    return CharSet.mapCharacterSet(nscs: CharacterSet.letters as NSCharacterSet)
+    return CharSet.mapCharacterSet(cs: .letters)
   }
 
   public class func digits() -> CharSet {
-    return CharSet.mapCharacterSet(nscs: CharacterSet.decimalDigits as NSCharacterSet)
+    return CharSet.mapCharacterSet(cs: .decimalDigits)
   }
 
   public class func lettersAndDigits() -> CharSet {
-    return CharSet.mapCharacterSet(nscs: CharacterSet.alphanumerics as NSCharacterSet)
+    return CharSet.mapCharacterSet(cs: .alphanumerics)
   }
 
   public class func graphics() -> CharSet {
-    return CharSet.mapCharacterSet(nscs: CharacterSet.symbols as NSCharacterSet,
-      target: CharSet.mapCharacterSet(nscs: CharacterSet.punctuationCharacters as NSCharacterSet,
-        target: CharSet.mapCharacterSet(nscs: CharacterSet.alphanumerics as NSCharacterSet)))
+    return CharSet.mapCharacterSet(cs: .symbols,
+      target: CharSet.mapCharacterSet(cs: .punctuationCharacters,
+        target: CharSet.mapCharacterSet(cs: .alphanumerics)))
   }
 
   public class func printing() -> CharSet {
-    return CharSet.mapCharacterSet(nscs: CharacterSet.whitespacesAndNewlines as NSCharacterSet,
+    return CharSet.mapCharacterSet(cs: .whitespacesAndNewlines,
       target: CharSet.graphics())
   }
 
   public class func whitespaces() -> CharSet {
-    return CharSet.mapCharacterSet(nscs: CharacterSet.whitespacesAndNewlines as NSCharacterSet)
+    return CharSet.mapCharacterSet(cs: .whitespacesAndNewlines)
   }
 
   public class func blanks() -> CharSet {
-    return CharSet.mapCharacterSet(nscs: CharacterSet.whitespaces as NSCharacterSet)
+    return CharSet.mapCharacterSet(cs: .whitespaces)
   }
 
   public class func controls() -> CharSet {
-    return CharSet.mapCharacterSet(nscs: CharacterSet.controlCharacters as NSCharacterSet)
+    return CharSet.mapCharacterSet(cs: .controlCharacters)
   }
 
   public class func punctuations() -> CharSet {
-    return CharSet.mapCharacterSet(nscs: CharacterSet.punctuationCharacters as NSCharacterSet)
+    return CharSet.mapCharacterSet(cs: .punctuationCharacters)
   }
 
   public class func symbols() -> CharSet {
-    return CharSet.mapCharacterSet(nscs: CharacterSet.symbols as NSCharacterSet)
+    return CharSet.mapCharacterSet(cs: .symbols)
   }
 
   public class func hexdigits() -> CharSet {
@@ -282,5 +282,9 @@ public final class CharSet: Reference {
       }
     }
     return res
+  }
+
+  public class func mapCharacterSet(cs: CharacterSet, target: CharSet? = nil) -> CharSet {
+    return mapCharacterSet(cs: .cs, target: target)
   }
 }
