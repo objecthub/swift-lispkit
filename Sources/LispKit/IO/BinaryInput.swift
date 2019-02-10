@@ -179,7 +179,7 @@ open class BinaryInput: IteratorProtocol {
   open func readMany(_ n: Int) -> [UInt8]? {
     assert(n >= 0, "BinaryInput.readMany called with negative count")
     guard n > 0 else {
-      return [UInt8]()
+      return []
     }
     var res = [UInt8]()
     for _ in 0..<n {

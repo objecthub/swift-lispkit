@@ -287,8 +287,8 @@ private final class Matches: CustomStringConvertible {
   private var matchedVal: [Symbol : MatchTree]
 
   fileprivate init(_ syms: Set<Symbol>) {
-    self.generatedSym = [Symbol : Symbol]()
-    self.matchedVal = [Symbol : MatchTree]()
+    self.generatedSym = [:]
+    self.matchedVal = [:]
     for sym in syms {
       self.matchedVal[sym] = MatchTree()
     }
@@ -376,7 +376,7 @@ private final class MatchTree: CustomStringConvertible {
     case parent(MutableBox<[Node]>)
 
     fileprivate init() {
-      self = .parent(MutableBox([Node]()))
+      self = .parent(MutableBox([]))
     }
 
     fileprivate func appendChild(_ node: Node) {

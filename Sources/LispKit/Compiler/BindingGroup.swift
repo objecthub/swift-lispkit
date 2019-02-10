@@ -105,7 +105,7 @@ public final class BindingGroup: Reference, CustomStringConvertible {
   public init(owner: Compiler, parent: Env, nextIndex: (() -> Int)? = nil) {
     self.owner = owner
     self.parent = parent
-    self.bindings = [Symbol: Definition]()
+    self.bindings = [:]
     self.nextIndex = nextIndex == nil ? owner.nextLocalIndex : nextIndex!
     self.checkpoint = owner.checkpointer.checkpoint()
     super.init()

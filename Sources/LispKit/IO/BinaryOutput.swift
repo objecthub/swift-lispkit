@@ -46,7 +46,7 @@ open class BinaryOutput {
 
   /// Initializes a new `BinaryOutput` that is not backed by an output stream.
   public init() {
-    self.buffer = [UInt8]()
+    self.buffer = []
     self.next = 0
     self.output = nil
     self.url = nil

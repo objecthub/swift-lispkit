@@ -37,7 +37,7 @@ public final class CaptureGroup: CustomStringConvertible {
   public init(owner: Compiler, parent: CaptureGroup? = nil) {
     self.owner = owner
     self.parent = parent
-    self.captures = [Definition: Capture]()
+    self.captures = [:]
   }
 
   public func capture(_ def: Definition, from: BindingGroup) -> Int {
