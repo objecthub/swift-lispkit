@@ -46,18 +46,18 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
   }
 
   public class func lexical(_ error: LexicalError,
-                            at pos: SourcePosition = SourcePosition.unknown) -> RuntimeError {
-    return RuntimeError(pos, ErrorDescriptor.lexical(error), [])
+                            at pos: SourcePosition = .unknown) -> RuntimeError {
+    return RuntimeError(pos, .lexical(error), [])
   }
 
   public class func syntax(_ error: SyntaxError,
-                           at pos: SourcePosition = SourcePosition.unknown) -> RuntimeError {
-    return RuntimeError(pos, ErrorDescriptor.syntax(error), [])
+                           at pos: SourcePosition = .unknown) -> RuntimeError {
+    return RuntimeError(pos, .syntax(error), [])
   }
 
   public class func type(_ expr: Expr,
                          expected: Set<Type>,
-                         at pos: SourcePosition = SourcePosition.unknown) -> RuntimeError {
+                         at pos: SourcePosition = .unknown) -> RuntimeError {
     return RuntimeError(pos, ErrorDescriptor.type(expr.type, expected), [expr])
   }
 
@@ -66,7 +66,7 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
                           _ expr: Expr,
                           min: Int64 = Int64.min,
                           max: Int64 = Int64.max,
-                          at pos: SourcePosition = SourcePosition.unknown) -> RuntimeError {
+                          at pos: SourcePosition = .unknown) -> RuntimeError {
     return RuntimeError(pos, ErrorDescriptor.range(of, parameter, min, max), [expr])
   }
 
@@ -74,7 +74,7 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
                                   min: Int = 0,
                                   max: Int = Int.max,
                                   expr: Expr,
-                                  at pos: SourcePosition = SourcePosition.unknown) -> RuntimeError {
+                                  at pos: SourcePosition = .unknown) -> RuntimeError {
     guard case .pair(let fun, let args) = expr else {
       return RuntimeError.argumentCount(of: of, min: min, max: max, args: expr, at: pos)
     }
@@ -89,7 +89,7 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
                                   min: Int = 0,
                                   max: Int = Int.max,
                                   args: Expr,
-                                  at pos: SourcePosition = SourcePosition.unknown) -> RuntimeError {
+                                  at pos: SourcePosition = .unknown) -> RuntimeError {
     return RuntimeError(pos,
                         ErrorDescriptor.argumentCount(of, min, max),
                         [.makeNumber(args.toExprs().0.count), args])
@@ -98,7 +98,7 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
   public class func argumentCount(of: String? = nil,
                                   num: Int,
                                   expr: Expr,
-                                  at pos: SourcePosition = SourcePosition.unknown) -> RuntimeError {
+                                  at pos: SourcePosition = .unknown) -> RuntimeError {
     guard case .pair(let fun, let args) = expr else {
       return RuntimeError.argumentCount(of: of, num: num, args: expr, at: pos)
     }
@@ -111,33 +111,33 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
   public class func argumentCount(of: String? = nil,
                                   num: Int,
                                   args: Expr,
-                                  at pos: SourcePosition = SourcePosition.unknown) -> RuntimeError {
+                                  at pos: SourcePosition = .unknown) -> RuntimeError {
     return RuntimeError(pos,
-                        ErrorDescriptor.argumentCount(of, num, num),
+                        .argumentCount(of, num, num),
                         [.makeNumber(args.toExprs().0.count), args])
   }
 
   public class func eval(_ error: EvalError,
                          _ irritants: Expr...,
-                         at pos: SourcePosition = SourcePosition.unknown) -> RuntimeError {
-    return RuntimeError(pos, ErrorDescriptor.eval(error), irritants)
+                         at pos: SourcePosition = .unknown) -> RuntimeError {
+    return RuntimeError(pos, .eval(error), irritants)
   }
 
   public class func os(_ error: NSError,
-                       at pos: SourcePosition = SourcePosition.unknown) -> RuntimeError {
-    return RuntimeError(SourcePosition.unknown, ErrorDescriptor.os(error), [])
+                       at pos: SourcePosition = .unknown) -> RuntimeError {
+    return RuntimeError(.unknown, .os(error), [])
   }
 
-  public class func abortion(at pos: SourcePosition = SourcePosition.unknown,
+  public class func abortion(at pos: SourcePosition = .unknown,
                              stackTrace: [Procedure]? = nil) -> RuntimeError {
-    return RuntimeError(pos, ErrorDescriptor.abortion, [], stackTrace)
+    return RuntimeError(pos, .abortion, [], stackTrace)
   }
 
   public class func custom(_ kind: String,
                            _ template: String,
                            _ irritants: [Expr],
-                           at pos: SourcePosition = SourcePosition.unknown) -> RuntimeError {
-    return RuntimeError(SourcePosition.unknown, ErrorDescriptor.custom(kind, template), irritants)
+                           at pos: SourcePosition = .unknown) -> RuntimeError {
+    return RuntimeError(.unknown, .custom(kind, template), irritants)
   }
 
   public func at(_ pos: SourcePosition) -> RuntimeError {

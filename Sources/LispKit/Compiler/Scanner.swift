@@ -75,12 +75,7 @@ public final class Scanner {
 
   /// Returns true if the current token has one of the given token kinds.
   public func hasToken(_ kind: TokenKind...) -> Bool {
-    for k in kind {
-      if self.token.kind == k {
-        return true
-      }
-    }
-    return false
+    return kind.contains(self.token.kind)
   }
 
   /// Returns true if there is another token available. The token can be accessed via the

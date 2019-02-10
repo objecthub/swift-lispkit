@@ -580,7 +580,7 @@ public final class DrawingLibrary: NativeLibrary {
                                opacity,
                                min: 0,
                                max: 1,
-                               at: SourcePosition.unknown)
+                               at: .unknown)
     }
     guard case .symbol(let sym) = composition else {
       throw RuntimeError.eval(.invalidCompositionOperation, composition)
@@ -727,7 +727,7 @@ public final class DrawingLibrary: NativeLibrary {
                                scle,
                                min: 0,
                                max: 10,
-                               at: SourcePosition.unknown)
+                               at: .unknown)
     }
     // Create a bitmap suitable for storing the image in a PNG
     guard let bitmap = NSBitmapImageRep(bitmapDataPlanes: nil,
@@ -737,7 +737,7 @@ public final class DrawingLibrary: NativeLibrary {
                                         samplesPerPixel: 4,
                                         hasAlpha: true,
                                         isPlanar: false,
-                                        colorSpaceName: NSColorSpaceName.deviceRGB,
+                                        colorSpaceName: .deviceRGB,
                                         bytesPerRow: 0,
                                         bitsPerPixel: 0) else {
       throw RuntimeError.eval(.cannotCreateBitmap,

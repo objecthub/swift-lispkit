@@ -153,7 +153,7 @@ public enum Expr: Trackable, Hashable {
       case .syntax(let sourcePos, _):
         return sourcePos
       default:
-        return SourcePosition.unknown
+        return .unknown
     }
   }
 
@@ -162,7 +162,7 @@ public enum Expr: Trackable, Hashable {
   /// Returns true if this expression is undefined.
   public var isUndef: Bool {
     switch self {
-      case .undef, .uninit(_):
+      case .undef, .uninit:
         return true
       default:
         return false
@@ -245,7 +245,7 @@ public enum Expr: Trackable, Hashable {
 
   /// Returns the source position associated with this expression, or `outer` in case there is
   /// no syntax annotation.
-  public func pos(_ outer: SourcePosition = SourcePosition.unknown) -> SourcePosition {
+  public func pos(_ outer: SourcePosition = .unknown) -> SourcePosition {
     switch self {
       case .syntax(let p, _):
         return p
@@ -478,7 +478,7 @@ extension Expr {
 extension Expr {
 
   @inline(__always)
-  public func assertType(at pos: SourcePosition = SourcePosition.unknown, _ types: Type...) throws {
+  public func assertType(at pos: SourcePosition = .unknown, _ types: Type...) throws {
     for type in types {
       for subtype in type.included {
         if self.type == subtype {
@@ -490,7 +490,7 @@ extension Expr {
   }
 
   @inline(__always)
-  public func asInt64(at pos: SourcePosition = SourcePosition.unknown) throws -> Int64 {
+  public func asInt64(at pos: SourcePosition = .unknown) throws -> Int64 {
     guard case .fixnum(let res) = self else {
       throw RuntimeError.type(self, expected: [.exactIntegerType]).at(pos)
     }
