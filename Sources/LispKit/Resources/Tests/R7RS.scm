@@ -502,11 +502,10 @@
     ((foo _) '_)))
 (test '_ (underscore foo))
 
-(let ()
-  (define-syntax underscore2
-    (syntax-rules ()
-      ((underscore2 (a _) ...) 42)))
-  (test 42 (underscore2 (1 2))))
+(define-syntax underscore2
+  (syntax-rules ()
+    ((underscore2 (a _) ...) 42)))
+(test 42 (underscore2 (1 2)))
 
 (define-syntax count-to-2
   (syntax-rules ()
@@ -577,21 +576,18 @@
 
 #;(let ()
   ;; forward hygienic refs
-  (define-syntax foo399
-    (syntax-rules () ((foo399) (bar399))))
-  (define (quux399)
-    (foo399))
-  (define (bar399)
-    42)
+  (define-syntax foo399 (syntax-rules () ((foo399) (bar399))))
+  (define (quux399) (foo399))
+  (define (bar399) 42)
   (test 42 (quux399)))  ;; TODO
 
 (let-syntax
-    ((m (syntax-rules ()
-          ((m x) (let-syntax
-                     ((n (syntax-rules (k)
-                           ((n x) 'bound-identifier=?)
-                           ((n y) 'free-identifier=?))))
-                   (n z))))))
+  ((m (syntax-rules ()
+        ((m x) (let-syntax
+                 ((n (syntax-rules (k)
+                       ((n x) 'bound-identifier=?)
+                       ((n y) 'free-identifier=?))))
+                 (n z))))))
   (test 'bound-identifier=? (m k)))
 
 ;; literal has priority to ellipsis (R7RS 4.3.2)

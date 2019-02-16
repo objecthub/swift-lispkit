@@ -20,12 +20,12 @@
 
 
 public final class ControlFlowLibrary: NativeLibrary {
-  
+
   /// Name of the library.
   public override class var name: [String] {
     return ["lispkit", "control"]
   }
-  
+
   /// Declarations of the library.
   public override func declarations() {
     self.define(SpecialForm("begin", self.compileBegin))
@@ -48,7 +48,7 @@ public final class ControlFlowLibrary: NativeLibrary {
     self.define(SpecialForm("cond", self.compileCond))
     self.define(SpecialForm("case", self.compileCase))
   }
-  
+
   private func splitBindings(_ bindingList: Expr) throws -> (Expr, Expr) {
     var symbols = Exprs()
     var exprs = Exprs()
@@ -228,7 +228,7 @@ public final class ControlFlowLibrary: NativeLibrary {
         throw RuntimeError.type(first, expected: [.listType])
     }
   }
-  
+
   private func compileLetStarValues(_ compiler: Compiler,
                                     expr: Expr,
                                     env: Env,
@@ -254,7 +254,7 @@ public final class ControlFlowLibrary: NativeLibrary {
         throw RuntimeError.type(first, expected: [.listType])
     }
   }
-  
+
   private func compileLetOptionals(_ compiler: Compiler,
                                    expr: Expr,
                                    env: Env,
@@ -280,7 +280,7 @@ public final class ControlFlowLibrary: NativeLibrary {
         throw RuntimeError.type(first, expected: [.listType])
     }
   }
-  
+
   private func compileLetStarOptionals(_ compiler: Compiler,
                                        expr: Expr,
                                        env: Env,
@@ -344,7 +344,7 @@ public final class ControlFlowLibrary: NativeLibrary {
     }
     return group
   }
-  
+
   private func compileLetKeywords(_ compiler: Compiler,
                                   expr: Expr,
                                   env: Env,
@@ -370,7 +370,7 @@ public final class ControlFlowLibrary: NativeLibrary {
         throw RuntimeError.type(first, expected: [.listType])
     }
   }
-  
+
   private func compileLetStarKeywords(_ compiler: Compiler,
                                       expr: Expr,
                                       env: Env,
@@ -467,7 +467,7 @@ public final class ControlFlowLibrary: NativeLibrary {
     compiler.patch(.branch(compiler.offsetToNext(finalIp)), at: finalIp)
     return group
   }
-  
+
   private func compileLetSyntax(_ compiler: Compiler,
                                 expr: Expr,
                                 env: Env, tail: Bool) throws -> Bool {
@@ -612,7 +612,7 @@ public final class ControlFlowLibrary: NativeLibrary {
     compiler.patch(.branch(compiler.offsetToNext(exitJumpIp)), at: exitJumpIp)
     return false
   }
-  
+
   private func compileWhen(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let cond, let exprs)) = expr else {
       throw RuntimeError.argumentCount(of: "when", min: 1, expr: expr)
@@ -649,7 +649,7 @@ public final class ControlFlowLibrary: NativeLibrary {
     compiler.patch(.branch(compiler.offsetToNext(exitJumpIp)), at: exitJumpIp)
     return false
   }
-  
+
   private func compileCond(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     // Extract case list
     guard  case .pair(_, let caseList) = expr else {
@@ -742,6 +742,26 @@ public final class ControlFlowLibrary: NativeLibrary {
     // Compile cases
     while case .pair(let cas, let rest) = cases {
       switch cas {
+        case .pair(.symbol(let s), .pair(.symbol(let t), .pair(let proc, .null)))
+               where s.interned == compiler.context.symbols.else &&
+                     t.interned == compiler.context.symbols.doubleArrow:
+          guard rest == .null else {
+            throw RuntimeError.eval(.malformedCaseClause, cases)
+          }
+          // Inject stack frame
+          let pushFrameIp = compiler.emit(.injectFrame)
+          // Compile procedure
+          try compiler.compile(proc, in: env, inTailPos: false)
+          // Swap procedure with argument (= condition)
+          compiler.emit(.swap)
+          // Call procedure
+          if compiler.call(1, inTailPos: tail) {
+            // Remove InjectFrame if this was a tail call
+            compiler.patch(.noOp, at: pushFrameIp)
+            elseCaseTailCall = true
+          } else {
+            elseCaseTailCall = false
+          }
         case .pair(.symbol(let s), let exprs) where s.interned == compiler.context.symbols.else:
           guard rest == .null else {
             throw RuntimeError.eval(.malformedCaseClause, cases)
@@ -750,6 +770,38 @@ public final class ControlFlowLibrary: NativeLibrary {
           elseCaseTailCall = try compiler.compileSeq(exprs,
                                                      in: env,
                                                      inTailPos: tail)
+        case .pair(var keys, .pair(.symbol(let s), .pair(let proc, .null)))
+               where s.interned == compiler.context.symbols.doubleArrow:
+          // Check keys
+          var positiveJumps = [Int]()
+          while case .pair(let value, let next) = keys {
+            compiler.emit(.dup)
+            try compiler.pushValue(value)
+            compiler.emit(.eqv)
+            positiveJumps.append(compiler.emitPlaceholder())
+            keys = next
+          }
+          guard keys.isNull else {
+            throw RuntimeError.eval(.malformedCaseClause, cas)
+          }
+          let jumpToNextCase = compiler.emitPlaceholder()
+          for ip in positiveJumps {
+            compiler.patch(.branchIf(compiler.offsetToNext(ip)), at: ip)
+          }
+          // Inject stack frame
+          let pushFrameIp = compiler.emit(.injectFrame)
+          // Compile procedure
+          try compiler.compile(proc, in: env, inTailPos: false)
+          // Swap procedure with argument (= condition)
+          compiler.emit(.swap)
+          // Call procedure
+          if compiler.call(1, inTailPos: tail) {
+            // Remove InjectFrame if this was a tail call
+            compiler.patch(.noOp, at: pushFrameIp)
+          } else {
+            exitJumps.append(compiler.emitPlaceholder())
+          }
+          compiler.patch(.branch(compiler.offsetToNext(jumpToNextCase)), at: jumpToNextCase)
         case .pair(var keys, let exprs):
           var positiveJumps = [Int]()
           while case .pair(let value, let next) = keys {
@@ -796,4 +848,3 @@ public final class ControlFlowLibrary: NativeLibrary {
     return false
   }
 }
-
