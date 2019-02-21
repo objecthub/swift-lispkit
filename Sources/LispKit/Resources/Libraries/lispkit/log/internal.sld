@@ -209,7 +209,7 @@
             (set! res (string-append res "/" (symbol->string (car lst)))))))
 
     (define (short-log-formatter time severity message tags)
-      (string-append (date-time->string (second->date-time time) "HH:mm:ss ")
+      (string-append (date-time->string (seconds->date-time time) "HH:mm:ss ")
                      (string-pad-right (severity->string severity) #\space 6)
                      (if (null? tags)
                          ""
@@ -218,7 +218,7 @@
                      message))
 
     (define (long-log-formatter time severity message tags)
-      (string-append (date-time->string (second->date-time time) "yyyy-MM-dd HH:mm:ss ")
+      (string-append (date-time->string (seconds->date-time time) "yyyy-MM-dd HH:mm:ss ")
                      (string-pad-right (severity->string severity) #\space 6)
                      (if (null? tags)
                          ""
