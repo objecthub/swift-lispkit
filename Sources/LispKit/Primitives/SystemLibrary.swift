@@ -98,10 +98,12 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("jiffies-per-second", self.jiffiesPerSecond))
     self.define(Procedure("time-zone", self.timeZone))
     self.define(Procedure("seconds-from-gmt", self.secondsFromGmt))
+    self.define(Procedure("date-time", self.dateTime))
     self.define(Procedure("seconds->date-time", self.secondsToDateTime))
     self.define(Procedure("date-time->seconds", self.dateTimeToSeconds))
     self.define(Procedure("date-time->string", self.dateTimeToString))
     self.define(Procedure("string->date-time", self.stringToDateTime))
+    self.define(Procedure("week-number->seconds", self.weekNumberToSeconds))
     self.define(Procedure("features", self.features))
     self.define(Procedure("implementation-name", self.implementationName))
     self.define(Procedure("implementation-version", self.implementationVersion))
@@ -567,6 +569,17 @@ public final class SystemLibrary: NativeLibrary {
     return .fixnum(Int64(tzone.secondsFromGMT()))
   }
 
+  private func dateTime(args: Arguments) throws -> Expr {
+    var spec = Expr.null
+    for arg in args.reversed() {
+      spec = .pair(arg, spec)
+    }
+    guard let (date, tzone) = self.getDate(spec, TimeZone.current) else {
+      throw RuntimeError.eval(.invalidDateTime, spec)
+    }
+    return self.getDateComponents(date, tzone)
+  }
+
   private func secondsToDateTime(_ seconds: Expr, _ timeZone: Expr?) throws -> Expr {
     guard let tzone = self.getTimeZone(timeZone) else {
       throw RuntimeError.eval(.invalidTimeZone, timeZone ?? .false)
@@ -633,6 +646,32 @@ public final class SystemLibrary: NativeLibrary {
       return .false
     }
     return self.getDateComponents(date, tzone)
+  }
+
+  private func weekNumberToSeconds(_ year: Expr,
+                                   _ weekNumber: Expr,
+                                   _ weekDay: Expr?,
+                                   _ timeZone: Expr?) throws -> Expr {
+    let yr = try year.asInt()
+    let wnum = try weekNumber.asInt()
+    guard case .fixnum(let wday) = weekDay ?? .fixnum(1) else {
+      throw RuntimeError.type(weekDay!, expected: [.exactIntegerType])
+    }
+    guard wday >= 1 && wday <= 7 else {
+      throw RuntimeError.range(.fixnum(wday), min: 1, max: 7)
+    }
+    guard let tzone = self.getTimeZone(timeZone) else {
+      throw RuntimeError.eval(.invalidTimeZone, timeZone ?? .false)
+    }
+    guard let date = Calendar.current.date(from: DateComponents(calendar: Calendar.current,
+                                                                timeZone: tzone,
+                                                                year: yr,
+                                                                weekday: Int(wday),
+                                                                weekOfYear: wnum)) else {
+      throw RuntimeError.eval(.invalidDateTime,
+                              .pair(year, .pair(weekNumber, .pair(.fixnum(wday), .null))))
+    }
+    return .makeNumber(date.timeIntervalSince1970)
   }
 
   private func getDateComponents(_ date: Date, _ tz: TimeZone) -> Expr {
