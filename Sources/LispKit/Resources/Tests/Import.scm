@@ -22,6 +22,7 @@
 ; Native
 (import (lispkit base))
 (import (lispkit gvector))
+(import (lispkit date-time))
 (import (lispkit char-set))
 (import (lispkit regexp))
 (import (lispkit draw))

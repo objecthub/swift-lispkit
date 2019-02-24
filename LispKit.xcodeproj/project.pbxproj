@@ -61,6 +61,7 @@
 		CC2C73E121A22F0D00B18661 /* hash-table.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC2C73E021A22DDD00B18661 /* hash-table.sld */; };
 		CC2D124F1DB40E7F009BDC72 /* LibraryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2D124E1DB40E7F009BDC72 /* LibraryManager.swift */; };
 		CC31A6981D3AC223008D7728 /* Hash.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC31A6971D3AC223008D7728 /* Hash.swift */; };
+		CC35F9C2222188BD00895A10 /* DateTimeLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35F9C1222188BC00895A10 /* DateTimeLibrary.swift */; };
 		CC35FD0D1C6FA4B700C8B992 /* VirtualMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */; };
 		CC35FD0F1C711FEA00C8B992 /* BindingGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35FD0E1C711FEA00C8B992 /* BindingGroup.swift */; };
 		CC3A025A1F97FD72009B959C /* json.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC3A02591F97F3E1009B959C /* json.sld */; };
@@ -625,6 +626,7 @@
 		CC2C73E021A22DDD00B18661 /* hash-table.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = "hash-table.sld"; sourceTree = "<group>"; };
 		CC2D124E1DB40E7F009BDC72 /* LibraryManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryManager.swift; sourceTree = "<group>"; };
 		CC31A6971D3AC223008D7728 /* Hash.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Hash.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		CC35F9C1222188BC00895A10 /* DateTimeLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateTimeLibrary.swift; sourceTree = "<group>"; };
 		CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = VirtualMachine.swift; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC35FD0E1C711FEA00C8B992 /* BindingGroup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BindingGroup.swift; sourceTree = "<group>"; };
 		CC3A02591F97F3E1009B959C /* json.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = json.sld; sourceTree = "<group>"; };
@@ -1291,6 +1293,7 @@
 				CC5A47221C529D4A00EFCF76 /* CoreLibrary.swift */,
 				CC5A47241C52E08900EFCF76 /* ControlFlowLibrary.swift */,
 				CC0BA16B1DFC843C0063B9DE /* SystemLibrary.swift */,
+				CC35F9C1222188BC00895A10 /* DateTimeLibrary.swift */,
 				CCDF99FB1D3D7A3100FD2A57 /* BoxLibrary.swift */,
 				CC6A3B631C52EED400E962E2 /* MathLibrary.swift */,
 				CC6A3B5B1C52E71F00E962E2 /* ListLibrary.swift */,
@@ -1581,6 +1584,7 @@
 				CCC531A01D18595500FAED6E /* TextOutputTarget.swift in Sources */,
 				CC14F4B01F939486000FB1E0 /* Features.swift in Sources */,
 				CC5A47211C5295E600EFCF76 /* NativeLibrary.swift in Sources */,
+				CC35F9C2222188BD00895A10 /* DateTimeLibrary.swift in Sources */,
 				CC54924121DC2A44004A0652 /* CharSet.swift in Sources */,
 				CC6A3B621C52ED7D00E962E2 /* CharLibrary.swift in Sources */,
 				CCA31283204CB7CB0026FF13 /* EvalError.swift in Sources */,

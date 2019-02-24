@@ -79,6 +79,7 @@ public final class Procedure: Reference, CustomStringConvertible {
     case native1O((Expr, Expr?) throws -> Expr)
     case native2O((Expr, Expr, Expr?) throws -> Expr)
     case native3O((Expr, Expr, Expr, Expr?) throws -> Expr)
+    case native0OO((Expr?, Expr?) throws -> Expr)
     case native1OO((Expr, Expr?, Expr?) throws -> Expr)
     case native2OO((Expr, Expr, Expr?, Expr?) throws -> Expr)
     case native3OO((Expr, Expr, Expr, Expr?, Expr?) throws -> Expr)
@@ -186,6 +187,13 @@ public final class Procedure: Reference, CustomStringConvertible {
               _ proc: @escaping (Expr, Expr, Expr, Expr?) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
     self.kind = .primitive(name, .native3O(proc), compiler)
+  }
+
+  /// Initializer for primitive procedures
+  public init(_ name: String,
+              _ proc: @escaping (Expr?, Expr?) throws -> Expr,
+              _ compiler: FormCompiler? = nil) {
+    self.kind = .primitive(name, .native0OO(proc), compiler)
   }
   
   /// Initializer for primitive procedures

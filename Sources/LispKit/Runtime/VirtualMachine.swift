@@ -834,6 +834,23 @@ public final class VirtualMachine: TrackedObject {
               throw RuntimeError.argumentCount(min: 3, max: 3, args: self.popAsList(n))
             }
             return proc
+          case .native0OO(let exec):
+            if n == 0 {
+              self.pop(overhead)
+              self.push(try exec(nil, nil))
+            } else if n == 1 {
+              let a0 = self.pop()
+              self.pop(overhead)
+              self.push(try exec(a0, nil))
+            } else if n == 2 {
+              let a1 = self.pop()
+              let a0 = self.pop()
+              self.pop(overhead)
+              self.push(try exec(a0, a1))
+            } else {
+              throw RuntimeError.argumentCount(min: 2, max: 2, args: self.popAsList(n))
+            }
+            return proc
           case .native1OO(let exec):
             if n == 1 {
               let a0 = self.pop()

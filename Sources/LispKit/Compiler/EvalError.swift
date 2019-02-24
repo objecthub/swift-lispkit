@@ -89,6 +89,7 @@ public enum EvalError: Int, Hashable {
   case cannotEncodeBytevector
   case invalidDateTime
   case invalidTimeZone
+  case invalidDateStyle
   case invalidDefaultDrawing
   case invalidDefaultShape
   case invalidPoint
@@ -232,9 +233,11 @@ public enum EvalError: Int, Hashable {
       case .cannotEncodeBytevector:
         return "unable to encode bytevector $0"
       case .invalidDateTime:
-        return "invalid/incomplete date time component list: $0"
+        return "invalid/incomplete date-time components: $0"
       case .invalidTimeZone:
-        return "invalid/incomplete time zone identifier: $0"
+        return "invalid time zone: $0"
+      case .invalidDateStyle:
+        return "invalid date-time format style: $0"
       case .invalidDefaultDrawing:
         return "invalid default drawing: $0"
       case .invalidDefaultShape:

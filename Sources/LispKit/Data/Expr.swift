@@ -135,6 +135,8 @@ public enum Expr: Trackable, Hashable {
           return .imageType
         } else if obj is ImmutableBox<NSRegularExpression> {
           return .regexpType
+        } else if obj is ImmutableBox<DateComponents> {
+          return .dateTimeType
         } else {
           return .objectType
         }
@@ -1000,6 +1002,13 @@ extension Expr: CustomStringConvertible {
             return "#<image \(obj.identityString)>"
           } else if let bx = obj as? ImmutableBox<NSRegularExpression> {
             return "#<regexp \"\(Expr.escapeStr(bx.value.pattern))\">"
+          } else if let bx = obj as? ImmutableBox<DateComponents> {
+            guard let date = bx.value.date else {
+              return "#<date-time malformed>"
+            }
+            let formatter = ISO8601DateFormatter()
+            formatter.timeZone = bx.value.timeZone ?? TimeZone.current
+            return "#<date-time \(formatter.string(from: date))>"
           } else {
             return "#<\(obj.typeDescription) \(obj.identityString)>"
           }
