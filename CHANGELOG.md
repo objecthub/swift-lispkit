@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.7 (2019-02-24)
+- New libraries: `(lispkit csv)`, `(lispkit match)`, `(lispkit regexp)`, `(lispkit gvector)`, `(lispkit date-time)`
+- Extended `(lispkit vector)` and `(lispkit list)` libraries
+- Support for `let-keywords` and `let*-keywords` in library `(lispkit control)`
+- Complete re-write of library import and export logic fixing numerous bugs and incompatibilities with R7RS
+- Improved reporting of errors in library definitions
+- Support call tracing for individual procedures
+- Make the last three REPL results available via `*1`, `*2`, and `*3`
+- Allow `@` as initial character in identifiers
+
 ## 1.6 (2019-01-04)
 - New libraries: `(lispkit log)`, `(lispkit char-set)`, `(scheme char)`, `(srfi 14 ascii)`, `(srfi 101)`, `(srfi 125)`
 - Support Scheme libraries from R7RS large/Red edition:  `(scheme box)`,  `(scheme charset)`,

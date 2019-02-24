@@ -69,6 +69,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     `(lispkit stack)`, `(lispkit queue)`,
     `(lispkit heap)`, `(lispkit wt-tree)`, `(lispkit prettify)`, `(lispkit json)`, `(lispkit csv)`,
     `(lispkit char-set)`,
+    `(lispkit date-time)`,
     `(lispkit regexp)`,
     [`(lispkit draw)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Draw),
     [`(lispkit draw turtle)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Draw-Turtle),
