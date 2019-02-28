@@ -49,7 +49,8 @@ _LispKit_ provides support for the following core features, many of which are ba
   - [R6RS](http://www.r6rs.org)-compliant enumerations
   - All R7RS (small) libraries: `(scheme base)`, `(scheme case-lambda)`, `(scheme char)`, `(scheme complex)`,
     `(scheme cxr)`, `(scheme eval)`, `(scheme file)`, `(scheme inexact)`, `(scheme lazy)`,
-    `(scheme load)`, `(scheme process-context)`, `(scheme read)`, `(scheme repl)`, `(scheme time)`
+    `(scheme load)`, `(scheme process-context)`, `(scheme read)`, `(scheme repl)`, `(scheme time)`,
+    `(scheme write)`, `(scheme r5rs)`
   - Some R7RS (large) libraries from Scheme Red edition:
     `(scheme box)`,  `(scheme charset)`, `(scheme comparator)`, `(scheme generator)`,
     `(scheme hash-table)`, `(scheme ideque)`, `(scheme list)`, `(scheme rlist)`, `(scheme set)`,

@@ -36,7 +36,7 @@ public final class GrowableVectorLibrary: NativeLibrary {
     self.`import`(from: ["lispkit", "control"], "let", "let*", "do", "unless", "when", "if")
     self.`import`(from: ["lispkit", "math"],    "fx1+", "fx1-", "fx=", "fx>", "fx<", "fx<=", "fx>=")
     self.`import`(from: ["lispkit", "list"],    "cons", "null?")
-    self.`import`(from: ["lispkit", "vector"],  "vector-swap!")
+    self.`import`(from: ["lispkit", "vector"],  "vector-swap!", "vector-ref")
   }
   
   /// Declarations of the library.
@@ -94,10 +94,10 @@ public final class GrowableVectorLibrary: NativeLibrary {
       "    (if (null? xss)",
       "        (do ((i 0 (fx1+ i)))",
       "            ((fx>= i len) res)",
-      "          (gvector-set! res i (f (gvector-ref xs i))))",
+      "          (gvector-add! res (f (vector-ref xs i))))",
       "        (do ((i 0 (fx1+ i)))",
       "            ((fx>= i len) res)",
-      "          (gvector-set! res i (apply f (_gvector-list-ref i vecs)))))))")
+      "          (gvector-add! res (apply f (_gvector-list-ref i vecs)))))))")
     self.define("gvector-map/index", via:
       "(define (gvector-map/index f xs . xss)",
       "  (let* ((vecs (cons xs xss))",
@@ -106,10 +106,10 @@ public final class GrowableVectorLibrary: NativeLibrary {
       "    (if (null? xss)",
       "        (do ((i 0 (fx1+ i)))",
       "            ((fx>= i len) res)",
-      "          (gvector-set! res i (f i (gvector-ref xs i))))",
+      "          (gvector-add! res (f i (vector-ref xs i))))",
       "        (do ((i 0 (fx1+ i)))",
       "            ((fx>= i len) res)",
-      "          (gvector-set! res i (apply f (cons i (_gvector-list-ref i vecs))))))))")
+      "          (gvector-add! res (apply f (cons i (_gvector-list-ref i vecs))))))))")
     self.define("gvector-map!", via:
       "(define (gvector-map! f xs . xss)",
       "  (let* ((vecs (cons xs xss))",
@@ -375,37 +375,13 @@ public final class GrowableVectorLibrary: NativeLibrary {
     return .vector(res)
   }
   
-  private func gvectorCopy(_ vec: Expr, _ args: Arguments) throws -> Expr {
+  private func gvectorCopy(_ vec: Expr, _ start: Expr?, _ end: Expr?) throws -> Expr {
     let vector = try vec.vectorAsCollection(growable: true)
-    guard let (start, end, mutable) = args.optional(.fixnum(0),
-                                                    .makeNumber(vector.exprs.count),
-                                                    .true) else {
-      throw RuntimeError.argumentCount(of: "gvector-copy",
-                                       min: 1,
-                                       max: 4,
-                                       args: .pair(vec, .makeList(args)))
-    }
-    if args.count == 1 {
-      switch start {
-        case .fixnum(_):
-          break;
-        case .false:
-          let res = Collection(kind: .immutableVector)
-          for expr in vector.exprs {
-            res.exprs.append(expr)
-          }
-          return .vector(res)
-        default:
-          let res = Collection(kind: .growableVector)
-          for expr in vector.exprs {
-            res.exprs.append(expr)
-          }
-          return .vector(res)
-      }
-    }
+    let start = start ?? .fixnum(0)
+    let end = end ?? .makeNumber(vector.exprs.count)
     let e = try end.asInt(below: vector.exprs.count + 1)
     let s = try start.asInt(below: e + 1)
-    let res = Collection(kind: mutable.isFalse ? .immutableVector : .growableVector)
+    let res = Collection(kind: .growableVector)
     for expr in vector.exprs[s..<e] {
       res.exprs.append(expr)
     }
