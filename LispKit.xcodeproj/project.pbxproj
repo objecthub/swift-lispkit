@@ -170,6 +170,7 @@
 		CC7AAE6C1EC8A87F00B0F66C /* 121.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC7AAE6B1EC859E100B0F66C /* 121.sld */; };
 		CC7AAE6E1EC8AEC600B0F66C /* SRFI121.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC7AAE6D1EC8AEBE00B0F66C /* SRFI121.scm */; };
 		CC7AAE701EC90D3900B0F66C /* 134.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC7AAE6F1EC9050B00B0F66C /* 134.sld */; };
+		CC7C3E992235DE300082DF7C /* graph.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC7C3E982235DD900082DF7C /* graph.sld */; };
 		CC7F7C0A1FC03BA900639166 /* case-lambda.sld in Resources */ = {isa = PBXBuildFile; fileRef = CC7F7C091FC03BA900639166 /* case-lambda.sld */; };
 		CC7F7C1A1FC04BBD00639166 /* base.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC7F7C081FC03B9A00639166 /* base.sld */; };
 		CC7F7C1B1FC069CA00639166 /* case-lambda.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC7F7C091FC03BA900639166 /* case-lambda.sld */; };
@@ -399,6 +400,7 @@
 			dstPath = LispKit/Resources/Libraries/lispkit;
 			dstSubfolderSpec = 7;
 			files = (
+				CC7C3E992235DE300082DF7C /* graph.sld in Copy pre-installed LispKit libraries */,
 				CC7A125921E93E3000ABEA17 /* csv.sld in Copy pre-installed LispKit libraries */,
 				CC7A125821E93E1700ABEA17 /* match.sld in Copy pre-installed LispKit libraries */,
 				CC82933021D6E992003E1D3C /* log.sld in Copy pre-installed LispKit libraries */,
@@ -731,6 +733,7 @@
 		CC7AAE6B1EC859E100B0F66C /* 121.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 121.sld; sourceTree = "<group>"; };
 		CC7AAE6D1EC8AEBE00B0F66C /* SRFI121.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SRFI121.scm; sourceTree = "<group>"; };
 		CC7AAE6F1EC9050B00B0F66C /* 134.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 134.sld; sourceTree = "<group>"; };
+		CC7C3E982235DD900082DF7C /* graph.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = graph.sld; sourceTree = "<group>"; };
 		CC7F7C071FC03B8100639166 /* eval.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = eval.sld; sourceTree = "<group>"; };
 		CC7F7C081FC03B9A00639166 /* base.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = base.sld; sourceTree = "<group>"; };
 		CC7F7C091FC03BA900639166 /* case-lambda.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "case-lambda.sld"; sourceTree = "<group>"; };
@@ -1021,6 +1024,7 @@
 				CC436C3F1FFBD5090095559E /* logic.sld */,
 				CCE7CA451F8D819600FD7ECA /* iteration.sld */,
 				CC5848021E5691B300BE6497 /* set.sld */,
+				CC7C3E982235DD900082DF7C /* graph.sld */,
 				CC90B2331FE55DFE0044F724 /* stack.sld */,
 				CC90B2351FE5D7940044F724 /* queue.sld */,
 				CC72862C1F52B2F600EEBC58 /* heap.sld */,
