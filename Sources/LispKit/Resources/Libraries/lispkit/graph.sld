@@ -20,9 +20,16 @@
   (export make-graph
           make-eq-graph
           make-eqv-hashtable
+          make-equal-hashtable
+          graph
+          eq-graph
+          eqv-graph
+          equal-graph
           node-equivalence-function
           node-hash-function
           graph-copy
+          graph-transpose
+          graph-complement
           graph?
           graph-empty?
           graph-cyclic?
@@ -33,6 +40,7 @@
           graph-add-edge!
           graph-remove-edge!
           graph-has-edge?
+          graph-edges
           graph-fold-nodes
           graph-fold-edges
           neighbors
@@ -60,6 +68,29 @@
     (define (make-eqv-graph)
       (new-graph (make-eqv-hashtable)))
 
+    (define (make-equal-graph)
+      (new-graph (make-equal-hashtable)))
+
+    (define (graph hash equiv nodes edges)
+      (graph/hashtable (make-hashtable hash equiv) nodes edges))
+
+    (define (eq-graph nodes edges)
+      (graph/hashtable (make-eq-hashtable) nodes edges))
+
+    (define (eqv-graph nodes edges)
+      (graph/hashtable (make-eqv-hashtable) nodes edges))
+
+    (define (equal-graph nodes edges)
+      (graph/hashtable (make-equal-hashtable) nodes edges))
+
+    (define (graph/hashtable ht nodes edges)
+      (for-each (lambda (node) (hashtable-add! ht node '())) nodes)
+      (for-each (lambda (edge)
+                  (graph/hashtable-add-edge! ht (car edge) (cadr edge)
+                     (if (null? (cddr edge)) #f (cddr edge))))
+                edges)
+      (new-graph ht))
+
     (define (graph-copy graph . args)
       (cond ((pair? args)
               (let* ((ht (graph-ref graph))
@@ -77,6 +108,21 @@
                 (new-graph res)))
             (else
               (new-graph (hashtable-copy (graph-ref graph) #t)))))
+
+    (define (graph-transpose graph)
+      (graph/hashtable (make-same-hashtable (graph-ref graph))
+                       (graph-nodes graph)
+                       (map (lambda (edge) (cons (cadr edge) (cons (car edge) (cddr edge))))
+                            (graph-edges graph))))
+
+    (define (graph-complement graph)
+      (let* ((nodes (graph-nodes graph))
+             (res (graph/hashtable (make-node-hashtable graph) nodes '())))
+        (for-each (lambda (from)
+                    (for-each (lambda (to)
+                                (if (not (graph-has-edge? graph from to))
+                                    (graph-add-edge! res from to))) nodes)) nodes)
+        res))
 
     (define (node-equivalence-function graph)
       (hashtable-equivalence-function (graph-ref graph)))
@@ -120,31 +166,61 @@
     (define (graph-nodes graph)
       (hashtable-key-list (graph-ref graph)))
 
-    (define (graph-add-edge! graph from to . args)
-      (let-optionals args ((label #f))
-        (let* ((ht (graph-ref graph))
-               (edges (hashtable-get ht from)))
-          (if edges
-              (if (hashtable-get ht to)
-                  (hashtable-set! ht from (cons (cons to label) (delete-edges ht to (cdr edges))))
-                  (error "unknown node $1 of graph $0" graph to))
-              (error "unknown node $1 of graph $0" graph from)))))
+    (define graph-add-edge!
+      (case-lambda
+        ((graph edge)
+          (if (null? (cddr edge))
+              (graph-add-edge! graph (car edge) (cadr edge))
+              (graph-add-edge! graph (car edge) (cadr edge) (cddr edge))))
+        ((graph from to)
+          (graph/hashtable-add-edge! (graph-ref graph) from to #f))
+        ((graph from to label)
+          (graph/hashtable-add-edge! (graph-ref graph) from to label))))
 
-    (define (graph-remove-edge! graph from to)
-      (let* ((ht (graph-ref graph))
-             (edges (hashtable-get ht from)))
+    (define (graph/hashtable-add-edge! ht from to label)
+      (let ((edges (hashtable-get ht from)))
         (if edges
             (if (hashtable-get ht to)
-                (hashtable-set! ht from (delete-edges ht to (cdr edges)))
+                (hashtable-set! ht from (cons (cons to label) (delete-edges ht to (cdr edges))))
                 (error "unknown node $1 of graph $0" graph to))
             (error "unknown node $1 of graph $0" graph from))))
 
-    (define (graph-has-edge? graph from to)
-      (let* ((ht (graph-ref graph))
-             (edges (hashtable-get ht from)))
-        (if edges
-            (if (assoc-edges ht to (cdr edges)) #t #f)
-            #f)))
+    (define graph-remove-edge!
+      (case-lambda
+        ((graph edge)
+          (graph-remove-edge! graph (car edge) (cadr edge)))
+        ((graph from to)
+          (let* ((ht (graph-ref graph))
+                 (edges (hashtable-get ht from)))
+            (if edges
+                (if (hashtable-get ht to)
+                    (hashtable-set! ht from (delete-edges ht to (cdr edges)))
+                    (error "unknown node $1 of graph $0" graph to))
+                (error "unknown node $1 of graph $0" graph from))))))
+
+    (define graph-has-edge?
+      (case-lambda
+        ((graph edge)
+          (graph-has-edge? graph (car edge) (cadr edge)))
+        ((graph from to)
+          (let* ((ht (graph-ref graph))
+                 (edges (hashtable-get ht from)))
+            (if edges
+                (if (assoc-edges ht to (cdr edges)) #t #f)
+                #f)))))
+
+    (define (graph-edges graph)
+      (let ((ht (graph-ref graph))
+            (edges '()))
+        (for-each
+          (lambda (from)
+            (for-each
+              (lambda (toedge)
+                (set! edges (cons (cons from (cons (car toedge) (if (cdr toedge) (cdr toedge) '())))
+                                  edges)))
+              (cdr (hashtable-get ht from))))
+          (hashtable-key-list ht))
+        edges))
 
     (define (graph-fold-nodes f z graph)
       (do ((nodes (graph-nodes graph) (cdr nodes))
@@ -186,13 +262,14 @@
                 (list from))
               (else
                 (let* ((ht       (graph-ref graph))
-                     (shortcut (lambda (n) #f))
-                     (tags     (make-same-hashtable ht)))
-                (hashtable-set! tags from #t)
-                (do ((nodes (explore ht (list from) tags shortcut) (explore ht nodes tags shortcut))
-                     (reachable (list from) (append nodes reachable))
-                     (iteration limit (fx1- iteration)))
-                    ((or (null? nodes) (fxzero? iteration)) reachable)))))))
+                       (shortcut (lambda (n) #f))
+                       (tags     (make-same-hashtable ht)))
+                  (hashtable-set! tags from #t)
+                  (do ((nodes (explore ht (list from) tags shortcut)
+                              (explore ht nodes tags shortcut))
+                       (reachable (list from) (append nodes reachable))
+                       (iteration limit (fx1- iteration)))
+                      ((or (null? nodes) (fxzero? iteration)) reachable)))))))
 
     (define (explore ht nodelist tags shortcut)
       (do ((nodes nodelist (cdr nodes))
@@ -242,28 +319,29 @@
       (make-same-hashtable (graph-ref graph)))
 
     (define (make-same-hashtable ht)
-      (cond ((eq-hashtable? ht)  (make-eq-hashtable))
-            ((eqv-hashtable? ht) (make-eqv-hashtable))
-            (else                (make-hashtable (hashtable-hash-function ht)
-                                                 (hashtable-equivalence-function ht)))))
+      (cond ((eq-hashtable? ht)    (make-eq-hashtable))
+            ((eqv-hashtable? ht)   (make-eqv-hashtable))
+            ((equal-hashtable? ht) (make-equal-hashtable))
+            (else                  (make-hashtable (hashtable-hash-function ht)
+                                                   (hashtable-equivalence-function ht)))))
 
     (define (assoc-edges ht obj alist)
-      (cond ((eq-hashtable? ht)
-              (assq obj alist))
-            ((eqv-hashtable? ht)
-              (assv obj alist))
-            (else
-              (assoc obj alist (hashtable-equivalence-function ht)))))
+      (cond ((eq-hashtable? ht)    (assq obj alist))
+            ((eqv-hashtable? ht)   (assv obj alist))
+            ((equal-hashtable? ht) (assoc obj alist equal))
+            (else                  (assoc obj alist (hashtable-equivalence-function ht)))))
 
     (define (delete-edges ht obj alist)
-      (cond ((eq-hashtable? ht)  (alist-delq obj alist))
-            ((eqv-hashtable? ht) (alist-delv obj alist))
-            (else                (alist-delete obj alist (hashtable-equivalence-function ht)))))
+      (cond ((eq-hashtable? ht)    (alist-delq obj alist))
+            ((eqv-hashtable? ht)   (alist-delv obj alist))
+            ((equal-hashtable? ht) (alist-delete obj alist equal))
+            (else                  (alist-delete obj alist (hashtable-equivalence-function ht)))))
 
     (define (delete-edges-proc ht)
-      (cond ((eq-hashtable? ht)  alist-delq)
-            ((eqv-hashtable? ht) alist-delv)
-            (else                (let ((compare (hashtable-equivalence-function ht)))
-                                   (lambda (obj alist) (alist-delete obj alist compare))))))
+      (cond ((eq-hashtable? ht)    alist-delq)
+            ((eqv-hashtable? ht)   alist-delv)
+            ((equal-hashtable? ht) (lambda (obj alist) (alist-delete obj alist equal)))
+            (else                  (let ((compare (hashtable-equivalence-function ht)))
+                                     (lambda (obj alist) (alist-delete obj alist compare))))))
   )
 )
