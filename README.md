@@ -68,7 +68,8 @@ _LispKit_ provides support for the following core features, many of which are ba
     `(lispkit logic)`, `(lispkit iteration)`, `(lispkit gvector)`,
     [`(lispkit set)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Set),
     `(lispkit stack)`, `(lispkit queue)`,
-    `(lispkit heap)`, `(lispkit wt-tree)`, `(lispkit prettify)`, `(lispkit json)`, `(lispkit csv)`,
+    `(lispkit heap)`,  `(lispkit graph)`, 
+    `(lispkit wt-tree)`, `(lispkit prettify)`, `(lispkit json)`, `(lispkit csv)`,
     `(lispkit char-set)`,
     `(lispkit date-time)`,
     `(lispkit regexp)`,
@@ -94,15 +95,19 @@ framework:
   - [SRFI 17: Generalized set!](https://srfi.schemers.org/srfi-17/srfi-17.html)
   - [SRFI 19: Time Data Types and Procedures](https://srfi.schemers.org/srfi-19/srfi-19.html)
   - [SRFI 23: Error reporting mechanism](https://srfi.schemers.org/srfi-23/srfi-23.html)
+  - [SRFI 26: Notation for Specializing Parameters without Currying](https://srfi.schemers.org/srfi-26/srfi-26.html)
   - [SRFI 27: Sources of Random Bits](https://srfi.schemers.org/srfi-27/srfi-27.html)
   - [SRFI 28: Basic Format Strings](https://srfi.schemers.org/srfi-28/srfi-28.html)
   - [SRFI 31: A special form rec for recursive evaluation](https://srfi.schemers.org/srfi-31/srfi-31.html)
+  - [SRFI 33: Integer Bitwise-operation Library](https://srfi.schemers.org/srfi-33/srfi-33.html)
   - [SRFI 34: Exception Handling for Programs](https://srfi.schemers.org/srfi-34/srfi-34.html)
   - [SRFI 35: Conditions](https://srfi.schemers.org/srfi-35/srfi-35.html)
   - [SRFI 39: Parameter objects](https://srfi.schemers.org/srfi-39/srfi-39.html)
   - [SRFI 41: Streams](https://srfi.schemers.org/srfi-41/srfi-41.html)
+  - [SRFI 46: Basic Syntax-rules Extensions](https://srfi.schemers.org/srfi-46/srfi-46.html)
   - [SRFI 48: Intermediate Format Strings](https://srfi.schemers.org/srfi-48/srfi-48.html)
   - [SRFI 51: Handling rest list](https://srfi.schemers.org/srfi-51/srfi-51.html)
+  - [SRFI 55: require-extension](https://srfi.schemers.org/srfi-55/srfi-55.html)
   - [SRFI 63: Homogeneous and Heterogeneous Arrays](https://srfi.schemers.org/srfi-63/srfi-63.html)
   - [SRFI 64: A Scheme API for test suites](https://srfi.schemers.org/srfi-64/srfi-64.html)
   - [SRFI 69: Basic hash tables](https://srfi.schemers.org/srfi-69/srfi-69.html)

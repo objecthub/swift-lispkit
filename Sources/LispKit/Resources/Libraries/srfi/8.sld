@@ -27,12 +27,16 @@
 ;;;   Copyright © 2017 Matthias Zenger. All rights reserved.
 
 (define-library (srfi 8)
+
   (export receive)
+
   (import (lispkit base))
-  
+
   (begin
     (define-syntax receive
       (syntax-rules ()
         ((receive formals expression body ...)
           (call-with-values (lambda () expression)
-                            (lambda formals body ...)))))))
+                            (lambda formals body ...)))))
+  )
+)
