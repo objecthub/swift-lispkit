@@ -445,7 +445,7 @@ public final class StringLibrary: NativeLibrary {
       return .false
     } else {
       str.replaceCharacters(in: range, with: to)
-      return .true
+      return .makeNumber(range.location)
     }
   }
   
@@ -529,7 +529,13 @@ public final class StringLibrary: NativeLibrary {
   
   private func stringSplit(_ expr: Expr, _ separator: Expr, _ allowEmpty: Expr?) throws -> Expr {
     let str = try expr.asMutableStr()
-    let sep = try self.charAsString(separator)
+    let sep: String
+    switch separator {
+      case .string(let str):
+        sep = str as String
+      default:
+        sep = try self.charAsString(separator)
+    }
     let components = str.components(separatedBy: sep)
     let includeEmpty = allowEmpty == nil ? true : !allowEmpty!.isFalse
     var res = Exprs()
@@ -543,9 +549,11 @@ public final class StringLibrary: NativeLibrary {
   
   private func stringTrim(_ expr: Expr, _ trimChars: Expr?) throws -> Expr {
     let str = try expr.asMutableStr()
-    if let chars = trimChars {
-      return .makeString(
-        str.trimmingCharacters(in: CharacterSet(charactersIn: try chars.asString())))
+    if case .some(.object(let obj)) = trimChars, let cs = obj as? CharSet {
+      let chars = String(utf16CodeUnits: cs.array, count: cs.count)
+      return .makeString(str.trimmingCharacters(in: CharacterSet(charactersIn: chars)))
+    } else if let tcs = trimChars {
+      return .makeString(str.trimmingCharacters(in: CharacterSet(charactersIn: try tcs.asString())))
     } else {
       return .makeString(str.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines))
     }
