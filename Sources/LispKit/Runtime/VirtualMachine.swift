@@ -946,7 +946,7 @@ public final class VirtualMachine: TrackedObject {
             }
             return proc
           case .native3R(let exec):
-            if n >= 2 {
+            if n >= 3 {
               let res = try exec(self.stack[self.sp &- n],
                                  self.stack[self.sp &- n &+ 1],
                                  self.stack[self.sp &- n &+ 2],
@@ -954,7 +954,7 @@ public final class VirtualMachine: TrackedObject {
               self.pop(n &+ overhead)
               self.push(res)
             } else {
-              throw RuntimeError.argumentCount(min: 2, args: self.popAsList(n))
+              throw RuntimeError.argumentCount(min: 3, args: self.popAsList(n))
             }
             return proc
         }
