@@ -346,38 +346,33 @@ public final class Scanner {
   }
   
   /// Reads the next character and makes it available via the `ch` property.
-  ///
-  /// TODO: REMOVE @INLINE(NEVER) AS SOON AS THE SWIFT 5 COMPILER DOES NOT INCORRECTLY
-  ///       INLINE THIS FUNCTION ANYMORE
-  @inline(never) private func nextCh() {
+  private func nextCh() {
     // Check if we reached EOF already
-    guard self.ch != EOF_CH else {
+    if self.ch == EOF_CH {
       return
     }
     // Store last position
     self.lpos = self.pos
-    // Read next character and terminate if there is none available
-    guard let c = self.input.read() else {
-      self.ch = EOF_CH
-      self.buffer.append(self.ch)
-      return
-    }
-    // Handle potential line breaks
-    switch c {
-      case RET_CH:
+    // Read next character
+    if let c = self.input.read() {
+      // Handle potential line breaks
+      if c == RET_CH {
         self.ch = EOL_CH
         self.pos.col = 1
         self.pos.line += 1
         if let next = self.input.peek(), next == EOL_CH {
           _ = self.input.read()
         }
-      case EOL_CH:
+      } else if c == EOL_CH {
         self.ch = EOL_CH
         self.pos.col = 1
         self.pos.line += 1
-      default:
+      } else {
         self.ch = c
         self.pos.col += 1
+      }
+    } else {
+      self.ch = EOF_CH
     }
     // Write new character into buffer
     self.buffer.append(self.ch)
