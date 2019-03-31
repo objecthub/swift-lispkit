@@ -346,7 +346,10 @@ public final class Scanner {
   }
   
   /// Reads the next character and makes it available via the `ch` property.
-  private func nextCh() {
+  ///
+  /// TODO: REMOVE @INLINE(NEVER) AS SOON AS THE SWIFT 5 COMPILER DOES NOT INCORRECTLY
+  ///       INLINE THIS FUNCTION ANYMORE
+  @inline(never) private func nextCh() {
     // Check if we reached EOF already
     guard self.ch != EOF_CH else {
       return

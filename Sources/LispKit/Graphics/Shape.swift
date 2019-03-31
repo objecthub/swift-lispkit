@@ -326,19 +326,19 @@ public enum ShapePrototype {
         storage.addLayoutManager(manager)
         manager.addTextContainer(container)
         let glyphRange = manager.glyphRange(for: container)
-        if #available(macOS 10.13, *) {
-          var glyphBuffer = [CGGlyph](repeating: 0, count: glyphRange.length)
-          let glyphCount = manager.getGlyphs(in: glyphRange,
-                                             glyphs: &glyphBuffer,
-                                             properties: nil,
-                                             characterIndexes: nil,
-                                             bidiLevels: nil)
-          bezierPath.append(withCGGlyphs: &glyphBuffer, count: glyphCount, in: font)
-        } else {
-          var glyphBuffer = [NSGlyph](repeating: 0, count: glyphRange.length)
-          let glyphCount = manager.getGlyphs(&glyphBuffer, range: glyphRange)
-          bezierPath.appendGlyphs(&glyphBuffer, count: glyphCount, in: font)
-        }
+        // if #available(macOS 10.13, *) {
+        var glyphBuffer = [CGGlyph](repeating: 0, count: glyphRange.length)
+        let glyphCount = manager.getGlyphs(in: glyphRange,
+                                           glyphs: &glyphBuffer,
+                                           properties: nil,
+                                           characterIndexes: nil,
+                                           bidiLevels: nil)
+        bezierPath.append(withCGGlyphs: &glyphBuffer, count: glyphCount, in: font)
+        // } else {
+        //  var glyphBuffer = [NSGlyph](repeating: 0, count: glyphRange.length)
+        //  let glyphCount = manager.getGlyphs(&glyphBuffer, range: glyphRange)
+        //  bezierPath.appendGlyphs(&glyphBuffer, count: glyphCount, in: font)
+        // }
         var bounds = bezierPath.bounds
         bezierPath.transform(using: AffineTransform(translationByX: rect.origin.x - bounds.origin.x,
                                                     byY: rect.origin.y - bounds.origin.y))

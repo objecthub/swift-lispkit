@@ -33,11 +33,35 @@ import Compression
 
 /// Extensions providing compression and decompression functionality.
 public extension Data {
-  
+
+  /// Define a version of `withUnsafeBytes` for UInt8 with the signature used prior to Swift 5
+  private func withUnsafePointer<ResultType>(
+                 _ body: (UnsafePointer<UInt8>) throws -> ResultType) rethrows -> ResultType {
+    return try self.withUnsafeBytes { (rawBufferPointer: UnsafeRawBufferPointer) -> ResultType in
+      guard let pointer = rawBufferPointer.bindMemory(to: UInt8.self).baseAddress else {
+        var zero: UInt8 = 0
+        return try body(&zero)
+      }
+      return try body(pointer)
+    }
+  }
+
+  /// Define a version of `withUnsafeBytes` for UInt16 with the signature used prior to Swift 5
+  private func withUnsafePointer16<ResultType>(
+    _ body: (UnsafePointer<UInt16>) throws -> ResultType) rethrows -> ResultType {
+    return try self.withUnsafeBytes { (rawBufferPointer: UnsafeRawBufferPointer) -> ResultType in
+      guard let pointer = rawBufferPointer.bindMemory(to: UInt16.self).baseAddress else {
+        var zero: UInt16 = 0
+        return try body(&zero)
+      }
+      return try body(pointer)
+    }
+  }
+
   /// Returns a new `Data` object containing the same data compressed via zlib's deflate
   /// algorithm fixed at compression level 5.
-  public func deflate() -> Data? {
-    return self.withUnsafeBytes { (ptr: UnsafePointer<UInt8>) -> Data? in
+  func deflate() -> Data? {
+    return self.withUnsafePointer { (ptr: UnsafePointer<UInt8>) -> Data? in
       return Data.process(operation: COMPRESSION_STREAM_ENCODE,
                           algorithm: COMPRESSION_ZLIB,
                           ptr: ptr,
@@ -48,8 +72,8 @@ public extension Data {
   /// Returns a new `Data` object containing the decompressed data of this object, which is
   /// assumed to be a raw deflate stream. Decompression is done using the zlib's deflate
   /// algorithm.
-  public func inflate() -> Data? {
-    return self.withUnsafeBytes { (ptr: UnsafePointer<UInt8>) -> Data? in
+  func inflate() -> Data? {
+    return self.withUnsafePointer { (ptr: UnsafePointer<UInt8>) -> Data? in
       return Data.process(operation: COMPRESSION_STREAM_DECODE,
                           algorithm: COMPRESSION_ZLIB,
                           ptr: ptr,
@@ -60,9 +84,9 @@ public extension Data {
   /// Returns a new `Data` object containing the same data compressed via zlib's deflate
   /// algorithm fixed at compression level 5. This method is packaging up the raw deflate
   /// stream in zip format.
-  public func zip() -> Data? {
+  func zip() -> Data? {
     var crc = self.adler32Checksum().bigEndian
-    var res = Data(bytes: [0x78, 0x5e])
+    var res = Data([0x78, 0x5e])
     guard let deflated = self.deflate() else {
       return nil
     }
@@ -74,20 +98,20 @@ public extension Data {
   /// Returns a new `Data` object containing the decompressed data of this object, which is
   /// assumed to be a raw deflate stream in zip format. Decompression is done using the zlib's
   /// deflate algorithm.
-  public func unzip(skipCheckSumValidation: Bool = true) -> Data? {
+  func unzip(skipCheckSumValidation: Bool = true) -> Data? {
     // 2 byte header + 4 byte adler32 checksum
     let overhead = 2 + MemoryLayout<UInt32>.size
     guard count > overhead else {
       return nil
     }
-    let header: UInt16 = withUnsafeBytes { (ptr: UnsafePointer<UInt16>) -> UInt16 in
+    let header: UInt16 = withUnsafePointer16 { (ptr: UnsafePointer<UInt16>) -> UInt16 in
       return ptr.pointee.bigEndian
     }
     // check for the deflate stream bit and the header checksum
     guard header >> 8 & 0b1111 == 0b1000, header % 31 == 0 else {
       return nil
     }
-    let cresult: Data? = withUnsafeBytes { (ptr: UnsafePointer<UInt8>) -> Data? in
+    let cresult: Data? = withUnsafePointer { (ptr: UnsafePointer<UInt8>) -> Data? in
       return Data.process(operation: COMPRESSION_STREAM_DECODE,
                           algorithm: COMPRESSION_ZLIB,
                           ptr: ptr.advanced(by: 2),
@@ -99,7 +123,7 @@ public extension Data {
     if skipCheckSumValidation {
       return inflated
     } else {
-      let cksum: UInt32 = withUnsafeBytes { (ptr: UnsafePointer<UInt8>) -> UInt32 in
+      let cksum: UInt32 = withUnsafePointer { (ptr: UnsafePointer<UInt8>) -> UInt32 in
         let last = ptr.advanced(by: count - MemoryLayout<UInt32>.size)
         return last.withMemoryRebound(to: UInt32.self, capacity: 1) { (intPtr) -> UInt32 in
           return intPtr.pointee.bigEndian

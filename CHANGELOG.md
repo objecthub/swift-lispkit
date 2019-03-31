@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.7.1 (2019-03-31)
+- Migrated project to Xcode 10.2
+- Ported code to Swift 5
+
 ## 1.7 (2019-02-24)
 - New libraries: `(lispkit csv)`, `(lispkit match)`, `(lispkit regexp)`, `(lispkit gvector)`, `(lispkit date-time)`
 - Extended `(lispkit vector)` and `(lispkit list)` libraries

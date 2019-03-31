@@ -210,7 +210,7 @@ public final class BytevectorLibrary: NativeLibrary {
   }
   
   func bytevectorToBase64(_ bvec: Expr, args: Arguments) throws -> Expr {
-    return .makeString(Data(bytes:
+    return .makeString(Data(
       try self.subVector("bytevector->base64", bvec, args)).base64EncodedString())
   }
   
@@ -227,7 +227,7 @@ public final class BytevectorLibrary: NativeLibrary {
   
   private func bytevectorDeflate(_ bvec: Expr, args: Arguments) throws -> Expr {
     let subvec = try self.subVector("bytevector-deflate", bvec, args)
-    guard let data = Data(bytes: subvec).deflate() else {
+    guard let data = Data(subvec).deflate() else {
       throw RuntimeError.eval(.cannotEncodeBytevector, .bytes(MutableBox(subvec)))
     }
     let count = data.count
@@ -238,7 +238,7 @@ public final class BytevectorLibrary: NativeLibrary {
   
   private func bytevectorInflate(_ bvec: Expr, args: Arguments) throws -> Expr {
     let subvec = try self.subVector("bytevector-inflate", bvec, args)
-    guard let data = Data(bytes: subvec).inflate() else {
+    guard let data = Data(subvec).inflate() else {
       throw RuntimeError.eval(.cannotDecodeBytevector, .bytes(MutableBox(subvec)))
     }
     let count = data.count

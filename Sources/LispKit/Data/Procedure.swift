@@ -335,7 +335,7 @@ public typealias Arguments = ArraySlice<Expr>
 
 public extension ArraySlice {
     
-  public func optional(_ fst: Element, _ snd: Element) -> (Element, Element)? {
+  func optional(_ fst: Element, _ snd: Element) -> (Element, Element)? {
     switch self.count {
       case 0:
         return (fst, snd)
@@ -348,7 +348,7 @@ public extension ArraySlice {
     }
   }
   
-  public func optional(_ fst: Element,
+  func optional(_ fst: Element,
                        _ snd: Element,
                        _ trd: Element) -> (Element, Element, Element)? {
     switch self.count {
@@ -365,14 +365,14 @@ public extension ArraySlice {
     }
   }
   
-  public func required2() -> (Element, Element)? {
+  func required2() -> (Element, Element)? {
     guard self.count == 2 else {
       return nil
     }
     return (self[self.startIndex], self[self.startIndex + 1])
   }
   
-  public func required3() -> (Element, Element, Element)? {
+  func required3() -> (Element, Element, Element)? {
     guard self.count == 3 else {
       return nil
     }

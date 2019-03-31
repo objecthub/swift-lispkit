@@ -2,8 +2,8 @@
 ========================
 
 [![Platform: macOS](https://img.shields.io/badge/Platform-macOS-blue.svg?style=flat)](https://developer.apple.com/osx/)
-[![Language: Swift 4.2](https://img.shields.io/badge/Language-Swift%204.2-green.svg?style=flat)](https://developer.apple.com/swift/)
-[![IDE: Xcode 10.1](https://img.shields.io/badge/IDE-Xcode%2010.1-orange.svg?style=flat)](https://developer.apple.com/xcode/)
+[![Language: Swift 5](https://img.shields.io/badge/Language-Swift%205-green.svg?style=flat)](https://developer.apple.com/swift/)
+[![IDE: Xcode 10.2](https://img.shields.io/badge/IDE-Xcode%2010.2-orange.svg?style=flat)](https://developer.apple.com/xcode/)
 [![Carthage: compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![License: Apache](http://img.shields.io/badge/License-Apache-lightgrey.svg?style=flat)](https://raw.githubusercontent.com/objecthub/swift-lispkit/master/LICENSE)
 
@@ -220,9 +220,9 @@ The following technologies are needed to build the components of the LispKit fra
 command-line tool, Xcode and Carthage are not strictly needed. Just for compiling the framework and trying
 the command-line tool in Xcode, the Swift Package Manager is not needed.
 
-- [Xcode 10.1](https://developer.apple.com/xcode/)
+- [Xcode 10.2](https://developer.apple.com/xcode/)
 - [Carthage](https://github.com/Carthage/Carthage)
 - [Swift Package Manager](https://swift.org/package-manager/)
-- [Swift 4.2](https://developer.apple.com/swift/)
+- [Swift 5](https://developer.apple.com/swift/)
 - [NumberKit](http://github.com/objecthub/swift-numberkit)
 - [CommandLineKit](http://github.com/objecthub/swift-commandlinekit)

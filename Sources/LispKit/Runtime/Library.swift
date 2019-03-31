@@ -18,6 +18,8 @@
 //  limitations under the License.
 //
 
+import Foundation
+
 ///
 /// `Library` represents a library specification, listing exported identifiers, imported
 /// identifiers, as well as the definition of the library in terms of import, export,

@@ -64,27 +64,27 @@ public protocol ContextDelegate: TextInputSource, TextOutputTarget {
 public extension ContextDelegate {
   
   /// The console always blocks before providing a new string.
-  public var nextReadMightBlock: Bool {
+  var nextReadMightBlock: Bool {
     return true
   }
   
   /// Read the next string from the console. This operation always blocks.
-  public func readString() -> String? {
+  func readString() -> String? {
     return self.read()
   }
   
   /// `flush` always succeeds.
-  public func flush(_ completely: Bool = false) -> Bool {
+  func flush(_ completely: Bool = false) -> Bool {
     return true
   }
   
   /// Print the given string to the console.
-  public func writeString(_ str: String) -> Bool {
+  func writeString(_ str: String) -> Bool {
     self.print(str)
     return true
   }
   
-  public func countTracedProcedures(_ callStack: [Procedure]) -> Int {
+  func countTracedProcedures(_ callStack: [Procedure]) -> Int {
     var num = 0
     for proc in callStack {
       if proc.traced {
@@ -94,7 +94,7 @@ public extension ContextDelegate {
     return num
   }
   
-  public func trace(call proc: Procedure,
+  func trace(call proc: Procedure,
                     args: Exprs,
                     tailCall: Bool,
                     in machine: VirtualMachine) {
@@ -119,7 +119,7 @@ public extension ContextDelegate {
     self.print(builder.description)
   }
   
-  public func trace(return proc: Procedure,
+  func trace(return proc: Procedure,
                     result: Expr,
                     tailCall: Bool,
                     in machine: VirtualMachine) {
@@ -142,13 +142,13 @@ public extension ContextDelegate {
     self.print(builder.description)
   }
   
-  public func loaded(library: Library, by: LibraryManager) {
+  func loaded(library: Library, by: LibraryManager) {
   }
   
-  public func bound(symbol: Symbol, in: Environment) {
+  func bound(symbol: Symbol, in: Environment) {
   }
   
-  public func emergencyExit(obj: Expr?) {
+  func emergencyExit(obj: Expr?) {
     NSApplication.shared.terminate(self)
   }
 }

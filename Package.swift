@@ -1,19 +1,19 @@
-// swift-tools-version:4.2
+// swift-tools-version:5.0
 //
 //  Package.swift
 //  LispKit
 //
 //  Build targets by calling the Swift Package Manager in the following way for debug purposes:
-//  swift build -Xswiftc "-target" -Xswiftc "x86_64-apple-macosx10.12" -Xswiftc "-D" -Xswiftc "SPM"
+//  swift build -Xswiftc "-D" -Xswiftc "SPM"
 //
 //  Run REPL:
-//  swift run -Xswiftc "-target" -Xswiftc "x86_64-apple-macosx10.12" -Xswiftc "-D" -Xswiftc "SPM"
+//  swift run -Xswiftc "-D" -Xswiftc "SPM"
 //
 //  A release can be built with these options:
-//  swift build -c release -Xswiftc -static-stdlib -Xswiftc "-target" -Xswiftc "x86_64-apple-macosx10.12" -Xswiftc "-D" -Xswiftc "SPM"
+//  swift build -c release -Xswiftc "-D" -Xswiftc "SPM"
 //
 //  Created by Matthias Zenger on 16/10/2017.
-//  Copyright © 2017 ObjectHub. All rights reserved.
+//  Copyright © 2017-2019 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -32,13 +32,16 @@ import PackageDescription
 
 let package = Package(
   name: "LispKit",
+  platforms: [
+    .macOS(.v10_13)
+  ],
   products: [
     .library(name: "LispKit", targets: ["LispKit"]),
     .executable(name: "LispKitRepl", targets: ["LispKitRepl"])
   ],
   dependencies: [
-    .package(url: "https://github.com/objecthub/swift-numberkit.git", from: "2.2.5"),
-    .package(url: "https://github.com/objecthub/swift-commandlinekit.git", from: "0.2.5")
+    .package(url: "https://github.com/objecthub/swift-numberkit.git", from: "2.3.0"),
+    .package(url: "https://github.com/objecthub/swift-commandlinekit.git", from: "0.3.0")
   ],
   targets: [
     .target(name: "LispKit",
@@ -49,5 +52,5 @@ let package = Package(
     .testTarget(name: "LispKitTests",
                 dependencies: ["LispKit"])
   ],
-  swiftLanguageVersions: [.v4_2]
+  swiftLanguageVersions: [.v5]
 )
