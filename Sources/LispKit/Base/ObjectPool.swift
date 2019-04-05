@@ -87,6 +87,15 @@ public final class ObjectPool<T: AnyObject>: Sequence, CustomStringConvertible {
       references.append(WeakVariable(recycled: false, obj: obj))
     }
   }
+
+  /// Removes the object at index `i`
+  public func remove(_ i: Int) {
+    if i >= 0 && i < self.references.count && !self.references[i].recycled {
+      self.references[i].obj = nil
+      self.references[i].recycled = true
+      self.free.append(i)
+    }
+  }
   
   /// Removes all objects from the object pool.
   public func clear() {

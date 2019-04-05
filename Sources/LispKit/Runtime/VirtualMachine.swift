@@ -1242,15 +1242,13 @@ public final class VirtualMachine: TrackedObject {
             preconditionFailure("makePromise cannot create promise from \(top)")
           }
           let future = Promise(kind: .promise, thunk: proc)
-          self.context.objects.manage(future)
           self.push(.promise(future))
         case .makeStream:
           let top = self.pop()
           guard case .procedure(let proc) = top else {
-            preconditionFailure("makeStream cannot create promise from \(top)")
+            preconditionFailure("makeStream cannot create stream from \(top)")
           }
           let future = Promise(kind: .stream, thunk: proc)
-          self.context.objects.manage(future)
           self.push(.promise(future))
         case .makeSyntax(let i):
           let transformer = self.pop()
@@ -1471,8 +1469,6 @@ public final class VirtualMachine: TrackedObject {
                 self.stack[self.sp &- 1] = value
                 // Jump over StoreInPromise operation
                 self.registers.ip = self.registers.ip &+ 1
-              case .thrown(let error):
-                throw error
             }
           }
         case .storeInPromise:
@@ -1485,9 +1481,6 @@ public final class VirtualMachine: TrackedObject {
                     future.kind == result.kind else {
                 let type: Type = future.kind == Promise.Kind.promise ? .promiseType : .streamType
                 throw RuntimeError.type(self.stack[self.sp &- 1], expected: [type])
-              }
-              if !result.isAtom {
-                self.context.objects.manage(future)
               }
               future.state = result.state
               result.state = .shared(future)

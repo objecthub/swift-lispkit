@@ -21,7 +21,7 @@
 ///
 /// Class `Promise` is used to represent promises natively in LispKit.
 ///
-public final class Promise: ManagedObject, CustomStringConvertible {
+public final class Promise: Reference, CustomStringConvertible {
   
   public enum Kind: CustomStringConvertible {
     case promise
@@ -39,9 +39,8 @@ public final class Promise: ManagedObject, CustomStringConvertible {
   
   public indirect enum State: CustomStringConvertible {
     case lazy(Procedure)       // Thunk of promises
-    case shared(Promise)       // Shared future
-    case value(Expr)           // Evaluated future
-    case thrown(Error)         // Failed evaluation of future
+    case shared(Promise)       // Shared promise
+    case value(Expr)           // Evaluated promise
     
     public var description: String {
       switch self {
@@ -51,85 +50,47 @@ public final class Promise: ManagedObject, CustomStringConvertible {
           return "shared(\(future))"
         case .value(let value):
           return "value(\(value))"
-        case .thrown(let error):
-          return "thrown(\(error))"
       }
     }
   }
   
   public let kind: Kind
   
-  /// State of the future; this state is modified externally.
+  /// State of the promise; this state is modified externally.
   public var state: State
-  
-  /// Maintain object statistics.
-  internal static let stats = Stats("Promise")
-  
-  /// Update object statistics.
-  deinit {
-    Promise.stats.dealloc()
-  }
-  
-  /// Initializes a future with a `thunk` that yields a promise; this promise's state is
-  /// copied over into this future as part of the protocol to force a promise.
+
+  /// Initializes a promise with a `thunk` that yields a promise; this promise's state is
+  /// copied over into this promise as part of the protocol to force a promise.
   public init(kind: Kind, thunk: Procedure) {
     self.kind = kind
     self.state = .lazy(thunk)
-    super.init(Promise.stats)
   }
   
-  /// Initializes a future with a given value; no evaluation will happen.
+  /// Initializes a promise with a given value; no evaluation will happen.
   public init(kind: Kind, value: Expr) {
     self.kind = kind
     self.state = .value(value)
-    super.init(Promise.stats)
   }
-  
-  /// Returns true if this refers to only "simple" values (i.e. values which won't lead to
-  /// cyclic references)
-  public var isAtom: Bool {
-    switch self.state {
-      case .lazy(_):
-        return true
-      case .shared(let future):
-        return future.isAtom
-      case .value(let expr):
-        return expr.isAtom
-      case .thrown(_):
-        return false
-    }
-  }
-  
+
   /// Is this promise a stream?
   public var isStream: Bool {
     return self.kind == .stream
   }
   
-  /// String representation of the future.
+  /// String representation of the promise.
   public var description: String {
     return "\(self.kind)#\(self.state)"
   }
   
-  /// Mark the expressions referenced from this future.
-  public override func mark(_ tag: UInt8) {
-    if self.tag != tag {
-      self.tag = tag
-      switch self.state {
-        case .lazy(let proc):
-          proc.mark(tag)
-        case .shared(let future):
-          future.mark(tag)
-        case .value(let expr):
-          expr.mark(tag)
-        case .thrown(_):
-          // TODO: Figure out how to mark errors
-          break
-      }
+  /// Mark the expressions referenced from this promise.
+  public func mark(_ tag: UInt8) {
+    switch self.state {
+      case .lazy(let proc):
+        proc.mark(tag)
+      case .shared(let future):
+        future.mark(tag)
+      case .value(let expr):
+        expr.mark(tag)
     }
-  }
-  
-  /// Remove references to expressions from this future.
-  public override func clean() {
-    self.state = .value(.null)
   }
 }
