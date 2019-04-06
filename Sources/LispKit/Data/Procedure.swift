@@ -95,6 +95,10 @@ public final class Procedure: Reference, CustomStringConvertible {
   /// Is this procedure traced; i.e. should the virtual machine print debugging information
   /// for this procedure?
   public var traced: Bool = false
+
+  /// A tag that defines the last GC cyle in which this object was marked (by following the
+  /// root set references); for optimization purposes
+  internal final var tag: UInt8 = 0
   
   /// Initializer for primitive evaluators
   public init(_ name: String,
@@ -310,18 +314,21 @@ public final class Procedure: Reference, CustomStringConvertible {
   }
   
   public func mark(_ tag: UInt8) {
-    switch self.kind {
-      case .closure(_, let captures, let code):
-        for capture in captures {
-          capture.mark(tag)
-        }
-        code.mark(tag)
-      case .parameter(let tuple):
-        tuple.mark(tag)
-      case .rawContinuation(let state):
-        state.mark(tag)
-      default:
-        break
+    if self.tag != tag {
+      self.tag = tag
+      switch self.kind {
+        case .closure(_, let captures, let code):
+          for capture in captures {
+            capture.mark(tag)
+          }
+          code.mark(tag)
+        case .parameter(let tuple):
+          tuple.mark(tag)
+        case .rawContinuation(let state):
+          state.mark(tag)
+        default:
+          break
+      }
     }
   }
   
