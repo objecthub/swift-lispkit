@@ -81,16 +81,4 @@ public final class Promise: Reference, CustomStringConvertible {
   public var description: String {
     return "\(self.kind)#\(self.state)"
   }
-  
-  /// Mark the expressions referenced from this promise.
-  public func mark(_ tag: UInt8) {
-    switch self.state {
-      case .lazy(let proc):
-        proc.mark(tag)
-      case .shared(let future):
-        future.mark(tag)
-      case .value(let expr):
-        expr.mark(tag)
-    }
-  }
 }

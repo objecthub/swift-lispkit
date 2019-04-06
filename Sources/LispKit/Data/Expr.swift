@@ -366,11 +366,20 @@ public enum Expr: Trackable, Hashable {
           car.mark(tag)
           expr = cdr
         case .box(let cell):
-          cell.mark(tag)
-          return
+          if cell.tag != tag {
+            cell.tag = tag
+            expr = cell.value
+          } else {
+            return
+          }
         case .mpair(let tuple):
-          tuple.mark(tag)
-          return
+          if tuple.tag != tag {
+            tuple.tag = tag
+            tuple.fst.mark(tag)
+            expr = tuple.snd
+          } else {
+            return
+          }
         case .array(let array):
           array.mark(tag)
           return
@@ -384,8 +393,15 @@ public enum Expr: Trackable, Hashable {
           map.mark(tag)
           return
         case .promise(let future):
-          future.mark(tag)
-          return
+          switch future.state {
+            case .lazy(let proc):
+              proc.mark(tag)
+              return
+            case .shared(let future):
+              expr = .promise(future)
+            case .value(let e):
+              expr = e
+          }
         case .values(let list):
           expr = list
         case .procedure(let proc):

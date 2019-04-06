@@ -87,6 +87,7 @@
 		CC48EBD31F3E5CFC00233FA9 /* kernel0.sld in Copy pre-installed LispKit library: SRFI 135 */ = {isa = PBXBuildFile; fileRef = CC48EBCB1F3E5AA700233FA9 /* kernel0.sld */; };
 		CC48EBD51F3E617800233FA9 /* 135.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC48EBC71F3E55F700233FA9 /* 135.sld */; };
 		CC48EBD71F3F38E800233FA9 /* SRFI135.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC48EBD61F3F380A00233FA9 /* SRFI135.scm */; };
+		CC4A7DB922585E1700936034 /* stream.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC4A7DB822585D9100936034 /* stream.sld */; };
 		CC4D2C9F1D5EDA2A00A02256 /* RecordLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC4D2C9E1D5EDA2A00A02256 /* RecordLibrary.swift */; };
 		CC4E2D371D09691000D77159 /* PortLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC4E2D361D09691000D77159 /* PortLibrary.swift */; };
 		CC502A951CDABF1E00875D9F /* BuildMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = CC502A941CDABF1E00875D9F /* BuildMetadata.m */; };
@@ -404,6 +405,7 @@
 			dstPath = LispKit/Resources/Libraries/lispkit;
 			dstSubfolderSpec = 7;
 			files = (
+				CC4A7DB922585E1700936034 /* stream.sld in Copy pre-installed LispKit libraries */,
 				CC7C3E992235DE300082DF7C /* graph.sld in Copy pre-installed LispKit libraries */,
 				CC7A125921E93E3000ABEA17 /* csv.sld in Copy pre-installed LispKit libraries */,
 				CC7A125821E93E1700ABEA17 /* match.sld in Copy pre-installed LispKit libraries */,
@@ -662,6 +664,7 @@
 		CC48EBCE1F3E5AF300233FA9 /* derived.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = derived.sld; sourceTree = "<group>"; };
 		CC48EBCF1F3E5B0400233FA9 /* primitive.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = primitive.sld; sourceTree = "<group>"; };
 		CC48EBD61F3F380A00233FA9 /* SRFI135.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SRFI135.scm; sourceTree = "<group>"; };
+		CC4A7DB822585D9100936034 /* stream.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = stream.sld; sourceTree = "<group>"; };
 		CC4D2C9E1D5EDA2A00A02256 /* RecordLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = RecordLibrary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC4E2D361D09691000D77159 /* PortLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = PortLibrary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC502A931CDABF1E00875D9F /* LispKitReplBridgingHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LispKitReplBridgingHeader.h; sourceTree = "<group>"; };
@@ -1041,6 +1044,7 @@
 				CC72862C1F52B2F600EEBC58 /* heap.sld */,
 				CC7C3E982235DD900082DF7C /* graph.sld */,
 				CCEEF3921FB3CB03006C4581 /* wt-tree.sld */,
+				CC4A7DB822585D9100936034 /* stream.sld */,
 				CC750BD91F5B772200CD82A2 /* prettify.sld */,
 				CCBD755D21E224A7008CD7C8 /* csv.sld */,
 				CC3A02591F97F3E1009B959C /* json.sld */,
