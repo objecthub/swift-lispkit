@@ -65,26 +65,30 @@ public final class ObjectPool<T: AnyObject>: Sequence, CustomStringConvertible {
   }
   
   /// Adds the given object to the object pool.
-  public func add(_ obj: T) {
+  @discardableResult public func add(_ obj: T) -> Int {
     // Collect free references on a regular basis; frequency is based on the capacity
     if let i = free.first {
       self.added += 1
-      free.removeFirst()
+      self.free.removeFirst()
       self.references[i].recycled = false
       self.references[i].obj = obj
+      return i
     } else if self.added > (100 + self.capacity / 10) {
       self.added = 1
-      collectFreeReferences()
+      self.collectFreeReferences()
       if let i = free.first {
-        free.removeFirst()
+        self.free.removeFirst()
         self.references[i].recycled = false
         self.references[i].obj = obj
+        return i
       } else {
-        references.append(WeakVariable(recycled: false, obj: obj))
+        self.references.append(WeakVariable(recycled: false, obj: obj))
+        return self.references.count - 1
       }
     } else {
       self.added += 1
-      references.append(WeakVariable(recycled: false, obj: obj))
+      self.references.append(WeakVariable(recycled: false, obj: obj))
+      return self.references.count - 1
     }
   }
 
@@ -135,4 +139,3 @@ public final class ObjectPool<T: AnyObject>: Sequence, CustomStringConvertible {
            "free = \(self.free)}"
   }
 }
-

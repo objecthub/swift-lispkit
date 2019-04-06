@@ -1242,6 +1242,7 @@ public final class VirtualMachine: TrackedObject {
             preconditionFailure("makePromise cannot create promise from \(top)")
           }
           let future = Promise(kind: .promise, thunk: proc)
+          future.managementRef = self.context.objects.reference(to: future)
           self.push(.promise(future))
         case .makeStream:
           let top = self.pop()
@@ -1249,6 +1250,7 @@ public final class VirtualMachine: TrackedObject {
             preconditionFailure("makeStream cannot create stream from \(top)")
           }
           let future = Promise(kind: .stream, thunk: proc)
+          future.managementRef = self.context.objects.reference(to: future)
           self.push(.promise(future))
         case .makeSyntax(let i):
           let transformer = self.pop()
@@ -1484,6 +1486,14 @@ public final class VirtualMachine: TrackedObject {
               }
               future.state = result.state
               result.state = .shared(future)
+              if let ref = result.managementRef {
+                self.context.objects.unmanage(ref)
+                result.managementRef = nil
+              }
+              if let ref = future.managementRef, case .value(_) = future.state {
+                self.context.objects.unmanage(ref)
+                future.managementRef = nil
+              }
             default:
               break
           }

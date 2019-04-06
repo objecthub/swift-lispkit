@@ -108,6 +108,20 @@ public final class ManagedObjectPool: CustomStringConvertible {
     return obj
   }
   
+  /// Manage the given managed object.
+  @discardableResult public func reference(to obj: ManagedObject) -> Int? {
+    if !obj.managed {
+      obj.managed = true
+      return self.objectPool.add(obj)
+    }
+    return nil
+  }
+
+  /// Unmanage the object at which the given reference points.
+  public func unmanage(_ ref: Int) {
+    self.objectPool.remove(ref)
+  }
+  
   /// Perform garbage collection.
   public func collectGarbage() -> Int {
     // Increment cycle counter

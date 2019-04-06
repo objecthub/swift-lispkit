@@ -21,7 +21,7 @@
 ///
 /// Class `Promise` is used to represent promises natively in LispKit.
 ///
-public final class Promise: Reference, CustomStringConvertible {
+public final class Promise: ManagedObject, CustomStringConvertible {
   
   public enum Kind: CustomStringConvertible {
     case promise
@@ -53,23 +53,50 @@ public final class Promise: Reference, CustomStringConvertible {
       }
     }
   }
-  
+
+  /// The kind of promise: either a regular promise or a stream.
   public let kind: Kind
   
   /// State of the promise; this state is modified externally.
   public var state: State
+
+  /// Reference to this object in the managed object pool.
+  public var managementRef: Int?
+
+  /// Maintain object statistics.
+  internal static let stats = Stats("Promise")
+
+  /// Update object statistics.
+  deinit {
+    Promise.stats.dealloc()
+  }
 
   /// Initializes a promise with a `thunk` that yields a promise; this promise's state is
   /// copied over into this promise as part of the protocol to force a promise.
   public init(kind: Kind, thunk: Procedure) {
     self.kind = kind
     self.state = .lazy(thunk)
+    super.init(Promise.stats)
   }
   
   /// Initializes a promise with a given value; no evaluation will happen.
   public init(kind: Kind, value: Expr) {
     self.kind = kind
     self.state = .value(value)
+    super.init(Promise.stats)
+  }
+
+  /// Returns true if this refers to only "simple" values (i.e. values which won't lead to
+  /// cyclic references)
+  public var isAtom: Bool {
+    switch self.state {
+      case .lazy(_):
+        return false
+      case .shared(let future):
+        return future.isAtom
+      case .value(let expr):
+        return expr.isAtom
+    }
   }
 
   /// Is this promise a stream?
@@ -80,5 +107,25 @@ public final class Promise: Reference, CustomStringConvertible {
   /// String representation of the promise.
   public var description: String {
     return "\(self.kind)#\(self.state)"
+  }
+
+  /// Mark the expressions referenced from this future.
+  public override func mark(_ tag: UInt8) {
+    if self.tag != tag {
+      self.tag = tag
+      switch self.state {
+        case .lazy(let proc):
+          proc.mark(tag)
+        case .shared(let future):
+          future.mark(tag)
+        case .value(let expr):
+          expr.mark(tag)
+      }
+    }
+  }
+
+  /// Remove references to expressions from this future.
+  public override func clean() {
+    self.state = .value(.null)
   }
 }

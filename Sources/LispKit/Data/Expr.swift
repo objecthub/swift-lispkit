@@ -331,33 +331,26 @@ public enum Expr: Trackable, Hashable {
            .fixnum(_), .bignum(_), .rational(_, _), .flonum(_), .complex(_),
            .char(_), .string(_), .bytes(_), .env(_), .port(_), .object(_):
         return true
+      case .pair(let car, let cdr):
+        return car.isSimpleAtom && cdr.isSimpleAtom
+      case .tagged(let tag, let expr):
+        return tag.isSimpleAtom && expr.isAtom
       default:
         return false
     }
   }
-  
-  public var requiresTracking: Bool {
+
+  public var isSimpleAtom: Bool {
     switch self {
-      case .pair(let car, let cdr):
-        return car.requiresTracking || cdr.requiresTracking
-      case .syntax(_, let expr):
-        return expr.requiresTracking
-      case .box(_),
-           .mpair(_),
-           .array(_),
-           .vector(_),
-           .record(_),
-           .table(_),
-           .promise(_),
-           .procedure(_),
-           .special(_),
-           .error(_):
+      case .undef, .void, .eof, .null, .true, .false, .uninit(_), .symbol(_),
+           .fixnum(_), .bignum(_), .rational(_, _), .flonum(_), .complex(_),
+           .char(_), .string(_), .bytes(_), .env(_), .port(_), .object(_):
         return true
       default:
         return false
     }
   }
-  
+
   public func mark(_ tag: UInt8) {
     var expr = self
     while true {
@@ -366,19 +359,19 @@ public enum Expr: Trackable, Hashable {
           car.mark(tag)
           expr = cdr
         case .box(let cell):
-          if cell.tag != tag {
+          if cell.tag == tag {
+            return
+          } else {
             cell.tag = tag
             expr = cell.value
-          } else {
-            return
           }
         case .mpair(let tuple):
-          if tuple.tag != tag {
+          if tuple.tag == tag {
+            return
+          } else {
             tuple.tag = tag
             tuple.fst.mark(tag)
             expr = tuple.snd
-          } else {
-            return
           }
         case .array(let array):
           array.mark(tag)
@@ -393,14 +386,19 @@ public enum Expr: Trackable, Hashable {
           map.mark(tag)
           return
         case .promise(let future):
-          switch future.state {
-            case .lazy(let proc):
-              proc.mark(tag)
-              return
-            case .shared(let future):
-              expr = .promise(future)
-            case .value(let e):
-              expr = e
+          if future.tag == tag {
+            return
+          } else {
+            future.tag = tag
+            switch future.state {
+              case .lazy(let proc):
+                proc.mark(tag)
+                return
+              case .shared(let future):
+                expr = .promise(future)
+              case .value(let e):
+                expr = e
+            }
           }
         case .values(let list):
           expr = list
