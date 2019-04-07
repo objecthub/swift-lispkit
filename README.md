@@ -134,6 +134,7 @@ framework:
   - [SRFI 152: String Library](https://srfi.schemers.org/srfi-152/srfi-152.html)
   - [SRFI 158: Generators and Accumulators](https://srfi.schemers.org/srfi-158/srfi-158.html)
   - [SRFI 161: Unifiable Boxes](https://srfi.schemers.org/srfi-161/srfi-161.html)
+  - [SRFI 165: The Environment Monad](https://srfi.schemers.org/srfi-165/srfi-165.html)
 
 
 ## Architecture
