@@ -51,9 +51,10 @@ _LispKit_ provides support for the following core features, many of which are ba
     `(scheme cxr)`, `(scheme eval)`, `(scheme file)`, `(scheme inexact)`, `(scheme lazy)`,
     `(scheme load)`, `(scheme process-context)`, `(scheme read)`, `(scheme repl)`, `(scheme time)`,
     `(scheme write)`, `(scheme r5rs)`
-  - Some R7RS (large) libraries from Scheme Red edition:
+  - Some R7RS (large) libraries from Scheme Red and Scheme Tangerine editions:
     `(scheme box)`,  `(scheme charset)`, `(scheme comparator)`, `(scheme generator)`,
-    `(scheme hash-table)`, `(scheme ideque)`, `(scheme list)`, `(scheme rlist)`, `(scheme set)`,
+    `(scheme hash-table)`, `(scheme ideque)`, `(scheme list)`, `(scheme mapping)`,
+    `(scheme rlist)`, `(scheme set)`,
     `(scheme sort)`, `(scheme stream)`, `(scheme text)`, `(scheme vector)`
   - LispKit-specific libraries: [`(lispkit box)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Box),
     [`(lispkit type)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Type),
@@ -128,6 +129,7 @@ framework:
   - [SRFI 137: Minimal Unique Types](https://srfi.schemers.org/srfi-137/srfi-137.html)
   - [SRFI 142: Bitwise Operations](https://srfi.schemers.org/srfi-142/srfi-142.html)
   - [SRFI 145: Assumptions](https://srfi.schemers.org/srfi-145/srfi-145.html)
+  - [SRFI 146: Mappings](https://srfi.schemers.org/srfi-146/srfi-146.html)
   - [SRFI 151: Bitwise Operations](https://srfi.schemers.org/srfi-151/srfi-151.html)
   - [SRFI 152: String Library](https://srfi.schemers.org/srfi-152/srfi-152.html)
   - [SRFI 158: Generators and Accumulators](https://srfi.schemers.org/srfi-158/srfi-158.html)

@@ -9,7 +9,7 @@
 ;;; identical. In the case of link and union, it will be the state of one of the two unioned
 ;;; boxes. In the case of unify, the state is determined by a supplied unification procedure.
 ;;;
-;;; Copyright (C) Marc Nieper-Wißkirchen (2018). All Rights Reserved.
+;;; Copyright © 2018 Marc Nieper-Wißkirchen. All rights reserved.
 ;;;
 ;;; Permission is hereby granted, free of charge, to any person obtaining a copy of this
 ;;; software and associated documentation files (the "Software"), to deal in the Software

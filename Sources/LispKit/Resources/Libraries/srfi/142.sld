@@ -7,7 +7,7 @@
 ;;; efficient as practical with pure Scheme arithmetic, and open source.
 ;;;
 ;;; Specification:
-;;;   Copyright © 2016 John Cowan. All Rights Reserved.
+;;;   Copyright © 2016 John Cowan. All rights reserved.
 ;;;
 ;;;   Permission is hereby granted, free of charge, to any person obtaining a copy of this
 ;;;   software and associated documentation files (the "Software"), to deal in the Software

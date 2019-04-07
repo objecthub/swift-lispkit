@@ -247,4 +247,3 @@
     (test-cs i (->char-set "abcdefABCDEF"))))
 
 (test-end)
-

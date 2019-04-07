@@ -25,7 +25,7 @@
 ;;;       bignums. Its performance is significantly better than the one of SRFI 142.
 ;;; 
 ;;; Specification:
-;;;   Copyright © 2016 John Cowan. All Rights Reserved.
+;;;   Copyright © 2016 John Cowan. All rights reserved.
 ;;;
 ;;;   Permission is hereby granted, free of charge, to any person obtaining a copy of this
 ;;;   software and associated documentation files (the "Software"), to deal in the Software

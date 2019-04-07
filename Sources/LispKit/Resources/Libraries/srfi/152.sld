@@ -25,9 +25,9 @@
 ;;;   Olin Shivers 7/2000
 ;;;   John Cowan 4/2016
 ;;;   
-;;;   Copyright (c) 1988-1994 Massachusetts Institute of Technology.
-;;;   Copyright (c) 1998, 1999, 2000 Olin Shivers. 
-;;;   Copyright (c) 2016 John Cowan.
+;;;   Copyright © 1988-1994 Massachusetts Institute of Technology.
+;;;   Copyright © 1998, 1999, 2000 Olin Shivers.
+;;;   Copyright © 2016 John Cowan.
 ;;;     The details of the copyrights appear at the end of the file. Short summary:
 ;;;     BSD-style open source.
 ;;;

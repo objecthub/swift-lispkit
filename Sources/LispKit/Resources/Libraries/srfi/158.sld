@@ -10,8 +10,8 @@
 ;;; This SRFI also defines procedures that return accumulators. An accumulator is the
 ;;; inverse of a generator: it is a procedure of one argument that works as a sink of values.
 ;;;
-;;; Copyright (C) Shiro Kawai, John Cowan, Thomas Gilray (2015). All Rights Reserved.
-;;;
+;;; Copyright © 2015 Shiro Kawai, John Cowan, Thomas Gilray (2015). All rights reserved.
+;;; 
 ;;; Permission is hereby granted, free of charge, to any person obtaining a copy of this
 ;;; software and associated documentation files (the "Software"), to deal in the Software
 ;;; without restriction, including without limitation the rights to use, copy, modify,
