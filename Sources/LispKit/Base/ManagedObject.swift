@@ -40,33 +40,7 @@ open class ManagedObject: Reference {
   /// A tag that defines the last GC cyle in which this object was marked (by following the
   /// root set references).
   internal final var tag: UInt8 = 0
-  
-  /// Each class inheriting from `ManagedObject` creates a static `Stats` instance and
-  /// passes it on to the constructor of `ManagedObject`. The `deinit` method of each
-  /// `ManagedObject` subclass needs to invoke `dealloc` on this stats object to update
-  /// the count for the number of allocated objects.
-  internal final class Stats {
-    let entityName: String
-    var created: UInt64 = 0
-    var allocated: UInt64 = 0
-    
-    init(_ entityName: String) {
-      self.entityName = entityName
-    }
-    
-    func dealloc() {
-      self.allocated -= 1
-      // log("[releasing \(self.entityName)]")
-    }
-  }
-  
-  /// Initializes stats for this managed object type.
-  internal init(_ stats: Stats) {
-    stats.created += 1
-    stats.allocated += 1
-    // log("[allocating \(stats.entityName), alive = \(stats.allocated), total = \(stats.created)]")
-  }
-  
+
   /// Mark the managed object with the given tag.
   open func mark(_ tag: UInt8) {
     self.tag = tag

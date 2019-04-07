@@ -64,11 +64,11 @@ public final class Promise: ManagedObject, CustomStringConvertible {
   public var managementRef: Int?
 
   /// Maintain object statistics.
-  internal static let stats = Stats("Promise")
+  public static var allocated: UInt64 = 0
 
   /// Update object statistics.
   deinit {
-    Promise.stats.dealloc()
+    Promise.allocated -= 1
   }
 
   /// Initializes a promise with a `thunk` that yields a promise; this promise's state is
@@ -76,14 +76,14 @@ public final class Promise: ManagedObject, CustomStringConvertible {
   public init(kind: Kind, thunk: Procedure) {
     self.kind = kind
     self.state = .lazy(thunk)
-    super.init(Promise.stats)
+    Promise.allocated += 1
   }
   
   /// Initializes a promise with a given value; no evaluation will happen.
   public init(kind: Kind, value: Expr) {
     self.kind = kind
     self.state = .value(value)
-    super.init(Promise.stats)
+    Promise.allocated += 1
   }
 
   /// Returns true if this refers to only "simple" values (i.e. values which won't lead to

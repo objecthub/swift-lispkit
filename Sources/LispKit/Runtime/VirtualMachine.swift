@@ -1108,6 +1108,9 @@ public final class VirtualMachine: TrackedObject {
             preconditionFailure("setCapturedValue cannot set value of \(self.registers.captured[index])")
           }
           cell.value = self.pop()
+          if !cell.managed && !cell.value.isAtom {
+            self.context.objects.manage(cell)
+          }
         case .pushLocal(let index):
           self.push(self.stack[self.registers.fp &+ index])
         case .setLocal(let index):
@@ -1118,6 +1121,9 @@ public final class VirtualMachine: TrackedObject {
               "setLocalValue cannot set value of \(self.stack[self.registers.fp &+ index])")
           }
           cell.value = self.pop()
+          if !cell.managed && !cell.value.isAtom {
+            self.context.objects.manage(cell)
+          }
         case .makeLocalVariable(let index):
           let cell = Cell(self.pop())
           // TODO: I can't think of a reason to manage such cells since they only live on the

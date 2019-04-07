@@ -27,17 +27,17 @@ public final class Cell: ManagedObject, CustomStringConvertible {
   public var value: Expr
   
   /// Maintain object statistics.
-  internal static let stats = Stats("Cell")
+  public static var allocated: UInt64 = 0
 
   /// Update object statistics.
   deinit {
-    Cell.stats.dealloc()
+    Cell.allocated -= 1
   }
   
   /// Create a new cell with a given initial value.
   public init(_ value: Expr) {
     self.value = value
-    super.init(Cell.stats)
+    Cell.allocated += 1
   }
   
   /// Mark variable object.

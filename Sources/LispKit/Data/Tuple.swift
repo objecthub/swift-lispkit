@@ -28,18 +28,18 @@ public final class Tuple: ManagedObject, CustomStringConvertible {
   public var snd: Expr
   
   /// Maintain object statistics.
-  internal static let stats = Stats("Tuple")
+  public static var allocated: UInt64 = 0
   
   /// Update object statistics.
   deinit {
-    Tuple.stats.dealloc()
+    Tuple.allocated -= 1
   }
   
   /// Create a new tuple with initial values for `fst` and `snd`.
   public init(_ fst: Expr = .undef, _ snd: Expr = .undef) {
     self.fst = fst
     self.snd = snd
-    super.init(Tuple.stats)
+    Tuple.allocated += 1
   }
   
   /// Mark tuple object.

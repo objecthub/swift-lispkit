@@ -64,18 +64,18 @@ public final class Collection: ManagedObject, CustomStringConvertible {
   public var exprs: Exprs
   
   /// Maintain object statistics.
-  internal static var stats = Stats("Collection")
+  public static var allocated: UInt64 = 0
   
   /// Update object statistics.
   deinit {
-    Collection.stats.dealloc()
+    Collection.allocated -= 1
   }
   
   /// Creates an immutable Collection from the given array
   public init(kind: Kind, exprs: Exprs = []) {
     self.kind = kind
     self.exprs = exprs
-    super.init(Collection.stats)
+    Collection.allocated += 1
   }
   
   /// Creates a mutable Collection of the given length and prefilled with the given value

@@ -39,7 +39,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
   }
   
   /// Maintain object statistics.
-  internal static let stats = Stats("HashTable")
+  public static var allocated: UInt64 = 0
   
   /// The hash buckets.
   private var buckets: Exprs
@@ -55,7 +55,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
   
   /// Update object statistics.
   deinit {
-    HashTable.stats.dealloc()
+    HashTable.allocated -= 1
   }
   
   /// Create a new empty hash table with the given size.
@@ -64,7 +64,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
     self.count = 0
     self.mutable = mutable
     self.equiv = equiv
-    super.init(HashTable.stats)
+    HashTable.allocated += 1
   }
   
   /// Create a copy of another hash table. Make it immutable if `mutable` is set to false.
@@ -76,7 +76,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
     self.count = other.count
     self.mutable = mutable
     self.equiv = other.equiv
-    super.init(HashTable.stats)
+    HashTable.allocated += 1
   }
   
   /// A string representation of this variable.
