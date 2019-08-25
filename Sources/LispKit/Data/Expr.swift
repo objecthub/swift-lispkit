@@ -263,7 +263,7 @@ public enum Expr: Trackable, Hashable {
   public var datum: Expr {
     switch self {
       case .symbol(let sym):
-        return .symbol(sym.interned)
+        return .symbol(sym.root)
       case .pair(let car, let cdr):
         return .pair(car.datum, cdr.datum)
       case .syntax(_, let expr):

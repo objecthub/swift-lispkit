@@ -542,7 +542,7 @@ public final class Compiler {
       return
     }
     if case .pair(.symbol(let fun), let embedded) = expr,
-       fun.interned == self.context.symbols.begin,
+       fun.root == self.context.symbols.begin,
        env.isImmutable(fun) {
       var lst = embedded
       while case .pair(let e, let next) = lst {
@@ -701,7 +701,7 @@ public final class Compiler {
     if localDefine {
       loop: while i < exprs.count {
         guard case .pair(.symbol(let fun), let binding) = exprs[i],
-              fun.interned == self.context.symbols.define,
+              fun.root == self.context.symbols.define,
               env.isImmutable(fun) else {
           break loop
         }
