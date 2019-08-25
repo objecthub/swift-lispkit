@@ -64,6 +64,7 @@
 		CC35F9C2222188BD00895A10 /* DateTimeLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35F9C1222188BC00895A10 /* DateTimeLibrary.swift */; };
 		CC35FD0D1C6FA4B700C8B992 /* VirtualMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */; };
 		CC35FD0F1C711FEA00C8B992 /* BindingGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35FD0E1C711FEA00C8B992 /* BindingGroup.swift */; };
+		CC38528B23126F7A001D5E56 /* InternalLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC38528A23126F7A001D5E56 /* InternalLibrary.swift */; };
 		CC3A025A1F97FD72009B959C /* json.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC3A02591F97F3E1009B959C /* json.sld */; };
 		CC3C92441D84C0D800016C28 /* Library.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC3C92431D84C0D800016C28 /* Library.swift */; };
 		CC3F782F2157D49000F88F9B /* 51.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC3F782E2157D22B00F88F9B /* 51.sld */; };
@@ -665,6 +666,7 @@
 		CC35F9C1222188BC00895A10 /* DateTimeLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateTimeLibrary.swift; sourceTree = "<group>"; };
 		CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = VirtualMachine.swift; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC35FD0E1C711FEA00C8B992 /* BindingGroup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BindingGroup.swift; sourceTree = "<group>"; };
+		CC38528A23126F7A001D5E56 /* InternalLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InternalLibrary.swift; sourceTree = "<group>"; };
 		CC3A02591F97F3E1009B959C /* json.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = json.sld; sourceTree = "<group>"; };
 		CC3C4E051CD81C5E00C78F89 /* TODO.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = TODO.md; sourceTree = "<group>"; };
 		CC3C92431D84C0D800016C28 /* Library.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Library.swift; sourceTree = "<group>"; wrapsLines = 1; };
@@ -1379,6 +1381,7 @@
 				CC7A125C21EA7C5E00ABEA17 /* RegexpLibrary.swift */,
 				CC4E2D361D09691000D77159 /* PortLibrary.swift */,
 				CC4575C520F00C4400116F0F /* DrawingLibrary.swift */,
+				CC38528A23126F7A001D5E56 /* InternalLibrary.swift */,
 			);
 			path = Primitives;
 			sourceTree = "<group>";
@@ -1712,6 +1715,7 @@
 				CC5BBC791D5268D000367E8F /* HashTable.swift in Sources */,
 				CC6A3B6A1C539DCA00E962E2 /* ManagedObjectPool.swift in Sources */,
 				CCC62D921CA9ED6A00E2C43F /* TrackedObject.swift in Sources */,
+				CC38528B23126F7A001D5E56 /* InternalLibrary.swift in Sources */,
 				CC6A3B721C54DF7F00E962E2 /* Exprs.swift in Sources */,
 				CC09CC5121F12C7800C16864 /* GrowableVectorLibrary.swift in Sources */,
 				CC31A6981D3AC223008D7728 /* Hash.swift in Sources */,

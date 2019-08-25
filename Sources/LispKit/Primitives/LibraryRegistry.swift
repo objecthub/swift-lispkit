@@ -46,7 +46,8 @@ public struct LibraryRegistry {
     RegexpLibrary.self,
     PortLibrary.self,
     BaseLibrary.self,
-    DrawingLibrary.self
+    DrawingLibrary.self,
+    InternalLibrary.self
   ]
   
   public static func register(_ nativeLibrary: NativeLibrary.Type) {
