@@ -3,7 +3,7 @@
 
 [![Platform: macOS](https://img.shields.io/badge/Platform-macOS-blue.svg?style=flat)](https://developer.apple.com/osx/)
 [![Language: Swift 5](https://img.shields.io/badge/Language-Swift%205-green.svg?style=flat)](https://developer.apple.com/swift/)
-[![IDE: Xcode 10.2](https://img.shields.io/badge/IDE-Xcode%2010.2-orange.svg?style=flat)](https://developer.apple.com/xcode/)
+[![IDE: Xcode 10.3](https://img.shields.io/badge/IDE-Xcode%2010.3-orange.svg?style=flat)](https://developer.apple.com/xcode/)
 [![Carthage: compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![License: Apache](http://img.shields.io/badge/License-Apache-lightgrey.svg?style=flat)](https://raw.githubusercontent.com/objecthub/swift-lispkit/master/LICENSE)
 
@@ -135,6 +135,7 @@ framework:
   - [SRFI 158: Generators and Accumulators](https://srfi.schemers.org/srfi-158/srfi-158.html)
   - [SRFI 161: Unifiable Boxes](https://srfi.schemers.org/srfi-161/srfi-161.html)
   - [SRFI 165: The Environment Monad](https://srfi.schemers.org/srfi-165/srfi-165.html)
+  - [SRFI 173: Hooks](https://srfi.schemers.org/srfi-173/srfi-173.html)
 
 
 ## Architecture
@@ -224,7 +225,7 @@ The following technologies are needed to build the components of the LispKit fra
 command-line tool, Xcode and Carthage are not strictly needed. Just for compiling the framework and trying
 the command-line tool in Xcode, the Swift Package Manager is not needed.
 
-- [Xcode 10.2](https://developer.apple.com/xcode/)
+- [Xcode 10.3](https://developer.apple.com/xcode/)
 - [Carthage](https://github.com/Carthage/Carthage)
 - [Swift Package Manager](https://swift.org/package-manager/)
 - [Swift 5](https://developer.apple.com/swift/)
