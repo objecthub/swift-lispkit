@@ -32,7 +32,7 @@ public struct AppInfo {
   // Version of the application
   public static let version =
     (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String) ??
-    "2.1.0"
+    "2.1.1"
   
   // Copyright message
   public static let copyright =
