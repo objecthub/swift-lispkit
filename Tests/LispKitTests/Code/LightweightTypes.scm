@@ -76,3 +76,25 @@
   (let-values (((make-reia reia? reia-ref . rest) (make-type 'reia)))
     (reia-ref (make-reia 'payload)))
 )
+
+(
+  "define-type syntax"
+  (4 4 3 2)
+  (define-type stack stack?
+    ((make-stack . args) (box (reverse args)))
+    ((stack-empty? (st))
+      (null? (unbox st)))
+    ((stack-push! (st) x)
+      (set-box! st (cons x (unbox st))))
+    ((stack-push-double! self x)
+      (stack-push! self x)
+      (stack-push! self x))
+    ((stack-pop! (st))
+      (let ((res (car (unbox st))))
+        (set-box! st (cdr (unbox st)))
+        res)))
+  (define s (make-stack 1 2))
+  (stack-push! s 3)
+  (stack-push-double! s 4)
+  (list (stack-pop! s) (stack-pop! s) (stack-pop! s) (stack-pop! s))
+)

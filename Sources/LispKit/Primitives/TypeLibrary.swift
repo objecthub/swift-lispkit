@@ -37,11 +37,12 @@ public final class TypeLibrary: NativeLibrary {
   
   /// Dependencies of the library.
   public override func dependencies() {
-    self.`import`(from: ["lispkit", "core"], "define", "lambda", "values", "quote")
-    self.`import`(from: ["lispkit", "list"], "null?", "car")
-    self.`import`(from: ["lispkit", "control"], "if")
+    self.`import`(from: ["lispkit", "core"],    "define", "define-values", "define-syntax",
+                                                "syntax-rules", "lambda", "values", "quote", "void")
+    self.`import`(from: ["lispkit", "list"],    "null?", "car")
+    self.`import`(from: ["lispkit", "control"], "if", "let", "let*", "begin")
     self.`import`(from: ["lispkit", "dynamic"], "error")
-    self.`import`(from: ["lispkit", "box"], "mcons", "mcar")
+    self.`import`(from: ["lispkit", "box"],     "mcons", "mcar")
   }
   
   /// Declarations of the library.
@@ -58,8 +59,27 @@ public final class TypeLibrary: NativeLibrary {
                                    (error "not an instance of type $1: $0" expr (mcar type))))
                 (lambda id (_typeproc (mcons (if (null? id) #f (car id)) type)))))  ; make subtype
       """)
-      self.define("make-type", via:
-        "(define (make-type . id) (_typeproc (mcons (if (null? id) #f (car id)) '())))")
+    self.define("make-type", via:
+      "(define (make-type . id) (_typeproc (mcons (if (null? id) #f (car id)) '())))")
+    self.define("_define-operation", via: """
+      (define-syntax _define-operation
+        (syntax-rules ()
+          ((_ ref (func (s) . ys) stmt ...)
+            (define (func obj . ys) (let ((s (ref obj))) stmt ...)))
+          ((_ ref (func y . ys) stmt ...)
+            (define (func y . ys) stmt ...))))
+      """)
+    self.define("define-type", via: """
+      (define-syntax define-type
+        (syntax-rules ()
+          ((_ type pred ((make . xs) expr ...) ((func . ys) stmt ...) ...)
+            (define-type type pred ((make . xs) expr ...) ref ((func . ys) stmt ...) ...))
+          ((_ type pred ((make . xs) expr ...) ref ((func . ys) stmt ...) ...)
+            (begin
+              (define-values (new pred ref make-subtype) (make-type (quote type)))
+              (define (make . xs) (new (begin expr ...)))
+              (_define-operation ref (func . ys) stmt ...) ... (void)))))
+      """)
   }
   
   func tag(_ tag: Expr, _ expr: Expr) -> Expr {
