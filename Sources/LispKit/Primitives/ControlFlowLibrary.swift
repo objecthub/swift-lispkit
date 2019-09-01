@@ -407,10 +407,21 @@ public final class ControlFlowLibrary: NativeLibrary {
     var prevIndex = -1
     let initialIp = compiler.emitPlaceholder()
     let backfillIp = compiler.offsetToNext(0)
+    var keywords = [Symbol : Symbol]()
     // Backfill keyword bindings with defaults
     while case .pair(let binding, let rest) = bindings {
-      guard case .pair(.symbol(let sym), .pair(let expr, .null)) = binding else {
-        throw RuntimeError.eval(.malformedBinding, binding, bindingList)
+      let sym: Symbol
+      let expr: Expr
+      switch binding {
+        case .pair(.symbol(let s), .pair(let def, .null)):
+          sym = s
+          expr = def
+        case .pair(.symbol(let s), .pair(.symbol(let key), .pair(let def, .null))):
+          keywords[s] = key
+          sym = s
+          expr = def
+        default:
+          throw RuntimeError.eval(.malformedBinding, binding, bindingList)
       }
       compiler.emit(.pushUndef)
       let pushValueIp = compiler.emitPlaceholder()
@@ -450,7 +461,11 @@ public final class ControlFlowLibrary: NativeLibrary {
     while case .pair(.pair(.symbol(let sym), _), let rest) = bindings {
       let binding = group.allocBindingFor(sym)
       compiler.emit(.dup)
-      compiler.pushConstant(.symbol(compiler.context.symbols.intern(sym.identifier + ":")))
+      if let key = keywords[sym] {
+        compiler.pushConstant(.symbol(key))
+      } else {
+        compiler.pushConstant(.symbol(compiler.context.symbols.intern(sym.identifier + ":")))
+      }
       compiler.emit(.eq)
       let keywordCompIp = compiler.emitPlaceholder()
       compiler.emit(.pop)
