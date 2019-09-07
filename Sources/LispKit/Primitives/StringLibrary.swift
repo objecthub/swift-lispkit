@@ -69,6 +69,7 @@ public final class StringLibrary: NativeLibrary {
     self.define(Procedure("string-replace!", stringReplace))
     self.define(Procedure("string-replace-first!", stringReplaceFirst))
     self.define(Procedure("string-insert!", stringReplaceRange))
+    self.define(Procedure("string-append!", stringAppendEnd))
     self.define(Procedure("string-copy", stringCopy))
     self.define(Procedure("string-copy!", stringInsert))
     self.define(Procedure("string-fill!", stringFill))
@@ -461,6 +462,14 @@ public final class StringLibrary: NativeLibrary {
     let end = try e.asInt(below: str.length + 1)
     let start = try s.asInt(below: end + 1)
     str.replaceCharacters(in: NSMakeRange(start, end - start), with: to)
+    return .void
+  }
+
+  func stringAppendEnd(_ expr: Expr, _ args: Arguments) throws -> Expr {
+    let str = try expr.asMutableStr()
+    for arg in args {
+      str.append(try arg.asString())
+    }
     return .void
   }
   
