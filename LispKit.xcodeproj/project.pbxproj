@@ -71,6 +71,7 @@
 		CC38529A231B3298001D5E56 /* micro.sld in Copy pre-installed third-party Adapton library */ = {isa = PBXBuildFile; fileRef = CC385295231B2FD1001D5E56 /* micro.sld */; };
 		CC38529B231B329E001D5E56 /* memoization.sld in Copy pre-installed third-party Adapton library */ = {isa = PBXBuildFile; fileRef = CC385294231B2FA4001D5E56 /* memoization.sld */; };
 		CC38529C231B32A8001D5E56 /* set.sld in Copy pre-installed third-party Adapton library */ = {isa = PBXBuildFile; fileRef = CC385292231B2F2C001D5E56 /* set.sld */; };
+		CC3852A0232529E7001D5E56 /* Maze.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC38529F23252217001D5E56 /* Maze.scm */; };
 		CC3A025A1F97FD72009B959C /* json.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC3A02591F97F3E1009B959C /* json.sld */; };
 		CC3C92441D84C0D800016C28 /* Library.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC3C92431D84C0D800016C28 /* Library.swift */; };
 		CC3F782F2157D49000F88F9B /* 51.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC3F782E2157D22B00F88F9B /* 51.sld */; };
@@ -402,6 +403,7 @@
 			dstPath = LispKit/Resources/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC3852A0232529E7001D5E56 /* Maze.scm in Copy examples */,
 				CC4A7DBB2258FC7900936034 /* Streams.scm in Copy examples */,
 				CC1EA5C9214E6CD8006BBE7E /* Turtle.scm in Copy examples */,
 				CC26264420FA007800AC08E8 /* Plot.scm in Copy examples */,
@@ -705,6 +707,7 @@
 		CC385294231B2FA4001D5E56 /* memoization.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = memoization.sld; sourceTree = "<group>"; };
 		CC385295231B2FD1001D5E56 /* micro.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = micro.sld; sourceTree = "<group>"; };
 		CC385296231B2FED001D5E56 /* mini.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = mini.sld; sourceTree = "<group>"; };
+		CC38529F23252217001D5E56 /* Maze.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Maze.scm; sourceTree = "<group>"; };
 		CC3A02591F97F3E1009B959C /* json.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = json.sld; sourceTree = "<group>"; };
 		CC3C4E051CD81C5E00C78F89 /* TODO.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = TODO.md; sourceTree = "<group>"; };
 		CC3C92431D84C0D800016C28 /* Library.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Library.swift; sourceTree = "<group>"; wrapsLines = 1; };
@@ -1507,6 +1510,7 @@
 				CC14F4AE1F9385BF000FB1E0 /* AvlTrees.scm */,
 				CC26264320FA003700AC08E8 /* Plot.scm */,
 				CC1EA5C8214E6BF3006BBE7E /* Turtle.scm */,
+				CC38529F23252217001D5E56 /* Maze.scm */,
 				CC750BD71F5AC68900CD82A2 /* PDF.scm */,
 				CC4385BB20BAB79500055289 /* HTTP.scm */,
 			);

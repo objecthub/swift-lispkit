@@ -29,7 +29,7 @@
 ;;; and limitations under the License.
 
 
-(define-library (avl-tree)
+(define-library (lispkit example avl-tree)
  
   (export make-avl-tree
           avl-tree?
@@ -174,7 +174,7 @@
   )
 )
 
-(import (avl-tree))
+(import (lispkit example avl-tree))
 
 (define tree1 (make-avl-tree 39 21 99 4 1 19 78 41 21))
 (define tree2 (avl-insert 50 tree1))
