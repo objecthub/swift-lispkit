@@ -199,23 +199,22 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
   }
   
   public func printableDescription(context: Context,
-                                   typeOpen: String = "[",
+                                   typeOpen: String? = "[",
                                    typeClose: String = "] ",
                                    irritantHeader: String? = "\nirritants: ",
                                    irritantSeparator: String = ", ",
-                                   positionHeader: String? = "at: ",
-                                   libraryHeader: String? = "library: ",
-                                   stackTraceHeader: String? = "stack trace: ",
+                                   positionHeader: String? = "\nat: ",
+                                   libraryHeader: String? = "\nlibrary: ",
+                                   stackTraceHeader: String? = "\nstack trace: ",
                                    stackTraceSeparator: String = ", ") -> String {
     var usedIrritants = Set<Int>()
-    let message = self.replacePlaceholders(in: self.descriptor.messageTemplate,
+    var message = self.replacePlaceholders(in: self.descriptor.messageTemplate,
                                            with: self.irritants,
                                            recordingUsage: &usedIrritants)
-    var builder = StringBuilder(
-          prefix: "\(typeOpen)\(self.descriptor.typeDescription)\(typeClose)\(message)",
-          postfix: "",
-          separator: "\n",
-          initial: "")
+    if let typeOpen = typeOpen {
+      message = "\(typeOpen)\(self.descriptor.typeDescription)\(typeClose)\(message)"
+    }
+    var builder = StringBuilder(prefix: message, postfix: "", separator: "\n", initial: "")
     if let irritantHeader = irritantHeader {
       var irritantBuilder = StringBuilder(prefix: "",
                                           postfix: "",
@@ -248,7 +247,7 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
       builder = StringBuilder(prefix: builder.description,
                               postfix: "",
                               separator: stackTraceSeparator,
-                              initial: "\n\(stackTraceHeader)")
+                              initial: stackTraceHeader)
       for proc in stackTrace {
         builder.append(proc.name)
       }
@@ -476,6 +475,29 @@ public enum ErrorDescriptor: Hashable {
         return "abortion"
       case .custom(let type, _):
         return type
+    }
+  }
+
+  public var shortTypeDescription: String {
+    switch self {
+      case .lexical(_):
+        return "lexical"
+      case .syntax(_):
+        return "syntax"
+      case .type(_, _):
+        return "type"
+      case .range(_, _, _, _):
+        return "range"
+      case .argumentCount(_, _, _):
+        return "arg"
+      case .eval(_):
+        return "eval"
+      case .os(_):
+        return "os"
+      case .abortion:
+        return "abort"
+      case .custom(_, _):
+        return "custom"
     }
   }
   
