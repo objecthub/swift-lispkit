@@ -30,13 +30,18 @@ public final class Symbol: Reference, CustomStringConvertible {
   
   private enum Kind {
     case interned(String)
+    case uninterned(String)
     case generated(Symbol, WeakEnv)
   }
   
   private let kind: Kind
-  
+
   internal init(_ ident: String) {
     self.kind = .interned(ident)
+  }
+  
+  public init(uninterned ident: String) {
+    self.kind = .uninterned(ident)
   }
   
   public init(_ sym: Symbol, _ env: Env) {
@@ -44,40 +49,53 @@ public final class Symbol: Reference, CustomStringConvertible {
   }
   
   public var identifier: String {
-    return self.interned.rawIdentifier
+    return self.root.rawIdentifier
   }
   
   public var rawIdentifier: String {
-    guard case .interned(let ident) = self.interned.kind else {
-      preconditionFailure("no interned symbol")
+    switch self.root.kind {
+      case .interned(let ident):
+        return ident
+      case .uninterned(let ident):
+        return ident
+      default:
+        preconditionFailure("no interned or uninterned symbol")
     }
-    return ident
+  }
+
+  public var isInterned: Bool {
+    switch self.kind {
+      case .interned(_):
+        return true
+      default:
+        return false
+    }
   }
   
   public var isGenerated: Bool {
     switch self.kind {
-      case .interned(_):
+      case .interned(_), .uninterned(_):
         return false
       case .generated(_, _):
         return true
     }
   }
-    
+
   public var lexical: (Symbol, Env)? {
     switch self.kind {
-      case .interned(_):
+      case .interned(_), .uninterned(_):
         return nil
       case .generated(let sym, let weakEnv):
         return (sym, weakEnv.env)
     }
   }
   
-  public var interned: Symbol {
+  public var root: Symbol {
     switch self.kind {
-      case .interned(_):
+      case .interned(_), .uninterned(_):
         return self
       case .generated(let sym, _):
-        return sym.interned
+        return sym.root
     }
   }
   
@@ -89,7 +107,7 @@ public final class Symbol: Reference, CustomStringConvertible {
     return mcs.copy() as! CharacterSet
   }()
   
-  private static func escapingNeeded(_ ident: String) -> Bool {
+  internal static func escapingNeeded(_ ident: String) -> Bool {
     if ident.rangeOfCharacter(from: Symbol.escapeChars) != nil {
       return true
     }
@@ -151,8 +169,14 @@ public final class Symbol: Reference, CustomStringConvertible {
         } else {
           return ident
         }
+      case .uninterned(let ident):
+        if Symbol.escapingNeeded(ident) {
+          return "|\(Expr.escapeStr(ident))|"
+        } else {
+          return ident
+        }
       case .generated(let sym, let weakEnv):
-        return "[\(sym.interned.description) \(sym.identity) \(weakEnv.env.description)]"
+        return "[\(sym.root.description) \(sym.identity) \(weakEnv.env.description)]"
     }
   }
 }

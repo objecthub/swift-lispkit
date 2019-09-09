@@ -76,3 +76,61 @@
   (let-values (((make-reia reia? reia-ref . rest) (make-type 'reia)))
     (reia-ref (make-reia 'payload)))
 )
+
+(
+  "define-type syntax"
+  (4 4 3 2)
+  (define-type stack stack?
+    ((make-stack . args) (box (reverse args)))
+    ((stack-empty? (st))
+      (null? (unbox st)))
+    ((stack-push! (st) x)
+      (set-box! st (cons x (unbox st))))
+    ((stack-push-double! self x)
+      (stack-push! self x)
+      (stack-push! self x))
+    ((stack-pop! (st))
+      (let ((res (car (unbox st))))
+        (set-box! st (cdr (unbox st)))
+        res)))
+  (define s (make-stack 1 2))
+  (stack-push! s 3)
+  (stack-push-double! s 4)
+  (list (stack-pop! s) (stack-pop! s) (stack-pop! s) (stack-pop! s))
+)
+
+(
+  "define-type for extensible types"
+  (111 222 333 red 17)
+  (define-type (stack object)
+    stack?
+    ((make-stack) (box '()))
+    ((stack-empty? (self))
+      (null? (unbox self)))
+    ((stack-push! (self) x)
+      (set-box! self (cons x (unbox self))))
+    ((stack-pop! (self))
+      (let ((res (car (unbox self))))
+        (set-box! self (cdr (unbox self)))
+        res)))
+  (define-type (color-stack stack)
+    color-stack?
+    ((make-color-stack c) c)
+    color-stack-ref
+    ((color-stack-color (_ c)) c))
+  (define-type (limited-color-stack color-stack)
+    limited-color-stack?
+    ((make-limited-color-stack c l) (values c l))
+    ((color-stack-limit (_ x l)) l))
+  (define st (make-stack))
+  (define cst (make-color-stack 'blue))
+  (define lst (make-limited-color-stack 'red 17))
+  (stack-push! st 111)
+  (stack-push! cst 222)
+  (stack-push! lst 333)
+  (list (stack-pop! st)
+        (stack-pop! cst)
+        (stack-pop! lst)
+        (color-stack-color lst)
+        (color-stack-limit lst))
+)

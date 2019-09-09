@@ -64,6 +64,14 @@
 		CC35F9C2222188BD00895A10 /* DateTimeLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35F9C1222188BC00895A10 /* DateTimeLibrary.swift */; };
 		CC35FD0D1C6FA4B700C8B992 /* VirtualMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */; };
 		CC35FD0F1C711FEA00C8B992 /* BindingGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35FD0E1C711FEA00C8B992 /* BindingGroup.swift */; };
+		CC38528B23126F7A001D5E56 /* InternalLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC38528A23126F7A001D5E56 /* InternalLibrary.swift */; };
+		CC38528E23140FE0001D5E56 /* 173.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC38528C23140CC2001D5E56 /* 173.sld */; };
+		CC38528F23141000001D5E56 /* SRFI-173.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC38528D23140F26001D5E56 /* SRFI-173.scm */; };
+		CC385299231B3290001D5E56 /* mini.sld in Copy pre-installed third-party Adapton library */ = {isa = PBXBuildFile; fileRef = CC385296231B2FED001D5E56 /* mini.sld */; };
+		CC38529A231B3298001D5E56 /* micro.sld in Copy pre-installed third-party Adapton library */ = {isa = PBXBuildFile; fileRef = CC385295231B2FD1001D5E56 /* micro.sld */; };
+		CC38529B231B329E001D5E56 /* memoization.sld in Copy pre-installed third-party Adapton library */ = {isa = PBXBuildFile; fileRef = CC385294231B2FA4001D5E56 /* memoization.sld */; };
+		CC38529C231B32A8001D5E56 /* set.sld in Copy pre-installed third-party Adapton library */ = {isa = PBXBuildFile; fileRef = CC385292231B2F2C001D5E56 /* set.sld */; };
+		CC3852A0232529E7001D5E56 /* Maze.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC38529F23252217001D5E56 /* Maze.scm */; };
 		CC3A025A1F97FD72009B959C /* json.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC3A02591F97F3E1009B959C /* json.sld */; };
 		CC3C92441D84C0D800016C28 /* Library.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC3C92431D84C0D800016C28 /* Library.swift */; };
 		CC3F782F2157D49000F88F9B /* 51.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC3F782E2157D22B00F88F9B /* 51.sld */; };
@@ -305,6 +313,7 @@
 			dstPath = LispKit/Resources/Tests;
 			dstSubfolderSpec = 7;
 			files = (
+				CC38528F23141000001D5E56 /* SRFI-173.scm in Copy tests */,
 				CC4A7DC9225A35C500936034 /* SRFI-165.scm in Copy tests */,
 				CC4A7DC3225974AD00936034 /* SRFI-146.scm in Copy tests */,
 				CCE4600321FD18B700B248D9 /* Import.scm in Copy tests */,
@@ -364,12 +373,37 @@
 			name = "Copy default prelude";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CC385297231B3042001D5E56 /* Copy pre-installed third-party libraries */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "LispKit/Resources/Libraries/third-party";
+			dstSubfolderSpec = 7;
+			files = (
+			);
+			name = "Copy pre-installed third-party libraries";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC385298231B325C001D5E56 /* Copy pre-installed third-party Adapton library */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "LispKit/Resources/Libraries/third-party/adapton";
+			dstSubfolderSpec = 7;
+			files = (
+				CC38529C231B32A8001D5E56 /* set.sld in Copy pre-installed third-party Adapton library */,
+				CC38529B231B329E001D5E56 /* memoization.sld in Copy pre-installed third-party Adapton library */,
+				CC38529A231B3298001D5E56 /* micro.sld in Copy pre-installed third-party Adapton library */,
+				CC385299231B3290001D5E56 /* mini.sld in Copy pre-installed third-party Adapton library */,
+			);
+			name = "Copy pre-installed third-party Adapton library";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CC474EAE1ECFAC1300B535E3 /* Copy examples */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = LispKit/Resources/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC3852A0232529E7001D5E56 /* Maze.scm in Copy examples */,
 				CC4A7DBB2258FC7900936034 /* Streams.scm in Copy examples */,
 				CC1EA5C9214E6CD8006BBE7E /* Turtle.scm in Copy examples */,
 				CC26264420FA007800AC08E8 /* Plot.scm in Copy examples */,
@@ -554,6 +588,7 @@
 			dstPath = LispKit/Resources/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
+				CC38528E23140FE0001D5E56 /* 173.sld in Copy pre-installed SRFI libraries */,
 				CC4A7DC7225A32C400936034 /* 165.sld in Copy pre-installed SRFI libraries */,
 				CC4A7DBF225973F200936034 /* 146.sld in Copy pre-installed SRFI libraries */,
 				CC7C3E9E2246F8BD0082DF7C /* 26.sld in Copy pre-installed SRFI libraries */,
@@ -665,6 +700,14 @@
 		CC35F9C1222188BC00895A10 /* DateTimeLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateTimeLibrary.swift; sourceTree = "<group>"; };
 		CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = VirtualMachine.swift; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC35FD0E1C711FEA00C8B992 /* BindingGroup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BindingGroup.swift; sourceTree = "<group>"; };
+		CC38528A23126F7A001D5E56 /* InternalLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InternalLibrary.swift; sourceTree = "<group>"; };
+		CC38528C23140CC2001D5E56 /* 173.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 173.sld; sourceTree = "<group>"; };
+		CC38528D23140F26001D5E56 /* SRFI-173.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-173.scm"; sourceTree = "<group>"; };
+		CC385292231B2F2C001D5E56 /* set.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = set.sld; sourceTree = "<group>"; };
+		CC385294231B2FA4001D5E56 /* memoization.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = memoization.sld; sourceTree = "<group>"; };
+		CC385295231B2FD1001D5E56 /* micro.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = micro.sld; sourceTree = "<group>"; };
+		CC385296231B2FED001D5E56 /* mini.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = mini.sld; sourceTree = "<group>"; };
+		CC38529F23252217001D5E56 /* Maze.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Maze.scm; sourceTree = "<group>"; };
 		CC3A02591F97F3E1009B959C /* json.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = json.sld; sourceTree = "<group>"; };
 		CC3C4E051CD81C5E00C78F89 /* TODO.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = TODO.md; sourceTree = "<group>"; };
 		CC3C92431D84C0D800016C28 /* Library.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Library.swift; sourceTree = "<group>"; wrapsLines = 1; };
@@ -940,6 +983,7 @@
 				CC2C73DE21A22CFD00B18661 /* SRFI-125.scm */,
 				CC4A7DC22259748400936034 /* SRFI-146.scm */,
 				CC4A7DC8225A344300936034 /* SRFI-165.scm */,
+				CC38528D23140F26001D5E56 /* SRFI-173.scm */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -1026,6 +1070,25 @@
 				CC2C73D921A1F41E00B18661 /* internal.sld */,
 			);
 			path = 69;
+			sourceTree = "<group>";
+		};
+		CC385290231B240A001D5E56 /* third-party */ = {
+			isa = PBXGroup;
+			children = (
+				CC385291231B2F12001D5E56 /* adapton */,
+			);
+			path = "third-party";
+			sourceTree = "<group>";
+		};
+		CC385291231B2F12001D5E56 /* adapton */ = {
+			isa = PBXGroup;
+			children = (
+				CC385296231B2FED001D5E56 /* mini.sld */,
+				CC385295231B2FD1001D5E56 /* micro.sld */,
+				CC385294231B2FA4001D5E56 /* memoization.sld */,
+				CC385292231B2F2C001D5E56 /* set.sld */,
+			);
+			path = adapton;
 			sourceTree = "<group>";
 		};
 		CC48055B1CFE366100D608B6 /* Assets */ = {
@@ -1154,6 +1217,7 @@
 				CCEEF3901FAF3F70006C4581 /* 158.sld */,
 				CC1EA5CA214EEF41006BBE7E /* 161.sld */,
 				CC4A7DC6225A021E00936034 /* 165.sld */,
+				CC38528C23140CC2001D5E56 /* 173.sld */,
 			);
 			path = srfi;
 			sourceTree = "<group>";
@@ -1258,6 +1322,7 @@
 		CCA752F51DEF9EFB0098C34A /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				CC385290231B240A001D5E56 /* third-party */,
 				CC5847FE1E506D7400BE6497 /* lispkit */,
 				CC7F7C001FBE4CC200639166 /* scheme */,
 				CC5848041E56BBDA00BE6497 /* srfi */,
@@ -1379,6 +1444,7 @@
 				CC7A125C21EA7C5E00ABEA17 /* RegexpLibrary.swift */,
 				CC4E2D361D09691000D77159 /* PortLibrary.swift */,
 				CC4575C520F00C4400116F0F /* DrawingLibrary.swift */,
+				CC38528A23126F7A001D5E56 /* InternalLibrary.swift */,
 			);
 			path = Primitives;
 			sourceTree = "<group>";
@@ -1444,6 +1510,7 @@
 				CC14F4AE1F9385BF000FB1E0 /* AvlTrees.scm */,
 				CC26264320FA003700AC08E8 /* Plot.scm */,
 				CC1EA5C8214E6BF3006BBE7E /* Turtle.scm */,
+				CC38529F23252217001D5E56 /* Maze.scm */,
 				CC750BD71F5AC68900CD82A2 /* PDF.scm */,
 				CC4385BB20BAB79500055289 /* HTTP.scm */,
 			);
@@ -1502,6 +1569,8 @@
 				CC703A1E218D0AF500E71EA9 /* Copy pre-installed LispKit library: LispKit CLOS Support */,
 				CC82933121D6E9A6003E1D3C /* Copy pre-installed LispKit library: LispKit Log Internal */,
 				CC7F7C191FC04B8A00639166 /* Copy pre-installed Scheme libraries */,
+				CC385297231B3042001D5E56 /* Copy pre-installed third-party libraries */,
+				CC385298231B325C001D5E56 /* Copy pre-installed third-party Adapton library */,
 				CC474EAE1ECFAC1300B535E3 /* Copy examples */,
 				CC09ECF32198B8B100F84713 /* Copy tests */,
 			);
@@ -1712,6 +1781,7 @@
 				CC5BBC791D5268D000367E8F /* HashTable.swift in Sources */,
 				CC6A3B6A1C539DCA00E962E2 /* ManagedObjectPool.swift in Sources */,
 				CCC62D921CA9ED6A00E2C43F /* TrackedObject.swift in Sources */,
+				CC38528B23126F7A001D5E56 /* InternalLibrary.swift in Sources */,
 				CC6A3B721C54DF7F00E962E2 /* Exprs.swift in Sources */,
 				CC09CC5121F12C7800C16864 /* GrowableVectorLibrary.swift in Sources */,
 				CC31A6981D3AC223008D7728 /* Hash.swift in Sources */,

@@ -73,9 +73,11 @@ public final class CoreLibrary: NativeLibrary {
     
     // Symbol primitives
     self.define(Procedure("symbol?", isSymbol))
+    self.define(Procedure("symbol-interned?", isSymbolInterned))
     self.define(Procedure("gensym", gensym))
     self.define(Procedure("symbol=?", stringEquals))
     self.define(Procedure("string->symbol", stringToSymbol))
+    self.define(Procedure("string->uninterned-symbol", stringToUninternedSymbol))
     self.define(Procedure("symbol->string", symbolToString))
     
     // Boolean primitives
@@ -270,7 +272,7 @@ public final class CoreLibrary: NativeLibrary {
         for expr in vector.exprs {
           if case .pair(let car, .pair(let elem, let cddr)) = expr {
             switch car {
-              case .symbol(let s) where s.interned == self.context.symbols.unquote:
+              case .symbol(let s) where s.root == self.context.symbols.unquote:
                 guard cddr == .null else {
                   throw RuntimeError.eval(.invalidContextInQuasiquote,
                                           .symbol(self.context.symbols.unquote),
@@ -279,7 +281,7 @@ public final class CoreLibrary: NativeLibrary {
                 try compiler.compile(elem, in: env, inTailPos: false)
                 nelem += 1
                 continue
-              case .symbol(let s) where s.interned == self.context.symbols.unquoteSplicing:
+              case .symbol(let s) where s.root == self.context.symbols.unquoteSplicing:
                 guard cddr == .null else {
                   throw RuntimeError.eval(.invalidContextInQuasiquote,
                                           .symbol(self.context.symbols.unquoteSplicing),
@@ -324,25 +326,25 @@ public final class CoreLibrary: NativeLibrary {
       return Expr.makeList(.symbol(Symbol(self.context.symbols.quote, env.global)), expr)
     }
     switch car {
-      case .symbol(let s) where s.interned == self.context.symbols.unquote:
+      case .symbol(let s) where s.root == self.context.symbols.unquote:
         guard case .pair(let cadr, .null) = cdr else {
           throw RuntimeError.eval(.invalidContextInQuasiquote,
                                   .symbol(self.context.symbols.unquote),
                                   car)
         }
         return cadr
-      case .symbol(let s) where s.interned == self.context.symbols.quasiquote:
+      case .symbol(let s) where s.root == self.context.symbols.quasiquote:
         guard case .pair(let cadr, .null) = cdr else {
           throw RuntimeError.eval(.invalidContextInQuasiquote,
                                   .symbol(self.context.symbols.quasiquote),
                                   car)
         }
         return try reduceQQ(reduceQQ(cadr, in: env), in: env)
-      case .symbol(let s) where s.interned == self.context.symbols.unquoteSplicing:
+      case .symbol(let s) where s.root == self.context.symbols.unquoteSplicing:
         throw RuntimeError.eval(.invalidContextInQuasiquote,
                                 .symbol(self.context.symbols.unquoteSplicing),
                                 car)
-      case .pair(.symbol(let s), let cdar) where s.interned == self.context.symbols.unquoteSplicing:
+      case .pair(.symbol(let s), let cdar) where s.root == self.context.symbols.unquoteSplicing:
         guard case .pair(let cadar, .null) = cdar else {
           throw RuntimeError.eval(.invalidContextInQuasiquote,
                                   .symbol(self.context.symbols.unquoteSplicing),
@@ -559,7 +561,7 @@ public final class CoreLibrary: NativeLibrary {
     var transRules: Expr = .null
     switch expr {
       case .pair(_, .pair(.symbol(let sym), .pair(let literals, let patTrans))):
-        ellipsis = sym.interned
+        ellipsis = sym.root
         lit = literals
         transRules = patTrans
       case .pair(_, .pair(let literals, let patTrans)):
@@ -590,7 +592,7 @@ public final class CoreLibrary: NativeLibrary {
     var literalSet = Set<Symbol>()
     var expr = lit
     while case .pair(.symbol(let sym), let cdr) = expr {
-      literalSet.insert(sym.interned)
+      literalSet.insert(sym.root)
       expr = cdr
     }
     guard expr == .null else {
@@ -756,6 +758,13 @@ public final class CoreLibrary: NativeLibrary {
     }
     return .false
   }
+
+  private func isSymbolInterned(expr: Expr) -> Expr {
+    if case .symbol(let sym) = expr {
+      return .makeBoolean(sym.isInterned)
+    }
+    return .false
+  }
   
   private func gensym(expr: Expr?) throws -> Expr {
     return .symbol(self.context.symbols.gensym(try expr?.asString() ?? "g"))
@@ -774,9 +783,13 @@ public final class CoreLibrary: NativeLibrary {
   private func stringToSymbol(expr: Expr) throws -> Expr {
     return .symbol(self.context.symbols.intern(try expr.asString()))
   }
+
+  private func stringToUninternedSymbol(expr: Expr) throws -> Expr {
+    return .symbol(Symbol(uninterned: try expr.asString()))
+  }
   
   private func symbolToString(expr: Expr) throws -> Expr {
-    return .makeString(try expr.asSymbol().rawIdentifier)
+    return .makeString(try expr.asSymbol().identifier)
   }
   
   //-------- MARK: - Boolean primitives

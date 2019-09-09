@@ -3,7 +3,7 @@
 
 [![Platform: macOS](https://img.shields.io/badge/Platform-macOS-blue.svg?style=flat)](https://developer.apple.com/osx/)
 [![Language: Swift 5](https://img.shields.io/badge/Language-Swift%205-green.svg?style=flat)](https://developer.apple.com/swift/)
-[![IDE: Xcode 10.2](https://img.shields.io/badge/IDE-Xcode%2010.2-orange.svg?style=flat)](https://developer.apple.com/xcode/)
+[![IDE: Xcode 10.3](https://img.shields.io/badge/IDE-Xcode%2010.3-orange.svg?style=flat)](https://developer.apple.com/xcode/)
 [![Carthage: compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![License: Apache](http://img.shields.io/badge/License-Apache-lightgrey.svg?style=flat)](https://raw.githubusercontent.com/objecthub/swift-lispkit/master/LICENSE)
 
@@ -56,7 +56,13 @@ _LispKit_ provides support for the following core features, many of which are ba
     `(scheme hash-table)`, `(scheme ideque)`, `(scheme list)`, `(scheme mapping)`,
     `(scheme rlist)`, `(scheme set)`,
     `(scheme sort)`, `(scheme stream)`, `(scheme text)`, `(scheme vector)`
-  - LispKit-specific libraries: [`(lispkit box)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Box),
+  - LispKit-specific libraries: 
+    [`(lispkit core)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Core),
+    [`(lispkit control)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Control),
+    [`(lispkit dynamic)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Dynamic),
+    [`(lispkit system)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-System),
+    [`(lispkit list)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-List),
+    [`(lispkit box)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Box),
     [`(lispkit type)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Type),
     [`(lispkit hashtable)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Hashtable),
     `(lispkit log)`, 
@@ -65,15 +71,19 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit datatype)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Datatype),
     [`(lispkit object)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Object),
     `(lispkit clos)`,
-    `(lispkit enum)`,
-    `(lispkit logic)`, `(lispkit iteration)`, `(lispkit gvector)`,
+    [`(lispkit enum)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Enum),
+    `(lispkit logic)`, `(lispkit iteration)`,
+    [`(lispkit vector)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Vector),
+    [`(lispkit gvector)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Gvector),
     [`(lispkit set)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Set),
     `(lispkit stack)`, `(lispkit queue)`,
     `(lispkit heap)`,  `(lispkit graph)`, 
     `(lispkit wt-tree)`, `(lispkit stream)`,
     `(lispkit prettify)`, `(lispkit json)`, `(lispkit csv)`,
-    `(lispkit char-set)`,
-    `(lispkit date-time)`,
+    [`(lispkit string)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-String),
+    [`(lispkit char)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Char),
+    [`(lispkit char-set)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Char-Set),
+    [`(lispkit date-time)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Date-Time),
     `(lispkit regexp)`,
     [`(lispkit draw)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Draw),
     [`(lispkit draw turtle)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Draw-Turtle),
@@ -135,6 +145,7 @@ framework:
   - [SRFI 158: Generators and Accumulators](https://srfi.schemers.org/srfi-158/srfi-158.html)
   - [SRFI 161: Unifiable Boxes](https://srfi.schemers.org/srfi-161/srfi-161.html)
   - [SRFI 165: The Environment Monad](https://srfi.schemers.org/srfi-165/srfi-165.html)
+  - [SRFI 173: Hooks](https://srfi.schemers.org/srfi-173/srfi-173.html)
 
 
 ## Architecture
@@ -224,7 +235,7 @@ The following technologies are needed to build the components of the LispKit fra
 command-line tool, Xcode and Carthage are not strictly needed. Just for compiling the framework and trying
 the command-line tool in Xcode, the Swift Package Manager is not needed.
 
-- [Xcode 10.2](https://developer.apple.com/xcode/)
+- [Xcode 10.3](https://developer.apple.com/xcode/)
 - [Carthage](https://github.com/Carthage/Carthage)
 - [Swift Package Manager](https://swift.org/package-manager/)
 - [Swift 5](https://developer.apple.com/swift/)

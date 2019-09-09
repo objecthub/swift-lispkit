@@ -24,7 +24,11 @@
 ;;;
 ;;; The following line defines a new tree:
 ;;;
-;;;   (define t1 (node (empty) 4 (node 7 (empty) (empty))))
+;;;   (define t1 (node (empty) 4 (node (empty) 7 (empty))))
+;;;
+;;; `t1` gets displayed in the following manner:
+;;;
+;;;   #tree:(node #tree:(empty) 4 #tree:(node #tree:(empty) 7 #tree:(empty)))
 ;;;
 ;;; Using `match`, values like `t1` can be deconstructed using pattern matching. The following
 ;;; function `elements` shows how to collect all elements from a tree in a list:
@@ -89,7 +93,7 @@
 ;;;
 ;;;
 ;;; Author: Matthias Zenger
-;;; Copyright © 2017-2018 Matthias Zenger. All rights reserved.
+;;; Copyright © 2017-2019 Matthias Zenger. All rights reserved.
 ;;;
 ;;; Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 ;;; except in compliance with the License. You may obtain a copy of the License at
@@ -107,7 +111,8 @@
           define-pattern
           match)
 
-  (import (lispkit base))
+  (import (lispkit base)
+          (lispkit internal))
 
   (begin
 
@@ -137,27 +142,21 @@
         ((_ make pred ref ((c p ...) where precon . rest))
           (begin
             (define (c . args)
-              (if (and (pair? args)
-                       (adt-selector? (car args))
-                       (pair? (cdr args))
-                       (null? (cddr args)))
+              (if (datatype-deconstruction? args)
                   (if (and (pred (cadr args)) (eq? (quote c) (car (ref (cadr args)))))
                       (cdr (ref (cadr args)))
                       #f)
                   (apply (lambda (p ...)
                            (if precon
                                (make (list (quote c) p ...))
-                               (error "cannot create datatype variant due to invalid invariant"
+                               (error "cannot create datatype variant $0; invalid invariant $1"
                                       (list (quote c) (quote p) ...)
                                       (quote precon)))) args)))
             (define-variant make pred ref rest)))
         ((_ make pred ref ((c p ...) . rest))
           (begin
             (define (c . args)
-              (if (and (pair? args)
-                       (adt-selector? (car args))
-                       (pair? (cdr args))
-                       (null? (cddr args)))
+              (if (datatype-deconstruction? args)
                   (if (and (pred (cadr args)) (eq? (quote c) (car (ref (cadr args)))))
                       (cdr (ref (cadr args)))
                       #f)
@@ -171,11 +170,8 @@
       (syntax-rules ()
         ((_ (v p ...) (c q ...))
            (define (v . args)
-             (if (and (pair? args)
-                      (adt-selector? (car args))
-                      (pair? (cdr args))
-                      (null? (cddr args)))
-                 (let ((params (c get-params (cadr args))))
+             (if (datatype-deconstruction? args)
+                 (let ((params (deconstruct-datatype c (cadr args))))
                    (if params
                        (match-pattern (q ...) () params (begin (list p ...)))
                        #f))
@@ -248,20 +244,12 @@
           (let ((v (car x)))
             (match-pattern (p q ...) pred x code)))
         ((match-pattern ((c p ...) . rest) pred x code)
-          (let ((params (c get-params (car x))))
+          (let ((params (deconstruct-datatype c (car x))))
             (if params
                 (match-pattern (p ...) () params (match-pattern rest pred (cdr x) code))
                 #f)))
         ((match-pattern (v . rest) pred x code)
           (let ((v (car x)))
             (match-pattern rest pred (cdr x) code)))))
-
-    ;; Internal type for creating a value of a new type that does not leak this library.
-    (define-record-type adt-selector
-      (make-adt-selector)
-      adt-selector?)
-
-    (define get-params (make-adt-selector))
   )
 )
-

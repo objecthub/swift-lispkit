@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.7.2 (2019-09-08)
+- New libraries: `(lispkit stream)`, `(scheme mapping)`, `(srfi 146)`, `(srfi 165)`, `(srfi 173)`
+- Fixed memory leak involving recursive local functions
+- Support uninterned symbols
+- Implement algebraic datatypes in terms of more efficient internal functions
+- Extension and re-implementation of library `(lispkit type)`
+- Include `miniAdapton` in the new third-party directory
+- Support custom keywords in `let-keywords`
+- New example code for generating mazes
+
 ## 1.7.1 (2019-03-31)
 - Migrated project to Xcode 10.2
 - Ported code to Swift 5
