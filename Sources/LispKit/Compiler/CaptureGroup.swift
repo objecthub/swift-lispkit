@@ -67,7 +67,7 @@ public final class CaptureGroup: CustomStringConvertible {
   }
   
   public var description: String {
-    var seq = self.definitions
+    let seq = self.definitions
     var builder = StringBuilder()
     for index in seq.indices {
       builder.append(index, width: 5, alignRight: true)

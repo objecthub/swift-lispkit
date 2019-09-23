@@ -1,2 +1,2 @@
-github "objecthub/swift-numberkit" ~> 2.3.0
-github "objecthub/swift-commandlinekit" ~> 0.3.0
+github "objecthub/swift-numberkit" ~> 2.3.1
+github "objecthub/swift-commandlinekit" ~> 0.3.1

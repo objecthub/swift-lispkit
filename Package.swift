@@ -1,4 +1,4 @@
-// swift-tools-version:5.0
+// swift-tools-version:5.1
 //
 //  Package.swift
 //  LispKit
@@ -11,6 +11,11 @@
 //
 //  A release can be built with these options:
 //  swift build -c release -Xswiftc "-D" -Xswiftc "SPM"
+//
+//  This creates a release binary in .build/release/. Assumung that a LispKit directory is
+//  located in ~/Documents/LispKit, the binary can be invoked like this:
+//  .build/release/LispKitRepl -d LispKit
+//
 //
 //  Created by Matthias Zenger on 16/10/2017.
 //  Copyright © 2017-2019 ObjectHub. All rights reserved.
@@ -40,8 +45,8 @@ let package = Package(
     .executable(name: "LispKitRepl", targets: ["LispKitRepl"])
   ],
   dependencies: [
-    .package(url: "https://github.com/objecthub/swift-numberkit.git", from: "2.3.0"),
-    .package(url: "https://github.com/objecthub/swift-commandlinekit.git", from: "0.3.0")
+    .package(url: "https://github.com/objecthub/swift-numberkit.git", from: "2.3.1"),
+    .package(url: "https://github.com/objecthub/swift-commandlinekit.git", from: "0.3.1")
   ],
   targets: [
     .target(name: "LispKit",

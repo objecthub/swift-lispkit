@@ -196,7 +196,7 @@ public final class BindingGroup: Reference, CustomStringConvertible {
   }
   
   public var description: String {
-    var seq = self.symbols
+    let seq = self.symbols
     var builder = StringBuilder()
     for index in seq.indices {
       builder.append(index, width: 5, alignRight: true)

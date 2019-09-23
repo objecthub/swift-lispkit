@@ -131,11 +131,11 @@ var cmdLineArgs = flags.parameters.isEmpty ? [CommandLine.arguments.first!] : fl
                         implementationVersion: "1.7.2",
                         commandLineArguments: cmdLineArgs,
                         includeInternalResources: false,
-                        includeDocumentPath: searchDocs.wasSet ? "LispKit" : nil)
+                        includeDocumentPath: searchDocs.value)
 #else
   let context = Context(delegate: terminal,
                         commandLineArguments: cmdLineArgs,
-                        includeDocumentPath: searchDocs.wasSet ? "LispKit" : nil)
+                        includeDocumentPath: searchDocs.value)
 #endif
 
 // Configure the initial LispKit context
