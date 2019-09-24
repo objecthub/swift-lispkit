@@ -25,7 +25,7 @@ import NumberKit
 ///
 /// `Expr` represents LispKit expressions in form of an enumeration with associated values.
 ///
-public enum Expr: Trackable, Hashable {
+public enum Expr: Hashable {
   case undef
   case void
   case eof
@@ -974,11 +974,23 @@ extension Expr: CustomStringConvertible {
                 return fixString(proc, res)
               }
             case .rawContinuation(_):
-              return "#<raw-continuation \(proc.name)>"
+              if let name = proc.embeddedName {
+                return "#<raw-continuation \(name)>"
+              } else {
+                return "#<raw-continuation>"
+              }
             case .closure(.continuation, _, _):
-              return "#<continuation \(proc.name)>"
+              if let name = proc.embeddedName {
+                return "#<continuation \(name)>"
+              } else {
+                return "#<continuation>"
+              }
             default:
-              return "#<procedure \(proc.name)>"
+              if let name = proc.embeddedName {
+                return "#<procedure \(name)>"
+              } else {
+                return "#<procedure>"
+              }
           }
         case .special(let special):
           return "#<special \(special.name)>"

@@ -326,13 +326,19 @@ public final class Procedure: Reference, CustomStringConvertible {
   /// Returns the name of this procedure. This method either returns the name of a primitive
   /// procedure or the identity as a hex string.
   public var name: String {
+    return self.embeddedName ?? "<closure>"
+  }
+
+  /// Returns the name of this procedure. This method either returns the name of a primitive
+  /// procedure or the identity as a hex string or `nil` if there is no available name.
+  public var embeddedName: String? {
     switch self.kind {
       case .primitive(let str, _, _):
         return str
       case .closure(.named(let str), _, _):
         return Context.simplifiedDescriptions ? str : "\(str)@\(self.identityString)"
       default:
-        return Context.simplifiedDescriptions ? "<closure>" : self.identityString
+        return Context.simplifiedDescriptions ? nil : self.identityString
     }
   }
   

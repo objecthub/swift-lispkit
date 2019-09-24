@@ -25,7 +25,7 @@
 ///    - the registers
 ///    - the winders stack
 ///
-public final class VirtualMachineState: TrackedObject, CustomStringConvertible {
+public final class VirtualMachineState: CustomStringConvertible {
   
   /// The stack
   internal let stack: Exprs
@@ -79,8 +79,7 @@ public final class VirtualMachineState: TrackedObject, CustomStringConvertible {
     return builder.description
   }
   
-  public override func mark(_ tag: UInt8) {
-    super.mark(tag)
+  public func mark(_ tag: UInt8) {
     for i in 0..<self.sp {
       self.stack[i].mark(tag)
     }

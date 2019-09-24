@@ -20,32 +20,12 @@
 
 ///
 /// Objects inheriting from `TrackedObject` can be registered in `ManagedObjectPool`
-/// instances for tracking managed objects.
+/// instances for tracking managed objects. LispKit currently defines three subclasses
+/// of `TrackedObject`:
+///   - `Heap`
+///   - `VirtualMachine`
+///   - `LibraryManager`
 ///
 open class TrackedObject {
   open func mark(_ tag: UInt8) {}
-}
-
-///
-/// Objects which implement protocol `Trackable` can be wrapped in `Tracked` proxies
-/// and registered in `ManagedObjectPool` instances for tracking managed objects.
-///
-public protocol Trackable {
-  func mark(_ tag: UInt8)
-}
-
-///
-/// Class `Tracked` implements a generic wrapper for objects implementing the `Trackable`
-/// protocol.
-///
-public final class Tracked<T: Trackable>: TrackedObject {
-  internal var value: T
-  
-  internal init(_ value: T) {
-    self.value = value
-  }
-  
-  public override func mark(_ tag: UInt8) {
-    self.value.mark(tag)
-  }
 }

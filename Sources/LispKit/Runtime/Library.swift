@@ -25,7 +25,7 @@ import Foundation
 /// identifiers, as well as the definition of the library in terms of import, export,
 /// and initialization declarations.
 ///
-open class Library: Reference, Trackable, CustomStringConvertible {
+open class Library: Reference, CustomStringConvertible {
   
   /// State of a library
   public enum State: CustomStringConvertible {
