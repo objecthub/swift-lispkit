@@ -29,13 +29,10 @@
 ///      references to such tracked objects.
 /// 
 public final class ManagedObjectPool: CustomStringConvertible {
-  
-  /// Last tag used for the mark/sweep garbage collector.
-  internal private(set) var tag: UInt8
-  
-  /// Number of garbage collection cycles.
-  public private(set) var cycles: UInt64
-  
+
+  /// Object marker
+  private let marker: ObjectMarker
+
   /// Root set of tracked objects.
   private var rootSet: ObjectPool<TrackedObject>
   
@@ -45,14 +42,19 @@ public final class ManagedObjectPool: CustomStringConvertible {
   /// Does this managed object pool own the managed objects? If yes, the objects will be
   /// cleaned as soon as this managed object pool is being de-initialized.
   private let ownsManagedObjects: Bool
+
+  /// Callback invoked whenever garbage collection was performed.
+  private let gcCallback: ((ManagedObjectPool, Double, Int) -> Void)?
   
   /// Initializes an empty managed object pool.
-  public init(ownsManagedObjects: Bool = true) {
-    self.tag = 0
-    self.cycles = 0
+  public init(ownsManagedObjects: Bool = true,
+              marker: ObjectMarker,
+              gcCallback: ((ManagedObjectPool, Double, Int) -> Void)? = nil) {
+    self.marker = marker
     self.rootSet = ObjectPool<TrackedObject>()
     self.objectPool = ObjectPool<ManagedObject>()
     self.ownsManagedObjects = ownsManagedObjects
+    self.gcCallback = gcCallback
   }
   
   /// Destory all potential cyclic dependencies if this managed object pool owns the managed
@@ -63,6 +65,21 @@ public final class ManagedObjectPool: CustomStringConvertible {
         obj.clean()
       }
     }
+  }
+
+  /// Next tag for garbage collection run.
+  public var tag: UInt8 {
+    return self.marker.tag
+  }
+
+  /// Number of garbage collection cycles.
+  public var cycles: UInt64 {
+    return self.marker.cycles
+  }
+
+  /// Capacity of object marker backlog
+  public var backlogCapacity: Int {
+    return self.marker.backlogCapacity
   }
   
   /// Returns number of tracked objects.
@@ -117,23 +134,21 @@ public final class ManagedObjectPool: CustomStringConvertible {
   
   /// Perform garbage collection.
   public func collectGarbage() -> Int {
-    // Increment cycle counter
-    self.cycles += 1
-    // Compute next tag
-    self.tag = self.tag &+ 1
+    // Start time
+    let startTime = Timer.currentTimeInSec
     // Mark
-    // log("MARK \(self.rootSet.count) OBJECTS")
-    for root in self.rootSet {
-      // log("marking \(root)")
-      root.mark(self.tag)
-    }
+    self.marker.mark(self.rootSet)
     // Sweep
     let oldManagedObjectCount = self.numManagedObjects
     for obj in self.objectPool {
       // Does this object still have a tag from a previous run?
-      if obj.tag != self.tag {
+      if obj.tag != self.marker.tag {
         obj.clean()
       }
+    }
+    // Invoke callback
+    if let callback = self.gcCallback {
+      callback(self, Timer.currentTimeInSec - startTime, oldManagedObjectCount)
     }
     // Return number of freed up objects
     return oldManagedObjectCount - self.numManagedObjects
@@ -143,7 +158,8 @@ public final class ManagedObjectPool: CustomStringConvertible {
   public var description: String {
     return "ManagedObjectPool{ tracked \(self.numTrackedObjects) of " +
            "\(self.trackedObjectCapacity), managed \(self.numManagedObjects) of " +
-           "\(self.managedObjectCapacity), gc cycles = \(self.cycles), last tag = \(self.tag) }"
+           "\(self.managedObjectCapacity), gc cycles = \(self.cycles), " +
+           "last tag = \(self.marker.tag) }"
   }
   
   /// Returns a distribution of type names of managed objects
@@ -159,4 +175,11 @@ public final class ManagedObjectPool: CustomStringConvertible {
     }
     return distrib
   }
+}
+
+public protocol ObjectMarker {
+  var tag: UInt8 { get }
+  var cycles: UInt64 { get }
+  var backlogCapacity: Int { get }
+  func mark(_ rootSet: ObjectPool<TrackedObject>)
 }

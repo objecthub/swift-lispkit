@@ -42,7 +42,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
   public static var allocated: UInt64 = 0
   
   /// The hash buckets.
-  private var buckets: Exprs
+  internal private(set) var buckets: Exprs
   
   /// Number of mappings in this hash table
   public private(set) var count: Int
@@ -405,28 +405,6 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
   }
   
   // Support for managed objects
-  
-  /// Mark hash table content.
-  public override func mark(_ tag: UInt8) {
-    if self.tag != tag {
-      self.tag = tag
-      for bucket in self.buckets {
-        var current = bucket
-        while case .pair(.pair(let key, .box(let cell)), let next) = current {
-          key.mark(tag)
-          cell.mark(tag)
-          current = next
-        }
-      }
-      if case .custom(let procs) = self.equiv {
-        procs.eql.mark(tag)
-        procs.hsh.mark(tag)
-        procs.get.mark(tag)
-        procs.add.mark(tag)
-        procs.del.mark(tag)
-      }
-    }
-  }
   
   /// Clear variable value
   public override func clean() {

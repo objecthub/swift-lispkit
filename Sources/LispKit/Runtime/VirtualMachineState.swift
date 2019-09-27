@@ -78,14 +78,4 @@ public final class VirtualMachineState: CustomStringConvertible {
     builder.append("}")
     return builder.description
   }
-  
-  public func mark(_ tag: UInt8) {
-    for i in 0..<self.sp {
-      self.stack[i].mark(tag)
-    }
-    for expr in self.registers.captured {
-      expr.mark(tag)
-    }
-    self.registers.code.mark(tag)
-  }
 }

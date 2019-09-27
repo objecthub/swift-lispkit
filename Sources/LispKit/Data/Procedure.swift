@@ -354,25 +354,6 @@ public final class Procedure: Reference, CustomStringConvertible {
     }
   }
   
-  public func mark(_ tag: UInt8) {
-    if self.tag != tag {
-      self.tag = tag
-      switch self.kind {
-        case .closure(_, let captures, let code):
-          for capture in captures {
-            capture.mark(tag)
-          }
-          code.mark(tag)
-        case .parameter(let tuple):
-          tuple.mark(tag)
-        case .rawContinuation(let state):
-          state.mark(tag)
-        default:
-          break
-      }
-    }
-  }
-  
   /// A textual description
   public var description: String {
     return "proc:" + self.name

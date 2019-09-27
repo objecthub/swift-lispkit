@@ -255,17 +255,6 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
     return builder.description
   }
   
-  public func mark(_ tag: UInt8) {
-    for irritant in self.irritants {
-      irritant.mark(tag)
-    }
-    if let stackTrace = self.stackTrace {
-      for procedure in stackTrace {
-        procedure.mark(tag)
-      }
-    }
-  }
-  
   /// This method assumes the string contains variables of the form `$n` where `n` is a
   /// variable index into the array `values`. It replaces occurences of `$n` with the value at
   /// index `n`. If there is no such value or the index is not well-formed, the variable

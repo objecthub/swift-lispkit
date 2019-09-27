@@ -125,18 +125,6 @@ public final class Collection: ManagedObject, CustomStringConvertible {
     }
   }
   
-  public override func mark(_ tag: UInt8) {
-    if self.tag != tag {
-      self.tag = tag
-      if case .record(let type) = self.kind {
-        type.mark(tag)
-      }
-      for expr in self.exprs {
-        expr.mark(tag)
-      }
-    }
-  }
-  
   public override func clean() {
     self.kind = .vector
     self.exprs.removeAll()

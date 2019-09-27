@@ -51,6 +51,9 @@ public protocol ContextDelegate: TextInputSource, TextOutputTarget {
   
   /// This is called whenever a symbol is bound in an environment
   func bound(symbol: Symbol, in: Environment)
+
+  /// This is called whenever garbage collection was called
+  func garbageCollected(objectPool: ManagedObjectPool, time: Double, objectsBefore: Int)
   
   /// This is called by the `exit` function of LispKit.
   func emergencyExit(obj: Expr?)
@@ -146,6 +149,9 @@ public extension ContextDelegate {
   }
   
   func bound(symbol: Symbol, in: Environment) {
+  }
+
+  func garbageCollected(objectPool: ManagedObjectPool, time: Double, objectsBefore: Int) {
   }
   
   func emergencyExit(obj: Expr?) {

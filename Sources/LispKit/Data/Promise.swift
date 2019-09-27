@@ -108,22 +108,7 @@ public final class Promise: ManagedObject, CustomStringConvertible {
   public var description: String {
     return "\(self.kind)#\(self.state)"
   }
-
-  /// Mark the expressions referenced from this future.
-  public override func mark(_ tag: UInt8) {
-    if self.tag != tag {
-      self.tag = tag
-      switch self.state {
-        case .lazy(let proc):
-          proc.mark(tag)
-        case .shared(let future):
-          future.mark(tag)
-        case .value(let expr):
-          expr.mark(tag)
-      }
-    }
-  }
-
+  
   /// Remove references to expressions from this future.
   public override func clean() {
     self.state = .value(.null)

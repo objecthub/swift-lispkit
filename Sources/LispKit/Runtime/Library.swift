@@ -634,10 +634,10 @@ open class Library: Reference, CustomStringConvertible {
   
   /// Libraries do not mark other referenced libraries; this is assuming that all libraries
   /// are tracked individually. Only the initializing declarations need to be marked.
-  public func mark(_ tag: UInt8) {
+  public func mark(in gc: GarbageCollector) {
     for block in self.initDeclBlocks {
-      for i in block.decls.indices {
-        block.decls[i].mark(tag)
+      for decl in block.decls {
+        gc.markLater(decl)
       }
     }
   }

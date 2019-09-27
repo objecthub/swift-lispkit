@@ -57,9 +57,9 @@ public final class Heap: TrackedObject {
   }
   
   /// Mark all elements on the heap
-  public override func mark(_ tag: UInt8) {
-    for i in self.locations.indices {
-      self.locations[i].mark(tag)
+  public override func mark(in gc: GarbageCollector) {
+    for loc in self.locations {
+      gc.markLater(loc)
     }
   }
 }

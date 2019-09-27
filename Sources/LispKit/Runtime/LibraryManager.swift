@@ -160,9 +160,9 @@ public final class LibraryManager: TrackedObject, CustomStringConvertible {
   }
   
   /// Mark all registered libraries
-  public override func mark(_ tag: UInt8) {
+  public override func mark(in gc: GarbageCollector) {
     for library in self.libraries.values {
-      library.mark(tag)
+      library.mark(in: gc)
     }
   }
 }

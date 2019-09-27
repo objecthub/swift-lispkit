@@ -51,15 +51,6 @@ public final class SpecialForm: Reference, CustomStringConvertible {
     self.originalName = name
   }
   
-  public func mark(_ tag: UInt8) {
-    switch self.kind {
-      case .primitive(_):
-        break
-      case .macro(let proc):
-        proc.mark(tag)
-    }
-  }
-  
   /// Returns the name of this special form. This method either returns the name of a primitive
   /// special form or a macro transformer. If the name isn't available, the identity is returned
   /// as a hex string.

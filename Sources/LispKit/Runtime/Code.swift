@@ -73,15 +73,6 @@ public struct Code: CustomStringConvertible {
     builder.appendNewline()
     return builder.description
   }
-  
-  public func mark(_ tag: UInt8) {
-    for i in self.constants.indices {
-      self.constants[i].mark(tag)
-    }
-    for i in self.fragments.indices {
-      self.fragments[i].mark(tag)
-    }
-  }
 }
 
 /// A set of code fragments, represented as an array.

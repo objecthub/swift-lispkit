@@ -86,11 +86,11 @@ public final class VirtualMachine: TrackedObject {
     var isInitialized: Bool {
       return self.rid == 0 && self.code.instructions.count > 0
     }
-    
-    func mark(_ tag: UInt8) {
-      self.code.mark(tag)
+
+    public func mark(in gc: GarbageCollector) {
+      gc.mark(self.code)
       for i in self.captured.indices {
-        self.captured[i].mark(tag)
+        gc.markLater(self.captured[i])
       }
     }
   }
@@ -145,12 +145,14 @@ public final class VirtualMachine: TrackedObject {
       }
       return this
     }
-    
-    func mark(_ tag: UInt8) {
-      self.before.mark(tag)
-      self.after.mark(tag)
-      self.handlers?.mark(tag)
-      self.next?.mark(tag)
+
+    public func mark(in gc: GarbageCollector) {
+      gc.mark(self.before)
+      gc.mark(self.after)
+      if let handlers = self.handlers {
+        gc.markLater(handlers)
+      }
+      self.next?.mark(in: gc)
     }
   }
   
@@ -1705,14 +1707,16 @@ public final class VirtualMachine: TrackedObject {
     return .null
   }
   
-  public override func mark(_ tag: UInt8) {
+  public override func mark(in gc: GarbageCollector) {
     for i in 0..<self.sp {
-      self.stack[i].mark(tag)
+      gc.markLater(self.stack[i])
     }
-    self.registers.mark(tag)
-    self.winders?.mark(tag)
-    self.parameters.mark(tag)
-    self.raiseProc?.mark(tag)
+    self.registers.mark(in: gc)
+    self.winders?.mark(in: gc)
+    gc.mark(self.parameters)
+    if let proc = self.raiseProc {
+      gc.mark(proc)
+    }
   }
   
   /// Debugging output

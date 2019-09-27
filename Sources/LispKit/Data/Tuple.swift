@@ -42,15 +42,6 @@ public final class Tuple: ManagedObject, CustomStringConvertible {
     Tuple.allocated += 1
   }
   
-  /// Mark tuple object.
-  public override func mark(_ tag: UInt8) {
-    if self.tag != tag {
-      self.tag = tag
-      self.fst.mark(tag)
-      self.snd.mark(tag)
-    }
-  }
-  
   /// Clear tuple
   public override func clean() {
     self.fst = .undef

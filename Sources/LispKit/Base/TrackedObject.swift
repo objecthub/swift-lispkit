@@ -27,5 +27,5 @@
 ///   - `LibraryManager`
 ///
 open class TrackedObject {
-  open func mark(_ tag: UInt8) {}
+  open func mark(in: GarbageCollector) {}
 }

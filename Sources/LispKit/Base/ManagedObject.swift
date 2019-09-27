@@ -41,11 +41,6 @@ open class ManagedObject: Reference {
   /// root set references).
   internal final var tag: UInt8 = 0
 
-  /// Mark the managed object with the given tag.
-  open func mark(_ tag: UInt8) {
-    self.tag = tag
-  }
-  
   /// Clean up the object; i.e. remove possible cycles to free up the object for
   /// garbage collection.
   open func clean() {}

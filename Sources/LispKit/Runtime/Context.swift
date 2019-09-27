@@ -117,7 +117,8 @@ public final class Context {
     self.fileHandler = FileHandler(includeInternalResources: includeInternalResources,
                                    includeDocumentPath: includeDocumentPath)
     self.sources = SourceManager()
-    self.objects = ManagedObjectPool()
+    self.objects = ManagedObjectPool(marker: GarbageCollector(),
+                                     gcCallback: delegate.garbageCollected)
     self.symbols = SymbolTable()
     var supported = Feature.supported
     for feature in features {

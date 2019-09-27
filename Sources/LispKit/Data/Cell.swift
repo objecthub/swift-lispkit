@@ -40,14 +40,6 @@ public final class Cell: ManagedObject, CustomStringConvertible {
     Cell.allocated += 1
   }
   
-  /// Mark variable object.
-  public override func mark(_ tag: UInt8) {
-    if self.tag != tag {
-      self.tag = tag
-      self.value.mark(tag)
-    }
-  }
-  
   /// Clear cell value.
   public override func clean() {
     self.value = .undef
