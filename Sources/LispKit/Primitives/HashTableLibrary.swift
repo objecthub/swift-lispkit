@@ -180,9 +180,14 @@ public final class HashTableLibrary: NativeLibrary {
     self.define(Procedure("alist->equal-hashtable", alistToEqualHashTable))
     self.define(Procedure("hashtable-equivalence-function", hashTableEquivalenceFunction))
     self.define(Procedure("hashtable-hash-function", hashTableHashFunction))
+    self.define(Procedure("boolean-hash", booleanHashVal))
+    self.define(Procedure("char-hash", charHashVal))
+    self.define(Procedure("char-ci-hash", charCiHashVal))
     self.define(Procedure("string-hash", stringHashVal))
     self.define(Procedure("string-ci-hash", stringCiHashVal))
     self.define(Procedure("symbol-hash", symbolHashVal))
+    self.define(Procedure("number-hash", numberHashVal))
+    self.define(Procedure("combine-hash", combineHash))
   }
   
   func makeHashTable(_ capacity: Expr, _ eql: Expr, _ hsh: Expr, _ args: Arguments) throws -> Expr {
@@ -484,26 +489,66 @@ public final class HashTableLibrary: NativeLibrary {
   private static func equalHashVal(_ expr: Expr) -> Expr {
     return .fixnum(Int64(equalHash(expr)))
   }
-  
-  func stringHashVal(_ expr: Expr) throws -> Expr {
-    guard case .string(_) = expr else {
-      throw RuntimeError.type(expr, expected: [.strType])
+
+  private func booleanHashVal(_ expr: Expr) -> Expr {
+    return .fixnum(Int64(expr.isTrue.hashValue))
+  }
+
+  private func numberHashVal(_ expr: Expr) throws -> Expr {
+    switch expr {
+      case .fixnum(let num):
+        return .fixnum(Int64(num.hashValue))
+      case .bignum(let num):
+        return .fixnum(Int64(num.hashValue))
+      case .rational(let n, let d):
+        var hasher = Hasher()
+        hasher.combine(n)
+        hasher.combine(d)
+        return .fixnum(Int64(hasher.finalize()))
+      case .flonum(let num):
+        return .fixnum(Int64(num.hashValue))
+      case .complex(let num):
+        return .fixnum(Int64(num.hashValue))
+      default:
+        throw RuntimeError.type(expr, expected: [.numberType])
     }
-    return .fixnum(Int64(expr.hashValue))
+  }
+
+  private func charHashVal(_ expr: Expr) throws -> Expr {
+    return .fixnum(Int64(try expr.charAsString().hashValue))
+  }
+
+  private func charCiHashVal(_ expr: Expr) throws -> Expr {
+    return .fixnum(Int64(try expr.charAsString().lowercased().hashValue))
   }
   
-  func stringCiHashVal(_ expr: Expr) throws -> Expr {
+  private func stringHashVal(_ expr: Expr) throws -> Expr {
+    guard case .string(let str) = expr else {
+      throw RuntimeError.type(expr, expected: [.strType])
+    }
+    return .fixnum(Int64(str.hashValue))
+  }
+  
+  private func stringCiHashVal(_ expr: Expr) throws -> Expr {
     guard case .string(let str) = expr else {
       throw RuntimeError.type(expr, expected: [.strType])
     }
     return .fixnum(Int64(str.lowercased.hashValue))
   }
   
-  func symbolHashVal(_ expr: Expr) throws -> Expr {
-    guard case .symbol(_) = expr else {
+  private func symbolHashVal(_ expr: Expr) throws -> Expr {
+    guard case .symbol(let sym) = expr else {
       throw RuntimeError.type(expr, expected: [.symbolType])
     }
-    return .fixnum(Int64(expr.hashValue))
+    return .fixnum(Int64(sym.hashValue))
+  }
+
+  private func combineHash(_ args: Arguments) throws -> Expr {
+    var hasher = Hasher()
+    for arg in args {
+      hasher.combine(try arg.asInt64())
+    }
+    return .fixnum(Int64(hasher.finalize()))
   }
   
   private func bucket(_ hval: Expr, _ numBuckets: Int) throws -> Int {

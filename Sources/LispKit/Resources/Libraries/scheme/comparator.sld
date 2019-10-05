@@ -35,7 +35,8 @@
           string-ci-hash
           symbol-hash
           number-hash
-          hash-bound hash-salt
+          hash-bound
+          hash-salt
           make-default-comparator
           default-hash
           comparator-register-default!
