@@ -22,7 +22,7 @@ infix operator %%: MultiplicationPrecedence
 
 func %%<T: BinaryInteger>(lhs: T, rhs: T) -> T {
   let rem = lhs % rhs
-  return rem >= 0 ? rem : rem + rhs
+  return (rem < 0) == (rhs < 0) ? rem : rem + rhs
 }
 
 internal func log(_ str: String) {

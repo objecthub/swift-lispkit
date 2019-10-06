@@ -207,7 +207,7 @@ public final class MathLibrary: NativeLibrary {
 
   private func isNumber(_ expr: Expr) -> Expr {
     switch expr {
-      case .fixnum(_), .bignum(_), .rational(_), .flonum(_), .complex(_):
+      case .fixnum(_), .bignum(_), .rational(_, _), .flonum(_), .complex(_):
         return .true
       default:
         return .false
@@ -216,7 +216,7 @@ public final class MathLibrary: NativeLibrary {
   
   private func isComplex(_ expr: Expr) -> Expr {
     switch expr {
-      case .fixnum(_), .bignum(_), .rational(_), .flonum(_), .complex(_):
+      case .fixnum(_), .bignum(_), .rational(_, _), .flonum(_), .complex(_):
         return .true
       default:
         return .false
@@ -225,7 +225,7 @@ public final class MathLibrary: NativeLibrary {
   
   private func isReal(_ expr: Expr) -> Expr {
     switch expr {
-      case .fixnum(_), .bignum(_), .rational(_), .flonum(_):
+      case .fixnum(_), .bignum(_), .rational(_, _), .flonum(_):
         return .true
       case .complex(let num):
         return .makeBoolean(num.value.isReal)
@@ -251,7 +251,7 @@ public final class MathLibrary: NativeLibrary {
   
   private func isRational(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .fixnum(_), .bignum(_), .rational(_):
+      case .fixnum(_), .bignum(_), .rational(_, _):
         return .true
       case .flonum(let num):
         return .makeBoolean(!num.isInfinite && !num.isNaN)
@@ -274,7 +274,7 @@ public final class MathLibrary: NativeLibrary {
   
   private func isRatnum(_ expr: Expr) -> Expr {
     switch expr {
-      case .rational(_):
+      case .rational(_, _):
         return .true
       default:
         return .false
@@ -310,7 +310,7 @@ public final class MathLibrary: NativeLibrary {
   
   private func isExact(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .fixnum(_), .bignum(_), .rational(_):
+      case .fixnum(_), .bignum(_), .rational(_, _):
         return .true
       default:
         return .false
@@ -483,7 +483,7 @@ public final class MathLibrary: NativeLibrary {
   
   private func exact(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .fixnum(_), .bignum(_), .rational(_):
+      case .fixnum(_), .bignum(_), .rational(_, _):
         return expr
       case .flonum(let num):
         return MathLibrary.approximateNumber(num)
@@ -882,7 +882,7 @@ public final class MathLibrary: NativeLibrary {
 
   private func sqrt(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .fixnum(_), .bignum(_), .rational(_), .flonum(_):
+      case .fixnum(_), .bignum(_), .rational(_, _), .flonum(_):
         let dbl = try expr.asDouble(coerce: true)
         let res = Foundation.sqrt(dbl)
         return res.isNaN ? .makeNumber(Complex(dbl).sqrt) : .makeNumber(res)
@@ -946,7 +946,7 @@ public final class MathLibrary: NativeLibrary {
 
   private func exp(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .fixnum(_), .bignum(_), .rational(_), .flonum(_):
+      case .fixnum(_), .bignum(_), .rational(_, _), .flonum(_):
         let dbl = try expr.asDouble(coerce: true)
         let res = Foundation.exp(dbl)
         return res.isNaN ? .makeNumber(Complex(dbl).exp) : .makeNumber(res)
@@ -959,7 +959,7 @@ public final class MathLibrary: NativeLibrary {
   
   private func logNat(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .fixnum(_), .bignum(_), .rational(_), .flonum(_):
+      case .fixnum(_), .bignum(_), .rational(_, _), .flonum(_):
         let dbl = try expr.asDouble(coerce: true)
         let res = Foundation.log(dbl)
         return res.isNaN ? .makeNumber(Complex(dbl).log) : .makeNumber(res)
@@ -1118,8 +1118,12 @@ public final class MathLibrary: NativeLibrary {
       (actual, n, d) = MathLibrary.findBestRat(t, l_curr)
     }
     (actual, n, d) = MathLibrary.findBestRat(t, l_curr)
-    let num = Rational(n, d)
-    return .rational(.fixnum(num.numerator), .fixnum(num.denominator))
+    let res = Rational(n, d)
+    if res.denominator == 1 {
+      return .fixnum(res.numerator)
+    } else {
+      return .rational(.fixnum(res.numerator), .fixnum(res.denominator))
+    }
   }
   
   private func makeRectangular(_ re: Expr, _ imag: Expr) throws -> Expr {

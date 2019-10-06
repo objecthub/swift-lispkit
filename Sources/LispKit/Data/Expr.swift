@@ -81,7 +81,7 @@ public enum Expr: Hashable {
         return .exactIntegerType
       case .bignum(_):
         return .exactIntegerType
-      case .rational(_):
+      case .rational(_, _):
         return .rationalType
       case .flonum(let num):
         return Foundation.trunc(num) == num ? .integerType : .floatType
@@ -205,7 +205,7 @@ public enum Expr: Hashable {
   /// Returns true if this is an exact number.
   public var isExactNumber: Bool {
     switch self {
-      case .fixnum(_), .bignum(_), .rational(_):
+      case .fixnum(_), .bignum(_), .rational(_, _):
         return true
       default:
         return false
