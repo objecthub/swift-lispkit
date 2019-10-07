@@ -1423,7 +1423,7 @@
     (define (sob-hash sob)
       (let* ((hash (comparator-hash-function (sob-comparator sob))))
         (sob-fold
-          (lambda (element result) (fx+ (integer->fx (hash element)) result))
+          (lambda (element result) (fx+ (integer->fixnum (hash element)) result))
           5381
           sob)))
  

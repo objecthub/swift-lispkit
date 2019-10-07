@@ -154,6 +154,7 @@ public final class MathLibrary: NativeLibrary {
     self.define(Procedure("fxarithmetic-shift", self.fxShift))
     self.define(Procedure("fxarithmetic-shift-left", self.fxLshift))
     self.define(Procedure("fxarithmetic-shift-right", self.fxRshift))
+    self.define(Procedure("fxlogical-shift-right", self.fxRshift))
     self.define(Procedure("fxbit-count", self.fxBitCount))
     self.define(Procedure("fxlength", self.fxLength))
     self.define(Procedure("fxfirst-bit-set", self.fxFirstBitSet))
@@ -162,10 +163,11 @@ public final class MathLibrary: NativeLibrary {
     self.define(Procedure("fxmin", self.fxMin))
     self.define(Procedure("fxmax", self.fxMax))
     self.define(Procedure("fxrandom", self.fxRandom))
-    self.define(Procedure("integer->fx", self.integerToFx))
+    self.define(Procedure("integer->fixnum", self.integerToFx))
     self.define(Procedure("fixnum-width", self.fixnumWidth))
     self.define(Procedure("least-fixnum", self.leastFixnum))
     self.define(Procedure("greatest-fixnum", self.greatestFixnum))
+    self.define(Procedure("real->flonum", self.realToFlonum))
     self.define(Procedure("fl+", self.flPlus, self.compileFlPlus))
     self.define(Procedure("fl-", self.flMinus, self.compileFlMinus))
     self.define(Procedure("fl*", self.flMult, self.compileFlMult))
@@ -1766,12 +1768,12 @@ public final class MathLibrary: NativeLibrary {
   
   private func integerToFx(_ expr: Expr) throws -> Expr {
     switch expr {
-    case .fixnum(_):
-      return expr
-    case .bignum(let num):
-      return .fixnum((num % MathLibrary.maxFx).intValue!)
-    default:
-      throw RuntimeError.type(expr, expected: [.exactIntegerType])
+      case .fixnum(_):
+        return expr
+      case .bignum(let num):
+        return .fixnum((num % MathLibrary.maxFx).intValue!)
+      default:
+        throw RuntimeError.type(expr, expected: [.exactIntegerType])
     }
   }
   
@@ -1785,6 +1787,23 @@ public final class MathLibrary: NativeLibrary {
   
   private func greatestFixnum() -> Expr {
     return .fixnum(Int64.max)
+  }
+
+  private func realToFlonum(_ expr: Expr) throws -> Expr {
+    switch expr {
+      case .fixnum(let num):
+        return .makeNumber(Double(num))
+      case .bignum(let num):
+        return .makeNumber(num.doubleValue)
+      case .rational(.fixnum(let n), .fixnum(let d)):
+        return .makeNumber(Double(n) / Double(d))
+      case .rational(.bignum(let n), .bignum(let d)):
+        return .makeNumber(n.doubleValue / d.doubleValue)
+      case .flonum(_):
+        return expr
+      default:
+        throw RuntimeError.type(expr, expected: [.realType])
+    }
   }
   
   private func flPlus(_ x: Expr, _ y: Expr) throws -> Expr {
@@ -1980,9 +1999,17 @@ public final class MathLibrary: NativeLibrary {
   private func bitCount(_ num: Expr) throws -> Expr {
     switch num {
       case .fixnum(let x):
-        return .fixnum(Int64(bitcount(x)))
+        if x < 0 {
+          return .fixnum(Int64(bitcount(~x)))
+        } else {
+          return .fixnum(Int64(bitcount(x)))
+        }
       case .bignum(let x):
-        return .fixnum(Int64(x.bitCount))
+        if x.isNegative {
+          return .fixnum(Int64(x.not.bitCount))
+        } else {
+          return .fixnum(Int64(x.bitCount))
+        }
       default:
         throw RuntimeError.type(num, expected: [.integerType])
     }
