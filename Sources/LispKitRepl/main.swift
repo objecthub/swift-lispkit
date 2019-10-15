@@ -32,8 +32,8 @@ let libPaths   = flags.strings("l", "libpath",
 let searchDocs = flags.string("d", "documents",
                               description: "Search for files and libraries in " +
                                            "~/Documents/LispKit folder.")
-let heapSize   = flags.int("h", "heapsize",
-                           description: "Initial capacity of the heap.",
+let heapSize   = flags.int("m", "memsize",
+                           description: "Initial capacity of the heap memory.",
                            value: 1000)
 let importLibs = flags.strings("i", "import",
                                description: "Imports library automatically after startup.")

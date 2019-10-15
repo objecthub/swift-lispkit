@@ -1,0 +1,25 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "CommandLineKit",
+        "repositoryURL": "https://github.com/objecthub/swift-commandlinekit.git",
+        "state": {
+          "branch": null,
+          "revision": "a0d60e86f105aac86a24105b708c0d4329e888f8",
+          "version": "0.3.1"
+        }
+      },
+      {
+        "package": "NumberKit",
+        "repositoryURL": "https://github.com/objecthub/swift-numberkit.git",
+        "state": {
+          "branch": null,
+          "revision": "73dbf4ab75479f706c68eb30c87dd825c734224d",
+          "version": "2.3.1"
+        }
+      }
+    ]
+  },
+  "version": 1
+}

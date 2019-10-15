@@ -172,32 +172,21 @@ compiles it to bytecode, executes it, and displays the result.
 
 ### Downloading the source code
 
-First, clone the _LispKit_ repository via `git`. The following command will create a
-directory `swift-lispkit`.
+First, clone the _LispKit_ repository via `git`. The following command will create a directory `swift-lispkit`.
 
 ```sh
 > git clone https://github.com/objecthub/swift-lispkit.git
 Cloning into 'swift-lispkit'...
-remote: Counting objects: 1849, done.
-remote: Compressing objects: 100% (39/39), done.
-remote: Total 1849 (delta 9), reused 0 (delta 0), pack-reused 1806
-Receiving objects: 100% (1849/1849), 689.43 KiB | 666.00 KiB/s, done.
-Resolving deltas: 100% (1430/1430), done.
+remote: Enumerating objects: 14, done.
+remote: Counting objects: 100% (14/14), done.
+remote: Compressing objects: 100% (12/12), done.
+remote: Total 5300 (delta 1), reused 14 (delta 1), pack-reused 5286
+Receiving objects: 100% (5300/5300), 1.76 MiB | 132.00 KiB/s, done.
+Resolving deltas: 100% (3724/3724), done.
 ```
 
-### Running the command-line tool in Xcode
+Next, switch to Xcode and build the _LispKit_ command-line tool via scheme `LispKitRepl`:
 
-Fetch dependencies and build them from scratch via `carthage`:
-```sh
-> cd swift-lispkit
-> carthage bootstrap
-*** Checking out swift-numberkit at "1.6.0"
-*** xcodebuild output can be found in /var/folders/c_/h31lvvtx72s3zhc9bvxd0p480000gn/T/carthage-xcodebuild.46W8Z7.log
-*** Building scheme "NumberKit (shared)" in NumberKit.xcodeproj
-```
-
-Now, it's possible to switch to Xcode and build the command-line tool via
-scheme `LispKitRepl`:
 ```sh
 > open LispKit.xcodeproj
 ```
@@ -205,18 +194,27 @@ scheme `LispKitRepl`:
 ### Compiling the command-line tool with the Swift Package Manager
 
 A debug binary can be built in the following way:
+
 ```sh
 > cd swift-lispkit
-> swift build -Xswiftc "-target" -Xswiftc "x86_64-apple-macosx10.12" \
-  -Xswiftc "-D" -Xswiftc "SPM"
-Compile Swift Module 'NumberKit' (6 sources)
-Compile Swift Module 'CommandLineKit' (15 sources)
-Compile Swift Module 'LispKit' (83 sources)
-Compile Swift Module 'LispKitRepl' (2 sources)
-Linking ./.build/x86_64-apple-macosx10.10/debug/LispKitRepl
+> swift build -Xswiftc "-D" -Xswiftc "SPM"
+Fetching https://github.com/objecthub/swift-numberkit.git
+Fetching https://github.com/objecthub/swift-commandlinekit.git
+Completed resolution in 6.47s
+Cloning https://github.com/objecthub/swift-numberkit.git
+Resolving https://github.com/objecthub/swift-numberkit.git at 2.3.1
+Cloning https://github.com/objecthub/swift-commandlinekit.git
+Resolving https://github.com/objecthub/swift-commandlinekit.git at 0.3.1
+[124/124] Linking LispKitRepl
 ```
 
+The debug binary can be run by invoking `.build/debug/LispKitRepl -d LispKit`
+assuming that directory `~/Documents/LispKit` contains a copy of the
+[resources directory](https://github.com/objecthub/swift-lispkit/tree/master/Sources/LispKit/Resources)
+needed to run the command-line tool.
+
 A release binary can be built like this:
+
 ```sh
 > cd swift-lispkit
 > swift build -c release -Xswiftc -static-stdlib -Xswiftc "-target" \
@@ -228,16 +226,19 @@ Compile Swift Module 'LispKitRepl' (2 sources)
 Linking ./.build/x86_64-apple-macosx10.10/release/LispKitRepl
 ```
 
+The release binary can be run by invoking `.build/release/LispKitRepl -d LispKit`
+assuming that directory `~/Documents/LispKit` contains a copy of the
+[resources directory](https://github.com/objecthub/swift-lispkit/tree/master/Sources/LispKit/Resources)
+needed to run the command-line tool.
 
 ## Requirements
 
-The following technologies are needed to build the components of the LispKit framework. For the
-command-line tool, Xcode and Carthage are not strictly needed. Just for compiling the framework and trying
-the command-line tool in Xcode, the Swift Package Manager is not needed.
+The following technologies are needed to build the components of the LispKit framework. For building the
+command-line tool, all that is needed is the Swift Package Manager. For compiling the framework and trying
+the command-line tool directly in Xcode, the Swift Package Manager is not needed.
 
 - [Swift 5.1](https://developer.apple.com/swift/)
 - [Xcode 11.1](https://developer.apple.com/xcode/)
-- [Carthage](https://github.com/Carthage/Carthage)
 - [Swift Package Manager](https://swift.org/package-manager/)
 - [NumberKit](http://github.com/objecthub/swift-numberkit)
 - [CommandLineKit](http://github.com/objecthub/swift-commandlinekit)

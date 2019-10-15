@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -137,17 +137,12 @@
 		CC5BBC791D5268D000367E8F /* HashTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5BBC781D5268D000367E8F /* HashTable.swift */; };
 		CC5BBC7B1D52724800367E8F /* HashTableLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5BBC7A1D52724800367E8F /* HashTableLibrary.swift */; };
 		CC5C0A3F1D8EBE0A00CE2E98 /* MultiMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5C0A3E1D8EBE0A00CE2E98 /* MultiMap.swift */; };
-		CC5C713F1EBD3D3A00280CF4 /* NumberKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC5C713E1EBD3D3A00280CF4 /* NumberKit.framework */; };
-		CC5E473520C51BFE00F21B03 /* CommandLineKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC5E473420C51BFE00F21B03 /* CommandLineKit.framework */; };
-		CC5E473620C51C1300F21B03 /* CommandLineKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC5E473420C51BFE00F21B03 /* CommandLineKit.framework */; };
-		CC5E473720C51C1300F21B03 /* CommandLineKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC5E473420C51BFE00F21B03 /* CommandLineKit.framework */; };
-		CC5E473920C51E0A00F21B03 /* CommandLineKit.framework.dSYM in Copy dSYM data */ = {isa = PBXBuildFile; fileRef = CC5E473820C51C2D00F21B03 /* CommandLineKit.framework.dSYM */; };
-		CC5E473A20C51EC400F21B03 /* CommandLineKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CC5E473420C51BFE00F21B03 /* CommandLineKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		CC5E473B20C51ED900F21B03 /* CommandLineKit.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = CC5E473420C51BFE00F21B03 /* CommandLineKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CC5E473D20D2D92900F21B03 /* 69.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC5E473C20D2D8B600F21B03 /* 69.sld */; };
 		CC5E473F20D2DF5400F21B03 /* SRFI69.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC5E473E20D2D95E00F21B03 /* SRFI69.scm */; };
 		CC5E474120D316AF00F21B03 /* 129.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC5E474020D315B300F21B03 /* 129.sld */; };
 		CC5E474320D45AE500F21B03 /* Coroutines.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC5E474220D45A8900F21B03 /* Coroutines.scm */; };
+		CC5E53032355AAD400C72CE2 /* NumberKit in Frameworks */ = {isa = PBXBuildFile; productRef = CC5E53022355AAD400C72CE2 /* NumberKit */; };
+		CC5E53062355AB0700C72CE2 /* CommandLineKit in Frameworks */ = {isa = PBXBuildFile; productRef = CC5E53052355AB0700C72CE2 /* CommandLineKit */; };
 		CC68B3A91FCCCDEE00EB4AF9 /* object.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC68B3A81FCC73C300EB4AF9 /* object.sld */; };
 		CC6A3B5C1C52E71F00E962E2 /* ListLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B5B1C52E71F00E962E2 /* ListLibrary.swift */; };
 		CC6A3B5E1C52E8EF00E962E2 /* VectorLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B5D1C52E8EF00E962E2 /* VectorLibrary.swift */; };
@@ -235,9 +230,6 @@
 		CC96D1092038B17A006AA27B /* 137.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC96D1082038AEC1006AA27B /* 137.sld */; };
 		CC96D10B203997F0006AA27B /* test.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC96D10A20399770006AA27B /* test.sld */; };
 		CC97FA161CFA515E0008596E /* Definitions.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC97FA151CFA51520008596E /* Definitions.scm */; };
-		CC98B4571EBD43C900BCD049 /* NumberKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CC5C713E1EBD3D3A00280CF4 /* NumberKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		CC98B4581EBD43E500BCD049 /* NumberKit.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = CC5C713E1EBD3D3A00280CF4 /* NumberKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		CC98B45A1EBD444400BCD049 /* NumberKit.framework.dSYM in Copy dSYM data */ = {isa = PBXBuildFile; fileRef = CC98B4591EBD444400BCD049 /* NumberKit.framework.dSYM */; };
 		CC9EB1151F5C9DFF00697511 /* Topological.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC9EB1141F5C9D4000697511 /* Topological.scm */; };
 		CCA3127D204CB74A0026FF13 /* RuntimeError.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA3127C204CB74A0026FF13 /* RuntimeError.swift */; };
 		CCA3127F204CB7900026FF13 /* LexicalError.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA3127E204CB7900026FF13 /* LexicalError.swift */; };
@@ -335,9 +327,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				CC5E473A20C51EC400F21B03 /* CommandLineKit.framework in Embed Frameworks */,
 				CC1AAE3C1CC3CF0F00D1806F /* LispKit.framework in Embed Frameworks */,
-				CC98B4571EBD43C900BCD049 /* NumberKit.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -487,18 +477,6 @@
 			name = "Copy pre-installed LispKit libraries";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		CC5C71401EBD3DD100280CF4 /* Copy dSYM data */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 16;
-			files = (
-				CC5E473920C51E0A00F21B03 /* CommandLineKit.framework.dSYM in Copy dSYM data */,
-				CC98B45A1EBD444400BCD049 /* NumberKit.framework.dSYM in Copy dSYM data */,
-			);
-			name = "Copy dSYM data";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		CC703A1E218D0AF500E71EA9 /* Copy pre-installed LispKit library: LispKit CLOS Support */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -572,17 +550,6 @@
 				CC48EBD01F3E5B2A00233FA9 /* derived.sld in Copy pre-installed LispKit library: SRFI 41 */,
 			);
 			name = "Copy pre-installed LispKit library: SRFI 41";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		CC98B4521EBD433400BCD049 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				CC5E473B20C51ED900F21B03 /* CommandLineKit.framework in CopyFiles */,
-				CC98B4581EBD43E500BCD049 /* NumberKit.framework in CopyFiles */,
-			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		CCA752F91DEF9F4E0098C34A /* Copy pre-installed SRFI libraries */ = {
@@ -778,10 +745,6 @@
 		CC5BBC781D5268D000367E8F /* HashTable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HashTable.swift; sourceTree = "<group>"; };
 		CC5BBC7A1D52724800367E8F /* HashTableLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = HashTableLibrary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC5C0A3E1D8EBE0A00CE2E98 /* MultiMap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MultiMap.swift; sourceTree = "<group>"; };
-		CC5C713E1EBD3D3A00280CF4 /* NumberKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NumberKit.framework; path = Carthage/Build/Mac/NumberKit.framework; sourceTree = "<group>"; };
-		CC5C71431EBD3F3F00280CF4 /* Cartfile */ = {isa = PBXFileReference; lastKnownFileType = text; path = Cartfile; sourceTree = "<group>"; };
-		CC5E473420C51BFE00F21B03 /* CommandLineKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CommandLineKit.framework; path = Carthage/Build/Mac/CommandLineKit.framework; sourceTree = "<group>"; };
-		CC5E473820C51C2D00F21B03 /* CommandLineKit.framework.dSYM */ = {isa = PBXFileReference; lastKnownFileType = wrapper.dsym; name = CommandLineKit.framework.dSYM; path = Carthage/Build/Mac/CommandLineKit.framework.dSYM; sourceTree = "<group>"; };
 		CC5E473C20D2D8B600F21B03 /* 69.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 69.sld; sourceTree = "<group>"; };
 		CC5E473E20D2D95E00F21B03 /* SRFI69.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = SRFI69.scm; sourceTree = "<group>"; };
 		CC5E474020D315B300F21B03 /* 129.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 129.sld; sourceTree = "<group>"; };
@@ -869,7 +832,6 @@
 		CC96D1082038AEC1006AA27B /* 137.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 137.sld; sourceTree = "<group>"; };
 		CC96D10A20399770006AA27B /* test.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = test.sld; sourceTree = "<group>"; };
 		CC97FA151CFA51520008596E /* Definitions.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Definitions.scm; sourceTree = "<group>"; };
-		CC98B4591EBD444400BCD049 /* NumberKit.framework.dSYM */ = {isa = PBXFileReference; lastKnownFileType = wrapper.dsym; name = NumberKit.framework.dSYM; path = Carthage/Build/Mac/NumberKit.framework.dSYM; sourceTree = "<group>"; };
 		CC9EB1141F5C9D4000697511 /* Topological.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Topological.scm; sourceTree = "<group>"; };
 		CCA3127C204CB74A0026FF13 /* RuntimeError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeError.swift; sourceTree = "<group>"; };
 		CCA3127E204CB7900026FF13 /* LexicalError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexicalError.swift; sourceTree = "<group>"; };
@@ -940,7 +902,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CC1AAE3B1CC3CF0F00D1806F /* LispKit.framework in Frameworks */,
-				CC5E473720C51C1300F21B03 /* CommandLineKit.framework in Frameworks */,
+				CC5E53062355AB0700C72CE2 /* CommandLineKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -948,8 +910,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CC5E473520C51BFE00F21B03 /* CommandLineKit.framework in Frameworks */,
-				CC5C713F1EBD3D3A00280CF4 /* NumberKit.framework in Frameworks */,
+				CC5E53032355AAD400C72CE2 /* NumberKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -958,7 +919,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				CCAD52C51C48403900DBD8EE /* LispKit.framework in Frameworks */,
-				CC5E473620C51C1300F21B03 /* CommandLineKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -968,10 +928,6 @@
 		CC069FB71D7B7CFD004644B1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				CC5E473820C51C2D00F21B03 /* CommandLineKit.framework.dSYM */,
-				CC5E473420C51BFE00F21B03 /* CommandLineKit.framework */,
-				CC98B4591EBD444400BCD049 /* NumberKit.framework.dSYM */,
-				CC5C713E1EBD3D3A00280CF4 /* NumberKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -1342,7 +1298,6 @@
 				CCC937491C4F031700A5608F /* README.md */,
 				CCC937471C4F02DF00A5608F /* CHANGELOG.md */,
 				CC3C4E051CD81C5E00C78F89 /* TODO.md */,
-				CC5C71431EBD3F3F00280CF4 /* Cartfile */,
 				CCC937451C4F02AF00A5608F /* LICENSE */,
 				CCCAF92D1F941A43006692E9 /* Package.swift */,
 				CC48055B1CFE366100D608B6 /* Assets */,
@@ -1552,6 +1507,9 @@
 				CC1AAE3E1CC3CF0F00D1806F /* PBXTargetDependency */,
 			);
 			name = LispKitRepl;
+			packageProductDependencies = (
+				CC5E53052355AB0700C72CE2 /* CommandLineKit */,
+			);
 			productName = LispKitRepl;
 			productReference = CC1227361CBFE74500821EB7 /* LispKitRepl.app */;
 			productType = "com.apple.product-type.application";
@@ -1563,7 +1521,6 @@
 				CCAD52B51C48403800DBD8EE /* Sources */,
 				CCAD52B61C48403800DBD8EE /* Frameworks */,
 				CCAD52B71C48403800DBD8EE /* Headers */,
-				CC5C71401EBD3DD100280CF4 /* Copy dSYM data */,
 				CC2E6A901C486AA70046E680 /* Copy default prelude */,
 				CCA752F91DEF9F4E0098C34A /* Copy pre-installed SRFI libraries */,
 				CC54924521DCDF4F004A0652 /* Copy pre-installed LispKit library: SRFI 14 */,
@@ -1586,6 +1543,9 @@
 			dependencies = (
 			);
 			name = LispKit;
+			packageProductDependencies = (
+				CC5E53022355AAD400C72CE2 /* NumberKit */,
+			);
 			productName = LispKit;
 			productReference = CCAD52BA1C48403800DBD8EE /* LispKit.framework */;
 			productType = "com.apple.product-type.framework";
@@ -1597,7 +1557,6 @@
 				CCAD52C01C48403900DBD8EE /* Sources */,
 				CCAD52C11C48403900DBD8EE /* Frameworks */,
 				CCAD52C21C48403900DBD8EE /* Resources */,
-				CC98B4521EBD433400BCD049 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -1642,6 +1601,10 @@
 				Base,
 			);
 			mainGroup = CCAD52B01C48403800DBD8EE;
+			packageReferences = (
+				CC5E53012355AAD400C72CE2 /* XCRemoteSwiftPackageReference "swift-numberkit" */,
+				CC5E53042355AB0700C72CE2 /* XCRemoteSwiftPackageReference "swift-commandlinekit" */,
+			);
 			productRefGroup = CCAD52BB1C48403800DBD8EE /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -1838,12 +1801,13 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/Mac",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = Sources/LispKitRepl/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../Frameworks",
+				);
 				"OTHER_SWIFT_FLAGS[arch=*]" = "-D DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispKitRepl;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1860,12 +1824,13 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/Mac",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = Sources/LispKitRepl/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispKitRepl;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = Sources/LispKitRepl/LispKitReplBridgingHeader.h;
@@ -1979,7 +1944,8 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
-				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Off;
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -1990,7 +1956,6 @@
 		CCAD52CF1C48403900DBD8EE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
@@ -1998,11 +1963,15 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/Carthage/Build/Mac";
+				FRAMEWORK_SEARCH_PATHS = "";
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = "$(SRCROOT)/Sources/LispKit/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
 				"OTHER_SWIFT_FLAGS[arch=*]" = "-D DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispKit;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2016,7 +1985,6 @@
 		CCAD52D01C48403900DBD8EE /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
@@ -2024,11 +1992,15 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/Carthage/Build/Mac";
+				FRAMEWORK_SEARCH_PATHS = "";
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = "$(SRCROOT)/Sources/LispKit/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispKit;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -2042,12 +2014,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/Mac",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = Tests/LispKitTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispKitTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -2058,12 +2031,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/Mac",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = Tests/LispKitTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispKitTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -2110,6 +2084,38 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		CC5E53012355AAD400C72CE2 /* XCRemoteSwiftPackageReference "swift-numberkit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/objecthub/swift-numberkit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.3.1;
+			};
+		};
+		CC5E53042355AB0700C72CE2 /* XCRemoteSwiftPackageReference "swift-commandlinekit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/objecthub/swift-commandlinekit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.3.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		CC5E53022355AAD400C72CE2 /* NumberKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CC5E53012355AAD400C72CE2 /* XCRemoteSwiftPackageReference "swift-numberkit" */;
+			productName = NumberKit;
+		};
+		CC5E53052355AB0700C72CE2 /* CommandLineKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CC5E53042355AB0700C72CE2 /* XCRemoteSwiftPackageReference "swift-commandlinekit" */;
+			productName = CommandLineKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = CCAD52B11C48403800DBD8EE /* Project object */;
 }
