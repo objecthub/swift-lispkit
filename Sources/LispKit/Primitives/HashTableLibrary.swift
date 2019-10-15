@@ -515,7 +515,10 @@ public final class HashTableLibrary: NativeLibrary {
   }
 
   private func charHashVal(_ expr: Expr) throws -> Expr {
-    return .fixnum(Int64(try expr.charAsString().hashValue))
+    guard case .char(_) = expr else {
+      throw RuntimeError.type(expr, expected: [.charType])
+    }
+    return .fixnum(Int64(expr.hashValue))
   }
 
   private func charCiHashVal(_ expr: Expr) throws -> Expr {
@@ -523,10 +526,10 @@ public final class HashTableLibrary: NativeLibrary {
   }
   
   private func stringHashVal(_ expr: Expr) throws -> Expr {
-    guard case .string(let str) = expr else {
+    guard case .string(_) = expr else {
       throw RuntimeError.type(expr, expected: [.strType])
     }
-    return .fixnum(Int64(str.hashValue))
+    return .fixnum(Int64(expr.hashValue))
   }
   
   private func stringCiHashVal(_ expr: Expr) throws -> Expr {
@@ -537,10 +540,10 @@ public final class HashTableLibrary: NativeLibrary {
   }
   
   private func symbolHashVal(_ expr: Expr) throws -> Expr {
-    guard case .symbol(let sym) = expr else {
+    guard case .symbol(_) = expr else {
       throw RuntimeError.type(expr, expected: [.symbolType])
     }
-    return .fixnum(Int64(sym.hashValue))
+    return .fixnum(Int64(expr.hashValue))
   }
 
   private func combineHash(_ args: Arguments) throws -> Expr {

@@ -50,9 +50,9 @@ let package = Package(
   ],
   targets: [
     .target(name: "LispKit",
-            dependencies: ["NumberKit", "CommandLineKit"]),
+            dependencies: ["NumberKit"]),
     .target(name: "LispKitRepl",
-            dependencies: ["LispKit"],
+            dependencies: ["LispKit", "CommandLineKit"],
             exclude: ["BuildMetadata.m", "BuildMetadata.h"]),
     .testTarget(name: "LispKitTests",
                 dependencies: ["LispKit"])

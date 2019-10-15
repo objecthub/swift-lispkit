@@ -3,7 +3,7 @@
 
 [![Platform: macOS](https://img.shields.io/badge/Platform-macOS-blue.svg?style=flat)](https://developer.apple.com/osx/)
 [![Language: Swift 5.1](https://img.shields.io/badge/Language-Swift%205.1-green.svg?style=flat)](https://developer.apple.com/swift/)
-[![IDE: Xcode 11.0](https://img.shields.io/badge/IDE-Xcode%2011.0-orange.svg?style=flat)](https://developer.apple.com/xcode/)
+[![IDE: Xcode 11.1](https://img.shields.io/badge/IDE-Xcode%2011.1-orange.svg?style=flat)](https://developer.apple.com/xcode/)
 [![Carthage: compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![License: Apache](http://img.shields.io/badge/License-Apache-lightgrey.svg?style=flat)](https://raw.githubusercontent.com/objecthub/swift-lispkit/master/LICENSE)
 
@@ -236,7 +236,7 @@ command-line tool, Xcode and Carthage are not strictly needed. Just for compilin
 the command-line tool in Xcode, the Swift Package Manager is not needed.
 
 - [Swift 5.1](https://developer.apple.com/swift/)
-- [Xcode 11.0](https://developer.apple.com/xcode/)
+- [Xcode 11.1](https://developer.apple.com/xcode/)
 - [Carthage](https://github.com/Carthage/Carthage)
 - [Swift Package Manager](https://swift.org/package-manager/)
 - [NumberKit](http://github.com/objecthub/swift-numberkit)
