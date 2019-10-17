@@ -201,7 +201,7 @@
   ;; Declarative class interface
   (export define-class)
 
-  (import (lispkit base))
+  (import (except (lispkit base) object))
 
   (begin
 

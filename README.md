@@ -72,6 +72,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit object)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Object),
     `(lispkit clos)`,
     [`(lispkit enum)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Enum),
+    `(lispkit comparator)`,
     `(lispkit logic)`, `(lispkit iteration)`,
     [`(lispkit vector)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Vector),
     [`(lispkit gvector)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Gvector),
@@ -146,6 +147,7 @@ framework:
   - [SRFI 161: Unifiable Boxes](https://srfi.schemers.org/srfi-161/srfi-161.html)
   - [SRFI 165: The Environment Monad](https://srfi.schemers.org/srfi-165/srfi-165.html)
   - [SRFI 173: Hooks](https://srfi.schemers.org/srfi-173/srfi-173.html)
+  - [SRFI 174: POSIX Timespecs](https://srfi.schemers.org/srfi-174/srfi-174.html)
 
 
 ## Architecture
