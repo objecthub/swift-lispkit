@@ -100,6 +100,9 @@
 (import (srfi 152))
 (import (srfi 158))
 (import (srfi 161))
+(import (srfi 165))
+(import (srfi 173))
+(import (srfi 174))
 
 ; this needs to be last
 (import (srfi 101))

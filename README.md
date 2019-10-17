@@ -217,13 +217,15 @@ A release binary can be built like this:
 
 ```sh
 > cd swift-lispkit
-> swift build -c release -Xswiftc -static-stdlib -Xswiftc "-target" \
-  -Xswiftc "x86_64-apple-macosx10.12" -Xswiftc "-D" -Xswiftc "SPM"
-Compile Swift Module 'NumberKit' (6 sources)
-Compile Swift Module 'CommandLineKit' (15 sources)
-Compile Swift Module 'LispKit' (83 sources)
-Compile Swift Module 'LispKitRepl' (2 sources)
-Linking ./.build/x86_64-apple-macosx10.10/release/LispKitRepl
+> swift build -c release -Xswiftc "-D" -Xswiftc "SPM"
+Fetching https://github.com/objecthub/swift-numberkit.git
+Fetching https://github.com/objecthub/swift-commandlinekit.git
+Completed resolution in 7.47s
+Cloning https://github.com/objecthub/swift-numberkit.git
+Resolving https://github.com/objecthub/swift-numberkit.git at 2.3.1
+Cloning https://github.com/objecthub/swift-commandlinekit.git
+Resolving https://github.com/objecthub/swift-commandlinekit.git at 0.3.1
+[5/5] Linking LispKitRepl
 ```
 
 The release binary can be run by invoking `.build/release/LispKitRepl -d LispKit`
