@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.8 (2019-10-17)
+- Migrated project to Xcode 11.1
+- Ported code to Swift 5.1
+- Simplify printed representation of procedures.
+- Rewrite of garbage collector: replaced recursive garbage collector with iterative version
+- Completed hash functions of library `(lispkit hashtable)`
+- New library: `(lispkit comparator)`
+- Several fixes in `(lispkit math)`: `integer->fx` renamed to `integer->fixnum`, introduced `fxlogical-shift-right` and `real->flonum`, fixed `bit-count`, fixed `fxmodulo` to work with negative numbers
+- Statically link libraries. Removed Carthage support.
+
 ## 1.7.2 (2019-09-08)
 - New libraries: `(lispkit stream)`, `(scheme mapping)`, `(srfi 146)`, `(srfi 165)`, `(srfi 173)`
 - Fixed memory leak involving recursive local functions
