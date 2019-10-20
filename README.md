@@ -57,38 +57,49 @@ _LispKit_ provides support for the following core features, many of which are ba
     `(scheme rlist)`, `(scheme set)`,
     `(scheme sort)`, `(scheme stream)`, `(scheme text)`, `(scheme vector)`
   - LispKit-specific libraries: 
+    `(lispkit base)`,
     [`(lispkit core)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Core),
     [`(lispkit control)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Control),
-    [`(lispkit dynamic)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Dynamic),
     [`(lispkit system)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-System),
-    [`(lispkit list)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-List),
     [`(lispkit box)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Box),
-    [`(lispkit type)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Type),
+    [`(lispkit math)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Math),
+    [`(lispkit list)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-List),
     [`(lispkit hashtable)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Hashtable),
-    `(lispkit log)`, 
-    `(lispkit test)`, 
-    `(lispkit match)`,
-    [`(lispkit datatype)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Datatype),
-    [`(lispkit object)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Object),
-    `(lispkit clos)`,
-    [`(lispkit enum)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Enum),
-    `(lispkit comparator)`,
-    `(lispkit logic)`, `(lispkit iteration)`,
+    [`(lispkit dynamic)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Dynamic),
+    [`(lispkit type)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Type),
     [`(lispkit vector)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Vector),
     [`(lispkit gvector)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Gvector),
-    [`(lispkit set)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Set),
-    `(lispkit stack)`, `(lispkit queue)`,
-    `(lispkit heap)`,  `(lispkit graph)`, 
-    `(lispkit wt-tree)`, `(lispkit stream)`,
-    `(lispkit prettify)`, `(lispkit json)`, `(lispkit csv)`,
-    [`(lispkit string)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-String),
+    `(lispkit record)`,
+    [`(lispkit bytevector)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Bytevector),
     [`(lispkit char)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Char),
     [`(lispkit char-set)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Char-Set),
-    [`(lispkit date-time)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Date-Time),
+    [`(lispkit string)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-String),
     `(lispkit regexp)`,
+    `(lispkit port)`,
+    [`(lispkit date-time)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Date-Time),
     [`(lispkit draw)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Draw),
     [`(lispkit draw turtle)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Draw-Turtle),
-    and `(lispkit pdf)`
+    [`(lispkit datatype)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Datatype),
+    [`(lispkit object)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Object),
+    [`(lispkit enum)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Enum),
+    `(lispkit stream)`,
+    `(lispkit graph)`,
+    `(lispkit match)`,
+    `(lispkit iteration)`,
+    `(lispkit log)`,
+    [`(lispkit set)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Set),
+    `(lispkit stack)`, 
+    `(lispkit queue)`,
+    `(lispkit heap)`,
+    `(lispkit wt-tree)`,
+    `(lispkit comparator)`,
+    `(lispkit logic)`,
+    `(lispkit clos)`,
+    `(lispkit test)`, 
+    `(lispkit prettify)`,
+    `(lispkit csv)`,
+    `(lispkit json)`,
+    and `(lispkit pdf)`.
 
 _LispKit_ is incompatible or incomplete with respect to the following R7RS features:
 
@@ -148,6 +159,7 @@ framework:
   - [SRFI 165: The Environment Monad](https://srfi.schemers.org/srfi-165/srfi-165.html)
   - [SRFI 173: Hooks](https://srfi.schemers.org/srfi-173/srfi-173.html)
   - [SRFI 174: POSIX Timespecs](https://srfi.schemers.org/srfi-174/srfi-174.html)
+  - [SRFI 177: Portable keyword arguments](https://srfi.schemers.org/srfi-177/srfi-177.html)
 
 
 ## Architecture

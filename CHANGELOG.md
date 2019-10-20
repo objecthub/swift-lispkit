@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.8.1 (2019-10-20)
+- Update dependency on NumberKit 2.3.2
+- New libraries: `(srfi 174)`, `(srfi 177)`
+
 ## 1.8 (2019-10-17)
 - Migrated project to Xcode 11.1
 - Ported code to Swift 5.1

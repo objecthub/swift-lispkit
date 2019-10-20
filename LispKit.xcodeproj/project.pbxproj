@@ -159,6 +159,7 @@
 		CC6A3B721C54DF7F00E962E2 /* Exprs.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B711C54DF7F00E962E2 /* Exprs.swift */; };
 		CC6AB0871C5C28FE008E9460 /* Equality.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6AB0861C5C28FE008E9460 /* Equality.swift */; };
 		CC6BB19A1E60F237009A9091 /* Random.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6BB1991E60F237009A9091 /* Random.swift */; };
+		CC6BB91B235CFC6300D7CAA1 /* 177.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC6BB91A235CFB4700D7CAA1 /* 177.sld */; };
 		CC703A13218BC4C100E71EA9 /* 23.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC703A12218BC40600E71EA9 /* 23.sld */; };
 		CC703A14218BC53600E71EA9 /* 14.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCC1DBFB216BA1750019A374 /* 14.sld */; };
 		CC703A15218BC54800E71EA9 /* 16.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCC1DBFC216BA2600019A374 /* 16.sld */; };
@@ -561,6 +562,7 @@
 			dstPath = LispKit/Resources/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
+				CC6BB91B235CFC6300D7CAA1 /* 177.sld in Copy pre-installed SRFI libraries */,
 				CC5E53082357A2FA00C72CE2 /* 174.sld in Copy pre-installed SRFI libraries */,
 				CC38528E23140FE0001D5E56 /* 173.sld in Copy pre-installed SRFI libraries */,
 				CC4A7DC7225A32C400936034 /* 165.sld in Copy pre-installed SRFI libraries */,
@@ -769,6 +771,7 @@
 		CC6A3B711C54DF7F00E962E2 /* Exprs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Exprs.swift; sourceTree = "<group>"; };
 		CC6AB0861C5C28FE008E9460 /* Equality.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Equality.swift; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC6BB1991E60F237009A9091 /* Random.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Random.swift; sourceTree = "<group>"; };
+		CC6BB91A235CFB4700D7CAA1 /* 177.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 177.sld; sourceTree = "<group>"; };
 		CC703A12218BC40600E71EA9 /* 23.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 23.sld; sourceTree = "<group>"; };
 		CC703A16218BC61D00E71EA9 /* 34.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 34.sld; sourceTree = "<group>"; };
 		CC703A17218BC7D000E71EA9 /* 39.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 39.sld; sourceTree = "<group>"; };
@@ -1188,6 +1191,7 @@
 				CC4A7DC6225A021E00936034 /* 165.sld */,
 				CC38528C23140CC2001D5E56 /* 173.sld */,
 				CC5E530723579CF200C72CE2 /* 174.sld */,
+				CC6BB91A235CFB4700D7CAA1 /* 177.sld */,
 			);
 			path = srfi;
 			sourceTree = "<group>";
@@ -2099,7 +2103,7 @@
 			repositoryURL = "https://github.com/objecthub/swift-numberkit.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 2.3.1;
+				minimumVersion = 2.3.2;
 			};
 		};
 		CC5E53042355AB0700C72CE2 /* XCRemoteSwiftPackageReference "swift-commandlinekit" */ = {

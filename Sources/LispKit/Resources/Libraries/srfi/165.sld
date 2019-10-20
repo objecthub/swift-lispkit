@@ -29,7 +29,7 @@
 ;;; OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ;;;
 ;;; LispKit Port:
-;;;   Copyright © 2018 Matthias Zenger. All rights reserved.
+;;;   Copyright © 2019 Matthias Zenger. All rights reserved.
 
 (define-library (srfi 165)
 
