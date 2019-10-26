@@ -3,8 +3,8 @@
 ;;; This library implements algebraic datatypes for LispKit. It provides the following
 ;;; functionality:
 ;;;    - `define-datatype` creates a new algebraic datatype consisting of a type test
-;;;      predicate and a number of variants. Each variant implicitly defines a constructor and
-;;;      a pattern.
+;;;      predicate and a number of variants. Each variant implicitly defines a constructor
+;;;      and a pattern.
 ;;;    - `define-pattern` introduces a new pattern and constructor for an existing datatype
 ;;;      variant.
 ;;;    - `match` for matching a value of an algebraic datatype against patterns, binding
@@ -18,9 +18,9 @@
 ;;;     (node left element right) where (and (tree? left) (tree? right)))
 ;;;
 ;;; The datatype `tree` defines a predicate `tree?` for checking whether a value is of type
-;;; `tree`. In addition, it defines two variants with corresponding constructors `empty` and
-;;; `node` for creating values of type `tree`. Variant `node` defines an invariant that
-;;; prevents nodes from being constructed unless `left` and `right` are also trees.
+;;; `tree`. In addition, it defines two variants with corresponding constructors `empty`
+;;; and `node` for creating values of type `tree`. Variant `node` defines an invariant
+;;; that prevents nodes from being constructed unless `left` and `right` are also trees.
 ;;;
 ;;; The following line defines a new tree:
 ;;;
@@ -30,8 +30,8 @@
 ;;;
 ;;;   #tree:(node #tree:(empty) 4 #tree:(node #tree:(empty) 7 #tree:(empty)))
 ;;;
-;;; Using `match`, values like `t1` can be deconstructed using pattern matching. The following
-;;; function `elements` shows how to collect all elements from a tree in a list:
+;;; Using `match`, values like `t1` can be deconstructed using pattern matching. The
+;;; following function `elements` shows how to collect all elements from a tree in a list:
 ;;;
 ;;;   (define (elements tree)
 ;;;     (match tree
@@ -89,7 +89,24 @@
 ;;;       (else #t)))
 ;;;
 ;;; The underscore in the `(single _)` subpattern is a wildcard that matches every value and
-;;; that does not bind a new variable.
+;;; that does not bind a new variable. In general, `match` supports the following type of
+;;; patterns:
+;;;
+;;;   pattern   =  '_'                                ; wildcard
+;;;             |  var                                ; variable
+;;;             |  `#t`                               ; literal boolean (true)
+;;;             |  `#f`                               ; literal boolean (false)
+;;;             |  string                             ; literal string
+;;;             |  number                             ; literal number
+;;;             |  character                          ; literal character
+;;;             |  vector                             ; literal vector
+;;;             |  `'` expr                           ; constant expression
+;;;             |  `,` expr                           ; value (result of evaluating expr)
+;;;             |  pattern `as` var                   ; pattern bound to variable
+;;;             |  `(` `list` pattern ... `)`         ; list pattern
+;;;             |  `(` `list` pattern ... `.` var `)` ; list pattern with rest
+;;;             |  `(` `list` pattern ... `.` `_` `)` ; list pattern with unbound rest
+;;;             |  `(` constr pattern ... `)`         ; variant pattern
 ;;;
 ;;;
 ;;; Author: Matthias Zenger
@@ -224,32 +241,57 @@
     (define-syntax match-case
       (syntax-rules (or)
         ((_ (or p ...) pred x code)
-           (or (match-pattern (p) pred x code) ...))
+          (or (match-pattern (p) pred x code) ...))
         ((_ p pred x code)
-           (match-pattern (p) pred x code))))
+          (match-pattern (p) pred x code))))
+
+  (define-syntax if-identifier
+    (syntax-rules ()
+      ((_ (x . y) sc fc)
+        fc)
+      ((_ x sc fc)
+        (let-syntax ((sym? (syntax-rules ()
+                             ((sym? x sk fk) sk)
+                             ((sym? y sk fk) fk))))
+          (sym? lispkit sc fc)))))
 
     (define-syntax match-pattern
-      (syntax-rules (unquote as _)
+      (syntax-rules (list quote unquote as _)
         ((match-pattern () () x code)
           (if (null? x) code #f))
         ((match-pattern () pred x code)
           (if (and (null? x) pred) code #f))
         ((match-pattern (_ . rest) pred x code)
           (match-pattern rest pred (cdr x) code))
-        ((match-pattern ((unquote e) p ...) pred x code)
-          (if (equal? e (car x))
-              (match-pattern (p ...) pred (cdr x) code)
+        ((match-pattern ((quote e) . p) pred x code)
+          (if (equal? (quote e) (car x))
+              (match-pattern p pred (cdr x) code)
               #f))
-        ((match-pattern ((p as v) q ...) pred x code)
+        ((match-pattern ((unquote e) . p) pred x code)
+          (if (equal? e (car x))
+              (match-pattern p pred (cdr x) code)
+              #f))
+        ((match-pattern ((p as v) . q) pred x code)
           (let ((v (car x)))
-            (match-pattern (p q ...) pred x code)))
+            (match-pattern (cons p q) pred x code)))
+        ((match-pattern ((list . ps) . rest) pred x code)
+          (match-pattern ps () (car x) (match-pattern rest pred (cdr x) code)))
         ((match-pattern ((c p ...) . rest) pred x code)
           (let ((params (deconstruct-datatype c (car x))))
             (if params
                 (match-pattern (p ...) () params (match-pattern rest pred (cdr x) code))
                 #f)))
         ((match-pattern (v . rest) pred x code)
-          (let ((v (car x)))
-            (match-pattern rest pred (cdr x) code)))))
+          (if-identifier v
+                         (let ((v (car x))) (match-pattern rest pred (cdr x) code))
+                         (if (equal? v (car x)) (match-pattern rest pred (cdr x) code) #f)))
+        ((match-pattern _ () x code)
+          code)
+        ((match-pattern v () x code)
+          (let ((v x)) code))
+        ((match-pattern _ pred x code)
+          (if pred code #f))
+        ((match-pattern v pred x code)
+          (let ((v x)) (if pred code #f)))))
   )
 )
