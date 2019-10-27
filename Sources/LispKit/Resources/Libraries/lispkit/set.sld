@@ -260,8 +260,8 @@
     ;; Adds the values of list `elements` to set `s`.
     (define (list->set! s elements)
       (let ((ht (set-ref s)))
-        (for-each (lambda (element) (hashtable-add! ht element '())) elements)))
-  
+        (for-each (lambda (element) (hashtable-set! ht element '())) elements)))
+    
     ;; Creates a new set using the equivalence function `eq?` from the values in list
     ;; `elements`.
     (define (list->eq-set elements)

@@ -163,6 +163,7 @@ public final class MathLibrary: NativeLibrary {
     self.define(Procedure("fxmin", self.fxMin))
     self.define(Procedure("fxmax", self.fxMax))
     self.define(Procedure("fxrandom", self.fxRandom))
+    self.define(Procedure("fxsqrt", self.fxSqrt))
     self.define(Procedure("integer->fixnum", self.integerToFx))
     self.define(Procedure("fixnum-width", self.fixnumWidth))
     self.define(Procedure("least-fixnum", self.leastFixnum))
@@ -1762,6 +1763,20 @@ public final class MathLibrary: NativeLibrary {
       }
     }
     return .fixnum(Int64.random(min: min, max: max))
+  }
+
+  private func fxSqrt(_ expr: Expr) throws -> Expr {
+    let n = try expr.asInt64()
+    guard n < 3037000499 * 3037000499 else {
+      return .makeNumber(3037000499)
+    }
+    var res = Int64(Double(n).squareRoot())
+    if res * res > n {
+      res -= 1
+    } else if (res + 1) * (res + 1) <= n {
+      res += 1
+    }
+    return .makeNumber(res)
   }
   
   private static let maxFx = BigInt(Int64.max) + 1

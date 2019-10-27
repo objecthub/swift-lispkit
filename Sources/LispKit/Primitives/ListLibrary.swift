@@ -125,6 +125,14 @@ public final class ListLibrary: NativeLibrary {
       "      (do ((res '() (cons (apply f (car pair)) res))",
       "           (pair (decons (cons xs xss)) (decons (cdr pair))))",
       "          ((null? pair) (reverse res)))))")
+    self.define("append-map", via:
+      "(define (append-map f . xs) (apply append (apply map f xs)))")
+    self.define("filter-map", via:
+      "(define (filter-map f xs . xss)",
+      "  (let recur ((l (apply map f xs xss)))",
+      "    (cond ((null? l) '())",
+      "          ((car l)   (cons (car l) (recur (cdr l))))",
+      "          (else      (recur (cdr l))))))")
     self.define("for-each", via:
       "(define (for-each f list1 . lists)",
       "  (do ((pair (decons (cons list1 lists)) (decons (cdr pair))))",

@@ -303,8 +303,8 @@
             lst
             (rec (g seed) (cons (f seed) lst)))))
 
-    (define (append-map f . clists)
-      (apply append (apply map f clists)))
+    ; (define (append-map f . clists)
+    ;   (apply append (apply map f clists)))
 
     (define (pair-for-each f clist . clists)
       (if (null? clist)
@@ -329,11 +329,12 @@
                      (cons* (apply f (map car clists)) acc))
                 (reverse acc)))))
 
-    (define (filter-map f clist . clists)
-      (let recur ((l (apply map f clist clists)))
-        (cond ((null? l) '())
-              ((car l)   (cons (car l) (recur (cdr l))))
-              (else      (recur (cdr l)))))))
+    ; (define (filter-map f clist . clists)
+    ;   (let recur ((l (apply map f clist clists)))
+    ;     (cond ((null? l) '())
+    ;           ((car l)   (cons (car l) (recur (cdr l))))
+    ;           (else      (recur (cdr l))))))
+  )
 
   (export map for-each
           fold unfold pair-fold reduce
