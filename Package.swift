@@ -45,12 +45,13 @@ let package = Package(
     .executable(name: "LispKitRepl", targets: ["LispKitRepl"])
   ],
   dependencies: [
-    .package(url: "https://github.com/objecthub/swift-numberkit.git", from: "2.3.1"),
+    .package(url: "https://github.com/objecthub/swift-numberkit.git", from: "2.3.2"),
+    .package(url: "https://github.com/objecthub/swift-markdownkit.git", from: "0.2.0"),
     .package(url: "https://github.com/objecthub/swift-commandlinekit.git", from: "0.3.1")
   ],
   targets: [
     .target(name: "LispKit",
-            dependencies: ["NumberKit"]),
+            dependencies: ["NumberKit", "MarkdownKit"]),
     .target(name: "LispKitRepl",
             dependencies: ["LispKit", "CommandLineKit"],
             exclude: ["BuildMetadata.m", "BuildMetadata.h"]),

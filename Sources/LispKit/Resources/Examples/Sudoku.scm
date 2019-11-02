@@ -1,9 +1,9 @@
 ;;; Sudoku solver
 ;;;
 ;;; This is a port of Peter Norvig's Sudoku solver to idiomatic Scheme code. It uses
-;;; some LispKit-specific libraries (e.g. R6RS-style hashtables), but can be easily translated
-;;; to generic R7RS code. A detailed description of the Sudoku solver algorithm can be found at
-;;; https://norvig.com/sudoku.html .
+;;; some LispKit-specific libraries (e.g. R6RS-style hashtables), but can easily be translated
+;;; into generic R7RS code. A detailed description of the Sudoku solver algorithm can be found
+;;; at https://norvig.com/sudoku.html .
 ;;;
 ;;; The Sudoku solver uses a string to represent an initial, partially filled grid. For instance,
 ;;; the following string:
@@ -199,10 +199,11 @@
             (display
               (fold-left
                 (lambda (z cb)
-                  (string-append z (if (string=? z "") "" "|")
+                  (string-append z
+                    (if (string-empty? z) "" "|")
                     (fold-left (lambda (z c)
                                  (string-append z
-                                   (string-pad-right (value->string values (join r c)) #\space w)))
+                                   (string-pad-center (value->string values (join r c)) #\space w)))
                                 ""
                                 cb)))
                 ""
@@ -222,11 +223,11 @@
 
 (define (solve-all . gridspecs)
   (for-each (lambda (gridspec)
-              (display "~~~~~~ ")
-              (display (car gridspec))
+              (display (string-pad-center (string-append " " (car gridspec) " ") #\= 20))
               (newline)
               (display-grid (solve (cdr gridspec)))
-              (newline)) gridspecs))
+              (newline))
+            gridspecs))
 
 (define (solve-all-examples)
   (solve-all (cons "GRID 1" grid1)

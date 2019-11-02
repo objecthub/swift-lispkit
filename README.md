@@ -214,9 +214,12 @@ A debug binary can be built in the following way:
 > swift build -Xswiftc "-D" -Xswiftc "SPM"
 Fetching https://github.com/objecthub/swift-numberkit.git
 Fetching https://github.com/objecthub/swift-commandlinekit.git
+Fetching https://github.com/objecthub/swift-markdownkit.git
 Completed resolution in 6.47s
 Cloning https://github.com/objecthub/swift-numberkit.git
-Resolving https://github.com/objecthub/swift-numberkit.git at 2.3.1
+Resolving https://github.com/objecthub/swift-numberkit.git at 2.3.2
+Cloning https://github.com/objecthub/swift-markdownkit.git
+Resolving https://github.com/objecthub/swift-markdownkit.git at 0.2.0
 Cloning https://github.com/objecthub/swift-commandlinekit.git
 Resolving https://github.com/objecthub/swift-commandlinekit.git at 0.3.1
 [124/124] Linking LispKitRepl
@@ -234,12 +237,15 @@ A release binary can be built like this:
 > swift build -c release -Xswiftc "-D" -Xswiftc "SPM"
 Fetching https://github.com/objecthub/swift-numberkit.git
 Fetching https://github.com/objecthub/swift-commandlinekit.git
-Completed resolution in 7.47s
+Fetching https://github.com/objecthub/swift-markdownkit.git
+Completed resolution in 4.02s
 Cloning https://github.com/objecthub/swift-numberkit.git
-Resolving https://github.com/objecthub/swift-numberkit.git at 2.3.1
+Resolving https://github.com/objecthub/swift-numberkit.git at 2.3.2
+Cloning https://github.com/objecthub/swift-markdownkit.git
+Resolving https://github.com/objecthub/swift-markdownkit.git at 0.2.0
 Cloning https://github.com/objecthub/swift-commandlinekit.git
 Resolving https://github.com/objecthub/swift-commandlinekit.git at 0.3.1
-[5/5] Linking LispKitRepl
+[6/6] Linking LispKitRepl
 ```
 
 The release binary can be run by invoking `.build/release/LispKitRepl -d LispKit`
@@ -257,4 +263,5 @@ the command-line tool directly in Xcode, the Swift Package Manager is not needed
 - [Xcode 11.1](https://developer.apple.com/xcode/)
 - [Swift Package Manager](https://swift.org/package-manager/)
 - [NumberKit](http://github.com/objecthub/swift-numberkit)
+- [MarkdownKit](http://github.com/objecthub/swift-markdownkit)
 - [CommandLineKit](http://github.com/objecthub/swift-commandlinekit)
