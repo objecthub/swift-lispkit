@@ -38,6 +38,7 @@ public final class StringLibrary: NativeLibrary {
   /// Declarations of the library.
   public override func declarations() {
     self.define(Procedure("string?", isString))
+    self.define(Procedure("string-empty?", isStringEmpty))
     self.define(Procedure("make-string", makeString))
     self.define(Procedure("string", string))
     self.define(Procedure("string-ref", stringRef))
@@ -77,6 +78,7 @@ public final class StringLibrary: NativeLibrary {
     self.define(Procedure("string-trim", stringTrim))
     self.define(Procedure("string-pad-left", stringPadLeft))
     self.define(Procedure("string-pad-right", stringPadRight))
+    self.define(Procedure("string-pad-center", stringPadCenter))
     self.define(Procedure("_string-list-ref", stringListRef))
     self.define(Procedure("_string-list-length", stringListLength))
     self.define("string-map", via:
@@ -100,11 +102,18 @@ public final class StringLibrary: NativeLibrary {
       "      (apply f (_string-list-ref i strs)))))")
   }
   
-  func isString(_ expr: Expr) -> Expr {
+  private func isString(_ expr: Expr) -> Expr {
     if case .string(_) = expr {
       return .true
     }
     return .false
+  }
+
+  private func isStringEmpty(_ expr: Expr) throws -> Expr {
+    guard case .string(let str) = expr else {
+      throw RuntimeError.type(expr, expected: [.strType])
+    }
+    return str.length == 0 ? .true : .false
   }
   
   func makeString(_ k: Expr, ch: Expr?) throws -> Expr {
@@ -189,11 +198,15 @@ public final class StringLibrary: NativeLibrary {
     return .string(str)
   }
   
-  func stringConcatenate(_ expr: Expr) throws -> Expr {
+  func stringConcatenate(_ expr: Expr, _ sep: Expr?) throws -> Expr {
     let res = NSMutableString()
+    let separator = sep == nil ? "" : try sep!.charOrString()
     var list = expr
     while case .pair(let str, let next) = list {
       res.append(try str.asString())
+      if case .pair(_, _) = next {
+        res.append(separator)
+      }
       list = next
     }
     guard list.isNull else {
@@ -597,6 +610,27 @@ public final class StringLibrary: NativeLibrary {
     }
     return .makeString(str.appending(
              String(repeating: char.first ?? " ", count: len - str.length)))
+  }
+
+  private func stringPadCenter(_ expr: Expr,
+                               _ padChar: Expr,
+                               _ length: Expr,
+                               _ forceLength: Expr?) throws -> Expr {
+    let str = try expr.asMutableStr()
+    let char = try self.charAsString(padChar)
+    let len = try length.asInt()
+    let force = forceLength?.isTrue ?? false
+    guard str.length <= len else {
+      return force ? .makeString(str.substring(to: len)) : expr
+    }
+    let left = (len - str.length) / 2
+    let right = len - str.length - left
+    var res = String(repeating: char.first ?? " ", count: left)
+    res.append(str as String)
+    if right > 0 {
+      res.append(String(repeating: char.first ?? " ", count: right))
+    }
+    return .makeString(res)
   }
   
   private func charAsString(_ expr: Expr) throws -> String {

@@ -544,6 +544,17 @@ extension Expr {
     }
     return String(unicodeScalar(res))
   }
+
+  @inline(__always) public func charOrString() throws -> String {
+    switch self {
+      case .char(let res):
+        return String(unicodeScalar(res))
+      case .string(let res):
+        return res as String
+      default:
+        throw RuntimeError.type(self, expected: [.strType])
+    }
+  }
   
   @inline(__always) public func asString() throws -> String {
     guard case .string(let res) = self else {
