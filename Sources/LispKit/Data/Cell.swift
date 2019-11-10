@@ -38,6 +38,6 @@ public final class Cell: ManagedObject, CustomStringConvertible {
   
   /// A string representation of this cell.
   public var description: String {
-    return "«\(self.value)»"
+    return "«cell \(self.value)»"
   }
 }

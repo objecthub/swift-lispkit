@@ -387,8 +387,8 @@ public final class Environment: Reference, CustomStringConvertible {
       case .custom:
         type = " "
     }
-    var builder = StringBuilder(prefix: "<env",
-                                postfix: ">",
+    var builder = StringBuilder(prefix: "«env",
+                                postfix: "»",
                                 separator: ", ",
                                 initial: type + ": ")
     for (sym, locref) in self.bindings {

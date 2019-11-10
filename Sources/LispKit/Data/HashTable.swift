@@ -71,7 +71,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
   
   /// A string representation of this variable.
   public var description: String {
-    return "«\(self.buckets)»"
+    return "«hashtable \(self.buckets)»"
   }
   
   /// Clear entries in hash table and resize if capacity is supposed to change. This

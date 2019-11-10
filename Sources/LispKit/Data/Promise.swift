@@ -96,7 +96,7 @@ public final class Promise: ManagedObject, CustomStringConvertible {
   
   /// String representation of the promise.
   public var description: String {
-    return "\(self.kind)#\(self.state)"
+    return "«\(self.kind) \(self.state)»"
   }
   
   /// Remove references to expressions from this future.

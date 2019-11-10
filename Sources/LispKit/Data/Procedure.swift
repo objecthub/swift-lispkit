@@ -321,7 +321,7 @@ public final class Procedure: Reference, CustomStringConvertible {
   
   /// A textual description
   public var description: String {
-    return "proc:" + self.name
+    return "«procedure \(self.name)»"
   }
 }
 

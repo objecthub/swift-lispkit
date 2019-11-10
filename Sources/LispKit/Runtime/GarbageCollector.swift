@@ -216,9 +216,9 @@ public final class GarbageCollector: ObjectMarker {
       hashTable.tag = self.tag
       for bucket in hashTable.buckets {
         var current = bucket
-        while case .pair(.pair(let key, .box(let cell)), let next) = current {
+        while case .pair(.pair(let key, let cell), let next) = current {
           self.markLater(key)
-          self.mark(cell)
+          self.markLater(cell)
           current = next
         }
       }

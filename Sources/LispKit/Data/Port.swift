@@ -129,7 +129,7 @@ open class Port: Reference, CustomStringConvertible {
   }
   
   open var description: String {
-    return "\(self.typeDescription):\(self.identDescription)"
+    return "«\(self.typeDescription) \(self.identDescription)»"
   }
   
   open func close() {

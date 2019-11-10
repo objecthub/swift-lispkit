@@ -68,6 +68,6 @@ public final class SpecialForm: Reference, CustomStringConvertible {
   
   /// A textual description
   public var description: String {
-    return "special:" + self.name
+    return "«special \(self.name)»"
   }
 }

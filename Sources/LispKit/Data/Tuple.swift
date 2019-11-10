@@ -41,6 +41,6 @@ public final class Tuple: ManagedObject, CustomStringConvertible {
   
   /// A string representation of this tuple.
   public var description: String {
-    return "«\(self.fst), \(self.snd)»"
+    return "«tuple \(self.fst), \(self.snd)»"
   }
 }
