@@ -26,20 +26,11 @@ public final class Tuple: ManagedObject, CustomStringConvertible {
   /// The current value of the variable.
   public var fst: Expr
   public var snd: Expr
-  
-  /// Maintain object statistics.
-  public static var allocated: UInt64 = 0
-  
-  /// Update object statistics.
-  deinit {
-    Tuple.allocated -= 1
-  }
-  
+
   /// Create a new tuple with initial values for `fst` and `snd`.
   public init(_ fst: Expr = .undef, _ snd: Expr = .undef) {
     self.fst = fst
     self.snd = snd
-    Tuple.allocated += 1
   }
   
   /// Clear tuple

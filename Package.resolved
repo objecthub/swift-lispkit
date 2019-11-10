@@ -11,12 +11,21 @@
         }
       },
       {
+        "package": "MarkdownKit",
+        "repositoryURL": "https://github.com/objecthub/swift-markdownkit.git",
+        "state": {
+          "branch": null,
+          "revision": "7536777487718fe92f59d2763c462564c7d8df6a",
+          "version": "0.2.0"
+        }
+      },
+      {
         "package": "NumberKit",
         "repositoryURL": "https://github.com/objecthub/swift-numberkit.git",
         "state": {
           "branch": null,
-          "revision": "73dbf4ab75479f706c68eb30c87dd825c734224d",
-          "version": "2.3.1"
+          "revision": "ebb6c284b3fed8bbe2bd105bb8e41537f75bc950",
+          "version": "2.3.2"
         }
       }
     ]

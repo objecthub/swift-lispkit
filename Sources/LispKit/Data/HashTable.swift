@@ -37,10 +37,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
     case equal
     case custom(CustomProcedures)
   }
-  
-  /// Maintain object statistics.
-  public static var allocated: UInt64 = 0
-  
+
   /// The hash buckets.
   internal private(set) var buckets: Exprs
   
@@ -53,18 +50,12 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
   /// What equivalence relation is used?
   public private(set) var equiv: Equivalence
   
-  /// Update object statistics.
-  deinit {
-    HashTable.allocated -= 1
-  }
-  
   /// Create a new empty hash table with the given size.
   public init(capacity: Int = 127, mutable: Bool = true, equiv: Equivalence) {
     self.buckets = Exprs(repeating: .null, count: capacity)
     self.count = 0
     self.mutable = mutable
     self.equiv = equiv
-    HashTable.allocated += 1
   }
   
   /// Create a copy of another hash table. Make it immutable if `mutable` is set to false.
@@ -76,7 +67,6 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
     self.count = other.count
     self.mutable = mutable
     self.equiv = other.equiv
-    HashTable.allocated += 1
   }
   
   /// A string representation of this variable.

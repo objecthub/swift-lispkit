@@ -63,27 +63,17 @@ public final class Promise: ManagedObject, CustomStringConvertible {
   /// Reference to this object in the managed object pool.
   public var managementRef: Int?
 
-  /// Maintain object statistics.
-  public static var allocated: UInt64 = 0
-
-  /// Update object statistics.
-  deinit {
-    Promise.allocated -= 1
-  }
-
   /// Initializes a promise with a `thunk` that yields a promise; this promise's state is
   /// copied over into this promise as part of the protocol to force a promise.
   public init(kind: Kind, thunk: Procedure) {
     self.kind = kind
     self.state = .lazy(thunk)
-    Promise.allocated += 1
   }
   
   /// Initializes a promise with a given value; no evaluation will happen.
   public init(kind: Kind, value: Expr) {
     self.kind = kind
     self.state = .value(value)
-    Promise.allocated += 1
   }
 
   /// Returns true if this refers to only "simple" values (i.e. values which won't lead to

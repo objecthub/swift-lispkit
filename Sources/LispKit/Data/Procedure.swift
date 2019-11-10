@@ -100,20 +100,11 @@ public final class Procedure: Reference, CustomStringConvertible {
   /// root set references); for optimization purposes
   internal final var tag: UInt8 = 0
 
-  /// Maintain object statistics.
-  public static var allocated: UInt64 = 0
-
-  /// Update object statistics.
-  deinit {
-    Procedure.allocated -= 1
-  }
-
   /// Initializer for primitive evaluators
   public init(_ name: String,
               _ proc: @escaping (Arguments) throws -> Code,
               _ compiler: FormCompiler? = nil) {
     self.kind = .primitive(name, .eval(proc), compiler)
-    Procedure.allocated += 1
   }
   
   /// Initializer for primitive evaluators
@@ -130,7 +121,6 @@ public final class Procedure: Reference, CustomStringConvertible {
                                     in: context.global,
                                     optimize: true)
       }), compiler)
-    Procedure.allocated += 1
   }
   
   /// Initializer for primitive applicators
@@ -138,7 +128,6 @@ public final class Procedure: Reference, CustomStringConvertible {
               _ proc: @escaping (Arguments) throws -> (Procedure, Exprs),
               _ compiler: FormCompiler? = nil) {
     self.kind = .primitive(name, .apply(proc), compiler)
-    Procedure.allocated += 1
   }
   
   /// Initializer for primitive procedures
@@ -146,7 +135,6 @@ public final class Procedure: Reference, CustomStringConvertible {
               _ proc: @escaping () throws -> Expr,
               _ compiler: FormCompiler? = nil) {
     self.kind = .primitive(name, .native0(proc), compiler)
-    Procedure.allocated += 1
   }
   
   /// Initializer for primitive procedures
@@ -154,7 +142,6 @@ public final class Procedure: Reference, CustomStringConvertible {
               _ proc: @escaping (Expr) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
     self.kind = .primitive(name, .native1(proc), compiler)
-    Procedure.allocated += 1
   }
   
   /// Initializer for primitive procedures
@@ -162,7 +149,6 @@ public final class Procedure: Reference, CustomStringConvertible {
               _ proc: @escaping (Expr, Expr) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
     self.kind = .primitive(name, .native2(proc), compiler)
-    Procedure.allocated += 1
   }
   
   /// Initializer for primitive procedures
@@ -170,7 +156,6 @@ public final class Procedure: Reference, CustomStringConvertible {
               _ proc: @escaping (Expr, Expr, Expr) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
     self.kind = .primitive(name, .native3(proc), compiler)
-    Procedure.allocated += 1
   }
   
   /// Initializer for primitive procedures
@@ -178,7 +163,6 @@ public final class Procedure: Reference, CustomStringConvertible {
               _ proc: @escaping (Expr, Expr, Expr, Expr) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
     self.kind = .primitive(name, .native4(proc), compiler)
-    Procedure.allocated += 1
   }
   
   /// Initializer for primitive procedures
@@ -186,7 +170,6 @@ public final class Procedure: Reference, CustomStringConvertible {
               _ proc: @escaping (Expr?) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
     self.kind = .primitive(name, .native0O(proc), compiler)
-    Procedure.allocated += 1
   }
 
   /// Initializer for primitive procedures
@@ -194,7 +177,6 @@ public final class Procedure: Reference, CustomStringConvertible {
               _ proc: @escaping (Expr, Expr?) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
     self.kind = .primitive(name, .native1O(proc), compiler)
-    Procedure.allocated += 1
   }
   
   /// Initializer for primitive procedures
@@ -202,7 +184,6 @@ public final class Procedure: Reference, CustomStringConvertible {
               _ proc: @escaping (Expr, Expr, Expr?) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
     self.kind = .primitive(name, .native2O(proc), compiler)
-    Procedure.allocated += 1
   }
   
   /// Initializer for primitive procedures
@@ -210,7 +191,6 @@ public final class Procedure: Reference, CustomStringConvertible {
               _ proc: @escaping (Expr, Expr, Expr, Expr?) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
     self.kind = .primitive(name, .native3O(proc), compiler)
-    Procedure.allocated += 1
   }
 
   /// Initializer for primitive procedures
@@ -218,7 +198,6 @@ public final class Procedure: Reference, CustomStringConvertible {
               _ proc: @escaping (Expr?, Expr?) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
     self.kind = .primitive(name, .native0OO(proc), compiler)
-    Procedure.allocated += 1
   }
   
   /// Initializer for primitive procedures
@@ -226,7 +205,6 @@ public final class Procedure: Reference, CustomStringConvertible {
               _ proc: @escaping (Expr, Expr?, Expr?) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
     self.kind = .primitive(name, .native1OO(proc), compiler)
-    Procedure.allocated += 1
   }
   
   /// Initializer for primitive procedures
@@ -234,7 +212,6 @@ public final class Procedure: Reference, CustomStringConvertible {
               _ proc: @escaping (Expr, Expr, Expr?, Expr?) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
     self.kind = .primitive(name, .native2OO(proc), compiler)
-    Procedure.allocated += 1
   }
   
   /// Initializer for primitive procedures
@@ -242,7 +219,6 @@ public final class Procedure: Reference, CustomStringConvertible {
               _ proc: @escaping (Expr, Expr, Expr, Expr?, Expr?) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
     self.kind = .primitive(name, .native3OO(proc), compiler)
-    Procedure.allocated += 1
   }
   
   /// Initializer for primitive procedures
@@ -250,7 +226,6 @@ public final class Procedure: Reference, CustomStringConvertible {
               _ proc: @escaping (Arguments) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
     self.kind = .primitive(name, .native0R(proc), compiler)
-    Procedure.allocated += 1
   }
   
   /// Initializer for primitive procedures
@@ -258,7 +233,6 @@ public final class Procedure: Reference, CustomStringConvertible {
               _ proc: @escaping (Expr, Arguments) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
     self.kind = .primitive(name, .native1R(proc), compiler)
-    Procedure.allocated += 1
   }
   
   /// Initializer for primitive procedures
@@ -266,7 +240,6 @@ public final class Procedure: Reference, CustomStringConvertible {
               _ proc: @escaping (Expr, Expr, Arguments) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
     self.kind = .primitive(name, .native2R(proc), compiler)
-    Procedure.allocated += 1
   }
   
   /// Initializer for primitive procedures
@@ -274,49 +247,41 @@ public final class Procedure: Reference, CustomStringConvertible {
               _ proc: @escaping (Expr, Expr, Expr, Arguments) throws -> Expr,
               _ compiler: FormCompiler? = nil) {
     self.kind = .primitive(name, .native3R(proc), compiler)
-    Procedure.allocated += 1
   }
   
   /// Initializer for closures
   public init(_ type: ClosureType, _ captured: Exprs, _ code: Code) {
     self.kind = .closure(type, captured, code)
-    Procedure.allocated += 1
   }
   
   /// Initializer for closures
   public init(_ code: Code) {
     self.kind = .closure(.anonymous, [], code)
-    Procedure.allocated += 1
   }
   
   /// Initializer for named closures
   public init(_ name: String, _ code: Code) {
     self.kind = .closure(.named(name), [], code)
-    Procedure.allocated += 1
   }
   
   /// Initializer for parameters
   public init(_ setter: Expr, _ initial: Expr) {
     self.kind = .parameter(Tuple(setter, initial))
-    Procedure.allocated += 1
   }
   
   /// Initializer for parameters
   public init(_ tuple: Tuple) {
     self.kind = .parameter(tuple)
-    Procedure.allocated += 1
   }
   
   /// Initializer for continuations
   public init(_ vmState: VirtualMachineState) {
     self.kind = .rawContinuation(vmState)
-    Procedure.allocated += 1
   }
   
   /// Initializer for transformers
   public init(_ rules: SyntaxRules) {
     self.kind = .transformer(rules)
-    Procedure.allocated += 1
   }
   
   public override init() {

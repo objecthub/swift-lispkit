@@ -25,19 +25,10 @@ public final class Cell: ManagedObject, CustomStringConvertible {
   
   /// The current value of the cell.
   public var value: Expr
-  
-  /// Maintain object statistics.
-  public static var allocated: UInt64 = 0
 
-  /// Update object statistics.
-  deinit {
-    Cell.allocated -= 1
-  }
-  
   /// Create a new cell with a given initial value.
   public init(_ value: Expr) {
     self.value = value
-    Cell.allocated += 1
   }
   
   /// Clear cell value.

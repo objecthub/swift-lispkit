@@ -63,19 +63,10 @@ public final class Collection: ManagedObject, CustomStringConvertible {
   /// The collection values
   public var exprs: Exprs
   
-  /// Maintain object statistics.
-  public static var allocated: UInt64 = 0
-  
-  /// Update object statistics.
-  deinit {
-    Collection.allocated -= 1
-  }
-  
   /// Creates an immutable Collection from the given array
   public init(kind: Kind, exprs: Exprs = []) {
     self.kind = kind
     self.exprs = exprs
-    Collection.allocated += 1
   }
   
   /// Creates a mutable Collection of the given length and prefilled with the given value
