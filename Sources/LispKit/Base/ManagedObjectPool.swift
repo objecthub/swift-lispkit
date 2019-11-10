@@ -43,17 +43,30 @@ public final class ManagedObjectPool: CustomStringConvertible {
   /// cleaned as soon as this managed object pool is being de-initialized.
   private let ownsManagedObjects: Bool
 
+  /// Set to true if there have been new managed objects added since the last GC cycle.
+  private var newManagedObjects: Bool
+
+  /// Maximum delay of garbage collection in seconds.
+  private let gcDelay: Double
+
+  /// Time of last garbage collection.
+  private var lastGcTime: Double
+
   /// Callback invoked whenever garbage collection was performed.
   private let gcCallback: ((ManagedObjectPool, Double, Int) -> Void)?
-  
+
   /// Initializes an empty managed object pool.
   public init(ownsManagedObjects: Bool = true,
               marker: ObjectMarker,
+              gcDelay: Double = 0.0,
               gcCallback: ((ManagedObjectPool, Double, Int) -> Void)? = nil) {
     self.marker = marker
     self.rootSet = ObjectPool<TrackedObject>()
     self.objectPool = ObjectPool<ManagedObject>()
     self.ownsManagedObjects = ownsManagedObjects
+    self.newManagedObjects = false
+    self.gcDelay = gcDelay
+    self.lastGcTime = Timer.currentTimeInSec
     self.gcCallback = gcCallback
   }
   
@@ -112,6 +125,7 @@ public final class ManagedObjectPool: CustomStringConvertible {
   /// Manage the given managed object.
   @discardableResult public func manage<T: ManagedObject>(_ obj: T) -> T {
     if !obj.managed {
+      self.newManagedObjects = true
       obj.managed = true
       self.objectPool.add(obj)
     }
@@ -121,6 +135,7 @@ public final class ManagedObjectPool: CustomStringConvertible {
   /// Manage the given managed object.
   @discardableResult public func reference(to obj: ManagedObject) -> Int? {
     if !obj.managed {
+      self.newManagedObjects = true
       obj.managed = true
       return self.objectPool.add(obj)
     }
@@ -136,6 +151,13 @@ public final class ManagedObjectPool: CustomStringConvertible {
   public func collectGarbage() -> Int {
     // Start time
     let startTime = Timer.currentTimeInSec
+    // Early exit
+    guard self.newManagedObjects || (startTime - self.lastGcTime) >= self.gcDelay else {
+      return 0
+    }
+    // Proceed with garbage collection
+    self.newManagedObjects = false
+    self.lastGcTime = startTime
     // Mark
     self.marker.mark(self.rootSet)
     // Sweep

@@ -106,6 +106,7 @@ public final class Context {
               initialHomePath: String? = nil,
               includeInternalResources: Bool = true,
               includeDocumentPath: String? = "LispKit",
+              gcDelay: Double = 5.0,
               features: [String] = []) {
     // Initialize components
     self.delegate = delegate
@@ -118,6 +119,7 @@ public final class Context {
                                    includeDocumentPath: includeDocumentPath)
     self.sources = SourceManager()
     self.objects = ManagedObjectPool(marker: GarbageCollector(),
+                                     gcDelay: gcDelay,
                                      gcCallback: delegate.garbageCollected)
     self.symbols = SymbolTable()
     var supported = Feature.supported
