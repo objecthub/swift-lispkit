@@ -21,7 +21,7 @@
 /// 
 /// `Type` represents a type of an expression/value
 ///
-public enum Type: Int, CustomStringConvertible {
+public enum Type: Hashable, CustomStringConvertible {
   case undefinedType
   case errorType
   case voidType
@@ -55,7 +55,6 @@ public enum Type: Int, CustomStringConvertible {
   case specialType
   case envType
   case portType
-  case objectType
   case numberType
   case exactNumberType
   case listType
@@ -69,15 +68,7 @@ public enum Type: Int, CustomStringConvertible {
   case binaryOutputPortType
   case taggedType
   case syntaxType
-  case colorType
-  case transformationType
-  case shapeType
-  case fontType
-  case drawingType
-  case imageType
-  case charSetType
-  case regexpType
-  case dateTimeType
+  case objectType(Symbol)
   
   public var description: String {
     switch self {
@@ -141,8 +132,6 @@ public enum Type: Int, CustomStringConvertible {
         return "environment"
       case .portType:
         return "port"
-      case .objectType:
-        return "object"
       case .numberType:
         return "number"
       case .exactNumberType:
@@ -175,24 +164,8 @@ public enum Type: Int, CustomStringConvertible {
         return "tagged"
       case .syntaxType:
         return "syntax"
-      case .colorType:
-        return "color"
-      case .transformationType:
-        return "transformation"
-      case .shapeType:
-        return "shape"
-      case .fontType:
-        return "font"
-      case .drawingType:
-        return "drawing"
-      case .imageType:
-        return "image"
-      case .charSetType:
-        return "character set"
-      case .regexpType:
-        return "regular expression"
-      case .dateTimeType:
-        return "date-time"
+      case .objectType(let sym):
+        return sym.identifier
     }
   }
   
@@ -220,8 +193,6 @@ public enum Type: Int, CustomStringConvertible {
         return inputPortSubtypes
       case .outputPortType:
         return outputPortSubtypes
-      case .objectType:
-        return objectSubtypes
       default:
         return [self]
     }
@@ -277,13 +248,3 @@ private let inputPortSubtypes  : Set<Type> = [.inputPortType,
 private let outputPortSubtypes : Set<Type> = [.outputPortType,
                                               .textOutputPortType,
                                               .binaryOutputPortType]
-private let objectSubtypes     : Set<Type> = [.objectType,
-                                              .colorType,
-                                              .transformationType,
-                                              .shapeType,
-                                              .fontType,
-                                              .drawingType,
-                                              .imageType,
-                                              .charSetType,
-                                              .regexpType,
-                                              .dateTimeType]

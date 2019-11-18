@@ -95,7 +95,7 @@ public final class RegexpLibrary: NativeLibrary {
   }
   
   private func isRegexp(_ expr: Expr) -> Expr {
-    guard case .object(let obj) = expr, obj is ImmutableBox<NSRegularExpression> else {
+    guard case .object(let obj) = expr, obj is NativeRegularExpression else {
       return .false
     }
     return .true
@@ -126,8 +126,8 @@ public final class RegexpLibrary: NativeLibrary {
           throw RuntimeError.eval(.invalidRegexpMatchingOption, arg)
       }
     }
-    return .object(ImmutableBox(try NSRegularExpression(pattern: expr.asString(),
-                                                        options: options)))
+    return .object(NativeRegularExpression(try NSRegularExpression(pattern: expr.asString(),
+                                                                   options: options)))
   }
   
   private func regexpPattern(_ expr: Expr) throws -> Expr {
@@ -360,9 +360,23 @@ public final class RegexpLibrary: NativeLibrary {
   }
   
   private func asRegexp(_ expr: Expr) throws -> NSRegularExpression {
-    guard case .object(let obj) = expr, let box = obj as? ImmutableBox<NSRegularExpression> else {
-      throw RuntimeError.type(expr, expected: [.regexpType])
+    guard case .object(let obj) = expr, let box = obj as? NativeRegularExpression else {
+      throw RuntimeError.type(expr, expected: [NativeRegularExpression.type])
     }
     return box.value
+  }
+}
+
+public final class NativeRegularExpression: AnyNativeObject<NSRegularExpression> {
+
+  /// Type representing regular expressions.
+  public static let type = Type.objectType(Symbol(uninterned: "regular expression"))
+
+  public override var type: Type {
+    return NativeRegularExpression.type
+  }
+
+  public override var string: String {
+    return "#<regexp \"\(Expr.escapeStr(self.value.pattern))\">"
   }
 }

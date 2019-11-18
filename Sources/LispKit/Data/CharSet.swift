@@ -24,7 +24,10 @@ import Foundation
 /// Simple character set implementation assuming characters are UTF16 code units.
 /// Immutability of character sets is implemented at the Scheme library level.
 ///
-public final class CharSet: Reference {
+public final class CharSet: NativeObject {
+
+  /// Type representing character sets
+  public static let type = Type.objectType(Symbol(uninterned: "char-set"))
 
   /// Native character set
   public private(set) var chars: Set<UniChar>
@@ -32,9 +35,9 @@ public final class CharSet: Reference {
   /// Is this character set immutable? Immutability is not enforced via this class.
   public let immutable: Bool
 
-  /// Name of this reference type
-  public override var typeDescription: String {
-    return "char-set"
+  /// Return native object type.
+  public override var type: Type {
+    return CharSet.type
   }
 
   public override init() {

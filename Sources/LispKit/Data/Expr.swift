@@ -55,7 +55,7 @@ public enum Expr: Hashable {
   case special(SpecialForm)
   case env(Environment)
   case port(Port)
-  case object(Reference)
+  case object(NativeObject)
   indirect case tagged(Expr, Expr)
   case error(RuntimeError)
   indirect case syntax(SourcePosition, Expr)
@@ -120,27 +120,7 @@ public enum Expr: Hashable {
       case .port(_):
         return .portType
       case .object(let obj):
-        if obj is Drawing {
-          return .drawingType
-        } else if obj is Shape {
-          return .shapeType
-        } else if obj is Transformation {
-          return .transformationType
-        } else if obj is CharSet {
-          return .charSetType
-        } else if obj is ImmutableBox<NSFont>  {
-          return .fontType
-        } else if obj is ImmutableBox<Color> {
-          return .colorType
-        } else if obj is ImmutableBox<NSImage> {
-          return .imageType
-        } else if obj is ImmutableBox<NSRegularExpression> {
-          return .regexpType
-        } else if obj is ImmutableBox<DateComponents> {
-          return .dateTimeType
-        } else {
-          return .objectType
-        }
+        return obj.type
       case .tagged(_, _):
         return .taggedType
       case .error(_):
@@ -648,9 +628,9 @@ extension Expr {
     return port
   }
   
-  @inline(__always) public func asObject() throws -> Reference {
-    guard case .object(let obj) = self else {
-      throw RuntimeError.type(self, expected: [.objectType])
+  @inline(__always) public func asObject(of type: Type) throws -> NativeObject {
+    guard case .object(let obj) = self, obj.type == type else {
+      throw RuntimeError.type(self, expected: [type])
     }
     return obj
   }
@@ -957,28 +937,7 @@ extension Expr: CustomStringConvertible {
         case .port(let port):
           return "#<\(port.typeDescription) \(port.identDescription)>"
         case .object(let obj):
-          if let bx = obj as? ImmutableBox<NSFont>  {
-            return "#<font \(bx.value.fontName) \(bx.value.pointSize)>"
-          } else if let bx = obj as? ImmutableBox<Color> {
-            if bx.value.alpha < 1.0 {
-              return "#<color \(bx.value.red) \(bx.value.green) \(bx.value.blue) \(bx.value.alpha)>"
-            } else {
-              return "#<color \(bx.value.red) \(bx.value.green) \(bx.value.blue)>"
-            }
-          } else if obj is ImmutableBox<NSImage> {
-            return "#<image \(obj.identityString)>"
-          } else if let bx = obj as? ImmutableBox<NSRegularExpression> {
-            return "#<regexp \"\(Expr.escapeStr(bx.value.pattern))\">"
-          } else if let bx = obj as? ImmutableBox<DateComponents> {
-            guard let date = bx.value.date else {
-              return "#<date-time malformed>"
-            }
-            let formatter = ISO8601DateFormatter()
-            formatter.timeZone = bx.value.timeZone ?? TimeZone.current
-            return "#<date-time \(formatter.string(from: date))>"
-          } else {
-            return "#<\(obj.typeDescription) \(obj.identityString)>"
-          }
+          return obj.string
         case .tagged(.mpair(let tuple), let expr):
           return "#\(stringReprOf(tuple.fst)):\(stringReprOf(expr))"
         case .tagged(let tag, let expr):

@@ -29,7 +29,10 @@ import CoreGraphics
 ///   - The drawing can be drawn to the current graphics context
 ///   - The drawing can be written to a file. Natively supported are PDF, PNG, and JPEG.
 ///
-public final class Drawing: Reference {
+public final class Drawing: NativeObject {
+
+  /// Type representing drawings.
+  public static let type = Type.objectType(Symbol(uninterned: "drawing"))
   
   /// The sequence of drawing instructions.
   public private(set) var instructions: [DrawingInstruction]
@@ -43,10 +46,10 @@ public final class Drawing: Reference {
   public init(_ instructions: DrawingInstruction...) {
     self.instructions = instructions
   }
-  
-  /// Name of this reference type
-  public override var typeDescription: String {
-    return "drawing"
+
+  /// Return native object type.
+  public override var type: Type {
+    return Drawing.type
   }
   
   /// Appends a new drawing instruction.

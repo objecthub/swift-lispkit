@@ -74,6 +74,7 @@
 		CC38529C231B32A8001D5E56 /* set.sld in Copy pre-installed third-party Adapton library */ = {isa = PBXBuildFile; fileRef = CC385292231B2F2C001D5E56 /* set.sld */; };
 		CC3852A0232529E7001D5E56 /* Maze.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC38529F23252217001D5E56 /* Maze.scm */; };
 		CC3A025A1F97FD72009B959C /* json.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC3A02591F97F3E1009B959C /* json.sld */; };
+		CC3B641A23822BCE00807476 /* NativeObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC3B641923822BCE00807476 /* NativeObject.swift */; };
 		CC3C92441D84C0D800016C28 /* Library.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC3C92431D84C0D800016C28 /* Library.swift */; };
 		CC3F782F2157D49000F88F9B /* 51.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC3F782E2157D22B00F88F9B /* 51.sld */; };
 		CC3F78312157D73700F88F9B /* 11.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC3F78302157D63E00F88F9B /* 11.sld */; };
@@ -690,6 +691,7 @@
 		CC385296231B2FED001D5E56 /* mini.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = mini.sld; sourceTree = "<group>"; };
 		CC38529F23252217001D5E56 /* Maze.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Maze.scm; sourceTree = "<group>"; };
 		CC3A02591F97F3E1009B959C /* json.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = json.sld; sourceTree = "<group>"; };
+		CC3B641923822BCE00807476 /* NativeObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeObject.swift; sourceTree = "<group>"; };
 		CC3C4E051CD81C5E00C78F89 /* TODO.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = TODO.md; sourceTree = "<group>"; };
 		CC3C92431D84C0D800016C28 /* Library.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Library.swift; sourceTree = "<group>"; wrapsLines = 1; };
 		CC3F782E2157D22B00F88F9B /* 51.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 51.sld; sourceTree = "<group>"; };
@@ -1282,6 +1284,8 @@
 				CC55A82A1C5175B000772B02 /* SpecialForm.swift */,
 				CCE2C4791D9203DE0047E229 /* Environment.swift */,
 				CC8EDE4B1D0317AD004E0636 /* Port.swift */,
+				CC3B641923822BCE00807476 /* NativeObject.swift */,
+				CC54924021DC2A44004A0652 /* CharSet.swift */,
 			);
 			path = Data;
 			sourceTree = "<group>";
@@ -1442,7 +1446,6 @@
 				CC9065B41C5557E4004A88B7 /* ObjectPool.swift */,
 				CC6A3B691C539DCA00E962E2 /* ManagedObjectPool.swift */,
 				CC5C0A3E1D8EBE0A00CE2E98 /* MultiMap.swift */,
-				CC54924021DC2A44004A0652 /* CharSet.swift */,
 				CC76312820E9550A005F27CE /* Owners.swift */,
 				CCF529971CBC73F7000C2959 /* StringBuilder.swift */,
 				CC8EDE711D0727A4004E0636 /* ScanBuffer.swift */,
@@ -1767,6 +1770,7 @@
 				CC5BBC7B1D52724800367E8F /* HashTableLibrary.swift in Sources */,
 				CC93A65F1D077766008350C8 /* BinaryOutput.swift in Sources */,
 				CCA6C3D123610674007D2AF0 /* MarkdownLibrary.swift in Sources */,
+				CC3B641A23822BCE00807476 /* NativeObject.swift in Sources */,
 				CC0BA16C1DFC843C0063B9DE /* SystemLibrary.swift in Sources */,
 				CC90500F1D384C4E008CE60A /* Tuple.swift in Sources */,
 				CC6A3B641C52EED400E962E2 /* MathLibrary.swift in Sources */,

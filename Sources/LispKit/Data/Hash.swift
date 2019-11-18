@@ -166,7 +166,7 @@ public func equalHash(_ expr: Expr, into hasher: inout Hasher) {
         hasher.combine(port)
       case .object(let obj):
         hasher.combine(28)
-        hasher.combine(obj)
+        hasher.combine(obj.hash)
       case .tagged(let tag, let expr):
         hasher.combine(29)
         eqvHash(tag, into: &hasher)

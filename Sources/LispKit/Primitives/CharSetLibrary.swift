@@ -289,17 +289,17 @@ public final class CharSetLibrary: NativeLibrary {
         return try self.listToCharSet(.pair(expr, .null), nil)
       case .object(let ref):
         guard ref is CharSet else {
-          throw RuntimeError.type(expr, expected: [.strType, .charType, .charSetType])
+          throw RuntimeError.type(expr, expected: [.strType, .charType, CharSet.type])
         }
         return expr
       default:
-        throw RuntimeError.type(expr, expected: [.strType, .charType, .charSetType])
+        throw RuntimeError.type(expr, expected: [.strType, .charType, CharSet.type])
     }
   }
   
   private func charSetCopy(_ expr: Expr, _ mutable: Expr?) throws -> Expr {
     guard case .object(let obj) = expr, let res = obj as? CharSet else {
-      throw RuntimeError.type(expr, expected: [.charSetType])
+      throw RuntimeError.type(expr, expected: [CharSet.type])
     }
     return .object(CharSet(copy: res, immutable: mutable?.isFalse ?? false))
   }
@@ -593,7 +593,7 @@ public final class CharSetLibrary: NativeLibrary {
       return CharSet()
     }
     guard case .object(let obj) = expr, let res = obj as? CharSet else {
-      throw RuntimeError.type(expr, expected: [.charSetType])
+      throw RuntimeError.type(expr, expected: [CharSet.type])
     }
     return res
   }
@@ -603,7 +603,7 @@ public final class CharSetLibrary: NativeLibrary {
       return CharSet()
     }
     guard case .object(let obj) = expr, let res = obj as? CharSet else {
-      throw RuntimeError.type(expr, expected: [.charSetType])
+      throw RuntimeError.type(expr, expected: [CharSet.type])
     }
     return CharSet(copy: res)
   }

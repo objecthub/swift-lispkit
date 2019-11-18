@@ -28,7 +28,10 @@ import CoreGraphics
 /// Internally, a transformation is represented by a transformation matrix. There is also
 /// functionality available to invert this matrix (= undo the transformation).
 ///
-public final class Transformation: Reference {
+public final class Transformation: NativeObject {
+
+  /// Type representing transformations.
+  public static let type = Type.objectType(Symbol(uninterned: "transformation"))
   
   /// The identify transformation (= no mapping).
   public static let identity = Transformation()
@@ -49,10 +52,10 @@ public final class Transformation: Reference {
       self.affineTransform = AffineTransform()
     }
   }
-  
-  /// Name of this reference type
-  public override var typeDescription: String {
-    return "transformation"
+
+  /// Return native object type.
+  public override var type: Type {
+    return Transformation.type
   }
   
   /// Shift coordinates by x/y.

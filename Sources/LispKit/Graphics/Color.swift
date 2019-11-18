@@ -24,9 +24,12 @@ import Cocoa
 ///
 /// Representation of a RGB color.
 ///
-public struct Color {
-  
-  /// The color space for colors represented by this struct
+public final class Color: NativeObject {
+
+  /// Type representing colors.
+  public static let type = Type.objectType(Symbol(uninterned: "color"))
+
+  /// The color space for colors represented by this struct.
   public static var colorSpaceName: NSColorSpaceName {
     return NSColorSpaceName.deviceRGB
   }
@@ -51,6 +54,20 @@ public struct Color {
     self.blue = blue
     self.alpha = alpha
   }
+
+  /// Return native object type.
+  public override var type: Type {
+    return Color.type
+  }
+
+  /// Return string representation of native object.
+  public override var string: String {
+    if self.alpha < 1.0 {
+      return "#<color \(self.red) \(self.green) \(self.blue) \(self.alpha)>"
+    } else {
+      return "#<color \(self.red) \(self.green) \(self.blue)>"
+    }
+  }
   
   /// The corresponding `NSColor` object
   public var nsColor: NSColor {
@@ -60,12 +77,31 @@ public struct Color {
                    alpha: CGFloat(self.alpha))
   }
   
-  /// Returns an array of `NSColor` objects for a given array of `Color` structs
+  /// Returns an array of `NSColor` objects for a given array of `Color` objects
   public static func nsColorArray(_ colors: [Color]) -> [NSColor] {
     var res: [NSColor] = []
     for color in colors {
       res.append(color.nsColor)
     }
     return res
+  }
+
+  public override var hash: Int {
+    var hasher = Hasher()
+    hasher.combine(self.red)
+    hasher.combine(self.green)
+    hasher.combine(self.blue)
+    hasher.combine(self.alpha)
+    return hasher.finalize()
+  }
+
+  public override func equals(_ obj: NativeObject) -> Bool {
+    guard let other = obj as? Color else {
+      return false
+    }
+    return self.red == other.red &&
+           self.green == other.green &&
+           self.blue == other.blue &&
+           self.alpha == other.alpha
   }
 }

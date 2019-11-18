@@ -182,7 +182,7 @@ public final class DateTimeLibrary: NativeLibrary {
   }
 
   private func isDateTime(_ expr: Expr) -> Expr {
-    if case .object(let obj) = expr, obj is ImmutableBox<DateComponents> {
+    if case .object(let obj) = expr, obj is NativeDateTime {
       return .true
     }
     return .false
@@ -191,8 +191,8 @@ public final class DateTimeLibrary: NativeLibrary {
   private func dateTime(args: Arguments) throws -> Expr {
     guard args.count > 1 else {
       return .object(
-        ImmutableBox(self.calendar.dateComponents(in: try self.asTimeZone(args.first),
-                                                  from: Date())))
+        NativeDateTime(self.calendar.dateComponents(in: try self.asTimeZone(args.first),
+                                                    from: Date())))
     }
     var components = Expr.null
     for arg in args.reversed() {
@@ -321,8 +321,8 @@ public final class DateTimeLibrary: NativeLibrary {
 
   private func secondsToDateTime(_ seconds: Expr, _ timeZone: Expr?) throws -> Expr {
     let date = Date(timeIntervalSince1970: try seconds.asDouble())
-    return .object(ImmutableBox(self.calendar.dateComponents(in: try self.asTimeZone(timeZone),
-                                                             from: date)))
+    return .object(NativeDateTime(self.calendar.dateComponents(in: try self.asTimeZone(timeZone),
+                                                               from: date)))
   }
 
   private func stringToDateTime(_ str: Expr, _ args: Arguments) throws -> Expr {
@@ -355,13 +355,13 @@ public final class DateTimeLibrary: NativeLibrary {
     guard let date = formatter.date(from: try str.asString()) else {
       return .false
     }
-    return .object(ImmutableBox(self.calendar.dateComponents(in: formatter.timeZone,
-                                                             from: date)))
+    return .object(NativeDateTime(self.calendar.dateComponents(in: formatter.timeZone,
+                                                               from: date)))
   }
 
   private func dateTimeToSeconds(_ expr: Expr) throws -> Expr {
     guard let date = try self.asDateComponents(expr).date else {
-      throw RuntimeError.type(expr, expected: [.dateTimeType])
+      throw RuntimeError.type(expr, expected: [NativeDateTime.type])
     }
     return .makeNumber(date.timeIntervalSince1970)
   }
@@ -369,7 +369,7 @@ public final class DateTimeLibrary: NativeLibrary {
   private func dateTimeToString(_ expr: Expr, _ locale: Expr?, _ dateFormat: Expr?) throws -> Expr {
     let dateComponents = try self.asDateComponents(expr)
     guard let date = dateComponents.date else {
-      throw RuntimeError.type(expr, expected: [.dateTimeType])
+      throw RuntimeError.type(expr, expected: [NativeDateTime.type])
     }
     let formatter = DateFormatter()
     formatter.calendar = dateComponents.calendar ?? self.calendar
@@ -397,7 +397,7 @@ public final class DateTimeLibrary: NativeLibrary {
   private func dateTimeToISO8601String(_ expr: Expr) throws -> Expr {
     let dateComponents = try self.asDateComponents(expr)
     guard let date = dateComponents.date else {
-      throw RuntimeError.type(expr, expected: [.dateTimeType])
+      throw RuntimeError.type(expr, expected: [NativeDateTime.type])
     }
     let formatter = ISO8601DateFormatter()
     formatter.timeZone = dateComponents.timeZone ?? TimeZone.current
@@ -447,7 +447,7 @@ public final class DateTimeLibrary: NativeLibrary {
   private func dateTimeDstOffset(_ expr: Expr) throws -> Expr {
     let dateComponents = try self.asDateComponents(expr)
     guard let date = dateComponents.date else {
-      throw RuntimeError.type(expr, expected: [.dateTimeType])
+      throw RuntimeError.type(expr, expected: [NativeDateTime.type])
     }
     return .makeNumber(dateComponents.timeZone!.daylightSavingTimeOffset(for: date))
   }
@@ -455,7 +455,7 @@ public final class DateTimeLibrary: NativeLibrary {
   private func dateTimeHasDst(_ expr: Expr) throws -> Expr {
     let dateComponents = try self.asDateComponents(expr)
     guard let date = dateComponents.date else {
-      throw RuntimeError.type(expr, expected: [.dateTimeType])
+      throw RuntimeError.type(expr, expected: [NativeDateTime.type])
     }
     return .makeBoolean(dateComponents.timeZone!.isDaylightSavingTime(for: date))
   }
@@ -463,13 +463,13 @@ public final class DateTimeLibrary: NativeLibrary {
   private func nextDstTransition(_ expr: Expr) throws -> Expr {
     let dateComponents = try self.asDateComponents(expr)
     guard let date = dateComponents.date else {
-      throw RuntimeError.type(expr, expected: [.dateTimeType])
+      throw RuntimeError.type(expr, expected: [NativeDateTime.type])
     }
     guard let next = dateComponents.timeZone!.nextDaylightSavingTimeTransition(after: date) else {
       return .false
     }
-    return .object(ImmutableBox(self.calendar.dateComponents(in: dateComponents.timeZone!,
-                                                             from: next)))
+    return .object(NativeDateTime(self.calendar.dateComponents(in: dateComponents.timeZone!,
+                                                               from: next)))
   }
 
   private func weekday(from value: Int) -> Int {
@@ -526,14 +526,14 @@ public final class DateTimeLibrary: NativeLibrary {
   }
 
   private func asDateComponents(_ expr: Expr) throws -> DateComponents {
-    guard case .object(let obj) = expr, let box = obj as? ImmutableBox<DateComponents> else {
-      throw RuntimeError.type(expr, expected: [.dateTimeType])
+    guard case .object(let obj) = expr, let box = obj as? NativeDateTime else {
+      throw RuntimeError.type(expr, expected: [NativeDateTime.type])
     }
     return box.value
   }
 
   private func toDateTime(_ date: Date, in timeZone: TimeZone) -> Expr? {
-    return .object(ImmutableBox(self.calendar.dateComponents(in: timeZone, from: date)))
+    return .object(NativeDateTime(self.calendar.dateComponents(in: timeZone, from: date)))
   }
 
   private func toDateTime(_ dc: DateComponents) -> Expr? {
@@ -558,5 +558,24 @@ public final class DateTimeLibrary: NativeLibrary {
       default:
         throw RuntimeError.eval(.invalidDateStyle, expr)
     }
+  }
+}
+
+public final class NativeDateTime: AnyNativeObject<DateComponents> {
+
+  /// Type representing date times.
+  public static let type = Type.objectType(Symbol(uninterned: "date-time"))
+
+  public override var type: Type {
+    return NativeDateTime.type
+  }
+
+  public override var string: String {
+    guard let date = self.value.date else {
+      return "#<date-time malformed>"
+    }
+    let formatter = ISO8601DateFormatter()
+    formatter.timeZone = self.value.timeZone ?? TimeZone.current
+    return "#<date-time \(formatter.string(from: date))>"
   }
 }

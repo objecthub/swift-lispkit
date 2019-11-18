@@ -306,7 +306,7 @@ public final class DrawingLibrary: NativeLibrary {
   private func drawing(from expr: Expr?) throws -> Drawing {
     if let expr = expr {
       guard case .object(let obj) = expr, let drawing = obj as? Drawing else {
-        throw RuntimeError.type(expr, expected: [.drawingType])
+        throw RuntimeError.type(expr, expected: [Drawing.type])
       }
       return drawing
     }
@@ -322,7 +322,7 @@ public final class DrawingLibrary: NativeLibrary {
   private func shape(from expr: Expr?) throws -> Shape {
     if let expr = expr {
       guard case .object(let obj) = expr, let shape = obj as? Shape else {
-        throw RuntimeError.type(expr, expected: [.shapeType])
+        throw RuntimeError.type(expr, expected: [Shape.type])
       }
       return shape
     }
@@ -350,8 +350,8 @@ public final class DrawingLibrary: NativeLibrary {
   
   private func image(from expr: Expr) throws -> NSImage {
     guard case .object(let obj) = expr,
-          let imageBox = obj as? ImmutableBox<NSImage> else {
-      throw RuntimeError.type(expr, expected: [.imageType])
+          let imageBox = obj as? NativeImage else {
+      throw RuntimeError.type(expr, expected: [NativeImage.type])
     }
     return imageBox.value
   }
@@ -532,12 +532,12 @@ public final class DrawingLibrary: NativeLibrary {
                         font: Expr,
                         color: Expr?,
                         drawing: Expr?) throws -> Expr {
-    guard case .object(let obj) = font, let fnt = (obj as? ImmutableBox<NSFont>)?.value else {
-      throw RuntimeError.type(font, expected: [.fontType])
+    guard case .object(let obj) = font, let fnt = (obj as? NativeFont)?.value else {
+      throw RuntimeError.type(font, expected: [NativeFont.type])
     }
-    let color = color ?? .object(ImmutableBox(Color.black))
-    guard case .object(let obj2) = color, let clr = (obj2 as? ImmutableBox<Color>)?.value else {
-      throw RuntimeError.type(color, expected: [.colorType])
+    let color = color ?? .object(Color.black)
+    guard case .object(let obj2) = color, let clr = obj2 as? Color else {
+      throw RuntimeError.type(color, expected: [Color.type])
     }
     let loc: ObjectLocation
     switch location {
@@ -681,7 +681,7 @@ public final class DrawingLibrary: NativeLibrary {
   // Images/bitmaps
   
   private func isImage(expr: Expr) -> Expr {
-    if case .object(let obj) = expr, obj is ImmutableBox<NSImage> {
+    if case .object(let obj) = expr, obj is NativeImage {
       return .true
     }
     return .false
@@ -693,7 +693,7 @@ public final class DrawingLibrary: NativeLibrary {
     guard let nsimage = NSImage(contentsOfFile: path) else {
       throw RuntimeError.eval(.cannotLoadImage, filename)
     }
-    return .object(ImmutableBox(nsimage))
+    return .object(NativeImage(nsimage))
   }
   
   private func imageSize(image: Expr) throws -> Expr {
@@ -706,7 +706,7 @@ public final class DrawingLibrary: NativeLibrary {
   }
   
   private func isBitmap(expr: Expr) -> Expr {
-    if case .object(let obj) = expr, let image = (obj as? ImmutableBox<NSImage>)?.value {
+    if case .object(let obj) = expr, let image = (obj as? NativeImage)?.value {
       for repr in image.representations {
         if repr is NSBitmapImageRep {
           return .true
@@ -765,7 +765,7 @@ public final class DrawingLibrary: NativeLibrary {
     // Create an image and add the bitmap as a representation
     let nsimage = NSImage(size: bitmap.size)
     nsimage.addRepresentation(bitmap)
-    return .object(ImmutableBox(nsimage))
+    return .object(NativeImage(nsimage))
   }
   
   private func saveBitmap(filename: Expr, bitmap: Expr, format: Expr) throws -> Expr {
@@ -957,8 +957,8 @@ public final class DrawingLibrary: NativeLibrary {
     guard case .pair(.flonum(let w), .flonum(let h)) = size else {
       throw RuntimeError.eval(.invalidSize, size)
     }
-    guard case .object(let obj) = font, let fontBox = obj as? ImmutableBox<NSFont> else {
-      throw RuntimeError.type(font, expected: [.fontType])
+    guard case .object(let obj) = font, let fontBox = obj as? NativeFont else {
+      throw RuntimeError.type(font, expected: [NativeFont.type])
     }
     return .object(Shape(.glyphs(try text.asString(),
                                  in: NSRect(x: x, y: y, width: w, height: h),
@@ -1153,7 +1153,7 @@ public final class DrawingLibrary: NativeLibrary {
   
   private func invert(expr: Expr) throws -> Expr {
     guard case .object(let obj) = expr, let tf = obj as? Transformation else {
-      throw RuntimeError.type(expr, expected: [.transformationType])
+      throw RuntimeError.type(expr, expected: [Transformation.type])
     }
     var affineTransform = tf.affineTransform
     affineTransform.invert()
@@ -1182,7 +1182,7 @@ public final class DrawingLibrary: NativeLibrary {
   
   private func tformation(from expr: Expr) throws -> Transformation {
     guard case .object(let obj) = expr, let transform = obj as? Transformation else {
-      throw RuntimeError.type(expr, expected: [.transformationType])
+      throw RuntimeError.type(expr, expected: [Transformation.type])
     }
     return transform
   }
@@ -1192,7 +1192,7 @@ public final class DrawingLibrary: NativeLibrary {
       return AffineTransform()
     }
     guard case .object(let obj) = tf, let transform = obj as? Transformation else {
-      throw RuntimeError.type(tf, expected: [.transformationType])
+      throw RuntimeError.type(tf, expected: [Transformation.type])
     }
     return transform.affineTransform
   }
@@ -1200,52 +1200,52 @@ public final class DrawingLibrary: NativeLibrary {
   // Colors
   
   private func isColor(expr: Expr) -> Expr {
-    if case .object(let obj) = expr, obj is ImmutableBox<Color> {
+    if case .object(let obj) = expr, obj is Color {
       return .true
     }
     return .false
   }
   
   private func color(red: Expr, green: Expr, blue: Expr, alpha: Expr?) throws -> Expr {
-    return .object(ImmutableBox(Color(red: try red.asDouble(coerce: true),
-                                      green: try green.asDouble(coerce: true),
-                                      blue: try blue.asDouble(coerce: true),
-                                      alpha: try (alpha ?? .flonum(1.0)).asDouble(coerce: true))))
+    return .object(Color(red: try red.asDouble(coerce: true),
+                         green: try green.asDouble(coerce: true),
+                         blue: try blue.asDouble(coerce: true),
+                         alpha: try (alpha ?? .flonum(1.0)).asDouble(coerce: true)))
   }
   
   private func colorRed(_ expr: Expr) throws -> Expr {
-    guard case .object(let obj) = expr, let colorRef = obj as? ImmutableBox<Color> else {
-      throw RuntimeError.type(expr, expected: [.colorType])
+    guard case .object(let obj) = expr, let color = obj as? Color else {
+      throw RuntimeError.type(expr, expected: [Color.type])
     }
-    return .flonum(colorRef.value.red)
+    return .flonum(color.red)
   }
   
   private func colorGreen(_ expr: Expr) throws -> Expr {
-    guard case .object(let obj) = expr, let colorRef = obj as? ImmutableBox<Color> else {
-      throw RuntimeError.type(expr, expected: [.colorType])
+    guard case .object(let obj) = expr, let color = obj as? Color else {
+      throw RuntimeError.type(expr, expected: [Color.type])
     }
-    return .flonum(colorRef.value.green)
+    return .flonum(color.green)
   }
   
   private func colorBlue(_ expr: Expr) throws -> Expr {
-    guard case .object(let obj) = expr, let colorRef = obj as? ImmutableBox<Color> else {
-      throw RuntimeError.type(expr, expected: [.colorType])
+    guard case .object(let obj) = expr, let color = obj as? Color else {
+      throw RuntimeError.type(expr, expected: [Color.type])
     }
-    return .flonum(colorRef.value.blue)
+    return .flonum(color.blue)
   }
   
   private func colorAlpha(_ expr: Expr) throws -> Expr {
-    guard case .object(let obj) = expr, let colorRef = obj as? ImmutableBox<Color> else {
-      throw RuntimeError.type(expr, expected: [.colorType])
+    guard case .object(let obj) = expr, let color = obj as? Color else {
+      throw RuntimeError.type(expr, expected: [Color.type])
     }
-    return .flonum(colorRef.value.alpha)
+    return .flonum(color.alpha)
   }
   
   private func color(from expr: Expr) throws -> Color {
-    guard case .object(let obj) = expr, let colorRef = obj as? ImmutableBox<Color> else {
-      throw RuntimeError.type(expr, expected: [.colorType])
+    guard case .object(let obj) = expr, let color = obj as? Color else {
+      throw RuntimeError.type(expr, expected: [Color.type])
     }
-    return colorRef.value
+    return color
   }
   
   
@@ -1399,7 +1399,7 @@ public final class DrawingLibrary: NativeLibrary {
   }
   
   private func isFont(expr: Expr) -> Expr {
-    if case .object(let obj) = expr, obj is ImmutableBox<NSFont> {
+    if case .object(let obj) = expr, obj is NativeFont {
       return .true
     }
     return .false
@@ -1413,7 +1413,7 @@ public final class DrawingLibrary: NativeLibrary {
       guard let nsfont = NSFont(name: name, size: CGFloat(size)) else {
         return .false
       }
-      return .object(ImmutableBox(nsfont))
+      return .object(NativeFont(nsfont))
     // A variant of `font` which loads the font based on a font family, a size, weight, and traits
     } else {
       var weight: Int? = nil
@@ -1431,20 +1431,20 @@ public final class DrawingLibrary: NativeLibrary {
                                                    size: CGFloat(size)) else {
         return .false
       }
-      return .object(ImmutableBox(nsfont))
+      return .object(NativeFont(nsfont))
     }
   }
   
   private func fontName(expr: Expr) throws -> Expr {
-    guard case .object(let obj) = expr, let fontBox = obj as? ImmutableBox<NSFont> else {
-      throw RuntimeError.type(expr, expected: [.fontType])
+    guard case .object(let obj) = expr, let fontBox = obj as? NativeFont else {
+      throw RuntimeError.type(expr, expected: [NativeFont.type])
     }
     return .makeString(fontBox.value.fontName)
   }
   
   private func fontFamilyName(expr: Expr) throws -> Expr {
-    guard case .object(let obj) = expr, let fontBox = obj as? ImmutableBox<NSFont> else {
-      throw RuntimeError.type(expr, expected: [.fontType])
+    guard case .object(let obj) = expr, let fontBox = obj as? NativeFont else {
+      throw RuntimeError.type(expr, expected: [NativeFont.type])
     }
     guard let familyName = fontBox.value.familyName else {
       return .false
@@ -1453,16 +1453,16 @@ public final class DrawingLibrary: NativeLibrary {
   }
   
   private func fontWeight(expr: Expr) throws -> Expr {
-    guard case .object(let obj) = expr, let fontBox = obj as? ImmutableBox<NSFont> else {
-      throw RuntimeError.type(expr, expected: [.fontType])
+    guard case .object(let obj) = expr, let fontBox = obj as? NativeFont else {
+      throw RuntimeError.type(expr, expected: [NativeFont.type])
     }
     let weight = NSFontManager.shared.weight(of: fontBox.value)
     return .fixnum(Int64(weight))
   }
   
   private func fontTraits(expr: Expr) throws -> Expr {
-    guard case .object(let obj) = expr, let fontBox = obj as? ImmutableBox<NSFont> else {
-      throw RuntimeError.type(expr, expected: [.fontType])
+    guard case .object(let obj) = expr, let fontBox = obj as? NativeFont else {
+      throw RuntimeError.type(expr, expected: [NativeFont.type])
     }
     let traits = NSFontManager.shared.traits(of: fontBox.value).rawValue
     guard traits < Int64.max else {
@@ -1472,8 +1472,8 @@ public final class DrawingLibrary: NativeLibrary {
   }
   
   private func fontHasTraits(expr: Expr, args: Arguments) throws -> Expr {
-    guard case .object(let obj) = expr, let fontBox = obj as? ImmutableBox<NSFont> else {
-      throw RuntimeError.type(expr, expected: [.fontType])
+    guard case .object(let obj) = expr, let fontBox = obj as? NativeFont else {
+      throw RuntimeError.type(expr, expected: [NativeFont.type])
     }
     var traits: Int = 0
     for arg in args {
@@ -1485,8 +1485,8 @@ public final class DrawingLibrary: NativeLibrary {
   }
   
   private func fontSize(expr: Expr) throws -> Expr {
-    guard case .object(let obj) = expr, let fontBox = obj as? ImmutableBox<NSFont> else {
-      throw RuntimeError.type(expr, expected: [.fontType])
+    guard case .object(let obj) = expr, let fontBox = obj as? NativeFont else {
+      throw RuntimeError.type(expr, expected: [NativeFont.type])
     }
     return .flonum(Double(fontBox.value.pointSize))
   }
@@ -1528,8 +1528,8 @@ public final class DrawingLibrary: NativeLibrary {
     let str = try text.asString()
     let fnt: NSFont
     if let font = font {
-      guard case .object(let obj) = font, let f = (obj as? ImmutableBox<NSFont>)?.value else {
-        throw RuntimeError.type(font, expected: [.fontType])
+      guard case .object(let obj) = font, let f = (obj as? NativeFont)?.value else {
+        throw RuntimeError.type(font, expected: [NativeFont.type])
       }
       fnt = f
     } else {
@@ -1549,5 +1549,29 @@ public final class DrawingLibrary: NativeLibrary {
     let rect = str.boundingRect(with: size, attributes: attributes)
     return .pair(.pair(.flonum(Double(rect.minX)), .flonum(Double(rect.minY))),
                  .pair(.flonum(Double(rect.width)), .flonum(Double(rect.height))))
+  }
+}
+
+public final class NativeFont: AnyNativeObject<NSFont> {
+
+  /// Type representing fonts
+  public static let type = Type.objectType(Symbol(uninterned: "font"))
+
+  public override var type: Type {
+    return NativeFont.type
+  }
+
+  public override var string: String {
+    return "#<font \(self.value.fontName) \(self.value.pointSize)>"
+  }
+}
+
+public final class NativeImage: AnyNativeObject<NSImage> {
+
+  /// Type representing images
+  public static let type = Type.objectType(Symbol(uninterned: "image"))
+
+  public override var type: Type {
+    return NativeImage.type
   }
 }

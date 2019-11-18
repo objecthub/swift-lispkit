@@ -27,7 +27,7 @@ import CoreGraphics
 /// For now, the main purpose of creating a `DrawingDocument` object is to save it into
 /// a PDF document.
 ///
-public final class DrawingDocument: Reference {
+public final class DrawingDocument {
   
   /// The title of the collection.
   public var title: String?

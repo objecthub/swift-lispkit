@@ -50,8 +50,11 @@ import CoreGraphics
 /// `Shape` object. This makes it possible to evolve dependent shapes independently of
 /// each other.
 ///
-public final class Shape: Reference {
-  
+public final class Shape: NativeObject {
+
+  /// Type representing shapes.
+  public static let type = Type.objectType(Symbol(uninterned: "shape"))
+
   /// The prototype of this shape.
   public let prototype: ShapePrototype
   
@@ -120,10 +123,10 @@ public final class Shape: Reference {
         break
     }
   }
-  
-  /// Name of this reference type
-  public override var typeDescription: String {
-    return "shape"
+
+  /// Return native object type.
+  public override var type: Type {
+    return Shape.type
   }
   
   /// Returns true if there are no shape constructors yet
