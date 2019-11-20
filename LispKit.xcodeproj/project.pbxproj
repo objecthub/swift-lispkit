@@ -75,6 +75,8 @@
 		CC3852A0232529E7001D5E56 /* Maze.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC38529F23252217001D5E56 /* Maze.scm */; };
 		CC3A025A1F97FD72009B959C /* json.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC3A02591F97F3E1009B959C /* json.sld */; };
 		CC3B641A23822BCE00807476 /* NativeObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC3B641923822BCE00807476 /* NativeObject.swift */; };
+		CC3B641E2384C53300807476 /* LispKitRepl.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC3B641B2383390D00807476 /* LispKitRepl.swift */; };
+		CC3B64202384C56B00807476 /* CommandLineKit in Frameworks */ = {isa = PBXBuildFile; productRef = CC3B641F2384C56B00807476 /* CommandLineKit */; };
 		CC3C92441D84C0D800016C28 /* Library.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC3C92431D84C0D800016C28 /* Library.swift */; };
 		CC3F782F2157D49000F88F9B /* 51.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC3F782E2157D22B00F88F9B /* 51.sld */; };
 		CC3F78312157D73700F88F9B /* 11.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC3F78302157D63E00F88F9B /* 11.sld */; };
@@ -143,7 +145,6 @@
 		CC5E474120D316AF00F21B03 /* 129.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC5E474020D315B300F21B03 /* 129.sld */; };
 		CC5E474320D45AE500F21B03 /* Coroutines.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC5E474220D45A8900F21B03 /* Coroutines.scm */; };
 		CC5E53032355AAD400C72CE2 /* NumberKit in Frameworks */ = {isa = PBXBuildFile; productRef = CC5E53022355AAD400C72CE2 /* NumberKit */; };
-		CC5E53062355AB0700C72CE2 /* CommandLineKit in Frameworks */ = {isa = PBXBuildFile; productRef = CC5E53052355AB0700C72CE2 /* CommandLineKit */; };
 		CC5E53082357A2FA00C72CE2 /* 174.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC5E530723579CF200C72CE2 /* 174.sld */; };
 		CC5E530A235836A900C72CE2 /* SRFI-174.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC5E53092358359900C72CE2 /* SRFI-174.scm */; };
 		CC68B3A91FCCCDEE00EB4AF9 /* object.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC68B3A81FCC73C300EB4AF9 /* object.sld */; };
@@ -692,6 +693,7 @@
 		CC38529F23252217001D5E56 /* Maze.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Maze.scm; sourceTree = "<group>"; };
 		CC3A02591F97F3E1009B959C /* json.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = json.sld; sourceTree = "<group>"; };
 		CC3B641923822BCE00807476 /* NativeObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeObject.swift; sourceTree = "<group>"; };
+		CC3B641B2383390D00807476 /* LispKitRepl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LispKitRepl.swift; sourceTree = "<group>"; };
 		CC3C4E051CD81C5E00C78F89 /* TODO.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = TODO.md; sourceTree = "<group>"; };
 		CC3C92431D84C0D800016C28 /* Library.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Library.swift; sourceTree = "<group>"; wrapsLines = 1; };
 		CC3F782E2157D22B00F88F9B /* 51.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 51.sld; sourceTree = "<group>"; };
@@ -919,7 +921,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				CC1AAE3B1CC3CF0F00D1806F /* LispKit.framework in Frameworks */,
-				CC5E53062355AB0700C72CE2 /* CommandLineKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -929,6 +930,7 @@
 			files = (
 				CCA6C3D42361149D007D2AF0 /* MarkdownKit in Frameworks */,
 				CC5E53032355AAD400C72CE2 /* NumberKit in Frameworks */,
+				CC3B64202384C56B00807476 /* CommandLineKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1069,6 +1071,14 @@
 				CC385292231B2F2C001D5E56 /* set.sld */,
 			);
 			path = adapton;
+			sourceTree = "<group>";
+		};
+		CC3B641D2384C43B00807476 /* REPL */ = {
+			isa = PBXGroup;
+			children = (
+				CC3B641B2383390D00807476 /* LispKitRepl.swift */,
+			);
+			path = REPL;
 			sourceTree = "<group>";
 		};
 		CC48055B1CFE366100D608B6 /* Assets */ = {
@@ -1352,6 +1362,7 @@
 				CCAD52D71C48468F00DBD8EE /* Compiler */,
 				CCE0429F1C9E8D2000CA7BC4 /* Runtime */,
 				CCAD52E81C4846A700DBD8EE /* Primitives */,
+				CC3B641D2384C43B00807476 /* REPL */,
 				CCAD52D41C48467D00DBD8EE /* Resources */,
 				CCAD52BD1C48403900DBD8EE /* LispKit.h */,
 				CCAD52BF1C48403900DBD8EE /* Info.plist */,
@@ -1532,7 +1543,6 @@
 			);
 			name = LispKitRepl;
 			packageProductDependencies = (
-				CC5E53052355AB0700C72CE2 /* CommandLineKit */,
 			);
 			productName = LispKitRepl;
 			productReference = CC1227361CBFE74500821EB7 /* LispKitRepl.app */;
@@ -1570,6 +1580,7 @@
 			packageProductDependencies = (
 				CC5E53022355AAD400C72CE2 /* NumberKit */,
 				CCA6C3D32361149D007D2AF0 /* MarkdownKit */,
+				CC3B641F2384C56B00807476 /* CommandLineKit */,
 			);
 			productName = LispKit;
 			productReference = CCAD52BA1C48403800DBD8EE /* LispKit.framework */;
@@ -1761,6 +1772,7 @@
 				CC6A3B701C53F2CF00E962E2 /* SymbolTable.swift in Sources */,
 				CCF529981CBC73F7000C2959 /* StringBuilder.swift in Sources */,
 				CCD839AB1FD0F6000097023E /* Compression.swift in Sources */,
+				CC3B641E2384C53300807476 /* LispKitRepl.swift in Sources */,
 				CCC0724A1F9C11FA0063974E /* Sysctl.swift in Sources */,
 				CC882C921C9E93A600D20039 /* Timer.swift in Sources */,
 				CCAD52E21C48468F00DBD8EE /* Expr.swift in Sources */,
@@ -2141,15 +2153,15 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		CC3B641F2384C56B00807476 /* CommandLineKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CC5E53042355AB0700C72CE2 /* XCRemoteSwiftPackageReference "swift-commandlinekit" */;
+			productName = CommandLineKit;
+		};
 		CC5E53022355AAD400C72CE2 /* NumberKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = CC5E53012355AAD400C72CE2 /* XCRemoteSwiftPackageReference "swift-numberkit" */;
 			productName = NumberKit;
-		};
-		CC5E53052355AB0700C72CE2 /* CommandLineKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = CC5E53042355AB0700C72CE2 /* XCRemoteSwiftPackageReference "swift-commandlinekit" */;
-			productName = CommandLineKit;
 		};
 		CCA6C3D32361149D007D2AF0 /* MarkdownKit */ = {
 			isa = XCSwiftPackageProductDependency;
