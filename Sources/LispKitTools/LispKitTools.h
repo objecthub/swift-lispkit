@@ -1,9 +1,9 @@
 //
-//  LispKitReplBridgingHeader.h
-//  LispKit
+//  LispKitTools.h
+//  LispKitTools
 //
-//  Created by Matthias Zenger on 14/04/2016.
-//  Copyright © 2016 ObjectHub. All rights reserved.
+//  Created by Matthias Zenger on 21/11/2019.
+//  Copyright © 2019 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -18,4 +18,13 @@
 //  limitations under the License.
 //
 
-#import "BuildMetadata.h"
+#import <Foundation/Foundation.h>
+
+//! Project version number for LispKitTools.
+FOUNDATION_EXPORT double LispKitToolsVersionNumber;
+
+//! Project version string for LispKitTools.
+FOUNDATION_EXPORT const unsigned char LispKitToolsVersionString[];
+
+// In this header, you should import all the public headers of your framework using
+// statements like #import <LispKitTools/PublicHeader.h>

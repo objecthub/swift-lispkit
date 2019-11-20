@@ -18,13 +18,16 @@
 //  limitations under the License.
 //
 
+import Foundation
 import LispKit
+import LispKitTools
 
 let repl = LispKitRepl(name: AppInfo.name,
                        version: AppInfo.version,
                        build: AppInfo.buildAnnotation,
                        copyright: AppInfo.copyright,
                        prompt: AppInfo.prompt)
+let features = ["repl"]
 
 guard repl.flagsValid() else {
   exit(1)
@@ -35,11 +38,11 @@ if repl.shouldRunRepl() {
     guard repl.configurationSuccessfull(implementationName: "LispKit",
                                         implementationVersion: "1.8.1",
                                         includeInternalResources: false,
-                                        features: ["repl"]) else {
+                                        features: features) else {
       exit(1)
     }
   #else
-    guard repl.configurationSuccessfull(features: ["repl"]) else {
+    guard repl.configurationSuccessfull(features: features) else {
       exit(1)
     }
   #endif
