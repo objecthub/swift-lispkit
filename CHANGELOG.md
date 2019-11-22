@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.8.2 (2019-11-21)
+- Extend pattern language supported by library `(lispkit datatype)`
+- Support `append-map` and `filter-map` in `(lispkit list)`; support `fxsqrt` in `(lispkit math)`; new functions in `(lispkit string)`: `string-empty?`, `string-pad-center`; `string-concatenate` now supports an optional separator character
+- Fix bug in `(lispkit set)` which was leading to multi-set behavior
+- New example code for solving Sudoku puzzles
+- Garbage collector optimizations
+- Refactored object types to make them more extensible
+- A new REPL framework is available via a new framework `LispKitTools`
+- New library: `(srfi 175)`
+
 ## 1.8.1 (2019-10-20)
 - Update dependency on NumberKit 2.3.2
 - New libraries: `(srfi 174)`, `(srfi 177)`
@@ -7,12 +17,12 @@
 ## 1.8 (2019-10-17)
 - Migrated project to Xcode 11.1
 - Ported code to Swift 5.1
-- Simplify printed representation of procedures.
+- Simplify printed representation of procedures
 - Rewrite of garbage collector: replaced recursive garbage collector with iterative version
 - Completed hash functions of library `(lispkit hashtable)`
 - New library: `(lispkit comparator)`
 - Several fixes in `(lispkit math)`: `integer->fx` renamed to `integer->fixnum`, introduced `fxlogical-shift-right` and `real->flonum`, fixed `bit-count`, fixed `fxmodulo` to work with negative numbers
-- Statically link libraries. Removed Carthage support.
+- Statically link libraries. Removed Carthage support
 
 ## 1.7.2 (2019-09-08)
 - New libraries: `(lispkit stream)`, `(scheme mapping)`, `(srfi 146)`, `(srfi 165)`, `(srfi 173)`

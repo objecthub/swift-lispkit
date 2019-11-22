@@ -159,8 +159,17 @@ framework:
   - [SRFI 165: The Environment Monad](https://srfi.schemers.org/srfi-165/srfi-165.html)
   - [SRFI 173: Hooks](https://srfi.schemers.org/srfi-173/srfi-173.html)
   - [SRFI 174: POSIX Timespecs](https://srfi.schemers.org/srfi-174/srfi-174.html)
+  - [SRFI 175: ASCII Character Library](https://srfi.schemers.org/srfi-175/srfi-175.html)
   - [SRFI 177: Portable keyword arguments](https://srfi.schemers.org/srfi-177/srfi-177.html)
 
+
+## Project
+
+The project defines three different targets:
+
+- __LispKit__: the core interpreter framework, including all support files
+- __LispKitTools__: a framework for tools supporting _LispKit_; e.g. a read-eval-print framework
+- __LispKitRepl__: a command-line tool implementing a read-eval-print loop
 
 ## Architecture
 
