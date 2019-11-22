@@ -59,7 +59,7 @@ public final class FileHandler {
         }
       }
     }
-    if let docPath = includeDocumentPath {
+    if let docPath = includeDocumentPath, !docPath.isEmpty {
       for url in self.fileManager.urls(for: .documentDirectory, in: .userDomainMask) {
         let rootUrl = url.appendingPathComponent(docPath, isDirectory: true)
         if self.isDirectory(atPath: rootUrl.path) {

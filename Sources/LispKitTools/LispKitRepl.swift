@@ -37,6 +37,7 @@ open class LispKitRepl {
   public let flags: Flags
   public let filePaths: RepeatedArgument<String>
   public let libPaths: RepeatedArgument<String>
+  public let roots: RepeatedArgument<String>
   public let searchDocs: SingletonArgument<String>
   public let heapSize: SingletonArgument<Int>
   public let importLibs: RepeatedArgument<String>
@@ -75,6 +76,8 @@ open class LispKitRepl {
     self.searchDocs = f.string("d", "documents",
                                description: "Search for files and libraries in " +
                                             "~/Documents/LispKit folder.")
+    self.roots = f.strings("r", "root",
+                           description: "Directories in which to search for files and libraries.")
     self.heapSize   = f.int("m", "memsize",
                             description: "Initial capacity of the heap memory.",
                             value: 1000)
@@ -87,7 +90,7 @@ open class LispKitRepl {
     self.prelude    = f.string("p", "prelude",
                                description: "Path to prelude file which gets executed after " +
                                             "loading all provided libraries.")
-    self.prompt     = f.string("r", "prompt",
+    self.prompt     = f.string("c", "prompt",
                                description: "String used as prompt in REPL.",
                                value: prompt)
     let basic       = f.option("b", "basic",
@@ -179,6 +182,7 @@ open class LispKitRepl {
   open func configurationSuccessfull(implementationName: String? = nil,
                                      implementationVersion: String? = nil,
                                      includeInternalResources: Bool = true,
+                                     defaultDocDirectory: String? = nil,
                                      features: [String] = [],
                                      initialLibraries: [String] = []) -> Bool {
     // Determine remaining command-line args
@@ -190,16 +194,26 @@ open class LispKitRepl {
                            implementationVersion: implementationVersion,
                            commandLineArguments: cmdLineArgs,
                            includeInternalResources: includeInternalResources,
-                           includeDocumentPath: self.searchDocs.value,
+                           includeDocumentPath: self.searchDocs.value ?? defaultDocDirectory,
                            features: features)
     // Configure heap capacity
     if let capacity = self.heapSize.value {
       self.context?.heap.reserveCapacity(capacity)
     }
-    // Set up binary bundle if this is not using internal resources and no search document
-    // path was set
-    if !includeInternalResources && !self.searchDocs.wasSet {
-      guard self.setupBinaryBundle() else {
+    // By default (no internal resources and no roots provided), keep supplemental files in a
+    // `lib` directory one level up the binary location.
+    if !includeInternalResources && !self.roots.wasSet {
+      let base = URL(fileURLWithPath: CommandLine.arguments[0]).absoluteURL
+                                        .deletingLastPathComponent()
+                                        .deletingLastPathComponent()
+                                        .appendingPathComponent("lib", isDirectory: true)
+      guard self.setupBinaryBundle(root: base) else {
+        return false
+      }
+    }
+    // Inject root directories if provided via a command-line argument
+    for root in self.roots.value {
+      guard self.setupBinaryBundle(root: URL(fileURLWithPath: root, isDirectory: true)) else {
         return false
       }
     }
@@ -210,17 +224,15 @@ open class LispKitRepl {
            self.loadPrelude()
   }
 
-  open func setupBinaryBundle() -> Bool {
-    let rootUrl = URL(fileURLWithPath: CommandLine.arguments[0]).absoluteURL
-                    .deletingLastPathComponent()
-                    .deletingLastPathComponent()
-                    .appendingPathComponent("lib", isDirectory: true)
-    _ = self.context?.fileHandler.addSearchPath(rootUrl.path)
-    _ = self.context?.fileHandler.addLibrarySearchPath(rootUrl
-                                 .appendingPathComponent("Libraries", isDirectory: true).path)
+  open func setupBinaryBundle(root: URL) -> Bool {
+    _ = self.context?.fileHandler.prependSearchPath(root.path)
+    _ = self.context?.fileHandler.prependLibrarySearchPath(root
+                                   .appendingPathComponent("Libraries", isDirectory: true).path)
     if !self.prelude.wasSet {
-      self.prelude.value = rootUrl.appendingPathComponent("Libraries", isDirectory: true)
-                                  .appendingPathComponent("Prelude.scm", isDirectory: false).path
+      let path = root.appendingPathComponent("Prelude.scm", isDirectory: false).path
+      if FileManager.default.fileExists(atPath: path) {
+        self.prelude.value = path
+      }
     }
     return true
   }

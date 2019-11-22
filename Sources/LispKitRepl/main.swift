@@ -38,6 +38,7 @@ if repl.shouldRunRepl() {
     guard repl.configurationSuccessfull(implementationName: "LispKit",
                                         implementationVersion: "1.8.2",
                                         includeInternalResources: false,
+                                        defaultDocDirectory: "LispKit",
                                         features: features) else {
       exit(1)
     }

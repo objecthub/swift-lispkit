@@ -162,7 +162,6 @@ framework:
   - [SRFI 175: ASCII Character Library](https://srfi.schemers.org/srfi-175/srfi-175.html)
   - [SRFI 177: Portable keyword arguments](https://srfi.schemers.org/srfi-177/srfi-177.html)
 
-
 ## Project
 
 The project defines three different targets:
