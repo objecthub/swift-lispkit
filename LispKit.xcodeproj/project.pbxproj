@@ -354,7 +354,7 @@
 		};
 		CC1AAE3F1CC3CF0F00D1806F /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
+			buildActionMask = 8;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
@@ -362,7 +362,7 @@
 				CC458D8A2386049500231A63 /* LispKitTools.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
+			runOnlyForDeploymentPostprocessing = 1;
 		};
 		CC26AD40214722710090D9EE /* Copy pre-installed LispKit library: LispKit Draw Turtle */ = {
 			isa = PBXCopyFilesBuildPhase;
