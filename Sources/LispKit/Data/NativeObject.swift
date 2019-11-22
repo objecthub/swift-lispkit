@@ -25,6 +25,11 @@ import Foundation
 /// subclassed to implement custom object types in LispKit.
 ///
 open class NativeObject: Reference {
+
+  public override init() {
+    super.init()
+  }
+
   open var type: Type {
     preconditionFailure("NativeObject.type undefined: NativeObject instantiated")
   }
