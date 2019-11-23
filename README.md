@@ -3,7 +3,7 @@
 
 [![Platform: macOS](https://img.shields.io/badge/Platform-macOS-blue.svg?style=flat)](https://developer.apple.com/osx/)
 [![Language: Swift 5.1](https://img.shields.io/badge/Language-Swift%205.1-green.svg?style=flat)](https://developer.apple.com/swift/)
-[![IDE: Xcode 11.1](https://img.shields.io/badge/IDE-Xcode%2011.1-orange.svg?style=flat)](https://developer.apple.com/xcode/)
+[![IDE: Xcode 11.2](https://img.shields.io/badge/IDE-Xcode%2011.2-orange.svg?style=flat)](https://developer.apple.com/xcode/)
 [![Carthage: compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![License: Apache](http://img.shields.io/badge/License-Apache-lightgrey.svg?style=flat)](https://raw.githubusercontent.com/objecthub/swift-lispkit/master/LICENSE)
 
@@ -21,6 +21,10 @@ a compiler, a virtual machine as well as the core libraries.
 So far, performance was not a priority in the development of _LispKit_. The _LispKit_
 compiler does not perform many code optimizations and the performance of the system is
 below state of the art Lisp and Scheme implementations.
+
+The [NumericalScheme](https://github.com/objecthub/swift-numericalscheme) demo
+showcases how to create a derived _LispKit_ interpreter that inherits everything from
+_LispKit_ (without code duplication) and defines a new native as well as Scheme-based library.
 
 [LispPad](http://lisppad.objecthub.net) implements a simple, lightweight, integrated
 development environment for _LispKit_ on macOS with a Cocoa-based UI. A simpler
@@ -162,6 +166,7 @@ framework:
   - [SRFI 175: ASCII Character Library](https://srfi.schemers.org/srfi-175/srfi-175.html)
   - [SRFI 177: Portable keyword arguments](https://srfi.schemers.org/srfi-177/srfi-177.html)
 
+
 ## Project
 
 The project defines three different targets:
@@ -169,6 +174,7 @@ The project defines three different targets:
 - __LispKit__: the core interpreter framework, including all support files
 - __LispKitTools__: a framework for tools supporting _LispKit_; e.g. a read-eval-print framework
 - __LispKitRepl__: a command-line tool implementing a read-eval-print loop
+
 
 ## Architecture
 
