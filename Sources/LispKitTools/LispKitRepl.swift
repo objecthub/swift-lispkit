@@ -211,14 +211,9 @@ open class LispKitRepl {
         return false
       }
     }
-    // Inject root directories if provided via a command-line argument
-    for root in self.roots.value {
-      guard self.setupBinaryBundle(root: URL(fileURLWithPath: root, isDirectory: true)) else {
-        return false
-      }
-    }
     // Set up remaining file paths
-    return self.setupPaths() &&
+    return self.setupRootPaths() &&
+           self.setupPaths() &&
            self.bootstrapContext() &&
            self.importLibraries(initialLibraries) &&
            self.loadPrelude()
@@ -232,6 +227,15 @@ open class LispKitRepl {
       let path = root.appendingPathComponent("Prelude.scm", isDirectory: false).path
       if FileManager.default.fileExists(atPath: path) {
         self.prelude.value = path
+      }
+    }
+    return true
+  }
+
+  open func setupRootPaths() -> Bool {
+    for root in self.roots.value {
+      guard self.setupBinaryBundle(root: URL(fileURLWithPath: root, isDirectory: true)) else {
+        return false
       }
     }
     return true
