@@ -212,7 +212,7 @@ open class LispKitRepl {
       }
     }
     // Set up remaining file paths
-    return self.setupRootPaths() &&
+    return self.setupRootPaths(includeInternalResources: includeInternalResources) &&
            self.setupPaths() &&
            self.bootstrapContext() &&
            self.importLibraries(initialLibraries) &&
@@ -232,7 +232,7 @@ open class LispKitRepl {
     return true
   }
 
-  open func setupRootPaths() -> Bool {
+  open func setupRootPaths(includeInternalResources: Bool) -> Bool {
     for root in self.roots.value {
       guard self.setupBinaryBundle(root: URL(fileURLWithPath: root, isDirectory: true)) else {
         return false
