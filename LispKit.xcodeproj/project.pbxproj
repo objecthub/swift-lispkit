@@ -105,6 +105,7 @@
 		CC48EBD51F3E617800233FA9 /* 135.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC48EBC71F3E55F700233FA9 /* 135.sld */; };
 		CC48EBD71F3F38E800233FA9 /* SRFI135.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC48EBD61F3F380A00233FA9 /* SRFI135.scm */; };
 		CC498A8B23882C35002734E0 /* 175.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC498A8A23882C19002734E0 /* 175.sld */; };
+		CC498A9D238B3744002734E0 /* disjoint-set.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC498A9C238B368E002734E0 /* disjoint-set.sld */; };
 		CC4A7DB922585E1700936034 /* stream.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC4A7DB822585D9100936034 /* stream.sld */; };
 		CC4A7DBB2258FC7900936034 /* Streams.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC4A7DBA2258FC3C00936034 /* Streams.scm */; };
 		CC4A7DBF225973F200936034 /* 146.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC4A7DBE2259734700936034 /* 146.sld */; };
@@ -494,6 +495,7 @@
 			dstPath = LispKit/Resources/Libraries/lispkit;
 			dstSubfolderSpec = 7;
 			files = (
+				CC498A9D238B3744002734E0 /* disjoint-set.sld in Copy pre-installed LispKit libraries */,
 				CC47F5F123491301008B0303 /* comparator.sld in Copy pre-installed LispKit libraries */,
 				CC4A7DB922585E1700936034 /* stream.sld in Copy pre-installed LispKit libraries */,
 				CC7C3E992235DE300082DF7C /* graph.sld in Copy pre-installed LispKit libraries */,
@@ -754,6 +756,7 @@
 		CC48EBCF1F3E5B0400233FA9 /* primitive.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = primitive.sld; sourceTree = "<group>"; };
 		CC48EBD61F3F380A00233FA9 /* SRFI135.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SRFI135.scm; sourceTree = "<group>"; };
 		CC498A8A23882C19002734E0 /* 175.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 175.sld; sourceTree = "<group>"; };
+		CC498A9C238B368E002734E0 /* disjoint-set.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = "disjoint-set.sld"; sourceTree = "<group>"; };
 		CC4A7DB822585D9100936034 /* stream.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = stream.sld; sourceTree = "<group>"; };
 		CC4A7DBA2258FC3C00936034 /* Streams.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Streams.scm; sourceTree = "<group>"; };
 		CC4A7DBD22596BA600936034 /* rbtree.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = rbtree.sld; sourceTree = "<group>"; };
@@ -1189,6 +1192,7 @@
 				CC90B2331FE55DFE0044F724 /* stack.sld */,
 				CC90B2351FE5D7940044F724 /* queue.sld */,
 				CC72862C1F52B2F600EEBC58 /* heap.sld */,
+				CC498A9C238B368E002734E0 /* disjoint-set.sld */,
 				CC7C3E982235DD900082DF7C /* graph.sld */,
 				CCEEF3921FB3CB03006C4581 /* wt-tree.sld */,
 				CC4A7DB822585D9100936034 /* stream.sld */,

@@ -188,6 +188,9 @@ public final class HashTableLibrary: NativeLibrary {
     self.define(Procedure("symbol-hash", symbolHashVal))
     self.define(Procedure("number-hash", numberHashVal))
     self.define(Procedure("combine-hash", combineHash))
+    self.define("hashtable-empty-copy", via:
+      "(define (hashtable-empty-copy ht)",
+      "  (make-hashtable (hashtable-hash-function ht #t) (hashtable-equivalence-function ht)))")
   }
   
   func makeHashTable(_ capacity: Expr, _ eql: Expr, _ hsh: Expr, _ args: Arguments) throws -> Expr {
@@ -467,10 +470,12 @@ public final class HashTableLibrary: NativeLibrary {
     }
   }
   
-  func hashTableHashFunction(_ expr: Expr) throws -> Expr {
+  func hashTableHashFunction(_ expr: Expr, _ force: Expr?) throws -> Expr {
     switch try expr.asHashTable().equiv {
-      case .eq, .eqv:
-        return .false
+      case .eq:
+        return (force?.isTrue ?? false) ? .procedure(HashTableLibrary.eqHashProc) : .false
+      case .eqv:
+        return (force?.isTrue ?? false) ? .procedure(HashTableLibrary.eqvHashProc) : .false
       case .equal:
         return .procedure(HashTableLibrary.equalHashProc)
       case .custom(let procs):
