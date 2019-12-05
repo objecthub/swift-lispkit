@@ -963,7 +963,6 @@ extension Expr: CustomStringConvertible {
         case "\u{11}": res += "\\v"
         case "\u{12}": res += "\\f"
         case "\r":     res += "\\r"
-        case "\u{27}": res += "\\e"
         case "\"":     res += "\\\""
         case "\\":     res += "\\\\"
         default:       res.append(c)
