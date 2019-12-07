@@ -77,7 +77,7 @@ public final class MarkdownLibrary: NativeLibrary {
     self.emailAutoLink = context.symbols.intern("email-auto-link")
     self.image = context.symbols.intern("image")
     self.html = context.symbols.intern("html")
-    self.lineBreak = context.symbols.intern("lineBreak")
+    self.lineBreak = context.symbols.intern("line-break")
     try super.init(in: context)
   }
 
@@ -93,7 +93,6 @@ public final class MarkdownLibrary: NativeLibrary {
   /// Declarations of the library.
   public override func declarations() {
     self.define(Procedure("markdown-block?", isMarkdownBlock))
-    self.define(Procedure("markdown-block-valid?", isMarkdownBlockValid))
     self.define(Procedure("markdown-block=?", markdownBlockEquals))
     self.define(Procedure("document", document))
     self.define(Procedure("blockquote", blockquote))
@@ -106,12 +105,10 @@ public final class MarkdownLibrary: NativeLibrary {
     self.define(Procedure("reference-def", referenceDef))
     self.define(Procedure("thematic-break", thematicBreak))
     self.define(Procedure("markdown-list-item?", isMarkdownListItem))
-    self.define(Procedure("markdown-list-item-valid?", isMarkdownListItemValid))
     self.define(Procedure("markdown-list-item=?", markdownListItemEquals))
     self.define(Procedure("bullet", bullet))
     self.define(Procedure("ordered", ordered))
     self.define(Procedure("markdown-inline?", isMarkdownInline))
-    self.define(Procedure("markdown-inline-valid?", isMarkdownInlineValid))
     self.define(Procedure("markdown-inline=?",markdownInlineEquals))
     self.define(Procedure("text", text))
     self.define(Procedure("code", code))
@@ -122,10 +119,9 @@ public final class MarkdownLibrary: NativeLibrary {
     self.define(Procedure("email-auto-link", emailAutoLink))
     self.define(Procedure("image", image))
     self.define(Procedure("html", html))
-    self.define(Procedure("lineBreak", lineBreak))
+    self.define(Procedure("line-break", lineBreak))
     self.define(Procedure("markdown", markdown))
     self.define(Procedure("markdown?", isMarkdown))
-    self.define(Procedure("markdown-valid?", isMarkdownValid))
     self.define(Procedure("markdown=?", markdownEquals))
     self.define(Procedure("markdown->html", markdownToHtml))
     self.define(Procedure("inline->string", inlineToString))
@@ -153,15 +149,76 @@ public final class MarkdownLibrary: NativeLibrary {
     return .tagged(.mpair(type), .pair(.symbol(sym), .makeList(args)))
   }
 
+  private func checkBlocks(_ expr: Expr) throws {
+    var list = expr
+    while case .pair(let block, let rest) = list {
+      try self.checkBlock(block)
+      list = rest
+    }
+    guard list.isNull else {
+      throw RuntimeError.custom("type error",
+                                "markdown block lists must be proper lists: \(expr)", [])
+    }
+  }
+
+  private func checkBlock(_ expr: Expr) throws {
+    guard case .tagged(.mpair(self.blockType), _) = expr else {
+      throw RuntimeError.custom("type error", "expected value of type block; received \(expr)", [])
+    }
+  }
+
+  private func checkListItems(_ expr: Expr) throws {
+    var list = expr
+    while case .pair(let item, let rest) = list {
+      try self.checkListItem(item)
+      list = rest
+    }
+    guard list.isNull else {
+      throw RuntimeError.custom("type error",
+                                "markdown list items must be proper lists: \(expr)", [])
+    }
+  }
+
+  private func checkListItem(_ expr: Expr) throws {
+    guard case .tagged(.mpair(self.listItemType), _) = expr else {
+      throw RuntimeError.custom("type error",
+                                "expected value of type list-item; received \(expr)", [])
+    }
+  }
+
+  private func checkText(_ expr: Expr) throws {
+    var list = expr
+    while case .pair(let fragment, let rest) = list {
+      guard case .tagged(.mpair(self.inlineType), _) = fragment else {
+        break
+      }
+      list = rest
+    }
+    guard list.isNull else {
+      throw RuntimeError.custom("type error", "markdown text must be represented by a proper " +
+                                              "list of inline elements: \(expr)", [])
+    }
+  }
+
+  private func checkLines(_ expr: Expr) throws {
+    var list = expr
+    while case .pair(let line, let rest) = list {
+      guard case .string(_) = line else {
+        break
+      }
+      list = rest
+    }
+    guard list.isNull else {
+      throw RuntimeError.custom("type error", "markdown text lines must be represented by a " +
+                                              "proper list of strings: \(expr)", [])
+    }
+  }
+
   private func isMarkdownBlock(_ expr: Expr) -> Expr {
     guard case .tagged(.mpair(let tuple), _) = expr, tuple === self.blockType else {
       return .false
     }
     return .true
-  }
-
-  private func isMarkdownBlockValid(_ expr: Expr) -> Expr {
-    return (try? self.internMarkdown(block: expr)) == nil ? .false : .true
   }
 
   private func markdownBlockEquals(_ lhs: Expr, _ rhs: Expr) throws -> Expr {
@@ -171,39 +228,93 @@ public final class MarkdownLibrary: NativeLibrary {
   }
 
   private func document(_ args: Arguments) throws -> Expr {
-    return try self.makeCase(self.blockType, self.document, 1, args)
+    let res = try self.makeCase(self.blockType, self.document, 1, args)
+    guard case .tagged(_, _) = res else {
+      return res
+    }
+    try self.checkBlocks(args.first!)
+    return res
   }
 
   private func blockquote(_ args: Arguments) throws -> Expr {
-    return try self.makeCase(self.blockType, self.blockquote, 1, args)
+    let res = try self.makeCase(self.blockType, self.blockquote, 1, args)
+    guard case .tagged(_, _) = res else {
+      return res
+    }
+    try self.checkBlocks(args.first!)
+    return res
   }
 
   private func listItems(_ args: Arguments) throws -> Expr {
-    return try self.makeCase(self.blockType, self.listItems, 3, args)
+    let res = try self.makeCase(self.blockType, self.listItems, 3, args)
+    guard case .tagged(_, _) = res else {
+      return res
+    }
+    if args.first?.isTrue ?? false {
+      _ = try args.first?.asInt()
+    }
+    try self.checkListItems(args[args.index(args.startIndex, offsetBy: 2)])
+    return res
   }
 
   private func paragraph(_ args: Arguments) throws -> Expr {
-    return try self.makeCase(self.blockType, self.paragraph, 1, args)
+    let res = try self.makeCase(self.blockType, self.paragraph, 1, args)
+    guard case .tagged(_, _) = res else {
+      return res
+    }
+    try self.checkText(args.first!)
+    return res
   }
 
   private func heading(_ args: Arguments) throws -> Expr {
-    return try self.makeCase(self.blockType, self.heading, 2, args)
+    let res = try self.makeCase(self.blockType, self.heading, 2, args)
+    guard case .tagged(_, _) = res else {
+      return res
+    }
+    _ = try args.first?.asInt()
+    try self.checkText(args[args.index(args.startIndex, offsetBy: 1)])
+    return res
   }
 
   private func indentedCode(_ args: Arguments) throws -> Expr {
-    return try self.makeCase(self.blockType, self.indentedCode, 1, args)
+    let res = try self.makeCase(self.blockType, self.indentedCode, 1, args)
+    guard case .tagged(_, _) = res else {
+      return res
+    }
+    try self.checkLines(args.first!)
+    return res
   }
 
   private func fencedCode(_ args: Arguments) throws -> Expr {
-    return try self.makeCase(self.blockType, self.fencedCode, 2, args)
+    let res = try self.makeCase(self.blockType, self.fencedCode, 2, args)
+    guard case .tagged(_, _) = res else {
+      return res
+    }
+    if args.first?.isTrue ?? false {
+      _ = try args.first!.asString()
+    }
+    try self.checkLines(args[args.index(args.startIndex, offsetBy: 1)])
+    return res
   }
 
   private func htmlBlock(_ args: Arguments) throws -> Expr {
-    return try self.makeCase(self.blockType, self.htmlBlock, 1, args)
+    let res = try self.makeCase(self.blockType, self.htmlBlock, 1, args)
+    guard case .tagged(_, _) = res else {
+      return res
+    }
+    try self.checkLines(args.first!)
+    return res
   }
 
   private func referenceDef(_ args: Arguments) throws -> Expr {
-    return try self.makeCase(self.blockType, self.referenceDef, 3, args)
+    let res = try self.makeCase(self.blockType, self.referenceDef, 3, args)
+    guard case .tagged(_, _) = res else {
+      return res
+    }
+    _ = try args.first?.asString()
+    _ = try args[args.index(args.startIndex, offsetBy: 1)].asString()
+    try self.checkLines(args[args.index(args.startIndex, offsetBy: 2)])
+    return res
   }
 
   private func thematicBreak(_ args: Arguments) throws -> Expr {
@@ -217,10 +328,6 @@ public final class MarkdownLibrary: NativeLibrary {
     return .true
   }
 
-  private func isMarkdownListItemValid(_ expr: Expr) -> Expr {
-    return (try? self.internMarkdown(item: expr)) == nil ? .false : .true
-  }
-
   private func markdownListItemEquals(_ lhs: Expr, _ rhs: Expr) throws -> Expr {
     let lhsMd = try self.internMarkdown(item: lhs)
     let rhsMd = try self.internMarkdown(item: rhs)
@@ -228,11 +335,24 @@ public final class MarkdownLibrary: NativeLibrary {
   }
 
   private func bullet(_ args: Arguments) throws -> Expr {
-    return try self.makeCase(self.listItemType, self.bullet, 3, args)
+    let res = try self.makeCase(self.listItemType, self.bullet, 3, args)
+    guard case .tagged(_, _) = res else {
+      return res
+    }
+    _ = try args.first?.asUniChar()
+    try self.checkBlocks(args[args.index(args.startIndex, offsetBy: 2)])
+    return res
   }
 
   private func ordered(_ args: Arguments) throws -> Expr {
-    return try self.makeCase(self.listItemType, self.ordered, 4, args)
+    let res = try self.makeCase(self.listItemType, self.ordered, 4, args)
+    guard case .tagged(_, _) = res else {
+      return res
+    }
+    _ = try args.first?.asInt()
+    _ = try args[args.index(args.startIndex, offsetBy: 1)].asUniChar()
+    try self.checkBlocks(args[args.index(args.startIndex, offsetBy: 3)])
+    return res
   }
 
   private func isMarkdownInline(_ expr: Expr) -> Expr {
@@ -242,10 +362,6 @@ public final class MarkdownLibrary: NativeLibrary {
     return .true
   }
 
-  private func isMarkdownInlineValid(_ expr: Expr) -> Expr {
-    return (try? self.internMarkdown(fragment: expr)) == nil ? .false : .true
-  }
-
   private func markdownInlineEquals(_ lhs: Expr, _ rhs: Expr) throws -> Expr {
     let lhsMd = try self.internMarkdown(fragment: lhs)
     let rhsMd = try self.internMarkdown(fragment: rhs)
@@ -253,39 +369,101 @@ public final class MarkdownLibrary: NativeLibrary {
   }
 
   private func text(_ args: Arguments) throws -> Expr {
-    return try self.makeCase(self.inlineType, self.text, 1, args)
+    let res = try self.makeCase(self.inlineType, self.text, 1, args)
+    guard case .tagged(_, _) = res else {
+      return res
+    }
+    _ = try args.first?.asString()
+    return res
   }
 
   private func code(_ args: Arguments) throws -> Expr {
-    return try self.makeCase(self.inlineType, self.code, 1, args)
+    let res = try self.makeCase(self.inlineType, self.code, 1, args)
+    guard case .tagged(_, _) = res else {
+      return res
+    }
+    _ = try args.first?.asString()
+    return res
   }
 
   private func emph(_ args: Arguments) throws -> Expr {
-    return try self.makeCase(self.inlineType, self.emph, 1, args)
+    let res = try self.makeCase(self.inlineType, self.emph, 1, args)
+    guard case .tagged(_, _) = res else {
+      return res
+    }
+    try self.checkText(args.first!)
+    return res
   }
 
   private func strong(_ args: Arguments) throws -> Expr {
-    return try self.makeCase(self.inlineType, self.strong, 1, args)
+    let res = try self.makeCase(self.inlineType, self.strong, 1, args)
+    guard case .tagged(_, _) = res else {
+      return res
+    }
+    try self.checkText(args.first!)
+    return res
   }
 
+
   private func link(_ args: Arguments) throws -> Expr {
-    return try self.makeCase(self.inlineType, self.link, 3, args)
+    let res = try self.makeCase(self.inlineType, self.link, 3, args)
+    guard case .tagged(_, _) = res else {
+      return res
+    }
+    try self.checkText(args.first!)
+    let uri = args[args.index(args.startIndex, offsetBy: 1)]
+    if uri.isTrue {
+      _ = try uri.asString()
+    }
+    let title = args[args.index(args.startIndex, offsetBy: 2)]
+    if title.isTrue {
+      _ = try title.asString()
+    }
+    return res
   }
 
   private func autoLink(_ args: Arguments) throws -> Expr {
-    return try self.makeCase(self.inlineType, self.autoLink, 1, args)
+    let res = try self.makeCase(self.inlineType, self.autoLink, 1, args)
+    guard case .tagged(_, _) = res else {
+      return res
+    }
+    _ = try args.first?.asString()
+    return res
   }
 
   private func emailAutoLink(_ args: Arguments) throws -> Expr {
-    return try self.makeCase(self.inlineType, self.emailAutoLink, 1, args)
+    let res = try self.makeCase(self.inlineType, self.emailAutoLink, 1, args)
+    guard case .tagged(_, _) = res else {
+      return res
+    }
+    _ = try args.first?.asString()
+    return res
   }
 
   private func image(_ args: Arguments) throws -> Expr {
-    return try self.makeCase(self.inlineType, self.image, 3, args)
+    let res = try self.makeCase(self.inlineType, self.image, 3, args)
+    guard case .tagged(_, _) = res else {
+      return res
+    }
+    try self.checkText(args.first!)
+    let uri = args[args.index(args.startIndex, offsetBy: 1)]
+    if uri.isTrue {
+      _ = try uri.asString()
+    }
+    let title = args[args.index(args.startIndex, offsetBy: 2)]
+    if title.isTrue {
+      _ = try title.asString()
+    }
+    return res
   }
 
   private func html(_ args: Arguments) throws -> Expr {
-    return try self.makeCase(self.inlineType, self.html, 1, args)
+    let res = try self.makeCase(self.inlineType, self.html, 1, args)
+    guard case .tagged(_, _) = res else {
+      return res
+    }
+    _ = try args.first?.asString()
+    return res
   }
 
   private func lineBreak(_ args: Arguments) throws -> Expr {
@@ -300,13 +478,6 @@ public final class MarkdownLibrary: NativeLibrary {
   }
 
   private func isMarkdown(_ expr: Expr) throws -> Expr {
-    guard case .tagged(.mpair(self.blockType), .pair(.symbol(self.document), _)) = expr else {
-      return .false
-    }
-    return .true
-  }
-
-  private func isMarkdownValid(_ expr: Expr) throws -> Expr {
     guard case .tagged(.mpair(self.blockType), .pair(.symbol(self.document), _)) = expr else {
       return .false
     }

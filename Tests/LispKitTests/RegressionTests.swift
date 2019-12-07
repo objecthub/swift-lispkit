@@ -86,6 +86,10 @@ class RegressionTests: LispKitTestCase {
   func testDatatypes() {
     self.execute(file: "Datatypes")
   }
+
+  func testMarkdown() {
+    self.execute(file: "Markdown")
+  }
   
   func testLogic() {
     self.execute(file: "Logic")

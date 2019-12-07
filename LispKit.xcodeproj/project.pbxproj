@@ -98,7 +98,6 @@
 		CC48EBC31F3A6CFF00233FA9 /* 31.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC48EBC11F3A645C00233FA9 /* 31.sld */; };
 		CC48EBC41F3A6D0700233FA9 /* 35.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC48EBC21F3A6BFF00233FA9 /* 35.sld */; };
 		CC48EBC61F3E460900233FA9 /* SRFI35.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC48EBC51F3E437300233FA9 /* SRFI35.scm */; };
-		CC48EBCC1F3E5AA700233FA9 /* kernel0.sld in Resources */ = {isa = PBXBuildFile; fileRef = CC48EBCB1F3E5AA700233FA9 /* kernel0.sld */; };
 		CC48EBD01F3E5B2A00233FA9 /* derived.sld in Copy pre-installed LispKit library: SRFI 41 */ = {isa = PBXBuildFile; fileRef = CC48EBCE1F3E5AF300233FA9 /* derived.sld */; };
 		CC48EBD11F3E5B3B00233FA9 /* primitive.sld in Copy pre-installed LispKit library: SRFI 41 */ = {isa = PBXBuildFile; fileRef = CC48EBCF1F3E5B0400233FA9 /* primitive.sld */; };
 		CC48EBD31F3E5CFC00233FA9 /* kernel0.sld in Copy pre-installed LispKit library: SRFI 135 */ = {isa = PBXBuildFile; fileRef = CC48EBCB1F3E5AA700233FA9 /* kernel0.sld */; };
@@ -199,7 +198,6 @@
 		CC7C3E9F2246F8BD0082DF7C /* 33.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC7C3E9C2246F1E40082DF7C /* 33.sld */; };
 		CC7C3EA02246F8BD0082DF7C /* 46.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC7C3E9B2246F0A30082DF7C /* 46.sld */; };
 		CC7C3EA12246F8BD0082DF7C /* 55.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC7C3E9A2246EF6D0082DF7C /* 55.sld */; };
-		CC7F7C0A1FC03BA900639166 /* case-lambda.sld in Resources */ = {isa = PBXBuildFile; fileRef = CC7F7C091FC03BA900639166 /* case-lambda.sld */; };
 		CC7F7C1A1FC04BBD00639166 /* base.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC7F7C081FC03B9A00639166 /* base.sld */; };
 		CC7F7C1B1FC069CA00639166 /* case-lambda.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC7F7C091FC03BA900639166 /* case-lambda.sld */; };
 		CC7F7C1C1FC069CA00639166 /* complex.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC7F7C0B1FC03BC900639166 /* complex.sld */; };
@@ -295,6 +293,7 @@
 		CCEFE6131ED8F43300DFED9B /* 133.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCEFE6121ED8F17700DFED9B /* 133.sld */; };
 		CCEFE6151ED8F56600DFED9B /* SRFI133.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCEFE6141ED8F55D00DFED9B /* SRFI133.scm */; };
 		CCF529981CBC73F7000C2959 /* StringBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCF529971CBC73F7000C2959 /* StringBuilder.swift */; };
+		CCF602E4239BF19400087740 /* Markdown.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCF602E3239BE71F00087740 /* Markdown.scm */; };
 		CCF982F71D998B8A00B22A1D /* ImportSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCF982F61D998B8A00B22A1D /* ImportSet.swift */; };
 /* End PBXBuildFile section */
 
@@ -952,6 +951,7 @@
 		CCEFE6121ED8F17700DFED9B /* 133.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 133.sld; sourceTree = "<group>"; };
 		CCEFE6141ED8F55D00DFED9B /* SRFI133.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SRFI133.scm; sourceTree = "<group>"; };
 		CCF529971CBC73F7000C2959 /* StringBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringBuilder.swift; sourceTree = "<group>"; };
+		CCF602E3239BE71F00087740 /* Markdown.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Markdown.scm; sourceTree = "<group>"; };
 		CCF982F61D998B8A00B22A1D /* ImportSet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImportSet.swift; sourceTree = "<group>"; };
 		CCFBE5C31ECBA8DA0032254B /* Pi.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Pi.scm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1053,6 +1053,7 @@
 				CC8213651D614A8600C1BE57 /* Records.scm */,
 				CC2A9DA72200E6E300F39194 /* Libraries.scm */,
 				CC2345421F655C0A00C38817 /* Datatypes.scm */,
+				CCF602E3239BE71F00087740 /* Markdown.scm */,
 				CC436C411FFD94870095559E /* Logic.scm */,
 				CC8218901E3FFFAB009CA653 /* SRFI19.scm */,
 				CC5E473E20D2D95E00F21B03 /* SRFI69.scm */,
@@ -1757,6 +1758,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CCF602E4239BF19400087740 /* Markdown.scm in Resources */,
 				CC2A9DA82200E8C900F39194 /* Libraries.scm in Resources */,
 				CC09CC5321F2992800C16864 /* Vectors.scm in Resources */,
 				CC26264220F9491E00AC08E8 /* SRFI113.scm in Resources */,
@@ -1768,7 +1770,6 @@
 				CC97FA161CFA515E0008596E /* Definitions.scm in Resources */,
 				CCC41DC81D2B14AD003CB4D0 /* CallCC.scm in Resources */,
 				CCB91C981D57E785001A95DC /* Parameters.scm in Resources */,
-				CC48EBCC1F3E5AA700233FA9 /* kernel0.sld in Resources */,
 				CC436C421FFD96800095559E /* Logic.scm in Resources */,
 				CC0AEFFA1F52311600119BF6 /* SRFI152.scm in Resources */,
 				CC2345431F655C0A00C38817 /* Datatypes.scm in Resources */,
@@ -1780,7 +1781,6 @@
 				CC7AAE6E1EC8AEC600B0F66C /* SRFI121.scm in Resources */,
 				CC5847FA1E4FC55700BE6497 /* SRFI132.scm in Resources */,
 				CC474EB31ED08D8D00B535E3 /* SRFI134.scm in Resources */,
-				CC7F7C0A1FC03BA900639166 /* case-lambda.sld in Resources */,
 				CC8213661D614A8600C1BE57 /* Records.scm in Resources */,
 				CC8218911E3FFFAB009CA653 /* SRFI19.scm in Resources */,
 				CCC41DCA1D330439003CB4D0 /* DynamicWind.scm in Resources */,
