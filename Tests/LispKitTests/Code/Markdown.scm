@@ -17,7 +17,7 @@
 ;;; limitations under the License.
 
 (
-  "Markdown basics"
+  "Markdown blocks"
   (#t #t #t #t #t #t #t #t #t)
   (import (lispkit markdown))
   (define empty-doc (document '())) ; empty document
@@ -55,4 +55,48 @@
     (markdown=? icode-doc (markdown "    #1\n    #2"))
     (markdown=? fcode-doc (markdown "```swift\nlet x = 1 + 2\n```"))
     (markdown=? thematic-doc (markdown "_a_\n***\n__b__")))
+)
+
+(
+  "Markdown inline text"
+  (#t #t #t #t #t #t)
+  (define md1 (document (list (paragraph (list (text "text ") (code "code") (text " rest"))))))
+  (define md2 (document (list (paragraph (list (emph (list (text "one two"))) (text " three"))))))
+  (define md3 (document (list (paragraph (list (strong (list (text "one two"))) (text " three"))))))
+  (define md4 (document (list (paragraph (list
+                (strong (list (text "one ") (emph (list (text "two"))))) (text " three"))))))
+  (define md5 (document (list (paragraph (list (link (list (text "LispPad"))
+                                                     "http://lisppad.objecthub.net"
+                                                     "Mac App"))))))
+  (define md6 (document (list (paragraph (list (html "a href=\"http://objecthub.net\"")
+                                               (text "homepage")
+                                               (html "/a"))))))
+  (list
+    (markdown=? md1 (markdown "text `code` rest"))
+    (markdown=? md2 (markdown "*one two* three"))
+    (markdown=? md3 (markdown "**one two** three"))
+    (markdown=? md4 (markdown "**one _two_** three"))
+    (markdown=? md5 (markdown "[LispPad](http://lisppad.objecthub.net \"Mac App\")"))
+    (markdown=? md6 (markdown "<a href=\"http://objecthub.net\">homepage</a>")))
+)
+
+(
+  "Markdown pattern matching"
+  (("text " "code" " rest"))
+  (import (lispkit datatype))
+  (define md1 (document (list (paragraph (list (text "text ") (code "code") (text " rest"))))))
+  (match md1
+    ((document blocks)
+      (map (lambda (block)
+             (match block
+               ((paragraph inlines)
+                 (map (lambda (inline)
+                        (match inline
+                          ((text str) str)
+                          ((code str) str)
+                          (else "")))
+                      inlines))
+               (else '())))
+            blocks))
+    (else '()))
 )
