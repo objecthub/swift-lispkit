@@ -92,6 +92,7 @@ public final class MarkdownLibrary: NativeLibrary {
 
   /// Declarations of the library.
   public override func declarations() {
+    self.define(Procedure("markdown-blocks?", isMarkdownBlocks))
     self.define(Procedure("markdown-block?", isMarkdownBlock))
     self.define(Procedure("markdown-block=?", markdownBlockEquals))
     self.define(Procedure("document", document))
@@ -104,10 +105,12 @@ public final class MarkdownLibrary: NativeLibrary {
     self.define(Procedure("html-block", htmlBlock))
     self.define(Procedure("reference-def", referenceDef))
     self.define(Procedure("thematic-break", thematicBreak))
+    self.define(Procedure("markdown-list?", isMarkdownList))
     self.define(Procedure("markdown-list-item?", isMarkdownListItem))
     self.define(Procedure("markdown-list-item=?", markdownListItemEquals))
     self.define(Procedure("bullet", bullet))
     self.define(Procedure("ordered", ordered))
+    self.define(Procedure("markdown-text?", isMarkdownText))
     self.define(Procedure("markdown-inline?", isMarkdownInline))
     self.define(Procedure("markdown-inline=?",markdownInlineEquals))
     self.define(Procedure("text", text))
@@ -214,8 +217,16 @@ public final class MarkdownLibrary: NativeLibrary {
     }
   }
 
+  private func isMarkdownBlocks(_ expr: Expr) -> Expr {
+    var list = expr
+    while case .pair(.tagged(.mpair(self.blockType), _), let rest) = list {
+      list = rest
+    }
+    return .makeBoolean(list == .null)
+  }
+
   private func isMarkdownBlock(_ expr: Expr) -> Expr {
-    guard case .tagged(.mpair(let tuple), _) = expr, tuple === self.blockType else {
+    guard case .tagged(.mpair(self.blockType), _) = expr else {
       return .false
     }
     return .true
@@ -321,8 +332,16 @@ public final class MarkdownLibrary: NativeLibrary {
     return try self.makeCase(self.blockType, self.thematicBreak, 0, args)
   }
 
+  private func isMarkdownList(_ expr: Expr) -> Expr {
+    var list = expr
+    while case .pair(.tagged(.mpair(self.listItemType), _), let rest) = list {
+      list = rest
+    }
+    return .makeBoolean(list == .null)
+  }
+
   private func isMarkdownListItem(_ expr: Expr) -> Expr {
-    guard case .tagged(.mpair(let tuple), _) = expr, tuple === self.listItemType else {
+    guard case .tagged(.mpair(self.listItemType), _) = expr else {
       return .false
     }
     return .true
@@ -355,8 +374,16 @@ public final class MarkdownLibrary: NativeLibrary {
     return res
   }
 
+  private func isMarkdownText(_ expr: Expr) -> Expr {
+    var list = expr
+    while case .pair(.tagged(.mpair(self.inlineType), _), let rest) = list {
+      list = rest
+    }
+    return .makeBoolean(list == .null)
+  }
+
   private func isMarkdownInline(_ expr: Expr) -> Expr {
-    guard case .tagged(.mpair(let tuple), _) = expr, tuple === self.inlineType else {
+    guard case .tagged(.mpair(self.inlineType), _) = expr else {
       return .false
     }
     return .true
