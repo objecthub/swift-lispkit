@@ -294,6 +294,10 @@
 		CCEFE6151ED8F56600DFED9B /* SRFI133.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCEFE6141ED8F55D00DFED9B /* SRFI133.scm */; };
 		CCF529981CBC73F7000C2959 /* StringBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCF529971CBC73F7000C2959 /* StringBuilder.swift */; };
 		CCF602E4239BF19400087740 /* Markdown.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCF602E3239BE71F00087740 /* Markdown.scm */; };
+		CCF602EA23A0FA5000087740 /* SRFI-167.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCF602E923A0F8F800087740 /* SRFI-167.scm */; };
+		CCF602EC23A0FA9A00087740 /* engine.sld in Copy pre-installed LispKit library: SRFI 167 */ = {isa = PBXBuildFile; fileRef = CCF602E623A0F69800087740 /* engine.sld */; };
+		CCF602ED23A0FA9A00087740 /* pack.sld in Copy pre-installed LispKit library: SRFI 167 */ = {isa = PBXBuildFile; fileRef = CCF602E723A0F6B900087740 /* pack.sld */; };
+		CCF602EE23A0FA9A00087740 /* memory.sld in Copy pre-installed LispKit library: SRFI 167 */ = {isa = PBXBuildFile; fileRef = CCF602E823A0F6CB00087740 /* memory.sld */; };
 		CCF982F71D998B8A00B22A1D /* ImportSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCF982F61D998B8A00B22A1D /* ImportSet.swift */; };
 /* End PBXBuildFile section */
 
@@ -335,6 +339,7 @@
 			dstPath = LispKit/Resources/Tests;
 			dstSubfolderSpec = 7;
 			files = (
+				CCF602EA23A0FA5000087740 /* SRFI-167.scm in Copy tests */,
 				CCA7DC2E2387602500785FBE /* SRFI-175.scm in Copy tests */,
 				CC5E530A235836A900C72CE2 /* SRFI-174.scm in Copy tests */,
 				CC38528F23141000001D5E56 /* SRFI-173.scm in Copy tests */,
@@ -656,6 +661,19 @@
 			name = "Copy pre-installed SRFI libraries";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CCF602EB23A0FA7000087740 /* Copy pre-installed LispKit library: SRFI 167 */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = LispKit/Resources/Libraries/srfi/167;
+			dstSubfolderSpec = 7;
+			files = (
+				CCF602EC23A0FA9A00087740 /* engine.sld in Copy pre-installed LispKit library: SRFI 167 */,
+				CCF602ED23A0FA9A00087740 /* pack.sld in Copy pre-installed LispKit library: SRFI 167 */,
+				CCF602EE23A0FA9A00087740 /* memory.sld in Copy pre-installed LispKit library: SRFI 167 */,
+			);
+			name = "Copy pre-installed LispKit library: SRFI 167";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -952,6 +970,10 @@
 		CCEFE6141ED8F55D00DFED9B /* SRFI133.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SRFI133.scm; sourceTree = "<group>"; };
 		CCF529971CBC73F7000C2959 /* StringBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringBuilder.swift; sourceTree = "<group>"; };
 		CCF602E3239BE71F00087740 /* Markdown.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Markdown.scm; sourceTree = "<group>"; };
+		CCF602E623A0F69800087740 /* engine.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = engine.sld; sourceTree = "<group>"; };
+		CCF602E723A0F6B900087740 /* pack.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = pack.sld; sourceTree = "<group>"; };
+		CCF602E823A0F6CB00087740 /* memory.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = memory.sld; sourceTree = "<group>"; };
+		CCF602E923A0F8F800087740 /* SRFI-167.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-167.scm"; sourceTree = "<group>"; };
 		CCF982F61D998B8A00B22A1D /* ImportSet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImportSet.swift; sourceTree = "<group>"; };
 		CCFBE5C31ECBA8DA0032254B /* Pi.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Pi.scm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1014,6 +1036,7 @@
 				CC2C73DE21A22CFD00B18661 /* SRFI-125.scm */,
 				CC4A7DC22259748400936034 /* SRFI-146.scm */,
 				CC4A7DC8225A344300936034 /* SRFI-165.scm */,
+				CCF602E923A0F8F800087740 /* SRFI-167.scm */,
 				CC38528D23140F26001D5E56 /* SRFI-173.scm */,
 				CC5E53092358359900C72CE2 /* SRFI-174.scm */,
 				CCA7DC2D23875FE500785FBE /* SRFI-175.scm */,
@@ -1264,6 +1287,7 @@
 				CCEEF3901FAF3F70006C4581 /* 158.sld */,
 				CC1EA5CA214EEF41006BBE7E /* 161.sld */,
 				CC4A7DC6225A021E00936034 /* 165.sld */,
+				CCF602E523A0F64600087740 /* 167 */,
 				CC38528C23140CC2001D5E56 /* 173.sld */,
 				CC5E530723579CF200C72CE2 /* 174.sld */,
 				CC498A8A23882C19002734E0 /* 175.sld */,
@@ -1550,6 +1574,16 @@
 			path = Runtime;
 			sourceTree = "<group>";
 		};
+		CCF602E523A0F64600087740 /* 167 */ = {
+			isa = PBXGroup;
+			children = (
+				CCF602E623A0F69800087740 /* engine.sld */,
+				CCF602E723A0F6B900087740 /* pack.sld */,
+				CCF602E823A0F6CB00087740 /* memory.sld */,
+			);
+			path = 167;
+			sourceTree = "<group>";
+		};
 		CCFBE5C21ECBA8A60032254B /* Examples */ = {
 			isa = PBXGroup;
 			children = (
@@ -1652,6 +1686,7 @@
 				CC2C73DA21A1FFB200B18661 /* Copy pre-installed LispKit library: SRFI 69 */,
 				CC48EBD21F3E5B9900233FA9 /* Copy pre-installed LispKit library: SRFI 135 */,
 				CC4A7DC02259741100936034 /* Copy pre-installed LispKit library: SRFI 146 */,
+				CCF602EB23A0FA7000087740 /* Copy pre-installed LispKit library: SRFI 167 */,
 				CC5848001E50ABE100BE6497 /* Copy pre-installed LispKit libraries */,
 				CC26AD40214722710090D9EE /* Copy pre-installed LispKit library: LispKit Draw Turtle */,
 				CC703A1E218D0AF500E71EA9 /* Copy pre-installed LispKit library: LispKit CLOS Support */,

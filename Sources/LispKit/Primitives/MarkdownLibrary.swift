@@ -127,7 +127,8 @@ public final class MarkdownLibrary: NativeLibrary {
     self.define(Procedure("markdown?", isMarkdown))
     self.define(Procedure("markdown=?", markdownEquals))
     self.define(Procedure("markdown->html", markdownToHtml))
-    self.define(Procedure("inline->string", inlineToString))
+    self.define(Procedure("text->string", textToString))
+    self.define(Procedure("text->raw-string", textToRawString))
   }
 
   private func makeCase(_ type: Tuple, _ sym: Symbol, _ exprs: Expr...) -> Expr {
@@ -521,7 +522,7 @@ public final class MarkdownLibrary: NativeLibrary {
     return .makeString(HtmlGenerator.standard.generate(doc: try self.internMarkdown(block: md)))
   }
 
-  private func inlineToString(_ expr: Expr) throws -> Expr {
+  private func textToString(_ expr: Expr) throws -> Expr {
     switch expr {
       case .pair(_ , _):
         return .makeString(try self.internMarkdown(text: expr).description)
@@ -530,6 +531,19 @@ public final class MarkdownLibrary: NativeLibrary {
       default:
         throw RuntimeError.custom(
           "type error", "inline->string expects argument of type inline or list of inlines; " +
+          "received \(expr)", [])
+    }
+  }
+
+  private func textToRawString(_ expr: Expr) throws -> Expr {
+    switch expr {
+      case .pair(_ , _):
+        return .makeString(try self.internMarkdown(text: expr).rawDescription)
+      case .tagged(.mpair(self.inlineType), _):
+        return .makeString(try self.internMarkdown(fragment: expr).rawDescription)
+      default:
+        throw RuntimeError.custom(
+          "type error", "inline->raw-string expects argument of type inline or list of inlines; " +
           "received \(expr)", [])
     }
   }

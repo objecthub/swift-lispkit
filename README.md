@@ -61,7 +61,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     `(scheme rlist)`, `(scheme set)`,
     `(scheme sort)`, `(scheme stream)`, `(scheme text)`, `(scheme vector)`
   - LispKit-specific libraries: 
-    `(lispkit base)`,
+    [`(lispkit base)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Base),
     [`(lispkit core)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Core),
     [`(lispkit control)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Control),
     [`(lispkit system)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-System),
@@ -73,19 +73,19 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit type)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Type),
     [`(lispkit vector)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Vector),
     [`(lispkit gvector)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Gvector),
-    `(lispkit record)`,
+    [`(lispkit record)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Record),
     [`(lispkit bytevector)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Bytevector),
     [`(lispkit char)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Char),
     [`(lispkit char-set)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Char-Set),
     [`(lispkit string)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-String),
-    `(lispkit regexp)`,
-    `(lispkit port)`,
+    [`(lispkit port)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Port),
     [`(lispkit date-time)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Date-Time),
     [`(lispkit draw)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Draw),
     [`(lispkit draw turtle)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Draw-Turtle),
     [`(lispkit datatype)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Datatype),
     [`(lispkit object)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Object),
     [`(lispkit enum)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Enum),
+    `(lispkit regexp)`,
     `(lispkit stream)`,
     `(lispkit graph)`,
     `(lispkit match)`,
@@ -103,6 +103,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     `(lispkit prettify)`,
     `(lispkit csv)`,
     `(lispkit json)`,
+    [`(lispkit markdown)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Markdown),
     and `(lispkit pdf)`.
 
 _LispKit_ is incompatible or incomplete with respect to the following R7RS features:
@@ -161,6 +162,7 @@ framework:
   - [SRFI 158: Generators and Accumulators](https://srfi.schemers.org/srfi-158/srfi-158.html)
   - [SRFI 161: Unifiable Boxes](https://srfi.schemers.org/srfi-161/srfi-161.html)
   - [SRFI 165: The Environment Monad](https://srfi.schemers.org/srfi-165/srfi-165.html)
+  - [SRFI 167: Ordered Key Value Store](https://srfi.schemers.org/srfi-167/srfi-167.html)
   - [SRFI 173: Hooks](https://srfi.schemers.org/srfi-173/srfi-173.html)
   - [SRFI 174: POSIX Timespecs](https://srfi.schemers.org/srfi-174/srfi-174.html)
   - [SRFI 175: ASCII Character Library](https://srfi.schemers.org/srfi-175/srfi-175.html)
