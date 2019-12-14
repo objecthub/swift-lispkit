@@ -1,7 +1,7 @@
 ;;; Math tools
 ;;;
 ;;; Author: Matthias Zenger
-;;; Copyright © 2017 Matthias Zenger. All rights reserved.
+;;; Copyright © 2017-2019 Matthias Zenger. All rights reserved.
 ;;;
 ;;; Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 ;;; except in compliance with the License. You may obtain a copy of the License at
@@ -48,3 +48,35 @@
   (if (= n 0)
       1
       (* n (fac (- n 1)))))
+
+;; Returns a list of all permutations of the given list `xs`
+(define (permutations xs)
+  (cond ((null? xs)
+          (list (list)))
+        ((null? (cdr xs))
+          (list xs))
+        (else
+          (let splice ((l '())
+                       (m (car xs))
+                       (r (cdr xs)))
+            (append (map (lambda (x) (cons m x)) (permutations (append l r)))
+                    (if (null? r) '() (splice (cons m l) (car r) (cdr r))))))))
+
+;; Returns all `k`-combinations of elements in `xs` as a list.
+(define (combination k xs)
+  (cond ((zero? k)
+          (list (list)))
+        ((null? xs)
+          xs)
+        (else
+          (append (map (lambda (y) (cons (car xs) y)) (combination (- k 1) (cdr xs)))
+                  (combination k (cdr xs))))))
+
+;; Returns all possible combinations of elements in `xs` as a list.
+(define (combinations xs)
+  (if (null? xs)
+      (list xs)
+      (let* ((head (car xs))
+             (s (combinations (cdr xs)))
+             (v (map (lambda (x) (cons head x)) s)))
+        (append s v))))
