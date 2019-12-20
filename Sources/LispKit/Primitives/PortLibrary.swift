@@ -131,6 +131,16 @@ public final class PortLibrary: NativeLibrary {
       "  (let ((new (open-output-string)))",
       "    (parameterize ((current-output-port new))",
       "      (let ((res (thunk))) (close-output-port new) res))))")
+    self.define("call-with-output-string", via:
+      "(define (call-with-output-string procedure)",
+      "  (let ((port (open-output-string)))",
+      "    (procedure port)",
+      "    (get-output-string port)))")
+    self.define("call-with-output-bytevector", via:
+      "(define (call-with-output-bytevector procedure)",
+      "  (let ((port (open-output-bytevector)))",
+      "    (procedure port)",
+      "    (get-output-bytevector port)))")
     self.define("with-input-from-url", via:
       "(define (with-input-from-url url thunk)",
       "  (let ((new (open-input-url url)))",

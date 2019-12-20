@@ -242,6 +242,10 @@ public final class CharSet: NativeObject {
     return CharSet.convert(cs: .whitespacesAndNewlines)
   }
 
+  public class func newlines() -> CharSet {
+    return CharSet.convert(cs: .newlines)
+  }
+
   public class func blanks() -> CharSet {
     return CharSet.convert(cs: .whitespaces)
   }

@@ -157,6 +157,8 @@ public final class CharSetLibrary: NativeLibrary {
                 as: .object(CharSet.printing()), mutable: false, export: true)
     self.define("char-set:whitespace",
                 as: .object(CharSet.whitespaces()), mutable: false, export: true)
+    self.define("char-set:newlines",
+                as: .object(CharSet.newlines()), mutable: false, export: true)
     self.define("char-set:iso-control",
                 as: .object(CharSet.controls()), mutable: false, export: true)
     self.define("char-set:punctuation",
