@@ -183,6 +183,7 @@
 		CC76312520E95204005F27CE /* Transformation.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC76312420E95204005F27CE /* Transformation.swift */; };
 		CC76312720E95262005F27CE /* DrawingDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC76312620E95262005F27CE /* DrawingDocument.swift */; };
 		CC76312920E9550B005F27CE /* Owners.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC76312820E9550A005F27CE /* Owners.swift */; };
+		CC78F31B23B43A34006F3901 /* SpellNumbers.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC78F31A23B439B5006F3901 /* SpellNumbers.scm */; };
 		CC79DE041F88404600CE7A5D /* 63.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC79DE031F883FED00CE7A5D /* 63.sld */; };
 		CC79DE061F88D42600CE7A5D /* TypeLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC79DE051F88D42600CE7A5D /* TypeLibrary.swift */; };
 		CC79DE081F8993EE00CE7A5D /* LightweightTypes.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC79DE071F8993EE00CE7A5D /* LightweightTypes.scm */; };
@@ -441,6 +442,7 @@
 			dstPath = LispKit/Resources/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC78F31B23B43A34006F3901 /* SpellNumbers.scm in Copy examples */,
 				CCC284DC236D8D3200DC85E8 /* Sudoku.scm in Copy examples */,
 				CC3852A0232529E7001D5E56 /* Maze.scm in Copy examples */,
 				CC4A7DBB2258FC7900936034 /* Streams.scm in Copy examples */,
@@ -851,6 +853,7 @@
 		CC76312420E95204005F27CE /* Transformation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transformation.swift; sourceTree = "<group>"; };
 		CC76312620E95262005F27CE /* DrawingDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawingDocument.swift; sourceTree = "<group>"; };
 		CC76312820E9550A005F27CE /* Owners.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Owners.swift; sourceTree = "<group>"; };
+		CC78F31A23B439B5006F3901 /* SpellNumbers.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = SpellNumbers.scm; sourceTree = "<group>"; };
 		CC79DE031F883FED00CE7A5D /* 63.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 63.sld; sourceTree = "<group>"; };
 		CC79DE051F88D42600CE7A5D /* TypeLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TypeLibrary.swift; sourceTree = "<group>"; };
 		CC79DE071F8993EE00CE7A5D /* LightweightTypes.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LightweightTypes.scm; sourceTree = "<group>"; };
@@ -1589,6 +1592,7 @@
 			children = (
 				CCFBE5C31ECBA8DA0032254B /* Pi.scm */,
 				CC0EBFF81ED37A76004510B2 /* Math.scm */,
+				CC78F31A23B439B5006F3901 /* SpellNumbers.scm */,
 				CC4A7DBA2258FC3C00936034 /* Streams.scm */,
 				CC9EB1141F5C9D4000697511 /* Topological.scm */,
 				CC474EB01ED0390200B535E3 /* Queens.scm */,

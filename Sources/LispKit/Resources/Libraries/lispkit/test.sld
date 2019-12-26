@@ -291,11 +291,6 @@
             body ...
             (test-end)))))
 
-   (define (call-with-output-string proc)
-     (let ((out (open-output-string)))
-       (proc out)
-       (get-output-string out)))
-
    (define (write-to-string x)
      (call-with-output-string
        (lambda (out)
