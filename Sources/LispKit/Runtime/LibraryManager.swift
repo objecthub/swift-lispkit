@@ -69,8 +69,8 @@ public final class LibraryManager: TrackedObject, CustomStringConvertible {
   
   /// Returns the native library loaded by this library manager for the given native
   /// library type.
-  public func lookup<T: NativeLibrary>() throws -> T? {
-    if let lib = try self.lookup(T.name) {
+  public func lookup<T: NativeLibrary>(_ impl: T.Type) throws -> T? {
+    if let lib = try self.lookup(impl.name) {
       return lib as? T
     } else {
       return nil
