@@ -55,18 +55,18 @@ open class NativeObject: Reference {
 /// `AnyNativeObject` can be used as a wrapper for native objects not derived from
 /// class `NativeObject`.
 ///
-public class AnyNativeObject<T: Hashable>: NativeObject {
+open class AnyNativeObject<T: Hashable>: NativeObject {
   public let value: T
 
   public init(_ value: T) {
     self.value = value
   }
 
-  public override var hash: Int {
+  open override var hash: Int {
     return self.value.hashValue
   }
 
-  public override func equals(_ obj: NativeObject) -> Bool {
+  open override func equals(_ obj: NativeObject) -> Bool {
     guard let other = obj as? AnyNativeObject<T> else {
       return false
     }

@@ -548,11 +548,11 @@ public final class VirtualMachine: TrackedObject {
     return winders?.handlers
   }
   
-  internal func getParam(_ param: Procedure) -> Expr? {
+  public func getParam(_ param: Procedure) -> Expr? {
     return self.getParameter(.procedure(param))
   }
   
-  internal func getParameter(_ param: Expr) -> Expr? {
+  public func getParameter(_ param: Expr) -> Expr? {
     guard case .some(.pair(_, .box(let cell))) = self.parameters.get(param) else {
       guard case .procedure(let proc) = param,
             case .parameter(let tuple) = proc.kind else {
@@ -563,11 +563,11 @@ public final class VirtualMachine: TrackedObject {
     return cell.value
   }
   
-  internal func setParam(_ param: Procedure, to value: Expr) -> Expr {
+  public func setParam(_ param: Procedure, to value: Expr) -> Expr {
     return self.setParameter(.procedure(param), to: value)
   }
   
-  internal func setParameter(_ param: Expr, to value: Expr) -> Expr {
+  public func setParameter(_ param: Expr, to value: Expr) -> Expr {
     guard case .some(.pair(_, .box(let cell))) = self.parameters.get(param) else {
       guard case .procedure(let proc) = param,
             case .parameter(let tuple) = proc.kind else {
