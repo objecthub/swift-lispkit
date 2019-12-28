@@ -189,6 +189,8 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("color-green", colorGreen))
     self.define(Procedure("color-blue", colorBlue))
     self.define(Procedure("color-alpha", colorAlpha))
+    self.define(Procedure("available-color-lists", availableColorLists))
+    self.define(Procedure("available-colors", availableColors))
     
     // Fonts/points/sizes/rects
     self.define(Procedure("font?", isFont))
@@ -1226,11 +1228,68 @@ public final class DrawingLibrary: NativeLibrary {
     return .false
   }
   
-  private func color(red: Expr, green: Expr, blue: Expr, alpha: Expr?) throws -> Expr {
-    return .object(Color(red: try red.asDouble(coerce: true),
-                         green: try green.asDouble(coerce: true),
-                         blue: try blue.asDouble(coerce: true),
-                         alpha: try (alpha ?? .flonum(1.0)).asDouble(coerce: true)))
+  private func color(red: Expr, args: Arguments) throws -> Expr {
+    if args.count < 2 {
+      if args.isEmpty {
+        switch red {
+          case .string(let mstr):
+            let str: String = mstr.hasPrefix("#") ? mstr.substring(from: 1) : (mstr as String)
+            if let num = Int64(str as String, radix: 16) {
+              if str.count <= 3 {
+                return .object(Color(red: Double((num & 0xf00) >> 8) / 15.0,
+                                     green: Double((num & 0xf0) >> 4) / 15.0,
+                                     blue: Double(num & 0xf) / 15.0,
+                                     alpha: 1.0))
+              } else {
+                return .object(Color(red: Double((num & 0xff0000) >> 16) / 255.0,
+                                   green: Double((num & 0xff00) >> 8) / 255.0,
+                                   blue: Double(num & 0xff) / 255.0,
+                                   alpha: 1.0))
+              }
+            } else {
+              throw RuntimeError.custom("eval error", "not a valid hex number designating a " +
+                                        "color: \(red)", [])
+            }
+          case .fixnum(let num):
+            return .object(Color(red: Double((num & 0xff0000) >> 16) / 255.0,
+                                 green: Double((num & 0xff00) >> 8) / 255.0,
+                                 blue: Double((num & 0xff)) / 255.0,
+                                 alpha: 1.0))
+          default:
+            break
+        }
+      }
+      let colorName = try red.asSymbol().identifier
+      var colorListName = "Apple"
+      if args.count == 1 {
+        colorListName = try args.first!.asString()
+      }
+      if let colorList = NSColorList(named: colorListName),
+         let nsColor = colorList.color(withKey: colorName) {
+        return .object(Color(red: Double(nsColor.redComponent),
+                             green: Double(nsColor.greenComponent),
+                             blue: Double(nsColor.blueComponent),
+                             alpha: Double(nsColor.alphaComponent)))
+      } else {
+        throw RuntimeError.custom("eval error", "unknown color \(colorName) in color list " +
+                                  colorListName, [])
+      }
+    } else if args.count == 2 {
+      return .object(Color(red: try red.asDouble(coerce: true),
+                           green: try args.first!.asDouble(coerce: true),
+                           blue: try args[args.startIndex + 1].asDouble(coerce: true),
+                           alpha: 1.0))
+    } else if args.count == 3 {
+      return .object(Color(red: try red.asDouble(coerce: true),
+                           green: try args.first!.asDouble(coerce: true),
+                           blue: try args[args.startIndex + 1].asDouble(coerce: true),
+                           alpha: try args[args.startIndex + 2].asDouble(coerce: true)))
+    } else {
+      throw RuntimeError.argumentCount(of: "color",
+                                       min: 3,
+                                       max: 4,
+                                       args: .pair(red, .makeList(args)))
+    }
   }
   
   private func colorToHex(expr: Expr) throws -> Expr {
@@ -1275,6 +1334,36 @@ public final class DrawingLibrary: NativeLibrary {
     return color
   }
   
+  private static let availableColorLists: [NSColorList] = {
+    var lists = NSColorList.availableColorLists
+    if let url = Context.bundle?.url(forResource: "HtmlColors", withExtension: "plist"),
+       let colorList = NSColorList(name: "HTML", fromFile: url.path) {
+      lists.append(colorList)
+    }
+    return lists
+  }()
+  
+  private func availableColorLists() -> Expr {
+    var res = Expr.null
+    for cl in DrawingLibrary.availableColorLists {
+      if let name = cl.name {
+        res = .pair(.makeString(name), res)
+      }
+    }
+    return res
+  }
+  
+  private func availableColors(name: Expr) throws -> Expr {
+    if let colorList = NSColorList(named: try name.asString()) {
+      var keys = Expr.null
+      for key in colorList.allKeys {
+        keys = .pair(.symbol(self.context.symbols.intern(key)), keys)
+      }
+      return keys
+    } else {
+      throw RuntimeError.custom("eval error", "unknown color list: \(name)", [])
+    }
+  }
   
   // Fonts/points/sizes/rects
   

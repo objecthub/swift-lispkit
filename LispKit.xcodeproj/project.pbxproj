@@ -276,6 +276,7 @@
 		CCC5319E1D16E40D00FAED6E /* TextInputSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC5319D1D16E40D00FAED6E /* TextInputSource.swift */; };
 		CCC531A01D18595500FAED6E /* TextOutputTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC5319F1D18595500FAED6E /* TextOutputTarget.swift */; };
 		CCC62D921CA9ED6A00E2C43F /* TrackedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC62D911CA9ED6A00E2C43F /* TrackedObject.swift */; };
+		CCCAF5B023B7AA3E00FE2C60 /* HtmlColors.plist in Resources */ = {isa = PBXBuildFile; fileRef = CCCAF5AE23B7A71400FE2C60 /* HtmlColors.plist */; };
 		CCCEB3FF1DF2DAA9009BF66B /* FileHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCEB3FE1DF2DAA9009BF66B /* FileHandler.swift */; };
 		CCD6C3E91F35F9F10002F7D4 /* enum.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCD6C3E81F35F95D0002F7D4 /* enum.sld */; };
 		CCD81AD21CE75823009EB087 /* Checkpointer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD81AD11CE75823009EB087 /* Checkpointer.swift */; };
@@ -953,6 +954,7 @@
 		CCC937451C4F02AF00A5608F /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		CCC937471C4F02DF00A5608F /* CHANGELOG.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = CHANGELOG.md; sourceTree = "<group>"; };
 		CCC937491C4F031700A5608F /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		CCCAF5AE23B7A71400FE2C60 /* HtmlColors.plist */ = {isa = PBXFileReference; lastKnownFileType = file.bplist; path = HtmlColors.plist; sourceTree = "<group>"; };
 		CCCAF92D1F941A43006692E9 /* Package.swift */ = {isa = PBXFileReference; explicitFileType = sourcecode.swift; fileEncoding = 4; indentWidth = 2; path = Package.swift; sourceTree = "<group>"; tabWidth = 2; };
 		CCCEB3FE1DF2DAA9009BF66B /* FileHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileHandler.swift; sourceTree = "<group>"; };
 		CCD6C3E81F35F95D0002F7D4 /* enum.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = enum.sld; sourceTree = "<group>"; };
@@ -1450,6 +1452,7 @@
 				CCAD52E81C4846A700DBD8EE /* Primitives */,
 				CCAD52D41C48467D00DBD8EE /* Resources */,
 				CCAD52BD1C48403900DBD8EE /* LispKit.h */,
+				CCCAF5AE23B7A71400FE2C60 /* HtmlColors.plist */,
 				CCAD52BF1C48403900DBD8EE /* Info.plist */,
 			);
 			name = LispKit;
@@ -1683,6 +1686,7 @@
 				CCAD52B51C48403800DBD8EE /* Sources */,
 				CCAD52B61C48403800DBD8EE /* Frameworks */,
 				CCAD52B71C48403800DBD8EE /* Headers */,
+				CCCAF5AF23B7AA2F00FE2C60 /* Resources */,
 				CC2E6A901C486AA70046E680 /* Copy default prelude */,
 				CCA752F91DEF9F4E0098C34A /* Copy pre-installed SRFI libraries */,
 				CC54924521DCDF4F004A0652 /* Copy pre-installed LispKit library: SRFI 14 */,
@@ -1824,6 +1828,14 @@
 				CC8218911E3FFFAB009CA653 /* SRFI19.scm in Resources */,
 				CCC41DCA1D330439003CB4D0 /* DynamicWind.scm in Resources */,
 				CCDAD5521D4813E900A7EE4F /* HashTables.scm in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCCAF5AF23B7AA2F00FE2C60 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CCCAF5B023B7AA3E00FE2C60 /* HtmlColors.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
