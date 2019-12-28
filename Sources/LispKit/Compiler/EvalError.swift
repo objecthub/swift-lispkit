@@ -67,6 +67,7 @@ public enum EvalError: Int, Hashable {
   case defineSyntaxInLocalEnv
   case targetBytevectorTooSmall
   case cannotOpenFile
+  case cannotOpenAsset
   case cannotOpenUrl
   case invalidUrl
   case cannotWriteToPort
@@ -96,6 +97,7 @@ public enum EvalError: Int, Hashable {
   case invalidSize
   case invalidRect
   case cannotLoadImage
+  case cannotLoadImageAsset
   case cannotCreateBitmap
   case invalidImageFileType
   case invalidCompositionOperation
@@ -192,6 +194,8 @@ public enum EvalError: Int, Hashable {
         return "target bytevector too small: $0"
       case .cannotOpenFile:
         return "cannot open file: $,0"
+      case .cannotOpenAsset:
+        return "cannot open asset $0 of type $1"
       case .cannotOpenUrl:
         return "cannot open URL: $,0"
       case .invalidUrl:
@@ -250,6 +254,8 @@ public enum EvalError: Int, Hashable {
         return "invalid rect: $0"
       case .cannotLoadImage:
         return "cannot load image from file $0"
+      case .cannotLoadImageAsset:
+        return "cannot load image asset $0 of type $1 from directory $2"
       case .cannotCreateBitmap:
         return "cannot create bitmap; error in arguments: $0"
       case .invalidImageFileType:

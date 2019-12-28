@@ -34,6 +34,9 @@ public final class DrawingLibrary: NativeLibrary {
   public let drawingParam: Procedure
   public let shapeParam: Procedure
   
+  /// Available color lists
+  public var colorLists: [NSColorList]
+  
   /// Symbols used in enumeration values
   
   // Bitmap file types
@@ -92,6 +95,7 @@ public final class DrawingLibrary: NativeLibrary {
     self.orientationMirror = context.symbols.intern("mirror")
     self.interpolateHermite = context.symbols.intern("hermite")
     self.interpolateCatmullRom = context.symbols.intern("catmull-rom")
+    self.colorLists = NSColorList.availableColorLists
     try super.init(in: context)
   }
   
@@ -145,6 +149,7 @@ public final class DrawingLibrary: NativeLibrary {
     // Images/bitmaps
     self.define(Procedure("image?", isImage))
     self.define(Procedure("load-image", loadImage))
+    self.define(Procedure("load-image-asset", loadImageAsset))
     self.define(Procedure("image-size", imageSize))
     self.define(Procedure("bitmap?", isBitmap))
     self.define(Procedure("make-bitmap", makeBitmap))
@@ -191,6 +196,7 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("color-alpha", colorAlpha))
     self.define(Procedure("available-color-lists", availableColorLists))
     self.define(Procedure("available-colors", availableColors))
+    self.define(Procedure("load-color-list", loadColorList))
     
     // Fonts/points/sizes/rects
     self.define(Procedure("font?", isFont))
@@ -306,7 +312,15 @@ public final class DrawingLibrary: NativeLibrary {
   }
   
   public override func initializations() {
+    // Import system library
     self.systemLibrary = self.nativeLibrary(SystemLibrary.self)
+    // Load all color list assets
+    if let filename = self.context.fileHandler.assetFilePath(forFile: "HtmlColors",
+                                                             ofType: "plist",
+                                                             inFolder: "ColorLists"),
+       let colorList = NSColorList(name: "HTML", fromFile: filename) {
+      self.colorLists.append(colorList)
+    }
   }
   
   private func drawing(from expr: Expr?) throws -> Drawing {
@@ -717,6 +731,21 @@ public final class DrawingLibrary: NativeLibrary {
       throw RuntimeError.eval(.cannotLoadImage, filename)
     }
     return .object(NativeImage(nsimage))
+  }
+  
+  private func loadImageAsset(name: Expr, type: Expr, dir: Expr? = nil) throws -> Expr {
+    if let path = self.context.fileHandler.assetFilePath(
+                    forFile: try name.asString(),
+                    ofType: try type.asString(),
+                    inFolder: try dir?.asPath() ?? "Images",
+                    relativeTo: self.systemLibrary.currentDirectoryPath) {
+      guard let nsimage = NSImage(contentsOfFile: path) else {
+        throw RuntimeError.eval(.cannotLoadImageAsset, name, type, dir ?? .makeString("Images"))
+      }
+      return .object(NativeImage(nsimage))
+    } else {
+      throw RuntimeError.eval(.cannotLoadImageAsset, name, type, dir ?? .makeString("Images"))
+    }
   }
   
   private func imageSize(image: Expr) throws -> Expr {
@@ -1265,15 +1294,18 @@ public final class DrawingLibrary: NativeLibrary {
       if args.count == 1 {
         colorListName = try args.first!.asString()
       }
-      if let colorList = NSColorList(named: colorListName),
-         let nsColor = colorList.color(withKey: colorName) {
-        return .object(Color(red: Double(nsColor.redComponent),
-                             green: Double(nsColor.greenComponent),
-                             blue: Double(nsColor.blueComponent),
-                             alpha: Double(nsColor.alphaComponent)))
+      if let colorList = NSColorList(named: colorListName) {
+        if let nsColor = colorList.color(withKey: colorName) {
+          return .object(Color(red: Double(nsColor.redComponent),
+                               green: Double(nsColor.greenComponent),
+                               blue: Double(nsColor.blueComponent),
+                               alpha: Double(nsColor.alphaComponent)))
+        } else {
+          throw RuntimeError.custom("eval error", "unknown color \(colorName) in color list " +
+                                    colorListName, [])
+        }
       } else {
-        throw RuntimeError.custom("eval error", "unknown color \(colorName) in color list " +
-                                  colorListName, [])
+        throw RuntimeError.custom("eval error", "unknown color list: \(colorListName)", [])
       }
     } else if args.count == 2 {
       return .object(Color(red: try red.asDouble(coerce: true),
@@ -1335,18 +1367,9 @@ public final class DrawingLibrary: NativeLibrary {
     return color
   }
   
-  private static let availableColorLists: [NSColorList] = {
-    var lists = NSColorList.availableColorLists
-    if let url = Context.bundle?.url(forResource: "HtmlColors", withExtension: "plist"),
-       let colorList = NSColorList(name: "HTML", fromFile: url.path) {
-      lists.append(colorList)
-    }
-    return lists
-  }()
-  
   private func availableColorLists() -> Expr {
     var res = Expr.null
-    for cl in DrawingLibrary.availableColorLists {
+    for cl in self.colorLists {
       if let name = cl.name {
         res = .pair(.makeString(name), res)
       }
@@ -1363,6 +1386,25 @@ public final class DrawingLibrary: NativeLibrary {
       return keys
     } else {
       throw RuntimeError.custom("eval error", "unknown color list: \(name)", [])
+    }
+  }
+  
+  private func loadColorList(_ name: Expr, _ path: Expr) throws -> Expr {
+    let colorListName = try name.asString()
+    if let filename = self.context.fileHandler.assetFilePath(forFile: try path.asString(),
+                                                             ofType: "plist",
+                                                             inFolder: "ColorLists"),
+       let colorList = NSColorList(name: colorListName, fromFile: filename) {
+      for i in self.colorLists.indices {
+        if let name = self.colorLists[i].name, name == colorListName {
+          self.colorLists[i] = colorList
+          return .true
+        }
+      }
+      self.colorLists.append(colorList)
+      return .true
+    } else {
+      return .false
     }
   }
   

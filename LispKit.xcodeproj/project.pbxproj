@@ -45,6 +45,8 @@
 		CC26264220F9491E00AC08E8 /* SRFI113.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC26264120F9469100AC08E8 /* SRFI113.scm */; };
 		CC26264420FA007800AC08E8 /* Plot.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC26264320FA003700AC08E8 /* Plot.scm */; };
 		CC26AD41214722960090D9EE /* turtle.sld in Copy pre-installed LispKit library: LispKit Draw Turtle */ = {isa = PBXBuildFile; fileRef = CC26AD3F214722120090D9EE /* turtle.sld */; };
+		CC299DFA23B7EDC6007B8459 /* HtmlColors.plist in Copy color list assets */ = {isa = PBXBuildFile; fileRef = CCCAF5AE23B7A71400FE2C60 /* HtmlColors.plist */; };
+		CC299DFE23B8096E007B8459 /* LispkitLogo.png in Copy image assets */ = {isa = PBXBuildFile; fileRef = CC299DFC23B80917007B8459 /* LispkitLogo.png */; };
 		CC2A9DA82200E8C900F39194 /* Libraries.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC2A9DA72200E6E300F39194 /* Libraries.scm */; };
 		CC2C73C8219E2F8400B18661 /* comparator.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC2C73C4219E26D900B18661 /* comparator.sld */; };
 		CC2C73C9219E2F8400B18661 /* generator.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC2C73C5219E286D00B18661 /* generator.sld */; };
@@ -276,7 +278,6 @@
 		CCC5319E1D16E40D00FAED6E /* TextInputSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC5319D1D16E40D00FAED6E /* TextInputSource.swift */; };
 		CCC531A01D18595500FAED6E /* TextOutputTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC5319F1D18595500FAED6E /* TextOutputTarget.swift */; };
 		CCC62D921CA9ED6A00E2C43F /* TrackedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC62D911CA9ED6A00E2C43F /* TrackedObject.swift */; };
-		CCCAF5B023B7AA3E00FE2C60 /* HtmlColors.plist in Resources */ = {isa = PBXBuildFile; fileRef = CCCAF5AE23B7A71400FE2C60 /* HtmlColors.plist */; };
 		CCCEB3FF1DF2DAA9009BF66B /* FileHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCEB3FE1DF2DAA9009BF66B /* FileHandler.swift */; };
 		CCD6C3E91F35F9F10002F7D4 /* enum.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCD6C3E81F35F95D0002F7D4 /* enum.sld */; };
 		CCD81AD21CE75823009EB087 /* Checkpointer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD81AD11CE75823009EB087 /* Checkpointer.swift */; };
@@ -379,6 +380,28 @@
 				CC26AD41214722960090D9EE /* turtle.sld in Copy pre-installed LispKit library: LispKit Draw Turtle */,
 			);
 			name = "Copy pre-installed LispKit library: LispKit Draw Turtle";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC299DF923B7ED4E007B8459 /* Copy color list assets */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 12;
+			dstPath = LispKit/Resources/Assets/ColorLists;
+			dstSubfolderSpec = 7;
+			files = (
+				CC299DFA23B7EDC6007B8459 /* HtmlColors.plist in Copy color list assets */,
+			);
+			name = "Copy color list assets";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC299DFD23B80950007B8459 /* Copy image assets */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = LispKit/Resources/Assets/Images;
+			dstSubfolderSpec = 7;
+			files = (
+				CC299DFE23B8096E007B8459 /* LispkitLogo.png in Copy image assets */,
+			);
+			name = "Copy image assets";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		CC2C73DA21A1FFB200B18661 /* Copy pre-installed LispKit library: SRFI 69 */ = {
@@ -718,6 +741,7 @@
 		CC26264120F9469100AC08E8 /* SRFI113.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = SRFI113.scm; sourceTree = "<group>"; };
 		CC26264320FA003700AC08E8 /* Plot.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Plot.scm; sourceTree = "<group>"; };
 		CC26AD3F214722120090D9EE /* turtle.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = turtle.sld; sourceTree = "<group>"; };
+		CC299DFC23B80917007B8459 /* LispkitLogo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = LispkitLogo.png; sourceTree = "<group>"; };
 		CC2A9DA72200E6E300F39194 /* Libraries.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Libraries.scm; sourceTree = "<group>"; };
 		CC2C73C4219E26D900B18661 /* comparator.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = comparator.sld; sourceTree = "<group>"; };
 		CC2C73C5219E286D00B18661 /* generator.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = generator.sld; sourceTree = "<group>"; };
@@ -1105,6 +1129,31 @@
 			path = draw;
 			sourceTree = "<group>";
 		};
+		CC299DF523B7E7FE007B8459 /* Assets */ = {
+			isa = PBXGroup;
+			children = (
+				CC299DFB23B808CF007B8459 /* Images */,
+				CC299DF623B7E822007B8459 /* ColorLists */,
+			);
+			path = Assets;
+			sourceTree = "<group>";
+		};
+		CC299DF623B7E822007B8459 /* ColorLists */ = {
+			isa = PBXGroup;
+			children = (
+				CCCAF5AE23B7A71400FE2C60 /* HtmlColors.plist */,
+			);
+			path = ColorLists;
+			sourceTree = "<group>";
+		};
+		CC299DFB23B808CF007B8459 /* Images */ = {
+			isa = PBXGroup;
+			children = (
+				CC299DFC23B80917007B8459 /* LispkitLogo.png */,
+			);
+			path = Images;
+			sourceTree = "<group>";
+		};
 		CC2C73C3219E26A500B18661 /* large */ = {
 			isa = PBXGroup;
 			children = (
@@ -1452,7 +1501,6 @@
 				CCAD52E81C4846A700DBD8EE /* Primitives */,
 				CCAD52D41C48467D00DBD8EE /* Resources */,
 				CCAD52BD1C48403900DBD8EE /* LispKit.h */,
-				CCCAF5AE23B7A71400FE2C60 /* HtmlColors.plist */,
 				CCAD52BF1C48403900DBD8EE /* Info.plist */,
 			);
 			name = LispKit;
@@ -1479,6 +1527,7 @@
 				CCA752F51DEF9EFB0098C34A /* Libraries */,
 				CCFBE5C21ECBA8A60032254B /* Examples */,
 				CC09ECF12198B7D300F84713 /* Tests */,
+				CC299DF523B7E7FE007B8459 /* Assets */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -1686,7 +1735,6 @@
 				CCAD52B51C48403800DBD8EE /* Sources */,
 				CCAD52B61C48403800DBD8EE /* Frameworks */,
 				CCAD52B71C48403800DBD8EE /* Headers */,
-				CCCAF5AF23B7AA2F00FE2C60 /* Resources */,
 				CC2E6A901C486AA70046E680 /* Copy default prelude */,
 				CCA752F91DEF9F4E0098C34A /* Copy pre-installed SRFI libraries */,
 				CC54924521DCDF4F004A0652 /* Copy pre-installed LispKit library: SRFI 14 */,
@@ -1704,6 +1752,8 @@
 				CC385298231B325C001D5E56 /* Copy pre-installed third-party Adapton library */,
 				CC474EAE1ECFAC1300B535E3 /* Copy examples */,
 				CC09ECF32198B8B100F84713 /* Copy tests */,
+				CC299DF923B7ED4E007B8459 /* Copy color list assets */,
+				CC299DFD23B80950007B8459 /* Copy image assets */,
 			);
 			buildRules = (
 			);
@@ -1828,14 +1878,6 @@
 				CC8218911E3FFFAB009CA653 /* SRFI19.scm in Resources */,
 				CCC41DCA1D330439003CB4D0 /* DynamicWind.scm in Resources */,
 				CCDAD5521D4813E900A7EE4F /* HashTables.scm in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		CCCAF5AF23B7AA2F00FE2C60 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				CCCAF5B023B7AA3E00FE2C60 /* HtmlColors.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

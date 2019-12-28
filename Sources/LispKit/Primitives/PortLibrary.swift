@@ -70,6 +70,8 @@ public final class PortLibrary: NativeLibrary {
     self.define(Procedure("output-port-open?", isOutputPortOpen))
     self.define(Procedure("open-input-file", openInputFile))
     self.define(Procedure("open-binary-input-file", openBinaryInputFile))
+    self.define(Procedure("open-input-asset", openInputAsset))
+    self.define(Procedure("open-binary-asset", openBinaryInputAsset))
     self.define(Procedure("open-output-file", openOutputFile))
     self.define(Procedure("open-binary-output-file", openBinaryOutputFile))
     self.define(Procedure("open-input-string", openInputString))
@@ -312,6 +314,40 @@ public final class PortLibrary: NativeLibrary {
       throw RuntimeError.eval(.cannotOpenFile, .makeString(filename))
     }
     return .port(Port(input: input))
+  }
+  
+  func openInputAsset(_ expr: Expr, _ type: Expr, _ dir: Expr?) throws -> Expr {
+    if let filename = self.context.fileHandler.assetFilePath(
+                        forFile: try expr.asString(),
+                        ofType: try type.asString(),
+                        inFolder: try dir?.asPath(),
+                        relativeTo: self.systemLibrary.currentDirectoryPath) {
+      guard let input =
+                  BinaryInput(path: filename,
+                              abortionCallback: self.context.machine.isAbortionRequested) else {
+        throw RuntimeError.eval(.cannotOpenAsset, expr, type)
+      }
+      return .port(Port(input: TextInput(input: input)))
+    } else {
+      throw RuntimeError.eval(.cannotOpenAsset, expr, type)
+    }
+  }
+  
+  func openBinaryInputAsset(_ expr: Expr, _ type: Expr, _ dir: Expr?) throws -> Expr {
+    if let filename = self.context.fileHandler.assetFilePath(
+                        forFile: try expr.asString(),
+                        ofType: try type.asString(),
+                        inFolder: try dir?.asPath(),
+                        relativeTo: self.systemLibrary.currentDirectoryPath) {
+      guard let input =
+                  BinaryInput(path: filename,
+                              abortionCallback: self.context.machine.isAbortionRequested) else {
+        throw RuntimeError.eval(.cannotOpenAsset, expr, type)
+      }
+      return .port(Port(input: input))
+    } else {
+      throw RuntimeError.eval(.cannotOpenAsset, expr, type)
+    }
   }
   
   func openOutputFile(_ expr: Expr) throws -> Expr {

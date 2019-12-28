@@ -21,14 +21,16 @@
 import Foundation
 
 ///
-/// The `FileHandler` class is used to load LispKit source files (suffix ".scm") as well as
-/// LispKit library definition files (suffix ".sld"). Furthermore, the class provides a
-/// high-level file interface which used by the LispKit core library.
+/// The `FileHandler` class is used to load LispKit source files (suffix ".scm"),
+/// LispKit library definition files (suffix ".sld")  as well as assets (i.e. data that
+/// is not executable). Furthermore, the class provides a high-level file interface which
+/// is used by the LispKit core library.
 /// 
 public final class FileHandler {
   private let fileManager: FileManager
   public var searchUrls: [URL]
   public var librarySearchUrls: [URL]
+  public var assetSearchUrls: [URL]
   
   public var currentDirectoryPath: String {
     get {
@@ -44,6 +46,7 @@ public final class FileHandler {
     self.fileManager = FileManager.default
     self.searchUrls = []
     self.librarySearchUrls = []
+    self.assetSearchUrls = []
     if includeInternalResources {
       if let url = Context.bundle?.resourceURL?
                                   .appendingPathComponent("LispKit/Resources", isDirectory: true) {
@@ -58,6 +61,13 @@ public final class FileHandler {
           self.librarySearchUrls.append(url.absoluteURL)
         }
       }
+      if let url =
+          Context.bundle?.resourceURL?
+                         .appendingPathComponent("LispKit/Resources/Assets", isDirectory: true) {
+        if self.isDirectory(atPath: url.path) {
+          self.assetSearchUrls.append(url.absoluteURL)
+        }
+      }
     }
     if let docPath = includeDocumentPath, !docPath.isEmpty {
       for url in self.fileManager.urls(for: .documentDirectory, in: .userDomainMask) {
@@ -68,6 +78,10 @@ public final class FileHandler {
         let libUrl = rootUrl.appendingPathComponent("Libraries", isDirectory: true)
         if self.isDirectory(atPath: libUrl.path) {
           self.librarySearchUrls.append(libUrl)
+        }
+        let assetUrl = rootUrl.appendingPathComponent("Assets", isDirectory: true)
+        if self.isDirectory(atPath: assetUrl.path) {
+          self.librarySearchUrls.append(assetUrl)
         }
       }
     }
@@ -105,6 +119,22 @@ public final class FileHandler {
     return true
   }
   
+  public func addAssetSearchPath(_ path: String) -> Bool {
+    guard self.isDirectory(atPath: path) else {
+      return false
+    }
+    self.assetSearchUrls.append(URL(fileURLWithPath: path, isDirectory: true))
+    return true
+  }
+  
+  public func prependAssetSearchPath(_ path: String) -> Bool {
+    guard self.isDirectory(atPath: path) else {
+      return false
+    }
+    self.assetSearchUrls.insert(URL(fileURLWithPath: path, isDirectory: true), at: 0)
+    return true
+  }
+  
   public func filePath(forFile name: String, relativeTo root: String? = nil) -> String? {
     return self.searchFile(withName: name,
                            ofType: "scm",
@@ -117,6 +147,20 @@ public final class FileHandler {
                            ofType: "sld",
                            relativeTo: root,
                            findIn: self.librarySearchUrls)
+  }
+  
+  public func assetFilePath(forFile name: String,
+                            ofType type: String,
+                            inFolder folder: String? = nil,
+                            relativeTo root: String? = nil) -> String? {
+    var name = name
+    if let folder = folder {
+      name = (folder as NSString).appendingPathComponent(name)
+    }
+    return self.searchFile(withName: name,
+                           ofType: type,
+                           relativeTo: root,
+                           findIn: self.assetSearchUrls)
   }
   
   private func searchFile(withName name: String,

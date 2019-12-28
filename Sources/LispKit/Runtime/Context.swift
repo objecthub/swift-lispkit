@@ -106,6 +106,7 @@ public final class Context {
               initialHomePath: String? = nil,
               includeInternalResources: Bool = true,
               includeDocumentPath: String? = "LispKit",
+              assetPath: String? = nil,
               gcDelay: Double = 5.0,
               features: [String] = []) {
     // Initialize components
@@ -117,6 +118,9 @@ public final class Context {
     self.heap = Heap()
     self.fileHandler = FileHandler(includeInternalResources: includeInternalResources,
                                    includeDocumentPath: includeDocumentPath)
+    if let path = assetPath {
+      _ = self.fileHandler.addAssetSearchPath(path)
+    }
     self.sources = SourceManager()
     self.objects = ManagedObjectPool(marker: GarbageCollector(),
                                      gcDelay: gcDelay,
