@@ -46,7 +46,7 @@
 		CC26264420FA007800AC08E8 /* Plot.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC26264320FA003700AC08E8 /* Plot.scm */; };
 		CC26AD41214722960090D9EE /* turtle.sld in Copy pre-installed LispKit library: LispKit Draw Turtle */ = {isa = PBXBuildFile; fileRef = CC26AD3F214722120090D9EE /* turtle.sld */; };
 		CC299DFA23B7EDC6007B8459 /* HtmlColors.plist in Copy color list assets */ = {isa = PBXBuildFile; fileRef = CCCAF5AE23B7A71400FE2C60 /* HtmlColors.plist */; };
-		CC299DFE23B8096E007B8459 /* LispkitLogo.png in Copy image assets */ = {isa = PBXBuildFile; fileRef = CC299DFC23B80917007B8459 /* LispkitLogo.png */; };
+		CC299DFE23B8096E007B8459 /* LispKitLogo.png in Copy image assets */ = {isa = PBXBuildFile; fileRef = CC299DFC23B80917007B8459 /* LispKitLogo.png */; };
 		CC2A9DA82200E8C900F39194 /* Libraries.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC2A9DA72200E6E300F39194 /* Libraries.scm */; };
 		CC2C73C8219E2F8400B18661 /* comparator.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC2C73C4219E26D900B18661 /* comparator.sld */; };
 		CC2C73C9219E2F8400B18661 /* generator.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC2C73C5219E286D00B18661 /* generator.sld */; };
@@ -399,7 +399,7 @@
 			dstPath = LispKit/Resources/Assets/Images;
 			dstSubfolderSpec = 7;
 			files = (
-				CC299DFE23B8096E007B8459 /* LispkitLogo.png in Copy image assets */,
+				CC299DFE23B8096E007B8459 /* LispKitLogo.png in Copy image assets */,
 			);
 			name = "Copy image assets";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -741,7 +741,7 @@
 		CC26264120F9469100AC08E8 /* SRFI113.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = SRFI113.scm; sourceTree = "<group>"; };
 		CC26264320FA003700AC08E8 /* Plot.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Plot.scm; sourceTree = "<group>"; };
 		CC26AD3F214722120090D9EE /* turtle.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = turtle.sld; sourceTree = "<group>"; };
-		CC299DFC23B80917007B8459 /* LispkitLogo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = LispkitLogo.png; sourceTree = "<group>"; };
+		CC299DFC23B80917007B8459 /* LispKitLogo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = LispKitLogo.png; sourceTree = "<group>"; };
 		CC2A9DA72200E6E300F39194 /* Libraries.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Libraries.scm; sourceTree = "<group>"; };
 		CC2C73C4219E26D900B18661 /* comparator.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = comparator.sld; sourceTree = "<group>"; };
 		CC2C73C5219E286D00B18661 /* generator.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = generator.sld; sourceTree = "<group>"; };
@@ -1149,7 +1149,7 @@
 		CC299DFB23B808CF007B8459 /* Images */ = {
 			isa = PBXGroup;
 			children = (
-				CC299DFC23B80917007B8459 /* LispkitLogo.png */,
+				CC299DFC23B80917007B8459 /* LispKitLogo.png */,
 			);
 			path = Images;
 			sourceTree = "<group>";
