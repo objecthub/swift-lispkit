@@ -19,6 +19,7 @@
 //
 
 import Foundation
+import Cocoa
 import MarkdownKit
 
 public final class MarkdownLibrary: NativeLibrary {
@@ -127,6 +128,9 @@ public final class MarkdownLibrary: NativeLibrary {
     self.define(Procedure("markdown?", isMarkdown))
     self.define(Procedure("markdown=?", markdownEquals))
     self.define(Procedure("markdown->html", markdownToHtml))
+    self.define(Procedure("blocks->html", blocksToHtml))
+    self.define(Procedure("text->html", textToHtml))
+    self.define(Procedure("markdown->html-doc", markdownToHtmlDoc))
     self.define(Procedure("text->string", textToString))
     self.define(Procedure("text->raw-string", textToRawString))
   }
@@ -520,6 +524,159 @@ public final class MarkdownLibrary: NativeLibrary {
 
   private func markdownToHtml(_ md: Expr) throws -> Expr {
     return .makeString(HtmlGenerator.standard.generate(doc: try self.internMarkdown(block: md)))
+  }
+  
+  private func blocksToHtml(_ expr: Expr, tight: Expr?) throws -> Expr {
+    let tight = tight?.isTrue ?? false
+    switch expr {
+      case .pair(_ , _):
+        return .makeString(HtmlGenerator.standard.generate(blocks:
+                             try self.internMarkdown(blocks: expr), tight: tight))
+      case .tagged(.mpair(self.blockType), _):
+        return .makeString(HtmlGenerator.standard.generate(block:
+                             try self.internMarkdown(block: expr), tight: tight))
+      default:
+        throw RuntimeError.custom(
+          "type error", "blocks->html expects argument of type block or list of block; " +
+          "received \(expr)", [])
+    }
+  }
+  
+  private func textToHtml(_ expr: Expr) throws -> Expr {
+    switch expr {
+      case .pair(_ , _):
+        return .makeString(HtmlGenerator.standard.generate(text:
+                             try self.internMarkdown(text: expr)))
+      case .tagged(.mpair(self.inlineType), _):
+        return .makeString(HtmlGenerator.standard.generate(textFragment:
+                             try self.internMarkdown(fragment: expr)))
+      default:
+        throw RuntimeError.custom(
+          "type error", "text->html expects argument of type inline or list of inline; " +
+          "received \(expr)", [])
+    }
+  }
+  
+  private func markdownToHtmlDoc(md: Expr, args: Arguments) throws -> Expr {
+    var fontSize: Float = 14.0
+    var fontFamily = "\"Times New Roman\",Times,serif"
+    var fontColor = NSColor.textColor.hexString
+    var codeFontSize: Float = 13.0
+    var codeFontFamily = "\"Consolas\",\"Andale Mono\",\"Courier New\",Courier,monospace"
+    var codeFontColor = NSColor.textColor.hexString
+    var codeBlockFontSize: Float = 12.0
+    var codeBlockFontColor = NSColor.textColor.hexString
+    var codeBlockBackground = NSColor.textBackgroundColor.hexString
+    var borderColor = "#bbb"
+    var blockquoteColor = "#99c"
+    var h1Color = NSColor.textColor.hexString
+    var h2Color = NSColor.textColor.hexString
+    var h3Color = NSColor.textColor.hexString
+    var h4Color = NSColor.textColor.hexString
+    if args.count > 0 {
+      (fontSize, fontFamily, fontColor) = try self.asSizeFontColor(args.first!,
+                                                                   defaultSize: fontSize,
+                                                                   defaultFont: fontFamily,
+                                                                   defaultColor: fontColor)
+    }
+    if args.count > 1 {
+      (codeFontSize, codeFontFamily, codeFontColor) =
+        try self.asSizeFontColor(args[args.startIndex + 1],
+                                 defaultSize: codeFontSize,
+                                 defaultFont: codeFontFamily,
+                                 defaultColor: codeFontColor)
+    }
+    if args.count > 2 {
+      (codeBlockFontSize, codeBlockFontColor, codeBlockBackground) =
+        try self.asSizeFontColor(args[args.startIndex + 2],
+                                 defaultSize: codeBlockFontSize,
+                                 defaultFont: codeBlockFontColor,
+                                 defaultColor: codeBlockBackground)
+    }
+    if args.count > 3 {
+      var list = args[args.startIndex + 3]
+      if case .pair(let head, let tail) = list {
+        if !head.isFalse {
+          borderColor = try head.asString()
+        }
+        list = tail
+      }
+      if case .pair(let head, let tail) = list {
+        if !head.isFalse {
+          blockquoteColor = try head.asString()
+        }
+        list = tail
+      }
+      if case .pair(let head, let tail) = list {
+        if !head.isFalse {
+          h1Color = try head.asString()
+        }
+        list = tail
+      }
+      if case .pair(let head, let tail) = list {
+        if !head.isFalse {
+          h2Color = try head.asString()
+        }
+        list = tail
+      }
+      if case .pair(let head, let tail) = list {
+        if !head.isFalse {
+          h3Color = try head.asString()
+        }
+        list = tail
+      }
+      if case .pair(let head, _) = list {
+        if !head.isFalse {
+          h4Color = try head.asString()
+        }
+      }
+    }
+    let attribStrGen = AttributedStringGenerator(fontSize: fontSize,
+                                                 fontFamily: fontFamily,
+                                                 fontColor: fontColor,
+                                                 codeFontSize: codeFontSize,
+                                                 codeFontFamily: codeFontFamily,
+                                                 codeFontColor: codeFontColor,
+                                                 codeBlockFontSize: codeBlockFontSize,
+                                                 codeBlockFontColor: codeBlockFontColor,
+                                                 codeBlockBackground: codeBlockBackground,
+                                                 borderColor: borderColor,
+                                                 blockquoteColor: blockquoteColor,
+                                                 h1Color: h1Color,
+                                                 h2Color: h2Color,
+                                                 h3Color: h3Color,
+                                                 h4Color: h4Color)
+    return .makeString(
+              attribStrGen.generateHtml(
+                attribStrGen.htmlGenerator.generate(doc: try self.internMarkdown(block: md))))
+  }
+  
+  private func asSizeFontColor(_ expr: Expr,
+                               defaultSize: Float,
+                               defaultFont: String,
+                               defaultColor: String) throws -> (Float, String, String) {
+    guard !expr.isFalse else {
+      return (defaultSize, defaultFont, defaultColor)
+    }
+    switch expr {
+      case .pair(let size, .pair(let font, .pair(let color, .null))):
+        return (size.isFalse ? defaultSize : Float(try size.asDouble(coerce: true)),
+                font.isFalse ? defaultFont : try font.asString(),
+                color.isFalse ? defaultColor : try color.asString())
+      case .pair(let size, .pair(let font, .null)):
+        return (size.isFalse ? defaultSize : Float(try size.asDouble(coerce: true)),
+                font.isFalse ? defaultFont : try font.asString(),
+                defaultColor)
+      case .pair(let size, .null):
+        return (size.isFalse ? defaultSize : Float(try size.asDouble(coerce: true)),
+                defaultFont,
+                defaultColor)
+      case .null:
+        return (defaultSize, defaultFont, defaultColor)
+      default:
+        throw RuntimeError.custom("type error", "triple (float, font, color) needs to be " +
+                                                "represented by a list of up to three elements", [])
+    }
   }
 
   private func textToString(_ expr: Expr) throws -> Expr {

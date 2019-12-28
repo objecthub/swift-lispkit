@@ -20,6 +20,7 @@
 
 import Foundation
 import Cocoa
+import MarkdownKit
 
 ///
 /// This class implements the library `(lispkit draw)`. 
@@ -134,6 +135,7 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("draw-ellipse", drawEllipse))
     self.define(Procedure("fill-ellipse", fillEllipse))
     self.define(Procedure("draw-text", drawText))
+    self.define(Procedure("draw-html", drawHtml))
     self.define(Procedure("draw-image", drawImage))
     self.define(Procedure("draw-drawing", drawDrawing))
     self.define(Procedure("inline-drawing", inlineDrawing))
@@ -182,6 +184,7 @@ public final class DrawingLibrary: NativeLibrary {
     // Colors
     self.define(Procedure("color?", isColor))
     self.define(Procedure("color", color))
+    self.define(Procedure("color->hex", colorToHex))
     self.define(Procedure("color-red", colorRed))
     self.define(Procedure("color-green", colorGreen))
     self.define(Procedure("color-blue", colorBlue))
@@ -527,6 +530,17 @@ public final class DrawingLibrary: NativeLibrary {
     return .void
   }
   
+  private func asObjectLocation(_ location: Expr) throws -> ObjectLocation {
+    switch location {
+      case .pair(.flonum(let x), .flonum(let y)):
+        return .position(NSPoint(x: x, y: y))
+      case .pair(.pair(.flonum(let x), .flonum(let y)), .pair(.flonum(let w), .flonum(let h))):
+        return .boundingBox(NSRect(x: x, y: y, width: w, height: h))
+      default:
+        throw RuntimeError.eval(.invalidPoint, location)
+    }
+  }
+  
   private func drawText(text: Expr,
                         location: Expr,
                         font: Expr,
@@ -539,20 +553,26 @@ public final class DrawingLibrary: NativeLibrary {
     guard case .object(let obj2) = color, let clr = obj2 as? Color else {
       throw RuntimeError.type(color, expected: [Color.type])
     }
-    let loc: ObjectLocation
-    switch location {
-      case .pair(.flonum(let x), .flonum(let y)):
-        loc = .position(NSPoint(x: x, y: y))
-      case .pair(.pair(.flonum(let x), .flonum(let y)), .pair(.flonum(let w), .flonum(let h))):
-        loc = .boundingBox(NSRect(x: x, y: y, width: w, height: h))
-      default:
-        throw RuntimeError.eval(.invalidPoint, location)
-    }
+    let loc = try self.asObjectLocation(location)
     try self.drawing(from: drawing).append(.text(try text.asString(),
                                                  font: fnt,
                                                  color: clr,
                                                  style: nil,
                                                  at: loc))
+    return .void
+  }
+  
+  private func drawHtml(text: Expr,
+                        location: Expr,
+                        drawing: Expr?) throws -> Expr {
+    let http = Data(try text.asString().utf8)
+    let loc = try self.asObjectLocation(location)
+    let attribStr =
+      try NSAttributedString(data: http,
+                             options: [.documentType: NSAttributedString.DocumentType.html,
+                                       .characterEncoding: String.Encoding.utf8.rawValue],
+                             documentAttributes: nil)
+    try self.drawing(from: drawing).append(.attributedText(attribStr, at: loc))
     return .void
   }
   
@@ -1211,6 +1231,13 @@ public final class DrawingLibrary: NativeLibrary {
                          green: try green.asDouble(coerce: true),
                          blue: try blue.asDouble(coerce: true),
                          alpha: try (alpha ?? .flonum(1.0)).asDouble(coerce: true)))
+  }
+  
+  private func colorToHex(expr: Expr) throws -> Expr {
+    guard case .object(let obj) = expr, let color = obj as? Color else {
+      throw RuntimeError.type(expr, expected: [Color.type])
+    }
+    return .makeString(color.nsColor.hexString)
   }
   
   private func colorRed(_ expr: Expr) throws -> Expr {
