@@ -36,6 +36,7 @@ open class LispKitRepl {
   // Flags
   public let flags: Flags
   public let filePaths: RepeatedArgument<String>
+  public let assetPaths: RepeatedArgument<String>
   public let libPaths: RepeatedArgument<String>
   public let roots: RepeatedArgument<String>
   public let searchDocs: SingletonArgument<String>
@@ -70,9 +71,11 @@ open class LispKitRepl {
     self.flags = f
     // Process flags
     self.filePaths  = f.strings("f", "filepath",
-                                description: "Adds file path in which programs are searched for.")
+                                description: "Adds file paths in which programs are searched for.")
     self.libPaths   = f.strings("l", "libpath",
-                                description: "Adds file path in which libraries are searched for.")
+                                description: "Adds file paths in which libraries are searched for.")
+    self.assetPaths = f.strings("a", "assetpath",
+                                description: "Adds file paths in which assets are searched for.")
     self.searchDocs = f.string("d", "documents",
                                description: "Search for files and libraries in " +
                                             "~/Documents/LispKit folder.")
@@ -183,6 +186,7 @@ open class LispKitRepl {
                                      implementationVersion: String? = nil,
                                      includeInternalResources: Bool = true,
                                      defaultDocDirectory: String? = nil,
+                                     assetPath: String? = nil,
                                      features: [String] = [],
                                      initialLibraries: [String] = []) -> Bool {
     // Determine remaining command-line args
@@ -195,6 +199,7 @@ open class LispKitRepl {
                            commandLineArguments: cmdLineArgs,
                            includeInternalResources: includeInternalResources,
                            includeDocumentPath: self.searchDocs.value ?? defaultDocDirectory,
+                           assetPath: assetPath,
                            features: features)
     // Configure heap capacity
     if let capacity = self.heapSize.value {
@@ -252,6 +257,12 @@ open class LispKitRepl {
       for p in self.libPaths.value {
         guard self.printError(if: !context.fileHandler.addLibrarySearchPath(p),
                               "cannot add library path: \(p)") else {
+          return false
+        }
+      }
+      for p in self.assetPaths.value {
+        guard self.printError(if: !context.fileHandler.addAssetSearchPath(p),
+                              "cannot add asset path: \(p)") else {
           return false
         }
       }
