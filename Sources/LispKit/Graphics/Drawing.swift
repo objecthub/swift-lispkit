@@ -397,14 +397,19 @@ public enum DrawingInstruction {
           case .boundingBox(let box):
             textRect = box
         }
-        str.draw(in: textRect, withAttributes: attributes)
+        str.draw(with: textRect,
+                 options: [.usesLineFragmentOrigin, .usesFontLeading],
+                 attributes: attributes)
       case .attributedText(let attribStr, let location):
+        let textRect: NSRect
         switch location {
           case .position(let point):
-            attribStr.draw(at: point)
+            textRect = NSRect(x: point.x, y: point.y,
+                              width: CGFloat.infinity, height: CGFloat.infinity)
           case .boundingBox(let box):
-            attribStr.draw(in: box)
+            textRect = box
         }
+        attribStr.draw(with: textRect, options: [.usesLineFragmentOrigin, .usesFontLeading])
       case .image(let image, let location, let oper, let opacity):
         switch location {
           case .position(let point):

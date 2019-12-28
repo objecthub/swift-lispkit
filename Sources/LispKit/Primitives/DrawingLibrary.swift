@@ -223,7 +223,8 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("move-rect", moveRect))
     
     // Utilities
-    self.define(Procedure("text-bounds", textBounds))
+    self.define(Procedure("text-size", textSize))
+    self.define(Procedure("html-size", htmlSize))
     
     // Define constants
     self.define("zero-point", via: "(define zero-point (point 0 0))")
@@ -1638,12 +1639,12 @@ public final class DrawingLibrary: NativeLibrary {
     return res
   }
   
-  private func textBounds(text: Expr,
+  private func textSize(text: Expr,
                           font: Expr?,
                           dimensions: Expr?) throws -> Expr {
     let str = try text.asString()
     let fnt: NSFont
-    if let font = font {
+    if let font = font, !font.isFalse {
       guard case .object(let obj) = font, let f = (obj as? NativeFont)?.value else {
         throw RuntimeError.type(font, expected: [NativeFont.type])
       }
@@ -1655,6 +1656,8 @@ public final class DrawingLibrary: NativeLibrary {
     switch dimensions {
       case .none:
         size = NSSize(width: CGFloat.infinity, height: CGFloat.infinity)
+      case .some(.flonum(let w)):
+        size = NSSize(width: CGFloat(w), height: CGFloat.infinity)
       case .some(.pair(.flonum(let w), .flonum(let h))):
         size = NSSize(width: w, height: h)
       default:
@@ -1662,9 +1665,32 @@ public final class DrawingLibrary: NativeLibrary {
     }
     let pstyle: NSParagraphStyle = .default
     let attributes = [.font: fnt, .paragraphStyle: pstyle] as [NSAttributedString.Key: Any]
-    let rect = str.boundingRect(with: size, attributes: attributes)
-    return .pair(.pair(.flonum(Double(rect.minX)), .flonum(Double(rect.minY))),
-                 .pair(.flonum(Double(rect.width)), .flonum(Double(rect.height))))
+    let rect = str.boundingRect(with: size,
+                                options: [.usesLineFragmentOrigin, .usesFontLeading],
+                                attributes: attributes)
+    return .pair(.flonum(Double(rect.width)), .flonum(Double(rect.height)))
+  }
+  
+  private func htmlSize(text: Expr, dimensions: Expr?) throws -> Expr {
+    let http = Data(try text.asString().utf8)
+    let str =
+      try NSAttributedString(data: http,
+                             options: [.documentType: NSAttributedString.DocumentType.html,
+                                       .characterEncoding: String.Encoding.utf8.rawValue],
+                             documentAttributes: nil)
+    let size: NSSize
+    switch dimensions {
+      case .none:
+        size = NSSize(width: CGFloat.infinity, height: CGFloat.infinity)
+      case .some(.flonum(let w)):
+        size = NSSize(width: CGFloat(w), height: CGFloat.infinity)
+      case .some(.pair(.flonum(let w), .flonum(let h))):
+        size = NSSize(width: w, height: h)
+      default:
+        throw RuntimeError.eval(.invalidSize, dimensions!)
+    }
+    let rect = str.boundingRect(with: size, options: [.usesLineFragmentOrigin, .usesFontLeading])
+    return .pair(.flonum(Double(rect.width)), .flonum(Double(rect.height)))
   }
 }
 
