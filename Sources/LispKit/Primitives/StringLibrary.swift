@@ -40,6 +40,8 @@ public final class StringLibrary: NativeLibrary {
     self.define(Procedure("string?", isString))
     self.define(Procedure("string-empty?", isStringEmpty))
     self.define(Procedure("make-string", makeString))
+    self.define(Procedure("read-file", readFile))
+    self.define(Procedure("write-file", writeFile))
     self.define(Procedure("string", string))
     self.define(Procedure("string-ref", stringRef))
     self.define(Procedure("string-set!", stringSet))
@@ -117,9 +119,32 @@ public final class StringLibrary: NativeLibrary {
   }
   
   func makeString(_ k: Expr, ch: Expr?) throws -> Expr {
-    let uniChars = Array<UniChar>(repeating: try ch?.asUniChar() ?? UniChar(" "),
-                                  count: try k.asInt())
-    return .string(NSMutableString(string: String(utf16CodeUnits: uniChars, count: uniChars.count)))
+    let n = try k.asInt()
+    if n == 0 {
+      return .string(NSMutableString())
+    } else {
+      let uniChars = Array<UniChar>(repeating: try ch?.asUniChar() ?? UniChar(" "),
+                                    count: n)
+      return .string(NSMutableString(string: String(utf16CodeUnits: uniChars,
+                                                    count: uniChars.count)))
+    }
+  }
+
+  func readFile(_ path: Expr) throws -> Expr {
+    var enc: UInt = 0
+    return .string(try NSMutableString(contentsOfFile: try path.asPath(),
+                                       usedEncoding: &enc))
+  }
+
+  func writeFile(_ path: Expr, _ str: Expr) throws -> Expr {
+    let path = try path.asPath()
+    let str = try str.asMutableStr()
+    do {
+      try str.write(toFile: path, atomically: false, encoding: String.Encoding.utf8.rawValue)
+      return .true
+    } catch {
+      return .false
+    }
   }
   
   func string(_ exprs: Arguments) throws -> Expr {

@@ -18,7 +18,7 @@
 //  limitations under the License.
 //
 
-import Foundation
+import Cocoa
 
 ///
 /// Bytevector library: based on R7RS spec.
@@ -35,6 +35,8 @@ public final class BytevectorLibrary: NativeLibrary {
     self.define(Procedure("bytevector?", isBytevector))
     self.define(Procedure("bytevector", bytevector))
     self.define(Procedure("make-bytevector", makeBytevector))
+    self.define(Procedure("read-binary-file", readBinaryFile))
+    self.define(Procedure("write-binary-file", writeBinaryFile))
     self.define(Procedure("bytevector-length", bytevectorLength))
     self.define(Procedure("bytevector-u8-ref", bytevectorU8Ref))
     self.define(Procedure("bytevector-u8-set!", bytevectorU8Set))
@@ -70,7 +72,21 @@ public final class BytevectorLibrary: NativeLibrary {
     return .bytes(MutableBox([UInt8](repeating: try byte?.asUInt8() ?? 0,
                                      count: try len.asInt())))
   }
-  
+
+  func readBinaryFile(_ path: Expr) throws -> Expr {
+    let data = try NSData(contentsOfFile: try path.asPath(), options: [])
+    var res = [UInt8](repeating: 0, count: data.count)
+    data.getBytes(&res, length: data.count)
+    return .bytes(MutableBox(res))
+  }
+
+  func writeBinaryFile(_ path: Expr, _ bvec: Expr, args: Arguments) throws -> Expr {
+    let path = try path.asPath()
+    var subvec = try self.subVector("write-binary-file", bvec, args)
+    let data = NSData(bytesNoCopy: &subvec, length: subvec.count, freeWhenDone: false)
+    return .makeBoolean(data.write(toFile: path, atomically: false))
+  }
+
   func bytevectorLength(_ expr: Expr) throws -> Expr {
     return .makeNumber(try expr.asByteVector().value.count)
   }

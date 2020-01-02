@@ -218,6 +218,8 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("size", size))
     self.define(Procedure("size-width", sizeWidth))
     self.define(Procedure("size-height", sizeHeight))
+    self.define(Procedure("increase-size", increaseSize))
+    self.define(Procedure("scale-size", scaleSize))
     self.define(Procedure("rect?", isRect))
     self.define(Procedure("rect", rect))
     self.define(Procedure("rect-point", rectPoint))
@@ -1471,6 +1473,22 @@ public final class DrawingLibrary: NativeLibrary {
     }
     return .flonum(h)
   }
+
+  private func increaseSize(expr: Expr, dw: Expr, dh: Expr) throws -> Expr {
+    guard case .pair(.flonum(let w), .flonum(let h)) = expr else {
+      throw RuntimeError.eval(.invalidSize, expr)
+    }
+    return try .pair(.flonum(w + dw.asDouble(coerce: true)),
+                     .flonum(h + dh.asDouble(coerce: true)))
+  }
+
+  private func scaleSize(expr: Expr, f: Expr) throws -> Expr {
+    guard case .pair(.flonum(let w), .flonum(let h)) = expr else {
+      throw RuntimeError.eval(.invalidSize, expr)
+    }
+    let factor = try f.asDouble(coerce: true)
+    return .pair(.flonum(w * factor), .flonum(h * factor))
+  }
   
   private func isRect(expr: Expr) throws -> Expr {
     guard case .pair(.pair(.flonum(_), .flonum(_)), .pair(.flonum(_), .flonum(_))) = expr else {
@@ -1698,12 +1716,10 @@ public final class DrawingLibrary: NativeLibrary {
     switch dimensions {
       case .none:
         size = NSSize(width: CGFloat.infinity, height: CGFloat.infinity)
-      case .some(.flonum(let w)):
-        size = NSSize(width: CGFloat(w), height: CGFloat.infinity)
       case .some(.pair(.flonum(let w), .flonum(let h))):
         size = NSSize(width: w, height: h)
-      default:
-        throw RuntimeError.eval(.invalidSize, dimensions!)
+      case .some(let w):
+        size = NSSize(width: CGFloat(try w.asDouble(coerce: true)), height: CGFloat.infinity)
     }
     let pstyle: NSParagraphStyle = .default
     let attributes = [.font: fnt, .paragraphStyle: pstyle] as [NSAttributedString.Key: Any]
@@ -1724,12 +1740,10 @@ public final class DrawingLibrary: NativeLibrary {
     switch dimensions {
       case .none:
         size = NSSize(width: CGFloat.infinity, height: CGFloat.infinity)
-      case .some(.flonum(let w)):
-        size = NSSize(width: CGFloat(w), height: CGFloat.infinity)
       case .some(.pair(.flonum(let w), .flonum(let h))):
         size = NSSize(width: w, height: h)
-      default:
-        throw RuntimeError.eval(.invalidSize, dimensions!)
+      case .some(let w):
+        size = NSSize(width: CGFloat(try w.asDouble(coerce: true)), height: CGFloat.infinity)
     }
     let rect = str.boundingRect(with: size, options: [.usesLineFragmentOrigin, .usesFontLeading])
     return .pair(.flonum(Double(rect.width)), .flonum(Double(rect.height)))
