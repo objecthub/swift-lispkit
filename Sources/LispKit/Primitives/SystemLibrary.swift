@@ -65,7 +65,12 @@ public final class SystemLibrary: NativeLibrary {
     self.compileAndEvalFirstProc =
       Procedure("_compileAndEvalFirst", self.compileAndEvalFirst)
     self.define("current-directory", as: self.currentDirectoryProc)
+    self.define(SpecialForm("source-directory", self.compileSourceDirectory))
+    self.define(Procedure("path", self.path))
+    self.define(Procedure("parent-path", self.parentPath))
+    self.define(Procedure("path-components", self.pathComponents))
     self.define(Procedure("file-path", self.filePath))
+    self.define(Procedure("asset-file-path", self.assetFilePath))
     self.define(Procedure("parent-file-path", self.parentFilePath))
     self.define(Procedure("file-path-root?", self.filePathRoot))
     self.define(Procedure("load", self.load))
@@ -128,12 +133,67 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("http-get", httpGet))
   }
 
+  private func compileSourceDirectory(compiler: Compiler,
+                                      expr: Expr,
+                                      env: Env,
+                                      tail: Bool) throws -> Bool {
+    guard case .pair(_, .null) = expr else {
+      throw RuntimeError.argumentCount(of: "source-file-path", num: 0, expr: expr)
+    }
+    try compiler.pushValue(.makeString(compiler.sourceDirectory))
+    return false
+  }
+
+  private func path(expr: Expr, args: Arguments) throws -> Expr {
+    if let base = URL(string: try expr.asPath()) {
+      var res = base
+      for arg in args {
+        res.appendPathComponent(try arg.asString())
+      }
+      return .makeString(res.relativePath)
+    } else {
+      return .false
+    }
+  }
+
+  private func parentPath(expr: Expr) throws -> Expr {
+    if let base = URL(string: try expr.asPath()) {
+      return .makeString(base.deletingLastPathComponent().relativePath)
+    } else {
+      return .false
+    }
+  }
+
+  private func pathComponents(expr: Expr) throws -> Expr {
+    if let url = URL(string: try expr.asPath()) {
+      var res = Expr.null
+      for component in url.pathComponents.reversed() {
+        res = .pair(.makeString(component), res)
+      }
+      return res
+    } else {
+      return .false
+    }
+  }
+
   private func filePath(expr: Expr, base: Expr?) throws -> Expr {
     var root = self.currentDirectoryPath
     if let base = try base?.asPath() {
       root = self.context.fileHandler.path(base, relativeTo: self.currentDirectoryPath)
     }
     return .makeString(self.context.fileHandler.path(try expr.asString(), relativeTo: root))
+  }
+
+  private func assetFilePath(_ expr: Expr, _ type: Expr, _ dir: Expr?) throws -> Expr {
+    if let filename = self.context.fileHandler.assetFilePath(
+                        forFile: try expr.asString(),
+                        ofType: try type.asString(),
+                        inFolder: try dir?.asPath(),
+                        relativeTo: self.currentDirectoryPath) {
+      return .makeString(filename)
+    } else {
+      return .false
+    }
   }
 
   private func parentFilePath(expr: Expr) throws -> Expr {

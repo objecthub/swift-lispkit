@@ -154,8 +154,8 @@ public final class FileHandler {
                             inFolder folder: String? = nil,
                             relativeTo root: String? = nil) -> String? {
     var name = name
-    if let folder = folder {
-      name = (folder as NSString).appendingPathComponent(name)
+    if let folder = folder, let folderUrl = URL(string: folder) {
+      name = folderUrl.appendingPathComponent(name).relativePath
     }
     return self.searchFile(withName: name,
                            ofType: type,
@@ -210,11 +210,13 @@ public final class FileHandler {
   public func directory(_ path: String, relativeTo root: String? = nil) -> String {
     if let root = root {
       return URL(fileURLWithPath: path,
-                 relativeTo: URL(fileURLWithPath: root, isDirectory: true)).deletingLastPathComponent()
+                 relativeTo: URL(fileURLWithPath: root,
+                                 isDirectory: true)).deletingLastPathComponent()
              .absoluteURL.path
     } else {
       return URL(fileURLWithPath: path,
-                 relativeTo: URL(fileURLWithPath: self.currentDirectoryPath, isDirectory: true))
+                 relativeTo: URL(fileURLWithPath: self.currentDirectoryPath,
+                                 isDirectory: true))
              .deletingLastPathComponent().absoluteURL.path
     }
   }
