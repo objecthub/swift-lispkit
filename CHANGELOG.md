@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.8.3 (2020-01-19)
+- New libraries: `(lispkit markdown)`, `(lispkit disjoint-set)`, `(srfi 167)`, `(srfi 98)`, `(srfi 87)`
+- Extended library `(lispkit system)` with procedures `asset-file-path`, `path-components`, `parent-path`, `path`, and `source-directory`
+- Extended library `(lispkit bytevector)` with procedures `read-binary-file` and `write-binary-file`
+- Extended library `(lispkit string)` with procedures `write-file`, `read-file`, `string-pad-center`, `string-empty?`; `string-concatenate` now supports an optional separator character
+- Extended library `(lispkit port)` with procedures `open-input-asset`, `open-binary-input-asset`, `call-with-output-bytevector`, and `call-with-output-string`
+- Extended library `(lispkit hashtable)` with procedure `hashtable-empty-copy`; `hashtable-hash-function` can now return a hash function for all hashtables
+- Extended library `(lispkit math)` with procedure `fxsqrt`
+- Extended library `(lispkit core)` with procedure `opt`
+- Extended library `(lispkit draw)` to support assets, color lists and drawing of HTML
+- Added character set `char-set:newlines` to `(lispkit char-set)`
+- Extended sample code `Math.scm`
+- New sample code `SpellNumbers.scm`
+- Introduced asset concept, enabling libraries to depend on data files in an extensible fashion
+
 ## 1.8.2 (2019-11-21)
 - Extend pattern language supported by library `(lispkit datatype)`
 - Support `append-map` and `filter-map` in `(lispkit list)`; support `fxsqrt` in `(lispkit math)`; new functions in `(lispkit string)`: `string-empty?`, `string-pad-center`; `string-concatenate` now supports an optional separator character

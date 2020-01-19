@@ -1,7 +1,11 @@
-;;; LISPKIT REGRESSION TEST SUITE
+;;; SRFI 87
+;;; `=>` in case clauses
 ;;;
-;;; Author: Matthias Zenger
-;;; Copyright © 2019-2020 Matthias Zenger. All rights reserved.
+;;; This SRFI proposes an extension to the `case` syntax to allow `=>` clauses as in `cond`.
+;;;
+;;; Author of spec: Chongkai Zhu
+;;;
+;;; Copyright © 2020 Matthias Zenger. All rights reserved.
 ;;;
 ;;; Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 ;;; except in compliance with the License. You may obtain a copy of the License at
@@ -13,23 +17,11 @@
 ;;; either express or implied. See the License for the specific language governing permissions
 ;;; and limitations under the License.
 
-(import (lispkit base)
-        (lispkit test))
+(define-library (srfi 87)
 
-(test-begin "LispKit regression tests")
+  (export case)
 
-(load "Tests/R7RS")
-(load "Tests/LispKit-Match")
-(load "Tests/SRFI-14")
-(load "Tests/SRFI-101")
-(load "Tests/SRFI-125")
-(load "Tests/SRFI-146")
-(load "Tests/SRFI-165")
-(load "Tests/SRFI-167")
-(load "Tests/SRFI-173")
-(load "Tests/SRFI-174")
-(load "Tests/SRFI-175")
+  (import (lispkit control))
 
-(test-end)
-
-;; Current number of failures: 23 (all from R7RS-Tests)
+  ;; The form is implemented natively in library `(lispkit control)`
+)

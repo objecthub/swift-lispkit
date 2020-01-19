@@ -94,7 +94,8 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit set)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Set),
     `(lispkit stack)`, 
     `(lispkit queue)`,
-    `(lispkit heap)`,
+    [`(lispkit heap)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Heap),
+    [`(lispkit disjoint-set)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Disjoint-Set),
     `(lispkit wt-tree)`,
     `(lispkit comparator)`,
     `(lispkit logic)`,
@@ -102,8 +103,8 @@ _LispKit_ provides support for the following core features, many of which are ba
     `(lispkit test)`, 
     `(lispkit prettify)`,
     `(lispkit csv)`,
-    `(lispkit json)`,
     [`(lispkit markdown)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Markdown),
+    `(lispkit json)`,
     and `(lispkit pdf)`.
 
 _LispKit_ is incompatible or incomplete with respect to the following R7RS features:
@@ -140,7 +141,9 @@ framework:
   - [SRFI 63: Homogeneous and Heterogeneous Arrays](https://srfi.schemers.org/srfi-63/srfi-63.html)
   - [SRFI 64: A Scheme API for test suites](https://srfi.schemers.org/srfi-64/srfi-64.html)
   - [SRFI 69: Basic hash tables](https://srfi.schemers.org/srfi-69/srfi-69.html)
+  - [SRFI 87: `=>` in case clauses](https://srfi.schemers.org/srfi-87/srfi-87.html)
   - [SRFI 95: Sorting and Merging](https://srfi.schemers.org/srfi-95/srfi-95.html)
+  - [SRFI 98: An interface to access environment variables](https://srfi.schemers.org/srfi-98/srfi-98.html)
   - [SRFI 101: Purely Functional Random-Access Pairs and Lists](https://srfi.schemers.org/srfi-101/srfi-101.html)
   - [SRFI 111: Boxes](https://srfi.schemers.org/srfi-111/srfi-111.html)
   - [SRFI 112: Environment inquiry](https://srfi.schemers.org/srfi-112/srfi-112.html)

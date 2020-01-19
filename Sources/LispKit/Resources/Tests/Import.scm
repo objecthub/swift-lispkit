@@ -3,7 +3,7 @@
 ;;; This code imports all libraries coming with LispKit for testing purposes.
 ;;;
 ;;; Author: Matthias Zenger
-;;; Copyright © 2019 Matthias Zenger. All rights reserved.
+;;; Copyright © 2019-2020 Matthias Zenger. All rights reserved.
 ;;;
 ;;; Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 ;;; except in compliance with the License. You may obtain a copy of the License at
@@ -26,6 +26,7 @@
 (import (lispkit char-set))
 (import (lispkit regexp))
 (import (lispkit draw))
+(import (lispkit markdown))
 
 (display "LispKit non-native")(newline)
 
@@ -52,6 +53,7 @@
 (import (lispkit json))
 (import (lispkit pdf))
 (import (lispkit clos))
+(import (lispkit disjoint-set))
 
 ;; SRFI
 
@@ -82,7 +84,9 @@
 (import (srfi 63))
 (import (srfi 64))
 (import (srfi 69))
+(import (srfi 87))
 (import (srfi 95))
+(import (srfi 98))
 (import (srfi 111))
 (import (srfi 112))
 (import (srfi 113))

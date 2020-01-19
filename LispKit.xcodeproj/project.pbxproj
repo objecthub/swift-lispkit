@@ -251,6 +251,8 @@
 		CCA6C3D42361149D007D2AF0 /* MarkdownKit in Frameworks */ = {isa = PBXBuildFile; productRef = CCA6C3D32361149D007D2AF0 /* MarkdownKit */; };
 		CCA752F41DEF9E410098C34A /* Prelude.scm in Copy default prelude */ = {isa = PBXBuildFile; fileRef = CCAD52D51C48467D00DBD8EE /* Prelude.scm */; };
 		CCA7DC2E2387602500785FBE /* SRFI-175.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCA7DC2D23875FE500785FBE /* SRFI-175.scm */; };
+		CCA8017223D4AF8E005F2323 /* 87.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCA8017123D4AD87005F2323 /* 87.sld */; };
+		CCA8017323D4AF8E005F2323 /* 98.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCA8017023D4AC91005F2323 /* 98.sld */; };
 		CCAD52BE1C48403900DBD8EE /* LispKit.h in Headers */ = {isa = PBXBuildFile; fileRef = CCAD52BD1C48403900DBD8EE /* LispKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		CCAD52C51C48403900DBD8EE /* LispKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCAD52BA1C48403800DBD8EE /* LispKit.framework */; };
 		CCAD52CA1C48403900DBD8EE /* SmallTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCAD52C91C48403900DBD8EE /* SmallTests.swift */; };
@@ -632,6 +634,8 @@
 			dstPath = LispKit/Resources/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
+				CCA8017223D4AF8E005F2323 /* 87.sld in Copy pre-installed SRFI libraries */,
+				CCA8017323D4AF8E005F2323 /* 98.sld in Copy pre-installed SRFI libraries */,
 				CC498A8B23882C35002734E0 /* 175.sld in Copy pre-installed SRFI libraries */,
 				CC6BB91B235CFC6300D7CAA1 /* 177.sld in Copy pre-installed SRFI libraries */,
 				CC5E53082357A2FA00C72CE2 /* 174.sld in Copy pre-installed SRFI libraries */,
@@ -941,6 +945,8 @@
 		CCA31282204CB7CB0026FF13 /* EvalError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvalError.swift; sourceTree = "<group>"; };
 		CCA6C3D023610674007D2AF0 /* MarkdownLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownLibrary.swift; sourceTree = "<group>"; };
 		CCA7DC2D23875FE500785FBE /* SRFI-175.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-175.scm"; sourceTree = "<group>"; };
+		CCA8017023D4AC91005F2323 /* 98.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 98.sld; sourceTree = "<group>"; };
+		CCA8017123D4AD87005F2323 /* 87.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 87.sld; sourceTree = "<group>"; };
 		CCAD52BA1C48403800DBD8EE /* LispKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = LispKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CCAD52BD1C48403900DBD8EE /* LispKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LispKit.h; sourceTree = "<group>"; };
 		CCAD52BF1C48403900DBD8EE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -1317,7 +1323,9 @@
 				CCC072451F9AA8B70063974E /* 64.sld */,
 				CC2C73D821A1F3E800B18661 /* 69 */,
 				CC5E473C20D2D8B600F21B03 /* 69.sld */,
+				CCA8017123D4AD87005F2323 /* 87.sld */,
 				CC703A20218D122100E71EA9 /* 95.sld */,
+				CCA8017023D4AC91005F2323 /* 98.sld */,
 				CC54923821D97F53004A0652 /* 101.sld */,
 				CC26263B20F56DBF00AC08E8 /* 111.sld */,
 				CC26263D20F56F9300AC08E8 /* 112.sld */,
@@ -2112,7 +2120,7 @@
 					"@loader_path/Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 1.8.2;
+				MARKETING_VERSION = 1.8.3;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispKitTools;
@@ -2149,7 +2157,7 @@
 					"@loader_path/Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 1.8.2;
+				MARKETING_VERSION = 1.8.3;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispKitTools;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";

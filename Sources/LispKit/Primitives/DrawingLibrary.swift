@@ -1700,8 +1700,8 @@ public final class DrawingLibrary: NativeLibrary {
   }
   
   private func textSize(text: Expr,
-                          font: Expr?,
-                          dimensions: Expr?) throws -> Expr {
+                        font: Expr?,
+                        dimensions: Expr?) throws -> Expr {
     let str = try text.asString()
     let fnt: NSFont
     if let font = font, !font.isFalse {
