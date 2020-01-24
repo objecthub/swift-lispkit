@@ -1735,5 +1735,20 @@ public final class VirtualMachine: TrackedObject {
     res += "╚══════════════════════════════════════════════════════\n"
     return res
   }
+  
+  /// Reset virtual machine
+  public func reset() {
+    self.stack = Exprs(repeating: .undef, count: 1024)
+    self.sp = 0
+    self.maxSp = 0
+    self.registers = Registers(code: Code([], [], []), captured: [], fp: 0, root: true)
+    self.winders = nil
+    self.parameters = HashTable(equiv: .eq)
+    self.execInstr = 0
+    self.setParameterProc = Procedure("_set-parameter", self.setParameter, nil)
+    self.raiseProc = nil
+    self.abortionRequested = false
+    self.exitTriggered = false
+    self.traceCalls = .off
+  }
 }
-

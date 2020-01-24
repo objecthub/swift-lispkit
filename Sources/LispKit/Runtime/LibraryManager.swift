@@ -175,4 +175,10 @@ public final class LibraryManager: TrackedObject, CustomStringConvertible {
       library.mark(in: gc)
     }
   }
+  
+  /// Reset library manager
+  public func reset() {
+    self.libraries.removeAll()
+    self.unknownLibraries.removeAll()
+  }
 }

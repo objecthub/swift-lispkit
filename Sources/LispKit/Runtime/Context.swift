@@ -186,4 +186,13 @@ public final class Context {
   public var global: Env {
     return .global(self.environment)
   }
+  
+  /// Reset this context
+  public func reset() {
+    self.heap.reset()
+    self.libraries.reset()
+    self.sources.reset()
+    self.symbols.reset()
+    self.machine.reset()
+  }
 }

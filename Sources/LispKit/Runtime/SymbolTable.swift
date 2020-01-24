@@ -73,6 +73,10 @@ public final class SymbolTable: Sequence {
   public let starThree       = Symbol("*3")
   
   public init() {
+    self.registerNativeSymbols()
+  }
+  
+  public func registerNativeSymbols() {
     func register(_ sym: Symbol) {
       self.symTable[sym.identifier] = sym
     }
@@ -152,5 +156,12 @@ public final class SymbolTable: Sequence {
   public func makeIterator() -> AnyIterator<Symbol> {
     var generator = self.symTable.values.makeIterator()
     return AnyIterator { return generator.next() }
+  }
+  
+  /// Reset symbol table
+  public func reset() {
+    self.symTable = [:]
+    self.gensymCounter = 0
+    self.registerNativeSymbols()
   }
 }

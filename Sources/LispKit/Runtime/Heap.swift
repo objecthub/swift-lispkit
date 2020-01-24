@@ -62,4 +62,9 @@ public final class Heap: TrackedObject {
       gc.markLater(loc)
     }
   }
+  
+  /// Reset heap
+  public func reset() {
+    self.locations.removeAll()
+  }
 }

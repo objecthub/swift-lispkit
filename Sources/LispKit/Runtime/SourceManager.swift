@@ -21,7 +21,8 @@
 import Foundation
 
 public final class SourceManager {
-  internal var sourceUrls: [URL]
+  
+  internal private(set) var sourceUrls: [URL]
   private var sourceIds: [URL: UInt16]
   
   init() {
@@ -99,5 +100,10 @@ public final class SourceManager {
   private func absoluteUrl(_ path: String) -> URL {
     return self.absoluteUrl(URL(fileURLWithPath: path))
   }
+  
+  /// Reset source manager
+  public func reset() {
+    self.sourceUrls = [URL(string: "console")!]
+    self.sourceIds.removeAll()
+  }
 }
-
