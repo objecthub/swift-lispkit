@@ -71,7 +71,7 @@ public final class PortLibrary: NativeLibrary {
     self.define(Procedure("open-input-file", openInputFile))
     self.define(Procedure("open-binary-input-file", openBinaryInputFile))
     self.define(Procedure("open-input-asset", openInputAsset))
-    self.define(Procedure("open-binary-asset", openBinaryInputAsset))
+    self.define(Procedure("open-binary-input-asset", openBinaryInputAsset))
     self.define(Procedure("open-output-file", openOutputFile))
     self.define(Procedure("open-binary-output-file", openBinaryOutputFile))
     self.define(Procedure("open-input-string", openInputString))
