@@ -645,4 +645,16 @@ open class Library: Reference, CustomStringConvertible {
   public var description: String {
     return "<library \(self.name) exporting \(self.exports.keys)>"
   }
+  
+  public func reset() {
+    self.exports.removeAll()
+    self.imports.removeAll()
+    self.unresolvedExports.removeAll()
+    self.imported = MultiMap()
+    self.libraries.removeAll()
+    self.exportDecls.removeAll()
+    self.importDecls.removeAll()
+    self.initDeclBlocks.removeAll()
+    self.state = .loaded
+  }
 }
