@@ -18,87 +18,11 @@
 //  limitations under the License.
 //
 
-public final class Definition: Reference, CustomStringConvertible {
-  
-  public enum Kind {
-    case value
-    case variable
-    case mutatedVariable
-    case macro(Procedure)
-  }
-  
-  public let index: Int
-  public var kind: Kind
-  
-  fileprivate init(index: Int, isVar: Bool = true) {
-    self.index = index
-    self.kind = isVar ? .variable : .value
-  }
-  
-  fileprivate init(proc: Procedure) {
-    self.index = 0
-    self.kind = .macro(proc)
-  }
-  
-  public var isValue: Bool {
-    switch self.kind {
-      case .value:
-        return true
-      default:
-        return false
-    }
-  }
-  
-  public var isVariable: Bool {
-    switch self.kind {
-      case .variable, .mutatedVariable:
-        return true
-      default:
-        return false
-    }
-  }
-  
-  public var isImmutableVariable: Bool {
-    switch self.kind {
-      case .variable:
-        return true
-      default:
-        return false
-    }
-  }
-  
-  public func wasMutated() {
-    switch self.kind {
-      case .value:
-        preconditionFailure("cannot declare value mutable")
-      case .variable:
-        self.kind = .mutatedVariable
-      case .mutatedVariable:
-        break
-      case .macro(_):
-        preconditionFailure("cannot declare macro mutable")
-    }
-  }
-  
-  public var description: String {
-    switch self.kind {
-      case .value:
-        return "value at index \(self.index)"
-      case .variable:
-        return "variable at index \(self.index)"
-      case .mutatedVariable:
-        return "mutated variable at index \(self.index)"
-      case .macro(let proc):
-        return "macro \(proc)"
-    }
-  }
-}
-
 public final class BindingGroup: Reference, CustomStringConvertible {
   public unowned var owner: Compiler
   public let parent: Env
   private var bindings: [Symbol : Definition]
-  private let nextIndex: () -> Int
+  private let nextIndex: (() -> Int)?
   internal let checkpoint: UInt
   public private(set) var box: WeakBox<BindingGroup>!
   
@@ -106,7 +30,7 @@ public final class BindingGroup: Reference, CustomStringConvertible {
     self.owner = owner
     self.parent = parent
     self.bindings = [Symbol: Definition]()
-    self.nextIndex = nextIndex == nil ? owner.nextLocalIndex : nextIndex!
+    self.nextIndex = nextIndex
     self.checkpoint = owner.checkpointer.checkpoint()
     super.init()
     self.box = WeakBox(self)
@@ -123,7 +47,7 @@ public final class BindingGroup: Reference, CustomStringConvertible {
     if let binding = self.bindings[sym] {
       return binding
     }
-    let binding = Definition(index: self.nextIndex(), isVar: variable)
+    let binding = Definition(index: self.nextIndex?() ?? owner.nextLocalIndex(), isVar: variable)
     self.bindings[sym] = binding
     return binding
   }
@@ -205,5 +129,81 @@ public final class BindingGroup: Reference, CustomStringConvertible {
       builder.appendNewline()
     }
     return builder.description
+  }
+}
+
+public final class Definition: Reference, CustomStringConvertible {
+  
+  public enum Kind {
+    case value
+    case variable
+    case mutatedVariable
+    case macro(Procedure)
+  }
+  
+  public let index: Int
+  public private(set) var kind: Kind
+  
+  fileprivate init(index: Int, isVar: Bool = true) {
+    self.index = index
+    self.kind = isVar ? .variable : .value
+  }
+  
+  fileprivate init(proc: Procedure) {
+    self.index = 0
+    self.kind = .macro(proc)
+  }
+  
+  public var isValue: Bool {
+    switch self.kind {
+      case .value:
+        return true
+      default:
+        return false
+    }
+  }
+  
+  public var isVariable: Bool {
+    switch self.kind {
+      case .variable, .mutatedVariable:
+        return true
+      default:
+        return false
+    }
+  }
+  
+  public var isImmutableVariable: Bool {
+    switch self.kind {
+      case .variable:
+        return true
+      default:
+        return false
+    }
+  }
+  
+  public func wasMutated() {
+    switch self.kind {
+      case .value:
+        preconditionFailure("cannot declare value mutable")
+      case .variable:
+        self.kind = .mutatedVariable
+      case .mutatedVariable:
+        break
+      case .macro(_):
+        preconditionFailure("cannot declare macro mutable")
+    }
+  }
+  
+  public var description: String {
+    switch self.kind {
+      case .value:
+        return "value at index \(self.index)"
+      case .variable:
+        return "variable at index \(self.index)"
+      case .mutatedVariable:
+        return "mutated variable at index \(self.index)"
+      case .macro(let proc):
+        return "macro \(proc)"
+    }
   }
 }

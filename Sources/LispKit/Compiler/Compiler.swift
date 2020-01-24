@@ -35,7 +35,7 @@ public final class Compiler {
   internal var syntaxSym: Symbol? = nil
   
   /// Environment in which expressions should be compiled
-  internal var env: Env
+  internal private(set) var env: Env
   
   /// Meta-environment in which macro expressions are evaluated
   internal let rulesEnv: Env
@@ -66,7 +66,7 @@ public final class Compiler {
   private var instructions: Instructions = []
   
   /// Directory of the current source file
-  internal var sourceDirectory: String
+  internal private(set) var sourceDirectory: String
   
   /// Parent compiler (needed since `Compiler` objects are nested, e.g. if nested
   /// functions get compiled)
