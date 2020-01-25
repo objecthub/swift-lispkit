@@ -599,4 +599,14 @@ public final class HashTableLibrary: NativeLibrary {
     map.replace(try self.bucket(hval, map.bucketCount), bucket)
     return .void
   }
+  
+  public override func reset() {
+    super.reset()
+    self.bucketsProc = nil
+    self.bucketAddProc = nil
+    self.bucketDelProc = nil
+    self.equalProc = nil
+    self.eqvProc = nil
+    self.eqProc = nil
+  }
 }

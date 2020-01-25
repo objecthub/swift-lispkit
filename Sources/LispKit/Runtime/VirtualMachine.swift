@@ -1745,7 +1745,7 @@ public final class VirtualMachine: TrackedObject {
     self.winders = nil
     self.parameters = HashTable(equiv: .eq)
     self.execInstr = 0
-    self.setParameterProc = Procedure("_set-parameter", self.setParameter, nil)
+    self.setParameterProc = nil
     self.raiseProc = nil
     self.abortionRequested = false
     self.exitTriggered = false
