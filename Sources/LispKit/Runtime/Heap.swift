@@ -64,7 +64,7 @@ public final class Heap: TrackedObject {
   }
   
   /// Reset heap
-  public func reset() {
+  public func release() {
     self.locations.removeAll()
   }
 }

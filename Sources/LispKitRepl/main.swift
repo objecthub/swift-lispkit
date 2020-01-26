@@ -52,4 +52,5 @@ if repl.shouldRunRepl() {
   }
 }
 
+repl.release()
 exit(0)

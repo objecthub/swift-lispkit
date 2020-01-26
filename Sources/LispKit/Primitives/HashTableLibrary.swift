@@ -600,8 +600,8 @@ public final class HashTableLibrary: NativeLibrary {
     return .void
   }
   
-  public override func reset() {
-    super.reset()
+  public override func release() {
+    super.release()
     self.bucketsProc = nil
     self.bucketAddProc = nil
     self.bucketDelProc = nil

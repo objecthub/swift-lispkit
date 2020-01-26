@@ -646,7 +646,7 @@ open class Library: Reference, CustomStringConvertible {
     return "<library \(self.name) exporting \(self.exports.keys)>"
   }
   
-  public func reset() {
+  public func release() {
     self.exports.removeAll()
     self.imports.removeAll()
     self.unresolvedExports.removeAll()

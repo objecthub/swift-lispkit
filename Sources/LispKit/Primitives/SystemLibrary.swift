@@ -812,8 +812,8 @@ public final class SystemLibrary: NativeLibrary {
     return Locale(identifier: try locale.asSymbol().identifier)
   }
   
-  public override func reset() {
-    super.reset()
+  public override func release() {
+    super.release()
     self.currentDirectoryProc = nil
     self.compileAndEvalFirstProc = nil
   }

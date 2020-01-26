@@ -188,11 +188,11 @@ public final class Context {
   }
   
   /// Reset this context
-  public func reset() {
-    self.heap.reset()
-    self.libraries.reset()
-    self.sources.reset()
-    self.symbols.reset()
-    self.machine.reset()
+  public func release() {
+    self.heap.release()
+    self.libraries.release()
+    self.sources.release()
+    self.symbols.release()
+    self.machine.release()
   }
 }

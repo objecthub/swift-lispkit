@@ -102,7 +102,7 @@ public final class SourceManager {
   }
   
   /// Reset source manager
-  public func reset() {
+  public func release() {
     self.sourceUrls = [URL(string: "console")!]
     self.sourceIds.removeAll()
   }

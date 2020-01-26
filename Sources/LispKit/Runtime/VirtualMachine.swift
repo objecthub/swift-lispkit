@@ -1737,7 +1737,7 @@ public final class VirtualMachine: TrackedObject {
   }
   
   /// Reset virtual machine
-  public func reset() {
+  public func release() {
     self.stack = Exprs(repeating: .undef, count: 1024)
     self.sp = 0
     self.maxSp = 0

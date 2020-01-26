@@ -446,4 +446,8 @@ open class LispKitRepl {
       return self.runRepl()
     }
   }
+  
+  open func release() {
+    self.context?.release()
+  }
 }

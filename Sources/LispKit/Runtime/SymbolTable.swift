@@ -159,7 +159,7 @@ public final class SymbolTable: Sequence {
   }
   
   /// Reset symbol table
-  public func reset() {
+  public func release() {
     self.symTable = [:]
     self.gensymCounter = 0
     self.registerNativeSymbols()
