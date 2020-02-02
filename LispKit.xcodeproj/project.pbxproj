@@ -922,6 +922,7 @@
 		CC8A2AAE1F405CDD00D1E4D8 /* 17.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 17.sld; sourceTree = "<group>"; };
 		CC8A2AB01F40672700D1E4D8 /* 48.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 48.sld; sourceTree = "<group>"; };
 		CC8C6EC71CFA65F200126BDD /* ControlFlow.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ControlFlow.scm; sourceTree = "<group>"; };
+		CC8DC5C623E7408500396182 /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		CC8EDE4B1D0317AD004E0636 /* Port.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Port.swift; sourceTree = "<group>"; };
 		CC8EDE6D1D07263D004E0636 /* BinaryInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BinaryInput.swift; sourceTree = "<group>"; };
 		CC8EDE6F1D07265E004E0636 /* TextInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextInput.swift; sourceTree = "<group>"; };
@@ -1475,6 +1476,7 @@
 				CCC937471C4F02DF00A5608F /* CHANGELOG.md */,
 				CC3C4E051CD81C5E00C78F89 /* TODO.md */,
 				CCC937451C4F02AF00A5608F /* LICENSE */,
+				CC8DC5C623E7408500396182 /* Makefile */,
 				CCCAF92D1F941A43006692E9 /* Package.swift */,
 				CC48055B1CFE366100D608B6 /* Assets */,
 				CCAD52BC1C48403800DBD8EE /* LispKit */,

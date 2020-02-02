@@ -3,7 +3,7 @@
 all: run
 
 run: debug
-	.build/debug/LispKitRepl -d LispKit
+	.build/debug/LispKitRepl -r Sources/LispKit/Resources -d LispKit
 
 debug:
 	swift build -Xswiftc "-D" -Xswiftc "SPM"

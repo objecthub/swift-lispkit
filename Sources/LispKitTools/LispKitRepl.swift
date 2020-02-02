@@ -77,8 +77,8 @@ open class LispKitRepl {
     self.assetPaths = f.strings("a", "assetpath",
                                 description: "Adds file paths in which assets are searched for.")
     self.searchDocs = f.string("d", "documents",
-                               description: "Search for files and libraries in " +
-                                            "~/Documents/LispKit folder.")
+                               description: "Search for files and libraries in folder " +
+                                            "~/Documents/<value>.")
     self.roots = f.strings("r", "root",
                            description: "Directories in which to search for files and libraries.")
     self.heapSize   = f.int("m", "memsize",
