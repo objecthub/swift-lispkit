@@ -1,8 +1,8 @@
 .PHONY: clean run debug release clean
 
-all: debug
+all: run
 
-run:
+run: debug
 	.build/debug/LispKitRepl -d LispKit
 
 debug:
