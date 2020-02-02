@@ -6,8 +6,8 @@
         "repositoryURL": "https://github.com/objecthub/swift-commandlinekit.git",
         "state": {
           "branch": null,
-          "revision": "a0d60e86f105aac86a24105b708c0d4329e888f8",
-          "version": "0.3.1"
+          "revision": "3658edb549b955d2a89fdc59f2739de3208d91a6",
+          "version": "0.3.2"
         }
       },
       {
@@ -15,8 +15,8 @@
         "repositoryURL": "https://github.com/objecthub/swift-markdownkit.git",
         "state": {
           "branch": null,
-          "revision": "7536777487718fe92f59d2763c462564c7d8df6a",
-          "version": "0.2.0"
+          "revision": "9bd850ee79a90a1f4925e46b8228c56fbbfe87e1",
+          "version": "0.2.2"
         }
       },
       {

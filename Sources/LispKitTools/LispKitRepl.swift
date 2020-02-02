@@ -53,7 +53,7 @@ open class LispKitRepl {
   public let help: Option
 
   // LispKit setup
-  public let lineReader: LineReader?
+  public lazy var lineReader: LineReader? = self.basic.wasSet ? nil : LineReader()
   public let terminal: CommandLineDelegate
   public var context: Context?
 
@@ -69,7 +69,7 @@ open class LispKitRepl {
     self.toolCopyright = copyright
     let f = Flags()
     self.flags = f
-    // Process flags
+    // Declare flags
     self.filePaths  = f.strings("f", "filepath",
                                 description: "Adds file paths in which programs are searched for.")
     self.libPaths   = f.strings("l", "libpath",
@@ -96,9 +96,8 @@ open class LispKitRepl {
     self.prompt     = f.string("c", "prompt",
                                description: "String used as prompt in REPL.",
                                value: prompt)
-    let basic       = f.option("b", "basic",
+    self.basic      = f.option("b", "basic",
                                description: "Use basic line reader only.")
-    self.basic = basic
     self.extended   = f.option("e", "extendednames",
                                description: "Use extended procedure names.")
     self.strict     = f.option("s", "strict",
@@ -108,11 +107,9 @@ open class LispKitRepl {
                                description: "In quiet mode, optional messages are not printed.")
     self.help       = f.option("h", "help",
                                description: "Show description of usage and options of this tools.")
-    // Instantiate line reader and terminal
-    self.lineReader = basic.wasSet ? nil : LineReader()
+    // Instantiate the terminal
     self.terminal = CommandLineDelegate()
-    // Are simplified descriptions requested?
-    Context.simplifiedDescriptions = !self.extended.wasSet
+    // Reset context
     self.context = nil
   }
 
@@ -124,7 +121,7 @@ open class LispKitRepl {
                                maxCount: 4000,
                                strippingNewline: true,
                                promptProperties: TextProperties(.blue, nil, .bold),
-                               readProperties: TextProperties(.black, nil),
+                               readProperties: TextProperties(.default, nil),
                                parenProperties: TextProperties(.red, nil, .bold))
       } catch LineReaderError.CTRLC {
         self.terminal.print("\nterminated\n")
@@ -165,6 +162,8 @@ open class LispKitRepl {
       print(failure)
       return false
     }
+    // Are simplified descriptions requested?
+    Context.simplifiedDescriptions = !self.extended.wasSet
     return true
   }
   

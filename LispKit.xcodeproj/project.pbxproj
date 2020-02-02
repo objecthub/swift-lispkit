@@ -2437,7 +2437,7 @@
 			repositoryURL = "https://github.com/objecthub/swift-commandlinekit.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 0.3.1;
+				minimumVersion = 0.3.2;
 			};
 		};
 		CCA6C3D22361149D007D2AF0 /* XCRemoteSwiftPackageReference "swift-markdownkit" */ = {

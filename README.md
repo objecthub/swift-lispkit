@@ -267,10 +267,13 @@ Resolving https://github.com/objecthub/swift-commandlinekit.git at 0.3.1
 [6/6] Linking LispKitRepl
 ```
 
-The release binary can be run by invoking `.build/release/LispKitRepl -d LispKit`
-assuming that directory `~/Documents/LispKit` contains a copy of the
-[resources directory](https://github.com/objecthub/swift-lispkit/tree/master/Sources/LispKit/Resources)
-needed to run the command-line tool.
+The release binary can be run by invoking `.build/release/LispKitRepl -r Sources/LispKit/Resources`
+in the directory `swift-lispkit` (in which the binary was build above).
+
+Assuming that directory `~/Documents/LispKit` contains a copy of the
+[resources directory](https://github.com/objecthub/swift-lispkit/tree/master/Sources/LispKit/Resources), it is also
+possible to run the release binary by invoking `.build/release/LispKitRepl -d LispKit`.
+
 
 ## Requirements
 
