@@ -2431,7 +2431,7 @@
 			repositoryURL = "https://github.com/objecthub/swift-numberkit.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 2.3.2;
+				minimumVersion = 2.3.4;
 			};
 		};
 		CC5E53042355AB0700C72CE2 /* XCRemoteSwiftPackageReference "swift-commandlinekit" */ = {

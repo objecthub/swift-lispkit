@@ -64,12 +64,25 @@ open class LispKitTestCase: XCTestCase {
   
   override open func setUp() {
     super.setUp()
-    self.context = Context(delegate: terminal)
-    do {
-      try self.context?.environment.import(BaseLibrary.name)
-    } catch {
-      preconditionFailure("cannot import (lispkit base) into test context")
-    }
+    #if SPM
+      self.context = Context(delegate: self.terminal)
+      let root = URL(fileURLWithPath: "Sources/LispKit/Resources", isDirectory: true)
+      _ = self.context?.fileHandler.prependSearchPath(root.path)
+      _ = self.context?.fileHandler.prependLibrarySearchPath(root
+                                     .appendingPathComponent("Libraries", isDirectory: true).path)
+      do {
+        try self.context?.environment.import(BaseLibrary.name)
+      } catch {
+        preconditionFailure("cannot import (lispkit base) into test context")
+      }
+    #else
+      self.context = Context(delegate: terminal)
+      do {
+        try self.context?.environment.import(BaseLibrary.name)
+      } catch {
+        preconditionFailure("cannot import (lispkit base) into test context")
+      }
+    #endif
   }
   
   override open func tearDown() {
@@ -103,14 +116,23 @@ open class LispKitTestCase: XCTestCase {
   }
   
   public func loadTestCode(from filename: String) -> (UInt16, String)? {
-    let bundle = Bundle(for: type(of: self))
-    if let path = bundle.path(forResource: filename, ofType: "scm") {
+    #if SPM
+      let path = "Tests/LispKitTests/Code/\(filename).scm"
       do {
         return try self.context?.sources.readSource(for: path)
       } catch {
         return nil
       }
-    }
+    #else
+      let bundle = Bundle(for: type(of: self))
+      if let path = bundle.path(forResource: filename, ofType: "scm") {
+        do {
+          return try self.context?.sources.readSource(for: path)
+        } catch {
+          return nil
+        }
+      }
+    #endif
     return nil
   }
   

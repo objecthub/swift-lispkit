@@ -225,6 +225,7 @@ open class LispKitRepl {
 
   open func setupBinaryBundle(root: URL) -> Bool {
     _ = self.context?.fileHandler.prependSearchPath(root.path)
+    _ = self.context?.fileHandler.prependAssetSearchPath(root.path)
     _ = self.context?.fileHandler.prependLibrarySearchPath(root
                                    .appendingPathComponent("Libraries", isDirectory: true).path)
     if !self.prelude.wasSet {

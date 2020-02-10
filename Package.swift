@@ -47,7 +47,7 @@ let package = Package(
   ],
   dependencies: [
     .package(url: "https://github.com/objecthub/swift-numberkit.git",
-             .upToNextMajor(from: "2.3.2")),
+             .upToNextMajor(from: "2.3.4")),
     .package(url: "https://github.com/objecthub/swift-markdownkit.git",
              .upToNextMajor(from: "0.2.2")),
     .package(url: "https://github.com/objecthub/swift-commandlinekit.git",
