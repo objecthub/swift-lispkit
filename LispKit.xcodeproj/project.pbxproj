@@ -235,6 +235,7 @@
 		CC9065B51C5557E4004A88B7 /* ObjectPool.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC9065B41C5557E4004A88B7 /* ObjectPool.swift */; };
 		CC90B2341FE55E8B0044F724 /* stack.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC90B2331FE55DFE0044F724 /* stack.sld */; };
 		CC90B2361FE5D7BC0044F724 /* queue.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC90B2351FE5D7940044F724 /* queue.sld */; };
+		CC926FA823FA12D000D91AB1 /* Polynomials.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC926FA723FA127F00D91AB1 /* Polynomials.scm */; };
 		CC93A65F1D077766008350C8 /* BinaryOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC93A65E1D077766008350C8 /* BinaryOutput.swift */; };
 		CC93A6611D0777A9008350C8 /* TextOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC93A6601D0777A9008350C8 /* TextOutput.swift */; };
 		CC96D10520386A40006AA27B /* 151.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC96D10420386860006AA27B /* 151.sld */; };
@@ -468,6 +469,7 @@
 			dstPath = LispKit/Resources/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC926FA823FA12D000D91AB1 /* Polynomials.scm in Copy examples */,
 				CC78F31B23B43A34006F3901 /* SpellNumbers.scm in Copy examples */,
 				CCC284DC236D8D3200DC85E8 /* Sudoku.scm in Copy examples */,
 				CC3852A0232529E7001D5E56 /* Maze.scm in Copy examples */,
@@ -932,6 +934,7 @@
 		CC9065B41C5557E4004A88B7 /* ObjectPool.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObjectPool.swift; sourceTree = "<group>"; };
 		CC90B2331FE55DFE0044F724 /* stack.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = stack.sld; sourceTree = "<group>"; };
 		CC90B2351FE5D7940044F724 /* queue.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = queue.sld; sourceTree = "<group>"; };
+		CC926FA723FA127F00D91AB1 /* Polynomials.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Polynomials.scm; sourceTree = "<group>"; };
 		CC93A65E1D077766008350C8 /* BinaryOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BinaryOutput.swift; sourceTree = "<group>"; };
 		CC93A6601D0777A9008350C8 /* TextOutput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextOutput.swift; sourceTree = "<group>"; };
 		CC96D10420386860006AA27B /* 151.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 151.sld; sourceTree = "<group>"; };
@@ -1654,6 +1657,7 @@
 			children = (
 				CCFBE5C31ECBA8DA0032254B /* Pi.scm */,
 				CC0EBFF81ED37A76004510B2 /* Math.scm */,
+				CC926FA723FA127F00D91AB1 /* Polynomials.scm */,
 				CC78F31A23B439B5006F3901 /* SpellNumbers.scm */,
 				CC4A7DBA2258FC3C00936034 /* Streams.scm */,
 				CC9EB1141F5C9D4000697511 /* Topological.scm */,
