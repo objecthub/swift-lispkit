@@ -61,6 +61,7 @@
 
 (import (srfi 1))
 (import (srfi 2))
+(import (srfi 6))
 (import (srfi 8))
 (import (srfi 11))
 (import (srfi 14))
@@ -80,6 +81,7 @@
 (import (srfi 46))
 (import (srfi 48))
 (import (srfi 51))
+(import (srfi 54))
 (import (srfi 55))
 (import (srfi 63))
 (import (srfi 64))

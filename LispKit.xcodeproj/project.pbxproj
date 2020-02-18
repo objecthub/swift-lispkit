@@ -226,6 +226,8 @@
 		CC8A2AAF1F405E2500D1E4D8 /* 17.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC8A2AAE1F405CDD00D1E4D8 /* 17.sld */; };
 		CC8A2AB11F40681500D1E4D8 /* 48.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC8A2AB01F40672700D1E4D8 /* 48.sld */; };
 		CC8C6EC81CFA65F200126BDD /* ControlFlow.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC8C6EC71CFA65F200126BDD /* ControlFlow.scm */; };
+		CC8E65FC23FCAC3A00D9D1F9 /* 6.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC8E65FA23FCA98600D9D1F9 /* 6.sld */; };
+		CC8E65FD23FCAC4500D9D1F9 /* 54.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC8E65FB23FCAAB900D9D1F9 /* 54.sld */; };
 		CC8EDE4C1D0317AD004E0636 /* Port.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8EDE4B1D0317AD004E0636 /* Port.swift */; };
 		CC8EDE6E1D07263D004E0636 /* BinaryInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8EDE6D1D07263D004E0636 /* BinaryInput.swift */; };
 		CC8EDE701D07265E004E0636 /* TextInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8EDE6F1D07265E004E0636 /* TextInput.swift */; };
@@ -636,6 +638,8 @@
 			dstPath = LispKit/Resources/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
+				CC8E65FD23FCAC4500D9D1F9 /* 54.sld in Copy pre-installed SRFI libraries */,
+				CC8E65FC23FCAC3A00D9D1F9 /* 6.sld in Copy pre-installed SRFI libraries */,
 				CCA8017223D4AF8E005F2323 /* 87.sld in Copy pre-installed SRFI libraries */,
 				CCA8017323D4AF8E005F2323 /* 98.sld in Copy pre-installed SRFI libraries */,
 				CC498A8B23882C35002734E0 /* 175.sld in Copy pre-installed SRFI libraries */,
@@ -925,6 +929,8 @@
 		CC8A2AB01F40672700D1E4D8 /* 48.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 48.sld; sourceTree = "<group>"; };
 		CC8C6EC71CFA65F200126BDD /* ControlFlow.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ControlFlow.scm; sourceTree = "<group>"; };
 		CC8DC5C623E7408500396182 /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		CC8E65FA23FCA98600D9D1F9 /* 6.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 6.sld; sourceTree = "<group>"; };
+		CC8E65FB23FCAAB900D9D1F9 /* 54.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 54.sld; sourceTree = "<group>"; };
 		CC8EDE4B1D0317AD004E0636 /* Port.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Port.swift; sourceTree = "<group>"; };
 		CC8EDE6D1D07263D004E0636 /* BinaryInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BinaryInput.swift; sourceTree = "<group>"; };
 		CC8EDE6F1D07265E004E0636 /* TextInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextInput.swift; sourceTree = "<group>"; };
@@ -1301,6 +1307,7 @@
 			children = (
 				CC5848051E56BD0B00BE6497 /* 1.sld */,
 				CC5848061E56BD0B00BE6497 /* 2.sld */,
+				CC8E65FA23FCA98600D9D1F9 /* 6.sld */,
 				CC5848071E56BD0B00BE6497 /* 8.sld */,
 				CC3F78302157D63E00F88F9B /* 11.sld */,
 				CCC1DBFB216BA1750019A374 /* 14.sld */,
@@ -1322,6 +1329,7 @@
 				CC7C3E9B2246F0A30082DF7C /* 46.sld */,
 				CC8A2AB01F40672700D1E4D8 /* 48.sld */,
 				CC3F782E2157D22B00F88F9B /* 51.sld */,
+				CC8E65FB23FCAAB900D9D1F9 /* 54.sld */,
 				CC7C3E9A2246EF6D0082DF7C /* 55.sld */,
 				CC79DE031F883FED00CE7A5D /* 63.sld */,
 				CCC072451F9AA8B70063974E /* 64.sld */,
