@@ -107,6 +107,7 @@ public enum EvalError: Int, Hashable {
   case invalidRegexpMatchingOption
   case unknownKeyword
   case expectedKeywordArg
+  case assertion
   
   public var message: String {
     switch self {
@@ -274,6 +275,8 @@ public enum EvalError: Int, Hashable {
         return "unknown keyword $1; cannot assign value $0"
       case .expectedKeywordArg:
         return "expected keyword argument: $0"
+      case .assertion:
+        return "assertion failure in $,0: $1"
     }
   }
   

@@ -38,7 +38,7 @@ public final class DynamicControlLibrary: NativeLibrary {
   
   /// Dependencies of the library.
   public override func dependencies() {
-    self.`import`(from: ["lispkit", "core"],      "define", "set!", "define-syntax",
+    self.`import`(from: ["lispkit", "core"],      "define", "set!", "define-syntax", "not", "quote",
                                                   "syntax-rules", "lambda", "eqv?", "void", "or",
                                                   "call-with-values", "apply-with-values")
     self.`import`(from: ["lispkit", "control"],   "if", "let", "let*", "do", "begin")
@@ -84,6 +84,7 @@ public final class DynamicControlLibrary: NativeLibrary {
     
     // Errors
     self.define(Procedure("make-error", makeError))
+    self.define(Procedure("make-assertion-error", makeAssertionError))
     self.define(Procedure("error-object-message", errorObjectMessage))
     self.define(Procedure("error-object-irritants", errorObjectIrritants))
     self.define(Procedure("error-object-stacktrace", errorObjectStackTrace))
@@ -142,8 +143,17 @@ public final class DynamicControlLibrary: NativeLibrary {
       "              (call-with-values",
       "                (lambda () e1 e2 ...)",
       "                (lambda args (guard-k (lambda () (_make-values args)))))))))))))")
-    self.define("error", via:
-      "(define (error message . irritants) (raise (make-error message irritants)))")
+    // self.define("error", via:
+    //  "(define (error message . irritants) (raise (make-error message irritants)))")
+    self.define(Procedure("error", error))
+    self.define(Procedure("assertion", assertion))
+    self.define("assert", via:
+      "(define-syntax assert",
+      "  (syntax-rules ()",
+      "    ((_ expr)",
+      "       (if (not expr) (assertion (quote expr))))",
+      "    ((_ expr others ...)",
+      "       (if expr (assert others ...) (assertion (quote expr))))))")
     self.define(Procedure("_trigger-exit", triggerExit), export: false)
     self.define("exit", mutable: true, via: "(define exit 0)")
     self.execute("(call-with-current-continuation " +
@@ -299,6 +309,50 @@ public final class DynamicControlLibrary: NativeLibrary {
     return .error(RuntimeError.custom("error",
                                       message.unescapedDescription,
                                       Array(irritants.toExprs().0)).attach(stackTrace: stackTrace))
+  }
+  
+  private func makeAssertionError(procName: Expr, expr: Expr) throws -> Expr {
+    guard case .string(_) = procName else {
+      throw RuntimeError.type(procName, expected: [.strType])
+    }
+    return .error(RuntimeError.eval(.assertion, procName, expr)
+                              .attach(stackTrace: self.context.machine.getStackTrace()))
+  }
+  
+  private func error(args: Arguments) throws -> (Procedure, Exprs) {
+    guard args.count > 0 else {
+      throw RuntimeError.argumentCount(of: "error", min: 1, args: .makeList(args))
+    }
+    let error =
+      RuntimeError.custom("error",
+                          args.first!.unescapedDescription,
+                          args.count == 1 ? [] : Array(args[args.startIndex+1..<args.endIndex]))
+                  .attach(stackTrace: self.context.machine.getStackTrace())
+    if let raiseProc = self.raiseProc {
+      var args = Exprs()
+      args.append(.error(error))
+      return (raiseProc, args)
+    } else {
+      throw error
+    }
+  }
+  
+  private func assertion(args: Arguments) throws -> (Procedure, Exprs) {
+    guard args.count == 1 else {
+      throw RuntimeError.argumentCount(of: "assertion", min: 1, args: .makeList(args))
+    }
+    let stackTrace = self.context.machine.getStackTrace()
+    let assertionError =
+      RuntimeError.eval(.assertion,
+                        .makeString(stackTrace.first?.originalName ?? "procedure"),
+                        args.first!).attach(stackTrace: stackTrace)
+    if let raiseProc = self.raiseProc {
+      var args = Exprs()
+      args.append(.error(assertionError))
+      return (raiseProc, args)
+    } else {
+      throw assertionError
+    }
   }
   
   private func errorObjectMessage(expr: Expr) throws -> Expr {

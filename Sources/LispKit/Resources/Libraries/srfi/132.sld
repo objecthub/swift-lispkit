@@ -55,9 +55,6 @@
   (import (except (lispkit base) vector-sort vector-sort!)
           (only (srfi 27) random-integer))
   
-  (begin
-    (define (assert x) (if (not x) (error "assertion failure"))))
-  
   ;;; Delete neighboring duplicate elts
   ;;; 
   ;;; Problem:

@@ -105,12 +105,7 @@
       (val node-val)
       (left node-left)
       (right node-right))
-
-    (define-syntax assert
-      (syntax-rules ()
-        ((assert expr ...)
-         (begin (unless expr (error "assertion failed" 'expr)) ...))))
-
+    
     ;; Nat -> Nat
     (define (sub1 n) (- n 1))
     (define (add1 n) (+ n 1))
