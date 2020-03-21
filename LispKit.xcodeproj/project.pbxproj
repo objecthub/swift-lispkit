@@ -283,6 +283,8 @@
 		CCC5319E1D16E40D00FAED6E /* TextInputSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC5319D1D16E40D00FAED6E /* TextInputSource.swift */; };
 		CCC531A01D18595500FAED6E /* TextOutputTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC5319F1D18595500FAED6E /* TextOutputTarget.swift */; };
 		CCC62D921CA9ED6A00E2C43F /* TrackedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC62D911CA9ED6A00E2C43F /* TrackedObject.swift */; };
+		CCC9516F2426B3E900FC915F /* 162.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCC9516E2426B1E100FC915F /* 162.sld */; };
+		CCC951712426B6B000FC915F /* SRFI-128.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCC951702426B54600FC915F /* SRFI-128.scm */; };
 		CCCEB3FF1DF2DAA9009BF66B /* FileHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCEB3FE1DF2DAA9009BF66B /* FileHandler.swift */; };
 		CCD6C3E91F35F9F10002F7D4 /* enum.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCD6C3E81F35F95D0002F7D4 /* enum.sld */; };
 		CCD81AD21CE75823009EB087 /* Checkpointer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD81AD11CE75823009EB087 /* Checkpointer.swift */; };
@@ -347,6 +349,7 @@
 			dstPath = LispKit/Resources/Tests;
 			dstSubfolderSpec = 7;
 			files = (
+				CCC951712426B6B000FC915F /* SRFI-128.scm in Copy tests */,
 				CCF602EA23A0FA5000087740 /* SRFI-167.scm in Copy tests */,
 				CCA7DC2E2387602500785FBE /* SRFI-175.scm in Copy tests */,
 				CC5E530A235836A900C72CE2 /* SRFI-174.scm in Copy tests */,
@@ -638,6 +641,7 @@
 			dstPath = LispKit/Resources/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
+				CCC9516F2426B3E900FC915F /* 162.sld in Copy pre-installed SRFI libraries */,
 				CC8E65FD23FCAC4500D9D1F9 /* 54.sld in Copy pre-installed SRFI libraries */,
 				CC8E65FC23FCAC3A00D9D1F9 /* 6.sld in Copy pre-installed SRFI libraries */,
 				CCA8017223D4AF8E005F2323 /* 87.sld in Copy pre-installed SRFI libraries */,
@@ -994,6 +998,8 @@
 		CCC937451C4F02AF00A5608F /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		CCC937471C4F02DF00A5608F /* CHANGELOG.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = CHANGELOG.md; sourceTree = "<group>"; };
 		CCC937491C4F031700A5608F /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		CCC9516E2426B1E100FC915F /* 162.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 162.sld; sourceTree = "<group>"; };
+		CCC951702426B54600FC915F /* SRFI-128.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-128.scm"; sourceTree = "<group>"; };
 		CCCAF5AE23B7A71400FE2C60 /* HtmlColors.plist */ = {isa = PBXFileReference; lastKnownFileType = file.bplist; path = HtmlColors.plist; sourceTree = "<group>"; };
 		CCCAF92D1F941A43006692E9 /* Package.swift */ = {isa = PBXFileReference; explicitFileType = sourcecode.swift; fileEncoding = 4; indentWidth = 2; path = Package.swift; sourceTree = "<group>"; tabWidth = 2; };
 		CCCEB3FE1DF2DAA9009BF66B /* FileHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileHandler.swift; sourceTree = "<group>"; };
@@ -1079,6 +1085,7 @@
 				CC54924421DCDEA1004A0652 /* SRFI-14.scm */,
 				CC54923A21D9823B004A0652 /* SRFI-101.scm */,
 				CC2C73DE21A22CFD00B18661 /* SRFI-125.scm */,
+				CCC951702426B54600FC915F /* SRFI-128.scm */,
 				CC4A7DC22259748400936034 /* SRFI-146.scm */,
 				CC4A7DC8225A344300936034 /* SRFI-165.scm */,
 				CCF602E923A0F8F800087740 /* SRFI-167.scm */,
@@ -1360,6 +1367,7 @@
 				CC0AEFF71F522A7500119BF6 /* 152.sld */,
 				CCEEF3901FAF3F70006C4581 /* 158.sld */,
 				CC1EA5CA214EEF41006BBE7E /* 161.sld */,
+				CCC9516E2426B1E100FC915F /* 162.sld */,
 				CC4A7DC6225A021E00936034 /* 165.sld */,
 				CCF602E523A0F64600087740 /* 167 */,
 				CC38528C23140CC2001D5E56 /* 173.sld */,

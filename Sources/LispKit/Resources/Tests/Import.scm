@@ -108,9 +108,14 @@
 (import (srfi 152))
 (import (srfi 158))
 (import (srfi 161))
+(import (srfi 162))
 (import (srfi 165))
+(import (srfi 167 engine))
+(import (srfi 167 pack))
+(import (srfi 167 memory))
 (import (srfi 173))
 (import (srfi 174))
+(import (srfi 175))
 (import (srfi 177))
 
 ; this needs to be last

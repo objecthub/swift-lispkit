@@ -54,8 +54,6 @@
   (import (lispkit base))
   
   (begin
-    (define (assert bool message . irritants)
-      (unless bool (apply error message irritants)))
     
     (define (sort-uniq list order)
       (let loop ((order order)
@@ -118,7 +116,7 @@
       (elements enum-set->list))
     
     (define (make-enumeration symbol-list)
-      (assert (every? symbol? symbol-list) "enumeration values must be symbols" symbol-list)
+      (assert (every? symbol? symbol-list))
       (letrec* ((indexer
                   (lambda (symbol)
                     (let loop ((i 0) (p symbol-list))
@@ -127,9 +125,7 @@
                             (else      (loop (+ i 1) (cdr p)))))))
                 (constructor
                   (lambda (elements)
-                    (assert (every? (lambda (e) (memq e symbol-list)) elements)
-                            "some symbols not in enumeration set universe"
-                            elements)
+                    (assert (every? (lambda (e) (memq e symbol-list)) elements))
                     (let ((elements (sort-uniq elements symbol-list)))
                       (make-enum-set universe indexer constructor elements))))
                 (universe 
@@ -166,11 +162,8 @@
     
     (define (assert-same-type set1 set2)
       (assert (eq? (enum-set-universe set1)
-                   (enum-set-universe set2))
-              "enumeration sets have distinct type"
-              set1
-              set2))
-     
+                   (enum-set-universe set2))))
+    
     (define (enum-set-union set1 set2)
       (assert-same-type set1 set2)
       ((enum-set-constructor set1) (append (enum-set->list set1) (enum-set->list set2))))
@@ -205,11 +198,8 @@
              (syntax-rules ()
                ((_ <obj>)
                  (let ((obj '<obj>))
-                   (assert (symbol? obj) "invalid enumeration value" obj)
-                   (assert (memq obj '(<symbol> ...))
-                           "symbol not in enumeration universe"
-                           obj
-                           '(<symbol> ...))
+                   (assert (symbol? obj))
+                   (assert (memq obj '(<symbol> ...)))
                    obj))))
            (define-syntax <constructor-syntax>
              (syntax-rules ___ ()

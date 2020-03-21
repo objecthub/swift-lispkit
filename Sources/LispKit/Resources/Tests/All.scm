@@ -23,6 +23,7 @@
 (load "Tests/SRFI-14")
 (load "Tests/SRFI-101")
 (load "Tests/SRFI-125")
+(load "Tests/SRFI-128")
 (load "Tests/SRFI-146")
 (load "Tests/SRFI-165")
 (load "Tests/SRFI-167")

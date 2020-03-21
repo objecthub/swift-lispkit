@@ -73,12 +73,7 @@
   (import (lispkit base))
 
   (begin
-
-    (define-syntax assert
-      (syntax-rules ()
-        ((assert expr ...)
-          (begin (unless expr (error "assertion failed: $0" 'expr)) ...))))
-
+    
     (define (exists proc strms)
       (cond ((null? strms) #f)
             ((pair? strms) (or (proc (car strms)) (exists proc (cdr strms))))
