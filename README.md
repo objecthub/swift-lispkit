@@ -85,7 +85,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit datatype)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Datatype),
     [`(lispkit object)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Object),
     [`(lispkit enum)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Enum),
-    `(lispkit regexp)`,
+    [`(lispkit regexp)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Regexp),
     `(lispkit stream)`,
     `(lispkit graph)`,
     `(lispkit match)`,
@@ -118,6 +118,7 @@ framework:
 
   - [SRFI 1: List Library](https://srfi.schemers.org/srfi-1/srfi-1.html)
   - [SRFI 2: AND-LET* - an AND with local bindings, a guarded LET* special form](https://srfi.schemers.org/srfi-2/srfi-2.html)
+  - [SRFI 6: Basic String Ports](https://srfi.schemers.org/srfi-6/srfi-6.html)
   - [SRFI 8: receive - Binding to multiple values](https://srfi.schemers.org/srfi-8/srfi-8.html)
   - [SRFI 11: Syntax for receiving multiple values](https://srfi.schemers.org/srfi-11/srfi-11.html)
   - [SRFI 14: Character-set library](https://srfi.schemers.org/srfi-14/srfi-14.html)
@@ -137,6 +138,7 @@ framework:
   - [SRFI 46: Basic Syntax-rules Extensions](https://srfi.schemers.org/srfi-46/srfi-46.html)
   - [SRFI 48: Intermediate Format Strings](https://srfi.schemers.org/srfi-48/srfi-48.html)
   - [SRFI 51: Handling rest list](https://srfi.schemers.org/srfi-51/srfi-51.html)
+  - [SRFI 54: Formatting](https://srfi.schemers.org/srfi-54/srfi-54.html)
   - [SRFI 55: require-extension](https://srfi.schemers.org/srfi-55/srfi-55.html)
   - [SRFI 63: Homogeneous and Heterogeneous Arrays](https://srfi.schemers.org/srfi-63/srfi-63.html)
   - [SRFI 64: A Scheme API for test suites](https://srfi.schemers.org/srfi-64/srfi-64.html)
@@ -164,6 +166,7 @@ framework:
   - [SRFI 152: String Library](https://srfi.schemers.org/srfi-152/srfi-152.html)
   - [SRFI 158: Generators and Accumulators](https://srfi.schemers.org/srfi-158/srfi-158.html)
   - [SRFI 161: Unifiable Boxes](https://srfi.schemers.org/srfi-161/srfi-161.html)
+  - [SRFI 162: Comparators sublibrary](https://srfi.schemers.org/srfi-162/srfi-162.html)  
   - [SRFI 165: The Environment Monad](https://srfi.schemers.org/srfi-165/srfi-165.html)
   - [SRFI 167: Ordered Key Value Store](https://srfi.schemers.org/srfi-167/srfi-167.html)
   - [SRFI 173: Hooks](https://srfi.schemers.org/srfi-173/srfi-173.html)
