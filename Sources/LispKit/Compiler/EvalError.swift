@@ -77,6 +77,7 @@ public enum EvalError: Int, Hashable {
   case attemptToModifyImmutableData
   case vectorEmpty
   case unknownFieldOfRecordType
+  case expectedRecordToAccessField
   case fieldCountError
   case malformedLibraryDefinition
   case malformedLibraryName
@@ -215,6 +216,8 @@ public enum EvalError: Int, Hashable {
         return "vector empty: $0"
       case .unknownFieldOfRecordType:
         return "unknown field $1 of record type $0"
+      case .expectedRecordToAccessField:
+        return "expected record of type $0 to access field: $1"
       case .fieldCountError:
         return "expected values for $0 fields, received instead: $1"
       case .malformedLibraryDefinition:

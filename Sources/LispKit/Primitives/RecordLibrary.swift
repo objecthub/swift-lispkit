@@ -52,19 +52,19 @@ public final class RecordLibrary: NativeLibrary {
       "  (let ((indices (record-type-field-index type fields)))",
       "    (lambda args",
       "      (let ((record (make-record type)))",
-      "        (record-set! record indices args) record))))")
+      "        (record-set! record indices args type) record))))")
     self.define("record-predicate", via:
       "(define (record-predicate type) (lambda (x) (record? x type)))")
     self.define("record-field-accessor", via:
       "(define (record-field-accessor type field)",
       "  (let ((index (record-type-field-index type field)))",
-      "    (lambda (record) (record-ref record index))))")
+      "    (lambda (record) (record-ref record index type))))")
     self.define("record-field-mutator", via:
       "(define (record-field-mutator type field)",
       "  (let ((index (record-type-field-index type field)))",
-      "    (lambda (record value) (record-set! record index value))))")
-    self.define("define-record-field", via:
-      "(define-syntax define-record-field",
+      "    (lambda (record value) (record-set! record index value type))))")
+    self.define("_define-record-field", via:
+      "(define-syntax _define-record-field",
       "  (syntax-rules ()",
       "    ((_ type field accessor)",
       "      (define accessor (record-field-accessor type 'field)))",
@@ -80,7 +80,7 @@ public final class RecordLibrary: NativeLibrary {
       "        (define type (make-record-type (symbol->string 'type) '(field ...)))",
       "        (define constr (record-constructor type '(cfield ...)))",
       "        (define pred (record-predicate type))",
-      "        (define-record-field type field accessor . mutator) ... (void)))))")
+      "        (_define-record-field type field accessor . mutator) ... (void)))))")
   }
   
   func isRecord(_ expr: Expr, rtype: Expr?) -> Expr {
@@ -210,9 +210,19 @@ public final class RecordLibrary: NativeLibrary {
       Collection(kind: .record(type), exprs: Exprs(repeating: .undef, count: Int(size))))
   }
   
-  func recordRef(_ expr: Expr, index: Expr) throws -> Expr {
+  func recordRef(_ expr: Expr, _ index: Expr, _ type: Expr?) throws -> Expr {
     let record = try expr.recordAsCollection()
     let idx = try index.asInt()
+    if let type = type {
+      guard case .record(let tpe) = type,
+            case .recordType = tpe.kind else {
+        throw RuntimeError.eval(.expectedRecordToAccessField, type, expr)
+      }
+      guard case .record(let exprtype) = record.kind,
+            tpe === exprtype else {
+        throw RuntimeError.eval(.expectedRecordToAccessField, tpe.exprs[0], expr)
+      }
+    }
     guard idx >= 0 && idx < record.exprs.count else {
       throw RuntimeError.range(parameter: 2,
                                of: "record-ref",
@@ -222,10 +232,19 @@ public final class RecordLibrary: NativeLibrary {
     return record.exprs[idx]
   }
   
-  func recordSet(_ expr: Expr, index: Expr, value: Expr) throws -> Expr {
+  func recordSet(_ expr: Expr, _ index: Expr, _ value: Expr, _ type: Expr?) throws -> Expr {
     let record = try expr.recordAsCollection()
-    guard case .record(_) = record.kind else {
+    guard case .record(let exprtype) = record.kind else {
       throw RuntimeError.eval(.attemptToModifyImmutableData, expr)
+    }
+    if let type = type {
+      guard case .record(let tpe) = type,
+            case .recordType = tpe.kind else {
+        throw RuntimeError.eval(.expectedRecordToAccessField, type, expr)
+      }
+      guard tpe === exprtype else {
+        throw RuntimeError.eval(.expectedRecordToAccessField, tpe.exprs[0], expr)
+      }
     }
     switch index {
       case .fixnum(let idx):
