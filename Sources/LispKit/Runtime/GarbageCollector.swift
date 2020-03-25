@@ -121,7 +121,7 @@ public final class GarbageCollector: ObjectMarker {
     switch expr {
       case .pair(_, _), .box(_), .mpair(_), .array(_), .vector(_), .record(_), .table(_),
            .promise(_), .values(_), .procedure(_), .special(_), .tagged(_, _), .error(_),
-           .syntax(_):
+           .syntax(_, _):
         self.backlog.append(expr)
       default:
         break

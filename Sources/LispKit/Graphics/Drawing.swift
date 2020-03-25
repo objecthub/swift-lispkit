@@ -136,7 +136,7 @@ public final class Drawing: NativeObject {
     // Define a media box
     var mediaBox = NSRect(x: 0, y: 0, width: Double(width), height: Double(height))
     // Create a core graphics context suitable for drawing the image into a PDF file
-    var pdfInfo = NSMutableDictionary()
+    let pdfInfo = NSMutableDictionary()
     if let title = title {
       pdfInfo[kCGPDFContextTitle] = title
     }

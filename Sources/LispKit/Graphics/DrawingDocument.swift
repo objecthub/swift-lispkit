@@ -93,7 +93,7 @@ public final class DrawingDocument {
       return false
     }
     // Define PDF document information
-    var pdfInfo: NSMutableDictionary = [
+    let pdfInfo: NSMutableDictionary = [
       kCGPDFContextAllowsPrinting: (self.allowsPrinting ? kCFBooleanTrue : kCFBooleanFalse) as Any,
       kCGPDFContextAllowsCopying : (self.allowsCopying ? kCFBooleanTrue : kCFBooleanFalse) as Any
     ]

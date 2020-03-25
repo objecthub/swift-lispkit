@@ -578,10 +578,10 @@ public enum Instruction: CustomStringConvertible {
         return "push_char \(char)"
       case .pack(let n):
         return "pack \(n)"
-      case .unpack(let n):
-        return "unpack \(n)"
+      case .unpack(let n, let all):
+        return "unpack \(n), \(all ? "given" : "all")"
       case .makeClosure(let i, let n, let index):
-        return "make_closure \(i),\(n),\(index)"
+        return "make_closure \(i), \(n), \(index)"
       case .makePromise:
         return "make_promise"
       case .makeStream:
