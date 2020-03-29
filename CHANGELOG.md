@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.8.4 (2020-03-30)
+- Several garbage collector enhancements
+- Fixed serious memory leak in the compiler
+- Fixed read command logic in the LispKit REPL
+- REPL now uses default colors and thus also works with dark mode.
+- Made field access of records type safe.
+- New libraries: `(srfi 6)`, `(srfi 54)`, `(srfi 162)`
+- Extended library `(lispkit dynamic)` with assertion support: `make-assertion-error`, `assertion`, `assert`
+- New sample code `Polynomials.scm`
+
 ## 1.8.3 (2020-01-19)
 - New libraries: `(lispkit markdown)`, `(lispkit disjoint-set)`, `(srfi 167)`, `(srfi 98)`, `(srfi 87)`
 - Extended library `(lispkit system)` with procedures `asset-file-path`, `path-components`, `parent-path`, `path`, and `source-directory`

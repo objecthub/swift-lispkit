@@ -36,7 +36,7 @@ guard repl.flagsValid() else {
 if repl.shouldRunRepl() {
   #if SPM
     guard repl.configurationSuccessfull(implementationName: "LispKit",
-                                        implementationVersion: "1.8.3",
+                                        implementationVersion: "1.8.4",
                                         includeInternalResources: false,
                                         defaultDocDirectory: "LispKit",
                                         features: features) else {
