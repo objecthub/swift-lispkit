@@ -27,7 +27,10 @@ showcases how to create a derived _LispKit_ interpreter that inherits everything
 _LispKit_ (without code duplication) and defines a new native as well as Scheme-based library.
 
 [LispPad](http://lisppad.objecthub.net) implements a simple, lightweight, integrated
-development environment for _LispKit_ on macOS with a Cocoa-based UI. A simpler
+development environment for _LispKit_ on macOS with a Cocoa-based UI. The
+[LispPad Library Reference](http://lisppad.objecthub.net/resources/LispPad_Reference_1.4.pdf)
+documents the core LispPad and LispKit libraries in
+[PDF](http://lisppad.objecthub.net/resources/LispPad_Reference_1.4.pdf) form. A simpler
 command-line tool with similar functionality is provided by the LispKit framework itself
 (see below).
 
