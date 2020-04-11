@@ -91,6 +91,10 @@ class RegressionTests: LispKitTestCase {
     self.execute(file: "Markdown")
   }
   
+  func testSQLite() {
+    self.execute(file: "SQLite")
+  }
+  
   func testLogic() {
     self.execute(file: "Logic")
   }

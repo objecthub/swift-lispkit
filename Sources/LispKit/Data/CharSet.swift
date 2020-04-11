@@ -37,7 +37,7 @@ public final class CharSet: NativeObject {
 
   /// Return native object type.
   public override var type: Type {
-    return CharSet.type
+    return Self.type
   }
 
   public override init() {

@@ -270,7 +270,7 @@ public final class VirtualMachine: TrackedObject {
       return try eval()
     } catch let error as RuntimeError { // handle Lisp-related issues
       exception = error
-    } catch let error as NSError { // handle OS-related issues
+    } catch let error { // handle OS-related issues
       exception = RuntimeError.os(error)
     }
     // Abortions ignore dynamic environments
@@ -288,7 +288,7 @@ public final class VirtualMachine: TrackedObject {
         return try self.apply(.procedure(raiseProc), to: .pair(.error(obj), .null))
       } catch let error as RuntimeError { // handle Lisp-related issues
         exception = error
-      } catch let error as NSError { // handle OS-related issues
+      } catch let error { // handle OS-related issues
         exception = RuntimeError.os(error)
       }
     }
@@ -966,7 +966,7 @@ public final class VirtualMachine: TrackedObject {
         error.attach(stackTrace: self.getStackTrace(current: proc))
       }
       throw error
-    } catch let error as NSError {
+    } catch let error {
       throw RuntimeError.os(error).attach(stackTrace: self.getStackTrace(current: proc))
     }
     // Handle continuations
@@ -1035,7 +1035,7 @@ public final class VirtualMachine: TrackedObject {
         error.attach(stackTrace: self.getStackTrace())
       }
       throw error
-    } catch let error as NSError {
+    } catch let error {
       throw RuntimeError.os(error).attach(stackTrace: self.getStackTrace())
     }
   }

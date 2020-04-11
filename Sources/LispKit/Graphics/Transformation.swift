@@ -55,7 +55,7 @@ public final class Transformation: NativeObject {
 
   /// Return native object type.
   public override var type: Type {
-    return Transformation.type
+    return Self.type
   }
   
   /// Shift coordinates by x/y.

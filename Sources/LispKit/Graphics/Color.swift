@@ -57,7 +57,7 @@ public final class Color: NativeObject {
 
   /// Return native object type.
   public override var type: Type {
-    return Color.type
+    return Self.type
   }
 
   /// Return string representation of native object.

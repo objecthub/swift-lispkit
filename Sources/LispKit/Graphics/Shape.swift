@@ -126,7 +126,7 @@ public final class Shape: NativeObject {
 
   /// Return native object type.
   public override var type: Type {
-    return Shape.type
+    return Self.type
   }
   
   /// Returns true if there are no shape constructors yet

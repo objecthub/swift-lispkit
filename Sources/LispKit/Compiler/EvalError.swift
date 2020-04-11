@@ -106,6 +106,7 @@ public enum EvalError: Int, Hashable {
   case unknownInterpolateAlgorithm
   case unsupportedGradientColorSpec
   case invalidRegexpMatchingOption
+  case unableToBindValue
   case unknownKeyword
   case expectedKeywordArg
   case assertion
@@ -274,6 +275,8 @@ public enum EvalError: Int, Hashable {
         return "unsupported gradient color specification: $0"
       case .invalidRegexpMatchingOption:
         return "invalid regexp matching option: $0"
+      case .unableToBindValue:
+        return "unable to bind $0 to parameter at index $1"
       case .unknownKeyword:
         return "unknown keyword $1; cannot assign value $0"
       case .expectedKeywordArg:

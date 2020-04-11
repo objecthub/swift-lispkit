@@ -96,7 +96,7 @@ public final class LibraryManager: TrackedObject, CustomStringConvertible {
                   in: self.context.global)
       } catch let error as RuntimeError {
         throw error.attach(library: name)
-      } catch let error as NSError {
+      } catch let error {
         throw RuntimeError.os(error).attach(library: name)
       }
     }

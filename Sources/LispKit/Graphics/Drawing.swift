@@ -49,7 +49,7 @@ public final class Drawing: NativeObject {
 
   /// Return native object type.
   public override var type: Type {
-    return Drawing.type
+    return Self.type
   }
   
   /// Appends a new drawing instruction.

@@ -123,9 +123,9 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
     return RuntimeError(pos, ErrorDescriptor.eval(error), irritants)
   }
   
-  public class func os(_ error: NSError,
+  public class func os(_ error: Error,
                        at pos: SourcePosition = SourcePosition.unknown) -> RuntimeError {
-    return RuntimeError(SourcePosition.unknown, ErrorDescriptor.os(error), [])
+    return RuntimeError(pos, ErrorDescriptor.os(error), [])
   }
   
   public class func abortion(at pos: SourcePosition = SourcePosition.unknown,
@@ -418,7 +418,7 @@ public enum ErrorDescriptor: Hashable {
   case range(String?, Int?, Int64, Int64)
   case argumentCount(String?, Int, Int)
   case eval(EvalError)
-  case os(NSError)
+  case os(Error)
   case abortion
   case custom(String, String)
   
@@ -576,11 +576,12 @@ public enum ErrorDescriptor: Hashable {
       case .eval(let error):
         return error.message
       case .os(let error):
-        if let underlying = error.userInfo[NSUnderlyingErrorKey] as? NSError {
+        let nserror = error as NSError
+        if let underlying = nserror.userInfo[NSUnderlyingErrorKey] as? NSError {
           let prefix = underlying.localizedFailureReason ?? underlying.localizedDescription
-          return "\(prefix): \(error.localizedDescription) (\(error.code))"
+          return "\(prefix): \(error.localizedDescription) (error \(nserror.code))"
         } else {
-          return "\(error.localizedDescription) (\(error.code))"
+          return "\(error.localizedDescription) (error \(nserror.code))"
         }
       case .abortion:
         return "abortion"
@@ -624,7 +625,7 @@ public enum ErrorDescriptor: Hashable {
         hasher.combine(error)
       case .os(let error):
         hasher.combine(6)
-        hasher.combine(error)
+        hasher.combine(error as NSError)
       case .abortion:
         hasher.combine(7)
       case .custom(let kind, let message):
@@ -651,7 +652,7 @@ public enum ErrorDescriptor: Hashable {
       case (.eval(let lerr), .eval(let rerr)):
         return lerr == rerr
       case (.os(let lerr), .os(let rerr)):
-        return lerr == rerr
+        return lerr.localizedDescription == rerr.localizedDescription
       case (.abortion, .abortion):
         return true
       case (.custom(let lkind, let lmessage), .custom(let rkind, let rmessage)):

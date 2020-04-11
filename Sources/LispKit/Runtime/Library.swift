@@ -342,7 +342,7 @@ open class Library: Reference, CustomStringConvertible {
       }
     } catch let error as RuntimeError {
       throw error.attach(library: self.name)
-    } catch let error as NSError {
+    } catch let error {
       throw RuntimeError.os(error).attach(library: self.name)
     }
     // Allocate all libraries from which identifiers are imported
@@ -372,7 +372,7 @@ open class Library: Reference, CustomStringConvertible {
       }
     } catch let error as RuntimeError {
       throw error.attach(library: self.name)
-    } catch let error as NSError {
+    } catch let error {
       throw RuntimeError.os(error).attach(library: self.name)
     }
     return true
@@ -415,7 +415,7 @@ open class Library: Reference, CustomStringConvertible {
       }
     } catch let error as RuntimeError {
       throw error.attach(library: self.name)
-    } catch let error as NSError {
+    } catch let error {
       throw RuntimeError.os(error).attach(library: self.name)
     }
     return true

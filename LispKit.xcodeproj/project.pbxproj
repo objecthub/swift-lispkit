@@ -10,6 +10,9 @@
 		CC01903B1C89D02200DB8BF9 /* CaptureGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC01903A1C89D02200DB8BF9 /* CaptureGroup.swift */; };
 		CC01903D1C8C7D8600DB8BF9 /* Reference.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC01903C1C8C7D8600DB8BF9 /* Reference.swift */; };
 		CC050F141D017D3400D32132 /* BytevectorLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC050F131D017D3400D32132 /* BytevectorLibrary.swift */; };
+		CC08964E244090D1004503B1 /* SQLiteLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC08964D244090D1004503B1 /* SQLiteLibrary.swift */; };
+		CC089651244091E9004503B1 /* SQLiteExpress in Frameworks */ = {isa = PBXBuildFile; productRef = CC089650244091E9004503B1 /* SQLiteExpress */; };
+		CC08965324413F6E004503B1 /* SQLite.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC08965224413DC6004503B1 /* SQLite.scm */; };
 		CC0980A71C62BDBC006B7FB1 /* Compiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0980A61C62BDBC006B7FB1 /* Compiler.swift */; };
 		CC0980A91C67E81C006B7FB1 /* Code.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0980A81C67E81C006B7FB1 /* Code.swift */; };
 		CC0980AB1C67E84C006B7FB1 /* Cell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0980AA1C67E84C006B7FB1 /* Cell.swift */; };
@@ -720,6 +723,8 @@
 		CC01903A1C89D02200DB8BF9 /* CaptureGroup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptureGroup.swift; sourceTree = "<group>"; };
 		CC01903C1C8C7D8600DB8BF9 /* Reference.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reference.swift; sourceTree = "<group>"; };
 		CC050F131D017D3400D32132 /* BytevectorLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = BytevectorLibrary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		CC08964D244090D1004503B1 /* SQLiteLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SQLiteLibrary.swift; sourceTree = "<group>"; };
+		CC08965224413DC6004503B1 /* SQLite.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = SQLite.scm; sourceTree = "<group>"; };
 		CC0980A61C62BDBC006B7FB1 /* Compiler.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Compiler.swift; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC0980A81C67E81C006B7FB1 /* Code.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Code.swift; sourceTree = "<group>"; };
 		CC0980AA1C67E84C006B7FB1 /* Cell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cell.swift; sourceTree = "<group>"; };
@@ -1054,6 +1059,7 @@
 			files = (
 				CCA6C3D42361149D007D2AF0 /* MarkdownKit in Frameworks */,
 				CC5E53032355AAD400C72CE2 /* NumberKit in Frameworks */,
+				CC089651244091E9004503B1 /* SQLiteExpress in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1129,6 +1135,7 @@
 				CC2A9DA72200E6E300F39194 /* Libraries.scm */,
 				CC2345421F655C0A00C38817 /* Datatypes.scm */,
 				CCF602E3239BE71F00087740 /* Markdown.scm */,
+				CC08965224413DC6004503B1 /* SQLite.scm */,
 				CC436C411FFD94870095559E /* Logic.scm */,
 				CC8218901E3FFFAB009CA653 /* SRFI19.scm */,
 				CC5E473E20D2D95E00F21B03 /* SRFI69.scm */,
@@ -1606,6 +1613,7 @@
 				CC4E2D361D09691000D77159 /* PortLibrary.swift */,
 				CC4575C520F00C4400116F0F /* DrawingLibrary.swift */,
 				CCA6C3D023610674007D2AF0 /* MarkdownLibrary.swift */,
+				CC08964D244090D1004503B1 /* SQLiteLibrary.swift */,
 				CC38528A23126F7A001D5E56 /* InternalLibrary.swift */,
 			);
 			path = Primitives;
@@ -1793,6 +1801,7 @@
 			packageProductDependencies = (
 				CC5E53022355AAD400C72CE2 /* NumberKit */,
 				CCA6C3D32361149D007D2AF0 /* MarkdownKit */,
+				CC089650244091E9004503B1 /* SQLiteExpress */,
 			);
 			productName = LispKit;
 			productReference = CCAD52BA1C48403800DBD8EE /* LispKit.framework */;
@@ -1856,6 +1865,7 @@
 				CC5E53012355AAD400C72CE2 /* XCRemoteSwiftPackageReference "swift-numberkit" */,
 				CC5E53042355AB0700C72CE2 /* XCRemoteSwiftPackageReference "swift-commandlinekit" */,
 				CCA6C3D22361149D007D2AF0 /* XCRemoteSwiftPackageReference "swift-markdownkit" */,
+				CC08964F244091E9004503B1 /* XCRemoteSwiftPackageReference "swift-sqliteexpress" */,
 			);
 			productRefGroup = CCAD52BB1C48403800DBD8EE /* Products */;
 			projectDirPath = "";
@@ -1890,6 +1900,7 @@
 				CC131C521CDE840C006C030C /* LocalSyntaxRules.scm in Resources */,
 				CC48EBC61F3E460900233FA9 /* SRFI35.scm in Resources */,
 				CC8C6EC81CFA65F200126BDD /* ControlFlow.scm in Resources */,
+				CC08965324413F6E004503B1 /* SQLite.scm in Resources */,
 				CC97FA161CFA515E0008596E /* Definitions.scm in Resources */,
 				CCC41DC81D2B14AD003CB4D0 /* CallCC.scm in Resources */,
 				CCB91C981D57E785001A95DC /* Parameters.scm in Resources */,
@@ -2027,6 +2038,7 @@
 				CC31A6981D3AC223008D7728 /* Hash.swift in Sources */,
 				CC5A47251C52E08900EFCF76 /* ControlFlowLibrary.swift in Sources */,
 				CCB585B81E15A6E70064BB18 /* ContextDelegate.swift in Sources */,
+				CC08964E244090D1004503B1 /* SQLiteLibrary.swift in Sources */,
 				CC76312520E95204005F27CE /* Transformation.swift in Sources */,
 				CC6A3B681C52F17200E962E2 /* BaseLibrary.swift in Sources */,
 				CC5C0A3F1D8EBE0A00CE2E98 /* MultiMap.swift in Sources */,
@@ -2446,12 +2458,20 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		CC08964F244091E9004503B1 /* XCRemoteSwiftPackageReference "swift-sqliteexpress" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/objecthub/swift-sqliteexpress.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
 		CC5E53012355AAD400C72CE2 /* XCRemoteSwiftPackageReference "swift-numberkit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/objecthub/swift-numberkit.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 2.3.4;
+				minimumVersion = 2.3.6;
 			};
 		};
 		CC5E53042355AB0700C72CE2 /* XCRemoteSwiftPackageReference "swift-commandlinekit" */ = {
@@ -2473,6 +2493,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		CC089650244091E9004503B1 /* SQLiteExpress */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CC08964F244091E9004503B1 /* XCRemoteSwiftPackageReference "swift-sqliteexpress" */;
+			productName = SQLiteExpress;
+		};
 		CC458D822386043500231A63 /* CommandLineKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = CC5E53042355AB0700C72CE2 /* XCRemoteSwiftPackageReference "swift-commandlinekit" */;
