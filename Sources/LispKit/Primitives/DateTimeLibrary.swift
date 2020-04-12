@@ -84,6 +84,16 @@ public final class DateTimeLibrary: NativeLibrary {
     self.define(Procedure("week->date-time", self.weekToDateTime))
     self.define(Procedure("seconds->date-time", self.secondsToDateTime))
     self.define(Procedure("string->date-time", self.stringToDateTime))
+    self.define(Procedure("date-time-add", self.dateTimeAdd))
+    self.define(Procedure("date-time-add-seconds", self.dateTimeAddSeconds))
+    self.define(Procedure("date-time-diff-seconds", self.dateTimeDiffSeconds))
+    self.define(Procedure("date-time-in-timezone", self.dateTimeInTimezone))
+    self.define(Procedure("date-time-same?", self.isDateTimeSame))
+    self.define(Procedure("date-time=?", self.isDateTimeEquals))
+    self.define(Procedure("date-time<?", self.isDateTimeLess))
+    self.define(Procedure("date-time>?", self.isDateTimeGreater))
+    self.define(Procedure("date-time<=?", self.isDateTimeLessEquals))
+    self.define(Procedure("date-time>=?", self.isDateTimeGreaterEquals))
     self.define(Procedure("date-time->seconds", self.dateTimeToSeconds))
     self.define(Procedure("date-time->string", self.dateTimeToString))
     self.define(Procedure("date-time->iso8601-string", self.dateTimeToISO8601String))
@@ -100,6 +110,7 @@ public final class DateTimeLibrary: NativeLibrary {
     self.define(Procedure("date-time-dst-offset", self.dateTimeDstOffset))
     self.define(Procedure("date-time-has-dst", self.dateTimeHasDst))
     self.define(Procedure("next-dst-transition", self.nextDstTransition))
+    self.define(Procedure("date-time-hash", self.dateTimeHash))
   }
 
   private func currentSeconds() -> Expr {
@@ -320,7 +331,7 @@ public final class DateTimeLibrary: NativeLibrary {
   }
 
   private func secondsToDateTime(_ seconds: Expr, _ timeZone: Expr?) throws -> Expr {
-    let date = Date(timeIntervalSince1970: try seconds.asDouble())
+    let date = Date(timeIntervalSince1970: try seconds.asDouble(coerce: true))
     return .object(NativeDateTime(self.calendar.dateComponents(in: try self.asTimeZone(timeZone),
                                                                from: date)))
   }
@@ -359,6 +370,127 @@ public final class DateTimeLibrary: NativeLibrary {
                                                                from: date)))
   }
 
+  private func dateTimeAdd(_ expr: Expr, _ days: Expr, _ args: Arguments) throws -> Expr {
+    guard let (hrs, min, sec, nano) = args.optional(.fixnum(0),
+                                                    .fixnum(0),
+                                                    .fixnum(0),
+                                                    .fixnum(0)) else {
+      throw RuntimeError.argumentCount(of: "date-time-increment",
+                                       min: 2,
+                                       max: 6,
+                                       args: .pair(expr, .pair(days, .makeList(args))))
+    }
+    let dateComponents = try self.asDateComponents(expr)
+    guard let date = dateComponents.date else {
+      throw RuntimeError.type(expr, expected: [NativeDateTime.type])
+    }
+    let dc = DateComponents(calendar: self.calendar,
+                            timeZone: dateComponents.timeZone,
+                            year: 0,
+                            month: 0,
+                            day: try days.asInt(above: Int.min),
+                            hour: try hrs.asInt(above: Int.min),
+                            minute: try min.asInt(above: Int.min),
+                            second: try sec.asInt(above: Int.min),
+                            nanosecond: try nano.asInt(above: Int.min))
+    guard let target = self.calendar.date(byAdding: dc, to: date, wrappingComponents: false),
+      let timeZone = dateComponents.timeZone else {
+      return .false
+    }
+    return .object(NativeDateTime(self.calendar.dateComponents(in: timeZone, from: target)))
+  }
+  
+  private func dateTimeAddSeconds(_ expr: Expr, _ seconds: Expr) throws -> Expr {
+    let dateComponents = try self.asDateComponents(expr)
+    guard let date = dateComponents.date else {
+      throw RuntimeError.type(expr, expected: [NativeDateTime.type])
+    }
+    let target = Date(timeIntervalSince1970: try date.timeIntervalSince1970 +
+                                                 seconds.asDouble(coerce: true))
+    guard let timeZone = dateComponents.timeZone else {
+      return .false
+    }
+    return .object(NativeDateTime(self.calendar.dateComponents(in: timeZone, from: target)))
+  }
+  
+  private func dateTimeDiffSeconds(_ expr: Expr, _ target: Expr) throws -> Expr {
+    guard let start = try self.asDateComponents(expr).date else {
+      throw RuntimeError.type(expr, expected: [NativeDateTime.type])
+    }
+    guard let end = try self.asDateComponents(target).date else {
+      throw RuntimeError.type(target, expected: [NativeDateTime.type])
+    }
+    if end >= start {
+      return .makeNumber(DateInterval(start: start, end: end).duration)
+    } else {
+      return .makeNumber(-DateInterval(start: end, end: start).duration)
+    }
+  }
+  
+  private func dateTimeInTimezone(_ expr: Expr, _ timeZone: Expr?) throws -> Expr {
+    guard let date = try self.asDateComponents(expr).date else {
+      throw RuntimeError.type(expr, expected: [NativeDateTime.type])
+    }
+    let tzone = try self.asTimeZone(timeZone)
+    return .object(NativeDateTime(self.calendar.dateComponents(in: tzone, from: date)))
+  }
+
+  private func isDateTimeSame(_ lhs: Expr, _ rhs: Expr) throws -> Expr {
+    let left = try self.asDateComponents(lhs)
+    let right = try self.asDateComponents(rhs)
+    return .makeBoolean(left == right)
+  }
+
+  private func isDateTimeEquals(_ lhs: Expr, _ rhs: Expr) throws -> Expr {
+    guard let left = try self.asDateComponents(lhs).date else {
+      throw RuntimeError.type(lhs, expected: [NativeDateTime.type])
+    }
+    guard let right = try self.asDateComponents(rhs).date else {
+      throw RuntimeError.type(rhs, expected: [NativeDateTime.type])
+    }
+    return .makeBoolean(left == right)
+  }
+  
+  private func isDateTimeLess(_ lhs: Expr, _ rhs: Expr) throws -> Expr {
+    guard let left = try self.asDateComponents(lhs).date else {
+      throw RuntimeError.type(lhs, expected: [NativeDateTime.type])
+    }
+    guard let right = try self.asDateComponents(rhs).date else {
+      throw RuntimeError.type(rhs, expected: [NativeDateTime.type])
+    }
+    return .makeBoolean(left < right)
+  }
+  
+  private func isDateTimeGreater(_ lhs: Expr, _ rhs: Expr) throws -> Expr {
+    guard let left = try self.asDateComponents(lhs).date else {
+      throw RuntimeError.type(lhs, expected: [NativeDateTime.type])
+    }
+    guard let right = try self.asDateComponents(rhs).date else {
+      throw RuntimeError.type(rhs, expected: [NativeDateTime.type])
+    }
+    return .makeBoolean(left < right)
+  }
+  
+  private func isDateTimeLessEquals(_ lhs: Expr, _ rhs: Expr) throws -> Expr {
+    guard let left = try self.asDateComponents(lhs).date else {
+      throw RuntimeError.type(lhs, expected: [NativeDateTime.type])
+    }
+    guard let right = try self.asDateComponents(rhs).date else {
+      throw RuntimeError.type(rhs, expected: [NativeDateTime.type])
+    }
+    return .makeBoolean(left <= right)
+  }
+  
+  private func isDateTimeGreaterEquals(_ lhs: Expr, _ rhs: Expr) throws -> Expr {
+    guard let left = try self.asDateComponents(lhs).date else {
+      throw RuntimeError.type(lhs, expected: [NativeDateTime.type])
+    }
+    guard let right = try self.asDateComponents(rhs).date else {
+      throw RuntimeError.type(rhs, expected: [NativeDateTime.type])
+    }
+    return .makeBoolean(left >= right)
+  }
+  
   private func dateTimeToSeconds(_ expr: Expr) throws -> Expr {
     guard let date = try self.asDateComponents(expr).date else {
       throw RuntimeError.type(expr, expected: [NativeDateTime.type])
@@ -471,7 +603,19 @@ public final class DateTimeLibrary: NativeLibrary {
     return .object(NativeDateTime(self.calendar.dateComponents(in: dateComponents.timeZone!,
                                                                from: next)))
   }
-
+  
+  private func dateTimeHash(_ expr: Expr, _ bound: Expr?) throws -> Expr {
+    guard let date = try self.asDateComponents(expr).date else {
+      throw RuntimeError.type(expr, expected: [NativeDateTime.type])
+    }
+    let bnd = try bound?.asInt64() ?? 0
+    if bnd <= 0 {
+      return .fixnum(Int64(date.hashValue))
+    } else {
+      return .fixnum(Int64(date.hashValue) %% bnd)
+    }
+  }
+  
   private func weekday(from value: Int) -> Int {
     return value > 1 && value < 8 ? value - 1 : 7
   }

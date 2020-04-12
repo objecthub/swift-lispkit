@@ -342,9 +342,7 @@ public extension ArraySlice {
     }
   }
   
-  func optional(_ fst: Element,
-                       _ snd: Element,
-                       _ trd: Element) -> (Element, Element, Element)? {
+  func optional(_ fst: Element, _ snd: Element, _ trd: Element) -> (Element, Element, Element)? {
     switch self.count {
       case 0:
         return (fst, snd, trd)
@@ -354,6 +352,29 @@ public extension ArraySlice {
         return (self[self.startIndex], self[self.startIndex + 1], trd)
       case 3:
         return (self[self.startIndex], self[self.startIndex + 1], self[self.startIndex + 2])
+      default:
+        return nil
+    }
+  }
+  
+  func optional(_ fst: Element,
+                _ snd: Element,
+                _ trd: Element,
+                _ fth: Element) -> (Element, Element, Element, Element)? {
+    switch self.count {
+      case 0:
+        return (fst, snd, trd, fth)
+      case 1:
+        return (self[self.startIndex], snd, trd, fth)
+      case 2:
+        return (self[self.startIndex], self[self.startIndex + 1], trd, fth)
+      case 3:
+        return (self[self.startIndex], self[self.startIndex + 1], self[self.startIndex + 2], fth)
+      case 4:
+        return (self[self.startIndex],
+                self[self.startIndex + 1],
+                self[self.startIndex + 2],
+                self[self.startIndex + 3])
       default:
         return nil
     }

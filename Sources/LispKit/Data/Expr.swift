@@ -424,12 +424,14 @@ extension Expr {
   }
   
   @inline(__always)
-  public func asInt(below: Int = Int.max) throws -> Int {
+  public func asInt(above: Int = 0, below: Int = Int.max) throws -> Int {
     guard case .fixnum(let res) = self else {
       throw RuntimeError.type(self, expected: [.exactIntegerType])
     }
-    guard res >= 0 && res < Int64(below) else {
-      throw RuntimeError.range(self, min: 0, max: below == Int.max ? Int64.max : Int64(below - 1))
+    guard res >= Int64(above) && res < Int64(below) else {
+      throw RuntimeError.range(self,
+                               min: Int64(above),
+                               max: below == Int.max ? Int64.max : Int64(below - 1))
     }
     return Int(res)
   }

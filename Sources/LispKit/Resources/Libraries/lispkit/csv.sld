@@ -2,7 +2,7 @@
 ;;;
 ;;; Simple API for reading and writing data in CSV format. The API provides two different
 ;;; levels of abstraction: reading and writing at 1) line-level (lower-level API), and 2)
-;;; record-level (higher-level API). Both levels use a csv-port` to configure the textual
+;;; record-level (higher-level API). Both levels use a `csv-port` to configure the textual
 ;;; input/output port, the separator and quotation character.
 ;;;
 ;;; The line-level API provides means to read a whole CSV file via `csv-read` and write
@@ -33,7 +33,7 @@
 ;;;     identifiers. With `make-record` a list of column identifiers and a list of the
 ;;;     fields of a data line are mapped into a record. `csv-read-records` returns a
 ;;;     vector of records. The default `make-column` function is `make-symbol-column`.
-;;;     The default `make-record` function is `make-alist-record`.
+;;;     The default `make-record` function is `make-alist-record/excess`.
 ;;;
 ;;;   (csv-write-records csv-port header records)
 ;;;   (csv-write-records csv-port header records column->string)
@@ -77,6 +77,7 @@
           csv-write-line
           make-symbol-column
           make-alist-record
+          make-alist-record/excess
           alist-field->string)
 
   (import (lispkit base))
@@ -110,7 +111,7 @@
 
     (define (csv-read-records csvp . args)
       (let-optionals args ((make-column make-symbol-column)
-                           (make-record make-alist-record))
+                           (make-record make-alist-record/excess))
         (let-values (((header lines) (csv-read csvp (procedure? make-column))))
           (let ((columns (if (procedure? make-column)
                              (map make-column header)
@@ -121,19 +122,40 @@
     (define (make-symbol-column str)
       (let ((name (string-trim str)))
         (if (zero? (string-length name))
-            #f
+            #t
             (string->symbol name))))
 
+    (define (make-alist-record/excess columns fields)
+      (if (pair? columns)
+          (let ((vals (if (pair? fields) fields (list #f))))
+            (cond ((procedure? (car columns))
+                    (let ((association ((car columns) (car vals))))
+                      (if association
+                          (cons association (make-alist-record/excess (cdr columns) (cdr vals)))
+                          (make-alist-record/excess (cdr columns) (cdr vals)))))
+                  ((car columns)
+                    (cons (cons (car columns) (car vals))
+                          (make-alist-record/excess (cdr columns) (cdr vals))))
+                  (else
+                    (make-alist-record/excess (cdr columns) (cdr vals)))))
+          (if (pair? fields)
+              (cons (cons #f (car fields)) (make-alist-record/excess '() (cdr fields)))
+              '())))
+
     (define (make-alist-record columns fields)
-      (if (null? columns)
-          (if (null? fields)
-              '()
-              (cons (cons #f (car fields)) (make-alist-record columns (cdr fields))))
-          (if (null? fields)
-              (cons (cons (car columns) #f)
-                    (make-alist-record (cdr columns) fields))
-              (cons (cons (car columns) (car fields))
-                    (make-alist-record (cdr columns) (cdr fields))))))
+      (if (pair? columns)
+          (let ((vals (if (pair? fields) fields (list #f))))
+            (cond ((procedure? (car columns))
+                    (let ((association ((car columns) (car vals))))
+                      (if association
+                          (cons association (make-alist-record (cdr columns) (cdr vals)))
+                          (make-alist-record (cdr columns) (cdr vals)))))
+                  ((car columns)
+                    (cons (cons (car columns) (car vals))
+                          (make-alist-record (cdr columns) (cdr vals))))
+                  (else
+                    (make-alist-record (cdr columns) (cdr vals)))))
+          '()))
 
     (define (csv-read csvp . args)
       (let-optionals args ((readheader #t))
@@ -243,4 +265,3 @@
               (write-char separator port)))))
   )
 )
-

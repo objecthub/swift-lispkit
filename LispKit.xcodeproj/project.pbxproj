@@ -159,7 +159,6 @@
 		CC5E530A235836A900C72CE2 /* SRFI-174.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC5E53092358359900C72CE2 /* SRFI-174.scm */; };
 		CC68B3A91FCCCDEE00EB4AF9 /* object.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC68B3A81FCC73C300EB4AF9 /* object.sld */; };
 		CC6A3B5C1C52E71F00E962E2 /* ListLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B5B1C52E71F00E962E2 /* ListLibrary.swift */; };
-		CC6A3B5E1C52E8EF00E962E2 /* VectorLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B5D1C52E8EF00E962E2 /* VectorLibrary.swift */; };
 		CC6A3B601C52EBD700E962E2 /* StringLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B5F1C52EBD700E962E2 /* StringLibrary.swift */; };
 		CC6A3B621C52ED7D00E962E2 /* CharLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B611C52ED7D00E962E2 /* CharLibrary.swift */; };
 		CC6A3B641C52EED400E962E2 /* MathLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B631C52EED400E962E2 /* MathLibrary.swift */; };
@@ -311,6 +310,7 @@
 		CCF602EC23A0FA9A00087740 /* engine.sld in Copy pre-installed LispKit library: SRFI 167 */ = {isa = PBXBuildFile; fileRef = CCF602E623A0F69800087740 /* engine.sld */; };
 		CCF602ED23A0FA9A00087740 /* pack.sld in Copy pre-installed LispKit library: SRFI 167 */ = {isa = PBXBuildFile; fileRef = CCF602E723A0F6B900087740 /* pack.sld */; };
 		CCF602EE23A0FA9A00087740 /* memory.sld in Copy pre-installed LispKit library: SRFI 167 */ = {isa = PBXBuildFile; fileRef = CCF602E823A0F6CB00087740 /* memory.sld */; };
+		CCF6C4172442F62800EB37AC /* VectorLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B5D1C52E8EF00E962E2 /* VectorLibrary.swift */; };
 		CCF982F71D998B8A00B22A1D /* ImportSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCF982F61D998B8A00B22A1D /* ImportSet.swift */; };
 /* End PBXBuildFile section */
 
@@ -1968,6 +1968,7 @@
 				CCAD52E71C48468F00DBD8EE /* Type.swift in Sources */,
 				CC5A47231C529D4A00EFCF76 /* CoreLibrary.swift in Sources */,
 				CCB480E21FA93C2200220328 /* BinaryInputSource.swift in Sources */,
+				CCF6C4172442F62800EB37AC /* VectorLibrary.swift in Sources */,
 				CC90500B1D36F52F008CE60A /* DynamicControlLibrary.swift in Sources */,
 				CCA3127F204CB7900026FF13 /* LexicalError.swift in Sources */,
 				CC76312320E951C2005F27CE /* Shape.swift in Sources */,
@@ -1984,7 +1985,6 @@
 				CC6AB0871C5C28FE008E9460 /* Equality.swift in Sources */,
 				CCAD52E01C48468F00DBD8EE /* Env.swift in Sources */,
 				CC6A3B6E1C53F0F600E962E2 /* Collection.swift in Sources */,
-				CC6A3B5E1C52E8EF00E962E2 /* VectorLibrary.swift in Sources */,
 				CCA3127D204CB74A0026FF13 /* RuntimeError.swift in Sources */,
 				CC8EDE701D07265E004E0636 /* TextInput.swift in Sources */,
 				CC2D124F1DB40E7F009BDC72 /* LibraryManager.swift in Sources */,
