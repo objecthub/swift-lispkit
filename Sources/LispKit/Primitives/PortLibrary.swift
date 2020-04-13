@@ -49,7 +49,8 @@ public final class PortLibrary: NativeLibrary {
   /// Dependencies of the library.
   public override func dependencies() {
     self.`import`(from: ["lispkit", "core"],    "define", "lambda", "quote")
-    self.`import`(from: ["lispkit", "control"], "let", "let*")
+    self.`import`(from: ["lispkit", "control"], "let", "let*", "if")
+    self.`import`(from: ["lispkit", "list"],    "car", "cons")
     self.`import`(from: ["lispkit", "system"],  "current-directory")
     self.`import`(from: ["lispkit", "dynamic"], "parameterize")
   }
@@ -168,6 +169,12 @@ public final class PortLibrary: NativeLibrary {
       "          (res (proc port)))",
       "     (close-input-port port)",
       "     res))")
+    self.define("try-call-with-input-url", via:
+      "(define (try-call-with-input-url url proc thunk)",
+      "  (let ((port (open-input-url url 60.0 #f)))",
+      "    (if port",
+      "        (car (cons (proc port) (close-input-port port)))",
+      "        (thunk))))")
   }
   
   public override func initializations() {
@@ -294,24 +301,32 @@ public final class PortLibrary: NativeLibrary {
     return .makeBoolean(port.isOutputPort && port.isOpen)
   }
   
-  func openInputFile(_ expr: Expr) throws -> Expr {
+  func openInputFile(_ expr: Expr, _ fail: Expr?) throws -> Expr {
     let filename =
       self.context.fileHandler.path(try expr.asPath(),
                                     relativeTo: self.systemLibrary.currentDirectoryPath)
     guard let input = BinaryInput(path: filename,
                                   abortionCallback: self.context.machine.isAbortionRequested) else {
-      throw RuntimeError.eval(.cannotOpenFile, .makeString(filename))
+      if let fail = fail {
+        return fail
+      } else {
+        throw RuntimeError.eval(.cannotOpenFile, .makeString(filename))
+      }
     }
     return .port(Port(input: TextInput(input: input)))
   }
   
-  func openBinaryInputFile(_ expr: Expr) throws -> Expr {
+  func openBinaryInputFile(_ expr: Expr, _ fail: Expr?) throws -> Expr {
     let filename =
       self.context.fileHandler.path(try expr.asPath(),
                                     relativeTo: self.systemLibrary.currentDirectoryPath)
     guard let input = BinaryInput(path: filename,
                                   abortionCallback: self.context.machine.isAbortionRequested) else {
-      throw RuntimeError.eval(.cannotOpenFile, .makeString(filename))
+      if let fail = fail {
+        return fail
+      } else {
+        throw RuntimeError.eval(.cannotOpenFile, .makeString(filename))
+      }
     }
     return .port(Port(input: input))
   }
@@ -350,22 +365,30 @@ public final class PortLibrary: NativeLibrary {
     }
   }
   
-  func openOutputFile(_ expr: Expr) throws -> Expr {
+  func openOutputFile(_ expr: Expr, _ fail: Expr?) throws -> Expr {
     let filename =
       self.context.fileHandler.path(try expr.asPath(),
                                     relativeTo: self.systemLibrary.currentDirectoryPath)
     guard let output = BinaryOutput(path: filename) else {
-      throw RuntimeError.eval(.cannotOpenFile, .makeString(filename))
+      if let fail = fail {
+        return fail
+      } else {
+        throw RuntimeError.eval(.cannotOpenFile, .makeString(filename))
+      }
     }
     return .port(Port(output: TextOutput(output: output)))
   }
   
-  func openBinaryOutputFile(_ expr: Expr) throws -> Expr {
+  func openBinaryOutputFile(_ expr: Expr, _ fail: Expr?) throws -> Expr {
     let filename =
       self.context.fileHandler.path(try expr.asPath(),
                                     relativeTo: self.systemLibrary.currentDirectoryPath)
     guard let output = BinaryOutput(path: filename) else {
-      throw RuntimeError.eval(.cannotOpenFile, .makeString(filename))
+      if let fail = fail {
+        return fail
+      } else {
+        throw RuntimeError.eval(.cannotOpenFile, .makeString(filename))
+      }
     }
     return .port(Port(output: output))
   }
@@ -389,20 +412,30 @@ public final class PortLibrary: NativeLibrary {
     return .port(Port(output: BinaryOutput()))
   }
   
-  func openInputUrl(_ expr: Expr) throws -> Expr {
+  func openInputUrl(_ expr: Expr, _ timeout: Expr?, _ fail: Expr?) throws -> Expr {
     let url = try expr.asURL()
     guard let input = BinaryInput(url: url,
+                                  timeout: try timeout?.asDouble(coerce: true) ?? 60.0,
                                   abortionCallback: self.context.machine.isAbortionRequested) else {
-      throw RuntimeError.eval(.cannotOpenUrl, .makeString(url.description))
+      if let fail = fail {
+        return fail
+      } else {
+        throw RuntimeError.eval(.cannotOpenUrl, .makeString(url.description))
+      }
     }
     return .port(Port(input: TextInput(input: input)))
   }
   
-  func openBinaryInputUrl(_ expr: Expr) throws -> Expr {
+  func openBinaryInputUrl(_ expr: Expr, _ timeout: Expr?, _ fail: Expr?) throws -> Expr {
     let url = try expr.asURL()
     guard let input = BinaryInput(url: url,
+                                  timeout: try timeout?.asDouble(coerce: true) ?? 60.0,
                                   abortionCallback: self.context.machine.isAbortionRequested) else {
-      throw RuntimeError.eval(.cannotOpenUrl, .makeString(url.description))
+      if let fail = fail {
+        return fail
+      } else {
+        throw RuntimeError.eval(.cannotOpenUrl, .makeString(url.description))
+      }
     }
     return .port(Port(input: input))
   }

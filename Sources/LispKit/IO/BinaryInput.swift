@@ -59,6 +59,11 @@ open class BinaryInput: IteratorProtocol {
     return false
   }
   
+  /// A default callback for checking if open is successful
+  public static func alwaysSuccessful() -> Bool {
+    return true
+  }
+  
   /// Initializes a binary input from a byte array
   public init(data: [UInt8],
               abortionCallback: @escaping () -> Bool = BinaryInput.neverAbort) {
@@ -84,14 +89,19 @@ open class BinaryInput: IteratorProtocol {
   /// the number of bytes used for caching data.
   public convenience init?(url: URL,
                            capacity: Int = 4096,
+                           timeout: Double = HTTPInputStream.defaultTimeout,
                            abortionCallback: @escaping () -> Bool = BinaryInput.neverAbort) {
     switch url.scheme {
       case "http"?, "https"?:
         // Create a new HTTP input stream
-        guard let input = HTTPInputStream(url: url) else {
+        guard let input = HTTPInputStream(url: url, timeout: timeout) else {
           return nil
         }
-        self.init(source: input, url: url, capacity: capacity, abortionCallback: abortionCallback)
+        self.init(source: input,
+                  url: url,
+                  capacity: capacity,
+                  abortionCallback: abortionCallback,
+                  openSuccessful: { input.statusCode != nil && input.statusCode! < 400 })
       default:
         // Check if the file at the given URL exists
         guard (try? url.checkResourceIsReachable()) ?? false else {
@@ -101,7 +111,10 @@ open class BinaryInput: IteratorProtocol {
         guard let input = InputStream(url: url) else {
           return nil
         }
-        self.init(source: input, url: url, capacity: capacity, abortionCallback: abortionCallback)
+        self.init(source: input,
+                  url: url,
+                  capacity: capacity,
+                  abortionCallback: abortionCallback)
     }
   }
   
@@ -110,7 +123,8 @@ open class BinaryInput: IteratorProtocol {
   public init?(source: BinaryInputSource,
                url: URL,
                capacity: Int = 4096,
-               abortionCallback: @escaping () -> Bool = BinaryInput.neverAbort) {
+               abortionCallback: @escaping () -> Bool = BinaryInput.neverAbort,
+               openSuccessful: () -> Bool = BinaryInput.alwaysSuccessful) {
     // Set up `BinaryInput` object
     self.buffer = [UInt8](repeating: 0, count: capacity)
     self.input = source
@@ -119,7 +133,9 @@ open class BinaryInput: IteratorProtocol {
     // Open the stream
     source.open()
     // Read data into the buffer
-    if source.hasBytesAvailable {
+    if !openSuccessful() {
+      return nil
+    } else if source.hasBytesAvailable {
       let result = source.read(&self.buffer,
                                maxLength: self.buffer.count * MemoryLayout<UInt8>.size)
       if result < 0 {

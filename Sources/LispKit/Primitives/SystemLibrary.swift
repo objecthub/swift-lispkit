@@ -781,7 +781,7 @@ public final class SystemLibrary: NativeLibrary {
     guard let stream = HTTPInputStream(url: url) else {
       throw RuntimeError.eval(.cannotOpenUrl, .makeString(url.description))
     }
-    stream.open(timeout: timeout)
+    stream.openConnection(timeout: timeout)
     stream.waitForResponse()
     guard let input = BinaryInput(source: stream,
                                   url: url,

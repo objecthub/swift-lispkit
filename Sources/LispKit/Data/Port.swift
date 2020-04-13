@@ -122,7 +122,7 @@ open class Port: Reference, CustomStringConvertible {
   
   open var identDescription: String {
     if let url = self.url {
-      return url.path
+      return url.host == nil ? url.path : url.description
     } else {
       return self.isBinaryPort ? "bytevector" : "string"
     }

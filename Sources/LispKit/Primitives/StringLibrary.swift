@@ -65,6 +65,8 @@ public final class StringLibrary: NativeLibrary {
     self.define(Procedure("string-downcase", stringDowncase))
     self.define(Procedure("string-titlecase", stringTitlecase))
     self.define(Procedure("string-foldcase", stringFoldcase))
+    self.define(Procedure("string-normalize-diacritics", stringNormalizeDiacritics))
+    self.define(Procedure("string-normalize-separators", stringNormalizeSeparators))
     self.define(Procedure("list->string", listToString))
     self.define(Procedure("string->list", stringToList))
     self.define(Procedure("substring", substring))
@@ -383,6 +385,27 @@ public final class StringLibrary: NativeLibrary {
   func stringFoldcase(_ expr: Expr) throws -> Expr {
     return .string(NSMutableString(
       string: try expr.asMutableStr().folding(options: [.caseInsensitive], locale: nil)))
+  }
+  
+  func stringNormalizeDiacritics(_ expr: Expr) throws -> Expr {
+    return .string(NSMutableString(
+      string: try expr.asMutableStr().folding(options: [.diacriticInsensitive, .widthInsensitive],
+                                              locale: nil)))
+  }
+  
+  func stringNormalizeSeparators(_ expr: Expr, _ sep: Expr?, _ sepChars: Expr?) throws -> Expr {
+    let separator = sep == nil ? " " : try sep!.charOrString()
+    let charSet: CharacterSet
+    if case .some(.object(let obj)) = sepChars, let cs = obj as? CharSet {
+      charSet = CharacterSet(charactersIn: String(utf16CodeUnits: cs.array, count: cs.count))
+    } else if let tcs = sepChars {
+      charSet = CharacterSet(charactersIn: try tcs.asString())
+    } else {
+      charSet = .whitespacesAndNewlines
+    }
+    let components = try expr.asString().components(separatedBy: charSet)
+    return .string(NSMutableString(string:
+                     components.filter { !$0.isEmpty }.joined(separator: separator)))
   }
   
   func stringToList(_ expr: Expr, args: Arguments) throws -> Expr {

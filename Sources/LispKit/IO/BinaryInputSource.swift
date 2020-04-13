@@ -48,7 +48,11 @@ public final class HTTPInputStream: BinaryInputSource {
   /// Data of the body of the HTTP response
   public fileprivate(set) var data: Data
   
+  /// The current read index
   public private(set) var readIndex: Data.Index
+  
+  /// The timeout for the HTTP connection
+  public let timeout: Double
   
   /// Number of bytes that were received from the HTTP GET request
   public fileprivate(set) var bytesReceived: Int64 = 0
@@ -73,20 +77,26 @@ public final class HTTPInputStream: BinaryInputSource {
                       delegateQueue: nil)
   }()
   
-  public init?(url: URL) {
+  public convenience init?(url: URL) {
+    self.init(url: url, timeout: HTTPInputStream.defaultTimeout)
+  }
+  
+  public init?(url: URL, timeout: Double) {
     guard let scheme = url.scheme, scheme == "http" || scheme == "https" else {
       return nil
     }
     self.url = url
     self.data = Data()
     self.readIndex = self.data.startIndex
+    self.timeout = timeout
   }
   
   public func open() {
-    self.open(timeout: HTTPInputStream.defaultTimeout)
+    self.openConnection(timeout: self.timeout)
+    self.waitForResponse()
   }
   
-  public func open(timeout: Double) {
+  public func openConnection(timeout: Double) {
     guard self.task == nil && !self.completed else {
       return
     }
@@ -206,7 +216,8 @@ fileprivate class SessionDelegate: NSObject,
     self.inputStreamForTask[task.taskIdentifier] = stream
   }
   
-  /// This callback is the last one done for each task. Mark the
+  /// This callback is the last one done for each task. Remove the input stream from the
+  /// list of all open input streams.
   public func urlSession(_ session: URLSession,
                          task: URLSessionTask,
                          didCompleteWithError error: Error?) {

@@ -912,15 +912,18 @@ public final class CoreLibrary: NativeLibrary {
   }
 
   private func opt(_ args: Arguments) throws -> (Procedure, Exprs) {
-    guard args.count == 2 else {
-      throw RuntimeError.argumentCount(of: "opt", num: 2, args: .makeList(args))
+    guard args.count >= 2 && args.count <= 3 else {
+      throw RuntimeError.argumentCount(of: "opt", min: 2, max: 3, args: .makeList(args))
     }
     guard case .procedure(let proc) = args.first! else {
       throw RuntimeError.type(args.first!, expected: [.procedureType])
     }
-    let arg = args[args.index(after: args.startIndex)]
+    let arg = args[args.startIndex + 1]
     if arg.isFalse {
-      return (CoreLibrary.idProc, [.true])
+      guard args.count == 3 else {
+        return (CoreLibrary.idProc, [.true])
+      }
+      return (CoreLibrary.idProc, [args[args.startIndex + 2]])
     } else {
       return (proc, [arg])
     }
