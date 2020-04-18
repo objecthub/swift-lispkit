@@ -40,8 +40,10 @@ public final class DynamicControlLibrary: NativeLibrary {
   public override func dependencies() {
     self.`import`(from: ["lispkit", "core"],      "define", "set!", "define-syntax", "not", "quote",
                                                   "syntax-rules", "lambda", "eqv?", "void", "or",
-                                                  "call-with-values", "apply-with-values")
-    self.`import`(from: ["lispkit", "control"],   "if", "let", "let*", "do", "begin")
+                                                  "call-with-values", "apply-with-values",
+                                                  "identity")
+    self.`import`(from: ["lispkit", "control"],   "if", "let", "let*", "let-optionals", "do",
+                                                  "begin")
     self.`import`(from: ["lispkit", "box"],       "box")
     self.`import`(from: ["lispkit", "list"],      "car", "cdr", "list", "null?")
     self.`import`(from: ["lispkit", "hashtable"], "hashtable-add!")
@@ -63,6 +65,7 @@ public final class DynamicControlLibrary: NativeLibrary {
     self.define(Procedure("_dynamic-wind-base", dynamicWindBase), export: false)
     self.define(Procedure("_dynamic-wind-current", dynamicWindCurrent), export: false)
     self.define(Procedure("_dynamic-winders", dynamicWinders), export: false)
+    self.define(Procedure("_unwind-protect-error", unwindProtectError), export: false)
     self.define("call-with-current-continuation", via:
       "(define (call-with-current-continuation f)",
       "  (_call-with-unprotected-continuation",
@@ -99,6 +102,12 @@ public final class DynamicControlLibrary: NativeLibrary {
       "(define (with-exception-handler handler thunk)",
       "  (_wind-up void void handler)",
       "  (let ((res (thunk))) (_wind-down) res))")
+    self.define("unwind-protect", via:
+      "(define-syntax unwind-protect",
+      "  (syntax-rules ()",
+      "    ((unwind-protect body cleanup ...)",
+      "      (begin (_wind-up _unwind-protect-error (lambda () cleanup ...))",
+      "             (let ((res body)) ((cdr (_wind-down))) res)))))")
     self.raiseProcLoc = self.define("raise", via:
       "(define (raise obj)",
       "  ((or (_wind-up-raise void void) return) obj)",
@@ -106,6 +115,13 @@ public final class DynamicControlLibrary: NativeLibrary {
     self.define("raise-continuable", via:
       "(define (raise-continuable obj)",
       "  (let ((res ((_wind-up-raise void void) obj))) (_wind-down) res))")
+    self.define("try", via:
+      "(define (try thunk . args)",
+      "  (let-optionals args ((handler (lambda (x) #f)))",
+      "    (call-with-current-continuation",
+      "      (lambda (k)",
+      "        (with-exception-handler",
+      "          (lambda (x) (if (error-object? x) (k (handler x)) (raise x))) thunk)))))")
     self.define("guard-aux", export: false, via:
       "(define-syntax guard-aux",
       "  (syntax-rules (else =>)",
@@ -195,7 +211,7 @@ public final class DynamicControlLibrary: NativeLibrary {
   
   // This implementation must only be used in call/cc; it's inherently unsafe to use outside
   // since it doesn't check the structure of expr.
-  func makeValues(expr: Expr) -> Expr {
+  private func makeValues(expr: Expr) -> Expr {
     switch expr {
       case .null:
         return .void // .values(.null)
@@ -206,7 +222,7 @@ public final class DynamicControlLibrary: NativeLibrary {
     }
   }
   
-  func isContinuation(_ expr: Expr) -> Expr {
+  private func isContinuation(_ expr: Expr) -> Expr {
     guard case .procedure(let proc) = expr else {
       return .false
     }
@@ -230,7 +246,7 @@ public final class DynamicControlLibrary: NativeLibrary {
     return false
   }
   
-  func callWithUnprotectedContinuation(_ args: Arguments) throws -> (Procedure, Exprs) {
+  private func callWithUnprotectedContinuation(_ args: Arguments) throws -> (Procedure, Exprs) {
     guard args.count == 1 else {
       throw RuntimeError.argumentCount(min: 1, max: 1, args: .makeList(args))
     }
@@ -245,7 +261,7 @@ public final class DynamicControlLibrary: NativeLibrary {
     return (proc, [.procedure(cont)])
   }
   
-  func windUp(_ before: Expr, after: Expr, handler: Expr?) throws -> Expr {
+  private func windUp(_ before: Expr, after: Expr, handler: Expr?) throws -> Expr {
     var handlers: Expr? = nil
     if let handler = handler {
       handlers = .pair(handler, self.context.machine.currentHandlers() ?? .null)
@@ -256,7 +272,7 @@ public final class DynamicControlLibrary: NativeLibrary {
     return .void
   }
   
-  func windUpRaise(_ before: Expr, after: Expr) throws -> Expr {
+  private func windUpRaise(_ before: Expr, after: Expr) throws -> Expr {
     switch self.context.machine.currentHandlers() {
       case .some(.pair(let handler, let rest)):
         self.context.machine.windUp(before: try before.asProcedure(),
@@ -268,14 +284,14 @@ public final class DynamicControlLibrary: NativeLibrary {
     }
   }
   
-  func windDown() -> Expr {
+  private func windDown() -> Expr {
     guard let winder = self.context.machine.windDown() else {
       return .null
     }
     return .pair(.procedure(winder.before), .procedure(winder.after))
   }
   
-  func dynamicWindBase(_ cont: Expr) throws -> Expr {
+  private func dynamicWindBase(_ cont: Expr) throws -> Expr {
     guard case .rawContinuation(let vmState) = try cont.asProcedure().kind else {
       preconditionFailure("_dynamic-wind-base(\(cont))")
     }
@@ -283,11 +299,11 @@ public final class DynamicControlLibrary: NativeLibrary {
     return .fixnum(base?.id ?? 0)
   }
   
-  func dynamicWindCurrent() -> Expr {
+  private func dynamicWindCurrent() -> Expr {
     return .fixnum(self.context.machine.winders?.id ?? 0)
   }
   
-  func dynamicWinders(_ cont: Expr) throws -> Expr {
+  private func dynamicWinders(_ cont: Expr) throws -> Expr {
     guard case .rawContinuation(let vmState) = try cont.asProcedure().kind else {
       preconditionFailure("_dynamic-winders(\(cont))")
     }
@@ -299,6 +315,10 @@ public final class DynamicControlLibrary: NativeLibrary {
       next = winder.next
     }
     return res
+  }
+  
+  private func unwindProtectError() throws -> Expr {
+    throw RuntimeError.eval(.cannotEnterProtectedBlockTwice)
   }
   
   private func makeError(message: Expr, irritants: Expr) -> Expr {
@@ -435,11 +455,11 @@ public final class DynamicControlLibrary: NativeLibrary {
     return .undef
   }
   
-  func makeParameter(_ value: Expr, setter: Expr?) -> Expr {
+  private func makeParameter(_ value: Expr, setter: Expr?) -> Expr {
     return .procedure(Procedure(setter ?? .null, value))
   }
   
-  func bindParameter(_ args: Arguments) throws -> (Procedure, Exprs) {
+  private func bindParameter(_ args: Arguments) throws -> (Procedure, Exprs) {
     guard args.count == 3 else {
       throw RuntimeError.argumentCount(min: 3, max: 3, args: .makeList(args))
     }
@@ -453,15 +473,15 @@ public final class DynamicControlLibrary: NativeLibrary {
     }
   }
   
-  func dynamicEnvironment() -> Expr {
+  private func dynamicEnvironment() -> Expr {
     return .table(self.context.machine.parameters)
   }
   
-  func makeDynamicEnvironment() -> Expr {
+  private func makeDynamicEnvironment() -> Expr {
     return .table(HashTable(copy: self.context.machine.parameters, mutable: true))
   }
   
-  func setDynamicEnvironment(_ expr: Expr) throws -> Expr {
+  private func setDynamicEnvironment(_ expr: Expr) throws -> Expr {
     self.context.machine.parameters = try expr.asHashTable()
     return .void
   }

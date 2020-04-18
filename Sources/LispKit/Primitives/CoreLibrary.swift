@@ -47,6 +47,8 @@ public final class CoreLibrary: NativeLibrary {
     self.define(SpecialForm("λ", compileLambda))
     self.define(SpecialForm("case-lambda", compileCaseLambda))
     self.define(SpecialForm("case-λ", compileCaseLambda))
+    self.define(SpecialForm("thunk", compileThunk))
+    self.define(SpecialForm("thunk*", compileThunkStar))
     
     // Definition primitives
     self.define(SpecialForm("define", compileDefine))
@@ -363,9 +365,28 @@ public final class CoreLibrary: NativeLibrary {
   
   private func compileLambda(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let arglist, let body)) = expr else {
-      throw RuntimeError.argumentCount(of: "lambda", num: 1, expr: expr)
+      throw RuntimeError.argumentCount(of: "lambda", min: 1, expr: expr)
     }
     try compiler.compileLambda(nil, arglist, body, env)
+    return false
+  }
+  
+  private func compileThunk(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    guard case .pair(_, let body) = expr else {
+      throw RuntimeError.argumentCount(of: "thunk", min: 0, expr: expr)
+    }
+    try compiler.compileLambda(nil, .null, body, env)
+    return false
+  }
+  
+  private func compileThunkStar(compiler: Compiler,
+                                expr: Expr,
+                                env: Env,
+                                tail: Bool) throws -> Bool {
+    guard case .pair(_, let body) = expr else {
+      throw RuntimeError.argumentCount(of: "thunk*", min: 0, expr: expr)
+    }
+    try compiler.compileLambda(nil, .symbol(Symbol(uninterned: "_")), body, env)
     return false
   }
   
