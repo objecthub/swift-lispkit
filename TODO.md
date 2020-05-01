@@ -1,6 +1,6 @@
 # Todo
 
-Last update: 2018-08-05
+Last update: 2020-05-01
 
 
 ## Compiler
@@ -10,7 +10,7 @@ Last update: 2018-08-05
 - [ ] Figure out that references to `define`, `define-values`, `unquote`, etc. are referring to the right
       syntax/definitions; right now, there are checks only for the definition to happen at the top-level in an
       immutable fashion
-- [ ] Treat define-values like define in compiler (wrt. internal definitions)
+- [X] Treat define-values like define in compiler (wrt. internal definitions)
 - [ ] `#;` comments (datum comments) not correctly working
 - [X] Optimization/checkpointing framework
 - [X] Use values instead of variables for all immutable bindings (do this by compiling
@@ -44,8 +44,8 @@ Last update: 2018-08-05
 
 ## Library
 
-- [ ] Reimplement records: to improve performance, to use make-type, to make them extensible
-- [ ] Record type checks when record accessors are called
+- [X] Reimplement records: to improve performance, to use make-type, to make them extensible
+- [X] Record type checks when record accessors are called
 - [X] Implement text + binary ports based on the R7RS standard
 - [X] Implement bytevector library based on the R7RS standard
 - [X] Implement hash table library based on the R6RS standard
@@ -67,4 +67,4 @@ Last update: 2018-08-05
 - [ ] Document architecture of framework
 - [ ] Document components of virtual machine
 - [X] Document bytecode instructions
-- [ ] Document supported Scheme procedures and special forms
+- [X] Document supported Scheme procedures and special forms

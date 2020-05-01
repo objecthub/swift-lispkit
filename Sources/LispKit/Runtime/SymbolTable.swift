@@ -19,10 +19,10 @@
 //
 
 ///
-/// Class `Symbols` represents a symbol table. It is used for managing symbols, symbol tags,
-/// and their textual representations. Instances of `Symbols` provide functionality for
-/// creating interned symbols for a given identifier and for looking up the identifier
-/// of a given symbol tag.
+/// Class `SymbolTable` implements the symbol table for LispKit. It is used for managing
+/// symbols and their textual representations. Instances of `SymbolTable` provide functionality
+/// for creating interned symbols for a given identifier and for looking up the identifier
+/// of a given symbol.
 ///
 public final class SymbolTable: Sequence {
   private var symTable = [String : Symbol]()
@@ -46,6 +46,7 @@ public final class SymbolTable: Sequence {
   public let letStar         = Symbol("let*")
   public let letrec          = Symbol("letrec")
   public let define          = Symbol("define")
+  public let defineValues    = Symbol("define-values")
   public let makePromise     = Symbol("make-promise")
   public let makeStream      = Symbol("make-stream")
   public let begin           = Symbol("begin")
@@ -76,6 +77,7 @@ public final class SymbolTable: Sequence {
     self.registerNativeSymbols()
   }
   
+  /// Register internally used symbols.
   public func registerNativeSymbols() {
     func register(_ sym: Symbol) {
       self.symTable[sym.identifier] = sym
@@ -98,6 +100,7 @@ public final class SymbolTable: Sequence {
     register(self.letStar)
     register(self.letrec)
     register(self.define)
+    register(self.defineValues)
     register(self.makePromise)
     register(self.makeStream)
     register(self.begin)
@@ -125,10 +128,12 @@ public final class SymbolTable: Sequence {
     register(self.starThree)
   }
   
+  /// Returns true if there is already an interned symbol for identifier `ident`.
   public func exists(_ ident: String) -> Bool {
     return self.symTable[ident] != nil
   }
   
+  /// Return a new interned symbol for the given identifier `ident`.
   public func intern(_ ident: String) -> Symbol {
     if let sym = self.symTable[ident] {
       return sym
@@ -139,6 +144,7 @@ public final class SymbolTable: Sequence {
     }
   }
   
+  /// Generates a new interned symbol.
   public func gensym(_ basename: String) -> Symbol {
     var ident: String
     repeat {
@@ -148,6 +154,7 @@ public final class SymbolTable: Sequence {
     return self.intern(ident)
   }
   
+  /// Generates an interned symbol by concatenating `prefix` and `sym`.
   public func prefix(_ sym: Symbol, with prefix: Symbol) -> Symbol {
     return self.intern(prefix.identifier + sym.identifier)
   }
@@ -158,7 +165,7 @@ public final class SymbolTable: Sequence {
     return AnyIterator { return generator.next() }
   }
   
-  /// Reset symbol table
+  /// Reset symbol table.
   public func release() {
     self.symTable = [:]
     self.gensymCounter = 0

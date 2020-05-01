@@ -701,22 +701,35 @@ public final class Compiler {
     if localDefine {
       loop: while i < exprs.count {
         guard case .pair(.symbol(let fun), let binding) = exprs[i],
-              fun.root == self.context.symbols.define,
+              fun.root == self.context.symbols.define ||
+                fun.root == self.context.symbols.defineValues,
               env.isImmutable(fun) else {
           break loop
         }
         // Distinguish value definitions from function definitions
-        switch binding {
-          case .pair(.symbol(let sym), .pair(let def, .null)):
-            bindings.append(.pair(.symbol(sym), .pair(def, .null)))
-          case .pair(.pair(.symbol(let sym), let args), let def):
-            bindings.append(
-              .pair(.symbol(sym),
-                    .pair(.pair(.symbol(Symbol(self.context.symbols.lambda, env.global)),
-                                .pair(args, def)),
-                          .null)))
-          default:
-            break loop
+        if fun.root == self.context.symbols.define {
+          switch binding {
+            case .pair(.symbol(let sym), .pair(let def, .null)):
+              bindings.append(.pair(.pair(.symbol(sym), .null), .pair(def, .null)))
+            case .pair(.pair(.symbol(let sym), let args), let def):
+              bindings.append(
+                .pair(.pair(.symbol(sym), .null),
+                      .pair(.pair(.symbol(Symbol(self.context.symbols.lambda, env.global)),
+                                  .pair(args, def)),
+                            .null)))
+            default:
+              break loop
+          }
+        // Handle multi-value definitions
+        } else {
+          switch binding {
+            case .pair(.null, .pair(let def, .null)):
+              bindings.append(.pair(.null, .pair(def, .null)))
+            case .pair(.pair(.symbol(let sym), let more), .pair(let def, .null)):
+              bindings.append(.pair(.pair(.symbol(sym), more), .pair(def, .null)))
+            default:
+              break loop
+          }
         }
         i += 1
       }
@@ -736,7 +749,10 @@ public final class Compiler {
     } else {
       // Compilation with internal definitions
       let initialLocals = self.numLocals
-      let group = try self.compileBindings(.makeList(bindings), in: env, atomic: true, predef: true)
+      let group = try self.compileMultiBindings(.makeList(bindings),
+                                                in: env,
+                                                atomic: true,
+                                                predef: true)
       let lenv = Env(group)
       var first = true
       while i < exprs.count {
@@ -821,10 +837,28 @@ public final class Compiler {
   /// and returns a `BindingGroup` with information about the established local bindings.
   public func compileMultiBindings(_ bindingList: Expr,
                                    in lenv: Env,
-                                   atomic: Bool) throws -> BindingGroup {
+                                   atomic: Bool,
+                                   predef: Bool = false) throws -> BindingGroup {
     let group = BindingGroup(owner: self, parent: lenv)
-    let env = atomic ? lenv : .local(group)
+    let env = atomic && !predef ? lenv : .local(group)
     var bindings = bindingList
+    if predef {
+      while case .pair(.pair(let variables, _), let rest) = bindings {
+        var vars = variables
+        while case .pair(.symbol(let sym), let more) = vars {
+          let binding = group.allocBindingFor(sym)
+          // This is a hack for now; we need to make sure forward references work, e.g. in
+          // lambda expressions. A way to do this is to allocate variables for all bindings that
+          // are predefined.
+          binding.wasMutated()
+          self.emit(.pushUndef)
+          self.emit(binding.isValue ? .setLocal(binding.index) : .makeLocalVariable(binding.index))
+          vars = more
+        }
+        bindings = rest
+      }
+      bindings = bindingList
+    }
     var prevIndex = -1
     while case .pair(let binding, let rest) = bindings {
       guard case .pair(let variables, .pair(let expr, .null)) = binding else {
@@ -839,12 +873,18 @@ public final class Compiler {
       }
       switch vars {
         case .null:
-          self.emit(.unpack(syms.count, false))
+          if syms.count == 1 {
+            self.patchMakeClosure(syms[0])
+          } else {
+            self.emit(.unpack(syms.count, false))
+          }
         case .symbol(let sym):
           self.emit(.unpack(syms.count, true))
           let binding = group.allocBindingFor(sym)
           if binding.isValue {
             self.emit(.setLocal(binding.index))
+          } else if predef {
+            self.emit(.setLocalValue(binding.index))
           } else {
             self.emit(.makeLocalVariable(binding.index))
           }
@@ -854,11 +894,13 @@ public final class Compiler {
       }
       for sym in syms.reversed() {
         let binding = group.allocBindingFor(sym)
-        guard binding.index > prevIndex else {
+        guard predef || binding.index > prevIndex else {
           throw RuntimeError.eval(.duplicateBinding, .symbol(sym), bindingList)
         }
         if binding.isValue {
           self.emit(.setLocal(binding.index))
+        } else if predef {
+          self.emit(.setLocalValue(binding.index))
         } else {
           self.emit(.makeLocalVariable(binding.index))
         }

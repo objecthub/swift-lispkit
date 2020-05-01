@@ -35,6 +35,7 @@ public final class ControlFlowLibrary: NativeLibrary {
     self.define(SpecialForm("letrec*", self.compileLetRecStar))
     self.define(SpecialForm("let-values", self.compileLetValues))
     self.define(SpecialForm("let*-values", self.compileLetStarValues))
+    self.define(SpecialForm("letrec-values", self.compileLetRecValues))
     self.define(SpecialForm("let-optionals", self.compileLetOptionals))
     self.define(SpecialForm("let*-optionals", self.compileLetStarOptionals))
     self.define(SpecialForm("let-keywords", self.compileLetKeywords))
@@ -135,13 +136,8 @@ public final class ControlFlowLibrary: NativeLibrary {
       case .null:
         return try compiler.compileSeq(body, in: env, inTailPos: tail)
       case .pair(_, _):
-        let group = try compiler.compileBindings(first,
-                                                 in: env,
-                                                 atomic: false,
-                                                 predef: false)
-        let res = try compiler.compileSeq(body,
-                                          in: Env(group),
-                                          inTailPos: tail)
+        let group = try compiler.compileBindings(first, in: env, atomic: false, predef: false)
+        let res = try compiler.compileSeq(body, in: Env(group), inTailPos: tail)
         return compiler.finalizeBindings(group, exit: res, initialLocals: initialLocals)
       default:
         throw RuntimeError.type(first, expected: [.listType])
@@ -158,18 +154,14 @@ public final class ControlFlowLibrary: NativeLibrary {
     let initialLocals = compiler.numLocals
     switch first {
     case .null:
-      return try compiler.compileSeq(body,
-                                     in: env,
-                                     inTailPos: tail)
+      return try compiler.compileSeq(body, in: env, inTailPos: tail)
     case .pair(_, _):
       let group = try compiler.compileBindings(first,
                                                in: env,
                                                atomic: true,
                                                predef: true,
                                                postset: true)
-      let res = try compiler.compileSeq(body,
-                                        in: Env(group),
-                                        inTailPos: tail)
+      let res = try compiler.compileSeq(body, in: Env(group), inTailPos: tail)
       return compiler.finalizeBindings(group, exit: res, initialLocals: initialLocals)
     default:
       throw RuntimeError.type(first, expected: [.listType])
@@ -186,17 +178,10 @@ public final class ControlFlowLibrary: NativeLibrary {
     let initialLocals = compiler.numLocals
     switch first {
       case .null:
-        return try compiler.compileSeq(body,
-                                       in: env,
-                                       inTailPos: tail)
+        return try compiler.compileSeq(body, in: env, inTailPos: tail)
       case .pair(_, _):
-        let group = try compiler.compileBindings(first,
-                                                 in: env,
-                                                 atomic: true,
-                                                 predef: true)
-        let res = try compiler.compileSeq(body,
-                                          in: Env(group),
-                                          inTailPos: tail)
+        let group = try compiler.compileBindings(first, in: env, atomic: true, predef: true)
+        let res = try compiler.compileSeq(body, in: Env(group), inTailPos: tail)
         return compiler.finalizeBindings(group, exit: res, initialLocals: initialLocals)
       default:
         throw RuntimeError.type(first, expected: [.listType])
@@ -213,16 +198,10 @@ public final class ControlFlowLibrary: NativeLibrary {
     let initialLocals = compiler.numLocals
     switch first {
       case .null:
-        return try compiler.compileSeq(body,
-                                       in: env,
-                                       inTailPos: tail)
+        return try compiler.compileSeq(body, in: env, inTailPos: tail)
       case .pair(_, _):
-        let group = try compiler.compileMultiBindings(first,
-                                                      in: env,
-                                                      atomic: true)
-        let res = try compiler.compileSeq(body,
-                                          in: Env(group),
-                                          inTailPos: tail)
+        let group = try compiler.compileMultiBindings(first, in: env, atomic: true)
+        let res = try compiler.compileSeq(body, in: Env(group), inTailPos: tail)
         return compiler.finalizeBindings(group, exit: res, initialLocals: initialLocals)
       default:
         throw RuntimeError.type(first, expected: [.listType])
@@ -239,22 +218,36 @@ public final class ControlFlowLibrary: NativeLibrary {
     let initialLocals = compiler.numLocals
     switch first {
       case .null:
-        return try compiler.compileSeq(body,
-                                       in: env,
-                                       inTailPos: tail)
+        return try compiler.compileSeq(body, in: env, inTailPos: tail)
       case .pair(_, _):
-        let group = try compiler.compileMultiBindings(first,
-                                                      in: env,
-                                                      atomic: false)
-        let res = try compiler.compileSeq(body,
-                                          in: Env(group),
-                                          inTailPos: tail)
+        let group = try compiler.compileMultiBindings(first, in: env, atomic: false, predef: false)
+        let res = try compiler.compileSeq(body, in: Env(group), inTailPos: tail)
         return compiler.finalizeBindings(group, exit: res, initialLocals: initialLocals)
       default:
         throw RuntimeError.type(first, expected: [.listType])
     }
   }
-
+  
+  private func compileLetRecValues(_ compiler: Compiler,
+                                   expr: Expr,
+                                   env: Env,
+                                   tail: Bool) throws -> Bool {
+    guard case .pair(_, .pair(let first, let body)) = expr else {
+      throw RuntimeError.argumentCount(of: "letrec-values", min: 1, expr: expr)
+    }
+    let initialLocals = compiler.numLocals
+    switch first {
+      case .null:
+        return try compiler.compileSeq(body, in: env, inTailPos: tail)
+      case .pair(_, _):
+        let group = try compiler.compileMultiBindings(first, in: env, atomic: false, predef: true)
+        let res = try compiler.compileSeq(body, in: Env(group), inTailPos: tail)
+        return compiler.finalizeBindings(group, exit: res, initialLocals: initialLocals)
+      default:
+        throw RuntimeError.type(first, expected: [.listType])
+    }
+  }
+  
   private func compileLetOptionals(_ compiler: Compiler,
                                    expr: Expr,
                                    env: Env,
