@@ -1,4 +1,4 @@
-;;; LISPKIT ITERATION
+;;; LISPKIT ITERATE
 ;;;
 ;;; Implementation of a number of special forms for iterations.
 ;;;
@@ -15,7 +15,7 @@
 ;;; either express or implied. See the License for the specific language governing permissions
 ;;; and limitations under the License.
 
-(define-library (lispkit iteration)
+(define-library (lispkit iterate)
 
   (export dotimes
           dolist
@@ -85,8 +85,8 @@
       (syntax-rules (unless)
         ((_ condition unless break body ...)
            (call-with-current-continuation
-             (lambda (break)
-               (do () ((not condition)) body ...))))
+             (lambda (exit)
+               (do ((break (thunk (exit (void))))) ((not condition)) body ...))))
         ((_ condition body ...)
            (do () ((not condition)) body ...))))
 
@@ -101,6 +101,9 @@
       (syntax-rules (from)
         ((_ break from body ...)
            (call-with-current-continuation
-             (lambda (break) body ...)))))
+             (lambda (break) body ...)))
+        ((_ break body ...)
+          (call-with-current-continuation
+            (lambda (break) body ...)))))
   )
 )

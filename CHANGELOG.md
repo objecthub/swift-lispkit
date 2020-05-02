@@ -158,7 +158,7 @@
 - Added SRFI 112-style support for human-readable information about the hardware
    and software configuration on which LispKit is being executed
 - Added support for the following libraries: `(srfi 63)`, `(srfi 64)`, `(srfi 128)`,
-   `(lispkit iteration)`, `(lispkit json)`
+   `(lispkit iterate)`, `(lispkit json)`
 
 ## 1.1 (2017-09-25)
 - Migrated project to Xcode 9 and Swift 4

@@ -42,7 +42,7 @@
 (import (lispkit comparator))
 (import (lispkit combinator))
 (import (lispkit logic))
-(import (lispkit iteration))
+(import (lispkit iterate))
 (import (lispkit set))
 (import (lispkit stack))
 (import (lispkit queue))

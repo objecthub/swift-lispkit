@@ -367,7 +367,7 @@
 		CCE4600321FD18B700B248D9 /* Import.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCE4600221FD178C00B248D9 /* Import.scm */; };
 		CCE4AECE204212EC008BF7E8 /* SourceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE4AECD204212EC008BF7E8 /* SourceManager.swift */; };
 		CCE4AED0204217D8008BF7E8 /* SourcePosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE4AECF204217D8008BF7E8 /* SourcePosition.swift */; };
-		CCE7CA461F8EC07000FD7ECA /* iteration.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCE7CA451F8D819600FD7ECA /* iteration.sld */; };
+		CCE7CA461F8EC07000FD7ECA /* iterate.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCE7CA451F8D819600FD7ECA /* iterate.sld */; };
 		CCEEF3911FAF4024006C4581 /* 158.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCEEF3901FAF3F70006C4581 /* 158.sld */; };
 		CCEEF3931FB3CB50006C4581 /* wt-tree.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCEEF3921FB3CB03006C4581 /* wt-tree.sld */; };
 		CCEFE6111ED80BBA00DFED9B /* 142.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCEFE6101ED804E900DFED9B /* 142.sld */; };
@@ -623,7 +623,7 @@
 				CC68B3A91FCCCDEE00EB4AF9 /* object.sld in Copy pre-installed LispKit libraries */,
 				CCEEF3931FB3CB50006C4581 /* wt-tree.sld in Copy pre-installed LispKit libraries */,
 				CC3A025A1F97FD72009B959C /* json.sld in Copy pre-installed LispKit libraries */,
-				CCE7CA461F8EC07000FD7ECA /* iteration.sld in Copy pre-installed LispKit libraries */,
+				CCE7CA461F8EC07000FD7ECA /* iterate.sld in Copy pre-installed LispKit libraries */,
 				CC2345411F655BD800C38817 /* datatype.sld in Copy pre-installed LispKit libraries */,
 				CC750BDA1F5B776700CD82A2 /* prettify.sld in Copy pre-installed LispKit libraries */,
 				CC10404D1F53789D0045144A /* pdf.sld in Copy pre-installed LispKit libraries */,
@@ -1235,7 +1235,7 @@
 		CCE4600221FD178C00B248D9 /* Import.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Import.scm; sourceTree = "<group>"; };
 		CCE4AECD204212EC008BF7E8 /* SourceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourceManager.swift; sourceTree = "<group>"; };
 		CCE4AECF204217D8008BF7E8 /* SourcePosition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourcePosition.swift; sourceTree = "<group>"; };
-		CCE7CA451F8D819600FD7ECA /* iteration.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = iteration.sld; sourceTree = "<group>"; };
+		CCE7CA451F8D819600FD7ECA /* iterate.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = iterate.sld; sourceTree = "<group>"; tabWidth = 3; };
 		CCEEF3901FAF3F70006C4581 /* 158.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 158.sld; sourceTree = "<group>"; };
 		CCEEF3921FB3CB03006C4581 /* wt-tree.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "wt-tree.sld"; sourceTree = "<group>"; };
 		CCEFE6101ED804E900DFED9B /* 142.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 142.sld; sourceTree = "<group>"; };
@@ -1513,7 +1513,7 @@
 				CCD6C3E81F35F95D0002F7D4 /* enum.sld */,
 				CC47F5F02349129B008B0303 /* comparator.sld */,
 				CCC4A3AA245CFFB800DE63E1 /* combinator.sld */,
-				CCE7CA451F8D819600FD7ECA /* iteration.sld */,
+				CCE7CA451F8D819600FD7ECA /* iterate.sld */,
 				CC5848021E5691B300BE6497 /* set.sld */,
 				CC90B2331FE55DFE0044F724 /* stack.sld */,
 				CC90B2351FE5D7940044F724 /* queue.sld */,
