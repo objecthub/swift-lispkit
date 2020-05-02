@@ -350,6 +350,7 @@
 		CCC41DC61D2851FB003CB4D0 /* VirtualMachineState.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC41DC51D2851FB003CB4D0 /* VirtualMachineState.swift */; };
 		CCC41DC81D2B14AD003CB4D0 /* CallCC.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCC41DC71D2B14AD003CB4D0 /* CallCC.scm */; };
 		CCC41DCA1D330439003CB4D0 /* DynamicWind.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCC41DC91D330439003CB4D0 /* DynamicWind.scm */; };
+		CCC4A3AB245D003000DE63E1 /* combinator.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCC4A3AA245CFFB800DE63E1 /* combinator.sld */; };
 		CCC5319E1D16E40D00FAED6E /* TextInputSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC5319D1D16E40D00FAED6E /* TextInputSource.swift */; };
 		CCC531A01D18595500FAED6E /* TextOutputTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC5319F1D18595500FAED6E /* TextOutputTarget.swift */; };
 		CCC62D921CA9ED6A00E2C43F /* TrackedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC62D911CA9ED6A00E2C43F /* TrackedObject.swift */; };
@@ -606,6 +607,7 @@
 			dstPath = LispKit/Resources/Libraries/lispkit;
 			dstSubfolderSpec = 7;
 			files = (
+				CCC4A3AB245D003000DE63E1 /* combinator.sld in Copy pre-installed LispKit libraries */,
 				CC498A9D238B3744002734E0 /* disjoint-set.sld in Copy pre-installed LispKit libraries */,
 				CC47F5F123491301008B0303 /* comparator.sld in Copy pre-installed LispKit libraries */,
 				CC4A7DB922585E1700936034 /* stream.sld in Copy pre-installed LispKit libraries */,
@@ -1211,6 +1213,7 @@
 		CCC41DC51D2851FB003CB4D0 /* VirtualMachineState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VirtualMachineState.swift; sourceTree = "<group>"; };
 		CCC41DC71D2B14AD003CB4D0 /* CallCC.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CallCC.scm; sourceTree = "<group>"; };
 		CCC41DC91D330439003CB4D0 /* DynamicWind.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = DynamicWind.scm; sourceTree = "<group>"; };
+		CCC4A3AA245CFFB800DE63E1 /* combinator.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = combinator.sld; sourceTree = "<group>"; };
 		CCC5319D1D16E40D00FAED6E /* TextInputSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextInputSource.swift; sourceTree = "<group>"; };
 		CCC5319F1D18595500FAED6E /* TextOutputTarget.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextOutputTarget.swift; sourceTree = "<group>"; };
 		CCC62D911CA9ED6A00E2C43F /* TrackedObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TrackedObject.swift; sourceTree = "<group>"; };
@@ -1509,7 +1512,7 @@
 				CC68B3A81FCC73C300EB4AF9 /* object.sld */,
 				CCD6C3E81F35F95D0002F7D4 /* enum.sld */,
 				CC47F5F02349129B008B0303 /* comparator.sld */,
-				CC436C3F1FFBD5090095559E /* logic.sld */,
+				CCC4A3AA245CFFB800DE63E1 /* combinator.sld */,
 				CCE7CA451F8D819600FD7ECA /* iteration.sld */,
 				CC5848021E5691B300BE6497 /* set.sld */,
 				CC90B2331FE55DFE0044F724 /* stack.sld */,
@@ -1524,6 +1527,7 @@
 				CC3A02591F97F3E1009B959C /* json.sld */,
 				CC10404C1F5378660045144A /* pdf.sld */,
 				CC703A1A218D09B600E71EA9 /* clos.sld */,
+				CC436C3F1FFBD5090095559E /* logic.sld */,
 				CC82932D21D6E8C2003E1D3C /* log */,
 				CC703A1B218D09D100E71EA9 /* clos */,
 				CC26AD3E21470AC90090D9EE /* draw */,

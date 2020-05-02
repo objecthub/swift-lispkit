@@ -27,6 +27,7 @@
 (import (lispkit regexp))
 (import (lispkit draw))
 (import (lispkit markdown))
+(import (lispkit sqlite))
 
 (display "LispKit non-native")(newline)
 
@@ -39,6 +40,7 @@
 (import (lispkit object))
 (import (lispkit enum))
 (import (lispkit comparator))
+(import (lispkit combinator))
 (import (lispkit logic))
 (import (lispkit iteration))
 (import (lispkit set))
