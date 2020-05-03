@@ -88,6 +88,7 @@ public enum EvalError: Int, Hashable {
   case redefinitionOfImport
   case unknownFile
   case unknownDirectory
+  case unknownSystemDirectory
   case cannotDecodeBytevector
   case cannotEncodeBytevector
   case invalidDateTime
@@ -240,6 +241,8 @@ public enum EvalError: Int, Hashable {
         return "file '$,0' unknown or a directory"
       case .unknownDirectory:
         return "directory '$,0' unknown or a file"
+      case .unknownSystemDirectory:
+        return "system directory type '$,0' unknown"
       case .cannotDecodeBytevector:
         return "unable to decode $0 into bytevector"
       case .cannotEncodeBytevector:

@@ -66,6 +66,8 @@ public final class SystemLibrary: NativeLibrary {
       Procedure("_compileAndEvalFirst", self.compileAndEvalFirst)
     self.define("current-directory", as: self.currentDirectoryProc)
     self.define(SpecialForm("source-directory", self.compileSourceDirectory))
+    self.define(Procedure("home-directory", self.homeDirectory))
+    self.define(Procedure("system-directory", self.systemDirectory))
     self.define(Procedure("path", self.path))
     self.define(Procedure("parent-path", self.parentPath))
     self.define(Procedure("path-components", self.pathComponents))
@@ -143,7 +145,51 @@ public final class SystemLibrary: NativeLibrary {
     try compiler.pushValue(.makeString(compiler.sourceDirectory))
     return false
   }
-
+  
+  private func homeDirectory(user: Expr?) throws -> Expr {
+    if let user = try user?.asString() {
+      if let path = NSHomeDirectoryForUser(user) {
+        return .makeString(path)
+      } else {
+        return .false
+      }
+    } else {
+      return .makeString(NSHomeDirectory())
+    }
+  }
+  
+  private func systemDirectory(type: Expr) throws -> Expr {
+    var searchPathDir: FileManager.SearchPathDirectory
+    switch try type.asSymbol().rawIdentifier {
+      case "desktop":
+        searchPathDir = .desktopDirectory
+      case "downloads":
+        searchPathDir = .downloadsDirectory
+      case "movies":
+        searchPathDir = .moviesDirectory
+      case "music":
+        searchPathDir = .musicDirectory
+      case "pictures":
+        searchPathDir = .picturesDirectory
+      case "documents":
+        searchPathDir = .documentDirectory
+      case "shared-public":
+        searchPathDir = .sharedPublicDirectory
+      case "application-scripts":
+        searchPathDir = .applicationScriptsDirectory
+      case "temporary":
+        return .pair(.makeString(NSTemporaryDirectory()), .null)
+      default:
+        throw RuntimeError.eval(.unknownSystemDirectory, type)
+    }
+    let dirs = NSSearchPathForDirectoriesInDomains(searchPathDir, .userDomainMask, true)
+    var res = Expr.null
+    for dir in dirs.reversed() {
+      res = .pair(.makeString(dir), res)
+    }
+    return res
+  }
+  
   private func path(expr: Expr, args: Arguments) throws -> Expr {
     if let base = URL(string: try expr.asPath()) {
       var res = base
@@ -390,7 +436,7 @@ public final class SystemLibrary: NativeLibrary {
     }
     return .fixnum(size)
   }
-
+  
   private func directoryList(expr: Expr) throws -> Expr {
     let contents = try self.context.fileHandler.contentsOfDirectory(
       atPath: try expr.asPath(), relativeTo: self.currentDirectoryPath)
@@ -748,8 +794,12 @@ public final class SystemLibrary: NativeLibrary {
                        "\(ProcessInfo.processInfo.operatingSystemVersion.minorVersion)")
   }
 
-  private func currentUserName() -> Expr {
-    return .makeString(NSUserName())
+  private func currentUserName(full: Expr?) -> Expr {
+    if full?.isTrue ?? false {
+      return .makeString(NSFullUserName())
+    } else {
+      return .makeString(NSUserName())
+    }
   }
 
   private func userData(_ expr: Expr) throws -> Expr {
