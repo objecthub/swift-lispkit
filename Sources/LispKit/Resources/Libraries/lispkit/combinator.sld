@@ -33,7 +33,8 @@
           list-of?
           each
           cut
-          cute)
+          cute
+          Y)
   
   (import (lispkit base))
   
@@ -173,6 +174,10 @@
       (syntax-rules ()
         ((_ args ...)
           (%cut #t () () args ...))))
+    
+    ;; _Y combinator_ for Scheme for building recursive functions.
+    (define (Y f)
+      ((lambda (g) (g g))
+       (lambda (g) (f  (lambda a (apply (g g) a))))))
   )
 )
-
