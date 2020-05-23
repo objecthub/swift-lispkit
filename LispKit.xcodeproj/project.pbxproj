@@ -361,6 +361,33 @@
 		CCD81AD21CE75823009EB087 /* Checkpointer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD81AD11CE75823009EB087 /* Checkpointer.swift */; };
 		CCD839AB1FD0F6000097023E /* Compression.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD839AA1FD0F6000097023E /* Compression.swift */; };
 		CCDAD5521D4813E900A7EE4F /* HashTables.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCDAD5511D4813E900A7EE4F /* HashTables.scm */; };
+		CCDD5D132479A0DB00578D76 /* 2020-04-26.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5CFF2479A09D00578D76 /* 2020-04-26.data */; };
+		CCDD5D142479A0DB00578D76 /* 2020-04-27.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5CFE2479A09C00578D76 /* 2020-04-27.data */; };
+		CCDD5D152479A0DB00578D76 /* 2020-04-28.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5D112479A09F00578D76 /* 2020-04-28.data */; };
+		CCDD5D162479A0DB00578D76 /* 2020-04-29.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5D0E2479A09F00578D76 /* 2020-04-29.data */; };
+		CCDD5D172479A0DB00578D76 /* 2020-04-30.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5D032479A09D00578D76 /* 2020-04-30.data */; };
+		CCDD5D182479A0DB00578D76 /* 2020-05-01.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5D102479A09F00578D76 /* 2020-05-01.data */; };
+		CCDD5D192479A0DB00578D76 /* 2020-05-02.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5CFA2479A09C00578D76 /* 2020-05-02.data */; };
+		CCDD5D1A2479A0DB00578D76 /* 2020-05-03.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5D0B2479A09E00578D76 /* 2020-05-03.data */; };
+		CCDD5D1B2479A0DB00578D76 /* 2020-05-04.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5D072479A09E00578D76 /* 2020-05-04.data */; };
+		CCDD5D1C2479A0DB00578D76 /* 2020-05-05.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5D052479A09D00578D76 /* 2020-05-05.data */; };
+		CCDD5D1D2479A0DB00578D76 /* 2020-05-06.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5D062479A09E00578D76 /* 2020-05-06.data */; };
+		CCDD5D1E2479A0DB00578D76 /* 2020-05-07.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5D0C2479A09E00578D76 /* 2020-05-07.data */; };
+		CCDD5D1F2479A0DB00578D76 /* 2020-05-08.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5D0A2479A09E00578D76 /* 2020-05-08.data */; };
+		CCDD5D202479A0DB00578D76 /* 2020-05-09.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5D0D2479A09F00578D76 /* 2020-05-09.data */; };
+		CCDD5D212479A0DB00578D76 /* 2020-05-10.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5D012479A09D00578D76 /* 2020-05-10.data */; };
+		CCDD5D222479A0DB00578D76 /* 2020-05-11.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5D122479A09F00578D76 /* 2020-05-11.data */; };
+		CCDD5D232479A0DB00578D76 /* 2020-05-12.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5D0F2479A09F00578D76 /* 2020-05-12.data */; };
+		CCDD5D242479A0DC00578D76 /* 2020-05-13.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5CF82479A09B00578D76 /* 2020-05-13.data */; };
+		CCDD5D252479A0DC00578D76 /* 2020-05-14.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5CFC2479A09C00578D76 /* 2020-05-14.data */; };
+		CCDD5D262479A0DC00578D76 /* 2020-05-15.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5D042479A09D00578D76 /* 2020-05-15.data */; };
+		CCDD5D272479A0DC00578D76 /* 2020-05-16.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5D082479A09E00578D76 /* 2020-05-16.data */; };
+		CCDD5D282479A0DC00578D76 /* 2020-05-17.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5CFB2479A09C00578D76 /* 2020-05-17.data */; };
+		CCDD5D292479A0DC00578D76 /* 2020-05-18.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5D092479A09E00578D76 /* 2020-05-18.data */; };
+		CCDD5D2A2479A0DC00578D76 /* 2020-05-19.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5CF92479A09C00578D76 /* 2020-05-19.data */; };
+		CCDD5D2B2479A0DC00578D76 /* 2020-05-20.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5D022479A09D00578D76 /* 2020-05-20.data */; };
+		CCDD5D2C2479A0DC00578D76 /* 2020-05-21.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5D002479A09D00578D76 /* 2020-05-21.data */; };
+		CCDD5D2D2479A0DC00578D76 /* 2020-05-22.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5CFD2479A09C00578D76 /* 2020-05-22.data */; };
 		CCDF99FC1D3D7A3100FD2A57 /* BoxLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDF99FB1D3D7A3100FD2A57 /* BoxLibrary.swift */; };
 		CCE0429E1C9E8C8B00CA7BC4 /* ManagedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE0429D1C9E8C8B00CA7BC4 /* ManagedObject.swift */; };
 		CCE2C47A1D9203DE0047E229 /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE2C4791D9203DE0047E229 /* Environment.swift */; };
@@ -651,6 +678,33 @@
 			dstPath = LispKit/Resources/Assets/Datasets/Covid;
 			dstSubfolderSpec = 7;
 			files = (
+				CCDD5D132479A0DB00578D76 /* 2020-04-26.data in Copy dataset covid assets */,
+				CCDD5D142479A0DB00578D76 /* 2020-04-27.data in Copy dataset covid assets */,
+				CCDD5D152479A0DB00578D76 /* 2020-04-28.data in Copy dataset covid assets */,
+				CCDD5D162479A0DB00578D76 /* 2020-04-29.data in Copy dataset covid assets */,
+				CCDD5D172479A0DB00578D76 /* 2020-04-30.data in Copy dataset covid assets */,
+				CCDD5D182479A0DB00578D76 /* 2020-05-01.data in Copy dataset covid assets */,
+				CCDD5D192479A0DB00578D76 /* 2020-05-02.data in Copy dataset covid assets */,
+				CCDD5D1A2479A0DB00578D76 /* 2020-05-03.data in Copy dataset covid assets */,
+				CCDD5D1B2479A0DB00578D76 /* 2020-05-04.data in Copy dataset covid assets */,
+				CCDD5D1C2479A0DB00578D76 /* 2020-05-05.data in Copy dataset covid assets */,
+				CCDD5D1D2479A0DB00578D76 /* 2020-05-06.data in Copy dataset covid assets */,
+				CCDD5D1E2479A0DB00578D76 /* 2020-05-07.data in Copy dataset covid assets */,
+				CCDD5D1F2479A0DB00578D76 /* 2020-05-08.data in Copy dataset covid assets */,
+				CCDD5D202479A0DB00578D76 /* 2020-05-09.data in Copy dataset covid assets */,
+				CCDD5D212479A0DB00578D76 /* 2020-05-10.data in Copy dataset covid assets */,
+				CCDD5D222479A0DB00578D76 /* 2020-05-11.data in Copy dataset covid assets */,
+				CCDD5D232479A0DB00578D76 /* 2020-05-12.data in Copy dataset covid assets */,
+				CCDD5D242479A0DC00578D76 /* 2020-05-13.data in Copy dataset covid assets */,
+				CCDD5D252479A0DC00578D76 /* 2020-05-14.data in Copy dataset covid assets */,
+				CCDD5D262479A0DC00578D76 /* 2020-05-15.data in Copy dataset covid assets */,
+				CCDD5D272479A0DC00578D76 /* 2020-05-16.data in Copy dataset covid assets */,
+				CCDD5D282479A0DC00578D76 /* 2020-05-17.data in Copy dataset covid assets */,
+				CCDD5D292479A0DC00578D76 /* 2020-05-18.data in Copy dataset covid assets */,
+				CCDD5D2A2479A0DC00578D76 /* 2020-05-19.data in Copy dataset covid assets */,
+				CCDD5D2B2479A0DC00578D76 /* 2020-05-20.data in Copy dataset covid assets */,
+				CCDD5D2C2479A0DC00578D76 /* 2020-05-21.data in Copy dataset covid assets */,
+				CCDD5D2D2479A0DC00578D76 /* 2020-05-22.data in Copy dataset covid assets */,
 				CC7E7C8A24565378002E8A73 /* Covid.sqlite3 in Copy dataset covid assets */,
 				CC7E7C8B24565378002E8A73 /* 2020-02-20.data in Copy dataset covid assets */,
 				CC7E7C8C24565378002E8A73 /* 2020-02-21.data in Copy dataset covid assets */,
@@ -1229,6 +1283,33 @@
 		CCD81AD11CE75823009EB087 /* Checkpointer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Checkpointer.swift; sourceTree = "<group>"; };
 		CCD839AA1FD0F6000097023E /* Compression.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Compression.swift; sourceTree = "<group>"; };
 		CCDAD5511D4813E900A7EE4F /* HashTables.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = HashTables.scm; sourceTree = "<group>"; };
+		CCDD5CF82479A09B00578D76 /* 2020-05-13.data */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "2020-05-13.data"; sourceTree = "<group>"; };
+		CCDD5CF92479A09C00578D76 /* 2020-05-19.data */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "2020-05-19.data"; sourceTree = "<group>"; };
+		CCDD5CFA2479A09C00578D76 /* 2020-05-02.data */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "2020-05-02.data"; sourceTree = "<group>"; };
+		CCDD5CFB2479A09C00578D76 /* 2020-05-17.data */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "2020-05-17.data"; sourceTree = "<group>"; };
+		CCDD5CFC2479A09C00578D76 /* 2020-05-14.data */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "2020-05-14.data"; sourceTree = "<group>"; };
+		CCDD5CFD2479A09C00578D76 /* 2020-05-22.data */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "2020-05-22.data"; sourceTree = "<group>"; };
+		CCDD5CFE2479A09C00578D76 /* 2020-04-27.data */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "2020-04-27.data"; sourceTree = "<group>"; };
+		CCDD5CFF2479A09D00578D76 /* 2020-04-26.data */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "2020-04-26.data"; sourceTree = "<group>"; };
+		CCDD5D002479A09D00578D76 /* 2020-05-21.data */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "2020-05-21.data"; sourceTree = "<group>"; };
+		CCDD5D012479A09D00578D76 /* 2020-05-10.data */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "2020-05-10.data"; sourceTree = "<group>"; };
+		CCDD5D022479A09D00578D76 /* 2020-05-20.data */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "2020-05-20.data"; sourceTree = "<group>"; };
+		CCDD5D032479A09D00578D76 /* 2020-04-30.data */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "2020-04-30.data"; sourceTree = "<group>"; };
+		CCDD5D042479A09D00578D76 /* 2020-05-15.data */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "2020-05-15.data"; sourceTree = "<group>"; };
+		CCDD5D052479A09D00578D76 /* 2020-05-05.data */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "2020-05-05.data"; sourceTree = "<group>"; };
+		CCDD5D062479A09E00578D76 /* 2020-05-06.data */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "2020-05-06.data"; sourceTree = "<group>"; };
+		CCDD5D072479A09E00578D76 /* 2020-05-04.data */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "2020-05-04.data"; sourceTree = "<group>"; };
+		CCDD5D082479A09E00578D76 /* 2020-05-16.data */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "2020-05-16.data"; sourceTree = "<group>"; };
+		CCDD5D092479A09E00578D76 /* 2020-05-18.data */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "2020-05-18.data"; sourceTree = "<group>"; };
+		CCDD5D0A2479A09E00578D76 /* 2020-05-08.data */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "2020-05-08.data"; sourceTree = "<group>"; };
+		CCDD5D0B2479A09E00578D76 /* 2020-05-03.data */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "2020-05-03.data"; sourceTree = "<group>"; };
+		CCDD5D0C2479A09E00578D76 /* 2020-05-07.data */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "2020-05-07.data"; sourceTree = "<group>"; };
+		CCDD5D0D2479A09F00578D76 /* 2020-05-09.data */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "2020-05-09.data"; sourceTree = "<group>"; };
+		CCDD5D0E2479A09F00578D76 /* 2020-04-29.data */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "2020-04-29.data"; sourceTree = "<group>"; };
+		CCDD5D0F2479A09F00578D76 /* 2020-05-12.data */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "2020-05-12.data"; sourceTree = "<group>"; };
+		CCDD5D102479A09F00578D76 /* 2020-05-01.data */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "2020-05-01.data"; sourceTree = "<group>"; };
+		CCDD5D112479A09F00578D76 /* 2020-04-28.data */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "2020-04-28.data"; sourceTree = "<group>"; };
+		CCDD5D122479A09F00578D76 /* 2020-05-11.data */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "2020-05-11.data"; sourceTree = "<group>"; };
 		CCDF99FB1D3D7A3100FD2A57 /* BoxLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = BoxLibrary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CCE0429D1C9E8C8B00CA7BC4 /* ManagedObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManagedObject.swift; sourceTree = "<group>"; };
 		CCE2C4791D9203DE0047E229 /* Environment.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.swift; path = Environment.swift; sourceTree = "<group>"; tabWidth = 2; };
@@ -1702,6 +1783,33 @@
 				CC7E7C7224564FBF002E8A73 /* 2020-04-23.data */,
 				CC7E7C7724564FC0002E8A73 /* 2020-04-24.data */,
 				CC7E7C8324564FC1002E8A73 /* 2020-04-25.data */,
+				CCDD5CFF2479A09D00578D76 /* 2020-04-26.data */,
+				CCDD5CFE2479A09C00578D76 /* 2020-04-27.data */,
+				CCDD5D112479A09F00578D76 /* 2020-04-28.data */,
+				CCDD5D0E2479A09F00578D76 /* 2020-04-29.data */,
+				CCDD5D032479A09D00578D76 /* 2020-04-30.data */,
+				CCDD5D102479A09F00578D76 /* 2020-05-01.data */,
+				CCDD5CFA2479A09C00578D76 /* 2020-05-02.data */,
+				CCDD5D0B2479A09E00578D76 /* 2020-05-03.data */,
+				CCDD5D072479A09E00578D76 /* 2020-05-04.data */,
+				CCDD5D052479A09D00578D76 /* 2020-05-05.data */,
+				CCDD5D062479A09E00578D76 /* 2020-05-06.data */,
+				CCDD5D0C2479A09E00578D76 /* 2020-05-07.data */,
+				CCDD5D0A2479A09E00578D76 /* 2020-05-08.data */,
+				CCDD5D0D2479A09F00578D76 /* 2020-05-09.data */,
+				CCDD5D012479A09D00578D76 /* 2020-05-10.data */,
+				CCDD5D122479A09F00578D76 /* 2020-05-11.data */,
+				CCDD5D0F2479A09F00578D76 /* 2020-05-12.data */,
+				CCDD5CF82479A09B00578D76 /* 2020-05-13.data */,
+				CCDD5CFC2479A09C00578D76 /* 2020-05-14.data */,
+				CCDD5D042479A09D00578D76 /* 2020-05-15.data */,
+				CCDD5D082479A09E00578D76 /* 2020-05-16.data */,
+				CCDD5CFB2479A09C00578D76 /* 2020-05-17.data */,
+				CCDD5D092479A09E00578D76 /* 2020-05-18.data */,
+				CCDD5CF92479A09C00578D76 /* 2020-05-19.data */,
+				CCDD5D022479A09D00578D76 /* 2020-05-20.data */,
+				CCDD5D002479A09D00578D76 /* 2020-05-21.data */,
+				CCDD5CFD2479A09C00578D76 /* 2020-05-22.data */,
 			);
 			path = Covid;
 			sourceTree = "<group>";
