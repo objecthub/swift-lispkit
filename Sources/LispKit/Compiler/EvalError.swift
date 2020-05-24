@@ -112,6 +112,7 @@ public enum EvalError: Int, Hashable {
   case unknownKeyword
   case expectedKeywordArg
   case assertion
+  case cannotInsertExif
   
   public var message: String {
     switch self {
@@ -289,6 +290,8 @@ public enum EvalError: Int, Hashable {
         return "expected keyword argument: $0"
       case .assertion:
         return "assertion failure in $,0: $1"
+      case .cannotInsertExif:
+        return "cannot insert exif into $0"
     }
   }
   

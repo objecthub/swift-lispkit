@@ -152,6 +152,10 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("load-image-asset", loadImageAsset))
     self.define(Procedure("image-size", imageSize))
     self.define(Procedure("bitmap?", isBitmap))
+    self.define(Procedure("bitmap-size", bitmapSize))
+    self.define(Procedure("bitmap-pixels", bitmapPixels))
+    self.define(Procedure("bitmap-exif-data", bitmapExifData))
+    self.define(Procedure("set-bitmap-exif-data!", setBitmapExifData))
     self.define(Procedure("make-bitmap", makeBitmap))
     self.define(Procedure("save-bitmap", saveBitmap))
     
@@ -755,10 +759,10 @@ public final class DrawingLibrary: NativeLibrary {
     if size.width == 0.0 && size.height == 0.0 {
       return .false
     } else {
-      return .pair(.flonum(Double(size.width)), .flonum(Double(size.width)))
+      return .pair(.flonum(Double(size.width)), .flonum(Double(size.height)))
     }
   }
-  
+
   private func isBitmap(expr: Expr) -> Expr {
     if case .object(let obj) = expr, let image = (obj as? NativeImage)?.value {
       for repr in image.representations {
@@ -769,18 +773,127 @@ public final class DrawingLibrary: NativeLibrary {
     }
     return .false
   }
+
+  private func bitmapSize(expr: Expr) throws -> Expr {
+    if case .object(let obj) = expr, let image = (obj as? NativeImage)?.value {
+      for repr in image.representations {
+        if let bm = repr as? NSBitmapImageRep, bm.size.width > 0.0 {
+          return .pair(.flonum(Double(bm.size.width)), .flonum(Double(bm.size.height)))
+        }
+      }
+    }
+    return .false
+  }
+
+  private func bitmapPixels(expr: Expr) throws -> Expr {
+    if case .object(let obj) = expr, let image = (obj as? NativeImage)?.value {
+      for repr in image.representations {
+        if let bm = repr as? NSBitmapImageRep, bm.size.width > 0.0 {
+          return .pair(.fixnum(Int64(bm.pixelsWide)), .fixnum(Int64(bm.pixelsHigh)))
+        }
+      }
+    }
+    return .false
+  }
+
+  private func setBitmapExifData(image: Expr, expr: Expr) throws -> Expr {
+    for repr in try self.image(from: image).representations {
+      if let bitmapRepr = repr as? NSBitmapImageRep,
+         bitmapRepr.size.width > 0.0 {
+        var exifDict: [AnyHashable : Any] = [:]
+        var lst = expr
+        while case .pair(let binding, let rest) = lst {
+          if case .pair(.symbol(let sym), let value) = binding,
+             let v = self.exifValue(from: value) {
+            exifDict[sym.rawIdentifier] = v
+          }
+          lst = rest
+        }
+        bitmapRepr.setProperty(.exifData, withValue: NSDictionary(dictionary: exifDict))
+        return .void
+      }
+    }
+    throw RuntimeError.eval(.cannotInsertExif, image)
+  }
+
+  private func exifValue(from expr: Expr) -> Any? {
+    switch expr {
+      case .fixnum(let num):
+        return NSNumber(value: num)
+      case .flonum(let num):
+        return NSNumber(value: num)
+      case .string(let str):
+        return NSString(string: str)
+      case .null:
+        return NSArray()
+      case .pair(_, _):
+        let res = NSArray()
+        var lst = expr
+        while case .pair(let head, let tail) = lst {
+          if let v = self.exifValue(from: head) {
+            res.adding(v)
+          }
+          lst = tail
+        }
+        return res
+      default:
+        return nil
+    }
+  }
+
+  private func bitmapExifData(image: Expr) throws -> Expr {
+    let image = try self.image(from: image)
+    for repr in image.representations {
+      if let bitmapRepr = repr as? NSBitmapImageRep,
+         bitmapRepr.size.width > 0.0,
+         let exifData = bitmapRepr.value(forProperty: .exifData),
+         let exifDict = exifData as? NSDictionary {
+        var res: Expr = .null
+        for (key, value) in exifDict {
+          if let k = key as? String,
+             let v = self.expr(from: value) {
+            res = .pair(.pair(.symbol(self.context.symbols.intern(k)), v), res)
+          }
+        }
+        return res
+      }
+    }
+    return .false
+  }
+
+  private func expr(from value: Any) -> Expr? {
+    if let num = value as? Int64 {
+      return .fixnum(num)
+    } else if let num = value as? Double {
+      return .flonum(num)
+    } else if let str = value as? String {
+      return .makeString(str)
+    } else if let a = value as? NSArray {
+      var res = Expr.null
+      var i = a.count
+      while i > 0 {
+        i -= 1
+        if let v = self.expr(from: a.object(at: i)) {
+          res = .pair(v, res)
+        }
+      }
+      return res
+    } else {
+      return nil
+    }
+  }
   
-  private func makeBitmap(drawing: Expr, size: Expr, scle: Expr) throws -> Expr {
+  private func makeBitmap(drawing: Expr, size: Expr, dpi: Expr?) throws -> Expr {
     guard case .pair(.flonum(let w), .flonum(let h)) = size, w > 0.0 && h > 0.0 else {
       throw RuntimeError.eval(.invalidSize, size)
     }
-    let scale = try scle.asDouble(coerce: true)
+    let scale = (try dpi?.asDouble(coerce: true) ?? 72.0)/72.0
     guard scale > 0.0 && scale <= 10.0 else {
       throw RuntimeError.range(parameter: 3,
                                of: "make-bitmap",
-                               scle,
+                               dpi ?? .fixnum(72),
                                min: 0,
-                               max: 10,
+                               max: 720,
                                at: SourcePosition.unknown)
     }
     // Create a bitmap suitable for storing the image in a PNG
@@ -795,14 +908,14 @@ public final class DrawingLibrary: NativeLibrary {
                                         bytesPerRow: 0,
                                         bitsPerPixel: 0) else {
       throw RuntimeError.eval(.cannotCreateBitmap,
-                              .pair(drawing, .pair(size, .pair(scle, .null))))
+                              .pair(drawing, .pair(size, .pair(dpi ?? .fixnum(72), .null))))
     }
     // Set the intended size of the image (vs. size of the bitmap above)
     bitmap.size = NSSize(width: w, height: h)
     // Create a graphics context for drawing into the bitmap
     guard let context = NSGraphicsContext(bitmapImageRep: bitmap) else {
       throw RuntimeError.eval(.cannotCreateBitmap,
-                              .pair(drawing, .pair(size, .pair(scle, .null))))
+                              .pair(drawing, .pair(size, .pair(dpi ?? .fixnum(72), .null))))
     }
     let previous = NSGraphicsContext.current
     // Create a flipped graphics context if required

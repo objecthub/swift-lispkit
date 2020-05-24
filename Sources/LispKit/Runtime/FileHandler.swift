@@ -242,6 +242,18 @@ public final class FileHandler {
   public func itemExists(atPath path: String, relativeTo root: String? = nil) -> Bool {
     return self.fileManager.fileExists(atPath: self.path(path, relativeTo: root))
   }
+
+  public func itemReadable(atPath path: String, relativeTo root: String? = nil) -> Bool {
+    return self.fileManager.isReadableFile(atPath: self.path(path, relativeTo: root))
+  }
+
+  public func itemWritable(atPath path: String, relativeTo root: String? = nil) -> Bool {
+    return self.fileManager.isWritableFile(atPath: self.path(path, relativeTo: root))
+  }
+
+  public func itemDeletable(atPath path: String, relativeTo root: String? = nil) -> Bool {
+    return self.fileManager.isDeletableFile(atPath: self.path(path, relativeTo: root))
+  }
   
   public func isFile(atPath path: String, relativeTo root: String? = nil) -> Bool {
     var isDir: ObjCBool = false

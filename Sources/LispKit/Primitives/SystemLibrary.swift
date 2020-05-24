@@ -80,7 +80,13 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("file-path-root?", self.filePathRoot))
     self.define(Procedure("load", self.load))
     self.define(Procedure("file-exists?", self.fileExists))
+    self.define(Procedure("file-readable?", self.fileReadable))
+    self.define(Procedure("file-writable?", self.fileWritable))
+    self.define(Procedure("file-deletable?", self.fileDeletable))
     self.define(Procedure("directory-exists?", self.directoryExists))
+    self.define(Procedure("directory-readable?", self.directoryReadable))
+    self.define(Procedure("directory-writable?", self.directoryWritable))
+    self.define(Procedure("directory-deletable?", self.directoryDeletable))
     self.define(Procedure("file-or-directory-exists?", self.fileOrDirectoryExists))
     self.define(Procedure("delete-file", self.deleteFile))
     self.define(Procedure("delete-directory", self.deleteDirectory))
@@ -344,10 +350,52 @@ public final class SystemLibrary: NativeLibrary {
                                       relativeTo: self.currentDirectoryPath))
   }
 
+  private func fileReadable(expr: Expr) throws -> Expr {
+    let path = try expr.asPath()
+    return .makeBoolean(
+      self.context.fileHandler.isFile(atPath: path, relativeTo: self.currentDirectoryPath) &&
+      self.context.fileHandler.itemReadable(atPath: path, relativeTo: self.currentDirectoryPath))
+  }
+
+  private func fileWritable(expr: Expr) throws -> Expr {
+    let path = try expr.asPath()
+    return .makeBoolean(
+      self.context.fileHandler.isFile(atPath: path, relativeTo: self.currentDirectoryPath) &&
+      self.context.fileHandler.itemWritable(atPath: path, relativeTo: self.currentDirectoryPath))
+  }
+
+  private func fileDeletable(expr: Expr) throws -> Expr {
+    let path = try expr.asPath()
+    return .makeBoolean(
+      self.context.fileHandler.isFile(atPath: path, relativeTo: self.currentDirectoryPath) &&
+      self.context.fileHandler.itemDeletable(atPath: path, relativeTo: self.currentDirectoryPath))
+  }
+
   private func directoryExists(expr: Expr) throws -> Expr {
     return .makeBoolean(
       self.context.fileHandler.isDirectory(atPath: try expr.asPath(),
                                            relativeTo: self.currentDirectoryPath))
+  }
+
+  private func directoryReadable(expr: Expr) throws -> Expr {
+    let path = try expr.asPath()
+    return .makeBoolean(
+      self.context.fileHandler.isDirectory(atPath: path, relativeTo: self.currentDirectoryPath) &&
+      self.context.fileHandler.itemReadable(atPath: path, relativeTo: self.currentDirectoryPath))
+  }
+
+  private func directoryWritable(expr: Expr) throws -> Expr {
+    let path = try expr.asPath()
+    return .makeBoolean(
+      self.context.fileHandler.isDirectory(atPath: path, relativeTo: self.currentDirectoryPath) &&
+      self.context.fileHandler.itemWritable(atPath: path, relativeTo: self.currentDirectoryPath))
+  }
+
+  private func directoryDeletable(expr: Expr) throws -> Expr {
+    let path = try expr.asPath()
+    return .makeBoolean(
+      self.context.fileHandler.isDirectory(atPath: path, relativeTo: self.currentDirectoryPath) &&
+      self.context.fileHandler.itemDeletable(atPath: path, relativeTo: self.currentDirectoryPath))
   }
 
   private func fileOrDirectoryExists(expr: Expr) throws -> Expr {
