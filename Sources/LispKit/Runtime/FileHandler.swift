@@ -154,7 +154,8 @@ public final class FileHandler {
                             inFolder folder: String? = nil,
                             relativeTo root: String? = nil) -> String? {
     var name = name
-    if let folder = folder, let folderUrl = URL(string: folder) {
+    if let folder = folder {
+      let folderUrl = URL(fileURLWithPath: folder, isDirectory: true)
       name = folderUrl.appendingPathComponent(name).relativePath
     }
     return self.searchFile(withName: name,

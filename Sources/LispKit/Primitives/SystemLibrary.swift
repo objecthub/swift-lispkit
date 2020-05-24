@@ -70,6 +70,9 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("system-directory", self.systemDirectory))
     self.define(Procedure("path", self.path))
     self.define(Procedure("parent-path", self.parentPath))
+    self.define(Procedure("path-extension", self.pathExtension))
+    self.define(Procedure("append-path-extension", self.appendPathExtension))
+    self.define(Procedure("remove-path-extension", self.removePathExtension))
     self.define(Procedure("path-components", self.pathComponents))
     self.define(Procedure("file-path", self.filePath))
     self.define(Procedure("asset-file-path", self.assetFilePath))
@@ -191,35 +194,57 @@ public final class SystemLibrary: NativeLibrary {
   }
   
   private func path(expr: Expr, args: Arguments) throws -> Expr {
-    if let base = URL(string: try expr.asPath()) {
-      var res = base
-      for arg in args {
-        res.appendPathComponent(try arg.asString())
-      }
-      return .makeString(res.relativePath)
-    } else {
-      return .false
+    var res = URL(fileURLWithPath: try expr.asPath(), isDirectory: true)
+    for arg in args {
+      res.appendPathComponent(try arg.asString())
     }
+    return .makeString(res.relativePath)
   }
 
   private func parentPath(expr: Expr) throws -> Expr {
-    if let base = URL(string: try expr.asPath()) {
-      return .makeString(base.deletingLastPathComponent().relativePath)
-    } else {
+    let base = URL(fileURLWithPath: try expr.asPath())
+    return .makeString(base.deletingLastPathComponent().relativePath)
+  }
+
+  private func pathExtension(expr: Expr) throws -> Expr {
+    let ext = URL(fileURLWithPath: try expr.asPath()).pathExtension
+    return ext.isEmpty ? .false : .makeString(ext)
+  }
+
+  private func appendPathExtension(expr: Expr, ext: Expr, optionally: Expr?) throws -> Expr {
+    let path = try expr.asPath()
+    if path.isEmpty {
       return .false
+    } else if optionally?.isTrue ?? false {
+      let url = URL(fileURLWithPath: path)
+      if url.pathExtension.isEmpty {
+        return .makeString(url.appendingPathExtension(try ext.asString()).relativePath)
+      } else {
+        return .makeString(url.relativePath)
+      }
+    } else {
+      let url = URL(fileURLWithPath: path).appendingPathExtension(try ext.asString())
+      return .makeString(url.relativePath)
+    }
+  }
+
+  private func removePathExtension(expr: Expr) throws -> Expr {
+    let path = try expr.asPath()
+    if path.isEmpty {
+      return expr
+    } else {
+      let url = URL(fileURLWithPath: path).deletingPathExtension()
+      return .makeString(url.relativePath)
     }
   }
 
   private func pathComponents(expr: Expr) throws -> Expr {
-    if let url = URL(string: try expr.asPath()) {
-      var res = Expr.null
-      for component in url.pathComponents.reversed() {
-        res = .pair(.makeString(component), res)
-      }
-      return res
-    } else {
-      return .false
+    let url = URL(fileURLWithPath: try expr.asPath())
+    var res = Expr.null
+    for component in url.pathComponents.reversed() {
+      res = .pair(.makeString(component), res)
     }
+    return res
   }
 
   private func filePath(expr: Expr, base: Expr?) throws -> Expr {
