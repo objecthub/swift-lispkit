@@ -54,8 +54,8 @@ public final class BoxLibrary: NativeLibrary {
   
   //-------- MARK: - Boxes
   
-  private func box(_ expr: Expr?) -> Expr {
-    return .box(Cell(expr ?? .undef))
+  private func box(_ args: Arguments) -> Expr {
+    return .box(Cell(args.values))
   }
   
   private func unbox(_ expr: Expr) throws -> Expr {
@@ -65,12 +65,13 @@ public final class BoxLibrary: NativeLibrary {
     return cell.value
   }
   
-  private func setBox(_ expr: Expr, value: Expr) throws -> Expr {
+  private func setBox(_ expr: Expr, args: Arguments) throws -> Expr {
     guard case .box(let cell) = expr else {
       throw RuntimeError.type(expr, expected: [.boxType])
     }
     // Set cell value. Guarantee that cells for which `set-box!` is called are managed
     // by a managed object pool.
+    let value =  args.values
     (value.isAtom ? cell : self.context.objects.manage(cell)).value = value
     return .void
   }

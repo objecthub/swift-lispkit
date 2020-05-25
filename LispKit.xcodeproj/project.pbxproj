@@ -361,6 +361,9 @@
 		CCD81AD21CE75823009EB087 /* Checkpointer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD81AD11CE75823009EB087 /* Checkpointer.swift */; };
 		CCD839AB1FD0F6000097023E /* Compression.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD839AA1FD0F6000097023E /* Compression.swift */; };
 		CCDAD5521D4813E900A7EE4F /* HashTables.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCDAD5511D4813E900A7EE4F /* HashTables.scm */; };
+		CCDB557D247C7D0F0044714C /* 195.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCDB557C247C728F0044714C /* 195.sld */; };
+		CCDB5580247C85CF0044714C /* 196.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCDB557E247C82370044714C /* 196.sld */; };
+		CCDB5581247C85FB0044714C /* SRFI-196.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCDB557F247C84BF0044714C /* SRFI-196.scm */; };
 		CCDD5D132479A0DB00578D76 /* 2020-04-26.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5CFF2479A09D00578D76 /* 2020-04-26.data */; };
 		CCDD5D142479A0DB00578D76 /* 2020-04-27.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5CFE2479A09C00578D76 /* 2020-04-27.data */; };
 		CCDD5D152479A0DB00578D76 /* 2020-04-28.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5D112479A09F00578D76 /* 2020-04-28.data */; };
@@ -448,6 +451,7 @@
 			dstPath = LispKit/Resources/Tests;
 			dstSubfolderSpec = 7;
 			files = (
+				CCDB5581247C85FB0044714C /* SRFI-196.scm in Copy tests */,
 				CCC951712426B6B000FC915F /* SRFI-128.scm in Copy tests */,
 				CCF602EA23A0FA5000087740 /* SRFI-167.scm in Copy tests */,
 				CCA7DC2E2387602500785FBE /* SRFI-175.scm in Copy tests */,
@@ -846,6 +850,8 @@
 			dstPath = LispKit/Resources/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
+				CCDB5580247C85CF0044714C /* 196.sld in Copy pre-installed SRFI libraries */,
+				CCDB557D247C7D0F0044714C /* 195.sld in Copy pre-installed SRFI libraries */,
 				CCC9516F2426B3E900FC915F /* 162.sld in Copy pre-installed SRFI libraries */,
 				CC8E65FD23FCAC4500D9D1F9 /* 54.sld in Copy pre-installed SRFI libraries */,
 				CC8E65FC23FCAC3A00D9D1F9 /* 6.sld in Copy pre-installed SRFI libraries */,
@@ -1283,6 +1289,9 @@
 		CCD81AD11CE75823009EB087 /* Checkpointer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Checkpointer.swift; sourceTree = "<group>"; };
 		CCD839AA1FD0F6000097023E /* Compression.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Compression.swift; sourceTree = "<group>"; };
 		CCDAD5511D4813E900A7EE4F /* HashTables.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = HashTables.scm; sourceTree = "<group>"; };
+		CCDB557C247C728F0044714C /* 195.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 195.sld; sourceTree = "<group>"; };
+		CCDB557E247C82370044714C /* 196.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 196.sld; sourceTree = "<group>"; };
+		CCDB557F247C84BF0044714C /* SRFI-196.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-196.scm"; sourceTree = "<group>"; };
 		CCDD5CF82479A09B00578D76 /* 2020-05-13.data */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "2020-05-13.data"; sourceTree = "<group>"; };
 		CCDD5CF92479A09C00578D76 /* 2020-05-19.data */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "2020-05-19.data"; sourceTree = "<group>"; };
 		CCDD5CFA2479A09C00578D76 /* 2020-05-02.data */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "2020-05-02.data"; sourceTree = "<group>"; };
@@ -1396,6 +1405,7 @@
 				CC38528D23140F26001D5E56 /* SRFI-173.scm */,
 				CC5E53092358359900C72CE2 /* SRFI-174.scm */,
 				CCA7DC2D23875FE500785FBE /* SRFI-175.scm */,
+				CCDB557F247C84BF0044714C /* SRFI-196.scm */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -1681,6 +1691,8 @@
 				CC5E530723579CF200C72CE2 /* 174.sld */,
 				CC498A8A23882C19002734E0 /* 175.sld */,
 				CC6BB91A235CFB4700D7CAA1 /* 177.sld */,
+				CCDB557C247C728F0044714C /* 195.sld */,
+				CCDB557E247C82370044714C /* 196.sld */,
 			);
 			path = srfi;
 			sourceTree = "<group>";

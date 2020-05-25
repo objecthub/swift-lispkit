@@ -1044,20 +1044,7 @@ public final class CoreLibrary: NativeLibrary {
   //-------- MARK: - Multiple values
   
   private func values(args: Arguments) -> Expr {
-    switch args.count {
-      case 0:
-        return .void // .values(.null)
-      case 1:
-        return args.first!
-      default:
-        var res = Expr.null
-        var idx = args.endIndex
-        while idx > args.startIndex {
-          idx = args.index(before: idx)
-          res = .pair(args[idx], res)
-        }
-        return .values(res)
-    }
+    return args.values
   }
   
   private func compileValues(_ compiler: Compiler,

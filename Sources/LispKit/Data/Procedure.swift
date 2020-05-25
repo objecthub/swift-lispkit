@@ -327,6 +327,26 @@ public final class Procedure: Reference, CustomStringConvertible {
 
 public typealias Arguments = ArraySlice<Expr>
 
+public extension Arguments {
+
+  var values: Expr {
+    switch self.count {
+      case 0:
+        return .void
+      case 1:
+        return self.first!
+      default:
+        var res = Expr.null
+        var idx = self.endIndex
+        while idx > self.startIndex {
+          idx = self.index(before: idx)
+          res = .pair(self[idx], res)
+        }
+        return .values(res)
+    }
+  }
+}
+
 public extension ArraySlice {
     
   func optional(_ fst: Element, _ snd: Element) -> (Element, Element)? {

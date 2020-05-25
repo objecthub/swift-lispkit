@@ -311,10 +311,16 @@ public enum Expr: Hashable {
            .fixnum(_), .bignum(_), .rational(_, _), .flonum(_), .complex(_),
            .char(_), .string(_), .bytes(_), .env(_), .port(_), .object(_):
         return true
+      case .pair(let car0, .pair(let car1, .pair(let car2, let cdr))):
+        return car0.isSimpleAtom && car1.isSimpleAtom && car2.isSimpleAtom && cdr.isSimpleAtom
+      case .pair(let car0, .pair(let car1, let cdr)):
+        return car0.isSimpleAtom && car1.isSimpleAtom && cdr.isSimpleAtom
       case .pair(let car, let cdr):
         return car.isSimpleAtom && cdr.isSimpleAtom
       case .tagged(let tag, let expr):
         return tag.isSimpleAtom && expr.isAtom
+      case .values(let expr):
+        return expr.isAtom
       default:
         return false
     }
