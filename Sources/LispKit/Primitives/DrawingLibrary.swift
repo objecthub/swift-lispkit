@@ -151,6 +151,7 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("load-image", loadImage))
     self.define(Procedure("load-image-asset", loadImageAsset))
     self.define(Procedure("image-size", imageSize))
+    self.define(Procedure("set-image-size!", setImageSize))
     self.define(Procedure("bitmap?", isBitmap))
     self.define(Procedure("bitmap-size", bitmapSize))
     self.define(Procedure("bitmap-pixels", bitmapPixels))
@@ -761,6 +762,14 @@ public final class DrawingLibrary: NativeLibrary {
     } else {
       return .pair(.flonum(Double(size.width)), .flonum(Double(size.height)))
     }
+  }
+
+  private func setImageSize(image: Expr, size: Expr) throws -> Expr {
+    guard case .pair(.flonum(let w), .flonum(let h)) = size, w > 0.0, h > 0.0 else {
+      throw RuntimeError.eval(.invalidSize, size)
+    }
+    try self.image(from: image).size = NSSize(width: w, height: h)
+    return .void
   }
 
   private func isBitmap(expr: Expr) -> Expr {

@@ -30,7 +30,7 @@ public final class BoxLibrary: NativeLibrary {
   
   /// Dependencies of the library.
   public override func dependencies() {
-    self.`import`(from: ["lispkit", "core"], "define")
+    self.`import`(from: ["lispkit", "core"], "define", "apply-with-values")
   }
   
   /// Declarations of the library.
@@ -41,7 +41,7 @@ public final class BoxLibrary: NativeLibrary {
     self.define(Procedure("unbox", self.unbox))
     self.define(Procedure("set-box!", self.setBox))
     self.define("update-box!", via:
-      "(define (update-box! box proc) (set-box! box (proc (unbox box))))")
+      "(define (update-box! box proc) (set-box! box (apply-with-values proc (unbox box))))")
     
     // Mutable pairs
     self.define(Procedure("mpair?", self.isMpair))
