@@ -356,6 +356,7 @@
 		CCC62D921CA9ED6A00E2C43F /* TrackedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC62D911CA9ED6A00E2C43F /* TrackedObject.swift */; };
 		CCC9516F2426B3E900FC915F /* 162.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCC9516E2426B1E100FC915F /* 162.sld */; };
 		CCC951712426B6B000FC915F /* SRFI-128.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCC951702426B54600FC915F /* SRFI-128.scm */; };
+		CCCACB5C248D753800F012AC /* SystemOSLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCACB5B248D753800F012AC /* SystemOSLibrary.swift */; };
 		CCCEB3FF1DF2DAA9009BF66B /* FileHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCEB3FE1DF2DAA9009BF66B /* FileHandler.swift */; };
 		CCD6C3E91F35F9F10002F7D4 /* enum.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCD6C3E81F35F95D0002F7D4 /* enum.sld */; };
 		CCD81AD21CE75823009EB087 /* Checkpointer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD81AD11CE75823009EB087 /* Checkpointer.swift */; };
@@ -1282,6 +1283,7 @@
 		CCC937491C4F031700A5608F /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		CCC9516E2426B1E100FC915F /* 162.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 162.sld; sourceTree = "<group>"; };
 		CCC951702426B54600FC915F /* SRFI-128.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-128.scm"; sourceTree = "<group>"; };
+		CCCACB5B248D753800F012AC /* SystemOSLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemOSLibrary.swift; sourceTree = "<group>"; };
 		CCCAF5AE23B7A71400FE2C60 /* HtmlColors.plist */ = {isa = PBXFileReference; lastKnownFileType = file.bplist; path = HtmlColors.plist; sourceTree = "<group>"; };
 		CCCAF92D1F941A43006692E9 /* Package.swift */ = {isa = PBXFileReference; explicitFileType = sourcecode.swift; fileEncoding = 4; indentWidth = 2; path = Package.swift; sourceTree = "<group>"; tabWidth = 2; };
 		CCCEB3FE1DF2DAA9009BF66B /* FileHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileHandler.swift; sourceTree = "<group>"; };
@@ -2032,6 +2034,7 @@
 				CC6A3B5F1C52EBD700E962E2 /* StringLibrary.swift */,
 				CC7A125C21EA7C5E00ABEA17 /* RegexpLibrary.swift */,
 				CC4E2D361D09691000D77159 /* PortLibrary.swift */,
+				CCCACB5B248D753800F012AC /* SystemOSLibrary.swift */,
 				CC4575C520F00C4400116F0F /* DrawingLibrary.swift */,
 				CCA6C3D023610674007D2AF0 /* MarkdownLibrary.swift */,
 				CC08964D244090D1004503B1 /* SQLiteLibrary.swift */,
@@ -2378,6 +2381,7 @@
 				CC6A3B5C1C52E71F00E962E2 /* ListLibrary.swift in Sources */,
 				CC5696791CBD48E700F6803E /* Global.swift in Sources */,
 				CC35FD0F1C711FEA00C8B992 /* BindingGroup.swift in Sources */,
+				CCCACB5C248D753800F012AC /* SystemOSLibrary.swift in Sources */,
 				CCE2C47A1D9203DE0047E229 /* Environment.swift in Sources */,
 				CC76312120E9518F005F27CE /* Drawing.swift in Sources */,
 				CC8EDE6E1D07263D004E0636 /* BinaryInput.swift in Sources */,
@@ -2885,8 +2889,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/objecthub/swift-sqliteexpress.git";
 			requirement = {
-				branch = master;
-				kind = branch;
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.2;
 			};
 		};
 		CC5E53012355AAD400C72CE2 /* XCRemoteSwiftPackageReference "swift-numberkit" */ = {

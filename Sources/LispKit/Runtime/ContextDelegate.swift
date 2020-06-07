@@ -54,6 +54,9 @@ public protocol ContextDelegate: TextInputSource, TextOutputTarget {
 
   /// This is called whenever garbage collection was called
   func garbageCollected(objectPool: ManagedObjectPool, time: Double, objectsBefore: Int)
+
+  /// This is called when the execution of the virtual machine got aborted.
+  func aborted()
   
   /// This is called by the `exit` function of LispKit.
   func emergencyExit(obj: Expr?)
@@ -152,6 +155,9 @@ public extension ContextDelegate {
   }
 
   func garbageCollected(objectPool: ManagedObjectPool, time: Double, objectsBefore: Int) {
+  }
+
+  func aborted() {
   }
   
   func emergencyExit(obj: Expr?) {

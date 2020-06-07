@@ -236,6 +236,7 @@ public final class VirtualMachine: TrackedObject {
   /// Requests abortion of the machine evaluator.
   public func abort() {
     self.abortionRequested = true
+    self.context.delegate.aborted()
   }
   
   /// Returns true if an abortion was requested.

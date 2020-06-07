@@ -24,8 +24,17 @@
         "repositoryURL": "https://github.com/objecthub/swift-numberkit.git",
         "state": {
           "branch": null,
-          "revision": "5f9c41eb20777801a0d7ecb5bafe83e5f490a42a",
-          "version": "2.3.4"
+          "revision": "a29903f82329df499e0a422f7c4824f9093e5df8",
+          "version": "2.3.7"
+        }
+      },
+      {
+        "package": "SQLiteExpress",
+        "repositoryURL": "https://github.com/objecthub/swift-sqliteexpress.git",
+        "state": {
+          "branch": null,
+          "revision": "ca29f8d89e37f9288721addc8272d063b257aa7a",
+          "version": "1.0.2"
         }
       }
     ]

@@ -51,11 +51,13 @@ let package = Package(
     .package(url: "https://github.com/objecthub/swift-markdownkit.git",
              .upToNextMajor(from: "0.2.2")),
     .package(url: "https://github.com/objecthub/swift-commandlinekit.git",
-             .upToNextMajor(from: "0.3.2"))
+             .upToNextMajor(from: "0.3.2")),
+    .package(url: "https://github.com/objecthub/swift-sqliteexpress.git",
+             .upToNextMajor(from: "1.0.2"))
   ],
   targets: [
     .target(name: "LispKit",
-            dependencies: ["NumberKit", "MarkdownKit"]),
+            dependencies: ["NumberKit", "MarkdownKit", "SQLiteExpress"]),
     .target(name: "LispKitTools",
             dependencies: ["LispKit", "CommandLineKit"]),
     .target(name: "LispKitRepl",

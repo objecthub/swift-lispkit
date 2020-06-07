@@ -26,7 +26,7 @@ import Foundation
 public final class PortLibrary: NativeLibrary {
   
   /// Imported native library
-  private var systemLibrary: SystemLibrary!
+  private unowned var systemLibrary: SystemLibrary!
   
   /// Exported parameter objects
   public let outputPortParam: Procedure
