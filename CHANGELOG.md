@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.9.0 (2020-06-20)
+- New libraries: `(lispkit sqlite)`, `(lispkit combinator)`, `(lispkit system os)`, `(srfi 195)` and `(srfi 196)`
+- Renamed library `(lispkit iteration)` into `(lispkit iterate)`
+- Extended library `(lispkit date-time)` with procedures `date-time-add`, `date-time-add-seconds`, `date-time-diff-seconds`, `date-time-in-timezone`, `date-time-same?`, `date-time=?`, `date-time<?`, `date-time>?`, `date-time<=?`, `date-time>=?`, and `date-time-hash`.
+- Extended library `(lispkit core)` with procedures `thunk`, `thunk*`, `define-values`, and `apply-with-values`
+- Extended library `(lispkit string)` with procedures `string-normalize-diacritics` and `string-normalize-separators`
+- Extended library `(lispkit dynamic)` with procedures `unwind-protect` and `try`
+- Extended library `(lispkit control)` with procedure `letrec-values`; `define-values` can now be used wherever `define` can be used.
+- Extended library `(lispkit system)` with procedures `home-directory`, `system-directory`, `path-extension`, `append-path-extension`, `remove-path-extension`, `file-readable?`, `file-writeable?`, `file-deletable?`, `directory-readable?`, `directory-writeable?`, and `directory-deletable?`.
+- Extended library `(lispkit draw)` with procedures `set-image-size!`, `bitmap-size`, `bitmap-pixels`, `bitmap-exif-data`, and `set-bitmap-exif-data!`
+- Support for timeouts in procedures handling HTTP ports in library `(lispkit port)`
+- Small tweaks to library `(lispkit csv)`
+- Library `(lispkit box)` now supports multi-value boxes
+- New sample code `Covid.scm`, including data up until June 19, 2020
+
 ## 1.8.4 (2020-03-30)
 - Several garbage collector enhancements
 - Fixed serious memory leak in the compiler
@@ -39,7 +54,7 @@
 - Update dependency on NumberKit 2.3.2
 - New libraries: `(srfi 174)`, `(srfi 177)`
 
-## 1.8 (2019-10-17)
+## 1.8.0 (2019-10-17)
 - Migrated project to Xcode 11.1
 - Ported code to Swift 5.1
 - Simplify printed representation of procedures
@@ -63,7 +78,7 @@
 - Migrated project to Xcode 10.2
 - Ported code to Swift 5
 
-## 1.7 (2019-02-24)
+## 1.7.0 (2019-02-24)
 - New libraries: `(lispkit csv)`, `(lispkit match)`, `(lispkit regexp)`, `(lispkit gvector)`, `(lispkit date-time)`
 - Extended `(lispkit vector)` and `(lispkit list)` libraries
 - Support for `let-keywords` and `let*-keywords` in library `(lispkit control)`
@@ -73,7 +88,7 @@
 - Make the last three REPL results available via `*1`, `*2`, and `*3`
 - Allow `@` as initial character in identifiers
 
-## 1.6 (2019-01-04)
+## 1.6.0 (2019-01-04)
 - New libraries: `(lispkit log)`, `(lispkit char-set)`, `(scheme char)`, `(srfi 14 ascii)`, `(srfi 101)`, `(srfi 125)`
 - Support Scheme libraries from R7RS large/Red edition:  `(scheme box)`,  `(scheme charset)`,
   `(scheme comparator)`, `(scheme generator)`,
@@ -107,7 +122,7 @@
 - Bugfixes and name changes in `(lispkit draw)`
 - New example code showcasing `(lispkit draw)` features
 
-## 1.5 (2018-08-10)
+## 1.5.0 (2018-08-10)
 - Allow importing multiple libraries with one `import` invocation
 - Mark continuations correctly and fix `continuation?`
 - Turn `current-input-port`, `current-output-port`, and `current-error-port` into parameter objects
@@ -128,7 +143,7 @@
 - New SRFI libraries: SRFI 69, SRFI 129, SRFI 137, SRFI 145, SRFI 151
 - New example code for coroutines, HTTP support, and a small compiler for arithmetic expressions
 
-## 1.4 (2018-03-30)
+## 1.4.0 (2018-03-30)
 - Migrated project to Xcode 9.3 and Swift 4
 - Bug fixes (esp. in `syntax-rules`)
 - Fixed logic for referencing `unquote`, etc. in `backquote`.
@@ -140,7 +155,7 @@
 - Complete rewrite of the error reporting and representation sub-system
 - Preparations for managing source locations
 
-## 1.3 (2017-12-03)
+## 1.3.0 (2017-12-03)
 - Support simple HTTP API
 - Support compression for bytevectors
 - Implement call tracing
@@ -148,7 +163,7 @@
 - Support all standard R7RS small Scheme libraries
 - Support for: `(srfi 158)`, `(lispkit wt-tree)`, `(lispkit object)`
 
-## 1.2 (2017-10-22)
+## 1.2.0 (2017-10-22)
 - Support for tail patterns in `syntax-rules`
 - Support for `features` and `cond-expand`
 - Support for `include` and `include-library-declarations`
@@ -160,24 +175,24 @@
 - Added support for the following libraries: `(srfi 63)`, `(srfi 64)`, `(srfi 128)`,
    `(lispkit iterate)`, `(lispkit json)`
 
-## 1.1 (2017-09-25)
+## 1.1.0 (2017-09-25)
 - Migrated project to Xcode 9 and Swift 4
 - Adopted Swift 4-version of NumberKit
 
-## 1.0 (2017-08-06)
+## 1.0.0 (2017-08-06)
 - Support for custom ellipsis in `syntax-rules`
 - Fixed serious scoping issues in `syntax-rules`
 - Fixed hash functions to prevent overflows
 - Support for R6RS enumeration operations
 
-## 0.7 (2017-04-30)
+## 0.7.0 (2017-04-30)
 - Implemented native support for fixnum (fx*) and flonum (fl*) operations
 - Completed support for all R7RS string operations
 - Completed support for all R7RS character operations
 - Added common list operations (sort, filter, partition)
 - Completed support for all R7RS vector operations
 
-## 0.6 (2017-02-12)
+## 0.6.0 (2017-02-12)
 - Automatically load libraries
 - Made stack grow automatically
 - Support externally triggered termination of evaluation
@@ -186,18 +201,18 @@
 - Implemented support for multiple return values
 – Ported various SRFIs and included them in the LispKit package
 
-## 0.5 (2016-11-13)
+## 0.5.0 (2016-11-13)
 - Implemented environments as first-class values
 - Introduced a new R7RS-compatible library abstraction
 - Reimplemented all functions using libraries
 
-## 0.4 (2016-09-04)
+## 0.4.0 (2016-09-04)
 - Migration from Swift 2.2 to Swift 3.0
 - Implemented [R6RS](http://www.r6rs.org)-compliant hash tables
 - Implemented [R7RS](http://www.r7rs.org)-compliant parameters (supporting dynamic scoping)
 - Implemented [R7RS](http://www.r7rs.org)-compliant record types
 
-## 0.3 (2016-07-05)
+## 0.3.0 (2016-07-05)
 - Implemented [R7RS](http://www.r7rs.org)-compliant promises
 - Implemented [R7RS](http://www.r7rs.org)-compliant port library, supporting both textual
   ports and binary ports; built on top of Foundation API (not using low-level C port
@@ -205,13 +220,13 @@
 - Fixed a few cases where the runtime didn't do proper tail calls
 - Implemented full support for `call/cc`
 
-## 0.2 (2016-05-16)
+## 0.2.0 (2016-05-16)
 - Revised bytecode instruction set. Added documentation to the
   [LispKit Wiki](https://github.com/objecthub/swift-lispkit/wiki).
 - Implemented compiler optimization framework. Turned compiler into a two-phase compiler.
 - Optimized usage of variables for function arguments.
 
-## 0.1 (2016-05-02)
+## 0.1.0 (2016-05-02)
 - Initial version consisting of the framework and a very simple read-eval-print loop
 - The LispKit framework implements a subset of the
   [R5RS Scheme standard](http://www.schemers.org/Documents/Standards/R5RS/HTML/); the
