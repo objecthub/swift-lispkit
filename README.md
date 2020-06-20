@@ -3,7 +3,7 @@
 
 [![Platform: macOS](https://img.shields.io/badge/Platform-macOS-blue.svg?style=flat)](https://developer.apple.com/osx/)
 [![Language: Swift 5.1](https://img.shields.io/badge/Language-Swift%205.1-green.svg?style=flat)](https://developer.apple.com/swift/)
-[![IDE: Xcode 11.4](https://img.shields.io/badge/IDE-Xcode%2011.4-orange.svg?style=flat)](https://developer.apple.com/xcode/)
+[![IDE: Xcode 11.5](https://img.shields.io/badge/IDE-Xcode%2011.5-orange.svg?style=flat)](https://developer.apple.com/xcode/)
 [![Carthage: compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![License: Apache](http://img.shields.io/badge/License-Apache-lightgrey.svg?style=flat)](https://raw.githubusercontent.com/objecthub/swift-lispkit/master/LICENSE)
 
@@ -68,6 +68,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit core)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Core),
     [`(lispkit control)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Control),
     [`(lispkit system)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-System),
+    [`(lispkit system os)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-System-OS),
     [`(lispkit box)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Box),
     [`(lispkit math)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Math),
     [`(lispkit list)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-List),
@@ -101,6 +102,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit disjoint-set)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Disjoint-Set),
     `(lispkit wt-tree)`,
     `(lispkit comparator)`,
+    `(lispkit combinator)`,
     `(lispkit logic)`,
     `(lispkit clos)`,
     `(lispkit test)`, 
@@ -291,8 +293,9 @@ command-line tool, all that is needed is the Swift Package Manager. For compilin
 the command-line tool directly in Xcode, the Swift Package Manager is not needed.
 
 - [Swift 5.1](https://developer.apple.com/swift/)
-- [Xcode 11.4](https://developer.apple.com/xcode/)
+- [Xcode 11.5](https://developer.apple.com/xcode/)
 - [Swift Package Manager](https://swift.org/package-manager/)
 - [NumberKit](http://github.com/objecthub/swift-numberkit)
 - [MarkdownKit](http://github.com/objecthub/swift-markdownkit)
 - [CommandLineKit](http://github.com/objecthub/swift-commandlinekit)
+- [SQLiteExpress](http://github.com/objecthub/swift-sqliteexpress)
