@@ -428,7 +428,7 @@ public enum ErrorDescriptor: Hashable {
       return false
     }
     switch err {
-      case .cannotOpenFile, .cannotOpenAsset, .cannotOpenUrl, .cannotWriteToPort:
+      case .cannotOpenFile, .cannotOpenAsset, .cannotOpenUrl, .cannotWriteToPort, .unknownFile:
         return true
       default:
         return false

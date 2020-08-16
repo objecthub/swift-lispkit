@@ -8,7 +8,7 @@
 ;;; BSD-style license: http://synthcode.com/license.txt
 ;;;
 ;;; Author: Matthias Zenger
-;;; Copyright © 2018 Matthias Zenger. All rights reserved.
+;;; Copyright © 2018-2020 Matthias Zenger. All rights reserved.
 ;;;
 ;;; Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 ;;; except in compliance with the License. You may obtain a copy of the License at
@@ -22,12 +22,9 @@
 
 (define-library (lispkit test)
 
-  (export epsilon
-          approx-equal?
-          test-begin
+  (export test-begin
           test-end
           test-exit
-          test-failures
           test
           test-equal
           test-approx
@@ -36,8 +33,13 @@
           test-values
           test-error
           test-group
-          test-group-failures
+          test-group-failed-tests
+          test-group-passed-tests
+          failed-tests
+          passed-tests
           current-test-comparator
+          current-test-epsilon
+          approx-equal?
           write-to-string)
 
   (import (lispkit base)
@@ -46,10 +48,10 @@
   ;; Convenience equality predicate for inexact values
   (begin
 
-    (define epsilon (make-parameter 0.0000001))
+    (define current-test-epsilon (make-parameter 0.0000001))
 
     (define (approx-equal? a b . args)
-      (let-optionals args ((eps (epsilon)))
+      (let-optionals args ((eps (current-test-epsilon)))
         (cond ((> (abs a) (abs b))
                 (approx-equal? b a eps))
               ((zero? a)
@@ -90,14 +92,22 @@
       (let ((group (current-test-group)))
         (set-test-group-failed! group (fx1+ (test-group-failed group)))))
 
-    (define (test-group-failures)
+    (define (test-group-failed-tests)
       (test-group-failed (current-test-group)))
 
-    (define (test-failures)
+    (define (test-group-passed-tests)
+      (test-group-passed (current-test-group)))
+
+    (define (failed-tests)
       (fold-left (lambda (acc g) (fx+ acc (test-group-failed g)))
                  0
                  (stack->list open-test-groups)))
-
+    
+    (define (passed-tests)
+      (fold-left (lambda (acc g) (fx+ acc (test-group-passed g)))
+                 0
+                 (stack->list open-test-groups)))
+    
     (define (format-float n prec)
       (let* ((str (number->string n))
              (len (string-length str)))
@@ -158,6 +168,8 @@
     (define internal-fail-token (gensym))
 
     (define current-test-comparator (make-parameter equal?))
+    
+    (define last-test-group-failures 0)
 
     (define (test-begin . args)
       (let-optionals args ((name #f))
@@ -182,13 +194,18 @@
                   (error "ending test group $0, but expected end of $1" name n))
                 ((current-test-group) => (lambda (o)
                   (set-test-group-passed! o (fx+ (test-group-passed o) (test-group-passed g)))
-                  (set-test-group-failed! o (fx+ (test-group-failed o) (test-group-failed g)))))))))
+                  (set-test-group-failed! o (fx+ (test-group-failed o) (test-group-failed g)))))
+                (else
+                  (set! last-test-group-failures (test-group-failed g)))))))
 
     (define (test-exit . args)
-      (cond ((current-test-group) => (lambda (g)
-              (error "test group $0 not closed" (test-group-name g))))
-            (else
-              (void))))
+      (let-optionals args ((obj (void)))
+        (cond ((current-test-group) => (lambda (g)
+                (error "test group $0 not closed" (test-group-name g))))
+              ((and (not (void? obj)) (fxpositive? last-test-group-failures))
+                (exit obj))
+              (else
+                (void)))))
 
     (define (format-result spec name expect result)
       (do ((ls spec (cdr ls)))

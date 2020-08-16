@@ -756,7 +756,7 @@ public final class MathLibrary: NativeLibrary {
     try first.assertType(.numberType)
     var last = first
     for expr in exprs {
-      guard try compareNumber(last, with: expr) == 0 else {
+      guard try compareNumber(last, with: expr) == .equal else {
         return Expr.false
       }
       last = expr
@@ -768,7 +768,7 @@ public final class MathLibrary: NativeLibrary {
     try first.assertType(.numberType)
     var last = first
     for expr in exprs {
-      guard try compareNumber(last, with: expr) < 0 else {
+      guard try compareNumber(last, with: expr) == .less else {
         return Expr.false
       }
       last = expr
@@ -780,7 +780,8 @@ public final class MathLibrary: NativeLibrary {
     try first.assertType(.numberType)
     var last = first
     for expr in exprs {
-      guard try compareNumber(last, with: expr) <= 0 else {
+      let res = try compareNumber(last, with: expr)
+      guard res == .less || res == .equal else {
         return Expr.false
       }
       last = expr
@@ -792,7 +793,7 @@ public final class MathLibrary: NativeLibrary {
     try first.assertType(.numberType)
     var last = first
     for expr in exprs {
-      guard try compareNumber(last, with: expr) > 0 else {
+      guard try compareNumber(last, with: expr) == .greater else {
         return Expr.false
       }
       last = expr
@@ -804,7 +805,8 @@ public final class MathLibrary: NativeLibrary {
     try first.assertType(.numberType)
     var last = first
     for expr in exprs {
-      guard try compareNumber(last, with: expr) >= 0 else {
+      let res = try compareNumber(last, with: expr)
+      guard res == .greater || res == .equal else {
         return Expr.false
       }
       last = expr
@@ -818,7 +820,7 @@ public final class MathLibrary: NativeLibrary {
     var inexact = first.isInexactNumber
     for expr in exprs {
       inexact = inexact || expr.isInexactNumber
-      if try compareNumber(res, with: expr) < 0 {
+      if try compareNumber(res, with: expr) == .less {
         res = expr
       }
     }
@@ -831,7 +833,7 @@ public final class MathLibrary: NativeLibrary {
     var inexact = first.isInexactNumber
     for expr in exprs {
       inexact = inexact || expr.isInexactNumber
-      if try compareNumber(res, with: expr) > 0 {
+      if try compareNumber(res, with: expr) == .greater {
         res = expr
       }
     }

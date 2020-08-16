@@ -110,7 +110,7 @@
   (test-assert (set-contains? syms2 'f))
   (list->set! syms2 '(a b))
   (test 4 (set-size syms2))
-  (test-failures)
+  (failed-tests)
 )
 
 (
@@ -137,7 +137,7 @@
   (define-values (set4 obj4) (set-search! (set-copy yam) #\a error success/remove))
   (test-assert (set=? ym set4))
   (test 4 obj4)
-  (test-failures)
+  (failed-tests)
 )
 
 (
@@ -160,7 +160,7 @@
   (test-assert (not (set>? set2 other-set2)))
   (test-assert (set>=? set3 other-set2 set2))
   (test-assert (not (set>=? other-set2 set3 set2)))
-  (test-failures)
+  (failed-tests)
 )
 
 (
@@ -221,7 +221,7 @@
             (test "abcd smashed?" other-abcd abcd)
             (test "efgh smashed?" other-efgh efgh)
             (test "abgh smashed?" other-abgh abgh))))))
-  (test-failures)
+  (failed-tests)
 )
 
 (
@@ -243,7 +243,7 @@
   (test-error (set-intersection! nums syms))
   (test-error (set-difference! nums syms))
   (test-error (set-xor! nums syms))
-  (test-failures)
+  (failed-tests)
 )
 
 (
@@ -280,7 +280,7 @@
   (test-assert (not (set-every? number? alpha)))
   (test-assert (not (set-any? symbol? beta)))
   (test-assert (set-every? number? beta))
-  (test-failures)
+  (failed-tests)
 )
 
 (
@@ -303,7 +303,7 @@
       (set equal-comparator '(2 . 1) '(1 . 1) '(0 . 2) '(0 . 0))
       (set equal-comparator '(2 . 1) '(1 . 1) '(0 . 0) '(0 . 2))))
   (test 1 (set-size sos))
-  (test-failures)
+  (failed-tests)
 )
 
 (
@@ -356,7 +356,7 @@
   (test-assert (bag-contains? syms2 'f))
   (list->bag! syms2 '(e f))
   (test 4 (bag-size syms2))
-  (test-failures)
+  (failed-tests)
 )
 
 (
@@ -383,7 +383,7 @@
   (define-values (bag4 obj4) (bag-search! (bag-copy yam) #\a error success/remove))
   (test-assert (bag=? ym bag4))
   (test 4 obj4)
-  (test-failures)
+  (failed-tests)
 )
 
 (
@@ -393,7 +393,7 @@
   (define mybag (bag eqv-comparator 1 1 1 1 1 2 2))
   (test 5 (bag-element-count mybag 1))
   (test 0 (bag-element-count mybag 3))
-  (test-failures)
+  (failed-tests)
 )
 
 (
@@ -416,7 +416,7 @@
   (test-assert (not (bag>? bag2 other-bag2)))
   (test-assert (bag>=? bag3 other-bag2 bag2))
   (test-assert (not (bag>=? other-bag2 bag3 bag2)))
-  (test-failures)
+  (failed-tests)
 )
 
 (
@@ -440,7 +440,7 @@
       (bag-for-each-unique (lambda (x y) (set! result (cons (cons x y) result))) two) result))
   (test 25 (bag-fold + 5 two))
   (test 12 (bag-fold-unique (lambda (k n r) (+ k n r)) 0 two))
-  (test-failures)
+  (failed-tests)
 )
 
 (
@@ -511,7 +511,7 @@
                   (test "abcd smashed?" other-abcd abcd)
                   (test "efgh smashed?" other-efgh efgh)
                   (test "abgh smashed?" other-abgh abgh)))))))))
-  (test-failures)
+  (failed-tests)
 )
 
 (
@@ -532,7 +532,7 @@
   (test-error (bag-union! nums syms))
   (test-error (bag-intersection! nums syms))
   (test-error (bag-difference! nums syms))
-  (test-failures)
+  (failed-tests)
 )
 
 (
@@ -569,7 +569,7 @@
   (test-assert (not (bag-every? number? alpha)))
   (test-assert (not (bag-any? symbol? beta)))
   (test-assert (bag-every? number? beta))
-  (test-failures)
+  (failed-tests)
 )
 
 (
@@ -590,7 +590,7 @@
   (test 3 (bag-size mybag))
   (bag-decrement! mybag 1 5)
   (test 0 (bag-size mybag))
-  (test-failures)
+  (failed-tests)
 )
 
 (
@@ -610,7 +610,7 @@
   (test-assert (not (bag=? multi (set->bag singleset))))
   (set->bag! minibag singleset)
   (test-assert (bag-contains? minibag 1))
-  (test-failures)
+  (failed-tests)
 )
 
 (
@@ -628,7 +628,7 @@
   (test 2 (bag-size bag1))
   (bag-product! 2 bag1)
   (test 4 (bag-size bag1))
-  (test-failures)
+  (failed-tests)
 )
 
 (
@@ -646,5 +646,5 @@
   (test-assert (=? bag-comparator aa (bag-copy aa)))
   (test-error (<? bag-comparator aa bb))
   (test-assert (not (=? (make-default-comparator) a aa)))
-  (test-failures)
+  (failed-tests)
 )

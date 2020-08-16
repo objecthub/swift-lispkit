@@ -67,11 +67,17 @@ public func equalExpr(_ this: Expr, _ that: Expr) -> Bool {
       case (.rational(let n1, let d1), .rational(let n2, let d2)):
         return equals(n1, n2) && equals(d1, d2)
       case (.flonum(let num1), .flonum(let num2)):
-        return num1 == num2 && num1.sign == num2.sign
+        guard num1.sign == num2.sign else {
+          return false
+        }
+        return num1 == num2 || (num1.isNaN && num2.isNaN)
       case (.complex(let num1), .complex(let num2)):
-        return num1.value == num2.value &&
-               num1.value.re.sign == num2.value.re.sign &&
-               num1.value.im.sign == num2.value.im.sign
+        guard num1.value.re.sign == num2.value.re.sign, 
+              num1.value.im.sign == num2.value.im.sign else {
+          return false
+        }
+        return (num1.value.re == num2.value.re || (num1.value.re.isNaN && num2.value.re.isNaN)) &&
+               (num1.value.im == num2.value.im || (num1.value.im.isNaN && num2.value.im.isNaN))
       case (.char(let ch1), .char(let ch2)):
         return ch1 == ch2
       case (.string(let str1), .string(let str2)):
@@ -257,11 +263,17 @@ public func eqvExpr(_ lhs: Expr, _ rhs: Expr) -> Bool {
     case (.rational(let n1, let d1), .rational(let n2, let d2)):
       return eqvExpr(n1, n2) && eqvExpr(d1, d2)
     case (.flonum(let num1), .flonum(let num2)):
-      return num1 == num2 && num1.sign == num2.sign
+      guard num1.sign == num2.sign else {
+        return false
+      }
+      return num1 == num2 || (num1.isNaN && num2.isNaN)
     case (.complex(let num1), .complex(let num2)):
-      return num1.value == num2.value &&
-             num1.value.re.sign == num2.value.re.sign &&
-             num1.value.im.sign == num2.value.im.sign
+      guard num1.value.re.sign == num2.value.re.sign, 
+            num1.value.im.sign == num2.value.im.sign else {
+        return false
+      }
+      return (num1.value.re == num2.value.re || (num1.value.re.isNaN && num2.value.re.isNaN)) &&
+             (num1.value.im == num2.value.im || (num1.value.im.isNaN && num2.value.im.isNaN))
     case (.char(let ch1), .char(let ch2)):
       return ch1 == ch2
     case (.string(let str1), .string(let str2)):
@@ -484,7 +496,14 @@ enum NumberPair {
   }
 }
 
-public func compareNumber(_ lhs: Expr, with rhs: Expr) throws -> Int {
+public enum CompareResult: Int {
+  case equal = 0
+  case less = -1
+  case greater = 1
+  case incomparable = 2
+}
+
+public func compareNumber(_ lhs: Expr, with rhs: Expr) throws -> CompareResult {
   guard let res = compare(lhs, with: rhs) else {
     try lhs.assertType(.realType)
     try rhs.assertType(.realType)
@@ -493,22 +512,22 @@ public func compareNumber(_ lhs: Expr, with rhs: Expr) throws -> Int {
   return res
 }
 
-public func compare(_ lhs: Expr, with rhs: Expr) -> Int? {
+public func compare(_ lhs: Expr, with rhs: Expr) -> CompareResult? {
   guard let pair = NumberPair(lhs, and: rhs) else {
     return nil
   }
   switch pair {
     case .fixnumPair(let lnum, let rnum):
-      return lnum < rnum ? -1 : (lnum > rnum ? 1 : 0)
+      return lnum < rnum ? .less : (lnum > rnum ? .greater : .equal)
     case .bignumPair(let lnum, let rnum):
-      return lnum < rnum ? -1 : (lnum > rnum ? 1 : 0)
+      return lnum < rnum ? .less : (lnum > rnum ? .greater : .equal)
     case .rationalPair(let lnum, let rnum):
-      return lnum < rnum ? -1 : (lnum > rnum ? 1 : 0)
+      return lnum < rnum ? .less : (lnum > rnum ? .greater : .equal)
     case .bigRationalPair(let lnum, let rnum):
-      return lnum < rnum ? -1 : (lnum > rnum ? 1 : 0)
+      return lnum < rnum ? .less : (lnum > rnum ? .greater : .equal)
     case .flonumPair(let lnum, let rnum):
-      return lnum < rnum ? -1 : (lnum > rnum ? 1 : 0)
-    default:
-      return nil
+      return lnum < rnum ? .less : (lnum > rnum ? .greater : .equal)
+    case .complexPair(let lnum, let rnum):
+      return lnum == rnum ? .equal : .incomparable
   }
 }
