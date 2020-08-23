@@ -37,6 +37,7 @@
 
   ;; Logger datatype
   (export logger?
+          logger
           make-logger
           close-logger
           logger-addproc
