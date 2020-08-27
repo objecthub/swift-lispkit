@@ -233,6 +233,8 @@
 ;;; A variant of this file which uses COND-EXPAND in a few places for performance can
 ;;; be found at http://synthcode.com/scheme/match-cond-expand.scm
 ;;;
+;;; 2020/08/21 - fixing match-letrec with unhygienic insertion
+;;; 2020/07/06 - adding `..=' and `..*' patterns; fixing ,@ patterns
 ;;; 2016/10/05 - treat keywords as literals, not identifiers, in Chicken
 ;;; 2016/03/06 - fixing named match-let (thanks to Stefan Israelsson Tampe)
 ;;; 2015/05/09 - fixing bug in var extraction of quasiquote patterns
@@ -259,7 +261,7 @@
 ;;;
 ;;;
 ;;; Adaptation to LispKit
-;;;   Copyright © 2019 Matthias Zenger. All rights reserved.
+;;;   Copyright © 2019-2020 Matthias Zenger. All rights reserved.
 
 (define-library (lispkit match)
 
@@ -404,7 +406,7 @@
     ;; pattern so far.
 
     (define-syntax match-two
-      (syntax-rules (_ ___ ..1 *** quote quasiquote ? $ struct @ object = and or not set! get!)
+      (syntax-rules (_ ___ ..1 ..= ..* *** quote quasiquote ? $ struct @ object = and or not set! get!)
         ((match-two v () g+s (sk ...) fk i)
          (if (null? v) (sk ... i) fk))
         ((match-two v (quote p) g+s (sk ...) fk i)
@@ -447,6 +449,14 @@
          (if (pair? v)
              (match-one v (p ___) g+s sk fk i)
              fk))
+        ((match-two v (p ..= n . r) g+s sk fk i)
+         (match-extract-vars
+          p
+          (match-gen-ellipsis/range n n v p r g+s sk fk i) i ()))
+        ((match-two v (p ..* n m . r) g+s sk fk i)
+         (match-extract-vars
+          p
+          (match-gen-ellipsis/range n m v p r g+s sk fk i) i ()))
         ((match-two v ($ rec p ...) g+s sk fk i)
          (if (is-a? v rec)
              (match-record-refs v rec 0 (p ...) g+s sk fk i)
@@ -502,17 +512,15 @@
     ;; QUASIQUOTE patterns
 
     (define-syntax match-quasiquote
-      (syntax-rules (unquote unquote-splicing quasiquote)
+      (syntax-rules (unquote unquote-splicing quasiquote or)
         ((_ v (unquote p) g+s sk fk i)
          (match-one v p g+s sk fk i))
         ((_ v ((unquote-splicing p) . rest) g+s sk fk i)
-         (if (pair? v)
-           (match-one v
-                      (p . tmp)
-                      (match-quasiquote tmp rest g+s sk fk)
-                      fk
-                      i)
-           fk))
+         ; TODO: it is an error to have another unquote-splicing in rest, check this and
+         ; signal explicitly
+         (match-extract-vars
+          p
+          (match-gen-ellipsis/qq v p rest g+s sk fk i) i ()))
         ((_ v (quasiquote p) g+s sk fk i . depth)
          (match-quasiquote v p g+s sk fk i #f . depth))
         ((_ v (unquote p) g+s sk fk i x . depth)
@@ -568,7 +576,8 @@
     (define-syntax match-gen-or
       (syntax-rules ()
         ((_ v p g+s (sk ...) fk (i ...) ((id id-ls) ...))
-         (let ((sk2 (lambda (id ...) (sk ... (i ... id ...)))))
+         (let ((sk2 (lambda (id ...) (sk ... (i ... id ...))))
+               (id (void)) ...)
            (match-gen-or-step v p g+s (match-drop-ids (sk2 id ...)) fk (i ...))))))
 
     (define-syntax match-gen-or-step
@@ -620,7 +629,7 @@
                              fk i)))
                (else
                 fk)))))
-        ((_ v p r g+s (sk ...) fk i ((id id-ls) ...))
+        ((_ v p r g+s sk fk (i ...) ((id id-ls) ...))
          ; general case, trailing patterns to match, keep track of the
          ; remaining list length so we don't need any backtracking
          (match-verify-no-ellipsis
@@ -634,23 +643,83 @@
                   (cond
                     ((= n tail-len)
                      (let ((id (reverse id-ls)) ...)
-                       (match-one ls r (#f #f) (sk ...) fk i)))
+                       (match-one ls r (#f #f) sk fk (i ... id ...))))
                     ((pair? ls)
                      (let ((w (car ls)))
                        (match-one w p ((car ls) (set-car! ls))
                                   (match-drop-ids
                                    (loop (cdr ls) (- n 1) (cons id id-ls) ...))
                                   fk
-                                  i)))
+                                  (i ...))))
                     ((mpair? ls)
                      (let ((w (mcar ls)))
                        (match-one w p ((mcar ls) (set-mcar! ls))
                                   (match-drop-ids
                                    (loop (mcdr ls) (- n 1) (mcons id id-ls) ...))
                                   fk
-                                  i)))
+                                  (i ...))))
                     (else
                      fk)))))))))
+
+    ;; Variant of the above where the rest pattern is in a quasiquote.
+
+    (define-syntax match-gen-ellipsis/qq
+      (syntax-rules ()
+        ((_ v p r g+s (sk ...) fk (i ...) ((id id-ls) ...))
+         (match-verify-no-ellipsis
+          r
+          (let* ((tail-len (length 'r))
+                 (ls v)
+                 (len (and (list? ls) (length ls))))
+            (if (or (not len) (< len tail-len))
+                fk
+                (let loop ((ls ls) (n len) (id-ls '()) ...)
+                  (cond
+                   ((= n tail-len)
+                    (let ((id (reverse id-ls)) ...)
+                      (match-quasiquote ls r g+s (sk ...) fk (i ... id ...))))
+                   ((pair? ls)
+                    (let ((w (car ls)))
+                      (match-one w p ((car ls) (set-car! ls))
+                                 (match-drop-ids
+                                  (loop (cdr ls) (- n 1) (cons id id-ls) ...))
+                                 fk
+                                 (i ...))))
+                   (else
+                    fk)))))))))
+
+    ;; Variant of above which takes an n/m range for the number of
+    ;; repetitions.  At least n elements much match, and up to m elements
+    ;; are greedily consumed.
+
+    (define-syntax match-gen-ellipsis/range
+      (syntax-rules ()
+        ((_ %lo %hi v p r g+s (sk ...) fk (i ...) ((id id-ls) ...))
+         ; general case, trailing patterns to match, keep track of the
+         ; remaining list length so we don't need any backtracking
+         (match-verify-no-ellipsis
+          r
+          (let* ((lo %lo)
+                 (hi %hi)
+                 (tail-len (length 'r))
+                 (ls v)
+                 (len (and (list? ls) (- (length ls) tail-len))))
+            (if (and len (<= lo len hi))
+                (let loop ((ls ls) (j 0) (id-ls '()) ...)
+                  (cond
+                    ((= j len)
+                     (let ((id (reverse id-ls)) ...)
+                       (match-one ls r (#f #f) (sk ...) fk (i ... id ...))))
+                    ((pair? ls)
+                     (let ((w (car ls)))
+                       (match-one w p ((car ls) (set-car! ls))
+                                  (match-drop-ids
+                                   (loop (cdr ls) (+ j 1) (cons id id-ls) ...))
+                                  fk
+                                  (i ...))))
+                    (else
+                     fk)))
+                fk))))))
 
     ;; This is just a safety check.  Although unlike syntax-rules we allow trailing
     ;; patterns after an ellipsis, we explicitly disable multiple ellipsis at the same
@@ -812,7 +881,8 @@
     ;; ```
 
     (define-syntax match-extract-vars
-      (syntax-rules (_ ___ ..1 *** ? $ struct @ object = quote quasiquote and or not get! set!)
+      (syntax-rules (_ ___ ..1 ..= ..* *** ? $ struct @ object = quote quasiquote
+                     and or not get! set!)
         ((match-extract-vars (? pred . p) . x)
          (match-extract-vars p . x))
         ((match-extract-vars ($ rec . p) . x)
@@ -849,8 +919,10 @@
         ((match-extract-vars ___ (k ...) i v)  (k ... v))
         ((match-extract-vars *** (k ...) i v)  (k ... v))
         ((match-extract-vars ..1 (k ...) i v)  (k ... v))
-        ; This is the main part, the only place where we might add a new var if it's
-        ; an unbound symbol.
+        ((match-extract-vars ..= (k ...) i v)  (k ... v))
+        ((match-extract-vars ..* (k ...) i v)  (k ... v))
+        ; This is the main part, the only place where we might add a new
+        ; var if it's an unbound symbol.
         ((match-extract-vars p (k ...) (i ...) v)
          (let-syntax
              ((new-sym?
@@ -922,10 +994,48 @@
     (define-syntax match-let
       (syntax-rules ()
         ((_ ((var value) ...) . body)
-         (match-let/helper let () () ((var value) ...) . body))
+         (match-let/aux () () ((var value) ...) . body))
         ((_ loop ((var init) ...) . body)
          (match-named-let loop () ((var init) ...) . body))))
 
+    (define-syntax match-let/aux
+      (syntax-rules ()
+        ((_ ((var expr) ...) () () . body)
+         (let ((var expr) ...) . body))
+        ((_ ((var expr) ...) ((pat tmp) ...) () . body)
+         (let ((var expr) ...)
+           (match-let* ((pat tmp) ...)
+             . body)))
+        ((_ (v ...) (p ...) (((a . b) expr) . rest) . body)
+         (match-let/aux (v ... (tmp expr)) (p ... ((a . b) tmp)) rest . body))
+        ((_ (v ...) (p ...) ((#(a ...) expr) . rest) . body)
+         (match-let/aux (v ... (tmp expr)) (p ... (#(a ...) tmp)) rest . body))
+        ((_ (v ...) (p ...) ((a expr) . rest) . body)
+         (match-let/aux (v ... (a expr)) (p ...) rest . body))))
+
+    (define-syntax match-named-let
+      (syntax-rules ()
+        ((_ loop ((pat expr var) ...) () . body)
+         (let loop ((var expr) ...)
+           (match-let ((pat var) ...)
+             . body)))
+        ((_ loop (v ...) ((pat expr) . rest) . body)
+         (match-named-let loop (v ... (pat expr tmp)) rest . body))))
+   
+    ;; `(match-let* ((var value) ...) body ...)`
+    ;;
+    ;; Similar to `match-let`, but analogously to `let*` matches and binds the
+    ;; variables in sequence, with preceding match variables in scope.
+
+    (define-syntax match-let*
+      (syntax-rules ()
+        ((_ () . body)
+         (let () . body))
+        ((_ ((pat expr) . rest) . body)
+         (match expr (pat (match-let* rest . body))))))
+    
+    ;; (match-letrec ((var value) ...) body ...)
+    ;; 
     ;; Similar to `match-let`, but analogously to `letrec` matches and binds the
     ;; variables with all match variables in scope.
 
@@ -959,19 +1069,7 @@
              . body)))
         ((_ loop (v ...) ((pat expr) . rest) . body)
          (match-named-let loop (v ... (pat expr tmp)) rest . body))))
-
-    ;; `(match-let* ((var value) ...) body ...)`
-    ;;
-    ;; Similar to `match-let`, but analogously to `let*` matches and binds the
-    ;; variables in sequence, with preceding match variables in scope.
-
-    (define-syntax match-let*
-      (syntax-rules ()
-        ((_ () . body)
-         (let () . body))
-        ((_ ((pat expr) . rest) . body)
-         (match expr (pat (match-let* rest . body))))))
-
+    
     ;; This is the R7RS version. For other standards, and implementations not yet
     ;; up-to-spec we have to use some tricks.
     ;;
@@ -1021,4 +1119,3 @@
            (sym? abracadabra success-k failure-k)))))
   )
 )
-
