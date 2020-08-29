@@ -29,6 +29,7 @@ public struct LibraryRegistry {
     ControlFlowLibrary.self,
     CoreLibrary.self,
     SystemLibrary.self,
+    DebugLibrary.self,
     DateTimeLibrary.self,
     BoxLibrary.self,
     HashTableLibrary.self,

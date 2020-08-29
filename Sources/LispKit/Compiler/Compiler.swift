@@ -119,6 +119,22 @@ public final class Compiler {
     return compiler.bundle()
   }
   
+  /// Expands the given expression `expr` in the environment `env` and the rules environment
+  /// `rulesEnv` at the outermost expression. If the outermost expression does not refer to a
+  /// macro, the function returns `nil`
+  public static func macroExpand(expr: Expr,
+                                 in env: Env,
+                                 and rulesEnv: Env? = nil,
+                                 inDirectory: String? = nil) throws -> Expr? {
+    let compiler = Compiler(in: env,
+                            and: rulesEnv ?? env,
+                            usingCheckpointer: Checkpointer())
+    if let dir = inDirectory {
+      compiler.sourceDirectory = dir
+    }
+    return try compiler.macroExpand(expr, in: env)
+  }
+  
   /// Compiles the given list of arguments and returns the corresponding binding group as well
   /// as the remaining argument list
   private func collectArguments(_ arglist: Expr) -> (BindingGroup, Expr) {
@@ -553,6 +569,33 @@ public final class Compiler {
       try self.expand(expanded, in: env, into: &into, depth: depth - 1)
     } else {
       into.append(expr)
+    }
+  }
+  
+  /// Expand expression `expr` in environment `env`.
+  public func macroExpand(_ expr: Expr, in env: Env) throws -> Expr? {
+    switch expr {
+      case .pair(.symbol(let sym), let cdr):
+        switch self.lookupLocalValueOf(sym, in: env) {
+          case .success:
+            return nil
+          case .globalLookupRequired(let lexicalSym, let environment):
+            if case .special(let special) = self.value(of: lexicalSym, in: environment) {
+              switch special.kind {
+                case .primitive(_):
+                  return nil
+                case .macro(let transformer):
+                  return try
+                    self.context.machine.apply(.procedure(transformer), to: .pair(cdr, .null))
+              }
+            }
+            return nil
+          case .macroExpansionRequired(let transformer):
+            return
+              try self.context.machine.apply(.procedure(transformer), to: .pair(cdr, .null))
+        }
+      default:
+        return nil
     }
   }
   

@@ -17,7 +17,8 @@
 
 ;; LispKit
 
-(display "LispKit native")(newline)
+(display "LispKit native")
+(newline)
 
 ; Native
 (import (lispkit base))
@@ -28,8 +29,11 @@
 (import (lispkit draw))
 (import (lispkit markdown))
 (import (lispkit sqlite))
+(import (lispkit system os))
+(import (lispkit debug))
 
-(display "LispKit non-native")(newline)
+(display "LispKit non-native")
+(newline)
 
 ; Non-native
 (import (lispkit draw turtle))
@@ -59,7 +63,8 @@
 
 ;; SRFI
 
-(display "SRFI")(newline)
+(display "SRFI")
+(newline)
 
 (import (srfi 1))
 (import (srfi 2))

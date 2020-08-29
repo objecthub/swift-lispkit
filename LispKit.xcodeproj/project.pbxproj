@@ -69,6 +69,7 @@
 		CC201A6D1DBD72C100045A4D /* LibraryRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC201A6C1DBD72C100045A4D /* LibraryRegistry.swift */; };
 		CC2345411F655BD800C38817 /* datatype.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC2345401F655B8B00C38817 /* datatype.sld */; };
 		CC2345431F655C0A00C38817 /* Datatypes.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC2345421F655C0A00C38817 /* Datatypes.scm */; };
+		CC240E8924FA41B100FF6D0F /* DebugLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC240E8824FA41B100FF6D0F /* DebugLibrary.swift */; };
 		CC26069C1C61760C0047A3D3 /* Boxes.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC26069B1C61760C0047A3D3 /* Boxes.swift */; };
 		CC26263C20F56E9F00AC08E8 /* 111.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC26263B20F56DBF00AC08E8 /* 111.sld */; };
 		CC26263E20F5707800AC08E8 /* 112.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC26263D20F56F9300AC08E8 /* 112.sld */; };
@@ -1046,6 +1047,7 @@
 		CC201A6C1DBD72C100045A4D /* LibraryRegistry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryRegistry.swift; sourceTree = "<group>"; };
 		CC2345401F655B8B00C38817 /* datatype.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = datatype.sld; sourceTree = "<group>"; };
 		CC2345421F655C0A00C38817 /* Datatypes.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Datatypes.scm; sourceTree = "<group>"; };
+		CC240E8824FA41B100FF6D0F /* DebugLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugLibrary.swift; sourceTree = "<group>"; };
 		CC26069B1C61760C0047A3D3 /* Boxes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Boxes.swift; sourceTree = "<group>"; };
 		CC26263B20F56DBF00AC08E8 /* 111.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 111.sld; sourceTree = "<group>"; };
 		CC26263D20F56F9300AC08E8 /* 112.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 112.sld; sourceTree = "<group>"; };
@@ -2130,6 +2132,7 @@
 				CC5A47221C529D4A00EFCF76 /* CoreLibrary.swift */,
 				CC5A47241C52E08900EFCF76 /* ControlFlowLibrary.swift */,
 				CC0BA16B1DFC843C0063B9DE /* SystemLibrary.swift */,
+				CC240E8824FA41B100FF6D0F /* DebugLibrary.swift */,
 				CC35F9C1222188BC00895A10 /* DateTimeLibrary.swift */,
 				CCDF99FB1D3D7A3100FD2A57 /* BoxLibrary.swift */,
 				CC6A3B631C52EED400E962E2 /* MathLibrary.swift */,
@@ -2512,6 +2515,7 @@
 				CCA3127F204CB7900026FF13 /* LexicalError.swift in Sources */,
 				CC76312320E951C2005F27CE /* Shape.swift in Sources */,
 				CCC531A01D18595500FAED6E /* TextOutputTarget.swift in Sources */,
+				CC240E8924FA41B100FF6D0F /* DebugLibrary.swift in Sources */,
 				CC14F4B01F939486000FB1E0 /* Features.swift in Sources */,
 				CC5A47211C5295E600EFCF76 /* NativeLibrary.swift in Sources */,
 				CC35F9C2222188BD00895A10 /* DateTimeLibrary.swift in Sources */,
