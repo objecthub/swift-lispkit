@@ -2,8 +2,8 @@
 ========================
 
 [![Platform: macOS](https://img.shields.io/badge/Platform-macOS-blue.svg?style=flat)](https://developer.apple.com/osx/)
-[![Language: Swift 5.1](https://img.shields.io/badge/Language-Swift%205.1-green.svg?style=flat)](https://developer.apple.com/swift/)
-[![IDE: Xcode 11.5](https://img.shields.io/badge/IDE-Xcode%2011.5-orange.svg?style=flat)](https://developer.apple.com/xcode/)
+[![Language: Swift 5.2](https://img.shields.io/badge/Language-Swift%205.2-green.svg?style=flat)](https://developer.apple.com/swift/)
+[![IDE: Xcode 11.6](https://img.shields.io/badge/IDE-Xcode%2011.6-orange.svg?style=flat)](https://developer.apple.com/xcode/)
 [![Carthage: compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![License: Apache](http://img.shields.io/badge/License-Apache-lightgrey.svg?style=flat)](https://raw.githubusercontent.com/objecthub/swift-lispkit/master/LICENSE)
 
@@ -28,9 +28,9 @@ _LispKit_ (without code duplication) and defines a new native as well as Scheme-
 
 [LispPad](http://lisppad.objecthub.net) implements a simple, lightweight, integrated
 development environment for _LispKit_ on macOS with a Cocoa-based UI. The
-[LispPad Library Reference](http://lisppad.objecthub.net/resources/LispPad_Reference_1.4.pdf)
+[LispPad Library Reference](http://lisppad.objecthub.net/resources/LispPad_Reference_1.5.pdf)
 documents the core LispPad and LispKit libraries in
-[PDF](http://lisppad.objecthub.net/resources/LispPad_Reference_1.4.pdf) form. A simpler
+[PDF](http://lisppad.objecthub.net/resources/LispPad_Reference_1.5.pdf) form. A simpler
 command-line tool with similar functionality is provided by the LispKit framework itself
 (see below).
 
@@ -112,6 +112,9 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit markdown)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Markdown),
     [`(lispkit sqlite)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-SQLite),
     `(lispkit json)`,
+    `(lispkit sxml)`,
+    `(lispkit sxml xml-parse)`,
+    `(lispkit sxml html-parse)`,
     and `(lispkit pdf)`.
 
 _LispKit_ is incompatible or incomplete with respect to the following R7RS features:
@@ -293,8 +296,8 @@ The following technologies are needed to build the components of the LispKit fra
 command-line tool, all that is needed is the Swift Package Manager. For compiling the framework and trying
 the command-line tool directly in Xcode, the Swift Package Manager is not needed.
 
-- [Swift 5.1](https://developer.apple.com/swift/)
-- [Xcode 11.5](https://developer.apple.com/xcode/)
+- [Swift 5.2](https://developer.apple.com/swift/)
+- [Xcode 11.6](https://developer.apple.com/xcode/)
 - [Swift Package Manager](https://swift.org/package-manager/)
 - [NumberKit](http://github.com/objecthub/swift-numberkit)
 - [MarkdownKit](http://github.com/objecthub/swift-markdownkit)
