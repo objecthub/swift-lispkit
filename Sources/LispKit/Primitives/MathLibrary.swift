@@ -1068,7 +1068,7 @@ public final class MathLibrary: NativeLibrary {
     let token = scanner.token
     scanner.skipSpace()
     guard scanner.ch == EOF_CH else {
-      throw RuntimeError.type(expr, expected: [.numberType])
+      return .false
     }
     switch token.kind {
       case .int:
@@ -1084,7 +1084,7 @@ public final class MathLibrary: NativeLibrary {
       case .complex:
         return .complex(ImmutableBox(token.complexVal))
       default:
-        throw RuntimeError.type(expr, expected: [.numberType])
+        return .false
     }
   }
 

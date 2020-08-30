@@ -70,6 +70,9 @@
 		CC2345411F655BD800C38817 /* datatype.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC2345401F655B8B00C38817 /* datatype.sld */; };
 		CC2345431F655C0A00C38817 /* Datatypes.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC2345421F655C0A00C38817 /* Datatypes.scm */; };
 		CC240E8924FA41B100FF6D0F /* DebugLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC240E8824FA41B100FF6D0F /* DebugLibrary.swift */; };
+		CC240E8E24FB1C4000FF6D0F /* sxml.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC240E8D24FB1B1B00FF6D0F /* sxml.sld */; };
+		CC240E9024FB1CC700FF6D0F /* xml-parse.sld in Copy pre-installed LispKit library: LispKit SXML parsers */ = {isa = PBXBuildFile; fileRef = CC240E8B24FB154700FF6D0F /* xml-parse.sld */; };
+		CC240E9124FB1CC700FF6D0F /* html-parse.sld in Copy pre-installed LispKit library: LispKit SXML parsers */ = {isa = PBXBuildFile; fileRef = CC240E8C24FB17B400FF6D0F /* html-parse.sld */; };
 		CC26069C1C61760C0047A3D3 /* Boxes.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC26069B1C61760C0047A3D3 /* Boxes.swift */; };
 		CC26263C20F56E9F00AC08E8 /* 111.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC26263B20F56DBF00AC08E8 /* 111.sld */; };
 		CC26263E20F5707800AC08E8 /* 112.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC26263D20F56F9300AC08E8 /* 112.sld */; };
@@ -512,6 +515,18 @@
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 1;
 		};
+		CC240E8F24FB1C6C00FF6D0F /* Copy pre-installed LispKit library: LispKit SXML parsers */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = LispKit/Resources/Libraries/lispkit/sxml;
+			dstSubfolderSpec = 7;
+			files = (
+				CC240E9024FB1CC700FF6D0F /* xml-parse.sld in Copy pre-installed LispKit library: LispKit SXML parsers */,
+				CC240E9124FB1CC700FF6D0F /* html-parse.sld in Copy pre-installed LispKit library: LispKit SXML parsers */,
+			);
+			name = "Copy pre-installed LispKit library: LispKit SXML parsers";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CC26AD40214722710090D9EE /* Copy pre-installed LispKit library: LispKit Draw Turtle */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -668,6 +683,7 @@
 			dstPath = LispKit/Resources/Libraries/lispkit;
 			dstSubfolderSpec = 7;
 			files = (
+				CC240E8E24FB1C4000FF6D0F /* sxml.sld in Copy pre-installed LispKit libraries */,
 				CCC4A3AB245D003000DE63E1 /* combinator.sld in Copy pre-installed LispKit libraries */,
 				CC498A9D238B3744002734E0 /* disjoint-set.sld in Copy pre-installed LispKit libraries */,
 				CC47F5F123491301008B0303 /* comparator.sld in Copy pre-installed LispKit libraries */,
@@ -1048,6 +1064,9 @@
 		CC2345401F655B8B00C38817 /* datatype.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = datatype.sld; sourceTree = "<group>"; };
 		CC2345421F655C0A00C38817 /* Datatypes.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Datatypes.scm; sourceTree = "<group>"; };
 		CC240E8824FA41B100FF6D0F /* DebugLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugLibrary.swift; sourceTree = "<group>"; };
+		CC240E8B24FB154700FF6D0F /* xml-parse.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = "xml-parse.sld"; sourceTree = "<group>"; };
+		CC240E8C24FB17B400FF6D0F /* html-parse.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = "html-parse.sld"; sourceTree = "<group>"; };
+		CC240E8D24FB1B1B00FF6D0F /* sxml.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = sxml.sld; sourceTree = "<group>"; };
 		CC26069B1C61760C0047A3D3 /* Boxes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Boxes.swift; sourceTree = "<group>"; };
 		CC26263B20F56DBF00AC08E8 /* 111.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 111.sld; sourceTree = "<group>"; };
 		CC26263D20F56F9300AC08E8 /* 112.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 112.sld; sourceTree = "<group>"; };
@@ -1547,6 +1566,15 @@
 			path = Code;
 			sourceTree = "<group>";
 		};
+		CC240E8A24FB144500FF6D0F /* sxml */ = {
+			isa = PBXGroup;
+			children = (
+				CC240E8B24FB154700FF6D0F /* xml-parse.sld */,
+				CC240E8C24FB17B400FF6D0F /* html-parse.sld */,
+			);
+			path = sxml;
+			sourceTree = "<group>";
+		};
 		CC26AD3E21470AC90090D9EE /* draw */ = {
 			isa = PBXGroup;
 			children = (
@@ -1707,9 +1735,11 @@
 				CC10404C1F5378660045144A /* pdf.sld */,
 				CC703A1A218D09B600E71EA9 /* clos.sld */,
 				CC436C3F1FFBD5090095559E /* logic.sld */,
+				CC240E8D24FB1B1B00FF6D0F /* sxml.sld */,
 				CC82932D21D6E8C2003E1D3C /* log */,
 				CC703A1B218D09D100E71EA9 /* clos */,
 				CC26AD3E21470AC90090D9EE /* draw */,
+				CC240E8A24FB144500FF6D0F /* sxml */,
 			);
 			path = lispkit;
 			sourceTree = "<group>";
@@ -2325,6 +2355,7 @@
 				CC26AD40214722710090D9EE /* Copy pre-installed LispKit library: LispKit Draw Turtle */,
 				CC703A1E218D0AF500E71EA9 /* Copy pre-installed LispKit library: LispKit CLOS Support */,
 				CC82933121D6E9A6003E1D3C /* Copy pre-installed LispKit library: LispKit Log Internal */,
+				CC240E8F24FB1C6C00FF6D0F /* Copy pre-installed LispKit library: LispKit SXML parsers */,
 				CC7F7C191FC04B8A00639166 /* Copy pre-installed Scheme libraries */,
 				CC385297231B3042001D5E56 /* Copy pre-installed third-party libraries */,
 				CC385298231B325C001D5E56 /* Copy pre-installed third-party Adapton library */,
