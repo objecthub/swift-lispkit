@@ -1,4 +1,4 @@
-;;; LISPKIT SXML XML-PARSE
+;;; LISPKIT SXML XML
 ;;; 
 ;;; The library implements an XML parser and a version of the parser which returns the XML
 ;;; in SXML form. The XML standard supported by this library is
@@ -28,7 +28,7 @@
 ;;; Adaptation to LispKit
 ;;;   Copyright © 2020 Matthias Zenger. All rights reserved.
 
-(define-library (lispkit sxml xml-parse)
+(define-library (lispkit sxml xml)
   
   (export ssax-read-char-data
           ssax-read-attributes

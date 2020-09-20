@@ -1,4 +1,4 @@
-;;; LISPKIT SXML HTML-PARSE
+;;; LISPKIT SXML HTML
 ;;; 
 ;;; A permissive HTML parser supporting scalable streaming with a tree folding interface.
 ;;; This copies the interface of Oleg Kiselyov's SSAX parser and provides simple convenience
@@ -35,7 +35,7 @@
 ;;; Adaptation to LispKit
 ;;;   Copyright © 2020 Matthias Zenger. All rights reserved.
 
-(define-library (lispkit sxml html-parse)
+(define-library (lispkit sxml html)
   
   (export make-html-parser
           html->sxml

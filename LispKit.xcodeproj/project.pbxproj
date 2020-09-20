@@ -71,8 +71,8 @@
 		CC2345431F655C0A00C38817 /* Datatypes.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC2345421F655C0A00C38817 /* Datatypes.scm */; };
 		CC240E8924FA41B100FF6D0F /* DebugLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC240E8824FA41B100FF6D0F /* DebugLibrary.swift */; };
 		CC240E8E24FB1C4000FF6D0F /* sxml.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC240E8D24FB1B1B00FF6D0F /* sxml.sld */; };
-		CC240E9024FB1CC700FF6D0F /* xml-parse.sld in Copy pre-installed LispKit library: LispKit SXML parsers */ = {isa = PBXBuildFile; fileRef = CC240E8B24FB154700FF6D0F /* xml-parse.sld */; };
-		CC240E9124FB1CC700FF6D0F /* html-parse.sld in Copy pre-installed LispKit library: LispKit SXML parsers */ = {isa = PBXBuildFile; fileRef = CC240E8C24FB17B400FF6D0F /* html-parse.sld */; };
+		CC240E9024FB1CC700FF6D0F /* xml.sld in Copy pre-installed LispKit library: LispKit SXML parsers */ = {isa = PBXBuildFile; fileRef = CC240E8B24FB154700FF6D0F /* xml.sld */; };
+		CC240E9124FB1CC700FF6D0F /* html.sld in Copy pre-installed LispKit library: LispKit SXML parsers */ = {isa = PBXBuildFile; fileRef = CC240E8C24FB17B400FF6D0F /* html.sld */; };
 		CC26069C1C61760C0047A3D3 /* Boxes.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC26069B1C61760C0047A3D3 /* Boxes.swift */; };
 		CC26263C20F56E9F00AC08E8 /* 111.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC26263B20F56DBF00AC08E8 /* 111.sld */; };
 		CC26263E20F5707800AC08E8 /* 112.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC26263D20F56F9300AC08E8 /* 112.sld */; };
@@ -521,8 +521,8 @@
 			dstPath = LispKit/Resources/Libraries/lispkit/sxml;
 			dstSubfolderSpec = 7;
 			files = (
-				CC240E9024FB1CC700FF6D0F /* xml-parse.sld in Copy pre-installed LispKit library: LispKit SXML parsers */,
-				CC240E9124FB1CC700FF6D0F /* html-parse.sld in Copy pre-installed LispKit library: LispKit SXML parsers */,
+				CC240E9024FB1CC700FF6D0F /* xml.sld in Copy pre-installed LispKit library: LispKit SXML parsers */,
+				CC240E9124FB1CC700FF6D0F /* html.sld in Copy pre-installed LispKit library: LispKit SXML parsers */,
 			);
 			name = "Copy pre-installed LispKit library: LispKit SXML parsers";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1064,8 +1064,8 @@
 		CC2345401F655B8B00C38817 /* datatype.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = datatype.sld; sourceTree = "<group>"; };
 		CC2345421F655C0A00C38817 /* Datatypes.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Datatypes.scm; sourceTree = "<group>"; };
 		CC240E8824FA41B100FF6D0F /* DebugLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugLibrary.swift; sourceTree = "<group>"; };
-		CC240E8B24FB154700FF6D0F /* xml-parse.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = "xml-parse.sld"; sourceTree = "<group>"; };
-		CC240E8C24FB17B400FF6D0F /* html-parse.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = "html-parse.sld"; sourceTree = "<group>"; };
+		CC240E8B24FB154700FF6D0F /* xml.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = xml.sld; sourceTree = "<group>"; };
+		CC240E8C24FB17B400FF6D0F /* html.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = html.sld; sourceTree = "<group>"; };
 		CC240E8D24FB1B1B00FF6D0F /* sxml.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = sxml.sld; sourceTree = "<group>"; };
 		CC26069B1C61760C0047A3D3 /* Boxes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Boxes.swift; sourceTree = "<group>"; };
 		CC26263B20F56DBF00AC08E8 /* 111.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 111.sld; sourceTree = "<group>"; };
@@ -1569,8 +1569,8 @@
 		CC240E8A24FB144500FF6D0F /* sxml */ = {
 			isa = PBXGroup;
 			children = (
-				CC240E8B24FB154700FF6D0F /* xml-parse.sld */,
-				CC240E8C24FB17B400FF6D0F /* html-parse.sld */,
+				CC240E8B24FB154700FF6D0F /* xml.sld */,
+				CC240E8C24FB17B400FF6D0F /* html.sld */,
 			);
 			path = sxml;
 			sourceTree = "<group>";
@@ -2404,7 +2404,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0730;
-				LastUpgradeCheck = 1110;
+				LastUpgradeCheck = 1200;
 				ORGANIZATIONNAME = ObjectHub;
 				TargetAttributes = {
 					CC1227351CBFE74500821EB7 = {
@@ -2727,7 +2727,6 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MARKETING_VERSION = 1.9.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -2764,7 +2763,6 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MARKETING_VERSION = 1.9.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispKitTools;
@@ -2798,6 +2796,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -2858,6 +2857,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -2958,6 +2958,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispKitTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -2975,6 +2976,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispKitTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;

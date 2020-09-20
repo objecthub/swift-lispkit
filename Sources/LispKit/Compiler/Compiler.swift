@@ -716,7 +716,7 @@ public final class Compiler {
       return false
     }
     // Override the source directory if the code comes from a different file
-    var oldDir = self.sourceDirectory
+    let oldDir = self.sourceDirectory
     if let dir = inDirectory {
       self.sourceDirectory = dir
     }

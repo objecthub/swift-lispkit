@@ -2,8 +2,8 @@
 ========================
 
 [![Platform: macOS](https://img.shields.io/badge/Platform-macOS-blue.svg?style=flat)](https://developer.apple.com/osx/)
-[![Language: Swift 5.2](https://img.shields.io/badge/Language-Swift%205.2-green.svg?style=flat)](https://developer.apple.com/swift/)
-[![IDE: Xcode 11.6](https://img.shields.io/badge/IDE-Xcode%2011.6-orange.svg?style=flat)](https://developer.apple.com/xcode/)
+[![Language: Swift 5.3](https://img.shields.io/badge/Language-Swift%205.3-green.svg?style=flat)](https://developer.apple.com/swift/)
+[![IDE: Xcode 12.0](https://img.shields.io/badge/IDE-Xcode%2012.0-orange.svg?style=flat)](https://developer.apple.com/xcode/)
 [![Carthage: compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![License: Apache](http://img.shields.io/badge/License-Apache-lightgrey.svg?style=flat)](https://raw.githubusercontent.com/objecthub/swift-lispkit/master/LICENSE)
 
@@ -113,8 +113,8 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit sqlite)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-SQLite),
     `(lispkit json)`,
     `(lispkit sxml)`,
-    `(lispkit sxml xml-parse)`,
-    `(lispkit sxml html-parse)`,
+    `(lispkit sxml xml)`,
+    `(lispkit sxml html)`,
     and `(lispkit pdf)`.
 
 _LispKit_ is incompatible or incomplete with respect to the following R7RS features:
@@ -296,8 +296,8 @@ The following technologies are needed to build the components of the LispKit fra
 command-line tool, all that is needed is the Swift Package Manager. For compiling the framework and trying
 the command-line tool directly in Xcode, the Swift Package Manager is not needed.
 
-- [Swift 5.2](https://developer.apple.com/swift/)
-- [Xcode 11.6](https://developer.apple.com/xcode/)
+- [Swift 5.3](https://developer.apple.com/swift/)
+- [Xcode 12.0](https://developer.apple.com/xcode/)
 - [Swift Package Manager](https://swift.org/package-manager/)
 - [NumberKit](http://github.com/objecthub/swift-numberkit)
 - [MarkdownKit](http://github.com/objecthub/swift-markdownkit)
