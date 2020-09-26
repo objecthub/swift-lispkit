@@ -30,7 +30,7 @@
         (lispkit test)
         (srfi 204))
 
-(test-begin "match")
+(test-begin "SRFI 204: Wright-Cartwright-Shinn Pattern Matcher")
 
 (test "any" 'ok (match 'any (_ 'ok)))
 (test "symbol" 'ok (match 'ok (x x)))

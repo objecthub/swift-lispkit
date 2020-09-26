@@ -379,6 +379,8 @@
 		CCC0724A1F9C11FA0063974E /* Sysctl.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC072491F9C11FA0063974E /* Sysctl.swift */; };
 		CCC1E8B2251F6796008B8AAA /* SRFI-204.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCC1E8B1251F668D008B8AAA /* SRFI-204.scm */; };
 		CCC1E8B6251F68BD008B8AAA /* 204.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCC1E8B5251F67B8008B8AAA /* 204.sld */; };
+		CCC1E8BB251FECA6008B8AAA /* 194.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCC1E8B9251FEC05008B8AAA /* 194.sld */; };
+		CCC1E8BE251FECC1008B8AAA /* SRFI-194.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCC1E8BA251FEC38008B8AAA /* SRFI-194.scm */; };
 		CCC284DC236D8D3200DC85E8 /* Sudoku.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCC284DB236D8CF100DC85E8 /* Sudoku.scm */; };
 		CCC41DC41D2649E9003CB4D0 /* DelayedEvaluation.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCC41DC31D2649E9003CB4D0 /* DelayedEvaluation.scm */; };
 		CCC41DC61D2851FB003CB4D0 /* VirtualMachineState.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC41DC51D2851FB003CB4D0 /* VirtualMachineState.swift */; };
@@ -486,6 +488,7 @@
 			dstPath = LispKit/Resources/Tests;
 			dstSubfolderSpec = 7;
 			files = (
+				CCC1E8BE251FECC1008B8AAA /* SRFI-194.scm in Copy tests */,
 				CCC1E8B2251F6796008B8AAA /* SRFI-204.scm in Copy tests */,
 				CCDB5581247C85FB0044714C /* SRFI-196.scm in Copy tests */,
 				CCC951712426B6B000FC915F /* SRFI-128.scm in Copy tests */,
@@ -927,6 +930,7 @@
 			dstPath = LispKit/Resources/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
+				CCC1E8BB251FECA6008B8AAA /* 194.sld in Copy pre-installed SRFI libraries */,
 				CCC1E8B6251F68BD008B8AAA /* 204.sld in Copy pre-installed SRFI libraries */,
 				CCDB5580247C85CF0044714C /* 196.sld in Copy pre-installed SRFI libraries */,
 				CCDB557D247C7D0F0044714C /* 195.sld in Copy pre-installed SRFI libraries */,
@@ -1380,6 +1384,8 @@
 		CCC1DBFC216BA2600019A374 /* 16.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 16.sld; sourceTree = "<group>"; };
 		CCC1E8B1251F668D008B8AAA /* SRFI-204.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-204.scm"; sourceTree = "<group>"; };
 		CCC1E8B5251F67B8008B8AAA /* 204.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 204.sld; sourceTree = "<group>"; };
+		CCC1E8B9251FEC05008B8AAA /* 194.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 194.sld; sourceTree = "<group>"; };
+		CCC1E8BA251FEC38008B8AAA /* SRFI-194.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-194.scm"; sourceTree = "<group>"; };
 		CCC284DB236D8CF100DC85E8 /* Sudoku.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Sudoku.scm; sourceTree = "<group>"; };
 		CCC41DC31D2649E9003CB4D0 /* DelayedEvaluation.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = DelayedEvaluation.scm; sourceTree = "<group>"; };
 		CCC41DC51D2851FB003CB4D0 /* VirtualMachineState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VirtualMachineState.swift; sourceTree = "<group>"; };
@@ -1518,6 +1524,7 @@
 				CC38528D23140F26001D5E56 /* SRFI-173.scm */,
 				CC5E53092358359900C72CE2 /* SRFI-174.scm */,
 				CCA7DC2D23875FE500785FBE /* SRFI-175.scm */,
+				CCC1E8BA251FEC38008B8AAA /* SRFI-194.scm */,
 				CCDB557F247C84BF0044714C /* SRFI-196.scm */,
 				CCC1E8B1251F668D008B8AAA /* SRFI-204.scm */,
 			);
@@ -1816,6 +1823,7 @@
 				CC5E530723579CF200C72CE2 /* 174.sld */,
 				CC498A8A23882C19002734E0 /* 175.sld */,
 				CC6BB91A235CFB4700D7CAA1 /* 177.sld */,
+				CCC1E8B9251FEC05008B8AAA /* 194.sld */,
 				CCDB557C247C728F0044714C /* 195.sld */,
 				CCDB557E247C82370044714C /* 196.sld */,
 				CCC1E8B5251F67B8008B8AAA /* 204.sld */,

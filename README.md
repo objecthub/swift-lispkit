@@ -183,8 +183,10 @@ framework:
   - [SRFI 174: POSIX Timespecs](https://srfi.schemers.org/srfi-174/srfi-174.html)
   - [SRFI 175: ASCII Character Library](https://srfi.schemers.org/srfi-175/srfi-175.html)
   - [SRFI 177: Portable keyword arguments](https://srfi.schemers.org/srfi-177/srfi-177.html)
+  - [SRFI 194: Random data generators](https://srfi.schemers.org/srfi-194/srfi-194.html)
   - [SRFI 195: Multiple-value boxes](https://srfi.schemers.org/srfi-195/srfi-195.html)
   - [SRFI 196: Range Objects](https://srfi.schemers.org/srfi-196/srfi-196.html)
+  - [SRFI 204: Wright-Cartwright-Shinn Pattern Matcher](https://srfi.schemers.org/srfi-204/srfi-204.html)
 
 
 ## Project

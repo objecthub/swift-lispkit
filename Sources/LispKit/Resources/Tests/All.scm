@@ -30,6 +30,8 @@
 (load "Tests/SRFI-173")
 (load "Tests/SRFI-174")
 (load "Tests/SRFI-175")
+; remove the following test suite as it is slow to execute
+; (load "Tests/SRFI-194")
 (load "Tests/SRFI-196")
 (load "Tests/SRFI-204")
 
