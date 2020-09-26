@@ -1,43 +1,34 @@
-;;; LISPKIT MATCH REGRESSION TEST SUITE
+;;; SRFI 204 REGRESSION TEST SUITE
 ;;;
-;;; This is the test suite for library `(lispkit match)`.
+;;; This is the test suite for SRFI 204.
 ;;;
-;;; Copyright © Alex Shinn. All rights reserved.
+;;; Copyright © 2020 Alex Shinn, Felix Thibault. All rights reserved.
 ;;; 
-;;; Redistribution and use in source and binary forms, with or without
-;;; modification, are permitted provided that the following conditions
-;;; are met:
-;;; 1. Redistributions of source code must retain the above copyright
-;;;    notice, this list of conditions and the following disclaimer.
-;;; 2. Redistributions in binary form must reproduce the above copyright
-;;;    notice, this list of conditions and the following disclaimer in the
-;;;    documentation and/or other materials provided with the distribution.
-;;; 3. The name of the author may not be used to endorse or promote products
-;;;    derived from this software without specific prior written permission.
+;;; Permission is hereby granted, free of charge, to any person
+;;; obtaining a copy of this software and associated documentation
+;;; files (the "Software"), to deal in the Software without restriction,
+;;; including without limitation the rights to use, copy, modify, merge,
+;;; publish, distribute, sublicense, and/or sell copies of the Software,
+;;; and to permit persons to whom the Software is furnished to do so,
+;;; subject to the following conditions:
 ;;;
-;;; THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
-;;; IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
-;;; OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-;;; IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
-;;; INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
-;;; NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-;;; DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-;;; THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-;;; (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
-;;; THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+;;; The above copyright notice and this permission notice shall be
+;;; included in all copies or substantial portions of the Software.
+;;;
+;;; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+;;; EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+;;; MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+;;; IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+;;; CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+;;; TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+;;; SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ;;;
 ;;; LispKit Port:
-;;;   Copyright © 2019 Matthias Zenger. All rights reserved.
+;;;   Copyright © 2020 Matthias Zenger. All rights reserved.
 
-(import (lispkit base)
+(import (except (lispkit base) object)
         (lispkit test)
-        (lispkit match))
-
-(define-record-type Point
-                    (make-point x y)
-                    point?
-                    (x point-x point-x-set!)
-                    (y point-y point-y-set!))
+        (srfi 204))
 
 (test-begin "match")
 
@@ -107,26 +98,14 @@
 (test "getter cdr" '(1 2)
   (match '(1 . 2) ((a . (get! b)) (list a (b)))))
 
-(test "getter mcar" '(1 2)
-  (match (mcons 1 2) (((get! a) . b) (list (a) b))))
-
-(test "getter mcdr" '(1 2)
-  (match (mcons 1 2) ((a . (get! b)) (list a (b)))))
-
 (test "getter vector" '(1 2 3)
   (match '#(1 2 3) (#((get! a) b c) (list (a) b c))))
 
-(test-error "setter car"
-  (let ((x (cons 1 2))) (match x (((set! a) . b) (a 3))) x))
+; (test "setter car" '(3 . 2)
+;   (let ((x (cons 1 2))) (match x (((set! a) . b) (a 3))) x))
 
-(test-error "setter cdr"
-  (let ((x (cons 1 2))) (match x ((a . (set! b)) (b 3))) x))
-
-(test "setter mcar" (mcons 3 2)
-  (let ((x (mcons 1 2))) (match x (((set! a) . b) (a 3))) x))
-
-(test "setter mcdr" (mcons 1 3)
-  (let ((x (mcons 1 2))) (match x ((a . (set! b)) (b 3))) x))
+; (test "setter cdr" '(1 . 3)
+;   (let ((x (cons 1 2))) (match x ((a . (set! b)) (b 3))) x))
 
 (test "setter vector" '#(1 0 3)
   (let ((x (vector 1 2 3)))
@@ -140,7 +119,7 @@
 (test "single tail 2" '((a b) (1 2) 3)
   (match '((a . 1) (b . 2) 3)
     (((x . y) ... last) (list x y last))))
-    
+
 (test "single duplicate tail" #f
   (match '(1 2) ((foo ... foo) foo) (_ #f)))
 
@@ -270,31 +249,47 @@
           sum
           (loop rest sum)))))
 
-; (test "match-letrec" '(2 1 1 2)
-;   (match-letrec (((x y) (list 1 (lambda () (list a x))))
-;                  ((a b) (list 2 (lambda () (list x a)))))
-;     (append (y) (b))))
+;(test "match-letrec" '(2 1 1 2)
+;    (match-letrec (((x y) (list 1 (lambda () (list a x))))
+;                   ((a b) (list 2 (lambda () (list x a)))))
+;                  (append (y) (b))))
 
 (test "match-letrec quote" #t
   (match-letrec (((x 'x) (list #t 'x))) x))
 
-; (let-syntax
-;   ((foo
-;     (syntax-rules ()
-;       ((foo x)
-;        (match-letrec (((x y) (list 1 (lambda () (list a x))))
-;                       ((a b) (list 2 (lambda () (list x a)))))
-;                      (append (y) (b)))))))
-;   (test "match-letrec mnieper" '(2 1 1 2) (foo a)))
+;(let-syntax
+;  ((foo
+;    (syntax-rules ()
+;      ((foo x)
+;       (match-letrec (((x y) (list 1 (lambda () (list a x))))
+;                      ((a b) (list 2 (lambda () (list x a)))))
+;                     (append (y) (b)))))))
+;  (test "match-letrec mnieper" '(2 1 1 2) (foo a)))
+
+(define-record-type Point
+                    (make-point x y)
+                    point?
+                    (x point-x point-x-set!)
+                    (y point-y point-y-set!))
 
 (test "record positional"
-    '(1 0)
-  (match (make-point 0 1)
-    (($ Point x y) (list y x))))
+  '(1 0)
+  (match (make-point 0 1) (($ Point x y) (list y x))))
 
 (test "record named"
-    '(1 0)
-  (match (make-point 0 1)
-    ((@ Point (x x) (y y)) (list y x))))
+  '(1 0)
+  (match (make-point 0 1) ((object Point (x x) (y y)) (list y x))))
+
+(test "setter record positional"
+  '(7 1)
+  (let ((p (make-point 0 1)))
+    (match p ((struct Point (set! x) y) (x 7)))
+    (match-let ((($ Point a b) p)) (list a b))))
+
+(test "setter record named"
+  '(7 1)
+  (let ((p (make-point 0 1)))
+    (match p ((object Point (x (set! x))) (x 7)))
+    (match-let (((object Point (x a) (y b)) p)) (list a b))))
 
 (test-end)

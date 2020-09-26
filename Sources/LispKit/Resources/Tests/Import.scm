@@ -60,6 +60,9 @@
 (import (lispkit pdf))
 (import (lispkit clos))
 (import (lispkit disjoint-set))
+(import (lispkit sxml))
+(import (lispkit sxml xml))
+(import (lispkit sxml html))
 
 ;; SRFI
 
@@ -126,6 +129,7 @@
 (import (srfi 177))
 (import (srfi 195))
 (import (srfi 196))
+(import (srfi 204))
 
 ; this needs to be last
 (import (srfi 101))

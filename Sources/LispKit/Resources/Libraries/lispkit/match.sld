@@ -96,12 +96,12 @@
 ;;; `___` is provided as an alias for `...` when it is inconvenient to use the ellipsis
 ;;; (as in a syntax-rules template).
 ;;;
-;;; The `..1` syntax is exactly like the `...` except that it matches one or more
+;;; The `**1` syntax is exactly like the `...` form except that it matches one or more
 ;;; repetitions (like a regexp "+").
 ;;;
 ;;; ```
-;;;   (match (list 1 2) ((a b c ..1) c))
-;;;   (match (list 1 2 3) ((a b c ..1) c))
+;;;   (match (list 1 2) ((a b c **1) c))
+;;;   (match (list 1 2 3) ((a b c **1) c))
 ;;; ```
 ;;;
 ;;; The boolean operators `and`, `or` and `not` can be used to group and negate patterns
@@ -232,7 +232,8 @@
 ;;;
 ;;; A variant of this file which uses COND-EXPAND in a few places for performance can
 ;;; be found at http://synthcode.com/scheme/match-cond-expand.scm
-;;;
+;;; 
+;;; 2020/08/24 - convert ..= ..* ..1 to =.. *.. **1, remove @
 ;;; 2020/08/21 - fixing match-letrec with unhygienic insertion
 ;;; 2020/07/06 - adding `..=' and `..*' patterns; fixing ,@ patterns
 ;;; 2016/10/05 - treat keywords as literals, not identifiers, in Chicken
@@ -315,7 +316,7 @@
 
     (define-syntax match-syntax-error
       (syntax-rules ()
-        ((_) (match-syntax-error "invalid match-syntax-error usage"))))
+        ((_) (syntax-error "invalid match-syntax-error usage"))))
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -406,7 +407,8 @@
     ;; pattern so far.
 
     (define-syntax match-two
-      (syntax-rules (_ ___ ..1 ..= ..* *** quote quasiquote ? $ struct @ object = and or not set! get!)
+      (syntax-rules (_ ___ **1 =.. *.. *** quote quasiquote ? $ struct @ object =
+                     and or not set! get!)
         ((match-two v () g+s (sk ...) fk i)
          (if (null? v) (sk ... i) fk))
         ((match-two v (quote p) g+s (sk ...) fk i)
@@ -445,15 +447,15 @@
          (match-extract-vars p (match-gen-search v p q g+s sk fk i) i ()))
         ((match-two v (p *** . q) g+s sk fk i)
          (match-syntax-error "invalid use of ***" (p *** . q)))
-        ((match-two v (p ..1) g+s sk fk i)
+        ((match-two v (p **1) g+s sk fk i)
          (if (pair? v)
              (match-one v (p ___) g+s sk fk i)
              fk))
-        ((match-two v (p ..= n . r) g+s sk fk i)
+        ((match-two v (p =.. n . r) g+s sk fk i)
          (match-extract-vars
           p
           (match-gen-ellipsis/range n n v p r g+s sk fk i) i ()))
-        ((match-two v (p ..* n m . r) g+s sk fk i)
+        ((match-two v (p *.. n m . r) g+s sk fk i)
          (match-extract-vars
           p
           (match-gen-ellipsis/range n m v p r g+s sk fk i) i ()))
@@ -605,30 +607,30 @@
 
     (define-syntax match-gen-ellipsis
       (syntax-rules ()
-        ((_ v p () g+s (sk ...) fk i ((id id-ls) ...))
-         (match-check-identifier p
-           ; simplest case equivalent to (p ...), just bind the list
-           (let ((p v))
-             (if (list? p)
-                 (sk ... i)
-                 fk))
-           ; simple case, match all elements of the list
-           (let loop ((ls v) (id-ls '()) ...)
-             (cond
-               ((null? ls)
-                (let ((id (reverse id-ls)) ...) (sk ... i)))
-               ((pair? ls)
-                (let ((w (car ls)))
-                  (match-one w p ((car ls) (set-car! ls))
-                             (match-drop-ids (loop (cdr ls) (cons id id-ls) ...))
-                             fk i)))
-               ((mpair? ls)
-                (let ((w (mcar ls)))
-                  (match-one w p ((mcar ls) (set-mcar! ls))
-                             (match-drop-ids (loop (mcdr ls) (mcons id id-ls) ...))
-                             fk i)))
-               (else
-                fk)))))
+       ; ((_ v p () g+s (sk ...) fk i ((id id-ls) ...))
+       ;  (match-check-identifier p
+       ;    ; simplest case equivalent to (p ...), just bind the list
+       ;    (let ((p v))
+       ;      (if (list? p)
+       ;          (sk ... i)
+       ;          fk))
+       ;    ; simple case, match all elements of the list
+       ;    (let loop ((ls v) (id-ls '()) ...)
+       ;      (cond
+       ;        ((null? ls)
+       ;         (let ((id (reverse id-ls)) ...) (sk ... i)))
+       ;        ((pair? ls)
+       ;         (let ((w (car ls)))
+       ;           (match-one w p ((car ls) (set-car! ls))
+       ;                      (match-drop-ids (loop (cdr ls) (cons id id-ls) ...))
+       ;                      fk i)))
+       ;        ((mpair? ls)
+       ;         (let ((w (mcar ls)))
+       ;           (match-one w p ((mcar ls) (set-mcar! ls))
+       ;                      (match-drop-ids (loop (mcdr ls) (mcons id id-ls) ...))
+       ;                      fk i)))
+       ;        (else
+       ;         fk)))))
         ((_ v p r g+s sk fk (i ...) ((id id-ls) ...))
          ; general case, trailing patterns to match, keep track of the
          ; remaining list length so we don't need any backtracking
@@ -863,7 +865,7 @@
       (syntax-rules ()
         ((_ v rec ((f p) . q) g+s sk fk i)
          (let ((w (slot-named-ref rec v 'f)))
-           (match-one w p ((slot-named-ref rec v 'f) (slot-set! rec v 'f))
+           (match-one w p ((slot-named-ref rec v 'f) (slot-named-set! rec v 'f))
                       (match-record-named-refs v rec q g+s sk fk) fk i)))
         ((_ v rec () g+s (sk ...) fk i)
          (sk ... i))))
@@ -881,7 +883,7 @@
     ;; ```
 
     (define-syntax match-extract-vars
-      (syntax-rules (_ ___ ..1 ..= ..* *** ? $ struct @ object = quote quasiquote
+      (syntax-rules (_ ___ **1 =.. *.. *** ? $ struct @ object = quote quasiquote
                      and or not get! set!)
         ((match-extract-vars (? pred . p) . x)
          (match-extract-vars p . x))
@@ -918,9 +920,9 @@
         ((match-extract-vars _ (k ...) i v)    (k ... v))
         ((match-extract-vars ___ (k ...) i v)  (k ... v))
         ((match-extract-vars *** (k ...) i v)  (k ... v))
-        ((match-extract-vars ..1 (k ...) i v)  (k ... v))
-        ((match-extract-vars ..= (k ...) i v)  (k ... v))
-        ((match-extract-vars ..* (k ...) i v)  (k ... v))
+        ((match-extract-vars **1 (k ...) i v)  (k ... v))
+        ((match-extract-vars =.. (k ...) i v)  (k ... v))
+        ((match-extract-vars *.. (k ...) i v)  (k ... v))
         ; This is the main part, the only place where we might add a new
         ; var if it's an unbound symbol.
         ((match-extract-vars p (k ...) (i ...) v)

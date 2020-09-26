@@ -31,7 +31,8 @@
 (load "Tests/SRFI-174")
 (load "Tests/SRFI-175")
 (load "Tests/SRFI-196")
+(load "Tests/SRFI-204")
 
 (test-end)
 
-;; Current number of failures: 23 (all from R7RS-Tests)
+;; Current number of failures: 18 (all from R7RS-Tests)

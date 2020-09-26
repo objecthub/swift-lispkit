@@ -9,8 +9,7 @@
 ;;; mostly related to R7RS requiring mutable cons cells. Those tests are marked with
 ;;; the tag "INTENDED".
 ;;;
-;;; Copyright © 2009-2018 Alex Shinn
-;;; All rights reserved.
+;;; Copyright © 2009-2018 Alex Shinn. All rights reserved.
 ;;;
 ;;; Redistribution and use in source and binary forms, with or without
 ;;; modification, are permitted provided that the following conditions
