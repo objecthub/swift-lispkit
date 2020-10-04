@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.9.1 (2020-10-04)
+- Revision of library `(lispkit test)` involving procedures `test-group-failed-tests`, `test-group-passed-tests`, `failed-tests`, `passed-tests`, `current-test-epsilon`
+- Fixed comparison of complex numbers and numbers involving NaN in library `(lispkit test)`
+- Fixed small bugs in `(lispkit match)` and included support for `=..`, `*..`, and `**1`
+- Refactored debugging functionality into library `(lispkit debug)`
+- New libraries: `(srfi 194)`, `(srfi 204)`, `(lispkit sxml)`, `(lispkit sxml html)`, and `(lispkit sxml xml)`
+
 ## 1.9.0 (2020-06-20)
 - New libraries: `(lispkit sqlite)`, `(lispkit combinator)`, `(lispkit system os)`, `(srfi 195)` and `(srfi 196)`
 - Renamed library `(lispkit iteration)` into `(lispkit iterate)`

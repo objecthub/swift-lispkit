@@ -945,6 +945,8 @@ public final class MarkdownLibrary: NativeLibrary {
                              self.externMarkdown(title))
       case .thematicBreak:
         return self.makeCase(self.blockType, self.thematicBreak)
+      default:
+        return nil
     }
   }
 
