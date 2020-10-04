@@ -49,7 +49,7 @@ let package = Package(
     .package(url: "https://github.com/objecthub/swift-numberkit.git",
              .upToNextMajor(from: "2.3.9")),
     .package(url: "https://github.com/objecthub/swift-markdownkit.git",
-             .upToNextMajor(from: "1.0.1")),
+             .upToNextMajor(from: "1.0.2")),
     .package(url: "https://github.com/objecthub/swift-commandlinekit.git",
              .upToNextMajor(from: "0.3.3")),
     .package(url: "https://github.com/objecthub/swift-sqliteexpress.git",
