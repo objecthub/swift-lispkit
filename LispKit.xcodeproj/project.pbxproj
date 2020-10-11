@@ -328,6 +328,7 @@
 		CC8A2AAF1F405E2500D1E4D8 /* 17.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC8A2AAE1F405CDD00D1E4D8 /* 17.sld */; };
 		CC8A2AB11F40681500D1E4D8 /* 48.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC8A2AB01F40672700D1E4D8 /* 48.sld */; };
 		CC8C6EC81CFA65F200126BDD /* ControlFlow.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC8C6EC71CFA65F200126BDD /* ControlFlow.scm */; };
+		CC8D20F52533C3D100741D07 /* DrawTrees.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC8D20F42533C35F00741D07 /* DrawTrees.scm */; };
 		CC8E65FC23FCAC3A00D9D1F9 /* 6.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC8E65FA23FCA98600D9D1F9 /* 6.sld */; };
 		CC8E65FD23FCAC4500D9D1F9 /* 54.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC8E65FB23FCAAB900D9D1F9 /* 54.sld */; };
 		CC8EDE4C1D0317AD004E0636 /* Port.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8EDE4B1D0317AD004E0636 /* Port.swift */; };
@@ -628,6 +629,7 @@
 			dstPath = LispKit/Resources/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC8D20F52533C3D100741D07 /* DrawTrees.scm in Copy examples */,
 				CC7E7C2624564D85002E8A73 /* Covid.scm in Copy examples */,
 				CC926FA823FA12D000D91AB1 /* Polynomials.scm in Copy examples */,
 				CC78F31B23B43A34006F3901 /* SpellNumbers.scm in Copy examples */,
@@ -1327,6 +1329,7 @@
 		CC8A2AAE1F405CDD00D1E4D8 /* 17.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 17.sld; sourceTree = "<group>"; };
 		CC8A2AB01F40672700D1E4D8 /* 48.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 48.sld; sourceTree = "<group>"; };
 		CC8C6EC71CFA65F200126BDD /* ControlFlow.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ControlFlow.scm; sourceTree = "<group>"; };
+		CC8D20F42533C35F00741D07 /* DrawTrees.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = DrawTrees.scm; sourceTree = "<group>"; };
 		CC8DC5C623E7408500396182 /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		CC8E65FA23FCA98600D9D1F9 /* 6.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 6.sld; sourceTree = "<group>"; };
 		CC8E65FB23FCAAB900D9D1F9 /* 54.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 54.sld; sourceTree = "<group>"; };
@@ -2277,6 +2280,7 @@
 				CC4385BD20BB5EE200055289 /* Compiler.scm */,
 				CC14F4AE1F9385BF000FB1E0 /* AvlTrees.scm */,
 				CC26264320FA003700AC08E8 /* Plot.scm */,
+				CC8D20F42533C35F00741D07 /* DrawTrees.scm */,
 				CC7E7C2524564D33002E8A73 /* Covid.scm */,
 				CC1EA5C8214E6BF3006BBE7E /* Turtle.scm */,
 				CC38529F23252217001D5E56 /* Maze.scm */,
