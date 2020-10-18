@@ -2339,22 +2339,21 @@
 (test-numeric-syntax "1-2i" (make-rectangular 1 -2))
 (test-numeric-syntax "-1+2i" (make-rectangular -1 2))
 (test-numeric-syntax "-1-2i" (make-rectangular -1 -2))
-;; TODO
-;(test-numeric-syntax "+i" (make-rectangular 0 1) "+i" "+1i" "0+i" "0+1i")
-;(test-numeric-syntax "0+i" (make-rectangular 0 1) "+i" "+1i" "0+i" "0+1i")
-;(test-numeric-syntax "0+1i" (make-rectangular 0 1) "+i" "+1i" "0+i" "0+1i")
-;(test-numeric-syntax "-i" (make-rectangular 0 -1) "-i" "-1i" "0-i" "0-1i")
-;(test-numeric-syntax "0-i" (make-rectangular 0 -1) "-i" "-1i" "0-i" "0-1i")
-;(test-numeric-syntax "0-1i" (make-rectangular 0 -1) "-i" "-1i" "0-i" "0-1i")
-;(test-numeric-syntax "+2i" (make-rectangular 0 2) "2i" "+2i" "0+2i")
-;(test-numeric-syntax "-2i" (make-rectangular 0 -2) "-2i" "0-2i")
+(test-numeric-syntax "+i" (make-rectangular 0 1) "+i" "+1i" "0+i" "0+1i" "0.0+1.0i")
+(test-numeric-syntax "0+i" (make-rectangular 0 1) "+i" "+1i" "0+i" "0+1i" "0.0+1.0i")
+(test-numeric-syntax "0+1i" (make-rectangular 0 1) "+i" "+1i" "0+i" "0+1i" "0.0+1.0i")
+(test-numeric-syntax "-i" (make-rectangular 0 -1) "-i" "-1i" "0-i" "0-1i" "0.0-1.0i")
+(test-numeric-syntax "0-i" (make-rectangular 0 -1) "-i" "-1i" "0-i" "0-1i" "0.0-1.0i")
+(test-numeric-syntax "0-1i" (make-rectangular 0 -1) "-i" "-1i" "0-i" "0-1i" "0.0-1.0i")
+(test-numeric-syntax "+2i" (make-rectangular 0 2) "2i" "+2i" "0+2i" "0.0+2.0i")
+(test-numeric-syntax "-2i" (make-rectangular 0 -2) "-2i" "0-2i" "0.0-2.0i")
 
 ;;; Decimal-notation complex numbers (rectangular notation)
 (test-numeric-syntax "1.0+2i" (make-rectangular 1.0 2) "1.0+2.0i" "1.0+2i" "1.+2i" "1.+2.i")
 (test-numeric-syntax "1+2.0i" (make-rectangular 1 2.0) "1.0+2.0i" "1+2.0i" "1.+2.i" "1+2.i")
 (test-numeric-syntax "1e2+1.0i" (make-rectangular 100.0 1.0) "100.0+1.0i" "100.+1.i")
 #;(test-numeric-syntax "1s2+1.0i" (make-rectangular 100.0 1.0) "100.0+1.0i" "100.+1.i")  ;; INTENDED
-#;(test-numeric-syntax "1.0+1e2i" (make-rectangular 1.0 100.0) "1.0+100.0i" "1.+100.i")  ;; TODO
+(test-numeric-syntax "1.0+1e2i" (make-rectangular 1.0 100.0) "1.0+100.0i" "1.+100.i")
 #;(test-numeric-syntax "1.0+1s2i" (make-rectangular 1.0 100.0) "1.0+100.0i" "1.+100.i")  ;; INTENDED
 
 ;; Fractional complex numbers (rectangular notation)
@@ -2407,10 +2406,10 @@
 ;;(test-numeric-syntax "#x10+11i" (make-rectangular 16 17) "16+17i")
 (test-numeric-syntax "#d1.0+1.0i" (make-rectangular 1.0 1.0) "1.0+1.0i" "1.+1.i")
 (test-numeric-syntax "#d10+11i" (make-rectangular 10.0 11.0) "10+11i")  ;; INTENDED (was 10 11)
-;;(test-numeric-syntax "#o10+11i" (make-rectangular 8 9) "8+9i")
-;;(test-numeric-syntax "#b10+11i" (make-rectangular 2 3) "2+3i")
+;;(test-numeric-syntax "#o10+11i" (make-rectangular 8 9) "8+9i" "8.0+11.0i")
+;;(test-numeric-syntax "#b10+11i" (make-rectangular 2 3) "2+3i" "2.0+11.0i")
 ;;(test-numeric-syntax "#e1.0+1.0i" (make-rectangular 1 1) "1+1i" "1+i")
-;;(test-numeric-syntax "#i1.0+1.0i" (make-rectangular 1.0 1.0) "1.0+1.0i" "1.+1.i")
+(test-numeric-syntax "#i1.0+1.0i" (make-rectangular 1.0 1.0) "1.0+1.0i" "1.+1.i")
 
 (define-syntax test-precision
   (syntax-rules ()
@@ -2430,10 +2429,10 @@
            (eqv? n (string->number (car ls)))))))))
 
 (test-precision "-1.7976931348623157e+308" "-inf.0")
-#;(test-precision "4.940656458412465e-324" "4.94065645841247e-324" "5.0e-324" "0.0")  ; INTENDED
-#;(test-precision "9.881312916824931e-324" "9.88131291682493e-324" "1.0e-323" "0.0")  ; INTENDED
+(test-precision "4.940656458412465e-324" "4.94065645841247e-324" "5e-324" "0.0")
+(test-precision "9.881312916824931e-324" "9.88131291682493e-324" "1e-323" "0.0")
 (test-precision "1.48219693752374e-323" "1.5e-323" "0.0")
-#;(test-precision "1.976262583364986e-323" "1.97626258336499e-323" "2.0e-323" "0.0")  ; INTENDED
+(test-precision "1.976262583364986e-323" "1.97626258336499e-323" "2e-323" "0.0")
 (test-precision "2.470328229206233e-323" "2.47032822920623e-323" "2.5e-323" "0.0")
 (test-precision "2.420921664622108e-322" "2.42092166462211e-322" "2.4e-322" "0.0")
 (test-precision "2.420921664622108e-320" "2.42092166462211e-320" "2.421e-320" "0.0")

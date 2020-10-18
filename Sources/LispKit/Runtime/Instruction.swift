@@ -98,6 +98,11 @@ public enum Instruction: CustomStringConvertible {
   /// expression.
   case pack(Int)
   
+  /// **`flatpack` _n_**: Pops _n_ values from the stack and packages them up in a multi-value
+  /// expression. As opposed to `pack`, this guarantees that there are no nested multi-value
+  /// expressions.
+  case flatpack(Int)
+  
   /// **`unpack` _n_**: Retrieves _n_ values from a multi-value expression and stores them on
   /// the stack. If the boolean flag is true, all values beyond _n_ are pushed onto the stack
   /// as a list.
@@ -578,6 +583,8 @@ public enum Instruction: CustomStringConvertible {
         return "push_char \(char)"
       case .pack(let n):
         return "pack \(n)"
+      case .flatpack(let n):
+        return "flatpack \(n)"
       case .unpack(let n, let all):
         return "unpack \(n), \(all ? "given" : "all")"
       case .makeClosure(let i, let n, let index):

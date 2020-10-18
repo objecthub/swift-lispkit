@@ -1013,39 +1013,73 @@ public final class MathLibrary: NativeLibrary {
     }
   }
   
-  private func numberToString(_ expr: Expr, _ rad: Expr?) throws -> Expr {
-    var radix = 10
-    if let base = try rad?.asInt() {
-      if base == 2 || base == 8 || base == 10 || base == 16 {
-        radix = base
-      } else {
-        throw RuntimeError.eval(.illegalRadix, rad!)
-      }
+  private func numberToString(_ expr: Expr, _ args: Arguments) throws -> Expr {
+    guard let (rad, len, prec, noexp) = args.optional(.fixnum(10),
+                                                      .fixnum(1),
+                                                      .false,
+                                                      .false) else {
+      throw RuntimeError.argumentCount(of: "number->string",
+                                       min: 1,
+                                       max: 5,
+                                       args: .pair(expr, .makeList(args)))
     }
+    let radix = try rad.asInt()
+    guard radix == 2 || radix == 8 || radix == 10 || radix == 16 else {
+      throw RuntimeError.eval(.illegalRadix, rad)
+    }
+    let l = try len.asInt(above: Int.min, below: Int.max)
+    let align = l < 0 ? "-" : ""
+    let pre = prec.isFalse ? 16 : try prec.asInt(above: 0, below: 100)
+    var res: NSMutableString
     switch expr {
       case .fixnum(let num):
-        return .string(NSMutableString(string: String(num, radix: radix)))
+        res = NSMutableString(string: String(num, radix: radix))
       case .bignum(let num):
-        return .string(NSMutableString(string: num.toString(base: BigInt.base(of: radix))))
+        res = NSMutableString(string: num.toString(base: BigInt.base(of: radix)))
       case .rational(.fixnum(let n), .fixnum(let d)):
-        return .string(NSMutableString(string: String(n, radix: radix) + "/" +
-                                               String(d, radix: radix)))
+        res = NSMutableString(string: String(n, radix: radix) + "/" + String(d, radix: radix))
       case .rational(.bignum(let n), .bignum(let d)):
-        return .string(NSMutableString(string: n.toString(base: BigInt.base(of: radix)) + "/" +
-                                               d.toString(base: BigInt.base(of: radix))))
+        res = NSMutableString(string: n.toString(base: BigInt.base(of: radix)) + "/" +
+                                      d.toString(base: BigInt.base(of: radix)))
       case .flonum(let num):
-        if radix != 10 {
-          throw RuntimeError.eval(.illegalRadix, rad!)
+        guard radix == 10 else {
+          throw RuntimeError.eval(.illegalRadix, rad)
         }
-        return .string(NSMutableString(string: String(num)))
+        if prec.isFalse {
+          res = NSMutableString(string: String(num))
+        } else {
+          let fstr = "%\(align)\(l == 0 ? "" : String(abs(l))).\(pre)\(noexp.isTrue ? "f" : "g")"
+          res = NSMutableString(string: String(format: fstr, num))
+          return .string(res)
+        }
       case .complex(let num):
-        if radix != 10 {
-          throw RuntimeError.eval(.illegalRadix, rad!)
+        guard radix == 10 else {
+          throw RuntimeError.eval(.illegalRadix, rad)
         }
-        return .string(NSMutableString(string: num.value.description))
+        if prec.isFalse {
+          res = num.value.re.isZero ?
+            NSMutableString() : NSMutableString(string: String(num.value.re) +
+                                                        (num.value.im >= 0.0 ? "+" : ""))
+          res.append(String(num.value.im) + "i")
+        } else {
+          let fstr = "%1.\(pre)\(noexp.isTrue ? "f" : "g")"
+          res = num.value.re.isZero ?
+            NSMutableString() :
+            NSMutableString(string: String(format: fstr + (num.value.im >= 0.0 ? "+" : ""),
+                                           num.value.re))
+          res.appendFormat((fstr + "i") as NSString, num.value.im)
+        }
       default:
         throw RuntimeError.type(expr, expected: [.numberType])
     }
+    if res.length < abs(l) {
+      if l < 0 {
+        res.append(String(repeating: " ", count: abs(l) - res.length))
+      } else {
+        res.insert(String(repeating: " ", count: abs(l) - res.length), at: 0)
+      }
+    }
+    return .string(res)
   }
   
   private func stringToNumber(_ expr: Expr, _ rad: Expr?) throws -> Expr {

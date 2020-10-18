@@ -1182,6 +1182,22 @@ public final class VirtualMachine: TrackedObject {
             list = .pair(self.pop(), list)
           }
           self.push(.values(list))
+        case .flatpack(let n):
+          var list = Expr.null
+          for _ in 0..<n {
+            let e = self.pop()
+            switch e {
+              case .values(.pair(let x, .pair(let y, .null))):
+                list = .pair(x, .pair(y, list))
+              case .values(.pair(let x, .pair(let y, .pair(let z, .null)))):
+                list = .pair(x, .pair(y, .pair(z, list)))
+              case .values(let xs):
+                list = list.isNull ? xs : .makeList(xs.toExprs().0, append: list)
+              default:
+                list = .pair(e, list)
+            }
+          }
+          self.push(.values(list))
         case .unpack(let n, let overflow):
           switch self.top() {
             case .void:

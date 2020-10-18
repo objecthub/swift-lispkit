@@ -69,7 +69,8 @@
           log-from-severity
           log-with-tag
           log-dropping-below-severity
-          log-from-severity)
+          log-from-severity
+          log-time)
 
   (import (except (lispkit base) log)
           (rename (lispkit log internal)

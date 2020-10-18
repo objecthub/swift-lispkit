@@ -40,8 +40,9 @@ public final class DebugLibrary: NativeLibrary {
   public override func declarations() {
     self.define(Procedure("gc", self.gc))
     self.define(SpecialForm("time", self.compileTime))
-    self.define(SpecialForm("quote-expanded", self.quoteExpanded))
-    self.define(SpecialForm("quote-expanded-1", self.quoteExpandedOne))
+    self.define(SpecialForm("time-values", self.compileTimeValues))
+    self.define(SpecialForm("quote-expanded", self.compileQuoteExpanded))
+    self.define(SpecialForm("quote-expanded-1", self.compileQuoteExpandedOne))
     self.define(Procedure("macroexpand", self.macroExpand))
     self.define(Procedure("macroexpand-1", self.macroExpandOne))
     self.define(Procedure("compile", self.compile))
@@ -79,7 +80,22 @@ public final class DebugLibrary: NativeLibrary {
     return false
   }
   
-  private func quoteExpanded(compiler: Compiler,
+  private func compileTimeValues(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    guard case .pair(_, .pair(let exec, .null)) = expr else {
+      throw RuntimeError.argumentCount(of: "time-values", num: 1, expr: expr)
+    }
+    compiler.emit(.pushCurrentTime)
+    try compiler.compile(exec, in: env, inTailPos: false)
+    compiler.emit(.swap)
+    compiler.emit(.pushCurrentTime)
+    compiler.emit(.swap)
+    compiler.emit(.flMinus)
+    compiler.emit(.swap)
+    compiler.emit(.flatpack(2))
+    return false
+  }
+  
+  private func compileQuoteExpanded(compiler: Compiler,
                              expr: Expr,
                              env: Env,
                              tail: Bool) throws -> Bool {
@@ -94,12 +110,12 @@ public final class DebugLibrary: NativeLibrary {
     return false
   }
   
-  private func quoteExpandedOne(compiler: Compiler,
+  private func compileQuoteExpandedOne(compiler: Compiler,
                                 expr: Expr,
                                 env: Env,
                                 tail: Bool) throws -> Bool {
     guard case .pair(_, .pair(let invocation, .null)) = expr else {
-      throw RuntimeError.argumentCount(of: "quote-expanded", num: 1, expr: expr)
+      throw RuntimeError.argumentCount(of: "quote-expanded-1", num: 1, expr: expr)
     }
     if let res = try compiler.macroExpand(invocation, in: env) {
       compiler.pushConstant(res)

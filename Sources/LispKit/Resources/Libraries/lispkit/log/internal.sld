@@ -68,9 +68,12 @@
           log-from-severity
           log-with-tag
           log-dropping-below-severity
-          log-from-severity)
+          log-from-severity
+          log-time)
 
-  (import (except (lispkit base) log))
+  (import (except (lispkit base) log)
+          (lispkit date-time)
+          (lispkit debug))
 
   (begin
 
@@ -209,7 +212,7 @@
             (set! res (string-append res "/" (symbol->string (car lst)))))))
 
     (define (short-log-formatter time severity message tags)
-      (string-append (date-time->string (seconds->date-time time) "HH:mm:ss ")
+      (string-append (date-time->string (seconds->date-time time) #f "HH:mm:ss ")
                      (string-pad-right (severity->string severity) #\space 6)
                      (if (null? tags)
                          ""
@@ -218,7 +221,7 @@
                      message))
 
     (define (long-log-formatter time severity message tags)
-      (string-append (date-time->string (seconds->date-time time) "yyyy-MM-dd HH:mm:ss ")
+      (string-append (date-time->string (seconds->date-time time) #f "yyyy-MM-dd HH:mm:ss ")
                      (string-pad-right (severity->string severity) #\space 6)
                      (if (null? tags)
                          ""
@@ -264,5 +267,29 @@
               (lambda () (logger-severity-set! logger newvalue))
               (lambda () expr0 expr1 ...)
               (lambda () (logger-severity-set! logger oldvalue)))))))
+    
+    (define-syntax log-time
+      (syntax-rules ()
+        ((_ expr)
+          (log-time expr #f))
+        ((_ expr descr)
+          (log-time expr descr time))
+        ((_ expr descr tag)
+          (log-time expr descr tag (current-logger)))
+        ((_ expr descr tag logger)
+          (apply-with-values
+            (lambda (t . args)
+              (log
+                (quote debug)
+                (let ((dscr descr)
+                      (port (open-output-string)))
+                  (display (number->string t 10 1 6 #t) port)
+                  (display "s for " port)
+                  (display (if dscr dscr (quote expr)) port)
+                  (get-output-string port))
+                (quote tag)
+                logger)
+              (apply values args))
+            (time-values expr)))))
   )
 )
