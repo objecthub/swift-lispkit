@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.9.2 (2020-10-24)
+- TODO
+
 ## 1.9.1 (2020-10-04)
 - Revision of library `(lispkit test)` involving procedures `test-group-failed-tests`, `test-group-passed-tests`, `failed-tests`, `passed-tests`, `current-test-epsilon`
 - Fixed comparison of complex numbers and numbers involving NaN in library `(lispkit test)`

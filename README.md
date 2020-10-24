@@ -3,7 +3,7 @@
 
 [![Platform: macOS](https://img.shields.io/badge/Platform-macOS-blue.svg?style=flat)](https://developer.apple.com/osx/)
 [![Language: Swift 5.3](https://img.shields.io/badge/Language-Swift%205.3-green.svg?style=flat)](https://developer.apple.com/swift/)
-[![IDE: Xcode 12.0](https://img.shields.io/badge/IDE-Xcode%2012.0-orange.svg?style=flat)](https://developer.apple.com/xcode/)
+[![IDE: Xcode 12.1](https://img.shields.io/badge/IDE-Xcode%2012.1-orange.svg?style=flat)](https://developer.apple.com/xcode/)
 [![Carthage: compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![License: Apache](http://img.shields.io/badge/License-Apache-lightgrey.svg?style=flat)](https://raw.githubusercontent.com/objecthub/swift-lispkit/master/LICENSE)
 
@@ -121,6 +121,7 @@ _LispKit_ is incompatible or incomplete with respect to the following R7RS featu
 
   - Lists are immutable. Mutable cons-cells are supported in a way similar to
     [Racket](https://racket-lang.org)
+  - Literals in `syntax-rules` are not matched based on their definition but their symbol identity
   - Datum comments introduced via `#;` do not always work as in other Scheme dialects.
 
 The following  [SRFI](https://srfi.schemers.org/) libraries have been ported to _LispKit_ and are included in the
@@ -130,6 +131,7 @@ framework:
   - [SRFI 2: AND-LET* - an AND with local bindings, a guarded LET* special form](https://srfi.schemers.org/srfi-2/srfi-2.html)
   - [SRFI 6: Basic String Ports](https://srfi.schemers.org/srfi-6/srfi-6.html)
   - [SRFI 8: receive - Binding to multiple values](https://srfi.schemers.org/srfi-8/srfi-8.html)
+  - [SRFI 9: Defining Record Types](https://srfi.schemers.org/srfi-9/srfi-9.html)
   - [SRFI 11: Syntax for receiving multiple values](https://srfi.schemers.org/srfi-11/srfi-11.html)
   - [SRFI 14: Character-set library](https://srfi.schemers.org/srfi-14/srfi-14.html)
   - [SRFI 16: Syntax for procedures of variable arity](https://srfi.schemers.org/srfi-16/srfi-16.html)
@@ -183,10 +185,12 @@ framework:
   - [SRFI 174: POSIX Timespecs](https://srfi.schemers.org/srfi-174/srfi-174.html)
   - [SRFI 175: ASCII Character Library](https://srfi.schemers.org/srfi-175/srfi-175.html)
   - [SRFI 177: Portable keyword arguments](https://srfi.schemers.org/srfi-177/srfi-177.html)
+  - [SRFI 180: JSON](https://srfi.schemers.org/srfi-180/srfi-180.html)
   - [SRFI 194: Random data generators](https://srfi.schemers.org/srfi-194/srfi-194.html)
   - [SRFI 195: Multiple-value boxes](https://srfi.schemers.org/srfi-195/srfi-195.html)
   - [SRFI 196: Range Objects](https://srfi.schemers.org/srfi-196/srfi-196.html)
   - [SRFI 204: Wright-Cartwright-Shinn Pattern Matcher](https://srfi.schemers.org/srfi-204/srfi-204.html)
+  - [SRFI 210: Procedures and Syntax for Multiple Values](https://srfi.schemers.org/srfi-210/srfi-210.html)
 
 
 ## Project
@@ -299,7 +303,7 @@ command-line tool, all that is needed is the Swift Package Manager. For compilin
 the command-line tool directly in Xcode, the Swift Package Manager is not needed.
 
 - [Swift 5.3](https://developer.apple.com/swift/)
-- [Xcode 12.0](https://developer.apple.com/xcode/)
+- [Xcode 12.1](https://developer.apple.com/xcode/)
 - [Swift Package Manager](https://swift.org/package-manager/)
 - [NumberKit](http://github.com/objecthub/swift-numberkit)
 - [MarkdownKit](http://github.com/objecthub/swift-markdownkit)

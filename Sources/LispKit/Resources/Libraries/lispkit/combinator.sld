@@ -62,6 +62,11 @@
       (lambda args2
         (apply f (append args args2))))
     
+    (define (_recc f . fs)
+      (if (null? fs)
+          f
+          (lambda args (call-with-values (lambda () (apply (apply _recc fs) args)) f))))
+    
     ;; Composes the given list of functions `fs` such that `((compose f1 f2 ... fn) x)` is
     ;; equivalent to `(f1 (f2 (... (fn x))))`. `compose` supports functions returning multiple
     ;; arguments.
@@ -69,11 +74,6 @@
       (if (null? fs)
           values
           (apply _recc fs)))
-    
-    (define (_recc f . fs)
-      (if (null? fs)
-	      f
-          (lambda args (call-with-values (lambda () (apply (apply _recc fs) args)) f))))
     
     ;; Composes the given list of functions `fs` such that `((o f1 f2 ... fn) x)` is
     ;; equivalent to `(f1 (f2 (... (fn x))))`. `o` is a more efficient version of `compose`
