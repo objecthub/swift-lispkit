@@ -140,6 +140,8 @@ public final class MathLibrary: NativeLibrary {
     self.define(Procedure("fxzero?", self.fxIsZero, self.compileFxIsZero))
     self.define(Procedure("fxpositive?", self.fxIsPositive))
     self.define(Procedure("fxnegative?", self.fxIsNegative))
+    self.define(Procedure("fxodd?", self.fxIsOdd))
+    self.define(Procedure("fxeven?", self.fxIsEven))
     self.define(Procedure("fxremainder", self.fxRemainder))
     self.define(Procedure("fxmodulo", self.fxModulo))
     self.define(Procedure("fxabs", self.fxAbs))
@@ -203,6 +205,9 @@ public final class MathLibrary: NativeLibrary {
     self.define(Procedure("arithmetic-shift-right", self.arithmeticShiftRight))
     self.define("pi", via: "(define pi \(Double.pi))")
     self.define("e", via: "(define e \(M_E))")
+    self.define("fx-width", via: "(define fx-width \(Int64.bitWidth))")
+    self.define("fx-greatest", via: "(define fx-greatest \(Int64.max))")
+    self.define("fx-least", via: "(define fx-least \(Int64.min))")
   }
   
   
@@ -1594,6 +1599,14 @@ public final class MathLibrary: NativeLibrary {
   
   private func fxIsNegative(_ x: Expr) throws -> Expr {
     return .makeBoolean(try x.asInt64() < 0)
+  }
+  
+  private func fxIsOdd(_ x: Expr) throws -> Expr {
+    return .makeBoolean(try x.asInt64() % 2 == 1)
+  }
+  
+  private func fxIsEven(_ x: Expr) throws -> Expr {
+    return .makeBoolean(try x.asInt64() % 2 == 0)
   }
   
   private func fxEq(_ x: Expr, _ y: Expr) throws -> Expr {
