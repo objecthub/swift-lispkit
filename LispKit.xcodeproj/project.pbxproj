@@ -1080,6 +1080,7 @@
 		CC14F4AE1F9385BF000FB1E0 /* AvlTrees.scm */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = text; path = AvlTrees.scm; sourceTree = "<group>"; tabWidth = 2; };
 		CC14F4AF1F939486000FB1E0 /* Features.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Features.swift; sourceTree = "<group>"; };
 		CC14F4B11F93A455000FB1E0 /* FeatureRequirement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureRequirement.swift; sourceTree = "<group>"; };
+		CC1D6CB9258CCCFF00D36645 /* EditDistance.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = EditDistance.scm; sourceTree = "<group>"; };
 		CC1EA5C8214E6BF3006BBE7E /* Turtle.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Turtle.scm; sourceTree = "<group>"; };
 		CC1EA5CA214EEF41006BBE7E /* 161.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 161.sld; sourceTree = "<group>"; };
 		CC201A6C1DBD72C100045A4D /* LibraryRegistry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryRegistry.swift; sourceTree = "<group>"; };
@@ -2289,6 +2290,7 @@
 				CC78F31A23B439B5006F3901 /* SpellNumbers.scm */,
 				CC4A7DBA2258FC3C00936034 /* Streams.scm */,
 				CC9EB1141F5C9D4000697511 /* Topological.scm */,
+				CC1D6CB9258CCCFF00D36645 /* EditDistance.scm */,
 				CC474EB01ED0390200B535E3 /* Queens.scm */,
 				CCC284DB236D8CF100DC85E8 /* Sudoku.scm */,
 				CC5E474220D45A8900F21B03 /* Coroutines.scm */,
