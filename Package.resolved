@@ -6,8 +6,8 @@
         "repositoryURL": "https://github.com/objecthub/swift-commandlinekit.git",
         "state": {
           "branch": null,
-          "revision": "3658edb549b955d2a89fdc59f2739de3208d91a6",
-          "version": "0.3.2"
+          "revision": "e657d24b35d07628f3c020547cabd2b3cce1195c",
+          "version": "0.3.3"
         }
       },
       {
@@ -15,8 +15,8 @@
         "repositoryURL": "https://github.com/objecthub/swift-markdownkit.git",
         "state": {
           "branch": null,
-          "revision": "9bd850ee79a90a1f4925e46b8228c56fbbfe87e1",
-          "version": "0.2.2"
+          "revision": "8afb1cde6b249279dd9ab11ebbbf78a583adec65",
+          "version": "1.0.2"
         }
       },
       {
@@ -24,8 +24,8 @@
         "repositoryURL": "https://github.com/objecthub/swift-numberkit.git",
         "state": {
           "branch": null,
-          "revision": "a29903f82329df499e0a422f7c4824f9093e5df8",
-          "version": "2.3.7"
+          "revision": "ab1de900d65eebb51053a13d93261be3fe2534b3",
+          "version": "2.3.9"
         }
       },
       {
@@ -33,8 +33,8 @@
         "repositoryURL": "https://github.com/objecthub/swift-sqliteexpress.git",
         "state": {
           "branch": null,
-          "revision": "ca29f8d89e37f9288721addc8272d063b257aa7a",
-          "version": "1.0.2"
+          "revision": "e420f6eef3b90d44d92f39b1f899a8aa662f57a7",
+          "version": "1.0.3"
         }
       }
     ]

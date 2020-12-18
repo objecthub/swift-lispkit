@@ -46,13 +46,17 @@ let package = Package(
     .executable(name: "LispKitRepl", targets: ["LispKitRepl"])
   ],
   dependencies: [
-    .package(url: "https://github.com/objecthub/swift-numberkit.git",
+    .package(name: "NumberKit",
+             url: "https://github.com/objecthub/swift-numberkit.git",
              .upToNextMajor(from: "2.3.9")),
-    .package(url: "https://github.com/objecthub/swift-markdownkit.git",
+    .package(name: "MarkdownKit",
+             url: "https://github.com/objecthub/swift-markdownkit.git",
              .upToNextMajor(from: "1.0.2")),
-    .package(url: "https://github.com/objecthub/swift-commandlinekit.git",
+    .package(name: "CommandLineKit",
+             url: "https://github.com/objecthub/swift-commandlinekit.git",
              .upToNextMajor(from: "0.3.3")),
-    .package(url: "https://github.com/objecthub/swift-sqliteexpress.git",
+    .package(name: "SQLiteExpress",
+             url: "https://github.com/objecthub/swift-sqliteexpress.git",
              .upToNextMajor(from: "1.0.3"))
   ],
   targets: [

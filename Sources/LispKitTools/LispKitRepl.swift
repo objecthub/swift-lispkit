@@ -177,6 +177,7 @@ open class LispKitRepl {
               optionsName: TextStyle.bold.properties.apply(to: "options:"),
               flagStyle: TextStyle.italic.properties),
             terminator: "")
+      return false
     }
     return true
   }
@@ -370,12 +371,16 @@ open class LispKitRepl {
     }
   }
 
-  open func execute(file program: String) -> Bool {
+  open func execute(file path: String) -> Bool {
     guard let context = self.context else {
       return false
     }
+    let currentPath = context.fileHandler.currentDirectoryPath
+    let filename = context.fileHandler.filePath(forFile: path, relativeTo: currentPath) ??
+                   context.fileHandler.libraryFilePath(forFile: path, relativeTo: currentPath) ??
+                   context.fileHandler.path(path, relativeTo: currentPath)
     let res = context.machine.onTopLevelDo {
-      return try context.machine.eval(file: program, in: context.global)
+      return try context.machine.eval(file: filename, in: context.global)
     }
     if context.machine.exitTriggered {
       if res != .true {
