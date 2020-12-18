@@ -3,7 +3,7 @@
 
 [![Platform: macOS](https://img.shields.io/badge/Platform-macOS-blue.svg?style=flat)](https://developer.apple.com/osx/)
 [![Language: Swift 5.3](https://img.shields.io/badge/Language-Swift%205.3-green.svg?style=flat)](https://developer.apple.com/swift/)
-[![IDE: Xcode 12.1](https://img.shields.io/badge/IDE-Xcode%2012.1-orange.svg?style=flat)](https://developer.apple.com/xcode/)
+[![IDE: Xcode 12.2](https://img.shields.io/badge/IDE-Xcode%2012.2-orange.svg?style=flat)](https://developer.apple.com/xcode/)
 [![Carthage: compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![License: Apache](http://img.shields.io/badge/License-Apache-lightgrey.svg?style=flat)](https://raw.githubusercontent.com/objecthub/swift-lispkit/master/LICENSE)
 
@@ -190,6 +190,7 @@ framework:
   - [SRFI 195: Multiple-value boxes](https://srfi.schemers.org/srfi-195/srfi-195.html)
   - [SRFI 196: Range Objects](https://srfi.schemers.org/srfi-196/srfi-196.html)
   - [SRFI 204: Wright-Cartwright-Shinn Pattern Matcher](https://srfi.schemers.org/srfi-204/srfi-204.html)
+  - [SRFI 209: Enums and Enum Sets](https://srfi.schemers.org/srfi-209/srfi-209.html)
   - [SRFI 210: Procedures and Syntax for Multiple Values](https://srfi.schemers.org/srfi-210/srfi-210.html)
 
 
@@ -303,7 +304,7 @@ command-line tool, all that is needed is the Swift Package Manager. For compilin
 the command-line tool directly in Xcode, the Swift Package Manager is not needed.
 
 - [Swift 5.3](https://developer.apple.com/swift/)
-- [Xcode 12.1](https://developer.apple.com/xcode/)
+- [Xcode 12.2](https://developer.apple.com/xcode/)
 - [Swift Package Manager](https://swift.org/package-manager/)
 - [NumberKit](http://github.com/objecthub/swift-numberkit)
 - [MarkdownKit](http://github.com/objecthub/swift-markdownkit)
