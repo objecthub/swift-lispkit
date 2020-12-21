@@ -108,7 +108,7 @@ public final class DateTimeLibrary: NativeLibrary {
     self.define(Procedure("date-time-weekday", self.dateTimeWeekday))
     self.define(Procedure("date-time-week", self.dateTimeWeek))
     self.define(Procedure("date-time-dst-offset", self.dateTimeDstOffset))
-    self.define(Procedure("date-time-has-dst", self.dateTimeHasDst))
+    self.define(Procedure("date-time-has-dst?", self.dateTimeHasDst))
     self.define(Procedure("next-dst-transition", self.nextDstTransition))
     self.define(Procedure("date-time-hash", self.dateTimeHash))
   }

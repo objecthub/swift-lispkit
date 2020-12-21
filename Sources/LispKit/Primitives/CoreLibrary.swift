@@ -1128,7 +1128,12 @@ public final class CoreLibrary: NativeLibrary {
     var res = Expr.null
     for sym in environment.boundSymbols {
       if let value = environment[sym] {
-        res = .pair(.pair(.symbol(sym), value), res)
+        switch value {
+          case .undef, .uninit(_):
+            res = .pair(.pair(.symbol(sym), .null), res)
+          default:
+            res = .pair(.pair(.symbol(sym), .pair(value, .null)), res)
+        }
       }
     }
     return res
