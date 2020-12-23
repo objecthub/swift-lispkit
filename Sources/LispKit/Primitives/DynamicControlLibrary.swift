@@ -175,6 +175,7 @@ public final class DynamicControlLibrary: NativeLibrary {
     self.execute("(call-with-current-continuation " +
       "  (lambda (cont) (set! exit (lambda args (_trigger-exit cont args)))))")
     self.define(Procedure("emergency-exit", emergencyExit))
+    self.define(Procedure("abort-eventually", abortEventually))
     
     // Parameters
     self.define(Procedure("dynamic-environment", dynamicEnvironment))
@@ -453,6 +454,11 @@ public final class DynamicControlLibrary: NativeLibrary {
   private func emergencyExit(expr: Expr?) -> Expr {
     self.context.delegate.emergencyExit(obj: expr)
     return .undef
+  }
+  
+  private func abortEventually(expr: Expr?) -> Expr {
+    self.context.machine.abort()
+    return .void
   }
   
   private func makeParameter(_ value: Expr, setter: Expr?) -> Expr {

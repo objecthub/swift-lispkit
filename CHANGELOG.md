@@ -1,7 +1,14 @@
 # Changelog
 
-## 1.9.2 (2020-10-24)
-- TODO
+## 1.9.2 (2020-12-23)
+- Included new libraries: `(srfi 9)`, `(srfi 180)`, `(srfi 209)`, `(srfi 210)`
+- Extended library `(lispkit log)` with syntax `log-time`
+- Extended library `(lispkit debug)` with syntax `time-values`
+- Extended library `(lispkit math)` with procedures `fxodd?`, `fxeven?`, `fx-width`, `fx-greatest`, and `fx-least` in library `(lispkit math)`.; generalized procedure `number->string`
+- Fixed procedure `environment-bindings`, renamed `date-time-has-dst`
+- Fixed crash when execution gets aborted while loading and executing a file
+- Included new sample code: `DrawTrees.scm`, `EditDistance.scm`
+- Minor tweaks to the REPL
 
 ## 1.9.1 (2020-10-04)
 - Revision of library `(lispkit test)` involving procedures `test-group-failed-tests`, `test-group-passed-tests`, `failed-tests`, `passed-tests`, `current-test-epsilon`

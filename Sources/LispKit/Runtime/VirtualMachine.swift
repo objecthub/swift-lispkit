@@ -288,6 +288,9 @@ public final class VirtualMachine: TrackedObject {
       do {
         return try self.apply(.procedure(raiseProc), to: .pair(.error(obj), .null))
       } catch let error as RuntimeError { // handle Lisp-related issues
+        guard !self.abortionRequested else { // abortions bypass the raise mechanism
+          return .error(error)
+        }
         exception = error
       } catch let error { // handle OS-related issues
         exception = RuntimeError.os(error)
@@ -1032,7 +1035,7 @@ public final class VirtualMachine: TrackedObject {
       }
       return res
     } catch let error as RuntimeError {
-      if error.stackTrace == nil {
+      if !self.abortionRequested && error.stackTrace == nil {
         error.attach(stackTrace: self.getStackTrace())
       }
       throw error
