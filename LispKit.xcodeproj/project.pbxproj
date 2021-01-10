@@ -74,6 +74,7 @@
 		CC1EA5C9214E6CD8006BBE7E /* Turtle.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC1EA5C8214E6BF3006BBE7E /* Turtle.scm */; };
 		CC1EA5CB214EF30E006BBE7E /* 161.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC1EA5CA214EEF41006BBE7E /* 161.sld */; };
 		CC201A6D1DBD72C100045A4D /* LibraryRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC201A6C1DBD72C100045A4D /* LibraryRegistry.swift */; };
+		CC202DE425AA9DAF003901BE /* VisualizePointSets.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC202DE325AA9D70003901BE /* VisualizePointSets.scm */; };
 		CC2345411F655BD800C38817 /* datatype.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC2345401F655B8B00C38817 /* datatype.sld */; };
 		CC2345431F655C0A00C38817 /* Datatypes.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC2345421F655C0A00C38817 /* Datatypes.scm */; };
 		CC240E8924FA41B100FF6D0F /* DebugLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC240E8824FA41B100FF6D0F /* DebugLibrary.swift */; };
@@ -638,6 +639,7 @@
 			dstPath = LispKit/Resources/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC202DE425AA9DAF003901BE /* VisualizePointSets.scm in Copy examples */,
 				CC1D6CBA258CCE1A00D36645 /* EditDistance.scm in Copy examples */,
 				CC8D20F52533C3D100741D07 /* DrawTrees.scm in Copy examples */,
 				CC7E7C2624564D85002E8A73 /* Covid.scm in Copy examples */,
@@ -1092,6 +1094,7 @@
 		CC1EA5C8214E6BF3006BBE7E /* Turtle.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Turtle.scm; sourceTree = "<group>"; };
 		CC1EA5CA214EEF41006BBE7E /* 161.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 161.sld; sourceTree = "<group>"; };
 		CC201A6C1DBD72C100045A4D /* LibraryRegistry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryRegistry.swift; sourceTree = "<group>"; };
+		CC202DE325AA9D70003901BE /* VisualizePointSets.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = VisualizePointSets.scm; sourceTree = "<group>"; };
 		CC2345401F655B8B00C38817 /* datatype.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = datatype.sld; sourceTree = "<group>"; };
 		CC2345421F655C0A00C38817 /* Datatypes.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Datatypes.scm; sourceTree = "<group>"; };
 		CC240E8824FA41B100FF6D0F /* DebugLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugLibrary.swift; sourceTree = "<group>"; };
@@ -2309,6 +2312,7 @@
 				CC14F4AE1F9385BF000FB1E0 /* AvlTrees.scm */,
 				CC26264320FA003700AC08E8 /* Plot.scm */,
 				CC8D20F42533C35F00741D07 /* DrawTrees.scm */,
+				CC202DE325AA9D70003901BE /* VisualizePointSets.scm */,
 				CC7E7C2524564D33002E8A73 /* Covid.scm */,
 				CC1EA5C8214E6BF3006BBE7E /* Turtle.scm */,
 				CC38529F23252217001D5E56 /* Maze.scm */,
