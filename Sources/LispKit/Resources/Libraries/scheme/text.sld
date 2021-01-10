@@ -101,6 +101,6 @@
           textual-replicate
           textual-split)
 
-   (import (srfi 135))
- )
+  (import (srfi 135))
+)
 

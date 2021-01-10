@@ -1602,11 +1602,11 @@ public final class MathLibrary: NativeLibrary {
   }
   
   private func fxIsOdd(_ x: Expr) throws -> Expr {
-    return .makeBoolean(try x.asInt64() % 2 == 1)
+    return .makeBoolean(try x.asInt64().isOdd)
   }
   
   private func fxIsEven(_ x: Expr) throws -> Expr {
-    return .makeBoolean(try x.asInt64() % 2 == 0)
+    return .makeBoolean(try !x.asInt64().isOdd)
   }
   
   private func fxEq(_ x: Expr, _ y: Expr) throws -> Expr {

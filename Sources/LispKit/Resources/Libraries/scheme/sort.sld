@@ -43,6 +43,5 @@
           vector-select!
           vector-separate!)
 
-   (import (srfi 132))
- )
-
+  (import (srfi 132))
+)
