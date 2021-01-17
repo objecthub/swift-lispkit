@@ -460,6 +460,8 @@
 		CCF602EE23A0FA9A00087740 /* memory.sld in Copy pre-installed LispKit library: SRFI 167 */ = {isa = PBXBuildFile; fileRef = CCF602E823A0F6CB00087740 /* memory.sld */; };
 		CCF6C4172442F62800EB37AC /* VectorLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B5D1C52E8EF00E962E2 /* VectorLibrary.swift */; };
 		CCF982F71D998B8A00B22A1D /* ImportSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCF982F61D998B8A00B22A1D /* ImportSet.swift */; };
+		CCFB412725B2523C005B2429 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = CCFB412625B2523C005B2429 /* ZIPFoundation */; };
+		CCFB412B25B25316005B2429 /* ZipArchiveLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFB412A25B25316005B2429 /* ZipArchiveLibrary.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1493,6 +1495,7 @@
 		CCF602E823A0F6CB00087740 /* memory.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = memory.sld; sourceTree = "<group>"; };
 		CCF602E923A0F8F800087740 /* SRFI-167.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-167.scm"; sourceTree = "<group>"; };
 		CCF982F61D998B8A00B22A1D /* ImportSet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImportSet.swift; sourceTree = "<group>"; };
+		CCFB412A25B25316005B2429 /* ZipArchiveLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZipArchiveLibrary.swift; sourceTree = "<group>"; };
 		CCFBE5C31ECBA8DA0032254B /* Pi.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Pi.scm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -1522,6 +1525,7 @@
 				CCA6C3D42361149D007D2AF0 /* MarkdownKit in Frameworks */,
 				CC5E53032355AAD400C72CE2 /* NumberKit in Frameworks */,
 				CC089651244091E9004503B1 /* SQLiteExpress in Frameworks */,
+				CCFB412725B2523C005B2429 /* ZIPFoundation in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2244,6 +2248,7 @@
 				CC4575C520F00C4400116F0F /* DrawingLibrary.swift */,
 				CCA6C3D023610674007D2AF0 /* MarkdownLibrary.swift */,
 				CC08964D244090D1004503B1 /* SQLiteLibrary.swift */,
+				CCFB412A25B25316005B2429 /* ZipArchiveLibrary.swift */,
 				CC38528A23126F7A001D5E56 /* InternalLibrary.swift */,
 			);
 			path = Primitives;
@@ -2438,6 +2443,7 @@
 				CC5E53022355AAD400C72CE2 /* NumberKit */,
 				CCA6C3D32361149D007D2AF0 /* MarkdownKit */,
 				CC089650244091E9004503B1 /* SQLiteExpress */,
+				CCFB412625B2523C005B2429 /* ZIPFoundation */,
 			);
 			productName = LispKit;
 			productReference = CCAD52BA1C48403800DBD8EE /* LispKit.framework */;
@@ -2502,6 +2508,7 @@
 				CC5E53042355AB0700C72CE2 /* XCRemoteSwiftPackageReference "swift-commandlinekit" */,
 				CCA6C3D22361149D007D2AF0 /* XCRemoteSwiftPackageReference "swift-markdownkit" */,
 				CC08964F244091E9004503B1 /* XCRemoteSwiftPackageReference "swift-sqliteexpress" */,
+				CCFB412525B2523C005B2429 /* XCRemoteSwiftPackageReference "ZIPFoundation" */,
 			);
 			productRefGroup = CCAD52BB1C48403800DBD8EE /* Products */;
 			projectDirPath = "";
@@ -2655,6 +2662,7 @@
 				CC882C921C9E93A600D20039 /* Timer.swift in Sources */,
 				CCAD52E21C48468F00DBD8EE /* Expr.swift in Sources */,
 				CC76312720E95262005F27CE /* DrawingDocument.swift in Sources */,
+				CCFB412B25B25316005B2429 /* ZipArchiveLibrary.swift in Sources */,
 				CC35FD0D1C6FA4B700C8B992 /* VirtualMachine.swift in Sources */,
 				CCA31281204CB7A60026FF13 /* SyntaxError.swift in Sources */,
 				CC5BBC7B1D52724800367E8F /* HashTableLibrary.swift in Sources */,
@@ -3130,6 +3138,14 @@
 				minimumVersion = 1.0.2;
 			};
 		};
+		CCFB412525B2523C005B2429 /* XCRemoteSwiftPackageReference "ZIPFoundation" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/weichsel/ZIPFoundation";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.9.11;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -3152,6 +3168,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = CCA6C3D22361149D007D2AF0 /* XCRemoteSwiftPackageReference "swift-markdownkit" */;
 			productName = MarkdownKit;
+		};
+		CCFB412625B2523C005B2429 /* ZIPFoundation */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CCFB412525B2523C005B2429 /* XCRemoteSwiftPackageReference "ZIPFoundation" */;
+			productName = ZIPFoundation;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

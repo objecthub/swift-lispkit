@@ -302,4 +302,33 @@ public final class FileHandler {
     try self.fileManager.moveItem(atPath: self.path(path, relativeTo: root),
                                   toPath: self.path(dest, relativeTo: root))
   }
+  
+  // Utilities
+  
+  public enum ItemType: Int {
+    case file
+    case directory
+    case symbolicLink
+  }
+  
+  /// Return item type, modification date, file size and permissions
+  public func itemProperties(for url: URL) throws -> (ItemType, Date, UInt32, UInt16)? {
+    guard url.isFileURL, (try? url.checkResourceIsReachable()) == true else {
+      return nil
+    }
+    let fsrepr = self.fileManager.fileSystemRepresentation(withPath: url.path)
+    var fstat = stat()
+    lstat(fsrepr, &fstat)
+    let modTimeSpec = fstat.st_mtimespec
+    let date = Date(timeIntervalSince1970: TimeInterval(modTimeSpec.tv_sec) +
+                                           TimeInterval(modTimeSpec.tv_nsec)/1000000000.0)
+    switch fstat.st_mode & S_IFMT {
+      case S_IFLNK:
+        return (.symbolicLink, date, UInt32(fstat.st_size), UInt16(fstat.st_mode))
+      case S_IFDIR:
+        return (.directory, date, 0, UInt16(fstat.st_mode))
+      default:
+        return (.file, date, UInt32(fstat.st_size), UInt16(fstat.st_mode))
+    }
+  }
 }

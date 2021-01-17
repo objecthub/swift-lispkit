@@ -51,7 +51,8 @@ public struct LibraryRegistry {
     DrawingLibrary.self,
     InternalLibrary.self,
     MarkdownLibrary.self,
-    SQLiteLibrary.self
+    SQLiteLibrary.self,
+    ZipArchiveLibrary.self
   ]
   
   public static func register(_ nativeLibrary: NativeLibrary.Type) {

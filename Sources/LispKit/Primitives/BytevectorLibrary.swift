@@ -82,7 +82,7 @@ public final class BytevectorLibrary: NativeLibrary {
 
   func writeBinaryFile(_ path: Expr, _ bvec: Expr, args: Arguments) throws -> Expr {
     let path = try path.asPath()
-    var subvec = try self.subVector("write-binary-file", bvec, args)
+    var subvec = try Self.subVector("write-binary-file", bvec, args)
     let data = NSData(bytesNoCopy: &subvec, length: subvec.count, freeWhenDone: false)
     return .makeBoolean(data.write(toFile: path, atomically: false))
   }
@@ -206,7 +206,7 @@ public final class BytevectorLibrary: NativeLibrary {
   }
   
   func utf8ToString(_ bvec: Expr, args: Arguments) throws -> Expr {
-    let subvec = try self.subVector("utf8->string", bvec, args)
+    let subvec = try Self.subVector("utf8->string", bvec, args)
     var generator = subvec.makeIterator()
     var str = ""
     var decoder = UTF8()
@@ -227,7 +227,7 @@ public final class BytevectorLibrary: NativeLibrary {
   
   func bytevectorToBase64(_ bvec: Expr, args: Arguments) throws -> Expr {
     return .makeString(Data(
-      try self.subVector("bytevector->base64", bvec, args)).base64EncodedString())
+      try Self.subVector("bytevector->base64", bvec, args)).base64EncodedString())
   }
   
   func base64ToBytevector(_ string: Expr, args: Arguments) throws -> Expr {
@@ -242,7 +242,7 @@ public final class BytevectorLibrary: NativeLibrary {
   }
   
   private func bytevectorDeflate(_ bvec: Expr, args: Arguments) throws -> Expr {
-    let subvec = try self.subVector("bytevector-deflate", bvec, args)
+    let subvec = try Self.subVector("bytevector-deflate", bvec, args)
     guard let data = Data(subvec).deflate() else {
       throw RuntimeError.eval(.cannotEncodeBytevector, .bytes(MutableBox(subvec)))
     }
@@ -253,7 +253,7 @@ public final class BytevectorLibrary: NativeLibrary {
   }
   
   private func bytevectorInflate(_ bvec: Expr, args: Arguments) throws -> Expr {
-    let subvec = try self.subVector("bytevector-inflate", bvec, args)
+    let subvec = try Self.subVector("bytevector-inflate", bvec, args)
     guard let data = Data(subvec).inflate() else {
       throw RuntimeError.eval(.cannotDecodeBytevector, .bytes(MutableBox(subvec)))
     }
@@ -295,7 +295,7 @@ public final class BytevectorLibrary: NativeLibrary {
     return String(utf16CodeUnits: uniChars, count: uniChars.count)
   }
   
-  private func subVector(_ name: String, _ bvec: Expr, _ args: Arguments) throws -> [UInt8] {
+  static func subVector(_ name: String, _ bvec: Expr, _ args: Arguments) throws -> [UInt8] {
     let bvector = try bvec.asByteVector()
     guard let (s, e) = args.optional(Expr.makeNumber(0),
                                      Expr.makeNumber(bvector.value.count)) else {

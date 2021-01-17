@@ -310,3 +310,4 @@ the command-line tool directly in Xcode, the Swift Package Manager is not needed
 - [MarkdownKit](http://github.com/objecthub/swift-markdownkit)
 - [CommandLineKit](http://github.com/objecthub/swift-commandlinekit)
 - [SQLiteExpress](http://github.com/objecthub/swift-sqliteexpress)
+- [ZIPFoundation](https://github.com/weichsel/ZIPFoundation)

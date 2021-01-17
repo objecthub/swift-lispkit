@@ -113,6 +113,13 @@ public enum EvalError: Int, Hashable {
   case expectedKeywordArg
   case assertion
   case cannotInsertExif
+  case cannotCreateInMemoryZipArchive
+  case cannotMakeInMemoryZipArchiveFromData
+  case cannotCreateZipArchive
+  case cannotOpenZipArchive
+  case cannotMutateZipArchive
+  case zipArchiveEntryDoesNotExist
+  case unknownFileOrDirectory
   
   public var message: String {
     switch self {
@@ -292,6 +299,20 @@ public enum EvalError: Int, Hashable {
         return "assertion failure in $,0: $1"
       case .cannotInsertExif:
         return "cannot insert exif into $0"
+      case .cannotCreateInMemoryZipArchive:
+        return "cannot create in-memory zip archive"
+      case .cannotMakeInMemoryZipArchiveFromData:
+        return "cannot make in-memory zip archive from bytevector $0"
+      case .cannotCreateZipArchive:
+        return "cannot create new zip archive at $,0"
+      case .cannotOpenZipArchive:
+        return "cannot open zip archive at $,0"
+      case .cannotMutateZipArchive:
+        return "cannot mutate zip archive $0 with read-only access mode"
+      case .zipArchiveEntryDoesNotExist:
+        return "no entry for path $,1 in zip archive $0"
+      case .unknownFileOrDirectory:
+        return "unknown file or directory $,0"
     }
   }
   

@@ -29,6 +29,7 @@
 (import (lispkit draw))
 (import (lispkit markdown))
 (import (lispkit sqlite))
+(import (lispkit archive zip))
 (import (lispkit system os))
 (import (lispkit debug))
 
