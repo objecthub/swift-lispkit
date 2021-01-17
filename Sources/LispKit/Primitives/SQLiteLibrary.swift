@@ -66,6 +66,7 @@ public final class SQLiteLibrary: NativeLibrary {
     self.defineOpenOption("sqlite-default", as: .default)
     self.define(Procedure("sqlite-version", sqliteVersion))
     self.define(Procedure("sqlite-version-number", sqliteVersionNumber))
+    self.define(Procedure("sqlite-database?", sqliteDatabase))
     self.define(Procedure("make-database", makeDatabase))
     self.define(Procedure("open-database", openDatabase))
     self.define(Procedure("close-database", closeDatabase))
@@ -73,6 +74,7 @@ public final class SQLiteLibrary: NativeLibrary {
     self.define(Procedure("database-last-row-id", databaseLastRowId))
     self.define(Procedure("database-last-changes", databaseLastChanges))
     self.define(Procedure("database-total-changes", databaseTotalChanges))
+    self.define(Procedure("sqlite-statement?", sqliteStatement))
     self.define(Procedure("prepare-statement", prepareStatement))
     self.define(Procedure("process-statement", processStatement))
     self.define(Procedure("reset-statement", resetStatement))
@@ -97,6 +99,13 @@ public final class SQLiteLibrary: NativeLibrary {
   
   private func sqliteVersionNumber() -> Expr {
     return .makeNumber(SQLiteDatabase.versionNumber)
+  }
+  
+  private func sqliteDatabase(_ expr: Expr) -> Expr {
+    if case .object(let obj) = expr, obj is SQLiteDB {
+      return .true
+    }
+    return .false
   }
   
   private func makeDatabase(options: Expr?) throws -> Expr {
@@ -135,6 +144,13 @@ public final class SQLiteLibrary: NativeLibrary {
   
   private func databaseTotalChanges(db: Expr) throws -> Expr {
     return .makeNumber(try self.database(from: db).db.totalChanges)
+  }
+  
+  private func sqliteStatement(_ expr: Expr) -> Expr {
+    if case .object(let obj) = expr, obj is SQLiteStmt {
+      return .true
+    }
+    return .false
   }
   
   private func prepareStatement(db: Expr, expr: Expr) throws -> Expr {

@@ -1672,6 +1672,7 @@
 				CC2C73D121A1E7F900B18661 /* box.sld */,
 				CC54924821DCF46B004A0652 /* charset.sld */,
 				CC2C73C4219E26D900B18661 /* comparator.sld */,
+				CC202DE825ABB068003901BE /* fixnum.sld */,
 				CC2C73C5219E286D00B18661 /* generator.sld */,
 				CC2C73E021A22DDD00B18661 /* hash-table.sld */,
 				CC2C73C6219E295200B18661 /* ideque.sld */,
@@ -1683,7 +1684,6 @@
 				CC2C73D021A1E70600B18661 /* stream.sld */,
 				CC2C73CF21A1E5B200B18661 /* text.sld */,
 				CC2C73CC21A1E1BA00B18661 /* vector.sld */,
-				CC202DE825ABB068003901BE /* fixnum.sld */,
 			);
 			name = large;
 			sourceTree = "<group>";
