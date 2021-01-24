@@ -178,6 +178,8 @@ framework:
   - [SRFI 146: Mappings](https://srfi.schemers.org/srfi-146/srfi-146.html)
   - [SRFI 151: Bitwise Operations](https://srfi.schemers.org/srfi-151/srfi-151.html)
   - [SRFI 152: String Library](https://srfi.schemers.org/srfi-152/srfi-152.html)
+  - [SRFI 154: First-class dynamic extents](https://srfi.schemers.org/srfi-154/srfi-154.html)
+  - [SRFI 155: Promises](https://srfi.schemers.org/srfi-155/srfi-155.html)  
   - [SRFI 158: Generators and Accumulators](https://srfi.schemers.org/srfi-158/srfi-158.html)
   - [SRFI 161: Unifiable Boxes](https://srfi.schemers.org/srfi-161/srfi-161.html)
   - [SRFI 162: Comparators sublibrary](https://srfi.schemers.org/srfi-162/srfi-162.html)  

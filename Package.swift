@@ -18,8 +18,8 @@
 //
 //
 //  Created by Matthias Zenger on 16/10/2017.
-//  Copyright © 2017-2019 ObjectHub. All rights reserved.
-//
+//  Copyright © 2017-2021 ObjectHub. All rights reserved.
+//  
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
 //  You may obtain a copy of the License at
@@ -57,11 +57,14 @@ let package = Package(
              .upToNextMajor(from: "0.3.3")),
     .package(name: "SQLiteExpress",
              url: "https://github.com/objecthub/swift-sqliteexpress.git",
-             .upToNextMajor(from: "1.0.3"))
+             .upToNextMajor(from: "1.0.3")),
+    .package(name: "ZIPFoundation",
+             url: "https://github.com/weichsel/ZIPFoundation.git",
+             .upToNextMajor(from: "0.9.11"))
   ],
   targets: [
     .target(name: "LispKit",
-            dependencies: ["NumberKit", "MarkdownKit", "SQLiteExpress"]),
+            dependencies: ["NumberKit", "MarkdownKit", "SQLiteExpress", "ZIPFoundation"]),
     .target(name: "LispKitTools",
             dependencies: ["LispKit", "CommandLineKit"]),
     .target(name: "LispKitRepl",

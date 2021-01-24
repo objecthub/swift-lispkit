@@ -3,7 +3,7 @@
 //  LispKit
 //
 //  Created by Matthias Zenger on 05/05/2016.
-//  Copyright © 2016-2020 ObjectHub. All rights reserved.
+//  Copyright © 2016-2021 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ public struct AppInfo {
   // Copyright message
   public static let copyright =
     (Bundle.main.infoDictionary?["NSHumanReadableCopyright"] as? String) ??
-    "Copyright © 2016–2020 Matthias Zenger. All rights reserved."
+    "Copyright © 2016–2021 Matthias Zenger. All rights reserved."
   
   #if SPM
     public static let prompt = "> "
@@ -47,7 +47,7 @@ public struct AppInfo {
   
   // Build date/time
   #if SPM
-    public static let buildDate = "2020"
+    public static let buildDate = "2021"
     public static let buildTime = "?"
     public static let buildAnnotation = ""
   #else

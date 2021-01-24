@@ -41,6 +41,10 @@
 		CC08964E244090D1004503B1 /* SQLiteLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC08964D244090D1004503B1 /* SQLiteLibrary.swift */; };
 		CC089651244091E9004503B1 /* SQLiteExpress in Frameworks */ = {isa = PBXBuildFile; productRef = CC089650244091E9004503B1 /* SQLiteExpress */; };
 		CC08965324413F6E004503B1 /* SQLite.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC08965224413DC6004503B1 /* SQLite.scm */; };
+		CC08F42F25BCF2010056C92C /* 154.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC08F42D25BCF0F30056C92C /* 154.sld */; };
+		CC08F43425BCF2140056C92C /* SRFI-154.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC08F42E25BCF14C0056C92C /* SRFI-154.scm */; };
+		CC08F43925BCFD0C0056C92C /* SRFI-155.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC08F43825BCFCAB0056C92C /* SRFI-155.scm */; };
+		CC08F43C25BCFD2A0056C92C /* 155.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC08F43725BCFC510056C92C /* 155.sld */; };
 		CC0980A71C62BDBC006B7FB1 /* Compiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0980A61C62BDBC006B7FB1 /* Compiler.swift */; };
 		CC0980A91C67E81C006B7FB1 /* Code.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0980A81C67E81C006B7FB1 /* Code.swift */; };
 		CC0980AB1C67E84C006B7FB1 /* Cell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0980AA1C67E84C006B7FB1 /* Cell.swift */; };
@@ -502,6 +506,8 @@
 			dstPath = LispKit/Resources/Tests;
 			dstSubfolderSpec = 7;
 			files = (
+				CC08F43925BCFD0C0056C92C /* SRFI-155.scm in Copy tests */,
+				CC08F43425BCF2140056C92C /* SRFI-154.scm in Copy tests */,
 				CC202DF025ABB297003901BE /* SRFI-143.scm in Copy tests */,
 				CC1D6CC2258CE0B700D36645 /* SRFI-209.scm in Copy tests */,
 				CC0D7B3F2544B08600FB9301 /* SRFI-210.scm in Copy tests */,
@@ -951,6 +957,8 @@
 			dstPath = LispKit/Resources/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
+				CC08F43C25BCFD2A0056C92C /* 155.sld in Copy pre-installed SRFI libraries */,
+				CC08F42F25BCF2010056C92C /* 154.sld in Copy pre-installed SRFI libraries */,
 				CC202DE925ABB13E003901BE /* 143.sld in Copy pre-installed SRFI libraries */,
 				CC1D6CBE258CDE8200D36645 /* 209.sld in Copy pre-installed SRFI libraries */,
 				CC0D7B3C2544B06700FB9301 /* 210.sld in Copy pre-installed SRFI libraries */,
@@ -1069,6 +1077,10 @@
 		CC050F131D017D3400D32132 /* BytevectorLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = BytevectorLibrary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC08964D244090D1004503B1 /* SQLiteLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SQLiteLibrary.swift; sourceTree = "<group>"; };
 		CC08965224413DC6004503B1 /* SQLite.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = SQLite.scm; sourceTree = "<group>"; };
+		CC08F42D25BCF0F30056C92C /* 154.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 154.sld; sourceTree = "<group>"; };
+		CC08F42E25BCF14C0056C92C /* SRFI-154.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-154.scm"; sourceTree = "<group>"; };
+		CC08F43725BCFC510056C92C /* 155.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 155.sld; sourceTree = "<group>"; };
+		CC08F43825BCFCAB0056C92C /* SRFI-155.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-155.scm"; sourceTree = "<group>"; };
 		CC0980A61C62BDBC006B7FB1 /* Compiler.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Compiler.swift; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC0980A81C67E81C006B7FB1 /* Code.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Code.swift; sourceTree = "<group>"; };
 		CC0980AA1C67E84C006B7FB1 /* Cell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cell.swift; sourceTree = "<group>"; };
@@ -1560,6 +1572,8 @@
 				CCC951702426B54600FC915F /* SRFI-128.scm */,
 				CC202DEF25ABB245003901BE /* SRFI-143.scm */,
 				CC4A7DC22259748400936034 /* SRFI-146.scm */,
+				CC08F42E25BCF14C0056C92C /* SRFI-154.scm */,
+				CC08F43825BCFCAB0056C92C /* SRFI-155.scm */,
 				CC4A7DC8225A344300936034 /* SRFI-165.scm */,
 				CCF602E923A0F8F800087740 /* SRFI-167.scm */,
 				CC38528D23140F26001D5E56 /* SRFI-173.scm */,
@@ -1860,6 +1874,8 @@
 				CC4A7DBE2259734700936034 /* 146.sld */,
 				CC96D10420386860006AA27B /* 151.sld */,
 				CC0AEFF71F522A7500119BF6 /* 152.sld */,
+				CC08F42D25BCF0F30056C92C /* 154.sld */,
+				CC08F43725BCFC510056C92C /* 155.sld */,
 				CCEEF3901FAF3F70006C4581 /* 158.sld */,
 				CC1EA5CA214EEF41006BBE7E /* 161.sld */,
 				CCC9516E2426B1E100FC915F /* 162.sld */,

@@ -119,6 +119,8 @@
 (import (srfi 146))
 (import (srfi 151))
 (import (srfi 152))
+(import (srfi 154))
+(import (srfi 155))
 (import (srfi 158))
 (import (srfi 161))
 (import (srfi 162))
