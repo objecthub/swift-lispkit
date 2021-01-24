@@ -59,8 +59,8 @@ _LispKit_ provides support for the following core features, many of which are ba
     `(scheme load)`, `(scheme process-context)`, `(scheme read)`, `(scheme repl)`, `(scheme time)`,
     `(scheme write)`, `(scheme r5rs)`
   - Some R7RS (large) libraries from Scheme Red and Scheme Tangerine editions:
-    `(scheme box)`,  `(scheme charset)`, `(scheme comparator)`, `(scheme fixnum)`, 
-    `(scheme generator)`, `(scheme hash-table)`, `(scheme ideque)`, `(scheme list)`, 
+    `(scheme bitwise)`, `(scheme box)`,  `(scheme charset)`, `(scheme comparator)`, `(scheme division)`,
+    `(scheme fixnum)`, `(scheme generator)`, `(scheme hash-table)`, `(scheme ideque)`, `(scheme list)`, 
     `(scheme mapping)`, `(scheme rlist)`, `(scheme set)`,
     `(scheme sort)`, `(scheme stream)`, `(scheme text)`, `(scheme vector)`
   - LispKit-specific libraries: 

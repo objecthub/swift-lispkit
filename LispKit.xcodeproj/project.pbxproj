@@ -45,6 +45,8 @@
 		CC08F43425BCF2140056C92C /* SRFI-154.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC08F42E25BCF14C0056C92C /* SRFI-154.scm */; };
 		CC08F43925BCFD0C0056C92C /* SRFI-155.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC08F43825BCFCAB0056C92C /* SRFI-155.scm */; };
 		CC08F43C25BCFD2A0056C92C /* 155.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC08F43725BCFC510056C92C /* 155.sld */; };
+		CC08F44125BDDCEC0056C92C /* bitwise.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC08F43F25BDCE5C0056C92C /* bitwise.sld */; };
+		CC08F44225BDDCEC0056C92C /* division.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC08F44025BDD2CD0056C92C /* division.sld */; };
 		CC0980A71C62BDBC006B7FB1 /* Compiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0980A61C62BDBC006B7FB1 /* Compiler.swift */; };
 		CC0980A91C67E81C006B7FB1 /* Code.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0980A81C67E81C006B7FB1 /* Code.swift */; };
 		CC0980AB1C67E84C006B7FB1 /* Cell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0980AA1C67E84C006B7FB1 /* Cell.swift */; };
@@ -892,6 +894,8 @@
 			dstPath = LispKit/Resources/Libraries/scheme;
 			dstSubfolderSpec = 7;
 			files = (
+				CC08F44125BDDCEC0056C92C /* bitwise.sld in Copy pre-installed Scheme libraries */,
+				CC08F44225BDDCEC0056C92C /* division.sld in Copy pre-installed Scheme libraries */,
 				CC202DEC25ABB150003901BE /* fixnum.sld in Copy pre-installed Scheme libraries */,
 				CC4A7DC5225976B600936034 /* mapping.sld in Copy pre-installed Scheme libraries */,
 				CC54924921DCF619004A0652 /* charset.sld in Copy pre-installed Scheme libraries */,
@@ -1081,6 +1085,8 @@
 		CC08F42E25BCF14C0056C92C /* SRFI-154.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-154.scm"; sourceTree = "<group>"; };
 		CC08F43725BCFC510056C92C /* 155.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 155.sld; sourceTree = "<group>"; };
 		CC08F43825BCFCAB0056C92C /* SRFI-155.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-155.scm"; sourceTree = "<group>"; };
+		CC08F43F25BDCE5C0056C92C /* bitwise.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = bitwise.sld; sourceTree = "<group>"; };
+		CC08F44025BDD2CD0056C92C /* division.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = division.sld; sourceTree = "<group>"; };
 		CC0980A61C62BDBC006B7FB1 /* Compiler.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Compiler.swift; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC0980A81C67E81C006B7FB1 /* Code.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Code.swift; sourceTree = "<group>"; };
 		CC0980AA1C67E84C006B7FB1 /* Cell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cell.swift; sourceTree = "<group>"; };
@@ -1683,9 +1689,11 @@
 		CC2C73C3219E26A500B18661 /* large */ = {
 			isa = PBXGroup;
 			children = (
+				CC08F43F25BDCE5C0056C92C /* bitwise.sld */,
 				CC2C73D121A1E7F900B18661 /* box.sld */,
 				CC54924821DCF46B004A0652 /* charset.sld */,
 				CC2C73C4219E26D900B18661 /* comparator.sld */,
+				CC08F44025BDD2CD0056C92C /* division.sld */,
 				CC202DE825ABB068003901BE /* fixnum.sld */,
 				CC2C73C5219E286D00B18661 /* generator.sld */,
 				CC2C73E021A22DDD00B18661 /* hash-table.sld */,
