@@ -847,7 +847,7 @@ public final class Compiler {
       try self.compile(expr, in: env, inTailPos: false)
       self.patchMakeClosure(sym)
       let binding = group.allocBindingFor(sym)
-      guard binding.index > prevIndex else {
+      guard !atomic || (predef && !postset) || binding.index > prevIndex else {
         throw RuntimeError.eval(.duplicateBinding, .symbol(sym), bindingList)
       }
       if postset {
