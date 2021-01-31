@@ -51,6 +51,7 @@
 ;;; either express or implied. See the License for the specific language governing permissions
 ;;; and limitations under the License.
 
+(import (lispkit base))
 
 ;; Prefix expressions are represented as lists with at least two elements: the operator and
 ;; at least one argument.

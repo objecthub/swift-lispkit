@@ -3,7 +3,7 @@
 
 [![Platform: macOS](https://img.shields.io/badge/Platform-macOS-blue.svg?style=flat)](https://developer.apple.com/osx/)
 [![Language: Swift 5.3](https://img.shields.io/badge/Language-Swift%205.3-green.svg?style=flat)](https://developer.apple.com/swift/)
-[![IDE: Xcode 12.3](https://img.shields.io/badge/IDE-Xcode%2012.3-orange.svg?style=flat)](https://developer.apple.com/xcode/)
+[![IDE: Xcode 12.4](https://img.shields.io/badge/IDE-Xcode%2012.4-orange.svg?style=flat)](https://developer.apple.com/xcode/)
 [![Carthage: compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![License: Apache](http://img.shields.io/badge/License-Apache-lightgrey.svg?style=flat)](https://raw.githubusercontent.com/objecthub/swift-lispkit/master/LICENSE)
 
@@ -61,7 +61,7 @@ _LispKit_ provides support for the following core features, many of which are ba
   - Some R7RS (large) libraries from Scheme Red and Scheme Tangerine editions:
     `(scheme bitwise)`, `(scheme box)`,  `(scheme charset)`, `(scheme comparator)`, `(scheme division)`,
     `(scheme fixnum)`, `(scheme generator)`, `(scheme hash-table)`, `(scheme ideque)`, `(scheme list)`, 
-    `(scheme mapping)`, `(scheme rlist)`, `(scheme set)`,
+    `(scheme mapping)`, `(scheme red)`, `(scheme rlist)`, `(scheme set)`,
     `(scheme sort)`, `(scheme stream)`, `(scheme text)`, `(scheme vector)`
   - LispKit-specific libraries: 
     [`(lispkit base)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Base),
@@ -105,6 +105,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit comparator)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Comparator),
     [`(lispkit combinator)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Combinator),
     `(lispkit logic)`,
+    `(lispkit prolog)`,
     `(lispkit clos)`,
     [`(lispkit test)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Test),
     `(lispkit prettify)`,
@@ -308,7 +309,7 @@ command-line tool, all that is needed is the Swift Package Manager. For compilin
 the command-line tool directly in Xcode, the Swift Package Manager is not needed.
 
 - [Swift 5.3](https://developer.apple.com/swift/)
-- [Xcode 12.3](https://developer.apple.com/xcode/)
+- [Xcode 12.4](https://developer.apple.com/xcode/)
 - [Swift Package Manager](https://swift.org/package-manager/)
 - [NumberKit](http://github.com/objecthub/swift-numberkit)
 - [MarkdownKit](http://github.com/objecthub/swift-markdownkit)

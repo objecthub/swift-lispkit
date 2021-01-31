@@ -13,6 +13,7 @@
 ;;; either express or implied. See the License for the specific language governing permissions
 ;;; and limitations under the License.
 
+(import (lispkit base))
 
 ;; Returns the factorial decomposition of integer `n` in form of a list of prime numbers
 (define (factors n)

@@ -36,6 +36,7 @@
 ;;; Adaptation to LispKit
 ;;;   Copyright © 2017 Matthias Zenger. All rights reserved.
 
+(import (lispkit base))
 
 (define (prolog clauses)
   (do ((goal (read-goal) (read-goal)))

@@ -46,6 +46,7 @@
 ;;; either express or implied. See the License for the specific language governing permissions
 ;;; and limitations under the License.
 
+(import (lispkit base))
 
 ;; A VM encapsulates a number of registers. It gets created via `make-vm`. The registers
 ;; of a VM can be read or set with the functions `read-register` and `write-register`.

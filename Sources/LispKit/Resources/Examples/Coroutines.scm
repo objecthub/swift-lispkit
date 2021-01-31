@@ -16,8 +16,8 @@
 ;;;
 ;;; Author: Matt Might (might@uab.edu)
 
-
-(import (srfi 31))
+(import (lispkit base)
+        (srfi 31))
 
 ; *thread-queue* : list[continuation]
 (define *thread-queue* '())

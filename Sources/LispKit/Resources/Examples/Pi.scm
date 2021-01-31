@@ -13,6 +13,7 @@
 ;;; either express or implied. See the License for the specific language governing permissions
 ;;; and limitations under the License.
 
+(import (lispkit base))
 
 ;; Returns a string representation of pi with `n` decimal digits
 (define (pi-as-string n)

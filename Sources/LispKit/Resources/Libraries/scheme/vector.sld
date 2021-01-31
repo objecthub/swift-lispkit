@@ -61,6 +61,6 @@
           vector->string
           string->vector)
 
-  (import (lispkit vector)
+  (import (except (lispkit vector) vector-map!)
           (srfi 133))
 )

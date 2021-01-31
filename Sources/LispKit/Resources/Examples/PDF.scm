@@ -55,9 +55,9 @@
 ;;; Adaptation to LispKit
 ;;;   Copyright © 2017 Matthias Zenger. All rights reserved.
 
-
-(import (prefix (lispkit pdf) pdf:))
-(import (srfi 27))
+(import (lispkit base)
+        (prefix (lispkit pdf) pdf:)
+        (import (srfi 27)))
 
 (define-syntax dotimes
   (syntax-rules ()

@@ -11,7 +11,7 @@
 ;;; 
 ;;; R7RS port by Peter Lane in 2017
 ;;; 
-;;; Copyright (c) 1993-2001, Dorai Sitaram.
+;;; Copyright (c) 1993-2015, Dorai Sitaram.
 ;;; All rights reserved.
 ;;; 
 ;;; Permission to distribute and use this work for any

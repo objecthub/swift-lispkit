@@ -13,6 +13,7 @@
 ;;; either express or implied. See the License for the specific language governing permissions
 ;;; and limitations under the License.
 
+(import (lispkit base))
 
 (define (queens n)
   (let try ((x 0) (y 0) (ps '()) (pss '()))

@@ -20,8 +20,8 @@
 ;;; either express or implied. See the License for the specific language governing permissions
 ;;; and limitations under the License.
 
-
-(import (lispkit draw))
+(import (lispkit base)
+        (lispkit draw))
 
 ;; Plots a function `f` over range `[xmin; xmax]` using `n` interpolation points
 ;; within rectangle `rect`. Prints `label` at the bottom of the graph. Returns the result

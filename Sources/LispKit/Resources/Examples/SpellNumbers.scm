@@ -22,6 +22,7 @@
 ;;; either express or implied. See the License for the specific language governing permissions
 ;;; and limitations under the License.
 
+(import (lispkit base))
 
 (define smalls #("zero" "one" "two" "three" "four" "five" "six" "seven" "eight" "nine"
                  "ten" "eleven" "twelve" "thirteen" "fourteen" "fifteen" "sixteen"

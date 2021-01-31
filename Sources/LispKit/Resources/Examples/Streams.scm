@@ -88,8 +88,8 @@
 ;;; either express or implied. See the License for the specific language governing permissions
 ;;; and limitations under the License.
 
-
-(import (lispkit stream))
+(import (lispkit base)
+        (lispkit stream))
 
 ;; Infinite stream of odd numbers, generated via procedure `stream-from`.
 (define odd-stream (stream-from 1 2))

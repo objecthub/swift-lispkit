@@ -44,6 +44,7 @@
 ;;;    Copyright (C) 1995 Mikael Djurfeldt
 ;;;    This code is in the public domain.
 
+(import (lispkit base))
 
 ;; Returns a topologically sorted list of vertices for a given directed acyclic graph.
 ;; A graph is represented by a list of sublists. The first element of each sublist is a
