@@ -404,6 +404,7 @@
 		CCC41DC61D2851FB003CB4D0 /* VirtualMachineState.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC41DC51D2851FB003CB4D0 /* VirtualMachineState.swift */; };
 		CCC41DC81D2B14AD003CB4D0 /* CallCC.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCC41DC71D2B14AD003CB4D0 /* CallCC.scm */; };
 		CCC41DCA1D330439003CB4D0 /* DynamicWind.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCC41DC91D330439003CB4D0 /* DynamicWind.scm */; };
+		CCC48BF125D862C700D082AD /* LispKit-WT-Tree.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCC48BF025D8623A00D082AD /* LispKit-WT-Tree.scm */; };
 		CCC4A3AB245D003000DE63E1 /* combinator.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCC4A3AA245CFFB800DE63E1 /* combinator.sld */; };
 		CCC5319E1D16E40D00FAED6E /* TextInputSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC5319D1D16E40D00FAED6E /* TextInputSource.swift */; };
 		CCC531A01D18595500FAED6E /* TextOutputTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC5319F1D18595500FAED6E /* TextOutputTarget.swift */; };
@@ -510,6 +511,7 @@
 			dstPath = LispKit/Resources/Tests;
 			dstSubfolderSpec = 7;
 			files = (
+				CCC48BF125D862C700D082AD /* LispKit-WT-Tree.scm in Copy tests */,
 				CC08F43925BCFD0C0056C92C /* SRFI-155.scm in Copy tests */,
 				CC08F43425BCF2140056C92C /* SRFI-154.scm in Copy tests */,
 				CC202DF025ABB297003901BE /* SRFI-143.scm in Copy tests */,
@@ -1451,6 +1453,7 @@
 		CCC41DC51D2851FB003CB4D0 /* VirtualMachineState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VirtualMachineState.swift; sourceTree = "<group>"; };
 		CCC41DC71D2B14AD003CB4D0 /* CallCC.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CallCC.scm; sourceTree = "<group>"; };
 		CCC41DC91D330439003CB4D0 /* DynamicWind.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = DynamicWind.scm; sourceTree = "<group>"; };
+		CCC48BF025D8623A00D082AD /* LispKit-WT-Tree.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "LispKit-WT-Tree.scm"; sourceTree = "<group>"; };
 		CCC4A3AA245CFFB800DE63E1 /* combinator.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = combinator.sld; sourceTree = "<group>"; };
 		CCC5319D1D16E40D00FAED6E /* TextInputSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextInputSource.swift; sourceTree = "<group>"; };
 		CCC5319F1D18595500FAED6E /* TextOutputTarget.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextOutputTarget.swift; sourceTree = "<group>"; };
@@ -1579,6 +1582,7 @@
 				CCE4600221FD178C00B248D9 /* Import.scm */,
 				CC09ECF22198B87200F84713 /* R7RS.scm */,
 				CC7A125A21E94D1700ABEA17 /* LispKit-Match.scm */,
+				CCC48BF025D8623A00D082AD /* LispKit-WT-Tree.scm */,
 				CC54924421DCDEA1004A0652 /* SRFI-14.scm */,
 				CC54923A21D9823B004A0652 /* SRFI-101.scm */,
 				CC2C73DE21A22CFD00B18661 /* SRFI-125.scm */,
