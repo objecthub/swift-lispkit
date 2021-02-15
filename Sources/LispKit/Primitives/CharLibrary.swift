@@ -19,6 +19,7 @@
 //
 
 import Foundation
+import MarkdownKit
 
 public final class CharLibrary: NativeLibrary {
   
@@ -51,6 +52,7 @@ public final class CharLibrary: NativeLibrary {
     self.define(Procedure("char-upcase", charUpcase))
     self.define(Procedure("char-downcase", charDowncase))
     self.define(Procedure("char-foldcase", charFoldcase))
+    self.define(Procedure("char-name", charName))
   }
   
   func isChar(_ expr: Expr) -> Expr {
@@ -223,5 +225,19 @@ public final class CharLibrary: NativeLibrary {
   func charFoldcase(_ expr: Expr) throws -> Expr {
     return .char(try expr.charAsString().folding(
       options: [.caseInsensitive], locale: nil).utf16.first!)
+  }
+  
+  func charName(_ expr: Expr, _ encoded: Expr?) throws -> Expr {
+    guard let ch = try expr.charAsString().first,
+          let name = NamedCharacters.characterNameMap[ch],
+          name.count > 2 else {
+      return .false
+    }
+    if encoded?.isTrue ?? false {
+      return .makeString(name)
+    } else {
+      return .makeString(String(name[name.index(after: name.startIndex)..<name.index(before:
+                                                                                  name.endIndex)]))
+    }
   }
 }
