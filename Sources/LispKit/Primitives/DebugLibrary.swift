@@ -141,11 +141,16 @@ public final class DebugLibrary: NativeLibrary {
   
   private func compile(exprs: Arguments) throws -> Expr {
     var seq = Expr.null
+    var environment: Environment? = nil
     for expr in exprs.reversed() {
-      seq = .pair(expr, seq)
+      if seq.isNull, environment == nil, case .env(let env) = expr {
+        environment = env
+      } else {
+        seq = .pair(expr, seq)
+      }
     }
     let code = try Compiler.compile(expr: seq,
-                                    in: self.context.global,
+                                    in: .global(environment ?? self.context.environment),
                                     optimize: true)
     self.context.delegate.print(code.description)
     return .void

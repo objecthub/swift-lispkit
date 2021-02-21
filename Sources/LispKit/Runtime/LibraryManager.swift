@@ -31,7 +31,7 @@ public final class LibraryManager: TrackedObject, CustomStringConvertible {
   private unowned let context: Context
   
   /// Table of loaded libraries
-  private var libraries: [Expr : Library]
+  public private(set) var libraries: [Expr : Library]
   
   /// Set of unknown libraries
   private var unknownLibraries: Set<Expr>

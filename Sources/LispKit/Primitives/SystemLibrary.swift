@@ -138,7 +138,7 @@ public final class SystemLibrary: NativeLibrary {
                                       env: Env,
                                       tail: Bool) throws -> Bool {
     guard case .pair(_, .null) = expr else {
-      throw RuntimeError.argumentCount(of: "source-file-path", num: 0, expr: expr)
+      throw RuntimeError.argumentCount(of: "source-directory", num: 0, expr: expr)
     }
     try compiler.pushValue(.makeString(compiler.sourceDirectory))
     return false

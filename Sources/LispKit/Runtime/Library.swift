@@ -28,7 +28,7 @@ import Foundation
 open class Library: Reference, CustomStringConvertible {
   
   /// State of a library
-  public enum State: CustomStringConvertible {
+  public enum State: Equatable, CustomStringConvertible {
     case loaded
     case allocated
     case wired

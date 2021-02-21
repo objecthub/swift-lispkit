@@ -65,6 +65,7 @@ public enum EvalError: Int, Hashable {
   case erroneousRedefinition
   case cannotExpandImportSet
   case defineSyntaxInLocalEnv
+  case cannotModifyLibraryEnv
   case cannotEnterProtectedBlockTwice
   case targetBytevectorTooSmall
   case cannotOpenFile
@@ -203,6 +204,8 @@ public enum EvalError: Int, Hashable {
         return "cannot expand import set $,0"
       case .defineSyntaxInLocalEnv:
         return "syntax definition of $0 in local environment"
+      case .cannotModifyLibraryEnv:
+        return "cannot modify environment of library $,0 dynamically"
       case .cannotEnterProtectedBlockTwice:
         return "attempt to invoke expression protected by unwind-protect twice"
       case .targetBytevectorTooSmall:

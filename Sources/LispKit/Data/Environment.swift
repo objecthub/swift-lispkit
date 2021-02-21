@@ -29,7 +29,7 @@ public final class Environment: Reference, CustomStringConvertible {
   ///    1. Libraries
   ///    2. Programs
   ///    3. REPL
-  public enum Kind {
+  public enum Kind: Equatable {
     case library(Expr)
     case program(String)
     case repl
@@ -156,7 +156,7 @@ public final class Environment: Reference, CustomStringConvertible {
     super.init()
     self.box = WeakBox(self)
     for importSet in importSets {
-      _ = try self.initialImport(importSet)
+      _ = try self.import(from: importSet)
     }
   }
   
@@ -176,6 +176,14 @@ public final class Environment: Reference, CustomStringConvertible {
       return nil
     }
     return self.context.heap.locations[loc]
+  }
+  
+  /// Looks up documentation associated with `sym` in this environment.
+  public func documentation(_ sym: Symbol) -> String? {
+    guard let loc = self.bindings[sym]?.location else {
+      return nil
+    }
+    return self.context.heap.documentation[loc]
   }
   
   /// Binds symbol `sym` to the given location reference `loc`.
@@ -264,26 +272,13 @@ public final class Environment: Reference, CustomStringConvertible {
     let lref = self.bindings[sym] ?? .undefined
     switch lref {
       case .undefined:
+        self.bind(sym, to: .mutable(self.context.heap.allocateLocation(for: expr)))
+        return true
+      case .mutable(_), .mutableImport(_), .immutableImport(_):
         switch self.kind {
-          case .custom:
+          case .library, .program:          // illegal redefinition of a binding
             return false
-          default:
-            self.bind(sym, to: .mutable(self.context.heap.allocateLocation(for: expr)))
-            return true
-        }
-      case .mutable(let loc):
-        switch self.kind {
-          case .custom, .library, .program: // illegal redefinition of a binding
-            return false
-          case .repl:                       // change existing binding
-            self.context.heap.locations[loc] = expr
-            return true
-        }
-      case .mutableImport(_), .immutableImport(_):
-        switch self.kind {
-          case .custom, .library, .program: // illegal redefinition of a binding
-            return false
-          case .repl:                       // override existing binding
+          default:                          // override existing binding
             self.bind(sym, to: .mutable(self.context.heap.allocateLocation(for: expr)))
             return true
         }
@@ -293,19 +288,33 @@ public final class Environment: Reference, CustomStringConvertible {
   /// Redefines a binding in this environment from `sym` to `expr`. This function returns
   /// false if there either was no previous binding, or the previous binding was immutable.
   @discardableResult public func set(_ sym: Symbol, to expr: Expr) -> Bool {
-    let interned = sym
-    let lref = self.bindings[interned] ?? .undefined
+    let lref = self.bindings[sym] ?? .undefined
     switch lref {
       case .undefined:
         return false
-      case .mutable(let loc), .mutableImport(let loc):
-        switch self.kind {
-          case .custom:
-            return false
-          default:
-            self.context.heap.locations[loc] = expr
-            return true
-        }
+      case .mutable(let loc):
+        self.context.heap.locations[loc] = expr
+        return true
+      case .mutableImport(let loc):
+        self.context.heap.locations[loc] = expr
+        return true
+      case .immutableImport(_):
+        return false
+    }
+  }
+  
+  /// Assigns a documentation string to symbol `sym` if `sym` is bound to a value.
+  @discardableResult public func assignDoc(of sym: Symbol, to str: String) -> Bool {
+    let lref = self.bindings[sym] ?? .undefined
+    switch lref {
+      case .undefined:
+        return false
+      case .mutable(let loc):
+        self.context.heap.documentation[loc] = str
+        return true
+      case .mutableImport(let loc):
+        self.context.heap.documentation[loc] = str
+        return true
       case .immutableImport(_):
         return false
     }
@@ -315,29 +324,29 @@ public final class Environment: Reference, CustomStringConvertible {
   /// environment. Environments of libraries do not support imports. This method forces the
   /// library to get initialized.
   public func `import`(_ library: [String]) throws {
-    _ = try self.import(.library(self.context.libraries.name(library))).initialize()
+    _ = try self.`import`(.library(self.context.libraries.name(library)))
   }
   
   /// Imports the bindings defined by `importSet` into this environment. Environments of
-  /// libraries do not support imports. This method does not force the library to be initialized.
+  /// libraries do not support imports. This method forces the library to be initialized.
   @discardableResult public func `import`(_ importSet: ImportSet) throws -> Library {
     // Cannot import into libraries
     if case .library(let lib) = self.kind {
       throw RuntimeError.eval(.importInLibrary, lib)
     }
-    return try self.initialImport(importSet)
+    return try self.import(from: importSet)
   }
   
   /// Imports the bindings defined by `importSet` into this environment. Environments of
   /// libraries do not support imports. This method does not force the library to be initialized.
-  private func initialImport(_ importSet: ImportSet) throws -> Library {
+  private func `import`(from importSet: ImportSet) throws -> Library {
     // Expand the import set
     guard let (library, importSpec) = try importSet.expand(in: self.context) else {
       // Could not expand import set
       throw RuntimeError.eval(.cannotExpandImportSet, .makeString(importSet.description))
     }
-    // Make sure the library from which symbols are imported is wired
-    _ = try library.wire()
+    // Make sure the library from which symbols are imported is initialized
+    _ = try library.initialize()
     // Check that bindings can be imported
     for impIdent in importSpec.keys {
       switch self.bindings[impIdent] {
@@ -426,7 +435,7 @@ public final class Environment: Reference, CustomStringConvertible {
     if !compiler.checkpointer.imported(cp) {
       compiler.checkpointer.associate(.imported, with: cp)
       for importSet in importSets {
-        _ = try env.environment?.`import`(importSet).initialize()
+        _ = try env.environment?.`import`(importSet)
       }
     }
     compiler.emit(.pushVoid)

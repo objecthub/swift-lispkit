@@ -103,6 +103,9 @@ public final class CoreLibrary: NativeLibrary {
     
     // Environments
     self.define(Procedure("environment?", isEnvironment))
+    self.define(Procedure("interaction-environment?", isInteractionEnvironment))
+    self.define(Procedure("custom-environment?", isCustomEnvironment))
+    self.define(SpecialForm("the-environment", compileTheEnvironment))
     self.define(Procedure("environment", environment))
     self.define(Procedure("environment-bound-names", environmentBoundNames))
     self.define(Procedure("environment-bindings", environmentBindings))
@@ -110,6 +113,12 @@ public final class CoreLibrary: NativeLibrary {
     self.define(Procedure("environment-lookup", environmentLookup))
     self.define(Procedure("environment-assignable?", environmentAssignable))
     self.define(Procedure("environment-assign!", environmentAssign))
+    self.define(Procedure("environment-definable?", environmentDefinable))
+    self.define(Procedure("environment-define", environmentDefine))
+    self.define(Procedure("environment-define-syntax", environmentDefineSyntax))
+    self.define(Procedure("environment-import", environmentImport))
+    self.define(Procedure("environment-documentation", environmentDocumentation))
+    self.define(Procedure("environment-assign-documentation!", environmentAssignDocumentation))
     self.define(Procedure("scheme-report-environment", schemeReportEnvironment))
     self.define(Procedure("null-environment", nullEnvironment))
     self.define(Procedure("interaction-environment", interactionEnvironment))
@@ -422,11 +431,17 @@ public final class CoreLibrary: NativeLibrary {
     // Compile definition and store result in global environment
     switch sig {
       case .symbol(let sym):
-        guard case .pair(let value, .null) = def else {
-          throw RuntimeError.eval(.malformedDefinition, Expr.makeList(def))
-        }
+        var doc: String? = nil
         let index = compiler.registerConstant(sig)
-        try compiler.compile(value, in: env, inTailPos: false)
+        switch def {
+          case .pair(let value, .null):
+            try compiler.compile(value, in: env, inTailPos: false)
+          case .pair(let value, .pair(.string(let str), .null)):
+            doc = str as String
+            try compiler.compile(value, in: env, inTailPos: false)
+          default:
+            throw RuntimeError.eval(.malformedDefinition, Expr.makeList(def))
+        }
         let environment = env.environment!
         if let libName = environment.libraryName, environment.isImported(sym) {
           throw RuntimeError.eval(.redefinitionOfImport, sig, libName)
@@ -435,9 +450,20 @@ public final class CoreLibrary: NativeLibrary {
         compiler.patchMakeClosure(index)
         compiler.emit(.defineGlobal(loc))
         compiler.emit(.pushConstant(index))
+        if let documentation = doc {
+          self.context.heap.documentation[loc] = documentation
+        }
         return false
       case .pair(.symbol(let sym), let arglist):
+        var doc: String? = nil
         let index = compiler.registerConstant(.symbol(sym))
+        switch def {
+          case .pair(.string(let str), .pair(let car, let cdr)):
+            doc = str as String
+            try compiler.compileLambda(index, arglist, .pair(car, cdr), env)
+          default:
+            try compiler.compileLambda(index, arglist, def, env)
+        }
         try compiler.compileLambda(index, arglist, def, env)
         let environment = env.environment!
         if let libName = environment.libraryName, environment.isImported(sym) {
@@ -446,6 +472,9 @@ public final class CoreLibrary: NativeLibrary {
         let loc = environment.forceDefinedLocationRef(for: sym).location!
         compiler.emit(.defineGlobal(loc))
         compiler.emit(.pushConstant(index))
+        if let documentation = doc {
+          self.context.heap.documentation[loc] = documentation
+        }
         return false
       default:
         throw RuntimeError.eval(.malformedDefinition, .pair(sig, Expr.makeList(def)))
@@ -1099,6 +1128,39 @@ public final class CoreLibrary: NativeLibrary {
     }
   }
   
+  private func isInteractionEnvironment(expr: Expr) -> Expr {
+    switch expr {
+      case .env(let env):
+        return .makeBoolean(env.kind == .repl)
+      default:
+        return .false
+    }
+  }
+  
+  private func isCustomEnvironment(expr: Expr) -> Expr {
+    switch expr {
+      case .env(let env):
+        return .makeBoolean(env.kind == .custom)
+      default:
+        return .false
+    }
+  }
+  
+  private func compileTheEnvironment(compiler: Compiler,
+                                     expr: Expr,
+                                     env: Env,
+                                     tail: Bool) throws -> Bool {
+    guard case .pair(_, .null) = expr else {
+      throw RuntimeError.argumentCount(of: "the-environment", num: 0, expr: expr)
+    }
+    if let environment = env.environment {
+      try compiler.pushValue(.env(environment))
+    } else {
+      try compiler.pushValue(.false)
+    }
+    return false
+  }
+  
   private func environment(exprs: Arguments) throws -> Expr {
     var importSets = [ImportSet]()
     for expr in exprs {
@@ -1156,6 +1218,23 @@ public final class CoreLibrary: NativeLibrary {
     return value
   }
   
+  private func environmentDocumentation(expr: Expr, symbol: Expr) throws -> Expr {
+    guard case .env(let environment) = expr else {
+      throw RuntimeError.type(expr, expected: [.envType])
+    }
+    guard let str = environment.documentation(try symbol.asSymbol()) else {
+      return .false
+    }
+    return .makeString(str)
+  }
+  
+  private func environmentAssignDocumentation(expr: Expr, symbol: Expr, doc: Expr) throws -> Expr {
+    guard case .env(let environment) = expr else {
+      throw RuntimeError.type(expr, expected: [.envType])
+    }
+    return .makeBoolean(environment.assignDoc(of: try symbol.asSymbol(), to: try doc.asString()))
+  }
+  
   private func environmentAssignable(expr: Expr, symbol: Expr) throws -> Expr {
     guard case .env(let environment) = expr else {
       throw RuntimeError.type(expr, expected: [.envType])
@@ -1172,7 +1251,70 @@ public final class CoreLibrary: NativeLibrary {
     guard !environment.isUndefined(sym) && !environment.isImmutable(sym) else {
       throw RuntimeError.eval(.bindingImmutable, symbol)
     }
-    _ = environment.set(sym, to: value)
+    return .makeBoolean(environment.set(sym, to: value))
+  }
+  
+  private func environmentDefinable(expr: Expr, symbol: Expr) throws -> Expr {
+    guard case .env(let environment) = expr else {
+      throw RuntimeError.type(expr, expected: [.envType])
+    }
+    let sym = try symbol.asSymbol()
+    if case .library(_) = environment.kind {
+      return .false
+    } else if environment.kind != .custom &&
+              environment.kind != .repl &&
+              !environment.isUndefined(sym) {
+      return .false
+    }
+    return .true
+  }
+  
+  private func environmentDefine(expr: Expr, symbol: Expr, value: Expr) throws -> Expr {
+    guard case .env(let environment) = expr else {
+      throw RuntimeError.type(expr, expected: [.envType])
+    }
+    let sym = try symbol.asSymbol()
+    if case .library(let lib) = environment.kind {
+      throw RuntimeError.eval(.cannotModifyLibraryEnv, lib)
+    } else if environment.kind != .custom &&
+              environment.kind != .repl &&
+              !environment.isUndefined(sym) {
+      throw RuntimeError.eval(.erroneousRedefinition, symbol, value)
+    }
+    return .makeBoolean(environment.define(sym, as: value))
+  }
+  
+  private func environmentDefineSyntax(expr: Expr, symbol: Expr, transformer: Expr) throws -> Expr {
+    guard case .env(let environment) = expr else {
+      throw RuntimeError.type(expr, expected: [.envType])
+    }
+    let sym = try symbol.asSymbol()
+    if case .library(let lib) = environment.kind {
+      throw RuntimeError.eval(.cannotModifyLibraryEnv, lib)
+    } else if environment.kind != .custom &&
+              environment.kind != .repl &&
+              !environment.isUndefined(sym) {
+      throw RuntimeError.eval(.erroneousRedefinition, symbol, transformer)
+    }
+    guard case .procedure(let proc) = transformer else {
+      throw RuntimeError.eval(.malformedTransformer, transformer)
+    }
+    return .makeBoolean(environment.define(sym, as: .special(SpecialForm(sym.identifier, proc))))
+  }
+  
+  private func environmentImport(expr: Expr, args: Arguments) throws -> Expr {
+    guard case .env(let environment) = expr else {
+      throw RuntimeError.type(expr, expected: [.envType])
+    }
+    if case .library(let lib) = environment.kind {
+      throw RuntimeError.eval(.cannotModifyLibraryEnv, lib)
+    }
+    for arg in args {
+      guard let importSet = ImportSet(arg, in: self.context) else {
+        throw RuntimeError.eval(.malformedImportSet, arg)
+      }
+      try environment.import(importSet)
+    }
     return .void
   }
   

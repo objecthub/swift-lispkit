@@ -19,12 +19,16 @@
 //
 
 ///
-/// Class encapsulating all objects referenced from global environments.
+/// Class encapsulating all objects referenced from global environments, including their
+/// documentation.
 ///
 public final class Heap: TrackedObject {
   
   /// Global locations.
   public var locations: Exprs
+  
+  /// Global documentation
+  public var documentation: [Int : String]
   
   /// Capacity of the heap.
   public var capacity: Int {
@@ -37,9 +41,10 @@ public final class Heap: TrackedObject {
   }
   
   /// Initializer
-  public init(capacity: Int = 1000) {
+  public init(capacity: Int = 1500) {
     self.locations = Exprs()
     self.locations.reserveCapacity(capacity)
+    self.documentation = [Int : String]()
   }
   
   /// Allocates a new global location and initializes it with `expr`.
@@ -66,5 +71,6 @@ public final class Heap: TrackedObject {
   /// Reset heap
   public func release() {
     self.locations.removeAll()
+    self.documentation.removeAll()
   }
 }
