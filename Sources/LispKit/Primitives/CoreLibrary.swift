@@ -517,6 +517,7 @@ public final class CoreLibrary: NativeLibrary {
         let environment = env.environment!
         var vars = sig
         var syms = [Symbol]()
+        var docs = [String?]()
         while case .pair(.symbol(let sym), let rest) = vars {
           if syms.contains(sym) {
             throw RuntimeError.eval(.duplicateBinding, .symbol(sym), sig)
@@ -524,7 +525,13 @@ public final class CoreLibrary: NativeLibrary {
             throw RuntimeError.eval(.redefinitionOfImport, .symbol(sym), libName)
           }
           syms.append(sym)
-          vars = rest
+          if case .pair(.string(let str), let rest2) = rest {
+            docs.append(str as String)
+            vars = rest2
+          } else {
+            docs.append(nil)
+            vars = rest
+          }
         }
         switch vars {
           case .null:
@@ -532,13 +539,17 @@ public final class CoreLibrary: NativeLibrary {
           case .symbol(let sym):
             compiler.emit(.unpack(syms.count, true))
             syms.append(sym)
+            docs.append(nil)
           default:
             throw RuntimeError.eval(.malformedDefinition, .pair(sig, Expr.makeList(value)))
         }
         var res: Expr = .null
-        for sym in syms.reversed() {
+        for (i, sym) in syms.enumerated().reversed() {
           let loc = environment.forceDefinedLocationRef(for: sym).location!
           compiler.emit(.defineGlobal(loc))
+          if let documentation = docs[i] {
+            self.context.heap.documentation[loc] = documentation
+          }
           res = .pair(.symbol(sym), res)
         }
         if syms.count == 0 {
@@ -561,8 +572,19 @@ public final class CoreLibrary: NativeLibrary {
                                    env: Env,
                                    tail: Bool) throws -> Bool {
     // Extract keyword and transformer definition
-    guard case .pair(_, .pair(let kword, .pair(let transformer, .null))) = expr else {
-      throw RuntimeError.argumentCount(of: "define-syntax", num: 2, expr: expr)
+    var doc: String? = nil
+    var kword: Expr
+    var transformer: Expr
+    switch expr {
+      case .pair(_, .pair(let kw, .pair(let tf, .null))):
+        kword = kw
+        transformer = tf
+      case .pair(_, .pair(let kw, .pair(.string(let str), .pair(let tf, .null)))):
+        doc = str as String
+        kword = kw
+        transformer = tf
+      default:
+        throw RuntimeError.argumentCount(of: "define-syntax", min: 2, max: 3, expr: expr)
     }
     // Check that the keyword is a symbol
     guard case .symbol(let sym) = kword else {
@@ -586,6 +608,9 @@ public final class CoreLibrary: NativeLibrary {
     compiler.emit(.makeSyntax(index))
     compiler.emit(.defineGlobal(loc))
     compiler.emit(.pushConstant(index))
+    if let documentation = doc {
+      self.context.heap.documentation[loc] = documentation
+    }
     return false
   }
   

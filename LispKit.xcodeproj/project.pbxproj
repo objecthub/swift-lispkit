@@ -405,6 +405,7 @@
 		CCC41DC81D2B14AD003CB4D0 /* CallCC.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCC41DC71D2B14AD003CB4D0 /* CallCC.scm */; };
 		CCC41DCA1D330439003CB4D0 /* DynamicWind.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCC41DC91D330439003CB4D0 /* DynamicWind.scm */; };
 		CCC48BF125D862C700D082AD /* LispKit-WT-Tree.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCC48BF025D8623A00D082AD /* LispKit-WT-Tree.scm */; };
+		CCC48C4A25E32AE600D082AD /* Environments.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCC48C4925E327D200D082AD /* Environments.scm */; };
 		CCC4A3AB245D003000DE63E1 /* combinator.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCC4A3AA245CFFB800DE63E1 /* combinator.sld */; };
 		CCC5319E1D16E40D00FAED6E /* TextInputSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC5319D1D16E40D00FAED6E /* TextInputSource.swift */; };
 		CCC531A01D18595500FAED6E /* TextOutputTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC5319F1D18595500FAED6E /* TextOutputTarget.swift */; };
@@ -1454,6 +1455,7 @@
 		CCC41DC71D2B14AD003CB4D0 /* CallCC.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CallCC.scm; sourceTree = "<group>"; };
 		CCC41DC91D330439003CB4D0 /* DynamicWind.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = DynamicWind.scm; sourceTree = "<group>"; };
 		CCC48BF025D8623A00D082AD /* LispKit-WT-Tree.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "LispKit-WT-Tree.scm"; sourceTree = "<group>"; };
+		CCC48C4925E327D200D082AD /* Environments.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Environments.scm; sourceTree = "<group>"; };
 		CCC4A3AA245CFFB800DE63E1 /* combinator.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = combinator.sld; sourceTree = "<group>"; };
 		CCC5319D1D16E40D00FAED6E /* TextInputSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextInputSource.swift; sourceTree = "<group>"; };
 		CCC5319F1D18595500FAED6E /* TextOutputTarget.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextOutputTarget.swift; sourceTree = "<group>"; };
@@ -1637,6 +1639,7 @@
 				CC8213651D614A8600C1BE57 /* Records.scm */,
 				CC2A9DA72200E6E300F39194 /* Libraries.scm */,
 				CC2345421F655C0A00C38817 /* Datatypes.scm */,
+				CCC48C4925E327D200D082AD /* Environments.scm */,
 				CCF602E3239BE71F00087740 /* Markdown.scm */,
 				CC08965224413DC6004503B1 /* SQLite.scm */,
 				CC436C411FFD94870095559E /* Logic.scm */,
@@ -2590,6 +2593,7 @@
 				CC2345431F655C0A00C38817 /* Datatypes.scm in Resources */,
 				CC131C4C1CDE0C3D006C030C /* SyntaxRules.scm in Resources */,
 				CCEFE6151ED8F56600DFED9B /* SRFI133.scm in Resources */,
+				CCC48C4A25E32AE600D082AD /* Environments.scm in Resources */,
 				CC8169271D1FADEC003FADEA /* Ports.scm in Resources */,
 				CC48EBD71F3F38E800233FA9 /* SRFI135.scm in Resources */,
 				CC79DE081F8993EE00CE7A5D /* LightweightTypes.scm in Resources */,
