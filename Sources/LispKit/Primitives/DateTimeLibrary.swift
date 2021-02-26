@@ -19,7 +19,6 @@
 //
 
 import Foundation
-import Cocoa
 
 ///
 /// Date-time library: LispKit-specific library for handling dates and times in different

@@ -19,7 +19,6 @@
 //
 
 import Foundation
-import Cocoa
 import MarkdownKit
 
 public final class MarkdownLibrary: NativeLibrary {
@@ -560,19 +559,19 @@ public final class MarkdownLibrary: NativeLibrary {
   private func markdownToHtmlDoc(md: Expr, args: Arguments) throws -> Expr {
     var fontSize: Float = 14.0
     var fontFamily = "\"Times New Roman\",Times,serif"
-    var fontColor = NSColor.textColor.hexString
+    var fontColor = MarkdownKit.mdDefaultColor
     var codeFontSize: Float = 13.0
     var codeFontFamily = "\"Consolas\",\"Andale Mono\",\"Courier New\",Courier,monospace"
-    var codeFontColor = NSColor.textColor.hexString
+    var codeFontColor = MarkdownKit.mdDefaultColor
     var codeBlockFontSize: Float = 12.0
-    var codeBlockFontColor = NSColor.textColor.hexString
-    var codeBlockBackground = NSColor.textBackgroundColor.hexString
+    var codeBlockFontColor = MarkdownKit.mdDefaultColor
+    var codeBlockBackground = MarkdownKit.mdDefaultBackgroundColor
     var borderColor = "#bbb"
     var blockquoteColor = "#99c"
-    var h1Color = NSColor.textColor.hexString
-    var h2Color = NSColor.textColor.hexString
-    var h3Color = NSColor.textColor.hexString
-    var h4Color = NSColor.textColor.hexString
+    var h1Color = MarkdownKit.mdDefaultColor
+    var h2Color = MarkdownKit.mdDefaultColor
+    var h3Color = MarkdownKit.mdDefaultColor
+    var h4Color = MarkdownKit.mdDefaultColor
     if args.count > 0 {
       (fontSize, fontFamily, fontColor) = try self.asSizeFontColor(args.first!,
                                                                    defaultSize: fontSize,

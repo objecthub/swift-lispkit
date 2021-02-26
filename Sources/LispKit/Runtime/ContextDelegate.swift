@@ -18,7 +18,11 @@
 //  limitations under the License.
 //
 
+#if os(iOS) || os(watchOS) || os(tvOS)
+import UIKit
+#elseif os(macOS)
 import Cocoa
+#endif
 
 ///
 /// `ContextDelegate` provides functionality for customizing the behavior of the
@@ -161,7 +165,9 @@ public extension ContextDelegate {
   }
   
   func emergencyExit(obj: Expr?) {
+    #if os(macOS)
     NSApplication.shared.terminate(self)
+    #endif
   }
 }
 

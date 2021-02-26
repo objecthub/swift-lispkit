@@ -19,7 +19,6 @@
 //
 
 import Foundation
-import Cocoa
 
 ///
 /// Debug library: LispKit-specific library providing access to system and code debugging 

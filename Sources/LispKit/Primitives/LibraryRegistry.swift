@@ -25,6 +25,35 @@
 ///
 public struct LibraryRegistry {
   
+  #if os(iOS) || os(watchOS) || os(tvOS)
+  public private(set) static var nativeLibraries: [NativeLibrary.Type] = [
+    ControlFlowLibrary.self,
+    CoreLibrary.self,
+    SystemLibrary.self,
+    DebugLibrary.self,
+    DateTimeLibrary.self,
+    BoxLibrary.self,
+    HashTableLibrary.self,
+    DynamicControlLibrary.self,
+    MathLibrary.self,
+    ListLibrary.self,
+    TypeLibrary.self,
+    VectorLibrary.self,
+    GrowableVectorLibrary.self,
+    RecordLibrary.self,
+    BytevectorLibrary.self,
+    CharLibrary.self,
+    CharSetLibrary.self,
+    StringLibrary.self,
+    RegexpLibrary.self,
+    PortLibrary.self,
+    BaseLibrary.self,
+    InternalLibrary.self,
+    MarkdownLibrary.self,
+    SQLiteLibrary.self,
+    ZipArchiveLibrary.self
+  ]
+  #elseif os(macOS)
   public private(set) static var nativeLibraries: [NativeLibrary.Type] = [
     ControlFlowLibrary.self,
     CoreLibrary.self,
@@ -54,6 +83,7 @@ public struct LibraryRegistry {
     SQLiteLibrary.self,
     ZipArchiveLibrary.self
   ]
+  #endif
   
   public static func register(_ nativeLibrary: NativeLibrary.Type) {
     LibraryRegistry.nativeLibraries.append(nativeLibrary)

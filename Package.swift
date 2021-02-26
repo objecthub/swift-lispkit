@@ -51,7 +51,7 @@ let package = Package(
              .upToNextMajor(from: "2.3.9")),
     .package(name: "MarkdownKit",
              url: "https://github.com/objecthub/swift-markdownkit.git",
-             .upToNextMajor(from: "1.0.2")),
+             .upToNextMajor(from: "1.0.4")),
     .package(name: "CommandLineKit",
              url: "https://github.com/objecthub/swift-commandlinekit.git",
              .upToNextMajor(from: "0.3.3")),
@@ -60,7 +60,7 @@ let package = Package(
              .upToNextMajor(from: "1.0.3")),
     .package(name: "ZIPFoundation",
              url: "https://github.com/weichsel/ZIPFoundation.git",
-             .upToNextMajor(from: "0.9.11"))
+             .upToNextMajor(from: "0.9.12"))
   ],
   targets: [
     .target(name: "LispKit",

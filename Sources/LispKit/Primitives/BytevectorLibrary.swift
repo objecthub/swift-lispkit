@@ -18,7 +18,7 @@
 //  limitations under the License.
 //
 
-import Cocoa
+import Foundation
 
 ///
 /// Bytevector library: based on R7RS spec.

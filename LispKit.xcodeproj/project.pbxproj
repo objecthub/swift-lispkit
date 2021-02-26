@@ -406,6 +406,422 @@
 		CCC41DCA1D330439003CB4D0 /* DynamicWind.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCC41DC91D330439003CB4D0 /* DynamicWind.scm */; };
 		CCC48BF125D862C700D082AD /* LispKit-WT-Tree.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCC48BF025D8623A00D082AD /* LispKit-WT-Tree.scm */; };
 		CCC48C4A25E32AE600D082AD /* Environments.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCC48C4925E327D200D082AD /* Environments.scm */; };
+		CCC48C5A25E5B8DC00D082AD /* LispKit_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = CCC48C5825E5B8DC00D082AD /* LispKit_iOS.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		CCC48C6425E5B94300D082AD /* ManagedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE0429D1C9E8C8B00CA7BC4 /* ManagedObject.swift */; };
+		CCC48C6525E5B94300D082AD /* ObjectPool.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC9065B41C5557E4004A88B7 /* ObjectPool.swift */; };
+		CCC48C6625E5B94300D082AD /* StringBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCF529971CBC73F7000C2959 /* StringBuilder.swift */; };
+		CCC48C6725E5B94300D082AD /* ScanBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8EDE711D0727A4004E0636 /* ScanBuffer.swift */; };
+		CCC48C6825E5B94300D082AD /* Boxes.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC26069B1C61760C0047A3D3 /* Boxes.swift */; };
+		CCC48C6925E5B94300D082AD /* ManagedObjectPool.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B691C539DCA00E962E2 /* ManagedObjectPool.swift */; };
+		CCC48C6A25E5B94300D082AD /* TrackedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC62D911CA9ED6A00E2C43F /* TrackedObject.swift */; };
+		CCC48C6B25E5B94300D082AD /* Sysctl.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC072491F9C11FA0063974E /* Sysctl.swift */; };
+		CCC48C6C25E5B94300D082AD /* Owners.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC76312820E9550A005F27CE /* Owners.swift */; };
+		CCC48C6D25E5B94300D082AD /* Global.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5696781CBD48E700F6803E /* Global.swift */; };
+		CCC48C6E25E5B94300D082AD /* Compression.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD839AA1FD0F6000097023E /* Compression.swift */; };
+		CCC48C6F25E5B94300D082AD /* Timer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC882C911C9E93A600D20039 /* Timer.swift */; };
+		CCC48C7025E5B94300D082AD /* Reference.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC01903C1C8C7D8600DB8BF9 /* Reference.swift */; };
+		CCC48C7125E5B94300D082AD /* MultiMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5C0A3E1D8EBE0A00CE2E98 /* MultiMap.swift */; };
+		CCC48C7225E5B94300D082AD /* Random.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6BB1991E60F237009A9091 /* Random.swift */; };
+		CCC48C7625E5B94900D082AD /* TextInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8EDE6F1D07265E004E0636 /* TextInput.swift */; };
+		CCC48C7725E5B94900D082AD /* TextInputSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC5319D1D16E40D00FAED6E /* TextInputSource.swift */; };
+		CCC48C7825E5B94900D082AD /* BinaryOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC93A65E1D077766008350C8 /* BinaryOutput.swift */; };
+		CCC48C7925E5B94900D082AD /* TextOutputTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC5319F1D18595500FAED6E /* TextOutputTarget.swift */; };
+		CCC48C7A25E5B94900D082AD /* BinaryInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8EDE6D1D07263D004E0636 /* BinaryInput.swift */; };
+		CCC48C7B25E5B94900D082AD /* BinaryInputSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCB480E11FA93C2200220328 /* BinaryInputSource.swift */; };
+		CCC48C7C25E5B94900D082AD /* TextOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC93A6601D0777A9008350C8 /* TextOutput.swift */; };
+		CCC48C8525E5B95B00D082AD /* Expr.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCAD52DA1C48468F00DBD8EE /* Expr.swift */; };
+		CCC48C8625E5B95B00D082AD /* Collection.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B6D1C53F0F600E962E2 /* Collection.swift */; };
+		CCC48C8725E5B95B00D082AD /* Symbol.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCAD52DD1C48468F00DBD8EE /* Symbol.swift */; };
+		CCC48C8825E5B95B00D082AD /* SpecialForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55A82A1C5175B000772B02 /* SpecialForm.swift */; };
+		CCC48C8925E5B95B00D082AD /* NativeObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC3B641923822BCE00807476 /* NativeObject.swift */; };
+		CCC48C8A25E5B95B00D082AD /* Procedure.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC55A8281C50D35C00772B02 /* Procedure.swift */; };
+		CCC48C8B25E5B95B00D082AD /* Exprs.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B711C54DF7F00E962E2 /* Exprs.swift */; };
+		CCC48C8C25E5B95B00D082AD /* Port.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8EDE4B1D0317AD004E0636 /* Port.swift */; };
+		CCC48C8D25E5B95B00D082AD /* HashTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5BBC781D5268D000367E8F /* HashTable.swift */; };
+		CCC48C8E25E5B95B00D082AD /* Promise.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B6B1C53EE3200E962E2 /* Promise.swift */; };
+		CCC48C8F25E5B95B00D082AD /* Tuple.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC90500E1D384C4E008CE60A /* Tuple.swift */; };
+		CCC48C9025E5B95B00D082AD /* Cell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0980AA1C67E84C006B7FB1 /* Cell.swift */; };
+		CCC48C9125E5B95B00D082AD /* Equality.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6AB0861C5C28FE008E9460 /* Equality.swift */; };
+		CCC48C9225E5B95B00D082AD /* Hash.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC31A6971D3AC223008D7728 /* Hash.swift */; };
+		CCC48C9325E5B95B00D082AD /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE2C4791D9203DE0047E229 /* Environment.swift */; };
+		CCC48C9425E5B95B00D082AD /* Type.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCAD52DF1C48468F00DBD8EE /* Type.swift */; };
+		CCC48C9525E5B95B00D082AD /* CharSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC54924021DC2A44004A0652 /* CharSet.swift */; };
+		CCC48C9925E5B96800D082AD /* Compiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0980A61C62BDBC006B7FB1 /* Compiler.swift */; };
+		CCC48C9A25E5B96800D082AD /* SyntaxError.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA31280204CB7A60026FF13 /* SyntaxError.swift */; };
+		CCC48C9B25E5B96800D082AD /* EvalError.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA31282204CB7CB0026FF13 /* EvalError.swift */; };
+		CCC48C9C25E5B96800D082AD /* LexicalError.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA3127E204CB7900026FF13 /* LexicalError.swift */; };
+		CCC48C9D25E5B96800D082AD /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCAD52DB1C48468F00DBD8EE /* Parser.swift */; };
+		CCC48C9E25E5B96800D082AD /* BindingGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35FD0E1C711FEA00C8B992 /* BindingGroup.swift */; };
+		CCC48C9F25E5B96800D082AD /* Scanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCAD52DC1C48468F00DBD8EE /* Scanner.swift */; };
+		CCC48CA025E5B96800D082AD /* CaptureGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC01903A1C89D02200DB8BF9 /* CaptureGroup.swift */; };
+		CCC48CA125E5B96800D082AD /* Checkpointer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD81AD11CE75823009EB087 /* Checkpointer.swift */; };
+		CCC48CA225E5B96800D082AD /* RuntimeError.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA3127C204CB74A0026FF13 /* RuntimeError.swift */; };
+		CCC48CA325E5B96800D082AD /* SourcePosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE4AECF204217D8008BF7E8 /* SourcePosition.swift */; };
+		CCC48CA425E5B96800D082AD /* Env.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCAD52D81C48468F00DBD8EE /* Env.swift */; };
+		CCC48CA825E5B97100D082AD /* Instruction.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5696761CBCFA9900F6803E /* Instruction.swift */; };
+		CCC48CA925E5B97100D082AD /* Features.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC14F4AF1F939486000FB1E0 /* Features.swift */; };
+		CCC48CAA25E5B97100D082AD /* FeatureRequirement.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC14F4B11F93A455000FB1E0 /* FeatureRequirement.swift */; };
+		CCC48CAB25E5B97100D082AD /* ContextDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCB585B71E15A6E70064BB18 /* ContextDelegate.swift */; };
+		CCC48CAC25E5B97100D082AD /* NativeLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5A47201C5295E600EFCF76 /* NativeLibrary.swift */; };
+		CCC48CAD25E5B97100D082AD /* SymbolTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B6F1C53F2CF00E962E2 /* SymbolTable.swift */; };
+		CCC48CAE25E5B97100D082AD /* SourceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE4AECD204212EC008BF7E8 /* SourceManager.swift */; };
+		CCC48CAF25E5B97100D082AD /* Context.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCAD52F71C48474500DBD8EE /* Context.swift */; };
+		CCC48CB025E5B97100D082AD /* FileHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCEB3FE1DF2DAA9009BF66B /* FileHandler.swift */; };
+		CCC48CB125E5B97100D082AD /* Library.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC3C92431D84C0D800016C28 /* Library.swift */; };
+		CCC48CB225E5B97100D082AD /* SyntaxRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCAD52DE1C48468F00DBD8EE /* SyntaxRules.swift */; };
+		CCC48CB325E5B97100D082AD /* VirtualMachineState.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC41DC51D2851FB003CB4D0 /* VirtualMachineState.swift */; };
+		CCC48CB425E5B97100D082AD /* ImportSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCF982F61D998B8A00B22A1D /* ImportSet.swift */; };
+		CCC48CB525E5B97100D082AD /* Code.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0980A81C67E81C006B7FB1 /* Code.swift */; };
+		CCC48CB625E5B97100D082AD /* VirtualMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */; };
+		CCC48CB725E5B97100D082AD /* LibraryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2D124E1DB40E7F009BDC72 /* LibraryManager.swift */; };
+		CCC48CB825E5B97100D082AD /* GarbageCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0A984D233E70C400C52573 /* GarbageCollector.swift */; };
+		CCC48CB925E5B97100D082AD /* Heap.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCB585BA1E15AA4D0064BB18 /* Heap.swift */; };
+		CCC48CBD25E5B98600D082AD /* CharLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B611C52ED7D00E962E2 /* CharLibrary.swift */; };
+		CCC48CBE25E5B98600D082AD /* HashTableLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5BBC7A1D52724800367E8F /* HashTableLibrary.swift */; };
+		CCC48CBF25E5B98600D082AD /* BaseLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B671C52F17200E962E2 /* BaseLibrary.swift */; };
+		CCC48CC125E5B98600D082AD /* StringLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B5F1C52EBD700E962E2 /* StringLibrary.swift */; };
+		CCC48CC225E5B98600D082AD /* DateTimeLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35F9C1222188BC00895A10 /* DateTimeLibrary.swift */; };
+		CCC48CC325E5B98600D082AD /* VectorLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B5D1C52E8EF00E962E2 /* VectorLibrary.swift */; };
+		CCC48CC425E5B98600D082AD /* BoxLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDF99FB1D3D7A3100FD2A57 /* BoxLibrary.swift */; };
+		CCC48CC525E5B98600D082AD /* DynamicControlLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC90500A1D36F52F008CE60A /* DynamicControlLibrary.swift */; };
+		CCC48CC625E5B98600D082AD /* BytevectorLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC050F131D017D3400D32132 /* BytevectorLibrary.swift */; };
+		CCC48CC725E5B98600D082AD /* ControlFlowLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5A47241C52E08900EFCF76 /* ControlFlowLibrary.swift */; };
+		CCC48CC825E5B98600D082AD /* RegexpLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC7A125C21EA7C5E00ABEA17 /* RegexpLibrary.swift */; };
+		CCC48CCA25E5B98600D082AD /* MarkdownLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA6C3D023610674007D2AF0 /* MarkdownLibrary.swift */; };
+		CCC48CCB25E5B98600D082AD /* MathLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B631C52EED400E962E2 /* MathLibrary.swift */; };
+		CCC48CCC25E5B98600D082AD /* DebugLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC240E8824FA41B100FF6D0F /* DebugLibrary.swift */; };
+		CCC48CCD25E5B98600D082AD /* CoreLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5A47221C529D4A00EFCF76 /* CoreLibrary.swift */; };
+		CCC48CCE25E5B98600D082AD /* RecordLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC4D2C9E1D5EDA2A00A02256 /* RecordLibrary.swift */; };
+		CCC48CCF25E5B98600D082AD /* InternalLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC38528A23126F7A001D5E56 /* InternalLibrary.swift */; };
+		CCC48CD025E5B98600D082AD /* GrowableVectorLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC09CC5021F12C7800C16864 /* GrowableVectorLibrary.swift */; };
+		CCC48CD125E5B98600D082AD /* LibraryRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC201A6C1DBD72C100045A4D /* LibraryRegistry.swift */; };
+		CCC48CD225E5B98600D082AD /* CharSetLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC54923E21DAF364004A0652 /* CharSetLibrary.swift */; };
+		CCC48CD325E5B98600D082AD /* ListLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6A3B5B1C52E71F00E962E2 /* ListLibrary.swift */; };
+		CCC48CD425E5B98600D082AD /* SystemLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0BA16B1DFC843C0063B9DE /* SystemLibrary.swift */; };
+		CCC48CD525E5B98600D082AD /* TypeLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC79DE051F88D42600CE7A5D /* TypeLibrary.swift */; };
+		CCC48CD725E5B98600D082AD /* ZipArchiveLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFB412A25B25316005B2429 /* ZipArchiveLibrary.swift */; };
+		CCC48CD825E5B98600D082AD /* PortLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC4E2D361D09691000D77159 /* PortLibrary.swift */; };
+		CCC48CFE25E5BF8700D082AD /* SQLiteLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC08964D244090D1004503B1 /* SQLiteLibrary.swift */; };
+		CCC48D0325E5BFA300D082AD /* NumberKit in Frameworks */ = {isa = PBXBuildFile; productRef = CCC48D0225E5BFA300D082AD /* NumberKit */; };
+		CCC48D0525E5BFAE00D082AD /* MarkdownKit in Frameworks */ = {isa = PBXBuildFile; productRef = CCC48D0425E5BFAE00D082AD /* MarkdownKit */; };
+		CCC48D0725E5BFB300D082AD /* SQLiteExpress in Frameworks */ = {isa = PBXBuildFile; productRef = CCC48D0625E5BFB300D082AD /* SQLiteExpress */; };
+		CCC48D0925E5BFB800D082AD /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = CCC48D0825E5BFB800D082AD /* ZIPFoundation */; };
+		CCC48D1D25E5CC9100D082AD /* Prelude.scm in Copy default prelude */ = {isa = PBXBuildFile; fileRef = CCAD52D51C48467D00DBD8EE /* Prelude.scm */; };
+		CCC48D2525E97E3800D082AD /* 1.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC5848051E56BD0B00BE6497 /* 1.sld */; };
+		CCC48D2625E97E3800D082AD /* 2.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC5848061E56BD0B00BE6497 /* 2.sld */; };
+		CCC48D2725E97E3800D082AD /* 6.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC8E65FA23FCA98600D9D1F9 /* 6.sld */; };
+		CCC48D2825E97E3800D082AD /* 8.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC5848071E56BD0B00BE6497 /* 8.sld */; };
+		CCC48D2925E97E3800D082AD /* 9.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC0D7B342544AA0300FB9301 /* 9.sld */; };
+		CCC48D2A25E97E3800D082AD /* 11.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC3F78302157D63E00F88F9B /* 11.sld */; };
+		CCC48D2B25E97E3800D082AD /* 14.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCC1DBFB216BA1750019A374 /* 14.sld */; };
+		CCC48D2C25E97E3800D082AD /* 16.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCC1DBFC216BA2600019A374 /* 16.sld */; };
+		CCC48D2D25E97E3800D082AD /* 17.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC8A2AAE1F405CDD00D1E4D8 /* 17.sld */; };
+		CCC48D2E25E97E3800D082AD /* 19.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC5848081E56BD0B00BE6497 /* 19.sld */; };
+		CCC48D2F25E97E3800D082AD /* 23.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC703A12218BC40600E71EA9 /* 23.sld */; };
+		CCC48D3025E97E3800D082AD /* 26.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC7C3E9D2246F8700082DF7C /* 26.sld */; };
+		CCC48D3125E97E3800D082AD /* 27.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC5848091E56BD0B00BE6497 /* 27.sld */; };
+		CCC48D3225E97E3800D082AD /* 28.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC58480A1E56BD0B00BE6497 /* 28.sld */; };
+		CCC48D3325E97E3800D082AD /* 31.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC48EBC11F3A645C00233FA9 /* 31.sld */; };
+		CCC48D3425E97E3800D082AD /* 33.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC7C3E9C2246F1E40082DF7C /* 33.sld */; };
+		CCC48D3525E97E3800D082AD /* 34.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC703A16218BC61D00E71EA9 /* 34.sld */; };
+		CCC48D3625E97E3800D082AD /* 35.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC48EBC21F3A6BFF00233FA9 /* 35.sld */; };
+		CCC48D3725E97E3800D082AD /* 39.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC703A17218BC7D000E71EA9 /* 39.sld */; };
+		CCC48D3825E97E3800D082AD /* 41.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC58480B1E56BD1800BE6497 /* 41.sld */; };
+		CCC48D3925E97E3800D082AD /* 46.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC7C3E9B2246F0A30082DF7C /* 46.sld */; };
+		CCC48D3A25E97E3800D082AD /* 48.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC8A2AB01F40672700D1E4D8 /* 48.sld */; };
+		CCC48D3B25E97E3800D082AD /* 51.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC3F782E2157D22B00F88F9B /* 51.sld */; };
+		CCC48D3C25E97E3800D082AD /* 54.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC8E65FB23FCAAB900D9D1F9 /* 54.sld */; };
+		CCC48D3D25E97E3800D082AD /* 55.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC7C3E9A2246EF6D0082DF7C /* 55.sld */; };
+		CCC48D3E25E97E3800D082AD /* 63.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC79DE031F883FED00CE7A5D /* 63.sld */; };
+		CCC48D3F25E97E3800D082AD /* 64.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCC072451F9AA8B70063974E /* 64.sld */; };
+		CCC48D4025E97E3800D082AD /* 69.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC5E473C20D2D8B600F21B03 /* 69.sld */; };
+		CCC48D4125E97E3800D082AD /* 87.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCA8017123D4AD87005F2323 /* 87.sld */; };
+		CCC48D4225E97E3800D082AD /* 95.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC703A20218D122100E71EA9 /* 95.sld */; };
+		CCC48D4325E97E3800D082AD /* 98.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCA8017023D4AC91005F2323 /* 98.sld */; };
+		CCC48D4425E97E3800D082AD /* 101.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC54923821D97F53004A0652 /* 101.sld */; };
+		CCC48D4525E97E3800D082AD /* 111.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC26263B20F56DBF00AC08E8 /* 111.sld */; };
+		CCC48D4625E97E3800D082AD /* 112.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC26263D20F56F9300AC08E8 /* 112.sld */; };
+		CCC48D4725E97E3800D082AD /* 113.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC26263F20F7FB8100AC08E8 /* 113.sld */; };
+		CCC48D4825E97E3800D082AD /* 121.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC7AAE6B1EC859E100B0F66C /* 121.sld */; };
+		CCC48D4925E97E3800D082AD /* 125.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC2C73DC21A217B500B18661 /* 125.sld */; };
+		CCC48D4A25E97E3800D082AD /* 128.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCC072471F9C047D0063974E /* 128.sld */; };
+		CCC48D4B25E97E3800D082AD /* 129.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC5E474020D315B300F21B03 /* 129.sld */; };
+		CCC48D4C25E97E3800D082AD /* 132.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC58480C1E56BD1800BE6497 /* 132.sld */; };
+		CCC48D4D25E97E3800D082AD /* 133.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCEFE6121ED8F17700DFED9B /* 133.sld */; };
+		CCC48D4E25E97E3800D082AD /* 134.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC7AAE6F1EC9050B00B0F66C /* 134.sld */; };
+		CCC48D4F25E97E3800D082AD /* 135.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC48EBC71F3E55F700233FA9 /* 135.sld */; };
+		CCC48D5025E97E3800D082AD /* 137.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC96D1082038AEC1006AA27B /* 137.sld */; };
+		CCC48D5125E97E3800D082AD /* 142.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCEFE6101ED804E900DFED9B /* 142.sld */; };
+		CCC48D5225E97E3800D082AD /* 143.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC202DE725ABAFD3003901BE /* 143.sld */; };
+		CCC48D5325E97E3800D082AD /* 145.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC96D1062038AAB4006AA27B /* 145.sld */; };
+		CCC48D5425E97E3800D082AD /* 146.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC4A7DBE2259734700936034 /* 146.sld */; };
+		CCC48D5525E97E3800D082AD /* 151.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC96D10420386860006AA27B /* 151.sld */; };
+		CCC48D5625E97E3800D082AD /* 152.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC0AEFF71F522A7500119BF6 /* 152.sld */; };
+		CCC48D5725E97E3800D082AD /* 154.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC08F42D25BCF0F30056C92C /* 154.sld */; };
+		CCC48D5825E97E3800D082AD /* 155.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC08F43725BCFC510056C92C /* 155.sld */; };
+		CCC48D5925E97E3800D082AD /* 158.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCEEF3901FAF3F70006C4581 /* 158.sld */; };
+		CCC48D5A25E97E3800D082AD /* 161.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC1EA5CA214EEF41006BBE7E /* 161.sld */; };
+		CCC48D5B25E97E3800D082AD /* 162.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCC9516E2426B1E100FC915F /* 162.sld */; };
+		CCC48D5C25E97E3800D082AD /* 165.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC4A7DC6225A021E00936034 /* 165.sld */; };
+		CCC48D5D25E97E3800D082AD /* 173.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC38528C23140CC2001D5E56 /* 173.sld */; };
+		CCC48D5E25E97E3800D082AD /* 174.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC5E530723579CF200C72CE2 /* 174.sld */; };
+		CCC48D5F25E97E3800D082AD /* 175.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC498A8A23882C19002734E0 /* 175.sld */; };
+		CCC48D6025E97E3800D082AD /* 177.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC6BB91A235CFB4700D7CAA1 /* 177.sld */; };
+		CCC48D6125E97E3800D082AD /* 180.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC0D7B302544A4A400FB9301 /* 180.sld */; };
+		CCC48D6225E97E3800D082AD /* 194.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCC1E8B9251FEC05008B8AAA /* 194.sld */; };
+		CCC48D6325E97E3900D082AD /* 195.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCDB557C247C728F0044714C /* 195.sld */; };
+		CCC48D6425E97E3900D082AD /* 196.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCDB557E247C82370044714C /* 196.sld */; };
+		CCC48D6525E97E3900D082AD /* 204.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCC1E8B5251F67B8008B8AAA /* 204.sld */; };
+		CCC48D6625E97E3900D082AD /* 209.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC1D6CBD258CDE3700D36645 /* 209.sld */; };
+		CCC48D6725E97E3900D082AD /* 210.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC0D7B382544AF2600FB9301 /* 210.sld */; };
+		CCC48D6C25E97EB800D082AD /* ascii.sld in Copy pre-installed LispKit library: SRFI 14 */ = {isa = PBXBuildFile; fileRef = CC54924321DCDC7F004A0652 /* ascii.sld */; };
+		CCC48D7125E97EF000D082AD /* derived.sld in Copy pre-installed LispKit library: SRFI 41 */ = {isa = PBXBuildFile; fileRef = CC48EBCE1F3E5AF300233FA9 /* derived.sld */; };
+		CCC48D7225E97EF000D082AD /* primitive.sld in Copy pre-installed LispKit library: SRFI 41 */ = {isa = PBXBuildFile; fileRef = CC48EBCF1F3E5B0400233FA9 /* primitive.sld */; };
+		CCC48D7725E97F2100D082AD /* internal.sld in Copy pre-installed LispKit library: SRFI 69 */ = {isa = PBXBuildFile; fileRef = CC2C73D921A1F41E00B18661 /* internal.sld */; };
+		CCC48D7C25E97FA100D082AD /* kernel0.sld in Copy pre-installed LispKit library: SRFI 135 */ = {isa = PBXBuildFile; fileRef = CC48EBCB1F3E5AA700233FA9 /* kernel0.sld */; };
+		CCC48D8125E97FD400D082AD /* rbtree.sld in Copy pre-installed LispKit library: SRFI 146 */ = {isa = PBXBuildFile; fileRef = CC4A7DBD22596BA600936034 /* rbtree.sld */; };
+		CCC48D8625E9801300D082AD /* engine.sld in Copy pre-installed LispKit library: SRFI 167 */ = {isa = PBXBuildFile; fileRef = CCF602E623A0F69800087740 /* engine.sld */; };
+		CCC48D8725E9801300D082AD /* pack.sld in Copy pre-installed LispKit library: SRFI 167 */ = {isa = PBXBuildFile; fileRef = CCF602E723A0F6B900087740 /* pack.sld */; };
+		CCC48D8825E9801300D082AD /* memory.sld in Copy pre-installed LispKit library: SRFI 167 */ = {isa = PBXBuildFile; fileRef = CCF602E823A0F6CB00087740 /* memory.sld */; };
+		CCC48D8D25E9806600D082AD /* log.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC82932F21D6E91D003E1D3C /* log.sld */; };
+		CCC48D8E25E9806600D082AD /* test.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC96D10A20399770006AA27B /* test.sld */; };
+		CCC48D8F25E9806600D082AD /* match.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC7A125721E93DAF00ABEA17 /* match.sld */; };
+		CCC48D9025E9806600D082AD /* datatype.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC2345401F655B8B00C38817 /* datatype.sld */; };
+		CCC48D9125E9806600D082AD /* object.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC68B3A81FCC73C300EB4AF9 /* object.sld */; };
+		CCC48D9225E9806600D082AD /* enum.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCD6C3E81F35F95D0002F7D4 /* enum.sld */; };
+		CCC48D9325E9806600D082AD /* comparator.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC47F5F02349129B008B0303 /* comparator.sld */; };
+		CCC48D9425E9806600D082AD /* combinator.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCC4A3AA245CFFB800DE63E1 /* combinator.sld */; };
+		CCC48D9525E9806600D082AD /* iterate.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCE7CA451F8D819600FD7ECA /* iterate.sld */; };
+		CCC48D9625E9806600D082AD /* set.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC5848021E5691B300BE6497 /* set.sld */; };
+		CCC48D9725E9806600D082AD /* stack.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC90B2331FE55DFE0044F724 /* stack.sld */; };
+		CCC48D9825E9806600D082AD /* queue.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC90B2351FE5D7940044F724 /* queue.sld */; };
+		CCC48D9925E9806600D082AD /* heap.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC72862C1F52B2F600EEBC58 /* heap.sld */; };
+		CCC48D9A25E9806600D082AD /* disjoint-set.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC498A9C238B368E002734E0 /* disjoint-set.sld */; };
+		CCC48D9B25E9806600D082AD /* graph.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC7C3E982235DD900082DF7C /* graph.sld */; };
+		CCC48D9C25E9806600D082AD /* wt-tree.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCEEF3921FB3CB03006C4581 /* wt-tree.sld */; };
+		CCC48D9D25E9806600D082AD /* stream.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC4A7DB822585D9100936034 /* stream.sld */; };
+		CCC48D9E25E9806600D082AD /* prettify.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC750BD91F5B772200CD82A2 /* prettify.sld */; };
+		CCC48D9F25E9806600D082AD /* csv.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCBD755D21E224A7008CD7C8 /* csv.sld */; };
+		CCC48DA025E9806600D082AD /* json.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC3A02591F97F3E1009B959C /* json.sld */; };
+		CCC48DA125E9806600D082AD /* pdf.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC10404C1F5378660045144A /* pdf.sld */; };
+		CCC48DA225E9806600D082AD /* clos.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC703A1A218D09B600E71EA9 /* clos.sld */; };
+		CCC48DA325E9806600D082AD /* prolog.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCD3E15325C5EB83007FCE8A /* prolog.sld */; };
+		CCC48DA425E9806600D082AD /* logic.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC436C3F1FFBD5090095559E /* logic.sld */; };
+		CCC48DA525E9806600D082AD /* sxml.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC240E8D24FB1B1B00FF6D0F /* sxml.sld */; };
+		CCC48DAA25E980B000D082AD /* turtle.sld in Copy pre-installed LispKit library: LispKit Draw Turtle */ = {isa = PBXBuildFile; fileRef = CC26AD3F214722120090D9EE /* turtle.sld */; };
+		CCC48DB225E9840300D082AD /* red.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CCD3E15725C60FBC007FCE8A /* red.sld */; };
+		CCC48DB325E9840300D082AD /* bitwise.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC08F43F25BDCE5C0056C92C /* bitwise.sld */; };
+		CCC48DB425E9840300D082AD /* box.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC2C73D121A1E7F900B18661 /* box.sld */; };
+		CCC48DB525E9840300D082AD /* charset.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC54924821DCF46B004A0652 /* charset.sld */; };
+		CCC48DB625E9840300D082AD /* comparator.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC2C73C4219E26D900B18661 /* comparator.sld */; };
+		CCC48DB725E9840300D082AD /* division.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC08F44025BDD2CD0056C92C /* division.sld */; };
+		CCC48DB825E9840300D082AD /* fixnum.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC202DE825ABB068003901BE /* fixnum.sld */; };
+		CCC48DB925E9840300D082AD /* generator.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC2C73C5219E286D00B18661 /* generator.sld */; };
+		CCC48DBA25E9840300D082AD /* hash-table.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC2C73E021A22DDD00B18661 /* hash-table.sld */; };
+		CCC48DBB25E9840300D082AD /* ideque.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC2C73C6219E295200B18661 /* ideque.sld */; };
+		CCC48DBC25E9840300D082AD /* list.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC2C73C7219E2F2D00B18661 /* list.sld */; };
+		CCC48DBD25E9840300D082AD /* mapping.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC4A7DC42259763F00936034 /* mapping.sld */; };
+		CCC48DBE25E9840300D082AD /* rlist.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC54923C21D98E3E004A0652 /* rlist.sld */; };
+		CCC48DBF25E9840300D082AD /* set.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC2C73CE21A1E4E700B18661 /* set.sld */; };
+		CCC48DC025E9840300D082AD /* sort.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC2C73CD21A1E32E00B18661 /* sort.sld */; };
+		CCC48DC125E9840300D082AD /* stream.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC2C73D021A1E70600B18661 /* stream.sld */; };
+		CCC48DC225E9840300D082AD /* text.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC2C73CF21A1E5B200B18661 /* text.sld */; };
+		CCC48DC325E9840300D082AD /* vector.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC2C73CC21A1E1BA00B18661 /* vector.sld */; };
+		CCC48DC725E9846300D082AD /* base.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC7F7C081FC03B9A00639166 /* base.sld */; };
+		CCC48DC825E9846300D082AD /* case-lambda.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC7F7C091FC03BA900639166 /* case-lambda.sld */; };
+		CCC48DC925E9846300D082AD /* char.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC09ECF02198912000F84713 /* char.sld */; };
+		CCC48DCA25E9846300D082AD /* complex.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC7F7C0B1FC03BC900639166 /* complex.sld */; };
+		CCC48DCB25E9846300D082AD /* cxr.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC7F7C0C1FC03BD900639166 /* cxr.sld */; };
+		CCC48DCC25E9846300D082AD /* eval.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC7F7C071FC03B8100639166 /* eval.sld */; };
+		CCC48DCD25E9846300D082AD /* file.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC7F7C0D1FC03C0700639166 /* file.sld */; };
+		CCC48DCE25E9846300D082AD /* inexact.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC7F7C0E1FC03C4000639166 /* inexact.sld */; };
+		CCC48DCF25E9846300D082AD /* lazy.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC7F7C0F1FC03C5400639166 /* lazy.sld */; };
+		CCC48DD025E9846300D082AD /* load.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC7F7C101FC03C6E00639166 /* load.sld */; };
+		CCC48DD125E9846300D082AD /* process-context.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC7F7C111FC03C8800639166 /* process-context.sld */; };
+		CCC48DD225E9846300D082AD /* read.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC7F7C131FC03CE400639166 /* read.sld */; };
+		CCC48DD325E9846400D082AD /* repl.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC7F7C141FC03D1800639166 /* repl.sld */; };
+		CCC48DD425E9846400D082AD /* time.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC7F7C151FC03D7E00639166 /* time.sld */; };
+		CCC48DD525E9846400D082AD /* write.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC7F7C161FC03D9800639166 /* write.sld */; };
+		CCC48DD625E9846400D082AD /* r5rs.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC7F7C171FC03DCA00639166 /* r5rs.sld */; };
+		CCC48DD725E9846400D082AD /* r5rs-syntax.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC7F7C291FC1011A00639166 /* r5rs-syntax.sld */; };
+		CCC48DDB25E985ED00D082AD /* red.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CCD3E15725C60FBC007FCE8A /* red.sld */; };
+		CCC48DE625E9879700D082AD /* Covid.sqlite3 in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C882456515A002E8A73 /* Covid.sqlite3 */; };
+		CCC48DE725E9879700D082AD /* 2020-02-20.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C6124564FBE002E8A73 /* 2020-02-20.data */; };
+		CCC48DE825E9879700D082AD /* 2020-02-21.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C8524564FC1002E8A73 /* 2020-02-21.data */; };
+		CCC48DE925E9879700D082AD /* 2020-02-22.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C7324564FBF002E8A73 /* 2020-02-22.data */; };
+		CCC48DEA25E9879700D082AD /* 2020-02-23.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C5024564FBD002E8A73 /* 2020-02-23.data */; };
+		CCC48DEB25E9879700D082AD /* 2020-02-24.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C3024564FBB002E8A73 /* 2020-02-24.data */; };
+		CCC48DEC25E9879700D082AD /* 2020-02-25.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C7024564FBF002E8A73 /* 2020-02-25.data */; };
+		CCC48DED25E9879700D082AD /* 2020-02-26.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C5924564FBE002E8A73 /* 2020-02-26.data */; };
+		CCC48DEE25E9879700D082AD /* 2020-02-27.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C7B24564FC0002E8A73 /* 2020-02-27.data */; };
+		CCC48DEF25E9879700D082AD /* 2020-02-28.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C6824564FBF002E8A73 /* 2020-02-28.data */; };
+		CCC48DF025E9879700D082AD /* 2020-02-29.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C4124564FBC002E8A73 /* 2020-02-29.data */; };
+		CCC48DF125E9879700D082AD /* 2020-03-01.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C5824564FBE002E8A73 /* 2020-03-01.data */; };
+		CCC48DF225E9879700D082AD /* 2020-03-02.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C5524564FBE002E8A73 /* 2020-03-02.data */; };
+		CCC48DF325E9879700D082AD /* 2020-03-03.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C7C24564FC0002E8A73 /* 2020-03-03.data */; };
+		CCC48DF425E9879700D082AD /* 2020-03-04.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C6C24564FBF002E8A73 /* 2020-03-04.data */; };
+		CCC48DF525E9879700D082AD /* 2020-03-05.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C2D24564FBB002E8A73 /* 2020-03-05.data */; };
+		CCC48DF625E9879700D082AD /* 2020-03-06.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C4324564FBC002E8A73 /* 2020-03-06.data */; };
+		CCC48DF725E9879700D082AD /* 2020-03-07.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C4724564FBD002E8A73 /* 2020-03-07.data */; };
+		CCC48DF825E9879700D082AD /* 2020-03-08.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C3524564FBC002E8A73 /* 2020-03-08.data */; };
+		CCC48DF925E9879700D082AD /* 2020-03-09.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C3324564FBB002E8A73 /* 2020-03-09.data */; };
+		CCC48DFA25E9879700D082AD /* 2020-03-10.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C6D24564FBF002E8A73 /* 2020-03-10.data */; };
+		CCC48DFB25E9879700D082AD /* 2020-03-11.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C7124564FBF002E8A73 /* 2020-03-11.data */; };
+		CCC48DFC25E9879700D082AD /* 2020-03-12.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C5A24564FBE002E8A73 /* 2020-03-12.data */; };
+		CCC48DFD25E9879700D082AD /* 2020-03-13.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C3D24564FBC002E8A73 /* 2020-03-13.data */; };
+		CCC48DFE25E9879700D082AD /* 2020-03-14.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C4A24564FBD002E8A73 /* 2020-03-14.data */; };
+		CCC48DFF25E9879700D082AD /* 2020-03-15.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C4B24564FBD002E8A73 /* 2020-03-15.data */; };
+		CCC48E0025E9879700D082AD /* 2020-03-16.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C4024564FBC002E8A73 /* 2020-03-16.data */; };
+		CCC48E0125E9879700D082AD /* 2020-03-17.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C4924564FBD002E8A73 /* 2020-03-17.data */; };
+		CCC48E0225E9879700D082AD /* 2020-03-18.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C2924564FBB002E8A73 /* 2020-03-18.data */; };
+		CCC48E0325E9879700D082AD /* 2020-03-19.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C3824564FBC002E8A73 /* 2020-03-19.data */; };
+		CCC48E0425E9879700D082AD /* 2020-03-20.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C7D24564FC0002E8A73 /* 2020-03-20.data */; };
+		CCC48E0525E9879700D082AD /* 2020-03-21.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C5424564FBD002E8A73 /* 2020-03-21.data */; };
+		CCC48E0625E9879700D082AD /* 2020-03-22.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C3924564FBC002E8A73 /* 2020-03-22.data */; };
+		CCC48E0725E9879700D082AD /* 2020-03-23.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C5B24564FBE002E8A73 /* 2020-03-23.data */; };
+		CCC48E0825E9879700D082AD /* 2020-03-24.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C3C24564FBC002E8A73 /* 2020-03-24.data */; };
+		CCC48E0925E9879700D082AD /* 2020-03-25.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C8024564FC1002E8A73 /* 2020-03-25.data */; };
+		CCC48E0A25E9879700D082AD /* 2020-03-26.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C6224564FBE002E8A73 /* 2020-03-26.data */; };
+		CCC48E0B25E9879700D082AD /* 2020-03-27.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C2E24564FBB002E8A73 /* 2020-03-27.data */; };
+		CCC48E0C25E9879700D082AD /* 2020-03-28.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C6324564FBE002E8A73 /* 2020-03-28.data */; };
+		CCC48E0D25E9879700D082AD /* 2020-03-29.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C2C24564FBB002E8A73 /* 2020-03-29.data */; };
+		CCC48E0E25E9879800D082AD /* 2020-03-30.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C7E24564FC1002E8A73 /* 2020-03-30.data */; };
+		CCC48E0F25E9879800D082AD /* 2020-03-31.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C6424564FBE002E8A73 /* 2020-03-31.data */; };
+		CCC48E1025E9879800D082AD /* 2020-04-01.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C6E24564FBF002E8A73 /* 2020-04-01.data */; };
+		CCC48E1125E9879800D082AD /* 2020-04-02.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C4C24564FBD002E8A73 /* 2020-04-02.data */; };
+		CCC48E1225E9879800D082AD /* 2020-04-03.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C5624564FBE002E8A73 /* 2020-04-03.data */; };
+		CCC48E1325E9879800D082AD /* 2020-04-04.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C5E24564FBE002E8A73 /* 2020-04-04.data */; };
+		CCC48E1425E9879800D082AD /* 2020-04-05.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C6F24564FBF002E8A73 /* 2020-04-05.data */; };
+		CCC48E1525E9879800D082AD /* 2020-04-06.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C4524564FBD002E8A73 /* 2020-04-06.data */; };
+		CCC48E1625E9879800D082AD /* 2020-04-07.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C6924564FBF002E8A73 /* 2020-04-07.data */; };
+		CCC48E1725E9879800D082AD /* 2020-04-08.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C3A24564FBC002E8A73 /* 2020-04-08.data */; };
+		CCC48E1825E9879800D082AD /* 2020-04-09.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C7F24564FC1002E8A73 /* 2020-04-09.data */; };
+		CCC48E1925E9879800D082AD /* 2020-04-10.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C5C24564FBE002E8A73 /* 2020-04-10.data */; };
+		CCC48E1A25E9879800D082AD /* 2020-04-11.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C5324564FBD002E8A73 /* 2020-04-11.data */; };
+		CCC48E1B25E9879800D082AD /* 2020-04-12.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C3E24564FBC002E8A73 /* 2020-04-12.data */; };
+		CCC48E1C25E9879800D082AD /* 2020-04-13.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C5D24564FBE002E8A73 /* 2020-04-13.data */; };
+		CCC48E1D25E9879800D082AD /* 2020-04-14.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C5F24564FBE002E8A73 /* 2020-04-14.data */; };
+		CCC48E1E25E9879800D082AD /* 2020-04-15.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C8124564FC1002E8A73 /* 2020-04-15.data */; };
+		CCC48E1F25E9879800D082AD /* 2020-04-16.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C5224564FBD002E8A73 /* 2020-04-16.data */; };
+		CCC48E2025E9879800D082AD /* 2020-04-17.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C8224564FC1002E8A73 /* 2020-04-17.data */; };
+		CCC48E2125E9879800D082AD /* 2020-04-18.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C6524564FBF002E8A73 /* 2020-04-18.data */; };
+		CCC48E2225E9879800D082AD /* 2020-04-19.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C6B24564FBF002E8A73 /* 2020-04-19.data */; };
+		CCC48E2325E9879800D082AD /* 2020-04-20.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C6624564FBF002E8A73 /* 2020-04-20.data */; };
+		CCC48E2425E9879800D082AD /* 2020-04-21.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C4424564FBC002E8A73 /* 2020-04-21.data */; };
+		CCC48E2525E9879800D082AD /* 2020-04-22.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C2F24564FBB002E8A73 /* 2020-04-22.data */; };
+		CCC48E2625E9879800D082AD /* 2020-04-23.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C7224564FBF002E8A73 /* 2020-04-23.data */; };
+		CCC48E2725E9879800D082AD /* 2020-04-24.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C7724564FC0002E8A73 /* 2020-04-24.data */; };
+		CCC48E2825E9879800D082AD /* 2020-04-25.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C8324564FC1002E8A73 /* 2020-04-25.data */; };
+		CCC48E2925E9879800D082AD /* 2020-04-26.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5CFF2479A09D00578D76 /* 2020-04-26.data */; };
+		CCC48E2A25E9879800D082AD /* 2020-04-27.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5CFE2479A09C00578D76 /* 2020-04-27.data */; };
+		CCC48E2B25E9879800D082AD /* 2020-04-28.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5D112479A09F00578D76 /* 2020-04-28.data */; };
+		CCC48E2C25E9879800D082AD /* 2020-04-29.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5D0E2479A09F00578D76 /* 2020-04-29.data */; };
+		CCC48E2D25E9879800D082AD /* 2020-04-30.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5D032479A09D00578D76 /* 2020-04-30.data */; };
+		CCC48E2E25E9879800D082AD /* 2020-05-01.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5D102479A09F00578D76 /* 2020-05-01.data */; };
+		CCC48E2F25E9879800D082AD /* 2020-05-02.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5CFA2479A09C00578D76 /* 2020-05-02.data */; };
+		CCC48E3025E9879800D082AD /* 2020-05-03.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5D0B2479A09E00578D76 /* 2020-05-03.data */; };
+		CCC48E3125E9879800D082AD /* 2020-05-04.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5D072479A09E00578D76 /* 2020-05-04.data */; };
+		CCC48E3225E9879800D082AD /* 2020-05-05.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5D052479A09D00578D76 /* 2020-05-05.data */; };
+		CCC48E3325E9879800D082AD /* 2020-05-06.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5D062479A09E00578D76 /* 2020-05-06.data */; };
+		CCC48E3425E9879800D082AD /* 2020-05-07.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5D0C2479A09E00578D76 /* 2020-05-07.data */; };
+		CCC48E3525E9879800D082AD /* 2020-05-08.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5D0A2479A09E00578D76 /* 2020-05-08.data */; };
+		CCC48E3625E9879900D082AD /* 2020-05-09.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5D0D2479A09F00578D76 /* 2020-05-09.data */; };
+		CCC48E3725E9879900D082AD /* 2020-05-10.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5D012479A09D00578D76 /* 2020-05-10.data */; };
+		CCC48E3825E9879900D082AD /* 2020-05-11.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5D122479A09F00578D76 /* 2020-05-11.data */; };
+		CCC48E3925E9879900D082AD /* 2020-05-12.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5D0F2479A09F00578D76 /* 2020-05-12.data */; };
+		CCC48E3A25E9879900D082AD /* 2020-05-13.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5CF82479A09B00578D76 /* 2020-05-13.data */; };
+		CCC48E3B25E9879900D082AD /* 2020-05-14.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5CFC2479A09C00578D76 /* 2020-05-14.data */; };
+		CCC48E3C25E9879900D082AD /* 2020-05-15.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5D042479A09D00578D76 /* 2020-05-15.data */; };
+		CCC48E3D25E9879900D082AD /* 2020-05-16.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5D082479A09E00578D76 /* 2020-05-16.data */; };
+		CCC48E3E25E9879900D082AD /* 2020-05-17.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5CFB2479A09C00578D76 /* 2020-05-17.data */; };
+		CCC48E3F25E9879900D082AD /* 2020-05-18.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5D092479A09E00578D76 /* 2020-05-18.data */; };
+		CCC48E4025E9879900D082AD /* 2020-05-19.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5CF92479A09C00578D76 /* 2020-05-19.data */; };
+		CCC48E4125E9879900D082AD /* 2020-05-20.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5D022479A09D00578D76 /* 2020-05-20.data */; };
+		CCC48E4225E9879900D082AD /* 2020-05-21.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5D002479A09D00578D76 /* 2020-05-21.data */; };
+		CCC48E4325E9879900D082AD /* 2020-05-22.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CCDD5CFD2479A09C00578D76 /* 2020-05-22.data */; };
+		CCC48E4425E9879900D082AD /* 2020-05-23.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC028EA0249E3EF800C5761C /* 2020-05-23.data */; };
+		CCC48E4525E9879900D082AD /* 2020-05-24.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC028E90249E3EF600C5761C /* 2020-05-24.data */; };
+		CCC48E4625E9879900D082AD /* 2020-05-25.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC028EA8249E3EF900C5761C /* 2020-05-25.data */; };
+		CCC48E4725E9879900D082AD /* 2020-05-26.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC028EA4249E3EF900C5761C /* 2020-05-26.data */; };
+		CCC48E4825E9879900D082AD /* 2020-05-27.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC028E8E249E3EF600C5761C /* 2020-05-27.data */; };
+		CCC48E4925E9879900D082AD /* 2020-05-28.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC028E91249E3EF700C5761C /* 2020-05-28.data */; };
+		CCC48E4A25E9879900D082AD /* 2020-05-29.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC028EA7249E3EF900C5761C /* 2020-05-29.data */; };
+		CCC48E4B25E9879900D082AD /* 2020-05-30.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC028EA2249E3EF800C5761C /* 2020-05-30.data */; };
+		CCC48E4C25E9879900D082AD /* 2020-05-31.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC028E9B249E3EF800C5761C /* 2020-05-31.data */; };
+		CCC48E4D25E9879900D082AD /* 2020-06-01.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC028E8F249E3EF600C5761C /* 2020-06-01.data */; };
+		CCC48E4E25E9879900D082AD /* 2020-06-02.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC028E9E249E3EF800C5761C /* 2020-06-02.data */; };
+		CCC48E4F25E9879900D082AD /* 2020-06-03.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC028E9D249E3EF800C5761C /* 2020-06-03.data */; };
+		CCC48E5025E9879900D082AD /* 2020-06-04.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC028E92249E3EF700C5761C /* 2020-06-04.data */; };
+		CCC48E5125E9879900D082AD /* 2020-06-05.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC028E9F249E3EF800C5761C /* 2020-06-05.data */; };
+		CCC48E5225E9879900D082AD /* 2020-06-06.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC028E95249E3EF700C5761C /* 2020-06-06.data */; };
+		CCC48E5325E9879900D082AD /* 2020-06-07.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC028E99249E3EF700C5761C /* 2020-06-07.data */; };
+		CCC48E5425E9879900D082AD /* 2020-06-08.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC028E93249E3EF700C5761C /* 2020-06-08.data */; };
+		CCC48E5525E9879900D082AD /* 2020-06-09.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC028E97249E3EF700C5761C /* 2020-06-09.data */; };
+		CCC48E5625E9879900D082AD /* 2020-06-10.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC028EA3249E3EF800C5761C /* 2020-06-10.data */; };
+		CCC48E5725E9879900D082AD /* 2020-06-11.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC028E96249E3EF700C5761C /* 2020-06-11.data */; };
+		CCC48E5825E9879900D082AD /* 2020-06-12.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC028EA1249E3EF800C5761C /* 2020-06-12.data */; };
+		CCC48E5925E9879900D082AD /* 2020-06-13.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC028E9C249E3EF800C5761C /* 2020-06-13.data */; };
+		CCC48E5A25E9879900D082AD /* 2020-06-14.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC028EA6249E3EF900C5761C /* 2020-06-14.data */; };
+		CCC48E5B25E9879900D082AD /* 2020-06-15.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC028E9A249E3EF800C5761C /* 2020-06-15.data */; };
+		CCC48E5C25E9879900D082AD /* 2020-06-16.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC028E94249E3EF700C5761C /* 2020-06-16.data */; };
+		CCC48E5D25E9879900D082AD /* 2020-06-17.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC028EA5249E3EF900C5761C /* 2020-06-17.data */; };
+		CCC48E5E25E9879900D082AD /* 2020-06-18.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC028EA9249E3EF900C5761C /* 2020-06-18.data */; };
+		CCC48E5F25E9879900D082AD /* 2020-06-19.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC028E98249E3EF700C5761C /* 2020-06-19.data */; };
+		CCC48E6325E987E300D082AD /* LispKitLogo.png in Copy image assets */ = {isa = PBXBuildFile; fileRef = CC299DFC23B80917007B8459 /* LispKitLogo.png */; };
+		CCC48E6725E987F400D082AD /* HtmlColors.plist in Copy color list assets */ = {isa = PBXBuildFile; fileRef = CCCAF5AE23B7A71400FE2C60 /* HtmlColors.plist */; };
+		CCC48E6B25E9881700D082AD /* All.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC44E5B121DECB850009969C /* All.scm */; };
+		CCC48E6C25E9881700D082AD /* Import.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCE4600221FD178C00B248D9 /* Import.scm */; };
+		CCC48E6D25E9881700D082AD /* R7RS.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC09ECF22198B87200F84713 /* R7RS.scm */; };
+		CCC48E6E25E9881700D082AD /* LispKit-Match.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC7A125A21E94D1700ABEA17 /* LispKit-Match.scm */; };
+		CCC48E6F25E9881700D082AD /* LispKit-WT-Tree.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCC48BF025D8623A00D082AD /* LispKit-WT-Tree.scm */; };
+		CCC48E7025E9881700D082AD /* SRFI-14.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC54924421DCDEA1004A0652 /* SRFI-14.scm */; };
+		CCC48E7125E9881700D082AD /* SRFI-101.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC54923A21D9823B004A0652 /* SRFI-101.scm */; };
+		CCC48E7225E9881800D082AD /* SRFI-125.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC2C73DE21A22CFD00B18661 /* SRFI-125.scm */; };
+		CCC48E7325E9881800D082AD /* SRFI-128.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCC951702426B54600FC915F /* SRFI-128.scm */; };
+		CCC48E7425E9881800D082AD /* SRFI-143.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC202DEF25ABB245003901BE /* SRFI-143.scm */; };
+		CCC48E7525E9881800D082AD /* SRFI-146.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC4A7DC22259748400936034 /* SRFI-146.scm */; };
+		CCC48E7625E9881800D082AD /* SRFI-154.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC08F42E25BCF14C0056C92C /* SRFI-154.scm */; };
+		CCC48E7725E9881800D082AD /* SRFI-155.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC08F43825BCFCAB0056C92C /* SRFI-155.scm */; };
+		CCC48E7825E9881800D082AD /* SRFI-165.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC4A7DC8225A344300936034 /* SRFI-165.scm */; };
+		CCC48E7925E9881800D082AD /* SRFI-167.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCF602E923A0F8F800087740 /* SRFI-167.scm */; };
+		CCC48E7A25E9881800D082AD /* SRFI-173.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC38528D23140F26001D5E56 /* SRFI-173.scm */; };
+		CCC48E7B25E9881800D082AD /* SRFI-174.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC5E53092358359900C72CE2 /* SRFI-174.scm */; };
+		CCC48E7C25E9881800D082AD /* SRFI-175.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCA7DC2D23875FE500785FBE /* SRFI-175.scm */; };
+		CCC48E7D25E9881800D082AD /* SRFI-194.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCC1E8BA251FEC38008B8AAA /* SRFI-194.scm */; };
+		CCC48E7E25E9881900D082AD /* SRFI-196.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCDB557F247C84BF0044714C /* SRFI-196.scm */; };
+		CCC48E7F25E9881900D082AD /* SRFI-204.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCC1E8B1251F668D008B8AAA /* SRFI-204.scm */; };
+		CCC48E8025E9881900D082AD /* SRFI-209.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC1D6CC1258CDF0000D36645 /* SRFI-209.scm */; };
+		CCC48E8125E9881900D082AD /* SRFI-210.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC0D7B392544AF6800FB9301 /* SRFI-210.scm */; };
+		CCC48E8525E9884300D082AD /* Pi.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCFBE5C31ECBA8DA0032254B /* Pi.scm */; };
+		CCC48E8625E9884300D082AD /* Math.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC0EBFF81ED37A76004510B2 /* Math.scm */; };
+		CCC48E8725E9884300D082AD /* Polynomials.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC926FA723FA127F00D91AB1 /* Polynomials.scm */; };
+		CCC48E8825E9884300D082AD /* SpellNumbers.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC78F31A23B439B5006F3901 /* SpellNumbers.scm */; };
+		CCC48E8925E9884300D082AD /* Streams.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC4A7DBA2258FC3C00936034 /* Streams.scm */; };
+		CCC48E8A25E9884300D082AD /* Topological.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC9EB1141F5C9D4000697511 /* Topological.scm */; };
+		CCC48E8B25E9884300D082AD /* EditDistance.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC1D6CB9258CCCFF00D36645 /* EditDistance.scm */; };
+		CCC48E8C25E9884300D082AD /* Queens.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC474EB01ED0390200B535E3 /* Queens.scm */; };
+		CCC48E8D25E9884300D082AD /* Sudoku.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCC284DB236D8CF100DC85E8 /* Sudoku.scm */; };
+		CCC48E8E25E9884400D082AD /* Coroutines.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC5E474220D45A8900F21B03 /* Coroutines.scm */; };
+		CCC48E8F25E9884400D082AD /* Prolog.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCBDB73A1EDB4AB3001606E2 /* Prolog.scm */; };
+		CCC48E9025E9884400D082AD /* Schelog.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCD3E15825C63898007FCE8A /* Schelog.scm */; };
+		CCC48E9125E9884400D082AD /* Compiler.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC4385BD20BB5EE200055289 /* Compiler.scm */; };
+		CCC48E9225E9884400D082AD /* AvlTrees.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC14F4AE1F9385BF000FB1E0 /* AvlTrees.scm */; };
+		CCC48E9325E9884400D082AD /* Plot.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC26264320FA003700AC08E8 /* Plot.scm */; };
+		CCC48E9425E9884400D082AD /* DrawTrees.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC8D20F42533C35F00741D07 /* DrawTrees.scm */; };
+		CCC48E9525E9884400D082AD /* VisualizePointSets.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC202DE325AA9D70003901BE /* VisualizePointSets.scm */; };
+		CCC48E9625E9884400D082AD /* Covid.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC7E7C2524564D33002E8A73 /* Covid.scm */; };
+		CCC48E9725E9884500D082AD /* Turtle.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC1EA5C8214E6BF3006BBE7E /* Turtle.scm */; };
+		CCC48E9825E9884500D082AD /* Maze.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC38529F23252217001D5E56 /* Maze.scm */; };
+		CCC48E9925E9884500D082AD /* PDF.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC750BD71F5AC68900CD82A2 /* PDF.scm */; };
+		CCC48E9A25E9884500D082AD /* HTTP.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC4385BB20BAB79500055289 /* HTTP.scm */; };
+		CCC48E9E25E9891300D082AD /* mini.sld in Copy pre-installed third-party Adapton library */ = {isa = PBXBuildFile; fileRef = CC385296231B2FED001D5E56 /* mini.sld */; };
+		CCC48E9F25E9891300D082AD /* micro.sld in Copy pre-installed third-party Adapton library */ = {isa = PBXBuildFile; fileRef = CC385295231B2FD1001D5E56 /* micro.sld */; };
+		CCC48EA025E9891300D082AD /* memoization.sld in Copy pre-installed third-party Adapton library */ = {isa = PBXBuildFile; fileRef = CC385294231B2FA4001D5E56 /* memoization.sld */; };
+		CCC48EA125E9891300D082AD /* set.sld in Copy pre-installed third-party Adapton library */ = {isa = PBXBuildFile; fileRef = CC385292231B2F2C001D5E56 /* set.sld */; };
+		CCC48EA525E9892F00D082AD /* xml.sld in Copy pre-installed LispKit library: LispKit SXML parsers */ = {isa = PBXBuildFile; fileRef = CC240E8B24FB154700FF6D0F /* xml.sld */; };
+		CCC48EA625E9892F00D082AD /* html.sld in Copy pre-installed LispKit library: LispKit SXML parsers */ = {isa = PBXBuildFile; fileRef = CC240E8C24FB17B400FF6D0F /* html.sld */; };
+		CCC48EAA25E9897C00D082AD /* internal.sld in Copy pre-installed LispKit library: LispKit Log Internal */ = {isa = PBXBuildFile; fileRef = CC82932E21D6E8E7003E1D3C /* internal.sld */; };
+		CCC48EAE25E9899B00D082AD /* support.sld in Copy pre-installed LispKit library: LispKit CLOS Support */ = {isa = PBXBuildFile; fileRef = CC703A1C218D09F700E71EA9 /* support.sld */; };
 		CCC4A3AB245D003000DE63E1 /* combinator.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCC4A3AA245CFFB800DE63E1 /* combinator.sld */; };
 		CCC5319E1D16E40D00FAED6E /* TextInputSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC5319D1D16E40D00FAED6E /* TextInputSource.swift */; };
 		CCC531A01D18595500FAED6E /* TextOutputTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC5319F1D18595500FAED6E /* TextOutputTarget.swift */; };
@@ -901,6 +1317,7 @@
 			dstPath = LispKit/Resources/Libraries/scheme;
 			dstSubfolderSpec = 7;
 			files = (
+				CCC48DDB25E985ED00D082AD /* red.sld in Copy pre-installed Scheme libraries */,
 				CC08F44125BDDCEC0056C92C /* bitwise.sld in Copy pre-installed Scheme libraries */,
 				CC08F44225BDDCEC0056C92C /* division.sld in Copy pre-installed Scheme libraries */,
 				CC202DEC25ABB150003901BE /* fixnum.sld in Copy pre-installed Scheme libraries */,
@@ -1037,6 +1454,531 @@
 				CC5848181E56BE2700BE6497 /* 41.sld in Copy pre-installed SRFI libraries */,
 			);
 			name = "Copy pre-installed SRFI libraries";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCC48D1C25E5CC7F00D082AD /* Copy default prelude */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = LispKit/Resources;
+			dstSubfolderSpec = 7;
+			files = (
+				CCC48D1D25E5CC9100D082AD /* Prelude.scm in Copy default prelude */,
+			);
+			name = "Copy default prelude";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCC48D2425E97DE100D082AD /* Copy pre-installed SRFI libraries */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = LispKit/Resources/Libraries/srfi;
+			dstSubfolderSpec = 7;
+			files = (
+				CCC48D2525E97E3800D082AD /* 1.sld in Copy pre-installed SRFI libraries */,
+				CCC48D2625E97E3800D082AD /* 2.sld in Copy pre-installed SRFI libraries */,
+				CCC48D2725E97E3800D082AD /* 6.sld in Copy pre-installed SRFI libraries */,
+				CCC48D2825E97E3800D082AD /* 8.sld in Copy pre-installed SRFI libraries */,
+				CCC48D2925E97E3800D082AD /* 9.sld in Copy pre-installed SRFI libraries */,
+				CCC48D2A25E97E3800D082AD /* 11.sld in Copy pre-installed SRFI libraries */,
+				CCC48D2B25E97E3800D082AD /* 14.sld in Copy pre-installed SRFI libraries */,
+				CCC48D2C25E97E3800D082AD /* 16.sld in Copy pre-installed SRFI libraries */,
+				CCC48D2D25E97E3800D082AD /* 17.sld in Copy pre-installed SRFI libraries */,
+				CCC48D2E25E97E3800D082AD /* 19.sld in Copy pre-installed SRFI libraries */,
+				CCC48D2F25E97E3800D082AD /* 23.sld in Copy pre-installed SRFI libraries */,
+				CCC48D3025E97E3800D082AD /* 26.sld in Copy pre-installed SRFI libraries */,
+				CCC48D3125E97E3800D082AD /* 27.sld in Copy pre-installed SRFI libraries */,
+				CCC48D3225E97E3800D082AD /* 28.sld in Copy pre-installed SRFI libraries */,
+				CCC48D3325E97E3800D082AD /* 31.sld in Copy pre-installed SRFI libraries */,
+				CCC48D3425E97E3800D082AD /* 33.sld in Copy pre-installed SRFI libraries */,
+				CCC48D3525E97E3800D082AD /* 34.sld in Copy pre-installed SRFI libraries */,
+				CCC48D3625E97E3800D082AD /* 35.sld in Copy pre-installed SRFI libraries */,
+				CCC48D3725E97E3800D082AD /* 39.sld in Copy pre-installed SRFI libraries */,
+				CCC48D3825E97E3800D082AD /* 41.sld in Copy pre-installed SRFI libraries */,
+				CCC48D3925E97E3800D082AD /* 46.sld in Copy pre-installed SRFI libraries */,
+				CCC48D3A25E97E3800D082AD /* 48.sld in Copy pre-installed SRFI libraries */,
+				CCC48D3B25E97E3800D082AD /* 51.sld in Copy pre-installed SRFI libraries */,
+				CCC48D3C25E97E3800D082AD /* 54.sld in Copy pre-installed SRFI libraries */,
+				CCC48D3D25E97E3800D082AD /* 55.sld in Copy pre-installed SRFI libraries */,
+				CCC48D3E25E97E3800D082AD /* 63.sld in Copy pre-installed SRFI libraries */,
+				CCC48D3F25E97E3800D082AD /* 64.sld in Copy pre-installed SRFI libraries */,
+				CCC48D4025E97E3800D082AD /* 69.sld in Copy pre-installed SRFI libraries */,
+				CCC48D4125E97E3800D082AD /* 87.sld in Copy pre-installed SRFI libraries */,
+				CCC48D4225E97E3800D082AD /* 95.sld in Copy pre-installed SRFI libraries */,
+				CCC48D4325E97E3800D082AD /* 98.sld in Copy pre-installed SRFI libraries */,
+				CCC48D4425E97E3800D082AD /* 101.sld in Copy pre-installed SRFI libraries */,
+				CCC48D4525E97E3800D082AD /* 111.sld in Copy pre-installed SRFI libraries */,
+				CCC48D4625E97E3800D082AD /* 112.sld in Copy pre-installed SRFI libraries */,
+				CCC48D4725E97E3800D082AD /* 113.sld in Copy pre-installed SRFI libraries */,
+				CCC48D4825E97E3800D082AD /* 121.sld in Copy pre-installed SRFI libraries */,
+				CCC48D4925E97E3800D082AD /* 125.sld in Copy pre-installed SRFI libraries */,
+				CCC48D4A25E97E3800D082AD /* 128.sld in Copy pre-installed SRFI libraries */,
+				CCC48D4B25E97E3800D082AD /* 129.sld in Copy pre-installed SRFI libraries */,
+				CCC48D4C25E97E3800D082AD /* 132.sld in Copy pre-installed SRFI libraries */,
+				CCC48D4D25E97E3800D082AD /* 133.sld in Copy pre-installed SRFI libraries */,
+				CCC48D4E25E97E3800D082AD /* 134.sld in Copy pre-installed SRFI libraries */,
+				CCC48D4F25E97E3800D082AD /* 135.sld in Copy pre-installed SRFI libraries */,
+				CCC48D5025E97E3800D082AD /* 137.sld in Copy pre-installed SRFI libraries */,
+				CCC48D5125E97E3800D082AD /* 142.sld in Copy pre-installed SRFI libraries */,
+				CCC48D5225E97E3800D082AD /* 143.sld in Copy pre-installed SRFI libraries */,
+				CCC48D5325E97E3800D082AD /* 145.sld in Copy pre-installed SRFI libraries */,
+				CCC48D5425E97E3800D082AD /* 146.sld in Copy pre-installed SRFI libraries */,
+				CCC48D5525E97E3800D082AD /* 151.sld in Copy pre-installed SRFI libraries */,
+				CCC48D5625E97E3800D082AD /* 152.sld in Copy pre-installed SRFI libraries */,
+				CCC48D5725E97E3800D082AD /* 154.sld in Copy pre-installed SRFI libraries */,
+				CCC48D5825E97E3800D082AD /* 155.sld in Copy pre-installed SRFI libraries */,
+				CCC48D5925E97E3800D082AD /* 158.sld in Copy pre-installed SRFI libraries */,
+				CCC48D5A25E97E3800D082AD /* 161.sld in Copy pre-installed SRFI libraries */,
+				CCC48D5B25E97E3800D082AD /* 162.sld in Copy pre-installed SRFI libraries */,
+				CCC48D5C25E97E3800D082AD /* 165.sld in Copy pre-installed SRFI libraries */,
+				CCC48D5D25E97E3800D082AD /* 173.sld in Copy pre-installed SRFI libraries */,
+				CCC48D5E25E97E3800D082AD /* 174.sld in Copy pre-installed SRFI libraries */,
+				CCC48D5F25E97E3800D082AD /* 175.sld in Copy pre-installed SRFI libraries */,
+				CCC48D6025E97E3800D082AD /* 177.sld in Copy pre-installed SRFI libraries */,
+				CCC48D6125E97E3800D082AD /* 180.sld in Copy pre-installed SRFI libraries */,
+				CCC48D6225E97E3800D082AD /* 194.sld in Copy pre-installed SRFI libraries */,
+				CCC48D6325E97E3900D082AD /* 195.sld in Copy pre-installed SRFI libraries */,
+				CCC48D6425E97E3900D082AD /* 196.sld in Copy pre-installed SRFI libraries */,
+				CCC48D6525E97E3900D082AD /* 204.sld in Copy pre-installed SRFI libraries */,
+				CCC48D6625E97E3900D082AD /* 209.sld in Copy pre-installed SRFI libraries */,
+				CCC48D6725E97E3900D082AD /* 210.sld in Copy pre-installed SRFI libraries */,
+			);
+			name = "Copy pre-installed SRFI libraries";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCC48D6B25E97E8500D082AD /* Copy pre-installed LispKit library: SRFI 14 */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = LispKit/Resources/Libraries/srfi/14;
+			dstSubfolderSpec = 7;
+			files = (
+				CCC48D6C25E97EB800D082AD /* ascii.sld in Copy pre-installed LispKit library: SRFI 14 */,
+			);
+			name = "Copy pre-installed LispKit library: SRFI 14";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCC48D7025E97ED300D082AD /* Copy pre-installed LispKit library: SRFI 41 */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = LispKit/Resources/Libraries/srfi/41;
+			dstSubfolderSpec = 7;
+			files = (
+				CCC48D7125E97EF000D082AD /* derived.sld in Copy pre-installed LispKit library: SRFI 41 */,
+				CCC48D7225E97EF000D082AD /* primitive.sld in Copy pre-installed LispKit library: SRFI 41 */,
+			);
+			name = "Copy pre-installed LispKit library: SRFI 41";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCC48D7625E97F0500D082AD /* Copy pre-installed LispKit library: SRFI 69 */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = LispKit/Resources/Libraries/srfi/69;
+			dstSubfolderSpec = 7;
+			files = (
+				CCC48D7725E97F2100D082AD /* internal.sld in Copy pre-installed LispKit library: SRFI 69 */,
+			);
+			name = "Copy pre-installed LispKit library: SRFI 69";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCC48D7B25E97F8100D082AD /* Copy pre-installed LispKit library: SRFI 135 */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = LispKit/Resources/Libraries/srfi/135;
+			dstSubfolderSpec = 7;
+			files = (
+				CCC48D7C25E97FA100D082AD /* kernel0.sld in Copy pre-installed LispKit library: SRFI 135 */,
+			);
+			name = "Copy pre-installed LispKit library: SRFI 135";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCC48D8025E97FBC00D082AD /* Copy pre-installed LispKit library: SRFI 146 */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = LispKit/Resources/Libraries/srfi/146;
+			dstSubfolderSpec = 7;
+			files = (
+				CCC48D8125E97FD400D082AD /* rbtree.sld in Copy pre-installed LispKit library: SRFI 146 */,
+			);
+			name = "Copy pre-installed LispKit library: SRFI 146";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCC48D8525E97FF500D082AD /* Copy pre-installed LispKit library: SRFI 167 */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = LispKit/Resources/Libraries/srfi/167;
+			dstSubfolderSpec = 7;
+			files = (
+				CCC48D8625E9801300D082AD /* engine.sld in Copy pre-installed LispKit library: SRFI 167 */,
+				CCC48D8725E9801300D082AD /* pack.sld in Copy pre-installed LispKit library: SRFI 167 */,
+				CCC48D8825E9801300D082AD /* memory.sld in Copy pre-installed LispKit library: SRFI 167 */,
+			);
+			name = "Copy pre-installed LispKit library: SRFI 167";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCC48D8C25E9803400D082AD /* Copy pre-installed LispKit libraries */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = LispKit/Resources/Libraries/lispkit;
+			dstSubfolderSpec = 7;
+			files = (
+				CCC48D8D25E9806600D082AD /* log.sld in Copy pre-installed LispKit libraries */,
+				CCC48D8E25E9806600D082AD /* test.sld in Copy pre-installed LispKit libraries */,
+				CCC48D8F25E9806600D082AD /* match.sld in Copy pre-installed LispKit libraries */,
+				CCC48D9025E9806600D082AD /* datatype.sld in Copy pre-installed LispKit libraries */,
+				CCC48D9125E9806600D082AD /* object.sld in Copy pre-installed LispKit libraries */,
+				CCC48D9225E9806600D082AD /* enum.sld in Copy pre-installed LispKit libraries */,
+				CCC48D9325E9806600D082AD /* comparator.sld in Copy pre-installed LispKit libraries */,
+				CCC48D9425E9806600D082AD /* combinator.sld in Copy pre-installed LispKit libraries */,
+				CCC48D9525E9806600D082AD /* iterate.sld in Copy pre-installed LispKit libraries */,
+				CCC48D9625E9806600D082AD /* set.sld in Copy pre-installed LispKit libraries */,
+				CCC48D9725E9806600D082AD /* stack.sld in Copy pre-installed LispKit libraries */,
+				CCC48D9825E9806600D082AD /* queue.sld in Copy pre-installed LispKit libraries */,
+				CCC48D9925E9806600D082AD /* heap.sld in Copy pre-installed LispKit libraries */,
+				CCC48D9A25E9806600D082AD /* disjoint-set.sld in Copy pre-installed LispKit libraries */,
+				CCC48D9B25E9806600D082AD /* graph.sld in Copy pre-installed LispKit libraries */,
+				CCC48D9C25E9806600D082AD /* wt-tree.sld in Copy pre-installed LispKit libraries */,
+				CCC48D9D25E9806600D082AD /* stream.sld in Copy pre-installed LispKit libraries */,
+				CCC48D9E25E9806600D082AD /* prettify.sld in Copy pre-installed LispKit libraries */,
+				CCC48D9F25E9806600D082AD /* csv.sld in Copy pre-installed LispKit libraries */,
+				CCC48DA025E9806600D082AD /* json.sld in Copy pre-installed LispKit libraries */,
+				CCC48DA125E9806600D082AD /* pdf.sld in Copy pre-installed LispKit libraries */,
+				CCC48DA225E9806600D082AD /* clos.sld in Copy pre-installed LispKit libraries */,
+				CCC48DA325E9806600D082AD /* prolog.sld in Copy pre-installed LispKit libraries */,
+				CCC48DA425E9806600D082AD /* logic.sld in Copy pre-installed LispKit libraries */,
+				CCC48DA525E9806600D082AD /* sxml.sld in Copy pre-installed LispKit libraries */,
+			);
+			name = "Copy pre-installed LispKit libraries";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCC48DA925E9809000D082AD /* Copy pre-installed LispKit library: LispKit Draw Turtle */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = LispKit/Resources/Libraries/lispkit/draw;
+			dstSubfolderSpec = 7;
+			files = (
+				CCC48DAA25E980B000D082AD /* turtle.sld in Copy pre-installed LispKit library: LispKit Draw Turtle */,
+			);
+			name = "Copy pre-installed LispKit library: LispKit Draw Turtle";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCC48DAE25E980D400D082AD /* Copy pre-installed LispKit library: LispKit CLOS Support */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = LispKit/Resources/Libraries/lispkit/clos;
+			dstSubfolderSpec = 7;
+			files = (
+				CCC48EAE25E9899B00D082AD /* support.sld in Copy pre-installed LispKit library: LispKit CLOS Support */,
+			);
+			name = "Copy pre-installed LispKit library: LispKit CLOS Support";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCC48DAF25E982A100D082AD /* Copy pre-installed LispKit library: LispKit Log Internal */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = LispKit/Resources/Libraries/lispkit/log;
+			dstSubfolderSpec = 7;
+			files = (
+				CCC48EAA25E9897C00D082AD /* internal.sld in Copy pre-installed LispKit library: LispKit Log Internal */,
+			);
+			name = "Copy pre-installed LispKit library: LispKit Log Internal";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCC48DB025E982E300D082AD /* Copy pre-installed LispKit library: LispKit SXML parsers */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = LispKit/Resources/Libraries/lispkit/sxml;
+			dstSubfolderSpec = 7;
+			files = (
+				CCC48EA525E9892F00D082AD /* xml.sld in Copy pre-installed LispKit library: LispKit SXML parsers */,
+				CCC48EA625E9892F00D082AD /* html.sld in Copy pre-installed LispKit library: LispKit SXML parsers */,
+			);
+			name = "Copy pre-installed LispKit library: LispKit SXML parsers";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCC48DB125E9832100D082AD /* Copy pre-installed Scheme libraries */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = LispKit/Resources/Libraries/scheme;
+			dstSubfolderSpec = 7;
+			files = (
+				CCC48DC725E9846300D082AD /* base.sld in Copy pre-installed Scheme libraries */,
+				CCC48DC825E9846300D082AD /* case-lambda.sld in Copy pre-installed Scheme libraries */,
+				CCC48DC925E9846300D082AD /* char.sld in Copy pre-installed Scheme libraries */,
+				CCC48DCA25E9846300D082AD /* complex.sld in Copy pre-installed Scheme libraries */,
+				CCC48DCB25E9846300D082AD /* cxr.sld in Copy pre-installed Scheme libraries */,
+				CCC48DCC25E9846300D082AD /* eval.sld in Copy pre-installed Scheme libraries */,
+				CCC48DCD25E9846300D082AD /* file.sld in Copy pre-installed Scheme libraries */,
+				CCC48DCE25E9846300D082AD /* inexact.sld in Copy pre-installed Scheme libraries */,
+				CCC48DCF25E9846300D082AD /* lazy.sld in Copy pre-installed Scheme libraries */,
+				CCC48DD025E9846300D082AD /* load.sld in Copy pre-installed Scheme libraries */,
+				CCC48DD125E9846300D082AD /* process-context.sld in Copy pre-installed Scheme libraries */,
+				CCC48DD225E9846300D082AD /* read.sld in Copy pre-installed Scheme libraries */,
+				CCC48DD325E9846400D082AD /* repl.sld in Copy pre-installed Scheme libraries */,
+				CCC48DD425E9846400D082AD /* time.sld in Copy pre-installed Scheme libraries */,
+				CCC48DD525E9846400D082AD /* write.sld in Copy pre-installed Scheme libraries */,
+				CCC48DD625E9846400D082AD /* r5rs.sld in Copy pre-installed Scheme libraries */,
+				CCC48DD725E9846400D082AD /* r5rs-syntax.sld in Copy pre-installed Scheme libraries */,
+				CCC48DB225E9840300D082AD /* red.sld in Copy pre-installed Scheme libraries */,
+				CCC48DB325E9840300D082AD /* bitwise.sld in Copy pre-installed Scheme libraries */,
+				CCC48DB425E9840300D082AD /* box.sld in Copy pre-installed Scheme libraries */,
+				CCC48DB525E9840300D082AD /* charset.sld in Copy pre-installed Scheme libraries */,
+				CCC48DB625E9840300D082AD /* comparator.sld in Copy pre-installed Scheme libraries */,
+				CCC48DB725E9840300D082AD /* division.sld in Copy pre-installed Scheme libraries */,
+				CCC48DB825E9840300D082AD /* fixnum.sld in Copy pre-installed Scheme libraries */,
+				CCC48DB925E9840300D082AD /* generator.sld in Copy pre-installed Scheme libraries */,
+				CCC48DBA25E9840300D082AD /* hash-table.sld in Copy pre-installed Scheme libraries */,
+				CCC48DBB25E9840300D082AD /* ideque.sld in Copy pre-installed Scheme libraries */,
+				CCC48DBC25E9840300D082AD /* list.sld in Copy pre-installed Scheme libraries */,
+				CCC48DBD25E9840300D082AD /* mapping.sld in Copy pre-installed Scheme libraries */,
+				CCC48DBE25E9840300D082AD /* rlist.sld in Copy pre-installed Scheme libraries */,
+				CCC48DBF25E9840300D082AD /* set.sld in Copy pre-installed Scheme libraries */,
+				CCC48DC025E9840300D082AD /* sort.sld in Copy pre-installed Scheme libraries */,
+				CCC48DC125E9840300D082AD /* stream.sld in Copy pre-installed Scheme libraries */,
+				CCC48DC225E9840300D082AD /* text.sld in Copy pre-installed Scheme libraries */,
+				CCC48DC325E9840300D082AD /* vector.sld in Copy pre-installed Scheme libraries */,
+			);
+			name = "Copy pre-installed Scheme libraries";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCC48DDF25E9861600D082AD /* Copy pre-installed third-party libraries */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "LispKit/Resources/Libraries/third-party";
+			dstSubfolderSpec = 7;
+			files = (
+			);
+			name = "Copy pre-installed third-party libraries";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCC48DE025E9862C00D082AD /* Copy pre-installed third-party Adapton library */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "LispKit/Resources/Libraries/third-party/adapton";
+			dstSubfolderSpec = 7;
+			files = (
+				CCC48E9E25E9891300D082AD /* mini.sld in Copy pre-installed third-party Adapton library */,
+				CCC48E9F25E9891300D082AD /* micro.sld in Copy pre-installed third-party Adapton library */,
+				CCC48EA025E9891300D082AD /* memoization.sld in Copy pre-installed third-party Adapton library */,
+				CCC48EA125E9891300D082AD /* set.sld in Copy pre-installed third-party Adapton library */,
+			);
+			name = "Copy pre-installed third-party Adapton library";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCC48DE125E9866200D082AD /* Copy examples */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = LispKit/Resources/Examples;
+			dstSubfolderSpec = 7;
+			files = (
+				CCC48E8525E9884300D082AD /* Pi.scm in Copy examples */,
+				CCC48E8625E9884300D082AD /* Math.scm in Copy examples */,
+				CCC48E8725E9884300D082AD /* Polynomials.scm in Copy examples */,
+				CCC48E8825E9884300D082AD /* SpellNumbers.scm in Copy examples */,
+				CCC48E8925E9884300D082AD /* Streams.scm in Copy examples */,
+				CCC48E8A25E9884300D082AD /* Topological.scm in Copy examples */,
+				CCC48E8B25E9884300D082AD /* EditDistance.scm in Copy examples */,
+				CCC48E8C25E9884300D082AD /* Queens.scm in Copy examples */,
+				CCC48E8D25E9884300D082AD /* Sudoku.scm in Copy examples */,
+				CCC48E8E25E9884400D082AD /* Coroutines.scm in Copy examples */,
+				CCC48E8F25E9884400D082AD /* Prolog.scm in Copy examples */,
+				CCC48E9025E9884400D082AD /* Schelog.scm in Copy examples */,
+				CCC48E9125E9884400D082AD /* Compiler.scm in Copy examples */,
+				CCC48E9225E9884400D082AD /* AvlTrees.scm in Copy examples */,
+				CCC48E9325E9884400D082AD /* Plot.scm in Copy examples */,
+				CCC48E9425E9884400D082AD /* DrawTrees.scm in Copy examples */,
+				CCC48E9525E9884400D082AD /* VisualizePointSets.scm in Copy examples */,
+				CCC48E9625E9884400D082AD /* Covid.scm in Copy examples */,
+				CCC48E9725E9884500D082AD /* Turtle.scm in Copy examples */,
+				CCC48E9825E9884500D082AD /* Maze.scm in Copy examples */,
+				CCC48E9925E9884500D082AD /* PDF.scm in Copy examples */,
+				CCC48E9A25E9884500D082AD /* HTTP.scm in Copy examples */,
+			);
+			name = "Copy examples";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCC48DE225E9868900D082AD /* Copy tests */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = LispKit/Resources/Tests;
+			dstSubfolderSpec = 7;
+			files = (
+				CCC48E6B25E9881700D082AD /* All.scm in Copy tests */,
+				CCC48E6C25E9881700D082AD /* Import.scm in Copy tests */,
+				CCC48E6D25E9881700D082AD /* R7RS.scm in Copy tests */,
+				CCC48E6E25E9881700D082AD /* LispKit-Match.scm in Copy tests */,
+				CCC48E6F25E9881700D082AD /* LispKit-WT-Tree.scm in Copy tests */,
+				CCC48E7025E9881700D082AD /* SRFI-14.scm in Copy tests */,
+				CCC48E7125E9881700D082AD /* SRFI-101.scm in Copy tests */,
+				CCC48E7225E9881800D082AD /* SRFI-125.scm in Copy tests */,
+				CCC48E7325E9881800D082AD /* SRFI-128.scm in Copy tests */,
+				CCC48E7425E9881800D082AD /* SRFI-143.scm in Copy tests */,
+				CCC48E7525E9881800D082AD /* SRFI-146.scm in Copy tests */,
+				CCC48E7625E9881800D082AD /* SRFI-154.scm in Copy tests */,
+				CCC48E7725E9881800D082AD /* SRFI-155.scm in Copy tests */,
+				CCC48E7825E9881800D082AD /* SRFI-165.scm in Copy tests */,
+				CCC48E7925E9881800D082AD /* SRFI-167.scm in Copy tests */,
+				CCC48E7A25E9881800D082AD /* SRFI-173.scm in Copy tests */,
+				CCC48E7B25E9881800D082AD /* SRFI-174.scm in Copy tests */,
+				CCC48E7C25E9881800D082AD /* SRFI-175.scm in Copy tests */,
+				CCC48E7D25E9881800D082AD /* SRFI-194.scm in Copy tests */,
+				CCC48E7E25E9881900D082AD /* SRFI-196.scm in Copy tests */,
+				CCC48E7F25E9881900D082AD /* SRFI-204.scm in Copy tests */,
+				CCC48E8025E9881900D082AD /* SRFI-209.scm in Copy tests */,
+				CCC48E8125E9881900D082AD /* SRFI-210.scm in Copy tests */,
+			);
+			name = "Copy tests";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCC48DE325E986CA00D082AD /* Copy color list assets */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = LispKit/Resources/Assets/ColorLists;
+			dstSubfolderSpec = 7;
+			files = (
+				CCC48E6725E987F400D082AD /* HtmlColors.plist in Copy color list assets */,
+			);
+			name = "Copy color list assets";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCC48DE425E9872C00D082AD /* Copy image assets */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = LispKit/Resources/Assets/Images;
+			dstSubfolderSpec = 7;
+			files = (
+				CCC48E6325E987E300D082AD /* LispKitLogo.png in Copy image assets */,
+			);
+			name = "Copy image assets";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCC48DE525E9875D00D082AD /* Copy dataset covid assets */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = LispKit/Resources/Assets/Datasets/Covid;
+			dstSubfolderSpec = 7;
+			files = (
+				CCC48DE625E9879700D082AD /* Covid.sqlite3 in Copy dataset covid assets */,
+				CCC48DE725E9879700D082AD /* 2020-02-20.data in Copy dataset covid assets */,
+				CCC48DE825E9879700D082AD /* 2020-02-21.data in Copy dataset covid assets */,
+				CCC48DE925E9879700D082AD /* 2020-02-22.data in Copy dataset covid assets */,
+				CCC48DEA25E9879700D082AD /* 2020-02-23.data in Copy dataset covid assets */,
+				CCC48DEB25E9879700D082AD /* 2020-02-24.data in Copy dataset covid assets */,
+				CCC48DEC25E9879700D082AD /* 2020-02-25.data in Copy dataset covid assets */,
+				CCC48DED25E9879700D082AD /* 2020-02-26.data in Copy dataset covid assets */,
+				CCC48DEE25E9879700D082AD /* 2020-02-27.data in Copy dataset covid assets */,
+				CCC48DEF25E9879700D082AD /* 2020-02-28.data in Copy dataset covid assets */,
+				CCC48DF025E9879700D082AD /* 2020-02-29.data in Copy dataset covid assets */,
+				CCC48DF125E9879700D082AD /* 2020-03-01.data in Copy dataset covid assets */,
+				CCC48DF225E9879700D082AD /* 2020-03-02.data in Copy dataset covid assets */,
+				CCC48DF325E9879700D082AD /* 2020-03-03.data in Copy dataset covid assets */,
+				CCC48DF425E9879700D082AD /* 2020-03-04.data in Copy dataset covid assets */,
+				CCC48DF525E9879700D082AD /* 2020-03-05.data in Copy dataset covid assets */,
+				CCC48DF625E9879700D082AD /* 2020-03-06.data in Copy dataset covid assets */,
+				CCC48DF725E9879700D082AD /* 2020-03-07.data in Copy dataset covid assets */,
+				CCC48DF825E9879700D082AD /* 2020-03-08.data in Copy dataset covid assets */,
+				CCC48DF925E9879700D082AD /* 2020-03-09.data in Copy dataset covid assets */,
+				CCC48DFA25E9879700D082AD /* 2020-03-10.data in Copy dataset covid assets */,
+				CCC48DFB25E9879700D082AD /* 2020-03-11.data in Copy dataset covid assets */,
+				CCC48DFC25E9879700D082AD /* 2020-03-12.data in Copy dataset covid assets */,
+				CCC48DFD25E9879700D082AD /* 2020-03-13.data in Copy dataset covid assets */,
+				CCC48DFE25E9879700D082AD /* 2020-03-14.data in Copy dataset covid assets */,
+				CCC48DFF25E9879700D082AD /* 2020-03-15.data in Copy dataset covid assets */,
+				CCC48E0025E9879700D082AD /* 2020-03-16.data in Copy dataset covid assets */,
+				CCC48E0125E9879700D082AD /* 2020-03-17.data in Copy dataset covid assets */,
+				CCC48E0225E9879700D082AD /* 2020-03-18.data in Copy dataset covid assets */,
+				CCC48E0325E9879700D082AD /* 2020-03-19.data in Copy dataset covid assets */,
+				CCC48E0425E9879700D082AD /* 2020-03-20.data in Copy dataset covid assets */,
+				CCC48E0525E9879700D082AD /* 2020-03-21.data in Copy dataset covid assets */,
+				CCC48E0625E9879700D082AD /* 2020-03-22.data in Copy dataset covid assets */,
+				CCC48E0725E9879700D082AD /* 2020-03-23.data in Copy dataset covid assets */,
+				CCC48E0825E9879700D082AD /* 2020-03-24.data in Copy dataset covid assets */,
+				CCC48E0925E9879700D082AD /* 2020-03-25.data in Copy dataset covid assets */,
+				CCC48E0A25E9879700D082AD /* 2020-03-26.data in Copy dataset covid assets */,
+				CCC48E0B25E9879700D082AD /* 2020-03-27.data in Copy dataset covid assets */,
+				CCC48E0C25E9879700D082AD /* 2020-03-28.data in Copy dataset covid assets */,
+				CCC48E0D25E9879700D082AD /* 2020-03-29.data in Copy dataset covid assets */,
+				CCC48E0E25E9879800D082AD /* 2020-03-30.data in Copy dataset covid assets */,
+				CCC48E0F25E9879800D082AD /* 2020-03-31.data in Copy dataset covid assets */,
+				CCC48E1025E9879800D082AD /* 2020-04-01.data in Copy dataset covid assets */,
+				CCC48E1125E9879800D082AD /* 2020-04-02.data in Copy dataset covid assets */,
+				CCC48E1225E9879800D082AD /* 2020-04-03.data in Copy dataset covid assets */,
+				CCC48E1325E9879800D082AD /* 2020-04-04.data in Copy dataset covid assets */,
+				CCC48E1425E9879800D082AD /* 2020-04-05.data in Copy dataset covid assets */,
+				CCC48E1525E9879800D082AD /* 2020-04-06.data in Copy dataset covid assets */,
+				CCC48E1625E9879800D082AD /* 2020-04-07.data in Copy dataset covid assets */,
+				CCC48E1725E9879800D082AD /* 2020-04-08.data in Copy dataset covid assets */,
+				CCC48E1825E9879800D082AD /* 2020-04-09.data in Copy dataset covid assets */,
+				CCC48E1925E9879800D082AD /* 2020-04-10.data in Copy dataset covid assets */,
+				CCC48E1A25E9879800D082AD /* 2020-04-11.data in Copy dataset covid assets */,
+				CCC48E1B25E9879800D082AD /* 2020-04-12.data in Copy dataset covid assets */,
+				CCC48E1C25E9879800D082AD /* 2020-04-13.data in Copy dataset covid assets */,
+				CCC48E1D25E9879800D082AD /* 2020-04-14.data in Copy dataset covid assets */,
+				CCC48E1E25E9879800D082AD /* 2020-04-15.data in Copy dataset covid assets */,
+				CCC48E1F25E9879800D082AD /* 2020-04-16.data in Copy dataset covid assets */,
+				CCC48E2025E9879800D082AD /* 2020-04-17.data in Copy dataset covid assets */,
+				CCC48E2125E9879800D082AD /* 2020-04-18.data in Copy dataset covid assets */,
+				CCC48E2225E9879800D082AD /* 2020-04-19.data in Copy dataset covid assets */,
+				CCC48E2325E9879800D082AD /* 2020-04-20.data in Copy dataset covid assets */,
+				CCC48E2425E9879800D082AD /* 2020-04-21.data in Copy dataset covid assets */,
+				CCC48E2525E9879800D082AD /* 2020-04-22.data in Copy dataset covid assets */,
+				CCC48E2625E9879800D082AD /* 2020-04-23.data in Copy dataset covid assets */,
+				CCC48E2725E9879800D082AD /* 2020-04-24.data in Copy dataset covid assets */,
+				CCC48E2825E9879800D082AD /* 2020-04-25.data in Copy dataset covid assets */,
+				CCC48E2925E9879800D082AD /* 2020-04-26.data in Copy dataset covid assets */,
+				CCC48E2A25E9879800D082AD /* 2020-04-27.data in Copy dataset covid assets */,
+				CCC48E2B25E9879800D082AD /* 2020-04-28.data in Copy dataset covid assets */,
+				CCC48E2C25E9879800D082AD /* 2020-04-29.data in Copy dataset covid assets */,
+				CCC48E2D25E9879800D082AD /* 2020-04-30.data in Copy dataset covid assets */,
+				CCC48E2E25E9879800D082AD /* 2020-05-01.data in Copy dataset covid assets */,
+				CCC48E2F25E9879800D082AD /* 2020-05-02.data in Copy dataset covid assets */,
+				CCC48E3025E9879800D082AD /* 2020-05-03.data in Copy dataset covid assets */,
+				CCC48E3125E9879800D082AD /* 2020-05-04.data in Copy dataset covid assets */,
+				CCC48E3225E9879800D082AD /* 2020-05-05.data in Copy dataset covid assets */,
+				CCC48E3325E9879800D082AD /* 2020-05-06.data in Copy dataset covid assets */,
+				CCC48E3425E9879800D082AD /* 2020-05-07.data in Copy dataset covid assets */,
+				CCC48E3525E9879800D082AD /* 2020-05-08.data in Copy dataset covid assets */,
+				CCC48E3625E9879900D082AD /* 2020-05-09.data in Copy dataset covid assets */,
+				CCC48E3725E9879900D082AD /* 2020-05-10.data in Copy dataset covid assets */,
+				CCC48E3825E9879900D082AD /* 2020-05-11.data in Copy dataset covid assets */,
+				CCC48E3925E9879900D082AD /* 2020-05-12.data in Copy dataset covid assets */,
+				CCC48E3A25E9879900D082AD /* 2020-05-13.data in Copy dataset covid assets */,
+				CCC48E3B25E9879900D082AD /* 2020-05-14.data in Copy dataset covid assets */,
+				CCC48E3C25E9879900D082AD /* 2020-05-15.data in Copy dataset covid assets */,
+				CCC48E3D25E9879900D082AD /* 2020-05-16.data in Copy dataset covid assets */,
+				CCC48E3E25E9879900D082AD /* 2020-05-17.data in Copy dataset covid assets */,
+				CCC48E3F25E9879900D082AD /* 2020-05-18.data in Copy dataset covid assets */,
+				CCC48E4025E9879900D082AD /* 2020-05-19.data in Copy dataset covid assets */,
+				CCC48E4125E9879900D082AD /* 2020-05-20.data in Copy dataset covid assets */,
+				CCC48E4225E9879900D082AD /* 2020-05-21.data in Copy dataset covid assets */,
+				CCC48E4325E9879900D082AD /* 2020-05-22.data in Copy dataset covid assets */,
+				CCC48E4425E9879900D082AD /* 2020-05-23.data in Copy dataset covid assets */,
+				CCC48E4525E9879900D082AD /* 2020-05-24.data in Copy dataset covid assets */,
+				CCC48E4625E9879900D082AD /* 2020-05-25.data in Copy dataset covid assets */,
+				CCC48E4725E9879900D082AD /* 2020-05-26.data in Copy dataset covid assets */,
+				CCC48E4825E9879900D082AD /* 2020-05-27.data in Copy dataset covid assets */,
+				CCC48E4925E9879900D082AD /* 2020-05-28.data in Copy dataset covid assets */,
+				CCC48E4A25E9879900D082AD /* 2020-05-29.data in Copy dataset covid assets */,
+				CCC48E4B25E9879900D082AD /* 2020-05-30.data in Copy dataset covid assets */,
+				CCC48E4C25E9879900D082AD /* 2020-05-31.data in Copy dataset covid assets */,
+				CCC48E4D25E9879900D082AD /* 2020-06-01.data in Copy dataset covid assets */,
+				CCC48E4E25E9879900D082AD /* 2020-06-02.data in Copy dataset covid assets */,
+				CCC48E4F25E9879900D082AD /* 2020-06-03.data in Copy dataset covid assets */,
+				CCC48E5025E9879900D082AD /* 2020-06-04.data in Copy dataset covid assets */,
+				CCC48E5125E9879900D082AD /* 2020-06-05.data in Copy dataset covid assets */,
+				CCC48E5225E9879900D082AD /* 2020-06-06.data in Copy dataset covid assets */,
+				CCC48E5325E9879900D082AD /* 2020-06-07.data in Copy dataset covid assets */,
+				CCC48E5425E9879900D082AD /* 2020-06-08.data in Copy dataset covid assets */,
+				CCC48E5525E9879900D082AD /* 2020-06-09.data in Copy dataset covid assets */,
+				CCC48E5625E9879900D082AD /* 2020-06-10.data in Copy dataset covid assets */,
+				CCC48E5725E9879900D082AD /* 2020-06-11.data in Copy dataset covid assets */,
+				CCC48E5825E9879900D082AD /* 2020-06-12.data in Copy dataset covid assets */,
+				CCC48E5925E9879900D082AD /* 2020-06-13.data in Copy dataset covid assets */,
+				CCC48E5A25E9879900D082AD /* 2020-06-14.data in Copy dataset covid assets */,
+				CCC48E5B25E9879900D082AD /* 2020-06-15.data in Copy dataset covid assets */,
+				CCC48E5C25E9879900D082AD /* 2020-06-16.data in Copy dataset covid assets */,
+				CCC48E5D25E9879900D082AD /* 2020-06-17.data in Copy dataset covid assets */,
+				CCC48E5E25E9879900D082AD /* 2020-06-18.data in Copy dataset covid assets */,
+				CCC48E5F25E9879900D082AD /* 2020-06-19.data in Copy dataset covid assets */,
+			);
+			name = "Copy dataset covid assets";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		CCF602EB23A0FA7000087740 /* Copy pre-installed LispKit library: SRFI 167 */ = {
@@ -1456,6 +2398,9 @@
 		CCC41DC91D330439003CB4D0 /* DynamicWind.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = DynamicWind.scm; sourceTree = "<group>"; };
 		CCC48BF025D8623A00D082AD /* LispKit-WT-Tree.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "LispKit-WT-Tree.scm"; sourceTree = "<group>"; };
 		CCC48C4925E327D200D082AD /* Environments.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Environments.scm; sourceTree = "<group>"; };
+		CCC48C5625E5B8DC00D082AD /* LispKit_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = LispKit_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		CCC48C5825E5B8DC00D082AD /* LispKit_iOS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LispKit_iOS.h; sourceTree = "<group>"; };
+		CCC48C5925E5B8DC00D082AD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CCC4A3AA245CFFB800DE63E1 /* combinator.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = combinator.sld; sourceTree = "<group>"; };
 		CCC5319D1D16E40D00FAED6E /* TextInputSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextInputSource.swift; sourceTree = "<group>"; };
 		CCC5319F1D18595500FAED6E /* TextOutputTarget.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextOutputTarget.swift; sourceTree = "<group>"; };
@@ -1564,6 +2509,17 @@
 			buildActionMask = 2147483647;
 			files = (
 				CCAD52C51C48403900DBD8EE /* LispKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCC48C5325E5B8DC00D082AD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CCC48D0525E5BFAE00D082AD /* MarkdownKit in Frameworks */,
+				CCC48D0325E5BFA300D082AD /* NumberKit in Frameworks */,
+				CCC48D0725E5BFB300D082AD /* SQLiteExpress in Frameworks */,
+				CCC48D0925E5BFB800D082AD /* ZIPFoundation in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2178,6 +3134,7 @@
 				CCCAF92D1F941A43006692E9 /* Package.swift */,
 				CC48055B1CFE366100D608B6 /* Assets */,
 				CCAD52BC1C48403800DBD8EE /* LispKit */,
+				CCC48C5725E5B8DC00D082AD /* LispKit iOS */,
 				CC3B64282386025500807476 /* LispKitTools */,
 				CC1227371CBFE74500821EB7 /* LispKitRepl */,
 				CCAD52C81C48403900DBD8EE /* LispKitTests */,
@@ -2193,6 +3150,7 @@
 				CCAD52C41C48403900DBD8EE /* LispKitTests.xctest */,
 				CC1227361CBFE74500821EB7 /* LispKitRepl.app */,
 				CC3B64272386025500807476 /* LispKitTools.framework */,
+				CCC48C5625E5B8DC00D082AD /* LispKit_iOS.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -2292,6 +3250,15 @@
 				CC38528A23126F7A001D5E56 /* InternalLibrary.swift */,
 			);
 			path = Primitives;
+			sourceTree = "<group>";
+		};
+		CCC48C5725E5B8DC00D082AD /* LispKit iOS */ = {
+			isa = PBXGroup;
+			children = (
+				CCC48C5825E5B8DC00D082AD /* LispKit_iOS.h */,
+				CCC48C5925E5B8DC00D082AD /* Info.plist */,
+			);
+			path = "LispKit iOS";
 			sourceTree = "<group>";
 		};
 		CCE0429C1C9E870F00CA7BC4 /* Base */ = {
@@ -2396,6 +3363,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				CCAD52BE1C48403900DBD8EE /* LispKit.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCC48C5125E5B8DC00D082AD /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CCC48C5A25E5B8DC00D082AD /* LispKit_iOS.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2508,6 +3483,50 @@
 			productReference = CCAD52C41C48403900DBD8EE /* LispKitTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		CCC48C5525E5B8DC00D082AD /* LispKit iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CCC48C5D25E5B8DC00D082AD /* Build configuration list for PBXNativeTarget "LispKit iOS" */;
+			buildPhases = (
+				CCC48C5125E5B8DC00D082AD /* Headers */,
+				CCC48C5225E5B8DC00D082AD /* Sources */,
+				CCC48C5325E5B8DC00D082AD /* Frameworks */,
+				CCC48D1C25E5CC7F00D082AD /* Copy default prelude */,
+				CCC48D2425E97DE100D082AD /* Copy pre-installed SRFI libraries */,
+				CCC48D6B25E97E8500D082AD /* Copy pre-installed LispKit library: SRFI 14 */,
+				CCC48D7025E97ED300D082AD /* Copy pre-installed LispKit library: SRFI 41 */,
+				CCC48D7625E97F0500D082AD /* Copy pre-installed LispKit library: SRFI 69 */,
+				CCC48D7B25E97F8100D082AD /* Copy pre-installed LispKit library: SRFI 135 */,
+				CCC48D8025E97FBC00D082AD /* Copy pre-installed LispKit library: SRFI 146 */,
+				CCC48D8525E97FF500D082AD /* Copy pre-installed LispKit library: SRFI 167 */,
+				CCC48D8C25E9803400D082AD /* Copy pre-installed LispKit libraries */,
+				CCC48DA925E9809000D082AD /* Copy pre-installed LispKit library: LispKit Draw Turtle */,
+				CCC48DAE25E980D400D082AD /* Copy pre-installed LispKit library: LispKit CLOS Support */,
+				CCC48DAF25E982A100D082AD /* Copy pre-installed LispKit library: LispKit Log Internal */,
+				CCC48DB025E982E300D082AD /* Copy pre-installed LispKit library: LispKit SXML parsers */,
+				CCC48DB125E9832100D082AD /* Copy pre-installed Scheme libraries */,
+				CCC48DDF25E9861600D082AD /* Copy pre-installed third-party libraries */,
+				CCC48DE025E9862C00D082AD /* Copy pre-installed third-party Adapton library */,
+				CCC48DE125E9866200D082AD /* Copy examples */,
+				CCC48DE225E9868900D082AD /* Copy tests */,
+				CCC48DE325E986CA00D082AD /* Copy color list assets */,
+				CCC48DE425E9872C00D082AD /* Copy image assets */,
+				CCC48DE525E9875D00D082AD /* Copy dataset covid assets */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "LispKit iOS";
+			packageProductDependencies = (
+				CCC48D0225E5BFA300D082AD /* NumberKit */,
+				CCC48D0425E5BFAE00D082AD /* MarkdownKit */,
+				CCC48D0625E5BFB300D082AD /* SQLiteExpress */,
+				CCC48D0825E5BFB800D082AD /* ZIPFoundation */,
+			);
+			productName = "LispKit iOS";
+			productReference = CCC48C5625E5B8DC00D082AD /* LispKit_iOS.framework */;
+			productType = "com.apple.product-type.framework";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -2533,6 +3552,9 @@
 						CreatedOnToolsVersion = 7.2;
 						LastSwiftMigration = 1020;
 					};
+					CCC48C5525E5B8DC00D082AD = {
+						CreatedOnToolsVersion = 12.4;
+					};
 				};
 			};
 			buildConfigurationList = CCAD52B41C48403800DBD8EE /* Build configuration list for PBXProject "LispKit" */;
@@ -2556,6 +3578,7 @@
 			projectRoot = "";
 			targets = (
 				CCAD52B91C48403800DBD8EE /* LispKit */,
+				CCC48C5525E5B8DC00D082AD /* LispKit iOS */,
 				CC3B64262386025500807476 /* LispKitTools */,
 				CC1227351CBFE74500821EB7 /* LispKitRepl */,
 				CCAD52C31C48403900DBD8EE /* LispKitTests */,
@@ -2744,6 +3767,108 @@
 				CC131C501CDE0E01006C030C /* LispKitTestCase.swift in Sources */,
 				CC131C4E1CDE0DCA006C030C /* RegressionTests.swift in Sources */,
 				CCAD52CA1C48403900DBD8EE /* SmallTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCC48C5225E5B8DC00D082AD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CCC48C9225E5B95B00D082AD /* Hash.swift in Sources */,
+				CCC48CCE25E5B98600D082AD /* RecordLibrary.swift in Sources */,
+				CCC48C6925E5B94300D082AD /* ManagedObjectPool.swift in Sources */,
+				CCC48CA225E5B96800D082AD /* RuntimeError.swift in Sources */,
+				CCC48C9B25E5B96800D082AD /* EvalError.swift in Sources */,
+				CCC48C6B25E5B94300D082AD /* Sysctl.swift in Sources */,
+				CCC48C7225E5B94300D082AD /* Random.swift in Sources */,
+				CCC48C6525E5B94300D082AD /* ObjectPool.swift in Sources */,
+				CCC48CD725E5B98600D082AD /* ZipArchiveLibrary.swift in Sources */,
+				CCC48CB025E5B97100D082AD /* FileHandler.swift in Sources */,
+				CCC48C9025E5B95B00D082AD /* Cell.swift in Sources */,
+				CCC48CC625E5B98600D082AD /* BytevectorLibrary.swift in Sources */,
+				CCC48C6F25E5B94300D082AD /* Timer.swift in Sources */,
+				CCC48CC825E5B98600D082AD /* RegexpLibrary.swift in Sources */,
+				CCC48CAE25E5B97100D082AD /* SourceManager.swift in Sources */,
+				CCC48CD825E5B98600D082AD /* PortLibrary.swift in Sources */,
+				CCC48CC325E5B98600D082AD /* VectorLibrary.swift in Sources */,
+				CCC48C7025E5B94300D082AD /* Reference.swift in Sources */,
+				CCC48CAC25E5B97100D082AD /* NativeLibrary.swift in Sources */,
+				CCC48CBD25E5B98600D082AD /* CharLibrary.swift in Sources */,
+				CCC48CAF25E5B97100D082AD /* Context.swift in Sources */,
+				CCC48C8A25E5B95B00D082AD /* Procedure.swift in Sources */,
+				CCC48CCF25E5B98600D082AD /* InternalLibrary.swift in Sources */,
+				CCC48CD525E5B98600D082AD /* TypeLibrary.swift in Sources */,
+				CCC48CC125E5B98600D082AD /* StringLibrary.swift in Sources */,
+				CCC48CC225E5B98600D082AD /* DateTimeLibrary.swift in Sources */,
+				CCC48C7725E5B94900D082AD /* TextInputSource.swift in Sources */,
+				CCC48CA425E5B96800D082AD /* Env.swift in Sources */,
+				CCC48C7C25E5B94900D082AD /* TextOutput.swift in Sources */,
+				CCC48C8625E5B95B00D082AD /* Collection.swift in Sources */,
+				CCC48CAB25E5B97100D082AD /* ContextDelegate.swift in Sources */,
+				CCC48CBE25E5B98600D082AD /* HashTableLibrary.swift in Sources */,
+				CCC48CAD25E5B97100D082AD /* SymbolTable.swift in Sources */,
+				CCC48C6C25E5B94300D082AD /* Owners.swift in Sources */,
+				CCC48C8925E5B95B00D082AD /* NativeObject.swift in Sources */,
+				CCC48CFE25E5BF8700D082AD /* SQLiteLibrary.swift in Sources */,
+				CCC48C8725E5B95B00D082AD /* Symbol.swift in Sources */,
+				CCC48C6825E5B94300D082AD /* Boxes.swift in Sources */,
+				CCC48C6425E5B94300D082AD /* ManagedObject.swift in Sources */,
+				CCC48C8E25E5B95B00D082AD /* Promise.swift in Sources */,
+				CCC48C9425E5B95B00D082AD /* Type.swift in Sources */,
+				CCC48CAA25E5B97100D082AD /* FeatureRequirement.swift in Sources */,
+				CCC48C6725E5B94300D082AD /* ScanBuffer.swift in Sources */,
+				CCC48CB825E5B97100D082AD /* GarbageCollector.swift in Sources */,
+				CCC48CCA25E5B98600D082AD /* MarkdownLibrary.swift in Sources */,
+				CCC48CA325E5B96800D082AD /* SourcePosition.swift in Sources */,
+				CCC48C6625E5B94300D082AD /* StringBuilder.swift in Sources */,
+				CCC48CD125E5B98600D082AD /* LibraryRegistry.swift in Sources */,
+				CCC48CA925E5B97100D082AD /* Features.swift in Sources */,
+				CCC48C8825E5B95B00D082AD /* SpecialForm.swift in Sources */,
+				CCC48CA825E5B97100D082AD /* Instruction.swift in Sources */,
+				CCC48CBF25E5B98600D082AD /* BaseLibrary.swift in Sources */,
+				CCC48C9A25E5B96800D082AD /* SyntaxError.swift in Sources */,
+				CCC48CB325E5B97100D082AD /* VirtualMachineState.swift in Sources */,
+				CCC48CC525E5B98600D082AD /* DynamicControlLibrary.swift in Sources */,
+				CCC48C8F25E5B95B00D082AD /* Tuple.swift in Sources */,
+				CCC48CCB25E5B98600D082AD /* MathLibrary.swift in Sources */,
+				CCC48C7125E5B94300D082AD /* MultiMap.swift in Sources */,
+				CCC48C9D25E5B96800D082AD /* Parser.swift in Sources */,
+				CCC48C9125E5B95B00D082AD /* Equality.swift in Sources */,
+				CCC48C9E25E5B96800D082AD /* BindingGroup.swift in Sources */,
+				CCC48CB625E5B97100D082AD /* VirtualMachine.swift in Sources */,
+				CCC48CA125E5B96800D082AD /* Checkpointer.swift in Sources */,
+				CCC48CB425E5B97100D082AD /* ImportSet.swift in Sources */,
+				CCC48C9525E5B95B00D082AD /* CharSet.swift in Sources */,
+				CCC48C6D25E5B94300D082AD /* Global.swift in Sources */,
+				CCC48C6A25E5B94300D082AD /* TrackedObject.swift in Sources */,
+				CCC48C8B25E5B95B00D082AD /* Exprs.swift in Sources */,
+				CCC48CB925E5B97100D082AD /* Heap.swift in Sources */,
+				CCC48CC725E5B98600D082AD /* ControlFlowLibrary.swift in Sources */,
+				CCC48C9325E5B95B00D082AD /* Environment.swift in Sources */,
+				CCC48CB225E5B97100D082AD /* SyntaxRules.swift in Sources */,
+				CCC48CB525E5B97100D082AD /* Code.swift in Sources */,
+				CCC48CA025E5B96800D082AD /* CaptureGroup.swift in Sources */,
+				CCC48CD325E5B98600D082AD /* ListLibrary.swift in Sources */,
+				CCC48CB125E5B97100D082AD /* Library.swift in Sources */,
+				CCC48CD225E5B98600D082AD /* CharSetLibrary.swift in Sources */,
+				CCC48CCD25E5B98600D082AD /* CoreLibrary.swift in Sources */,
+				CCC48C7825E5B94900D082AD /* BinaryOutput.swift in Sources */,
+				CCC48C7B25E5B94900D082AD /* BinaryInputSource.swift in Sources */,
+				CCC48C9925E5B96800D082AD /* Compiler.swift in Sources */,
+				CCC48C7925E5B94900D082AD /* TextOutputTarget.swift in Sources */,
+				CCC48C9C25E5B96800D082AD /* LexicalError.swift in Sources */,
+				CCC48CD025E5B98600D082AD /* GrowableVectorLibrary.swift in Sources */,
+				CCC48C8525E5B95B00D082AD /* Expr.swift in Sources */,
+				CCC48C7A25E5B94900D082AD /* BinaryInput.swift in Sources */,
+				CCC48C9F25E5B96800D082AD /* Scanner.swift in Sources */,
+				CCC48C6E25E5B94300D082AD /* Compression.swift in Sources */,
+				CCC48CC425E5B98600D082AD /* BoxLibrary.swift in Sources */,
+				CCC48C7625E5B94900D082AD /* TextInput.swift in Sources */,
+				CCC48C8D25E5B95B00D082AD /* HashTable.swift in Sources */,
+				CCC48CCC25E5B98600D082AD /* DebugLibrary.swift in Sources */,
+				CCC48C8C25E5B95B00D082AD /* Port.swift in Sources */,
+				CCC48CD425E5B98600D082AD /* SystemLibrary.swift in Sources */,
+				CCC48CB725E5B97100D082AD /* LibraryManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2936,6 +4061,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -2992,6 +4118,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
@@ -3097,6 +4224,83 @@
 			};
 			name = Release;
 		};
+		CCC48C5B25E5B8DC00D082AD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Manual;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = "";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = "LispKit iOS/Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.9.2;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "net.objecthub.LispKit-iOS";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		CCC48C5C25E5B8DC00D082AD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Manual;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = "";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = "LispKit iOS/Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.9.2;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "net.objecthub.LispKit-iOS";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -3141,6 +4345,15 @@
 			buildConfigurations = (
 				CCAD52D21C48403900DBD8EE /* Debug */,
 				CCAD52D31C48403900DBD8EE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CCC48C5D25E5B8DC00D082AD /* Build configuration list for PBXNativeTarget "LispKit iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CCC48C5B25E5B8DC00D082AD /* Debug */,
+				CCC48C5C25E5B8DC00D082AD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -3210,6 +4423,26 @@
 			isa = XCSwiftPackageProductDependency;
 			package = CCA6C3D22361149D007D2AF0 /* XCRemoteSwiftPackageReference "swift-markdownkit" */;
 			productName = MarkdownKit;
+		};
+		CCC48D0225E5BFA300D082AD /* NumberKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CC5E53012355AAD400C72CE2 /* XCRemoteSwiftPackageReference "swift-numberkit" */;
+			productName = NumberKit;
+		};
+		CCC48D0425E5BFAE00D082AD /* MarkdownKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CCA6C3D22361149D007D2AF0 /* XCRemoteSwiftPackageReference "swift-markdownkit" */;
+			productName = MarkdownKit;
+		};
+		CCC48D0625E5BFB300D082AD /* SQLiteExpress */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CC08964F244091E9004503B1 /* XCRemoteSwiftPackageReference "swift-sqliteexpress" */;
+			productName = SQLiteExpress;
+		};
+		CCC48D0825E5BFB800D082AD /* ZIPFoundation */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CCFB412525B2523C005B2429 /* XCRemoteSwiftPackageReference "ZIPFoundation" */;
+			productName = ZIPFoundation;
 		};
 		CCFB412625B2523C005B2429 /* ZIPFoundation */ = {
 			isa = XCSwiftPackageProductDependency;

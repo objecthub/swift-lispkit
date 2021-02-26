@@ -19,7 +19,12 @@
 //
 
 import Foundation
+
+#if os(iOS) || os(watchOS) || os(tvOS)
+import UIKit
+#elseif os(macOS)
 import Cocoa
+#endif
 
 ///
 /// System library: LispKit-specific library providing access to operation system-level
@@ -173,8 +178,10 @@ public final class SystemLibrary: NativeLibrary {
         searchPathDir = .documentDirectory
       case "shared-public":
         searchPathDir = .sharedPublicDirectory
+      #if os(macOS)
       case "application-scripts":
         searchPathDir = .applicationScriptsDirectory
+      #endif
       case "temporary":
         return .pair(.makeString(NSTemporaryDirectory()), .null)
       default:
@@ -519,6 +526,9 @@ public final class SystemLibrary: NativeLibrary {
     let path = self.context.fileHandler.path(try expr.asPath(),
                                              relativeTo: self.currentDirectoryPath)
     if let app = withApp {
+      #if os(iOS) || os(watchOS) || os(tvOS)
+      return .false
+      #elseif os(macOS)
       if let deactivate = deactivate {
         return .makeBoolean(NSWorkspace.shared.openFile(path,
                                                         withApplication: try app.asString(),
@@ -527,11 +537,17 @@ public final class SystemLibrary: NativeLibrary {
         return .makeBoolean(NSWorkspace.shared.openFile(path,
                                                         withApplication: try app.asString()))
       }
+      #endif
     } else {
+      #if os(iOS) || os(watchOS) || os(tvOS)
+      UIApplication.shared.open(URL(fileURLWithPath: path))
+      return .true
+      #elseif os(macOS)
       return .makeBoolean(NSWorkspace.shared.openFile(path))
+      #endif
     }
   }
-
+  
   private func getEnvironmentVariable(expr: Expr) throws -> Expr {
     let name = try expr.asString()
     guard let value = ProcessInfo.processInfo.environment[name] else {
@@ -735,9 +751,16 @@ public final class SystemLibrary: NativeLibrary {
                                          .pair(.makeString(shell), .null))))))
   }
 
+#if os(iOS) || os(watchOS) || os(tvOS)
+  private func openUrl(_ expr: Expr) throws -> Expr {
+    UIApplication.shared.open(try expr.asURL())
+    return .true
+  }
+#elseif os(macOS)
   private func openUrl(_ expr: Expr) throws -> Expr {
     return .makeBoolean(NSWorkspace.shared.open(try expr.asURL()))
   }
+#endif
 
   private func httpGet(_ expr: Expr, _ tout: Expr?) throws -> Expr {
     let url = try expr.asURL()

@@ -18,7 +18,7 @@
 //  limitations under the License.
 //
 
-import Cocoa
+import Foundation
 
 public final class DynamicControlLibrary: NativeLibrary {
   
