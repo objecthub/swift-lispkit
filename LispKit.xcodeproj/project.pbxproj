@@ -406,7 +406,6 @@
 		CCC41DCA1D330439003CB4D0 /* DynamicWind.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCC41DC91D330439003CB4D0 /* DynamicWind.scm */; };
 		CCC48BF125D862C700D082AD /* LispKit-WT-Tree.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCC48BF025D8623A00D082AD /* LispKit-WT-Tree.scm */; };
 		CCC48C4A25E32AE600D082AD /* Environments.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCC48C4925E327D200D082AD /* Environments.scm */; };
-		CCC48C5A25E5B8DC00D082AD /* LispKit_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = CCC48C5825E5B8DC00D082AD /* LispKit_iOS.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		CCC48C6425E5B94300D082AD /* ManagedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE0429D1C9E8C8B00CA7BC4 /* ManagedObject.swift */; };
 		CCC48C6525E5B94300D082AD /* ObjectPool.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC9065B41C5557E4004A88B7 /* ObjectPool.swift */; };
 		CCC48C6625E5B94300D082AD /* StringBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCF529971CBC73F7000C2959 /* StringBuilder.swift */; };
@@ -822,6 +821,7 @@
 		CCC48EA625E9892F00D082AD /* html.sld in Copy pre-installed LispKit library: LispKit SXML parsers */ = {isa = PBXBuildFile; fileRef = CC240E8C24FB17B400FF6D0F /* html.sld */; };
 		CCC48EAA25E9897C00D082AD /* internal.sld in Copy pre-installed LispKit library: LispKit Log Internal */ = {isa = PBXBuildFile; fileRef = CC82932E21D6E8E7003E1D3C /* internal.sld */; };
 		CCC48EAE25E9899B00D082AD /* support.sld in Copy pre-installed LispKit library: LispKit CLOS Support */ = {isa = PBXBuildFile; fileRef = CC703A1C218D09F700E71EA9 /* support.sld */; };
+		CCC48F9125EA6C7100D082AD /* LispKit_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = CCC48C5825E5B8DC00D082AD /* LispKit_iOS.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		CCC4A3AB245D003000DE63E1 /* combinator.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCC4A3AA245CFFB800DE63E1 /* combinator.sld */; };
 		CCC5319E1D16E40D00FAED6E /* TextInputSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC5319D1D16E40D00FAED6E /* TextInputSource.swift */; };
 		CCC531A01D18595500FAED6E /* TextOutputTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC5319F1D18595500FAED6E /* TextOutputTarget.swift */; };
@@ -3258,7 +3258,8 @@
 				CCC48C5825E5B8DC00D082AD /* LispKit_iOS.h */,
 				CCC48C5925E5B8DC00D082AD /* Info.plist */,
 			);
-			path = "LispKit iOS";
+			name = "LispKit iOS";
+			path = "Sources/LispKit iOS";
 			sourceTree = "<group>";
 		};
 		CCE0429C1C9E870F00CA7BC4 /* Base */ = {
@@ -3370,7 +3371,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CCC48C5A25E5B8DC00D082AD /* LispKit_iOS.h in Headers */,
+				CCC48F9125EA6C7100D082AD /* LispKit_iOS.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4240,9 +4241,9 @@
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = "LispKit iOS/Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/Sources/LispKit iOS/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -4257,6 +4258,7 @@
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -4279,9 +4281,9 @@
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = "LispKit iOS/Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/Sources/LispKit iOS/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -4295,6 +4297,7 @@
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
@@ -4390,7 +4393,7 @@
 			repositoryURL = "https://github.com/objecthub/swift-markdownkit.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.4;
+				minimumVersion = 1.0.5;
 			};
 		};
 		CCFB412525B2523C005B2429 /* XCRemoteSwiftPackageReference "ZIPFoundation" */ = {

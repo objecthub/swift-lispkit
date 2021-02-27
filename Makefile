@@ -17,5 +17,8 @@ release:
 test:
 	swift test -Xswiftc "-D" -Xswiftc "SPM"
 
+update:
+  carthage update --platform macOS
+
 clean:
 	rm -rf .build
