@@ -79,7 +79,8 @@ public final class Context {
   public static let bundle = Bundle(identifier: "net.objecthub.LispKit")
   
   /// Name of the LispKit implementation
-  public static let implementationName = Context.bundle?.infoDictionary?["CFBundleName"] as? String
+  public static let implementationName =
+    Context.bundle?.infoDictionary?["CFBundleDisplayName"] as? String
   
   /// Version of the LispKit implementation
   public static let implementationVersion =
