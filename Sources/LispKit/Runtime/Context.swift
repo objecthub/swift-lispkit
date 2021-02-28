@@ -86,10 +86,15 @@ public final class Context {
   public static let implementationVersion =
     Context.bundle?.infoDictionary?["CFBundleShortVersionString"] as? String
   
+  /// LispKit root directory in the bundle
+  public static let rootDirectory = "Resources/LispKit"
+  
   /// Path to default prelude file. Set it to the prelude provided by the bundle, if this exists,
   /// or fall back to the LispKit directory contained in the Documents folder.
   public static let defaultPreludePath =
-    Context.bundle?.path(forResource: "Prelude", ofType: "scm", inDirectory: "LispKit/Resources") ??
+    Context.bundle?.path(forResource: "Prelude",
+                         ofType: "scm",
+                         inDirectory: Context.rootDirectory) ??
     URL(fileURLWithPath: "LispKit/Prelude.scm",
         relativeTo: URL(fileURLWithPath: NSSearchPathForDirectoriesInDomains(
                                            .documentDirectory,

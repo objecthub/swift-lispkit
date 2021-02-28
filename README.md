@@ -1,7 +1,7 @@
 <img src="Assets/lispkit_logo_small.png" alt="LispKit" width="80" height="80" align="middle" />&nbsp;Swift LispKit
 ========================
 
-[![Platform: macOS](https://img.shields.io/badge/Platform-macOS-blue.svg?style=flat)](https://developer.apple.com/osx/)
+[![Platform: macOS | iOS](https://img.shields.io/badge/Platform-macOS%20%7C%20iOS-blue.svg?style=flat)](https://developer.apple.com/osx/)
 [![Language: Swift 5.3](https://img.shields.io/badge/Language-Swift%205.3-green.svg?style=flat)](https://developer.apple.com/swift/)
 [![IDE: Xcode 12.4](https://img.shields.io/badge/IDE-Xcode%2012.4-orange.svg?style=flat)](https://developer.apple.com/xcode/)
 [![Carthage: compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
@@ -11,7 +11,7 @@
 ## Overview
 
 _LispKit_ is a framework for building Lisp-based extension and scripting languages
-for macOS applications. _LispKit_ is fully written in the programming language
+for macOS and iOS applications. _LispKit_ is fully written in the programming language
 [Swift](http://www.swift.org). _LispKit_ implements a core language based on the
 [R7RS (small) Scheme standard](http://www.r7rs.org). It is extensible,
 allowing the inclusion of new native libraries written in Swift, of new libraries written
@@ -26,11 +26,17 @@ The [NumericalScheme](https://github.com/objecthub/swift-numericalscheme) demo
 showcases how to create a derived _LispKit_ interpreter that inherits everything from
 _LispKit_ (without code duplication) and defines a new native as well as Scheme-based library.
 
+The iOS version of the LispKit framework is work in progress. All libraries except for
+`(lispkit draw)` are supported, but there are currently a few individual (system) procedures
+that require porting. The differences between the macOS and iOS version of the framework
+are minor, but require documentation. Interestingly, the iPhone 12 Pro seems to outperform
+the MacBook Pro 16" for simple benchmarks.
+
 [LispPad](http://lisppad.objecthub.net) implements a simple, lightweight, integrated
 development environment for _LispKit_ on macOS with a Cocoa-based UI. The
-[LispPad Library Reference](http://lisppad.objecthub.net/resources/LispPad_Reference_1.5.pdf)
+[LispPad Library Reference](http://lisppad.objecthub.net/resources/LispPad_Reference_1.5.2.pdf)
 documents the core LispPad and LispKit libraries in
-[PDF](http://lisppad.objecthub.net/resources/LispPad_Reference_1.5.pdf) form. A simpler
+[PDF](http://lisppad.objecthub.net/resources/LispPad_Reference_1.5.2.pdf) form. A simpler
 command-line tool with similar functionality is provided by the LispKit framework itself
 (see below).
 
