@@ -925,7 +925,7 @@
 		CC09ECF32198B8B100F84713 /* Copy tests */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Resources/LispKit/Tests;
+			dstPath = Root/LispKit/Tests;
 			dstSubfolderSpec = 7;
 			files = (
 				CCC48BF125D862C700D082AD /* LispKit-WT-Tree.scm in Copy tests */,
@@ -970,7 +970,7 @@
 		CC240E8F24FB1C6C00FF6D0F /* Copy pre-installed LispKit library: LispKit SXML parsers */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Resources/LispKit/Libraries/lispkit/sxml;
+			dstPath = Root/LispKit/Libraries/lispkit/sxml;
 			dstSubfolderSpec = 7;
 			files = (
 				CC240E9024FB1CC700FF6D0F /* xml.sld in Copy pre-installed LispKit library: LispKit SXML parsers */,
@@ -982,7 +982,7 @@
 		CC26AD40214722710090D9EE /* Copy pre-installed LispKit library: LispKit Draw Turtle */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Resources/LispKit/Libraries/lispkit/draw;
+			dstPath = Root/LispKit/Libraries/lispkit/draw;
 			dstSubfolderSpec = 7;
 			files = (
 				CC26AD41214722960090D9EE /* turtle.sld in Copy pre-installed LispKit library: LispKit Draw Turtle */,
@@ -993,7 +993,7 @@
 		CC299DF923B7ED4E007B8459 /* Copy color list assets */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 12;
-			dstPath = Resources/LispKit/Assets/ColorLists;
+			dstPath = Root/LispKit/Assets/ColorLists;
 			dstSubfolderSpec = 7;
 			files = (
 				CC299DFA23B7EDC6007B8459 /* HtmlColors.plist in Copy color list assets */,
@@ -1004,7 +1004,7 @@
 		CC299DFD23B80950007B8459 /* Copy image assets */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Resources/LispKit/Assets/Images;
+			dstPath = Root/LispKit/Assets/Images;
 			dstSubfolderSpec = 7;
 			files = (
 				CC299DFE23B8096E007B8459 /* LispKitLogo.png in Copy image assets */,
@@ -1015,7 +1015,7 @@
 		CC2C73DA21A1FFB200B18661 /* Copy pre-installed LispKit library: SRFI 69 */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Resources/LispKit/Libraries/srfi/69;
+			dstPath = Root/LispKit/Libraries/srfi/69;
 			dstSubfolderSpec = 7;
 			files = (
 				CC2C73DB21A1FFEC00B18661 /* internal.sld in Copy pre-installed LispKit library: SRFI 69 */,
@@ -1026,7 +1026,7 @@
 		CC2E6A901C486AA70046E680 /* Copy default prelude */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Resources/LispKit;
+			dstPath = Root/LispKit;
 			dstSubfolderSpec = 7;
 			files = (
 				CCA752F41DEF9E410098C34A /* Prelude.scm in Copy default prelude */,
@@ -1037,7 +1037,7 @@
 		CC385297231B3042001D5E56 /* Copy pre-installed third-party libraries */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = "Resources/LispKit/Libraries/third-party";
+			dstPath = "Root/LispKit/Libraries/third-party";
 			dstSubfolderSpec = 7;
 			files = (
 			);
@@ -1047,7 +1047,7 @@
 		CC385298231B325C001D5E56 /* Copy pre-installed third-party Adapton library */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = "Resources/LispKit/Libraries/third-party/adapton";
+			dstPath = "Root/LispKit/Libraries/third-party/adapton";
 			dstSubfolderSpec = 7;
 			files = (
 				CC38529C231B32A8001D5E56 /* set.sld in Copy pre-installed third-party Adapton library */,
@@ -1071,7 +1071,7 @@
 		CC474EAE1ECFAC1300B535E3 /* Copy examples */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Resources/LispKit/Examples;
+			dstPath = Root/LispKit/Examples;
 			dstSubfolderSpec = 7;
 			files = (
 				CCD3E15925C638F5007FCE8A /* Schelog.scm in Copy examples */,
@@ -1103,7 +1103,7 @@
 		CC48EBD21F3E5B9900233FA9 /* Copy pre-installed LispKit library: SRFI 135 */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Resources/LispKit/Libraries/srfi/135;
+			dstPath = Root/LispKit/Libraries/srfi/135;
 			dstSubfolderSpec = 7;
 			files = (
 				CC48EBD31F3E5CFC00233FA9 /* kernel0.sld in Copy pre-installed LispKit library: SRFI 135 */,
@@ -1114,7 +1114,7 @@
 		CC4A7DC02259741100936034 /* Copy pre-installed LispKit library: SRFI 146 */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Resources/LispKit/Libraries/srfi/146;
+			dstPath = Root/LispKit/Libraries/srfi/146;
 			dstSubfolderSpec = 7;
 			files = (
 				CC4A7DC12259742E00936034 /* rbtree.sld in Copy pre-installed LispKit library: SRFI 146 */,
@@ -1125,7 +1125,7 @@
 		CC54924521DCDF4F004A0652 /* Copy pre-installed LispKit library: SRFI 14 */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Resources/LispKit/Libraries/srfi/14;
+			dstPath = Root/LispKit/Libraries/srfi/14;
 			dstSubfolderSpec = 7;
 			files = (
 				CC54924621DCDF71004A0652 /* ascii.sld in Copy pre-installed LispKit library: SRFI 14 */,
@@ -1136,7 +1136,7 @@
 		CC5848001E50ABE100BE6497 /* Copy pre-installed LispKit libraries */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Resources/LispKit/Libraries/lispkit;
+			dstPath = Root/LispKit/Libraries/lispkit;
 			dstSubfolderSpec = 7;
 			files = (
 				CCD3E15425C5ECC8007FCE8A /* prolog.sld in Copy pre-installed LispKit libraries */,
@@ -1171,7 +1171,7 @@
 		CC703A1E218D0AF500E71EA9 /* Copy pre-installed LispKit library: LispKit CLOS Support */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Resources/LispKit/Libraries/lispkit/clos;
+			dstPath = Root/LispKit/Libraries/lispkit/clos;
 			dstSubfolderSpec = 7;
 			files = (
 				CC703A1F218D0B3000E71EA9 /* support.sld in Copy pre-installed LispKit library: LispKit CLOS Support */,
@@ -1182,7 +1182,7 @@
 		CC7E7C8924565342002E8A73 /* Copy dataset covid assets */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Resources/LispKit/Assets/Datasets/Covid;
+			dstPath = Root/LispKit/Assets/Datasets/Covid;
 			dstSubfolderSpec = 7;
 			files = (
 				CC028EAA249E3F5E00C5761C /* 2020-05-23.data in Copy dataset covid assets */,
@@ -1314,7 +1314,7 @@
 		CC7F7C191FC04B8A00639166 /* Copy pre-installed Scheme libraries */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Resources/LispKit/Libraries/scheme;
+			dstPath = Root/LispKit/Libraries/scheme;
 			dstSubfolderSpec = 7;
 			files = (
 				CCC48DDB25E985ED00D082AD /* red.sld in Copy pre-installed Scheme libraries */,
@@ -1359,7 +1359,7 @@
 		CC82933121D6E9A6003E1D3C /* Copy pre-installed LispKit library: LispKit Log Internal */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Resources/LispKit/Libraries/lispkit/log;
+			dstPath = Root/LispKit/Libraries/lispkit/log;
 			dstSubfolderSpec = 7;
 			files = (
 				CC82933221D6E9BD003E1D3C /* internal.sld in Copy pre-installed LispKit library: LispKit Log Internal */,
@@ -1370,7 +1370,7 @@
 		CC8E2BA01E3361C50080299A /* Copy pre-installed LispKit library: SRFI 41 */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Resources/LispKit/Libraries/srfi/41;
+			dstPath = Root/LispKit/Libraries/srfi/41;
 			dstSubfolderSpec = 7;
 			files = (
 				CC48EBD11F3E5B3B00233FA9 /* primitive.sld in Copy pre-installed LispKit library: SRFI 41 */,
@@ -1382,7 +1382,7 @@
 		CCA752F91DEF9F4E0098C34A /* Copy pre-installed SRFI libraries */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Resources/LispKit/Libraries/srfi;
+			dstPath = Root/LispKit/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
 				CC08F43C25BCFD2A0056C92C /* 155.sld in Copy pre-installed SRFI libraries */,
@@ -1459,7 +1459,7 @@
 		CCC48D1C25E5CC7F00D082AD /* Copy default prelude */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Resources/LispKit;
+			dstPath = Root/LispKit;
 			dstSubfolderSpec = 7;
 			files = (
 				CCC48D1D25E5CC9100D082AD /* Prelude.scm in Copy default prelude */,
@@ -1470,7 +1470,7 @@
 		CCC48D2425E97DE100D082AD /* Copy pre-installed SRFI libraries */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Resources/LispKit/Libraries/srfi;
+			dstPath = Root/LispKit/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
 				CCC48D2525E97E3800D082AD /* 1.sld in Copy pre-installed SRFI libraries */,
@@ -1547,7 +1547,7 @@
 		CCC48D6B25E97E8500D082AD /* Copy pre-installed LispKit library: SRFI 14 */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Resources/LispKit/Libraries/srfi/14;
+			dstPath = Root/LispKit/Libraries/srfi/14;
 			dstSubfolderSpec = 7;
 			files = (
 				CCC48D6C25E97EB800D082AD /* ascii.sld in Copy pre-installed LispKit library: SRFI 14 */,
@@ -1558,7 +1558,7 @@
 		CCC48D7025E97ED300D082AD /* Copy pre-installed LispKit library: SRFI 41 */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Resources/LispKit/Libraries/srfi/41;
+			dstPath = Root/LispKit/Libraries/srfi/41;
 			dstSubfolderSpec = 7;
 			files = (
 				CCC48D7125E97EF000D082AD /* derived.sld in Copy pre-installed LispKit library: SRFI 41 */,
@@ -1570,7 +1570,7 @@
 		CCC48D7625E97F0500D082AD /* Copy pre-installed LispKit library: SRFI 69 */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Resources/LispKit/Libraries/srfi/69;
+			dstPath = Root/LispKit/Libraries/srfi/69;
 			dstSubfolderSpec = 7;
 			files = (
 				CCC48D7725E97F2100D082AD /* internal.sld in Copy pre-installed LispKit library: SRFI 69 */,
@@ -1581,7 +1581,7 @@
 		CCC48D7B25E97F8100D082AD /* Copy pre-installed LispKit library: SRFI 135 */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Resources/LispKit/Libraries/srfi/135;
+			dstPath = Root/LispKit/Libraries/srfi/135;
 			dstSubfolderSpec = 7;
 			files = (
 				CCC48D7C25E97FA100D082AD /* kernel0.sld in Copy pre-installed LispKit library: SRFI 135 */,
@@ -1592,7 +1592,7 @@
 		CCC48D8025E97FBC00D082AD /* Copy pre-installed LispKit library: SRFI 146 */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Resources/LispKit/Libraries/srfi/146;
+			dstPath = Root/LispKit/Libraries/srfi/146;
 			dstSubfolderSpec = 7;
 			files = (
 				CCC48D8125E97FD400D082AD /* rbtree.sld in Copy pre-installed LispKit library: SRFI 146 */,
@@ -1603,7 +1603,7 @@
 		CCC48D8525E97FF500D082AD /* Copy pre-installed LispKit library: SRFI 167 */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Resources/LispKit/Libraries/srfi/167;
+			dstPath = Root/LispKit/Libraries/srfi/167;
 			dstSubfolderSpec = 7;
 			files = (
 				CCC48D8625E9801300D082AD /* engine.sld in Copy pre-installed LispKit library: SRFI 167 */,
@@ -1616,7 +1616,7 @@
 		CCC48D8C25E9803400D082AD /* Copy pre-installed LispKit libraries */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Resources/LispKit/Libraries/lispkit;
+			dstPath = Root/LispKit/Libraries/lispkit;
 			dstSubfolderSpec = 7;
 			files = (
 				CCC48D8D25E9806600D082AD /* log.sld in Copy pre-installed LispKit libraries */,
@@ -1651,7 +1651,7 @@
 		CCC48DA925E9809000D082AD /* Copy pre-installed LispKit library: LispKit Draw Turtle */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Resources/LispKit/Libraries/lispkit/draw;
+			dstPath = Root/LispKit/Libraries/lispkit/draw;
 			dstSubfolderSpec = 7;
 			files = (
 				CCC48DAA25E980B000D082AD /* turtle.sld in Copy pre-installed LispKit library: LispKit Draw Turtle */,
@@ -1662,7 +1662,7 @@
 		CCC48DAE25E980D400D082AD /* Copy pre-installed LispKit library: LispKit CLOS Support */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Resources/LispKit/Libraries/lispkit/clos;
+			dstPath = Root/LispKit/Libraries/lispkit/clos;
 			dstSubfolderSpec = 7;
 			files = (
 				CCC48EAE25E9899B00D082AD /* support.sld in Copy pre-installed LispKit library: LispKit CLOS Support */,
@@ -1673,7 +1673,7 @@
 		CCC48DAF25E982A100D082AD /* Copy pre-installed LispKit library: LispKit Log Internal */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Resources/LispKit/Libraries/lispkit/log;
+			dstPath = Root/LispKit/Libraries/lispkit/log;
 			dstSubfolderSpec = 7;
 			files = (
 				CCC48EAA25E9897C00D082AD /* internal.sld in Copy pre-installed LispKit library: LispKit Log Internal */,
@@ -1684,7 +1684,7 @@
 		CCC48DB025E982E300D082AD /* Copy pre-installed LispKit library: LispKit SXML parsers */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Resources/LispKit/Libraries/lispkit/sxml;
+			dstPath = Root/LispKit/Libraries/lispkit/sxml;
 			dstSubfolderSpec = 7;
 			files = (
 				CCC48EA525E9892F00D082AD /* xml.sld in Copy pre-installed LispKit library: LispKit SXML parsers */,
@@ -1696,7 +1696,7 @@
 		CCC48DB125E9832100D082AD /* Copy pre-installed Scheme libraries */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Resources/LispKit/Libraries/scheme;
+			dstPath = Root/LispKit/Libraries/scheme;
 			dstSubfolderSpec = 7;
 			files = (
 				CCC48DC725E9846300D082AD /* base.sld in Copy pre-installed Scheme libraries */,
@@ -1741,7 +1741,7 @@
 		CCC48DDF25E9861600D082AD /* Copy pre-installed third-party libraries */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = "Resources/LispKit/Libraries/third-party";
+			dstPath = "Root/LispKit/Libraries/third-party";
 			dstSubfolderSpec = 7;
 			files = (
 			);
@@ -1751,7 +1751,7 @@
 		CCC48DE025E9862C00D082AD /* Copy pre-installed third-party Adapton library */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = "Resources/LispKit/Libraries/third-party/adapton";
+			dstPath = "Root/LispKit/Libraries/third-party/adapton";
 			dstSubfolderSpec = 7;
 			files = (
 				CCC48E9E25E9891300D082AD /* mini.sld in Copy pre-installed third-party Adapton library */,
@@ -1765,7 +1765,7 @@
 		CCC48DE125E9866200D082AD /* Copy examples */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Resources/LispKit/Examples;
+			dstPath = Root/LispKit/Examples;
 			dstSubfolderSpec = 7;
 			files = (
 				CCC48E8525E9884300D082AD /* Pi.scm in Copy examples */,
@@ -1797,7 +1797,7 @@
 		CCC48DE225E9868900D082AD /* Copy tests */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Resources/LispKit/Tests;
+			dstPath = Root/LispKit/Tests;
 			dstSubfolderSpec = 7;
 			files = (
 				CCC48E6B25E9881700D082AD /* All.scm in Copy tests */,
@@ -1830,7 +1830,7 @@
 		CCC48DE325E986CA00D082AD /* Copy color list assets */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Resources/LispKit/Assets/ColorLists;
+			dstPath = Root/LispKit/Assets/ColorLists;
 			dstSubfolderSpec = 7;
 			files = (
 				CCC48E6725E987F400D082AD /* HtmlColors.plist in Copy color list assets */,
@@ -1841,7 +1841,7 @@
 		CCC48DE425E9872C00D082AD /* Copy image assets */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Resources/LispKit/Assets/Images;
+			dstPath = Root/LispKit/Assets/Images;
 			dstSubfolderSpec = 7;
 			files = (
 				CCC48E6325E987E300D082AD /* LispKitLogo.png in Copy image assets */,
@@ -1852,7 +1852,7 @@
 		CCC48DE525E9875D00D082AD /* Copy dataset covid assets */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Resources/LispKit/Assets/Datasets/Covid;
+			dstPath = Root/LispKit/Assets/Datasets/Covid;
 			dstSubfolderSpec = 7;
 			files = (
 				CCC48DE625E9879700D082AD /* Covid.sqlite3 in Copy dataset covid assets */,
@@ -1984,7 +1984,7 @@
 		CCF602EB23A0FA7000087740 /* Copy pre-installed LispKit library: SRFI 167 */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = Resources/LispKit/Libraries/srfi/167;
+			dstPath = Root/LispKit/Libraries/srfi/167;
 			dstSubfolderSpec = 7;
 			files = (
 				CCF602EC23A0FA9A00087740 /* engine.sld in Copy pre-installed LispKit library: SRFI 167 */,

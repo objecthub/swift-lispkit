@@ -87,7 +87,7 @@ public final class Context {
     Context.bundle?.infoDictionary?["CFBundleShortVersionString"] as? String
   
   /// LispKit root directory in the bundle
-  public static let rootDirectory = "Resources/LispKit"
+  public static let rootDirectory = "Root/LispKit"
   
   /// Path to default prelude file. Set it to the prelude provided by the bundle, if this exists,
   /// or fall back to the LispKit directory contained in the Documents folder.

@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "CCC48C5525E5B8DC00D082AD"
-               BuildableName = "LispKit_iOS.framework"
+               BuildableName = "LispKit.framework"
                BlueprintName = "LispKit iOS"
                ReferencedContainer = "container:LispKit.xcodeproj">
             </BuildableReference>
@@ -51,7 +51,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "CCC48C5525E5B8DC00D082AD"
-            BuildableName = "LispKit_iOS.framework"
+            BuildableName = "LispKit.framework"
             BlueprintName = "LispKit iOS"
             ReferencedContainer = "container:LispKit.xcodeproj">
          </BuildableReference>
