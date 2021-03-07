@@ -236,7 +236,7 @@ public final class VirtualMachine: TrackedObject {
   /// Requests abortion of the machine evaluator.
   public func abort() {
     self.abortionRequested = true
-    self.context.delegate.aborted()
+    self.context.delegate?.aborted()
   }
   
   /// Returns true if an abortion was requested.
@@ -666,10 +666,10 @@ public final class VirtualMachine: TrackedObject {
         for i in 0..<n {
           args.append(self.stack[self.sp &- n &+ i])
         }
-        self.context.delegate.trace(call: proc,
-                                    args: args,
-                                    tailCall: tailCall,
-                                    in: self)
+        self.context.delegate?.trace(call: proc,
+                                     args: args,
+                                     tailCall: tailCall,
+                                     in: self)
         return proc
       }
     }
@@ -678,10 +678,10 @@ public final class VirtualMachine: TrackedObject {
   
   @inline(__always) private func printReturnTrace(_ proc: Procedure, tailCall: Bool = false) {
     if (self.traceCalls == .on || (self.traceCalls == .byProc && proc.traced)) && self.sp > 0 {
-      self.context.delegate.trace(return: proc,
-                                  result: self.stack[self.sp &- 1],
-                                  tailCall: tailCall,
-                                  in: self)
+      self.context.delegate?.trace(return: proc,
+                                   result: self.stack[self.sp &- 1],
+                                   tailCall: tailCall,
+                                   in: self)
     }
   }
   
@@ -1544,12 +1544,12 @@ public final class VirtualMachine: TrackedObject {
           let obj = self.pop()
           switch obj {
             case .string(let str):
-              self.context.delegate.print(str as String)
+              self.context.delegate?.print(str as String)
             default:
-              self.context.delegate.print(obj.description)
+              self.context.delegate?.print(obj.description)
           }
         case .newline:
-          self.context.delegate.print("\n")
+          self.context.delegate?.print("\n")
         case .eq:
           self.push(.makeBoolean(eqExpr(self.pop(), self.popUnsafe())))
         case .eqv:

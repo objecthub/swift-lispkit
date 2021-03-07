@@ -109,14 +109,14 @@ public final class LibraryManager: TrackedObject, CustomStringConvertible {
                               origin: origin,
                               in: self.context)
     self.libraries[name] = library
-    self.context.delegate.loaded(library: library, by: self)
+    self.context.delegate?.loaded(library: library, by: self)
   }
   
   /// Load native library.
   public func load(libraryType: NativeLibrary.Type) throws {
     let library = try libraryType.init(in: self.context)
     self.libraries[self.name(libraryType.name)] = library
-    self.context.delegate.loaded(library: library, by: self)
+    self.context.delegate?.loaded(library: library, by: self)
   }
   
   /// Returns the library name for the given string components. Strings that can be converted

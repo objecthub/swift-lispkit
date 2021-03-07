@@ -40,7 +40,8 @@ public final class Context {
   
   /// A delegate object which receives updates related to the virtual machine managed by
   /// this context. The virtual machine also delegates some functionality to this object.
-  public let delegate: ContextDelegate
+  /// Context delegates are only referenced weakly.
+  public weak var delegate: ContextDelegate?
   
   /// The global expression heap.
   public let heap: Heap

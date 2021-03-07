@@ -193,7 +193,7 @@ public final class Environment: Reference, CustomStringConvertible {
         let new = self.isUndefined(sym)
         self.bindings[sym] = loc
         if new {
-          self.context.delegate.bound(symbol: sym, in: self)
+          self.context.delegate?.bound(symbol: sym, in: self)
         }
       default:
         self.bindings[sym] = loc

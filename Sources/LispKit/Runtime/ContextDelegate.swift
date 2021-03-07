@@ -30,7 +30,7 @@ import Cocoa
 /// For this use case, `ContextDelegate` provides methods to set the console window status,
 /// to write strings as well as to read strings.
 ///
-public protocol ContextDelegate: TextInputSource, TextOutputTarget {
+public protocol ContextDelegate: class, TextInputSource, TextOutputTarget {
   
   /// Prints the given string into the console window.
   func print(_ str: String)
@@ -175,7 +175,7 @@ public extension ContextDelegate {
 /// Struct `CommandLineDelegate` implements `ContextDelegate` with Swift's built in `print` and
 /// `readLine` functions to allow for a simple read-eval-print loop on a terminal interface.
 ///
-public struct CommandLineDelegate: ContextDelegate {
+public class CommandLineDelegate: ContextDelegate {
   
   public init() {}
   

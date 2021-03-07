@@ -452,7 +452,7 @@ public final class DynamicControlLibrary: NativeLibrary {
   }
   
   private func emergencyExit(expr: Expr?) -> Expr {
-    self.context.delegate.emergencyExit(obj: expr)
+    self.context.delegate?.emergencyExit(obj: expr)
     return .undef
   }
   
