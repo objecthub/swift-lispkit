@@ -1,4 +1,4 @@
-<img src="Assets/lispkit_logo_small.png" alt="LispKit" width="80" height="80" align="middle" />&nbsp;Swift LispKit
+<img src="Assets/lispkit_logo_small.png" alt="LispKit" width="80" height="80" align="middle" />&nbsp;&nbsp; Swift LispKit
 ========================
 
 [![Platform: macOS | iOS](https://img.shields.io/badge/Platform-macOS%20%7C%20iOS-blue.svg?style=flat)](https://developer.apple.com/osx/)
@@ -30,14 +30,15 @@ The iOS version of the LispKit framework is work in progress. All libraries exce
 `(lispkit draw)` are supported, but there are currently a few individual (system) procedures
 that require porting. The differences between the macOS and iOS version of the framework
 are minor, but require documentation. Interestingly, the iPhone 12 Pro seems to outperform
-the MacBook Pro 16" for simple benchmarks.
+the MacBook Pro 16" for simple LispKit benchmarks.
 
-[LispPad](http://lisppad.objecthub.net) implements a simple, lightweight, integrated
+[_LispPad_](http://lisppad.objecthub.net) implements a simple, lightweight, integrated
 development environment for _LispKit_ on macOS with a Cocoa-based UI. The
 [LispPad Library Reference](http://lisppad.objecthub.net/resources/LispPad_Reference_1.5.2.pdf)
-documents the core LispPad and LispKit libraries in
-[PDF](http://lisppad.objecthub.net/resources/LispPad_Reference_1.5.2.pdf) form. A simpler
-command-line tool with similar functionality is provided by the LispKit framework itself
+documents the core _LispPad_ and _LispKit_ libraries in
+[PDF](http://lisppad.objecthub.net/resources/LispPad_Reference_1.5.2.pdf) form. There are also plans
+to release an iOS version of _LispPad_. The [_LispPad for iOS_ code](https://github.com/objecthub/swift-lisppad-ios)
+is available on GitHub. A much simpler command-line tool is provided by the LispKit framework itself
 (see below).
 
 

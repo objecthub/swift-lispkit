@@ -178,12 +178,22 @@ public final class SystemLibrary: NativeLibrary {
         searchPathDir = .documentDirectory
       case "shared-public":
         searchPathDir = .sharedPublicDirectory
+      case "application-support":
+        searchPathDir = .applicationSupportDirectory
       #if os(macOS)
       case "application-scripts":
         searchPathDir = .applicationScriptsDirectory
       #endif
+      case "cache":
+        searchPathDir = .cachesDirectory
       case "temporary":
         return .pair(.makeString(NSTemporaryDirectory()), .null)
+      case "icloud":
+        if let url = FileManager.default.url(forUbiquityContainerIdentifier: nil)?
+                                        .appendingPathComponent("Documents") {
+          return .pair(.makeString(url.absoluteURL.path), .null)
+        }
+        return .null
       default:
         throw RuntimeError.eval(.unknownSystemDirectory, type)
     }
