@@ -832,6 +832,14 @@
 		CCCEB3FF1DF2DAA9009BF66B /* FileHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCEB3FE1DF2DAA9009BF66B /* FileHandler.swift */; };
 		CCD3E15425C5ECC8007FCE8A /* prolog.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCD3E15325C5EB83007FCE8A /* prolog.sld */; };
 		CCD3E15925C638F5007FCE8A /* Schelog.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCD3E15825C63898007FCE8A /* Schelog.scm */; };
+		CCD5E55C262E342600C45EA0 /* 189.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCD5E558262E309500C45EA0 /* 189.sld */; };
+		CCD5E55D262E342600C45EA0 /* 214.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCD5E559262E31AE00C45EA0 /* 214.sld */; };
+		CCD5E561262E343E00C45EA0 /* 189.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCD5E558262E309500C45EA0 /* 189.sld */; };
+		CCD5E562262E343E00C45EA0 /* 214.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCD5E559262E31AE00C45EA0 /* 214.sld */; };
+		CCD5E566262E348100C45EA0 /* SRFI-189.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCD5E55B262E337500C45EA0 /* SRFI-189.scm */; };
+		CCD5E567262E348100C45EA0 /* SRFI-214.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCD5E55A262E32EE00C45EA0 /* SRFI-214.scm */; };
+		CCD5E56B262E34A500C45EA0 /* SRFI-189.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCD5E55B262E337500C45EA0 /* SRFI-189.scm */; };
+		CCD5E56C262E34A500C45EA0 /* SRFI-214.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCD5E55A262E32EE00C45EA0 /* SRFI-214.scm */; };
 		CCD6C3E91F35F9F10002F7D4 /* enum.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCD6C3E81F35F95D0002F7D4 /* enum.sld */; };
 		CCD81AD21CE75823009EB087 /* Checkpointer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD81AD11CE75823009EB087 /* Checkpointer.swift */; };
 		CCD839AB1FD0F6000097023E /* Compression.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD839AA1FD0F6000097023E /* Compression.swift */; };
@@ -928,6 +936,8 @@
 			dstPath = Root/LispKit/Tests;
 			dstSubfolderSpec = 7;
 			files = (
+				CCD5E566262E348100C45EA0 /* SRFI-189.scm in Copy tests */,
+				CCD5E567262E348100C45EA0 /* SRFI-214.scm in Copy tests */,
 				CCC48BF125D862C700D082AD /* LispKit-WT-Tree.scm in Copy tests */,
 				CC08F43925BCFD0C0056C92C /* SRFI-155.scm in Copy tests */,
 				CC08F43425BCF2140056C92C /* SRFI-154.scm in Copy tests */,
@@ -1385,6 +1395,8 @@
 			dstPath = Root/LispKit/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
+				CCD5E55C262E342600C45EA0 /* 189.sld in Copy pre-installed SRFI libraries */,
+				CCD5E55D262E342600C45EA0 /* 214.sld in Copy pre-installed SRFI libraries */,
 				CC08F43C25BCFD2A0056C92C /* 155.sld in Copy pre-installed SRFI libraries */,
 				CC08F42F25BCF2010056C92C /* 154.sld in Copy pre-installed SRFI libraries */,
 				CC202DE925ABB13E003901BE /* 143.sld in Copy pre-installed SRFI libraries */,
@@ -1473,6 +1485,8 @@
 			dstPath = Root/LispKit/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
+				CCD5E561262E343E00C45EA0 /* 189.sld in Copy pre-installed SRFI libraries */,
+				CCD5E562262E343E00C45EA0 /* 214.sld in Copy pre-installed SRFI libraries */,
 				CCC48D2525E97E3800D082AD /* 1.sld in Copy pre-installed SRFI libraries */,
 				CCC48D2625E97E3800D082AD /* 2.sld in Copy pre-installed SRFI libraries */,
 				CCC48D2725E97E3800D082AD /* 6.sld in Copy pre-installed SRFI libraries */,
@@ -1800,6 +1814,8 @@
 			dstPath = Root/LispKit/Tests;
 			dstSubfolderSpec = 7;
 			files = (
+				CCD5E56B262E34A500C45EA0 /* SRFI-189.scm in Copy tests */,
+				CCD5E56C262E34A500C45EA0 /* SRFI-214.scm in Copy tests */,
 				CCC48E6B25E9881700D082AD /* All.scm in Copy tests */,
 				CCC48E6C25E9881700D082AD /* Import.scm in Copy tests */,
 				CCC48E6D25E9881700D082AD /* R7RS.scm in Copy tests */,
@@ -2417,6 +2433,10 @@
 		CCD3E15325C5EB83007FCE8A /* prolog.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = prolog.sld; sourceTree = "<group>"; };
 		CCD3E15725C60FBC007FCE8A /* red.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = red.sld; sourceTree = "<group>"; };
 		CCD3E15825C63898007FCE8A /* Schelog.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Schelog.scm; sourceTree = "<group>"; };
+		CCD5E558262E309500C45EA0 /* 189.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 189.sld; sourceTree = "<group>"; };
+		CCD5E559262E31AE00C45EA0 /* 214.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 214.sld; sourceTree = "<group>"; };
+		CCD5E55A262E32EE00C45EA0 /* SRFI-214.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-214.scm"; sourceTree = "<group>"; };
+		CCD5E55B262E337500C45EA0 /* SRFI-189.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-189.scm"; sourceTree = "<group>"; };
 		CCD6C3E81F35F95D0002F7D4 /* enum.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = enum.sld; sourceTree = "<group>"; };
 		CCD81AD11CE75823009EB087 /* Checkpointer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Checkpointer.swift; sourceTree = "<group>"; };
 		CCD839AA1FD0F6000097023E /* Compression.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Compression.swift; sourceTree = "<group>"; };
@@ -2554,11 +2574,13 @@
 				CC38528D23140F26001D5E56 /* SRFI-173.scm */,
 				CC5E53092358359900C72CE2 /* SRFI-174.scm */,
 				CCA7DC2D23875FE500785FBE /* SRFI-175.scm */,
+				CCD5E55B262E337500C45EA0 /* SRFI-189.scm */,
 				CCC1E8BA251FEC38008B8AAA /* SRFI-194.scm */,
 				CCDB557F247C84BF0044714C /* SRFI-196.scm */,
 				CCC1E8B1251F668D008B8AAA /* SRFI-204.scm */,
 				CC1D6CC1258CDF0000D36645 /* SRFI-209.scm */,
 				CC0D7B392544AF6800FB9301 /* SRFI-210.scm */,
+				CCD5E55A262E32EE00C45EA0 /* SRFI-214.scm */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -2866,12 +2888,14 @@
 				CC498A8A23882C19002734E0 /* 175.sld */,
 				CC6BB91A235CFB4700D7CAA1 /* 177.sld */,
 				CC0D7B302544A4A400FB9301 /* 180.sld */,
+				CCD5E558262E309500C45EA0 /* 189.sld */,
 				CCC1E8B9251FEC05008B8AAA /* 194.sld */,
 				CCDB557C247C728F0044714C /* 195.sld */,
 				CCDB557E247C82370044714C /* 196.sld */,
 				CCC1E8B5251F67B8008B8AAA /* 204.sld */,
 				CC1D6CBD258CDE3700D36645 /* 209.sld */,
 				CC0D7B382544AF2600FB9301 /* 210.sld */,
+				CCD5E559262E31AE00C45EA0 /* 214.sld */,
 			);
 			path = srfi;
 			sourceTree = "<group>";

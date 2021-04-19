@@ -763,7 +763,9 @@ public final class SystemLibrary: NativeLibrary {
 
 #if os(iOS) || os(watchOS) || os(tvOS)
   private func openUrl(_ expr: Expr) throws -> Expr {
-    UIApplication.shared.open(try expr.asURL())
+    DispatchQueue.main.async {
+      UIApplication.shared.open(try expr.asURL())
+    }
     return .true
   }
 #elseif os(macOS)
