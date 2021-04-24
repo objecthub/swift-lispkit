@@ -48,6 +48,7 @@ public struct LibraryRegistry {
     RegexpLibrary.self,
     PortLibrary.self,
     BaseLibrary.self,
+    DrawingLibrary.self,
     InternalLibrary.self,
     MarkdownLibrary.self,
     SQLiteLibrary.self,

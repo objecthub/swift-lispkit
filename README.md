@@ -27,10 +27,11 @@ showcases how to create a derived _LispKit_ interpreter that inherits everything
 _LispKit_ (without code duplication) and defines a new native as well as Scheme-based library.
 
 The iOS version of the LispKit framework is work in progress. All libraries except for
-`(lispkit draw)` are supported, but there are currently a few individual (system) procedures
-that require porting. The differences between the macOS and iOS version of the framework
-are minor, but require documentation. Interestingly, the iPhone 12 Pro seems to outperform
-the MacBook Pro 16" for simple LispKit benchmarks.
+`(lispkit system os)` are supported, but there are currently a few individual (system) procedures
+that require porting. Library `(lispkit draw)` does not support color lists and is generally still in
+a rough state. Generally, the differences between the macOS and iOS version of the framework
+are minor, but require documentation. Interestingly, the iPhone 12 Pro seems to consistently outperform
+the MacBook Pro 16" (2019) for simple LispKit benchmarks.
 
 [_LispPad_](http://lisppad.objecthub.net) implements a simple, lightweight, integrated
 development environment for _LispKit_ on macOS with a Cocoa-based UI. The
@@ -198,21 +199,24 @@ framework:
   - [SRFI 175: ASCII Character Library](https://srfi.schemers.org/srfi-175/srfi-175.html)
   - [SRFI 177: Portable keyword arguments](https://srfi.schemers.org/srfi-177/srfi-177.html)
   - [SRFI 180: JSON](https://srfi.schemers.org/srfi-180/srfi-180.html)
+  - [SRFI 189: Maybe and Either: optional container types](https://srfi.schemers.org/srfi-189/srfi-189.html)
   - [SRFI 194: Random data generators](https://srfi.schemers.org/srfi-194/srfi-194.html)
   - [SRFI 195: Multiple-value boxes](https://srfi.schemers.org/srfi-195/srfi-195.html)
   - [SRFI 196: Range Objects](https://srfi.schemers.org/srfi-196/srfi-196.html)
   - [SRFI 204: Wright-Cartwright-Shinn Pattern Matcher](https://srfi.schemers.org/srfi-204/srfi-204.html)
   - [SRFI 209: Enums and Enum Sets](https://srfi.schemers.org/srfi-209/srfi-209.html)
   - [SRFI 210: Procedures and Syntax for Multiple Values](https://srfi.schemers.org/srfi-210/srfi-210.html)
+  - [SRFI 214: Flexvectors](https://srfi.schemers.org/srfi-214/srfi-214.html)
 
 
 ## Project
 
-The project defines three different targets:
+The project defines four different targets:
 
-- __LispKit__: the core interpreter framework, including all support files
-- __LispKitTools__: a framework for tools supporting _LispKit_; e.g. a read-eval-print framework
-- __LispKitRepl__: a command-line tool implementing a read-eval-print loop
+- __LispKit__: the core interpreter framework, including all support files, for macOS
+- __LispKit iOS__: the core interpreter framework, including all support files, for iOS
+- __LispKitTools__: a framework for tools supporting _LispKit_; e.g. a read-eval-print framework for macOS
+- __LispKitRepl__: a command-line tool implementing a read-eval-print loop for macOS
 
 
 ## Architecture

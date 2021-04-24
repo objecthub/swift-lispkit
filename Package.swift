@@ -66,7 +66,7 @@ let package = Package(
     .target(name: "LispKit",
             dependencies: ["NumberKit", "MarkdownKit", "SQLiteExpress", "ZIPFoundation"],
             exclude: ["Graphics/Drawing_iOS.swift",
-                      "Graphics/Transformation_iOS.swift"
+                      "Graphics/Transformation_iOS.swift",
                       "Primitives/DrawingLibrary_iOS.swift"]),
     .target(name: "LispKitTools",
             dependencies: ["LispKit", "CommandLineKit"]),
