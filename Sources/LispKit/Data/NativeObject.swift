@@ -73,3 +73,26 @@ open class AnyNativeObject<T: Hashable>: NativeObject {
     return self.value == other.value
   }
 }
+
+///
+/// `AnyMutableNativeObject` can be used as a wrapper for mutable native objects not derived from
+/// class `NativeObject`.
+///
+open class AnyMutableNativeObject<T: Hashable>: NativeObject {
+  public var value: T
+
+  public init(_ value: T) {
+    self.value = value
+  }
+
+  open override var hash: Int {
+    return self.value.hashValue
+  }
+
+  open override func equals(_ obj: NativeObject) -> Bool {
+    guard let other = obj as? AnyNativeObject<T> else {
+      return false
+    }
+    return self.value == other.value
+  }
+}

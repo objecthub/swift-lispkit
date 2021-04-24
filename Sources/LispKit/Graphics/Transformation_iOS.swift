@@ -20,7 +20,7 @@
 
 import Foundation
 import CoreGraphics
-import AppKit
+import UIKit
 
 ///
 /// A `Transformation` object represents an affine graphics coordinate transformation.
@@ -36,11 +36,11 @@ public final class Transformation: NativeObject {
   /// The identify transformation (= no mapping).
   public static let identity = Transformation()
   
-  /// The internal representation using an `AffineTransform` object.
-  public private(set) var affineTransform: AffineTransform
+  /// The internal representation using an `CGAffineTransform` struct.
+  public private(set) var affineTransform: CGAffineTransform
   
   /// Initializer
-  public init(_ affineTransform: AffineTransform) {
+  public init(_ affineTransform: CGAffineTransform) {
     self.affineTransform = affineTransform
   }
   
@@ -49,7 +49,7 @@ public final class Transformation: NativeObject {
     if let transform = transform {
       self.affineTransform = transform.affineTransform
     } else {
-      self.affineTransform = AffineTransform()
+      self.affineTransform = CGAffineTransform()
     }
   }
 
@@ -60,31 +60,31 @@ public final class Transformation: NativeObject {
   
   /// Shift coordinates by x/y.
   public func translate(x: Double, y: Double) {
-    self.affineTransform.translate(x: CGFloat(x), y: CGFloat(y))
+    self.affineTransform = self.affineTransform.translatedBy(x: CGFloat(x), y: CGFloat(y))
   }
   
   /// Scale coordinates by factors x/y
   public func scale(x: Double, y: Double) {
-    self.affineTransform.scale(x: CGFloat(x), y: CGFloat(y))
+    self.affineTransform = self.affineTransform.scaledBy(x: CGFloat(x), y: CGFloat(y))
   }
   
   /// Rotate coordinates by a given angle (around the origin)
   public func rotate(angle: Double) {
-    self.affineTransform.rotate(byRadians: CGFloat(angle))
+    self.affineTransform = self.affineTransform.rotated(by: CGFloat(angle))
   }
   
   /// Append a transformation.
   public func append(_ tf: Transformation) {
-    self.affineTransform.append(tf.affineTransform)
+    self.affineTransform = self.affineTransform.concatenating(tf.affineTransform)
   }
   
   /// Prepend a transformation.
   public func prepend(_ tf: Transformation) {
-    self.affineTransform.prepend(tf.affineTransform)
+    self.affineTransform = tf.affineTransform.concatenating(self.affineTransform)
   }
   
   /// Inver the transformation matrix
   public func invert() {
-    self.affineTransform.invert()
+    self.affineTransform = self.affineTransform.inverted()
   }
 }

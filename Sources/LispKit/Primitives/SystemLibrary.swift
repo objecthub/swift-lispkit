@@ -761,19 +761,20 @@ public final class SystemLibrary: NativeLibrary {
                                          .pair(.makeString(shell), .null))))))
   }
 
-#if os(iOS) || os(watchOS) || os(tvOS)
   private func openUrl(_ expr: Expr) throws -> Expr {
+    #if os(iOS) || os(watchOS) || os(tvOS)
     DispatchQueue.main.async {
-      UIApplication.shared.open(try expr.asURL())
+      do {
+        UIApplication.shared.open(try expr.asURL())
+      } catch {
+      }
     }
     return .true
-  }
-#elseif os(macOS)
-  private func openUrl(_ expr: Expr) throws -> Expr {
+    #elseif os(macOS)
     return .makeBoolean(NSWorkspace.shared.open(try expr.asURL()))
+    #endif
   }
-#endif
-
+  
   private func httpGet(_ expr: Expr, _ tout: Expr?) throws -> Expr {
     let url = try expr.asURL()
     let timeout = try tout?.asDouble(coerce: true) ?? HTTPInputStream.defaultTimeout

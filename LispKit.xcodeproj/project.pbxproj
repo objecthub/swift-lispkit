@@ -840,6 +840,12 @@
 		CCD5E567262E348100C45EA0 /* SRFI-214.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCD5E55A262E32EE00C45EA0 /* SRFI-214.scm */; };
 		CCD5E56B262E34A500C45EA0 /* SRFI-189.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCD5E55B262E337500C45EA0 /* SRFI-189.scm */; };
 		CCD5E56C262E34A500C45EA0 /* SRFI-214.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCD5E55A262E32EE00C45EA0 /* SRFI-214.scm */; };
+		CCD5E570262F545900C45EA0 /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC4575C720F00EE000116F0F /* Color.swift */; };
+		CCD5E578262F5A3E00C45EA0 /* Shape.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC76312220E951C2005F27CE /* Shape.swift */; };
+		CCD5E5822631F51700C45EA0 /* Drawing_iOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD5E5802631F51700C45EA0 /* Drawing_iOS.swift */; };
+		CCD5E58C2632395200C45EA0 /* DrawingDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC76312620E95262005F27CE /* DrawingDocument.swift */; };
+		CCD5E5992633405900C45EA0 /* DrawingLibrary_iOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD5E5972633405900C45EA0 /* DrawingLibrary_iOS.swift */; };
+		CCD5E5A526346F1500C45EA0 /* Transformation_iOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD5E5A326346F1500C45EA0 /* Transformation_iOS.swift */; };
 		CCD6C3E91F35F9F10002F7D4 /* enum.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCD6C3E81F35F95D0002F7D4 /* enum.sld */; };
 		CCD81AD21CE75823009EB087 /* Checkpointer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD81AD11CE75823009EB087 /* Checkpointer.swift */; };
 		CCD839AB1FD0F6000097023E /* Compression.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD839AA1FD0F6000097023E /* Compression.swift */; };
@@ -2437,6 +2443,9 @@
 		CCD5E559262E31AE00C45EA0 /* 214.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 214.sld; sourceTree = "<group>"; };
 		CCD5E55A262E32EE00C45EA0 /* SRFI-214.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-214.scm"; sourceTree = "<group>"; };
 		CCD5E55B262E337500C45EA0 /* SRFI-189.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-189.scm"; sourceTree = "<group>"; };
+		CCD5E5802631F51700C45EA0 /* Drawing_iOS.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Drawing_iOS.swift; sourceTree = "<group>"; };
+		CCD5E5972633405900C45EA0 /* DrawingLibrary_iOS.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DrawingLibrary_iOS.swift; sourceTree = "<group>"; };
+		CCD5E5A326346F1500C45EA0 /* Transformation_iOS.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Transformation_iOS.swift; sourceTree = "<group>"; };
 		CCD6C3E81F35F95D0002F7D4 /* enum.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = enum.sld; sourceTree = "<group>"; };
 		CCD81AD11CE75823009EB087 /* Checkpointer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Checkpointer.swift; sourceTree = "<group>"; };
 		CCD839AA1FD0F6000097023E /* Compression.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Compression.swift; sourceTree = "<group>"; };
@@ -2912,8 +2921,10 @@
 			isa = PBXGroup;
 			children = (
 				CC76312020E9518F005F27CE /* Drawing.swift */,
+				CCD5E5802631F51700C45EA0 /* Drawing_iOS.swift */,
 				CC76312220E951C2005F27CE /* Shape.swift */,
 				CC76312420E95204005F27CE /* Transformation.swift */,
+				CCD5E5A326346F1500C45EA0 /* Transformation_iOS.swift */,
 				CC4575C720F00EE000116F0F /* Color.swift */,
 				CC76312620E95262005F27CE /* DrawingDocument.swift */,
 			);
@@ -3268,6 +3279,7 @@
 				CC4E2D361D09691000D77159 /* PortLibrary.swift */,
 				CCCACB5B248D753800F012AC /* SystemOSLibrary.swift */,
 				CC4575C520F00C4400116F0F /* DrawingLibrary.swift */,
+				CCD5E5972633405900C45EA0 /* DrawingLibrary_iOS.swift */,
 				CCA6C3D023610674007D2AF0 /* MarkdownLibrary.swift */,
 				CC08964D244090D1004503B1 /* SQLiteLibrary.swift */,
 				CCFB412A25B25316005B2429 /* ZipArchiveLibrary.swift */,
@@ -3804,6 +3816,7 @@
 				CCC48C6925E5B94300D082AD /* ManagedObjectPool.swift in Sources */,
 				CCC48CA225E5B96800D082AD /* RuntimeError.swift in Sources */,
 				CCC48C9B25E5B96800D082AD /* EvalError.swift in Sources */,
+				CCD5E570262F545900C45EA0 /* Color.swift in Sources */,
 				CCC48C6B25E5B94300D082AD /* Sysctl.swift in Sources */,
 				CCC48C7225E5B94300D082AD /* Random.swift in Sources */,
 				CCC48C6525E5B94300D082AD /* ObjectPool.swift in Sources */,
@@ -3815,6 +3828,7 @@
 				CCC48CC825E5B98600D082AD /* RegexpLibrary.swift in Sources */,
 				CCC48CAE25E5B97100D082AD /* SourceManager.swift in Sources */,
 				CCC48CD825E5B98600D082AD /* PortLibrary.swift in Sources */,
+				CCD5E5822631F51700C45EA0 /* Drawing_iOS.swift in Sources */,
 				CCC48CC325E5B98600D082AD /* VectorLibrary.swift in Sources */,
 				CCC48C7025E5B94300D082AD /* Reference.swift in Sources */,
 				CCC48CAC25E5B97100D082AD /* NativeLibrary.swift in Sources */,
@@ -3854,12 +3868,14 @@
 				CCC48C9A25E5B96800D082AD /* SyntaxError.swift in Sources */,
 				CCC48CB325E5B97100D082AD /* VirtualMachineState.swift in Sources */,
 				CCC48CC525E5B98600D082AD /* DynamicControlLibrary.swift in Sources */,
+				CCD5E5A526346F1500C45EA0 /* Transformation_iOS.swift in Sources */,
 				CCC48C8F25E5B95B00D082AD /* Tuple.swift in Sources */,
 				CCC48CCB25E5B98600D082AD /* MathLibrary.swift in Sources */,
 				CCC48C7125E5B94300D082AD /* MultiMap.swift in Sources */,
 				CCC48C9D25E5B96800D082AD /* Parser.swift in Sources */,
 				CCC48C9125E5B95B00D082AD /* Equality.swift in Sources */,
 				CCC48C9E25E5B96800D082AD /* BindingGroup.swift in Sources */,
+				CCD5E5992633405900C45EA0 /* DrawingLibrary_iOS.swift in Sources */,
 				CCC48CB625E5B97100D082AD /* VirtualMachine.swift in Sources */,
 				CCC48CA125E5B96800D082AD /* Checkpointer.swift in Sources */,
 				CCC48CB425E5B97100D082AD /* ImportSet.swift in Sources */,
@@ -3884,6 +3900,7 @@
 				CCC48C9C25E5B96800D082AD /* LexicalError.swift in Sources */,
 				CCC48CD025E5B98600D082AD /* GrowableVectorLibrary.swift in Sources */,
 				CCC48C8525E5B95B00D082AD /* Expr.swift in Sources */,
+				CCD5E578262F5A3E00C45EA0 /* Shape.swift in Sources */,
 				CCC48C7A25E5B94900D082AD /* BinaryInput.swift in Sources */,
 				CCC48C9F25E5B96800D082AD /* Scanner.swift in Sources */,
 				CCC48C6E25E5B94300D082AD /* Compression.swift in Sources */,
@@ -3894,6 +3911,7 @@
 				CCC48C8C25E5B95B00D082AD /* Port.swift in Sources */,
 				CCC48CD425E5B98600D082AD /* SystemLibrary.swift in Sources */,
 				CCC48CB725E5B97100D082AD /* LibraryManager.swift in Sources */,
+				CCD5E58C2632395200C45EA0 /* DrawingDocument.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

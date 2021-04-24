@@ -19,8 +19,12 @@
 //
 
 import Foundation
-import Cocoa
 import CoreGraphics
+#if os(iOS) || os(watchOS) || os(tvOS)
+import UIKit
+#elseif os(macOS)
+import AppKit
+#endif
 
 ///
 /// A `DrawingDocument` object represents a document whose pages consist of drawings.
@@ -119,15 +123,17 @@ public final class DrawingDocument {
       pdfInfo[kCGPDFContextUserPassword] = password
     }
     // Default media box (will be overwritten on a page by page basis)
-    var mediaBox = NSRect(x: 0, y: 0, width: Double(200), height: Double(200))
+    var mediaBox = CGRect(x: 0, y: 0, width: Double(200), height: Double(200))
     // Create a core graphics context suitable for creating PDF files
     guard let cgc = CGContext(url as CFURL, mediaBox: &mediaBox, pdfInfo as CFDictionary) else {
       return false
     }
+    #if os(macOS)
     let previous = NSGraphicsContext.current
     defer {
       NSGraphicsContext.current = previous
     }
+    #endif
     for page in self.pages {
       page.createPDFPage(in: cgc)
     }
@@ -143,13 +149,20 @@ public final class DrawingDocument {
     public let height: Int
     
     fileprivate func createPDFPage(in cgc: CGContext) {
-      var mediaBox = NSRect(x: 0, y: 0, width: Double(self.width), height: Double(self.height))
+      var mediaBox = CGRect(x: 0, y: 0, width: Double(self.width), height: Double(self.height))
       let pageInfo: NSDictionary = [
         kCGPDFContextMediaBox : NSData(bytes: &mediaBox,
                                        length: MemoryLayout.size(ofValue: mediaBox))
       ]
       // Create a graphics context for drawing into the PDF page
+      #if os(iOS) || os(watchOS) || os(tvOS)
+      UIGraphicsPushContext(cgc)
+      defer {
+        UIGraphicsPopContext()
+      }
+      #elseif os(macOS)
       NSGraphicsContext.current = NSGraphicsContext(cgContext: cgc, flipped: self.flipped)
+      #endif
       // Create a new PDF page
       cgc.beginPDFPage(pageInfo as CFDictionary)
       cgc.saveGState()

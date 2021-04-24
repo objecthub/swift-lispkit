@@ -19,7 +19,9 @@
 //
 
 import CoreGraphics
-import Cocoa
+import Foundation
+import UIKit
+import MobileCoreServices
 
 ///
 /// Class `Drawing` represents a sequence of drawing instructions. The class offers the
@@ -69,13 +71,13 @@ public final class Drawing: NativeObject {
   /// put into a new transparency layer. Upon exit, the previous graphics state is being
   /// restored.
   public func draw(clippedTo shape: Shape? = nil) {
-    if let context = NSGraphicsContext.current {
-      context.saveGraphicsState()
-      context.cgContext.beginTransparencyLayer(auxiliaryInfo: nil)
+    if let context = UIGraphicsGetCurrentContext() {
+      context.saveGState()
+      context.beginTransparencyLayer(auxiliaryInfo: nil)
       shape?.compile().addClip()
       defer {
-        context.cgContext.endTransparencyLayer()
-        context.restoreGraphicsState()
+        context.endTransparencyLayer()
+        context.restoreGState()
       }
       self.drawInline()
     }
@@ -133,7 +135,7 @@ public final class Drawing: NativeObject {
       return false
     }
     // Define a media box
-    var mediaBox = NSRect(x: 0, y: 0, width: Double(width), height: Double(height))
+    var mediaBox = CGRect(x: 0, y: 0, width: Double(width), height: Double(height))
     // Create a core graphics context suitable for drawing the image into a PDF file
     let pdfInfo = NSMutableDictionary()
     if let title = title {
@@ -145,30 +147,23 @@ public final class Drawing: NativeObject {
     if let creator = creator {
       pdfInfo[kCGPDFContextCreator] = creator
     }
-    guard let cgc = CGContext(url as CFURL, mediaBox: &mediaBox, pdfInfo as CFDictionary) else {
+    guard let context = CGContext(url as CFURL, mediaBox: &mediaBox, pdfInfo as CFDictionary) else {
       return false
     }
-    // Create a graphics context for drawing into a PDF
-    let context = NSGraphicsContext(cgContext: cgc, flipped: flipped)
-    let previous = NSGraphicsContext.current
-    NSGraphicsContext.current = context
-    defer {
-      NSGraphicsContext.current = previous
-    }
     // Create a new PDF page
-    cgc.beginPDFPage(nil)
-    cgc.saveGState()
+    context.beginPDFPage(nil)
+    context.saveGState()
     // Flip graphics if required
     if flipped {
-      cgc.translateBy(x: 0.0, y: CGFloat(height))
-      cgc.scaleBy(x: 1.0, y: -1.0)
+      context.translateBy(x: 0.0, y: CGFloat(height))
+      context.scaleBy(x: 1.0, y: -1.0)
     }
     // Draw the image
     self.draw()
-    cgc.restoreGState()
+    context.restoreGState()
     // Close PDF page and document
-    cgc.endPDFPage()
-    cgc.closePDF()
+    context.endPDFPage()
+    context.closePDF()
     return true
   }
   
@@ -191,7 +186,7 @@ public final class Drawing: NativeObject {
                              width: width,
                              height: height,
                              scale: scale,
-                             format: NSBitmapImageRep.FileType.png,
+                             format: .png,
                              flipped: flipped)
   }
   
@@ -214,7 +209,7 @@ public final class Drawing: NativeObject {
                              width: width,
                              height: height,
                              scale: scale,
-                             format: NSBitmapImageRep.FileType.jpeg,
+                             format: .jpeg,
                              flipped: flipped)
   }
   
@@ -232,45 +227,34 @@ public final class Drawing: NativeObject {
                            width: Int,
                            height: Int,
                            scale: Double,
-                           format: NSBitmapImageRep.FileType,
+                           format: BitmapImageFileType,
                            flipped: Bool) -> Bool {
     // Create a bitmap suitable for storing the image in a PNG
-    guard let bitmap = NSBitmapImageRep(bitmapDataPlanes: nil,
-                                        pixelsWide: Int(Double(width) * scale),
-                                        pixelsHigh: Int(Double(height) * scale),
-                                        bitsPerSample: 8,
-                                        samplesPerPixel: 4,
-                                        hasAlpha: true,
-                                        isPlanar: false,
-                                        colorSpaceName: Color.colorSpaceName,
-                                        bytesPerRow: 0,
-                                        bitsPerPixel: 0) else {
+    guard let context = CGContext(data: nil,
+                                  width: Int(Double(width) * scale),
+                                  height: Int(Double(height) * scale),
+                                  bitsPerComponent: 8,
+                                  bytesPerRow: 0,
+                                  space: Color.colorSpaceName,
+                                  bitmapInfo: CGBitmapInfo(rawValue:
+                                                CGImageAlphaInfo.premultipliedFirst.rawValue)
+                                              .union(.byteOrder32Little).rawValue) else {
       return false
     }
-    // Set the intended size of the image (vs. size of the bitmap above)
-    bitmap.size = NSSize(width: width, height: height)
-    // Create a graphics context for drawing into the bitmap
-    guard let context = NSGraphicsContext(bitmapImageRep: bitmap) else {
-      return false
-    }
-    let previous = NSGraphicsContext.current
     // Create a flipped graphics context if required
     if flipped {
-      NSGraphicsContext.current = NSGraphicsContext(cgContext: context.cgContext, flipped: true)
-      let transform = NSAffineTransform()
-      transform.translateX(by: 0.0, yBy: CGFloat(height))
-      transform.scaleX(by: 1.0, yBy: -1.0)
-      transform.concat()
-    } else {
-      NSGraphicsContext.current = context
+      context.translateBy(x: 0.0, y: CGFloat(height))
+      context.scaleBy(x: 1.0, y: -1.0)
     }
+    UIGraphicsPushContext(context)
     defer {
-      NSGraphicsContext.current = previous
+      UIGraphicsPopContext()
     }
     // Draw the image
     self.draw()
-    // Encode bitmap in PNG format
-    guard let data = bitmap.representation(using: format, properties: [:]) else {
+    // Encode bitmap
+    guard let image = UIGraphicsGetImageFromCurrentImageContext(),
+          let data = format.data(for: image) else {
       return false
     }
     // Write encoded data into a file
@@ -302,67 +286,64 @@ public enum DrawingInstruction {
   case setTransformation(Transformation)
   case concatTransformation(Transformation)
   case undoTransformation(Transformation)
-  case strokeLine(NSPoint, NSPoint)
-  case strokeRect(NSRect)
-  case fillRect(NSRect)
-  case strokeEllipse(NSRect)
-  case fillEllipse(NSRect)
+  case strokeLine(CGPoint, CGPoint)
+  case strokeRect(CGRect)
+  case fillRect(CGRect)
+  case strokeEllipse(CGRect)
+  case fillEllipse(CGRect)
   case stroke(Shape, width: Double)
   case strokeDashed(Shape, width: Double, lengths: [Double], phase: Double)
   case fill(Shape)
   case fillLinearGradient(Shape, [Color], angle: Double)
-  case fillRadialGradient(Shape, [Color], relativeCenter: NSPoint)
-  case text(String, font: NSFont?, color: Color?, style: NSParagraphStyle?, at: ObjectLocation)
+  case fillRadialGradient(Shape, [Color], relativeCenter: CGPoint)
+  case text(String, font: Font?, color: Color?, style: NSParagraphStyle?, at: ObjectLocation)
   case attributedText(NSAttributedString, at: ObjectLocation)
-  case image(NSImage, ObjectLocation, operation: NSCompositingOperation, opacity: Double)
+  case image(UIImage, ObjectLocation, operation: CGBlendMode, opacity: Double)
   case inline(Drawing)
   case include(Drawing, clippedTo: Shape?)
   
   fileprivate func draw() {
     switch self {
       case .setStrokeColor(let color):
-        color.nsColor.setStroke()
+        UIGraphicsGetCurrentContext()?.setStrokeColor(color.nsColor.cgColor)
       case .setFillColor(let color):
-        color.nsColor.setFill()
+        UIGraphicsGetCurrentContext()?.setFillColor(color.nsColor.cgColor)
       case .setStrokeWidth(let width):
-        NSGraphicsContext.current?.cgContext.setLineWidth(CGFloat(width))
+        UIGraphicsGetCurrentContext()?.setLineWidth(CGFloat(width))
       case .setBlendMode(let blendMode):
-        NSGraphicsContext.current?.cgContext.setBlendMode(blendMode)
+        UIGraphicsGetCurrentContext()?.setBlendMode(blendMode)
       case .setShadow(let color, let dx, let dy, let blurRadius):
-        let shadow = NSShadow()
-        shadow.shadowOffset = NSSize(width: dx, height: dy)
-        shadow.shadowBlurRadius = CGFloat(blurRadius)
-        shadow.shadowColor = color.nsColor
-        shadow.set()
+        UIGraphicsGetCurrentContext()?.setShadow(offset: CGSize(width: dx, height: dy),
+                                                 blur: CGFloat(blurRadius),
+                                                 color: color.nsColor.cgColor)
       case .removeShadow:
-        let shadow = NSShadow()
-        shadow.shadowOffset = NSSize(width: 0.0, height: 0.0)
-        shadow.shadowBlurRadius = 0.0
-        shadow.shadowColor = nil
-        shadow.set()
+        UIGraphicsGetCurrentContext()?.setShadow(offset: CGSize(width: 0.0, height: 0.0),
+                                                 blur: 0.0,
+                                                 color: nil)
       case .setTransformation(let transformation):
-        NSAffineTransform(transform: transformation.affineTransform).set()
+        if let transform = UIGraphicsGetCurrentContext()?.ctm {
+          UIGraphicsGetCurrentContext()?.concatenate(transform.inverted())
+          UIGraphicsGetCurrentContext()?.concatenate(transformation.affineTransform)
+        }
       case .concatTransformation(let transformation):
-        NSAffineTransform(transform: transformation.affineTransform).concat()
+        UIGraphicsGetCurrentContext()?.concatenate(transformation.affineTransform)
       case .undoTransformation(let transformation):
-        let transform = NSAffineTransform(transform: transformation.affineTransform)
-        transform.invert()
-        transform.concat()
+        UIGraphicsGetCurrentContext()?.concatenate(transformation.affineTransform.inverted())
       case .strokeLine(let start, let end):
-        if let context = NSGraphicsContext.current?.cgContext {
+        if let context = UIGraphicsGetCurrentContext() {
           context.beginPath()
           context.move(to: start)
           context.addLine(to: end)
           context.strokePath()
         }
       case .strokeRect(let rct):
-        NSGraphicsContext.current?.cgContext.stroke(rct)
+        UIGraphicsGetCurrentContext()?.stroke(rct)
       case .fillRect(let rct):
-        NSGraphicsContext.current?.cgContext.fill(rct)
+        UIGraphicsGetCurrentContext()?.fill(rct)
       case .strokeEllipse(let rct):
-        NSGraphicsContext.current?.cgContext.strokeEllipse(in: rct)
+        UIGraphicsGetCurrentContext()?.strokeEllipse(in: rct)
       case .fillEllipse(let rct):
-        NSGraphicsContext.current?.cgContext.fillEllipse(in: rct)
+        UIGraphicsGetCurrentContext()?.fillEllipse(in: rct)
       case .stroke(let shape, let width):
         shape.stroke(lineWidth: width)
       case .strokeDashed(let shape, let width, let dashLengths, let dashPhase):
@@ -370,9 +351,52 @@ public enum DrawingInstruction {
       case .fill(let shape):
         shape.fill()
       case .fillLinearGradient(let shape, let colors, let angle):
-        NSGradient(colors: Color.nsColorArray(colors))?.draw(in: shape.compile(), angle: CGFloat(angle * 180.0 / .pi))
+        if let context = UIGraphicsGetCurrentContext(),
+           let gradient = CGGradient(colorsSpace: Color.colorSpaceName,
+                                     colors: Color.cgColorArray(colors) as CFArray,
+                                     locations: nil) {
+          context.saveGState()
+          context.addPath(shape.compile().cgPath)
+          context.closePath()
+          context.clip()
+          context.drawLinearGradient(gradient,
+                                     start: .zero,
+                                     end: CGPoint(x: cos(angle), y: sin(angle)),
+                                     options: [])
+          context.restoreGState()
+        }
       case .fillRadialGradient(let shape, let colors, let center):
-        NSGradient(colors: Color.nsColorArray(colors))?.draw(in: shape.compile(), relativeCenterPosition: center)
+        if let context = UIGraphicsGetCurrentContext(),
+           let gradient = CGGradient(colorsSpace: Color.colorSpaceName,
+                                     colors: Color.cgColorArray(colors) as CFArray,
+                                     locations: nil) {
+          context.saveGState()
+          let path = shape.compile()
+          context.addPath(path.cgPath)
+          context.closePath()
+          context.clip()
+          let bounds = path.bounds
+          var radius = abs(center.distance(to: CGPoint(x: bounds.minX, y: bounds.minY)))
+          var r = abs(center.distance(to: CGPoint(x: bounds.minX, y: bounds.maxY)))
+          if r > radius {
+            radius = r
+          }
+          r = abs(center.distance(to: CGPoint(x: bounds.maxX, y: bounds.minY)))
+          if r > radius {
+            radius = r
+          }
+          r = abs(center.distance(to: CGPoint(x: bounds.maxX, y: bounds.maxY)))
+          if r > radius {
+            radius = r
+          }
+          context.drawRadialGradient(gradient,
+                                     startCenter: center,
+                                     startRadius: 0,
+                                     endCenter: center,
+                                     endRadius: radius,
+                                     options: [])
+          context.restoreGState()
+        }
       case .text(let str, let font, let color, let paragraphStyle, let location):
         let pstyle: NSParagraphStyle
         if let style = paragraphStyle {
@@ -384,50 +408,40 @@ public enum DrawingInstruction {
           pstyle = .default
         }
         let attributes = [
-          .font: font ?? NSFont.systemFont(ofSize: NSFont.systemFontSize),
+          .font: font ?? Font.systemFont(ofSize: Font.systemFontSize),
           .foregroundColor: (color ?? Color.black).nsColor,
           .paragraphStyle: pstyle,
           ] as [NSAttributedString.Key: Any]
-        let textRect: NSRect
+        let textRect: CGRect
         switch location {
           case .position(let point):
-            textRect = NSRect(x: point.x, y: point.y,
+            textRect = CGRect(x: point.x, y: point.y,
                               width: CGFloat.infinity, height: CGFloat.infinity)
           case .boundingBox(let box):
             textRect = box
         }
         str.draw(with: textRect,
                  options: [.usesLineFragmentOrigin, .usesFontLeading],
-                 attributes: attributes)
+                 attributes: attributes,
+                 context: nil)
       case .attributedText(let attribStr, let location):
-        let textRect: NSRect
+        let textRect: CGRect
         switch location {
           case .position(let point):
-            textRect = NSRect(x: point.x, y: point.y,
+            textRect = CGRect(x: point.x, y: point.y,
                               width: CGFloat.infinity, height: CGFloat.infinity)
           case .boundingBox(let box):
             textRect = box
         }
-        attribStr.draw(with: textRect, options: [.usesLineFragmentOrigin, .usesFontLeading])
-      case .image(let image, let location, let oper, let opacity):
+        attribStr.draw(with: textRect,
+                       options: [.usesLineFragmentOrigin, .usesFontLeading],
+                       context: nil)
+      case .image(let image, let location, let oper, let opa):
         switch location {
           case .position(let point):
-           image.draw(in: NSRect(x: point.x,
-                                 y: point.y,
-                                 width: image.alignmentRect.width,
-                                 height: image.alignmentRect.height),
-                      from: NSZeroRect,
-                      operation: oper,
-                      fraction: CGFloat(opacity),
-                      respectFlipped: true,
-                      hints: [:])
+            image.draw(at: CGPoint(x: point.x, y: point.y), blendMode: oper, alpha: CGFloat(opa))
           case .boundingBox(let box):
-            image.draw(in: box,
-                       from: NSZeroRect,
-                       operation: oper,
-                       fraction: CGFloat(opacity),
-                       respectFlipped: true,
-                       hints: [:])
+            image.draw(in: box, blendMode: oper, alpha: CGFloat(opa))
         }
       case .include(let drawing, let clippingRegion):
         drawing.draw(clippedTo: clippingRegion)
@@ -463,6 +477,77 @@ public typealias BlendMode = CGBlendMode
 /// Enumeration of all supported object locations.
 ///
 public enum ObjectLocation {
-  case position(NSPoint)
-  case boundingBox(NSRect)
+  case position(CGPoint)
+  case boundingBox(CGRect)
+}
+
+public enum BitmapImageFileType {
+  case tiff
+  case bmp
+  case gif
+  case jpeg
+  case png
+  
+  func data(for image: UIImage) -> Data? {
+    guard let cgImage = image.cgImage else {
+      return nil
+    }
+    switch self {
+      case .tiff:
+        let tiffOptions: Dictionary<String, Int> = [
+          kCGImagePropertyTIFFCompression as String: 4
+        ]
+        let options: NSDictionary = [
+          kCGImagePropertyTIFFDictionary as String : tiffOptions,
+          // kCGImagePropertyDepth as String : 1,
+          kCGImagePropertyDPIWidth as String : Int(CGFloat(cgImage.width) * 72.0 / image.size.width),
+          kCGImagePropertyDPIHeight as String : Int(CGFloat(cgImage.height) * 72.0 / image.size.height),
+          kCGImagePropertyColorModel as String : kCGImagePropertyColorModelRGB as String,
+        ]
+        let md = NSMutableData()
+        guard let dest = CGImageDestinationCreateWithData(md, kUTTypeTIFF, 1, nil) else {
+          return nil
+        }
+        CGImageDestinationAddImage(dest, cgImage, options)
+        CGImageDestinationFinalize(dest)
+        return md as Data
+      case .bmp:
+        let options: NSDictionary = [
+          kCGImagePropertyDPIWidth as String : Int(CGFloat(cgImage.width) * 72.0 / image.size.width),
+          kCGImagePropertyDPIHeight as String : Int(CGFloat(cgImage.height) * 72.0 / image.size.height),
+          kCGImagePropertyColorModel as String : kCGImagePropertyColorModelRGB as String,
+          kCGImagePropertyHasAlpha as String: true
+        ]
+        let md = NSMutableData()
+        guard let dest = CGImageDestinationCreateWithData(md, kUTTypeBMP, 1, nil) else {
+          return nil
+        }
+        CGImageDestinationAddImage(dest, cgImage, options)
+        CGImageDestinationFinalize(dest)
+        return md as Data
+      case .gif:
+        let options: NSDictionary = [
+          kCGImagePropertyDPIWidth as String : Int(CGFloat(cgImage.width) * 72.0 / image.size.width),
+          kCGImagePropertyDPIHeight as String : Int(CGFloat(cgImage.height) * 72.0 / image.size.height),
+          kCGImagePropertyColorModel as String : kCGImagePropertyColorModelRGB as String,
+        ]
+        let md = NSMutableData()
+        guard let dest = CGImageDestinationCreateWithData(md, kUTTypeGIF, 1, nil) else {
+          return nil
+        }
+        CGImageDestinationAddImage(dest, cgImage, options)
+        CGImageDestinationFinalize(dest)
+        return md as Data
+      case .jpeg:
+        return image.jpegData(compressionQuality: 0.8)
+      case .png:
+        return image.pngData()
+    }
+  }
+}
+
+extension CGPoint {
+  func distance(to point: CGPoint) -> CGFloat {
+    return sqrt(pow((point.x - x), 2) + pow((point.y - y), 2))
+  }
 }

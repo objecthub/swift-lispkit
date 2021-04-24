@@ -19,7 +19,11 @@
 //
 
 import Foundation
-import Cocoa
+#if os(iOS) || os(watchOS) || os(tvOS)
+import UIKit
+#elseif os(macOS)
+import AppKit
+#endif
 
 ///
 /// Representation of a RGB color.
@@ -30,9 +34,11 @@ public final class Color: NativeObject {
   public static let type = Type.objectType(Symbol(uninterned: "color"))
 
   /// The color space for colors represented by this struct.
-  public static var colorSpaceName: NSColorSpaceName {
-    return NSColorSpaceName.deviceRGB
-  }
+  #if os(iOS) || os(watchOS) || os(tvOS)
+  public static let colorSpaceName: CGColorSpace = CGColorSpaceCreateDeviceRGB()
+  #elseif os(macOS)
+  public static let colorSpaceName: NSColorSpaceName = NSColorSpaceName.deviceRGB
+  #endif
   
   // Predefined colors
   public static let black = Color(red: 0.0, green: 0.0, blue: 0.0)
@@ -70,22 +76,40 @@ public final class Color: NativeObject {
   }
   
   /// The corresponding `NSColor` object
-  public var nsColor: NSColor {
+  public var nsColor: NativeColor {
+    #if os(iOS) || os(watchOS) || os(tvOS)
+    return UIColor(red: CGFloat(self.red),
+                   green: CGFloat(self.green),
+                   blue: CGFloat(self.blue),
+                   alpha: CGFloat(self.alpha))
+    #elseif os(macOS)
     return NSColor(calibratedRed: CGFloat(self.red),
                    green: CGFloat(self.green),
                    blue: CGFloat(self.blue),
                    alpha: CGFloat(self.alpha))
+    #endif
   }
   
   /// Returns an array of `NSColor` objects for a given array of `Color` objects
-  public static func nsColorArray(_ colors: [Color]) -> [NSColor] {
-    var res: [NSColor] = []
+  public static func nsColorArray(_ colors: [Color]) -> [NativeColor] {
+    var res: [NativeColor] = []
     for color in colors {
       res.append(color.nsColor)
     }
     return res
   }
-
+  
+  /// Returns an array of `CGColor` objects for a given array of `Color` objects
+  #if os(iOS) || os(watchOS) || os(tvOS)
+  public static func cgColorArray(_ colors: [Color]) -> [CGColor] {
+    var res: [CGColor] = []
+    for color in colors {
+      res.append(color.nsColor.cgColor)
+    }
+    return res
+  }
+  #endif
+  
   public override var hash: Int {
     var hasher = Hasher()
     hasher.combine(self.red)
@@ -105,3 +129,9 @@ public final class Color: NativeObject {
            self.alpha == other.alpha
   }
 }
+
+#if os(iOS) || os(watchOS) || os(tvOS)
+public typealias NativeColor = UIColor
+#elseif os(macOS)
+public typealias NativeColor = NSColor
+#endif

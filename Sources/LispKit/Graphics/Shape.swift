@@ -19,8 +19,12 @@
 //
 
 import Foundation
-import Cocoa
 import CoreGraphics
+#if os(iOS) || os(watchOS) || os(tvOS)
+import UIKit
+#elseif os(macOS)
+import AppKit
+#endif
 
 ///
 /// A `Shape` object consist of straight and curved line segments joined together.
@@ -34,9 +38,9 @@ import CoreGraphics
 ///
 /// `Shape` objects refine their prototype with a sequence of shape constructors.
 /// The following constructors are supported:
-///    - _move(to: NSPoint):_ Sets a new point.
-///    - _line(to: NSPoint):_ Draws a line from the current point to the given point.
-///    - _curve(to: NSPoint, controlCurrent: NSPoint, controlTarget: NSPoint):_ Draws a
+///    - _move(to: CGPoint):_ Sets a new point.
+///    - _line(to: CGPoint):_ Draws a line from the current point to the given point.
+///    - _curve(to: CGPoint, controlCurrent: CGPoint, controlTarget: CGPoint):_ Draws a
 ///      curve from the current point to the given point using a control point each
 ///      for determining the tangents of the curve at the end points.
 ///    - _text(String, in: NSFont, width: Double, height: Double):_ Includes glypths
@@ -71,9 +75,9 @@ public final class Shape: NativeObject {
   /// e.g. in this case, it will be drawn as a closed polygon.
   public let closed: Bool
   
-  /// This is the internally generated `NSBezierPath` object. This is a cache only and gets
+  /// This is the internally generated `BezierPath` object. This is a cache only and gets
   /// reset whenever a shape gets changed directly or indirectly.
-  private var bezierPath: NSBezierPath?
+  private var bezierPath: BezierPath?
   
   /// Other `Shape` objects in which this shape is included. Dependency management is
   /// necessary to refresh dependent shapes whenever this shape changes.
@@ -91,8 +95,7 @@ public final class Shape: NativeObject {
     switch self.prototype {
       case .shape(let shape),
            .transformed(let shape, _),
-           .flipped(let shape, _, _, _),
-           .flattened(let shape):
+           .flipped(let shape, _, _, _):
         shape.owners.compact()
         shape.owners.include(self)
       default:
@@ -115,8 +118,7 @@ public final class Shape: NativeObject {
     switch prototype {
       case .shape(let shape),
            .transformed(let shape, _),
-           .flipped(let shape, _, _, _),
-           .flattened(let shape):
+           .flipped(let shape, _, _, _):
         shape.owners.compact()
         shape.owners.include(self)
       default:
@@ -159,8 +161,7 @@ public final class Shape: NativeObject {
     switch self.prototype {
       case .shape(let other),
            .transformed(let other, _),
-           .flipped(let other, _, _, _),
-           .flattened(let other):
+           .flipped(let other, _, _, _):
         if other.includes(shape) {
           return true
         }
@@ -176,7 +177,7 @@ public final class Shape: NativeObject {
   }
   
   /// Returns true if the given point is contained in this shape.
-  public func contains(_ point: NSPoint) -> Bool {
+  public func contains(_ point: CGPoint) -> Bool {
     return self.compile().contains(point)
   }
   
@@ -213,12 +214,12 @@ public final class Shape: NativeObject {
   }
   
   /// Returns a bounding box for this shape.
-  public var bounds: NSRect {
+  public var bounds: CGRect {
     return self.compile().bounds
   }
   
-  /// Internal method for computing the `NSBezierPath` object from the shape definition.
-  func compile() -> NSBezierPath {
+  /// Internal method for computing the `BezierPath` object from the shape definition.
+  func compile() -> BezierPath {
     if let bezierPath = self.bezierPath {
       return bezierPath
     }
@@ -226,17 +227,24 @@ public final class Shape: NativeObject {
     return self.bezierPath!
   }
   
-  func compileNew() -> NSBezierPath {
+  func compileNew() -> BezierPath {
     let bezierPath = self.prototype.compile()
     for constructor in self.constructors {
       constructor.compile(into: bezierPath)
     }
     if self.flipped {
       let bounds = bezierPath.bounds
+      #if os(iOS) || os(watchOS) || os(tvOS)
+      bezierPath.apply(CGAffineTransform(translationX: 0.0, y: -bounds.origin.y))
+      bezierPath.apply(CGAffineTransform(scaleX: 1.0, y: -1.0))
+      bezierPath.apply(CGAffineTransform(translationX: 0.0,
+                                         y: bounds.origin.y + bounds.height))
+      #elseif os(macOS)
       bezierPath.transform(using: AffineTransform(translationByX: 0.0, byY: -bounds.origin.y))
       bezierPath.transform(using: AffineTransform(scaleByX: 1.0, byY: -1.0))
       bezierPath.transform(using: AffineTransform(translationByX: 0.0,
                                                   byY: bounds.origin.y + bounds.height))
+      #endif
     }
     if self.closed {
       bezierPath.close()
@@ -244,7 +252,7 @@ public final class Shape: NativeObject {
     return bezierPath
   }
   
-  /// Internal method for invalidating the cached `NSBezierPath` object of this shape and all
+  /// Internal method for invalidating the cached `BezierPath` object of this shape and all
   /// shapes that depend on it either directly or indirectly.
   func markDirty() {
     if self.bezierPath != nil {
@@ -260,69 +268,115 @@ public final class Shape: NativeObject {
 ///
 /// Enumeration listing all supported shape prototypes:
 ///    - _none:_ The empty shape
-///    - _line(NSPoint, NSPoint):_ A line between two given points
-///    - _rect(NSRect):_ A rectangle defined by the lower left corner and a width and height
-///    - _roundedRect(NSRect, xradius: Double, yradius: Double):_ A rounded rectangle defined
+///    - _line(CGPoint, CGPoint):_ A line between two given points
+///    - _rect(CGRect):_ A rectangle defined by the lower left corner and a width and height
+///    - _roundedRect(CGRect, xradius: Double, yradius: Double):_ A rounded rectangle defined
 ///       by the lower left corner, a width and height, and x/y radius for the rounded corners
-///    - _oval(NSRect):_ An oval whose bounding box is the given rectangle.
-///    - _arc(center: NSPoint, radius: Double, startAngle: Double, endAngle: Double,
+///    - _oval(CGRect):_ An oval whose bounding box is the given rectangle.
+///    - _arc(center: CGPoint, radius: Double, startAngle: Double, endAngle: Double,
 ///      clockwise: Bool)_: An arc around a center defined by a radius, a start angle and an
 ///      end angle.
-///    - _glyphs(String, in: NSRect, font: NSFont):_ Includes glypths for the given text in
+///    - _glyphs(String, in: CGRect, font: NSFont):_ Includes glypths for the given text in
 ///      the given font at the position `in.origin` assuming a bounding box defined by `in.size`.
-///    - _interpolated([NSPoint], method: InterpolationMethod):_ A smooth curve drawn through the
+///    - _interpolated([CGPoint], method: InterpolationMethod):_ A smooth curve drawn through the
 ///      given points via a provided interpolation method.
 ///    - _shape(Shape):_ Another shape object.
 ///    - _transformed(Shape, Transformation):_ Another shape transformed by a given transformation.
-///    - _flipped(Shape, NSRect?, vertical, horizontal):_ Flips the given shape in the given
+///    - _flipped(Shape, CGRect?, vertical, horizontal):_ Flips the given shape in the given
 ///      rectangle either horizontally, vertically or both. If no rectangle is given, the
 ///      bounding box of the shape is used.
-///    - _flattened(Shape)_: Another shape flattened (i.e. a polygon approximating the shape)
 ///
 public enum ShapePrototype {
   case none
-  case line(NSPoint, NSPoint)
-  case rect(NSRect)
-  case roundedRect(NSRect, xradius: Double, yradius: Double)
-  case oval(NSRect)
-  case arc(center: NSPoint, radius: Double, startAngle: Double, endAngle: Double, clockwise: Bool)
-  case glyphs(String, in: NSRect, font: NSFont, flipped: Bool)
-  case interpolated([NSPoint], method: InterpolationMethod)
+  case line(CGPoint, CGPoint)
+  case rect(CGRect)
+  case roundedRect(CGRect, xradius: Double, yradius: Double)
+  case oval(CGRect)
+  case arc(center: CGPoint, radius: Double, startAngle: Double, endAngle: Double, clockwise: Bool)
+  case glyphs(String, in: CGRect, font: Font, flipped: Bool)
+  case interpolated([CGPoint], method: InterpolationMethod)
   case shape(Shape)
   case transformed(Shape, Transformation)
-  case flipped(Shape, NSRect?, vertical: Bool, horizontal: Bool)
-  case flattened(Shape)
+  case flipped(Shape, CGRect?, vertical: Bool, horizontal: Bool)
   
-  func compile() -> NSBezierPath {
+  func compile() -> BezierPath {
     switch self {
       case .none:
-        let bezierPath = NSBezierPath()
-        bezierPath.move(to: NSPoint(x: 0.0, y: 0.0))
+        let bezierPath = BezierPath()
+        bezierPath.move(to: CGPoint(x: 0.0, y: 0.0))
         return bezierPath
       case .line(let start, let end):
-        let bezierPath = NSBezierPath()
+        let bezierPath = BezierPath()
         bezierPath.move(to: start)
+        #if os(iOS) || os(watchOS) || os(tvOS)
+        bezierPath.addLine(to: end)
+        #elseif os(macOS)
         bezierPath.line(to: end)
+        #endif
         return bezierPath
       case .rect(let rect):
-        return NSBezierPath(rect: rect)
+        return BezierPath(rect: rect)
       case .roundedRect(let rect, let xrad, let yrad):
-        return NSBezierPath(roundedRect: rect, xRadius: CGFloat(xrad), yRadius: CGFloat(yrad))
+        #if os(iOS) || os(watchOS) || os(tvOS)
+        return BezierPath(roundedRect: rect,
+                          byRoundingCorners: .allCorners,
+                          cornerRadii: CGSize(width: CGFloat(xrad), height: CGFloat(yrad)))
+        #elseif os(macOS)
+        return BezierPath(roundedRect: rect, xRadius: CGFloat(xrad), yRadius: CGFloat(yrad))
+        #endif
       case .oval(let rect):
-        let bezierPath = NSBezierPath(ovalIn: rect)
+        let bezierPath = BezierPath(ovalIn: rect)
         bezierPath.close()
         return bezierPath
       case .arc(let center, let radius, let start, let end, let clockwise):
-        let bezierPath = NSBezierPath()
+        let bezierPath = BezierPath()
+        #if os(iOS) || os(watchOS) || os(tvOS)
+        bezierPath.addArc(withCenter: center,
+                          radius: CGFloat(radius),
+                          startAngle: CGFloat(start),
+                          endAngle: CGFloat(end),
+                          clockwise: clockwise)
+        #elseif os(macOS)
         bezierPath.appendArc(withCenter: center,
                              radius: CGFloat(radius),
                              startAngle: CGFloat(start),
                              endAngle: CGFloat(end),
                              clockwise: clockwise)
+        #endif
         return bezierPath
       case .glyphs(let str, let rect, let font, let flipped):
-        let bezierPath = NSBezierPath()
+        let bezierPath = BezierPath()
         bezierPath.move(to: rect.origin)
+        #if os(iOS) || os(watchOS) || os(tvOS)
+        // This does not exactly do what's implemented for macOS as it ignores the width and
+        // height of `rect`.
+        let textPath = CGMutablePath()
+        let ctFont = CTFontCreateWithName(font.fontName as CFString, font.pointSize, nil)
+        let attributedString =
+          NSAttributedString(string: str,
+                             attributes: [kCTFontAttributeName as NSAttributedString.Key : ctFont])
+        let line = CTLineCreateWithAttributedString(attributedString)
+        let runs = (CTLineGetGlyphRuns(line) as [AnyObject]) as! [CTRun]
+        for run in runs {
+          let attributes: NSDictionary = CTRunGetAttributes(run)
+          let ctfont = attributes[kCTFontAttributeName as String] as! CTFont
+          let count = CTRunGetGlyphCount(run)
+          for index in 0..<count {
+            let range = CFRangeMake(index, 1)
+            var glyph = CGGlyph()
+            CTRunGetGlyphs(run, range, &glyph)
+            var position = CGPoint()
+            CTRunGetPositions(run, range, &position)
+            let letter = CTFontCreatePathForGlyph(ctfont, glyph, nil)
+            if let letter = letter  {
+              textPath.addPath(
+                letter,
+                transform: CGAffineTransform(translationX: position.x, y: position.y))
+            }
+          }
+        }
+        bezierPath.append(UIBezierPath(cgPath: textPath))
+        #elseif os(macOS)
         let storage = NSTextStorage(string: str, attributes: [NSAttributedString.Key.font : font])
         let manager = NSLayoutManager()
         let container = NSTextContainer(size: rect.size)
@@ -336,15 +390,27 @@ public enum ShapePrototype {
                                            characterIndexes: nil,
                                            bidiLevels: nil)
         bezierPath.append(withCGGlyphs: &glyphBuffer, count: glyphCount, in: font)
+        #endif
         var bounds = bezierPath.bounds
+        #if os(iOS) || os(watchOS) || os(tvOS)
+        bezierPath.apply(CGAffineTransform(translationX: rect.origin.x - bounds.origin.x,
+                                           y: rect.origin.y - bounds.origin.y))
+        #elseif os(macOS)
         bezierPath.transform(using: AffineTransform(translationByX: rect.origin.x - bounds.origin.x,
                                                     byY: rect.origin.y - bounds.origin.y))
+        #endif
         if flipped {
           bounds = bezierPath.bounds
+          #if os(iOS) || os(watchOS) || os(tvOS)
+          bezierPath.apply(CGAffineTransform(translationX: 0.0, y: -bounds.origin.y))
+          bezierPath.apply(CGAffineTransform(scaleX: 1.0, y: -1.0))
+          bezierPath.apply(CGAffineTransform(translationX: 0.0, y: bounds.origin.y + bounds.height))
+          #elseif os(macOS)
           bezierPath.transform(using: AffineTransform(translationByX: 0.0, byY: -bounds.origin.y))
           bezierPath.transform(using: AffineTransform(scaleByX: 1.0, byY: -1.0))
           bezierPath.transform(using: AffineTransform(translationByX: 0.0,
                                                       byY: bounds.origin.y + bounds.height))
+          #endif
         }
         return bezierPath
       case .interpolated(let points, let method):
@@ -352,20 +418,37 @@ public enum ShapePrototype {
       case .shape(let shape):
         return shape.compileNew()
       case .transformed(let shape, let transform):
+        #if os(iOS) || os(watchOS) || os(tvOS)
+        let bezierPath = shape.compile().copy() as! BezierPath
+        bezierPath.apply(transform.affineTransform)
+        return bezierPath
+        #elseif os(macOS)
         return NSAffineTransform(transform: transform.affineTransform).transform(shape.compile())
+        #endif
       case .flipped(let shape, let box, let vertical, let horizontal):
         var bezierPath = shape.compile()
         let bounds = box ?? bezierPath.bounds
+        #if os(iOS) || os(watchOS) || os(tvOS)
+        bezierPath = bezierPath.copy() as! BezierPath
+        bezierPath.apply(CGAffineTransform(translationX: -bounds.origin.x,
+                                           y: -bounds.origin.y))
+        bezierPath.apply(CGAffineTransform(scaleX: horizontal ? -1.0 : 1.0,
+                                           y: vertical ? -1.0 : 1.0))
+        bezierPath.apply(CGAffineTransform(translationX: bounds.origin.x +
+                                                         (horizontal ? bounds.width : 0.0),
+                                           y: bounds.origin.y + (vertical ? bounds.height : 0.0)))
+        #elseif os(macOS)
         bezierPath = NSAffineTransform(transform:
           AffineTransform(translationByX: -bounds.origin.x,
                           byY: -bounds.origin.y)).transform(bezierPath)
         bezierPath.transform(using: AffineTransform(scaleByX: horizontal ? -1.0 : 1.0,
                                                     byY: vertical ? -1.0 : 1.0))
-        bezierPath.transform(using: AffineTransform(translationByX: bounds.origin.x + (horizontal ? bounds.width : 0.0),
-                                                    byY: bounds.origin.y + (vertical ? bounds.height : 0.0)))
+        bezierPath.transform(using: AffineTransform(translationByX: bounds.origin.x +
+                                                                    (horizontal ? bounds.width : 0.0),
+                                                    byY: bounds.origin.y +
+                                                         (vertical ? bounds.height : 0.0)))
+        #endif
         return bezierPath
-      case .flattened(let shape):
-        return shape.compile().flattened
     }
   }
 }
@@ -379,7 +462,7 @@ public enum InterpolationMethod {
   case catmullRom(closed: Bool, alpha: Double)
   case hermite(closed: Bool, alpha: Double)
   
-  func compile(_ points: [NSPoint]) -> NSBezierPath {
+  func compile(_ points: [CGPoint]) -> BezierPath {
     switch self {
       case .catmullRom(let closed, let alpha):
         return self.catmullRom(points: points, closed: closed, alpha: CGFloat(alpha))! // FIXME
@@ -388,14 +471,14 @@ public enum InterpolationMethod {
     }
   }
   
-  func hermite(points: [NSPoint],
+  func hermite(points: [CGPoint],
                closed: Bool,
-               alpha: CGFloat = 1.0 / 3.0) -> NSBezierPath? {
+               alpha: CGFloat = 1.0 / 3.0) -> BezierPath? {
     guard points.count > 1 else {
         return nil
     }
     let nCurves = closed ? points.count : points.count - 1
-    let path = NSBezierPath()
+    let path = BezierPath()
     for i in 0..<nCurves {
       var curPt = points[i]
       if i == 0 {
@@ -405,14 +488,18 @@ public enum InterpolationMethod {
       var nextPt = points[(i + 1) % points.count]
       var mx = (nextPt.x - (closed || i > 0 ? prevPt.x : curPt.x)) * 0.5
       var my = (nextPt.y - (closed || i > 0 ? prevPt.y : curPt.y)) * 0.5
-      let ctrlPt1 = NSPoint(x: curPt.x + mx * alpha, y: curPt.y + my * alpha)
+      let ctrlPt1 = CGPoint(x: curPt.x + mx * alpha, y: curPt.y + my * alpha)
       prevPt = curPt
       curPt = nextPt
       nextPt = points[(i + 2) % points.count]
       mx = ((closed || i < nCurves - 1 ? nextPt.x : curPt.x) - prevPt.x) * 0.5
       my = ((closed || i < nCurves - 1 ? nextPt.y : curPt.y) - prevPt.y) * 0.5
-      let ctrlPt2 = NSPoint(x: curPt.x - mx * alpha, y: curPt.y - my * alpha)
+      let ctrlPt2 = CGPoint(x: curPt.x - mx * alpha, y: curPt.y - my * alpha)
+      #if os(iOS) || os(watchOS) || os(tvOS)
+      path.addCurve(to: curPt, controlPoint1: ctrlPt1, controlPoint2: ctrlPt2)
+      #elseif os(macOS)
       path.curve(to: curPt, controlPoint1: ctrlPt1, controlPoint2: ctrlPt2)
+      #endif
     }
     if closed {
       path.close()
@@ -420,15 +507,15 @@ public enum InterpolationMethod {
     return path
   }
   
-  func catmullRom(points: [NSPoint],
+  func catmullRom(points: [CGPoint],
                   closed: Bool,
-                  alpha: CGFloat = 1.0 / 3.0) -> NSBezierPath? {
+                  alpha: CGFloat = 1.0 / 3.0) -> BezierPath? {
     guard points.count > 3,
           alpha >= 0.0 && alpha <= 1.0 else {
       return nil
     }
     let endIndex = closed ? points.count : (points.count - 2)
-    var path: NSBezierPath? = nil
+    var path: BezierPath? = nil
     var i = closed ? 0 : 1
     while i < endIndex {
       let p0 = points[i < 1 ? (points.count - 1) : (i - 1)]
@@ -438,7 +525,7 @@ public enum InterpolationMethod {
       let d1 = pointLength(pointSub(p1, p0))
       let d2 = pointLength(pointSub(p2, p1))
       let d3 = pointLength(pointSub(p3, p2))
-      var b1: NSPoint
+      var b1: CGPoint
       if abs(d1) < InterpolationMethod.epsilon {
         b1 = p1
       } else {
@@ -449,7 +536,7 @@ public enum InterpolationMethod {
                                         pow(d2, 2.0 * alpha)))
         b1 = pointMult(b1, 1.0 / (3.0 * pow(d1, alpha) * (pow(d1, alpha) + pow(d2, alpha))))
       }
-      var b2: NSPoint
+      var b2: CGPoint
       if abs(d3) < InterpolationMethod.epsilon {
         b2 = p2
       } else {
@@ -461,11 +548,19 @@ public enum InterpolationMethod {
         b2 = pointMult(b2, 1.0 / (3.0 * pow(d3, alpha) * (pow(d3, alpha) + pow(d2, alpha))))
       }
       if let path = path {
+        #if os(iOS) || os(watchOS) || os(tvOS)
+        path.addCurve(to: p2, controlPoint1: b1, controlPoint2: b2)
+        #elseif os(macOS)
         path.curve(to: p2, controlPoint1: b1, controlPoint2: b2)
+        #endif
       } else {
-        path = NSBezierPath()
+        path = BezierPath()
         path?.move(to: p1)
+        #if os(iOS) || os(watchOS) || os(tvOS)
+        path?.addCurve(to: p2, controlPoint1: b1, controlPoint2: b2)
+        #elseif os(macOS)
         path?.curve(to: p2, controlPoint1: b1, controlPoint2: b2)
+        #endif
       }
       i += 1
     }
@@ -475,20 +570,20 @@ public enum InterpolationMethod {
     return path
   }
   
-  private func pointLength(_ v: NSPoint) -> CGFloat {
+  private func pointLength(_ v: CGPoint) -> CGFloat {
     return (v.x * v.x + v.y * v.y).squareRoot()
   }
   
-  private func pointAdd(_ v1: NSPoint, _ v2: NSPoint) -> NSPoint {
-    return NSPoint(x: v1.x + v2.x, y: v1.y + v2.y)
+  private func pointAdd(_ v1: CGPoint, _ v2: CGPoint) -> CGPoint {
+    return CGPoint(x: v1.x + v2.x, y: v1.y + v2.y)
   }
   
-  private func pointSub(_ v1: NSPoint, _ v2: NSPoint) -> NSPoint {
-    return NSPoint(x: v1.x - v2.x, y: v1.y - v2.y)
+  private func pointSub(_ v1: CGPoint, _ v2: CGPoint) -> CGPoint {
+    return CGPoint(x: v1.x - v2.x, y: v1.y - v2.y)
   }
   
-  private func pointMult(_ v: NSPoint, _ s: CGFloat) -> NSPoint {
-    return NSPoint(x: v.x * CGFloat(s), y: v.y * CGFloat(s))
+  private func pointMult(_ v: CGPoint, _ s: CGFloat) -> CGPoint {
+    return CGPoint(x: v.x * CGFloat(s), y: v.y * CGFloat(s))
   }
   
   public static let epsilon: CGFloat = 1.0e-5
@@ -496,30 +591,53 @@ public enum InterpolationMethod {
 
 ///
 /// Enumeration of all supported shape constructors:
-///    - _move(to: NSPoint):_ Sets a new point.
-///    - _line(to: NSPoint):_ Draws a line from the current point to the given point.
-///    - _curve(to: NSPoint, controlCurrent: NSPoint, controlTarget: NSPoint):_ Draws a
+///    - _move(to: CGPoint):_ Sets a new point.
+///    - _line(to: CGPoint):_ Draws a line from the current point to the given point.
+///    - _curve(to: CGPoint, controlCurrent: CGPoint, controlTarget: CGPoint):_ Draws a
 ///      curve from the current point to the given point using a control point each
 ///      for determining the tangents of the curve at the end points.
-///    - _relativeMove(to: NSPoint):_ Sets a new point relative to the current point.
-///    - _relativeLine(to: NSPoint):_ Draws a line from the current point to the given point
+///    - _relativeMove(to: CGPoint):_ Sets a new point relative to the current point.
+///    - _relativeLine(to: CGPoint):_ Draws a line from the current point to the given point
 ///      which is specified relative to the current point.
-///    - _relativeCurve(to: NSPoint, controlCurrent: NSPoint, controlTarget: NSPoint):_ Draws a
+///    - _relativeCurve(to: CGPoint, controlCurrent: CGPoint, controlTarget: CGPoint):_ Draws a
 ///      curve from the current point to the given point using a control point each
 ///      for determining the tangents of the curve at the end points. All points are relative to
 ///      the current point.
 ///    - _include(Shape):_ Includes another `Shape` object at the current point.
 ///
 public enum ShapeConstructor {
-  case move(to: NSPoint)
-  case line(to: NSPoint)
-  case curve(to: NSPoint, controlCurrent: NSPoint, controlTarget: NSPoint)
-  case relativeMove(to: NSPoint)
-  case relativeLine(to: NSPoint)
-  case relativeCurve(to: NSPoint, controlCurrent: NSPoint, controlTarget: NSPoint)
+  case move(to: CGPoint)
+  case line(to: CGPoint)
+  case curve(to: CGPoint, controlCurrent: CGPoint, controlTarget: CGPoint)
+  case relativeMove(to: CGPoint)
+  case relativeLine(to: CGPoint)
+  case relativeCurve(to: CGPoint, controlCurrent: CGPoint, controlTarget: CGPoint)
   case include(Shape)
   
-  func compile(into path: NSBezierPath) {
+  func compile(into path: BezierPath) {
+    #if os(iOS) || os(watchOS) || os(tvOS)
+    switch self {
+      case .move(let point):
+        path.move(to: point)
+      case .line(let point):
+        path.addLine(to: point)
+      case .curve(let target, let controlCurrent, let controlTarget):
+        path.addCurve(to: target, controlPoint1: controlCurrent, controlPoint2: controlTarget)
+      case .relativeMove(let point):
+        path.move(to: CGPoint(x: path.currentPoint.x + point.x, y: path.currentPoint.y + point.y))
+      case .relativeLine(let point):
+        path.addLine(to: CGPoint(x: path.currentPoint.x + point.x, y: path.currentPoint.y + point.y))
+      case .relativeCurve(let target, let controlCurrent, let controlTarget):
+        path.addCurve(to: CGPoint(x: path.currentPoint.x + target.x,
+                                  y: path.currentPoint.y + target.y),
+                      controlPoint1: CGPoint(x: path.currentPoint.x + controlCurrent.x,
+                                             y: path.currentPoint.y + controlCurrent.y),
+                      controlPoint2: CGPoint(x: path.currentPoint.x + controlTarget.x,
+                                             y: path.currentPoint.y + controlTarget.y))
+      case .include(let shape):
+        path.append(shape.compile())
+    }
+    #elseif os(macOS)
     switch self {
       case .move(let point):
         path.move(to: point)
@@ -536,5 +654,14 @@ public enum ShapeConstructor {
       case .include(let shape):
         path.append(shape.compile())
     }
+    #endif
   }
 }
+
+#if os(iOS) || os(watchOS) || os(tvOS)
+public typealias BezierPath = UIBezierPath
+public typealias Font = UIFont
+#elseif os(macOS)
+public typealias BezierPath = NSBezierPath
+public typealias Font = NSFont
+#endif
