@@ -3359,7 +3359,8 @@
 				CCD5E5C12634B62200C45EA0 /* Info.plist */,
 				CCD5E5BE2634B62200C45EA0 /* Preview Content */,
 			);
-			path = "LispKitRepl iOS";
+			name = "LispKitRepl iOS";
+			path = "Sources/LispKitRepl iOS";
 			sourceTree = "<group>";
 		};
 		CCD5E5BE2634B62200C45EA0 /* Preview Content */ = {
@@ -4480,11 +4481,11 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_ASSET_PATHS = "\"LispKitRepl iOS/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"Sources/LispKitRepl iOS/Preview Content\"";
 				DEVELOPMENT_TEAM = C72Z63N8M5;
 				ENABLE_PREVIEWS = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = "LispKitRepl iOS/Info.plist";
+				INFOPLIST_FILE = "Sources/LispKitRepl iOS/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -4513,11 +4514,11 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_ASSET_PATHS = "\"LispKitRepl iOS/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"Sources/LispKitRepl iOS/Preview Content\"";
 				DEVELOPMENT_TEAM = C72Z63N8M5;
 				ENABLE_PREVIEWS = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = "LispKitRepl iOS/Info.plist";
+				INFOPLIST_FILE = "Sources/LispKitRepl iOS/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
