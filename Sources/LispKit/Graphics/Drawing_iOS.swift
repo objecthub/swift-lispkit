@@ -1,9 +1,9 @@
 //
-//  Drawing.swift
+//  Drawing_iOS.swift
 //  LispKit
 //
-//  Created by Matthias Zenger on 24/06/2018.
-//  Copyright © 2018 ObjectHub. All rights reserved.
+//  Created by Matthias Zenger on 23/04/2021.
+//  Copyright © 2021 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -149,6 +149,10 @@ public final class Drawing: NativeObject {
     }
     guard let context = CGContext(url as CFURL, mediaBox: &mediaBox, pdfInfo as CFDictionary) else {
       return false
+    }
+    UIGraphicsPushContext(context)
+    defer {
+      UIGraphicsPopContext()
     }
     // Create a new PDF page
     context.beginPDFPage(nil)

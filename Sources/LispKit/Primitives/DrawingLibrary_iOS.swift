@@ -1,9 +1,9 @@
 //
-//  DrawingLibrary.swift
+//  DrawingLibrary_iOS.swift
 //  LispKit
 //
-//  Created by Matthias Zenger on 06/07/2018.
-//  Copyright © 2018 ObjectHub. All rights reserved.
+//  Created by Matthias Zenger on 24/04/2021.
+//  Copyright © 2021 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -1284,7 +1284,7 @@ public final class DrawingLibrary: NativeLibrary {
   }
   
   private func transformation(args: Arguments) throws -> Expr {
-    var transform = CGAffineTransform()
+    var transform = CGAffineTransform.identity
     for arg in args {
       transform = transform.concatenating(try self.affineTransform(arg))
     }
@@ -1321,7 +1321,7 @@ public final class DrawingLibrary: NativeLibrary {
   
   private func affineTransform(_ expr: Expr?) throws -> CGAffineTransform {
     guard let tf = expr else {
-      return CGAffineTransform()
+      return CGAffineTransform.identity
     }
     guard case .object(let obj) = tf, let transform = obj as? Transformation else {
       throw RuntimeError.type(tf, expected: [Transformation.type])

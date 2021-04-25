@@ -1,9 +1,9 @@
 //
-//  Transformation.swift
+//  Transformation_iOS.swift
 //  LispKit
 //
-//  Created by Matthias Zenger on 30/06/2018.
-//  Copyright © 2018 ObjectHub. All rights reserved.
+//  Created by Matthias Zenger on 24/04/2021.
+//  Copyright © 2021 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ public final class Transformation: NativeObject {
     if let transform = transform {
       self.affineTransform = transform.affineTransform
     } else {
-      self.affineTransform = CGAffineTransform()
+      self.affineTransform = CGAffineTransform.identity
     }
   }
 
