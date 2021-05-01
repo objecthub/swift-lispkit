@@ -302,9 +302,9 @@ be achieved, e.g. by invoking `make run` (for the debug REPL) or `make repl` (fo
 Details for building such release binaries can be looked up in the
 [Makefile](https://github.com/objecthub/swift-lispkit/blob/master/Makefile).
 
-### Building and running the iOS tool
+<img align="right" src="Assets/lispkit-repl-ios.png" alt="LispKitRepl iOS" width="390" height="538" />
 
-<img align="right" src="Assets/lispkit-repl-ios.png" alt="LispKitRepl iOS" width="293" height="571" />
+### Building and running the iOS tool
 
 Within Xcode, switch the scheme to the target _LispKitRepl iOS_ and build and run the project. By default,
 this will invoke the iOS simulator and run an application "LispKitRepl iOS". The application has a chat-inspired
