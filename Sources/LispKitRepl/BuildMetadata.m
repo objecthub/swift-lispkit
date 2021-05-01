@@ -3,7 +3,7 @@
 //  LispKit
 //
 //  Created by Matthias Zenger on 05/05/2016.
-//  Copyright © 2016 ObjectHub. All rights reserved.
+//  Copyright © 2016-2021 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 
 #import <Foundation/Foundation.h>
 
-NSDate *getBuildDate() {
+NSDate *getBuildDate(void) {
   NSString *compileDate = [NSString stringWithUTF8String:__DATE__];
   NSDateFormatter *df = [[NSDateFormatter alloc] init];
   [df setDateFormat:@"MMM d yyyy"];
@@ -29,6 +29,6 @@ NSDate *getBuildDate() {
   return [df dateFromString:compileDate];
 }
 
-NSString *getBuildTime() {
+NSString *getBuildTime(void) {
   return [NSString stringWithUTF8String:__TIME__];
 }

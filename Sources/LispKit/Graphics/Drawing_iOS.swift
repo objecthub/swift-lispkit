@@ -504,9 +504,10 @@ public enum BitmapImageFileType {
         let options: NSDictionary = [
           kCGImagePropertyTIFFDictionary as String : tiffOptions,
           // kCGImagePropertyDepth as String : 1,
-          kCGImagePropertyDPIWidth as String : Int(CGFloat(cgImage.width) * 72.0 / image.size.width),
-          kCGImagePropertyDPIHeight as String : Int(CGFloat(cgImage.height) * 72.0 / image.size.height),
+          kCGImagePropertyDPIWidth as String : Int(CGFloat(cgImage.width)*72.0/image.size.width),
+          kCGImagePropertyDPIHeight as String : Int(CGFloat(cgImage.height)*72.0/image.size.height),
           kCGImagePropertyColorModel as String : kCGImagePropertyColorModelRGB as String,
+          kCGImagePropertyOrientation as String : NSNumber(value: image.imageOrientation.rawValue)
         ]
         let md = NSMutableData()
         guard let dest = CGImageDestinationCreateWithData(md, kUTTypeTIFF, 1, nil) else {
@@ -517,10 +518,11 @@ public enum BitmapImageFileType {
         return md as Data
       case .bmp:
         let options: NSDictionary = [
-          kCGImagePropertyDPIWidth as String : Int(CGFloat(cgImage.width) * 72.0 / image.size.width),
-          kCGImagePropertyDPIHeight as String : Int(CGFloat(cgImage.height) * 72.0 / image.size.height),
+          kCGImagePropertyDPIWidth as String : Int(CGFloat(cgImage.width)*72.0/image.size.width),
+          kCGImagePropertyDPIHeight as String : Int(CGFloat(cgImage.height)*72.0/image.size.height),
           kCGImagePropertyColorModel as String : kCGImagePropertyColorModelRGB as String,
-          kCGImagePropertyHasAlpha as String: true
+          kCGImagePropertyHasAlpha as String: NSNumber(value: true),
+          kCGImagePropertyOrientation as String : NSNumber(value: image.imageOrientation.rawValue)
         ]
         let md = NSMutableData()
         guard let dest = CGImageDestinationCreateWithData(md, kUTTypeBMP, 1, nil) else {
@@ -531,9 +533,10 @@ public enum BitmapImageFileType {
         return md as Data
       case .gif:
         let options: NSDictionary = [
-          kCGImagePropertyDPIWidth as String : Int(CGFloat(cgImage.width) * 72.0 / image.size.width),
-          kCGImagePropertyDPIHeight as String : Int(CGFloat(cgImage.height) * 72.0 / image.size.height),
+          kCGImagePropertyDPIWidth as String : Int(CGFloat(cgImage.width)*72.0/image.size.width),
+          kCGImagePropertyDPIHeight as String : Int(CGFloat(cgImage.height)*72.0/image.size.height),
           kCGImagePropertyColorModel as String : kCGImagePropertyColorModelRGB as String,
+          kCGImagePropertyOrientation as String : NSNumber(value: image.imageOrientation.rawValue)
         ]
         let md = NSMutableData()
         guard let dest = CGImageDestinationCreateWithData(md, kUTTypeGIF, 1, nil) else {

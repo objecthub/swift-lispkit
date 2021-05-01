@@ -30,7 +30,7 @@ import Cocoa
 /// For this use case, `ContextDelegate` provides methods to set the console window status,
 /// to write strings as well as to read strings.
 ///
-public protocol ContextDelegate: class, TextInputSource, TextOutputTarget {
+public protocol ContextDelegate: AnyObject, TextInputSource, TextOutputTarget {
   
   /// Prints the given string into the console window.
   func print(_ str: String)

@@ -1,5 +1,20 @@
 # Changelog
 
+## 2.0.0 (2021-05-01)
+
+- Support for iOS
+- Included an iOS REPL application
+- Implemented simple support for associating description text with definitions (in Common Lisp style)
+- Changed `let*` and `letrec*` to allow for the redefinition of variables
+- Included new libraries: `(lispkit archive zip)`, `(lispkit prolog)`, `(srfi 143)`, `(srfi 189)`, `(srfi 214)`, `(scheme red)`, `(scheme fixum)`, `(scheme bitwise)`, `(scheme division)`
+- Extended library `(lispkit string)` with procedures `string-decode-named-chars` and `string-encode-named-chars`
+- Extended library `(lispkit char)` with procedure `char-name`
+- Extended library `(lispkit core)` with new environment procedures: `interaction-environment?`, `custom-environment?`, `the-environment`, `environment-definable?`, `environment-define`, `environment-define-syntax`, `environment-import`, `environment-documentation`, and `environment-assign-documentation!`
+- Extended library `(lispkit sqlite)` with procedures `sqlite-database?` and `sqlite-statement?`
+- Included support for an optional environment for the `compile` procedure from `(lispkit debug)`
+- Included new sample code: `VisualizePointSets.scm`, `Schelog.scm`
+- Migrated project to Xcode 12.5 and Swift 5.4
+
 ## 1.9.2 (2020-12-23)
 - Included new libraries: `(srfi 9)`, `(srfi 180)`, `(srfi 209)`, `(srfi 210)`
 - Extended library `(lispkit log)` with syntax `log-time`

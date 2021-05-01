@@ -898,7 +898,8 @@ public final class DrawingLibrary: NativeLibrary {
                                 .pair(drawing, .pair(size, .pair(dpi ?? .fixnum(72), .null))))
     }
     // Configure the graphics context
-    context.scaleBy(x: CGFloat(scale), y: CGFloat(scale))
+    context.translateBy(x: 0.0, y: CGFloat(h * scale))
+    context.scaleBy(x: CGFloat(scale), y: CGFloat(-scale))
     // Push the context
     UIGraphicsPushContext(context)
     defer {
