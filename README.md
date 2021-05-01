@@ -304,7 +304,7 @@ Details for building such release binaries can be looked up in the
 
 ### Building and running the iOS tool
 
-<img style="float: right;" src="Assets/lispkit-repl-ios.png" alt="LispKitRepl iOS" width="390" height="844" />
+<img align="right" src="Assets/lispkit-repl-ios.png" alt="LispKitRepl iOS" width="293" height="571" />
 
 Within Xcode, switch the scheme to the target _LispKitRepl iOS_ and build and run the project. By default,
 this will invoke the iOS simulator and run an application "LispKitRepl iOS". The application has a chat-inspired
