@@ -18,10 +18,6 @@ allowing the inclusion of new native libraries written in Swift, of new librarie
 in Scheme, as well as custom modifications of the core environment consisting of
 a compiler, a virtual machine as well as the core libraries.
 
-So far, performance was not a priority in the development of _LispKit_. The _LispKit_
-compiler does not perform many code optimizations and the performance of the system is
-below state of the art Lisp and Scheme implementations.
-
 The [NumericalScheme](https://github.com/objecthub/swift-numericalscheme) demo
 showcases how to create a derived _LispKit_ interpreter that inherits everything from
 _LispKit_ (without code duplication) and defines a new native as well as Scheme-based library.

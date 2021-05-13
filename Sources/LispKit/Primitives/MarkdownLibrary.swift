@@ -959,7 +959,7 @@ public final class MarkdownLibrary: NativeLibrary {
     return .makeList(exprs)
   }
 
-  private func externMarkdown(_ fragment: TextFragment) -> Expr {
+  private func externMarkdown(_ fragment: TextFragment) -> Expr? {
     switch fragment {
       case .text(let str):
         return self.makeCase(self.inlineType, self.text, .makeString(String(str)))
@@ -993,13 +993,17 @@ public final class MarkdownLibrary: NativeLibrary {
         return self.makeCase(self.inlineType, self.lineBreak, .false)
       case .hardLineBreak:
         return self.makeCase(self.inlineType, self.lineBreak, .true)
+      case .custom(_):
+        return nil
     }
   }
 
   private func externMarkdown(_ text: Text) -> Expr {
     var exprs: Exprs = []
     for fragment in text {
-      exprs.append(self.externMarkdown(fragment))
+      if let expr = self.externMarkdown(fragment) {
+        exprs.append(expr)
+      }
     }
     return .makeList(exprs)
   }

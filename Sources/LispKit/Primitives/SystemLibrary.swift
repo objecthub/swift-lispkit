@@ -190,7 +190,8 @@ public final class SystemLibrary: NativeLibrary {
         return .pair(.makeString(NSTemporaryDirectory()), .null)
       case "icloud":
         if let url = FileManager.default.url(forUbiquityContainerIdentifier: nil)?
-                                        .appendingPathComponent("Documents") {
+                                        .appendingPathComponent("Documents")
+                                        .resolvingSymlinksInPath() {
           return .pair(.makeString(url.absoluteURL.path), .null)
         }
         return .null
@@ -259,12 +260,14 @@ public final class SystemLibrary: NativeLibrary {
     return res
   }
 
-  private func filePath(expr: Expr, base: Expr?) throws -> Expr {
+  private func filePath(expr: Expr, base: Expr?, resolve: Expr?) throws -> Expr {
     var root = self.currentDirectoryPath
     if let base = try base?.asPath() {
       root = self.context.fileHandler.path(base, relativeTo: self.currentDirectoryPath)
     }
-    return .makeString(self.context.fileHandler.path(try expr.asString(), relativeTo: root))
+    return .makeString(self.context.fileHandler.path(try expr.asString(),
+                                                     relativeTo: root,
+                                                     resolveSymLinks: resolve?.isTrue ?? false))
   }
 
   private func assetFilePath(_ expr: Expr, _ type: Expr, _ dir: Expr?) throws -> Expr {

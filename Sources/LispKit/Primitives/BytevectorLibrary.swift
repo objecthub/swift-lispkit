@@ -49,6 +49,12 @@ public final class BytevectorLibrary: NativeLibrary {
     self.define(Procedure("base64->bytevector", base64ToBytevector))
     self.define(Procedure("bytevector-deflate", bytevectorDeflate))
     self.define(Procedure("bytevector-inflate", bytevectorInflate))
+    self.define(Procedure("bytevector-zip", bytevectorZip))
+    self.define(Procedure("bytevector-unzip", bytevectorUnzip))
+    self.define(Procedure("bytevector-gzip", bytevectorGzip))
+    self.define(Procedure("bytevector-gunzip", bytevectorGunzip))
+    self.define(Procedure("bytevector-adler32", bytevectorAdler32))
+    self.define(Procedure("bytevector-crc32", bytevectorCrc32))
   }
   
   func isBytevector(_ expr: Expr) -> Expr {
@@ -235,10 +241,7 @@ public final class BytevectorLibrary: NativeLibrary {
     guard let data = Data(base64Encoded: substr, options: []) else {
       throw RuntimeError.eval(.cannotDecodeBytevector, .makeString(substr))
     }
-    let count = data.count
-    var res = [UInt8](repeating: 0, count: count)
-    data.copyBytes(to: &res, count: count)
-    return .bytes(MutableBox(res))
+    return self.bytevector(from: data)
   }
   
   private func bytevectorDeflate(_ bvec: Expr, args: Arguments) throws -> Expr {
@@ -246,10 +249,7 @@ public final class BytevectorLibrary: NativeLibrary {
     guard let data = Data(subvec).deflate() else {
       throw RuntimeError.eval(.cannotEncodeBytevector, .bytes(MutableBox(subvec)))
     }
-    let count = data.count
-    var res = [UInt8](repeating: 0, count: count)
-    data.copyBytes(to: &res, count: count)
-    return .bytes(MutableBox(res))
+    return self.bytevector(from: data)
   }
   
   private func bytevectorInflate(_ bvec: Expr, args: Arguments) throws -> Expr {
@@ -257,6 +257,52 @@ public final class BytevectorLibrary: NativeLibrary {
     guard let data = Data(subvec).inflate() else {
       throw RuntimeError.eval(.cannotDecodeBytevector, .bytes(MutableBox(subvec)))
     }
+    return self.bytevector(from: data)
+  }
+
+  private func bytevectorZip(_ bvec: Expr, args: Arguments) throws -> Expr {
+    let subvec = try Self.subVector("bytevector-zip", bvec, args)
+    guard let data = Data(subvec).zip() else {
+      throw RuntimeError.eval(.cannotEncodeBytevector, .bytes(MutableBox(subvec)))
+    }
+    return self.bytevector(from: data)
+  }
+
+  private func bytevectorUnzip(_ bvec: Expr, args: Arguments) throws -> Expr {
+    let subvec = try Self.subVector("bytevector-unzip", bvec, args)
+    guard let data = Data(subvec).unzip() else {
+      throw RuntimeError.eval(.cannotDecodeBytevector, .bytes(MutableBox(subvec)))
+    }
+    return self.bytevector(from: data)
+  }
+
+  private func bytevectorGzip(_ bvec: Expr, args: Arguments) throws -> Expr {
+    let subvec = try Self.subVector("bytevector-gzip", bvec, args)
+    guard let data = Data(subvec).gzip() else {
+      throw RuntimeError.eval(.cannotEncodeBytevector, .bytes(MutableBox(subvec)))
+    }
+    return self.bytevector(from: data)
+  }
+
+  private func bytevectorGunzip(_ bvec: Expr, args: Arguments) throws -> Expr {
+    let subvec = try Self.subVector("bytevector-gunzip", bvec, args)
+    guard let data = Data(subvec).gunzip() else {
+      throw RuntimeError.eval(.cannotDecodeBytevector, .bytes(MutableBox(subvec)))
+    }
+    return self.bytevector(from: data)
+  }
+
+  private func bytevectorAdler32(_ bvec: Expr, args: Arguments) throws -> Expr {
+    let subvec = try Self.subVector("bytevector-adler32", bvec, args)
+    return .fixnum(Int64(Data(subvec).adler32().checksum))
+  }
+
+  private func bytevectorCrc32(_ bvec: Expr, args: Arguments) throws -> Expr {
+    let subvec = try Self.subVector("bytevector-crc32", bvec, args)
+    return .fixnum(Int64(Data(subvec).crc32().checksum))
+  }
+
+  private func bytevector(from data: Data) -> Expr {
     let count = data.count
     var res = [UInt8](repeating: 0, count: count)
     data.copyBytes(to: &res, count: count)

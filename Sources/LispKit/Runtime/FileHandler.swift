@@ -197,29 +197,37 @@ public final class FileHandler {
     return nil
   }
   
-  public func path(_ path: String, relativeTo root: String? = nil) -> String {
+  public func path(_ path: String,
+                   relativeTo root: String? = nil,
+                   resolveSymLinks: Bool = false) -> String {
+    var url: URL
     if let root = root {
-      return URL(fileURLWithPath: path,
-                 relativeTo: URL(fileURLWithPath: root, isDirectory: true)).absoluteURL.path
+      url = URL(fileURLWithPath: path,
+                relativeTo: URL(fileURLWithPath: root, isDirectory: true)).absoluteURL
     } else {
-      return URL(fileURLWithPath: path,
-                 relativeTo: URL(fileURLWithPath: self.currentDirectoryPath, isDirectory: true))
-             .absoluteURL.path
+      url = URL(fileURLWithPath: path,
+                relativeTo: URL(fileURLWithPath: self.currentDirectoryPath, isDirectory: true))
+             .absoluteURL
     }
+    return resolveSymLinks ? url.resolvingSymlinksInPath().path : url.path
   }
   
-  public func directory(_ path: String, relativeTo root: String? = nil) -> String {
+  public func directory(_ path: String,
+                        relativeTo root: String? = nil,
+                        resolveSymLinks: Bool = false) -> String {
+    var url: URL
     if let root = root {
-      return URL(fileURLWithPath: path,
-                 relativeTo: URL(fileURLWithPath: root,
-                                 isDirectory: true)).deletingLastPathComponent()
-             .absoluteURL.path
+      url = URL(fileURLWithPath: path,
+                relativeTo: URL(fileURLWithPath: root,
+                                isDirectory: true)).deletingLastPathComponent()
+             .absoluteURL
     } else {
-      return URL(fileURLWithPath: path,
-                 relativeTo: URL(fileURLWithPath: self.currentDirectoryPath,
-                                 isDirectory: true))
-             .deletingLastPathComponent().absoluteURL.path
+      url = URL(fileURLWithPath: path,
+                relativeTo: URL(fileURLWithPath: self.currentDirectoryPath,
+                                isDirectory: true))
+             .deletingLastPathComponent().absoluteURL
     }
+    return resolveSymLinks ? url.resolvingSymlinksInPath().path : url.path
   }
   
   public func fileSize(atPath path: String, relativeTo root: String? = nil) -> Int64? {

@@ -1,4 +1,4 @@
-// swift-tools-version:5.2
+// swift-tools-version:5.4
 //
 //  Package.swift
 //  LispKit
@@ -48,13 +48,13 @@ let package = Package(
   dependencies: [
     .package(name: "NumberKit",
              url: "https://github.com/objecthub/swift-numberkit.git",
-             .upToNextMajor(from: "2.3.9")),
+             .upToNextMajor(from: "2.4.0")),
     .package(name: "MarkdownKit",
              url: "https://github.com/objecthub/swift-markdownkit.git",
-             .upToNextMajor(from: "1.0.4")),
+             .upToNextMajor(from: "1.1.0")),
     .package(name: "CommandLineKit",
              url: "https://github.com/objecthub/swift-commandlinekit.git",
-             .upToNextMajor(from: "0.3.3")),
+             .upToNextMajor(from: "0.3.4")),
     .package(name: "SQLiteExpress",
              url: "https://github.com/objecthub/swift-sqliteexpress.git",
              .upToNextMajor(from: "1.0.3")),

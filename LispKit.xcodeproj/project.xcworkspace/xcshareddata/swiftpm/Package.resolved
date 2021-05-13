@@ -1,0 +1,52 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "CommandLineKit",
+        "repositoryURL": "https://github.com/objecthub/swift-commandlinekit.git",
+        "state": {
+          "branch": null,
+          "revision": "dd0967785f84476a1a51ef164f9030851fcaaaff",
+          "version": "0.3.4"
+        }
+      },
+      {
+        "package": "MarkdownKit",
+        "repositoryURL": "https://github.com/objecthub/swift-markdownkit.git",
+        "state": {
+          "branch": null,
+          "revision": "0ef4936c7990e8b62799d6d7329c7d078b4e7f18",
+          "version": "1.1.0"
+        }
+      },
+      {
+        "package": "NumberKit",
+        "repositoryURL": "https://github.com/objecthub/swift-numberkit.git",
+        "state": {
+          "branch": null,
+          "revision": "9411a28fff4a99b9b010bc2da13f7d833c2d0204",
+          "version": "2.4.0"
+        }
+      },
+      {
+        "package": "SQLiteExpress",
+        "repositoryURL": "https://github.com/objecthub/swift-sqliteexpress.git",
+        "state": {
+          "branch": null,
+          "revision": "e420f6eef3b90d44d92f39b1f899a8aa662f57a7",
+          "version": "1.0.3"
+        }
+      },
+      {
+        "package": "ZIPFoundation",
+        "repositoryURL": "https://github.com/weichsel/ZIPFoundation",
+        "state": {
+          "branch": null,
+          "revision": "cf10bbff6ac3b873e97b36b9784c79866a051a8e",
+          "version": "0.9.12"
+        }
+      }
+    ]
+  },
+  "version": 1
+}
