@@ -30,7 +30,7 @@
         (lispkit test)
         (srfi 214))
 
-(test-begin "Flexvectors")
+(test-begin "SRFI 214: Flexvectors")
 
 (test-equal "flexvector?" #t (flexvector? (flexvector)))
 (test-equal "flexvector-length" 3 (flexvector-length (make-flexvector 3 #f)))
@@ -325,4 +325,4 @@
 (test-equal "flexvector-fill! clamped" '#(qux qux qux)
             (mutate-as x '#(1 2 3) (flexvector-fill! x 'qux -1 10)))
 
-(test-end "Flexvectors")
+(test-end "SRFI 214: Flexvectors")

@@ -202,6 +202,7 @@ framework:
   - [SRFI 209: Enums and Enum Sets](https://srfi.schemers.org/srfi-209/srfi-209.html)
   - [SRFI 210: Procedures and Syntax for Multiple Values](https://srfi.schemers.org/srfi-210/srfi-210.html)
   - [SRFI 214: Flexvectors](https://srfi.schemers.org/srfi-214/srfi-214.html)
+  - [SRFI 219: Define higher-order lambda](https://srfi.schemers.org/srfi-219/srfi-219.html)
 
 
 ## Project
