@@ -52,6 +52,7 @@ public final class ZipArchiveLibrary: NativeLibrary {
     self.define(Procedure("zip-archive?", self.isZipArchive))
     self.define(Procedure("zip-archive-mutable?", self.zipArchiveMutable))
     self.define(Procedure("zip-archive-path", self.zipArchivePath))
+    self.define(Procedure("zip-archive-bytevector", self.zipArchiveBytevector))
     
     // Looking up entries
     self.define(Procedure("zip-entry-count", self.zipEntryCount))
@@ -142,7 +143,17 @@ public final class ZipArchiveLibrary: NativeLibrary {
   }
   
   private func zipArchivePath(_ expr: Expr) throws -> Expr {
-    return .makeString(try self.archive(from: expr).url.absoluteURL.path)
+    let path = try self.archive(from: expr).url.absoluteURL.path
+    return path.isEmpty ? .false : .makeString(try self.archive(from: expr).url.absoluteURL.path)
+  }
+
+  private func zipArchiveBytevector(_ expr: Expr) throws -> Expr {
+    guard let data = try self.archive(from: expr).data as NSData? else {
+      return .false
+    }
+    var res = [UInt8](repeating: 0, count: data.count)
+    data.getBytes(&res, length: data.count)
+    return .bytes(MutableBox(res))
   }
   
   private func zipEntryCount(_ expr: Expr) throws -> Expr {
@@ -366,6 +377,10 @@ public final class ZipArchive: NativeObject {
   }
   
   public override var string: String {
-    return "#<zip-archive \(self.archive.url.path)>"
+    if self.archive.url.path.isEmpty {
+      return super.string
+    } else {
+      return "#<zip-archive \(self.archive.url.path)>"
+    }
   }
 }
