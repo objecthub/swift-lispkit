@@ -149,13 +149,24 @@ public final class SystemLibrary: NativeLibrary {
     return false
   }
   
-  private func homeDirectory(user: Expr?) throws -> Expr {
-    if let user = try user?.asString() {
-      if let path = NSHomeDirectoryForUser(user) {
+  private func homeDirectory(user: Expr?, ignoreSandbox: Expr?) throws -> Expr {
+    if (user ?? .false).isTrue,
+       let user = try user?.asString() {
+      if (ignoreSandbox ?? .false).isTrue,
+         let pw = getpwnam(user),
+         let home = pw.pointee.pw_dir {
+       return .makeString(FileManager.default.string(withFileSystemRepresentation: home,
+                                                     length: Int(strlen(home))))
+      } else if let path = NSHomeDirectoryForUser(user) {
         return .makeString(path)
       } else {
         return .false
       }
+    } else if (ignoreSandbox ?? .false).isTrue,
+           let pw = getpwuid(getuid()),
+           let home = pw.pointee.pw_dir {
+      return .makeString(FileManager.default.string(withFileSystemRepresentation: home,
+                                                    length: Int(strlen(home))))
     } else {
       return .makeString(NSHomeDirectory())
     }
@@ -262,12 +273,15 @@ public final class SystemLibrary: NativeLibrary {
 
   private func filePath(expr: Expr, base: Expr?, resolve: Expr?) throws -> Expr {
     var root = self.currentDirectoryPath
-    if let base = try base?.asPath() {
+    if (base ?? .false).isTrue,
+       let base = try base?.asPath() {
       root = self.context.fileHandler.path(base, relativeTo: self.currentDirectoryPath)
     }
-    return .makeString(self.context.fileHandler.path(try expr.asString(),
-                                                     relativeTo: root,
-                                                     resolveSymLinks: resolve?.isTrue ?? false))
+    let relativePath = NSString(string: try expr.asString()).expandingTildeInPath
+    let path = self.context.fileHandler.path(relativePath,
+                                             relativeTo: root,
+                                             resolveSymLinks: resolve?.isTrue ?? false)
+    return .makeString(path)
   }
 
   private func assetFilePath(_ expr: Expr, _ type: Expr, _ dir: Expr?) throws -> Expr {
