@@ -30,10 +30,11 @@ outperform the MacBook Pro 16" (2019) for simple LispKit benchmarks.
 
 [_LispPad_](http://lisppad.objecthub.net) implements a simple, lightweight, integrated
 development environment for _LispKit_ on macOS with a Cocoa-based UI. The
-[LispPad Library Reference](http://lisppad.objecthub.net/resources/LispPad_Reference_1.5.2.pdf)
+[LispPad Library Reference](http://lisppad.objecthub.net/resources/LispPad_Reference_1.6.pdf)
 documents the core _LispPad_ and _LispKit_ libraries in
-[PDF](http://lisppad.objecthub.net/resources/LispPad_Reference_1.5.2.pdf) form. There are also plans
-to release an iOS version of _LispPad_. The [_LispPad for iOS_ code](https://github.com/objecthub/swift-lisppad-ios)
+[PDF](http://lisppad.objecthub.net/resources/LispPad_Reference_1.6.pdf) form. On iOS,
+application [_LispPad Go_](https://apps.apple.com/us/app/lisppad-go/id1565747728) provides a simple
+Scheme IDE based on LispKit. The [source code of _LispPad Go_](https://github.com/objecthub/swift-lisppad-ios)
 is available on GitHub. A much simpler command-line tool is provided by the LispKit framework itself
 (see below).
 
@@ -203,6 +204,7 @@ framework:
   - [SRFI 210: Procedures and Syntax for Multiple Values](https://srfi.schemers.org/srfi-210/srfi-210.html)
   - [SRFI 214: Flexvectors](https://srfi.schemers.org/srfi-214/srfi-214.html)
   - [SRFI 219: Define higher-order lambda](https://srfi.schemers.org/srfi-219/srfi-219.html)
+  - [SRFI 221: Generator/accumulator sub-library](https://srfi.schemers.org/srfi-221/srfi-221.html)
 
 
 ## Project
