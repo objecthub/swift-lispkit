@@ -158,6 +158,7 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("bitmap-exif-data", bitmapExifData))
     self.define(Procedure("set-bitmap-exif-data!", setBitmapExifData))
     self.define(Procedure("make-bitmap", makeBitmap))
+    self.define(Procedure("bitmap-blur", bitmapBlur))
     self.define(Procedure("save-bitmap", saveBitmap))
     self.define(Procedure("bitmap->bytevector", bitmapToBytevector))
     
@@ -943,6 +944,27 @@ public final class DrawingLibrary: NativeLibrary {
     let nsimage = NSImage(size: bitmap.size)
     nsimage.addRepresentation(bitmap)
     return .object(NativeImage(nsimage))
+  }
+  
+  private lazy var coreImageContext = CIContext()
+  
+  private func bitmapBlur(bitmap: Expr, radius: Expr) throws -> Expr {
+    let nsImage = try self.image(from: bitmap)
+    guard let cgImage = nsImage.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
+      return .false
+    }
+    let image = CIImage(cgImage: cgImage)
+    let radius = CGFloat(try radius.asDouble(coerce: true))
+    let blurredImage = image.clampedToExtent()
+                            .applyingFilter(
+                                "CIGaussianBlur",
+                                parameters: [ kCIInputRadiusKey: radius ])
+                            .cropped(to: image.extent)
+    guard let res = self.coreImageContext.createCGImage(blurredImage,
+                                                        from: blurredImage.extent) else {
+      return .false
+    }
+    return .object(NativeImage(NSImage(cgImage: res, size: blurredImage.extent.size)))
   }
   
   private func saveBitmap(filename: Expr, bitmap: Expr, format: Expr) throws -> Expr {
