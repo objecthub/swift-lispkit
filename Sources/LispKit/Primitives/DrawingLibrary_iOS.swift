@@ -155,6 +155,7 @@ public final class DrawingLibrary: NativeLibrary {
     // self.define(Procedure("set-bitmap-exif-data!", setBitmapExifData))
     self.define(Procedure("make-bitmap", makeBitmap))
     self.define(Procedure("save-bitmap", saveBitmap))
+    self.define(Procedure("bitmap->bytevector", bitmapToBytevector))
     
     // Shapes
     self.define(Procedure("shape?", isShape))
@@ -955,6 +956,36 @@ public final class DrawingLibrary: NativeLibrary {
       return false
     }
   }
+  
+  private func bitmapToBytevector(bitmap: Expr, format: Expr) throws -> Expr {
+    let image = try self.image(from: bitmap)
+    guard case .symbol(let sym) = format else {
+      throw RuntimeError.eval(.invalidImageFileType, format)
+    }
+    let fileType: BitmapImageFileType
+    switch sym {
+      case self.formatPNG:
+        fileType = .png
+      case self.formatJPG:
+        fileType = .jpeg
+      case self.formatGIF:
+        fileType = .gif
+      case self.formatBMP:
+        fileType = .bmp
+      case self.formatTIFF:
+        fileType = .tiff
+      default:
+        throw RuntimeError.eval(.invalidImageFileType, format)
+    }
+    guard let data = fileType.data(for: image) else {
+      return .false
+    }
+    let count = data.count
+    var res = [UInt8](repeating: 0, count: count)
+    data.copyBytes(to: &res, count: count)
+    return .bytes(MutableBox(res))
+  }
+  
   
   // Shapes
   

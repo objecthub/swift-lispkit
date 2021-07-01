@@ -51,7 +51,7 @@ let package = Package(
              .upToNextMajor(from: "2.4.0")),
     .package(name: "MarkdownKit",
              url: "https://github.com/objecthub/swift-markdownkit.git",
-             .upToNextMajor(from: "1.1.0")),
+             .upToNextMajor(from: "1.1.2")),
     .package(name: "CommandLineKit",
              url: "https://github.com/objecthub/swift-commandlinekit.git",
              .upToNextMajor(from: "0.3.4")),

@@ -34,6 +34,8 @@ public final class MarkdownLibrary: NativeLibrary {
   private let htmlBlock: Symbol
   private let referenceDef: Symbol
   private let thematicBreak: Symbol
+  private let table: Symbol
+  private let definitionList: Symbol
 
   public let listItemType: Tuple
   private let bullet: Symbol
@@ -50,7 +52,11 @@ public final class MarkdownLibrary: NativeLibrary {
   private let image: Symbol
   private let html: Symbol
   private let lineBreak: Symbol
-
+  
+  private let left: Symbol
+  private let right: Symbol
+  private let center: Symbol
+  
   /// Initialize symbols
   public required init(in context: Context) throws {
     self.blockType = Tuple(.symbol(context.symbols.intern("block")), .null)
@@ -64,6 +70,8 @@ public final class MarkdownLibrary: NativeLibrary {
     self.htmlBlock = context.symbols.intern("html-block")
     self.referenceDef = context.symbols.intern("reference-def")
     self.thematicBreak = context.symbols.intern("thematic-break")
+    self.table = context.symbols.intern("table")
+    self.definitionList = context.symbols.intern("definition-list")
     self.listItemType = Tuple(.symbol(context.symbols.intern("list-item")), .null)
     self.bullet = context.symbols.intern("bullet")
     self.ordered = context.symbols.intern("ordered")
@@ -78,6 +86,9 @@ public final class MarkdownLibrary: NativeLibrary {
     self.image = context.symbols.intern("image")
     self.html = context.symbols.intern("html")
     self.lineBreak = context.symbols.intern("line-break")
+    self.left = context.symbols.intern("l")
+    self.right = context.symbols.intern("r")
+    self.center = context.symbols.intern("c")
     try super.init(in: context)
   }
 
@@ -105,6 +116,8 @@ public final class MarkdownLibrary: NativeLibrary {
     self.define(Procedure("html-block", htmlBlock))
     self.define(Procedure("reference-def", referenceDef))
     self.define(Procedure("thematic-break", thematicBreak))
+    self.define(Procedure("table", table))
+    self.define(Procedure("definition-list", definitionList))
     self.define(Procedure("markdown-list?", isMarkdownList))
     self.define(Procedure("markdown-list-item?", isMarkdownListItem))
     self.define(Procedure("markdown-list-item=?", markdownListItemEquals))
@@ -192,7 +205,72 @@ public final class MarkdownLibrary: NativeLibrary {
                                 "expected value of type list-item; received \(expr)", [])
     }
   }
-
+  
+  private func checkDefinitions(_ expr: Expr) throws {
+    var list = expr
+    while case .pair(let def, let rest) = list {
+      try self.checkDefinition(def)
+      list = rest
+    }
+    guard list.isNull else {
+      throw RuntimeError.custom("type error",
+                                "not a proper list of markdown definitions: \(expr)", [])
+    }
+  }
+  
+  private func checkDefinition(_ expr: Expr) throws {
+    guard case .pair(let item, let blocks) = expr else {
+      throw RuntimeError.custom("type error", "not a valid markdown definition: \(expr)", [])
+    }
+    try self.checkText(item)
+    try self.checkListItems(blocks)
+  }
+  
+  private func checkAlignments(_ expr: Expr) throws {
+    var list = expr
+    outer: while case .pair(let alignment, let rest) = list {
+      if alignment.isTrue {
+        guard case .symbol(let sym) = alignment else {
+          break
+        }
+        switch sym {
+          case self.left, self.right, self.center:
+            break
+          default:
+            break outer
+        }
+      }
+      list = rest
+    }
+    guard list.isNull else {
+      throw RuntimeError.custom("type error",
+                                "not a valid list of markdown table column alignments: \(expr)", [])
+    }
+  }
+  
+  private func checkRows(_ expr: Expr) throws {
+    var list = expr
+    while case .pair(let row, let rest) = list {
+      try self.checkRow(row)
+      list = rest
+    }
+    guard list.isNull else {
+      throw RuntimeError.custom("type error",
+                                "not a proper list of markdown table rows: \(expr)", [])
+    }
+  }
+  
+  private func checkRow(_ expr: Expr) throws {
+    var list = expr
+    while case .pair(let cell, let rest) = list {
+      try self.checkText(cell)
+      list = rest
+    }
+    guard list.isNull else {
+      throw RuntimeError.custom("type error", "not a valid markdown table row: \(expr)", [])
+    }
+  }
+  
   private func checkText(_ expr: Expr) throws {
     var list = expr
     while case .pair(let fragment, let rest) = list {
@@ -334,6 +412,26 @@ public final class MarkdownLibrary: NativeLibrary {
 
   private func thematicBreak(_ args: Arguments) throws -> Expr {
     return try self.makeCase(self.blockType, self.thematicBreak, 0, args)
+  }
+  
+  private func table(_ args: Arguments) throws -> Expr {
+    let res = try self.makeCase(self.blockType, self.table, 3, args)
+    guard case .tagged(_, _) = res else {
+      return res
+    }
+    try self.checkRow(args.first!)
+    try self.checkAlignments(args[args.index(args.startIndex, offsetBy: 1)])
+    try self.checkRows(args[args.index(args.startIndex, offsetBy: 2)])
+    return res
+  }
+  
+  private func definitionList(_ args: Arguments) throws -> Expr {
+    let res = try self.makeCase(self.blockType, self.definitionList, 1, args)
+    guard case .tagged(_, _) = res else {
+      return res
+    }
+    try self.checkDefinitions(args.first!)
+    return res
   }
 
   private func isMarkdownList(_ expr: Expr) -> Expr {
@@ -501,13 +599,15 @@ public final class MarkdownLibrary: NativeLibrary {
     return try self.makeCase(self.inlineType, self.lineBreak, 1, args)
   }
 
-  private func markdown(_ str: Expr) throws -> Expr {
-    guard let res = self.externMarkdown(MarkdownParser.standard.parse(try str.asString())) else {
+  private func markdown(_ str: Expr, _ extended: Expr?) throws -> Expr {
+    let parser = (extended?.isTrue ?? false) ? ExtendedMarkdownParser.standard
+                                             : MarkdownParser.standard
+    guard let res = self.externMarkdown(parser.parse(try str.asString())) else {
       return .false
     }
     return res
   }
-
+  
   private func isMarkdown(_ expr: Expr) throws -> Expr {
     guard case .tagged(.mpair(self.blockType), .pair(.symbol(self.document), _)) = expr else {
       return .false
@@ -770,6 +870,16 @@ public final class MarkdownLibrary: NativeLibrary {
         if case .null = args {
           return .thematicBreak
         }
+      case self.table:
+        if case .pair(let header, .pair(let alignments, .pair(let rows, .null))) = args {
+          return .table(try self.internMarkdown(row: header),
+                        try self.internMarkdown(alignments: alignments),
+                        try self.internMarkdown(rows: rows))
+        }
+      case self.definitionList:
+        if case .pair(let definitions, .null) = args {
+          return .definitionList(try self.internMarkdown(definitions: definitions))
+        }
       default:
         break
     }
@@ -815,6 +925,83 @@ public final class MarkdownLibrary: NativeLibrary {
         break
     }
     throw RuntimeError.custom("eval error", "malformed expression of type list-item: \(expr)", [])
+  }
+  
+  private func internMarkdown(definitions expr: Expr) throws -> Definitions {
+    var list = expr
+    var definitions = Definitions()
+    while case .pair(let def, let rest) = list {
+      definitions.append(try self.internMarkdown(definition: def))
+      list = rest
+    }
+    guard case .null = list else {
+      throw RuntimeError.custom("type error",
+                                "list of markdown definitions must be a proper list: \(expr)", [])
+    }
+    return definitions
+  }
+  
+  private func internMarkdown(definition expr: Expr) throws -> MarkdownKit.Definition {
+    guard case .pair(let item, let blocks) = expr else {
+      throw RuntimeError.custom("type error", "invalid markdown definition: \(expr)", [])
+    }
+    return MarkdownKit.Definition(item: try self.internMarkdown(text: item),
+                                  descriptions: try self.internMarkdown(items: blocks))
+  }
+  
+  private func internMarkdown(alignments expr: Expr) throws -> Alignments {
+    var list = expr
+    var alignments = Alignments()
+    while case .pair(let alignment, let rest) = list {
+      if case .symbol(let sym) = alignment {
+        switch sym {
+          case self.left:
+            alignments.append(.left)
+          case self.right:
+            alignments.append(.right)
+          case self.center:
+            alignments.append(.center)
+          default:
+            alignments.append(.undefined)
+        }
+      } else {
+        alignments.append(.undefined)
+      }
+      list = rest
+    }
+    guard case .null = list else {
+      throw RuntimeError.custom("type error",
+                                "markdown table row must be a proper list: \(expr)", [])
+    }
+    return alignments
+  }
+  
+  private func internMarkdown(rows expr: Expr) throws -> Rows {
+    var list = expr
+    var rows = Rows()
+    while case .pair(let row, let rest) = list {
+      rows.append(try self.internMarkdown(row: row))
+      list = rest
+    }
+    guard case .null = list else {
+      throw RuntimeError.custom("type error",
+                                "list of markdown table rows must be a proper list: \(expr)", [])
+    }
+    return rows
+  }
+  
+  private func internMarkdown(row expr: Expr) throws -> Row {
+    var list = expr
+    var row = Row()
+    while case .pair(let cell, let rest) = list {
+      row.append(try self.internMarkdown(text: cell))
+      list = rest
+    }
+    guard case .null = list else {
+      throw RuntimeError.custom("type error",
+                                "markdown table row must be a proper list: \(expr)", [])
+    }
+    return row
   }
 
   private func internMarkdown(text expr: Expr) throws -> Text {
@@ -887,12 +1074,26 @@ public final class MarkdownLibrary: NativeLibrary {
     return lines
   }
 
+  private func externMarkdown(_ blocks: Blocks) -> Expr {
+    var exprs: Exprs = []
+    for block in blocks {
+      if let expr = self.externMarkdown(block) {
+        exprs.append(expr)
+      }
+    }
+    return .makeList(exprs)
+  }
+
   private func externMarkdown(_ block: Block) -> Expr? {
     switch block {
       case .document(let blocks):
-        return self.makeCase(self.blockType, self.document, self.externMarkdown(blocks))
+        return self.makeCase(self.blockType,
+                             self.document,
+                             self.externMarkdown(blocks))
       case .blockquote(let blocks):
-        return self.makeCase(self.blockType, self.blockquote, self.externMarkdown(blocks))
+        return self.makeCase(self.blockType,
+                             self.blockquote,
+                             self.externMarkdown(blocks))
       case .list(let start, let tight, let blocks):
         if let start = start {
           return self.makeCase(self.blockType,
@@ -921,21 +1122,27 @@ public final class MarkdownLibrary: NativeLibrary {
                              .makeBoolean(tight),
                              self.externMarkdown(blocks))
       case .paragraph(let text):
-        return self.makeCase(self.blockType, self.paragraph, self.externMarkdown(text))
+        return self.makeCase(self.blockType,
+                             self.paragraph,
+                             self.externMarkdown(text))
       case .heading(let level, let text):
         return self.makeCase(self.blockType,
                              self.heading,
                              .makeNumber(level),
                              self.externMarkdown(text))
       case .indentedCode(let lines):
-        return self.makeCase(self.blockType, self.indentedCode, self.externMarkdown(lines))
+        return self.makeCase(self.blockType,
+                             self.indentedCode,
+                             self.externMarkdown(lines))
       case .fencedCode(let lang, let lines):
         return self.makeCase(self.blockType,
                              self.fencedCode,
                              self.externMarkdown(lang),
                              self.externMarkdown(lines))
       case .htmlBlock(let lines):
-        return self.makeCase(self.blockType, self.htmlBlock, self.externMarkdown(lines))
+        return self.makeCase(self.blockType,
+                             self.htmlBlock,
+                             self.externMarkdown(lines))
       case .referenceDef(let label, let dest, let title):
         return self.makeCase(self.blockType,
                              self.referenceDef,
@@ -944,15 +1151,71 @@ public final class MarkdownLibrary: NativeLibrary {
                              self.externMarkdown(title))
       case .thematicBreak:
         return self.makeCase(self.blockType, self.thematicBreak)
+      case .table(let header, let alignments, let rows):
+        return self.makeCase(self.blockType,
+                             self.table,
+                             self.externMarkdown(header),
+                             self.externMarkdown(alignments),
+                             self.externMarkdown(rows))
+      case .definitionList(let definitions):
+        return self.makeCase(self.blockType,
+                             self.definitionList,
+                             self.externMarkdown(definitions))
       default:
         return nil
     }
   }
-
-  private func externMarkdown(_ blocks: Blocks) -> Expr {
+  
+  private func externMarkdown(_ definitions: Definitions) -> Expr {
     var exprs: Exprs = []
-    for block in blocks {
-      if let expr = self.externMarkdown(block) {
+    for definition in definitions {
+      exprs.append(self.externMarkdown(definition))
+    }
+    return .makeList(exprs)
+  }
+  
+  private func externMarkdown(_ definition: MarkdownKit.Definition) -> Expr {
+    return .pair(self.externMarkdown(definition.item),
+                 self.externMarkdown(definition.descriptions))
+  }
+  
+  private func externMarkdown(_ alignments: Alignments) -> Expr {
+    var exprs: Exprs = []
+    for alignment in alignments {
+      switch alignment {
+        case .left:
+          exprs.append(.symbol(self.left))
+        case .right:
+          exprs.append(.symbol(self.right))
+        case .center:
+          exprs.append(.symbol(self.center))
+        case .undefined:
+          exprs.append(.false)
+      }
+    }
+    return .makeList(exprs)
+  }
+  
+  private func externMarkdown(_ rows: Rows) -> Expr {
+    var exprs: Exprs = []
+    for row in rows {
+      exprs.append(self.externMarkdown(row))
+    }
+    return .makeList(exprs)
+  }
+  
+  private func externMarkdown(_ row: Row) -> Expr {
+    var exprs: Exprs = []
+    for cell in row {
+      exprs.append(self.externMarkdown(cell))
+    }
+    return .makeList(exprs)
+  }
+  
+  private func externMarkdown(_ text: Text) -> Expr {
+    var exprs: Exprs = []
+    for fragment in text {
+      if let expr = self.externMarkdown(fragment) {
         exprs.append(expr)
       }
     }
@@ -997,17 +1260,7 @@ public final class MarkdownLibrary: NativeLibrary {
         return nil
     }
   }
-
-  private func externMarkdown(_ text: Text) -> Expr {
-    var exprs: Exprs = []
-    for fragment in text {
-      if let expr = self.externMarkdown(fragment) {
-        exprs.append(expr)
-      }
-    }
-    return .makeList(exprs)
-  }
-
+  
   private func externMarkdown(_ lines: Lines) -> Expr {
     var exprs: Exprs = []
     for line in lines {

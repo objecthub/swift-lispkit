@@ -159,6 +159,7 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("set-bitmap-exif-data!", setBitmapExifData))
     self.define(Procedure("make-bitmap", makeBitmap))
     self.define(Procedure("save-bitmap", saveBitmap))
+    self.define(Procedure("bitmap->bytevector", bitmapToBytevector))
     
     // Shapes
     self.define(Procedure("shape?", isShape))
@@ -973,10 +974,10 @@ public final class DrawingLibrary: NativeLibrary {
                           _ filetype: NSBitmapImageRep.FileType) -> Bool {
     let url = URL(fileURLWithPath:
       self.context.fileHandler.path(filename, relativeTo: self.systemLibrary.currentDirectoryPath))
-    // Go through all representations and try to encode them as PNG; return once the first
+    // Go through all representations and try to encode them as `filetype`; return once the first
     // succeeds
     for repr in image.representations {
-      // Encode bitmap in PNG format
+      // Encode bitmap
       if let bitmapRepr = repr as? NSBitmapImageRep,
         let data = bitmapRepr.representation(using: filetype, properties: [:]) {
         // Write encoded data into a file
@@ -990,6 +991,39 @@ public final class DrawingLibrary: NativeLibrary {
     }
     return false
   }
+  
+  private func bitmapToBytevector(bitmap: Expr, format: Expr) throws -> Expr {
+    let image = try self.image(from: bitmap)
+    guard case .symbol(let sym) = format else {
+      throw RuntimeError.eval(.invalidImageFileType, format)
+    }
+    let fileType: NSBitmapImageRep.FileType
+    switch sym {
+      case self.formatPNG:
+        fileType = .png
+      case self.formatJPG:
+        fileType = .jpeg
+      case self.formatGIF:
+        fileType = .gif
+      case self.formatBMP:
+        fileType = .bmp
+      case self.formatTIFF:
+        fileType = .tiff
+      default:
+        throw RuntimeError.eval(.invalidImageFileType, format)
+    }
+    for repr in image.representations {
+      if let bitmapRepr = repr as? NSBitmapImageRep,
+         let data = bitmapRepr.representation(using: fileType, properties: [:]) {
+        let count = data.count
+        var res = [UInt8](repeating: 0, count: count)
+        data.copyBytes(to: &res, count: count)
+        return .bytes(MutableBox(res))
+      }
+    }
+    return .false
+  }
+  
   
   // Shapes
   

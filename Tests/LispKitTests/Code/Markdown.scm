@@ -100,3 +100,53 @@
             blocks))
     (else '()))
 )
+
+(
+  "Extended markdown blocks"
+  #t
+  (define table-doc
+    (document (list
+      (table
+        (list (list (text "First")) (list (text "Second")) (list (text "Third ") (code "Column")))
+        (list 'l 'c 'r)
+        (list
+          (list (list (text "Alan")) (list (text "Mathison")) (list (text "Turing")))
+          (list (list (text "Arthur ") (emph (list (text "John"))) (text " Robin"))
+                (list (strong (list (text "Gorell"))))
+                (list (text "Milner"))))))))
+  (define def-doc
+    (document (list
+      (heading 1 (list (text "Header")))
+      (definition-list (list
+        (list (list (text "Software"))
+              (bullet #\: #t (list
+                (paragraph (list (text "programs used by a")))
+                (list-items #f #t (list
+                  (bullet #\- #t (list (paragraph (list (text "device")))))
+                  (bullet #\- #t (list (paragraph (list (emph (list (text "computer")))))))))
+                (paragraph (list (text "and other systems")))))
+              (bullet #\: #f (list
+                (paragraph (list (text "operating instructions"))))))
+        (list (list (text "Hardware"))
+              (bullet #\: #t (list
+                (blockquote (list (paragraph (list (text "One")
+                                             (line-break #f)
+                                             (text "Two")))))))))))))
+  (and
+    (markdown=? table-doc (markdown (string-append "| First | Second | Third `Column` |\n"
+                                                   "| :---- | :----: | ----: |\n"
+                                                   "| Alan  | Mathison | Turing |\n"
+                                                   "| Arthur *John* Robin | **Gorell** |Milner|\n")
+                                    #t))
+    (markdown=? def-doc (markdown (string-append "# Header\n\n"
+                                                 "Software\n"
+                                                 " : programs used by a\n"
+                                                 "     - device\n"
+                                                 "     - *computer*\n\n"
+                                                 "   and other systems\n\n"
+                                                 " : operating instructions\n\n"
+                                                 "Hardware\n"
+                                                 "  :  > One\n"
+                                                 "     > Two")
+                                  #t)))
+)
