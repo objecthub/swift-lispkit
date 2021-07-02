@@ -205,7 +205,8 @@ framework:
   - [SRFI 214: Flexvectors](https://srfi.schemers.org/srfi-214/srfi-214.html)
   - [SRFI 219: Define higher-order lambda](https://srfi.schemers.org/srfi-219/srfi-219.html)
   - [SRFI 221: Generator/accumulator sub-library](https://srfi.schemers.org/srfi-221/srfi-221.html)
-
+  - [SRFI 223: Generalized binary search procedures](https://srfi.schemers.org/srfi-223/srfi-223.html)
+  
 
 ## Project
 

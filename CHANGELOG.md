@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.0.1 (2021-07-02)
+
+- New procedures in library `(lispkit draw)`: `bitmap->bytevector`, `bitmap-blur`, `bitmap-crop`
+- Support tables and definition lists in library `(lispkit markdown)`
+- Support gzip and zlib container formats for deflate compression via library `(lispkit bytevector)`
+- Support symlink resolution via procedure `file-path` of library `(lispkit system)`
+- Bug fixes in library `(lispkit system)`: `home-directory` also supports a non-sandboxed mode, `file-path` handles tilde correctly
+- Bug fixes for a few procedures of library `(lispkit archive zip)`
+- Included new libraries: `(srfi 219)`, `(srfi 221)`, `(srfi 223)`
+
 ## 2.0.0 (2021-05-01)
 
 - Support for iOS
