@@ -2198,7 +2198,7 @@
 		CC4385BB20BAB79500055289 /* HTTP.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = HTTP.scm; sourceTree = "<group>"; };
 		CC4385BD20BB5EE200055289 /* Compiler.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Compiler.scm; sourceTree = "<group>"; };
 		CC44E5B121DECB850009969C /* All.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = All.scm; sourceTree = "<group>"; };
-		CC4575C520F00C4400116F0F /* DrawingLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawingLibrary.swift; sourceTree = "<group>"; };
+		CC4575C520F00C4400116F0F /* DrawingLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawingLibrary.swift; sourceTree = "<group>"; wrapsLines = 0; };
 		CC4575C720F00EE000116F0F /* Color.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Color.swift; sourceTree = "<group>"; };
 		CC474EB01ED0390200B535E3 /* Queens.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Queens.scm; sourceTree = "<group>"; };
 		CC474EB21ED08C9700B535E3 /* SRFI134.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SRFI134.scm; sourceTree = "<group>"; };

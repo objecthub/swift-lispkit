@@ -154,6 +154,7 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("bitmap-exif-data", bitmapExifData))
     // self.define(Procedure("set-bitmap-exif-data!", setBitmapExifData))
     self.define(Procedure("make-bitmap", makeBitmap))
+    self.define(Procedure("bitmap-crop", bitmapCrop))
     self.define(Procedure("bitmap-blur", bitmapBlur))
     self.define(Procedure("save-bitmap", saveBitmap))
     self.define(Procedure("bitmap->bytevector", bitmapToBytevector))
@@ -919,6 +920,24 @@ public final class DrawingLibrary: NativeLibrary {
   }
   
   private lazy var coreImageContext = CIContext()
+  
+  private func bitmapCrop(bitmap: Expr, rect: Expr) throws -> Expr {
+    let image = try self.image(from: bitmap)
+    let pixels = CGSize(width: image.size.width * image.scale,
+                       height: image.size.height * image.scale)
+    guard case .pair(.pair(.flonum(let x), .flonum(let y)),
+                     .pair(.flonum(let w), .flonum(let h))) = rect else {
+      throw RuntimeError.eval(.invalidRect,rect)
+    }
+    let bounds = CGRect(x: x, y: y, width: w, height: h)
+                   .intersection(CGRect(x: 0, y: 0, width: pixels.width, height: pixels.height))
+    guard bounds.width > 0, bounds.height > 0,
+          let newImage = CIImage(image: image)?.cropped(to: bounds),
+          let res = self.coreImageContext.createCGImage(newImage, from: newImage.extent) else {
+      return .false
+    }
+    return .object(NativeImage(UIImage(cgImage: res, scale: image.scale, orientation: .up)))
+  }
   
   private func bitmapBlur(bitmap: Expr, radius: Expr) throws -> Expr {
     let orig = try self.image(from: bitmap)
