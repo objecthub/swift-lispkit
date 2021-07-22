@@ -89,6 +89,8 @@
 		CC1DDB6626A9BB430049E99D /* SRFI-222.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC1DDB6326A9B9D30049E99D /* SRFI-222.scm */; };
 		CC1DDB6726A9BB5B0049E99D /* 222.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC1DDB6426A9BA2F0049E99D /* 222.sld */; };
 		CC1DDB6826A9BB840049E99D /* SRFI-222.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC1DDB6326A9B9D30049E99D /* SRFI-222.scm */; };
+		CC1DDB6A26AA34E40049E99D /* 216.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC1DDB6926AA34780049E99D /* 216.sld */; };
+		CC1DDB6B26AA35000049E99D /* 216.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC1DDB6926AA34780049E99D /* 216.sld */; };
 		CC1EA5C9214E6CD8006BBE7E /* Turtle.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC1EA5C8214E6BF3006BBE7E /* Turtle.scm */; };
 		CC1EA5CB214EF30E006BBE7E /* 161.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC1EA5CA214EEF41006BBE7E /* 161.sld */; };
 		CC201A6D1DBD72C100045A4D /* LibraryRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC201A6C1DBD72C100045A4D /* LibraryRegistry.swift */; };
@@ -1438,6 +1440,7 @@
 			dstPath = Root/LispKit/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
+				CC1DDB6A26AA34E40049E99D /* 216.sld in Copy pre-installed SRFI libraries */,
 				CC1DDB6526A9BB200049E99D /* 222.sld in Copy pre-installed SRFI libraries */,
 				CC0E57C4268FAAC100693DD2 /* 223.sld in Copy pre-installed SRFI libraries */,
 				CC0E57BE268BB88700693DD2 /* 221.sld in Copy pre-installed SRFI libraries */,
@@ -1532,6 +1535,7 @@
 			dstPath = Root/LispKit/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
+				CC1DDB6B26AA35000049E99D /* 216.sld in Copy pre-installed SRFI libraries */,
 				CC1DDB6726A9BB5B0049E99D /* 222.sld in Copy pre-installed SRFI libraries */,
 				CC0E57C6268FAAE800693DD2 /* 223.sld in Copy pre-installed SRFI libraries */,
 				CC0E57C0268BB8BE00693DD2 /* 221.sld in Copy pre-installed SRFI libraries */,
@@ -2154,6 +2158,7 @@
 		CC1D6CC1258CDF0000D36645 /* SRFI-209.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-209.scm"; sourceTree = "<group>"; };
 		CC1DDB6326A9B9D30049E99D /* SRFI-222.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-222.scm"; sourceTree = "<group>"; };
 		CC1DDB6426A9BA2F0049E99D /* 222.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 222.sld; sourceTree = "<group>"; };
+		CC1DDB6926AA34780049E99D /* 216.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 216.sld; sourceTree = "<group>"; };
 		CC1EA5C8214E6BF3006BBE7E /* Turtle.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Turtle.scm; sourceTree = "<group>"; };
 		CC1EA5CA214EEF41006BBE7E /* 161.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 161.sld; sourceTree = "<group>"; };
 		CC201A6C1DBD72C100045A4D /* LibraryRegistry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryRegistry.swift; sourceTree = "<group>"; };
@@ -2997,6 +3002,7 @@
 				CC1D6CBD258CDE3700D36645 /* 209.sld */,
 				CC0D7B382544AF2600FB9301 /* 210.sld */,
 				CCD5E559262E31AE00C45EA0 /* 214.sld */,
+				CC1DDB6926AA34780049E99D /* 216.sld */,
 				CC879885264D4739006950A7 /* 219.sld */,
 				CC0E57BC268BB7C900693DD2 /* 221.sld */,
 				CC1DDB6426A9BA2F0049E99D /* 222.sld */,
