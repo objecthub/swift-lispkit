@@ -3,7 +3,7 @@
 ;;; This code imports all libraries coming with LispKit for testing purposes.
 ;;;
 ;;; Author: Matthias Zenger
-;;; Copyright © 2019-2020 Matthias Zenger. All rights reserved.
+;;; Copyright © 2019-2021 Matthias Zenger. All rights reserved.
 ;;;
 ;;; Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 ;;; except in compliance with the License. You may obtain a copy of the License at
@@ -56,6 +56,7 @@
 (import (lispkit wt-tree))
 (import (lispkit stream))
 (import (lispkit prettify))
+(import (lispkit text-table))
 (import (lispkit csv))
 (import (lispkit json))
 (import (lispkit pdf))
