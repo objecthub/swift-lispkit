@@ -363,6 +363,9 @@
 		CC8A2AAF1F405E2500D1E4D8 /* 17.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC8A2AAE1F405CDD00D1E4D8 /* 17.sld */; };
 		CC8A2AB11F40681500D1E4D8 /* 48.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC8A2AB01F40672700D1E4D8 /* 48.sld */; };
 		CC8BBA2A26BF3B1A00552B8F /* text-table.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC8BBA2926BF38F200552B8F /* text-table.sld */; };
+		CC8BBA2C26BF532D00552B8F /* 215.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC8BBA2B26BF527900552B8F /* 215.sld */; };
+		CC8BBA2D26BF534E00552B8F /* 215.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC8BBA2B26BF527900552B8F /* 215.sld */; };
+		CC8BBA2E26BF53AF00552B8F /* text-table.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC8BBA2926BF38F200552B8F /* text-table.sld */; };
 		CC8C6EC81CFA65F200126BDD /* ControlFlow.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC8C6EC71CFA65F200126BDD /* ControlFlow.scm */; };
 		CC8D20F52533C3D100741D07 /* DrawTrees.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC8D20F42533C35F00741D07 /* DrawTrees.scm */; };
 		CC8E65FC23FCAC3A00D9D1F9 /* 6.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC8E65FA23FCA98600D9D1F9 /* 6.sld */; };
@@ -1442,6 +1445,7 @@
 			dstPath = Root/LispKit/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
+				CC8BBA2C26BF532D00552B8F /* 215.sld in Copy pre-installed SRFI libraries */,
 				CC1DDB6A26AA34E40049E99D /* 216.sld in Copy pre-installed SRFI libraries */,
 				CC1DDB6526A9BB200049E99D /* 222.sld in Copy pre-installed SRFI libraries */,
 				CC0E57C4268FAAC100693DD2 /* 223.sld in Copy pre-installed SRFI libraries */,
@@ -1537,6 +1541,7 @@
 			dstPath = Root/LispKit/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
+				CC8BBA2D26BF534E00552B8F /* 215.sld in Copy pre-installed SRFI libraries */,
 				CC1DDB6B26AA35000049E99D /* 216.sld in Copy pre-installed SRFI libraries */,
 				CC1DDB6726A9BB5B0049E99D /* 222.sld in Copy pre-installed SRFI libraries */,
 				CC0E57C6268FAAE800693DD2 /* 223.sld in Copy pre-installed SRFI libraries */,
@@ -1690,6 +1695,7 @@
 			dstPath = Root/LispKit/Libraries/lispkit;
 			dstSubfolderSpec = 7;
 			files = (
+				CC8BBA2E26BF53AF00552B8F /* text-table.sld in Copy pre-installed LispKit libraries */,
 				CCC48D8D25E9806600D082AD /* log.sld in Copy pre-installed LispKit libraries */,
 				CCC48D8E25E9806600D082AD /* test.sld in Copy pre-installed LispKit libraries */,
 				CCC48D8F25E9806600D082AD /* match.sld in Copy pre-installed LispKit libraries */,
@@ -2428,6 +2434,7 @@
 		CC8A2AAE1F405CDD00D1E4D8 /* 17.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 17.sld; sourceTree = "<group>"; };
 		CC8A2AB01F40672700D1E4D8 /* 48.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 48.sld; sourceTree = "<group>"; };
 		CC8BBA2926BF38F200552B8F /* text-table.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = "text-table.sld"; sourceTree = "<group>"; };
+		CC8BBA2B26BF527900552B8F /* 215.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 215.sld; sourceTree = "<group>"; };
 		CC8C6EC71CFA65F200126BDD /* ControlFlow.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ControlFlow.scm; sourceTree = "<group>"; };
 		CC8D20F42533C35F00741D07 /* DrawTrees.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = DrawTrees.scm; sourceTree = "<group>"; };
 		CC8DC5C623E7408500396182 /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
@@ -3006,6 +3013,7 @@
 				CC1D6CBD258CDE3700D36645 /* 209.sld */,
 				CC0D7B382544AF2600FB9301 /* 210.sld */,
 				CCD5E559262E31AE00C45EA0 /* 214.sld */,
+				CC8BBA2B26BF527900552B8F /* 215.sld */,
 				CC1DDB6926AA34780049E99D /* 216.sld */,
 				CC879885264D4739006950A7 /* 219.sld */,
 				CC0E57BC268BB7C900693DD2 /* 221.sld */,
