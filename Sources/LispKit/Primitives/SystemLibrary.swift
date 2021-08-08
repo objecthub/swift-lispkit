@@ -340,6 +340,12 @@ public final class SystemLibrary: NativeLibrary {
     switch args.first! {
       case .null:
         return (CoreLibrary.voidProc, [])
+      case .pair(let expr, .null):
+        let code = try Compiler.compile(expr: .pair(expr, .null),
+                                        in: .global(try env.asEnvironment()),
+                                        optimize: true,
+                                        inDirectory: try sourceDir.asString())
+        return (Procedure(code), [])
       case .pair(let expr, let rest):
         let source = Expr.pair(
           expr,
