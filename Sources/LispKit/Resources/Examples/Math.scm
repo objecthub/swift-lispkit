@@ -38,11 +38,21 @@
                            ((zero? (remainder n d)) #f)
                            (else                    (loop (+ d 2))))))))
 
-;; Returns the `n`-th Fibonacci number
+;; Returns the `n`-th Fibonacci number.
 (define (fib n)
   (if (fx< n 2)
       n
       (fx+ (fib (fx1- n)) (fib (fx- n 2)))))
+
+;; Returns the `n`-th Fibonacci number via a tail-recursive algorithm.
+(define (fast-fib n)
+  (define (iter n a b)
+    (if (fx< n 3)
+        b
+        (iter (fx1- n) b (fx+ a b))))
+  (if (fx< n 2)
+      n
+      (iter n 1 1)))
 
 ;; Returns the factorial of integer `n`
 (define (fac n)

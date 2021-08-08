@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.2 (2021-08-08)
+
+- Fixed serious bug in procedure `load` (previously, `load` always returned no result instead of the result of the last executed expression).
+- Included new libraries: `(srfi 215)`, `(srfi 216)`, `(srfi 222)`, `(lispkit text-table)`
+- Extended sample code `Math.scm`
+
 ## 2.0.1 (2021-07-02)
 
 - New procedures in library `(lispkit draw)`: `bitmap->bytevector`, `bitmap-blur`, `bitmap-crop`
