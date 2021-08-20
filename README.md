@@ -113,6 +113,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     `(lispkit clos)`,
     [`(lispkit test)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Test),
     `(lispkit prettify)`,
+    `(lispkit text-table)`,
     [`(lispkit csv)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-CSV),
     [`(lispkit markdown)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Markdown),
     [`(lispkit sqlite)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-SQLite),
