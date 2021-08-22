@@ -23,6 +23,8 @@ import Foundation
 public final class DynamicControlLibrary: NativeLibrary {
   
   private var raiseProcLoc: Int? = nil
+  
+  /// The raise procedure
   public var raiseProc: Procedure? {
     if let loc = self.raiseProcLoc {
       return self.procedure(loc)

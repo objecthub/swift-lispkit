@@ -158,17 +158,22 @@ public final class Context {
     }
   }
   
-  /// Prepares context to be ready to execute code. Library `(lispkit dynamic)` gets loaded
-  /// as a result of this. If `forRepl` is set to true, `bootstrap` will also introduce the
-  /// variables `*1`, `*2`, and `*3` in the global environment. These will be used by a
-  /// REPL to store the last three results.
+  /// Prepares context to be ready to execute code. Library `(lispkit core)` and
+  /// `(lispkit dynamic)` gets loaded as a result of this. If `forRepl` is set to true,
+  /// `bootstrap` will also introduce the variables `*1`, `*2`, and `*3` in the global
+  /// environment. These will be used by a REPL to store the last three results.
   public func bootstrap(forRepl: Bool = false) throws {
-    // Guarantee that (lispkit dynamic) is imported
+    // Guarantee that (lispkit dynamic) is imported; this will also load (lispkit core)
     try self.environment.import(["lispkit", "dynamic"])
     // Install error handler
     if let dynamicLib = try self.libraries.lookup("lispkit", "dynamic") as? DynamicControlLibrary,
        let raiseProc = dynamicLib.raiseProc {
       self.machine.raiseProc = raiseProc
+    }
+    // Install definition procedures
+    if let coreLib = try self.libraries.lookup("lispkit", "core") as? CoreLibrary {
+      self.machine.defineSpecial = coreLib.defineSpecial
+      self.machine.defineValuesSpecial = coreLib.defineValuesSpecial
     }
     if forRepl {
       _ = self.environment.define(self.symbols.starOne, as: .undef)

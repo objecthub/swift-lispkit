@@ -22,6 +22,12 @@ import Foundation
 
 public final class CoreLibrary: NativeLibrary {
   
+  /// The define procedure
+  private(set) public var defineSpecial: SpecialForm? = nil
+  
+  /// The defineValues procedure
+  private(set) public var defineValuesSpecial: SpecialForm? = nil
+  
   /// Name of the library.
   public override class var name: [String] {
     return ["lispkit", "core"]
@@ -51,8 +57,10 @@ public final class CoreLibrary: NativeLibrary {
     self.define(SpecialForm("thunk*", compileThunkStar))
     
     // Definition primitives
-    self.define(SpecialForm("define", compileDefine))
-    self.define(SpecialForm("define-values", compileDefineValues))
+    self.defineSpecial = SpecialForm("define", compileDefine)
+    self.defineValuesSpecial = SpecialForm("define-values", compileDefineValues)
+    self.define(self.defineSpecial!)
+    self.define(self.defineValuesSpecial!)
     self.define(SpecialForm("define-syntax", compileDefineSyntax))
     self.define(SpecialForm("define-library", compileDefineLibrary))
     self.define(SpecialForm("syntax-rules", compileSyntaxRules))

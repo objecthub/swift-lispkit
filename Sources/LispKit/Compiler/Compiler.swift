@@ -702,6 +702,42 @@ public final class Compiler {
     return n
   }
   
+  /// Returns `nil` if `sym` does not refer to any definition special form. Returns `true` if
+  /// `sym` refers to special form `define`. Returns `false` if `sym` refers to special form
+  /// `defineValues`.
+  private func refersToDefine(_ sym: Symbol, in env: Env) -> Bool? {
+    // This is the old logic; kept it here as a fallback if `define` is not available via the
+    // corresponding virtual machine
+    if self.context.machine.defineSpecial == nil {
+      let root = sym.root
+      if env.isImmutable(sym) {
+        if root == self.context.symbols.define {
+          return true
+        } else if root == self.context.symbols.defineValues {
+          return false
+        }
+      }
+      return nil
+    // This is the correct logic that determines if `sym` refers to a definition special
+    // form or not
+    } else {
+      switch self.lookupLocalValueOf(sym, in: env) {
+        case .globalLookupRequired(let glob, let environment):
+          if let expr = self.value(of: glob, in: environment),
+             case .special(let special) = expr {
+            if special == self.context.machine.defineSpecial {
+              return true
+            } else if special == self.context.machine.defineValuesSpecial {
+              return false
+            }
+          }
+          fallthrough
+        default:
+          return nil
+      }
+    }
+  }
+  
   /// Compile the sequence of expressions `expr` in environment `env`. Parameter `tail`
   /// specifies if `expr` is located in a tail position. This allows the compiler to generate
   /// code with tail calls.
@@ -744,13 +780,11 @@ public final class Compiler {
     if localDefine {
       loop: while i < exprs.count {
         guard case .pair(.symbol(let fun), let binding) = exprs[i],
-              fun.root == self.context.symbols.define ||
-                fun.root == self.context.symbols.defineValues,
-              env.isImmutable(fun) else {
+              let isDefine = self.refersToDefine(fun, in: env) else {
           break loop
         }
         // Distinguish value definitions from function definitions
-        if fun.root == self.context.symbols.define {
+        if isDefine {
           switch binding {
             case .pair(.symbol(let sym), .pair(let def, .null)):
               bindings.append(.pair(.pair(.symbol(sym), .null), .pair(def, .null)))

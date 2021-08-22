@@ -197,8 +197,10 @@ public final class VirtualMachine: TrackedObject {
   /// Internal counter used for triggering the garbage collector.
   private var execInstr: UInt64
   
-  /// Error handler procedure.
+  /// Procedures defined in low-level libraries.
   public var raiseProc: Procedure? = nil
+  public var defineSpecial: SpecialForm? = nil
+  public var defineValuesSpecial: SpecialForm? = nil
   
   /// When set to true, it will trigger an abortion of the machine evaluator as soon as possible.
   private var abortionRequested: Bool = false
