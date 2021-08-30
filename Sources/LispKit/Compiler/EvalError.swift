@@ -86,6 +86,7 @@ public enum EvalError: Int, Hashable {
   case uninitializedExports
   case inconsistentImports
   case cyclicImportExport
+  case corruptLibrary
   case redefinitionOfImport
   case unknownFile
   case unknownDirectory
@@ -246,6 +247,8 @@ public enum EvalError: Int, Hashable {
         return "inconsistent import of $0 from library $1 and $2 in library $3"
       case .cyclicImportExport:
         return "exported definition $0 imported in a cyclic fashion in library $1"
+      case .corruptLibrary:
+        return "internal state of library $0 is corrupt ($,1)"
       case .redefinitionOfImport:
         return "redefinition of imported definition $0 in library $1"
       case .unknownFile:

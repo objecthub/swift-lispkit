@@ -375,9 +375,11 @@ public final class Environment: Reference, CustomStringConvertible {
           //       "[\(loc)] \(self.context.locations[loc])")
           self.bind(impIdent, to: .immutableImport(loc))
         default:
-          // Should nerver happen
-          preconditionFailure("cannot import \(impIdent) as \(expIdent) " +
-            "using \(String(describing: library.exports[expIdent]))")
+          // Should never happen
+          throw RuntimeError.eval(.corruptLibrary,
+                                  library.name,
+                                  .makeString("import \(impIdent) as \(expIdent) using " +
+                                              String(describing: library.exports[expIdent])))
       }
     }
     return library

@@ -367,12 +367,18 @@ open class Library: Reference, CustomStringConvertible {
       // Backfill dependencies for the exported identifiers which are imported
       for exportedIdent in self.exportDecls.keys {
         guard try self.exportLocation(exportedIdent) != nil else {
-          preconditionFailure("cannot export \(exportedIdent) from \(self.name)")
+          throw RuntimeError.eval(.corruptLibrary,
+                                  self.name,
+                                  .makeString("cannot export \(exportedIdent) from \(self.name)"))
         }
       }
     } catch let error as RuntimeError {
+      // Reset state
+      self.state = .allocated
       throw error.attach(library: self.name)
     } catch let error {
+      // Reset state
+      self.state = .allocated
       throw RuntimeError.os(error).attach(library: self.name)
     }
     return true
