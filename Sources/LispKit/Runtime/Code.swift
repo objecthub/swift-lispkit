@@ -34,6 +34,107 @@ public struct Code: CustomStringConvertible {
     self.fragments = fragments
   }
   
+  public var arity: (Int, Int?) {
+    var i = 0
+    var min = Int.max
+    var max: Int? = 0
+    loop: while i < self.instructions.count {
+      switch self.instructions[i] {
+        case .assertArgCount(let n):
+          return (n, n)
+        case .assertMinArgCount(let n):
+          return (n, nil)
+        case .noMatchingArgCount:
+          return (0, nil)
+        case .branchIfArgMismatch(let n, let offset):
+          min = n
+          max = n
+          i += offset
+          break loop
+        case .branchIfMinArgMismatch(let n, let offset):
+          min = n
+          max = nil
+          i += offset
+          break loop
+        default:
+          i += 1
+      }
+    }
+    guard i < self.instructions.count else {
+      return (0, nil)
+    }
+    while i < self.instructions.count {
+      switch self.instructions[i] {
+        case .branchIfArgMismatch(let n, let offset):
+          if n < min {
+            min = n
+          }
+          if let m = max, n > m {
+            max = n
+          }
+          i += offset
+        case .branchIfMinArgMismatch(let n, let offset):
+          if n < min {
+            min = n
+          }
+          max = nil
+          i += offset
+        default:
+          return (min, max)
+      }
+    }
+    return (min, max)
+  }
+  
+  /// Returns `true` if the given arity is accepted by the procedure.
+  public func arityAccepted(_ m: Int) -> Bool {
+    var i = 0
+    loop: while i < self.instructions.count {
+      switch self.instructions[i] {
+        case .assertArgCount(let n):
+          return n == m
+        case .assertMinArgCount(let n):
+          return m >= n
+        case .noMatchingArgCount:
+          return true
+        case .branchIfArgMismatch(let n, let offset):
+          if n == m {
+            return true
+          }
+          i += offset
+          break loop
+        case .branchIfMinArgMismatch(let n, let offset):
+          if m >= n {
+            return true
+          }
+          i += offset
+          break loop
+        default:
+          i += 1
+      }
+    }
+    guard i < self.instructions.count else {
+      return true
+    }
+    while i < self.instructions.count {
+      switch self.instructions[i] {
+        case .branchIfArgMismatch(let n, let offset):
+          if n == m {
+            return true
+          }
+          i += offset
+        case .branchIfMinArgMismatch(let n, let offset):
+          if m >= n {
+            return true
+          }
+          i += offset
+        default:
+          return false
+      }
+    }
+    return false
+  }
+  
   public var description: String {
     var builder = StringBuilder(prefix: "CONSTANTS:")
     var n = 0

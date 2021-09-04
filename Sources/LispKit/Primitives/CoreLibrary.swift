@@ -41,7 +41,6 @@ public final class CoreLibrary: NativeLibrary {
     
     // Basic primitives
     self.define(CoreLibrary.idProc)
-    self.define(Procedure("procedure?", isProcedure))
     self.define(Procedure("eval", eval, compileEval))
     self.define(Procedure("apply", apply, compileApply))
     self.define(Procedure("equal?", isEqual, compileEqual))
@@ -80,6 +79,14 @@ public final class CoreLibrary: NativeLibrary {
     self.define(SpecialForm("stream-delay-force", compileStreamDelayForce))
     self.define(SpecialForm("stream-lazy", compileStreamDelayForce))
     self.define(Procedure("force", compileForce, in: self.context))
+    
+    // Procedure primitives
+    self.define(Procedure("thunk?", isThunk))
+    self.define(Procedure("procedure?", isProcedure))
+    self.define(Procedure("procedure-of-arity?", isProcedureOfArity))
+    self.define(Procedure("procedure-name", procedureName))
+    self.define(Procedure("procedure-arity", procedureArity))
+    self.define(Procedure("procedure-arity-valid?", isProcedureArityValid))
     
     // Symbol primitives
     self.define(Procedure("symbol?", isSymbol))
@@ -416,13 +423,6 @@ public final class CoreLibrary: NativeLibrary {
     }
     try compiler.compileCaseLambda(nil, cases, env)
     return false
-  }
-  
-  private func isProcedure(expr: Expr) -> Expr {
-    if case .procedure(_) = expr {
-      return .true
-    }
-    return .false
   }
   
   //-------- MARK: - Definition primitives
@@ -832,7 +832,45 @@ public final class CoreLibrary: NativeLibrary {
     compiler.emit(.makeStream)
     return false
   }
-
+  
+  //-------- MARK: - Procedure primitives
+  
+  private func isThunk(expr: Expr) -> Expr {
+    guard case .procedure(let proc) = expr else {
+      return .false
+    }
+    return .makeBoolean(proc.arityAccepted(0))
+  }
+  
+  private func isProcedure(expr: Expr) -> Expr {
+    if case .procedure(_) = expr {
+      return .true
+    }
+    return .false
+  }
+  
+  private func isProcedureOfArity(expr: Expr, arity: Expr) throws -> Expr {
+    guard case .procedure(let proc) = expr else {
+      return .false
+    }
+    return .makeBoolean(proc.arityAccepted(try arity.asInt()))
+  }
+  
+  private func procedureName(expr: Expr) throws -> Expr {
+    guard let name = (try expr.asProcedure()).originalName else {
+      return .false
+    }
+    return .makeString(name)
+  }
+  
+  private func procedureArity(expr: Expr) throws -> Expr {
+    let (min, max) = (try expr.asProcedure()).arity
+    return .pair(.makeNumber(min), max == nil ? .false : .makeNumber(max!))
+  }
+  
+  private func isProcedureArityValid(expr: Expr, arity: Expr) throws -> Expr {
+    return .makeBoolean((try expr.asProcedure()).arityAccepted(try arity.asInt()))
+  }
   
   //-------- MARK: - Symbol primitives
   

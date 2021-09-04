@@ -319,6 +319,116 @@ public final class Procedure: Reference, CustomStringConvertible {
     }
   }
   
+  /// Returns the arity.
+  public var arity: (Int, Int?) {
+    switch self.kind {
+      case .primitive(_, let impl, _):
+        switch impl {
+          case .eval(_):
+            return (0, nil)
+          case .apply(_):
+            return (0, nil)
+          case .native0(_):
+            return (0, 0)
+          case .native1(_):
+            return (1, 1)
+          case .native2(_):
+            return (2, 2)
+          case .native3(_):
+            return (3, 3)
+          case .native4(_):
+            return (4, 4)
+          case .native0O(_):
+            return (0, 1)
+          case .native1O(_):
+            return (1, 2)
+          case .native2O(_):
+            return (2, 3)
+          case .native3O(_):
+            return (3, 4)
+          case .native0OO(_):
+            return (0, 2)
+          case .native1OO(_):
+            return (1, 3)
+          case .native2OO(_):
+            return (2, 4)
+          case .native3OO(_):
+            return (3, 5)
+          case .native0R(_):
+            return (0, nil)
+          case .native1R(_):
+            return (1, nil)
+          case .native2R(_):
+            return (2, nil)
+          case .native3R(_):
+            return (3, nil)
+        }
+      case .closure(.continuation, _, _):
+        return (1, 1)
+      case .closure(_, _, let code):
+        return code.arity
+      case .parameter(_):
+        return (0, 1)
+      case .transformer(_):
+        return (1, 1)
+      case .rawContinuation(_):
+        return (1, 1)
+    }
+  }
+  
+  /// Returns `true` if the given arity is accepted by the procedure.
+  public func arityAccepted(_ n: Int) -> Bool {
+    switch self.kind {
+      case .primitive(_, let impl, _):
+        switch impl {
+          case .eval(_), .apply(_), .native0R(_):
+            return true
+          case .native0(_):
+            return n == 0
+          case .native1(_):
+            return n == 1
+          case .native2(_):
+            return n == 2
+          case .native3(_):
+            return n == 3
+          case .native4(_):
+            return n == 4
+          case .native0O(_):
+            return n <= 1
+          case .native1O(_):
+            return n == 1 || n == 2
+          case .native2O(_):
+            return n == 2 || n == 3
+          case .native3O(_):
+            return n == 3 || n == 4
+          case .native0OO(_):
+            return n <= 2
+          case .native1OO(_):
+            return n >= 1 && n <= 3
+          case .native2OO(_):
+            return n >= 2 && n <= 4
+          case .native3OO(_):
+            return n >= 3 && n <= 5
+          case .native1R(_):
+            return n >= 1
+          case .native2R(_):
+            return n >= 2
+          case .native3R(_):
+            return n >= 3
+        }
+      case .closure(.continuation, _, _):
+        return n == 1
+      case .closure(_, _, let code):
+        return code.arityAccepted(n)
+      case .parameter(_):
+        return n <= 1
+      case .transformer(_):
+        return n == 1
+      case .rawContinuation(_):
+        return n == 1
+    }
+  }
+  
   /// A textual description
   public var description: String {
     return "«procedure \(self.name)»"

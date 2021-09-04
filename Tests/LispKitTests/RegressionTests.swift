@@ -63,6 +63,10 @@ class RegressionTests: LispKitTestCase {
     self.execute(file: "LightweightTypes")
   }
   
+  func testProcedures() {
+    self.execute(file: "Procedures")
+  }
+  
   func testVectors() {
     self.execute(file: "Vectors")
   }
