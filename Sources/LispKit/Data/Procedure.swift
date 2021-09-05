@@ -319,60 +319,66 @@ public final class Procedure: Reference, CustomStringConvertible {
     }
   }
   
+  /// Arities are either exact or they are referring to a lower bound.
+  public enum Arity {
+    case exact(Int)
+    case atLeast(Int)
+  }
+  
   /// Returns the arity.
-  public var arity: (Int, Int?) {
+  public var arity: [Arity] {
     switch self.kind {
       case .primitive(_, let impl, _):
         switch impl {
           case .eval(_):
-            return (0, nil)
+            return [.atLeast(0)]
           case .apply(_):
-            return (0, nil)
+            return [.atLeast(0)]
           case .native0(_):
-            return (0, 0)
+            return [.exact(0)]
           case .native1(_):
-            return (1, 1)
+            return [.exact(1)]
           case .native2(_):
-            return (2, 2)
+            return [.exact(2)]
           case .native3(_):
-            return (3, 3)
+            return [.exact(3)]
           case .native4(_):
-            return (4, 4)
+            return [.exact(4)]
           case .native0O(_):
-            return (0, 1)
+            return [.exact(0), .exact(1)]
           case .native1O(_):
-            return (1, 2)
+            return [.exact(1), .exact(2)]
           case .native2O(_):
-            return (2, 3)
+            return [.exact(2), .exact(3)]
           case .native3O(_):
-            return (3, 4)
+            return [.exact(3), .exact(4)]
           case .native0OO(_):
-            return (0, 2)
+            return [.exact(0), .exact(1), .exact(2)]
           case .native1OO(_):
-            return (1, 3)
+            return [.exact(1), .exact(2), .exact(3)]
           case .native2OO(_):
-            return (2, 4)
+            return [.exact(2), .exact(3), .exact(4)]
           case .native3OO(_):
-            return (3, 5)
+            return [.exact(3), .exact(4), .exact(5)]
           case .native0R(_):
-            return (0, nil)
+            return [.atLeast(0)]
           case .native1R(_):
-            return (1, nil)
+            return [.atLeast(1)]
           case .native2R(_):
-            return (2, nil)
+            return [.atLeast(2)]
           case .native3R(_):
-            return (3, nil)
+            return [.atLeast(3)]
         }
       case .closure(.continuation, _, _):
-        return (1, 1)
+        return [.exact(1)]
       case .closure(_, _, let code):
         return code.arity
       case .parameter(_):
-        return (0, 1)
+        return [.exact(0), .exact(1)]
       case .transformer(_):
-        return (1, 1)
+        return [.exact(1)]
       case .rawContinuation(_):
-        return (1, 1)
+        return [.exact(1)]
     }
   }
   

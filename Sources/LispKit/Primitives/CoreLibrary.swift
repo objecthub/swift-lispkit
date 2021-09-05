@@ -86,7 +86,10 @@ public final class CoreLibrary: NativeLibrary {
     self.define(Procedure("procedure-of-arity?", isProcedureOfArity))
     self.define(Procedure("procedure-name", procedureName))
     self.define(Procedure("procedure-arity", procedureArity))
-    self.define(Procedure("procedure-arity-valid?", isProcedureArityValid))
+    self.define(Procedure("procedure-arity-range", procedureArityRange))
+    self.define(Procedure("procedure-arity-includes?", isProcedureArityIncludes))
+    self.define(Procedure("arity-at-least?", isArityAtLeast))
+    self.define(Procedure("arity-at-least-value", arityAtLeastValue))
     
     // Symbol primitives
     self.define(Procedure("symbol?", isSymbol))
@@ -864,12 +867,65 @@ public final class CoreLibrary: NativeLibrary {
   }
   
   private func procedureArity(expr: Expr) throws -> Expr {
-    let (min, max) = (try expr.asProcedure()).arity
+    let arities = (try expr.asProcedure()).arity
+    var res = Expr.null
+    for arity in arities {
+      switch arity {
+        case .exact(let n):
+          res = .pair(.fixnum(Int64(n)), res)
+        case .atLeast(let n):
+          res = .pair(.fixnum(Int64(-n-1)), res)
+      }
+    }
+    switch res {
+      case .null:
+        return .false
+      case .pair(let a, .null):
+        return a
+      default:
+        return res
+    }
+  }
+  
+  private func procedureArityRange(expr: Expr) throws -> Expr {
+    let arities = (try expr.asProcedure()).arity
+    var min = Int.max
+    var max: Int? = 0
+    for arity in arities {
+      switch arity {
+        case .exact(let n):
+          if n < min {
+            min = n
+          }
+          if let m = max, n > m {
+            max = n
+          }
+        case .atLeast(let n):
+          if n < min {
+            min = n
+          }
+          max = nil
+      }
+    }
     return .pair(.makeNumber(min), max == nil ? .false : .makeNumber(max!))
   }
   
-  private func isProcedureArityValid(expr: Expr, arity: Expr) throws -> Expr {
+  private func isProcedureArityIncludes(expr: Expr, arity: Expr) throws -> Expr {
     return .makeBoolean((try expr.asProcedure()).arityAccepted(try arity.asInt()))
+  }
+  
+  private func isArityAtLeast(expr: Expr) throws -> Expr {
+    guard case .fixnum(let n) = expr else {
+      return .false
+    }
+    return .makeBoolean(n < 0)
+  }
+  
+  private func arityAtLeastValue(expr: Expr) throws -> Expr {
+    guard case .fixnum(let n) = expr, n < 0 else {
+      return .false
+    }
+    return .fixnum(Int64(-n-1))
   }
   
   //-------- MARK: - Symbol primitives

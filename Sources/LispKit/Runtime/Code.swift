@@ -34,26 +34,25 @@ public struct Code: CustomStringConvertible {
     self.fragments = fragments
   }
   
-  public var arity: (Int, Int?) {
+  public var arity: [Procedure.Arity] {
+    var arities: [Procedure.Arity] = []
     var i = 0
-    var min = Int.max
-    var max: Int? = 0
     loop: while i < self.instructions.count {
       switch self.instructions[i] {
         case .assertArgCount(let n):
-          return (n, n)
+          arities.append(.exact(n))
+          return arities
         case .assertMinArgCount(let n):
-          return (n, nil)
+          arities.append(.atLeast(n))
+          return arities
         case .noMatchingArgCount:
-          return (0, nil)
+          return arities
         case .branchIfArgMismatch(let n, let offset):
-          min = n
-          max = n
+          arities.append(.exact(n))
           i += offset
           break loop
         case .branchIfMinArgMismatch(let n, let offset):
-          min = n
-          max = nil
+          arities.append(.atLeast(n))
           i += offset
           break loop
         default:
@@ -61,29 +60,22 @@ public struct Code: CustomStringConvertible {
       }
     }
     guard i < self.instructions.count else {
-      return (0, nil)
+      arities.append(.atLeast(0))
+      return arities
     }
     while i < self.instructions.count {
       switch self.instructions[i] {
         case .branchIfArgMismatch(let n, let offset):
-          if n < min {
-            min = n
-          }
-          if let m = max, n > m {
-            max = n
-          }
+          arities.append(.exact(n))
           i += offset
         case .branchIfMinArgMismatch(let n, let offset):
-          if n < min {
-            min = n
-          }
-          max = nil
+          arities.append(.atLeast(n))
           i += offset
         default:
-          return (min, max)
+          return arities
       }
     }
-    return (min, max)
+    return arities
   }
   
   /// Returns `true` if the given arity is accepted by the procedure.
