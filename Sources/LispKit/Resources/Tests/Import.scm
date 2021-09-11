@@ -102,6 +102,7 @@
 (import (srfi 87))
 (import (srfi 95))
 (import (srfi 98))
+(import (srfi 102))
 (import (srfi 111))
 (import (srfi 112))
 (import (srfi 113))
@@ -146,6 +147,7 @@
 (import (srfi 221))
 (import (srfi 222))
 (import (srfi 223))
+(import (srfi 224))
 
 ; this needs to be last
 (import (srfi 101))

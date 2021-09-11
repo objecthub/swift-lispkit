@@ -34,4 +34,5 @@
           machine-name
           os-type
           os-version)
-  (import (lispkit base)))
+  (import (lispkit base))
+)
