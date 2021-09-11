@@ -84,7 +84,8 @@
                                  (fxmin lispkit:fxmin)
                                  (fxsqrt lispkit:fxsqrt)
                                  (fxbit-set? lispkit:fxbit-set?)
-                                 (fxcopy-bit lispkit:fxcopy-bit)))
+                                 (fxcopy-bit lispkit:fxcopy-bit)
+                                 (fxbit-count lispkit:fxbit-count)))
   
   ;; Generic implementation of carry functions from the R6RS standard.
   ;; These implementations of fx+/carry, fx-/carry, and fx*/carry are very inefficient,
@@ -203,6 +204,9 @@
     
     (define (fxbit-set? i j)
       (bit-set? j i))
+      
+    (define (fxbit-count i)
+      (bit-count i))
     
     (define (fxcopy-bit index to bool)
       (copy-bit to index (if (eq? bool #t) 1 (if (eq? bool #f) 0 bool))))
