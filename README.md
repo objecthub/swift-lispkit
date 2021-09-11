@@ -166,6 +166,7 @@ framework:
   - [SRFI 95: Sorting and Merging](https://srfi.schemers.org/srfi-95/srfi-95.html)
   - [SRFI 98: An interface to access environment variables](https://srfi.schemers.org/srfi-98/srfi-98.html)
   - [SRFI 101: Purely Functional Random-Access Pairs and Lists](https://srfi.schemers.org/srfi-101/srfi-101.html)
+  - [SRFI 102: Procedure Arity Inspection](https://srfi.schemers.org/srfi-102/srfi-102.html)  
   - [SRFI 111: Boxes](https://srfi.schemers.org/srfi-111/srfi-111.html)
   - [SRFI 112: Environment inquiry](https://srfi.schemers.org/srfi-112/srfi-112.html)
   - [SRFI 113: Sets and bags](https://srfi.schemers.org/srfi-113/srfi-113.html)
@@ -210,6 +211,7 @@ framework:
   - [SRFI 221: Generator/accumulator sub-library](https://srfi.schemers.org/srfi-221/srfi-221.html)
   - [SRFI 222: Compound Objects](https://srfi.schemers.org/srfi-222/srfi-222.html)
   - [SRFI 223: Generalized binary search procedures](https://srfi.schemers.org/srfi-223/srfi-223.html)
+  - [SRFI 224: Integer Mappings](https://srfi.schemers.org/srfi-224/srfi-224.html)
 
 
 ## Project
@@ -318,8 +320,9 @@ There is a single button with a trash can in the toolbar for resetting the inter
 button for cancelling running programs (e.g. if there is an infinite loop or other deadlock).
 
 There is also a more advanced
-[open-source iOS application called _LispPad_](https://github.com/objecthub/swift-lisppad-ioshttps://github.com/objecthub/swift-lisppad-ios)
-which will eventually be available from the app store.
+[open-source iOS application called _LispPad Go_](https://github.com/objecthub/swift-lisppad-ioshttps://github.com/objecthub/swift-lisppad-ios)
+which implements a complete IDE for LispKit. _LispPad Go_ is available from the
+[iOS app store](https://apps.apple.com/us/app/lisppad-go/id1565747728).
 
 
 ## Requirements
