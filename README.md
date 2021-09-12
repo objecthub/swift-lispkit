@@ -201,17 +201,18 @@ framework:
   - [SRFI 194: Random data generators](https://srfi.schemers.org/srfi-194/srfi-194.html)
   - [SRFI 195: Multiple-value boxes](https://srfi.schemers.org/srfi-195/srfi-195.html)
   - [SRFI 196: Range Objects](https://srfi.schemers.org/srfi-196/srfi-196.html)
-  - [SRFI 204: Wright-Cartwright-Shinn Pattern Matcher](https://srfi.schemers.org/srfi-204/srfi-204.html)
+  - [SRFI 204: Wright-Cartwright-Shinn pattern matcher](https://srfi.schemers.org/srfi-204/srfi-204.html)
   - [SRFI 209: Enums and Enum Sets](https://srfi.schemers.org/srfi-209/srfi-209.html)
   - [SRFI 210: Procedures and Syntax for Multiple Values](https://srfi.schemers.org/srfi-210/srfi-210.html)
   - [SRFI 214: Flexvectors](https://srfi.schemers.org/srfi-214/srfi-214.html)
-  - [SRFI 215: Central Log Exchange](https://srfi.schemers.org/srfi-215/srfi-215.html)
-  - [SRFI 216: SICP Prerequisites](https://srfi.schemers.org/srfi-216/srfi-216.html)  
+  - [SRFI 215: Central log exchange](https://srfi.schemers.org/srfi-215/srfi-215.html)
+  - [SRFI 216: SICP Prerequisites](https://srfi.schemers.org/srfi-216/srfi-216.html)
+  - [SRFI 217: Integer sets](https://srfi.schemers.org/srfi-217/srfi-217.html)
   - [SRFI 219: Define higher-order lambda](https://srfi.schemers.org/srfi-219/srfi-219.html)
   - [SRFI 221: Generator/accumulator sub-library](https://srfi.schemers.org/srfi-221/srfi-221.html)
-  - [SRFI 222: Compound Objects](https://srfi.schemers.org/srfi-222/srfi-222.html)
+  - [SRFI 222: Compound objects](https://srfi.schemers.org/srfi-222/srfi-222.html)
   - [SRFI 223: Generalized binary search procedures](https://srfi.schemers.org/srfi-223/srfi-223.html)
-  - [SRFI 224: Integer Mappings](https://srfi.schemers.org/srfi-224/srfi-224.html)
+  - [SRFI 224: Integer mappings](https://srfi.schemers.org/srfi-224/srfi-224.html)
 
 
 ## Project
