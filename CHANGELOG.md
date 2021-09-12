@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.0.3 (2021-09-12)
+
+- Fixed bug in logic to detect valid local definitions
+- Handle libraries with errors more carefully to prevent crashes
+- Fixed bit counting bug in library `(srfi 143)`
+- New procedures in library `(lispkit core)`: `thunk?`, `procedure-of-arity?`, `procedure-name`, `procedure-arity`, `procedure-arity-range`, `procedure-arity-includes?`, `arity-at-least?`, `arity-at-least-value`
+- Included new libraries: `(srfi sicp)`, `(srfi 102)`, `(srfi 217)`, `(srfi 224)`
+- New sample code: `EUStats.scm`
+
 ## 2.0.2 (2021-08-08)
 
 - Fixed serious bug in procedure `load` (previously, `load` always returned no result instead of the result of the last executed expression).
