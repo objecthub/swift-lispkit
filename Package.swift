@@ -20,8 +20,8 @@
 //  Created by Matthias Zenger on 16/10/2017.
 //  Copyright © 2017-2021 ObjectHub. All rights reserved.
 //  
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
+//  Licensed under the Apache License, Version 2.0 (the "License"); you
+//  may not use this file except in compliance with the License.
 //  You may obtain a copy of the License at
 //
 //      http://www.apache.org/licenses/LICENSE-2.0
@@ -64,17 +64,25 @@ let package = Package(
   ],
   targets: [
     .target(name: "LispKit",
-            dependencies: ["NumberKit", "MarkdownKit", "SQLiteExpress", "ZIPFoundation"],
+            dependencies: ["NumberKit",
+                           "MarkdownKit",
+                           "SQLiteExpress", 
+                           "ZIPFoundation"],
             exclude: ["Graphics/Drawing_iOS.swift",
                       "Graphics/Transformation_iOS.swift",
                       "Primitives/DrawingLibrary_iOS.swift"]),
     .target(name: "LispKitTools",
-            dependencies: ["LispKit", "CommandLineKit"]),
-    .target(name: "LispKitRepl",
-            dependencies: ["LispKit", "LispKitTools"],
-            exclude: ["BuildMetadata.m", "BuildMetadata.h"]),
+            dependencies: ["LispKit", "CommandLineKit"],
+            exclude: ["Info.plist"]),
+    .executableTarget(name: "LispKitRepl",
+                      dependencies: ["LispKit", "LispKitTools"],
+                      exclude: ["Info.plist",
+                                "BuildMetadata.m",
+                                "BuildMetadata.h"]),
     .testTarget(name: "LispKitTests",
-                dependencies: ["LispKit"])
+                dependencies: ["LispKit"],
+                exclude: ["Info.plist",
+                          "Code"])
   ],
   swiftLanguageVersions: [.v5]
 )

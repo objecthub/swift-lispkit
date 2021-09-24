@@ -121,7 +121,6 @@ open class LispKitTestCase: XCTestCase {
       do {
         return try self.context?.sources.readSource(for: path)
       } catch {
-        return nil
       }
     #else
       let bundle = Bundle(for: type(of: self))
@@ -129,7 +128,6 @@ open class LispKitTestCase: XCTestCase {
         do {
           return try self.context?.sources.readSource(for: path)
         } catch {
-          return nil
         }
       }
     #endif
