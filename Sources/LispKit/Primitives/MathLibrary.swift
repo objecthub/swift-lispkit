@@ -932,21 +932,37 @@ public final class MathLibrary: NativeLibrary {
   private func expt(_ expr: Expr, _ exp: Expr) throws -> Expr {
     switch try NumberPair(expr, exp) {
       case .fixnumPair(let x, let y):
-        if y >= 0 {
+        if y == 0 {
+          return .fixnum(1)
+        } else if y >= 0 {
           return .makeNumber(BigInt(x) ** BigInt(y))
         } else {
-          return .makeNumber(1.0 / (BigInt(x) ** BigInt(y).negate).doubleValue)
+          return .makeNumber(Rational(BigInt.one, BigInt(x) ** BigInt(y).negate))
         }
       case .bignumPair(let x, let y):
-        if y.isNegative {
-          return .makeNumber(1.0 / (x ** y.negate).doubleValue)
+        if y.isZero {
+          return .fixnum(1)
+        } else if y.isNegative {
+          return .makeNumber(Rational(BigInt.one, x ** y.negate))
         } else {
           return .makeNumber(x ** y)
         }
       case .rationalPair(let x, let y):
-        return .makeNumber(Foundation.pow(x.doubleValue, y.doubleValue))
+        if y.isZero {
+          return .fixnum(1)
+        } else if y.denominator == 1 {
+          return .makeNumber(x.toPower(of: y.numerator))
+        } else {
+          return .makeNumber(Foundation.pow(x.doubleValue, y.doubleValue))
+        }
       case .bigRationalPair(let x, let y):
-        return .makeNumber(Foundation.pow(x.doubleValue, y.doubleValue))
+        if y.isZero {
+          return .fixnum(1)
+        } else if y.denominator.isOne {
+          return .makeNumber(x.toPower(of: y.numerator))
+        } else {
+          return .makeNumber(Foundation.pow(x.doubleValue, y.doubleValue))
+        }
       case .flonumPair(let x, let y):
         return .makeNumber(Foundation.pow(x, y))
       case .complexPair(let x, let y):
