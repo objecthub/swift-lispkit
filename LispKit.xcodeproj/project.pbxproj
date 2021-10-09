@@ -389,6 +389,14 @@
 		CC96D10B203997F0006AA27B /* test.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC96D10A20399770006AA27B /* test.sld */; };
 		CC97FA161CFA515E0008596E /* Definitions.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC97FA151CFA51520008596E /* Definitions.scm */; };
 		CC9EB1151F5C9DFF00697511 /* Topological.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC9EB1141F5C9D4000697511 /* Topological.scm */; };
+		CC9ED4012710EBE8004B1E29 /* Simplifier.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC9ED3FF2710E926004B1E29 /* Simplifier.scm */; };
+		CC9ED4032710EC2A004B1E29 /* util.sld in Copy examples/paip */ = {isa = PBXBuildFile; fileRef = CC9ED3FC2710E728004B1E29 /* util.sld */; };
+		CC9ED4042710EC36004B1E29 /* patmatch.sld in Copy examples/paip */ = {isa = PBXBuildFile; fileRef = CC9ED3FD2710E778004B1E29 /* patmatch.sld */; };
+		CC9ED4052710EC3E004B1E29 /* simplifier.sld in Copy examples/paip */ = {isa = PBXBuildFile; fileRef = CC9ED3FE2710E7CB004B1E29 /* simplifier.sld */; };
+		CC9ED4072710EC80004B1E29 /* util.sld in Copy examples/paip */ = {isa = PBXBuildFile; fileRef = CC9ED3FC2710E728004B1E29 /* util.sld */; };
+		CC9ED4082710EC88004B1E29 /* patmatch.sld in Copy examples/paip */ = {isa = PBXBuildFile; fileRef = CC9ED3FD2710E778004B1E29 /* patmatch.sld */; };
+		CC9ED4092710EC90004B1E29 /* simplifier.sld in Copy examples/paip */ = {isa = PBXBuildFile; fileRef = CC9ED3FE2710E7CB004B1E29 /* simplifier.sld */; };
+		CC9ED40A2710ECA5004B1E29 /* Simplifier.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC9ED3FF2710E926004B1E29 /* Simplifier.scm */; };
 		CCA3127D204CB74A0026FF13 /* RuntimeError.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA3127C204CB74A0026FF13 /* RuntimeError.swift */; };
 		CCA3127F204CB7900026FF13 /* LexicalError.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA3127E204CB7900026FF13 /* LexicalError.swift */; };
 		CCA31281204CB7A60026FF13 /* SyntaxError.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA31280204CB7A60026FF13 /* SyntaxError.swift */; };
@@ -1150,6 +1158,7 @@
 			dstPath = Root/LispKit/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC9ED4012710EBE8004B1E29 /* Simplifier.scm in Copy examples */,
 				CCC7A9DC26D0486E00F05361 /* EUStats.scm in Copy examples */,
 				CCD3E15925C638F5007FCE8A /* Schelog.scm in Copy examples */,
 				CC202DE425AA9DAF003901BE /* VisualizePointSets.scm in Copy examples */,
@@ -1455,6 +1464,32 @@
 				CC48EBD01F3E5B2A00233FA9 /* derived.sld in Copy pre-installed LispKit library: SRFI 41 */,
 			);
 			name = "Copy pre-installed LispKit library: SRFI 41";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC9ED4022710EC02004B1E29 /* Copy examples/paip */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Root/LispKit/Examples/paip;
+			dstSubfolderSpec = 7;
+			files = (
+				CC9ED4052710EC3E004B1E29 /* simplifier.sld in Copy examples/paip */,
+				CC9ED4042710EC36004B1E29 /* patmatch.sld in Copy examples/paip */,
+				CC9ED4032710EC2A004B1E29 /* util.sld in Copy examples/paip */,
+			);
+			name = "Copy examples/paip";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC9ED4062710EC57004B1E29 /* Copy examples/paip */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Root/LispKit/Examples/paip;
+			dstSubfolderSpec = 7;
+			files = (
+				CC9ED4092710EC90004B1E29 /* simplifier.sld in Copy examples/paip */,
+				CC9ED4082710EC88004B1E29 /* patmatch.sld in Copy examples/paip */,
+				CC9ED4072710EC80004B1E29 /* util.sld in Copy examples/paip */,
+			);
+			name = "Copy examples/paip";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		CCA752F91DEF9F4E0098C34A /* Copy pre-installed SRFI libraries */ = {
@@ -1871,6 +1906,7 @@
 			dstPath = Root/LispKit/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC9ED40A2710ECA5004B1E29 /* Simplifier.scm in Copy examples */,
 				CCC7A9DD26D0488300F05361 /* EUStats.scm in Copy examples */,
 				CCC48E8525E9884300D082AD /* Pi.scm in Copy examples */,
 				CCC48E8625E9884300D082AD /* Math.scm in Copy examples */,
@@ -2488,6 +2524,10 @@
 		CC96D10A20399770006AA27B /* test.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = test.sld; sourceTree = "<group>"; };
 		CC97FA151CFA51520008596E /* Definitions.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Definitions.scm; sourceTree = "<group>"; };
 		CC9EB1141F5C9D4000697511 /* Topological.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Topological.scm; sourceTree = "<group>"; };
+		CC9ED3FC2710E728004B1E29 /* util.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = util.sld; sourceTree = "<group>"; };
+		CC9ED3FD2710E778004B1E29 /* patmatch.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = patmatch.sld; sourceTree = "<group>"; };
+		CC9ED3FE2710E7CB004B1E29 /* simplifier.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = simplifier.sld; sourceTree = "<group>"; };
+		CC9ED3FF2710E926004B1E29 /* Simplifier.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Simplifier.scm; sourceTree = "<group>"; };
 		CCA3127C204CB74A0026FF13 /* RuntimeError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeError.swift; sourceTree = "<group>"; };
 		CCA3127E204CB7900026FF13 /* LexicalError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexicalError.swift; sourceTree = "<group>"; };
 		CCA31280204CB7A60026FF13 /* SyntaxError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyntaxError.swift; sourceTree = "<group>"; };
@@ -3305,6 +3345,16 @@
 			path = IO;
 			sourceTree = "<group>";
 		};
+		CC9ED3FB2710E6DB004B1E29 /* paip */ = {
+			isa = PBXGroup;
+			children = (
+				CC9ED3FC2710E728004B1E29 /* util.sld */,
+				CC9ED3FD2710E778004B1E29 /* patmatch.sld */,
+				CC9ED3FE2710E7CB004B1E29 /* simplifier.sld */,
+			);
+			path = paip;
+			sourceTree = "<group>";
+		};
 		CCA752F51DEF9EFB0098C34A /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
@@ -3545,6 +3595,7 @@
 			children = (
 				CCFBE5C31ECBA8DA0032254B /* Pi.scm */,
 				CC0EBFF81ED37A76004510B2 /* Math.scm */,
+				CC9ED3FF2710E926004B1E29 /* Simplifier.scm */,
 				CC926FA723FA127F00D91AB1 /* Polynomials.scm */,
 				CC78F31A23B439B5006F3901 /* SpellNumbers.scm */,
 				CC4A7DBA2258FC3C00936034 /* Streams.scm */,
@@ -3566,6 +3617,7 @@
 				CC38529F23252217001D5E56 /* Maze.scm */,
 				CC750BD71F5AC68900CD82A2 /* PDF.scm */,
 				CC4385BB20BAB79500055289 /* HTTP.scm */,
+				CC9ED3FB2710E6DB004B1E29 /* paip */,
 			);
 			path = Examples;
 			sourceTree = "<group>";
@@ -3668,6 +3720,7 @@
 				CC385297231B3042001D5E56 /* Copy pre-installed third-party libraries */,
 				CC385298231B325C001D5E56 /* Copy pre-installed third-party Adapton library */,
 				CC474EAE1ECFAC1300B535E3 /* Copy examples */,
+				CC9ED4022710EC02004B1E29 /* Copy examples/paip */,
 				CC09ECF32198B8B100F84713 /* Copy tests */,
 				CC299DF923B7ED4E007B8459 /* Copy color list assets */,
 				CC299DFD23B80950007B8459 /* Copy image assets */,
@@ -3730,6 +3783,7 @@
 				CCC48DDF25E9861600D082AD /* Copy pre-installed third-party libraries */,
 				CCC48DE025E9862C00D082AD /* Copy pre-installed third-party Adapton library */,
 				CCC48DE125E9866200D082AD /* Copy examples */,
+				CC9ED4062710EC57004B1E29 /* Copy examples/paip */,
 				CCC48DE225E9868900D082AD /* Copy tests */,
 				CCC48DE325E986CA00D082AD /* Copy color list assets */,
 				CCC48DE425E9872C00D082AD /* Copy image assets */,
