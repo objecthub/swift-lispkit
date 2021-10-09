@@ -1,7 +1,7 @@
 ;;; Math tools
 ;;;
 ;;; Author: Matthias Zenger
-;;; Copyright © 2017-2019 Matthias Zenger. All rights reserved.
+;;; Copyright © 2017-2021 Matthias Zenger. All rights reserved.
 ;;;
 ;;; Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 ;;; except in compliance with the License. You may obtain a copy of the License at
@@ -60,6 +60,21 @@
       1
       (* n (fac (- n 1)))))
 
+;; Solves a quadratic equation of the form: `a * x^2 + b * x + c = 0`
+;; and returns the solutions as a list. If there is no solution, `#f` is returned.
+(define (roots a b c)
+  (if (zero? a)
+      (if (zero? b)
+          (if (zero? c) '() #f)
+          (list (- (/ c b))))
+      (let ((discriminant (sqrt (- (* b b) (* 4 a c)))))
+        (if (real? discriminant)
+            (if (zero? discriminant)
+                (list (/ (- b) (* 2 a)))
+                (list (/ (+ (- b) discriminant) (* 2 a))
+                      (/ (- (- b) discriminant) (* 2 a))))
+            #f))))
+
 ;; Returns a list of all permutations of the given list `xs`
 (define (permutations xs)
   (cond ((null? xs)
@@ -91,3 +106,34 @@
              (s (combinations (cdr xs)))
              (v (map (lambda (x) (cons head x)) s)))
         (append s v))))
+
+;; Displays a function table for function `f`. Arguments for `f` range from `xmin` to
+;; `xmax`. The table has `steps` entries showing x and f(x).
+(define (function-table f xmin xmax steps . args)
+  (let-optionals args ((xlen 10)  ; length of x column
+                       (xprec 1)  ; precision of x column
+                       (ylen 14)  ; length of f(x) column
+                       (yprec 3)) ; precision of f(x) column
+    (let ((step-size (/ (- xmax xmin) (- steps 1))))
+      (display (string-append " ┌"
+                 (make-string xlen #\─) "─┬"
+                 (make-string ylen #\─) "─┐"))
+      (newline)
+      (display (string-append " │"
+                 (string-pad-center "x" #\space (+ xlen 1)) "│"
+                 (string-pad-center "f(x)" #\space (+ ylen 1)) "│"))
+      (newline)
+      (display (string-append " ├"
+                 (make-string xlen #\─) "─┼"
+                 (make-string ylen #\─) "─┤"))
+      (newline)
+      (do ((x xmin (+ x step-size)))
+          ((> x xmax))
+        (display (string-append " │"
+                   (number->string (inexact x) 10 xlen xprec #t) " │" 
+                   (number->string (inexact (f x)) 10 ylen yprec #t) " │"))
+        (newline))
+      (display (string-append " └"
+                 (make-string xlen #\─) "─┴"
+                 (make-string ylen #\─) "─┘"))
+      (newline))))
