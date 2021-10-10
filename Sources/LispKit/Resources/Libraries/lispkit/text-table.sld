@@ -81,6 +81,7 @@
           center
           
           text-table-edges?
+          no-edges
           sharp-edges
           round-edges
           

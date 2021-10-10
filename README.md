@@ -22,9 +22,9 @@ The [NumericalScheme](https://github.com/objecthub/swift-numericalscheme) demo
 showcases how to create a derived _LispKit_ interpreter that inherits everything from
 _LispKit_ (without code duplication) and defines a new native as well as Scheme-based library.
 
-The iOS version of the LispKit framework is work in progress. All libraries except for
-`(lispkit system os)` are supported. Library `(lispkit draw)` does not support color lists and
-is generally not well tested. Generally, the differences between the macOS and iOS version of the framework
+The iOS version of the LispKit framework supports all libraries except for `(lispkit system os)`.
+Library `(lispkit draw)` works consistently across iOS and macOS but does not support color
+lists on iOS. In general, the differences between the macOS and iOS version of the framework
 are minor, but require documentation. Interestingly, the iPhone 12 Pro (2020) seems to consistently
 outperform the MacBook Pro 16" (2019) for simple LispKit benchmarks.
 
@@ -35,8 +35,8 @@ documents the core _LispPad_ and _LispKit_ libraries in
 [PDF](http://lisppad.objecthub.net/resources/LispPad_Reference_1.6.pdf) form. On iOS,
 application [_LispPad Go_](https://apps.apple.com/us/app/lisppad-go/id1565747728) provides a simple
 Scheme IDE based on LispKit. The [source code of _LispPad Go_](https://github.com/objecthub/swift-lisppad-ios)
-is available on GitHub. A much simpler command-line tool is provided by the LispKit framework itself
-(see below).
+is available on GitHub. A much simpler command-line tool for iOS is included in the LispKit
+framework itself (see below).
 
 
 ## Features
@@ -113,7 +113,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     `(lispkit clos)`,
     [`(lispkit test)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Test),
     `(lispkit prettify)`,
-    `(lispkit text-table)`,
+    [`(lispkit text-table)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Text-Table),
     [`(lispkit csv)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-CSV),
     [`(lispkit markdown)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Markdown),
     [`(lispkit sqlite)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-SQLite),
