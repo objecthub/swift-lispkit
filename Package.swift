@@ -15,7 +15,10 @@
 //  This creates a release binary in .build/release/. Assumung that a LispKit directory is
 //  located in ~/Documents/LispKit, the binary can be invoked like this:
 //  .build/release/LispKitRepl -d LispKit
-//
+//  
+//  This is how to run the tests:
+//  swift test -Xswiftc "-D" -Xswiftc "SPM"
+//  
 //
 //  Created by Matthias Zenger on 16/10/2017.
 //  Copyright © 2017-2021 ObjectHub. All rights reserved.
@@ -68,14 +71,18 @@ let package = Package(
                            "MarkdownKit",
                            "SQLiteExpress", 
                            "ZIPFoundation"],
-            exclude: ["Graphics/Drawing_iOS.swift",
+            exclude: ["Info.plist",
+                      "Resources",
+                      "Graphics/Drawing_iOS.swift",
                       "Graphics/Transformation_iOS.swift",
                       "Primitives/DrawingLibrary_iOS.swift"]),
     .target(name: "LispKitTools",
-            dependencies: ["LispKit", "CommandLineKit"],
+            dependencies: ["LispKit",
+                           "CommandLineKit"],
             exclude: ["Info.plist"]),
     .executableTarget(name: "LispKitRepl",
-                      dependencies: ["LispKit", "LispKitTools"],
+                      dependencies: ["LispKit",
+                                     "LispKitTools"],
                       exclude: ["Info.plist",
                                 "BuildMetadata.m",
                                 "BuildMetadata.h"]),
