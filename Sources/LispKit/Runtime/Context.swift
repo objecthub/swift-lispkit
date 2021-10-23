@@ -24,7 +24,7 @@ import Foundation
 /// Represents a Scheme evaluation context. Evaluation contexts provide
 /// access to components shared by all environments.
 ///
-public final class Context {
+public class Context {
   
   /// The name of the LispKit interpreter which is defined by this context.
   public let implementationName: String?
