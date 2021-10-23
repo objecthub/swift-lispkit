@@ -65,7 +65,7 @@ open class LispKitTestCase: XCTestCase {
   override open func setUp() {
     super.setUp()
     #if SPM
-      self.context = Context(delegate: self.terminal)
+      self.context = LispKitContext(delegate: self.terminal)
       let root = URL(fileURLWithPath: "Sources/LispKit/Resources", isDirectory: true)
       _ = self.context?.fileHandler.prependSearchPath(root.path)
       _ = self.context?.fileHandler.prependLibrarySearchPath(root
@@ -76,7 +76,7 @@ open class LispKitTestCase: XCTestCase {
         preconditionFailure("cannot import (lispkit base) into test context")
       }
     #else
-      self.context = Context(delegate: terminal)
+      self.context = LispKitContext(delegate: terminal)
       do {
         try self.context?.environment.import(BaseLibrary.name)
       } catch {

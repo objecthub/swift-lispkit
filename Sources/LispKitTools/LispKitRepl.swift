@@ -193,14 +193,14 @@ open class LispKitRepl {
     let cmdLineArgs = self.flags.parameters.isEmpty ? [CommandLine.arguments.first!]
                                                     : self.flags.parameters
     // Create LispKit context
-    self.context = Context(delegate: self.terminal,
-                           implementationName: implementationName,
-                           implementationVersion: implementationVersion,
-                           commandLineArguments: cmdLineArgs,
-                           includeInternalResources: includeInternalResources,
-                           includeDocumentPath: self.searchDocs.value ?? defaultDocDirectory,
-                           assetPath: assetPath,
-                           features: features)
+    self.context = LispKitContext(delegate: self.terminal,
+                                  implementationName: implementationName,
+                                  implementationVersion: implementationVersion,
+                                  commandLineArguments: cmdLineArgs,
+                                  includeInternalResources: includeInternalResources,
+                                  includeDocumentPath: self.searchDocs.value ?? defaultDocDirectory,
+                                  assetPath: assetPath,
+                                  features: features)
     // Configure heap capacity
     if let capacity = self.heapSize.value {
       self.context?.heap.reserveCapacity(capacity)
@@ -329,7 +329,7 @@ open class LispKitRepl {
   open func loadPrelude() -> Bool {
     if let context = self.context,
        let ppath = self.prelude.value ??
-                   (self.flags.parameters.isEmpty ? Context.defaultPreludePath : nil) {
+                   (self.flags.parameters.isEmpty ? LispKitContext.defaultPreludePath : nil) {
       do {
         _ = try context.machine.eval(file: ppath, in: context.global)
       } catch let error as RuntimeError {

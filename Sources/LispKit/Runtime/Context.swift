@@ -21,10 +21,12 @@
 import Foundation
 
 ///
-/// Represents a Scheme evaluation context. Evaluation contexts provide
-/// access to components shared by all environments.
+/// Represents a Scheme evaluation context. Evaluation contexts provide access to
+/// components shared by all environments. This class should be used if extensions, or
+/// customizations of individual components are needed. Class `LispKitContext` can be
+/// used if the interpreter is used without customizations.
 ///
-public class Context {
+open class Context {
   
   /// The name of the LispKit interpreter which is defined by this context.
   public let implementationName: String?
@@ -76,51 +78,25 @@ public class Context {
   /// The default output port.
   internal var outputPort: Port!
   
-  /// Bundle of the LispKit module
-  public static let bundle = Bundle(identifier: "net.objecthub.LispKit")
-  
-  /// Name of the LispKit implementation
-  public static let implementationName =
-    Context.bundle?.infoDictionary?["CFBundleDisplayName"] as? String
-  
-  /// Version of the LispKit implementation
-  public static let implementationVersion =
-    Context.bundle?.infoDictionary?["CFBundleShortVersionString"] as? String
-  
-  /// LispKit root directory in the bundle
-  public static let rootDirectory = "Root/LispKit"
-  
-  /// Path to default prelude file. Set it to the prelude provided by the bundle, if this exists,
-  /// or fall back to the LispKit directory contained in the Documents folder.
-  public static let defaultPreludePath =
-    Context.bundle?.path(forResource: "Prelude",
-                         ofType: "scm",
-                         inDirectory: Context.rootDirectory) ??
-    URL(fileURLWithPath: "LispKit/Prelude.scm",
-        relativeTo: URL(fileURLWithPath: NSSearchPathForDirectoriesInDomains(
-                                           .documentDirectory,
-                                           .userDomainMask,
-                                           true)[0])).absoluteURL.path
-  
   /// Use simplified descriptions?
   public static var simplifiedDescriptions: Bool = false
   
   /// Initializes a new context.
   public init(delegate: ContextDelegate,
-              implementationName: String? = nil,
-              implementationVersion: String? = nil,
-              commandLineArguments: [String]? = nil,
-              initialHomePath: String? = nil,
-              includeInternalResources: Bool = true,
-              includeDocumentPath: String? = "LispKit",
-              assetPath: String? = nil,
-              gcDelay: Double = 5.0,
-              features: [String] = []) {
+              implementationName: String?,
+              implementationVersion: String?,
+              commandLineArguments: [String],
+              initialHomePath: String?,
+              includeInternalResources: Bool,
+              includeDocumentPath: String?,
+              assetPath: String?,
+              gcDelay: Double,
+              features: [String]) {
     // Initialize components
     self.delegate = delegate
-    self.implementationName = implementationName ?? Context.implementationName
-    self.implementationVersion = implementationVersion ?? Context.implementationVersion
-    self.commandLineArguments = commandLineArguments ?? CommandLine.arguments
+    self.implementationName = implementationName
+    self.implementationVersion = implementationVersion
+    self.commandLineArguments = commandLineArguments
     self.initialHomePath = initialHomePath
     self.heap = Heap()
     self.fileHandler = FileHandler(includeInternalResources: includeInternalResources,
