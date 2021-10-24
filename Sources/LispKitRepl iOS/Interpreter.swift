@@ -155,7 +155,7 @@ final class Interpreter: ContextDelegate, ObservableObject {
     // Evaluate prelude
     self.context = context
     do {
-      _ = try context.machine.eval(file: Context.defaultPreludePath,
+      _ = try context.machine.eval(file: LispKitContext.defaultPreludePath,
                                    in: context.global,
                                    as: "<prelude>")
     } catch let error {
