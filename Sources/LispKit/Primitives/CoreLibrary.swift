@@ -22,23 +22,25 @@ import Foundation
 
 public final class CoreLibrary: NativeLibrary {
   
+  internal static let idProc = Procedure("identity", CoreLibrary.identity)
+  internal static let voidProc = Procedure("void", CoreLibrary.voidConst)
+  
+  /// The compileAndEval procedure
+  private(set) public var loader: Procedure!
+  
   /// The define procedure
-  private(set) public var defineSpecial: SpecialForm? = nil
+  private(set) public var defineSpecial: SpecialForm!
   
   /// The defineValues procedure
-  private(set) public var defineValuesSpecial: SpecialForm? = nil
+  private(set) public var defineValuesSpecial: SpecialForm!
   
   /// Name of the library.
   public override class var name: [String] {
     return ["lispkit", "core"]
   }
   
-  internal static let idProc = Procedure("identity", CoreLibrary.identity)
-  internal static let voidProc = Procedure("void", CoreLibrary.voidConst)
-  
   /// Declarations of the library.
   public override func declarations() {
-    
     // Basic primitives
     self.define(CoreLibrary.idProc)
     self.define(Procedure("eval", eval, compileEval))
@@ -55,11 +57,15 @@ public final class CoreLibrary: NativeLibrary {
     self.define(SpecialForm("thunk", compileThunk))
     self.define(SpecialForm("thunk*", compileThunkStar))
     
+    // Loading primitives
+    self.loader = Procedure("<loader>", compileAndEvalFirst)
+    self.define(Procedure("load", load))
+    
     // Definition primitives
     self.defineSpecial = SpecialForm("define", compileDefine)
     self.defineValuesSpecial = SpecialForm("define-values", compileDefineValues)
-    self.define(self.defineSpecial!)
-    self.define(self.defineValuesSpecial!)
+    self.define(self.defineSpecial)
+    self.define(self.defineValuesSpecial)
     self.define(SpecialForm("define-syntax", compileDefineSyntax))
     self.define(SpecialForm("define-library", compileDefineLibrary))
     self.define(SpecialForm("syntax-rules", compileSyntaxRules))
@@ -150,6 +156,12 @@ public final class CoreLibrary: NativeLibrary {
     self.define(CoreLibrary.idProc)
   }
   
+  public override func release() {
+    super.release()
+    self.loader = nil
+    self.defineSpecial = nil
+    self.defineValuesSpecial = nil
+  }
   
   //-------- MARK: - Basic primitives
   
@@ -426,6 +438,67 @@ public final class CoreLibrary: NativeLibrary {
     }
     try compiler.compileCaseLambda(nil, cases, env)
     return false
+  }
+  
+  //-------- MARK: - Loading procedures
+  
+  private func load(args: Arguments) throws -> (Procedure, Exprs) {
+    guard args.count == 1 || args.count == 2  else {
+      throw RuntimeError.argumentCount(of: "load", min: 1, max: 2, args: .makeList(args))
+    }
+    // Extract arguments
+    let path = try args.first!.asPath()
+    let filename =
+      self.context.fileHandler.filePath(
+        forFile: path, relativeTo: self.context.machine.currentDirectoryPath) ??
+      self.context.fileHandler.libraryFilePath(
+        forFile: path, relativeTo: self.context.machine.currentDirectoryPath) ??
+      self.context.fileHandler.path(path, relativeTo: self.context.machine.currentDirectoryPath)
+    var environment = self.context.environment
+    if args.count == 2 {
+      environment = try args[args.startIndex + 1].asEnvironment()
+    }
+    // Load file and parse expressions
+    let exprs = try self.context.machine.parse(file: filename)
+    let sourceDir = self.context.fileHandler.directory(filename)
+    // Hand over work to `compileAndEvalFirst`
+    return (self.loader, [exprs, .makeString(sourceDir), .env(environment!)])
+  }
+
+  private func compileAndEvalFirst(args: Arguments) throws -> (Procedure, Exprs) {
+    guard args.count == 3 else {
+      throw RuntimeError.argumentCount(min: 3, max: 3, args: .makeList(args))
+    }
+    let sourceDirExpr = args[args.startIndex + 1]
+    let sourceDir: String?
+    switch sourceDirExpr {
+      case .string(let str):
+        sourceDir = str as String
+      default:
+        sourceDir = nil
+    }
+    let env = args[args.startIndex + 2]
+    switch args.first! {
+      case .null:
+        return (CoreLibrary.voidProc, [])
+      case .pair(let expr, .null):
+        let code = try Compiler.compile(expr: .pair(expr, .null),
+                                        in: .global(try env.asEnvironment()),
+                                        optimize: true,
+                                        inDirectory: sourceDir)
+        return (Procedure("<loader>", code), [])
+      case .pair(let expr, let rest):
+        let source = Expr.pair(expr,
+                               .pair(.makeList(.procedure(self.loader), rest, sourceDirExpr, env),
+                                     .null))
+        let code = try Compiler.compile(expr: source,
+                                        in: .global(try env.asEnvironment()),
+                                        optimize: true,
+                                        inDirectory: sourceDir)
+        return (Procedure("<loader>", code), [])
+      default:
+        throw RuntimeError.type(args.first!, expected: [.properListType])
+    }
   }
   
   //-------- MARK: - Definition primitives

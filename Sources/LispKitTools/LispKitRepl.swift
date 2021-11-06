@@ -370,7 +370,18 @@ open class LispKitRepl {
       self.terminal.print("\(res.description)\n")
     }
   }
-
+  
+  open func execute(command buffer: String) -> Expr {
+    guard let context = self.context else {
+      return .false
+    }
+    return context.machine.onTopLevelDo {
+      return try context.machine.eval(str: buffer,
+                                      sourceId: SourceManager.consoleSourceId,
+                                      in: context.global, as: "<repl>")
+    }
+  }
+  
   open func execute(file path: String) -> Bool {
     guard let context = self.context else {
       return false
@@ -407,13 +418,10 @@ open class LispKitRepl {
       return false
     }
     var buffer = ""
-    while let line = readCommand(withPrompt: buffer.isEmpty) {
+    while let line = self.readCommand(withPrompt: buffer.isEmpty) {
       buffer += line + " "
-      let res = context.machine.onTopLevelDo {
-        return try context.machine.eval(str: buffer,
-                                        sourceId: SourceManager.consoleSourceId,
-                                        in: context.global, as: "<repl>")
-      }
+      // Execute the command
+      let res = self.execute(command: buffer)
       // Exit loop if the machine has executed the `exit` function
       if context.machine.exitTriggered {
         if res != .true {

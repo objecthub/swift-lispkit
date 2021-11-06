@@ -27,9 +27,6 @@ import UIKit
 ///
 public final class DrawingLibrary: NativeLibrary {
   
-  /// Imported native library
-  private unowned var systemLibrary: SystemLibrary!
-  
   /// Exported parameter objects
   public let drawingParam: Procedure
   public let shapeParam: Procedure
@@ -105,7 +102,6 @@ public final class DrawingLibrary: NativeLibrary {
     self.`import`(from: ["lispkit", "core"],    "define", "define-syntax", "syntax-rules")
     self.`import`(from: ["lispkit", "control"], "let")
     self.`import`(from: ["lispkit", "dynamic"], "parameterize")
-    self.`import`(from: ["lispkit", "system"],  "current-directory")
   }
   
   /// Declarations of the library.
@@ -308,11 +304,6 @@ public final class DrawingLibrary: NativeLibrary {
           ((_ s body ...)
             (parameterize ((current-shape s)) body ...))))
     """)
-  }
-  
-  public override func initializations() {
-    // Import system library
-    self.systemLibrary = self.nativeLibrary(SystemLibrary.self)
   }
   
   private func drawing(from expr: Expr?) throws -> Drawing {
@@ -674,7 +665,7 @@ public final class DrawingLibrary: NativeLibrary {
                            author: Expr?) throws -> Expr {
     let url = URL(fileURLWithPath:
       self.context.fileHandler.path(try path.asPath(),
-                                    relativeTo: self.systemLibrary.currentDirectoryPath))
+                                    relativeTo: self.context.machine.currentDirectoryPath))
     guard case .pair(.flonum(let w), .flonum(let h)) = size,
           w > 0.0 && w <= 1000000 && h > 0.0 && h <= 1000000 else {
       throw RuntimeError.eval(.invalidSize, size)
@@ -691,7 +682,7 @@ public final class DrawingLibrary: NativeLibrary {
   private func saveDrawings(path: Expr, pages: Expr, title: Expr?, author: Expr?) throws -> Expr {
     let url = URL(fileURLWithPath:
       self.context.fileHandler.path(try path.asPath(),
-                                    relativeTo: self.systemLibrary.currentDirectoryPath))
+                                    relativeTo: self.context.machine.currentDirectoryPath))
     let document = DrawingDocument(title: try title?.asString(), author: try author?.asString())
     var pageList = pages
     while case .pair(let page, let next) = pageList {
@@ -719,7 +710,7 @@ public final class DrawingLibrary: NativeLibrary {
   
   private func loadImage(filename: Expr) throws -> Expr {
     let path = self.context.fileHandler.path(try filename.asPath(),
-                                             relativeTo: self.systemLibrary.currentDirectoryPath)
+                                             relativeTo: self.context.machine.currentDirectoryPath)
     guard let nsimage = UIImage(contentsOfFile: path) else {
       throw RuntimeError.eval(.cannotLoadImage, filename)
     }
@@ -731,7 +722,7 @@ public final class DrawingLibrary: NativeLibrary {
                     forFile: try name.asString(),
                     ofType: try type.asString(),
                     inFolder: try dir?.asPath() ?? "Images",
-                    relativeTo: self.systemLibrary.currentDirectoryPath) {
+                    relativeTo: self.context.machine.currentDirectoryPath) {
       guard let nsimage = UIImage(contentsOfFile: path) else {
         throw RuntimeError.eval(.cannotLoadImageAsset, name, type, dir ?? .makeString("Images"))
       }
@@ -985,7 +976,8 @@ public final class DrawingLibrary: NativeLibrary {
                           _ filename: String,
                           _ filetype: BitmapImageFileType) -> Bool {
     let url = URL(fileURLWithPath:
-      self.context.fileHandler.path(filename, relativeTo: self.systemLibrary.currentDirectoryPath))
+      self.context.fileHandler.path(filename,
+                                    relativeTo: self.context.machine.currentDirectoryPath))
     guard let data = filetype.data(for: image) else {
       return false
     }

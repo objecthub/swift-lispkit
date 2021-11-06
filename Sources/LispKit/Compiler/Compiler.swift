@@ -421,6 +421,22 @@ public final class Compiler {
     }
   }
   
+  /// Pushes the given list of expressions `expr` onto the stack. This method returns the
+  /// number of expressions whose result has been stored on the stack.
+  public func pushValues(_ expr: Expr) throws -> Int {
+    var n = 0
+    var next = expr
+    while case .pair(let car, let cdr) = next {
+      try self.pushValue(car)
+      n += 1
+      next = cdr
+    }
+    guard next.isNull else {
+      throw RuntimeError.type(expr, expected: [.properListType])
+    }
+    return n
+  }
+  
   /// Bind symbol `sym` to the value on top of the stack in environment `env`.
   public func setValueOf(_ sym: Symbol, in env: Env) {
     switch self.setLocalValueOf(sym, in: env) {
@@ -665,6 +681,20 @@ public final class Compiler {
         }
         // Push arguments and call function
         if self.call(try self.compileExprs(cdr, in: env), inTailPos: tail) {
+          // Remove MakeFrame if this was a tail call
+          self.patch(.noOp, at: pushFrameIp)
+          return true
+        }
+      case .pair(.procedure(let proc), let cdr):
+        let pushFrameIp = self.emit(.makeFrame)
+        // Push function
+        try self.pushValue(.procedure(proc))
+        // Push arguments
+        let n = proc == self.context.machine.loader
+                  ? try self.pushValues(cdr)        
+                  : try self.compileExprs(cdr, in: env)
+        // Call procedure
+        if self.call(n, inTailPos: tail) {
           // Remove MakeFrame if this was a tail call
           self.patch(.noOp, at: pushFrameIp)
           return true

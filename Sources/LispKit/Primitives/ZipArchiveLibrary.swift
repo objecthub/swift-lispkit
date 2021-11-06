@@ -23,9 +23,6 @@ import ZIPFoundation
 
 public final class ZipArchiveLibrary: NativeLibrary {
   
-  /// Imported native library
-  private unowned var systemLibrary: SystemLibrary!
-  
   /// Initialize symbols
   public required init(in context: Context) throws {
     try super.init(in: context)
@@ -38,7 +35,7 @@ public final class ZipArchiveLibrary: NativeLibrary {
 
   /// Dependencies of the library.
   public override func dependencies() {
-    self.`import`(from: ["lispkit", "system"],  "current-directory")
+    self.`import`(from: ["lispkit", "core"], "load")
   }
 
   /// Declarations of the library.
@@ -77,15 +74,10 @@ public final class ZipArchiveLibrary: NativeLibrary {
     self.define(Procedure("delete-zip-entry", self.deleteZipEntry))
   }
   
-  /// Initializations of the library.
-  public override func initializations() {
-    // Import system library
-    self.systemLibrary = self.nativeLibrary(SystemLibrary.self)
-  }
-  
   private func url(from path: Expr) throws -> URL {
-    return URL(fileURLWithPath: self.context.fileHandler.path(try path.asPath(),
-                                    relativeTo: self.systemLibrary.currentDirectoryPath))
+    return URL(fileURLWithPath:
+                self.context.fileHandler.path(
+                  try path.asPath(), relativeTo: self.context.machine.currentDirectoryPath))
   }
   
   private func archive(from expr: Expr) throws -> Archive {

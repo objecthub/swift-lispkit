@@ -148,6 +148,7 @@ open class Context {
     }
     // Install definition procedures
     if let coreLib = try self.libraries.lookup("lispkit", "core") as? CoreLibrary {
+      self.machine.loader = coreLib.loader
       self.machine.defineSpecial = coreLib.defineSpecial
       self.machine.defineValuesSpecial = coreLib.defineValuesSpecial
     }

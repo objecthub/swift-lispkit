@@ -26,7 +26,6 @@ import Foundation
 public final class SystemOSLibrary: NativeLibrary {
 
   /// Imported native library
-  private unowned var systemLibrary: SystemLibrary!
   private unowned var portLibrary: PortLibrary!
 
   /// Initialize port library, in particular its parameter objects.
@@ -41,8 +40,7 @@ public final class SystemOSLibrary: NativeLibrary {
 
   /// Dependencies of the library.
   public override func dependencies() {
-    self.`import`(from: ["lispkit", "system"], "current-directory")
-    self.`import`(from: ["lispkit", "port"],   "current-output-port")
+    self.`import`(from: ["lispkit", "port"], "current-output-port")
   }
 
   /// Declarations of the library.
@@ -51,7 +49,6 @@ public final class SystemOSLibrary: NativeLibrary {
   }
 
   public override func initializations() {
-    self.systemLibrary = self.nativeLibrary(SystemLibrary.self)
     self.portLibrary = self.nativeLibrary(PortLibrary.self)
   }
 
@@ -79,11 +76,11 @@ public final class SystemOSLibrary: NativeLibrary {
                           outport op: Expr,
                           input ipt: Expr) throws -> Expr {
     let proc = Process()
-    proc.currentDirectoryURL = URL(fileURLWithPath: self.systemLibrary.currentDirectoryPath,
+    proc.currentDirectoryURL = URL(fileURLWithPath: self.context.machine.currentDirectoryPath,
                                    isDirectory: true)
     proc.executableURL =
       URL(fileURLWithPath: try expr.asPath(),
-          relativeTo: URL(fileURLWithPath: self.systemLibrary.currentDirectoryPath,
+          relativeTo: URL(fileURLWithPath: self.context.machine.currentDirectoryPath,
                           isDirectory: true))
     var args: [String] = []
     var lst = arguments

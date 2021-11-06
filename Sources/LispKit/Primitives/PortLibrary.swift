@@ -25,9 +25,6 @@ import Foundation
 ///
 public final class PortLibrary: NativeLibrary {
   
-  /// Imported native library
-  private unowned var systemLibrary: SystemLibrary!
-  
   /// Exported parameter objects
   public let outputPortParam: Procedure
   public let inputPortParam: Procedure
@@ -51,7 +48,6 @@ public final class PortLibrary: NativeLibrary {
     self.`import`(from: ["lispkit", "core"],    "define", "lambda", "quote")
     self.`import`(from: ["lispkit", "control"], "let", "let*", "if")
     self.`import`(from: ["lispkit", "list"],    "car", "cons")
-    self.`import`(from: ["lispkit", "system"],  "current-directory")
     self.`import`(from: ["lispkit", "dynamic"], "parameterize")
   }
   
@@ -177,10 +173,6 @@ public final class PortLibrary: NativeLibrary {
       "        (thunk))))")
   }
   
-  public override func initializations() {
-    self.systemLibrary = self.nativeLibrary(SystemLibrary.self)
-  }
-  
   public var outputPort: Port? {
     guard case .some(.port(let port)) = self.context.machine.getParam(self.outputPortParam) else {
       return nil
@@ -304,7 +296,7 @@ public final class PortLibrary: NativeLibrary {
   func openInputFile(_ expr: Expr, _ fail: Expr?) throws -> Expr {
     let filename =
       self.context.fileHandler.path(try expr.asPath(),
-                                    relativeTo: self.systemLibrary.currentDirectoryPath)
+                                    relativeTo: self.context.machine.currentDirectoryPath)
     guard let input = BinaryInput(path: filename,
                                   abortionCallback: self.context.machine.isAbortionRequested) else {
       if let fail = fail {
@@ -319,7 +311,7 @@ public final class PortLibrary: NativeLibrary {
   func openBinaryInputFile(_ expr: Expr, _ fail: Expr?) throws -> Expr {
     let filename =
       self.context.fileHandler.path(try expr.asPath(),
-                                    relativeTo: self.systemLibrary.currentDirectoryPath)
+                                    relativeTo: self.context.machine.currentDirectoryPath)
     guard let input = BinaryInput(path: filename,
                                   abortionCallback: self.context.machine.isAbortionRequested) else {
       if let fail = fail {
@@ -336,7 +328,7 @@ public final class PortLibrary: NativeLibrary {
                         forFile: try expr.asString(),
                         ofType: try type.asString(),
                         inFolder: try dir?.asPath(),
-                        relativeTo: self.systemLibrary.currentDirectoryPath) {
+                        relativeTo: self.context.machine.currentDirectoryPath) {
       guard let input =
                   BinaryInput(path: filename,
                               abortionCallback: self.context.machine.isAbortionRequested) else {
@@ -353,7 +345,7 @@ public final class PortLibrary: NativeLibrary {
                         forFile: try expr.asString(),
                         ofType: try type.asString(),
                         inFolder: try dir?.asPath(),
-                        relativeTo: self.systemLibrary.currentDirectoryPath) {
+                        relativeTo: self.context.machine.currentDirectoryPath) {
       guard let input =
                   BinaryInput(path: filename,
                               abortionCallback: self.context.machine.isAbortionRequested) else {
@@ -368,7 +360,7 @@ public final class PortLibrary: NativeLibrary {
   func openOutputFile(_ expr: Expr, _ fail: Expr?) throws -> Expr {
     let filename =
       self.context.fileHandler.path(try expr.asPath(),
-                                    relativeTo: self.systemLibrary.currentDirectoryPath)
+                                    relativeTo: self.context.machine.currentDirectoryPath)
     guard let output = BinaryOutput(path: filename) else {
       if let fail = fail {
         return fail
@@ -382,7 +374,7 @@ public final class PortLibrary: NativeLibrary {
   func openBinaryOutputFile(_ expr: Expr, _ fail: Expr?) throws -> Expr {
     let filename =
       self.context.fileHandler.path(try expr.asPath(),
-                                    relativeTo: self.systemLibrary.currentDirectoryPath)
+                                    relativeTo: self.context.machine.currentDirectoryPath)
     guard let output = BinaryOutput(path: filename) else {
       if let fail = fail {
         return fail

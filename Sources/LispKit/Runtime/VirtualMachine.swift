@@ -193,14 +193,19 @@ public final class VirtualMachine: TrackedObject {
   /// Parameters
   public internal(set) var parameters: HashTable
   private var setParameterProc: Procedure!
+  private(set) public var currentDirectoryProc: Procedure!
   
   /// Internal counter used for triggering the garbage collector.
   private var execInstr: UInt64
   
   /// Procedures defined in low-level libraries.
   public var raiseProc: Procedure? = nil
+  public var loader: Procedure? = nil
   public var defineSpecial: SpecialForm? = nil
   public var defineValuesSpecial: SpecialForm? = nil
+  
+  /// Set to true while `onTopLevelDo` is executing
+  private var executing: Bool = false
   
   /// When set to true, it will trigger an abortion of the machine evaluator as soon as possible.
   private var abortionRequested: Bool = false
@@ -223,6 +228,10 @@ public final class VirtualMachine: TrackedObject {
     self.execInstr = 0
     super.init()
     self.setParameterProc = Procedure("_set-parameter", self.setParameter, nil)
+    self.currentDirectoryProc =
+      Procedure(.procedure(Procedure("_valid-current-path", self.validCurrentPath)),
+                .makeString(self.context.initialHomePath ??
+                            self.context.fileHandler.currentDirectoryPath))
   }
   
   /// Returns a copy of the current virtual machine state.
@@ -237,8 +246,10 @@ public final class VirtualMachine: TrackedObject {
   
   /// Requests abortion of the machine evaluator.
   public func abort() {
-    self.abortionRequested = true
-    self.context.delegate?.aborted()
+    if self.executing {
+      self.abortionRequested = true
+      self.context.delegate?.aborted()
+    }
   }
   
   /// Returns true if an abortion was requested.
@@ -248,7 +259,7 @@ public final class VirtualMachine: TrackedObject {
   
   /// Checks that computation happens on top level and fails if the conditions are not met.
   private func assertTopLevel() {
-    guard self.sp == 0 && !self.abortionRequested else {
+    guard self.sp == 0 && !self.abortionRequested && !self.executing else {
       preconditionFailure("preconditions for top-level evaluation not met")
     }
   }
@@ -257,6 +268,7 @@ public final class VirtualMachine: TrackedObject {
   public func onTopLevelDo(_ eval: () throws -> Expr) -> Expr {
     // Prepare for the evaluation
     self.assertTopLevel()
+    self.executing = true
     self.exitTriggered = false
     // Reset machine once evaluation finished
     defer {
@@ -266,6 +278,7 @@ public final class VirtualMachine: TrackedObject {
       self.sp = 0
       self.winders = nil
       self.abortionRequested = false
+      self.executing = false
     }
     // Perform evaluation
     var exception: RuntimeError? = nil
@@ -304,6 +317,19 @@ public final class VirtualMachine: TrackedObject {
   
   /// Loads the file at file patch `path`, compiles it in the interaction environment, and
   /// executes it using this virtual machine.
+  public func eval(file path: String, foldCase: Bool = false) throws -> Expr {
+    // Load file and parse expressions
+    let exprs = try self.parse(file: path, foldCase: foldCase)
+    let sourceDir = self.context.fileHandler.directory(path)
+    // Hand over work to `compileAndEvalFirst`
+    return try self.apply(.procedure(self.loader!),
+                          to: .makeList(exprs,
+                                        .makeString(sourceDir),
+                                        .env(self.context.environment)))
+  }
+  
+  /// Loads the file at file patch `path`, compiles it in the interaction environment, and
+  /// executes it using this virtual machine.
   public func eval(file path: String,
                    in env: Env,
                    as name: String? = nil,
@@ -317,6 +343,21 @@ public final class VirtualMachine: TrackedObject {
                          optimize: optimize,
                          inDirectory: self.context.fileHandler.directory(path),
                          foldCase: foldCase)
+  }
+  
+  /// Loads the file at file patch `path`, compiles it in the interaction environment, and
+  /// executes it using this virtual machine.
+  public func eval(str: String,
+                   sourceId: UInt16,
+                   inDirectory: String? = nil,
+                   foldCase: Bool = false) throws -> Expr {
+    // Parse expressions
+    let exprs = try self.parse(str: str, sourceId: sourceId, foldCase: foldCase)
+    // Hand over work to loader
+    return try self.apply(.procedure(self.loader!),
+                          to: .makeList(exprs,
+                                        inDirectory == nil ? .false : .makeString(inDirectory!),
+                                        .env(self.context.environment)))
   }
   
   /// Parses the given string, compiles it in the interaction environment, and executes it using
@@ -591,16 +632,24 @@ public final class VirtualMachine: TrackedObject {
     return .void
   }
   
-  /*
-  internal func bindParameters(_ alist: Expr) {
-    self.parameters = HashTable(copy: self.parameters, mutable: true)
-    var current = alist
-    while case .pair(.pair(let param, let value), let next) = current {
-      self.parameters.add(key: param, mapsTo: .box(Cell(value)))
-      current = next
+  public var currentDirectoryPath: String {
+    get {
+      do {
+        return try self.getParam(self.currentDirectoryProc)!.asString()
+      } catch {
+        preconditionFailure("current directory path not a string")
+      }
+    }
+    set {
+      _ = self.setParam(self.currentDirectoryProc, to: .makeString(newValue))
     }
   }
-  */
+  
+  private func validCurrentPath(param: Expr, expr: Expr, setter: Expr) throws -> Expr {
+    self.currentDirectoryPath =
+      self.context.fileHandler.path(try expr.asPath(), relativeTo: self.currentDirectoryPath)
+    return .makeString(self.currentDirectoryPath)
+  }
   
   private func exitFrame() {
     let fp = self.registers.fp
