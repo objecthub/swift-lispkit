@@ -221,6 +221,8 @@
 		CC5E53032355AAD400C72CE2 /* NumberKit in Frameworks */ = {isa = PBXBuildFile; productRef = CC5E53022355AAD400C72CE2 /* NumberKit */; };
 		CC5E53082357A2FA00C72CE2 /* 174.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC5E530723579CF200C72CE2 /* 174.sld */; };
 		CC5E530A235836A900C72CE2 /* SRFI-174.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC5E53092358359900C72CE2 /* SRFI-174.scm */; };
+		CC624CD827374DA8005F15B3 /* util.sld in Copy pre-installed LispKit library: LispKit Math Util */ = {isa = PBXBuildFile; fileRef = CC624CD627374BF4005F15B3 /* util.sld */; };
+		CC624CDA27374E8E005F15B3 /* util.sld in Copy pre-installed LispKit library: LispKit Math Util */ = {isa = PBXBuildFile; fileRef = CC624CD627374BF4005F15B3 /* util.sld */; };
 		CC6598CF27248DC8004C9B89 /* LispKitContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6598CE27248DC8004C9B89 /* LispKitContext.swift */; };
 		CC6598D027248DC8004C9B89 /* LispKitContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6598CE27248DC8004C9B89 /* LispKitContext.swift */; };
 		CC68B3A91FCCCDEE00EB4AF9 /* object.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC68B3A81FCC73C300EB4AF9 /* object.sld */; };
@@ -1255,6 +1257,28 @@
 				CC5848031E56920600BE6497 /* set.sld in Copy pre-installed LispKit libraries */,
 			);
 			name = "Copy pre-installed LispKit libraries";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC624CD727374D71005F15B3 /* Copy pre-installed LispKit library: LispKit Math Util */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Root/LispKit/Libraries/lispkit/math;
+			dstSubfolderSpec = 7;
+			files = (
+				CC624CD827374DA8005F15B3 /* util.sld in Copy pre-installed LispKit library: LispKit Math Util */,
+			);
+			name = "Copy pre-installed LispKit library: LispKit Math Util";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC624CD927374E7D005F15B3 /* Copy pre-installed LispKit library: LispKit Math Util */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Root/LispKit/Libraries/lispkit/math;
+			dstSubfolderSpec = 7;
+			files = (
+				CC624CDA27374E8E005F15B3 /* util.sld in Copy pre-installed LispKit library: LispKit Math Util */,
+			);
+			name = "Copy pre-installed LispKit library: LispKit Math Util";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		CC703A1E218D0AF500E71EA9 /* Copy pre-installed LispKit library: LispKit CLOS Support */ = {
@@ -2363,6 +2387,7 @@
 		CC5E474220D45A8900F21B03 /* Coroutines.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Coroutines.scm; sourceTree = "<group>"; };
 		CC5E530723579CF200C72CE2 /* 174.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 174.sld; sourceTree = "<group>"; };
 		CC5E53092358359900C72CE2 /* SRFI-174.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-174.scm"; sourceTree = "<group>"; };
+		CC624CD627374BF4005F15B3 /* util.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = util.sld; sourceTree = "<group>"; };
 		CC6598CE27248DC8004C9B89 /* LispKitContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LispKitContext.swift; sourceTree = "<group>"; };
 		CC68B3A81FCC73C300EB4AF9 /* object.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = object.sld; sourceTree = "<group>"; };
 		CC6A3B5B1C52E71F00E962E2 /* ListLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = ListLibrary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -3010,6 +3035,7 @@
 				CCD3E15325C5EB83007FCE8A /* prolog.sld */,
 				CC436C3F1FFBD5090095559E /* logic.sld */,
 				CC240E8D24FB1B1B00FF6D0F /* sxml.sld */,
+				CC624CD527374BC7005F15B3 /* math */,
 				CC82932D21D6E8C2003E1D3C /* log */,
 				CC703A1B218D09D100E71EA9 /* clos */,
 				CC26AD3E21470AC90090D9EE /* draw */,
@@ -3108,6 +3134,14 @@
 				CCD4A6EF26ED4C7000BEE906 /* 224.sld */,
 			);
 			path = srfi;
+			sourceTree = "<group>";
+		};
+		CC624CD527374BC7005F15B3 /* math */ = {
+			isa = PBXGroup;
+			children = (
+				CC624CD627374BF4005F15B3 /* util.sld */,
+			);
+			path = math;
 			sourceTree = "<group>";
 		};
 		CC703A1B218D09D100E71EA9 /* clos */ = {
@@ -3716,6 +3750,7 @@
 				CC4A7DC02259741100936034 /* Copy pre-installed LispKit library: SRFI 146 */,
 				CCF602EB23A0FA7000087740 /* Copy pre-installed LispKit library: SRFI 167 */,
 				CC5848001E50ABE100BE6497 /* Copy pre-installed LispKit libraries */,
+				CC624CD727374D71005F15B3 /* Copy pre-installed LispKit library: LispKit Math Util */,
 				CC26AD40214722710090D9EE /* Copy pre-installed LispKit library: LispKit Draw Turtle */,
 				CC703A1E218D0AF500E71EA9 /* Copy pre-installed LispKit library: LispKit CLOS Support */,
 				CC82933121D6E9A6003E1D3C /* Copy pre-installed LispKit library: LispKit Log Internal */,
@@ -3779,6 +3814,7 @@
 				CCC48D8025E97FBC00D082AD /* Copy pre-installed LispKit library: SRFI 146 */,
 				CCC48D8525E97FF500D082AD /* Copy pre-installed LispKit library: SRFI 167 */,
 				CCC48D8C25E9803400D082AD /* Copy pre-installed LispKit libraries */,
+				CC624CD927374E7D005F15B3 /* Copy pre-installed LispKit library: LispKit Math Util */,
 				CCC48DA925E9809000D082AD /* Copy pre-installed LispKit library: LispKit Draw Turtle */,
 				CCC48DAE25E980D400D082AD /* Copy pre-installed LispKit library: LispKit CLOS Support */,
 				CCC48DAF25E982A100D082AD /* Copy pre-installed LispKit library: LispKit Log Internal */,
