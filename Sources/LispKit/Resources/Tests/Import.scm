@@ -48,6 +48,8 @@
 (import (lispkit combinator))
 (import (lispkit logic))
 (import (lispkit iterate))
+(import (lispkit math util))
+(import (lispkit math stats))
 (import (lispkit set))
 (import (lispkit stack))
 (import (lispkit queue))

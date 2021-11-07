@@ -100,6 +100,8 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit iterate)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Iterate),
     [`(lispkit log)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Log),
     [`(lispkit debug)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Debug),
+    [`(lispkit math util)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Math-Util),
+    [`(lispkit math stats)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Math-Stats), 
     [`(lispkit set)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Set),
     [`(lispkit stack)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Stack), 
     [`(lispkit queue)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Queue), 
