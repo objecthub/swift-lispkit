@@ -548,7 +548,6 @@ public final class CoreLibrary: NativeLibrary {
           default:
             try compiler.compileLambda(index, arglist, def, env)
         }
-        try compiler.compileLambda(index, arglist, def, env)
         let environment = env.environment!
         if let libName = environment.libraryName, environment.isImported(sym) {
           throw RuntimeError.eval(.redefinitionOfImport, .symbol(sym), libName)

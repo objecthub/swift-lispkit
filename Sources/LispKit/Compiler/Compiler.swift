@@ -1206,29 +1206,49 @@ public final class Compiler {
   }
   
   /// This is just a placeholder for now. Will add a peephole optimizer eventually. For now,
-  /// only NOOPs at the beginning of a code block are removed.
+  /// only NOOPs are removed.
   private func optimize() {
-    var ip = 0
-    switch self.instructions[ip] {
-      case .assertArgCount(_), .assertMinArgCount(_):
-        ip += 1
-      default:
-        break
+    var instrIndex: [Int] = []
+    var numInstr: Int = 0
+    for instr in self.instructions {
+      instrIndex.append(numInstr)
+      if case .noOp = instr {
+        continue
+      }
+      numInstr += 1
     }
-    self.eliminateNoOpsAt(ip)
-    if case .makeVariableArgument(_) = self.instructions[ip] {
+    var ip = 0
+    while ip < self.instructions.count {
+      switch self.instructions[ip] {
+        case .branch(let offset):
+          self.instructions[ip] = .branch(instrIndex[ip + offset] - instrIndex[ip])
+        case .branchIf(let offset):
+          self.instructions[ip] = .branchIf(instrIndex[ip + offset] - instrIndex[ip])
+        case .branchIfNot(let offset):
+          self.instructions[ip] = .branchIfNot(instrIndex[ip + offset] - instrIndex[ip])
+        case .keepOrBranchIfNot(let offset):
+          self.instructions[ip] = .keepOrBranchIfNot(instrIndex[ip + offset] - instrIndex[ip])
+        case .branchIfArgMismatch(let n, let offset):
+          self.instructions[ip] = .branchIfArgMismatch(n, instrIndex[ip + offset] - instrIndex[ip])
+        case .branchIfMinArgMismatch(let n, let offset):
+          self.instructions[ip] = .branchIfMinArgMismatch(n, instrIndex[ip + offset] -
+                                                               instrIndex[ip])
+        case .or(let offset):
+          self.instructions[ip] = .or(instrIndex[ip + offset] - instrIndex[ip])
+        case .and(let offset):
+          self.instructions[ip] = .and(instrIndex[ip + offset] - instrIndex[ip])
+        default:
+          break
+      }
       ip += 1
     }
-    self.eliminateNoOpsAt(ip)
-  }
-  
-  /// Remove sequences of NoOp at instruction position `ip`.
-  private func eliminateNoOpsAt(_ ip: Int) {
+    ip = 0
     while ip < self.instructions.count {
-      guard case .noOp = self.instructions[ip] else {
-        return
+      if case .noOp = self.instructions[ip] {
+        self.instructions.remove(at: ip)
+      } else {
+        ip += 1
       }
-      self.instructions.remove(at: ip)
     }
   }
 }
