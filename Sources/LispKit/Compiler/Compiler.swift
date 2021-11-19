@@ -1221,7 +1221,16 @@ public final class Compiler {
     while ip < self.instructions.count {
       switch self.instructions[ip] {
         case .branch(let offset):
-          self.instructions[ip] = .branch(instrIndex[ip + offset] - instrIndex[ip])
+          switch self.instructions[ip + offset] {
+            case .tailCall(let n):
+              self.instructions[ip] = .tailCall(n)
+            case .return:
+              self.instructions[ip] = .return
+            case .branch(let offset2):
+              self.instructions[ip] = .branch(instrIndex[ip + offset + offset2] - instrIndex[ip])
+            default:
+              self.instructions[ip] = .branch(instrIndex[ip + offset] - instrIndex[ip])
+          }
         case .branchIf(let offset):
           self.instructions[ip] = .branchIf(instrIndex[ip + offset] - instrIndex[ip])
         case .branchIfNot(let offset):
