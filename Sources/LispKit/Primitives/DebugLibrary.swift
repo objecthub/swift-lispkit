@@ -160,7 +160,7 @@ public final class DebugLibrary: NativeLibrary {
       throw RuntimeError.type(expr, expected: [.procedureType])
     }
     switch proc.kind {
-      case .closure(_, let captured, let code):
+      case .closure(_, _, let captured, let code):
         self.context.delegate?.print(code.description)
         if captured.count > 0 {
           self.context.delegate?.print("CAPTURED:\n")

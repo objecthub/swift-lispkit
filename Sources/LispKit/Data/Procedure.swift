@@ -45,7 +45,7 @@ public final class Procedure: Reference, CustomStringConvertible {
   ///       raw continuations for encapsulating the state of a virtual machine.
   public enum Kind {
     case primitive(String, Implementation, FormCompiler?)
-    case closure(ClosureType, Exprs, Code)
+    case closure(ClosureType, Expr, Exprs, Code)
     case parameter(Tuple)
     case transformer(SyntaxRules)
     case rawContinuation(VirtualMachineState)
@@ -250,18 +250,23 @@ public final class Procedure: Reference, CustomStringConvertible {
   }
   
   /// Initializer for closures
+  public init(_ type: ClosureType, _ tag: Expr, _ captured: Exprs, _ code: Code) {
+    self.kind = .closure(type, tag, captured, code)
+  }
+  
+  /// Initializer for closures
   public init(_ type: ClosureType, _ captured: Exprs, _ code: Code) {
-    self.kind = .closure(type, captured, code)
+    self.kind = .closure(type, .undef, captured, code)
   }
   
   /// Initializer for closures
   public init(_ code: Code) {
-    self.kind = .closure(.anonymous, [], code)
+    self.kind = .closure(.anonymous, .undef, [], code)
   }
   
   /// Initializer for named closures
   public init(_ name: String, _ code: Code) {
-    self.kind = .closure(.named(name), [], code)
+    self.kind = .closure(.named(name), .undef, [], code)
   }
   
   /// Initializer for parameters
@@ -300,7 +305,7 @@ public final class Procedure: Reference, CustomStringConvertible {
     switch self.kind {
       case .primitive(let str, _, _):
         return str
-      case .closure(.named(let str), _, _):
+      case .closure(.named(let str), _, _, _):
         return Context.simplifiedDescriptions ? str : "\(str)@\(self.identityString)"
       default:
         return Context.simplifiedDescriptions ? nil : self.identityString
@@ -312,7 +317,7 @@ public final class Procedure: Reference, CustomStringConvertible {
     switch self.kind {
       case .primitive(let str, _, _):
         return str
-      case .closure(.named(let str), _, _):
+      case .closure(.named(let str), _, _, _):
         return str
       default:
         return nil
@@ -369,9 +374,9 @@ public final class Procedure: Reference, CustomStringConvertible {
           case .native3R(_):
             return [.atLeast(3)]
         }
-      case .closure(.continuation, _, _):
+      case .closure(.continuation, _, _, _):
         return [.exact(1)]
-      case .closure(_, _, let code):
+      case .closure(_, _, _, let code):
         return code.arity
       case .parameter(_):
         return [.exact(0), .exact(1)]
@@ -422,9 +427,9 @@ public final class Procedure: Reference, CustomStringConvertible {
           case .native3R(_):
             return n >= 3
         }
-      case .closure(.continuation, _, _):
+      case .closure(.continuation, _, _, _):
         return n == 1
-      case .closure(_, _, let code):
+      case .closure(_, _, _, let code):
         return code.arityAccepted(n)
       case .parameter(_):
         return n <= 1

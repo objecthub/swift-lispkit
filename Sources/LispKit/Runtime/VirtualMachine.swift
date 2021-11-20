@@ -473,7 +473,7 @@ public final class VirtualMachine: TrackedObject {
     var n = try self.pushArguments(args)
     let proc = try self.invoke(&n, 1)
     switch proc.kind {
-      case .closure(_, let captured, let code):
+      case .closure(_, _, let captured, let code):
         return try self.execute(code, args: n, captured: captured)
       case .rawContinuation(_):
         return try self.execute()
@@ -676,7 +676,7 @@ public final class VirtualMachine: TrackedObject {
       preconditionFailure()
     }
     // Extract code and capture list
-    guard case .closure(_, let newcaptured, let newcode) = proc.kind else {
+    guard case .closure(_, _, let newcaptured, let newcode) = proc.kind else {
       preconditionFailure()
     }
     // Set new code and capture list
@@ -1298,23 +1298,35 @@ public final class VirtualMachine: TrackedObject {
               }
           }
         case .makeClosure(let i, let n, let index):
+          let type: Procedure.ClosureType
           if i >= 0 {
             guard case .symbol(let sym) = self.registers.code.constants[i] else {
               preconditionFailure(
                 "makeClosure has broken closure name \(self.registers.code.constants[i])")
             }
-            self.push(.procedure(Procedure(.named(sym.description),
-                                           self.captureExprs(n),
-                                           self.registers.code.fragments[index])))
-          } else if i == -2 {
-            self.push(.procedure(Procedure(.continuation,
-                                           self.captureExprs(n),
-                                           self.registers.code.fragments[index])))
+            type = .named(sym.description)
           } else {
-            self.push(.procedure(Procedure(.anonymous,
-                                           self.captureExprs(n),
-                                           self.registers.code.fragments[index])))
+            type = i == -2 ? .continuation : .anonymous
           }
+          self.push(.procedure(Procedure(type,
+                                         self.captureExprs(n),
+                                         self.registers.code.fragments[index])))
+        case .makeTaggedClosure(let i, let n, let index):
+          let type: Procedure.ClosureType
+          if i >= 0 {
+            guard case .symbol(let sym) = self.registers.code.constants[i] else {
+              preconditionFailure(
+                "makeClosure has broken closure name \(self.registers.code.constants[i])")
+            }
+            type = .named(sym.description)
+          } else {
+            type = i == -2 ? .continuation : .anonymous
+          }
+          let captured = self.captureExprs(n)
+          self.push(.procedure(Procedure(type,
+                                         self.pop(),
+                                         captured,
+                                         self.registers.code.fragments[index])))
         case .makePromise:
           let top = self.pop()
           guard case .procedure(let proc) = top else {
@@ -1366,7 +1378,7 @@ public final class VirtualMachine: TrackedObject {
           // Store instruction pointer
           self.stack[self.sp &- n &- 2] = .fixnum(Int64(self.registers.ip))
           // Invoke native function
-          if case .closure(_, let newcaptured, let newcode) = try self.invoke(&n, 3).kind {
+          if case .closure(_, _, let newcaptured, let newcode) = try self.invoke(&n, 3).kind {
             self.registers.use(code: newcode, captured: newcaptured, fp: self.sp &- n)
           }
         case .makeFrame:
@@ -1388,7 +1400,7 @@ public final class VirtualMachine: TrackedObject {
           self.stack[self.sp &- n &- 2] = .fixnum(Int64(self.registers.ip))
           // Invoke native function
           var m = n
-          if case .closure(_, let newcaptured, let newcode) = try self.invoke(&m, 3).kind {
+          if case .closure(_, _, let newcaptured, let newcode) = try self.invoke(&m, 3).kind {
             self.registers.use(code: newcode, captured: newcaptured, fp: self.sp &- m)
           } else if let tproc = tproc {
             self.printReturnTrace(tproc, tailCall: false)
@@ -1398,7 +1410,7 @@ public final class VirtualMachine: TrackedObject {
           // Invoke native function
           var n = m
           let proc = try self.invoke(&n, 1)
-          if case .closure(_, let newcaptured, let newcode) = proc.kind {
+          if case .closure(_, _, let newcaptured, let newcode) = proc.kind {
             // Execute closure
             self.registers.use(code: newcode, captured: newcaptured, fp: self.registers.fp)
             // Shift stack frame down to next stack frame
@@ -1537,7 +1549,7 @@ public final class VirtualMachine: TrackedObject {
                 self.push(.procedure(proc))
                 // Invoke native function
                 var n = 0
-                if case .closure(_, let newcaptured, let newcode) = try self.invoke(&n, 3).kind {
+                if case .closure(_, _, let newcaptured, let newcode) = try self.invoke(&n, 3).kind {
                   self.registers.use(code: newcode, captured: newcaptured, fp: self.sp)
                 }
               case .shared(let future):

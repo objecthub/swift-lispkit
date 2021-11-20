@@ -52,8 +52,10 @@ public final class CoreLibrary: NativeLibrary {
     self.define(SpecialForm("quasiquote", compileQuasiquote))
     self.define(SpecialForm("lambda", compileLambda))
     self.define(SpecialForm("λ", compileLambda))
+    self.define(SpecialForm("lambda/tag", compileLambdaTag))
     self.define(SpecialForm("case-lambda", compileCaseLambda))
     self.define(SpecialForm("case-λ", compileCaseLambda))
+    self.define(SpecialForm("case-lambda/tag", compileCaseLambdaTag))
     self.define(SpecialForm("thunk", compileThunk))
     self.define(SpecialForm("thunk*", compileThunkStar))
     
@@ -89,8 +91,10 @@ public final class CoreLibrary: NativeLibrary {
     // Procedure primitives
     self.define(Procedure("thunk?", isThunk))
     self.define(Procedure("procedure?", isProcedure))
+    self.define(Procedure("procedure/tag?", isProcedureTag))
     self.define(Procedure("procedure-of-arity?", isProcedureOfArity))
     self.define(Procedure("procedure-name", procedureName))
+    self.define(Procedure("procedure-tag", procedureTag))
     self.define(Procedure("procedure-arity", procedureArity))
     self.define(Procedure("procedure-arity-range", procedureArityRange))
     self.define(Procedure("procedure-arity-includes?", isProcedureArityIncludes))
@@ -410,6 +414,17 @@ public final class CoreLibrary: NativeLibrary {
     return false
   }
   
+  private func compileLambdaTag(compiler: Compiler,
+                                expr: Expr,
+                                env: Env, tail: Bool) throws -> Bool {
+    guard case .pair(_, .pair(let tag, .pair(let arglist, let body))) = expr else {
+      throw RuntimeError.argumentCount(of: "lambda/tag", min: 2, expr: expr)
+    }
+    try compiler.compile(tag, in: env, inTailPos: false)
+    try compiler.compileLambda(nil, arglist, body, env, tagged: true)
+    return false
+  }
+  
   private func compileThunk(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
     guard case .pair(_, let body) = expr else {
       throw RuntimeError.argumentCount(of: "thunk", min: 0, expr: expr)
@@ -437,6 +452,18 @@ public final class CoreLibrary: NativeLibrary {
       preconditionFailure("broken case-lambda invocation")
     }
     try compiler.compileCaseLambda(nil, cases, env)
+    return false
+  }
+  
+  private func compileCaseLambdaTag(compiler: Compiler,
+                                    expr: Expr,
+                                    env: Env,
+                                    tail: Bool) throws -> Bool {
+    guard case .pair(_, .pair(let tag, let cases)) = expr else {
+      preconditionFailure("broken case-lambda invocation")
+    }
+    try compiler.compile(tag, in: env, inTailPos: false)
+    try compiler.compileCaseLambda(nil, cases, env, tagged: true)
     return false
   }
   
@@ -924,6 +951,15 @@ public final class CoreLibrary: NativeLibrary {
     return .false
   }
   
+  private func isProcedureTag(expr: Expr) throws -> Expr {
+    guard case .procedure(let proc) = expr,
+          case .closure(_, let tag, _, _) = proc.kind,
+          tag != .undef else {
+      return .false
+    }
+    return .true
+  }
+  
   private func isProcedureOfArity(expr: Expr, arity: Expr) throws -> Expr {
     guard case .procedure(let proc) = expr else {
       return .false
@@ -936,6 +972,15 @@ public final class CoreLibrary: NativeLibrary {
       return .false
     }
     return .makeString(name)
+  }
+  
+  private func procedureTag(expr: Expr) throws -> Expr {
+    guard case .procedure(let proc) = expr,
+          case .closure(_, let tag, _, _) = proc.kind,
+          tag != .undef else {
+      throw RuntimeError.eval(.procedureWithoutTag)
+    }
+    return tag
   }
   
   private func procedureArity(expr: Expr) throws -> Expr {

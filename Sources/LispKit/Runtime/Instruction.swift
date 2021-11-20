@@ -118,6 +118,13 @@ public enum Instruction: CustomStringConvertible {
   /// the closure is anonymous, -2 indicates that the closure is a continuation).
   case makeClosure(Int, Int, Int)
   
+  /// **`make_tagged_closure` _i_,_n_,_f_**: Creates a new tagged closure from a name, capture
+  /// list and a code fragment. The capture list is created from the top _n_ elements on the
+  /// stack. _f_ is an index into the list of code fragments of the currently executed code.
+  /// _i_ is a reference into the constant pool referring to the name of the closure (-1
+  /// indicates that the closure is anonymous, -2 indicates that the closure is a continuation).
+  case makeTaggedClosure(Int, Int, Int)
+  
   /// **`make_frame`**: Pushes a new stack frame onto the stack.
   case makeFrame
   
@@ -486,6 +493,8 @@ public enum Instruction: CustomStringConvertible {
         return code.constants[index].description
       case .makeClosure(let i, _, _):
         return i >= 0 ? code.constants[i].description : (i == -2 ? "continuation" : nil)
+      case .makeTaggedClosure(let i, _, _):
+        return i >= 0 ? code.constants[i].description : (i == -2 ? "continuation" : nil)
       case .makeSyntax(let i):
         return i >= 0 ? code.constants[i].description : nil
       case .makeVariableArgument(_):
@@ -589,6 +598,8 @@ public enum Instruction: CustomStringConvertible {
         return "unpack \(n), \(all ? "given" : "all")"
       case .makeClosure(let i, let n, let index):
         return "make_closure \(i), \(n), \(index)"
+      case .makeTaggedClosure(let i, let n, let index):
+        return "make_tagged_closure \(i), \(n), \(index)"
       case .makePromise:
         return "make_promise"
       case .makeStream:

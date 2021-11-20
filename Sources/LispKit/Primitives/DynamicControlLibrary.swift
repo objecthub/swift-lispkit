@@ -231,7 +231,7 @@ public final class DynamicControlLibrary: NativeLibrary {
     }
     switch proc.kind {
       case .rawContinuation(_),
-           .closure(.continuation, _, _):
+           .closure(.continuation, _, _, _):
         return .true
       default:
         return .false

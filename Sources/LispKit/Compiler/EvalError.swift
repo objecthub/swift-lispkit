@@ -56,6 +56,7 @@ public enum EvalError: Int, Hashable {
   case illegalRadix
   case argumentError
   case noMatchingCase
+  case procedureWithoutTag
   case multiValueCountError
   case outOfScope
   case defineInLocalEnv
@@ -187,6 +188,8 @@ public enum EvalError: Int, Hashable {
         return "wrong number of arguments for $0: $1"
       case .noMatchingCase:
         return "arguments $0 not matching any case of $1"
+      case .procedureWithoutTag:
+        return "procedure does not have a tag"
       case .multiValueCountError:
         return "expected $0 values to be returned, but received instead: $1"
       case .outOfScope:

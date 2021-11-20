@@ -906,7 +906,7 @@ extension Expr: CustomStringConvertible {
               } else {
                 return "#<raw-continuation>"
               }
-            case .closure(.continuation, _, _):
+            case .closure(.continuation, _, _, _):
               if let name = proc.embeddedName {
                 return "#<continuation \(name)>"
               } else {

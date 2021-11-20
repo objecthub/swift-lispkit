@@ -133,7 +133,8 @@ public final class GarbageCollector: ObjectMarker {
     if proc.tag != self.tag {
       proc.tag = self.tag
       switch proc.kind {
-        case .closure(_, let captures, let code):
+        case .closure(_, let tag, let captures, let code):
+          self.markLater(tag)
           for capture in captures {
             self.markLater(capture)
           }

@@ -215,6 +215,7 @@ framework:
   - [SRFI 222: Compound objects](https://srfi.schemers.org/srfi-222/srfi-222.html)
   - [SRFI 223: Generalized binary search procedures](https://srfi.schemers.org/srfi-223/srfi-223.html)
   - [SRFI 224: Integer mappings](https://srfi.schemers.org/srfi-224/srfi-224.html)
+  - [SRFI 229: Tagged procedures](https://srfi.schemers.org/srfi-229/srfi-229.html)
 
 
 ## Project
