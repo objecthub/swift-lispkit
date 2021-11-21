@@ -1593,6 +1593,13 @@ public final class VirtualMachine: TrackedObject {
           self.stack[self.sp] = .undef
           // Re-execute force
           self.registers.ip = self.registers.ip &- 2
+        case .failIfNotNull:
+          let top = self.pop()
+          guard top.isNull else {
+            throw RuntimeError(SourcePosition.unknown,
+                               ErrorDescriptor.eval(.listTooLong),
+                               [top])
+          }
         case .raiseError(let err, let n):
           var irritants: [Expr] = []
           for _ in 0..<n {

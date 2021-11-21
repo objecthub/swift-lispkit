@@ -264,7 +264,6 @@ public final class ControlFlowLibrary: NativeLibrary {
       case .pair(_, _):
         try compiler.compile(optlist, in: env, inTailPos: false)
         let group = try self.compileOptionalBindings(compiler, first, in: env, atomic: true)
-        compiler.emit(.pop)
         let res = try compiler.compileSeq(body,
                                           in: Env(group),
                                           inTailPos: tail)
@@ -290,7 +289,6 @@ public final class ControlFlowLibrary: NativeLibrary {
       case .pair(_, _):
         try compiler.compile(optlist, in: env, inTailPos: false)
         let group = try self.compileOptionalBindings(compiler, first, in: env, atomic: false)
-        compiler.emit(.pop)
         let res = try compiler.compileSeq(body,
                                           in: Env(group),
                                           inTailPos: tail)
@@ -308,6 +306,20 @@ public final class ControlFlowLibrary: NativeLibrary {
     let env = atomic ? lenv : .local(group)
     var bindings = bindingList
     var prevIndex = -1
+    while case .pair(.symbol(let sym), let rest) = bindings {
+      compiler.emit(.decons)
+      let binding = group.allocBindingFor(sym)
+      guard binding.index > prevIndex else {
+        throw RuntimeError.eval(.duplicateBinding, .symbol(sym), bindingList)
+      }
+      if binding.isValue {
+        compiler.emit(.setLocal(binding.index))
+      } else {
+        compiler.emit(.makeLocalVariable(binding.index))
+      }
+      prevIndex = binding.index
+      bindings = rest
+    }
     while case .pair(let binding, let rest) = bindings {
       guard case .pair(.symbol(let sym), .pair(let expr, .null)) = binding else {
         throw RuntimeError.eval(.malformedBinding, binding, bindingList)
@@ -332,8 +344,21 @@ public final class ControlFlowLibrary: NativeLibrary {
       prevIndex = binding.index
       bindings = rest
     }
-    guard bindings.isNull else {
-      throw RuntimeError.eval(.malformedBindings, bindingList)
+    switch bindings {
+      case .null:
+        compiler.emit(.failIfNotNull)
+      case .symbol(let sym):
+        let binding = group.allocBindingFor(sym)
+        guard binding.index > prevIndex else {
+          throw RuntimeError.eval(.duplicateBinding, .symbol(sym), bindingList)
+        }
+        if binding.isValue {
+          compiler.emit(.setLocal(binding.index))
+        } else {
+          compiler.emit(.makeLocalVariable(binding.index))
+        }
+      default:
+        throw RuntimeError.eval(.malformedBindings, bindingList)
     }
     return group
   }

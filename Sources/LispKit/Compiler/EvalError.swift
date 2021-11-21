@@ -49,6 +49,7 @@ public enum EvalError: Int, Hashable {
   case malformedCondClause
   case malformedCondExpandClause
   case malformedCaseClause
+  case listTooLong
   case duplicateBinding
   case notBoundInEnvironment
   case bindingImmutable
@@ -174,6 +175,8 @@ public enum EvalError: Int, Hashable {
         return "malformed clause in cond-expand form: $0"
       case .malformedCaseClause:
         return "malformed clause in case form: $0"
+      case .listTooLong:
+        return "list too long; expected empty list, but received $0"
       case .duplicateBinding:
         return "symbol $0 bound multiple times in $1"
       case .notBoundInEnvironment:

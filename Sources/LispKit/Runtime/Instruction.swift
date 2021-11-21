@@ -445,6 +445,10 @@ public enum Instruction: CustomStringConvertible {
   
   // Miscellaneous ----------------------------------------------------------------------------
 
+  /// **`fail_if_not_null`**: Raises a "list not empty" error if the top element on the
+  /// stack is not an empty list.
+  case failIfNotNull
+  
   /// **`raise_error` _err_,_n_**: Raises the given evaluation error _err_ using the top _n_
   /// elements on top of the stack as irritants.
   case raiseError(Int, Int)
@@ -654,6 +658,8 @@ public enum Instruction: CustomStringConvertible {
         return "store_in_promise"
       case .swap:
         return "swap"
+      case .failIfNotNull:
+        return "fail_if_not_null"
       case .raiseError(let err, let n):
         return "raise_error \(err), \(n)"
       case .pushCurrentTime:
