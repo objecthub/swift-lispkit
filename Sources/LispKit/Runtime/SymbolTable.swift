@@ -149,7 +149,7 @@ public final class SymbolTable: Sequence {
     var ident: String
     repeat {
       ident = basename + String(self.gensymCounter)
-      self.gensymCounter += 1
+      self.gensymCounter &+= 1
     } while self.exists(ident)
     return self.intern(ident)
   }

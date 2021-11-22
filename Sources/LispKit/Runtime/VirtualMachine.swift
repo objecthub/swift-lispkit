@@ -499,7 +499,7 @@ public final class VirtualMachine: TrackedObject {
       }
       self.stack.append(expr)
     }
-    self.sp += 1
+    self.sp &+= 1
   }
   
   /// Pushes the given list of arguments onto the stack and returns the number of arguments pushed
@@ -1184,13 +1184,13 @@ public final class VirtualMachine: TrackedObject {
         case .makeLocalVariable(let index):
           let cell = Cell(self.pop())
           // TODO: I can't think of a reason to manage such cells since they only live on the
-          // stack and are never stored anywhere else.
+          //       stack and are never stored anywhere else.
           // self.context.objects.manage(cell)
           self.stack[self.registers.fp &+ index] = .box(cell)
         case .makeVariableArgument(let index):
           let cell = Cell(self.stack[self.registers.fp &+ index])
           // TODO: I can't think of a reason to manage such cells since they only live on the
-          // stack and are never stored anywhere else.
+          //       stack and are never stored anywhere else.
           // self.context.objects.manage(cell)
           self.stack[self.registers.fp &+ index] = .box(cell)
         case .pushLocalValue(let index):
@@ -1474,7 +1474,19 @@ public final class VirtualMachine: TrackedObject {
               self.stack.append(.undef)
             }
           }
-          self.sp += n
+          self.sp &+= n
+        case .allocBelow(let n):
+          let top = self.pop()
+          if self.sp &+ n > self.stack.count {
+            if self.sp &+ n >= self.stack.capacity {
+              self.stack.reserveCapacity(self.sp * 2)
+            }
+            for _ in 0..<(self.sp &+ n &- self.stack.count) {
+              self.stack.append(.undef)
+            }
+          }
+          self.sp &+= n
+          self.push(top)
         case .reset(let index, let n):
           for i in (self.registers.fp &+ index)..<(self.registers.fp &+ index &+ n) {
             self.stack[i] = .undef

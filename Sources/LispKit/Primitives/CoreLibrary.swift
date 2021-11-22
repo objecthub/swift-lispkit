@@ -129,6 +129,20 @@ public final class CoreLibrary: NativeLibrary {
     self.define("call-with-values", via:
       "(define (call-with-values producer consumer) (apply-with-values consumer (producer)))")
     
+    // Optional arguments
+    self.define(SpecialForm("opt-lambda", compileOptLambda))
+    self.define(SpecialForm("opt*-lambda", compileOptStarLambda))
+    self.define("define-optionals", via:
+      "(define-syntax define-optionals\n" +
+      "  (syntax-rules ()\n" +
+      "    ((_ (name . formals) body1 ... body2)\n" +
+      "      (define name (opt-lambda formals body1 ... body2)))))")
+    self.define("define-optionals*", via:
+      "(define-syntax define-optionals*\n" +
+      "  (syntax-rules ()\n" +
+      "    ((_ (name . formals) body1 ... body2)\n" +
+      "      (define name (opt*-lambda formals body1 ... body2)))))")
+    
     // Environments
     self.define(Procedure("environment?", isEnvironment))
     self.define(Procedure("interaction-environment?", isInteractionEnvironment))
@@ -411,6 +425,28 @@ public final class CoreLibrary: NativeLibrary {
       throw RuntimeError.argumentCount(of: "lambda", min: 1, expr: expr)
     }
     try compiler.compileLambda(nil, arglist, body, env)
+    return false
+  }
+  
+  private func compileOptLambda(compiler: Compiler,
+                                expr: Expr,
+                                env: Env,
+                                tail: Bool) throws -> Bool {
+    guard case .pair(_, .pair(let arglist, let body)) = expr else {
+      throw RuntimeError.argumentCount(of: "opt-lambda", min: 1, expr: expr)
+    }
+    try compiler.compileLambda(nil, arglist, body, env, optionals: true, atomic: true)
+    return false
+  }
+  
+  private func compileOptStarLambda(compiler: Compiler,
+                                    expr: Expr,
+                                    env: Env,
+                                    tail: Bool) throws -> Bool {
+    guard case .pair(_, .pair(let arglist, let body)) = expr else {
+      throw RuntimeError.argumentCount(of: "opt-lambda", min: 1, expr: expr)
+    }
+    try compiler.compileLambda(nil, arglist, body, env, optionals: true, atomic: false)
     return false
   }
   

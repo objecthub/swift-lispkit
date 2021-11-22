@@ -152,9 +152,17 @@ public final class Compiler {
     return (arguments, next)
   }
   
-  /// Compiles the given body of a function (or expression, if this compiler is not used to
-  /// compile a function).
-  private func compileBody(_ expr: Expr, localDefine: Bool = false) throws {
+  /// Compiles the given body of a function `expr` (or expression, if this compiler is not
+  /// used to compile a function).
+  /// When an `optionals` formal list of parameters is provided, the formals are matched
+  /// against a list on the stack. The matching happens in the context of `optenv`. If
+  /// `optenv` is not provided, the matching happens in the context of the environment
+  /// constructed on top of `self.env`.
+  /// When `localDefine` is set to true, local definitions are allowed.
+  private func compileBody(_ expr: Expr,
+                           optionals: Expr? = nil,
+                           optenv: Env? = nil,
+                           localDefine: Bool = false) throws {
     if expr.isNull {
       self.emit(.pushVoid)
       self.emit(.return)
@@ -170,12 +178,31 @@ public final class Compiler {
         }
       }
       // Compile body
-      if !(try compileSeq(expr, in: self.env, inTailPos: true, localDefine: localDefine)) {
-        self.emit(.return)
+      if let optionals = optionals {
+        let initialLocals = self.numLocals
+        let group = try self.compileOptionalBindings(optionals,
+                                                     in: self.env,
+                                                     optenv: optenv)
+        let res = try self.compileSeq(expr,
+                                      in: Env(group),
+                                      inTailPos: true,
+                                      localDefine: localDefine)
+        if !self.finalizeBindings(group, exit: res, initialLocals: initialLocals) {
+          self.emit(.return)
+        }
+      } else {
+        if !(try compileSeq(expr, in: self.env, inTailPos: true, localDefine: localDefine)) {
+          self.emit(.return)
+        }
       }
       // Insert instruction to reserve local variables
       if self.maxLocals > self.arguments?.count ?? 0 {
-        self.patch(.alloc(self.maxLocals - (self.arguments?.count ?? 0)), at: reserveLocalIp)
+        let n = self.maxLocals - (self.arguments?.count ?? 0)
+        if optionals != nil {
+          self.patch(.allocBelow(n), at: reserveLocalIp)
+        } else {
+          self.patch(.alloc(n), at: reserveLocalIp)
+        }
       }
     }
     // Checkpoint argument mutability
@@ -1021,6 +1048,70 @@ public final class Compiler {
     return group
   }
   
+  func compileOptionalBindings(_ bindingList: Expr,
+                               in lenv: Env,
+                               optenv: Env?) throws -> BindingGroup {
+    let group = BindingGroup(owner: self, parent: lenv)
+    let env = optenv ?? .local(group)
+    var bindings = bindingList
+    var prevIndex = -1
+    while case .pair(.symbol(let sym), let rest) = bindings {
+      self.emit(.decons)
+      let binding = group.allocBindingFor(sym)
+      guard binding.index > prevIndex else {
+        throw RuntimeError.eval(.duplicateBinding, .symbol(sym), bindingList)
+      }
+      if binding.isValue {
+        self.emit(.setLocal(binding.index))
+      } else {
+        self.emit(.makeLocalVariable(binding.index))
+      }
+      prevIndex = binding.index
+      bindings = rest
+    }
+    while case .pair(let binding, let rest) = bindings {
+      guard case .pair(.symbol(let sym), .pair(let expr, .null)) = binding else {
+        throw RuntimeError.eval(.malformedBinding, binding, bindingList)
+      }
+      self.emit(.dup)
+      self.emit(.isNull)
+      let branchIfIp = self.emitPlaceholder()
+      self.emit(.decons)
+      let branchIp = self.emitPlaceholder()
+      self.patch(.branchIf(self.offsetToNext(branchIfIp)), at: branchIfIp)
+      try self.compile(expr, in: env, inTailPos: false)
+      self.patch(.branch(self.offsetToNext(branchIp)), at: branchIp)
+      let binding = group.allocBindingFor(sym)
+      guard binding.index > prevIndex else {
+        throw RuntimeError.eval(.duplicateBinding, .symbol(sym), bindingList)
+      }
+      if binding.isValue {
+        self.emit(.setLocal(binding.index))
+      } else {
+        self.emit(.makeLocalVariable(binding.index))
+      }
+      prevIndex = binding.index
+      bindings = rest
+    }
+    switch bindings {
+      case .null:
+        self.emit(.failIfNotNull)
+      case .symbol(let sym):
+        let binding = group.allocBindingFor(sym)
+        guard binding.index > prevIndex else {
+          throw RuntimeError.eval(.duplicateBinding, .symbol(sym), bindingList)
+        }
+        if binding.isValue {
+          self.emit(.setLocal(binding.index))
+        } else {
+          self.emit(.makeLocalVariable(binding.index))
+        }
+      default:
+        throw RuntimeError.eval(.malformedBindings, bindingList)
+    }
+    return group
+  }
+  
   /// This function should be used for finalizing the compilation of blocks with local
   /// bindings. It finalizes the binding group and resets the local bindings so that the
   /// garbage collector can deallocate the objects that are not used anymore.
@@ -1071,10 +1162,17 @@ public final class Compiler {
   /// Compiles a closure consisting of a list of formal arguments `arglist`, a list of
   /// expressions `body`, and a local environment `env`. It puts the closure on top of the
   /// stack.
+  /// When `optionals` is set to true, optional parameters are supported.
+  /// When `atomic` is set to true, defaults of optional parameters are evaluated in `env`.
+  /// When `tagged` is set to true, it is assumed a tag is on the stack and this tag is stored
+  /// in the resulting closure.
+  /// When `continuation` is set to true, the resulting closure is represented as a continuation.
   public func compileLambda(_ nameIdx: Int?,
                             _ arglist: Expr,
                             _ body: Expr,
                             _ env: Env,
+                            optionals: Bool = false,
+                            atomic: Bool = true,
                             tagged: Bool = false,
                             continuation: Bool = false) throws {
     // Create closure compiler as child of the current compiler
@@ -1085,20 +1183,39 @@ public final class Compiler {
     let (arguments, next) = closureCompiler.collectArguments(arglist)
     switch next {
       case .null:
+        // Handle arguments
         closureCompiler.emit(.assertArgCount(arguments.count))
+        closureCompiler.arguments = arguments
+        closureCompiler.env = .local(arguments)
+        // Compile body
+        try closureCompiler.compileBody(body, localDefine: true)
       case .symbol(let sym):
+        // Handle arguments
         if arguments.count > 0 {
           closureCompiler.emit(.assertMinArgCount(arguments.count))
         }
         closureCompiler.emit(.collectRest(arguments.count))
         arguments.allocBindingFor(sym)
+        closureCompiler.arguments = arguments
+        closureCompiler.env = .local(arguments)
+        // Compile body
+        try closureCompiler.compileBody(body, localDefine: true)
+      case .pair(.pair(.symbol(_), _), _):
+        // Handle arguments
+        if arguments.count > 0 {
+          closureCompiler.emit(.assertMinArgCount(arguments.count))
+        }
+        closureCompiler.emit(.collectRest(arguments.count))
+        closureCompiler.arguments = arguments
+        closureCompiler.env = .local(arguments)
+        // Compile body
+        try closureCompiler.compileBody(body,
+                                        optionals: next,
+                                        optenv: atomic ? env : nil,
+                                        localDefine: true)
       default:
         throw RuntimeError.eval(.malformedArgumentList, arglist)
     }
-    closureCompiler.arguments = arguments
-    closureCompiler.env = .local(arguments)
-    // Compile body
-    try closureCompiler.compileBody(body, localDefine: true)
     // Link compiled closure in the current compiler
     let codeIndex = self.fragments.count
     let code = closureCompiler.bundle()

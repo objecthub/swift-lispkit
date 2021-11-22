@@ -41,6 +41,9 @@ public enum Instruction: CustomStringConvertible {
   /// **`alloc` _n_**: Pushes `n` undefined values onto the stack.
   case alloc(Int)
   
+  /// **`allocBelow` _n_**: Pushes `n` undefined values below the top of the stack.
+  case allocBelow(Int)
+  
   /// **`reset` _o_,_n_**: Replaces `n` values on the stack with the undefined value starting
   /// from frame pointer offset `o`.
   case reset(Int, Int)
@@ -632,6 +635,8 @@ public enum Instruction: CustomStringConvertible {
         return "collect_rest \(n)"
       case .alloc(let n):
         return "alloc \(n)"
+      case .allocBelow(let n):
+        return "alloc_below \(n)"
       case .reset(let index, let n):
         return "reset \(index), \(n)"
       case .`return`:

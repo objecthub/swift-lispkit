@@ -176,7 +176,7 @@ public enum EvalError: Int, Hashable {
       case .malformedCaseClause:
         return "malformed clause in case form: $0"
       case .listTooLong:
-        return "list too long; expected empty list, but received $0"
+        return "argument list too long; overhead: $0"
       case .duplicateBinding:
         return "symbol $0 bound multiple times in $1"
       case .notBoundInEnvironment:

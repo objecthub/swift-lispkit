@@ -263,7 +263,7 @@ public final class ControlFlowLibrary: NativeLibrary {
                                        inTailPos: tail)
       case .pair(_, _):
         try compiler.compile(optlist, in: env, inTailPos: false)
-        let group = try self.compileOptionalBindings(compiler, first, in: env, atomic: true)
+        let group = try compiler.compileOptionalBindings(first, in: env, optenv: env)
         let res = try compiler.compileSeq(body,
                                           in: Env(group),
                                           inTailPos: tail)
@@ -288,7 +288,7 @@ public final class ControlFlowLibrary: NativeLibrary {
                                        inTailPos: tail)
       case .pair(_, _):
         try compiler.compile(optlist, in: env, inTailPos: false)
-        let group = try self.compileOptionalBindings(compiler, first, in: env, atomic: false)
+        let group = try compiler.compileOptionalBindings(first, in: env, optenv: nil)
         let res = try compiler.compileSeq(body,
                                           in: Env(group),
                                           inTailPos: tail)
@@ -297,72 +297,7 @@ public final class ControlFlowLibrary: NativeLibrary {
         throw RuntimeError.type(first, expected: [.listType])
     }
   }
-
-  private func compileOptionalBindings(_ compiler: Compiler,
-                                      _ bindingList: Expr,
-                                      in lenv: Env,
-                                      atomic: Bool) throws -> BindingGroup {
-    let group = BindingGroup(owner: compiler, parent: lenv)
-    let env = atomic ? lenv : .local(group)
-    var bindings = bindingList
-    var prevIndex = -1
-    while case .pair(.symbol(let sym), let rest) = bindings {
-      compiler.emit(.decons)
-      let binding = group.allocBindingFor(sym)
-      guard binding.index > prevIndex else {
-        throw RuntimeError.eval(.duplicateBinding, .symbol(sym), bindingList)
-      }
-      if binding.isValue {
-        compiler.emit(.setLocal(binding.index))
-      } else {
-        compiler.emit(.makeLocalVariable(binding.index))
-      }
-      prevIndex = binding.index
-      bindings = rest
-    }
-    while case .pair(let binding, let rest) = bindings {
-      guard case .pair(.symbol(let sym), .pair(let expr, .null)) = binding else {
-        throw RuntimeError.eval(.malformedBinding, binding, bindingList)
-      }
-      compiler.emit(.dup)
-      compiler.emit(.isNull)
-      let branchIfIp = compiler.emitPlaceholder()
-      compiler.emit(.decons)
-      let branchIp = compiler.emitPlaceholder()
-      compiler.patch(.branchIf(compiler.offsetToNext(branchIfIp)), at: branchIfIp)
-      try compiler.compile(expr, in: env, inTailPos: false)
-      compiler.patch(.branch(compiler.offsetToNext(branchIp)), at: branchIp)
-      let binding = group.allocBindingFor(sym)
-      guard binding.index > prevIndex else {
-        throw RuntimeError.eval(.duplicateBinding, .symbol(sym), bindingList)
-      }
-      if binding.isValue {
-        compiler.emit(.setLocal(binding.index))
-      } else {
-        compiler.emit(.makeLocalVariable(binding.index))
-      }
-      prevIndex = binding.index
-      bindings = rest
-    }
-    switch bindings {
-      case .null:
-        compiler.emit(.failIfNotNull)
-      case .symbol(let sym):
-        let binding = group.allocBindingFor(sym)
-        guard binding.index > prevIndex else {
-          throw RuntimeError.eval(.duplicateBinding, .symbol(sym), bindingList)
-        }
-        if binding.isValue {
-          compiler.emit(.setLocal(binding.index))
-        } else {
-          compiler.emit(.makeLocalVariable(binding.index))
-        }
-      default:
-        throw RuntimeError.eval(.malformedBindings, bindingList)
-    }
-    return group
-  }
-
+  
   private func compileLetKeywords(_ compiler: Compiler,
                                   expr: Expr,
                                   env: Env,
