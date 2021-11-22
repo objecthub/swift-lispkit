@@ -533,13 +533,24 @@ public final class Scanner {
           case .float:
             let max = Double(Int64.max)
             if self.token.floatVal > -max && self.token.floatVal < max {
-              self.token.kind = .rat
-              self.token.ratVal = MathLibrary.approximate(self.token.floatVal)
-            } else {
+              if let rat = MathLibrary.approximate(self.token.floatVal) {
+                self.token.kind = .rat
+                self.token.ratVal = rat
+                self.token.floatVal = 0.0
+              } else if let rat = MathLibrary.approximateBigRat(self.token.floatVal) {
+                self.token.kind = .bigrat
+                self.token.bigRatVal = rat
+                self.token.floatVal = 0.0
+              } else {
+                self.token.floatVal = .infinity
+              }
+            } else if let rat = MathLibrary.approximateBigRat(self.token.floatVal) {
               self.token.kind = .bigrat
-              self.token.bigRatVal = MathLibrary.approximateBigRat(self.token.floatVal)
+              self.token.bigRatVal = rat
+              self.token.floatVal = 0.0
+            } else {
+              self.token.floatVal = .infinity
             }
-            self.token.floatVal = 0.0
           case .complex:
             self.signal(LexicalError.exactComplexNumbersUnsupported)
           default:

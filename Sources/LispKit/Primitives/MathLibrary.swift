@@ -500,35 +500,45 @@ public final class MathLibrary: NativeLibrary {
     }
   }
   
-  static func approximateNumber(_ x: Double, tolerance: Double = 1.0e-16) -> Expr {
-    let max = Double(Int64.max)
-    if x > -max && x < max {
-      return .makeNumber(MathLibrary.approximate(x))
+  static func approximateNumber(_ x: Double, tolerance: Double = 1.0e-15) -> Expr {
+    if let rat = MathLibrary.approximate(x, tolerance: tolerance) {
+      return .makeNumber(rat)
+    } else if let rat = MathLibrary.approximateBigRat(x, tolerance: tolerance) {
+      return .makeNumber(rat)
     } else {
-      return .makeNumber(MathLibrary.approximateBigRat(x))
+      return .false
     }
   }
   
-  static func approximate(_ x: Double, tolerance: Double = 1.0e-16) -> Rational<Int64> {
+  static func approximate(_ x: Double, tolerance: Double = 1.0e-15) -> Rational<Int64>? {
     let mx = x * tolerance
     var y = x
     var (n1, d1) = (Int64(1), Int64(0))
     var (n2, d2) = (Int64(0), Int64(1))
     repeat {
-      let fy = Int64(Foundation.floor(y))
-      (n1, n2) = (fy * n1 + n2, n1)
-      (d1, d2) = (fy * d1 + d2, d1)
-      y = 1.0 / (y - Foundation.floor(y))
+      guard y.isFinite else {
+        return nil
+      }
+      if let fy = Int64(exactly: Foundation.floor(y)) {
+        (n1, n2) = (fy * n1 + n2, n1)
+        (d1, d2) = (fy * d1 + d2, d1)
+        y = 1.0 / (y - Foundation.floor(y))
+      } else {
+        return nil
+      }
     } while abs(x - Double(n1) / Double(d1)) > mx
     return Rational(n1, d1)
   }
   
-  static func approximateBigRat(_ x: Double, tolerance: Double = 1.0e-16) -> Rational<BigInt> {
+  static func approximateBigRat(_ x: Double, tolerance: Double = 1.0e-15) -> Rational<BigInt>? {
     let mx = x * tolerance
     var y = x
     var (n1, d1) = (BigInt(1), BigInt(0))
     var (n2, d2) = (BigInt(0), BigInt(1))
     repeat {
+      guard y.isFinite else {
+        return nil
+      }
       let fy = BigInt(Foundation.floor(y))
       (n1, n2) = (fy * n1 + n2, n1)
       (d1, d2) = (fy * d1 + d2, d1)
@@ -547,7 +557,14 @@ public final class MathLibrary: NativeLibrary {
       case .rational(.fixnum(let n), .fixnum(let d)):
         return .makeNumber(Int64(Foundation.floor(Double(n) / Double(d))))
       case .rational(.bignum(let n), .bignum(let d)):
-        return .makeNumber(Int64(Foundation.floor(n.doubleValue / d.doubleValue)))
+        let (quotient, remainder) = n.divided(by: d)
+        if remainder.isZero {
+          return .makeNumber(quotient)
+        } else if quotient.isNegative {
+          return .makeNumber(quotient.minus(1))
+        } else {
+          return .makeNumber(quotient)
+        }
       case .flonum(let num):
         return .makeNumber(Foundation.floor(num))
       default:
@@ -562,7 +579,12 @@ public final class MathLibrary: NativeLibrary {
       case .rational(.fixnum(let n), .fixnum(let d)):
         return .makeNumber(Int64(Foundation.ceil(Double(n) / Double(d))))
       case .rational(.bignum(let n), .bignum(let d)):
-        return .makeNumber(Int64(Foundation.ceil(n.doubleValue / d.doubleValue)))
+        let (quotient, remainder) = n.divided(by: d)
+        if remainder.isZero || quotient.isNegative {
+          return .makeNumber(quotient)
+        } else {
+          return .makeNumber(quotient.plus(1))
+        }
       case .flonum(let num):
         return .makeNumber(ceil(num))
       default:
@@ -577,7 +599,7 @@ public final class MathLibrary: NativeLibrary {
       case .rational(.fixnum(let n), .fixnum(let d)):
         return .makeNumber(Int64(Foundation.trunc(Double(n) / Double(d))))
       case .rational(.bignum(let n), .bignum(let d)):
-        return .makeNumber(Int64(Foundation.trunc(n.doubleValue / d.doubleValue)))
+        return .makeNumber(n.divided(by: d).quotient)
       case .flonum(let num):
         return .makeNumber(trunc(num))
       default:
@@ -587,14 +609,40 @@ public final class MathLibrary: NativeLibrary {
 
   private func round(_ expr: Expr) throws -> Expr {
     switch expr {
-      case .fixnum(_), .bignum(_):
+      case .fixnum(_),
+           .bignum(_):
         return expr
       case .rational(.fixnum(let n), .fixnum(let d)):
-        return .makeNumber(Int64(Foundation.round(Double(n) / Double(d))))
+        return .makeNumber(Int64((Double(n) / Double(d)).rounded(.toNearestOrEven)))
       case .rational(.bignum(let n), .bignum(let d)):
-        return .makeNumber(Int64(Foundation.round(n.doubleValue / d.doubleValue)))
+        let (quotient, remainder) = n.divided(by: d)
+        if remainder.isZero {
+          return .makeNumber(quotient)
+        } else {
+          let doubleQuotient = remainder.abs.times(2)
+          let denom = d.abs
+          if doubleQuotient == denom {
+            if quotient.isOdd {
+              if quotient.isNegative {
+                return .makeNumber(quotient.minus(1))
+              } else {
+                return .makeNumber(quotient.plus(1))
+              }
+            } else {
+              return .makeNumber(quotient)
+            }
+          } else if doubleQuotient > denom {
+            if quotient.isNegative {
+              return .makeNumber(quotient.minus(1))
+            } else {
+              return .makeNumber(quotient.plus(1))
+            }
+          } else {
+            return .makeNumber(quotient)
+          }
+        }
       case .flonum(let num):
-        return .makeNumber(Foundation.round(num))
+        return .makeNumber(num.rounded(.toNearestOrEven))
       default:
         throw RuntimeError.type(expr, expected: [.realType])
     }
