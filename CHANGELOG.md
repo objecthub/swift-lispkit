@@ -1,5 +1,19 @@
 # Changelog
 
+## 2.1.0 (2021-12-11)
+
+- Fixed bug compiling every procedure twice
+- Fixed implementation of procedure `expt`
+- Fixed overflow issues in procedure `approximate`
+- Fixed crashes in the rounding functions when used with rational big integers
+- Moved procedure `load` into library `(lispkit core)`
+- Integrated simple bytecode optimizer
+- Implemented support for tagged procedures
+- Implemented support for procedures with optional arguments
+- Included new libraries: `(lispkit math util)`, `(lispkit math stats)`, `(srfi 166)`, `(srfi 227)`, and `(srfi 229)`
+- Ported Peter Norvig's pattern matcher and algebraic simplifier from Common Lisp to Scheme and included it as new example code
+- Extended sample code `Math.scm`
+
 ## 2.0.3 (2021-09-12)
 
 - Fixed bug in logic to detect valid local definitions

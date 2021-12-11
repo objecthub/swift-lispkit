@@ -75,6 +75,8 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit system os)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-System-OS),
     [`(lispkit box)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Box),
     [`(lispkit math)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Math),
+    [`(lispkit math util)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Math-Util),
+    [`(lispkit math stats)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Math-Stats), 
     [`(lispkit list)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-List),
     [`(lispkit hashtable)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Hashtable),
     [`(lispkit dynamic)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Dynamic),
@@ -100,8 +102,6 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit iterate)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Iterate),
     [`(lispkit log)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Log),
     [`(lispkit debug)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Debug),
-    [`(lispkit math util)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Math-Util),
-    [`(lispkit math stats)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Math-Stats), 
     [`(lispkit set)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Set),
     [`(lispkit stack)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Stack), 
     [`(lispkit queue)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Queue), 
@@ -111,7 +111,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit comparator)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Comparator),
     [`(lispkit combinator)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Combinator),
     `(lispkit logic)`,
-    `(lispkit prolog)`,
+    [`(lispkit prolog)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Prolog),
     `(lispkit clos)`,
     [`(lispkit test)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Test),
     `(lispkit prettify)`,
@@ -191,8 +191,9 @@ framework:
   - [SRFI 155: Promises](https://srfi.schemers.org/srfi-155/srfi-155.html)  
   - [SRFI 158: Generators and Accumulators](https://srfi.schemers.org/srfi-158/srfi-158.html)
   - [SRFI 161: Unifiable Boxes](https://srfi.schemers.org/srfi-161/srfi-161.html)
-  - [SRFI 162: Comparators sublibrary](https://srfi.schemers.org/srfi-162/srfi-162.html)  
+  - [SRFI 162: Comparators sublibrary](https://srfi.schemers.org/srfi-162/srfi-162.html)
   - [SRFI 165: The Environment Monad](https://srfi.schemers.org/srfi-165/srfi-165.html)
+  - [SRFI 166: Monadic Formatting](https://srfi.schemers.org/srfi-166/srfi-166.html)
   - [SRFI 167: Ordered Key Value Store](https://srfi.schemers.org/srfi-167/srfi-167.html)
   - [SRFI 173: Hooks](https://srfi.schemers.org/srfi-173/srfi-173.html)
   - [SRFI 174: POSIX Timespecs](https://srfi.schemers.org/srfi-174/srfi-174.html)
@@ -215,6 +216,7 @@ framework:
   - [SRFI 222: Compound objects](https://srfi.schemers.org/srfi-222/srfi-222.html)
   - [SRFI 223: Generalized binary search procedures](https://srfi.schemers.org/srfi-223/srfi-223.html)
   - [SRFI 224: Integer mappings](https://srfi.schemers.org/srfi-224/srfi-224.html)
+  - [SRFI 227: Optional Arguments](https://srfi.schemers.org/srfi-227/srfi-227.html)
   - [SRFI 229: Tagged procedures](https://srfi.schemers.org/srfi-229/srfi-229.html)
 
 
