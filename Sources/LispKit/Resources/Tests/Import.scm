@@ -130,6 +130,7 @@
 (import (srfi 161))
 (import (srfi 162))
 (import (srfi 165))
+(import (srfi 166))
 (import (srfi 167 engine))
 (import (srfi 167 pack))
 (import (srfi 167 memory))

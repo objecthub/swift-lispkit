@@ -80,6 +80,20 @@
 		CC14F4B01F939486000FB1E0 /* Features.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC14F4AF1F939486000FB1E0 /* Features.swift */; };
 		CC14F4B21F93A455000FB1E0 /* FeatureRequirement.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC14F4B11F93A455000FB1E0 /* FeatureRequirement.swift */; };
 		CC14F4B31F93AE04000FB1E0 /* AvlTrees.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC14F4AE1F9385BF000FB1E0 /* AvlTrees.scm */; };
+		CC1867342750E90000B31427 /* pretty.sld in Copy pre-installed LispKit library: SRFI 166 */ = {isa = PBXBuildFile; fileRef = CC1867302750E5D800B31427 /* pretty.sld */; };
+		CC1867352750E90600B31427 /* color.sld in Copy pre-installed LispKit library: SRFI 166 */ = {isa = PBXBuildFile; fileRef = CC18672E2750E57A00B31427 /* color.sld */; };
+		CC1867362750E90D00B31427 /* columnar.sld in Copy pre-installed LispKit library: SRFI 166 */ = {isa = PBXBuildFile; fileRef = CC18672F2750E5C300B31427 /* columnar.sld */; };
+		CC1867372750E91500B31427 /* base.sld in Copy pre-installed LispKit library: SRFI 166 */ = {isa = PBXBuildFile; fileRef = CC18672D2750E4DC00B31427 /* base.sld */; };
+		CC1867382750E92000B31427 /* unicode.sld in Copy pre-installed LispKit library: SRFI 166 */ = {isa = PBXBuildFile; fileRef = CC1867312750E5E100B31427 /* unicode.sld */; };
+		CC1867392750E93700B31427 /* 166.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC1867322750E5F600B31427 /* 166.sld */; };
+		CC18673B2750E97700B31427 /* base.sld in Copy pre-installed LispKit library: SRFI 166 */ = {isa = PBXBuildFile; fileRef = CC18672D2750E4DC00B31427 /* base.sld */; };
+		CC18673C2750E97C00B31427 /* color.sld in Copy pre-installed LispKit library: SRFI 166 */ = {isa = PBXBuildFile; fileRef = CC18672E2750E57A00B31427 /* color.sld */; };
+		CC18673D2750E98200B31427 /* columnar.sld in Copy pre-installed LispKit library: SRFI 166 */ = {isa = PBXBuildFile; fileRef = CC18672F2750E5C300B31427 /* columnar.sld */; };
+		CC18673E2750E98700B31427 /* pretty.sld in Copy pre-installed LispKit library: SRFI 166 */ = {isa = PBXBuildFile; fileRef = CC1867302750E5D800B31427 /* pretty.sld */; };
+		CC18673F2750E99400B31427 /* unicode.sld in Copy pre-installed LispKit library: SRFI 166 */ = {isa = PBXBuildFile; fileRef = CC1867312750E5E100B31427 /* unicode.sld */; };
+		CC1867402750E9A400B31427 /* 166.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC1867322750E5F600B31427 /* 166.sld */; };
+		CC1867422750EAC300B31427 /* SRFI-166.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC1867412750E9F900B31427 /* SRFI-166.scm */; };
+		CC1867432750EADC00B31427 /* SRFI-166.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC1867412750E9F900B31427 /* SRFI-166.scm */; };
 		CC1AAE3B1CC3CF0F00D1806F /* LispKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCAD52BA1C48403800DBD8EE /* LispKit.framework */; };
 		CC1AAE3C1CC3CF0F00D1806F /* LispKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CCAD52BA1C48403800DBD8EE /* LispKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CC1D6CBA258CCE1A00D36645 /* EditDistance.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC1D6CB9258CCCFF00D36645 /* EditDistance.scm */; };
@@ -1022,6 +1036,7 @@
 			dstPath = Root/LispKit/Tests;
 			dstSubfolderSpec = 7;
 			files = (
+				CC1867422750EAC300B31427 /* SRFI-166.scm in Copy tests */,
 				CCBDF734274AEB0800635B5C /* SRFI-227.scm in Copy tests */,
 				CCBDF72E2749B23400635B5C /* SRFI-229.scm in Copy tests */,
 				CCD4A6F826EDFC6500BEE906 /* SRFI-217.scm in Copy tests */,
@@ -1057,6 +1072,36 @@
 				CC09ECF42198B8C100F84713 /* R7RS.scm in Copy tests */,
 			);
 			name = "Copy tests";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC1867332750E8CF00B31427 /* Copy pre-installed LispKit library: SRFI 166 */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Root/LispKit/Libraries/srfi/166;
+			dstSubfolderSpec = 7;
+			files = (
+				CC1867382750E92000B31427 /* unicode.sld in Copy pre-installed LispKit library: SRFI 166 */,
+				CC1867372750E91500B31427 /* base.sld in Copy pre-installed LispKit library: SRFI 166 */,
+				CC1867362750E90D00B31427 /* columnar.sld in Copy pre-installed LispKit library: SRFI 166 */,
+				CC1867352750E90600B31427 /* color.sld in Copy pre-installed LispKit library: SRFI 166 */,
+				CC1867342750E90000B31427 /* pretty.sld in Copy pre-installed LispKit library: SRFI 166 */,
+			);
+			name = "Copy pre-installed LispKit library: SRFI 166";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC18673A2750E94A00B31427 /* Copy pre-installed LispKit library: SRFI 166 */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Root/LispKit/Libraries/srfi/166;
+			dstSubfolderSpec = 7;
+			files = (
+				CC18673F2750E99400B31427 /* unicode.sld in Copy pre-installed LispKit library: SRFI 166 */,
+				CC18673E2750E98700B31427 /* pretty.sld in Copy pre-installed LispKit library: SRFI 166 */,
+				CC18673D2750E98200B31427 /* columnar.sld in Copy pre-installed LispKit library: SRFI 166 */,
+				CC18673C2750E97C00B31427 /* color.sld in Copy pre-installed LispKit library: SRFI 166 */,
+				CC18673B2750E97700B31427 /* base.sld in Copy pre-installed LispKit library: SRFI 166 */,
+			);
+			name = "Copy pre-installed LispKit library: SRFI 166";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		CC1AAE3F1CC3CF0F00D1806F /* Embed Frameworks */ = {
@@ -1542,6 +1587,7 @@
 			dstPath = Root/LispKit/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
+				CC1867392750E93700B31427 /* 166.sld in Copy pre-installed SRFI libraries */,
 				CCBDF731274ADF7000635B5C /* 227.sld in Copy pre-installed SRFI libraries */,
 				CCBDF72B2749B0C100635B5C /* 229.sld in Copy pre-installed SRFI libraries */,
 				CCD4A6F726EDFC5800BEE906 /* 217.sld in Copy pre-installed SRFI libraries */,
@@ -1644,6 +1690,7 @@
 			dstPath = Root/LispKit/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
+				CC1867402750E9A400B31427 /* 166.sld in Copy pre-installed SRFI libraries */,
 				CCBDF732274ADF8B00635B5C /* 227.sld in Copy pre-installed SRFI libraries */,
 				CCBDF72C2749B0DA00635B5C /* 229.sld in Copy pre-installed SRFI libraries */,
 				CCD4A6F926EDFC7200BEE906 /* 217.sld in Copy pre-installed SRFI libraries */,
@@ -1988,6 +2035,7 @@
 			dstPath = Root/LispKit/Tests;
 			dstSubfolderSpec = 7;
 			files = (
+				CC1867432750EADC00B31427 /* SRFI-166.scm in Copy tests */,
 				CCBDF735274AEB2900635B5C /* SRFI-227.scm in Copy tests */,
 				CCBDF72F2749B24900635B5C /* SRFI-229.scm in Copy tests */,
 				CCD4A6FA26EDFC8300BEE906 /* SRFI-217.scm in Copy tests */,
@@ -2276,6 +2324,13 @@
 		CC14F4AE1F9385BF000FB1E0 /* AvlTrees.scm */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = text; path = AvlTrees.scm; sourceTree = "<group>"; tabWidth = 2; };
 		CC14F4AF1F939486000FB1E0 /* Features.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Features.swift; sourceTree = "<group>"; };
 		CC14F4B11F93A455000FB1E0 /* FeatureRequirement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureRequirement.swift; sourceTree = "<group>"; };
+		CC18672D2750E4DC00B31427 /* base.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = base.sld; sourceTree = "<group>"; };
+		CC18672E2750E57A00B31427 /* color.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = color.sld; sourceTree = "<group>"; };
+		CC18672F2750E5C300B31427 /* columnar.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = columnar.sld; sourceTree = "<group>"; };
+		CC1867302750E5D800B31427 /* pretty.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = pretty.sld; sourceTree = "<group>"; };
+		CC1867312750E5E100B31427 /* unicode.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = unicode.sld; sourceTree = "<group>"; };
+		CC1867322750E5F600B31427 /* 166.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 166.sld; sourceTree = "<group>"; };
+		CC1867412750E9F900B31427 /* SRFI-166.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-166.scm"; sourceTree = "<group>"; };
 		CC1D6CB9258CCCFF00D36645 /* EditDistance.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = EditDistance.scm; sourceTree = "<group>"; };
 		CC1D6CBD258CDE3700D36645 /* 209.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 209.sld; sourceTree = "<group>"; };
 		CC1D6CC1258CDF0000D36645 /* SRFI-209.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-209.scm"; sourceTree = "<group>"; };
@@ -2818,6 +2873,7 @@
 				CC08F42E25BCF14C0056C92C /* SRFI-154.scm */,
 				CC08F43825BCFCAB0056C92C /* SRFI-155.scm */,
 				CC4A7DC8225A344300936034 /* SRFI-165.scm */,
+				CC1867412750E9F900B31427 /* SRFI-166.scm */,
 				CCF602E923A0F8F800087740 /* SRFI-167.scm */,
 				CC38528D23140F26001D5E56 /* SRFI-173.scm */,
 				CC5E53092358359900C72CE2 /* SRFI-174.scm */,
@@ -2890,6 +2946,18 @@
 				CC0AEFF91F52303400119BF6 /* SRFI152.scm */,
 			);
 			path = Code;
+			sourceTree = "<group>";
+		};
+		CC18672C2750E1C700B31427 /* 166 */ = {
+			isa = PBXGroup;
+			children = (
+				CC18672D2750E4DC00B31427 /* base.sld */,
+				CC18672E2750E57A00B31427 /* color.sld */,
+				CC18672F2750E5C300B31427 /* columnar.sld */,
+				CC1867302750E5D800B31427 /* pretty.sld */,
+				CC1867312750E5E100B31427 /* unicode.sld */,
+			);
+			path = 166;
 			sourceTree = "<group>";
 		};
 		CC240E8A24FB144500FF6D0F /* sxml */ = {
@@ -3143,6 +3211,8 @@
 				CC1EA5CA214EEF41006BBE7E /* 161.sld */,
 				CCC9516E2426B1E100FC915F /* 162.sld */,
 				CC4A7DC6225A021E00936034 /* 165.sld */,
+				CC1867322750E5F600B31427 /* 166.sld */,
+				CC18672C2750E1C700B31427 /* 166 */,
 				CCF602E523A0F64600087740 /* 167 */,
 				CC38528C23140CC2001D5E56 /* 173.sld */,
 				CC5E530723579CF200C72CE2 /* 174.sld */,
@@ -3786,6 +3856,7 @@
 				CC2C73DA21A1FFB200B18661 /* Copy pre-installed LispKit library: SRFI 69 */,
 				CC48EBD21F3E5B9900233FA9 /* Copy pre-installed LispKit library: SRFI 135 */,
 				CC4A7DC02259741100936034 /* Copy pre-installed LispKit library: SRFI 146 */,
+				CC1867332750E8CF00B31427 /* Copy pre-installed LispKit library: SRFI 166 */,
 				CCF602EB23A0FA7000087740 /* Copy pre-installed LispKit library: SRFI 167 */,
 				CC5848001E50ABE100BE6497 /* Copy pre-installed LispKit libraries */,
 				CC624CD727374D71005F15B3 /* Copy pre-installed LispKit library: LispKit Math */,
@@ -3851,6 +3922,7 @@
 				CCC48D7625E97F0500D082AD /* Copy pre-installed LispKit library: SRFI 69 */,
 				CCC48D7B25E97F8100D082AD /* Copy pre-installed LispKit library: SRFI 135 */,
 				CCC48D8025E97FBC00D082AD /* Copy pre-installed LispKit library: SRFI 146 */,
+				CC18673A2750E94A00B31427 /* Copy pre-installed LispKit library: SRFI 166 */,
 				CCC48D8525E97FF500D082AD /* Copy pre-installed LispKit library: SRFI 167 */,
 				CCC48D8C25E9803400D082AD /* Copy pre-installed LispKit libraries */,
 				CC624CD927374E7D005F15B3 /* Copy pre-installed LispKit library: LispKit Math */,
@@ -4385,7 +4457,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.0.3;
+				MARKETING_VERSION = 2.1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispKitTools;
@@ -4421,7 +4493,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.0.3;
+				MARKETING_VERSION = 2.1.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispKitTools;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
@@ -4667,7 +4739,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.0.3;
+				MARKETING_VERSION = 2.1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispKit;
@@ -4707,7 +4779,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.0.3;
+				MARKETING_VERSION = 2.1.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispKit;
 				PRODUCT_NAME = LispKit;
