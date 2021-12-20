@@ -32,7 +32,7 @@ public final class GarbageCollector: ObjectMarker {
     // Increment cycle counter
     self.cycles += 1
     // Compute next tag
-    self.tag = self.tag &+ 1
+    self.tag &+= 1
     // Mark all root objects
     for root in rootSet {
       root.mark(in: self)

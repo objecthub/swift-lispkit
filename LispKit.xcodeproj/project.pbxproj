@@ -129,6 +129,10 @@
 		CC2C73DF21A22D2B00B18661 /* SRFI-125.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC2C73DE21A22CFD00B18661 /* SRFI-125.scm */; };
 		CC2C73E121A22F0D00B18661 /* hash-table.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC2C73E021A22DDD00B18661 /* hash-table.sld */; };
 		CC2D124F1DB40E7F009BDC72 /* LibraryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2D124E1DB40E7F009BDC72 /* LibraryManager.swift */; };
+		CC2DA736276FFC4200DE69CF /* Registers.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2DA735276FFC4200DE69CF /* Registers.swift */; };
+		CC2DA737276FFC4200DE69CF /* Registers.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2DA735276FFC4200DE69CF /* Registers.swift */; };
+		CC2DA73A2770012300DE69CF /* Atomics in Frameworks */ = {isa = PBXBuildFile; productRef = CC2DA7392770012300DE69CF /* Atomics */; };
+		CC2DA73C277001A200DE69CF /* Atomics in Frameworks */ = {isa = PBXBuildFile; productRef = CC2DA73B277001A200DE69CF /* Atomics */; };
 		CC31A6981D3AC223008D7728 /* Hash.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC31A6971D3AC223008D7728 /* Hash.swift */; };
 		CC35F9C2222188BD00895A10 /* DateTimeLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35F9C1222188BC00895A10 /* DateTimeLibrary.swift */; };
 		CC35FD0D1C6FA4B700C8B992 /* VirtualMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */; };
@@ -2315,6 +2319,7 @@
 		CC2C73DE21A22CFD00B18661 /* SRFI-125.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-125.scm"; sourceTree = "<group>"; };
 		CC2C73E021A22DDD00B18661 /* hash-table.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = "hash-table.sld"; sourceTree = "<group>"; };
 		CC2D124E1DB40E7F009BDC72 /* LibraryManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryManager.swift; sourceTree = "<group>"; };
+		CC2DA735276FFC4200DE69CF /* Registers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Registers.swift; sourceTree = "<group>"; };
 		CC31A6971D3AC223008D7728 /* Hash.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Hash.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC35F9C1222188BC00895A10 /* DateTimeLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateTimeLibrary.swift; sourceTree = "<group>"; };
 		CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = VirtualMachine.swift; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -2752,6 +2757,7 @@
 			files = (
 				CCA6C3D42361149D007D2AF0 /* MarkdownKit in Frameworks */,
 				CC5E53032355AAD400C72CE2 /* NumberKit in Frameworks */,
+				CC2DA73A2770012300DE69CF /* Atomics in Frameworks */,
 				CC089651244091E9004503B1 /* SQLiteExpress in Frameworks */,
 				CCFB412725B2523C005B2429 /* ZIPFoundation in Frameworks */,
 			);
@@ -2771,6 +2777,7 @@
 			files = (
 				CCC48D0525E5BFAE00D082AD /* MarkdownKit in Frameworks */,
 				CCC48D0325E5BFA300D082AD /* NumberKit in Frameworks */,
+				CC2DA73C277001A200DE69CF /* Atomics in Frameworks */,
 				CCC48D0725E5BFB300D082AD /* SQLiteExpress in Frameworks */,
 				CCC48D0925E5BFB800D082AD /* ZIPFoundation in Frameworks */,
 			);
@@ -3641,6 +3648,7 @@
 				CC14F4B11F93A455000FB1E0 /* FeatureRequirement.swift */,
 				CC5696761CBCFA9900F6803E /* Instruction.swift */,
 				CC0980A81C67E81C006B7FB1 /* Code.swift */,
+				CC2DA735276FFC4200DE69CF /* Registers.swift */,
 				CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */,
 				CCC41DC51D2851FB003CB4D0 /* VirtualMachineState.swift */,
 				CC0A984D233E70C400C52573 /* GarbageCollector.swift */,
@@ -3805,6 +3813,7 @@
 				CCA6C3D32361149D007D2AF0 /* MarkdownKit */,
 				CC089650244091E9004503B1 /* SQLiteExpress */,
 				CCFB412625B2523C005B2429 /* ZIPFoundation */,
+				CC2DA7392770012300DE69CF /* Atomics */,
 			);
 			productName = LispKit;
 			productReference = CCAD52BA1C48403800DBD8EE /* LispKit.framework */;
@@ -3869,6 +3878,7 @@
 				CCC48D0425E5BFAE00D082AD /* MarkdownKit */,
 				CCC48D0625E5BFB300D082AD /* SQLiteExpress */,
 				CCC48D0825E5BFB800D082AD /* ZIPFoundation */,
+				CC2DA73B277001A200DE69CF /* Atomics */,
 			);
 			productName = "LispKit iOS";
 			productReference = CCC48C5625E5B8DC00D082AD /* LispKit.framework */;
@@ -3941,6 +3951,7 @@
 				CCA6C3D22361149D007D2AF0 /* XCRemoteSwiftPackageReference "swift-markdownkit" */,
 				CC08964F244091E9004503B1 /* XCRemoteSwiftPackageReference "swift-sqliteexpress" */,
 				CCFB412525B2523C005B2429 /* XCRemoteSwiftPackageReference "ZIPFoundation" */,
+				CC2DA7382770012300DE69CF /* XCRemoteSwiftPackageReference "swift-atomics" */,
 			);
 			productRefGroup = CCAD52BB1C48403800DBD8EE /* Products */;
 			projectDirPath = "";
@@ -4101,6 +4112,7 @@
 				CC55A8291C50D35C00772B02 /* Procedure.swift in Sources */,
 				CCDF99FC1D3D7A3100FD2A57 /* BoxLibrary.swift in Sources */,
 				CC6A3B701C53F2CF00E962E2 /* SymbolTable.swift in Sources */,
+				CC2DA736276FFC4200DE69CF /* Registers.swift in Sources */,
 				CCF529981CBC73F7000C2959 /* StringBuilder.swift in Sources */,
 				CCD839AB1FD0F6000097023E /* Compression.swift in Sources */,
 				CC6598CF27248DC8004C9B89 /* LispKitContext.swift in Sources */,
@@ -4207,6 +4219,7 @@
 				CCC48CD125E5B98600D082AD /* LibraryRegistry.swift in Sources */,
 				CCC48CA925E5B97100D082AD /* Features.swift in Sources */,
 				CCC48C8825E5B95B00D082AD /* SpecialForm.swift in Sources */,
+				CC2DA737276FFC4200DE69CF /* Registers.swift in Sources */,
 				CCC48CA825E5B97100D082AD /* Instruction.swift in Sources */,
 				CCC48CBF25E5B98600D082AD /* BaseLibrary.swift in Sources */,
 				CCC48C9A25E5B96800D082AD /* SyntaxError.swift in Sources */,
@@ -4851,6 +4864,14 @@
 				minimumVersion = 1.0.3;
 			};
 		};
+		CC2DA7382770012300DE69CF /* XCRemoteSwiftPackageReference "swift-atomics" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-atomics.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 		CC5E53012355AAD400C72CE2 /* XCRemoteSwiftPackageReference "swift-numberkit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/objecthub/swift-numberkit.git";
@@ -4890,6 +4911,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = CC08964F244091E9004503B1 /* XCRemoteSwiftPackageReference "swift-sqliteexpress" */;
 			productName = SQLiteExpress;
+		};
+		CC2DA7392770012300DE69CF /* Atomics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CC2DA7382770012300DE69CF /* XCRemoteSwiftPackageReference "swift-atomics" */;
+			productName = Atomics;
+		};
+		CC2DA73B277001A200DE69CF /* Atomics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CC2DA7382770012300DE69CF /* XCRemoteSwiftPackageReference "swift-atomics" */;
+			productName = Atomics;
 		};
 		CC458D822386043500231A63 /* CommandLineKit */ = {
 			isa = XCSwiftPackageProductDependency;

@@ -34,7 +34,7 @@ public final class VirtualMachineState: CustomStringConvertible {
   internal let sp: Int
   
   /// The set of registers
-  internal let registers: VirtualMachine.Registers
+  internal let registers: Registers
   
   /// The stack of winders
   internal let winders: VirtualMachine.Winder?
@@ -44,7 +44,7 @@ public final class VirtualMachineState: CustomStringConvertible {
                 sp: Int,
                 spDelta: Int,
                 ipDelta: Int,
-                registers: VirtualMachine.Registers,
+                registers: Registers,
                 winders: VirtualMachine.Winder?) {
     var adjustedStack = stack
     self.sp = sp + spDelta

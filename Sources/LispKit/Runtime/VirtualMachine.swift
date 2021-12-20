@@ -49,52 +49,6 @@ import Foundation
 ///
 public final class VirtualMachine: TrackedObject {
   
-  /// Collects all registers in a single struct
-  internal struct Registers {
-    let rid: Int
-    var code: Code
-    var captured: Exprs
-    var ip: Int
-    var fp: Int
-    let initialFp: Int
-    
-    init(code: Code, captured: Exprs, fp: Int, root: Bool) {
-      if root {
-        self.rid = 0
-      } else {
-        VirtualMachine.nextRid += 1
-        self.rid = VirtualMachine.nextRid
-      }
-      self.code = code
-      self.captured = captured
-      self.ip = 0
-      self.fp = fp
-      self.initialFp = fp
-    }
-    
-    @inline(__always) mutating func use(code: Code, captured: Exprs, fp: Int) {
-      self.code = code
-      self.captured = captured
-      self.ip = 0
-      self.fp = fp
-    }
-    
-    var topLevel: Bool {
-      return self.fp == self.initialFp
-    }
-    
-    var isInitialized: Bool {
-      return self.rid == 0 && self.code.instructions.count > 0
-    }
-
-    public func mark(in gc: GarbageCollector) {
-      gc.mark(self.code)
-      for i in self.captured.indices {
-        gc.markLater(self.captured[i])
-      }
-    }
-  }
-  
   internal final class Winder: Reference {
     let before: Procedure
     let after: Procedure
@@ -161,9 +115,6 @@ public final class VirtualMachine: TrackedObject {
     case off
     case byProc
   }
-  
-  /// Counter for managing register ids
-  private static var nextRid: Int = 0
   
   /// The context of this virtual machine
   private unowned let context: Context
