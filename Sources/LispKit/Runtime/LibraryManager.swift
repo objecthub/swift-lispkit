@@ -25,6 +25,15 @@ import Foundation
 /// component doesn't need to be a `TrackedObject` because it only stores expressions
 /// consisting of pairs, symbols, and integers.
 /// 
+/// These are the concepts supported by class `LibraryManager`:
+///   - `load` tries to load an unknown library definition from disk
+///   - `register` is called when either a native library is defined, or as a consequence
+///     of `load` when the `define-library` syntax is being compiled. This will just insert
+///     the library definition into the dictionary of loaded libraries, but will not further
+///     trigger any evaluation of the library.
+///   - `lookup` determines if a library is available already, and if that is not the case,
+///     it will trigger a `load` to automatically load a library.
+/// 
 public final class LibraryManager: TrackedObject, CustomStringConvertible {
 
   /// The owner of this library manager.
@@ -48,9 +57,9 @@ public final class LibraryManager: TrackedObject, CustomStringConvertible {
     return AnySequence(self.libraries.values)
   }
   
-  /// Returns the libraries loaded by this library manager.
-  public var loadedLibraryNames: AnySequence<Expr> {
-    return AnySequence(self.libraries.keys)
+  /// Returns the library loaded by this library manager with the given name.
+  public func lookup(_ name: [String]) throws -> Library? {
+    return try self.lookup(self.name(name))
   }
   
   /// Returns the library loaded by this library manager with the given name.
@@ -60,11 +69,6 @@ public final class LibraryManager: TrackedObject, CustomStringConvertible {
       return self.libraries[name]
     }
     return library
-  }
-  
-  /// Returns the library loaded by this library manager with the given name.
-  public func lookup(_ name: [String]) throws -> Library? {
-    return try self.lookup(self.name(name))
   }
   
   /// Returns the native library loaded by this library manager for the given native
@@ -89,7 +93,6 @@ public final class LibraryManager: TrackedObject, CustomStringConvertible {
       return
     }
     if let filename = self.filename(name) {
-      // Evaluate file
       do {
         _ = try self.context.machine.eval(
                   file: self.context.fileHandler.libraryFilePath(forFile: filename) ?? filename,
@@ -102,8 +105,8 @@ public final class LibraryManager: TrackedObject, CustomStringConvertible {
     }
   }
   
-  /// Load library with the given name and library declarations.
-  public func load(name: Expr, declarations: Expr, origin: String) throws {
+  /// Register library with the given name and library declarations.
+  public func register(name: Expr, declarations: Expr, origin: String) throws {
     let library = try Library(name: name,
                               declarations: declarations,
                               origin: origin,
@@ -112,8 +115,8 @@ public final class LibraryManager: TrackedObject, CustomStringConvertible {
     self.context.delegate?.loaded(library: library, by: self)
   }
   
-  /// Load native library.
-  public func load(libraryType: NativeLibrary.Type) throws {
+  /// Register native library.
+  public func register(libraryType: NativeLibrary.Type) throws {
     let library = try libraryType.init(in: self.context)
     self.libraries[self.name(libraryType.name)] = library
     self.context.delegate?.loaded(library: library, by: self)

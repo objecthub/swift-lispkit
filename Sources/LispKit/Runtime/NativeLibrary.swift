@@ -32,7 +32,7 @@ open class NativeLibrary: Library {
   /// declarations of this library.
   public required init(in context: Context) throws {
     self.internals = [:]
-    try super.init(name: Library.name(type(of: self).name, in: context), in: context)
+    try super.init(name: NativeLibrary.name(type(of: self).name, in: context), in: context)
     self.declarations()
   }
   
@@ -117,9 +117,9 @@ open class NativeLibrary: Library {
       syms.append(self.context.symbols.intern(ident))
     }
     if syms.count == 0 {
-      self.importDecls.append(.library(Library.name(library, in: self.context)))
+      self.importDecls.append(.library(NativeLibrary.name(library, in: self.context)))
     } else {
-      self.importDecls.append(.only(syms, .library(Library.name(library, in: self.context))))
+      self.importDecls.append(.only(syms, .library(NativeLibrary.name(library, in: self.context))))
     }
   }
   
@@ -299,5 +299,18 @@ open class NativeLibrary: Library {
     }
     return false
   }
+  
+  /// Returns the library name for the given string components. Strings that can be converted
+  /// to an integer are represented as fixnum values, all other strings are converted to symbols.
+  public static func name(_ components: [String], in context: Context) -> Expr {
+    var res = Expr.null
+    for component in components.reversed() {
+      if let num = Int64(component) {
+        res = .pair(.fixnum(num), res)
+      } else {
+        res = .pair(.symbol(context.symbols.intern(component)), res)
+      }
+    }
+    return res
+  }
 }
-

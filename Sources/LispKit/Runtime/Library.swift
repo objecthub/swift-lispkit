@@ -241,7 +241,7 @@ open class Library: Reference, CustomStringConvertible {
     return AnySequence(self.exportDecls.keys)
   }
   
-  public func exportLocation(_ ident: Symbol) throws -> InternalLocationRef? {
+  private func exportLocation(_ ident: Symbol) throws -> InternalLocationRef? {
     assert(self.state.isAllocated, "calling exportLocation on not allocated library")
     if self.unresolvedExports.contains(ident) {
       throw RuntimeError.eval(.cyclicImportExport, .symbol(ident), self.name)
@@ -309,6 +309,7 @@ open class Library: Reference, CustomStringConvertible {
     return self.imports[ident]
   }
   
+  /// Can be overwritten in subclasses
   internal func initializationEnvironment() throws -> Environment {
     return try Environment(in: self.context, for: self)
   }
@@ -622,20 +623,6 @@ open class Library: Reference, CustomStringConvertible {
       }
       i += 1
     }
-  }
-  
-  /// Returns the library name for the given string components. Strings that can be converted
-  /// to an integer are represented as fixnum values, all other strings are converted to symbols.
-  public static func name(_ components: [String], in context: Context) -> Expr {
-    var res = Expr.null
-    for component in components.reversed() {
-      if let num = Int64(component) {
-        res = .pair(.fixnum(num), res)
-      } else {
-        res = .pair(.symbol(context.symbols.intern(component)), res)
-      }
-    }
-    return res
   }
   
   /// Libraries do not mark other referenced libraries; this is assuming that all libraries

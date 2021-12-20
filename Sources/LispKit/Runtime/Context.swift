@@ -124,10 +124,10 @@ open class Context {
     self.objects.track(self.machine)
     self.objects.track(self.heap)
     self.objects.track(self.libraries)
-    // Load native libraries
+    // Register native libraries
     do {
       for nativeLibrary in LibraryRegistry.nativeLibraries {
-        try self.libraries.load(libraryType: nativeLibrary)
+        try self.libraries.register(libraryType: nativeLibrary)
       }
     } catch let error {
       preconditionFailure("cannot load native libraries: \(error)")

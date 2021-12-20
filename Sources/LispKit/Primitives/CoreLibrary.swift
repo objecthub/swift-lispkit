@@ -767,9 +767,9 @@ public final class CoreLibrary: NativeLibrary {
     guard case .pair(_, .pair(let name, let decls)) = expr else {
       throw RuntimeError.argumentCount(of: "define-library", num: 1, expr: expr)
     }
-    try compiler.context.libraries.load(name: name,
-                                        declarations: decls,
-                                        origin: compiler.sourceDirectory)
+    try compiler.context.libraries.register(name: name,
+                                            declarations: decls,
+                                            origin: compiler.sourceDirectory)
     compiler.emit(.pushVoid)
     return false
   }
