@@ -3685,6 +3685,7 @@
 			children = (
 				CC5696781CBD48E700F6803E /* Global.swift */,
 				CC882C911C9E93A600D20039 /* Timer.swift */,
+				CC2DA7402770A4EE00DE69CF /* Locks.swift */,
 				CC01903C1C8C7D8600DB8BF9 /* Reference.swift */,
 				CC26069B1C61760C0047A3D3 /* Boxes.swift */,
 				CCC62D911CA9ED6A00E2C43F /* TrackedObject.swift */,
@@ -3698,7 +3699,6 @@
 				CC6BB1991E60F237009A9091 /* Random.swift */,
 				CCD839AA1FD0F6000097023E /* Compression.swift */,
 				CCC072491F9C11FA0063974E /* Sysctl.swift */,
-				CC2DA7402770A4EE00DE69CF /* Locks.swift */,
 			);
 			path = Base;
 			sourceTree = "<group>";

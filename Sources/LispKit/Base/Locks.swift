@@ -26,7 +26,7 @@ import Foundation
 public struct EmbeddedMutex {
 
   /// The underlying system mutex
-  private var systemMutex = pthread_mutex_t()
+  fileprivate var systemMutex = pthread_mutex_t()
   
   public init(recursive: Bool = false) {
     var attr = pthread_mutexattr_t()
@@ -77,8 +77,7 @@ public struct EmbeddedMutex {
 
 /// Provides standalone mutex objects.
 public final class Mutex {
-
-  private var mutex: EmbeddedMutex
+  fileprivate var mutex: EmbeddedMutex
   
   public init(recursive: Bool = false) {
     self.mutex = EmbeddedMutex(recursive: recursive)
@@ -177,7 +176,6 @@ public struct EmbeddedReadWriteLock {
 
 /// Provides standalone read/write locks.
 public final class ReadWriteLock {
-
   private var lock = EmbeddedReadWriteLock()
   
   deinit {
@@ -218,5 +216,162 @@ public final class ReadWriteLock {
   
   public func trySyncWrite<T>(execute block: () throws -> T) rethrows -> T? {
     return try self.lock.trySyncWrite(execute: block)
+  }
+}
+
+/// Implements an embeddable condition variable. This is used in combination with an
+/// embeddable mutex. Both are typically embedded in a class. It is important to invoke
+/// `release` when an object using an embedded mutex is being de-initialized.
+public struct EmbeddedCondition {
+  
+  /// The underlying system condition variable
+  private var systemCond = pthread_cond_t()
+  
+  public init() {
+    pthread_cond_init(&self.systemCond, nil)
+  }
+  
+  public mutating func release() {
+    pthread_cond_destroy(&self.systemCond)
+  }
+  
+  /// Wakes all threads waiting on this condition.
+  public mutating func broadcast() {
+    pthread_cond_broadcast(&self.systemCond)
+  }
+  
+  /// Wakes one thread waiting on this condition.
+  public mutating func signal() {
+    pthread_cond_signal(&self.systemCond)
+  }
+  
+  /// Atomically releases mutex and causes the calling thread to block on the condition
+  /// variable until either `signal` or `broadcast` is invoked on the condition variable,
+  /// in which case the thread will re-acquire the lock.
+  public mutating func wait(unlocking mutex: inout EmbeddedMutex) {
+    pthread_cond_wait(&self.systemCond, &mutex.systemMutex)
+  }
+  
+  /// Atomically releases mutex and causes the calling thread to block on the condition
+  /// variable until either `signal` or `broadcast` is invoked on the condition variable,
+  /// in which case the thread will re-acquire the lock. This method returns false if
+  /// the waiting times out.
+  @discardableResult public mutating func wait(_ timeout : TimeInterval,
+                                               unlocking mutex: inout EmbeddedMutex) -> Bool {
+    if timeout < 0 {
+      pthread_cond_wait(&self.systemCond, &mutex.systemMutex)
+      return true
+    }
+    let timeInMs = Int(timeout * 1000)
+    var tv = timeval()
+    var ts = timespec()
+    gettimeofday(&tv, nil)
+    ts.tv_sec = time(nil) + timeInMs / 1000
+    ts.tv_nsec = Int(Int(tv.tv_usec * 1000) + 1000000 * (timeInMs % 1000))
+    ts.tv_sec += ts.tv_nsec / 1000000000
+    ts.tv_nsec %= 1000000000
+    return pthread_cond_timedwait(&self.systemCond, &mutex.systemMutex, &ts) == 0
+  }
+}
+
+public final class Condition {
+  private var condition = EmbeddedCondition()
+  
+  deinit {
+    self.condition.release()
+  }
+  
+  public func broadcast() {
+    self.condition.broadcast()
+  }
+  
+  public func signal() {
+    self.condition.signal()
+  }
+  
+  public func wait(unlocking mutex: Mutex) {
+    self.condition.wait(unlocking: &mutex.mutex)
+  }
+  
+  @discardableResult public func wait(_ timeout : TimeInterval, unlocking mutex: Mutex) -> Bool {
+    return self.condition.wait(timeout, unlocking: &mutex.mutex)    
+  }
+}
+
+/// Implements an embeddable condition lock, combining a condition variable with a mutex.
+/// Such a struct is typically embedded in a class. It is important to invoke `release`
+/// when an object using an embedded read/write lock is being de-initialized.
+public struct EmbeddedConditionLock {
+  private var condition: EmbeddedCondition
+  private var mutex: EmbeddedMutex
+  
+  public init(recursive: Bool = false) {
+    self.condition = EmbeddedCondition()
+    self.mutex = EmbeddedMutex(recursive: recursive)
+  }
+  
+  public mutating func release() {
+    self.condition.release()
+    self.mutex.release()
+  }
+  
+  public mutating func lock() {
+    self.mutex.lock()
+  }
+  
+  public mutating func unlock() {
+    self.mutex.unlock()
+  }
+  
+  public mutating func broadcast() {
+    self.condition.broadcast()
+  }
+  
+  public mutating func signal() {
+    self.condition.signal()
+  }
+  
+  public mutating func wait() {
+    self.condition.wait(unlocking: &self.mutex)
+  }
+  
+  @discardableResult public mutating func wait(_ timeout : TimeInterval) -> Bool {
+    return self.condition.wait(timeout, unlocking: &self.mutex)
+  }
+}
+
+public final class ConditionLock {
+  private var conditionLock: EmbeddedConditionLock
+  
+  public init(recursive: Bool = false) {
+    self.conditionLock = EmbeddedConditionLock(recursive: recursive)
+  }
+  
+  deinit {
+    self.conditionLock.release()
+  }
+  
+  public func lock() {
+    self.conditionLock.lock()
+  }
+  
+  public func unlock() {
+    self.conditionLock.unlock()
+  }
+  
+  public func broadcast() {
+    self.conditionLock.broadcast()
+  }
+  
+  public func signal() {
+    self.conditionLock.signal()
+  }
+  
+  public func wait() {
+    self.conditionLock.wait()
+  }
+  
+  @discardableResult public func wait(_ timeout : TimeInterval) -> Bool {
+    return self.conditionLock.wait(timeout)
   }
 }
