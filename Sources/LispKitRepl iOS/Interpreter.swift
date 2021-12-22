@@ -106,10 +106,10 @@ final class Interpreter: ContextDelegate, ObservableObject {
     self.isReady = false
     self.readingStatus = .reject
     self.processingQueue.addOperation { [weak self] in
-      let res = self?.execute { context in
-        try context.machine.eval(str: command,
-                                 sourceId: SourceManager.consoleSourceId,
-                                 in: context.global, as: "<repl>")
+      let res = self?.execute { machine in
+        try machine.eval(str: command,
+                         sourceId: SourceManager.consoleSourceId,
+                         in: machine.context.global, as: "<repl>")
       }
       DispatchQueue.main.sync {
         self?.isReady = true
@@ -155,9 +155,9 @@ final class Interpreter: ContextDelegate, ObservableObject {
     // Evaluate prelude
     self.context = context
     do {
-      _ = try context.machine.eval(file: LispKitContext.defaultPreludePath,
-                                   in: context.global,
-                                   as: "<prelude>")
+      _ = try context.evaluator.machine.eval(file: LispKitContext.defaultPreludePath,
+                                             in: context.global,
+                                             as: "<prelude>")
     } catch let error {
       DispatchQueue.main.sync {
         self.append(output: ConsoleOutput(kind: .error("init"), text: error.localizedDescription))
@@ -173,14 +173,14 @@ final class Interpreter: ContextDelegate, ObservableObject {
     }
   }
   
-  private func execute(action: (Context) throws -> Expr) -> ConsoleOutput? {
+  private func execute(action: (VirtualMachine) throws -> Expr) -> ConsoleOutput? {
     guard let context = self.context else {
       return nil
     }
-    let res = context.machine.onTopLevelDo {
-      try action(context)
+    let res = context.evaluator.execute { machine in
+      try action(machine)
     }
-    if context.machine.exitTriggered {
+    if context.evaluator.exitTriggered {
       // Check if we should close this interpreter
     }
     switch res {

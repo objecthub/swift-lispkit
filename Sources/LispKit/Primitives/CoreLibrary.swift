@@ -513,16 +513,16 @@ public final class CoreLibrary: NativeLibrary {
     let path = try args.first!.asPath()
     let filename =
       self.context.fileHandler.filePath(
-        forFile: path, relativeTo: self.context.machine.currentDirectoryPath) ??
+        forFile: path, relativeTo: self.context.evaluator.currentDirectoryPath) ??
       self.context.fileHandler.libraryFilePath(
-        forFile: path, relativeTo: self.context.machine.currentDirectoryPath) ??
-      self.context.fileHandler.path(path, relativeTo: self.context.machine.currentDirectoryPath)
+        forFile: path, relativeTo: self.context.evaluator.currentDirectoryPath) ??
+      self.context.fileHandler.path(path, relativeTo: self.context.evaluator.currentDirectoryPath)
     var environment = self.context.environment
     if args.count == 2 {
       environment = try args[args.startIndex + 1].asEnvironment()
     }
     // Load file and parse expressions
-    let exprs = try self.context.machine.parse(file: filename)
+    let exprs = try self.context.evaluator.parse(file: filename)
     let sourceDir = self.context.fileHandler.directory(filename)
     // Hand over work to `compileAndEvalFirst`
     return (self.loader, [exprs, .makeString(sourceDir), .env(environment!)])
@@ -1333,7 +1333,7 @@ public final class CoreLibrary: NativeLibrary {
       let resolvedName =
         self.context.fileHandler.filePath(forFile: str, relativeTo: compiler.sourceDirectory) ??
           self.context.fileHandler.path(str, relativeTo: compiler.sourceDirectory)
-      let exprs = try self.context.machine.parse(file: resolvedName, foldCase: foldCase)
+      let exprs = try self.context.evaluator.parse(file: resolvedName, foldCase: foldCase)
       try compiler.compileSeq(exprs,
                               in: env,
                               inTailPos: false,

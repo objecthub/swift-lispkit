@@ -258,7 +258,7 @@ public final class DynamicControlLibrary: NativeLibrary {
     }
     // Create continuation, removing current argument and the call/cc procedure from the
     // stack of the continuation
-    let vmstate = self.context.machine.getState()
+    let vmstate = self.context.evaluator.machine.getState()
     let cont = Procedure(vmstate)
     // Return procedure to call with continuation as argument
     return (proc, [.procedure(cont)])
@@ -267,20 +267,20 @@ public final class DynamicControlLibrary: NativeLibrary {
   private func windUp(_ before: Expr, after: Expr, handler: Expr?) throws -> Expr {
     var handlers: Expr? = nil
     if let handler = handler {
-      handlers = .pair(handler, self.context.machine.currentHandlers() ?? .null)
+      handlers = .pair(handler, self.context.evaluator.machine.currentHandlers() ?? .null)
     }
-    self.context.machine.windUp(before: try before.asProcedure(),
-                                after: try after.asProcedure(),
-                                handlers: handlers)
+    self.context.evaluator.machine.windUp(before: try before.asProcedure(),
+                                          after: try after.asProcedure(),
+                                          handlers: handlers)
     return .void
   }
   
   private func windUpRaise(_ before: Expr, after: Expr) throws -> Expr {
-    switch self.context.machine.currentHandlers() {
+    switch self.context.evaluator.machine.currentHandlers() {
       case .some(.pair(let handler, let rest)):
-        self.context.machine.windUp(before: try before.asProcedure(),
-                                    after: try after.asProcedure(),
-                                    handlers: rest)
+        self.context.evaluator.machine.windUp(before: try before.asProcedure(),
+                                              after: try after.asProcedure(),
+                                              handlers: rest)
         return handler
       default:
         return .false
@@ -288,7 +288,7 @@ public final class DynamicControlLibrary: NativeLibrary {
   }
   
   private func windDown() -> Expr {
-    guard let winder = self.context.machine.windDown() else {
+    guard let winder = self.context.evaluator.machine.windDown() else {
       return .null
     }
     return .pair(.procedure(winder.before), .procedure(winder.after))
@@ -298,19 +298,19 @@ public final class DynamicControlLibrary: NativeLibrary {
     guard case .rawContinuation(let vmState) = try cont.asProcedure().kind else {
       preconditionFailure("_dynamic-wind-base(\(cont))")
     }
-    let base = self.context.machine.winders?.commonPrefix(vmState.winders)
+    let base = self.context.evaluator.machine.winders?.commonPrefix(vmState.winders)
     return .fixnum(base?.id ?? 0)
   }
   
   private func dynamicWindCurrent() -> Expr {
-    return .fixnum(self.context.machine.winders?.id ?? 0)
+    return .fixnum(self.context.evaluator.machine.winders?.id ?? 0)
   }
   
   private func dynamicWinders(_ cont: Expr) throws -> Expr {
     guard case .rawContinuation(let vmState) = try cont.asProcedure().kind else {
       preconditionFailure("_dynamic-winders(\(cont))")
     }
-    let base = self.context.machine.winders
+    let base = self.context.evaluator.machine.winders
     var res: Expr = .null
     var next = vmState.winders
     while let winder = next , (base == nil) || winder !== base! {
@@ -325,7 +325,7 @@ public final class DynamicControlLibrary: NativeLibrary {
   }
   
   private func makeError(message: Expr, irritants: Expr) -> Expr {
-    var stackTrace = self.context.machine.getStackTrace()
+    var stackTrace = self.context.evaluator.machine.getStackTrace()
     if !stackTrace.isEmpty {
       stackTrace.removeFirst()
     }
@@ -339,7 +339,7 @@ public final class DynamicControlLibrary: NativeLibrary {
       throw RuntimeError.type(procName, expected: [.strType])
     }
     return .error(RuntimeError.eval(.assertion, procName, expr)
-                              .attach(stackTrace: self.context.machine.getStackTrace()))
+                    .attach(stackTrace: self.context.evaluator.machine.getStackTrace()))
   }
   
   private func error(args: Arguments) throws -> (Procedure, Exprs) {
@@ -350,7 +350,7 @@ public final class DynamicControlLibrary: NativeLibrary {
       RuntimeError.custom("error",
                           args.first!.unescapedDescription,
                           args.count == 1 ? [] : Array(args[args.startIndex+1..<args.endIndex]))
-                  .attach(stackTrace: self.context.machine.getStackTrace())
+        .attach(stackTrace: self.context.evaluator.machine.getStackTrace())
     if let raiseProc = self.raiseProc {
       var args = Exprs()
       args.append(.error(error))
@@ -364,7 +364,7 @@ public final class DynamicControlLibrary: NativeLibrary {
     guard args.count == 1 else {
       throw RuntimeError.argumentCount(of: "assertion", min: 1, args: .makeList(args))
     }
-    let stackTrace = self.context.machine.getStackTrace()
+    let stackTrace = self.context.evaluator.machine.getStackTrace()
     let assertionError =
       RuntimeError.eval(.assertion,
                         .makeString(stackTrace.first?.originalName ?? "procedure"),
@@ -449,7 +449,7 @@ public final class DynamicControlLibrary: NativeLibrary {
       default:
         throw RuntimeError.argumentCount(min: 1, max: 1, args: args[args.startIndex + 1])
     }
-    self.context.machine.exitTriggered = true
+    self.context.evaluator.exitTriggered = true
     return (exit, [obj])
   }
   
@@ -459,7 +459,7 @@ public final class DynamicControlLibrary: NativeLibrary {
   }
   
   private func abortEventually(expr: Expr?) -> Expr {
-    self.context.machine.abort()
+    self.context.evaluator.abort()
     return .void
   }
   
@@ -482,16 +482,15 @@ public final class DynamicControlLibrary: NativeLibrary {
   }
   
   private func dynamicEnvironment() -> Expr {
-    return .table(self.context.machine.parameters)
+    return .table(self.context.evaluator.machine.parameters)
   }
   
   private func makeDynamicEnvironment() -> Expr {
-    return .table(HashTable(copy: self.context.machine.parameters, mutable: true))
+    return .table(HashTable(copy: self.context.evaluator.machine.parameters, mutable: true))
   }
   
   private func setDynamicEnvironment(_ expr: Expr) throws -> Expr {
-    self.context.machine.parameters = try expr.asHashTable()
+    self.context.evaluator.machine.parameters = try expr.asHashTable()
     return .void
   }
 }
-

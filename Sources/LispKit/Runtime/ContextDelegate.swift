@@ -111,7 +111,7 @@ public extension ContextDelegate {
     var builder = StringBuilder()
     var offset = tailCall ? 0 : 1
     let callStack = machine.getStackTrace()
-    if machine.traceCalls == .byProc {
+    if machine.context.evaluator.traceCalls == .byProc {
       offset += self.countTracedProcedures(callStack)
     } else {
       offset += callStack.count
@@ -136,7 +136,7 @@ public extension ContextDelegate {
     var builder = StringBuilder()
     var offset = tailCall ? 0 : 1
     let callStack = machine.getStackTrace()
-    if machine.traceCalls == .byProc {
+    if machine.context.evaluator.traceCalls == .byProc {
       offset += self.countTracedProcedures(callStack)
     } else {
       offset += callStack.count

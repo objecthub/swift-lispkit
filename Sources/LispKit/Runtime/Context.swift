@@ -66,8 +66,8 @@ open class Context {
   /// The global environment is typically used for read-eval-print loops.
   public private(set) var environment: Environment! = nil
   
-  /// The virtual machine for executing Lisp code.
-  public private(set) var machine: VirtualMachine! = nil
+  /// The evaluator for executing code.
+  public private(set) var evaluator: Evaluator! = nil
   
   /// The features exposed by the LispKit interpreter defined by this context
   public let features: Set<String>
@@ -116,12 +116,12 @@ open class Context {
     self.features = supported
     self.libraries = LibraryManager(for: self)
     self.environment = Environment(in: self)
-    self.machine = VirtualMachine(for: self)
+    self.evaluator = Evaluator(for: self)
     self.inputPort = Port(input: TextInput(source: delegate,
-                                           abortionCallback: self.machine.isAbortionRequested))
+                                           abortionCallback: self.evaluator.isAbortionRequested))
     self.outputPort = Port(output: TextOutput(target: delegate, threshold: 0))
     // Register tracked objects
-    self.objects.track(self.machine)
+    self.objects.track(self.evaluator)
     self.objects.track(self.heap)
     self.objects.track(self.libraries)
     // Register native libraries
@@ -144,13 +144,13 @@ open class Context {
     // Install error handler
     if let dynamicLib = try self.libraries.lookup("lispkit", "dynamic") as? DynamicControlLibrary,
        let raiseProc = dynamicLib.raiseProc {
-      self.machine.raiseProc = raiseProc
+      self.evaluator.raiseProc = raiseProc
     }
     // Install definition procedures
     if let coreLib = try self.libraries.lookup("lispkit", "core") as? CoreLibrary {
-      self.machine.loader = coreLib.loader
-      self.machine.defineSpecial = coreLib.defineSpecial
-      self.machine.defineValuesSpecial = coreLib.defineValuesSpecial
+      self.evaluator.loader = coreLib.loader
+      self.evaluator.defineSpecial = coreLib.defineSpecial
+      self.evaluator.defineValuesSpecial = coreLib.defineValuesSpecial
     }
     if forRepl {
       _ = self.environment.define(self.symbols.starOne, as: .undef)
@@ -182,6 +182,6 @@ open class Context {
     self.libraries.release()
     self.sources.release()
     self.symbols.release()
-    self.machine.release()
+    self.evaluator.release()
   }
 }

@@ -77,7 +77,7 @@ public final class ZipArchiveLibrary: NativeLibrary {
   private func url(from path: Expr) throws -> URL {
     return URL(fileURLWithPath:
                 self.context.fileHandler.path(
-                  try path.asPath(), relativeTo: self.context.machine.currentDirectoryPath))
+                  try path.asPath(), relativeTo: self.context.evaluator.currentDirectoryPath))
   }
   
   private func archive(from expr: Expr) throws -> Archive {

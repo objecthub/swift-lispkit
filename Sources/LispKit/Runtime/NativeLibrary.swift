@@ -235,7 +235,7 @@ open class NativeLibrary: Library {
   public func execute(code: String) {
     do {
       let input = TextInput(string: code,
-                            abortionCallback: self.context.machine.isAbortionRequested)
+                            abortionCallback: self.context.evaluator.isAbortionRequested)
       let parser = Parser(symbols: self.context.symbols, input: input)
       while !parser.finished {
         self.execute(expr: try parser.parse().datum)

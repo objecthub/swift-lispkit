@@ -76,11 +76,11 @@ public final class SystemOSLibrary: NativeLibrary {
                           outport op: Expr,
                           input ipt: Expr) throws -> Expr {
     let proc = Process()
-    proc.currentDirectoryURL = URL(fileURLWithPath: self.context.machine.currentDirectoryPath,
+    proc.currentDirectoryURL = URL(fileURLWithPath: self.context.evaluator.currentDirectoryPath,
                                    isDirectory: true)
     proc.executableURL =
       URL(fileURLWithPath: try expr.asPath(),
-          relativeTo: URL(fileURLWithPath: self.context.machine.currentDirectoryPath,
+          relativeTo: URL(fileURLWithPath: self.context.evaluator.currentDirectoryPath,
                           isDirectory: true))
     var args: [String] = []
     var lst = arguments
@@ -142,7 +142,7 @@ public final class SystemOSLibrary: NativeLibrary {
       condition.unlock()
     }
     try proc.run()
-    while proc.isRunning && !self.context.machine.isAbortionRequested() {
+    while proc.isRunning && !self.context.evaluator.isAbortionRequested() {
       condition.wait(until: Date(timeInterval: 0.7, since: Date()))
     }
     inputPipe.fileHandleForWriting.writeabilityHandler = nil

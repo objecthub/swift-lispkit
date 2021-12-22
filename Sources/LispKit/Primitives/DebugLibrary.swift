@@ -188,19 +188,19 @@ public final class DebugLibrary: NativeLibrary {
       switch (expr) {
         case .fixnum(let level):
           if level == 0 {
-            self.context.machine.traceCalls = .off
+            self.context.evaluator.traceCalls = .off
           } else if level == 1 {
-            self.context.machine.traceCalls = .byProc
+            self.context.evaluator.traceCalls = .byProc
           } else {
-            self.context.machine.traceCalls = .on
+            self.context.evaluator.traceCalls = .on
           }
         case .false:
-          self.context.machine.traceCalls = .off
+          self.context.evaluator.traceCalls = .off
         default:
-          self.context.machine.traceCalls = .on
+          self.context.evaluator.traceCalls = .on
       }
     }
-    switch context.machine.traceCalls {
+    switch context.evaluator.traceCalls {
       case .off:
         return .fixnum(0)
       case .byProc:

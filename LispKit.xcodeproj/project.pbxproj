@@ -149,6 +149,8 @@
 		CC2DA73C277001A200DE69CF /* Atomics in Frameworks */ = {isa = PBXBuildFile; productRef = CC2DA73B277001A200DE69CF /* Atomics */; };
 		CC2DA7412770A4EE00DE69CF /* Locks.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2DA7402770A4EE00DE69CF /* Locks.swift */; };
 		CC2DA7422770A4EE00DE69CF /* Locks.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2DA7402770A4EE00DE69CF /* Locks.swift */; };
+		CC2DA7442772663700DE69CF /* Evaluator.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2DA7432772663600DE69CF /* Evaluator.swift */; };
+		CC2DA7452772663700DE69CF /* Evaluator.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2DA7432772663600DE69CF /* Evaluator.swift */; };
 		CC31A6981D3AC223008D7728 /* Hash.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC31A6971D3AC223008D7728 /* Hash.swift */; };
 		CC35F9C2222188BD00895A10 /* DateTimeLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35F9C1222188BC00895A10 /* DateTimeLibrary.swift */; };
 		CC35FD0D1C6FA4B700C8B992 /* VirtualMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */; };
@@ -2378,6 +2380,7 @@
 		CC2D124E1DB40E7F009BDC72 /* LibraryManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryManager.swift; sourceTree = "<group>"; };
 		CC2DA735276FFC4200DE69CF /* Registers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Registers.swift; sourceTree = "<group>"; };
 		CC2DA7402770A4EE00DE69CF /* Locks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Locks.swift; sourceTree = "<group>"; };
+		CC2DA7432772663600DE69CF /* Evaluator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Evaluator.swift; sourceTree = "<group>"; };
 		CC31A6971D3AC223008D7728 /* Hash.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Hash.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC35F9C1222188BC00895A10 /* DateTimeLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateTimeLibrary.swift; sourceTree = "<group>"; };
 		CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = VirtualMachine.swift; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -3723,6 +3726,7 @@
 				CC5696761CBCFA9900F6803E /* Instruction.swift */,
 				CC0980A81C67E81C006B7FB1 /* Code.swift */,
 				CC2DA735276FFC4200DE69CF /* Registers.swift */,
+				CC2DA7432772663600DE69CF /* Evaluator.swift */,
 				CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */,
 				CCC41DC51D2851FB003CB4D0 /* VirtualMachineState.swift */,
 				CC0A984D233E70C400C52573 /* GarbageCollector.swift */,
@@ -4215,6 +4219,7 @@
 				CCC62D921CA9ED6A00E2C43F /* TrackedObject.swift in Sources */,
 				CC38528B23126F7A001D5E56 /* InternalLibrary.swift in Sources */,
 				CC6A3B721C54DF7F00E962E2 /* Exprs.swift in Sources */,
+				CC2DA7442772663700DE69CF /* Evaluator.swift in Sources */,
 				CC09CC5121F12C7800C16864 /* GrowableVectorLibrary.swift in Sources */,
 				CC31A6981D3AC223008D7728 /* Hash.swift in Sources */,
 				CC5A47251C52E08900EFCF76 /* ControlFlowLibrary.swift in Sources */,
@@ -4294,6 +4299,7 @@
 				CCC48CCA25E5B98600D082AD /* MarkdownLibrary.swift in Sources */,
 				CCC48CA325E5B96800D082AD /* SourcePosition.swift in Sources */,
 				CCC48C6625E5B94300D082AD /* StringBuilder.swift in Sources */,
+				CC2DA7452772663700DE69CF /* Evaluator.swift in Sources */,
 				CCC48CD125E5B98600D082AD /* LibraryRegistry.swift in Sources */,
 				CCC48CA925E5B97100D082AD /* Features.swift in Sources */,
 				CCC48C8825E5B95B00D082AD /* SpecialForm.swift in Sources */,

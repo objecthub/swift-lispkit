@@ -331,7 +331,7 @@ open class LispKitRepl {
        let ppath = self.prelude.value ??
                    (self.flags.parameters.isEmpty ? LispKitContext.defaultPreludePath : nil) {
       do {
-        _ = try context.machine.eval(file: ppath, in: context.global)
+        _ = try context.evaluator.machine.eval(file: ppath, in: context.global)
       } catch let error as RuntimeError {
         guard self.printError("cannot evaluate prelude \(ppath): \(error.message)") else {
           return false
@@ -375,10 +375,10 @@ open class LispKitRepl {
     guard let context = self.context else {
       return .false
     }
-    return context.machine.onTopLevelDo {
-      return try context.machine.eval(str: buffer,
-                                      sourceId: SourceManager.consoleSourceId,
-                                      in: context.global, as: "<repl>")
+    return context.evaluator.execute { machine in
+      return try machine.eval(str: buffer,
+                              sourceId: SourceManager.consoleSourceId,
+                              in: context.global, as: "<repl>")
     }
   }
   
@@ -390,10 +390,10 @@ open class LispKitRepl {
     let filename = context.fileHandler.filePath(forFile: path, relativeTo: currentPath) ??
                    context.fileHandler.libraryFilePath(forFile: path, relativeTo: currentPath) ??
                    context.fileHandler.path(path, relativeTo: currentPath)
-    let res = context.machine.onTopLevelDo {
-      return try context.machine.eval(file: filename, in: context.global)
+    let res = context.evaluator.execute { machine in
+      return try machine.eval(file: filename, in: context.global)
     }
-    if context.machine.exitTriggered {
+    if context.evaluator.exitTriggered {
       if res != .true {
         print("abnormal exit: \(res.description)\n")
         return false
@@ -423,7 +423,7 @@ open class LispKitRepl {
       // Execute the command
       let res = self.execute(command: buffer)
       // Exit loop if the machine has executed the `exit` function
-      if context.machine.exitTriggered {
+      if context.evaluator.exitTriggered {
         if res != .true {
           print("abnormal exit: \(res.description)\n")
           return false

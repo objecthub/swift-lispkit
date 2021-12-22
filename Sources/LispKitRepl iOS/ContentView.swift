@@ -93,7 +93,7 @@ struct ContentView: View {
               Alert(title: Text("Abort evaluation?"),
                     primaryButton: .cancel(),
                     secondaryButton: .destructive(Text("Abort"), action: {
-                      self.interpreter.context?.machine.abort()
+                      self.interpreter.context?.evaluator.abort()
                     }))
             }
           }

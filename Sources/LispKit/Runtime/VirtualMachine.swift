@@ -47,7 +47,7 @@ import Foundation
 ///    ╞═══════════════════╡
 ///    │        ...        │
 ///
-public final class VirtualMachine: TrackedObject {
+public final class VirtualMachine {
   
   internal final class Winder: Reference {
     let before: Procedure
@@ -110,14 +110,8 @@ public final class VirtualMachine: TrackedObject {
     }
   }
   
-  public enum CallTracingMode {
-    case on
-    case off
-    case byProc
-  }
-  
   /// The context of this virtual machine
-  private unowned let context: Context
+  public unowned let context: Context
   
   /// The stack used by this virtual machine
   private var stack: Exprs
@@ -142,30 +136,16 @@ public final class VirtualMachine: TrackedObject {
   internal private(set) var winders: Winder?
   
   /// Parameters
-  public internal(set) var parameters: HashTable
-  private var setParameterProc: Procedure!
-  private(set) public var currentDirectoryProc: Procedure!
+  internal var parameters: HashTable
   
   /// Internal counter used for triggering the garbage collector.
   private var execInstr: UInt64
   
-  /// Procedures defined in low-level libraries.
-  public var raiseProc: Procedure? = nil
-  public var loader: Procedure? = nil
-  public var defineSpecial: SpecialForm? = nil
-  public var defineValuesSpecial: SpecialForm? = nil
-  
   /// Set to true while `onTopLevelDo` is executing
-  private var executing: Bool = false
+  internal private(set) var executing: Bool = false
   
   /// When set to true, it will trigger an abortion of the machine evaluator as soon as possible.
   private var abortionRequested: Bool = false
-  
-  /// Will be set to true if the `exit` function was invoked.
-  public internal(set) var exitTriggered: Bool = false
-  
-  /// When set to true, will print call and return traces
-  public var traceCalls: CallTracingMode = .off
   
   /// Initializes a new virtual machine for the given context.
   public init(for context: Context) {
@@ -177,12 +157,18 @@ public final class VirtualMachine: TrackedObject {
     self.winders = nil
     self.parameters = HashTable(equiv: .eq)
     self.execInstr = 0
-    super.init()
-    self.setParameterProc = Procedure("_set-parameter", self.setParameter, nil)
-    self.currentDirectoryProc =
-      Procedure(.procedure(Procedure("_valid-current-path", self.validCurrentPath)),
-                .makeString(self.context.initialHomePath ??
-                            self.context.fileHandler.currentDirectoryPath))
+  }
+  
+  /// Initializes a new virtual machine for the given context.
+  public init(parent machine: VirtualMachine) {
+    self.context = machine.context
+    self.stack = Exprs(repeating: .undef, count: 1024)
+    self.sp = 0
+    self.maxSp = 0
+    self.registers = Registers(code: Code([], [], []), captured: [], fp: 0, root: true)
+    self.winders = nil
+    self.parameters = HashTable(copy: machine.parameters)
+    self.execInstr = 0
   }
   
   /// Returns a copy of the current virtual machine state.
@@ -196,16 +182,10 @@ public final class VirtualMachine: TrackedObject {
   }
   
   /// Requests abortion of the machine evaluator.
-  public func abort() {
+  public func requestAbortion() {
     if self.executing {
       self.abortionRequested = true
-      self.context.delegate?.aborted()
     }
-  }
-  
-  /// Returns true if an abortion was requested.
-  public func isAbortionRequested() -> Bool {
-    return self.abortionRequested
   }
   
   /// Checks that computation happens on top level and fails if the conditions are not met.
@@ -216,11 +196,10 @@ public final class VirtualMachine: TrackedObject {
   }
   
    /// Executes an evaluation function at the top-level.
-  public func onTopLevelDo(_ eval: () throws -> Expr) -> Expr {
+  func onTopLevelDo(_ eval: () throws -> Expr) -> Expr {
     // Prepare for the evaluation
     self.assertTopLevel()
     self.executing = true
-    self.exitTriggered = false
     // Reset machine once evaluation finished
     defer {
       for i in 0..<self.sp {
@@ -246,7 +225,7 @@ public final class VirtualMachine: TrackedObject {
     }
     // Return thrown exception if there is no `raise` procedure. In such a case, there is no
     // unwind of the dynamic environment.
-    guard let raiseProc = self.raiseProc else {
+    guard let raiseProc = self.context.evaluator.raiseProc else {
       return .error(exception!)
     }
     // Raise thrown exceptions
@@ -270,10 +249,10 @@ public final class VirtualMachine: TrackedObject {
   /// executes it using this virtual machine.
   public func eval(file path: String, foldCase: Bool = false) throws -> Expr {
     // Load file and parse expressions
-    let exprs = try self.parse(file: path, foldCase: foldCase)
+    let exprs = try self.context.evaluator.parse(file: path, foldCase: foldCase)
     let sourceDir = self.context.fileHandler.directory(path)
     // Hand over work to `compileAndEvalFirst`
-    return try self.apply(.procedure(self.loader!),
+    return try self.apply(.procedure(self.context.evaluator.loader!),
                           to: .makeList(exprs,
                                         .makeString(sourceDir),
                                         .env(self.context.environment)))
@@ -303,9 +282,9 @@ public final class VirtualMachine: TrackedObject {
                    inDirectory: String? = nil,
                    foldCase: Bool = false) throws -> Expr {
     // Parse expressions
-    let exprs = try self.parse(str: str, sourceId: sourceId, foldCase: foldCase)
+    let exprs = try self.context.evaluator.parse(str: str, sourceId: sourceId, foldCase: foldCase)
     // Hand over work to loader
-    return try self.apply(.procedure(self.loader!),
+    return try self.apply(.procedure(self.context.evaluator.loader!),
                           to: .makeList(exprs,
                                         inDirectory == nil ? .false : .makeString(inDirectory!),
                                         .env(self.context.environment)))
@@ -320,7 +299,9 @@ public final class VirtualMachine: TrackedObject {
                    optimize: Bool = true,
                    inDirectory: String? = nil,
                    foldCase: Bool = false) throws -> Expr {
-    return try self.eval(exprs: self.parse(str: str, sourceId: sourceId, foldCase: foldCase),
+    return try self.eval(exprs: self.context.evaluator.parse(str: str,
+                                                             sourceId: sourceId,
+                                                             foldCase: foldCase),
                          in: env,
                          as: name,
                          optimize: optimize,
@@ -367,40 +348,6 @@ public final class VirtualMachine: TrackedObject {
                          as: name,
                          optimize: optimize,
                          inDirectory: inDirectory)
-  }
-  
-  /// Parses the given file and returns a list of parsed expressions.
-  public func parse(file path: String, foldCase: Bool = false) throws -> Expr {
-    let (sourceId, text) = try self.context.sources.readSource(for: path)
-    return try self.parse(str: text, sourceId: sourceId, foldCase: foldCase)
-  }
-  
-  /// Parses the given string and returns a list of parsed expressions.
-  public func parse(str: String, sourceId: UInt16, foldCase: Bool = false) throws -> Expr {
-    return .makeList(try self.parseExprs(str: str, sourceId: sourceId, foldCase: foldCase))
-  }
-  
-  /// Parses the given string and returns an array of parsed expressions.
-  public func parseExprs(file path: String, foldCase: Bool = false) throws -> Exprs {
-    let (sourceId, text) = try self.context.sources.readSource(for: path)
-    return try self.parseExprs(str: text,
-                               sourceId: sourceId,
-                               foldCase: foldCase)
-  }
-  
-  /// Parses the given string and returns an array of parsed expressions.
-  public func parseExprs(str: String, sourceId: UInt16, foldCase: Bool = false) throws -> Exprs {
-    let input = TextInput(string: str,
-                          abortionCallback: self.context.machine.isAbortionRequested)
-    let parser = Parser(symbols: self.context.symbols,
-                        input: input,
-                        sourceId: sourceId,
-                        foldCase: foldCase)
-    var exprs = Exprs()
-    while !parser.finished {
-      exprs.append(try parser.parse().datum) // TODO: remove .datum
-    }
-    return exprs
   }
   
   /// Compiles the given expression `expr` in the environment `env` and executes it using
@@ -546,62 +493,6 @@ public final class VirtualMachine: TrackedObject {
     return winders?.handlers
   }
   
-  public func getParam(_ param: Procedure) -> Expr? {
-    return self.getParameter(.procedure(param))
-  }
-  
-  public func getParameter(_ param: Expr) -> Expr? {
-    guard case .some(.pair(_, .box(let cell))) = self.parameters.get(param) else {
-      guard case .procedure(let proc) = param,
-            case .parameter(let tuple) = proc.kind else {
-        return nil
-      }
-      return tuple.snd
-    }
-    return cell.value
-  }
-  
-  public func setParam(_ param: Procedure, to value: Expr) -> Expr {
-    return self.setParameter(.procedure(param), to: value)
-  }
-  
-  public func setParameter(_ param: Expr, to value: Expr) -> Expr {
-    guard case .some(.pair(_, .box(let cell))) = self.parameters.get(param) else {
-      guard case .procedure(let proc) = param,
-            case .parameter(let tuple) = proc.kind else {
-        preconditionFailure("cannot set parameter \(param)")
-      }
-      tuple.snd = value
-      return .void
-    }
-    cell.value = value
-    return .void
-  }
-  
-  internal func bindParameter(_ param: Expr, to value: Expr) -> Expr {
-    self.parameters.add(key: param, mapsTo: .box(Cell(value)))
-    return .void
-  }
-  
-  public var currentDirectoryPath: String {
-    get {
-      do {
-        return try self.getParam(self.currentDirectoryProc)!.asString()
-      } catch {
-        preconditionFailure("current directory path not a string")
-      }
-    }
-    set {
-      _ = self.setParam(self.currentDirectoryProc, to: .makeString(newValue))
-    }
-  }
-  
-  private func validCurrentPath(param: Expr, expr: Expr, setter: Expr) throws -> Expr {
-    self.currentDirectoryPath =
-      self.context.fileHandler.path(try expr.asPath(), relativeTo: self.currentDirectoryPath)
-    return .makeString(self.currentDirectoryPath)
-  }
-  
   private func exitFrame() {
     let fp = self.registers.fp
     // Determine former ip
@@ -661,9 +552,9 @@ public final class VirtualMachine: TrackedObject {
   }
   
   @inline(__always) private func printCallTrace(_ n: Int, tailCall: Bool = false) -> Procedure? {
-    if self.traceCalls != .off && self.sp > (n &+ 1) {
+    if self.context.evaluator.traceCalls != .off && self.sp > (n &+ 1) {
       if case .procedure(let proc) = self.stack[self.sp &- n &- 1],
-         self.traceCalls == .on || proc.traced {
+         self.context.evaluator.traceCalls == .on || proc.traced {
         var args = Exprs()
         for i in 0..<n {
           args.append(self.stack[self.sp &- n &+ i])
@@ -679,7 +570,8 @@ public final class VirtualMachine: TrackedObject {
   }
   
   @inline(__always) private func printReturnTrace(_ proc: Procedure, tailCall: Bool = false) {
-    if (self.traceCalls == .on || (self.traceCalls == .byProc && proc.traced)) && self.sp > 0 {
+    if (self.context.evaluator.traceCalls == .on ||
+        (self.context.evaluator.traceCalls == .byProc && proc.traced)) && self.sp > 0 {
       self.context.delegate?.trace(return: proc,
                                    result: self.stack[self.sp &- 1],
                                    tailCall: tailCall,
@@ -698,12 +590,12 @@ public final class VirtualMachine: TrackedObject {
       switch n {
         case 0:                             // Return parameter value
           self.pop(overhead)
-          self.push(self.getParam(proc)!)
+          self.push(self.context.evaluator.getParam(proc)!)
           return proc
         case 1 where tuple.fst.isNull:      // Set parameter value without setter
           let a0 = self.pop()
           self.pop(overhead)
-          self.push(self.setParam(proc, to: a0))
+          self.push(self.context.evaluator.setParam(proc, to: a0))
           return proc
         case 1:                             // Set parameter value with setter
           let a0 = self.pop()
@@ -711,7 +603,7 @@ public final class VirtualMachine: TrackedObject {
           self.push(tuple.fst)
           self.push(.procedure(proc))
           self.push(a0)
-          self.push(.procedure(self.setParameterProc))
+          self.push(.procedure(self.context.evaluator.setParameterProc))
           n = 3
           proc = try tuple.fst.asProcedure()
         default:
@@ -1760,18 +1652,6 @@ public final class VirtualMachine: TrackedObject {
     return .null
   }
   
-  public override func mark(in gc: GarbageCollector) {
-    for i in 0..<self.sp {
-      gc.markLater(self.stack[i])
-    }
-    self.registers.mark(in: gc)
-    self.winders?.mark(in: gc)
-    gc.mark(self.parameters)
-    if let proc = self.raiseProc {
-      gc.mark(proc)
-    }
-  }
-  
   /// Debugging output
   private func stackFragmentDescr(_ ip: Int, _ fp: Int, header: String? = nil) -> String {
     var res = header ?? "╔══════════════════════════════════════════════════════\n"
@@ -1789,6 +1669,19 @@ public final class VirtualMachine: TrackedObject {
     return res
   }
   
+  /// Mark virual machine
+  public func mark(in gc: GarbageCollector) {
+    for i in 0..<self.sp {
+      gc.markLater(self.stack[i])
+    }
+    self.registers.mark(in: gc)
+    self.winders?.mark(in: gc)
+    gc.mark(self.parameters)
+    if let proc = self.context.evaluator.raiseProc {
+      gc.mark(proc)
+    }
+  }
+  
   /// Reset virtual machine
   public func release() {
     self.stack = Exprs(repeating: .undef, count: 1024)
@@ -1798,10 +1691,6 @@ public final class VirtualMachine: TrackedObject {
     self.winders = nil
     self.parameters = HashTable(equiv: .eq)
     self.execInstr = 0
-    self.setParameterProc = nil
-    self.raiseProc = nil
     self.abortionRequested = false
-    self.exitTriggered = false
-    self.traceCalls = .off
   }
 }

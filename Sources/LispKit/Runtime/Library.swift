@@ -401,9 +401,9 @@ open class Library: Reference, CustomStringConvertible {
       let env = try Env(self.initializationEnvironment())
       for block in self.initDeclBlocks {
         for decl in block.decls {
-          _ = try self.context.machine.compileAndEval(expr: decl,
-                                                      in: env,
-                                                      inDirectory: block.sourceDirectory)
+          _ = try self.context.evaluator.machine.compileAndEval(expr: decl,
+                                                                in: env,
+                                                                inDirectory: block.sourceDirectory)
         }
       }
       // Check that all exported declarations are initialized
@@ -528,7 +528,7 @@ open class Library: Reference, CustomStringConvertible {
             let resolvedName =
               self.context.fileHandler.filePath(forFile: str, relativeTo: inDirectory) ??
               self.context.fileHandler.path(str, relativeTo: inDirectory)
-            let exprs = try self.context.machine.parseExprs(file: resolvedName, foldCase: false)
+            let exprs = try self.context.evaluator.parseExprs(file: resolvedName, foldCase: false)
             if exprs.count > 0 {
               let sourceDirectory = self.context.fileHandler.directory(resolvedName)
               self.initDeclBlocks.append(DeclBlock(decls: exprs, inDirectory: sourceDirectory))
@@ -545,7 +545,7 @@ open class Library: Reference, CustomStringConvertible {
             let resolvedName =
               self.context.fileHandler.filePath(forFile: str, relativeTo: inDirectory) ??
                 self.context.fileHandler.path(str, relativeTo: inDirectory)
-            let exprs = try self.context.machine.parseExprs(file: resolvedName, foldCase: true)
+            let exprs = try self.context.evaluator.parseExprs(file: resolvedName, foldCase: true)
             if exprs.count > 0 {
               let sourceDirectory = self.context.fileHandler.directory(resolvedName)
               self.initDeclBlocks.append(DeclBlock(decls: exprs, inDirectory: sourceDirectory))
@@ -562,7 +562,7 @@ open class Library: Reference, CustomStringConvertible {
             let resolvedName =
               self.context.fileHandler.filePath(forFile: str, relativeTo: inDirectory) ??
               self.context.fileHandler.path(str, relativeTo: inDirectory)
-            let exprs = try self.context.machine.parseExprs(file: resolvedName)
+            let exprs = try self.context.evaluator.parseExprs(file: resolvedName)
             let sourceDirectory = self.context.fileHandler.directory(resolvedName)
             var j = i
             for expr in exprs {

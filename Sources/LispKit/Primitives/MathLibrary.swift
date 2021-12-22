@@ -1161,7 +1161,7 @@ public final class MathLibrary: NativeLibrary {
       }
     }
     let input = TextInput(string: try expr.asString(),
-                          abortionCallback: self.context.machine.isAbortionRequested)
+                          abortionCallback: self.context.evaluator.isAbortionRequested)
     let scanner = Scanner(input: input, prescan: false)
     scanner.skipSpace()
     guard scanner.ch != EOF_CH else {

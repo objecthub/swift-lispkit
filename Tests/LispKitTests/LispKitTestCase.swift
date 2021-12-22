@@ -91,10 +91,10 @@ open class LispKitTestCase: XCTestCase {
   }
   
   public func eval(_ string: String) -> Expr {
-    return self.context!.machine.onTopLevelDo {
-      return try self.context!.machine.eval(str: string,
-                                            sourceId: SourceManager.consoleSourceId,
-                                            in: context!.global)
+    return self.context!.evaluator.execute { machine in
+      return try machine.eval(str: string,
+                              sourceId: SourceManager.consoleSourceId,
+                              in: context!.global)
     }
   }
   
@@ -109,9 +109,9 @@ open class LispKitTestCase: XCTestCase {
   
   public func assertStackEmpty(after: String? = nil) {
     if let after = after {
-      XCTAssertEqual(self.context!.machine.sp, 0, "stack not empty: \(after)")
+      XCTAssertEqual(self.context!.evaluator.machine.sp, 0, "stack not empty: \(after)")
     } else {
-      XCTAssertEqual(self.context!.machine.sp, 0, "stack not empty")
+      XCTAssertEqual(self.context!.evaluator.machine.sp, 0, "stack not empty")
     }
   }
   
@@ -163,8 +163,8 @@ open class LispKitTestCase: XCTestCase {
       print("───────────────────────────────────────────────────────────────────────")
       print("✅ \(test.description)")
       print("expected: \(test.target)")
-      let res = self.context!.machine.onTopLevelDo {
-        return try self.context!.machine.eval(exprs: test.source, in: context!.global)
+      let res = self.context!.evaluator.execute { machine in
+        return try machine.eval(exprs: test.source, in: context!.global)
       }
       print("computed: \(res)")
       if case .symbol(let sym) = test.target, sym.rawIdentifier == "<error>" {

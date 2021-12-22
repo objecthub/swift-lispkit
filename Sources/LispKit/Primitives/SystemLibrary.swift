@@ -46,7 +46,7 @@ public final class SystemLibrary: NativeLibrary {
 
   /// Declarations of the library.
   public override func declarations() {
-    self.define("current-directory", as: self.context.machine.currentDirectoryProc)
+    self.define("current-directory", as: self.context.evaluator.currentDirectoryProc)
     self.define(SpecialForm("source-directory", self.compileSourceDirectory))
     self.define(Procedure("home-directory", self.homeDirectory))
     self.define(Procedure("system-directory", self.systemDirectory))
@@ -248,11 +248,11 @@ public final class SystemLibrary: NativeLibrary {
   }
 
   private func filePath(expr: Expr, base: Expr?, resolve: Expr?) throws -> Expr {
-    var root = self.context.machine.currentDirectoryPath
+    var root = self.context.evaluator.currentDirectoryPath
     if (base ?? .false).isTrue,
        let base = try base?.asPath() {
       root = self.context.fileHandler.path(base,
-                                           relativeTo: self.context.machine.currentDirectoryPath)
+                                           relativeTo: self.context.evaluator.currentDirectoryPath)
     }
     let relativePath = NSString(string: try expr.asString()).expandingTildeInPath
     let path = self.context.fileHandler.path(relativePath,
@@ -266,7 +266,7 @@ public final class SystemLibrary: NativeLibrary {
                         forFile: try expr.asString(),
                         ofType: try type.asString(),
                         inFolder: try dir?.asPath(),
-                        relativeTo: self.context.machine.currentDirectoryPath) {
+                        relativeTo: self.context.evaluator.currentDirectoryPath) {
       return .makeString(filename)
     } else {
       return .false
@@ -276,93 +276,93 @@ public final class SystemLibrary: NativeLibrary {
   private func parentFilePath(expr: Expr) throws -> Expr {
     return .makeString(
       self.context.fileHandler.directory(try expr.asString(),
-                                         relativeTo: self.context.machine.currentDirectoryPath))
+                                         relativeTo: self.context.evaluator.currentDirectoryPath))
   }
 
   private func filePathRoot(expr: Expr) throws -> Expr {
     return .makeBoolean(
       self.context.fileHandler.path(try expr.asString(),
-                                    relativeTo: self.context.machine.currentDirectoryPath) == "/")
+                                    relativeTo: self.context.evaluator.currentDirectoryPath) == "/")
   }
   
   private func fileExists(expr: Expr) throws -> Expr {
     return .makeBoolean(
       self.context.fileHandler.isFile(atPath: try expr.asPath(),
-                                      relativeTo: self.context.machine.currentDirectoryPath))
+                                      relativeTo: self.context.evaluator.currentDirectoryPath))
   }
 
   private func fileReadable(expr: Expr) throws -> Expr {
     let path = try expr.asPath()
     return .makeBoolean(
       self.context.fileHandler.isFile(atPath: path,
-                                      relativeTo: self.context.machine.currentDirectoryPath) &&
+                                      relativeTo: self.context.evaluator.currentDirectoryPath) &&
       self.context.fileHandler.itemReadable(atPath: path,
-                                            relativeTo: self.context.machine.currentDirectoryPath))
+                                            relativeTo: self.context.evaluator.currentDirectoryPath))
   }
 
   private func fileWritable(expr: Expr) throws -> Expr {
     let path = try expr.asPath()
     return .makeBoolean(
       self.context.fileHandler.isFile(atPath: path,
-                                      relativeTo: self.context.machine.currentDirectoryPath) &&
+                                      relativeTo: self.context.evaluator.currentDirectoryPath) &&
       self.context.fileHandler.itemWritable(atPath: path,
-                                            relativeTo: self.context.machine.currentDirectoryPath))
+                                            relativeTo: self.context.evaluator.currentDirectoryPath))
   }
 
   private func fileDeletable(expr: Expr) throws -> Expr {
     let path = try expr.asPath()
     return .makeBoolean(
       self.context.fileHandler.isFile(atPath: path,
-                                      relativeTo: self.context.machine.currentDirectoryPath) &&
+                                      relativeTo: self.context.evaluator.currentDirectoryPath) &&
       self.context.fileHandler.itemDeletable(atPath: path,
-                                             relativeTo: self.context.machine.currentDirectoryPath))
+                                             relativeTo: self.context.evaluator.currentDirectoryPath))
   }
 
   private func directoryExists(expr: Expr) throws -> Expr {
     return .makeBoolean(
       self.context.fileHandler.isDirectory(atPath: try expr.asPath(),
-                                           relativeTo: self.context.machine.currentDirectoryPath))
+                                           relativeTo: self.context.evaluator.currentDirectoryPath))
   }
 
   private func directoryReadable(expr: Expr) throws -> Expr {
     let path = try expr.asPath()
     return .makeBoolean(
       self.context.fileHandler.isDirectory(atPath: path,
-                                           relativeTo: self.context.machine.currentDirectoryPath) &&
+                                           relativeTo: self.context.evaluator.currentDirectoryPath) &&
       self.context.fileHandler.itemReadable(atPath: path,
-                                            relativeTo: self.context.machine.currentDirectoryPath))
+                                            relativeTo: self.context.evaluator.currentDirectoryPath))
   }
 
   private func directoryWritable(expr: Expr) throws -> Expr {
     let path = try expr.asPath()
     return .makeBoolean(
       self.context.fileHandler.isDirectory(atPath: path,
-                                           relativeTo: self.context.machine.currentDirectoryPath) &&
+                                           relativeTo: self.context.evaluator.currentDirectoryPath) &&
       self.context.fileHandler.itemWritable(atPath: path,
-                                            relativeTo: self.context.machine.currentDirectoryPath))
+                                            relativeTo: self.context.evaluator.currentDirectoryPath))
   }
 
   private func directoryDeletable(expr: Expr) throws -> Expr {
     let path = try expr.asPath()
     return .makeBoolean(
       self.context.fileHandler.isDirectory(atPath: path,
-                                           relativeTo: self.context.machine.currentDirectoryPath) &&
+                                           relativeTo: self.context.evaluator.currentDirectoryPath) &&
       self.context.fileHandler.itemDeletable(atPath: path,
-                                             relativeTo: self.context.machine.currentDirectoryPath))
+                                             relativeTo: self.context.evaluator.currentDirectoryPath))
   }
 
   private func fileOrDirectoryExists(expr: Expr) throws -> Expr {
     return .makeBoolean(
       self.context.fileHandler.itemExists(atPath: try expr.asPath(),
-                                          relativeTo: self.context.machine.currentDirectoryPath))
+                                          relativeTo: self.context.evaluator.currentDirectoryPath))
   }
 
   private func deleteFile(expr: Expr) throws -> Expr {
     let path = try expr.asPath()
     if self.context.fileHandler.isFile(atPath: path,
-                                       relativeTo: self.context.machine.currentDirectoryPath) {
+                                       relativeTo: self.context.evaluator.currentDirectoryPath) {
       try self.context.fileHandler.deleteItem(atPath: path,
-                                              relativeTo: self.context.machine.currentDirectoryPath)
+                                              relativeTo: self.context.evaluator.currentDirectoryPath)
       return .void
     } else {
       throw RuntimeError.eval(.unknownFile, expr)
@@ -372,9 +372,9 @@ public final class SystemLibrary: NativeLibrary {
   private func deleteDirectory(expr: Expr) throws -> Expr {
     let path = try expr.asPath()
     if self.context.fileHandler.isDirectory(atPath: path,
-                                            relativeTo: self.context.machine.currentDirectoryPath) {
+                                            relativeTo: self.context.evaluator.currentDirectoryPath) {
       try self.context.fileHandler.deleteItem(atPath: path,
-                                              relativeTo: self.context.machine.currentDirectoryPath)
+                                              relativeTo: self.context.evaluator.currentDirectoryPath)
       return .void
     } else {
       throw RuntimeError.eval(.unknownDirectory, expr)
@@ -383,17 +383,17 @@ public final class SystemLibrary: NativeLibrary {
 
   private func deleteFileOrDirectory(expr: Expr) throws -> Expr {
     try self.context.fileHandler.deleteItem(atPath: try expr.asPath(),
-                                            relativeTo: self.context.machine.currentDirectoryPath)
+                                            relativeTo: self.context.evaluator.currentDirectoryPath)
     return .void
   }
 
   private func copyFile(fromPath: Expr, toPath: Expr) throws -> Expr {
     let path = try fromPath.asPath()
     if self.context.fileHandler.isFile(atPath: path,
-                                       relativeTo: self.context.machine.currentDirectoryPath) {
+                                       relativeTo: self.context.evaluator.currentDirectoryPath) {
       try self.context.fileHandler.copyItem(atPath: path,
                                             toPath: try toPath.asPath(),
-                                            relativeTo: self.context.machine.currentDirectoryPath)
+                                            relativeTo: self.context.evaluator.currentDirectoryPath)
       return .void
     } else {
       throw RuntimeError.eval(.unknownFile, fromPath)
@@ -403,10 +403,10 @@ public final class SystemLibrary: NativeLibrary {
   private func copyDirectory(fromPath: Expr, toPath: Expr) throws -> Expr {
     let path = try fromPath.asPath()
     if self.context.fileHandler.isDirectory(atPath: path,
-                                            relativeTo: self.context.machine.currentDirectoryPath) {
+                                            relativeTo: self.context.evaluator.currentDirectoryPath) {
       try self.context.fileHandler.copyItem(atPath: path,
                                             toPath: try toPath.asPath(),
-                                            relativeTo: self.context.machine.currentDirectoryPath)
+                                            relativeTo: self.context.evaluator.currentDirectoryPath)
       return .void
     } else {
       throw RuntimeError.eval(.unknownDirectory, fromPath)
@@ -417,17 +417,17 @@ public final class SystemLibrary: NativeLibrary {
   private func copyFileOrDirectory(fromPath: Expr, toPath: Expr) throws -> Expr {
     try self.context.fileHandler.copyItem(atPath: try fromPath.asPath(),
                                           toPath: try toPath.asPath(),
-                                          relativeTo: self.context.machine.currentDirectoryPath)
+                                          relativeTo: self.context.evaluator.currentDirectoryPath)
     return .void
   }
 
   private func moveFile(fromPath: Expr, toPath: Expr) throws -> Expr {
     let path = try fromPath.asPath()
     if self.context.fileHandler.isFile(atPath: path,
-                                       relativeTo: self.context.machine.currentDirectoryPath) {
+                                       relativeTo: self.context.evaluator.currentDirectoryPath) {
       try self.context.fileHandler.moveItem(atPath: path,
                                             toPath: try toPath.asPath(),
-                                            relativeTo: self.context.machine.currentDirectoryPath)
+                                            relativeTo: self.context.evaluator.currentDirectoryPath)
       return .void
     } else {
       throw RuntimeError.eval(.unknownFile, fromPath)
@@ -437,10 +437,10 @@ public final class SystemLibrary: NativeLibrary {
   private func moveDirectory(fromPath: Expr, toPath: Expr) throws -> Expr {
     let path = try fromPath.asPath()
     if self.context.fileHandler.isDirectory(atPath: path,
-                                            relativeTo: self.context.machine.currentDirectoryPath) {
+                                            relativeTo: self.context.evaluator.currentDirectoryPath) {
       try self.context.fileHandler.moveItem(atPath: path,
                                             toPath: try toPath.asPath(),
-                                            relativeTo: self.context.machine.currentDirectoryPath)
+                                            relativeTo: self.context.evaluator.currentDirectoryPath)
       return .void
     } else {
       throw RuntimeError.eval(.unknownDirectory, fromPath)
@@ -451,14 +451,14 @@ public final class SystemLibrary: NativeLibrary {
   private func moveFileOrDirectory(fromPath: Expr, toPath: Expr) throws -> Expr {
     try self.context.fileHandler.moveItem(atPath: try fromPath.asPath(),
                                           toPath: try toPath.asPath(),
-                                          relativeTo: self.context.machine.currentDirectoryPath)
+                                          relativeTo: self.context.evaluator.currentDirectoryPath)
     return .void
   }
 
   private func fileSize(expr: Expr) throws -> Expr {
     guard let size = self.context.fileHandler.fileSize(
                        atPath: try expr.asPath(),
-                       relativeTo: self.context.machine.currentDirectoryPath) else {
+                       relativeTo: self.context.evaluator.currentDirectoryPath) else {
       throw RuntimeError.eval(.unknownFile, expr)
     }
     return .fixnum(size)
@@ -466,7 +466,7 @@ public final class SystemLibrary: NativeLibrary {
   
   private func directoryList(expr: Expr) throws -> Expr {
     let contents = try self.context.fileHandler.contentsOfDirectory(
-      atPath: try expr.asPath(), relativeTo: self.context.machine.currentDirectoryPath)
+      atPath: try expr.asPath(), relativeTo: self.context.evaluator.currentDirectoryPath)
     var res = Expr.null
     for item in contents {
       res = .pair(.makeString(item), res)
@@ -476,13 +476,13 @@ public final class SystemLibrary: NativeLibrary {
 
   private func makeDirectory(expr: Expr) throws -> Expr {
     try self.context.fileHandler.makeDirectory(
-      atPath: try expr.asPath(), relativeTo: self.context.machine.currentDirectoryPath)
+      atPath: try expr.asPath(), relativeTo: self.context.evaluator.currentDirectoryPath)
     return .void
   }
 
   private func openFile(expr: Expr, withApp: Expr?, deactivate: Expr?) throws -> Expr {
     let path = self.context.fileHandler.path(try expr.asPath(),
-                                             relativeTo: self.context.machine.currentDirectoryPath)
+                                             relativeTo: self.context.evaluator.currentDirectoryPath)
     if let app = withApp {
       #if os(iOS) || os(watchOS) || os(tvOS)
       return .false
@@ -733,7 +733,7 @@ public final class SystemLibrary: NativeLibrary {
     stream.waitForResponse()
     guard let input = BinaryInput(source: stream,
                                   url: url,
-                                  abortionCallback: self.context.machine.isAbortionRequested) else {
+                                  abortionCallback: self.context.evaluator.isAbortionRequested) else {
       throw RuntimeError.eval(.cannotOpenUrl, .makeString(url.description))
     }
     var response = Expr.null

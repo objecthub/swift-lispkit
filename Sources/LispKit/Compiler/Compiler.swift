@@ -572,7 +572,8 @@ public final class Compiler {
                     case .macro(let transformer):
                       let expanded = try
                         self.checkpointer.expansion(cp) ??
-                        self.context.machine.apply(.procedure(transformer), to: .pair(cdr, .null))
+                      self.context.evaluator.machine.apply(.procedure(transformer),
+                                                           to: .pair(cdr, .null))
                       self.checkpointer.associate(.expansion(expanded), with: cp)
                       // log("expanded = \(expanded)")
                       return expanded
@@ -584,8 +585,8 @@ public final class Compiler {
               return nil
             }
           case .macroExpansionRequired(let transformer):
-            let expanded =
-              try self.context.machine.apply(.procedure(transformer), to: .pair(cdr, .null))
+            let expanded = try self.context.evaluator.machine.apply(.procedure(transformer),
+                                                                    to: .pair(cdr, .null))
             // log("expanded = \(expanded)")
             return expanded
         }
@@ -628,14 +629,14 @@ public final class Compiler {
                 case .primitive(_):
                   return nil
                 case .macro(let transformer):
-                  return try
-                    self.context.machine.apply(.procedure(transformer), to: .pair(cdr, .null))
+                  return try self.context.evaluator.machine.apply(.procedure(transformer),
+                                                                  to: .pair(cdr, .null))
               }
             }
             return nil
           case .macroExpansionRequired(let transformer):
-            return
-              try self.context.machine.apply(.procedure(transformer), to: .pair(cdr, .null))
+            return try self.context.evaluator.machine.apply(.procedure(transformer),
+                                                            to: .pair(cdr, .null))
         }
       default:
         return nil
@@ -679,7 +680,8 @@ public final class Compiler {
                     case .macro(let transformer):
                       let expanded = try
                         self.checkpointer.expansion(cp) ??
-                        self.context.machine.apply(.procedure(transformer), to: .pair(cdr, .null))
+                        self.context.evaluator.machine.apply(.procedure(transformer),
+                                                             to: .pair(cdr, .null))
                       self.checkpointer.associate(.expansion(expanded), with: cp)
                       // log("expanded = \(expanded)")
                       return try self.compile(expanded, in: env, inTailPos: tail)
@@ -701,8 +703,8 @@ public final class Compiler {
               self.emit(.pushGlobal(locRef.location!))
             }
           case .macroExpansionRequired(let transformer):
-            let expanded =
-              try self.context.machine.apply(.procedure(transformer), to: .pair(cdr, .null))
+            let expanded = try self.context.evaluator.machine.apply(.procedure(transformer),
+                                                                    to: .pair(cdr, .null))
             // log("expanded = \(expanded)")
             return try self.compile(expanded, in: env, inTailPos: tail)
         }
@@ -717,7 +719,7 @@ public final class Compiler {
         // Push function
         try self.pushValue(.procedure(proc))
         // Push arguments
-        let n = proc == self.context.machine.loader
+        let n = proc == self.context.evaluator.loader
                   ? try self.pushValues(cdr)        
                   : try self.compileExprs(cdr, in: env)
         // Call procedure
@@ -765,7 +767,7 @@ public final class Compiler {
   private func refersToDefine(_ sym: Symbol, in env: Env) -> Bool? {
     // This is the old logic; kept it here as a fallback if `define` is not available via the
     // corresponding virtual machine
-    if self.context.machine.defineSpecial == nil {
+    if self.context.evaluator.defineSpecial == nil {
       let root = sym.root
       if env.isImmutable(sym) {
         if root == self.context.symbols.define {
@@ -782,9 +784,9 @@ public final class Compiler {
         case .globalLookupRequired(let glob, let environment):
           if let expr = self.value(of: glob, in: environment),
              case .special(let special) = expr {
-            if special == self.context.machine.defineSpecial {
+            if special == self.context.evaluator.defineSpecial {
               return true
-            } else if special == self.context.machine.defineValuesSpecial {
+            } else if special == self.context.evaluator.defineValuesSpecial {
               return false
             }
           }
@@ -1141,9 +1143,9 @@ public final class Compiler {
       guard case .pair(.symbol(let sym), .pair(let transformer, .null)) = binding else {
         throw RuntimeError.eval(.malformedBinding, binding, bindingList)
       }
-      let procExpr = try self.context.machine.compileAndEval(expr: transformer,
-                                                             in: env.syntacticalEnv,
-                                                             usingRulesEnv: env)
+      let procExpr = try self.context.evaluator.machine.compileAndEval(expr: transformer,
+                                                                       in: env.syntacticalEnv,
+                                                                       usingRulesEnv: env)
       guard case .procedure(let proc) = procExpr else {
         throw RuntimeError.eval(.malformedTransformer, transformer) //FIXME: Find better error message
       }

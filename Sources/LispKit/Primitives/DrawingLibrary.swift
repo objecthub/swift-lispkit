@@ -334,7 +334,7 @@ public final class DrawingLibrary: NativeLibrary {
       }
       return drawing
     }
-    guard let value = self.context.machine.getParam(self.drawingParam) else {
+    guard let value = self.context.evaluator.getParam(self.drawingParam) else {
       throw RuntimeError.eval(.invalidDefaultDrawing, .false)
     }
     guard case .object(let obj) = value, let drawing = obj as? Drawing else {
@@ -350,7 +350,7 @@ public final class DrawingLibrary: NativeLibrary {
       }
       return shape
     }
-    guard let value = self.context.machine.getParam(self.shapeParam) else {
+    guard let value = self.context.evaluator.getParam(self.shapeParam) else {
       throw RuntimeError.eval(.invalidDefaultShape, .false)
     }
     guard case .object(let obj) = value, let shape = obj as? Shape else {
@@ -363,7 +363,7 @@ public final class DrawingLibrary: NativeLibrary {
     if case .some(.object(let obj)) = args.last, let shape = obj as? Shape {
       return (shape, true)
     }
-    guard let value = self.context.machine.getParam(self.shapeParam) else {
+    guard let value = self.context.evaluator.getParam(self.shapeParam) else {
       throw RuntimeError.eval(.invalidDefaultShape, .false)
     }
     guard case .object(let obj) = value, let shape = obj as? Shape else {
@@ -685,7 +685,7 @@ public final class DrawingLibrary: NativeLibrary {
                            author: Expr?) throws -> Expr {
     let url = URL(fileURLWithPath:
       self.context.fileHandler.path(try path.asPath(),
-                                    relativeTo: self.context.machine.currentDirectoryPath))
+                                    relativeTo: self.context.evaluator.currentDirectoryPath))
     guard case .pair(.flonum(let w), .flonum(let h)) = size,
           w > 0.0 && w <= 1000000 && h > 0.0 && h <= 1000000 else {
       throw RuntimeError.eval(.invalidSize, size)
@@ -702,7 +702,7 @@ public final class DrawingLibrary: NativeLibrary {
   private func saveDrawings(path: Expr, pages: Expr, title: Expr?, author: Expr?) throws -> Expr {
     let url = URL(fileURLWithPath:
       self.context.fileHandler.path(try path.asPath(),
-                                    relativeTo: self.context.machine.currentDirectoryPath))
+                                    relativeTo: self.context.evaluator.currentDirectoryPath))
     let document = DrawingDocument(title: try title?.asString(), author: try author?.asString())
     var pageList = pages
     while case .pair(let page, let next) = pageList {
@@ -730,7 +730,7 @@ public final class DrawingLibrary: NativeLibrary {
   
   private func loadImage(filename: Expr) throws -> Expr {
     let path = self.context.fileHandler.path(try filename.asPath(),
-                                             relativeTo: self.context.machine.currentDirectoryPath)
+                                             relativeTo: self.context.evaluator.currentDirectoryPath)
     guard let nsimage = NSImage(contentsOfFile: path) else {
       throw RuntimeError.eval(.cannotLoadImage, filename)
     }
@@ -742,7 +742,7 @@ public final class DrawingLibrary: NativeLibrary {
                     forFile: try name.asString(),
                     ofType: try type.asString(),
                     inFolder: try dir?.asPath() ?? "Images",
-                    relativeTo: self.context.machine.currentDirectoryPath) {
+                    relativeTo: self.context.evaluator.currentDirectoryPath) {
       guard let nsimage = NSImage(contentsOfFile: path) else {
         throw RuntimeError.eval(.cannotLoadImageAsset, name, type, dir ?? .makeString("Images"))
       }
@@ -1016,7 +1016,7 @@ public final class DrawingLibrary: NativeLibrary {
                           _ filetype: NSBitmapImageRep.FileType) -> Bool {
     let url = URL(fileURLWithPath:
       self.context.fileHandler.path(filename,
-                                    relativeTo: self.context.machine.currentDirectoryPath))
+                                    relativeTo: self.context.evaluator.currentDirectoryPath))
     // Go through all representations and try to encode them as `filetype`; return once the first
     // succeeds
     for repr in image.representations {
