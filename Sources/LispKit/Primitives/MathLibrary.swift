@@ -20,6 +20,7 @@
 
 import Foundation
 import NumberKit
+import AppKit
 
 ///
 /// Math library: based on R7RS spec.
@@ -82,6 +83,7 @@ public final class MathLibrary: NativeLibrary {
     self.define(Procedure("ceiling", self.ceiling))
     self.define(Procedure("truncate", self.truncate))
     self.define(Procedure("round", self.round))
+    self.define(Procedure("random", self.random))
     self.define(Procedure("+", self.plus))
     self.define(Procedure("-", self.minus))
     self.define(Procedure("*", self.mult))
@@ -187,6 +189,7 @@ public final class MathLibrary: NativeLibrary {
     self.define(Procedure("flabs", self.flAbs))
     self.define(Procedure("flmin", self.flMin))
     self.define(Procedure("flmax", self.flMax))
+    self.define(Procedure("flrandom", self.flRandom))
     self.define(Procedure("flsqrt", self.flSqrt))
     self.define(Procedure("bitwise-not", self.bitwiseNot))
     self.define(Procedure("bitwise-and", self.bitwiseAnd))
@@ -658,7 +661,87 @@ public final class MathLibrary: NativeLibrary {
         throw RuntimeError.type(expr, expected: [.realType])
     }
   }
-
+  
+  private func random(_ fst: Expr?, _ snd: Expr?) throws -> Expr {
+    guard let fst = fst else {
+      return .flonum(Double.random(in: 0.0..<1.0))
+    }
+    guard let snd = snd else {
+      switch fst {
+        case .fixnum(let max):
+          guard max > 0 else {
+            throw RuntimeError.eval(.firstArgOfProcViolation,
+                                    fst,
+                                    .makeString("random"),
+                                    .makeString("> 0"))
+          }
+          return .fixnum(Int64.random(in: 0..<max))
+        case .bignum(let max):
+          guard max > 0 else {
+            throw RuntimeError.eval(.firstArgOfProcViolation,
+                                    fst,
+                                    .makeString("random"),
+                                    .makeString("> 0"))
+          }
+          return .makeNumber(BigInt.random(below: max))
+        default:
+          let max = try fst.asDouble(coerce: true)
+          guard max > 0.0 else {
+            throw RuntimeError.eval(.firstArgOfProcViolation,
+                                    fst,
+                                    .makeString("random"),
+                                    .makeString("> 0.0"))
+          }
+          return .makeNumber(Double.random(in: 0.0..<max))
+      }
+    }
+    switch (fst, snd) {
+      case (.fixnum(let min), .fixnum(let max)):
+        guard max > min else {
+          throw RuntimeError.eval(.secondArgOfProcViolation,
+                                  snd,
+                                  .makeString("random"),
+                                  .makeString("> \(min)"))
+        }
+        return .fixnum(Int64.random(in: min..<max))
+      case (.fixnum(let m), .bignum(let max)):
+        let min = BigInt(m)
+        guard max > min else {
+          throw RuntimeError.eval(.secondArgOfProcViolation,
+                                  snd,
+                                  .makeString("random"),
+                                  .makeString("> \(min)"))
+        }
+        return .makeNumber(BigInt.random(below: max - min) + min)
+      case (.bignum(let min), .fixnum(let m)):
+        let max = BigInt(m)
+        guard max > min else {
+          throw RuntimeError.eval(.secondArgOfProcViolation,
+                                  snd,
+                                  .makeString("random"),
+                                  .makeString("> \(min)"))
+        }
+        return .makeNumber(BigInt.random(below: max - min) + min)
+      case (.bignum(let min), .bignum(let max)):
+        guard max > min else {
+          throw RuntimeError.eval(.secondArgOfProcViolation,
+                                  snd,
+                                  .makeString("random"),
+                                  .makeString("> \(min)"))
+        }
+        return .makeNumber(BigInt.random(below: max - min) + min)
+      default:
+        let min = try fst.asDouble(coerce: true)
+        let max = try snd.asDouble(coerce: true)
+        guard max > min else {
+          throw RuntimeError.eval(.secondArgOfProcViolation,
+                                  snd,
+                                  .makeString("random"),
+                                  .makeString("> \(fst)"))
+        }
+        return .makeNumber(Double.random(in: min..<max))
+    }
+  }
 
   //-------- MARK: - Arithmetic primitives
 
@@ -1871,28 +1954,31 @@ public final class MathLibrary: NativeLibrary {
     return .fixnum(xint > yint ? xint : yint)
   }
   
-  private func fxRandom(_ expr: Expr, bound: Expr?) throws -> Expr {
-    let min: Int64
-    let max: Int64
-    if let bound = bound {
-      min = try expr.asInt64()
-      max = try bound.asInt64()
-      guard min >= 0 && min < Int64(Int.max) else {
-        throw RuntimeError.range(parameter: 1, of: "random", expr, min: 0, max: Int64(Int.max - 1))
+  private func fxRandom(_ fst: Expr?, _ snd: Expr?) throws -> Expr {
+    if fst == nil {
+      return .fixnum(Int64.random(in: Int64.min...Int64.max))
+    } else if snd == nil {
+      let max = try fst!.asInt64()
+      guard max > 0 else {
+        throw RuntimeError.eval(.firstArgOfProcViolation,
+                                fst!,
+                                .makeString("rxrandom"),
+                                .makeString("> 0"))
       }
-      guard max > min && max <= Int64(Int.max) else {
-        throw RuntimeError.range(parameter: 2, of: "random", bound, min: min, max: Int64(Int.max))
-      }
+      return .fixnum(Int64.random(in: 0..<max))
     } else {
-      min = 0
-      max = try expr.asInt64()
-      guard max > 0 && max <= Int64(Int.max) else {
-        throw RuntimeError.range(parameter: 1, of: "random", expr, min: 0, max: Int64(Int.max))
+      let min = try fst!.asInt64()
+      let max = try snd!.asInt64()
+      guard max > min else {
+        throw RuntimeError.eval(.secondArgOfProcViolation,
+                                snd!,
+                                .makeString("rxrandom"),
+                                .makeString("> \(min)"))
       }
+      return .fixnum(Int64.random(in: min..<max))
     }
-    return .fixnum(Int64.random(min: min, max: max))
   }
-
+  
   private func fxSqrt(_ expr: Expr) throws -> Expr {
     let n = try expr.asInt64()
     guard n < 3037000499 * 3037000499 else {
@@ -2081,6 +2167,28 @@ public final class MathLibrary: NativeLibrary {
     let xint = try x.asDouble()
     let yint = try y.asDouble()
     return .flonum(xint > yint ? xint : yint)
+  }
+  
+  private func flRandom(_ fst: Expr?, _ snd: Expr?) throws -> Expr {
+    if let max = try fst?.asDouble(), snd == nil {
+      guard max > 0.0, !max.isNaN, !max.isInfinite else {
+        throw RuntimeError.eval(.firstArgOfProcViolation,
+                                fst!,
+                                .makeString("flrandom"),
+                                .makeString("> 0.0"))
+      }
+      return .flonum(Double.random(in: 0.0..<max))
+    } else {
+      let min = try fst?.asDouble(coerce: true) ?? 0.0
+      let max = try snd?.asDouble(coerce: true) ?? 1.0
+      guard !max.isNaN, !min.isNaN, !max.isInfinite, !min.isInfinite, max > min else {
+        throw RuntimeError.eval(.secondArgOfProcViolation,
+                                .makeNumber(max),
+                                .makeString("flrandom"),
+                                .makeString("> \(min)"))
+      }
+      return .flonum(Double.random(in: min..<max))
+    }
   }
   
   private func flSqrt(_ x: Expr) throws -> Expr {

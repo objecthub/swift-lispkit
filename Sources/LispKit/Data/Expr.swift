@@ -358,6 +358,10 @@ extension Expr {
     return .fixnum(num)
   }
   
+  public static func makeNumber(_ num: UInt64) -> Expr {
+    return Expr.bignum(BigInt(num)).normalized
+  }
+  
   public static func makeNumber(_ num: BigInt) -> Expr {
     return Expr.bignum(num).normalized
   }

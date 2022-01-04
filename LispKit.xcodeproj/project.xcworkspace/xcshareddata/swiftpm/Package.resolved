@@ -33,8 +33,8 @@
         "repositoryURL": "https://github.com/objecthub/swift-numberkit.git",
         "state": {
           "branch": null,
-          "revision": "9411a28fff4a99b9b010bc2da13f7d833c2d0204",
-          "version": "2.4.0"
+          "revision": "e8c1cb9e8220001a7efa857fea88c0bd762c56ea",
+          "version": "2.4.1"
         }
       },
       {
@@ -51,8 +51,8 @@
         "repositoryURL": "https://github.com/weichsel/ZIPFoundation",
         "state": {
           "branch": null,
-          "revision": "cf10bbff6ac3b873e97b36b9784c79866a051a8e",
-          "version": "0.9.12"
+          "revision": "7254c74b49cec2cb81520523ba993c671f71b066",
+          "version": "0.9.14"
         }
       }
     ]

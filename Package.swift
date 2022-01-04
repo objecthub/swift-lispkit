@@ -51,7 +51,7 @@ let package = Package(
   dependencies: [
     .package(name: "NumberKit",
              url: "https://github.com/objecthub/swift-numberkit.git",
-             .upToNextMajor(from: "2.4.0")),
+             .upToNextMajor(from: "2.4.1")),
     .package(name: "MarkdownKit",
              url: "https://github.com/objecthub/swift-markdownkit.git",
              .upToNextMajor(from: "1.1.2")),
@@ -63,7 +63,7 @@ let package = Package(
              .upToNextMajor(from: "1.0.3")),
     .package(name: "ZIPFoundation",
              url: "https://github.com/weichsel/ZIPFoundation.git",
-             .upToNextMajor(from: "0.9.12")),
+             .upToNextMajor(from: "0.9.14")),
     .package(name: "swift-atomics",
              url: "https://github.com/apple/swift-atomics.git",
              .upToNextMajor(from: "1.0.2"))

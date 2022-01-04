@@ -1,7 +1,7 @@
 ;;; Default Prelude for LispKit
 ;;; 
 ;;; Author: Matthias Zenger
-;;; Copyright © 2017-2019 Matthias Zenger. All rights reserved.
+;;; Copyright © 2017-2022 Matthias Zenger. All rights reserved.
 ;;;
 ;;; Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 ;;; except in compliance with the License. You may obtain a copy of the License at
@@ -26,7 +26,7 @@
        (let loop ()
          (if condition (begin body ... (loop)) #f)))))
 
-(define random
+(define rnd
   (let ((a 69069)
         (c 1)
         (m (expt 2 32))
@@ -40,6 +40,6 @@
 (define random-integer
   (case-lambda
     ((hi)
-      (exact (floor (* (random) hi))))
+      (exact (floor (* (rnd) hi))))
     ((lo hi)
-      (+ lo (exact (floor (* (random) (- hi lo))))))))
+      (+ lo (exact (floor (* (rnd) (- hi lo))))))))

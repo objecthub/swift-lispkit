@@ -123,6 +123,7 @@ public enum EvalError: Int, Hashable {
   case cannotOpenZipArchive
   case cannotMutateZipArchive
   case zipArchiveEntryDoesNotExist
+  case zipEntryTooLarge
   case unknownFileOrDirectory
   case abandonedMutex
   case mutexUseInInvalidContext
@@ -133,6 +134,8 @@ public enum EvalError: Int, Hashable {
   case threadJoinInInvalidContext
   case expectedUncaughtException
   case threadTerminated
+  case firstArgOfProcViolation
+  case secondArgOfProcViolation
   
   public var message: String {
     switch self {
@@ -332,6 +335,8 @@ public enum EvalError: Int, Hashable {
         return "cannot mutate zip archive $0 with read-only access mode"
       case .zipArchiveEntryDoesNotExist:
         return "no entry for path $,1 in zip archive $0"
+      case .zipEntryTooLarge:
+        return "zip entry too large: $0"
       case .unknownFileOrDirectory:
         return "unknown file or directory $,0"
       case .abandonedMutex:
@@ -352,6 +357,10 @@ public enum EvalError: Int, Hashable {
         return "expected an uncaught exception instead of $0"
       case .threadTerminated:
         return "terminated thread"
+      case .firstArgOfProcViolation:
+        return "first argument $0 of $,1 violates requirement: $0 $,2"
+      case .secondArgOfProcViolation:
+        return "second argument $0 of $,1 violates requirement: $0 $,2"
     }
   }
   

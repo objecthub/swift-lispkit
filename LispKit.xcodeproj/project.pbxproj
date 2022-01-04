@@ -4997,7 +4997,7 @@
 			repositoryURL = "https://github.com/apple/swift-atomics.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.0;
+				minimumVersion = 1.0.2;
 			};
 		};
 		CC5E53012355AAD400C72CE2 /* XCRemoteSwiftPackageReference "swift-numberkit" */ = {
@@ -5005,7 +5005,7 @@
 			repositoryURL = "https://github.com/objecthub/swift-numberkit.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 2.4.0;
+				minimumVersion = 2.4.1;
 			};
 		};
 		CC5E53042355AB0700C72CE2 /* XCRemoteSwiftPackageReference "swift-commandlinekit" */ = {

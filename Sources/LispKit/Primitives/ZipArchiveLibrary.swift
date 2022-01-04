@@ -262,17 +262,24 @@ public final class ZipArchiveLibrary: NativeLibrary {
     switch bvec {
       case .bytes(let bvec):
         let data = Data(bvec.value)
-        guard let size = UInt32(exactly: data.count) else {
+        guard let size = Int64(exactly: data.count) else {
           return .false
         }
         do {
+          let provider: Provider = {
+            position, size -> Data in
+              if let pos = Int(exactly: position) {
+                return data.subdata(in: pos..<pos+size) 
+              } else {
+                return Data()  // Can we do something better here?
+              }
+          }
           try archive.addEntry(with: try path.asString(),
                                type: .file,
                                uncompressedSize: size,
                                modificationDate: date,
-                               compressionMethod: (compressed ?? .true).isTrue ? .deflate : .none) {
-            position, size in data.subdata(in: position..<position+size)
-          }
+                               compressionMethod: (compressed ?? .true).isTrue ? .deflate : .none,
+                               provider: provider)
           return .true
         } catch {
           return .false
@@ -318,27 +325,30 @@ public final class ZipArchiveLibrary: NativeLibrary {
     guard type == .symbolicLink || FileManager.default.isReadableFile(atPath: source.path) else {
       throw RuntimeError.eval(.cannotOpenFile, .makeString(source.path))
     }
+    guard let uncompressedSize = Int64(exactly: size) else {
+      throw RuntimeError.eval(.zipEntryTooLarge, .makeString(source.path))
+    }
     switch type {
       case .file:
         let compMethod = compressed ? CompressionMethod.deflate : CompressionMethod.none
         let data = try Data(contentsOf: source)
         try archive.addEntry(with: path,
                              type: .file,
-                             uncompressedSize: size,
+                             uncompressedSize: uncompressedSize,
                              modificationDate: modDate ?? date,
                              permissions: permissions,
                              compressionMethod: compMethod) { _, _ in return data }
       case .directory:
         try archive.addEntry(with: path.hasSuffix("/") ? path : path + "/",
                              type: .directory,
-                             uncompressedSize: size,
+                             uncompressedSize: uncompressedSize,
                              modificationDate: modDate ?? date,
                              permissions: permissions,
                              compressionMethod: .none) { _, _ in Data() }
       case .symbolicLink:
         try archive.addEntry(with: path,
                              type: .symlink,
-                             uncompressedSize: size,
+                             uncompressedSize: uncompressedSize,
                              modificationDate: modDate ?? date,
                              permissions: permissions,
                              compressionMethod: .none) {  _, _ in
