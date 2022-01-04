@@ -3,7 +3,7 @@
 //  LispKit
 //
 //  Created by Matthias Zenger on 20/03/2016.
-//  Copyright © 2016 ObjectHub. All rights reserved.
+//  Copyright © 2016-2022 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -33,13 +33,20 @@ public struct Timer {
   
   /// Returns a current time measurement in seconds, as a Double. This is only useful for
   /// measuring short time intervals.
-  public static var currentTimeInSec: Double {
+  public static var absoluteTimeInSec: Double {
     return Double(mach_absolute_time() * Timer.TIME_NUMER / Timer.TIME_DENOM) / 1e9
   }
   
   /// Returns a current time measurement in milliseconds, as a UInt64. This is only useful for
   /// measuring short time intervals.
-  public static var currentTimeInMSec: UInt64 {
+  public static var absoluteTimeInMSec: UInt64 {
     return (mach_absolute_time() * Timer.TIME_NUMER) / (Timer.TIME_DENOM * 1000000)
+  }
+  
+  /// Returns the current time in seconds using standard UNIX data structures.
+  public static var currentTimeInSec: Double {
+    var tv = timeval(tv_sec: 0, tv_usec: 0)
+    gettimeofday(&tv, nil)
+    return Double(tv.tv_sec) + (Double(tv.tv_usec) / 1000000.0)
   }
 }

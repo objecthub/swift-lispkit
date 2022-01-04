@@ -3,7 +3,7 @@
 //  LispKit
 //
 //  Created by Matthias Zenger on 30/01/2016.
-//  Copyright © 2016-2019 ObjectHub. All rights reserved.
+//  Copyright © 2016-2022 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -526,7 +526,11 @@ public func compare(_ lhs: Expr, with rhs: Expr) -> CompareResult? {
     case .bigRationalPair(let lnum, let rnum):
       return lnum < rnum ? .less : (lnum > rnum ? .greater : .equal)
     case .flonumPair(let lnum, let rnum):
-      return lnum < rnum ? .less : (lnum > rnum ? .greater : .equal)
+      if lnum.isNaN || rnum.isNaN {
+        return .incomparable
+      } else {
+        return lnum < rnum ? .less : (lnum > rnum ? .greater : .equal)
+      }
     case .complexPair(let lnum, let rnum):
       return lnum == rnum ? .equal : .incomparable
   }

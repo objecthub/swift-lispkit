@@ -3,7 +3,7 @@
 //  LispKit
 //
 //  Created by Matthias Zenger on 13/02/2016.
-//  Copyright © 2016-2019 ObjectHub. All rights reserved.
+//  Copyright © 2016-2022 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ import Foundation
 ///    ╞═══════════════════╡
 ///    │        ...        │
 ///
-public final class VirtualMachine {
+public final class VirtualMachine: ManagedObject {
   
   internal final class Winder: Reference {
     let before: Procedure
@@ -145,7 +145,7 @@ public final class VirtualMachine {
   internal private(set) var executing: Bool = false
   
   /// When set to true, it will trigger an abortion of the machine evaluator as soon as possible.
-  private var abortionRequested: Bool = false
+  internal private(set) var abortionRequested: Bool = false
   
   /// Initializes a new virtual machine for the given context.
   public init(for context: Context) {
@@ -157,6 +157,8 @@ public final class VirtualMachine {
     self.winders = nil
     self.parameters = HashTable(equiv: .eq)
     self.execInstr = 0
+    super.init()
+    context.objects.manage(self)
   }
   
   /// Initializes a new virtual machine for the given context.
@@ -221,12 +223,12 @@ public final class VirtualMachine {
     }
     // Abortions ignore dynamic environments
     guard !self.abortionRequested else {
-      return .error(exception!)
+      return .error(RuntimeError.uncaught(.error(exception!)))
     }
     // Return thrown exception if there is no `raise` procedure. In such a case, there is no
     // unwind of the dynamic environment.
     guard let raiseProc = self.context.evaluator.raiseProc else {
-      return .error(exception!)
+      return .error(RuntimeError.uncaught(.error(exception!)))
     }
     // Raise thrown exceptions
     while let obj = exception {
@@ -234,7 +236,7 @@ public final class VirtualMachine {
         return try self.apply(.procedure(raiseProc), to: .pair(.error(obj), .null))
       } catch let error as RuntimeError { // handle Lisp-related issues
         guard !self.abortionRequested else { // abortions bypass the raise mechanism
-          return .error(error)
+          return .error(RuntimeError.uncaught(.error(error)))
         }
         exception = error
       } catch let error { // handle OS-related issues
@@ -1464,7 +1466,7 @@ public final class VirtualMachine {
                              ErrorDescriptor.eval(EvalError(rawValue: err)!),
                              irritants)
         case .pushCurrentTime:
-          self.push(.flonum(Timer.currentTimeInSec))
+          self.push(.flonum(Timer.absoluteTimeInSec))
         case .display:
           let obj = self.pop()
           switch obj {
@@ -1671,19 +1673,19 @@ public final class VirtualMachine {
   
   /// Mark virual machine
   public func mark(in gc: GarbageCollector) {
-    for i in 0..<self.sp {
-      gc.markLater(self.stack[i])
-    }
-    self.registers.mark(in: gc)
-    self.winders?.mark(in: gc)
-    gc.mark(self.parameters)
-    if let proc = self.context.evaluator.raiseProc {
-      gc.mark(proc)
+    if self.tag != gc.tag {
+      self.tag = gc.tag
+      for i in 0..<self.sp {
+        gc.markLater(self.stack[i])
+      }
+      self.registers.mark(in: gc)
+      self.winders?.mark(in: gc)
+      gc.mark(self.parameters)
     }
   }
   
   /// Reset virtual machine
-  public func release() {
+  public override func clean() {
     self.stack = Exprs(repeating: .undef, count: 1024)
     self.sp = 0
     self.maxSp = 0

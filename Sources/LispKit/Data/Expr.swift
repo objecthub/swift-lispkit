@@ -3,7 +3,7 @@
 //  LispKit
 //
 //  Created by Matthias Zenger on 08/11/2015.
-//  Copyright © 2016-2019 ObjectHub. All rights reserved.
+//  Copyright © 2016-2022 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -683,7 +683,7 @@ extension Expr: CustomStringConvertible {
       if val.isInfinite {
         return (val.sign == .minus) ? "-inf.0" : "+inf.0"
       } else if val.isNaN {
-        return "+nan.0"
+        return (val.sign == .minus) ? "-nan.0" : "+nan.0"
       } else {
         return String(val)
       }

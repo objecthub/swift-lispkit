@@ -3,7 +3,7 @@
 //  LispKit
 //
 //  Created by Matthias Zenger on 18/11/2019.
-//  Copyright © 2019 ObjectHub. All rights reserved.
+//  Copyright © 2019-2022 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -45,7 +45,11 @@ open class NativeObject: Reference {
   open func equals(_ obj: NativeObject) -> Bool {
     return self === obj
   }
-
+  
+  open func mark(in gc: GarbageCollector) {
+    // do nothing by default
+  }
+  
   public override var typeDescription: String {
     return self.type.description
   }

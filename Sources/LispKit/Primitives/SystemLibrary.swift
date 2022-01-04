@@ -3,7 +3,7 @@
 //  LispKit
 //
 //  Created by Matthias Zenger on 10/12/2016.
-//  Copyright © 2016, 2017 ObjectHub. All rights reserved.
+//  Copyright © 2016-2022 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -532,9 +532,7 @@ public final class SystemLibrary: NativeLibrary {
   }
 
   private func currentSecond() -> Expr {
-    var time = timeval(tv_sec: 0, tv_usec: 0)
-    gettimeofday(&time, nil)
-    return .flonum(Double(time.tv_sec) + (Double(time.tv_usec) / 1000000.0))
+    return .flonum(Timer.currentTimeInSec)
   }
 
   private func currentJiffy() -> Expr {

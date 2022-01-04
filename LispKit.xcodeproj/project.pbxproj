@@ -151,6 +151,18 @@
 		CC2DA7422770A4EE00DE69CF /* Locks.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2DA7402770A4EE00DE69CF /* Locks.swift */; };
 		CC2DA7442772663700DE69CF /* Evaluator.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2DA7432772663600DE69CF /* Evaluator.swift */; };
 		CC2DA7452772663700DE69CF /* Evaluator.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2DA7432772663600DE69CF /* Evaluator.swift */; };
+		CC2DA7472773195600DE69CF /* ThreadLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2DA7462773195600DE69CF /* ThreadLibrary.swift */; };
+		CC2DA7482773195600DE69CF /* ThreadLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2DA7462773195600DE69CF /* ThreadLibrary.swift */; };
+		CC2DA74A27747A8B00DE69CF /* EvalThread.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2DA74927747A8B00DE69CF /* EvalThread.swift */; };
+		CC2DA74B27747A8B00DE69CF /* EvalThread.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2DA74927747A8B00DE69CF /* EvalThread.swift */; };
+		CC2DA74D2775131A00DE69CF /* ThreadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2DA74C2775131A00DE69CF /* ThreadManager.swift */; };
+		CC2DA74E2775131A00DE69CF /* ThreadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2DA74C2775131A00DE69CF /* ThreadManager.swift */; };
+		CC2DA7502780FE1100DE69CF /* MethodProfiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2DA74F2780FE1100DE69CF /* MethodProfiler.swift */; };
+		CC2DA7512780FE1100DE69CF /* MethodProfiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2DA74F2780FE1100DE69CF /* MethodProfiler.swift */; };
+		CC2DA7542781036D00DE69CF /* EvalMutex.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2DA7532781036D00DE69CF /* EvalMutex.swift */; };
+		CC2DA7552781036D00DE69CF /* EvalMutex.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2DA7532781036D00DE69CF /* EvalMutex.swift */; };
+		CC2DA7572781037B00DE69CF /* EvalCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2DA7562781037B00DE69CF /* EvalCondition.swift */; };
+		CC2DA7582781037B00DE69CF /* EvalCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2DA7562781037B00DE69CF /* EvalCondition.swift */; };
 		CC31A6981D3AC223008D7728 /* Hash.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC31A6971D3AC223008D7728 /* Hash.swift */; };
 		CC35F9C2222188BD00895A10 /* DateTimeLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35F9C1222188BC00895A10 /* DateTimeLibrary.swift */; };
 		CC35FD0D1C6FA4B700C8B992 /* VirtualMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */; };
@@ -2381,6 +2393,12 @@
 		CC2DA735276FFC4200DE69CF /* Registers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Registers.swift; sourceTree = "<group>"; };
 		CC2DA7402770A4EE00DE69CF /* Locks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Locks.swift; sourceTree = "<group>"; };
 		CC2DA7432772663600DE69CF /* Evaluator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Evaluator.swift; sourceTree = "<group>"; };
+		CC2DA7462773195600DE69CF /* ThreadLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadLibrary.swift; sourceTree = "<group>"; };
+		CC2DA74927747A8B00DE69CF /* EvalThread.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvalThread.swift; sourceTree = "<group>"; };
+		CC2DA74C2775131A00DE69CF /* ThreadManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadManager.swift; sourceTree = "<group>"; };
+		CC2DA74F2780FE1100DE69CF /* MethodProfiler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MethodProfiler.swift; sourceTree = "<group>"; };
+		CC2DA7532781036D00DE69CF /* EvalMutex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvalMutex.swift; sourceTree = "<group>"; };
+		CC2DA7562781037B00DE69CF /* EvalCondition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvalCondition.swift; sourceTree = "<group>"; };
 		CC31A6971D3AC223008D7728 /* Hash.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Hash.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC35F9C1222188BC00895A10 /* DateTimeLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateTimeLibrary.swift; sourceTree = "<group>"; };
 		CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = VirtualMachine.swift; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -3042,6 +3060,17 @@
 			path = 69;
 			sourceTree = "<group>";
 		};
+		CC2DA7522781033E00DE69CF /* Threads */ = {
+			isa = PBXGroup;
+			children = (
+				CC2DA74927747A8B00DE69CF /* EvalThread.swift */,
+				CC2DA7532781036D00DE69CF /* EvalMutex.swift */,
+				CC2DA7562781037B00DE69CF /* EvalCondition.swift */,
+				CC2DA74C2775131A00DE69CF /* ThreadManager.swift */,
+			);
+			path = Threads;
+			sourceTree = "<group>";
+		};
 		CC385290231B240A001D5E56 /* third-party */ = {
 			isa = PBXGroup;
 			children = (
@@ -3475,8 +3504,8 @@
 				CC55A82A1C5175B000772B02 /* SpecialForm.swift */,
 				CCE2C4791D9203DE0047E229 /* Environment.swift */,
 				CC8EDE4B1D0317AD004E0636 /* Port.swift */,
-				CC3B641923822BCE00807476 /* NativeObject.swift */,
 				CC54924021DC2A44004A0652 /* CharSet.swift */,
+				CC3B641923822BCE00807476 /* NativeObject.swift */,
 			);
 			path = Data;
 			sourceTree = "<group>";
@@ -3643,6 +3672,7 @@
 				CCA6C3D023610674007D2AF0 /* MarkdownLibrary.swift */,
 				CC08964D244090D1004503B1 /* SQLiteLibrary.swift */,
 				CCFB412A25B25316005B2429 /* ZipArchiveLibrary.swift */,
+				CC2DA7462773195600DE69CF /* ThreadLibrary.swift */,
 				CC38528A23126F7A001D5E56 /* InternalLibrary.swift */,
 			);
 			path = Primitives;
@@ -3702,6 +3732,7 @@
 				CC6BB1991E60F237009A9091 /* Random.swift */,
 				CCD839AA1FD0F6000097023E /* Compression.swift */,
 				CCC072491F9C11FA0063974E /* Sysctl.swift */,
+				CC2DA74F2780FE1100DE69CF /* MethodProfiler.swift */,
 			);
 			path = Base;
 			sourceTree = "<group>";
@@ -3730,6 +3761,7 @@
 				CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */,
 				CCC41DC51D2851FB003CB4D0 /* VirtualMachineState.swift */,
 				CC0A984D233E70C400C52573 /* GarbageCollector.swift */,
+				CC2DA7522781033E00DE69CF /* Threads */,
 			);
 			path = Runtime;
 			sourceTree = "<group>";
@@ -4169,6 +4201,7 @@
 				CC6A3B6E1C53F0F600E962E2 /* Collection.swift in Sources */,
 				CCA3127D204CB74A0026FF13 /* RuntimeError.swift in Sources */,
 				CC8EDE701D07265E004E0636 /* TextInput.swift in Sources */,
+				CC2DA7502780FE1100DE69CF /* MethodProfiler.swift in Sources */,
 				CC2D124F1DB40E7F009BDC72 /* LibraryManager.swift in Sources */,
 				CCAD52E51C48468F00DBD8EE /* Symbol.swift in Sources */,
 				CC4D2C9F1D5EDA2A00A02256 /* RecordLibrary.swift in Sources */,
@@ -4176,6 +4209,7 @@
 				CC26069C1C61760C0047A3D3 /* Boxes.swift in Sources */,
 				CCC41DC61D2851FB003CB4D0 /* VirtualMachineState.swift in Sources */,
 				CCAD52E41C48468F00DBD8EE /* Scanner.swift in Sources */,
+				CC2DA7542781036D00DE69CF /* EvalMutex.swift in Sources */,
 				CC201A6D1DBD72C100045A4D /* LibraryRegistry.swift in Sources */,
 				CCD81AD21CE75823009EB087 /* Checkpointer.swift in Sources */,
 				CC01903B1C89D02200DB8BF9 /* CaptureGroup.swift in Sources */,
@@ -4207,7 +4241,9 @@
 				CC5BBC7B1D52724800367E8F /* HashTableLibrary.swift in Sources */,
 				CC93A65F1D077766008350C8 /* BinaryOutput.swift in Sources */,
 				CCA6C3D123610674007D2AF0 /* MarkdownLibrary.swift in Sources */,
+				CC2DA74A27747A8B00DE69CF /* EvalThread.swift in Sources */,
 				CC3B641A23822BCE00807476 /* NativeObject.swift in Sources */,
+				CC2DA74D2775131A00DE69CF /* ThreadManager.swift in Sources */,
 				CC0BA16C1DFC843C0063B9DE /* SystemLibrary.swift in Sources */,
 				CC90500F1D384C4E008CE60A /* Tuple.swift in Sources */,
 				CC6A3B641C52EED400E962E2 /* MathLibrary.swift in Sources */,
@@ -4215,9 +4251,11 @@
 				CCB585BB1E15AA4D0064BB18 /* Heap.swift in Sources */,
 				CC93A6611D0777A9008350C8 /* TextOutput.swift in Sources */,
 				CC5BBC791D5268D000367E8F /* HashTable.swift in Sources */,
+				CC2DA7572781037B00DE69CF /* EvalCondition.swift in Sources */,
 				CC6A3B6A1C539DCA00E962E2 /* ManagedObjectPool.swift in Sources */,
 				CCC62D921CA9ED6A00E2C43F /* TrackedObject.swift in Sources */,
 				CC38528B23126F7A001D5E56 /* InternalLibrary.swift in Sources */,
+				CC2DA7472773195600DE69CF /* ThreadLibrary.swift in Sources */,
 				CC6A3B721C54DF7F00E962E2 /* Exprs.swift in Sources */,
 				CC2DA7442772663700DE69CF /* Evaluator.swift in Sources */,
 				CC09CC5121F12C7800C16864 /* GrowableVectorLibrary.swift in Sources */,
@@ -4286,16 +4324,21 @@
 				CCC48CBE25E5B98600D082AD /* HashTableLibrary.swift in Sources */,
 				CCC48CAD25E5B97100D082AD /* SymbolTable.swift in Sources */,
 				CCC48C6C25E5B94300D082AD /* Owners.swift in Sources */,
+				CC2DA7482773195600DE69CF /* ThreadLibrary.swift in Sources */,
 				CCC48C8925E5B95B00D082AD /* NativeObject.swift in Sources */,
 				CCC48CFE25E5BF8700D082AD /* SQLiteLibrary.swift in Sources */,
 				CCC48C8725E5B95B00D082AD /* Symbol.swift in Sources */,
 				CCC48C6825E5B94300D082AD /* Boxes.swift in Sources */,
 				CCC48C6425E5B94300D082AD /* ManagedObject.swift in Sources */,
+				CC2DA74B27747A8B00DE69CF /* EvalThread.swift in Sources */,
 				CCC48C8E25E5B95B00D082AD /* Promise.swift in Sources */,
 				CCC48C9425E5B95B00D082AD /* Type.swift in Sources */,
 				CCC48CAA25E5B97100D082AD /* FeatureRequirement.swift in Sources */,
+				CC2DA7582781037B00DE69CF /* EvalCondition.swift in Sources */,
 				CCC48C6725E5B94300D082AD /* ScanBuffer.swift in Sources */,
 				CCC48CB825E5B97100D082AD /* GarbageCollector.swift in Sources */,
+				CC2DA7512780FE1100DE69CF /* MethodProfiler.swift in Sources */,
+				CC2DA74E2775131A00DE69CF /* ThreadManager.swift in Sources */,
 				CCC48CCA25E5B98600D082AD /* MarkdownLibrary.swift in Sources */,
 				CCC48CA325E5B96800D082AD /* SourcePosition.swift in Sources */,
 				CCC48C6625E5B94300D082AD /* StringBuilder.swift in Sources */,
@@ -4346,6 +4389,7 @@
 				CCC48C7A25E5B94900D082AD /* BinaryInput.swift in Sources */,
 				CCC48C9F25E5B96800D082AD /* Scanner.swift in Sources */,
 				CCC48C6E25E5B94300D082AD /* Compression.swift in Sources */,
+				CC2DA7552781036D00DE69CF /* EvalMutex.swift in Sources */,
 				CCC48CC425E5B98600D082AD /* BoxLibrary.swift in Sources */,
 				CCC48C7625E5B94900D082AD /* TextInput.swift in Sources */,
 				CCC48C8D25E5B95B00D082AD /* HashTable.swift in Sources */,

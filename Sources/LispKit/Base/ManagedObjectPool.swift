@@ -3,7 +3,7 @@
 //  LispKit
 //
 //  Created by Matthias Zenger on 23/01/2016.
-//  Copyright © 2016 ObjectHub. All rights reserved.
+//  Copyright © 2016-2022 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -30,6 +30,9 @@
 /// 
 public final class ManagedObjectPool: CustomStringConvertible {
 
+  /// Mutex to synchronize access to the managed object pool
+  private let lock = EmbeddedUnfairLock()
+  
   /// Object marker
   private let marker: ObjectMarker
 
@@ -66,7 +69,7 @@ public final class ManagedObjectPool: CustomStringConvertible {
     self.ownsManagedObjects = ownsManagedObjects
     self.newManagedObjects = false
     self.gcDelay = gcDelay
-    self.lastGcTime = Timer.currentTimeInSec
+    self.lastGcTime = Timer.absoluteTimeInSec
     self.gcCallback = gcCallback
   }
   
@@ -78,8 +81,9 @@ public final class ManagedObjectPool: CustomStringConvertible {
         obj.clean()
       }
     }
+    self.lock.release()
   }
-
+  
   /// Next tag for garbage collection run.
   public var tag: UInt8 {
     return self.marker.tag
@@ -119,11 +123,17 @@ public final class ManagedObjectPool: CustomStringConvertible {
   
   /// Track the given tracked object.
   public func track(_ obj: TrackedObject) {
+    self.lock.lock()
     self.rootSet.add(obj)
+    self.lock.unlock()
   }
 
   /// Manage the given managed object.
   @discardableResult public func manage<T: ManagedObject>(_ obj: T) -> T {
+    self.lock.lock()
+    defer {
+      self.lock.unlock()
+    }
     if !obj.managed {
       self.newManagedObjects = true
       obj.managed = true
@@ -134,6 +144,10 @@ public final class ManagedObjectPool: CustomStringConvertible {
   
   /// Manage the given managed object.
   @discardableResult public func reference(to obj: ManagedObject) -> Int? {
+    self.lock.lock()
+    defer {
+      self.lock.unlock()
+    }
     if !obj.managed {
       self.newManagedObjects = true
       obj.managed = true
@@ -144,40 +158,67 @@ public final class ManagedObjectPool: CustomStringConvertible {
 
   /// Unmanage the object at which the given reference points.
   public func unmanage(_ ref: Int) {
+    self.lock.lock()
+    defer {
+      self.lock.unlock()
+    }
     self.objectPool.remove(ref)
   }
   
   /// Perform garbage collection.
   public func collectGarbage() -> Int {
-    // Start time
-    let startTime = Timer.currentTimeInSec
-    // Early exit
-    guard self.newManagedObjects || (startTime - self.lastGcTime) >= self.gcDelay else {
+    if self.lock.tryLock() {
+      defer {
+        self.lock.unlock()
+      }
+      // Start time
+      let startTime = Timer.absoluteTimeInSec
+      // Early exit
+      guard self.newManagedObjects || (startTime - self.lastGcTime) >= self.gcDelay else {
+        return 0
+      }
+      // Proceed with garbage collection
+      self.newManagedObjects = false
+      self.lastGcTime = startTime
+      // Mark
+      self.marker.mark(self.rootSet)
+      // Sweep
+      let oldManagedObjectCount = self.numManagedObjects
+      for obj in self.objectPool {
+        // Does this object still have a tag from a previous run?
+        if obj.tag != self.marker.tag {
+          obj.clean()
+        }
+      }
+      // Invoke callback
+      if let callback = self.gcCallback {
+        callback(self, Timer.absoluteTimeInSec - startTime, oldManagedObjectCount)
+      }
+      // Return number of freed up objects
+      return oldManagedObjectCount - self.numManagedObjects
+    } else {
       return 0
     }
-    // Proceed with garbage collection
-    self.newManagedObjects = false
-    self.lastGcTime = startTime
-    // Mark
-    self.marker.mark(self.rootSet)
-    // Sweep
-    let oldManagedObjectCount = self.numManagedObjects
-    for obj in self.objectPool {
-      // Does this object still have a tag from a previous run?
-      if obj.tag != self.marker.tag {
-        obj.clean()
-      }
+  }
+  
+  /// Returns a short description of the current managed object pool state.
+  public var shortDescription: String {
+    self.lock.lock()
+    defer {
+      self.lock.unlock()
     }
-    // Invoke callback
-    if let callback = self.gcCallback {
-      callback(self, Timer.currentTimeInSec - startTime, oldManagedObjectCount)
-    }
-    // Return number of freed up objects
-    return oldManagedObjectCount - self.numManagedObjects
+    return "tracked \(self.numTrackedObjects) of " +
+           "\(self.trackedObjectCapacity), managed \(self.numManagedObjects) of " +
+           "\(self.managedObjectCapacity), gc cycles = \(self.cycles), " +
+           "last tag = \(self.marker.tag)"
   }
   
   /// Returns a description of the current managed object pool state.
   public var description: String {
+    self.lock.lock()
+    defer {
+      self.lock.unlock()
+    }
     return "ManagedObjectPool{ tracked \(self.numTrackedObjects) of " +
            "\(self.trackedObjectCapacity), managed \(self.numManagedObjects) of " +
            "\(self.managedObjectCapacity), gc cycles = \(self.cycles), " +
@@ -186,6 +227,10 @@ public final class ManagedObjectPool: CustomStringConvertible {
   
   /// Returns a distribution of type names of managed objects
   public var managedObjectDistribution: [String : Int] {
+    self.lock.lock()
+    defer {
+      self.lock.unlock()
+    }
     var distrib: [String : Int] = [:]
     for object in self.objectPool {
       let typeName = String(describing: type(of: object))

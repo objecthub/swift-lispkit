@@ -3,7 +3,7 @@
 //  LispKit
 //
 //  Created by Matthias Zenger on 20/11/2015.
-//  Copyright © 2015-2018 ObjectHub. All rights reserved.
+//  Copyright © 2015-2022 ObjectHub. All rights reserved.
 // 
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -133,6 +133,13 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
     return RuntimeError(pos, ErrorDescriptor.abortion, [], stackTrace)
   }
   
+  public class func uncaught(_ expr: Expr,
+                             at pos: SourcePosition = SourcePosition.unknown,
+                             stackTrace: [Procedure]? = nil) -> RuntimeError {
+    // TODO: figure out if we want uncaught of uncaught exceptions?
+    return RuntimeError(pos, ErrorDescriptor.uncaught, [expr], stackTrace)
+  }
+  
   public class func custom(_ kind: String,
                            _ template: String,
                            _ irritants: [Expr],
@@ -207,6 +214,26 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
                                    libraryHeader: String? = "\nlibrary: ",
                                    stackTraceHeader: String? = "\nstack trace: ",
                                    stackTraceSeparator: String = ", ") -> String {
+    if self.descriptor == .uncaught,
+       self.irritants.count == 1,
+       case .error(let err) = self.irritants.first! {
+      let message: String
+      if let typeOpen = typeOpen {
+        message = "\(typeOpen)\(self.descriptor.typeDescription)\(typeClose)"
+      } else {
+        message = "\(self.descriptor.typeDescription): "
+      }
+      return message +
+             err.printableDescription(context: context,
+                                      typeOpen: typeOpen,
+                                      typeClose: typeClose,
+                                      irritantHeader: irritantHeader,
+                                      irritantSeparator: irritantSeparator,
+                                      positionHeader: positionHeader,
+                                      libraryHeader: libraryHeader,
+                                      stackTraceHeader: stackTraceHeader,
+                                      stackTraceSeparator: stackTraceSeparator)
+    }
     var usedIrritants = Set<Int>()
     var message = self.replacePlaceholders(in: self.descriptor.messageTemplate,
                                            with: self.irritants,
@@ -420,6 +447,7 @@ public enum ErrorDescriptor: Hashable {
   case eval(EvalError)
   case os(Error)
   case abortion
+  case uncaught
   case custom(String, String)
   
   
@@ -462,6 +490,8 @@ public enum ErrorDescriptor: Hashable {
         return "os error"
       case .abortion:
         return "abortion"
+      case .uncaught:
+        return "uncaught"
       case .custom(let type, _):
         return type
     }
@@ -485,6 +515,8 @@ public enum ErrorDescriptor: Hashable {
         return "os"
       case .abortion:
         return "abort"
+      case .uncaught:
+        return "uncaught"
       case .custom(_, _):
         return "custom"
     }
@@ -585,6 +617,8 @@ public enum ErrorDescriptor: Hashable {
         }
       case .abortion:
         return "abortion"
+      case .uncaught:
+        return "$0"
       case .custom(_, let message):
         return message
     }
@@ -628,8 +662,10 @@ public enum ErrorDescriptor: Hashable {
         hasher.combine(error as NSError)
       case .abortion:
         hasher.combine(7)
-      case .custom(let kind, let message):
+      case .uncaught:
         hasher.combine(8)
+      case .custom(let kind, let message):
+        hasher.combine(9)
         hasher.combine(kind)
         hasher.combine(message)
     }
@@ -654,6 +690,8 @@ public enum ErrorDescriptor: Hashable {
       case (.os(let lerr), .os(let rerr)):
         return lerr.localizedDescription == rerr.localizedDescription
       case (.abortion, .abortion):
+        return true
+      case (.uncaught, .uncaught):
         return true
       case (.custom(let lkind, let lmessage), .custom(let rkind, let rmessage)):
         return lkind == rkind && lmessage == rmessage

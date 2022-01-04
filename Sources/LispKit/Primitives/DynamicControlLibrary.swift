@@ -3,7 +3,7 @@
 //  LispKit
 //
 //  Created by Matthias Zenger on 14/07/2016.
-//  Copyright © 2016 ObjectHub. All rights reserved.
+//  Copyright © 2016-2022 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -23,10 +23,20 @@ import Foundation
 public final class DynamicControlLibrary: NativeLibrary {
   
   private var raiseProcLoc: Int? = nil
+  private var raiseContinuableProcLoc: Int? = nil
   
   /// The raise procedure
   public var raiseProc: Procedure? {
     if let loc = self.raiseProcLoc {
+      return self.procedure(loc)
+    } else {
+      return nil
+    }
+  }
+  
+  /// The raise-continuable procedure
+  public var raiseContinuableProc: Procedure? {
+    if let loc = self.raiseContinuableProcLoc {
       return self.procedure(loc)
     } else {
       return nil
@@ -98,8 +108,11 @@ public final class DynamicControlLibrary: NativeLibrary {
     self.define(Procedure("file-error?", isFileError))
     
     // Exceptions
+    self.define(Procedure("_make-uncaught", makeUncaught))
     self.define("return", mutable: true, via: "(define return 0)")
     self.execute("(call-with-current-continuation (lambda (cont) (set! return cont)))")
+    self.define("_raise-uncaught", export: false, via:
+      "(define (_raise-uncaught x) (return (_make-uncaught x)))")
     self.define("with-exception-handler", via:
       "(define (with-exception-handler handler thunk)",
       "  (_wind-up void void handler)",
@@ -110,13 +123,17 @@ public final class DynamicControlLibrary: NativeLibrary {
       "    ((unwind-protect body cleanup ...)",
       "      (begin (_wind-up _unwind-protect-error (lambda () cleanup ...))",
       "             (let ((res body)) ((cdr (_wind-down))) res)))))")
+    self.define("current-exception-handler", via:
+      "(define (current-exception-handler)",
+      "  (_wind-up-raise void void))")
     self.raiseProcLoc = self.define("raise", via:
       "(define (raise obj)",
-      "  ((or (_wind-up-raise void void) return) obj)",
+      // "  ((or (_wind-up-raise void void) return) obj)",
+      "  ((or (_wind-up-raise void void) _raise-uncaught) obj)",
       "  (raise (make-error \"exception handler returned\" obj)))")
-    self.define("raise-continuable", via:
+    self.raiseContinuableProcLoc = self.define("raise-continuable", via:
       "(define (raise-continuable obj)",
-      "  (let ((res ((_wind-up-raise void void) obj))) (_wind-down) res))")
+      "  (let ((res ((or (_wind-up-raise void void) _raise-uncaught) obj))) (_wind-down) res))")
     self.define("try", via:
       "(define (try thunk . args)",
       "  (let-optionals args ((handler (lambda (x) #f)))",
@@ -340,6 +357,11 @@ public final class DynamicControlLibrary: NativeLibrary {
     }
     return .error(RuntimeError.eval(.assertion, procName, expr)
                     .attach(stackTrace: self.context.evaluator.machine.getStackTrace()))
+  }
+  
+  private func makeUncaught(expr: Expr) -> Expr {
+    return .error(RuntimeError.uncaught(expr,
+                                        stackTrace: self.context.evaluator.machine.getStackTrace()))
   }
   
   private func error(args: Arguments) throws -> (Procedure, Exprs) {

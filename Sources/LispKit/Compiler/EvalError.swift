@@ -3,7 +3,7 @@
 //  LispKit
 //
 //  Created by Matthias Zenger on 01/03/2018.
-//  Copyright © 2018 ObjectHub. All rights reserved.
+//  Copyright © 2018-2022 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -124,6 +124,15 @@ public enum EvalError: Int, Hashable {
   case cannotMutateZipArchive
   case zipArchiveEntryDoesNotExist
   case unknownFileOrDirectory
+  case abandonedMutex
+  case mutexUseInInvalidContext
+  case attemptedToStartNonNewThread
+  case joinTimedOut
+  case joinWithMainThread
+  case joinWithItself
+  case threadJoinInInvalidContext
+  case expectedUncaughtException
+  case threadTerminated
   
   public var message: String {
     switch self {
@@ -325,6 +334,24 @@ public enum EvalError: Int, Hashable {
         return "no entry for path $,1 in zip archive $0"
       case .unknownFileOrDirectory:
         return "unknown file or directory $,0"
+      case .abandonedMutex:
+        return "abandoned mutex was used in a lock-mutex! operation: $0"
+      case .mutexUseInInvalidContext:
+        return "mutex use in invalid context: $0"
+      case .attemptedToStartNonNewThread:
+        return "attempted to start a thread that is not new: $0"
+      case .joinTimedOut:
+        return "thread-join! timed out, waiting for thread $0 to terminate"
+      case .joinWithMainThread:
+        return "unsupported join with main thread"
+      case .joinWithItself:
+        return "attempted to join thread with itself: $0"
+      case .threadJoinInInvalidContext:
+        return "thread join in invalid context with $0"
+      case .expectedUncaughtException:
+        return "expected an uncaught exception instead of $0"
+      case .threadTerminated:
+        return "terminated thread"
     }
   }
   

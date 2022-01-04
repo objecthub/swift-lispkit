@@ -21,7 +21,7 @@
 //  
 //
 //  Created by Matthias Zenger on 16/10/2017.
-//  Copyright © 2017-2021 ObjectHub. All rights reserved.
+//  Copyright © 2017-2022 ObjectHub. All rights reserved.
 //  
 //  Licensed under the Apache License, Version 2.0 (the "License"); you
 //  may not use this file except in compliance with the License.
@@ -63,14 +63,18 @@ let package = Package(
              .upToNextMajor(from: "1.0.3")),
     .package(name: "ZIPFoundation",
              url: "https://github.com/weichsel/ZIPFoundation.git",
-             .upToNextMajor(from: "0.9.12"))
+             .upToNextMajor(from: "0.9.12")),
+    .package(name: "swift-atomics",
+             url: "https://github.com/apple/swift-atomics.git",
+             .upToNextMajor(from: "1.0.2"))
   ],
   targets: [
     .target(name: "LispKit",
             dependencies: ["NumberKit",
                            "MarkdownKit",
                            "SQLiteExpress", 
-                           "ZIPFoundation"],
+                           "ZIPFoundation",
+                           .product(name: "Atomics", package: "swift-atomics")],
             exclude: ["Info.plist",
                       "Resources",
                       "Graphics/Drawing_iOS.swift",

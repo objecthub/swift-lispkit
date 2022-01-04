@@ -58,6 +58,7 @@ _LispKit_ provides support for the following core features, many of which are ba
   - R7RS-compliant records
   - [R6RS](http://www.r6rs.org)-compliant hashtables
   - [R6RS](http://www.r6rs.org)-compliant enumerations
+  - SRFI 18-compliant multi-threading
   - All R7RS (small) libraries: `(scheme base)`, `(scheme case-lambda)`, `(scheme char)`, `(scheme complex)`,
     `(scheme cxr)`, `(scheme eval)`, `(scheme file)`, `(scheme inexact)`, `(scheme lazy)`,
     `(scheme load)`, `(scheme process-context)`, `(scheme read)`, `(scheme repl)`, `(scheme time)`,

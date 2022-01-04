@@ -3,7 +3,19 @@
 //  LispKit
 //
 //  Created by Matthias Zenger on 21/12/2021.
-//  Copyright © 2021 ObjectHub. All rights reserved.
+//  Copyright © 2021-2022 ObjectHub. All rights reserved.
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
 //
 
 import Foundation
@@ -21,76 +33,12 @@ public final class Evaluator: TrackedObject {
     case byProc
   }
   
-  /// Threads for evaluating thunks concurrently
-  public final class MachineThread: Thread {
-    public let machine: VirtualMachine
-    private var procedure: Procedure?
-    public var result: Expr?
-    public var error: Error?
-    
-    fileprivate init(parent machine: VirtualMachine, procedure: Procedure) {
-      self.machine = VirtualMachine(parent: machine)
-      self.procedure = procedure
-      self.result = nil
-      self.error = nil
-      super.init()
-      self.stackSize = 4 * 256 * 4096 // 4 MByte stack size
-      self.qualityOfService = .userInitiated
-    }
-    
-    public var isInitial: Bool {
-      return self.result == nil &&
-             self.error == nil &&
-             !self.isActive
-    }
-    
-    public var isActive: Bool {
-      return self.machine.context.evaluator.activeThreads.contains(self)
-    }
-    
-    public var hasCompleted: Bool {
-      return self.result != nil || self.error != nil
-    }
-    
-    override public func main() {
-      guard let proc = self.procedure else {
-        return
-      }
-      do {
-        self.machine.context.evaluator.activeThreads.insert(self)
-        defer {
-          self.machine.context.evaluator.activeThreads.remove(self)
-        }
-        self.result = try machine.apply(.procedure(proc), to: .null)
-      } catch let err {
-        self.error = err
-      }
-    }
-    
-    public func mark(in gc: GarbageCollector) {
-      self.machine.mark(in: gc)
-      if let proc = self.procedure {
-        gc.mark(proc)
-      }
-      if let result = self.result {
-        gc.markLater(result)
-      }
-      // TODO: garbage collect self.error?
-    }
-    
-    public func release() {
-      self.machine.release()
-      self.procedure = nil
-      self.result = nil
-      self.error = nil
-    }
-  }
-  
   /// The context of this virtual machine
   private unowned let context: Context
   
   /// Procedures defined in low-level libraries
   public internal(set) var raiseProc: Procedure? = nil
+  public internal(set) var raiseContinuableProc: Procedure? = nil
   public internal(set) var loader: Procedure? = nil
   public internal(set) var defineSpecial: SpecialForm? = nil
   public internal(set) var defineValuesSpecial: SpecialForm? = nil
@@ -100,22 +48,24 @@ public final class Evaluator: TrackedObject {
   /// Will be set to true if the `exit` function was invoked
   public internal(set) var exitTriggered: Bool = false
   
-  /// When set to true, it will trigger an abortion of the evaluator as soon as possible
-  private var abortionRequested: Bool = false
-  
     /// When set to true, will print call and return traces
   public var traceCalls: CallTracingMode = .off
   
   /// The main virtual machine
   private let main: VirtualMachine
   
-  /// Active threads
-  private var activeThreads: Set<MachineThread> = []
+  /// The main evaluation thread object (it's just a proxy for the thread executing an expression)
+  private var mainThread: NativeThread! = nil
+  
+  /// All managed threads
+  internal var threads = ThreadManager()
   
   init(for context: Context) {
     self.context = context
     self.main = VirtualMachine(for: context)
+    context.objects.manage(self.main)
     super.init()
+    self.mainThread = NativeThread(EvalThread(worker: self))
     self.setParameterProc = Procedure("_set-parameter", self.setParameter, nil)
     self.currentDirectoryProc =
       Procedure(.procedure(Procedure("_valid-current-path", self.validCurrentPath)),
@@ -123,59 +73,59 @@ public final class Evaluator: TrackedObject {
                             context.fileHandler.currentDirectoryPath))
   }
   
-  /// Returns the virtual machine owned by the active machine thread (or the main thread if
-  /// there is currently no active machine thread)
+  /// Returns the virtual machine owned by the active evaluation thread (or the main thread if
+  /// there is currently no active managed evaluation thread)
   public var machine: VirtualMachine {
-    if activeThreads.count == 0 {
-      return self.main
-    } else if let machineThread = Thread.current as? MachineThread {
-      return machineThread.machine
-    } else {
-      return self.main
-    }
+    return self.threads.current?.value.machine ?? self.main
   }
   
   // Evaluation of code
   
   /// Executes an evaluation function at the top-level, i.e. in the main virtual machine
   public func execute(_ eval: (VirtualMachine) throws -> Expr) -> Expr {
+    self.mainThread.value.mutex.lock()
     guard self.machine === self.main else {
+      self.mainThread.value.mutex.unlock()
       preconditionFailure("executing source code not on main thread")
     }
-    for thread in self.activeThreads {
-      thread.machine.requestAbortion()
-    }
+    self.threads.register(thread: Thread.current, as: self.mainThread)
     self.exitTriggered = false
-    self.abortionRequested = false
-    self.activeThreads.removeAll()
-    return self.main.onTopLevelDo {
+    self.mainThread.value.mutex.unlock()
+    var result = self.main.onTopLevelDo {
       return try eval(self.main)
     }
+    self.mainThread.value.mutex.lock()
+    if case .error(let err) = result, err.descriptor == .uncaught {
+      result = err.irritants[0]
+    }
+    self.mainThread.value.abandonLocks()
+    self.mainThread.value.mutex.unlock()
+    // Terminate all threads
+    self.threads.abortAll(except: Thread.current)
+    self.threads.waitForTerminationOfAll()
+    self.threads.remove(thread: Thread.current)
+    return result
+  }
+  
+  /// Aborts the currently running execution
+  public func abort() {
+    _ = self.mainThread.value.abort()
   }
   
   // Create evaluation threads
   
-  public func thread(for proc: Procedure) -> MachineThread {
-    return MachineThread(parent: self.machine, procedure: proc)
+  public func thread(for proc: Procedure, name: Expr? = nil, tag: Expr? = nil) -> NativeThread {
+    return NativeThread(EvalThread(parent: self.machine,
+                                   procedure: proc,
+                                   name: name ?? .false,
+                                   tag: tag ?? .false))
   }
   
   // Abortion of evaluation
   
-  /// Requests abortion of the machine evaluator.
-  public func abort() {
-    if self.main.executing {
-      self.abortionRequested = true
-      self.context.delegate?.aborted()
-      self.main.requestAbortion()
-      for thread in self.activeThreads {
-        thread.machine.requestAbortion()
-      }
-    }
-  }
-  
   /// Returns true if an abortion was requested.
   public func isAbortionRequested() -> Bool {
-    return self.abortionRequested
+    return self.main.abortionRequested
   }
   
   // Parsing of expressions
@@ -281,26 +231,59 @@ public final class Evaluator: TrackedObject {
   /// Mark evaluator
   public override func mark(in gc: GarbageCollector) {
     self.main.mark(in: gc)
-    for thread in self.activeThreads {
-      thread.mark(in: gc)
+    self.mainThread.mark(in: gc)
+    self.threads.mark(in: gc)
+    if let proc = self.raiseProc {
+      gc.mark(proc)
+    }
+    if let proc = self.raiseContinuableProc {
+      gc.mark(proc)
     }
   }
   
   /// Reset evaluator
   public func release() {
-    for thread in self.activeThreads {
-      thread.cancel()
-      thread.release()
-    }
-    self.activeThreads.removeAll()
-    self.main.release()
+    self.threads.releaseAll()
+    self.main.clean()
+    self.mainThread = nil
     self.raiseProc = nil
+    self.raiseContinuableProc = nil
     self.loader = nil
     self.defineSpecial = nil
     self.defineValuesSpecial = nil
     self.setParameterProc = nil
-    self.raiseProc = nil
     self.exitTriggered = false
     self.traceCalls = .off
+  }
+}
+
+extension Evaluator: EvalThreadWorker {
+  
+  public var evalMachine: VirtualMachine {
+    return self.main
+  }
+  
+  public func start() {
+    // nothing to do here
+  }
+  
+  public func stop() -> Thread? {
+    if self.main.executing {
+      self.main.requestAbortion()
+      self.context.delegate?.aborted()
+    }
+    return nil
+  }
+  
+  public func guaranteeSecondary() throws {
+    throw RuntimeError.eval(.joinWithMainThread)
+  }
+  
+  public func markDelegate(with gc: GarbageCollector) {
+    // nothing to do here
+  }
+  
+  public func releaseDelegate() {
+    // nothing to do here
   }
 }

@@ -2,6 +2,15 @@
   "object": {
     "pins": [
       {
+        "package": "swift-atomics",
+        "repositoryURL": "https://github.com/apple/swift-atomics.git",
+        "state": {
+          "branch": null,
+          "revision": "919eb1d83e02121cdb434c7bfc1f0c66ef17febe",
+          "version": "1.0.2"
+        }
+      },
+      {
         "package": "CommandLineKit",
         "repositoryURL": "https://github.com/objecthub/swift-commandlinekit.git",
         "state": {

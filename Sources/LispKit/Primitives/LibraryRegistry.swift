@@ -3,7 +3,7 @@
 //  LispKit
 //
 //  Created by Matthias Zenger on 24/10/2016.
-//  Copyright © 2016 ObjectHub. All rights reserved.
+//  Copyright © 2016-2022 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -52,7 +52,8 @@ public struct LibraryRegistry {
     InternalLibrary.self,
     MarkdownLibrary.self,
     SQLiteLibrary.self,
-    ZipArchiveLibrary.self
+    ZipArchiveLibrary.self,
+    ThreadLibrary.self
   ]
   #elseif os(macOS)
   public private(set) static var nativeLibraries: [NativeLibrary.Type] = [
@@ -82,7 +83,8 @@ public struct LibraryRegistry {
     InternalLibrary.self,
     MarkdownLibrary.self,
     SQLiteLibrary.self,
-    ZipArchiveLibrary.self
+    ZipArchiveLibrary.self,
+    ThreadLibrary.self
   ]
   #endif
   

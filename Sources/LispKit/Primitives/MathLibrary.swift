@@ -3,7 +3,7 @@
 //  LispKit
 //
 //  Created by Matthias Zenger on 23/01/2016.
-//  Copyright © 2016 ObjectHub. All rights reserved.
+//  Copyright © 2016-2022 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -57,6 +57,7 @@ public final class MathLibrary: NativeLibrary {
     self.define(Procedure("nan?", self.isNaN))
     self.define(Procedure("positive?", self.isPositive))
     self.define(Procedure("negative?", self.isNegative))
+    self.define(Procedure("nan-negative?", self.isNaNNegative))
     self.define(Procedure("zero?", self.isZero))
     self.define(Procedure("even?", self.isEven))
     self.define(Procedure("odd?", self.isOdd))
@@ -186,6 +187,7 @@ public final class MathLibrary: NativeLibrary {
     self.define(Procedure("flabs", self.flAbs))
     self.define(Procedure("flmin", self.flMin))
     self.define(Procedure("flmax", self.flMax))
+    self.define(Procedure("flsqrt", self.flSqrt))
     self.define(Procedure("bitwise-not", self.bitwiseNot))
     self.define(Procedure("bitwise-and", self.bitwiseAnd))
     self.define(Procedure("bitwise-ior", self.bitwiseIor))
@@ -417,7 +419,16 @@ public final class MathLibrary: NativeLibrary {
         throw RuntimeError.type(expr, expected: [.numberType])
     }
   }
-
+  
+  private func isNaNNegative(_ expr: Expr) throws -> Expr {
+    switch expr {
+      case .flonum(let num):
+        return .makeBoolean(num.isNaN && (num.sign == .minus))
+      default:
+        return .false
+    }
+  }
+  
   private func isZero(_ expr: Expr) throws -> Expr {
     switch expr {
       case .fixnum(let num):
@@ -689,7 +700,11 @@ public final class MathLibrary: NativeLibrary {
         case .rational(.bignum(let n), let d):
           return .rational(.bignum(-n), d)
         case .flonum(let res):
-          return .makeNumber(-res)
+          if res.isNaN {
+            return .makeNumber(res.sign == .minus ? Double.nan : Scanner.negativeNaN)
+          } else {
+            return .makeNumber(-res)
+          }
         case .complex(let res):
           return .makeNumber(res.value.negate)
         default:
@@ -2066,6 +2081,10 @@ public final class MathLibrary: NativeLibrary {
     let xint = try x.asDouble()
     let yint = try y.asDouble()
     return .flonum(xint > yint ? xint : yint)
+  }
+  
+  private func flSqrt(_ x: Expr) throws -> Expr {
+    return .flonum(try x.asDouble().squareRoot())
   }
   
   private func bitwiseNot(_ num: Expr) throws -> Expr {

@@ -3,7 +3,7 @@
 //  LispKit
 //
 //  Created by Matthias Zenger on 29/12/2016.
-//  Copyright © 2016-2019 ObjectHub. All rights reserved.
+//  Copyright © 2016-2022 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -176,16 +176,29 @@ public extension ContextDelegate {
 /// `readLine` functions to allow for a simple read-eval-print loop on a terminal interface.
 ///
 public class CommandLineDelegate: ContextDelegate {
+  private let lock: EmbeddedUnfairLock
   
-  public init() {}
+  public init() {
+    self.lock = EmbeddedUnfairLock()
+  }
+  
+  deinit {
+    self.lock.release()
+  }
   
   /// Prints the given string into the console window.
   public func print(_ str: String) {
+    self.lock.lock()
     Swift.print(str, separator: "", terminator: "")
+    self.lock.unlock()
   }
   
   /// Reads a string from the console window.
   public func read() -> String? {
+    self.lock.lock()
+    defer {
+      self.lock.unlock()
+    }
     return Swift.readLine(strippingNewline: false)
   }
 }

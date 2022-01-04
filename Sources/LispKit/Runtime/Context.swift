@@ -3,7 +3,7 @@
 //  LispKit
 //
 //  Created by Matthias Zenger on 14/01/2016.
-//  Copyright © 2016 ObjectHub. All rights reserved.
+//  Copyright © 2016-2022 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -121,9 +121,9 @@ open class Context {
                                            abortionCallback: self.evaluator.isAbortionRequested))
     self.outputPort = Port(output: TextOutput(target: delegate, threshold: 0))
     // Register tracked objects
-    self.objects.track(self.evaluator)
     self.objects.track(self.heap)
     self.objects.track(self.libraries)
+    self.objects.track(self.evaluator)
     // Register native libraries
     do {
       for nativeLibrary in LibraryRegistry.nativeLibraries {
@@ -142,9 +142,13 @@ open class Context {
     // Guarantee that (lispkit dynamic) is imported; this will also load (lispkit core)
     try self.environment.import(["lispkit", "dynamic"])
     // Install error handler
-    if let dynamicLib = try self.libraries.lookup("lispkit", "dynamic") as? DynamicControlLibrary,
-       let raiseProc = dynamicLib.raiseProc {
-      self.evaluator.raiseProc = raiseProc
+    if let dynamicLib = try self.libraries.lookup("lispkit", "dynamic") as? DynamicControlLibrary {
+      if let raiseProc = dynamicLib.raiseProc {
+        self.evaluator.raiseProc = raiseProc
+      }
+      if let raiseContinuableProc = dynamicLib.raiseContinuableProc {
+        self.evaluator.raiseContinuableProc = raiseContinuableProc
+      }
     }
     // Install definition procedures
     if let coreLib = try self.libraries.lookup("lispkit", "core") as? CoreLibrary {
@@ -178,10 +182,10 @@ open class Context {
   
   /// Reset this context
   public func release() {
-    self.heap.release()
+    self.evaluator.release()
     self.libraries.release()
+    self.heap.release()
     self.sources.release()
     self.symbols.release()
-    self.evaluator.release()
   }
 }

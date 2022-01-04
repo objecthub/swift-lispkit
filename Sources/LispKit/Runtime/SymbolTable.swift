@@ -3,7 +3,7 @@
 //  LispKit
 //
 //  Created by Matthias Zenger on 23/01/2016.
-//  Copyright © 2016 ObjectHub. All rights reserved.
+//  Copyright © 2016-2022 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -25,7 +25,9 @@
 /// of a given symbol.
 ///
 public final class SymbolTable: Sequence {
+  private let lock = EmbeddedUnfairLock()
   private var symTable = [String : Symbol]()
+  private let gensymLock = EmbeddedUnfairLock()
   private var gensymCounter: UInt64 = 0
   
   public let undef           = Symbol("<undef>")
@@ -75,6 +77,11 @@ public final class SymbolTable: Sequence {
   
   public init() {
     self.registerNativeSymbols()
+  }
+  
+  deinit {
+    self.lock.release()
+    self.gensymLock.release()
   }
   
   /// Register internally used symbols.
@@ -130,11 +137,19 @@ public final class SymbolTable: Sequence {
   
   /// Returns true if there is already an interned symbol for identifier `ident`.
   public func exists(_ ident: String) -> Bool {
+    self.lock.lock()
+    defer {
+      self.lock.unlock()
+    }
     return self.symTable[ident] != nil
   }
   
   /// Return a new interned symbol for the given identifier `ident`.
   public func intern(_ ident: String) -> Symbol {
+    self.lock.lock()
+    defer {
+      self.lock.unlock()
+    }
     if let sym = self.symTable[ident] {
       return sym
     } else {
@@ -146,6 +161,10 @@ public final class SymbolTable: Sequence {
   
   /// Generates a new interned symbol.
   public func gensym(_ basename: String) -> Symbol {
+    self.gensymLock.lock()
+    defer {
+      self.gensymLock.unlock()
+    }
     var ident: String
     repeat {
       ident = basename + String(self.gensymCounter)

@@ -3,7 +3,7 @@
 //  LispKit
 //
 //  Created by Matthias Zenger on 20/12/2021.
-//  Copyright © 2021 ObjectHub. All rights reserved.
+//  Copyright © 2022 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -24,11 +24,13 @@ import Foundation
 /// It is important to invoke `release` when an object using an embedded mutex is being
 /// de-initialized.
 public struct EmbeddedMutex {
-
-  /// The underlying system mutex
-  fileprivate var systemMutex = pthread_mutex_t()
   
-  public init(recursive: Bool = false) {
+  /// The underlying system mutex
+  fileprivate let systemMutex: UnsafeMutablePointer<pthread_mutex_t>
+  
+  public init(recursive: Bool) {
+    let pointer = UnsafeMutablePointer<pthread_mutex_t>.allocate(capacity: 1)
+    pointer.initialize(to: pthread_mutex_t())
     var attr = pthread_mutexattr_t()
     guard pthread_mutexattr_init(&attr) == 0 else {
       preconditionFailure()
@@ -38,35 +40,38 @@ public struct EmbeddedMutex {
     } else {
       pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_NORMAL)
     }
-    guard pthread_mutex_init(&self.systemMutex, &attr) == 0 else {
+    guard pthread_mutex_init(pointer, &attr) == 0 else {
       preconditionFailure()
     }
     pthread_mutexattr_destroy(&attr)
+    self.systemMutex = pointer
   }
   
-  public mutating func release() {
-    pthread_mutex_destroy(&self.systemMutex)
+  public func release() {
+    pthread_mutex_destroy(self.systemMutex)
+    self.systemMutex.deinitialize(count: 1)
+    self.systemMutex.deallocate()
   }
   
-  public mutating func lock() {
-    pthread_mutex_lock(&self.systemMutex)
+  public func lock() {
+    pthread_mutex_lock(self.systemMutex)
   }
   
-  public mutating func tryLock() -> Bool {
-    return pthread_mutex_trylock(&self.systemMutex) == 0
+  public func tryLock() -> Bool {
+    return pthread_mutex_trylock(self.systemMutex) == 0
   }
   
-  public mutating func unlock() {
-    pthread_mutex_unlock(&self.systemMutex)
+  public func unlock() {
+    pthread_mutex_unlock(self.systemMutex)
   }
   
-  public mutating func sync<T>(execute block: () throws -> T) rethrows -> T {
+  public func sync<T>(execute block: () throws -> T) rethrows -> T {
     self.lock()
     defer { self.unlock() }
     return try block()
   }
   
-  public mutating func trySync<T>(execute block: () throws -> T) rethrows -> T? {
+  public func trySync<T>(execute block: () throws -> T) rethrows -> T? {
     guard self.tryLock() else {
       return nil
     }
@@ -77,7 +82,7 @@ public struct EmbeddedMutex {
 
 /// Provides standalone mutex objects.
 public final class Mutex {
-  fileprivate var mutex: EmbeddedMutex
+  fileprivate let mutex: EmbeddedMutex
   
   public init(recursive: Bool = false) {
     self.mutex = EmbeddedMutex(recursive: recursive)
@@ -108,50 +113,129 @@ public final class Mutex {
   }
 }
 
+/// Implements an embeddable unfair (but very efficient) mutex. Such a struct is typically
+/// embedded in a class. It is important to invoke `release` when an object using an embedded
+/// mutex is being de-initialized.
+public struct EmbeddedUnfairLock {
+  
+  private let unfairLock: UnsafeMutablePointer<os_unfair_lock>
+  
+  public init() {
+    let pointer = UnsafeMutablePointer<os_unfair_lock>.allocate(capacity: 1)
+    pointer.initialize(to: os_unfair_lock())
+    self.unfairLock = pointer
+  }
+  
+  public func release() {
+    self.unfairLock.deinitialize(count: 1)
+    self.unfairLock.deallocate()
+  }
+
+  public func lock() {
+    os_unfair_lock_lock(self.unfairLock)
+  }
+
+  public func tryLock() -> Bool {
+    os_unfair_lock_trylock(self.unfairLock)
+  }
+
+  public func unlock() {
+    os_unfair_lock_unlock(self.unfairLock)
+  }
+  
+  public func sync<T>(execute block: () throws -> T) rethrows -> T {
+    self.lock()
+    defer { self.unlock() }
+    return try block()
+  }
+  
+  public func trySync<T>(execute block: () throws -> T) rethrows -> T? {
+    guard self.tryLock() else {
+      return nil
+    }
+    defer { self.unlock() }
+    return try block()
+  }
+}
+
+/// Provides standalone unfair locks.
+public final class UnfairLock {
+  private let unfairLock = EmbeddedUnfairLock()
+  
+  deinit {
+    self.unfairLock.release()
+  }
+
+  public func lock() {
+    self.unfairLock.lock()
+  }
+
+  public func tryLock() -> Bool {
+    self.unfairLock.tryLock()
+  }
+
+  public func unlock() {
+    self.unfairLock.unlock()
+  }
+  
+  public func sync<R>(execute block: () throws -> R) rethrows -> R {
+    return try self.unfairLock.sync(execute: block)
+  }
+  
+  public func trySync<R>(execute block: () throws -> R) rethrows -> R? {
+    return try self.unfairLock.trySync(execute: block)
+  }
+}
+
 /// Implements an embeddable read/write lock (multiple readers can access critical sections
 /// but at most one writer). Such a struct is typically embedded in a class. It is important
 /// to invoke `release` when an object using an embedded read/write lock is being
 /// de-initialized.
 public struct EmbeddedReadWriteLock {
-
+  
   /// The underlying system read/write lock
-  private var systemLock = pthread_rwlock_t()
+  private let systemLock: UnsafeMutablePointer<pthread_rwlock_t>
   
   public init() {
-    pthread_rwlock_init(&self.systemLock, nil)
+    let pointer = UnsafeMutablePointer<pthread_rwlock_t>.allocate(capacity: 1)
+    pointer.initialize(to: pthread_rwlock_t())
+    pthread_rwlock_init(pointer, nil)
+    self.systemLock = pointer
   }
   
-  public mutating func release() {
-    pthread_rwlock_destroy(&self.systemLock)
+  public func release() {
+    pthread_rwlock_destroy(self.systemLock)
+    self.systemLock.deinitialize(count: 1)
+    self.systemLock.deallocate()
   }
   
-  public mutating func readLock() {
-    pthread_rwlock_rdlock(&self.systemLock)
+  public func readLock() {
+    pthread_rwlock_rdlock(self.systemLock)
   }
   
-  public mutating func tryReadLock() -> Bool {
-    return pthread_rwlock_tryrdlock(&self.systemLock) == 0
+  public func tryReadLock() -> Bool {
+    return pthread_rwlock_tryrdlock(self.systemLock) == 0
   }
   
-  public mutating func writeLock() {
-    pthread_rwlock_wrlock(&self.systemLock)
+  public func writeLock() {
+    pthread_rwlock_wrlock(self.systemLock)
   }
   
-  public mutating func tryWriteLock() -> Bool {
-    return pthread_rwlock_trywrlock(&self.systemLock) == 0
+  public func tryWriteLock() -> Bool {
+    return pthread_rwlock_trywrlock(self.systemLock) == 0
   }
   
-  public mutating func unlock() {
-    pthread_rwlock_unlock(&self.systemLock)
+  public func unlock() {
+    pthread_rwlock_unlock(self.systemLock)
   }
   
-  public mutating func syncRead<T>(execute block: () throws -> T) rethrows -> T {
+  public func syncRead<T>(execute block: () throws -> T) rethrows -> T {
     self.readLock()
     defer { self.unlock() }
     return try block()
   }
   
-  public mutating func trySyncRead<T>(execute block: () throws -> T) rethrows -> T? {
+  public func trySyncRead<T>(execute block: () throws -> T) rethrows -> T? {
     guard self.tryReadLock() else {
       return nil
     }
@@ -159,13 +243,13 @@ public struct EmbeddedReadWriteLock {
     return try block()
   }
   
-  public mutating func syncWrite<T>(execute block: () throws -> T) rethrows -> T {
+  public func syncWrite<T>(execute block: () throws -> T) rethrows -> T {
     self.readLock()
     defer { self.unlock() }
     return try block()
   }
   
-  public mutating func trySyncWrite<T>(execute block: () throws -> T) rethrows -> T? {
+  public func trySyncWrite<T>(execute block: () throws -> T) rethrows -> T? {
     guard self.tryReadLock() else {
       return nil
     }
@@ -176,7 +260,7 @@ public struct EmbeddedReadWriteLock {
 
 /// Provides standalone read/write locks.
 public final class ReadWriteLock {
-  private var lock = EmbeddedReadWriteLock()
+  private let lock = EmbeddedReadWriteLock()
   
   deinit {
     self.lock.release()
@@ -225,41 +309,53 @@ public final class ReadWriteLock {
 public struct EmbeddedCondition {
   
   /// The underlying system condition variable
-  private var systemCond = pthread_cond_t()
+  private var systemCond: UnsafeMutablePointer<pthread_cond_t>
   
   public init() {
-    pthread_cond_init(&self.systemCond, nil)
+    let pointer = UnsafeMutablePointer<pthread_cond_t>.allocate(capacity: 1)
+    pointer.initialize(to: pthread_cond_t())
+    pthread_cond_init(pointer, nil)
+    self.systemCond = pointer
   }
   
-  public mutating func release() {
-    pthread_cond_destroy(&self.systemCond)
+  public func release() {
+    pthread_cond_destroy(self.systemCond)
+    self.systemCond.deinitialize(count: 1)
+    self.systemCond.deallocate()
   }
   
   /// Wakes all threads waiting on this condition.
-  public mutating func broadcast() {
-    pthread_cond_broadcast(&self.systemCond)
+  public func broadcast() {
+    pthread_cond_broadcast(self.systemCond)
   }
   
   /// Wakes one thread waiting on this condition.
-  public mutating func signal() {
-    pthread_cond_signal(&self.systemCond)
+  public func signal() {
+    pthread_cond_signal(self.systemCond)
   }
   
   /// Atomically releases mutex and causes the calling thread to block on the condition
   /// variable until either `signal` or `broadcast` is invoked on the condition variable,
   /// in which case the thread will re-acquire the lock.
-  public mutating func wait(unlocking mutex: inout EmbeddedMutex) {
-    pthread_cond_wait(&self.systemCond, &mutex.systemMutex)
+  public func wait(unlocking mutex: EmbeddedMutex) {
+    pthread_cond_wait(self.systemCond, mutex.systemMutex)
+  }
+  
+  /// Atomically releases mutex and causes the calling thread to block on the condition
+  /// variable until either `signal` or `broadcast` is invoked on the condition variable,
+  /// in which case the thread will re-acquire the lock.
+  public func wait(unlocking cl: EmbeddedConditionLock) {
+    pthread_cond_wait(self.systemCond, cl.mutex.systemMutex)
   }
   
   /// Atomically releases mutex and causes the calling thread to block on the condition
   /// variable until either `signal` or `broadcast` is invoked on the condition variable,
   /// in which case the thread will re-acquire the lock. This method returns false if
   /// the waiting times out.
-  @discardableResult public mutating func wait(_ timeout : TimeInterval,
-                                               unlocking mutex: inout EmbeddedMutex) -> Bool {
+  @discardableResult public func wait(_ timeout: TimeInterval,
+                                      unlocking mutex: EmbeddedMutex) -> Bool {
     if timeout < 0 {
-      pthread_cond_wait(&self.systemCond, &mutex.systemMutex)
+      pthread_cond_wait(self.systemCond, mutex.systemMutex)
       return true
     }
     let timeInMs = Int(timeout * 1000)
@@ -270,7 +366,46 @@ public struct EmbeddedCondition {
     ts.tv_nsec = Int(Int(tv.tv_usec * 1000) + 1000000 * (timeInMs % 1000))
     ts.tv_sec += ts.tv_nsec / 1000000000
     ts.tv_nsec %= 1000000000
-    return pthread_cond_timedwait(&self.systemCond, &mutex.systemMutex, &ts) == 0
+    return pthread_cond_timedwait(self.systemCond, mutex.systemMutex, &ts) == 0
+  }
+  
+  /// Atomically releases mutex and causes the calling thread to block on the condition
+  /// variable until either `signal` or `broadcast` is invoked on the condition variable,
+  /// in which case the thread will re-acquire the lock. This method returns false if
+  /// the waiting times out.
+  @discardableResult public func wait(until absTime: Double,
+                                      unlocking mutex: EmbeddedMutex) -> Bool {
+    var tv = timeval(tv_sec: 0, tv_usec: 0)
+    gettimeofday(&tv, nil)
+    let current = Double(tv.tv_sec) + (Double(tv.tv_usec) / 1000000.0)
+    if absTime <= current {
+      return false
+    }
+    let timeInMs = Int((absTime - current) * 1000.0)
+    var ts = timespec()
+    ts.tv_sec = time(nil) + timeInMs / 1000
+    ts.tv_nsec = Int(Int(tv.tv_usec * 1000) + 1000000 * (timeInMs % 1000))
+    ts.tv_sec += ts.tv_nsec / 1000000000
+    ts.tv_nsec %= 1000000000
+    return pthread_cond_timedwait(self.systemCond, mutex.systemMutex, &ts) == 0
+  }
+  
+  /// Atomically releases mutex and causes the calling thread to block on the condition
+  /// variable until either `signal` or `broadcast` is invoked on the condition variable,
+  /// in which case the thread will re-acquire the lock. This method returns false if
+  /// the waiting times out.
+  @discardableResult public func wait(_ timeout: TimeInterval,
+                                      unlocking cl: EmbeddedConditionLock) -> Bool {
+    return self.wait(timeout, unlocking: cl.mutex)
+  }
+  
+  /// Atomically releases mutex and causes the calling thread to block on the condition
+  /// variable until either `signal` or `broadcast` is invoked on the condition variable,
+  /// in which case the thread will re-acquire the lock. This method returns false if
+  /// the waiting times out.
+  @discardableResult public func wait(until absTime: Double,
+                                      unlocking cl: EmbeddedConditionLock) -> Bool {
+    return self.wait(until: absTime, unlocking: cl.mutex)
   }
 }
 
@@ -290,11 +425,15 @@ public final class Condition {
   }
   
   public func wait(unlocking mutex: Mutex) {
-    self.condition.wait(unlocking: &mutex.mutex)
+    self.condition.wait(unlocking: mutex.mutex)
   }
   
-  @discardableResult public func wait(_ timeout : TimeInterval, unlocking mutex: Mutex) -> Bool {
-    return self.condition.wait(timeout, unlocking: &mutex.mutex)    
+  @discardableResult public func wait(_ timeout: TimeInterval, unlocking mutex: Mutex) -> Bool {
+    return self.condition.wait(timeout, unlocking: mutex.mutex)    
+  }
+  
+  @discardableResult public func wait(until absTime: Double, unlocking mutex: Mutex) -> Bool {
+    return self.condition.wait(until: absTime, unlocking: mutex.mutex)    
   }
 }
 
@@ -303,40 +442,44 @@ public final class Condition {
 /// when an object using an embedded read/write lock is being de-initialized.
 public struct EmbeddedConditionLock {
   private var condition: EmbeddedCondition
-  private var mutex: EmbeddedMutex
+  fileprivate var mutex: EmbeddedMutex
   
   public init(recursive: Bool = false) {
     self.condition = EmbeddedCondition()
     self.mutex = EmbeddedMutex(recursive: recursive)
   }
   
-  public mutating func release() {
+  public func release() {
     self.condition.release()
     self.mutex.release()
   }
   
-  public mutating func lock() {
+  public func lock() {
     self.mutex.lock()
   }
   
-  public mutating func unlock() {
+  public func unlock() {
     self.mutex.unlock()
   }
   
-  public mutating func broadcast() {
+  public func broadcast() {
     self.condition.broadcast()
   }
   
-  public mutating func signal() {
+  public func signal() {
     self.condition.signal()
   }
   
-  public mutating func wait() {
-    self.condition.wait(unlocking: &self.mutex)
+  public func wait() {
+    self.condition.wait(unlocking: self.mutex)
   }
   
-  @discardableResult public mutating func wait(_ timeout : TimeInterval) -> Bool {
-    return self.condition.wait(timeout, unlocking: &self.mutex)
+  @discardableResult public func wait(_ timeout: TimeInterval) -> Bool {
+    return self.condition.wait(timeout, unlocking: self.mutex)
+  }
+  
+  @discardableResult public func wait(until absTime: Double) -> Bool {
+    return self.condition.wait(until: absTime, unlocking: self.mutex)
   }
 }
 
@@ -371,7 +514,11 @@ public final class ConditionLock {
     self.conditionLock.wait()
   }
   
-  @discardableResult public func wait(_ timeout : TimeInterval) -> Bool {
+  @discardableResult public func wait(_ timeout: TimeInterval) -> Bool {
     return self.conditionLock.wait(timeout)
+  }
+  
+  @discardableResult public func wait(until absTime: Double) -> Bool {
+    return self.conditionLock.wait(until: absTime)
   }
 }

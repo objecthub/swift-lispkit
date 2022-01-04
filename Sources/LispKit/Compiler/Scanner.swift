@@ -3,7 +3,7 @@
 //  LispKit
 //
 //  Created by Matthias Zenger on 09/11/2015.
-//  Copyright © 2016 ObjectHub. All rights reserved.
+//  Copyright © 2016-2022 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -26,6 +26,10 @@ import NumberKit
 /// of the string for parsing purposes.
 ///
 public final class Scanner {
+  
+  /// Negative NaN (needed as a workaroung due to a bug in the Swift compiler which
+  /// does constant folding incorrectly for negative NaN values)
+  static let negativeNaN = (-1).squareRoot()
   
   /// Input of source code
   private let input: TextInput
@@ -136,7 +140,9 @@ public final class Scanner {
               realPart = -Double.infinity
             case "+inf.0":
               realPart = Double.infinity
-            case "-nan.0", "+nan.0":
+            case "-nan.0":
+              realPart = Scanner.negativeNaN
+            case "+nan.0":
               realPart = Double.nan
             case "-inf.0i":
               self.token.kind = .complex

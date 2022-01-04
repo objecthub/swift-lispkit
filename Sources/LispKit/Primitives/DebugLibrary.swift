@@ -3,7 +3,7 @@
 //  LispKit
 //
 //  Created by Matthias Zenger on 29/08/2020.
-//  Copyright © 2020 ObjectHub. All rights reserved.
+//  Copyright © 2020-2022 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -53,6 +53,7 @@ public final class DebugLibrary: NativeLibrary {
     self.define(Procedure("loaded-libraries", self.loadedLibraries))
     self.define(Procedure("loaded-sources", self.loadedSources))
     self.define(Procedure("environment-info", self.environmentInfo))
+    self.define(Procedure("call-stack-lines", self.callStackLines))
   }
   
   private func gc() -> Expr {
@@ -266,5 +267,13 @@ public final class DebugLibrary: NativeLibrary {
       console.print("  allocated locations: \(self.context.heap.locations.count)\n")
     }
     return .void
+  }
+  
+  private func callStackLines() -> Expr {
+    var res: Expr = .null
+    for line in Thread.callStackSymbols.reversed() {
+      res = .pair(.makeString(line), res)
+    }
+    return res
   }
 }
