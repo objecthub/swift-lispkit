@@ -26,9 +26,15 @@
           conjugate
           degrees->radians
           radians->degrees
-          prime?)
+          prime?
+          make-nan
+          nan-negative?
+          nan-quiet?
+          nan-payload
+          nan=?)
   
-  (import (lispkit base))
+  (import (lispkit base)
+          (lispkit internal))
   
   (begin
     
@@ -121,5 +127,13 @@
             ((even? n) #f)
             (else      (do ((d 3 (+ d 2)))
                            ((or (> (square d) n) (zero? (remainder n d))) (> (square d) n))))))
+    
+    ;; Returns `#t` if `n` is a negative NaN, `#f` otherwise.
+    (define (nan-negative? n)
+      (and (nan? n) (flnegative? n)))
+    
+    ;; Returns `#t` if both `n1` and `n2` are NaNs and their representation is equal.
+    (define (nan=? n1 n2)
+      (and (nan? n1) (flbits=? n1 n2)))
   )
 )

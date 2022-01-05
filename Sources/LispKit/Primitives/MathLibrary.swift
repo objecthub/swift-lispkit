@@ -58,7 +58,6 @@ public final class MathLibrary: NativeLibrary {
     self.define(Procedure("nan?", self.isNaN))
     self.define(Procedure("positive?", self.isPositive))
     self.define(Procedure("negative?", self.isNegative))
-    self.define(Procedure("nan-negative?", self.isNaNNegative))
     self.define(Procedure("zero?", self.isZero))
     self.define(Procedure("even?", self.isEven))
     self.define(Procedure("odd?", self.isOdd))
@@ -420,15 +419,6 @@ public final class MathLibrary: NativeLibrary {
         return num.value.isReal ? .makeBoolean(num.value.re < 0) : .false
       default:
         throw RuntimeError.type(expr, expected: [.numberType])
-    }
-  }
-  
-  private func isNaNNegative(_ expr: Expr) throws -> Expr {
-    switch expr {
-      case .flonum(let num):
-        return .makeBoolean(num.isNaN && (num.sign == .minus))
-      default:
-        return .false
     }
   }
   
