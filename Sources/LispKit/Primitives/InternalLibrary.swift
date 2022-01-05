@@ -37,6 +37,7 @@ public final class InternalLibrary: NativeLibrary {
     self.define(Procedure("datatype-deconstruction?", self.isDatatypeDeconstruction))
     self.define(Procedure("deconstruct-datatype", self.deconstructDatatype))
     self.define(Procedure("make-nan", self.makeNan))
+    self.define(Procedure("nan-negative?", self.nanNegative))
     self.define(Procedure("nan-quiet?", self.nanQuiet))
     self.define(Procedure("nan-payload", self.nanPayload))
     self.define(Procedure("flbits=?", self.doubleBitsEquals))
@@ -71,6 +72,15 @@ public final class InternalLibrary: NativeLibrary {
       return .makeNumber(Double(bitPattern: num.bitPattern | (UInt64(1) << 63)))
     } else {
       return .makeNumber(num)
+    }
+  }
+  
+  private func nanNegative(expr: Expr) throws -> Expr {
+    switch expr {
+      case .flonum(let num):
+        return .makeBoolean(num.isNaN && (num.sign == .minus))
+      default:
+        return .false
     }
   }
   
