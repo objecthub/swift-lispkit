@@ -98,6 +98,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit enum)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Enum),
     [`(lispkit regexp)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Regexp),
     [`(lispkit stream)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Stream),
+    `(lispkit thread)`,
     `(lispkit graph)`,
     [`(lispkit match)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Match),
     [`(lispkit iterate)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Iterate),
@@ -146,6 +147,7 @@ framework:
   - [SRFI 14: Character-set library](https://srfi.schemers.org/srfi-14/srfi-14.html)
   - [SRFI 16: Syntax for procedures of variable arity](https://srfi.schemers.org/srfi-16/srfi-16.html)
   - [SRFI 17: Generalized set!](https://srfi.schemers.org/srfi-17/srfi-17.html)
+  - [SRFI 18: Multithreading support](https://srfi.schemers.org/srfi-18/srfi-18.html)  
   - [SRFI 19: Time Data Types and Procedures](https://srfi.schemers.org/srfi-19/srfi-19.html)
   - [SRFI 23: Error reporting mechanism](https://srfi.schemers.org/srfi-23/srfi-23.html)
   - [SRFI 26: Notation for Specializing Parameters without Currying](https://srfi.schemers.org/srfi-26/srfi-26.html)
@@ -206,6 +208,7 @@ framework:
   - [SRFI 195: Multiple-value boxes](https://srfi.schemers.org/srfi-195/srfi-195.html)
   - [SRFI 196: Range Objects](https://srfi.schemers.org/srfi-196/srfi-196.html)
   - [SRFI 204: Wright-Cartwright-Shinn pattern matcher](https://srfi.schemers.org/srfi-204/srfi-204.html)
+  - [SRFI 208: NaN procedures](https://srfi.schemers.org/srfi-208/srfi-208.html)
   - [SRFI 209: Enums and Enum Sets](https://srfi.schemers.org/srfi-209/srfi-209.html)
   - [SRFI 210: Procedures and Syntax for Multiple Values](https://srfi.schemers.org/srfi-210/srfi-210.html)
   - [SRFI 214: Flexvectors](https://srfi.schemers.org/srfi-214/srfi-214.html)
@@ -219,6 +222,7 @@ framework:
   - [SRFI 224: Integer mappings](https://srfi.schemers.org/srfi-224/srfi-224.html)
   - [SRFI 227: Optional Arguments](https://srfi.schemers.org/srfi-227/srfi-227.html)
   - [SRFI 229: Tagged procedures](https://srfi.schemers.org/srfi-229/srfi-229.html)
+  - [SRFI 230: Atomic Operations](https://srfi.schemers.org/srfi-230/srfi-230.html)
 
 
 ## Project
