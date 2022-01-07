@@ -173,6 +173,9 @@ public final class MathLibrary: NativeLibrary {
     self.define(Procedure("least-fixnum", self.leastFixnum))
     self.define(Procedure("greatest-fixnum", self.greatestFixnum))
     self.define(Procedure("real->flonum", self.realToFlonum))
+    self.define(Procedure("make-flonum", self.makeFlonum))
+    self.define(Procedure("flexponent", self.flExponent))
+    self.define(Procedure("flsignificand", self.flSignificand))
     self.define(Procedure("fl+", self.flPlus, self.compileFlPlus))
     self.define(Procedure("fl-", self.flMinus, self.compileFlMinus))
     self.define(Procedure("fl*", self.flMult, self.compileFlMult))
@@ -190,6 +193,8 @@ public final class MathLibrary: NativeLibrary {
     self.define(Procedure("flmax", self.flMax))
     self.define(Procedure("flrandom", self.flRandom))
     self.define(Procedure("flsqrt", self.flSqrt))
+    self.define(Procedure("flnext", self.flNext))
+    self.define(Procedure("flprev", self.flPrev))
     self.define(Procedure("bitwise-not", self.bitwiseNot))
     self.define(Procedure("bitwise-and", self.bitwiseAnd))
     self.define(Procedure("bitwise-ior", self.bitwiseIor))
@@ -515,8 +520,8 @@ public final class MathLibrary: NativeLibrary {
   }
   
   static func approximate(_ x: Double, tolerance: Double = 1.0e-15) -> Rational<Int64>? {
-    let mx = x * tolerance
-    var y = x
+    var y: Double = abs(x)
+    let mx = y * tolerance
     var (n1, d1) = (Int64(1), Int64(0))
     var (n2, d2) = (Int64(0), Int64(1))
     repeat {
@@ -530,13 +535,13 @@ public final class MathLibrary: NativeLibrary {
       } else {
         return nil
       }
-    } while abs(x - Double(n1) / Double(d1)) > mx
-    return Rational(n1, d1)
+    } while abs(abs(x) - Double(n1) / Double(d1)) > mx
+    return Rational(n1 * (x < 0.0 ? -1 : 1), d1)
   }
   
   static func approximateBigRat(_ x: Double, tolerance: Double = 1.0e-15) -> Rational<BigInt>? {
-    let mx = x * tolerance
-    var y = x
+    var y: Double = abs(x)
+    let mx = y * tolerance
     var (n1, d1) = (BigInt(1), BigInt(0))
     var (n2, d2) = (BigInt(0), BigInt(1))
     repeat {
@@ -547,8 +552,12 @@ public final class MathLibrary: NativeLibrary {
       (n1, n2) = (fy * n1 + n2, n1)
       (d1, d2) = (fy * d1 + d2, d1)
       y = 1.0 / (y - Foundation.floor(y))
-    } while abs(x - n1.doubleValue / d1.doubleValue) > mx
-    return Rational(n1, d1)
+    } while abs(abs(x) - n1.doubleValue / d1.doubleValue) > mx
+    if x < 0.0 {
+      return Rational(n1.negate, d1)
+    } else {
+      return Rational(n1, d1)
+    }
   }
   
   
@@ -987,7 +996,7 @@ public final class MathLibrary: NativeLibrary {
   private func absolute(_ expr: Expr) throws -> Expr {
     switch expr {
       case .fixnum(let num):
-        return .makeNumber(num < 0 ? -num : num)
+        return .makeNumber(abs(num))
       case .bignum(let num):
         return .makeNumber(num.isNegative ? -num : num)
       case .rational(.fixnum(let n), .fixnum(let d)):
@@ -995,7 +1004,7 @@ public final class MathLibrary: NativeLibrary {
       case .rational(.bignum(let n), .bignum(let d)):
         return n.isNegative ? .rational(.bignum(-n), .bignum(d)) : expr
       case .flonum(let num):
-        return .flonum((num.sign == .minus) ? -num : num)
+        return .flonum(num.magnitude)
       default:
         throw RuntimeError.type(expr, expected: [.realType])
     }
@@ -1005,7 +1014,12 @@ public final class MathLibrary: NativeLibrary {
     switch expr {
       case .fixnum(let num):
         let (res, overflow) = num.multipliedReportingOverflow(by: num)
-        return overflow ? .makeNumber(BigInt(num) * BigInt(num)) : .makeNumber(res)
+        if overflow {
+          let n = BigInt(num)
+          return .makeNumber(n * n)
+        } else {
+          return .makeNumber(res)
+        }
       case .bignum(let num):
         return .makeNumber(num * num)
       case .rational(.fixnum(let n), .fixnum(let d)):
@@ -1343,7 +1357,7 @@ public final class MathLibrary: NativeLibrary {
   private func magnitude(_ expr: Expr) throws -> Expr {
     switch expr {
       case .fixnum(let num):
-        return .makeNumber(num < 0 ? -num : num)
+        return .makeNumber(abs(num))
       case .bignum(let num):
         return .makeNumber(num.isNegative ? -num : num)
       case .rational(.fixnum(let n), .fixnum(let d)):
@@ -1351,7 +1365,7 @@ public final class MathLibrary: NativeLibrary {
       case .rational(.bignum(let n), .bignum(let d)):
         return n.isNegative ? .rational(.bignum(-n), .bignum(d)) : expr
       case .flonum(let num):
-        return .flonum((num.sign == .minus) ? -num : num)
+        return .flonum(num.magnitude)
       default:
         return .flonum(try expr.asComplex(coerce: true).abs)
     }
@@ -1465,7 +1479,7 @@ public final class MathLibrary: NativeLibrary {
       default:
         try x.assertType(.integerType)
         try y.assertType(.integerType)
-        preconditionFailure()
+        return .false
     }
   }
   
@@ -1486,7 +1500,7 @@ public final class MathLibrary: NativeLibrary {
       default:
         try x.assertType(.integerType)
         try y.assertType(.integerType)
-        preconditionFailure()
+        return .false
     }
   }
   
@@ -1507,7 +1521,7 @@ public final class MathLibrary: NativeLibrary {
       default:
         try x.assertType(.integerType)
         try y.assertType(.integerType)
-        preconditionFailure()
+        return .false
     }
   }
   
@@ -1546,7 +1560,7 @@ public final class MathLibrary: NativeLibrary {
       default:
         try x.assertType(.integerType)
         try y.assertType(.integerType)
-        preconditionFailure()
+        return .false
     }
   }
   
@@ -1575,7 +1589,7 @@ public final class MathLibrary: NativeLibrary {
       default:
         try x.assertType(.integerType)
         try y.assertType(.integerType)
-        preconditionFailure()
+        return .false
     }
   }
   
@@ -1603,16 +1617,25 @@ public final class MathLibrary: NativeLibrary {
       default:
         try x.assertType(.integerType)
         try y.assertType(.integerType)
-        preconditionFailure()
+        return .false
     }
   }
   
-  @inline(__always) private func compileBinOp(_ compiler: Compiler, expr: Expr, env: Env) throws {
-    guard case .pair(_, .pair(let x, .pair(let y, .null))) = expr else {
-      throw RuntimeError.argumentCount(min: 2, max: 2, expr: expr)
+  private func compileBinOp(_ compiler: Compiler, expr: Expr, zero: Expr? = nil, env: Env) throws {
+    switch expr {
+      case .pair(_, .pair(let x, .null)):
+        if let zero = zero {
+          try compiler.compile(zero, in: env, inTailPos: false)
+          try compiler.compile(x, in: env, inTailPos: false)
+        } else {
+          throw RuntimeError.argumentCount(min: 2, max: 2, expr: expr)
+        }
+      case .pair(_, .pair(let x, .pair(let y, .null))):
+        try compiler.compile(x, in: env, inTailPos: false)
+        try compiler.compile(y, in: env, inTailPos: false)
+      default:
+        throw RuntimeError.argumentCount(min: (zero == nil ? 2 : 1), max: 2, expr: expr)
     }
-    try compiler.compile(x, in: env, inTailPos: false)
-    try compiler.compile(y, in: env, inTailPos: false)
   }
   
   private func fxPlus(_ x: Expr, _ y: Expr) throws -> Expr {
@@ -1646,27 +1669,37 @@ public final class MathLibrary: NativeLibrary {
     return false
   }
   
-  private func fxMinus(_ x: Expr, _ y: Expr) throws -> Expr {
-    return .fixnum(try x.asInt64() &- y.asInt64())
+  private func fxMinus(_ x: Expr, _ y: Expr?) throws -> Expr {
+    if let y = y {
+      return .fixnum(try x.asInt64() &- y.asInt64())
+    } else {
+      return .fixnum(-(try x.asInt64()))
+    }
   }
   
   private func compileFxMinus(_ compiler: Compiler,
                               expr: Expr,
                               env: Env,
                               tail: Bool) throws -> Bool {
-    guard case .pair(_, .pair(let x, .pair(let y, .null))) = expr else {
-      throw RuntimeError.argumentCount(min: 2, max: 2, expr: expr)
-    }
-    if case .fixnum(1) = y {
-      try compiler.compile(x, in: env, inTailPos: false)
-      compiler.emit(.fxDec)
-    } else if case .fixnum(-1) = y {
-      try compiler.compile(x, in: env, inTailPos: false)
-      compiler.emit(.fxInc)
-    } else {
-      try compiler.compile(x, in: env, inTailPos: false)
-      try compiler.compile(y, in: env, inTailPos: false)
-      compiler.emit(.fxMinus)
+    switch expr {
+      case .pair(_, .pair(let x, .null)):
+        try compiler.compile(.fixnum(0), in: env, inTailPos: false)
+        try compiler.compile(x, in: env, inTailPos: false)
+        compiler.emit(.fxMinus)
+      case .pair(_, .pair(let x, .pair(let y, .null))):
+        if case .fixnum(1) = y {
+          try compiler.compile(x, in: env, inTailPos: false)
+          compiler.emit(.fxDec)
+        } else if case .fixnum(-1) = y {
+          try compiler.compile(x, in: env, inTailPos: false)
+          compiler.emit(.fxInc)
+        } else {
+          try compiler.compile(x, in: env, inTailPos: false)
+          try compiler.compile(y, in: env, inTailPos: false)
+          compiler.emit(.fxMinus)
+        }
+      default:
+        throw RuntimeError.argumentCount(min: 1, max: 2, expr: expr)
     }
     return false
   }
@@ -1932,16 +1965,26 @@ public final class MathLibrary: NativeLibrary {
     }
   }
   
-  private func fxMin(_ x: Expr, _ y: Expr) throws -> Expr {
-    let xint = try x.asInt64()
-    let yint = try y.asInt64()
-    return .fixnum(xint < yint ? xint : yint)
+  private func fxMin(_ x: Expr, _ args: Arguments) throws -> Expr {
+    var res = try x.asInt64()
+    for arg in args {
+      let y = try arg.asInt64()
+      if y < res {
+        res = y
+      }
+    }
+    return .fixnum(res)
   }
   
-  private func fxMax(_ x: Expr, _ y: Expr) throws -> Expr {
-    let xint = try x.asInt64()
-    let yint = try y.asInt64()
-    return .fixnum(xint > yint ? xint : yint)
+  private func fxMax(_ x: Expr, _ args: Arguments) throws -> Expr {
+    var res = try x.asInt64()
+    for arg in args {
+      let y = try arg.asInt64()
+      if y > res {
+        res = y
+      }
+    }
+    return .fixnum(res)
   }
   
   private func fxRandom(_ fst: Expr?, _ snd: Expr?) throws -> Expr {
@@ -2025,6 +2068,20 @@ public final class MathLibrary: NativeLibrary {
     }
   }
   
+  private func makeFlonum(_ significand: Expr, _ exponent: Expr) throws -> Expr {
+    return .flonum(Double(sign: .plus,
+                          exponent: try exponent.asInt(above: -100000000, below: 100000000),
+                          significand: try significand.asDouble()))
+  }
+  
+  private func flExponent(_ expr: Expr) throws -> Expr {
+    return .makeNumber(try expr.asDouble().exponent)
+  }
+  
+  private func flSignificand(_ expr: Expr) throws -> Expr {
+    return .flonum(try expr.asDouble().significand)
+  }
+  
   private func flPlus(_ x: Expr, _ y: Expr) throws -> Expr {
     return .flonum(try x.asDouble() + y.asDouble())
   }
@@ -2038,15 +2095,19 @@ public final class MathLibrary: NativeLibrary {
     return false
   }
   
-  private func flMinus(_ x: Expr, _ y: Expr) throws -> Expr {
-    return .flonum(try x.asDouble() - y.asDouble())
+  private func flMinus(_ x: Expr, _ y: Expr?) throws -> Expr {
+    if let y = y {
+      return .flonum(try x.asDouble() - y.asDouble())
+    } else {
+      return .flonum(-(try x.asDouble()))
+    }
   }
   
   private func compileFlMinus(_ compiler: Compiler,
                               expr: Expr,
                               env: Env,
                               tail: Bool) throws -> Bool {
-    try self.compileBinOp(compiler, expr: expr, env: env)
+    try self.compileBinOp(compiler, expr: expr, zero: .flonum(0.0), env: env)
     compiler.emit(.flMinus)
     return false
   }
@@ -2064,12 +2125,16 @@ public final class MathLibrary: NativeLibrary {
     return false
   }
   
-  private func flDiv(_ x: Expr, _ y: Expr) throws -> Expr {
-    return .flonum(try x.asDouble() / y.asDouble())
+  private func flDiv(_ x: Expr, _ y: Expr?) throws -> Expr {
+    if let y = y {
+      return .flonum(try x.asDouble() / y.asDouble())
+    } else {
+      return .flonum(1 / (try x.asDouble()))
+    }
   }
   
   private func compileFlDiv(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
-    try self.compileBinOp(compiler, expr: expr, env: env)
+    try self.compileBinOp(compiler, expr: expr, zero: .flonum(1.0), env: env)
     compiler.emit(.flDiv)
     return false
   }
@@ -2087,7 +2152,7 @@ public final class MathLibrary: NativeLibrary {
   }
   
   private func flEq(_ x: Expr, _ y: Expr) throws -> Expr {
-    return .makeBoolean(try x.asDouble() == y.asDouble())
+    return .makeBoolean(try x.asDouble().isEqual(to: y.asDouble()))
   }
   
   private func compileFlEq(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
@@ -2143,20 +2208,23 @@ public final class MathLibrary: NativeLibrary {
   }
   
   private func flAbs(_ x: Expr) throws -> Expr {
-    let xint = try x.asDouble()
-    return .flonum(xint < 0 ? -xint : xint)
+    return .flonum(try x.asDouble().magnitude)
   }
   
-  private func flMin(_ x: Expr, _ y: Expr) throws -> Expr {
-    let xint = try x.asDouble()
-    let yint = try y.asDouble()
-    return .flonum(xint < yint ? xint : yint)
+  private func flMin(_ x: Expr, _ args: Arguments) throws -> Expr {
+    var res = try x.asDouble()
+    for arg in args {
+      res = Double.minimum(res, try arg.asDouble())
+    }
+    return .flonum(res)
   }
   
-  private func flMax(_ x: Expr, _ y: Expr) throws -> Expr {
-    let xint = try x.asDouble()
-    let yint = try y.asDouble()
-    return .flonum(xint > yint ? xint : yint)
+  private func flMax(_ x: Expr, _ args: Arguments) throws -> Expr {
+    var res = try x.asDouble()
+    for arg in args {
+      res = Double.maximum(res, try arg.asDouble())
+    }
+    return .flonum(res)
   }
   
   private func flRandom(_ fst: Expr?, _ snd: Expr?) throws -> Expr {
@@ -2183,6 +2251,14 @@ public final class MathLibrary: NativeLibrary {
   
   private func flSqrt(_ x: Expr) throws -> Expr {
     return .flonum(try x.asDouble().squareRoot())
+  }
+  
+  private func flNext(_ x: Expr) throws -> Expr {
+    return .flonum(try x.asDouble().nextUp)
+  }
+  
+  private func flPrev(_ x: Expr) throws -> Expr {
+    return .flonum(try x.asDouble().nextDown)
   }
   
   private func bitwiseNot(_ num: Expr) throws -> Expr {

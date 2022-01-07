@@ -163,6 +163,8 @@
 		CC2DA7552781036D00DE69CF /* EvalMutex.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2DA7532781036D00DE69CF /* EvalMutex.swift */; };
 		CC2DA7572781037B00DE69CF /* EvalCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2DA7562781037B00DE69CF /* EvalCondition.swift */; };
 		CC2DA7582781037B00DE69CF /* EvalCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2DA7562781037B00DE69CF /* EvalCondition.swift */; };
+		CC2DA75A2786CD4600DE69CF /* 208.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC2DA7592786CA1B00DE69CF /* 208.sld */; };
+		CC2DA75B2786CD5900DE69CF /* 208.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC2DA7592786CA1B00DE69CF /* 208.sld */; };
 		CC31A6981D3AC223008D7728 /* Hash.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC31A6971D3AC223008D7728 /* Hash.swift */; };
 		CC35F9C2222188BD00895A10 /* DateTimeLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35F9C1222188BC00895A10 /* DateTimeLibrary.swift */; };
 		CC35FD0D1C6FA4B700C8B992 /* VirtualMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */; };
@@ -1603,6 +1605,7 @@
 			dstPath = Root/LispKit/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
+				CC2DA75A2786CD4600DE69CF /* 208.sld in Copy pre-installed SRFI libraries */,
 				CC1867392750E93700B31427 /* 166.sld in Copy pre-installed SRFI libraries */,
 				CCBDF731274ADF7000635B5C /* 227.sld in Copy pre-installed SRFI libraries */,
 				CCBDF72B2749B0C100635B5C /* 229.sld in Copy pre-installed SRFI libraries */,
@@ -1706,6 +1709,7 @@
 			dstPath = Root/LispKit/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
+				CC2DA75B2786CD5900DE69CF /* 208.sld in Copy pre-installed SRFI libraries */,
 				CC1867402750E9A400B31427 /* 166.sld in Copy pre-installed SRFI libraries */,
 				CCBDF732274ADF8B00635B5C /* 227.sld in Copy pre-installed SRFI libraries */,
 				CCBDF72C2749B0DA00635B5C /* 229.sld in Copy pre-installed SRFI libraries */,
@@ -2399,6 +2403,7 @@
 		CC2DA74F2780FE1100DE69CF /* MethodProfiler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MethodProfiler.swift; sourceTree = "<group>"; };
 		CC2DA7532781036D00DE69CF /* EvalMutex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvalMutex.swift; sourceTree = "<group>"; };
 		CC2DA7562781037B00DE69CF /* EvalCondition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvalCondition.swift; sourceTree = "<group>"; };
+		CC2DA7592786CA1B00DE69CF /* 208.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 208.sld; sourceTree = "<group>"; };
 		CC31A6971D3AC223008D7728 /* Hash.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Hash.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC35F9C1222188BC00895A10 /* DateTimeLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateTimeLibrary.swift; sourceTree = "<group>"; };
 		CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = VirtualMachine.swift; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -3259,6 +3264,7 @@
 				CCDB557C247C728F0044714C /* 195.sld */,
 				CCDB557E247C82370044714C /* 196.sld */,
 				CCC1E8B5251F67B8008B8AAA /* 204.sld */,
+				CC2DA7592786CA1B00DE69CF /* 208.sld */,
 				CC1D6CBD258CDE3700D36645 /* 209.sld */,
 				CC0D7B382544AF2600FB9301 /* 210.sld */,
 				CCD5E559262E31AE00C45EA0 /* 214.sld */,

@@ -30,6 +30,7 @@ public enum Feature: String {
   case bigEndian = "big-endian"
   case dynamicLoading = "dynamic-loading"
   case modules = "modules"
+  case threads = "threads"
   case bit32 = "32bit"
   case bit64 = "64bit"
   case macos = "macos"
@@ -50,6 +51,7 @@ public enum Feature: String {
     set.insert(Feature.syntaxRules.rawValue)
     set.insert(Feature.dynamicLoading.rawValue)
     set.insert(Feature.modules.rawValue)
+    set.insert(Feature.threads.rawValue)
     set.insert(CFByteOrderGetCurrent() == 1 ? Feature.littleEndian.rawValue
                                             : Feature.bigEndian.rawValue)
     #if arch(i386)
