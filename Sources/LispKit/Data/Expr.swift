@@ -77,9 +77,9 @@ public enum Expr: Hashable {
       case .symbol(_):
         return .symbolType
       case .fixnum(_):
-        return .exactIntegerType
+        return .fixnumType
       case .bignum(_):
-        return .exactIntegerType
+        return .bignumType
       case .rational(_, _):
         return .rationalType
       case .flonum(let num):
@@ -427,7 +427,7 @@ extension Expr {
   @inline(__always)
   public func asInt64(at pos: SourcePosition = SourcePosition.unknown) throws -> Int64 {
     guard case .fixnum(let res) = self else {
-      throw RuntimeError.type(self, expected: [.exactIntegerType]).at(pos)
+      throw RuntimeError.type(self, expected: [.fixnumType]).at(pos)
     }
     return res
   }
@@ -435,7 +435,7 @@ extension Expr {
   @inline(__always)
   public func asInt(above: Int = 0, below: Int = Int.max) throws -> Int {
     guard case .fixnum(let res) = self else {
-      throw RuntimeError.type(self, expected: [.exactIntegerType])
+      throw RuntimeError.type(self, expected: [.fixnumType])
     }
     guard res >= Int64(above) && res < Int64(below) else {
       throw RuntimeError.range(self,

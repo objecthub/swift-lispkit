@@ -417,6 +417,10 @@ public enum Instruction: CustomStringConvertible {
   /// value.
   case fxGtEq
   
+  /// **`fx_assert`**: Raises an exception if the value on the stack is not a fixed point
+  /// number. This instruction does not change the stack.
+  case fxAssert
+  
   /// **`fl_plus`**: Computes the sum of two flonum values on the stack.
   case flPlus
   
@@ -445,6 +449,10 @@ public enum Instruction: CustomStringConvertible {
   /// **`fl_gt_eq`**: Determines whether a flonum value is greater than or equal another flonum
   /// value.
   case flGtEq
+  
+  /// **`fl_assert`**: Raises an exception if the value on the stack is not a floating point
+  /// number. This instruction does not change the stack
+  case flAssert
   
   // Miscellaneous ----------------------------------------------------------------------------
 
@@ -731,6 +739,8 @@ public enum Instruction: CustomStringConvertible {
         return "fx_lt_eq"
       case .fxGtEq:
         return "fx_gt_eq"
+      case .fxAssert:
+        return "fx_assert"
       case .flPlus:
         return "fl_plus"
       case .flMinus:
@@ -749,6 +759,8 @@ public enum Instruction: CustomStringConvertible {
         return "fl_lt_eq"
       case .flGtEq:
         return "fl_gt_eq"
+      case .flAssert:
+        return "fl_assert"
     }
   }
 }

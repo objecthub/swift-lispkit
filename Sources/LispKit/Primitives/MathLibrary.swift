@@ -1638,42 +1638,67 @@ public final class MathLibrary: NativeLibrary {
     }
   }
   
-  private func fxPlus(_ x: Expr, _ y: Expr) throws -> Expr {
-    return .fixnum(try x.asInt64() &+ y.asInt64())
+  private func fxPlus(_ args: Arguments) throws -> Expr {
+    var res: Int64 = 0
+    for arg in args {
+      res = try res &+ arg.asInt64()
+    }
+    return .fixnum(res)
   }
   
   private func compileFxPlus(_ compiler: Compiler,
                              expr: Expr,
                              env: Env,
                              tail: Bool) throws -> Bool {
-    guard case .pair(_, .pair(let x, .pair(let y, .null))) = expr else {
-      throw RuntimeError.argumentCount(min: 2, max: 2, expr: expr)
-    }
-    if case .fixnum(1) = x {
-      try compiler.compile(y, in: env, inTailPos: false)
-      compiler.emit(.fxInc)
-    } else if case .fixnum(1) = y {
-      try compiler.compile(x, in: env, inTailPos: false)
-      compiler.emit(.fxInc)
-    } else if case .fixnum(-1) = x {
-      try compiler.compile(y, in: env, inTailPos: false)
-      compiler.emit(.fxDec)
-    } else if case .fixnum(-1) = y {
-      try compiler.compile(x, in: env, inTailPos: false)
-      compiler.emit(.fxDec)
-    } else {
-      try compiler.compile(x, in: env, inTailPos: false)
-      try compiler.compile(y, in: env, inTailPos: false)
-      compiler.emit(.fxPlus)
+    switch expr {
+      case .pair(_, .pair(let x, .null)):
+        try compiler.compile(x, in: env, inTailPos: false)
+        compiler.emit(.fxAssert)
+      case .pair(_, .pair(let x, .pair(let y, let ys))):
+        if case .fixnum(1) = x {
+          try compiler.compile(y, in: env, inTailPos: false)
+          compiler.emit(.fxInc)
+        } else if case .fixnum(1) = y {
+          try compiler.compile(x, in: env, inTailPos: false)
+          compiler.emit(.fxInc)
+        } else if case .fixnum(-1) = x {
+          try compiler.compile(y, in: env, inTailPos: false)
+          compiler.emit(.fxDec)
+        } else if case .fixnum(-1) = y {
+          try compiler.compile(x, in: env, inTailPos: false)
+          compiler.emit(.fxDec)
+        } else {
+          try compiler.compile(x, in: env, inTailPos: false)
+          try compiler.compile(y, in: env, inTailPos: false)
+          compiler.emit(.fxPlus)
+        }
+        var args = ys
+        while case .pair(let z, let zs) = args {
+          if case .fixnum(1) = z {
+            compiler.emit(.fxInc)
+          } else if case .fixnum(-1) = z {
+            compiler.emit(.fxDec)
+          } else {
+            try compiler.compile(z, in: env, inTailPos: false)
+            compiler.emit(.fxPlus)
+          }
+          args = zs
+        }
+      default:
+        compiler.emit(.pushFixnum(0))
     }
     return false
   }
   
-  private func fxMinus(_ x: Expr, _ y: Expr?) throws -> Expr {
-    if let y = y {
-      return .fixnum(try x.asInt64() &- y.asInt64())
+  private func fxMinus(_ x: Expr, _ args: Arguments) throws -> Expr {
+    if args.count == 0 {
+      return .fixnum(0 &- (try x.asInt64()))
     } else {
-      return .fixnum(-(try x.asInt64()))
+      var res = try x.asInt64()
+      for arg in args {
+        res = try res &- arg.asInt64()
+      }
+      return .fixnum(res)
     }
   }
   
@@ -1683,50 +1708,107 @@ public final class MathLibrary: NativeLibrary {
                               tail: Bool) throws -> Bool {
     switch expr {
       case .pair(_, .pair(let x, .null)):
-        try compiler.compile(.fixnum(0), in: env, inTailPos: false)
+        compiler.emit(.pushFixnum(0))
         try compiler.compile(x, in: env, inTailPos: false)
         compiler.emit(.fxMinus)
-      case .pair(_, .pair(let x, .pair(let y, .null))):
-        if case .fixnum(1) = y {
-          try compiler.compile(x, in: env, inTailPos: false)
-          compiler.emit(.fxDec)
-        } else if case .fixnum(-1) = y {
-          try compiler.compile(x, in: env, inTailPos: false)
-          compiler.emit(.fxInc)
-        } else {
-          try compiler.compile(x, in: env, inTailPos: false)
-          try compiler.compile(y, in: env, inTailPos: false)
-          compiler.emit(.fxMinus)
+      case .pair(_, .pair(let x, let xs)):
+        try compiler.compile(x, in: env, inTailPos: false)
+        var args = xs
+        while case .pair(let z, let zs) = args {
+          if case .fixnum(1) = z {
+            compiler.emit(.fxDec)
+          } else if case .fixnum(-1) = z {
+            compiler.emit(.fxInc)
+          } else {
+            try compiler.compile(z, in: env, inTailPos: false)
+            compiler.emit(.fxMinus)
+          }
+          args = zs
         }
       default:
-        throw RuntimeError.argumentCount(min: 1, max: 2, expr: expr)
+        throw RuntimeError.argumentCount(min: 1, expr: expr)
     }
     return false
   }
   
-  private func fxMult(_ x: Expr, _ y: Expr) throws -> Expr {
-    return .fixnum(try x.asInt64() &* y.asInt64())
+  private func fxMult(_ args: Arguments) throws -> Expr {
+    var res: Int64 = 1
+    for arg in args {
+      res = try res &* arg.asInt64()
+    }
+    return .fixnum(res)
   }
   
   private func compileFxMult(_ compiler: Compiler,
                              expr: Expr,
                              env: Env,
                              tail: Bool) throws -> Bool {
-    try self.compileBinOp(compiler, expr: expr, env: env)
-    compiler.emit(.fxMult)
+    switch expr {
+      case .pair(_, .pair(let x, .null)):
+        try compiler.compile(x, in: env, inTailPos: false)
+        compiler.emit(.fxAssert)
+      case .pair(_, .pair(let x, let xs)):
+        try compiler.compile(x, in: env, inTailPos: false)
+        var args = xs
+        while case .pair(let z, let zs) = args {
+          if case .fixnum(1) = z {
+            // do nothing
+          } else {
+            try compiler.compile(z, in: env, inTailPos: false)
+            compiler.emit(.fxMult)
+          }
+          args = zs
+        }
+      default:
+        compiler.emit(.pushFixnum(1))
+    }
     return false
   }
   
-  private func fxDiv(_ x: Expr, _ y: Expr) throws -> Expr {
-    return .fixnum(try x.asInt64() / y.asInt64())
+  private func fxDiv(_ x: Expr, _ args: Arguments) throws -> Expr {
+    if args.count == 0 {
+      let rhs = try x.asInt64()
+      guard rhs != 0 else {
+        throw RuntimeError.eval(.divisionByZero)
+      }
+      return .fixnum(1 / rhs)
+    } else {
+      var res = try x.asInt64()
+      for arg in args {
+        let rhs = try arg.asInt64()
+        guard rhs != 0 else {
+          throw RuntimeError.eval(.divisionByZero)
+        }
+        res = res / rhs
+      }
+      return .fixnum(res)
+    }
   }
   
   private func compileFxDiv(_ compiler: Compiler,
                             expr: Expr,
                             env: Env,
                             tail: Bool) throws -> Bool {
-    try self.compileBinOp(compiler, expr: expr, env: env)
-    compiler.emit(.fxDiv)
+    switch expr {
+      case .pair(_, .pair(let x, .null)):
+        compiler.emit(.pushFixnum(1))
+        try compiler.compile(x, in: env, inTailPos: false)
+        compiler.emit(.fxDiv)
+      case .pair(_, .pair(let x, let xs)):
+        try compiler.compile(x, in: env, inTailPos: false)
+        var args = xs
+        while case .pair(let z, let zs) = args {
+          if case .fixnum(1) = z {
+            // do nothing
+          } else {
+            try compiler.compile(z, in: env, inTailPos: false)
+            compiler.emit(.fxDiv)
+          }
+          args = zs
+        }
+      default:
+        throw RuntimeError.argumentCount(min: 1, expr: expr)
+    }
     return false
   }
   
@@ -1848,7 +1930,7 @@ public final class MathLibrary: NativeLibrary {
     compiler.emit(.fxLtEq)
     return false
   }
-
+  
   private func fxGtEq(_ x: Expr, _ y: Expr) throws -> Expr {
     return .makeBoolean(try x.asInt64() >= y.asInt64())
   }

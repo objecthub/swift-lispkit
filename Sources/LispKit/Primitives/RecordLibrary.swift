@@ -300,7 +300,7 @@ public final class RecordLibrary: NativeLibrary {
           throw RuntimeError.eval(.fieldCountError, .makeNumber(numFields), value)
         }
       default:
-        throw RuntimeError.type(index, expected: [.exactIntegerType])
+        throw RuntimeError.type(index, expected: [.fixnumType])
     }
     return .void
   }

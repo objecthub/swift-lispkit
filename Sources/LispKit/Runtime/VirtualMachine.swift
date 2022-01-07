@@ -1581,15 +1581,18 @@ public final class VirtualMachine: ManagedObject {
           let rhs = self.pop()
           self.push(.fixnum(try self.popUnsafe().asInt64() &* rhs.asInt64()))
         case .fxDiv:
-          let rhs = self.pop()
-          self.push(.fixnum(try self.popUnsafe().asInt64() / rhs.asInt64()))
+          let rhs = try self.pop().asInt64()
+          guard rhs != 0 else {
+            throw RuntimeError.eval(.divisionByZero)
+          }
+          self.push(.fixnum(try self.popUnsafe().asInt64() / rhs))
         case .fxInc:
           let idx = self.sp &- 1
           switch self.stack[idx] {
             case .fixnum(let x):
               self.stack[idx] = .fixnum(x &+ 1)
             default:
-              throw RuntimeError.type(self.stack[idx], expected: [.exactIntegerType])
+              throw RuntimeError.type(self.stack[idx], expected: [.fixnumType])
           }
         case .fxDec:
           let idx = self.sp &- 1
@@ -1597,7 +1600,7 @@ public final class VirtualMachine: ManagedObject {
             case .fixnum(let x):
               self.stack[idx] = .fixnum(x &- 1)
             default:
-              throw RuntimeError.type(self.stack[idx], expected: [.exactIntegerType])
+              throw RuntimeError.type(self.stack[idx], expected: [.fixnumType])
           }
         case .fxIsZero:
           let idx = self.sp &- 1
@@ -1605,7 +1608,7 @@ public final class VirtualMachine: ManagedObject {
             case .fixnum(let x):
               self.stack[idx] = x == 0 ? .true : .false
             default:
-              throw RuntimeError.type(self.stack[idx], expected: [.exactIntegerType])
+              throw RuntimeError.type(self.stack[idx], expected: [.fixnumType])
           }
         case .fxEq:
           let rhs = self.pop()
@@ -1622,6 +1625,10 @@ public final class VirtualMachine: ManagedObject {
         case .fxGtEq:
           let rhs = self.pop()
           self.push(.makeBoolean(try self.popUnsafe().asInt64() >= rhs.asInt64()))
+        case .fxAssert:
+          guard case .fixnum(_) = self.stack[self.sp &- 1] else {
+            throw RuntimeError.type(self.stack[self.sp &- 1], expected: [.fixnumType])
+          }
         case .flPlus:
           let rhs = self.pop()
           self.push(.flonum(try self.popUnsafe().asDouble() + rhs.asDouble()))
@@ -1649,6 +1656,10 @@ public final class VirtualMachine: ManagedObject {
         case .flGtEq:
           let rhs = self.pop()
           self.push(.makeBoolean(try self.popUnsafe().asDouble() >= rhs.asDouble()))
+        case .flAssert:
+          guard case .flonum(_) = self.stack[self.sp &- 1] else {
+            throw RuntimeError.type(self.stack[self.sp &- 1], expected: [.floatType])
+          }
       }
     }
     return .null

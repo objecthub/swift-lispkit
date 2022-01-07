@@ -32,6 +32,8 @@ public enum Type: Hashable, CustomStringConvertible {
   case byteType
   case integerType
   case exactIntegerType
+  case fixnumType
+  case bignumType
   case rationalType
   case floatType
   case realType
@@ -92,6 +94,10 @@ public enum Type: Hashable, CustomStringConvertible {
         return "integer"
       case .exactIntegerType:
         return "exact integer"
+      case .fixnumType:
+        return "fixnum"
+      case .bignumType:
+        return "bignum"
       case .rationalType:
         return "rational"
       case .floatType:
@@ -181,6 +187,8 @@ public enum Type: Hashable, CustomStringConvertible {
         return realSubtypes
       case .integerType:
         return integerSubtypes
+      case .exactIntegerType:
+        return exactIntegerSubtypes
       case .listType:
         return listSubtypes
       case .properListType:
@@ -213,17 +221,26 @@ private let numberSubtypes     : Set<Type> = [.numberType,
                                               .floatType,
                                               .complexType,
                                               .exactNumberType,
-                                              .realType]
+                                              .realType,
+                                              .fixnumType,
+                                              .bignumType]
 private let exactNumberSubtypes: Set<Type> = [.exactNumberType,
                                               .byteType,
                                               .exactIntegerType,
-                                              .rationalType]
+                                              .rationalType,
+                                              .fixnumType,
+                                              .bignumType]
 private let realSubtypes       : Set<Type> = [.realType,
                                               .integerType,
                                               .rationalType,
                                               .floatType]
 private let integerSubtypes    : Set<Type> = [.integerType,
-                                              .exactIntegerType]
+                                              .exactIntegerType,
+                                              .fixnumType,
+                                              .bignumType]
+private let exactIntegerSubtypes: Set<Type> = [.exactIntegerType,
+                                               .fixnumType,
+                                               .bignumType]
 private let listSubtypes       : Set<Type> = [.listType,
                                               .pairType,
                                               .nullType,
