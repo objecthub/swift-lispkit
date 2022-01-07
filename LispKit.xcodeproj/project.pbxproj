@@ -165,6 +165,12 @@
 		CC2DA7582781037B00DE69CF /* EvalCondition.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2DA7562781037B00DE69CF /* EvalCondition.swift */; };
 		CC2DA75A2786CD4600DE69CF /* 208.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC2DA7592786CA1B00DE69CF /* 208.sld */; };
 		CC2DA75B2786CD5900DE69CF /* 208.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC2DA7592786CA1B00DE69CF /* 208.sld */; };
+		CC2DA75E2788703400DE69CF /* 18.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC2DA75D27886FB200DE69CF /* 18.sld */; };
+		CC2DA75F2788704300DE69CF /* 18.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC2DA75D27886FB200DE69CF /* 18.sld */; };
+		CC2DA7612788773800DE69CF /* SRFI-18.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC2DA7602788756D00DE69CF /* SRFI-18.scm */; };
+		CC2DA7622788774C00DE69CF /* SRFI-18.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC2DA7602788756D00DE69CF /* SRFI-18.scm */; };
+		CC2DA7632788825D00DE69CF /* 230.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC2DA75C2787EBAE00DE69CF /* 230.sld */; };
+		CC2DA764278882C000DE69CF /* 230.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC2DA75C2787EBAE00DE69CF /* 230.sld */; };
 		CC31A6981D3AC223008D7728 /* Hash.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC31A6971D3AC223008D7728 /* Hash.swift */; };
 		CC35F9C2222188BD00895A10 /* DateTimeLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35F9C1222188BC00895A10 /* DateTimeLibrary.swift */; };
 		CC35FD0D1C6FA4B700C8B992 /* VirtualMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */; };
@@ -1054,6 +1060,7 @@
 			dstPath = Root/LispKit/Tests;
 			dstSubfolderSpec = 7;
 			files = (
+				CC2DA7612788773800DE69CF /* SRFI-18.scm in Copy tests */,
 				CC1867422750EAC300B31427 /* SRFI-166.scm in Copy tests */,
 				CCBDF734274AEB0800635B5C /* SRFI-227.scm in Copy tests */,
 				CCBDF72E2749B23400635B5C /* SRFI-229.scm in Copy tests */,
@@ -1605,6 +1612,8 @@
 			dstPath = Root/LispKit/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
+				CC2DA7632788825D00DE69CF /* 230.sld in Copy pre-installed SRFI libraries */,
+				CC2DA75E2788703400DE69CF /* 18.sld in Copy pre-installed SRFI libraries */,
 				CC2DA75A2786CD4600DE69CF /* 208.sld in Copy pre-installed SRFI libraries */,
 				CC1867392750E93700B31427 /* 166.sld in Copy pre-installed SRFI libraries */,
 				CCBDF731274ADF7000635B5C /* 227.sld in Copy pre-installed SRFI libraries */,
@@ -1709,6 +1718,8 @@
 			dstPath = Root/LispKit/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
+				CC2DA764278882C000DE69CF /* 230.sld in Copy pre-installed SRFI libraries */,
+				CC2DA75F2788704300DE69CF /* 18.sld in Copy pre-installed SRFI libraries */,
 				CC2DA75B2786CD5900DE69CF /* 208.sld in Copy pre-installed SRFI libraries */,
 				CC1867402750E9A400B31427 /* 166.sld in Copy pre-installed SRFI libraries */,
 				CCBDF732274ADF8B00635B5C /* 227.sld in Copy pre-installed SRFI libraries */,
@@ -2055,6 +2066,7 @@
 			dstPath = Root/LispKit/Tests;
 			dstSubfolderSpec = 7;
 			files = (
+				CC2DA7622788774C00DE69CF /* SRFI-18.scm in Copy tests */,
 				CC1867432750EADC00B31427 /* SRFI-166.scm in Copy tests */,
 				CCBDF735274AEB2900635B5C /* SRFI-227.scm in Copy tests */,
 				CCBDF72F2749B24900635B5C /* SRFI-229.scm in Copy tests */,
@@ -2404,6 +2416,9 @@
 		CC2DA7532781036D00DE69CF /* EvalMutex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvalMutex.swift; sourceTree = "<group>"; };
 		CC2DA7562781037B00DE69CF /* EvalCondition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvalCondition.swift; sourceTree = "<group>"; };
 		CC2DA7592786CA1B00DE69CF /* 208.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 208.sld; sourceTree = "<group>"; };
+		CC2DA75C2787EBAE00DE69CF /* 230.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 230.sld; sourceTree = "<group>"; };
+		CC2DA75D27886FB200DE69CF /* 18.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 18.sld; sourceTree = "<group>"; };
+		CC2DA7602788756D00DE69CF /* SRFI-18.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-18.scm"; sourceTree = "<group>"; };
 		CC31A6971D3AC223008D7728 /* Hash.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Hash.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC35F9C1222188BC00895A10 /* DateTimeLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateTimeLibrary.swift; sourceTree = "<group>"; };
 		CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = VirtualMachine.swift; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -2894,6 +2909,7 @@
 				CC7A125A21E94D1700ABEA17 /* LispKit-Match.scm */,
 				CCC48BF025D8623A00D082AD /* LispKit-WT-Tree.scm */,
 				CC54924421DCDEA1004A0652 /* SRFI-14.scm */,
+				CC2DA7602788756D00DE69CF /* SRFI-18.scm */,
 				CC54923A21D9823B004A0652 /* SRFI-101.scm */,
 				CC2C73DE21A22CFD00B18661 /* SRFI-125.scm */,
 				CCC951702426B54600FC915F /* SRFI-128.scm */,
@@ -3199,6 +3215,7 @@
 				CC54924221DCDC52004A0652 /* 14 */,
 				CCC1DBFC216BA2600019A374 /* 16.sld */,
 				CC8A2AAE1F405CDD00D1E4D8 /* 17.sld */,
+				CC2DA75D27886FB200DE69CF /* 18.sld */,
 				CC5848081E56BD0B00BE6497 /* 19.sld */,
 				CC703A12218BC40600E71EA9 /* 23.sld */,
 				CC7C3E9D2246F8700082DF7C /* 26.sld */,
@@ -3279,6 +3296,7 @@
 				CCD4A6EF26ED4C7000BEE906 /* 224.sld */,
 				CCBDF730274ADA6300635B5C /* 227.sld */,
 				CCBDF72A2749AFAC00635B5C /* 229.sld */,
+				CC2DA75C2787EBAE00DE69CF /* 230.sld */,
 			);
 			path = srfi;
 			sourceTree = "<group>";

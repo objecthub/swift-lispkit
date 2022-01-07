@@ -133,7 +133,7 @@ public final class ThreadLibrary: NativeLibrary {
     return .object(thread)
   }
   
-  private func threadYield(th: Expr) -> Expr {
+  private func threadYield() -> Expr {
     pthread_yield_np()
     return .void
   }

@@ -21,6 +21,7 @@
 (load "Tests/R7RS")
 (load "Tests/LispKit-Match")
 (load "Tests/SRFI-14")
+(load "Tests/SRFI-18")
 (load "Tests/SRFI-101")
 (load "Tests/SRFI-125")
 (load "Tests/SRFI-128")

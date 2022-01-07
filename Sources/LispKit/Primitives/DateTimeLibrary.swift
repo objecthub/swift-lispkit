@@ -113,7 +113,7 @@ public final class DateTimeLibrary: NativeLibrary {
   }
 
   private func currentSeconds() -> Expr {
-    return .flonum(Double(Date().timeIntervalSince1970))
+    return .flonum(Timer.currentTimeInSec)
   }
 
   private func timeZones(_ selector: Expr?) -> Expr {

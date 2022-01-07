@@ -40,8 +40,8 @@
 
   (export runtime
           random
-          ; parallel-execute
-          ; test-and-set!
+          parallel-execute
+          test-and-set!
           cons-stream
           stream-null?
           the-empty-stream
