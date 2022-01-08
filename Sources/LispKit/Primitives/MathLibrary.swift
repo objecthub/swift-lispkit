@@ -490,7 +490,13 @@ public final class MathLibrary: NativeLibrary {
       case .rational(.fixnum(let n), .fixnum(let d)):
         return .makeNumber(Double(n) / Double(d))
       case .rational(.bignum(let n), .bignum(let d)):
-        return .makeNumber(n.doubleValue / d.doubleValue)
+        let numer = n.doubleValue
+        let denom = d.doubleValue
+        if numer.isInfinite || denom.isInfinite {
+          return .makeNumber((n/d).doubleValue)
+        } else {
+          return .makeNumber(numer / denom)
+        }
       case .flonum(_), .complex(_):
         return expr
       default:
@@ -1876,71 +1882,114 @@ public final class MathLibrary: NativeLibrary {
     return .makeBoolean(try !x.asInt64().isOdd)
   }
   
-  private func fxEq(_ x: Expr, _ y: Expr) throws -> Expr {
-    return .makeBoolean(try x.asInt64() == y.asInt64())
+  private func fxEq(_ x: Expr, _ y: Expr, _ args: Arguments) throws -> Expr {
+    var lhs = try x.asInt64()
+    var rhs = try y.asInt64()
+    guard lhs == rhs else {
+      return .false
+    }
+    for arg in args {
+      lhs = rhs
+      rhs = try arg.asInt64()
+      guard lhs == rhs else {
+        return .false
+      }
+    }
+    return .true
   }
   
   private func compileFxEq(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
-    guard case .pair(_, .pair(let x, .pair(let y, .null))) = expr else {
-      throw RuntimeError.argumentCount(min: 2, max: 2, expr: expr)
-    }
-    if case .fixnum(0) = x {
-      try compiler.compile(y, in: env, inTailPos: false)
-      compiler.emit(.fxIsZero)
-    } else if case .fixnum(0) = y {
-      try compiler.compile(x, in: env, inTailPos: false)
-      compiler.emit(.fxIsZero)
-    } else {
-      try compiler.compile(x, in: env, inTailPos: false)
-      try compiler.compile(y, in: env, inTailPos: false)
-      compiler.emit(.fxEq)
-    }
+    compiler.emit(.fxEq(try self.compileArgs(compiler, expr: expr, env: env)))
     return false
   }
   
-  private func fxLt(_ x: Expr, _ y: Expr) throws -> Expr {
-    return .makeBoolean(try x.asInt64() < y.asInt64())
+  private func fxLt(_ x: Expr, _ y: Expr, _ args: Arguments) throws -> Expr {
+    var lhs = try x.asInt64()
+    var rhs = try y.asInt64()
+    guard lhs < rhs else {
+      return .false
+    }
+    for arg in args {
+      lhs = rhs
+      rhs = try arg.asInt64()
+      guard lhs < rhs else {
+        return .false
+      }
+    }
+    return .true
   }
   
   private func compileFxLt(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
-    try self.compileBinOp(compiler, expr: expr, env: env)
-    compiler.emit(.fxLt)
+    compiler.emit(.fxLt(try self.compileArgs(compiler, expr: expr, env: env)))
     return false
   }
   
-  private func fxGt(_ x: Expr, _ y: Expr) throws -> Expr {
-    return .makeBoolean(try x.asInt64() > y.asInt64())
+  private func fxGt(_ x: Expr, _ y: Expr, _ args: Arguments) throws -> Expr {
+    var lhs = try x.asInt64()
+    var rhs = try y.asInt64()
+    guard lhs > rhs else {
+      return .false
+    }
+    for arg in args {
+      lhs = rhs
+      rhs = try arg.asInt64()
+      guard lhs > rhs else {
+        return .false
+      }
+    }
+    return .true
   }
   
   private func compileFxGt(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
-    try self.compileBinOp(compiler, expr: expr, env: env)
-    compiler.emit(.fxGt)
+    compiler.emit(.fxGt(try self.compileArgs(compiler, expr: expr, env: env)))
     return false
   }
   
-  private func fxLtEq(_ x: Expr, _ y: Expr) throws -> Expr {
-    return .makeBoolean(try x.asInt64() <= y.asInt64())
+  private func fxLtEq(_ x: Expr, _ y: Expr, _ args: Arguments) throws -> Expr {
+    var lhs = try x.asInt64()
+    var rhs = try y.asInt64()
+    guard lhs <= rhs else {
+      return .false
+    }
+    for arg in args {
+      lhs = rhs
+      rhs = try arg.asInt64()
+      guard lhs <= rhs else {
+        return .false
+      }
+    }
+    return .true
   }
   
   private func compileFxLtEq(_ compiler: Compiler,
                              expr: Expr,
                              env: Env,
                              tail: Bool) throws -> Bool {
-    try self.compileBinOp(compiler, expr: expr, env: env)
-    compiler.emit(.fxLtEq)
+    compiler.emit(.fxLtEq(try self.compileArgs(compiler, expr: expr, env: env)))
     return false
   }
   
-  private func fxGtEq(_ x: Expr, _ y: Expr) throws -> Expr {
-    return .makeBoolean(try x.asInt64() >= y.asInt64())
+  private func fxGtEq(_ x: Expr, _ y: Expr, _ args: Arguments) throws -> Expr {
+    var lhs = try x.asInt64()
+    var rhs = try y.asInt64()
+    guard lhs >= rhs else {
+      return .false
+    }
+    for arg in args {
+      lhs = rhs
+      rhs = try arg.asInt64()
+      guard lhs >= rhs else {
+        return .false
+      }
+    }
+    return .true
   }
   
   private func compileFxGtEq(_ compiler: Compiler,
                              expr: Expr,
                              env: Env,
                              tail: Bool) throws -> Bool {
-    try self.compileBinOp(compiler, expr: expr, env: env)
-    compiler.emit(.fxGtEq)
+    compiler.emit(.fxGtEq(try self.compileArgs(compiler, expr: expr, env: env)))
     return false
   }
   
@@ -2164,24 +2213,49 @@ public final class MathLibrary: NativeLibrary {
     return .flonum(try expr.asDouble().significand)
   }
   
-  private func flPlus(_ x: Expr, _ y: Expr) throws -> Expr {
-    return .flonum(try x.asDouble() + y.asDouble())
+  private func flPlus(_ args: Arguments) throws -> Expr {
+    var res: Double = 0.0
+    for arg in args {
+      res = try res + arg.asDouble()
+    }
+    return .flonum(res)
   }
   
   private func compileFlPlus(_ compiler: Compiler,
                              expr: Expr,
                              env: Env,
                              tail: Bool) throws -> Bool {
-    try self.compileBinOp(compiler, expr: expr, env: env)
-    compiler.emit(.flPlus)
+    switch expr {
+      case .pair(_, .pair(let x, .null)):
+        try compiler.compile(x, in: env, inTailPos: false)
+        compiler.emit(.flAssert)
+      case .pair(_, .pair(let x, let xs)):
+        try compiler.compile(x, in: env, inTailPos: false)
+        var args = xs
+        while case .pair(let z, let zs) = args {
+          if case .flonum(0.0) = z {
+            // do nothing
+          } else {
+            try compiler.compile(z, in: env, inTailPos: false)
+            compiler.emit(.flPlus)
+          }
+          args = zs
+        }
+      default:
+        compiler.emit(.pushFlonum(0.0))
+    }
     return false
   }
   
-  private func flMinus(_ x: Expr, _ y: Expr?) throws -> Expr {
-    if let y = y {
-      return .flonum(try x.asDouble() - y.asDouble())
-    } else {
+  private func flMinus(_ x: Expr, _ args: Arguments) throws -> Expr {
+    if args.count == 0 {
       return .flonum(-(try x.asDouble()))
+    } else {
+      var res = try x.asDouble()
+      for arg in args {
+        res = try res - arg.asDouble()
+      }
+      return .flonum(res)
     }
   }
   
@@ -2189,40 +2263,99 @@ public final class MathLibrary: NativeLibrary {
                               expr: Expr,
                               env: Env,
                               tail: Bool) throws -> Bool {
-    try self.compileBinOp(compiler, expr: expr, zero: .flonum(0.0), env: env)
-    compiler.emit(.flMinus)
+    switch expr {
+      case .pair(_, .pair(let x, .null)):
+        try compiler.compile(x, in: env, inTailPos: false)
+        compiler.emit(.flNeg)
+      case .pair(_, .pair(let x, let xs)):
+        try compiler.compile(x, in: env, inTailPos: false)
+        var args = xs
+        while case .pair(let z, let zs) = args {
+          if case .flonum(0.0) = z {
+            // do nothing
+          } else {
+            try compiler.compile(z, in: env, inTailPos: false)
+            compiler.emit(.flMinus)
+          }
+          args = zs
+        }
+      default:
+        throw RuntimeError.argumentCount(min: 1, expr: expr)
+    }
     return false
   }
-
-  private func flMult(_ x: Expr, _ y: Expr) throws -> Expr {
-    return .flonum(try x.asDouble() * y.asDouble())
+  
+  private func flMult(_ args: Arguments) throws -> Expr {
+    var res: Double = 1.0
+    for arg in args {
+      res = try res * arg.asDouble()
+    }
+    return .flonum(res)
   }
   
   private func compileFlMult(_ compiler: Compiler,
                              expr: Expr,
                              env: Env,
                              tail: Bool) throws -> Bool {
-    try self.compileBinOp(compiler, expr: expr, env: env)
-    compiler.emit(.flMult)
+    switch expr {
+      case .pair(_, .pair(let x, .null)):
+        try compiler.compile(x, in: env, inTailPos: false)
+        compiler.emit(.flAssert)
+      case .pair(_, .pair(let x, let xs)):
+        try compiler.compile(x, in: env, inTailPos: false)
+        var args = xs
+        while case .pair(let z, let zs) = args {
+          if case .fixnum(1) = z {
+            // do nothing
+          } else {
+            try compiler.compile(z, in: env, inTailPos: false)
+            compiler.emit(.flMult)
+          }
+          args = zs
+        }
+      default:
+        compiler.emit(.pushFlonum(1.0))
+    }
     return false
   }
   
-  private func flDiv(_ x: Expr, _ y: Expr?) throws -> Expr {
-    if let y = y {
-      return .flonum(try x.asDouble() / y.asDouble())
+  private func flDiv(_ x: Expr, _ args: Arguments) throws -> Expr {
+    if args.count == 0 {
+      return .flonum(try 1.0 / x.asDouble())
     } else {
-      return .flonum(1 / (try x.asDouble()))
+      var res = try x.asDouble()
+      for arg in args {
+        res = try res / arg.asDouble()
+      }
+      return .flonum(res)
     }
   }
   
-  private func compileFlDiv(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
-    try self.compileBinOp(compiler, expr: expr, zero: .flonum(1.0), env: env)
-    compiler.emit(.flDiv)
+  private func compileFlDiv(_ compiler: Compiler,
+                            expr: Expr,
+                            env: Env,
+                            tail: Bool) throws -> Bool {
+    switch expr {
+      case .pair(_, .pair(let x, .null)):
+        compiler.emit(.pushFlonum(1.0))
+        try compiler.compile(x, in: env, inTailPos: false)
+        compiler.emit(.flDiv)
+      case .pair(_, .pair(let x, let xs)):
+        try compiler.compile(x, in: env, inTailPos: false)
+        var args = xs
+        while case .pair(let z, let zs) = args {
+          try compiler.compile(z, in: env, inTailPos: false)
+          compiler.emit(.flDiv)
+          args = zs
+        }
+      default:
+        throw RuntimeError.argumentCount(min: 1, expr: expr)
+    }
     return false
   }
   
   private func flIsZero(_ x: Expr) throws -> Expr {
-    return .makeBoolean(try x.asDouble() == 0.0)
+    return .makeBoolean(try x.asDouble().isZero)
   }
   
   private func flIsPositive(_ x: Expr) throws -> Expr {
@@ -2233,59 +2366,114 @@ public final class MathLibrary: NativeLibrary {
     return .makeBoolean(try x.asDouble() < 0.0)
   }
   
-  private func flEq(_ x: Expr, _ y: Expr) throws -> Expr {
-    return .makeBoolean(try x.asDouble().isEqual(to: y.asDouble()))
+  private func flEq(_ x: Expr, _ y: Expr, _ args: Arguments) throws -> Expr {
+    var lhs = try x.asDouble()
+    var rhs = try y.asDouble()
+    guard lhs.isEqual(to: rhs) else {
+      return .false
+    }
+    for arg in args {
+      lhs = rhs
+      rhs = try arg.asDouble()
+      guard lhs.isEqual(to: rhs) else {
+        return .false
+      }
+    }
+    return .true
   }
   
   private func compileFlEq(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
-    try self.compileBinOp(compiler, expr: expr, env: env)
-    compiler.emit(.flEq)
+    compiler.emit(.flEq(try self.compileArgs(compiler, expr: expr, env: env)))
     return false
   }
   
-  private func flLt(_ x: Expr, _ y: Expr) throws -> Expr {
-    return .makeBoolean(try x.asDouble() < y.asDouble())
+  private func flLt(_ x: Expr, _ y: Expr, _ args: Arguments) throws -> Expr {
+    var lhs = try x.asDouble()
+    var rhs = try y.asDouble()
+    guard lhs < rhs else {
+      return .false
+    }
+    for arg in args {
+      lhs = rhs
+      rhs = try arg.asDouble()
+      guard lhs < rhs else {
+        return .false
+      }
+    }
+    return .true
   }
   
   private func compileFlLt(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
-    try self.compileBinOp(compiler, expr: expr, env: env)
-    compiler.emit(.flLt)
+    compiler.emit(.flLt(try self.compileArgs(compiler, expr: expr, env: env)))
     return false
   }
   
-  private func flGt(_ x: Expr, _ y: Expr) throws -> Expr {
-    return .makeBoolean(try x.asDouble() > y.asDouble())
+  private func flGt(_ x: Expr, _ y: Expr, _ args: Arguments) throws -> Expr {
+    var lhs = try x.asDouble()
+    var rhs = try y.asDouble()
+    guard lhs > rhs else {
+      return .false
+    }
+    for arg in args {
+      lhs = rhs
+      rhs = try arg.asDouble()
+      guard lhs > rhs else {
+        return .false
+      }
+    }
+    return .true
   }
   
   private func compileFlGt(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
-    try self.compileBinOp(compiler, expr: expr, env: env)
-    compiler.emit(.flGt)
+    compiler.emit(.flGt(try self.compileArgs(compiler, expr: expr, env: env)))
     return false
   }
   
-  private func flLtEq(_ x: Expr, _ y: Expr) throws -> Expr {
-    return .makeBoolean(try x.asDouble() <= y.asDouble())
+  private func flLtEq(_ x: Expr, _ y: Expr, _ args: Arguments) throws -> Expr {
+    var lhs = try x.asDouble()
+    var rhs = try y.asDouble()
+    guard lhs <= rhs else {
+      return .false
+    }
+    for arg in args {
+      lhs = rhs
+      rhs = try arg.asDouble()
+      guard lhs <= rhs else {
+        return .false
+      }
+    }
+    return .true
   }
   
   private func compileFlLtEq(_ compiler: Compiler,
                              expr: Expr,
                              env: Env,
                              tail: Bool) throws -> Bool {
-    try self.compileBinOp(compiler, expr: expr, env: env)
-    compiler.emit(.flLtEq)
+    compiler.emit(.flLtEq(try self.compileArgs(compiler, expr: expr, env: env)))
     return false
   }
-
-  private func flGtEq(_ x: Expr, _ y: Expr) throws -> Expr {
-    return .makeBoolean(try x.asDouble() >= y.asDouble())
+  
+  private func flGtEq(_ x: Expr, _ y: Expr, _ args: Arguments) throws -> Expr {
+    var lhs = try x.asDouble()
+    var rhs = try y.asDouble()
+    guard lhs >= rhs else {
+      return .false
+    }
+    for arg in args {
+      lhs = rhs
+      rhs = try arg.asDouble()
+      guard lhs >= rhs else {
+        return .false
+      }
+    }
+    return .true
   }
   
   private func compileFlGtEq(_ compiler: Compiler,
                              expr: Expr,
                              env: Env,
                              tail: Bool) throws -> Bool {
-    try self.compileBinOp(compiler, expr: expr, env: env)
-    compiler.emit(.flLtEq)
+    compiler.emit(.flGtEq(try self.compileArgs(compiler, expr: expr, env: env)))
     return false
   }
   
@@ -2553,5 +2741,20 @@ public final class MathLibrary: NativeLibrary {
         throw RuntimeError.type(num, expected: [.integerType])
     }
   }
+  
+  private func compileArgs(_ compiler: Compiler, expr: Expr, env: Env) throws -> Int {
+    guard case .pair(_, .pair(let x, .pair(let y, let ys))) = expr else {
+      throw RuntimeError.argumentCount(min: 2, expr: expr)
+    }
+    try compiler.compile(x, in: env, inTailPos: false)
+    try compiler.compile(y, in: env, inTailPos: false)
+    var n = 2
+    var args = ys
+    while case .pair(let z, let zs) = args {
+      try compiler.compile(z, in: env, inTailPos: false)
+      n += 1
+      args = zs
+    }
+    return n
+  }
 }
-

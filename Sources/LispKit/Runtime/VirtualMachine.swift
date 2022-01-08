@@ -1610,21 +1610,51 @@ public final class VirtualMachine: ManagedObject {
             default:
               throw RuntimeError.type(self.stack[idx], expected: [.fixnumType])
           }
-        case .fxEq:
-          let rhs = self.pop()
-          self.push(.makeBoolean(try self.popUnsafe().asInt64() == rhs.asInt64()))
-        case .fxLt:
-          let rhs = self.pop()
-          self.push(.makeBoolean(try self.popUnsafe().asInt64() < rhs.asInt64()))
-        case .fxGt:
-          let rhs = self.pop()
-          self.push(.makeBoolean(try self.popUnsafe().asInt64() > rhs.asInt64()))
-        case .fxLtEq:
-          let rhs = self.pop()
-          self.push(.makeBoolean(try self.popUnsafe().asInt64() <= rhs.asInt64()))
-        case .fxGtEq:
-          let rhs = self.pop()
-          self.push(.makeBoolean(try self.popUnsafe().asInt64() >= rhs.asInt64()))
+        case .fxEq(let n):
+          var rhs = try self.pop().asInt64()
+          var res = true
+          for _ in 2..<n {
+            let lhs = try self.pop().asInt64()
+            res = res && (lhs == rhs)
+            rhs = lhs
+          }
+          self.push(.makeBoolean(try (self.popUnsafe().asInt64() == rhs) && res))
+        case .fxLt(let n):
+          var rhs = try self.pop().asInt64()
+          var res = true
+          for _ in 2..<n {
+            let lhs = try self.pop().asInt64()
+            res = res && (lhs < rhs)
+            rhs = lhs
+          }
+          self.push(.makeBoolean(try (self.popUnsafe().asInt64() < rhs) && res))
+        case .fxGt(let n):
+          var rhs = try self.pop().asInt64()
+          var res = true
+          for _ in 2..<n {
+            let lhs = try self.pop().asInt64()
+            res = res && (lhs > rhs)
+            rhs = lhs
+          }
+          self.push(.makeBoolean(try (self.popUnsafe().asInt64() > rhs) && res))
+        case .fxLtEq(let n):
+          var rhs = try self.pop().asInt64()
+          var res = true
+          for _ in 2..<n {
+            let lhs = try self.pop().asInt64()
+            res = res && (lhs <= rhs)
+            rhs = lhs
+          }
+          self.push(.makeBoolean(try (self.popUnsafe().asInt64() <= rhs) && res))
+        case .fxGtEq(let n):
+          var rhs = try self.pop().asInt64()
+          var res = true
+          for _ in 2..<n {
+            let lhs = try self.pop().asInt64()
+            res = res && (lhs >= rhs)
+            rhs = lhs
+          }
+          self.push(.makeBoolean(try (self.popUnsafe().asInt64() >= rhs) && res))
         case .fxAssert:
           guard case .fixnum(_) = self.stack[self.sp &- 1] else {
             throw RuntimeError.type(self.stack[self.sp &- 1], expected: [.fixnumType])
@@ -1641,21 +1671,59 @@ public final class VirtualMachine: ManagedObject {
         case .flDiv:
           let rhs = self.pop()
           self.push(.flonum(try self.popUnsafe().asDouble() / rhs.asDouble()))
-        case .flEq:
-          let rhs = self.pop()
-          self.push(.makeBoolean(try self.popUnsafe().asDouble() == rhs.asDouble()))
-        case .flLt:
-          let rhs = self.pop()
-          self.push(.makeBoolean(try self.popUnsafe().asDouble() < rhs.asDouble()))
-        case .flGt:
-          let rhs = self.pop()
-          self.push(.makeBoolean(try self.popUnsafe().asDouble() > rhs.asDouble()))
-        case .flLtEq:
-          let rhs = self.pop()
-          self.push(.makeBoolean(try self.popUnsafe().asDouble() <= rhs.asDouble()))
-        case .flGtEq:
-          let rhs = self.pop()
-          self.push(.makeBoolean(try self.popUnsafe().asDouble() >= rhs.asDouble()))
+        case .flNeg:
+          let idx = self.sp &- 1
+          switch self.stack[idx] {
+            case .flonum(let x):
+              self.stack[idx] = .flonum(-x)
+            default:
+              throw RuntimeError.type(self.stack[idx], expected: [.floatType])
+          }
+        case .flEq(let n):
+          var rhs = try self.pop().asDouble()
+          var res = true
+          for _ in 2..<n {
+            let lhs = try self.pop().asDouble()
+            res = res && (lhs == rhs)
+            rhs = lhs
+          }
+          self.push(.makeBoolean(try (self.popUnsafe().asDouble() == rhs) && res))
+        case .flLt(let n):
+          var rhs = try self.pop().asDouble()
+          var res = true
+          for _ in 2..<n {
+            let lhs = try self.pop().asDouble()
+            res = res && (lhs < rhs)
+            rhs = lhs
+          }
+          self.push(.makeBoolean(try (self.popUnsafe().asDouble() < rhs) && res))
+        case .flGt(let n):
+          var rhs = try self.pop().asDouble()
+          var res = true
+          for _ in 2..<n {
+            let lhs = try self.pop().asDouble()
+            res = res && (lhs > rhs)
+            rhs = lhs
+          }
+          self.push(.makeBoolean(try (self.popUnsafe().asDouble() > rhs) && res))
+        case .flLtEq(let n):
+          var rhs = try self.pop().asDouble()
+          var res = true
+          for _ in 2..<n {
+            let lhs = try self.pop().asDouble()
+            res = res && (lhs <= rhs)
+            rhs = lhs
+          }
+          self.push(.makeBoolean(try (self.popUnsafe().asDouble() <= rhs) && res))
+        case .flGtEq(let n):
+          var rhs = try self.pop().asDouble()
+          var res = true
+          for _ in 2..<n {
+            let lhs = try self.pop().asDouble()
+            res = res && (lhs >= rhs)
+            rhs = lhs
+          }
+          self.push(.makeBoolean(try (self.popUnsafe().asDouble() >= rhs) && res))
         case .flAssert:
           guard case .flonum(_) = self.stack[self.sp &- 1] else {
             throw RuntimeError.type(self.stack[self.sp &- 1], expected: [.floatType])

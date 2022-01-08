@@ -111,9 +111,20 @@ public final class ControlFlowLibrary: NativeLibrary {
                                    rest,
                                    Env(group))
         compiler.emit(.setLocalValue(index))
-        res = try compiler.compile(.pair(first, exprs),
-                                    in: Env(group),
-                                    inTailPos: tail)
+        // res = try compiler.compile(.pair(first, exprs),
+        //                             in: Env(group),
+        //                            inTailPos: tail)
+        // Make frame for closure invocation
+        let pushFrameIp = compiler.emit(.makeFrame)
+        compiler.emit(.pushLocalValue(index))
+        // Push arguments and call function
+        if compiler.call(try compiler.compileExprs(exprs, in: env), inTailPos: tail) {
+          // Remove make_frame if this was a tail call
+          compiler.patch(.noOp, at: pushFrameIp)
+          res = true
+        } else {
+          res = false
+        }
       default:
         throw RuntimeError.type(first, expected: [.listType, .symbolType])
     }

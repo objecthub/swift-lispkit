@@ -469,6 +469,7 @@
 		CCB480E21FA93C2200220328 /* BinaryInputSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCB480E11FA93C2200220328 /* BinaryInputSource.swift */; };
 		CCB585B81E15A6E70064BB18 /* ContextDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCB585B71E15A6E70064BB18 /* ContextDelegate.swift */; };
 		CCB585BB1E15AA4D0064BB18 /* Heap.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCB585BA1E15AA4D0064BB18 /* Heap.swift */; };
+		CCB5B0F5278A21F700B7E32C /* Math.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCB5B0F4278A21F700B7E32C /* Math.scm */; };
 		CCB91C981D57E785001A95DC /* Parameters.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCB91C971D57E784001A95DC /* Parameters.scm */; };
 		CCBDB73B1EDB7C63001606E2 /* Prolog.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCBDB73A1EDB4AB3001606E2 /* Prolog.scm */; };
 		CCBDF72B2749B0C100635B5C /* 229.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCBDF72A2749AFAC00635B5C /* 229.sld */; };
@@ -2707,6 +2708,7 @@
 		CCB480E11FA93C2200220328 /* BinaryInputSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinaryInputSource.swift; sourceTree = "<group>"; };
 		CCB585B71E15A6E70064BB18 /* ContextDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContextDelegate.swift; sourceTree = "<group>"; };
 		CCB585BA1E15AA4D0064BB18 /* Heap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Heap.swift; sourceTree = "<group>"; };
+		CCB5B0F4278A21F700B7E32C /* Math.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Math.scm; sourceTree = "<group>"; };
 		CCB91C971D57E784001A95DC /* Parameters.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Parameters.scm; sourceTree = "<group>"; };
 		CCBD755D21E224A7008CD7C8 /* csv.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = csv.sld; sourceTree = "<group>"; };
 		CCBDB73A1EDB4AB3001606E2 /* Prolog.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Prolog.scm; sourceTree = "<group>"; };
@@ -2969,6 +2971,7 @@
 				CCC41DC31D2649E9003CB4D0 /* DelayedEvaluation.scm */,
 				CC79DE071F8993EE00CE7A5D /* LightweightTypes.scm */,
 				CC5157B826E42B370056B05B /* Procedures.scm */,
+				CCB5B0F4278A21F700B7E32C /* Math.scm */,
 				CC09CC5221F2974B00C16864 /* Vectors.scm */,
 				CCDAD5511D4813E900A7EE4F /* HashTables.scm */,
 				CC8169261D1FADE2003FADEA /* Ports.scm */,
@@ -4144,6 +4147,7 @@
 				CC8213661D614A8600C1BE57 /* Records.scm in Resources */,
 				CC8218911E3FFFAB009CA653 /* SRFI19.scm in Resources */,
 				CCC41DCA1D330439003CB4D0 /* DynamicWind.scm in Resources */,
+				CCB5B0F5278A21F700B7E32C /* Math.scm in Resources */,
 				CCDAD5521D4813E900A7EE4F /* HashTables.scm in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

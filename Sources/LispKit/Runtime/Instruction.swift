@@ -400,22 +400,21 @@ public enum Instruction: CustomStringConvertible {
   /// **`fx_is_zero`**: Puts true on the stack if the fixnum value on the stack is zero.
   case fxIsZero
   
-  /// **`fx_eq`**: Compares a fixnum value with another fixnum value on the stack for equality.
-  case fxEq
+  /// **`fx_eq` _n_**: Compares _n_ fixnum values on top of the stack for equality.
+  case fxEq(Int)
   
-  /// **`fx_lt`**: Determines whether a fixnum value is less than another fixnum value.
-  case fxLt
+  /// **`fx_lt` _n_**: Compares _n_ fixnum values on top of the stack for "less than".
+  case fxLt(Int)
   
-  /// **`fx_gt`**: Determines whether a fixnum value is greater than another fixnum value.
-  case fxGt
+  /// **`fx_gt` _n_**: Compares _n_ fixnum values on top of the stack for "greater than".
+  case fxGt(Int)
   
-  /// **`fx_lt_eq`**: Determines whether a fixnum value is less than or equal another fixnum
-  /// value.
-  case fxLtEq
+  /// **`fx_lt_eq` _n_**: Compares _n_ fixnum values on top of the stack for "less than or equal".
+  case fxLtEq(Int)
   
-  /// **`fx_gt_eq`**: Determines whether a fixnum value is greater than or equal another fixnum
-  /// value.
-  case fxGtEq
+  /// **`fx_gt_eq` _n_**: Compares _n_ fixnum values on top of the stack for "greater than
+  /// or equal".
+  case fxGtEq(Int)
   
   /// **`fx_assert`**: Raises an exception if the value on the stack is not a fixed point
   /// number. This instruction does not change the stack.
@@ -433,25 +432,28 @@ public enum Instruction: CustomStringConvertible {
   /// **`fl_div`**: Divides a flonum value by another flonum value on the stack.
   case flDiv
   
-  /// **`fl_eq`**: Compares a flonum value with another flonum value on the stack for equality.
-  case flEq
+  /// **`fl_neg`**: Negates the flonum value on the stack.
+  case flNeg
   
-  /// **`fl_lt`**: Determines whether a flonum value is less than another flonum value.
-  case flLt
+  /// **`fl_eq` _n_**: Compares _n_ flonum values on top of the stack for equality.
+  case flEq(Int)
   
-  /// **`fl_gt`**: Determines whether a flonum value is greater than another flonum value.
-  case flGt
+  /// **`fl_lt` _n_**: Compares _n_ flonum values on top of the stack for "less than".
+  case flLt(Int)
   
-  /// **`fl_lt_eq`**: Determines whether a flonum value is less than or equal another flonum
-  /// value.
-  case flLtEq
+  /// **`fl_gt` _n_**:  Compares _n_ flonum values on top of the stack for "greater than".
+  case flGt(Int)
   
-  /// **`fl_gt_eq`**: Determines whether a flonum value is greater than or equal another flonum
-  /// value.
-  case flGtEq
+  /// **`fl_lt_eq` _n_**:  Compares _n_ flonum values on top of the stack for "less than
+  /// of equal".
+  case flLtEq(Int)
+  
+  /// **`fl_gt_eq` _n_**:  Compares _n_ flonum values on top of the stack for "greater than
+  /// or equal".
+  case flGtEq(Int)
   
   /// **`fl_assert`**: Raises an exception if the value on the stack is not a floating point
-  /// number. This instruction does not change the stack
+  /// number. This instruction does not change the stack.
   case flAssert
   
   // Miscellaneous ----------------------------------------------------------------------------
@@ -729,16 +731,16 @@ public enum Instruction: CustomStringConvertible {
         return "fx_dec"
       case .fxIsZero:
         return "fx_is_zero"
-      case .fxEq:
-        return "fx_eq"
-      case .fxLt:
-        return "fx_lt"
-      case .fxGt:
-        return "fx_gt"
-      case .fxLtEq:
-        return "fx_lt_eq"
-      case .fxGtEq:
-        return "fx_gt_eq"
+      case .fxEq(let n):
+        return "fx_eq \(n)"
+      case .fxLt(let n):
+        return "fx_lt \(n)"
+      case .fxGt(let n):
+        return "fx_gt \(n)"
+      case .fxLtEq(let n):
+        return "fx_lt_eq \(n)"
+      case .fxGtEq(let n):
+        return "fx_gt_eq \(n)"
       case .fxAssert:
         return "fx_assert"
       case .flPlus:
@@ -749,16 +751,18 @@ public enum Instruction: CustomStringConvertible {
         return "fl_mult"
       case .flDiv:
         return "fl_div"
-      case .flEq:
-        return "fl_eq"
-      case .flLt:
-        return "fl_lt"
-      case .flGt:
-        return "fl_gt"
-      case .flLtEq:
-        return "fl_lt_eq"
-      case .flGtEq:
-        return "fl_gt_eq"
+      case .flNeg:
+        return "fl_neg"
+      case .flEq(let n):
+        return "fl_eq \(n)"
+      case .flLt(let n):
+        return "fl_lt \(n)"
+      case .flGt(let n):
+        return "fl_gt \(n)"
+      case .flLtEq(let n):
+        return "fl_lt_eq \(n)"
+      case .flGtEq(let n):
+        return "fl_gt_eq \(n)"
       case .flAssert:
         return "fl_assert"
     }
