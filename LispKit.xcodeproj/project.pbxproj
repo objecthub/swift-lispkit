@@ -476,6 +476,9 @@
 		CCB5B0FB278B6FAD00B7E32C /* SRFI-144.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCB5B0FA278B6FAD00B7E32C /* SRFI-144.scm */; };
 		CCB5B0FC278B71CA00B7E32C /* SRFI-144.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCB5B0FA278B6FAD00B7E32C /* SRFI-144.scm */; };
 		CCB5B0FD278B71DC00B7E32C /* SRFI-144.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCB5B0FA278B6FAD00B7E32C /* SRFI-144.scm */; };
+		CCB5B0FF278B8BDE00B7E32C /* flonum.sld in Resources */ = {isa = PBXBuildFile; fileRef = CCB5B0FE278B8BDE00B7E32C /* flonum.sld */; };
+		CCB5B100278B8D6600B7E32C /* flonum.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CCB5B0FE278B8BDE00B7E32C /* flonum.sld */; };
+		CCB5B101278B8DAB00B7E32C /* flonum.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CCB5B0FE278B8BDE00B7E32C /* flonum.sld */; };
 		CCB91C981D57E785001A95DC /* Parameters.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCB91C971D57E784001A95DC /* Parameters.scm */; };
 		CCBDB73B1EDB7C63001606E2 /* Prolog.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCBDB73A1EDB4AB3001606E2 /* Prolog.scm */; };
 		CCBDF72B2749B0C100635B5C /* 229.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCBDF72A2749AFAC00635B5C /* 229.sld */; };
@@ -1526,6 +1529,7 @@
 			dstPath = Root/LispKit/Libraries/scheme;
 			dstSubfolderSpec = 7;
 			files = (
+				CCB5B100278B8D6600B7E32C /* flonum.sld in Copy pre-installed Scheme libraries */,
 				CCC48DDB25E985ED00D082AD /* red.sld in Copy pre-installed Scheme libraries */,
 				CC08F44125BDDCEC0056C92C /* bitwise.sld in Copy pre-installed Scheme libraries */,
 				CC08F44225BDDCEC0056C92C /* division.sld in Copy pre-installed Scheme libraries */,
@@ -1973,6 +1977,7 @@
 			dstPath = Root/LispKit/Libraries/scheme;
 			dstSubfolderSpec = 7;
 			files = (
+				CCB5B101278B8DAB00B7E32C /* flonum.sld in Copy pre-installed Scheme libraries */,
 				CCC48DC725E9846300D082AD /* base.sld in Copy pre-installed Scheme libraries */,
 				CCC48DC825E9846300D082AD /* case-lambda.sld in Copy pre-installed Scheme libraries */,
 				CCC48DC925E9846300D082AD /* char.sld in Copy pre-installed Scheme libraries */,
@@ -2721,6 +2726,7 @@
 		CCB5B0F4278A21F700B7E32C /* Math.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Math.scm; sourceTree = "<group>"; };
 		CCB5B0F6278A587300B7E32C /* 144.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 144.sld; sourceTree = "<group>"; };
 		CCB5B0FA278B6FAD00B7E32C /* SRFI-144.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-144.scm"; sourceTree = "<group>"; };
+		CCB5B0FE278B8BDE00B7E32C /* flonum.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = flonum.sld; sourceTree = "<group>"; };
 		CCB91C971D57E784001A95DC /* Parameters.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Parameters.scm; sourceTree = "<group>"; };
 		CCBD755D21E224A7008CD7C8 /* csv.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = csv.sld; sourceTree = "<group>"; };
 		CCBDB73A1EDB4AB3001606E2 /* Prolog.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Prolog.scm; sourceTree = "<group>"; };
@@ -3074,6 +3080,7 @@
 				CC2C73C4219E26D900B18661 /* comparator.sld */,
 				CC08F44025BDD2CD0056C92C /* division.sld */,
 				CC202DE825ABB068003901BE /* fixnum.sld */,
+				CCB5B0FE278B8BDE00B7E32C /* flonum.sld */,
 				CC2C73C5219E286D00B18661 /* generator.sld */,
 				CC2C73E021A22DDD00B18661 /* hash-table.sld */,
 				CC2C73C6219E295200B18661 /* ideque.sld */,
@@ -4148,6 +4155,7 @@
 				CCB91C981D57E785001A95DC /* Parameters.scm in Resources */,
 				CC436C421FFD96800095559E /* Logic.scm in Resources */,
 				CC0AEFFA1F52311600119BF6 /* SRFI152.scm in Resources */,
+				CCB5B0FF278B8BDE00B7E32C /* flonum.sld in Resources */,
 				CC2345431F655C0A00C38817 /* Datatypes.scm in Resources */,
 				CCB5B0F7278A587300B7E32C /* 144.sld in Resources */,
 				CC131C4C1CDE0C3D006C030C /* SyntaxRules.scm in Resources */,

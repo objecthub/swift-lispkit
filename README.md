@@ -65,10 +65,10 @@ _LispKit_ provides support for the following core features, many of which are ba
     `(scheme write)`, `(scheme r5rs)`
   - Some R7RS (large) libraries from Scheme Red and Scheme Tangerine editions:
     `(scheme bitwise)`, `(scheme box)`,  `(scheme charset)`, `(scheme comparator)`, `(scheme division)`,
-    `(scheme fixnum)`, `(scheme generator)`, `(scheme hash-table)`, `(scheme ideque)`, `(scheme list)`, 
-    `(scheme mapping)`, `(scheme red)`, `(scheme rlist)`, `(scheme set)`,
-    `(scheme sort)`, `(scheme stream)`, `(scheme text)`, `(scheme vector)`
-  - LispKit-specific libraries: 
+    `(scheme fixnum)`, `(scheme flonum)`, `(scheme generator)`, `(scheme hash-table)`,
+    `(scheme ideque)`, `(scheme list)`, `(scheme mapping)`, `(scheme red)`, `(scheme rlist)`,
+    `(scheme set)`, `(scheme sort)`, `(scheme stream)`, `(scheme text)`, `(scheme vector)`
+  - LispKit-specific libraries:
     [`(lispkit base)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Base),
     [`(lispkit core)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Core),
     [`(lispkit control)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Control),
@@ -186,6 +186,7 @@ framework:
   - [SRFI 137: Minimal Unique Types](https://srfi.schemers.org/srfi-137/srfi-137.html)
   - [SRFI 142: Bitwise Operations](https://srfi.schemers.org/srfi-142/srfi-142.html)
   - [SRFI 143: Fixnums](https://srfi.schemers.org/srfi-143/srfi-143.html)
+  - [SRFI 144: Flonums](https://srfi.schemers.org/srfi-144/srfi-144.html)
   - [SRFI 145: Assumptions](https://srfi.schemers.org/srfi-145/srfi-145.html)
   - [SRFI 146: Mappings](https://srfi.schemers.org/srfi-146/srfi-146.html)
   - [SRFI 151: Bitwise Operations](https://srfi.schemers.org/srfi-151/srfi-151.html)
