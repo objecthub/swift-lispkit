@@ -169,9 +169,6 @@ public final class MathLibrary: NativeLibrary {
     self.define(Procedure("fxrandom", self.fxRandom))
     self.define(Procedure("fxsqrt", self.fxSqrt))
     self.define(Procedure("integer->fixnum", self.integerToFx))
-    self.define(Procedure("fixnum-width", self.fixnumWidth))
-    self.define(Procedure("least-fixnum", self.leastFixnum))
-    self.define(Procedure("greatest-fixnum", self.greatestFixnum))
     self.define(Procedure("real->flonum", self.realToFlonum))
     self.define(Procedure("make-flonum", self.makeFlonum))
     self.define(Procedure("flexponent", self.flExponent))
@@ -212,11 +209,14 @@ public final class MathLibrary: NativeLibrary {
     self.define(Procedure("arithmetic-shift", self.arithmeticShift))
     self.define(Procedure("arithmetic-shift-left", self.arithmeticShiftLeft))
     self.define(Procedure("arithmetic-shift-right", self.arithmeticShiftRight))
-    self.define("pi", via: "(define pi \(Double.pi))")
-    self.define("e", via: "(define e \(M_E))")
-    self.define("fx-width", via: "(define fx-width \(Int64.bitWidth))")
-    self.define("fx-greatest", via: "(define fx-greatest \(Int64.max))")
-    self.define("fx-least", via: "(define fx-least \(Int64.min))")
+    self.define("pi", as: .flonum(Double.pi))
+    self.define("e", as: .flonum(M_E))
+    self.define("fx-width", as: .fixnum(Int64(Int64.bitWidth)))
+    self.define("fx-greatest", as: .fixnum(Int64.max))
+    self.define("fx-least", as: .fixnum(Int64.min))
+    self.define("fl-epsilon", as: .flonum(Double.ulpOfOne))
+    self.define("fl-greatest", as: .flonum(Double.greatestFiniteMagnitude))
+    self.define("fl-least", as: .flonum(Double.leastNonzeroMagnitude))
   }
   
   
@@ -2170,18 +2170,6 @@ public final class MathLibrary: NativeLibrary {
     }
   }
   
-  private func fixnumWidth() -> Expr {
-    return .fixnum(Int64(Int64.bitWidth))
-  }
-  
-  private func leastFixnum() -> Expr {
-    return .fixnum(Int64.min)
-  }
-  
-  private func greatestFixnum() -> Expr {
-    return .fixnum(Int64.max)
-  }
-
   private func realToFlonum(_ expr: Expr) throws -> Expr {
     switch expr {
       case .fixnum(let num):
@@ -2481,16 +2469,16 @@ public final class MathLibrary: NativeLibrary {
     return .flonum(try x.asDouble().magnitude)
   }
   
-  private func flMin(_ x: Expr, _ args: Arguments) throws -> Expr {
-    var res = try x.asDouble()
+  private func flMin(_ args: Arguments) throws -> Expr {
+    var res = Double.infinity
     for arg in args {
       res = Double.minimum(res, try arg.asDouble())
     }
     return .flonum(res)
   }
   
-  private func flMax(_ x: Expr, _ args: Arguments) throws -> Expr {
-    var res = try x.asDouble()
+  private func flMax(_ args: Arguments) throws -> Expr {
+    var res = -Double.infinity
     for arg in args {
       res = Double.maximum(res, try arg.asDouble())
     }

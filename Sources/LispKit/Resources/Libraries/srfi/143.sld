@@ -80,12 +80,20 @@
           fxbit-field-rotate
           fxbit-field-reverse)
   
-  (import (rename (lispkit base) (fxmax lispkit:fxmax)
-                                 (fxmin lispkit:fxmin)
-                                 (fxsqrt lispkit:fxsqrt)
-                                 (fxbit-set? lispkit:fxbit-set?)
-                                 (fxcopy-bit lispkit:fxcopy-bit)
-                                 (fxbit-count lispkit:fxbit-count)))
+  (import (rename (lispkit base)
+            (fx= fx=?)
+            (fx> fx>?)
+            (fx< fx<?)
+            (fx>= fx>=?)
+            (fx<= fx<=?)
+            (bit-count fxbit-count)
+            (quotient fxquotient)
+            (exact-integer-sqrt fxsqrt)
+            (fxfirst-bit-set fxfirst-set-bit)
+            (fxsqrt lispkit:fxsqrt)
+            (fxbit-set? lispkit:fxbit-set?)
+            (fxcopy-bit lispkit:fxcopy-bit)
+            (fxbit-count lispkit:fxbit-count)))
   
   ;; Generic implementation of carry functions from the R6RS standard.
   ;; These implementations of fx+/carry, fx-/carry, and fx*/carry are very inefficient,
@@ -152,61 +160,14 @@
   ;; `(lispkit math)`.
   (begin
     
-    (define (fx=? i j . ks)
-      (if (null? ks)
-          (fx= i j)
-          (and (fx= i j) (apply fx=? j ks))))
-    
-    (define (fx<? i j . ks)
-      (if (null? ks)
-          (fx< i j)
-          (and (fx< i j) (apply fx<? j ks))))
-    
-    (define (fx>? i j . ks)
-      (if (null? ks)
-          (fx> i j)
-          (and (fx> i j) (apply fx>? j ks))))
-    
-    (define (fx<=? i j . ks)
-      (if (null? ks)
-          (fx<= i j)
-          (and (fx<= i j) (apply fx<=? j ks))))
-    
-    (define (fx>=? i j . ks)
-      (if (null? ks)
-          (fx>= i j)
-          (and (fx>= i j) (apply fx>=? j ks))))
-    
-    (define (fxmax i j . ks)
-      (if (null? ks)
-          (lispkit:fxmax i j)
-          (lispkit:fxmax (lispkit:fxmax i j) (apply fxmax j ks))))
-    
-    (define (fxmin i j . ks)
-      (if (null? ks)
-          (lispkit:fxmin i j)
-          (lispkit:fxmin (lispkit:fxmin i j) (apply fxmin j ks))))
-    
     (define (fxneg i)
-      (fx- 0 i))
+      (fx- i))
     
     (define (fxsquare i)
       (fx* i i))
     
-    (define (fxquotient i j)
-      (quotient i j))
-    
-    (define (fxsqrt i)
-      (exact-integer-sqrt i))
-    
-    (define (fxfirst-set-bit i)
-      (fxfirst-bit-set i))
-    
     (define (fxbit-set? i j)
       (bit-set? j i))
-      
-    (define (fxbit-count i)
-      (bit-count i))
     
     (define (fxcopy-bit index to bool)
       (copy-bit to index (if (eq? bool #t) 1 (if (eq? bool #f) 0 bool))))

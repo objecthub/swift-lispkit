@@ -3,7 +3,7 @@
 ;;; This code imports all libraries coming with LispKit for testing purposes.
 ;;;
 ;;; Author: Matthias Zenger
-;;; Copyright © 2019-2021 Matthias Zenger. All rights reserved.
+;;; Copyright © 2019-2022 Matthias Zenger. All rights reserved.
 ;;;
 ;;; Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 ;;; except in compliance with the License. You may obtain a copy of the License at
@@ -123,6 +123,7 @@
 (import (srfi 137))
 (import (srfi 142))
 (import (srfi 143))
+(import (srfi 144))
 (import (srfi 145))
 (import (srfi 146))
 (import (srfi 151))

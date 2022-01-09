@@ -62,7 +62,7 @@
 ;; the edits are less or equal to that distance.
 
 (define (find-nearest-edits str strls . args)
-  (let-optionals args ((maxdist (fx1- (greatest-fixnum))))
+  (let-optionals args ((maxdist (fx1- fx-greatest)))
     (let lp ((ls strls)
              (dist (fx1+ maxdist))
              (res '()))

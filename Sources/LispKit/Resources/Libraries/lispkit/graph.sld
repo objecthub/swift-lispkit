@@ -255,7 +255,7 @@
             ((or (not nodes) (null? nodes)) (not nodes)))))
 
     (define (reachable-nodes graph from . args)
-      (let-optionals args ((limit (greatest-fixnum)))
+      (let-optionals args ((limit fx-greatest))
         (cond ((fxnegative? limit)
                 (error "limit of procedure reachable-nodes is negative" limit))
               ((fxzero? limit)

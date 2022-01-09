@@ -46,7 +46,7 @@
 
     (define default-table-size 64)
 
-    (define default-bound (greatest-fixnum))
+    (define default-bound fx-greatest)
 
     (define missing-key (box 'missing-key))
 

@@ -193,7 +193,7 @@
     ;; getting displayed. If `separator` is not provided, ", " is used as a default.
     ;; If `port` is not provided, the current output port is used.
     (define (display-stream strm . args)
-      (let-optionals args ((n         (greatest-fixnum))
+      (let-optionals args ((n         fx-greatest)
                            (separator ", ")
                            (port      (current-output-port)))
         (assert (stream? strm) (integer? n) (not (negative? n)) (port? port))
