@@ -20,7 +20,6 @@
 
 import Foundation
 import NumberKit
-import AppKit
 
 ///
 /// Math library: based on R7RS spec.
