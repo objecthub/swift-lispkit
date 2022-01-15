@@ -52,6 +52,9 @@ public final class ThreadLibrary: NativeLibrary {
     self.define(Procedure("make-thread", self.makeThread))
     self.define(Procedure("thread-name", self.threadName))
     self.define(Procedure("thread-tag", self.threadTag))
+    self.define(Procedure("thread-runnable?", self.isThreadRunnable))
+    self.define(Procedure("thread-blocked?", self.isThreadBlocked))
+    self.define(Procedure("thread-terminated?", self.isThreadTerminated))
     self.define(Procedure("thread-start!", self.threadStart))
     self.define(Procedure("thread-yield!", self.threadYield))
     self.define(Procedure("thread-sleep!", self.threadSleep))
@@ -125,6 +128,18 @@ public final class ThreadLibrary: NativeLibrary {
   
   private func threadTag(th: Expr) throws -> Expr {
     return try self.thread(from: th).value.threadTag
+  }
+  
+  private func isThreadRunnable(th: Expr) throws -> Expr {
+    return .makeBoolean(try self.thread(from: th).value.state == .runnable)
+  }
+  
+  private func isThreadBlocked(th: Expr) throws -> Expr {
+    return .makeBoolean(try self.thread(from: th).value.state == .blocked)
+  }
+  
+  private func isThreadTerminated(th: Expr) throws -> Expr {
+    return .makeBoolean(try self.thread(from: th).value.state == .terminated)
   }
   
   private func threadStart(th: Expr) throws -> Expr {

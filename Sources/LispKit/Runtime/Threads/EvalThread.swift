@@ -111,7 +111,7 @@ public final class EvalThread: ManagedObject, ThreadBlocker, CustomStringConvert
   internal let mutex = EmbeddedConditionLock(recursive: true)
   
   /// The state of the thread.
-  public var state: EvalThread.State
+  public internal(set) var state: EvalThread.State
   
   /// The result of the thread execution.
   fileprivate var result: Expr? = nil
@@ -120,7 +120,15 @@ public final class EvalThread: ManagedObject, ThreadBlocker, CustomStringConvert
   fileprivate var locks: Set<EvalMutex> = []
   
   /// Mutex this thread is blocked by.
-  internal var waitingOn: ThreadBlocker? = nil
+  internal var waitingOn: ThreadBlocker? = nil {
+    didSet {
+      if self.state == .runnable && self.waitingOn != nil {
+        self.state = .blocked
+      } else if self.state == .blocked && self.waitingOn == nil {
+        self.state = .runnable
+      }
+    }
+  }
   
   /// The components needed to create a worker thread.
   private var config: (VirtualMachine, Int, QualityOfService, Procedure)?
