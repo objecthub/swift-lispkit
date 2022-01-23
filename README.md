@@ -3,7 +3,7 @@
 
 [![Platform: macOS | iOS](https://img.shields.io/badge/Platform-macOS%20%7C%20iOS-blue.svg?style=flat)](https://developer.apple.com/osx/)
 [![Language: Swift 5.5](https://img.shields.io/badge/Language-Swift%205.5-green.svg?style=flat)](https://developer.apple.com/swift/)
-[![IDE: Xcode 13](https://img.shields.io/badge/IDE-Xcode%2013-orange.svg?style=flat)](https://developer.apple.com/xcode/)
+[![IDE: Xcode 13.2](https://img.shields.io/badge/IDE-Xcode%2013.2-orange.svg?style=flat)](https://developer.apple.com/xcode/)
 [![Carthage: compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![License: Apache](http://img.shields.io/badge/License-Apache-lightgrey.svg?style=flat)](https://raw.githubusercontent.com/objecthub/swift-lispkit/master/LICENSE)
 
@@ -99,6 +99,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit regexp)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Regexp),
     [`(lispkit stream)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Stream),
     `(lispkit thread)`,
+    `(lispkit thread channels)`,
     `(lispkit graph)`,
     [`(lispkit match)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Match),
     [`(lispkit iterate)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Iterate),
@@ -344,7 +345,7 @@ command-line tool, all that is needed is the Swift Package Manager. For compilin
 the command-line tool directly in Xcode, the Swift Package Manager is not needed.
 
 - [Swift 5.5](https://developer.apple.com/swift/)
-- [Xcode 13](https://developer.apple.com/xcode/)
+- [Xcode 13.2](https://developer.apple.com/xcode/)
 - [Swift Package Manager](https://swift.org/package-manager/)
 - [NumberKit](http://github.com/objecthub/swift-numberkit)
 - [MarkdownKit](http://github.com/objecthub/swift-markdownkit)

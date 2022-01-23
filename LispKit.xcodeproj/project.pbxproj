@@ -122,6 +122,8 @@
 		CC2427DB279D674500913C05 /* channel.sld in Copy pre-installed LispKit library: LispKit Thread */ = {isa = PBXBuildFile; fileRef = CC2427D6279D624800913C05 /* channel.sld */; };
 		CC2427DC279D678400913C05 /* LispKit-Channel.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC2427D7279D65F200913C05 /* LispKit-Channel.scm */; };
 		CC2427DD279D679800913C05 /* LispKit-Channel.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC2427D7279D65F200913C05 /* LispKit-Channel.scm */; };
+		CC2427DF279E1A5000913C05 /* Channels.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC2427DE279E19D400913C05 /* Channels.scm */; };
+		CC2427E0279E1A5F00913C05 /* Channels.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC2427DE279E19D400913C05 /* Channels.scm */; };
 		CC26069C1C61760C0047A3D3 /* Boxes.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC26069B1C61760C0047A3D3 /* Boxes.swift */; };
 		CC26263C20F56E9F00AC08E8 /* 111.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC26263B20F56DBF00AC08E8 /* 111.sld */; };
 		CC26263E20F5707800AC08E8 /* 112.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC26263D20F56F9300AC08E8 /* 112.sld */; };
@@ -1284,6 +1286,7 @@
 			dstPath = Root/LispKit/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC2427DF279E1A5000913C05 /* Channels.scm in Copy examples */,
 				CC9ED4012710EBE8004B1E29 /* Simplifier.scm in Copy examples */,
 				CCC7A9DC26D0486E00F05361 /* EUStats.scm in Copy examples */,
 				CCD3E15925C638F5007FCE8A /* Schelog.scm in Copy examples */,
@@ -2072,6 +2075,7 @@
 			dstPath = Root/LispKit/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC2427E0279E1A5F00913C05 /* Channels.scm in Copy examples */,
 				CC9ED40A2710ECA5004B1E29 /* Simplifier.scm in Copy examples */,
 				CCC7A9DD26D0488300F05361 /* EUStats.scm in Copy examples */,
 				CCC48E8525E9884300D082AD /* Pi.scm in Copy examples */,
@@ -2426,6 +2430,7 @@
 		CC240E8D24FB1B1B00FF6D0F /* sxml.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = sxml.sld; sourceTree = "<group>"; };
 		CC2427D6279D624800913C05 /* channel.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = channel.sld; sourceTree = "<group>"; };
 		CC2427D7279D65F200913C05 /* LispKit-Channel.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "LispKit-Channel.scm"; sourceTree = "<group>"; };
+		CC2427DE279E19D400913C05 /* Channels.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Channels.scm; sourceTree = "<group>"; };
 		CC26069B1C61760C0047A3D3 /* Boxes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Boxes.swift; sourceTree = "<group>"; };
 		CC26263B20F56DBF00AC08E8 /* 111.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 111.sld; sourceTree = "<group>"; };
 		CC26263D20F56F9300AC08E8 /* 112.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 112.sld; sourceTree = "<group>"; };
@@ -3869,6 +3874,7 @@
 				CC926FA723FA127F00D91AB1 /* Polynomials.scm */,
 				CC78F31A23B439B5006F3901 /* SpellNumbers.scm */,
 				CC4A7DBA2258FC3C00936034 /* Streams.scm */,
+				CC2427DE279E19D400913C05 /* Channels.scm */,
 				CC9EB1141F5C9D4000697511 /* Topological.scm */,
 				CC1D6CB9258CCCFF00D36645 /* EditDistance.scm */,
 				CC474EB01ED0390200B535E3 /* Queens.scm */,

@@ -419,7 +419,7 @@ open class LispKitRepl {
     }
     var buffer = ""
     while let line = self.readCommand(withPrompt: buffer.isEmpty) {
-      buffer += line + " "
+      buffer += line + "\n"
       // Execute the command
       let res = self.execute(command: buffer)
       // Exit loop if the machine has executed the `exit` function

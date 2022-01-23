@@ -101,28 +101,24 @@
   (test "1 channel fifo goroutine   first" 2 (channel-receive! chan)))
 
 (test-group "timers"
-  (define to1 (timer 100))
-  (define to2 (timer 200))
+  (define to1 (timer 0.1))
+  (define to2 (timer 0.2))
   (define reply (make-channel))
   (go (channel-select ((to1 -> x) (channel-send! reply 'to1))
-                     ((to2 -> x) (channel-send! reply 'to2))))
+                      ((to2 -> x) (channel-send! reply 'to2))))
   (go (channel-select ((to1 -> x) (channel-send! reply 'to1))
                      ((to2 -> x) (channel-send! reply 'to2))))
-  (define start (current-milliseconds))
+  (define start (current-second))
   (test "timeout order 1" 'to1 (channel-receive! reply))
   (test "timeout order 2" 'to2 (channel-receive! reply))
-  (define duration (- (current-milliseconds) start))
-  (test "200ms to timeout took <220ms " #t
-    (begin (display "(")
-           (display duration)
-           (display ")")
-           (< duration 220)))
+  (define duration (- (current-second) start))
+  (test "200ms to timeout took <220ms " #t (< duration 0.22))
   (test "to1 post-timeout closed" #t (channel-select ((to1 -> x closed?) closed?)))
   (test "to2 post-timeout closed" #t (channel-select ((to2 -> x closed?) closed?))))
 
 (test-group "timers: each ticker gets consumed by only one recv"
   (define reply (make-channel 1024))
-  (define tick  (ticker 10))
+  (define tick  (ticker 0.01))
   (go (let loop () (channel-select ((tick -> _) (channel-select ((reply <- 1) (loop)))))))
   (go (let loop () (channel-select ((tick -> _) (channel-select ((reply <- 2) (loop)))))))
   (go (let loop () (channel-select ((tick -> _) (channel-select ((reply <- 3) (loop)))))))
@@ -138,9 +134,7 @@
                       (if fail
                           (reverse res)
                           (loop (cons msg res)))))))
-  (test "10ms messages for 105ms means 10 messages" 10 (length results))
-  (display "hopefully different senders: ")
-  (display results))
+  (test "10ms messages for 105ms means 10 messages" 10 (length results)))
 
 (test-group "closing channels"
   (define chan1 (make-channel 1))
@@ -207,8 +201,6 @@
   (thread-sleep! 0.5)
   (test-assert "thread blocked" (thread-blocked? go1))
   (test "thread filled buffer of two items" 2 done)
-  (display "channel is now ")
-  (display chan)
   (test "buffered data from chan item 1" 1 (channel-receive! chan))
   (test "thread awakened by previous receive (buffer available)"
         'exited (thread-join! go1))
@@ -253,8 +245,6 @@
   ; Check that we got data from both contestants
   (define num-chan1 (count (lambda (x) (eq? x 1)) origin))
   (define num-chan2 (count (lambda (x) (eq? x 2)) origin))
-  (display "message origins: ")
-  (display origin)
   (test "not just results from chan1" #t (< num-chan1 19))
   (test "not just results from chan2" #t (< num-chan2 19)))
 

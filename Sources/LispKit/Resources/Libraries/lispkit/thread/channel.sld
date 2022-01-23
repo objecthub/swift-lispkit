@@ -53,18 +53,18 @@
           channel-close
           channel-select*
           channel-select
+          channel-range
           make-timer
           timer?
           timer
           ticker
-          current-milliseconds)
+          ticker-stop!)
   
   (import (lispkit base)
           (lispkit queue)
           (srfi 18))
   
   (begin
-    
     (define-syntax info
       (syntax-rules ()
         ((_ args ...) (void))))
@@ -77,10 +77,6 @@
             (display ": ")
             (display arg) ...
             (newline)))))
-    
-    (define (current-milliseconds)
-      (exact (round (* 1000.0 (current-second)))))
-    
   )
   
   ;; SEMAPHORES
@@ -140,7 +136,7 @@
       (next      timer-next))
     
     ;; Next must be a thunk which returns (values when-next data fail), where
-    ;; `when-next` is when to trigger next in (current-milliseconds). `next` will
+    ;; `when-next` is when to trigger next in (current-second). `next` will
     ;; be called exaclty once on every timeout and once at "startup" and can thus
     ;; mutate its own private state. `next` is called within a timer mutex lock,
     ;; so it shouldn't ever error.
@@ -157,18 +153,21 @@
         (timer-data-set! timer data)
         (timer-fail-set! timer fail)))
     
-    (define (timer duration:ms)
-      (let ((when (+ (current-milliseconds) duration:ms)))
+    (define (timer duration)
+      (let* ((when (+ (current-second) duration)))
         (make-timer (lambda ()
                       (let ((tmp when))
                         (set! when #f)           ; never trigger again
                         (values tmp tmp #f)))))) ; when-next data fail
     
-    (define (ticker duration:ms)
-      (let ((when (current-milliseconds)))
+    (define (ticker duration)
+      (let ((when (current-second)))
         (make-timer (lambda ()
-                      (set! when (+ when duration:ms))
+                      (set! when (+ when duration))
                       (values when when #f)))))
+    
+    (define (ticker-stop! tmr)
+      (timer-when-set! tmr (lambda () (values #f #f #f))))
   )
   
   ;; CHANNELS
@@ -339,7 +338,7 @@
       (mutex-lock! (timer-mutex chan))
       (if (timer-when chan)
           (begin
-            (if (<= (timer-when chan) (current-milliseconds))
+            (if (<= (timer-when chan) (current-second))
                 ; Timer already expired
                 (begin
                   (semaphore-meta-set! %sem meta) ;; <-- also closes %sem
@@ -373,7 +372,7 @@
       (mutex-lock! (timer-mutex timer))
       (info "signalling timer " timer)
       (if (timer-when timer)
-          (if (<= (timer-when timer) (current-milliseconds))
+          (if (<= (timer-when timer) (current-second))
               (let ((q (timer-receivers timer)))
                 (let loop ()
                   (if (queue-empty? q)
@@ -518,9 +517,7 @@
                                                          timesub)))
                                      (timer (cdr (car timers*)))
                                      (timeout (let ((when (car (car timers*))))
-                                                (and when (max 0 (/ (- when
-                                                                       (current-milliseconds))
-                                                                    1000))))))
+                                                (and when (max 0 (- when (current-second)))))))
                                 (info "wait for data with timer " timer " and timeout " timeout)
                                 (if (mutex-unlock! (semaphore-mutex semaphore)
                                                    (semaphore-cv semaphore)
@@ -652,5 +649,14 @@
         ((_ form ...)
           (let-values (((msg fail meta) (channel-select* (channel-select-alist form ...))))
             (meta msg fail)))))
+    
+    (define-syntax channel-range
+      (syntax-rules (->)
+        ((_ c -> x expr ...)
+           (let ((chan c))
+             (let loop ()
+               (channel-select
+                 ((chan -> x fail)
+                   (unless fail (begin expr ...)(loop)))))))))
   )
 )
