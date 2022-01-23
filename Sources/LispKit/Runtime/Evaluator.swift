@@ -102,7 +102,11 @@ public final class Evaluator: TrackedObject {
     self.mainThread.value.mutex.unlock()
     // Terminate all threads
     self.threads.abortAll(except: Thread.current)
-    self.threads.waitForTerminationOfAll()
+    if !self.threads.waitForTerminationOfAll(timeout: 1.0) {
+      // Not sure why the following line is sometimes needed...
+      self.threads.abortAll(except: Thread.current)
+      _ = self.threads.waitForTerminationOfAll(timeout: 0.5)
+    }
     self.threads.remove(thread: Thread.current)
     return result
   }

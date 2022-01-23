@@ -53,7 +53,9 @@ public final class DebugLibrary: NativeLibrary {
     self.define(Procedure("loaded-libraries", self.loadedLibraries))
     self.define(Procedure("loaded-sources", self.loadedSources))
     self.define(Procedure("environment-info", self.environmentInfo))
-    self.define(Procedure("call-stack-lines", self.callStackLines))
+    self.define(Procedure("stack-size", self.stackSize))
+    self.define(Procedure("call-stack-trace", self.callStackTrace))
+    self.define(Procedure("internal-call-stack", self.internalCallStack))
   }
   
   private func gc() -> Expr {
@@ -269,7 +271,20 @@ public final class DebugLibrary: NativeLibrary {
     return .void
   }
   
-  private func callStackLines() -> Expr {
+  private func stackSize() -> Expr {
+    return .makeNumber(self.context.evaluator.machine.sp)
+  }
+  
+  private func callStackTrace() -> Expr {
+    let procs = self.context.evaluator.machine.getStackTrace()
+    var res: Expr = .null
+    for proc in procs {
+      res = .pair(.symbol(self.context.symbols.intern(proc.name)), res)
+    }
+    return res
+  }
+  
+  private func internalCallStack() -> Expr {
     var res: Expr = .null
     for line in Thread.callStackSymbols.reversed() {
       res = .pair(.makeString(line), res)

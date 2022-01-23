@@ -104,10 +104,14 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("cpu-architecture", self.cpuArchitecture))
     self.define(Procedure("machine-name", self.machineName))
     self.define(Procedure("machine-model", self.machineModel))
+    self.define(Procedure("physical-memory", self.physicalMemory))
+    self.define(Procedure("memory-footprint", self.memoryFootprint))
+    self.define(Procedure("system-uptime", self.systemUptime))
     self.define(Procedure("os-type", self.osType))
     self.define(Procedure("os-version", self.osVersion))
     self.define(Procedure("os-name", self.osName))
     self.define(Procedure("os-release", self.osRelease))
+    self.define(Procedure("host-name", self.hostName))
     self.define(Procedure("current-user-name", self.currentUserName))
     self.define(Procedure("user-data", self.userData))
     self.define(Procedure("open-url", self.openUrl))
@@ -656,6 +660,32 @@ public final class SystemLibrary: NativeLibrary {
   private func machineModel() -> Expr {
     return .makeString(Sysctl.model)
   }
+  
+  private func physicalMemory() -> Expr {
+    return .makeNumber(ProcessInfo.processInfo.physicalMemory)
+  }
+  
+  private func memoryFootprint() -> Expr {
+    let TASK_VM_INFO_COUNT = mach_msg_type_number_t(MemoryLayout<task_vm_info_data_t>.size /
+                                                    MemoryLayout<integer_t>.size)
+    let TASK_VM_INFO_REV1_COUNT = mach_msg_type_number_t(MemoryLayout.offset(of:
+                          \task_vm_info_data_t.min_address)! / MemoryLayout<integer_t>.size)
+    var info = task_vm_info_data_t()
+    var count = TASK_VM_INFO_COUNT
+    let kr = withUnsafeMutablePointer(to: &info) { infoPtr in
+      infoPtr.withMemoryRebound(to: integer_t.self, capacity: Int(count)) { intPtr in
+        task_info(mach_task_self_, task_flavor_t(TASK_VM_INFO), intPtr, &count)
+      }
+    }
+    guard kr == KERN_SUCCESS, count >= TASK_VM_INFO_REV1_COUNT else {
+      return .false
+    }
+    return .makeNumber(UInt64(info.phys_footprint)) // returns number of bytes
+  }
+  
+  private func systemUptime() -> Expr {
+    return .makeNumber(ProcessInfo.processInfo.systemUptime)
+  }
 
   private func osType() -> Expr {
     return .makeString(Sysctl.osType)
@@ -679,7 +709,11 @@ public final class SystemLibrary: NativeLibrary {
     return .makeString("\(ProcessInfo.processInfo.operatingSystemVersion.majorVersion)." +
                        "\(ProcessInfo.processInfo.operatingSystemVersion.minorVersion)")
   }
-
+  
+  private func hostName() -> Expr {
+    return .makeString(ProcessInfo.processInfo.hostName)
+  }
+  
   private func currentUserName(full: Expr?) -> Expr {
     if full?.isTrue ?? false {
       return .makeString(NSFullUserName())

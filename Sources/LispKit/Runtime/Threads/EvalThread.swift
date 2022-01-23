@@ -19,6 +19,7 @@
 //
 
 import Foundation
+import Atomics
 
 ///
 /// `NativeThread` implements the `NativeObject` protocol, wrapping an `EvalThread`
@@ -101,6 +102,12 @@ public final class EvalThread: ManagedObject, ThreadBlocker, CustomStringConvert
     }
   }
   
+  /// Maximum number of user-created threads (across all contexts)
+  public static let maxThreads = Sysctl.maxThreads - (Sysctl.maxThreads > 1000 ? 500 : 100)
+  
+  /// Atomic counter for counting the number of allocated threads
+  public static let allocated = ManagedAtomic<Int>(0)
+  
   /// The name of the thread.
   public let name: Expr
   
@@ -143,6 +150,7 @@ public final class EvalThread: ManagedObject, ThreadBlocker, CustomStringConvert
     self.state = .runnable
     self.config = nil
     self.worker = worker
+    EvalThread.allocated.wrappingIncrement(ordering: .relaxed)
   }
   
   /// Initializer for representing secondary threads.
@@ -157,11 +165,13 @@ public final class EvalThread: ManagedObject, ThreadBlocker, CustomStringConvert
     self.state = .new
     self.config = (machine, stacksize, qos, proc)
     self.worker = nil
+    EvalThread.allocated.wrappingIncrement(ordering: .relaxed)
   }
   
   /// Deallocate the mutex
   deinit {
     self.mutex.release()
+    EvalThread.allocated.wrappingDecrement(ordering: .relaxed)
   }
   
   /// The virtual machine executing this thread (if available).
@@ -198,6 +208,10 @@ public final class EvalThread: ManagedObject, ThreadBlocker, CustomStringConvert
     guard self.state == .new,
           let (machine, stacksize, qos, proc) = self.config else {
       throw RuntimeError.eval(.attemptedToStartNonNewThread, .object(NativeThread(self)))
+    }
+    // Limit number of runnable threads
+    guard machine.context.evaluator.threads.count < EvalThread.maxThreads else {
+      throw RuntimeError.eval(.tooManyThreads)
     }
     // Create worker thread
     let mt = MachineThread(thread: self, parent: machine, procedure: proc)
@@ -263,21 +277,23 @@ public final class EvalThread: ManagedObject, ThreadBlocker, CustomStringConvert
       throw RuntimeError.eval(.joinWithItself, .object(NativeThread(self)))
     }
     thread.waitingOn = self
-    while self.result == nil {
-      if thread.machine?.abortionRequested ?? true {
+    do {
+      defer {
         thread.waitingOn = nil
-        throw RuntimeError.abortion()
       }
-      if let deadline = deadline {
-        if !self.mutex.wait(until: deadline) {
-          thread.waitingOn = nil
-          return nil
+      while self.result == nil {
+        if thread.machine?.abortionRequested ?? true {
+          throw RuntimeError.abortion()
         }
-      } else {
-        self.mutex.wait()
+        if let deadline = deadline {
+          if !self.mutex.wait(until: deadline) {
+            return nil
+          }
+        } else {
+          self.mutex.wait()
+        }
       }
     }
-    thread.waitingOn = nil
     if case .some(.error(let err)) = self.result {
       switch err.descriptor {
         case .uncaught, .eval(.threadTerminated):
@@ -367,6 +383,10 @@ public final class EvalThread: ManagedObject, ThreadBlocker, CustomStringConvert
     let nameStr = self.name.isFalse ? self.identityString : self.name.description
     return "[eval thread \(nameStr): \(self.state)]"
   }
+  
+  public var string: String {
+    return self.description
+  }
 }
 
 ///
@@ -389,6 +409,7 @@ public protocol EvalThreadWorker: AnyObject {
 public protocol ThreadBlocker {
   func wakeBlockedThreads()
   func mark(in gc: GarbageCollector)
+  var string: String { get }
 }
 
 ///

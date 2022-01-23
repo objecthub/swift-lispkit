@@ -118,6 +118,10 @@
 		CC240E8E24FB1C4000FF6D0F /* sxml.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC240E8D24FB1B1B00FF6D0F /* sxml.sld */; };
 		CC240E9024FB1CC700FF6D0F /* xml.sld in Copy pre-installed LispKit library: LispKit SXML parsers */ = {isa = PBXBuildFile; fileRef = CC240E8B24FB154700FF6D0F /* xml.sld */; };
 		CC240E9124FB1CC700FF6D0F /* html.sld in Copy pre-installed LispKit library: LispKit SXML parsers */ = {isa = PBXBuildFile; fileRef = CC240E8C24FB17B400FF6D0F /* html.sld */; };
+		CC2427D9279D670200913C05 /* channel.sld in Copy pre-installed LispKit library: LispKit Thread */ = {isa = PBXBuildFile; fileRef = CC2427D6279D624800913C05 /* channel.sld */; };
+		CC2427DB279D674500913C05 /* channel.sld in Copy pre-installed LispKit library: LispKit Thread */ = {isa = PBXBuildFile; fileRef = CC2427D6279D624800913C05 /* channel.sld */; };
+		CC2427DC279D678400913C05 /* LispKit-Channel.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC2427D7279D65F200913C05 /* LispKit-Channel.scm */; };
+		CC2427DD279D679800913C05 /* LispKit-Channel.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC2427D7279D65F200913C05 /* LispKit-Channel.scm */; };
 		CC26069C1C61760C0047A3D3 /* Boxes.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC26069B1C61760C0047A3D3 /* Boxes.swift */; };
 		CC26263C20F56E9F00AC08E8 /* 111.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC26263B20F56DBF00AC08E8 /* 111.sld */; };
 		CC26263E20F5707800AC08E8 /* 112.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC26263D20F56F9300AC08E8 /* 112.sld */; };
@@ -1068,6 +1072,7 @@
 			dstPath = Root/LispKit/Tests;
 			dstSubfolderSpec = 7;
 			files = (
+				CC2427DC279D678400913C05 /* LispKit-Channel.scm in Copy tests */,
 				CCB5B0FC278B71CA00B7E32C /* SRFI-144.scm in Copy tests */,
 				CC2DA7612788773800DE69CF /* SRFI-18.scm in Copy tests */,
 				CC1867422750EAC300B31427 /* SRFI-166.scm in Copy tests */,
@@ -1160,6 +1165,28 @@
 				CC240E9124FB1CC700FF6D0F /* html.sld in Copy pre-installed LispKit library: LispKit SXML parsers */,
 			);
 			name = "Copy pre-installed LispKit library: LispKit SXML parsers";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC2427D8279D66D900913C05 /* Copy pre-installed LispKit library: LispKit Thread */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Root/LispKit/Libraries/lispkit/thread;
+			dstSubfolderSpec = 7;
+			files = (
+				CC2427D9279D670200913C05 /* channel.sld in Copy pre-installed LispKit library: LispKit Thread */,
+			);
+			name = "Copy pre-installed LispKit library: LispKit Thread";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC2427DA279D672B00913C05 /* Copy pre-installed LispKit library: LispKit Thread */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Root/LispKit/Libraries/lispkit/thread;
+			dstSubfolderSpec = 7;
+			files = (
+				CC2427DB279D674500913C05 /* channel.sld in Copy pre-installed LispKit library: LispKit Thread */,
+			);
+			name = "Copy pre-installed LispKit library: LispKit Thread";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		CC26AD40214722710090D9EE /* Copy pre-installed LispKit library: LispKit Draw Turtle */ = {
@@ -2079,6 +2106,7 @@
 			dstPath = Root/LispKit/Tests;
 			dstSubfolderSpec = 7;
 			files = (
+				CC2427DD279D679800913C05 /* LispKit-Channel.scm in Copy tests */,
 				CCB5B0FD278B71DC00B7E32C /* SRFI-144.scm in Copy tests */,
 				CC2DA7622788774C00DE69CF /* SRFI-18.scm in Copy tests */,
 				CC1867432750EADC00B31427 /* SRFI-166.scm in Copy tests */,
@@ -2396,6 +2424,8 @@
 		CC240E8B24FB154700FF6D0F /* xml.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = xml.sld; sourceTree = "<group>"; };
 		CC240E8C24FB17B400FF6D0F /* html.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = html.sld; sourceTree = "<group>"; };
 		CC240E8D24FB1B1B00FF6D0F /* sxml.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = sxml.sld; sourceTree = "<group>"; };
+		CC2427D6279D624800913C05 /* channel.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = channel.sld; sourceTree = "<group>"; };
+		CC2427D7279D65F200913C05 /* LispKit-Channel.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "LispKit-Channel.scm"; sourceTree = "<group>"; };
 		CC26069B1C61760C0047A3D3 /* Boxes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Boxes.swift; sourceTree = "<group>"; };
 		CC26263B20F56DBF00AC08E8 /* 111.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 111.sld; sourceTree = "<group>"; };
 		CC26263D20F56F9300AC08E8 /* 112.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 112.sld; sourceTree = "<group>"; };
@@ -2925,6 +2955,7 @@
 				CC09ECF22198B87200F84713 /* R7RS.scm */,
 				CC7A125A21E94D1700ABEA17 /* LispKit-Match.scm */,
 				CCC48BF025D8623A00D082AD /* LispKit-WT-Tree.scm */,
+				CC2427D7279D65F200913C05 /* LispKit-Channel.scm */,
 				CC54924421DCDEA1004A0652 /* SRFI-14.scm */,
 				CC2DA7602788756D00DE69CF /* SRFI-18.scm */,
 				CC54923A21D9823B004A0652 /* SRFI-101.scm */,
@@ -3031,6 +3062,14 @@
 				CC240E8C24FB17B400FF6D0F /* html.sld */,
 			);
 			path = sxml;
+			sourceTree = "<group>";
+		};
+		CC2427D5279D621700913C05 /* thread */ = {
+			isa = PBXGroup;
+			children = (
+				CC2427D6279D624800913C05 /* channel.sld */,
+			);
+			path = thread;
 			sourceTree = "<group>";
 		};
 		CC26AD3E21470AC90090D9EE /* draw */ = {
@@ -3215,6 +3254,7 @@
 				CC240E8D24FB1B1B00FF6D0F /* sxml.sld */,
 				CC624CD527374BC7005F15B3 /* math */,
 				CC82932D21D6E8C2003E1D3C /* log */,
+				CC2427D5279D621700913C05 /* thread */,
 				CC703A1B218D09D100E71EA9 /* clos */,
 				CC26AD3E21470AC90090D9EE /* draw */,
 				CC240E8A24FB144500FF6D0F /* sxml */,
@@ -3944,6 +3984,7 @@
 				CCF602EB23A0FA7000087740 /* Copy pre-installed LispKit library: SRFI 167 */,
 				CC5848001E50ABE100BE6497 /* Copy pre-installed LispKit libraries */,
 				CC624CD727374D71005F15B3 /* Copy pre-installed LispKit library: LispKit Math */,
+				CC2427D8279D66D900913C05 /* Copy pre-installed LispKit library: LispKit Thread */,
 				CC26AD40214722710090D9EE /* Copy pre-installed LispKit library: LispKit Draw Turtle */,
 				CC703A1E218D0AF500E71EA9 /* Copy pre-installed LispKit library: LispKit CLOS Support */,
 				CC82933121D6E9A6003E1D3C /* Copy pre-installed LispKit library: LispKit Log Internal */,
@@ -4010,6 +4051,7 @@
 				CCC48D8525E97FF500D082AD /* Copy pre-installed LispKit library: SRFI 167 */,
 				CCC48D8C25E9803400D082AD /* Copy pre-installed LispKit libraries */,
 				CC624CD927374E7D005F15B3 /* Copy pre-installed LispKit library: LispKit Math */,
+				CC2427DA279D672B00913C05 /* Copy pre-installed LispKit library: LispKit Thread */,
 				CCC48DA925E9809000D082AD /* Copy pre-installed LispKit library: LispKit Draw Turtle */,
 				CCC48DAE25E980D400D082AD /* Copy pre-installed LispKit library: LispKit CLOS Support */,
 				CCC48DAF25E982A100D082AD /* Copy pre-installed LispKit library: LispKit Log Internal */,

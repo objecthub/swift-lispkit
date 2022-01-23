@@ -27,6 +27,9 @@ import Foundation
 ///
 open class BinaryOutput {
   
+  /// Synchronize access to the buffer
+  private var lock = EmbeddedUnfairLock()
+  
   /// Buffer into which bytes are written first before they are written into an output stream.
   private var buffer: [UInt8]
   
@@ -87,12 +90,17 @@ open class BinaryOutput {
   /// Closes the output stream when the object gets garbage collected.
   deinit {
     self.close()
+    self.lock.release()
   }
   
   /// Closes the output stream. From that point on, writing to the `BinaryOutput` is still
   /// possible and will be accumulated in the internal buffer.
   open func close() {
-    self.flush()
+    self.lock.lock()
+    defer {
+      self.lock.unlock()
+    }
+    _ = self.flushBuffer()
     if let output = self.output {
       self.output = nil
       output.close()
@@ -102,7 +110,7 @@ open class BinaryOutput {
   /// Returns true if there is at least one byte that can be written into the buffer.
   private func writeable() -> Bool {
     guard self.output == nil || self.next < self.buffer.count else {
-      return self.flush()
+      return self.flushBuffer()
     }
     return true
   }
@@ -110,18 +118,51 @@ open class BinaryOutput {
   /// Flushes the buffer by writing it into the output steam. For `BinaryOutput` objects that
   /// are not backed by an output stream, flush does nothing.
   @discardableResult open func flush(_ completely: Bool = false) -> Bool {
-    if let output = self.output , self.next > 0 {
-      let result = output.write(&self.buffer, maxLength: self.next * MemoryLayout<UInt8>.size)
-      if result < 0 {
-        return false
-      }
-      self.next = 0
+    self.lock.lock()
+    defer {
+      self.lock.unlock()
     }
-    return true
+    return self.flushBuffer(completely)
   }
   
   /// Writes the given byte into the `BinaryOutput`.
   open func write(_ byte: UInt8) -> Bool {
+    self.lock.lock()
+    defer {
+      self.lock.unlock()
+    }
+    return self.writeByte(byte)
+  }
+  
+  /// Writes the given sequence of bytes into the `BinaryOutput`.
+  open func writeFrom(_ source: [UInt8], start: Int, end: Int) -> Bool {
+    self.lock.lock()
+    defer {
+      self.lock.unlock()
+    }
+    guard start < source.count && start <= end else {
+      return true
+    }
+    let to = end > source.count ? source.count : end
+    for i in start..<to {
+      guard self.writeByte(source[i]) else {
+        return false
+      }
+    }
+    return true
+  }
+  
+  /// Returns the bytes that are currently in the buffer as a new byte array.
+  open var currentBuffer: [UInt8] {
+    self.lock.lock()
+    defer {
+      self.lock.unlock()
+    }
+    return [UInt8](self.buffer[0..<self.next])
+  }
+  
+  /// Writes the given byte into the `BinaryOutput`.
+  private func writeByte(_ byte: UInt8) -> Bool {
     guard self.writeable() else {
       return false
     }
@@ -135,22 +176,16 @@ open class BinaryOutput {
     return true
   }
   
-  /// Writes the given sequence of bytes into the `BinaryOutput`.
-  open func writeFrom(_ source: [UInt8], start: Int, end: Int) -> Bool {
-    guard start < source.count && start <= end else {
-      return true
-    }
-    let to = end > source.count ? source.count : end
-    for i in start..<to {
-      guard self.write(source[i]) else {
+  /// Flushes the buffer by writing it into the output steam. For `BinaryOutput` objects that
+  /// are not backed by an output stream, flush does nothing.
+  private func flushBuffer(_ completely: Bool = false) -> Bool {
+    if let output = self.output , self.next > 0 {
+      let result = output.write(&self.buffer, maxLength: self.next * MemoryLayout<UInt8>.size)
+      if result < 0 {
         return false
       }
+      self.next = 0
     }
     return true
-  }
-  
-  /// Returns the bytes that are currently in the buffer as a new byte array.
-  open var currentBuffer: [UInt8] {
-    return [UInt8](self.buffer[0..<self.next])
   }
 }

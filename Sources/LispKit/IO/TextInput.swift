@@ -28,6 +28,9 @@ import Foundation
 ///
 open class TextInput {
   
+  /// Synchronize access to the buffer
+  private var lock = EmbeddedUnfairLock()
+  
   /// Internal character buffer.
   private var buffer: String.UTF16View
   
@@ -76,14 +79,23 @@ open class TextInput {
   /// Makes sure that the input object is closed at garbage collection time.
   deinit {
     self.close()
+    self.lock.release()
   }
   
   /// Closes the `TextInput` object.
   open func close() {
+    self.lock.lock()
+    defer {
+      self.lock.unlock()
+    }
     self.source = nil
   }
   
   open func read() -> UniChar? {
+    self.lock.lock()
+    defer {
+      self.lock.unlock()
+    }
     guard self.readable() else {
       return nil
     }
@@ -93,6 +105,10 @@ open class TextInput {
   }
   
   open func peek() -> UniChar? {
+    self.lock.lock()
+    defer {
+      self.lock.unlock()
+    }
     guard self.readable() else {
       return nil
     }
@@ -100,6 +116,10 @@ open class TextInput {
   }
   
   open func unread() {
+    self.lock.lock()
+    defer {
+      self.lock.unlock()
+    }
     guard self.next > self.buffer.startIndex else {
       return
     }
@@ -107,6 +127,10 @@ open class TextInput {
   }
   
   open func readString(_ n: Int) -> String? {
+    self.lock.lock()
+    defer {
+      self.lock.unlock()
+    }
     assert(n >= 0, "TextInput.readString called with negative count")
     guard n > 0 else {
       return ""
@@ -123,6 +147,10 @@ open class TextInput {
   }
   
   open func readLine() -> String? {
+    self.lock.lock()
+    defer {
+      self.lock.unlock()
+    }
     guard self.readable() else {
       return nil
     }
@@ -141,6 +169,10 @@ open class TextInput {
   }
   
   open func readToken(delimiters: CharacterSet) -> String? {
+    self.lock.lock()
+    defer {
+      self.lock.unlock()
+    }
     guard self.readable() else {
       return nil
     }
@@ -159,6 +191,10 @@ open class TextInput {
   }
   
   open var readMightBlock: Bool {
+    self.lock.lock()
+    defer {
+      self.lock.unlock()
+    }
     if self.eof {
       return false
     } else if self.next >= self.buffer.endIndex {

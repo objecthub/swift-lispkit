@@ -43,12 +43,17 @@ public final class ThreadLibrary: NativeLibrary {
 
   /// Dependencies of the library.
   public override func dependencies() {
+    self.`import`(from: ["lispkit", "core"], "define-syntax", "syntax-rules", "lambda")
+    self.`import`(from: ["lispkit", "control"], "begin", "let")
+    self.`import`(from: ["lispkit", "dynamic"], "dynamic-wind")
   }
 
   /// Declarations of the library.
   public override func declarations() {
     self.define(Procedure("current-thread", self.currentThread))
     self.define(Procedure("thread?", self.isThread))
+    self.define(SpecialForm("go", self.compileGo))
+    self.define(SpecialForm("thread", self.compileThread))
     self.define(Procedure("make-thread", self.makeThread))
     self.define(Procedure("thread-name", self.threadName))
     self.define(Procedure("thread-tag", self.threadTag))
@@ -71,6 +76,7 @@ public final class ThreadLibrary: NativeLibrary {
     self.define(Procedure("make-condition-variable", self.makeConditionVariable))
     self.define(Procedure("condition-variable-name", self.conditionVariableName))
     self.define(Procedure("condition-variable-tag", self.conditionVariableTag))
+    self.define(Procedure("condition-variable-wait!", self.conditionVariableWait))
     self.define(Procedure("condition-variable-signal!", self.conditionVariableSignal))
     self.define(Procedure("condition-variable-broadcast!", self.conditionVariableBroadcast))
     self.define(Procedure("join-timeout-exception?", self.isJoinTimeoutException))
@@ -78,6 +84,18 @@ public final class ThreadLibrary: NativeLibrary {
     self.define(Procedure("terminated-thread-exception?", self.isTerminatedThreadException))
     self.define(Procedure("uncaught-exception?", self.isUncaughtException))
     self.define(Procedure("uncaught-exception-reason", self.uncaughtExceptionReason))
+    self.define(Procedure("processor-count", self.processorCount))
+    self.define(Procedure("runnable-thread-count", self.runnableThreadCount))
+    self.define(Procedure("allocated-thread-count", self.allocatedThreadCount))
+    self.define("with-mutex", via:
+      "(define-syntax with-mutex",
+      "  (syntax-rules ()",
+      "    ((_ mtx e0 e1 ...)",
+      "       (let ((m mtx))",
+      "         (dynamic-wind",
+      "           (lambda () (mutex-lock! m))",
+      "           (lambda () (begin e0 e1 ...))",
+      "           (lambda () (mutex-unlock! m)))))))")
   }
   
   private func thread(from expr: Expr) throws -> NativeThread {
@@ -114,6 +132,24 @@ public final class ThreadLibrary: NativeLibrary {
       return .true
     }
     return .false
+  }
+  
+  private func compileGo(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    guard case .pair(_, let body) = expr else {
+      throw RuntimeError.argumentCount(of: "go", min: 0, expr: expr)
+    }
+    try compiler.compileLambda(nil, .null, body, env)
+    compiler.emit(.makeThread(true))
+    return false
+  }
+  
+  private func compileThread(compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    guard case .pair(_, let body) = expr else {
+      throw RuntimeError.argumentCount(of: "thread", min: 0, expr: expr)
+    }
+    try compiler.compileLambda(nil, .null, body, env)
+    compiler.emit(.makeThread(false))
+    return false
   }
   
   private func makeThread(thunk: Expr, name: Expr?, tag: Expr?) throws -> Expr {
@@ -278,6 +314,17 @@ public final class ThreadLibrary: NativeLibrary {
     return try self.condvar(from: cv).tag
   }
   
+  private func conditionVariableWait(cv: Expr, mt: Expr, timeout: Expr?) throws -> Expr {
+    let condition = try self.condvar(from: cv)
+    let timeout = timeout == nil || timeout! == .false ? nil : try timeout!.asDouble(coerce: true)
+    guard let current = self.context.evaluator.threads.current else {
+      throw RuntimeError.eval(.mutexUseInInvalidContext, mt)
+    }
+    return .makeBoolean(try self.mutex(from: mt).wait(in: current.value,
+                                                      for: condition,
+                                                      timeout: timeout))
+  }
+  
   private func conditionVariableSignal(cv: Expr) throws -> Expr {
     try self.condvar(from: cv).signal()
     return .void
@@ -324,5 +371,21 @@ public final class ThreadLibrary: NativeLibrary {
       throw RuntimeError.eval(.expectedUncaughtException, expr)
     }
     return err.irritants[0]
+  }
+  
+  private func processorCount(active: Expr?) -> Expr {
+    if active?.isTrue ?? false {
+      return .makeNumber(ProcessInfo.processInfo.activeProcessorCount)
+    } else {
+      return .makeNumber(ProcessInfo.processInfo.processorCount)
+    }
+  }
+  
+  private func runnableThreadCount() -> Expr {
+    return .makeNumber(self.context.evaluator.threads.count)
+  }
+  
+  private func allocatedThreadCount() -> Expr {
+    return .makeNumber(EvalThread.allocated.load(ordering: .relaxed))
   }
 }

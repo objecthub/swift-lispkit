@@ -61,7 +61,7 @@ public final class EvalMutex: NativeObject, ThreadBlocker {
   }
   
   /// Used to implement mutex semantics
-  private var mutex = EmbeddedConditionLock(recursive: true)
+  internal var mutex = EmbeddedConditionLock(recursive: true)
   
   /// The name of the mutex
   public let name: Expr
@@ -99,22 +99,30 @@ public final class EvalMutex: NativeObject, ThreadBlocker {
     defer {
       self.mutex.unlock()
     }
+    return try self.lockInternal(in: thread, for: owner, deadline: deadline)
+  }
+  
+  private func lockInternal(in thread: EvalThread,
+                            for owner: EvalThread?,
+                            deadline: Double? = nil) throws -> Bool {
     thread.waitingOn = self
-    while self.isLocked {
-      if thread.aborted {
+    do {
+      defer {
         thread.waitingOn = nil
-        throw RuntimeError.abortion()
       }
-      if let deadline = deadline {
-        if !self.mutex.wait(until: deadline) {
-          thread.waitingOn = nil
-          return false
+      while self.isLocked {
+        if thread.aborted {
+          throw RuntimeError.abortion()
         }
-      } else {
-        self.mutex.wait()
+        if let deadline = deadline {
+          if !self.mutex.wait(until: deadline) {
+            return false
+          }
+        } else {
+          self.mutex.wait()
+        }
       }
     }
-    thread.waitingOn = nil
     let formerState = self.state
     if owner == nil {
       self.owner = nil
@@ -146,7 +154,27 @@ public final class EvalMutex: NativeObject, ThreadBlocker {
       self.owner = nil
       self.mutex.signal()
     }
-    return try condition?.wait(in: thread, timeout: timeout, unlocking: self.mutex) ?? true
+    return try condition?.wait(in: thread, timeout: timeout, unlocking: self) ?? true
+  }
+  
+  public func wait(in thread: EvalThread,
+                   for condition: EvalCondition? = nil,
+                   timeout: TimeInterval? = nil) throws -> Bool {
+    self.mutex.lock()
+    defer {
+      self.mutex.unlock()
+    }
+    var owner: EvalThread? = nil
+    if self.isLocked {
+      owner = self.owner
+      self.owner?.unclaimLock(self)
+      self.state = .unlockedNotAbandoned
+      self.owner = nil
+      self.mutex.signal()
+    }
+    let res = try condition?.wait(in: thread, timeout: timeout, unlocking: self) ?? true
+    _ = try self.lockInternal(in: thread, for: owner)
+    return res
   }
   
   public func abandon() {

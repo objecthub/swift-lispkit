@@ -56,16 +56,20 @@ public final class EvalCondition: NativeObject, ThreadBlocker {
   
   public func wait(in thread: EvalThread,
                    timeout: TimeInterval? = nil,
-                   unlocking cl: EmbeddedConditionLock) throws -> Bool {
+                   unlocking mutex: EvalMutex) throws -> Bool {
     thread.waitingOn = self
-    let res: Bool
-    if let timeout = timeout {
-      res = self.condition.wait(timeout, unlocking: cl)
-    } else {
-      self.condition.wait(unlocking: cl)
-      res = true
+    var res = true
+    do {
+      defer {
+        thread.waitingOn = nil
+      }
+      if let timeout = timeout {
+        res = self.condition.wait(timeout, unlocking: mutex.mutex)
+      } else {
+        self.condition.wait(unlocking: mutex.mutex)
+        res = true
+      }
     }
-    thread.waitingOn = nil
     if thread.aborted {
       throw RuntimeError.abortion()
     }

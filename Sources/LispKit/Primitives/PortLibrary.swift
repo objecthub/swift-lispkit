@@ -100,6 +100,7 @@ public final class PortLibrary: NativeLibrary {
     self.define(Procedure("write-shared", writeShared))
     self.define(Procedure("write-simple", writeSimple))
     self.define(Procedure("display", display))
+    self.define(Procedure("display*", displayStar))
     self.define(Procedure("newline", newline))
     self.define(Procedure("write-char", writeChar))
     self.define(Procedure("write-string", writeString))
@@ -629,11 +630,29 @@ public final class PortLibrary: NativeLibrary {
     return .void
   }
   
-  func display(_ expr: Expr, port: Expr? = nil) throws -> Expr {
+  func display(_ expr: Expr, _ port: Expr? = nil) throws -> Expr {
     let output = try self.textOutputFrom(port, open: true)
     guard output.writeString(expr.unescapedDescription) else {
       let outPort = try port ?? .port(self.defaultPort(self.outputPortParam))
       throw RuntimeError.eval(.cannotWriteToPort, outPort)
+    }
+    return .void
+  }
+  
+  func displayStar(_ expr: Expr, _ args: Arguments) throws -> Expr {
+    let port = try self.defaultPort(self.outputPortParam)
+    guard port.isOpen else {
+      throw RuntimeError.eval(.portClosed, .port(port))
+    }
+    guard case .textOutputPort(let output) = port.kind else {
+      throw RuntimeError.type(.port(port), expected: [.textInputPortType])
+    }
+    var buffer = expr.unescapedDescription
+    for arg in args {
+      buffer += arg.unescapedDescription
+    }
+    guard output.writeString(buffer) else {
+      throw RuntimeError.eval(.cannotWriteToPort, .port(port))
     }
     return .void
   }

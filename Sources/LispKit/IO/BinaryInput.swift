@@ -28,6 +28,9 @@ import Foundation
 ///
 open class BinaryInput: IteratorProtocol {
   
+  /// Synchronize access to the buffer
+  private var lock = EmbeddedUnfairLock()
+  
   /// Buffer for fetching bigger chunks of data at once.
   private var buffer: [UInt8]
   
@@ -155,10 +158,15 @@ open class BinaryInput: IteratorProtocol {
   /// Makes sure that the input stream is closed when the object gets deallocated.
   deinit {
     self.close()
+    self.lock.release()
   }
   
   /// Closes the `BinaryInput`.
   open func close() {
+    self.lock.lock()
+    defer {
+      self.lock.unlock()
+    }
     if let input = self.input {
       self.input = nil
       input.close()
@@ -174,6 +182,10 @@ open class BinaryInput: IteratorProtocol {
   /// Reads the next byte. Returns nil if all input is consumed or an error was encountered.
   /// Clients can disambiguate the current state by checking property `eof`.
   open func next() -> UInt8? {
+    self.lock.lock()
+    defer {
+      self.lock.unlock()
+    }
     guard self.readable() else {
       return nil
     }
@@ -184,6 +196,10 @@ open class BinaryInput: IteratorProtocol {
   /// Returns the next byte without consuming it. Returns nil if all input is consumed or an
   /// error was encountered. Clients can disambiguate the current state by checking property `eof`.
   open func peek() -> UInt8? {
+    self.lock.lock()
+    defer {
+      self.lock.unlock()
+    }
     guard self.readable() else {
       return nil
     }
@@ -193,6 +209,10 @@ open class BinaryInput: IteratorProtocol {
   /// Reads up to `n` bytes into a new byte array. Returns nil if all input is consumed or an
   /// error was encountered. Clients can disambiguate the current state by checking property `eof`.
   open func readMany(_ n: Int) -> [UInt8]? {
+    self.lock.lock()
+    defer {
+      self.lock.unlock()
+    }
     assert(n >= 0, "BinaryInput.readMany called with negative count")
     guard n > 0 else {
       return [UInt8]()
@@ -212,6 +232,10 @@ open class BinaryInput: IteratorProtocol {
   /// all input is consumed or an error was encountered. Clients can disambiguate the current
   /// state by checking property `eof`.
   open func readInto(_ target: inout [UInt8], start: Int = 0, end: Int = Int.max) -> Int? {
+    self.lock.lock()
+    defer {
+      self.lock.unlock()
+    }
     guard start < target.count && start < end else {
       return 0
     }
@@ -227,6 +251,10 @@ open class BinaryInput: IteratorProtocol {
   }
   
   open var readMightBlock: Bool {
+    self.lock.lock()
+    defer {
+      self.lock.unlock()
+    }
     if self.eof {
       return false
     } else if self.index >= self.bufferSize {
@@ -261,26 +289,5 @@ open class BinaryInput: IteratorProtocol {
       }
     }
     return true
-  }
-  
-  /// Returns a function that decodes the binary input as UTF8 and returns strings of at most
-  /// `length` characters (where a character is a unicode scalar).
-  public func textProvider(_ length: Int) -> () -> String? {
-    var codec = UTF8()
-    var this = self
-    return {
-      var str = ""
-      for _ in 0..<length {
-        switch codec.decode(&this) {
-          case .scalarValue (let scalar):
-            str.append(String(scalar))
-          case .emptyInput:
-            return str
-          case .error:
-            return nil
-        }
-      }
-      return str
-    }
   }
 }

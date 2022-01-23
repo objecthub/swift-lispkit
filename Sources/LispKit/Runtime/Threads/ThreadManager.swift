@@ -65,6 +65,15 @@ public final class ThreadManager {
     self.mutex.broadcast()
   }
   
+  public func removeAll() {
+    self.mutex.lock()
+    defer {
+      self.mutex.unlock()
+    }
+    self.threads.removeAll()
+    self.mutex.broadcast()
+  }
+  
   @discardableResult func waitForTermination(of thread: Thread, timeout: Double? = nil) -> Bool {
     let deadline: Double? = timeout == nil ? nil : Timer.currentTimeInSec + timeout!
     self.mutex.lock()
@@ -109,6 +118,18 @@ public final class ThreadManager {
     for (thread, nativeThread) in self.threads {
       if main == nil || thread !== main! {
         _ = nativeThread.value.abort()
+      }
+    }
+  }
+  
+  public func cancelAll(except main: Thread? = nil) {
+    self.mutex.lock()
+    defer {
+      self.mutex.unlock()
+    }
+    for (thread, _) in self.threads {
+      if main == nil || thread !== main! {
+        thread.cancel()
       }
     }
   }

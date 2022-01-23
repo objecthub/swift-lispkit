@@ -210,4 +210,8 @@ public struct Sysctl {
       return try! Sysctl.valueOfType(UInt64.self, forKeys: [CTL_HW, HW_MEMSIZE])
     }
   #endif
+  
+  public static var maxThreads: Int32 {
+    return try! Sysctl.valueOfType(Int32.self, forName: "kern.num_taskthreads")
+  } 
 }

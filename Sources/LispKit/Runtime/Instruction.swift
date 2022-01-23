@@ -458,6 +458,10 @@ public enum Instruction: CustomStringConvertible {
   
   // Miscellaneous ----------------------------------------------------------------------------
 
+  /// **`make_thread` _s_**: Creates a new thread from the thunk on top of the stack
+  /// and returns it. If _s_ is set to true, the thread is started right away.
+  case makeThread(Bool)
+  
   /// **`fail_if_not_null`**: Raises a "list not empty" error if the top element on the
   /// stack is not an empty list.
   case failIfNotNull
@@ -673,6 +677,8 @@ public enum Instruction: CustomStringConvertible {
         return "store_in_promise"
       case .swap:
         return "swap"
+      case .makeThread(let s):
+        return "make_thread \(s ? "start" : "new")"
       case .failIfNotNull:
         return "fail_if_not_null"
       case .raiseError(let err, let n):

@@ -27,6 +27,9 @@ import Foundation
 ///
 open class TextOutput {
   
+  /// Synchronize access to the buffer
+  private var lock = EmbeddedUnfairLock()
+  
   /// Internal character buffer.
   private var buffer: [UniChar]
   
@@ -79,44 +82,65 @@ open class TextOutput {
   /// Closes the output object at garbage collection time.
   deinit {
     self.close()
+    self.lock.release()
   }
   
   /// Closes the output object. From that point on, writing to the `TextOutput` is still
   /// possible and will be accumulated in the internal buffer.
   open func close() {
-    self.flush()
+    self.lock.lock()
+    defer {
+      self.lock.unlock()
+    }
+    _ = self.flushBuffer()
     self.target = nil
   }
   
   @discardableResult open func flush(_ completely: Bool = false) -> Bool {
-    if self.target != nil && self.next > 0 {
-      let str = String(utf16CodeUnits: self.buffer, count: self.next)
-      guard self.target!.writeString(str) else {
-        return false
-      }
-      self.next = 0
+    self.lock.lock()
+    defer {
+      self.lock.unlock()
     }
-    return true
+    return self.flushBuffer(completely)
   }
   
   open func write(_ ch: UniChar) -> Bool {
+    self.lock.lock()
+    defer {
+      self.lock.unlock()
+    }
     guard self.writeToBuffer(ch) else {
       return false
     }
     guard self.target == nil || self.next < self.threshold else {
-      return self.flush()
+      return self.flushBuffer()
     }
     return true
   }
   
   open func writeString(_ str: String) -> Bool {
+    self.lock.lock()
+    defer {
+      self.lock.unlock()
+    }
     for ch in str.utf16 {
       guard self.writeToBuffer(ch) else {
         return false
       }
     }
     guard self.target == nil || self.next < self.threshold else {
-      return self.flush()
+      return self.flushBuffer()
+    }
+    return true
+  }
+  
+  private func flushBuffer(_ completely: Bool = false) -> Bool {
+    if self.target != nil && self.next > 0 {
+      let str = String(utf16CodeUnits: self.buffer, count: self.next)
+      guard self.target!.writeString(str) else {
+        return false
+      }
+      self.next = 0
     }
     return true
   }

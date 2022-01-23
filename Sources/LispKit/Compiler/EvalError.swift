@@ -133,6 +133,7 @@ public enum EvalError: Int, Hashable {
   case joinWithItself
   case threadJoinInInvalidContext
   case expectedUncaughtException
+  case tooManyThreads
   case threadTerminated
   case firstArgOfProcViolation
   case secondArgOfProcViolation
@@ -355,6 +356,8 @@ public enum EvalError: Int, Hashable {
         return "thread join in invalid context with $0"
       case .expectedUncaughtException:
         return "expected an uncaught exception instead of $0"
+      case .tooManyThreads:
+        return "too many threads; reached limit of \(EvalThread.maxThreads) runnable threads"
       case .threadTerminated:
         return "terminated thread"
       case .firstArgOfProcViolation:

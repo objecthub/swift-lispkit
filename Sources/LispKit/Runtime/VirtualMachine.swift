@@ -1450,6 +1450,14 @@ public final class VirtualMachine: ManagedObject {
           self.stack[self.sp] = .undef
           // Re-execute force
           self.registers.ip = self.registers.ip &- 2
+        case .makeThread(let start):
+          let th = self.context.evaluator.thread(for: try self.popUnsafe().asProcedure(),
+                                                 name: .false,
+                                                 tag: .false)
+          self.push(.object(th))
+          if start {
+            try th.value.start()
+          }
         case .failIfNotNull:
           let top = self.pop()
           guard top.isNull else {
