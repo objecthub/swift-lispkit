@@ -43,9 +43,13 @@ public final class ThreadLibrary: NativeLibrary {
 
   /// Dependencies of the library.
   public override func dependencies() {
-    self.`import`(from: ["lispkit", "core"], "define-syntax", "syntax-rules", "lambda")
+    self.`import`(from: ["lispkit", "core"], "define", "define-syntax", "syntax-rules", "lambda",
+                                             "apply", "values")
     self.`import`(from: ["lispkit", "control"], "begin", "let")
     self.`import`(from: ["lispkit", "dynamic"], "dynamic-wind")
+    self.`import`(from: ["lispkit", "system"], "current-second")
+    self.`import`(from: ["lispkit", "math"], "+", "-")
+    self.`import`(from: ["lispkit", "list"], "cons", "map")
   }
 
   /// Declarations of the library.
@@ -54,6 +58,7 @@ public final class ThreadLibrary: NativeLibrary {
     self.define(Procedure("thread?", self.isThread))
     self.define(SpecialForm("go", self.compileGo))
     self.define(SpecialForm("thread", self.compileThread))
+    self.define(Procedure("spawn", self.spawn))
     self.define(Procedure("make-thread", self.makeThread))
     self.define(Procedure("thread-name", self.threadName))
     self.define(Procedure("thread-tag", self.threadTag))
@@ -71,6 +76,7 @@ public final class ThreadLibrary: NativeLibrary {
     self.define(Procedure("mutex-tag", self.mutexTag))
     self.define(Procedure("mutex-state", self.mutexState))
     self.define(Procedure("mutex-lock!", self.mutexLock))
+    self.define(Procedure("mutex-try-lock!", self.mutexTryLock))
     self.define(Procedure("mutex-unlock!", self.mutexUnlock))
     self.define(Procedure("condition-variable?", self.isConditionVariable))
     self.define(Procedure("make-condition-variable", self.makeConditionVariable))
@@ -96,6 +102,16 @@ public final class ThreadLibrary: NativeLibrary {
       "           (lambda () (mutex-lock! m))",
       "           (lambda () (begin e0 e1 ...))",
       "           (lambda () (mutex-unlock! m)))))))")
+    self.define("parallel", via:
+      "(define (parallel thnk . thunks)",
+      "  (let ((threads (spawn thunks)))",
+      "    (apply values (cons (thnk) (map thread-join! threads)))))")
+    self.define("parallel/timeout", via:
+      "(define (parallel/timeout timeout def . thunks)",
+      "  (let ((t (+ (current-second) timeout))",
+      "        (threads (spawn thunks)))",
+      "    (apply values (map (lambda (th)",
+      "                         (thread-join! th (- t (current-second)) def)) threads))))")
   }
   
   private func thread(from expr: Expr) throws -> NativeThread {
@@ -150,6 +166,30 @@ public final class ThreadLibrary: NativeLibrary {
     try compiler.compileLambda(nil, .null, body, env)
     compiler.emit(.makeThread(false))
     return false
+  }
+  
+  private func spawn(thunk: Expr, name: Expr?, tag: Expr?) throws -> Expr {
+    if case .null = thunk, name == nil && tag == nil {
+      return .null
+    } else if case .pair(_, _) = thunk, name == nil && tag == nil {
+      var lst = thunk
+      var res: Exprs = []
+      while case .pair(let th, let next) = lst {
+        let thread = self.context.evaluator.thread(for: try th.asProcedure(),
+                                                   name: name,
+                                                   tag: tag)
+        try thread.value.start()
+        res.append(.object(thread))
+        lst = next
+      }
+      return .makeList(res)
+    } else {
+      let thread = self.context.evaluator.thread(for: try thunk.asProcedure(),
+                                                 name: name,
+                                                 tag: tag)
+      try thread.value.start()
+      return .object(thread)
+    }
   }
   
   private func makeThread(thunk: Expr, name: Expr?, tag: Expr?) throws -> Expr {
@@ -283,6 +323,15 @@ public final class ThreadLibrary: NativeLibrary {
     }
     let thread = th == nil ? current : (th! == .false ? nil : try self.thread(from: th!))
     return .makeBoolean(try mutex.lock(in: current.value, for: thread?.value, timeout: timeout))
+  }
+  
+  private func mutexTryLock(mt: Expr, th: Expr?) throws -> Expr {
+    let mutex = try self.mutex(from: mt)
+    guard let current = self.context.evaluator.threads.current else {
+      throw RuntimeError.eval(.mutexUseInInvalidContext, mt)
+    }
+    let thread = th == nil ? current : (th! == .false ? nil : try self.thread(from: th!))
+    return .makeBoolean(try mutex.tryLock(in: current.value, for: thread?.value))
   }
   
   private func mutexUnlock(mt: Expr, cv: Expr?, timeout: Expr?) throws -> Expr {

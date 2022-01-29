@@ -91,6 +91,14 @@ public final class EvalMutex: NativeObject, ThreadBlocker {
     return self.state == .lockedOwned || self.state == .lockedNotOwned
   }
   
+  public func tryLock(in thread: EvalThread, for owner: EvalThread?) throws -> Bool {
+    self.mutex.lock()
+    defer {
+      self.mutex.unlock()
+    }
+    return try self.lockInternal(in: thread, for: owner, deadline: 0.0)
+  }
+  
   public func lock(in thread: EvalThread,
                    for owner: EvalThread?,
                    timeout: TimeInterval? = nil) throws -> Bool {
@@ -115,7 +123,9 @@ public final class EvalMutex: NativeObject, ThreadBlocker {
           throw RuntimeError.abortion()
         }
         if let deadline = deadline {
-          if !self.mutex.wait(until: deadline) {
+          if deadline <= 0.0 {
+            return false
+          } else if !self.mutex.wait(until: deadline) {
             return false
           }
         } else {
