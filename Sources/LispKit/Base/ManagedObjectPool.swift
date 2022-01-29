@@ -30,8 +30,9 @@
 /// 
 public final class ManagedObjectPool: CustomStringConvertible {
 
-  /// Mutex to synchronize access to the managed object pool
-  private let lock = EmbeddedUnfairLock()
+  /// Mutex to synchronize access to the managed object pool; use this also to synchronize
+  /// access to the heap.
+  internal let lock = EmbeddedUnfairLock()
   
   /// Object marker
   private let marker: ObjectMarker

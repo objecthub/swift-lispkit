@@ -235,11 +235,10 @@ public final class EvalThread: ManagedObject, ThreadBlocker, CustomStringConvert
   /// in the thread being terminated with a "terminated thread exception".
   public func abort() -> Thread? {
     self.mutex.lock()
-    defer {
-      self.mutex.unlock()
-    }
     let res = self.worker?.stop()
-    self.waitingOn?.wakeBlockedThreads()
+    let waitingOn = self.waitingOn
+    self.mutex.unlock()
+    waitingOn?.wakeBlockedThreads()
     return res
   }
   

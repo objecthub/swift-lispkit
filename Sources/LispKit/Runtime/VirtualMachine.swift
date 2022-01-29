@@ -972,29 +972,43 @@ public final class VirtualMachine: ManagedObject {
           self.stack[self.sp &- 1] = self.stack[self.sp &- 2]
           self.stack[self.sp &- 2] = top
         case .pushGlobal(let index):
-          let value = self.context.heap.locations[index]
-          switch value {
-            case .undef:
-              throw RuntimeError.eval(.variableUndefined, .undef)
-            case .uninit(let sym):
-              throw RuntimeError.eval(.variableNotYetInitialized, .symbol(sym))
-            case .special(_):
-              throw RuntimeError.eval(.illegalKeywordUsage, value)
-            default:
-              self.push(value)
+          do {
+            self.context.objects.lock.lock()
+            defer {
+              self.context.objects.lock.unlock()
+            }
+            let value = self.context.heap.locations[index]
+            switch value {
+              case .undef:
+                throw RuntimeError.eval(.variableUndefined, .undef)
+              case .uninit(let sym):
+                throw RuntimeError.eval(.variableNotYetInitialized, .symbol(sym))
+              case .special(_):
+                throw RuntimeError.eval(.illegalKeywordUsage, value)
+              default:
+                self.push(value)
+            }
           }
         case .setGlobal(let index):
-          let value = self.context.heap.locations[index]
-          switch value {
-            case .undef:
-              throw RuntimeError.eval(.variableNotYetInitialized, .undef)
-            case .uninit(let sym):
-              throw RuntimeError.eval(.unboundVariable, .symbol(sym))
-            default:
-              self.context.heap.locations[index] = self.pop()
+          do {
+            self.context.objects.lock.lock()
+            defer {
+              self.context.objects.lock.unlock()
+            }
+            let value = self.context.heap.locations[index]
+            switch value {
+              case .undef:
+                throw RuntimeError.eval(.variableNotYetInitialized, .undef)
+              case .uninit(let sym):
+                throw RuntimeError.eval(.unboundVariable, .symbol(sym))
+              default:
+                self.context.heap.locations[index] = self.pop()
+            }
           }
         case .defineGlobal(let index):
+          self.context.objects.lock.lock()
           self.context.heap.locations[index] = self.pop()
+          self.context.objects.lock.unlock()
         case .pushCaptured(let index):
           self.push(self.registers.captured[index])
         case .pushCapturedValue(let index):
