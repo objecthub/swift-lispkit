@@ -34,15 +34,18 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
   public let irritants: [Expr]
   public private(set) var library: Expr?
   public private(set) var stackTrace: [Procedure]?
+  public private(set) var callTrace: [String]?
   
   internal init(_ pos: SourcePosition,
                 _ descriptor: ErrorDescriptor,
                 _ irritants: [Expr],
-                _ stackTrace: [Procedure]? = nil) {
+                stackTrace: [Procedure]? = nil,
+                callTrace: [String]? = nil) {
     self.pos = pos
     self.descriptor = descriptor
     self.irritants = irritants
-    self.stackTrace = nil
+    self.stackTrace = stackTrace
+    self.callTrace = callTrace
   }
   
   public class func lexical(_ error: LexicalError,
@@ -129,15 +132,25 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
   }
   
   public class func abortion(at pos: SourcePosition = SourcePosition.unknown,
-                             stackTrace: [Procedure]? = nil) -> RuntimeError {
-    return RuntimeError(pos, ErrorDescriptor.abortion, [], stackTrace)
+                             stackTrace: [Procedure]? = nil,
+                             callTrace: [String]? = nil) -> RuntimeError {
+    return RuntimeError(pos,
+                        ErrorDescriptor.abortion,
+                        [],
+                        stackTrace: stackTrace,
+                        callTrace: callTrace)
   }
   
   public class func uncaught(_ expr: Expr,
                              at pos: SourcePosition = SourcePosition.unknown,
-                             stackTrace: [Procedure]? = nil) -> RuntimeError {
+                             stackTrace: [Procedure]? = nil,
+                             callTrace: [String]? = nil) -> RuntimeError {
     // TODO: figure out if we want uncaught of uncaught exceptions?
-    return RuntimeError(pos, ErrorDescriptor.uncaught, [expr], stackTrace)
+    return RuntimeError(pos,
+                        ErrorDescriptor.uncaught,
+                        [expr],
+                        stackTrace: stackTrace,
+                        callTrace: callTrace)
   }
   
   public class func custom(_ kind: String,
@@ -148,7 +161,29 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
   }
   
   public func at(_ pos: SourcePosition) -> RuntimeError {
-    return RuntimeError(pos, self.descriptor, self.irritants, self.stackTrace)
+    return RuntimeError(pos,
+                        self.descriptor,
+                        self.irritants,
+                        stackTrace: self.stackTrace,
+                        callTrace: self.callTrace)
+  }
+  
+  @discardableResult public func attach(callTrace: [String]?) -> RuntimeError {
+    if self.callTrace == nil {
+      self.callTrace = callTrace
+    }
+    return self
+  }
+  
+  @discardableResult public func attach(vm: VirtualMachine,
+                                        current: Procedure? = nil) -> RuntimeError {
+    if self.stackTrace == nil {
+      self.stackTrace = vm.getStackTrace(current: current)
+    }
+    if self.callTrace == nil {
+      self.callTrace = vm.getCallTraceInfo(current: current)
+    }
+    return self
   }
   
   @discardableResult public func attach(stackTrace: [Procedure]) -> RuntimeError {
@@ -212,7 +247,7 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
                                    irritantSeparator: String = ", ",
                                    positionHeader: String? = "\nat: ",
                                    libraryHeader: String? = "\nlibrary: ",
-                                   stackTraceHeader: String? = "\nstack trace: ",
+                                   stackTraceHeader: String? = "\ncall trace: ",
                                    stackTraceSeparator: String = ", ") -> String {
     if self.descriptor == .uncaught,
        self.irritants.count == 1,
@@ -269,14 +304,26 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
        let libraryName = self.library?.description {
       builder.append("\(libraryHeader)\(libraryName)")
     }
-    if let stackTraceHeader = stackTraceHeader,
-       let stackTrace = self.stackTrace {
+    if let stackTraceHeader = stackTraceHeader, self.callTrace != nil || self.stackTrace != nil {
       builder = StringBuilder(prefix: builder.description,
                               postfix: "",
                               separator: stackTraceSeparator,
                               initial: stackTraceHeader)
-      for proc in stackTrace {
-        builder.append(proc.name)
+      if let callTrace = self.callTrace {
+        for call in callTrace {
+          builder.append(call)
+        }
+        if let stackTrace = self.stackTrace, stackTrace.count > callTrace.count {
+          if stackTrace.count == callTrace.count + 1 {
+            builder.append("+1 call")
+          } else {
+            builder.append("+\(stackTrace.count - callTrace.count) calls")
+          }
+        }
+      } else if let stackTrace = self.stackTrace {
+        for proc in stackTrace {
+          builder.append(proc.name)
+        }
       }
     }
     return builder.description

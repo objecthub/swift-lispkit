@@ -346,9 +346,15 @@ public final class DynamicControlLibrary: NativeLibrary {
     if !stackTrace.isEmpty {
       stackTrace.removeFirst()
     }
+    var callTrace = self.context.evaluator.machine.getCallTraceInfo()
+    if callTrace != nil && callTrace!.count > 0 {
+      callTrace!.removeFirst()
+    }
     return .error(RuntimeError.custom("error",
                                       message.unescapedDescription,
-                                      Array(irritants.toExprs().0)).attach(stackTrace: stackTrace))
+                                      Array(irritants.toExprs().0))
+                    .attach(stackTrace: stackTrace)
+                    .attach(callTrace: callTrace))
   }
   
   private func makeAssertionError(procName: Expr, expr: Expr) throws -> Expr {
@@ -356,12 +362,14 @@ public final class DynamicControlLibrary: NativeLibrary {
       throw RuntimeError.type(procName, expected: [.strType])
     }
     return .error(RuntimeError.eval(.assertion, procName, expr)
-                    .attach(stackTrace: self.context.evaluator.machine.getStackTrace()))
+                    .attach(vm: self.context.evaluator.machine))
   }
   
   private func makeUncaught(expr: Expr) -> Expr {
-    return .error(RuntimeError.uncaught(expr,
-                                        stackTrace: self.context.evaluator.machine.getStackTrace()))
+    return .error(RuntimeError.uncaught(
+                    expr,
+                    stackTrace: self.context.evaluator.machine.getStackTrace(),
+                    callTrace: self.context.evaluator.machine.getCallTraceInfo()))
   }
   
   private func error(args: Arguments) throws -> (Procedure, Exprs) {
@@ -372,7 +380,7 @@ public final class DynamicControlLibrary: NativeLibrary {
       RuntimeError.custom("error",
                           args.first!.unescapedDescription,
                           args.count == 1 ? [] : Array(args[args.startIndex+1..<args.endIndex]))
-        .attach(stackTrace: self.context.evaluator.machine.getStackTrace())
+        .attach(vm: self.context.evaluator.machine)
     if let raiseProc = self.raiseProc {
       var args = Exprs()
       args.append(.error(error))
@@ -390,7 +398,9 @@ public final class DynamicControlLibrary: NativeLibrary {
     let assertionError =
       RuntimeError.eval(.assertion,
                         .makeString(stackTrace.first?.originalName ?? "procedure"),
-                        args.first!).attach(stackTrace: stackTrace)
+                        args.first!)
+        .attach(stackTrace: stackTrace)
+        .attach(callTrace: self.context.evaluator.machine.getCallTraceInfo())
     if let raiseProc = self.raiseProc {
       var args = Exprs()
       args.append(.error(assertionError))

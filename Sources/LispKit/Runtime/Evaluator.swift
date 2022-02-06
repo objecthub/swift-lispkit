@@ -48,8 +48,11 @@ public final class Evaluator: TrackedObject {
   /// Will be set to true if the `exit` function was invoked
   public internal(set) var exitTriggered: Bool = false
   
-    /// When set to true, will print call and return traces
+  /// When set to true, will print call and return traces
   public var traceCalls: CallTracingMode = .off
+  
+  /// Call stack cap
+  public var maxCallStack: Int = 20
   
   /// The main virtual machine
   private let main: VirtualMachine

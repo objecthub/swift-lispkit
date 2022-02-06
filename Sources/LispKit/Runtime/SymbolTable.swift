@@ -31,6 +31,7 @@ public final class SymbolTable: Sequence {
   private var gensymCounter: UInt64 = 0
   
   public let undef           = Symbol("<undef>")
+  public let dotdotdot       = Symbol("…")
   public let ellipsis        = Symbol("...")
   public let wildcard        = Symbol("_")
   public let append          = Symbol("append")

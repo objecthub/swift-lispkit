@@ -236,9 +236,9 @@ public final class ThreadLibrary: NativeLibrary {
     return .void
   }
   
-  private func threadTerminate(th: Expr) throws -> Expr {
+  private func threadTerminate(th: Expr, wait: Expr?) throws -> Expr {
     let thread = try self.thread(from: th)
-    if let t = thread.value.abort(), Thread.current !== t {
+    if let t = thread.value.abort(), Thread.current !== t, wait?.isTrue ?? true {
       self.context.evaluator.threads.waitForTermination(of: t)
     }
     return .void

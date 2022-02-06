@@ -553,6 +553,72 @@ public final class VirtualMachine: ManagedObject {
     return stackTrace
   }
   
+  public func getCallTrace(current: Procedure? = nil, cap: Int? = nil) -> [Expr]? {
+    var cap = cap ?? self.context.evaluator.maxCallStack
+    guard cap > 0 else {
+      return nil
+    }
+    var stackTrace: [Expr] = []
+    if let current = current {
+      cap -= 1
+      stackTrace.append(.makeList(.symbol(self.context.symbols.intern(current.name)),
+                                  .symbol(self.context.symbols.dotdotdot)))
+    }
+    var fp = self.registers.fp
+    while fp > 0 && cap > 0 {
+      guard case .procedure(let proc) = self.stack[fp &- 1] else {
+        // This may happen if an error is thrown
+        return stackTrace
+      }
+      let arities = proc.arity
+      var min = Int.max
+      var max: Int? = 0
+      for arity in arities {
+        switch arity {
+          case .exact(let n):
+            if n < min {
+              min = n
+            }
+            if let m = max, n > m {
+              max = n
+            }
+          case .atLeast(let n):
+            if n < min {
+              min = n
+            }
+            max = nil
+        }
+      }
+      var call = Expr.null
+      if max == nil || max! > min {
+        call = .pair(.symbol(self.context.symbols.dotdotdot), call)
+      }
+      while min > 0 {
+        min -= 1
+        let offset = fp &+ min
+        if offset >= 0 && offset < self.sp {
+          call = .pair(self.stack[fp &+ min], call)
+        }
+      }
+      cap -= 1
+      stackTrace.append(.pair(.symbol(self.context.symbols.intern(proc.name)), call))
+      if fp > 2 {
+        guard case .fixnum(let newfp) = self.stack[fp &- 3] else {
+          // This may happen if an error is thrown
+          return stackTrace
+        }
+        fp = Int(newfp)
+      } else {
+        fp = 0
+      }
+    }
+    return stackTrace
+  }
+  
+  public func getCallTraceInfo(current: Procedure? = nil, cap: Int? = nil) -> [String]? {
+    return self.getCallTrace(current: current, cap: cap)?.map { expr in expr.description }
+  }
+  
   @inline(__always) private func printCallTrace(_ n: Int, tailCall: Bool = false) -> Procedure? {
     if self.context.evaluator.traceCalls != .off && self.sp > (n &+ 1) {
       if case .procedure(let proc) = self.stack[self.sp &- n &- 1],
@@ -863,11 +929,11 @@ public final class VirtualMachine: ManagedObject {
       }
     } catch let error as RuntimeError {
       if error.stackTrace == nil {
-        error.attach(stackTrace: self.getStackTrace(current: proc))
+        error.attach(vm: self, current: proc)
       }
       throw error
     } catch let error {
-      throw RuntimeError.os(error).attach(stackTrace: self.getStackTrace(current: proc))
+      throw RuntimeError.os(error).attach(vm: self, current: proc)
     }
     // Handle continuations
     if case .rawContinuation(let vmState) = proc.kind {
@@ -927,23 +993,25 @@ public final class VirtualMachine: ManagedObject {
     do {
       let res = try self.execute()
       guard !self.abortionRequested else {
-        throw RuntimeError.abortion(stackTrace: self.getStackTrace())
+        throw RuntimeError.abortion(stackTrace: self.getStackTrace(),
+                                    callTrace: self.getCallTraceInfo())
       }
       return res
     } catch let error as RuntimeError {
       if !self.abortionRequested && error.stackTrace == nil {
-        error.attach(stackTrace: self.getStackTrace())
+        error.attach(vm: self)
       }
       throw error
     } catch let error {
-      throw RuntimeError.os(error).attach(stackTrace: self.getStackTrace())
+      throw RuntimeError.os(error).attach(vm: self)
     }
   }
   
   private func execute() throws -> Expr {
     while self.registers.ip >= 0 && self.registers.ip < self.registers.code.instructions.count {
       guard !self.abortionRequested else {
-        throw RuntimeError.abortion(stackTrace: self.getStackTrace())
+        throw RuntimeError.abortion(stackTrace: self.getStackTrace(),
+                                    callTrace: self.getCallTraceInfo())
       }
       self.collectGarbageIfNeeded()
       /*

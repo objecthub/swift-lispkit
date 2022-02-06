@@ -146,7 +146,7 @@ public final class EvalThread: ManagedObject, ThreadBlocker, CustomStringConvert
   /// Initializer for representing main (= primary) threads.
   internal init(worker: EvalThreadWorker) {
     self.name = .symbol(Symbol(uninterned: "main"))
-    self.threadTag = .false
+    self.threadTag = .box(Cell(.false))
     self.state = .runnable
     self.config = nil
     self.worker = worker

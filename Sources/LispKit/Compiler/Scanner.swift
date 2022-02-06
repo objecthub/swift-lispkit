@@ -1103,7 +1103,7 @@ let UHEXDIGITS         = CharacterSet(charactersIn: "ABCDEF")
 let LETTERS            = CharacterSet.letters
 let UPPER_LETTERS      = CharacterSet.uppercaseLetters
 let LOWER_LETTERS      = CharacterSet.lowercaseLetters
-let INITIALS           = CharacterSet(charactersIn: "!$%&*/:<=>?^_~@")
+let INITIALS           = CharacterSet(charactersIn: "!$%&*/:<=>?^_~@…⋯€→←↔︎︎≥≤«»≣≈∪∩∅∞≠")
 let SUBSEQUENTS        = CharacterSet(charactersIn: "+-.")
 let SIGNSUBSEQUENTS    = CharacterSet(charactersIn: "+-")
 

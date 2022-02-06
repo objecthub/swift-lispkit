@@ -54,6 +54,8 @@ public final class DebugLibrary: NativeLibrary {
     self.define(Procedure("loaded-sources", self.loadedSources))
     self.define(Procedure("environment-info", self.environmentInfo))
     self.define(Procedure("stack-size", self.stackSize))
+    self.define(Procedure("set-max-call-stack!", self.setMaxCallStack))
+    self.define(Procedure("call-stack-procedures", self.callStackProcedures))
     self.define(Procedure("call-stack-trace", self.callStackTrace))
     self.define(Procedure("internal-call-stack", self.internalCallStack))
   }
@@ -275,11 +277,27 @@ public final class DebugLibrary: NativeLibrary {
     return .makeNumber(self.context.evaluator.machine.sp)
   }
   
-  private func callStackTrace() -> Expr {
+  private func setMaxCallStack(_ expr: Expr) throws -> Expr {
+    self.context.evaluator.maxCallStack = try expr.asInt(above: 0, below: 1000)
+    return .void
+  }
+  
+  private func callStackProcedures() -> Expr {
     let procs = self.context.evaluator.machine.getStackTrace()
     var res: Expr = .null
     for proc in procs {
-      res = .pair(.symbol(self.context.symbols.intern(proc.name)), res)
+      res = .pair(.procedure(proc), res)
+    }
+    return res
+  }
+  
+  private func callStackTrace() -> Expr {
+    guard let exprs = self.context.evaluator.machine.getCallTrace(cap: 1000) else {
+      return .false
+    }
+    var res: Expr = .null
+    for expr in exprs {
+      res = .pair(expr, res)
     }
     return res
   }
