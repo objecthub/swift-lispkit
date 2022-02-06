@@ -1,5 +1,29 @@
 # Changelog
 
+## 2.2.0 (2022-02-06)
+
+- Multi-threaded evaluator, executing multiple virtual machines in parallel
+- Go-inspired channels for synchronizing threads
+- Revamp of math libraries, addressing incompatibilities and fixing numerous bugs:
+    - Don't crash on division by zero for `fx/`
+    - Fix bug making `exact` work also for negative numbers
+    - Improved `inexact` when used with rationals with a very large numerator or denominator
+    - Consistent interface for: `random`, `flrandom`, and `fxrandom`
+    - Support unary argument usage for `fx-`, `fl-`, and `fl/`
+    - Removed `fixnum-width`, `least-fixnum` and `greatest-fixnum`
+    - New procedures `make-flonum`, `flexponent`, `flsignificand`, `flnext`, `flprev`, `fx-width`, `fx-greatest`, `fx-least`, `fl-epsilon`, `fl-greatest`, and `fl-least`
+    - Support many arguments for `flmin`, `flmax`, `fxmin`, `fxmax`, `fx+`, `fx-`, `fx*`, `fx/`, `fx=`, `fx<`, `fx>`, `fx<=`, `fx>=`, `fl+`, `fl-`, `fl*`, `fl/`, `fl=`, `fl<`, `fl>`, `fl<=`, and `fl>=`
+- New procedures in library `(lispkit math util)`: `make-nan`, `nan-negative?`, `nan-quiet?`, `nan-payload`, and `nan=?`
+- New procedures in library `(lispkit system)`: `physical-memory`, `memory-footprint`, and `system-uptime`
+- New procedure in library `(lispkit port)`: `display*`
+- New procedures in library `(lispkit debug)`: `stack-size`, `call-stack-procedures`, `call-stack-trace`, and `set-max-call-stack!`
+- Enabled concurrency support for library `(srfi sicp)`
+- Included new libraries: `(lispkit thread)`, `(lispkit thread channel)`, `(scheme flonum)`, `(srfi 18)`, `(srfi 144)`, `(srfi 208)`, `(srfi 230)`
+- Fixed scope of `<sym>` in `(let <sym> ...)` form, making it not accessible in the bindings
+- Exceptions now include more information about the active call stack
+- Included tutorial for channels as new example code
+- Support comments in command-line input
+
 ## 2.1.0 (2021-12-11)
 
 - Fixed bug compiling every procedure twice
