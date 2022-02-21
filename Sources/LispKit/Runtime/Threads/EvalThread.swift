@@ -103,7 +103,9 @@ public final class EvalThread: ManagedObject, ThreadBlocker, CustomStringConvert
   }
   
   /// Maximum number of user-created threads (across all contexts)
-  public static let maxThreads = Sysctl.maxThreads - (Sysctl.maxThreads > 1000 ? 500 : 100)
+  public static let maxThreads = Sysctl.maxThreads == nil
+                               ? 256
+                               : (Sysctl.maxThreads! - (Sysctl.maxThreads! > 1000 ? 500 : 100))
   
   /// Atomic counter for counting the number of allocated threads
   public static let allocated = ManagedAtomic<Int>(0)

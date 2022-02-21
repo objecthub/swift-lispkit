@@ -211,7 +211,7 @@ public struct Sysctl {
     }
   #endif
   
-  public static var maxThreads: Int32 {
-    return try! Sysctl.valueOfType(Int32.self, forName: "kern.num_taskthreads")
-  } 
+  public static var maxThreads: Int32? {
+    return try? Sysctl.valueOfType(Int32.self, forName: "kern.num_taskthreads")
+  }
 }
