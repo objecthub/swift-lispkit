@@ -1868,9 +1868,9 @@ public final class DrawingLibrary: NativeLibrary {
   }
   
   private func availableFonts(args: Arguments) throws -> Expr {
-    let fonts: [String]
+    var fonts: Set<String>
     if args.isEmpty {
-      fonts = NSFontManager.shared.availableFonts.reversed()
+      fonts = Set(NSFontManager.shared.availableFonts)
     } else {
       var traits: Int = 0
       for arg in args {
@@ -1880,10 +1880,11 @@ public final class DrawingLibrary: NativeLibrary {
                          NSFontTraitMask(rawValue: UInt(traits))) else {
           return .false
       }
-      fonts = fnts.reversed()
+      fonts = Set(fnts)
     }
+    let fontList = fonts.sorted(by: >)
     var res: Expr = .null
-    for font in fonts {
+    for font in fontList {
       res = .pair(.makeString(font), res)
     }
     return res

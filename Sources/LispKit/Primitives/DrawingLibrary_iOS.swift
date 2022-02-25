@@ -1754,9 +1754,9 @@ public final class DrawingLibrary: NativeLibrary {
   }
   
   private func availableFonts(args: Arguments) throws -> Expr {
-    var fonts: [String] = []
+    var fonts: Set<String> = []
     for familyName in UIFont.familyNames {
-      fonts.append(contentsOf: UIFont.fontNames(forFamilyName: familyName))
+      fonts.formUnion(UIFont.fontNames(forFamilyName: familyName))
     }
     if !args.isEmpty {
       var traits: Int = 0
@@ -1771,15 +1771,16 @@ public final class DrawingLibrary: NativeLibrary {
         return false
       }
     }
+    let fontList = fonts.sorted(by: >)
     var res: Expr = .null
-    for font in fonts {
+    for font in fontList {
       res = .pair(.makeString(font), res)
     }
     return res
   }
   
   private func availableFontFamilies() throws -> Expr {
-    let fontFamilies = UIFont.familyNames
+    let fontFamilies = UIFont.familyNames.reversed()
     var res: Expr = .null
     for fontFamily in fontFamilies {
       res = .pair(.makeString(fontFamily), res)
