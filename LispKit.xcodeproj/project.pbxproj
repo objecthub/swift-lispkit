@@ -1014,6 +1014,8 @@
 		CCE7CA461F8EC07000FD7ECA /* iterate.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCE7CA451F8D819600FD7ECA /* iterate.sld */; };
 		CCEEF3911FAF4024006C4581 /* 158.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCEEF3901FAF3F70006C4581 /* 158.sld */; };
 		CCEEF3931FB3CB50006C4581 /* wt-tree.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCEEF3921FB3CB03006C4581 /* wt-tree.sld */; };
+		CCEF3E3327CB66D900FB56EB /* 149.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCEF3E3227CB656700FB56EB /* 149.sld */; };
+		CCEF3E3427CB66ED00FB56EB /* 149.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCEF3E3227CB656700FB56EB /* 149.sld */; };
 		CCEFE6111ED80BBA00DFED9B /* 142.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCEFE6101ED804E900DFED9B /* 142.sld */; };
 		CCEFE6131ED8F43300DFED9B /* 133.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCEFE6121ED8F17700DFED9B /* 133.sld */; };
 		CCEFE6151ED8F56600DFED9B /* SRFI133.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCEFE6141ED8F55D00DFED9B /* SRFI133.scm */; };
@@ -1652,6 +1654,7 @@
 			dstPath = Root/LispKit/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
+				CCEF3E3327CB66D900FB56EB /* 149.sld in Copy pre-installed SRFI libraries */,
 				CCB5B0F9278A589C00B7E32C /* 144.sld in Copy pre-installed SRFI libraries */,
 				CC2DA7632788825D00DE69CF /* 230.sld in Copy pre-installed SRFI libraries */,
 				CC2DA75E2788703400DE69CF /* 18.sld in Copy pre-installed SRFI libraries */,
@@ -1759,6 +1762,7 @@
 			dstPath = Root/LispKit/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
+				CCEF3E3427CB66ED00FB56EB /* 149.sld in Copy pre-installed SRFI libraries */,
 				CCB5B0F8278A589000B7E32C /* 144.sld in Copy pre-installed SRFI libraries */,
 				CC2DA764278882C000DE69CF /* 230.sld in Copy pre-installed SRFI libraries */,
 				CC2DA75F2788704300DE69CF /* 18.sld in Copy pre-installed SRFI libraries */,
@@ -2869,6 +2873,7 @@
 		CCEA5A17263D5E6300D78C62 /* lispkit-repl-ios.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "lispkit-repl-ios.png"; sourceTree = "<group>"; };
 		CCEEF3901FAF3F70006C4581 /* 158.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 158.sld; sourceTree = "<group>"; };
 		CCEEF3921FB3CB03006C4581 /* wt-tree.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "wt-tree.sld"; sourceTree = "<group>"; };
+		CCEF3E3227CB656700FB56EB /* 149.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 149.sld; sourceTree = "<group>"; };
 		CCEFE6101ED804E900DFED9B /* 142.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 142.sld; sourceTree = "<group>"; };
 		CCEFE6121ED8F17700DFED9B /* 133.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 133.sld; sourceTree = "<group>"; };
 		CCEFE6141ED8F55D00DFED9B /* SRFI133.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SRFI133.scm; sourceTree = "<group>"; };
@@ -3326,6 +3331,7 @@
 				CC96D1062038AAB4006AA27B /* 145.sld */,
 				CC4A7DBC22596B7900936034 /* 146 */,
 				CC4A7DBE2259734700936034 /* 146.sld */,
+				CCEF3E3227CB656700FB56EB /* 149.sld */,
 				CC96D10420386860006AA27B /* 151.sld */,
 				CC0AEFF71F522A7500119BF6 /* 152.sld */,
 				CC08F42D25BCF0F30056C92C /* 154.sld */,
@@ -5117,7 +5123,7 @@
 			repositoryURL = "https://github.com/objecthub/swift-markdownkit.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.1.4;
+				minimumVersion = 1.1.5;
 			};
 		};
 		CCFB412525B2523C005B2429 /* XCRemoteSwiftPackageReference "ZIPFoundation" */ = {
