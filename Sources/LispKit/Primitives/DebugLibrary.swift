@@ -268,7 +268,9 @@ public final class DebugLibrary: NativeLibrary {
       console.print("  gc cycles          : \(self.context.objects.cycles)\n")
       console.print("  last tag           : \(self.context.objects.tag)\n")
       console.print("GLOBAL LOCATIONS\n")
+      console.print("  location capacity  : \(self.context.heap.locations.capacity)\n")
       console.print("  allocated locations: \(self.context.heap.locations.count)\n")
+      console.print("  created procedures : \(Procedure.count.load(ordering: .relaxed))\n")
     }
     return .void
   }

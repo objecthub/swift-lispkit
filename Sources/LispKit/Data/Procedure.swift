@@ -18,6 +18,9 @@
 //  limitations under the License.
 //
 
+import Foundation
+import Atomics
+
 ///
 /// Procedures encapsulate functions that can be applied to arguments. Procedures have an
 /// identity, a name, and a definition in the form of property `kind`. There are four kinds
@@ -33,6 +36,9 @@
 ///       raw continuations for encapsulating the state of a virtual machine.
 ///
 public final class Procedure: Reference, CustomStringConvertible {
+  
+  /// Count procedure objects
+  public static let count = ManagedAtomic<UInt>(0)
   
   /// There are four kinds of procedures:
   ///    1. Primitives: Built-in procedures
@@ -89,6 +95,9 @@ public final class Procedure: Reference, CustomStringConvertible {
     case native3R((Expr, Expr, Expr, Arguments) throws -> Expr)
   }
   
+  /// Identifier
+  public var id: UInt = Procedure.count.wrappingIncrementThenLoad(ordering: .relaxed)
+  
   /// Procedure kind
   public let kind: Kind
   
@@ -99,7 +108,7 @@ public final class Procedure: Reference, CustomStringConvertible {
   /// A tag that defines the last GC cyle in which this object was marked (by following the
   /// root set references); for optimization purposes
   internal final var tag: UInt8 = 0
-
+  
   /// Initializer for primitive evaluators
   public init(_ name: String,
               _ proc: @escaping (Arguments) throws -> Code,
@@ -296,19 +305,26 @@ public final class Procedure: Reference, CustomStringConvertible {
   /// Returns the name of this procedure. This method either returns the name of a primitive
   /// procedure or the identity as a hex string.
   public var name: String {
-    return self.embeddedName ?? "<closure>"
-  }
-
-  /// Returns the name of this procedure. This method either returns the name of a primitive
-  /// procedure or the identity as a hex string or `nil` if there is no available name.
-  public var embeddedName: String? {
     switch self.kind {
       case .primitive(let str, _, _):
         return str
       case .closure(.named(let str), _, _, _):
-        return Context.simplifiedDescriptions ? str : "\(str)@\(self.identityString)"
+        return Context.simplifiedDescriptions ? str : "\(str)@\(self.id)"
       default:
-        return Context.simplifiedDescriptions ? nil : self.identityString
+        return "<closure \(self.id)>"
+    }
+  }
+
+  /// Returns the name of this procedure. This method either returns the name of a primitive
+  /// procedure or the identity as a hex string or `nil` if there is no available name.
+  public var embeddedName: String {
+    switch self.kind {
+      case .primitive(let str, _, _):
+        return str
+      case .closure(.named(let str), _, _, _):
+        return Context.simplifiedDescriptions ? str : "\(str)@\(self.id)"
+      default:
+        return "\(self.id)"
     }
   }
   

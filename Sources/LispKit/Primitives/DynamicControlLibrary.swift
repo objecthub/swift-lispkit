@@ -108,7 +108,7 @@ public final class DynamicControlLibrary: NativeLibrary {
     self.define(Procedure("file-error?", isFileError))
     
     // Exceptions
-    self.define(Procedure("_make-uncaught", makeUncaught))
+    self.define(Procedure("_make-uncaught", makeUncaught), export: false)
     self.define("return", mutable: true, via: "(define return 0)")
     self.execute("(call-with-current-continuation (lambda (cont) (set! return cont)))")
     self.define("_raise-uncaught", export: false, via:

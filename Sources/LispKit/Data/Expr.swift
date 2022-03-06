@@ -905,23 +905,11 @@ extension Expr: CustomStringConvertible {
                 return fixString(proc, res)
               }
             case .rawContinuation(_):
-              if let name = proc.embeddedName {
-                return "#<raw-continuation \(name)>"
-              } else {
-                return "#<raw-continuation>"
-              }
+              return "#<raw-continuation \(proc.embeddedName)>"
             case .closure(.continuation, _, _, _):
-              if let name = proc.embeddedName {
-                return "#<continuation \(name)>"
-              } else {
-                return "#<continuation>"
-              }
+              return "#<continuation \(proc.embeddedName)>"
             default:
-              if let name = proc.embeddedName {
-                return "#<procedure \(name)>"
-              } else {
-                return "#<procedure>"
-              }
+              return "#<procedure \(proc.embeddedName)>"
           }
         case .special(let special):
           return "#<special \(special.name)>"
@@ -950,7 +938,43 @@ extension Expr: CustomStringConvertible {
         case .object(let obj):
           return obj.string
         case .tagged(.mpair(let tuple), let expr):
-          return "#\(stringReprOf(tuple.fst)):\(stringReprOf(expr))"
+          var res = "#<"
+          switch tuple.fst {
+            case .pair(let head, let tail):
+              var builder = StringBuilder(prefix: "", separator: " ")
+              builder.append(stringReprOf(head))
+              var expr = tail
+              while case .pair(let car, let cdr) = expr {
+                builder.append(stringReprOf(car))
+                expr = cdr
+              }
+              if expr.isNull {
+                res += builder.description + ": "
+              } else {
+                res += builder.description + " . \(stringReprOf(expr)): "
+              }
+            case .object(let obj):
+              res += obj.tagString + " "
+            default:
+              res += stringReprOf(tuple.fst) + " "
+          }
+          switch expr {
+            case .object(let obj):
+              res += obj.tagString.truncated(limit: 100)
+            case .pair(let head, let tail):
+              var builder = StringBuilder(prefix: "", separator: " ")
+              builder.append(stringReprOf(head))
+              var expr = tail
+              while case .pair(let car, let cdr) = expr {
+                builder.append(stringReprOf(car))
+                expr = cdr
+              }
+              res += (builder.description + (expr.isNull ? "" : " . \(stringReprOf(expr))"))
+                       .truncated(limit: 100)
+            default:
+              res += stringReprOf(expr).truncated(limit: 100)
+          }
+          return res + ">"
         case .tagged(let tag, let expr):
           if case .object(let objTag) = tag {
             if case .object(let objExpr) = expr {
