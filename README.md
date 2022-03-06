@@ -84,6 +84,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit type)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Type),
     [`(lispkit vector)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Vector),
     [`(lispkit gvector)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Gvector),
+    [`(lispkit bitset)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Bitset),
     [`(lispkit record)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Record),
     [`(lispkit bytevector)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Bytevector),
     [`(lispkit char)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Char),
@@ -186,6 +187,7 @@ framework:
   - [SRFI 134: Immutable Deques](https://srfi.schemers.org/srfi-134/srfi-134.html)
   - [SRFI 135: Immutable Texts](https://srfi.schemers.org/srfi-135/srfi-135.html)
   - [SRFI 137: Minimal Unique Types](https://srfi.schemers.org/srfi-137/srfi-137.html)
+  - [SRFI 141: Integer division](https://srfi.schemers.org/srfi-141/srfi-141.html)
   - [SRFI 142: Bitwise Operations](https://srfi.schemers.org/srfi-142/srfi-142.html)
   - [SRFI 143: Fixnums](https://srfi.schemers.org/srfi-143/srfi-143.html)
   - [SRFI 144: Flonums](https://srfi.schemers.org/srfi-144/srfi-144.html)

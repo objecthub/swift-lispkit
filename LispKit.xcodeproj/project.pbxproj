@@ -193,6 +193,8 @@
 		CC372CDB27D5048E0091C474 /* LispKit-Enum.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC372CD927D504050091C474 /* LispKit-Enum.scm */; };
 		CC372CDD27D5532D0091C474 /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC372CDC27D5532D0091C474 /* String.swift */; };
 		CC372CDE27D5532D0091C474 /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC372CDC27D5532D0091C474 /* String.swift */; };
+		CC372CE027D56FB50091C474 /* 141.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC372CDF27D56F450091C474 /* 141.sld */; };
+		CC372CE127D56FC60091C474 /* 141.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC372CDF27D56F450091C474 /* 141.sld */; };
 		CC38528B23126F7A001D5E56 /* InternalLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC38528A23126F7A001D5E56 /* InternalLibrary.swift */; };
 		CC38528E23140FE0001D5E56 /* 173.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC38528C23140CC2001D5E56 /* 173.sld */; };
 		CC38528F23141000001D5E56 /* SRFI-173.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC38528D23140F26001D5E56 /* SRFI-173.scm */; };
@@ -1686,6 +1688,7 @@
 			dstPath = Root/LispKit/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
+				CC372CE027D56FB50091C474 /* 141.sld in Copy pre-installed SRFI libraries */,
 				CCEF3E3327CB66D900FB56EB /* 149.sld in Copy pre-installed SRFI libraries */,
 				CCB5B0F9278A589C00B7E32C /* 144.sld in Copy pre-installed SRFI libraries */,
 				CC2DA7632788825D00DE69CF /* 230.sld in Copy pre-installed SRFI libraries */,
@@ -1794,6 +1797,7 @@
 			dstPath = Root/LispKit/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
+				CC372CE127D56FC60091C474 /* 141.sld in Copy pre-installed SRFI libraries */,
 				CCEF3E3427CB66ED00FB56EB /* 149.sld in Copy pre-installed SRFI libraries */,
 				CCB5B0F8278A589000B7E32C /* 144.sld in Copy pre-installed SRFI libraries */,
 				CC2DA764278882C000DE69CF /* 230.sld in Copy pre-installed SRFI libraries */,
@@ -2513,6 +2517,7 @@
 		CC372CD127D367CC0091C474 /* BitsetLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitsetLibrary.swift; sourceTree = "<group>"; };
 		CC372CD927D504050091C474 /* LispKit-Enum.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "LispKit-Enum.scm"; sourceTree = "<group>"; };
 		CC372CDC27D5532D0091C474 /* String.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = String.swift; sourceTree = "<group>"; };
+		CC372CDF27D56F450091C474 /* 141.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 141.sld; sourceTree = "<group>"; };
 		CC38528A23126F7A001D5E56 /* InternalLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InternalLibrary.swift; sourceTree = "<group>"; };
 		CC38528C23140CC2001D5E56 /* 173.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 173.sld; sourceTree = "<group>"; };
 		CC38528D23140F26001D5E56 /* SRFI-173.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-173.scm"; sourceTree = "<group>"; };
@@ -3371,6 +3376,7 @@
 				CC48EBCA1F3E5A2700233FA9 /* 135 */,
 				CC48EBC71F3E55F700233FA9 /* 135.sld */,
 				CC96D1082038AEC1006AA27B /* 137.sld */,
+				CC372CDF27D56F450091C474 /* 141.sld */,
 				CCEFE6101ED804E900DFED9B /* 142.sld */,
 				CC202DE725ABAFD3003901BE /* 143.sld */,
 				CCB5B0F6278A587300B7E32C /* 144.sld */,
