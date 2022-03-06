@@ -952,7 +952,17 @@ extension Expr: CustomStringConvertible {
         case .tagged(.mpair(let tuple), let expr):
           return "#\(stringReprOf(tuple.fst)):\(stringReprOf(expr))"
         case .tagged(let tag, let expr):
-          return "#<tag \(stringReprOf(tag)): \(stringReprOf(expr))>"
+          if case .object(let objTag) = tag {
+            if case .object(let objExpr) = expr {
+              return "#<\(objTag.tagString): \(objExpr.tagString)>"
+            } else {
+              return "#<\(objTag.tagString): \(stringReprOf(expr))>"
+            }
+          } else if case .object(let objExpr) = expr {
+            return "#<tag \(stringReprOf(tag)): \(objExpr.tagString)>"
+          } else {
+            return "#<tag \(stringReprOf(tag)): \(stringReprOf(expr))>"
+          }
         case .error(let error):
           return "#<\(error.inlineDescription)>"
         case .syntax(_, let expr):

@@ -43,7 +43,7 @@
 ;; - unbuffered multiple senders
 ;; - unbuffered send&recv on channel
 
-(test-begin "channel")
+(test-begin "LispKit Channel")
 
 (test-group "unbuffered 1 channel channel-select* meta"
   (define chan (make-channel))

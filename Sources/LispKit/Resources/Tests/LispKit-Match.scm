@@ -39,7 +39,7 @@
                     (x point-x point-x-set!)
                     (y point-y point-y-set!))
 
-(test-begin "match")
+(test-begin "LispKit Match")
 
 (test "any" 'ok (match 'any (_ 'ok)))
 (test "symbol" 'ok (match 'ok (x x)))

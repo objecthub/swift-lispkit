@@ -83,6 +83,14 @@ public enum EvalError: Int, Hashable {
   case unknownFieldOfRecordType
   case expectedRecordToAccessField
   case fieldCountError
+  case enumTypeEmpty
+  case invalidEnumValue
+  case unknownEnumValue
+  case invalidEnumSpecifier
+  case invalidEnumSet
+  case incompatibleEnumSetTypes
+  case enumNotMatchingEnumSetType
+  case enumNotMatchingEnumSet
   case malformedLibraryDefinition
   case malformedLibraryName
   case uninitializedExports
@@ -256,6 +264,22 @@ public enum EvalError: Int, Hashable {
         return "expected record of type $0 to access field: $1"
       case .fieldCountError:
         return "expected values for $0 fields, received instead: $1"
+      case .enumTypeEmpty:
+        return "enum-types must have at least one enum value"
+      case .invalidEnumValue:
+        return "not a valid enum: $0"
+      case .unknownEnumValue:
+        return "$1 not referring to an enum of type $0"
+      case .invalidEnumSpecifier:
+        return "not a valid enum specifier: $0"
+      case .invalidEnumSet:
+        return "not a valid enum set: $0"
+      case .incompatibleEnumSetTypes:
+        return "enum set $0 incompatible to enum set $1"
+      case .enumNotMatchingEnumSetType:
+        return "enum $0 not matching type $1 of enum set"
+      case .enumNotMatchingEnumSet:
+        return "enum $0 not matching enum set $1"
       case .malformedLibraryDefinition:
         return "malformed library definition: $0"
       case .malformedLibraryName:

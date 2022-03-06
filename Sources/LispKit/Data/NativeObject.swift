@@ -37,7 +37,11 @@ open class NativeObject: Reference {
   open var string: String {
     return "#<\(self.type) \(self.identityString)>"
   }
-
+  
+  open var tagString: String {
+    return "\(self.type) \(self.identityString)"
+  }
+  
   open var hash: Int {
     return self.hashValue
   }

@@ -181,6 +181,16 @@
 		CC35F9C2222188BD00895A10 /* DateTimeLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35F9C1222188BC00895A10 /* DateTimeLibrary.swift */; };
 		CC35FD0D1C6FA4B700C8B992 /* VirtualMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */; };
 		CC35FD0F1C711FEA00C8B992 /* BindingGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35FD0E1C711FEA00C8B992 /* BindingGroup.swift */; };
+		CC372CCC27D013BF0091C474 /* EnumLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC372CCB27D013BF0091C474 /* EnumLibrary.swift */; };
+		CC372CCD27D013BF0091C474 /* EnumLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC372CCB27D013BF0091C474 /* EnumLibrary.swift */; };
+		CC372CCF27D31EC30091C474 /* Bitset.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC372CCE27D31EC30091C474 /* Bitset.swift */; };
+		CC372CD027D31EC30091C474 /* Bitset.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC372CCE27D31EC30091C474 /* Bitset.swift */; };
+		CC372CD227D367CC0091C474 /* BitsetLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC372CD127D367CC0091C474 /* BitsetLibrary.swift */; };
+		CC372CD327D367CC0091C474 /* BitsetLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC372CD127D367CC0091C474 /* BitsetLibrary.swift */; };
+		CC372CD627D4F46E0091C474 /* r6rs.sld in Copy pre-installed LispKit library: LispKit Enum */ = {isa = PBXBuildFile; fileRef = CCD6C3E81F35F95D0002F7D4 /* r6rs.sld */; };
+		CC372CD827D4F4CC0091C474 /* r6rs.sld in Copy pre-installed LispKit library: LispKit Enum */ = {isa = PBXBuildFile; fileRef = CCD6C3E81F35F95D0002F7D4 /* r6rs.sld */; };
+		CC372CDA27D504800091C474 /* LispKit-Enum.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC372CD927D504050091C474 /* LispKit-Enum.scm */; };
+		CC372CDB27D5048E0091C474 /* LispKit-Enum.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC372CD927D504050091C474 /* LispKit-Enum.scm */; };
 		CC38528B23126F7A001D5E56 /* InternalLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC38528A23126F7A001D5E56 /* InternalLibrary.swift */; };
 		CC38528E23140FE0001D5E56 /* 173.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC38528C23140CC2001D5E56 /* 173.sld */; };
 		CC38528F23141000001D5E56 /* SRFI-173.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC38528D23140F26001D5E56 /* SRFI-173.scm */; };
@@ -688,7 +698,6 @@
 		CCC48D8F25E9806600D082AD /* match.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC7A125721E93DAF00ABEA17 /* match.sld */; };
 		CCC48D9025E9806600D082AD /* datatype.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC2345401F655B8B00C38817 /* datatype.sld */; };
 		CCC48D9125E9806600D082AD /* object.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC68B3A81FCC73C300EB4AF9 /* object.sld */; };
-		CCC48D9225E9806600D082AD /* enum.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCD6C3E81F35F95D0002F7D4 /* enum.sld */; };
 		CCC48D9325E9806600D082AD /* comparator.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC47F5F02349129B008B0303 /* comparator.sld */; };
 		CCC48D9425E9806600D082AD /* combinator.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCC4A3AA245CFFB800DE63E1 /* combinator.sld */; };
 		CCC48D9525E9806600D082AD /* iterate.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCE7CA451F8D819600FD7ECA /* iterate.sld */; };
@@ -971,7 +980,6 @@
 		CCD5E5EC2634B8F100C45EA0 /* ConsoleOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD5E5EB2634B8F100C45EA0 /* ConsoleOutput.swift */; };
 		CCD5E5F12634B98B00C45EA0 /* PortableURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD5E5F02634B98B00C45EA0 /* PortableURL.swift */; };
 		CCD5E5F62634C7B600C45EA0 /* ConsoleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD5E5F52634C7B600C45EA0 /* ConsoleView.swift */; };
-		CCD6C3E91F35F9F10002F7D4 /* enum.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCD6C3E81F35F95D0002F7D4 /* enum.sld */; };
 		CCD81AD21CE75823009EB087 /* Checkpointer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD81AD11CE75823009EB087 /* Checkpointer.swift */; };
 		CCD839AB1FD0F6000097023E /* Compression.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD839AA1FD0F6000097023E /* Compression.swift */; };
 		CCDAD5521D4813E900A7EE4F /* HashTables.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCDAD5511D4813E900A7EE4F /* HashTables.scm */; };
@@ -1076,6 +1084,7 @@
 			dstPath = Root/LispKit/Tests;
 			dstSubfolderSpec = 7;
 			files = (
+				CC372CDA27D504800091C474 /* LispKit-Enum.scm in Copy tests */,
 				CC2427DC279D678400913C05 /* LispKit-Channel.scm in Copy tests */,
 				CCB5B0FC278B71CA00B7E32C /* SRFI-144.scm in Copy tests */,
 				CC2DA7612788773800DE69CF /* SRFI-18.scm in Copy tests */,
@@ -1248,6 +1257,28 @@
 			name = "Copy default prelude";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CC372CD527D4F45F0091C474 /* Copy pre-installed LispKit library: LispKit Enum */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Root/LispKit/Libraries/lispkit/enum;
+			dstSubfolderSpec = 7;
+			files = (
+				CC372CD627D4F46E0091C474 /* r6rs.sld in Copy pre-installed LispKit library: LispKit Enum */,
+			);
+			name = "Copy pre-installed LispKit library: LispKit Enum";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC372CD727D4F4A90091C474 /* Copy pre-installed LispKit library: LispKit Enum */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Root/LispKit/Libraries/lispkit/enum;
+			dstSubfolderSpec = 7;
+			files = (
+				CC372CD827D4F4CC0091C474 /* r6rs.sld in Copy pre-installed LispKit library: LispKit Enum */,
+			);
+			name = "Copy pre-installed LispKit library: LispKit Enum";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CC385297231B3042001D5E56 /* Copy pre-installed third-party libraries */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1380,7 +1411,6 @@
 				CC750BDA1F5B776700CD82A2 /* prettify.sld in Copy pre-installed LispKit libraries */,
 				CC10404D1F53789D0045144A /* pdf.sld in Copy pre-installed LispKit libraries */,
 				CC72862D1F52B32C00EEBC58 /* heap.sld in Copy pre-installed LispKit libraries */,
-				CCD6C3E91F35F9F10002F7D4 /* enum.sld in Copy pre-installed LispKit libraries */,
 				CC5848031E56920600BE6497 /* set.sld in Copy pre-installed LispKit libraries */,
 			);
 			name = "Copy pre-installed LispKit libraries";
@@ -1934,7 +1964,6 @@
 				CCC48D8F25E9806600D082AD /* match.sld in Copy pre-installed LispKit libraries */,
 				CCC48D9025E9806600D082AD /* datatype.sld in Copy pre-installed LispKit libraries */,
 				CCC48D9125E9806600D082AD /* object.sld in Copy pre-installed LispKit libraries */,
-				CCC48D9225E9806600D082AD /* enum.sld in Copy pre-installed LispKit libraries */,
 				CCC48D9325E9806600D082AD /* comparator.sld in Copy pre-installed LispKit libraries */,
 				CCC48D9425E9806600D082AD /* combinator.sld in Copy pre-installed LispKit libraries */,
 				CCC48D9525E9806600D082AD /* iterate.sld in Copy pre-installed LispKit libraries */,
@@ -2114,6 +2143,7 @@
 			dstPath = Root/LispKit/Tests;
 			dstSubfolderSpec = 7;
 			files = (
+				CC372CDB27D5048E0091C474 /* LispKit-Enum.scm in Copy tests */,
 				CC2427DD279D679800913C05 /* LispKit-Channel.scm in Copy tests */,
 				CCB5B0FD278B71DC00B7E32C /* SRFI-144.scm in Copy tests */,
 				CC2DA7622788774C00DE69CF /* SRFI-18.scm in Copy tests */,
@@ -2476,6 +2506,10 @@
 		CC35F9C1222188BC00895A10 /* DateTimeLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateTimeLibrary.swift; sourceTree = "<group>"; };
 		CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = VirtualMachine.swift; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC35FD0E1C711FEA00C8B992 /* BindingGroup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BindingGroup.swift; sourceTree = "<group>"; };
+		CC372CCB27D013BF0091C474 /* EnumLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnumLibrary.swift; sourceTree = "<group>"; };
+		CC372CCE27D31EC30091C474 /* Bitset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bitset.swift; sourceTree = "<group>"; };
+		CC372CD127D367CC0091C474 /* BitsetLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitsetLibrary.swift; sourceTree = "<group>"; };
+		CC372CD927D504050091C474 /* LispKit-Enum.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "LispKit-Enum.scm"; sourceTree = "<group>"; };
 		CC38528A23126F7A001D5E56 /* InternalLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InternalLibrary.swift; sourceTree = "<group>"; };
 		CC38528C23140CC2001D5E56 /* 173.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 173.sld; sourceTree = "<group>"; };
 		CC38528D23140F26001D5E56 /* SRFI-173.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-173.scm"; sourceTree = "<group>"; };
@@ -2829,7 +2863,7 @@
 		CCD5E5EB2634B8F100C45EA0 /* ConsoleOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsoleOutput.swift; sourceTree = "<group>"; };
 		CCD5E5F02634B98B00C45EA0 /* PortableURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortableURL.swift; sourceTree = "<group>"; };
 		CCD5E5F52634C7B600C45EA0 /* ConsoleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsoleView.swift; sourceTree = "<group>"; };
-		CCD6C3E81F35F95D0002F7D4 /* enum.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = enum.sld; sourceTree = "<group>"; };
+		CCD6C3E81F35F95D0002F7D4 /* r6rs.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = r6rs.sld; sourceTree = "<group>"; };
 		CCD81AD11CE75823009EB087 /* Checkpointer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Checkpointer.swift; sourceTree = "<group>"; };
 		CCD839AA1FD0F6000097023E /* Compression.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Compression.swift; sourceTree = "<group>"; };
 		CCDAD5511D4813E900A7EE4F /* HashTables.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = HashTables.scm; sourceTree = "<group>"; };
@@ -2963,6 +2997,7 @@
 				CC44E5B121DECB850009969C /* All.scm */,
 				CCE4600221FD178C00B248D9 /* Import.scm */,
 				CC09ECF22198B87200F84713 /* R7RS.scm */,
+				CC372CD927D504050091C474 /* LispKit-Enum.scm */,
 				CC7A125A21E94D1700ABEA17 /* LispKit-Match.scm */,
 				CCC48BF025D8623A00D082AD /* LispKit-WT-Tree.scm */,
 				CC2427D7279D65F200913C05 /* LispKit-Channel.scm */,
@@ -3161,6 +3196,14 @@
 			path = Threads;
 			sourceTree = "<group>";
 		};
+		CC372CD427D4F3320091C474 /* enum */ = {
+			isa = PBXGroup;
+			children = (
+				CCD6C3E81F35F95D0002F7D4 /* r6rs.sld */,
+			);
+			path = enum;
+			sourceTree = "<group>";
+		};
 		CC385290231B240A001D5E56 /* third-party */ = {
 			isa = PBXGroup;
 			children = (
@@ -3241,7 +3284,6 @@
 				CC7A125721E93DAF00ABEA17 /* match.sld */,
 				CC2345401F655B8B00C38817 /* datatype.sld */,
 				CC68B3A81FCC73C300EB4AF9 /* object.sld */,
-				CCD6C3E81F35F95D0002F7D4 /* enum.sld */,
 				CC47F5F02349129B008B0303 /* comparator.sld */,
 				CCC4A3AA245CFFB800DE63E1 /* combinator.sld */,
 				CCE7CA451F8D819600FD7ECA /* iterate.sld */,
@@ -3262,6 +3304,7 @@
 				CCD3E15325C5EB83007FCE8A /* prolog.sld */,
 				CC436C3F1FFBD5090095559E /* logic.sld */,
 				CC240E8D24FB1B1B00FF6D0F /* sxml.sld */,
+				CC372CD427D4F3320091C474 /* enum */,
 				CC624CD527374BC7005F15B3 /* math */,
 				CC82932D21D6E8C2003E1D3C /* log */,
 				CC2427D5279D621700913C05 /* thread */,
@@ -3755,6 +3798,7 @@
 				CC79DE051F88D42600CE7A5D /* TypeLibrary.swift */,
 				CC6A3B5D1C52E8EF00E962E2 /* VectorLibrary.swift */,
 				CC09CC5021F12C7800C16864 /* GrowableVectorLibrary.swift */,
+				CC372CD127D367CC0091C474 /* BitsetLibrary.swift */,
 				CC4D2C9E1D5EDA2A00A02256 /* RecordLibrary.swift */,
 				CC050F131D017D3400D32132 /* BytevectorLibrary.swift */,
 				CC6A3B611C52ED7D00E962E2 /* CharLibrary.swift */,
@@ -3762,6 +3806,7 @@
 				CC6A3B5F1C52EBD700E962E2 /* StringLibrary.swift */,
 				CC7A125C21EA7C5E00ABEA17 /* RegexpLibrary.swift */,
 				CC4E2D361D09691000D77159 /* PortLibrary.swift */,
+				CC372CCB27D013BF0091C474 /* EnumLibrary.swift */,
 				CCCACB5B248D753800F012AC /* SystemOSLibrary.swift */,
 				CC4575C520F00C4400116F0F /* DrawingLibrary.swift */,
 				CCD5E5972633405900C45EA0 /* DrawingLibrary_iOS.swift */,
@@ -3813,6 +3858,7 @@
 			isa = PBXGroup;
 			children = (
 				CC5696781CBD48E700F6803E /* Global.swift */,
+				CC372CCE27D31EC30091C474 /* Bitset.swift */,
 				CC882C911C9E93A600D20039 /* Timer.swift */,
 				CC2DA7402770A4EE00DE69CF /* Locks.swift */,
 				CC01903C1C8C7D8600DB8BF9 /* Reference.swift */,
@@ -3995,6 +4041,7 @@
 				CC1867332750E8CF00B31427 /* Copy pre-installed LispKit library: SRFI 166 */,
 				CCF602EB23A0FA7000087740 /* Copy pre-installed LispKit library: SRFI 167 */,
 				CC5848001E50ABE100BE6497 /* Copy pre-installed LispKit libraries */,
+				CC372CD527D4F45F0091C474 /* Copy pre-installed LispKit library: LispKit Enum */,
 				CC624CD727374D71005F15B3 /* Copy pre-installed LispKit library: LispKit Math */,
 				CC2427D8279D66D900913C05 /* Copy pre-installed LispKit library: LispKit Thread */,
 				CC26AD40214722710090D9EE /* Copy pre-installed LispKit library: LispKit Draw Turtle */,
@@ -4062,6 +4109,7 @@
 				CC18673A2750E94A00B31427 /* Copy pre-installed LispKit library: SRFI 166 */,
 				CCC48D8525E97FF500D082AD /* Copy pre-installed LispKit library: SRFI 167 */,
 				CCC48D8C25E9803400D082AD /* Copy pre-installed LispKit libraries */,
+				CC372CD727D4F4A90091C474 /* Copy pre-installed LispKit library: LispKit Enum */,
 				CC624CD927374E7D005F15B3 /* Copy pre-installed LispKit library: LispKit Math */,
 				CC2427DA279D672B00913C05 /* Copy pre-installed LispKit library: LispKit Thread */,
 				CCC48DA925E9809000D082AD /* Copy pre-installed LispKit library: LispKit Draw Turtle */,
@@ -4264,6 +4312,7 @@
 				CC0A984E233E70C400C52573 /* GarbageCollector.swift in Sources */,
 				CC2DA7412770A4EE00DE69CF /* Locks.swift in Sources */,
 				CC79DE061F88D42600CE7A5D /* TypeLibrary.swift in Sources */,
+				CC372CD227D367CC0091C474 /* BitsetLibrary.swift in Sources */,
 				CC0980A71C62BDBC006B7FB1 /* Compiler.swift in Sources */,
 				CCAD52E31C48468F00DBD8EE /* Parser.swift in Sources */,
 				CC6A3B5C1C52E71F00E962E2 /* ListLibrary.swift in Sources */,
@@ -4317,6 +4366,7 @@
 				CCC5319E1D16E40D00FAED6E /* TextInputSource.swift in Sources */,
 				CCAD52F81C48474500DBD8EE /* Context.swift in Sources */,
 				CC050F141D017D3400D32132 /* BytevectorLibrary.swift in Sources */,
+				CC372CCF27D31EC30091C474 /* Bitset.swift in Sources */,
 				CC14F4B21F93A455000FB1E0 /* FeatureRequirement.swift in Sources */,
 				CC8EDE721D0727A4004E0636 /* ScanBuffer.swift in Sources */,
 				CC5696771CBCFA9900F6803E /* Instruction.swift in Sources */,
@@ -4346,6 +4396,7 @@
 				CC3B641A23822BCE00807476 /* NativeObject.swift in Sources */,
 				CC2DA74D2775131A00DE69CF /* ThreadManager.swift in Sources */,
 				CC0BA16C1DFC843C0063B9DE /* SystemLibrary.swift in Sources */,
+				CC372CCC27D013BF0091C474 /* EnumLibrary.swift in Sources */,
 				CC90500F1D384C4E008CE60A /* Tuple.swift in Sources */,
 				CC6A3B641C52EED400E962E2 /* MathLibrary.swift in Sources */,
 				CC8EDE4C1D0317AD004E0636 /* Port.swift in Sources */,
@@ -4463,17 +4514,20 @@
 				CCC48CB625E5B97100D082AD /* VirtualMachine.swift in Sources */,
 				CC6598D027248DC8004C9B89 /* LispKitContext.swift in Sources */,
 				CCC48CA125E5B96800D082AD /* Checkpointer.swift in Sources */,
+				CC372CCD27D013BF0091C474 /* EnumLibrary.swift in Sources */,
 				CCC48CB425E5B97100D082AD /* ImportSet.swift in Sources */,
 				CCC48C9525E5B95B00D082AD /* CharSet.swift in Sources */,
 				CCC48C6D25E5B94300D082AD /* Global.swift in Sources */,
 				CCC48C6A25E5B94300D082AD /* TrackedObject.swift in Sources */,
 				CCC48C8B25E5B95B00D082AD /* Exprs.swift in Sources */,
 				CCC48CB925E5B97100D082AD /* Heap.swift in Sources */,
+				CC372CD027D31EC30091C474 /* Bitset.swift in Sources */,
 				CCC48CC725E5B98600D082AD /* ControlFlowLibrary.swift in Sources */,
 				CCC48C9325E5B95B00D082AD /* Environment.swift in Sources */,
 				CCC48CB225E5B97100D082AD /* SyntaxRules.swift in Sources */,
 				CCC48CB525E5B97100D082AD /* Code.swift in Sources */,
 				CCC48CA025E5B96800D082AD /* CaptureGroup.swift in Sources */,
+				CC372CD327D367CC0091C474 /* BitsetLibrary.swift in Sources */,
 				CCC48CD325E5B98600D082AD /* ListLibrary.swift in Sources */,
 				CCC48CB125E5B97100D082AD /* Library.swift in Sources */,
 				CCC48CD225E5B98600D082AD /* CharSetLibrary.swift in Sources */,

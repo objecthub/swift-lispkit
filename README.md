@@ -96,6 +96,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit datatype)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Datatype),
     [`(lispkit object)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Object),
     [`(lispkit enum)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Enum),
+    [`(lispkit enum r6rs)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Enum-R6rs),
     [`(lispkit regexp)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Regexp),
     [`(lispkit stream)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Stream),
     [`(lispkit thread)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Thread),

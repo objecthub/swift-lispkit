@@ -34,7 +34,7 @@
 ;;; Adaptation to LispKit
 ;;;   Copyright © 2017 Matthias Zenger. All rights reserved.
 
-(define-library (lispkit enum)
+(define-library (lispkit enum r6rs)
   
   (export define-enumeration
           make-enumeration
