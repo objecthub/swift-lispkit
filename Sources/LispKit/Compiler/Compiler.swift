@@ -243,16 +243,44 @@ public final class Compiler {
   /// Injects the name of a closure in form of an index into the constant pool into the
   /// `.makeClosure` operation.
   public func patchMakeClosure(_ nameIdx: Int) {
-    if case .some(.makeClosure(-1, let n, let index)) = self.instructions.last {
-      self.instructions[self.instructions.count - 1] = .makeClosure(nameIdx, n, index)
+    guard let instr = self.instructions.last else {
+      return
+    }
+    switch instr {
+      case .makeClosure(-1, let n, let index):
+        self.instructions[self.instructions.count - 1] = .makeClosure(nameIdx, n, index)
+      case .pushProcedure(let i):
+        guard nameIdx >= 0 && nameIdx < self.constants.count,
+              case .symbol(let sym) = self.constants[nameIdx] else {
+          return
+        }
+        if i >= 0 && i < self.constants.count,
+           case .procedure(let proc) = self.constants[i],
+           let newproc = proc.renamed(to: sym.description) {
+          self.constants[i] = .procedure(newproc)
+        }
+      default:
+        return
     }
   }
   
   /// Injects the name of a closure into the `.makeClosure` operation.
   public func patchMakeClosure(_ sym: Symbol) {
-    if case .some(.makeClosure(-1, let n, let index)) = self.instructions.last {
-      let nameIdx = self.registerConstant(.symbol(sym))
-      self.instructions[self.instructions.count - 1] = .makeClosure(nameIdx, n, index)
+    guard let instr = self.instructions.last else {
+      return
+    }
+    switch instr {
+      case .makeClosure(-1, let n, let index):
+        let nameIdx = self.registerConstant(.symbol(sym))
+        self.instructions[self.instructions.count - 1] = .makeClosure(nameIdx, n, index)
+      case .pushProcedure(let i):
+        if i >= 0 && i < self.constants.count,
+           case .procedure(let proc) = self.constants[i],
+           let newproc = proc.renamed(to: sym.description) {
+          self.constants[i] = .procedure(newproc)
+        }
+      default:
+        return
     }
   }
   
@@ -276,6 +304,11 @@ public final class Compiler {
   /// Pushes the given expression onto the stack.
   public func pushConstant(_ expr: Expr) {
     self.emit(.pushConstant(self.registerConstant(expr)))
+  }
+  
+  /// Pushes the given procedure onto the stack.
+  public func pushProcedure(_ proc: Procedure) {
+    self.emit(.pushProcedure(self.registerConstant(.procedure(proc))))
   }
   
   /// Attaches the given expression to the constant pool and returns the index into the constant
@@ -1221,26 +1254,38 @@ public final class Compiler {
     // Link compiled closure in the current compiler
     let codeIndex = self.fragments.count
     let code = closureCompiler.bundle()
-    self.fragments.append(code)
-    // Generate code for pushing captured bindings onto the stack
-    for def in closureCompiler.captures.definitions {
-      if let def = def, let capture = closureCompiler.captures.captureFor(def) {
-        if capture.origin.owner === self {
-          self.emit(.pushLocal(def.index))
-        } else {
-          self.emit(.pushCaptured(self.captures.capture(def, from: capture.origin)))
+    // Try to create procedure statically and store in constant pool
+    if !tagged && !continuation && closureCompiler.captures.count == 0 {
+      let type: Procedure.ClosureType
+      if let idx = nameIdx, case .symbol(let sym) = self.constants[idx] {
+        type = .named(sym.description)
+      } else {
+        type = .anonymous
+      }
+      self.pushProcedure(Procedure(type, [], code))
+    } else {
+      // Store code fragment
+      self.fragments.append(code)
+      // Generate code for pushing captured bindings onto the stack
+      for def in closureCompiler.captures.definitions {
+        if let def = def, let capture = closureCompiler.captures.captureFor(def) {
+          if capture.origin.owner === self {
+            self.emit(.pushLocal(def.index))
+          } else {
+            self.emit(.pushCaptured(self.captures.capture(def, from: capture.origin)))
+          }
         }
       }
-    }
-    // Return captured binding count and index of compiled closure
-    if tagged {
-      self.emit(.makeTaggedClosure(nameIdx ?? (continuation ? -2 : -1),
-                                   closureCompiler.captures.count,
-                                   codeIndex))
-    } else {    
-      self.emit(.makeClosure(nameIdx ?? (continuation ? -2 : -1),
-                             closureCompiler.captures.count,
-                             codeIndex))
+      // Return captured binding count and index of compiled closure
+      if tagged {
+        self.emit(.makeTaggedClosure(nameIdx ?? (continuation ? -2 : -1),
+                                     closureCompiler.captures.count,
+                                     codeIndex))
+      } else {
+        self.emit(.makeClosure(nameIdx ?? (continuation ? -2 : -1),
+                               closureCompiler.captures.count,
+                               codeIndex))
+      }
     }
   }
   
@@ -1309,26 +1354,38 @@ public final class Compiler {
     // Link compiled closure in the current compiler
     let codeIndex = self.fragments.count
     let code = closureCompiler.bundle()
-    self.fragments.append(code)
-    // Generate code for pushing captured bindings onto the stack
-    for def in closureCompiler.captures.definitions {
-      if let def = def, let capture = closureCompiler.captures.captureFor(def) {
-        if capture.origin.owner === self {
-          self.emit(.pushLocal(def.index))
-        } else {
-          self.emit(.pushCaptured(self.captures.capture(def, from: capture.origin)))
+    // Try to create procedure statically and store in constant pool
+    if !tagged && closureCompiler.captures.count == 0 {
+      let type: Procedure.ClosureType
+      if let idx = nameIdx, case .symbol(let sym) = self.constants[idx] {
+        type = .named(sym.description)
+      } else {
+        type = .anonymous
+      }
+      self.pushProcedure(Procedure(type, [], code))
+    } else {
+      // Store code fragment
+      self.fragments.append(code)
+      // Generate code for pushing captured bindings onto the stack
+      for def in closureCompiler.captures.definitions {
+        if let def = def, let capture = closureCompiler.captures.captureFor(def) {
+          if capture.origin.owner === self {
+            self.emit(.pushLocal(def.index))
+          } else {
+            self.emit(.pushCaptured(self.captures.capture(def, from: capture.origin)))
+          }
         }
       }
-    }
-    // Return captured binding count and index of compiled closure
-    if tagged {
-      self.emit(.makeTaggedClosure(nameIdx ?? -1,
-                                   closureCompiler.captures.count,
-                                   codeIndex))
-    } else {
-      self.emit(.makeClosure(nameIdx ?? -1,
-                             closureCompiler.captures.count,
-                             codeIndex))
+      // Return captured binding count and index of compiled closure
+      if tagged {
+        self.emit(.makeTaggedClosure(nameIdx ?? -1,
+                                     closureCompiler.captures.count,
+                                     codeIndex))
+      } else {
+        self.emit(.makeClosure(nameIdx ?? -1,
+                               closureCompiler.captures.count,
+                               codeIndex))
+      }
     }
   }
   

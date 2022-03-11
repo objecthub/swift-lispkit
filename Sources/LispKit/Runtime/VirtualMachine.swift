@@ -1131,6 +1131,8 @@ public final class VirtualMachine: ManagedObject {
           self.push(cell.value)
         case .pushConstant(let index):
           self.push(self.registers.code.constants[index])
+        case .pushProcedure(let index):
+          self.push(self.registers.code.constants[index])
         case .pushUndef:
           self.push(.undef)
         case .pushVoid:

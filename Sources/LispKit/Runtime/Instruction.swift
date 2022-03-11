@@ -94,6 +94,10 @@ public enum Instruction: CustomStringConvertible {
   /// the stack.
   case pushConstant(Int)
   
+  /// **`push_procedure` _c_**: Pushes the procedure from the constant pool at index _c_ onto
+  /// the stack. (there is currently no difference to `push_constant`)
+  case pushProcedure(Int)
+  
   
   // Multi values
   
@@ -512,6 +516,8 @@ public enum Instruction: CustomStringConvertible {
         return nil
       case .pushConstant(let index):
         return code.constants[index].description
+      case .pushProcedure(let index):
+        return code.constants[index].description
       case .makeClosure(let i, _, _):
         return i >= 0 ? code.constants[i].description : (i == -2 ? "continuation" : nil)
       case .makeTaggedClosure(let i, _, _):
@@ -583,6 +589,8 @@ public enum Instruction: CustomStringConvertible {
         return "set_local_value \(index)"
       case .pushConstant(let index):
         return "push_constant \(index)"
+      case .pushProcedure(let index):
+        return "push_procedure \(index)"
       case .makeVariableArgument(let index):
         return "make_variable_argument \(index)"
       case .pushUndef:

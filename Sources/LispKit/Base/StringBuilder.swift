@@ -39,6 +39,10 @@ public struct StringBuilder: CustomStringConvertible {
     self.requiresSeparator = false
   }
   
+  public var isEmpty: Bool {
+    return self.buffer.isEmpty && self.postfix.isEmpty
+  }
+  
   public var description: String {
     return buffer + postfix
   }

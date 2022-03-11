@@ -160,30 +160,14 @@ public final class DebugLibrary: NativeLibrary {
     return .void
   }
 
-  private func disassemble(expr: Expr) throws -> Expr {
+  private func disassemble(expr: Expr, all: Expr?) throws -> Expr {
     guard case .procedure(let proc) = expr else {
       throw RuntimeError.type(expr, expected: [.procedureType])
     }
-    switch proc.kind {
-      case .closure(_, _, let captured, let code):
-        self.context.delegate?.print(code.description)
-        if captured.count > 0 {
-          self.context.delegate?.print("CAPTURED:\n")
-          for i in captured.indices {
-            self.context.delegate?.print("  \(i): \(captured[i])\n")
-          }
-        }
-      case .rawContinuation(let vmState):
-        self.context.delegate?.print(vmState.description + "\n")
-        self.context.delegate?.print(vmState.registers.code.description)
-        if vmState.registers.captured.count > 0 {
-          self.context.delegate?.print("CAPTURED:\n")
-          for i in vmState.registers.captured.indices {
-            self.context.delegate?.print("  \(i): \(vmState.registers.captured[i])\n")
-          }
-        }
-      default:
-        self.context.delegate?.print("cannot disassemble \(expr)\n")
+    if let str = proc.disassembled(all: all?.isTrue ?? true) {
+      self.context.delegate?.print(str)
+    } else {
+      self.context.delegate?.print("cannot disassemble \(expr)\n")
     }
     return .void
   }

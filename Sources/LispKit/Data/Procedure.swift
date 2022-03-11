@@ -96,7 +96,7 @@ public final class Procedure: Reference, CustomStringConvertible {
   }
   
   /// Identifier
-  public var id: UInt = Procedure.count.wrappingIncrementThenLoad(ordering: .relaxed)
+  public let id: UInt = Procedure.count.wrappingIncrementThenLoad(ordering: .relaxed)
   
   /// Procedure kind
   public let kind: Kind
@@ -108,6 +108,13 @@ public final class Procedure: Reference, CustomStringConvertible {
   /// A tag that defines the last GC cyle in which this object was marked (by following the
   /// root set references); for optimization purposes
   internal final var tag: UInt8 = 0
+  
+  /// Internal initializer for copying primitive procedures
+  private init(_ name: String,
+               _ impl: Implementation,
+               _ fcomp: FormCompiler?) {
+    self.kind = .primitive(name, impl, fcomp)
+  }
   
   /// Initializer for primitive evaluators
   public init(_ name: String,
@@ -340,6 +347,30 @@ public final class Procedure: Reference, CustomStringConvertible {
     }
   }
   
+  /// Return a renamed procedure (if renaming is possible)
+  public func renamed(to name: String, force: Bool = false) -> Procedure? {
+    switch self.kind {
+      case .primitive(_, let impl, let fcomp):
+        guard force else {
+          return nil
+        }
+        let res = Procedure(name, impl, fcomp)
+        res.traced = self.traced
+        return res
+      case .closure(let type, let tag, let captured, let code):
+        if case .continuation = type {
+          return nil
+        } else if !force, case .named(_) = type {
+          return nil
+        }
+        let res = Procedure(.named(name), tag, captured, code)
+        res.traced = self.traced
+        return res
+      default:
+        return nil
+    }
+  }
+  
   /// Arities are either exact or they are referring to a lower bound.
   public enum Arity {
     case exact(Int)
@@ -459,6 +490,73 @@ public final class Procedure: Reference, CustomStringConvertible {
   /// A textual description
   public var description: String {
     return "«procedure \(self.name)»"
+  }
+  
+  /// Returns a textual representation of the disassembled code
+  public func disassembled(all: Bool = true) -> String? {
+    var builder = StringBuilder()
+    var procToDisassemble: [Procedure] = [self]
+    var i = 0
+    while i < procToDisassemble.count {
+      let proc = procToDisassemble[i]
+      switch proc.kind {
+        case .closure(_, _, let captured, let code):
+          if !builder.isEmpty {
+            builder.appendNewline()
+          }
+          builder.append("====== \(Expr.procedure(proc).description) ======")
+          builder.appendNewline()
+          builder.append(code.description)
+          if captured.count > 0 {
+            builder.append("CAPTURED:")
+            for n in captured.indices {
+              builder.appendNewline()
+              builder.append(n, width: 5, alignRight: true)
+              builder.append(": ")
+              builder.append(captured[n].description)
+            }
+            builder.appendNewline()
+          }
+          if all {
+            for expr in code.constants {
+              if case .procedure(let proc) = expr {
+                procToDisassemble.append(proc)
+              }
+            }
+          }
+        case .rawContinuation(let vmState):
+          if !builder.isEmpty {
+            builder.appendNewline()
+          }
+          builder.append("====== \(Expr.procedure(proc).description) ======")
+          builder.appendNewline()
+          builder.append(vmState.description)
+          builder.appendNewline()
+          builder.append(vmState.registers.code.description)
+          if vmState.registers.captured.count > 0 {
+            builder.append("CAPTURED:")
+            for n in vmState.registers.captured.indices {
+              builder.appendNewline()
+              builder.append(n, width: 5, alignRight: true)
+              builder.append(": ")
+              builder.append(vmState.registers.captured[n].description)
+            }
+            builder.appendNewline()
+          }
+          if all {
+            for expr in vmState.registers.code.constants {
+              if case .procedure(let proc) = expr {
+                procToDisassemble.append(proc)
+              }
+            }
+          }
+        default:
+          break
+      }
+      i += 1
+    }
+    let res = builder.description
+    return res.count > 0 ? res : nil
   }
 }
 

@@ -162,8 +162,9 @@ public struct Code: CustomStringConvertible {
         builder.append(fragment.description)
         n += 1
       }
+    } else {
+      builder.appendNewline()
     }
-    builder.appendNewline()
     return builder.description
   }
 }

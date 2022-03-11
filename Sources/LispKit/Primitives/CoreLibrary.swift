@@ -100,6 +100,7 @@ public final class CoreLibrary: NativeLibrary {
     self.define(Procedure("procedure-arity-includes?", isProcedureArityIncludes))
     self.define(Procedure("arity-at-least?", isArityAtLeast))
     self.define(Procedure("arity-at-least-value", arityAtLeastValue))
+    self.define(Procedure("procedure-rename", procedureRename))
     
     // Symbol primitives
     self.define(Procedure("symbol?", isSymbol))
@@ -1079,6 +1080,22 @@ public final class CoreLibrary: NativeLibrary {
       return .false
     }
     return .fixnum(Int64(-n-1))
+  }
+  
+  private func procedureRename(expr: Expr, name: Expr) throws -> Expr {
+    let proc = try expr.asProcedure()
+    let newname: String
+    switch name {
+      case .symbol(let sym):
+        newname = sym.description
+      default:
+        newname = try name.asString()
+    }
+    if let newproc = proc.renamed(to: newname, force: true) {
+      return .procedure(newproc)
+    } else {
+      return .false
+    }
   }
   
   //-------- MARK: - Symbol primitives
