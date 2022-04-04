@@ -35,16 +35,9 @@
 
   (export position-of
           last
-          map-append
-          last
           every
-          remove
           getl
-          union
-          collect-if
-          remove-duplicates
-          compute-std-cpl
-          top-sort)
+          compute-std-cpl)
 
   (import (except (lispkit base) remove))
 
@@ -60,11 +53,14 @@
           #f
           (if (null? (cdr l)) (car l) (last (cdr l)))))
 
+    ;; NOT NEEDED
     (define (map-append proc . lists)
       (apply append (apply map (cons proc lists))))
 
     (define (last l)
-      (if (null? l) #f (if (null? (cdr l)) (car l) (last (cdr l)))))
+      (if (null? l)
+          #f
+          (if (null? (cdr l)) (car l) (last (cdr l)))))
 
     (define (every test . lists)
       (let scan ((tails lists))
@@ -72,21 +68,22 @@
             #t
     	      (and (apply test (map car tails)) (scan (map cdr tails))))))
 
+    ;; NOT NEEDED
     (define (remove x list)
       (cond ((null? list) '())
             ((eq? (car list) x) (cdr list))
             (else (cons (car list) (remove x (cdr list))))))
 
-    (define (getl initargs name . not-found)
-      (letrec ((scan (lambda (tail)
-    		               (cond ((null? tail)
-    		                       (if (pair? not-found)
-    		                           (car not-found)
-    		                           (error "GETL couldn't find" name)))
-    		                     ((eq? (car tail) name) (cadr tail))
-                    			   (else (scan (cddr tail)))))))
-        (scan initargs)))
+    (define (getl args name . not-found)
+      (do ((tail args (cddr tail)))
+          ((or (not (pair? tail)) (eq? (car tail) name))
+           (if (pair? tail)
+               (cadr tail)
+               (if (pair? not-found)
+    		           (car not-found)
+    		           (error "could not find named argument $0 in argument list $1" name args))))))
 
+    ;; NOT NEEDED
     (define (union . lists)
       (letrec ((clean (lambda (list result)
                         (cond ((null? list) result)
@@ -94,11 +91,13 @@
                               (else (clean (cdr list) (cons (car list) result)))))))
     	  (clean (apply append lists) '())))
 
+    ;; NOT NEEDED
     (define (collect-if test? list)
       (cond ((null? list) '())
             ((test? (car list)) (cons (car list) (collect-if test? (cdr list))))
             (else (collect-if test? (cdr list)))))
 
+    ;; NOT NEEDED
     (define (remove-duplicates list)
       (let loop ((result-so-far '())
                  (remaining list))
@@ -109,9 +108,7 @@
     		        (loop (cons (car remaining) result-so-far) (cdr remaining))))))
 
     ; A simple topological sort.
-    ;
     ; It's in this file so that both TinyClos and Objects can use it.
-    ;
     ; This is a fairly modified version of code I originally got from Anurag
     ; Mendhekar <anurag@moose.cs.indiana.edu>.
 
@@ -122,33 +119,34 @@
 
     (define (top-sort elements constraints tie-breaker)
       (let loop ((elements    elements)
-    		         (constraints constraints)
-    		         (result      '()))
+                 (constraints constraints)
+                 (result      '()))
         (if (null? elements)
-    	      result
-      	    (let ((can-go-in-now (collect-if (lambda (x)
-                                         			 (every (lambda (constraint)
-                                         				        (or (not (eq? (cadr constraint) x))
-                                         				            (memq (car constraint) result)))
-                                         			        constraints)) elements)))
+            result
+            (let ((can-go-in-now (filter (lambda (x)
+                                           (every (lambda (constraint)
+                                                    (or (not (eq? (cadr constraint) x))
+                                                        (memq (car constraint) result)))
+                                                  constraints))
+                                         elements)))
               (if (null? can-go-in-now)
-                  (error 'top-sort "Invalid constraints")
+                  (error "invalid top-sort constraints: $0" constraints)
                   (let ((choice (if (null? (cdr can-go-in-now))
                                     (car can-go-in-now)
                                     (tie-breaker result can-go-in-now))))
-                    (loop (collect-if (lambda (x) (not (eq? x choice))) elements)
-      		                constraints
-      		                (append result (list choice)))))))))
+                    (loop (filter (lambda (x) (not (eq? x choice))) elements)
+                          constraints
+                          (append result (list choice)))))))))
 
     (define (std-tie-breaker get-supers)
       (lambda (partial-cpl min-elts)
         (let loop ((pcpl (reverse partial-cpl)))
           (let ((current-elt (car pcpl)))
             (let ((ds-of-ce (get-supers current-elt)))
-      		    (let ((common (collect-if (lambda (x) (memq x ds-of-ce)) min-elts)))
+      		    (let ((common (filter (lambda (x) (memq x ds-of-ce)) min-elts)))
                 (if (null? common)
                     (if (null? (cdr pcpl))
-                        (error 'std-tie-breaker "Nothing valid")
+                        (error "no std-tie-breaker result")
                         (loop (cdr pcpl)))
                     (car common))))))))
 
@@ -167,7 +165,7 @@
       (lambda (x)
         (let loop ((elements ((build-transitive-closure get-follow-ons) x))
     		           (this-one '())
-    		           (result '()))
+    		           (result   '()))
           (if (or (null? this-one) (null? (cdr this-one)))
               (if (null? elements)
                   result
@@ -179,4 +177,3 @@
                     (cons (list (car this-one) (cadr this-one)) result))))))
   )
 )
-
