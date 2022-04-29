@@ -1469,8 +1469,14 @@ public final class MathLibrary: NativeLibrary {
   private func truncateDiv(_ x: Expr, _ y: Expr) throws -> Expr {
     switch try NumberPair(x, y) {
       case .fixnumPair(let lhs, let rhs):
+        guard rhs != 0 else {
+          throw RuntimeError.eval(.divisionByZero)
+        }
         return .values(.pair(.makeNumber(lhs / rhs), .pair(.makeNumber(lhs % rhs), .null)))
       case .bignumPair(let lhs, let rhs):
+        guard !rhs.isZero else {
+          throw RuntimeError.eval(.divisionByZero)
+        }
         return .values(.pair(.makeNumber(lhs / rhs), .pair(.makeNumber(lhs % rhs), .null)))
       case .flonumPair(let lhs, let rhs):
         guard Foundation.trunc(lhs) == lhs else {
@@ -1491,8 +1497,14 @@ public final class MathLibrary: NativeLibrary {
   private func truncateQuotient(_ x: Expr, _ y: Expr) throws -> Expr {
     switch try NumberPair(x, y) {
       case .fixnumPair(let lhs, let rhs):
+        guard rhs != 0 else {
+          throw RuntimeError.eval(.divisionByZero)
+        }
         return .makeNumber(lhs / rhs)
       case .bignumPair(let lhs, let rhs):
+        guard !rhs.isZero else {
+          throw RuntimeError.eval(.divisionByZero)
+        }
         return .makeNumber(lhs / rhs)
       case .flonumPair(let lhs, let rhs):
         guard Foundation.trunc(lhs) == lhs else {
@@ -1512,8 +1524,14 @@ public final class MathLibrary: NativeLibrary {
   private func truncateRemainder(_ x: Expr, _ y: Expr) throws -> Expr {
     switch try NumberPair(x, y) {
       case .fixnumPair(let lhs, let rhs):
+        guard rhs != 0 else {
+          throw RuntimeError.eval(.divisionByZero)
+        }
         return .makeNumber(lhs % rhs)
       case .bignumPair(let lhs, let rhs):
+        guard !rhs.isZero else {
+          throw RuntimeError.eval(.divisionByZero)
+        }
         return .makeNumber(lhs % rhs)
       case .flonumPair(let lhs, let rhs):
         guard Foundation.trunc(lhs) == lhs else {
@@ -1533,6 +1551,9 @@ public final class MathLibrary: NativeLibrary {
   private func floorDiv(_ x: Expr, _ y: Expr) throws -> Expr {
     switch try NumberPair(x, y) {
       case .fixnumPair(let lhs, let rhs):
+        guard rhs != 0 else {
+          throw RuntimeError.eval(.divisionByZero)
+        }
         let res = lhs % rhs
         if (res < 0) == (rhs < 0) {
           return .values(.pair(.makeNumber((lhs - res) / rhs), .pair(.makeNumber(res), .null)))
@@ -1541,6 +1562,9 @@ public final class MathLibrary: NativeLibrary {
                                .pair(.makeNumber(res + rhs), .null)))
         }
       case .bignumPair(let lhs, let rhs):
+        guard !rhs.isZero else {
+          throw RuntimeError.eval(.divisionByZero)
+        }
         let res = lhs % rhs
         if res.isNegative == rhs.isNegative {
           return .values(.pair(.makeNumber((lhs - res) / rhs), .pair(.makeNumber(res), .null)))
@@ -1572,9 +1596,15 @@ public final class MathLibrary: NativeLibrary {
   private func floorQuotient(_ x: Expr, _ y: Expr) throws -> Expr {
     switch try NumberPair(x, y) {
       case .fixnumPair(let lhs, let rhs):
+        guard rhs != 0 else {
+          throw RuntimeError.eval(.divisionByZero)
+        }
         let res = lhs % rhs
         return .makeNumber(((res < 0) == (rhs < 0) ? (lhs - res) : (lhs - res - rhs)) / rhs)
       case .bignumPair(let lhs, let rhs):
+        guard !rhs.isZero else {
+          throw RuntimeError.eval(.divisionByZero)
+        }
         let res = lhs % rhs
         return .makeNumber((res.isNegative == rhs.isNegative ? (lhs - res)
                                                              : (lhs - res - rhs)) / rhs)
@@ -1601,9 +1631,15 @@ public final class MathLibrary: NativeLibrary {
   private func floorRemainder(_ x: Expr, _ y: Expr) throws -> Expr {
     switch try NumberPair(x, y) {
       case .fixnumPair(let lhs, let rhs):
+        guard rhs != 0 else {
+          throw RuntimeError.eval(.divisionByZero)
+        }
         let res = lhs % rhs
         return .makeNumber((res < 0) == (rhs < 0) ? res : res + rhs)
       case .bignumPair(let lhs, let rhs):
+        guard !rhs.isZero else {
+          throw RuntimeError.eval(.divisionByZero)
+        }
         let res = lhs % rhs
         return .makeNumber(res.isNegative == rhs.isNegative ? res : res + rhs)
       case .flonumPair(let lhs, let rhs):
