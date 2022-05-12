@@ -306,6 +306,8 @@
 		CC6E93CB281CA1320002C4BC /* 232.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC6E93C8281C9F820002C4BC /* 232.sld */; };
 		CC6E93CC281CA15A0002C4BC /* 232.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC6E93C8281C9F820002C4BC /* 232.sld */; };
 		CC6E93CD281CA1650002C4BC /* SRFI-232.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC6E93C9281CA00C0002C4BC /* SRFI-232.scm */; };
+		CC6E93D1281E9FDB0002C4BC /* bar.sld in Copy pre-installed LispKit library: LispKit Draw Chart Bar */ = {isa = PBXBuildFile; fileRef = CC6E93CF281E9F580002C4BC /* bar.sld */; };
+		CC6E93D3281EA05A0002C4BC /* bar.sld in Copy pre-installed LispKit library: LispKit Draw Chart Bar */ = {isa = PBXBuildFile; fileRef = CC6E93CF281E9F580002C4BC /* bar.sld */; };
 		CC703A13218BC4C100E71EA9 /* 23.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC703A12218BC40600E71EA9 /* 23.sld */; };
 		CC703A14218BC53600E71EA9 /* 14.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCC1DBFB216BA1750019A374 /* 14.sld */; };
 		CC703A15218BC54800E71EA9 /* 16.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCC1DBFC216BA2600019A374 /* 16.sld */; };
@@ -951,6 +953,8 @@
 		CCC9516F2426B3E900FC915F /* 162.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCC9516E2426B1E100FC915F /* 162.sld */; };
 		CCC951712426B6B000FC915F /* SRFI-128.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCC951702426B54600FC915F /* SRFI-128.scm */; };
 		CCCACB5C248D753800F012AC /* SystemOSLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCACB5B248D753800F012AC /* SystemOSLibrary.swift */; };
+		CCCB66E1282DBBC80004827D /* DrawBarCharts.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCCB66E0282DB9790004827D /* DrawBarCharts.scm */; };
+		CCCB66E2282DBBDB0004827D /* DrawBarCharts.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCCB66E0282DB9790004827D /* DrawBarCharts.scm */; };
 		CCCEB3FF1DF2DAA9009BF66B /* FileHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCEB3FE1DF2DAA9009BF66B /* FileHandler.swift */; };
 		CCD3E15425C5ECC8007FCE8A /* prolog.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCD3E15325C5EB83007FCE8A /* prolog.sld */; };
 		CCD3E15925C638F5007FCE8A /* Schelog.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCD3E15825C63898007FCE8A /* Schelog.scm */; };
@@ -1330,6 +1334,7 @@
 			dstPath = Root/LispKit/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CCCB66E1282DBBC80004827D /* DrawBarCharts.scm in Copy examples */,
 				CCD6414027FABE420065E2BF /* ObjectOrientation.scm in Copy examples */,
 				CC2427DF279E1A5000913C05 /* Channels.scm in Copy examples */,
 				CC9ED4012710EBE8004B1E29 /* Simplifier.scm in Copy examples */,
@@ -1450,6 +1455,28 @@
 				CC624CDA27374E8E005F15B3 /* util.sld in Copy pre-installed LispKit library: LispKit Math */,
 			);
 			name = "Copy pre-installed LispKit library: LispKit Math";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC6E93D0281E9FB10002C4BC /* Copy pre-installed LispKit library: LispKit Draw Chart Bar */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Root/LispKit/Libraries/lispkit/draw/chart;
+			dstSubfolderSpec = 7;
+			files = (
+				CC6E93D1281E9FDB0002C4BC /* bar.sld in Copy pre-installed LispKit library: LispKit Draw Chart Bar */,
+			);
+			name = "Copy pre-installed LispKit library: LispKit Draw Chart Bar";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC6E93D2281EA0260002C4BC /* Copy pre-installed LispKit library: LispKit Draw Chart Bar */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Root/LispKit/Libraries/lispkit/draw/chart;
+			dstSubfolderSpec = 7;
+			files = (
+				CC6E93D3281EA05A0002C4BC /* bar.sld in Copy pre-installed LispKit library: LispKit Draw Chart Bar */,
+			);
+			name = "Copy pre-installed LispKit library: LispKit Draw Chart Bar";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		CC703A1E218D0AF500E71EA9 /* Copy pre-installed LispKit library: LispKit CLOS Support */ = {
@@ -2124,6 +2151,7 @@
 			dstPath = Root/LispKit/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CCCB66E2282DBBDB0004827D /* DrawBarCharts.scm in Copy examples */,
 				CCD6414127FABE5C0065E2BF /* ObjectOrientation.scm in Copy examples */,
 				CC2427E0279E1A5F00913C05 /* Channels.scm in Copy examples */,
 				CC9ED40A2710ECA5004B1E29 /* Simplifier.scm in Copy examples */,
@@ -2637,6 +2665,7 @@
 		CC6BB91A235CFB4700D7CAA1 /* 177.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 177.sld; sourceTree = "<group>"; };
 		CC6E93C8281C9F820002C4BC /* 232.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 232.sld; sourceTree = "<group>"; };
 		CC6E93C9281CA00C0002C4BC /* SRFI-232.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-232.scm"; sourceTree = "<group>"; };
+		CC6E93CF281E9F580002C4BC /* bar.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = bar.sld; sourceTree = "<group>"; };
 		CC703A12218BC40600E71EA9 /* 23.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 23.sld; sourceTree = "<group>"; };
 		CC703A16218BC61D00E71EA9 /* 34.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 34.sld; sourceTree = "<group>"; };
 		CC703A17218BC7D000E71EA9 /* 39.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 39.sld; sourceTree = "<group>"; };
@@ -2859,6 +2888,7 @@
 		CCCACB5B248D753800F012AC /* SystemOSLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemOSLibrary.swift; sourceTree = "<group>"; };
 		CCCAF5AE23B7A71400FE2C60 /* HtmlColors.plist */ = {isa = PBXFileReference; lastKnownFileType = file.bplist; path = HtmlColors.plist; sourceTree = "<group>"; };
 		CCCAF92D1F941A43006692E9 /* Package.swift */ = {isa = PBXFileReference; explicitFileType = sourcecode.swift; fileEncoding = 4; indentWidth = 2; path = Package.swift; sourceTree = "<group>"; tabWidth = 2; };
+		CCCB66E0282DB9790004827D /* DrawBarCharts.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = DrawBarCharts.scm; sourceTree = "<group>"; };
 		CCCEB3FE1DF2DAA9009BF66B /* FileHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileHandler.swift; sourceTree = "<group>"; };
 		CCD3E15325C5EB83007FCE8A /* prolog.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = prolog.sld; sourceTree = "<group>"; };
 		CCD3E15725C60FBC007FCE8A /* red.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = red.sld; sourceTree = "<group>"; };
@@ -3144,6 +3174,7 @@
 		CC26AD3E21470AC90090D9EE /* draw */ = {
 			isa = PBXGroup;
 			children = (
+				CC6E93CE281E9F420002C4BC /* chart */,
 				CC26AD3F214722120090D9EE /* turtle.sld */,
 			);
 			path = draw;
@@ -3449,6 +3480,14 @@
 				CC624CDB2737D16E005F15B3 /* stats.sld */,
 			);
 			path = math;
+			sourceTree = "<group>";
+		};
+		CC6E93CE281E9F420002C4BC /* chart */ = {
+			isa = PBXGroup;
+			children = (
+				CC6E93CF281E9F580002C4BC /* bar.sld */,
+			);
+			path = chart;
 			sourceTree = "<group>";
 		};
 		CC703A1B218D09D100E71EA9 /* clos */ = {
@@ -3965,6 +4004,7 @@
 				CC14F4AE1F9385BF000FB1E0 /* AvlTrees.scm */,
 				CC26264320FA003700AC08E8 /* Plot.scm */,
 				CC8D20F42533C35F00741D07 /* DrawTrees.scm */,
+				CCCB66E0282DB9790004827D /* DrawBarCharts.scm */,
 				CC202DE325AA9D70003901BE /* VisualizePointSets.scm */,
 				CC7E7C2524564D33002E8A73 /* Covid.scm */,
 				CCC7A9DB26D0473600F05361 /* EUStats.scm */,
@@ -4073,6 +4113,7 @@
 				CC624CD727374D71005F15B3 /* Copy pre-installed LispKit library: LispKit Math */,
 				CC2427D8279D66D900913C05 /* Copy pre-installed LispKit library: LispKit Thread */,
 				CC26AD40214722710090D9EE /* Copy pre-installed LispKit library: LispKit Draw Turtle */,
+				CC6E93D0281E9FB10002C4BC /* Copy pre-installed LispKit library: LispKit Draw Chart Bar */,
 				CC703A1E218D0AF500E71EA9 /* Copy pre-installed LispKit library: LispKit CLOS Support */,
 				CC82933121D6E9A6003E1D3C /* Copy pre-installed LispKit library: LispKit Log Internal */,
 				CC240E8F24FB1C6C00FF6D0F /* Copy pre-installed LispKit library: LispKit SXML parsers */,
@@ -4141,6 +4182,7 @@
 				CC624CD927374E7D005F15B3 /* Copy pre-installed LispKit library: LispKit Math */,
 				CC2427DA279D672B00913C05 /* Copy pre-installed LispKit library: LispKit Thread */,
 				CCC48DA925E9809000D082AD /* Copy pre-installed LispKit library: LispKit Draw Turtle */,
+				CC6E93D2281EA0260002C4BC /* Copy pre-installed LispKit library: LispKit Draw Chart Bar */,
 				CCC48DAE25E980D400D082AD /* Copy pre-installed LispKit library: LispKit CLOS Support */,
 				CCC48DAF25E982A100D082AD /* Copy pre-installed LispKit library: LispKit Log Internal */,
 				CCC48DB025E982E300D082AD /* Copy pre-installed LispKit library: LispKit SXML parsers */,
@@ -5215,7 +5257,7 @@
 			repositoryURL = "https://github.com/weichsel/ZIPFoundation";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 0.9.12;
+				minimumVersion = 0.9.14;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
