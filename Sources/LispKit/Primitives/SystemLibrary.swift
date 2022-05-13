@@ -502,8 +502,15 @@ public final class SystemLibrary: NativeLibrary {
       #endif
     } else {
       #if os(iOS) || os(watchOS) || os(tvOS)
-      UIApplication.shared.open(URL(fileURLWithPath: path))
-      return .true
+      if let url = URL(string: "shareddocuments://\(path)"),
+         UIApplication.shared.canOpenURL(url) {
+        DispatchQueue.main.async {
+          UIApplication.shared.open(url)
+        }
+        return .true
+      } else {
+        return .false
+      }
       #elseif os(macOS)
       return .makeBoolean(NSWorkspace.shared.openFile(path))
       #endif

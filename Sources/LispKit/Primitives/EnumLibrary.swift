@@ -19,7 +19,6 @@
 //
 
 import Foundation
-import AppKit
 
 public final class EnumLibrary: NativeLibrary {
   

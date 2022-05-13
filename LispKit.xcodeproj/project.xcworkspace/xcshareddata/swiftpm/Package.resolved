@@ -1,61 +1,59 @@
 {
-  "object": {
-    "pins": [
-      {
-        "package": "swift-atomics",
-        "repositoryURL": "https://github.com/apple/swift-atomics.git",
-        "state": {
-          "branch": null,
-          "revision": "919eb1d83e02121cdb434c7bfc1f0c66ef17febe",
-          "version": "1.0.2"
-        }
-      },
-      {
-        "package": "CommandLineKit",
-        "repositoryURL": "https://github.com/objecthub/swift-commandlinekit.git",
-        "state": {
-          "branch": null,
-          "revision": "dd0967785f84476a1a51ef164f9030851fcaaaff",
-          "version": "0.3.4"
-        }
-      },
-      {
-        "package": "MarkdownKit",
-        "repositoryURL": "https://github.com/objecthub/swift-markdownkit.git",
-        "state": {
-          "branch": null,
-          "revision": "c6c009353863779ee5855b1cf58ced6a3b851f3e",
-          "version": "1.1.5"
-        }
-      },
-      {
-        "package": "NumberKit",
-        "repositoryURL": "https://github.com/objecthub/swift-numberkit.git",
-        "state": {
-          "branch": null,
-          "revision": "e8c1cb9e8220001a7efa857fea88c0bd762c56ea",
-          "version": "2.4.1"
-        }
-      },
-      {
-        "package": "SQLiteExpress",
-        "repositoryURL": "https://github.com/objecthub/swift-sqliteexpress.git",
-        "state": {
-          "branch": null,
-          "revision": "e420f6eef3b90d44d92f39b1f899a8aa662f57a7",
-          "version": "1.0.3"
-        }
-      },
-      {
-        "package": "ZIPFoundation",
-        "repositoryURL": "https://github.com/weichsel/ZIPFoundation",
-        "state": {
-          "branch": null,
-          "revision": "7254c74b49cec2cb81520523ba993c671f71b066",
-          "version": "0.9.14"
-        }
+  "pins" : [
+    {
+      "identity" : "swift-atomics",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-atomics.git",
+      "state" : {
+        "revision" : "919eb1d83e02121cdb434c7bfc1f0c66ef17febe",
+        "version" : "1.0.2"
       }
-    ]
-  },
-  "version": 1
+    },
+    {
+      "identity" : "swift-commandlinekit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/objecthub/swift-commandlinekit.git",
+      "state" : {
+        "revision" : "dd0967785f84476a1a51ef164f9030851fcaaaff",
+        "version" : "0.3.4"
+      }
+    },
+    {
+      "identity" : "swift-markdownkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/objecthub/swift-markdownkit.git",
+      "state" : {
+        "revision" : "c6c009353863779ee5855b1cf58ced6a3b851f3e",
+        "version" : "1.1.5"
+      }
+    },
+    {
+      "identity" : "swift-numberkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/objecthub/swift-numberkit.git",
+      "state" : {
+        "revision" : "e8c1cb9e8220001a7efa857fea88c0bd762c56ea",
+        "version" : "2.4.1"
+      }
+    },
+    {
+      "identity" : "swift-sqliteexpress",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/objecthub/swift-sqliteexpress.git",
+      "state" : {
+        "revision" : "e420f6eef3b90d44d92f39b1f899a8aa662f57a7",
+        "version" : "1.0.3"
+      }
+    },
+    {
+      "identity" : "zipfoundation",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/weichsel/ZIPFoundation",
+      "state" : {
+        "revision" : "7254c74b49cec2cb81520523ba993c671f71b066",
+        "version" : "0.9.14"
+      }
+    }
+  ],
+  "version" : 2
 }

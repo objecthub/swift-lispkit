@@ -217,7 +217,7 @@
 
 ;; Path to the generated PDF file
 (define pdf-file-path
-  (path (car (system-directory 'temporary)) "bar-charts.pdf"))
+  (path (car (system-directory 'documents)) "bar-charts.pdf"))
 
 ;; Save all drawings in a PDF (one A4 page per drawing)
 (save-drawings pdf-file-path
