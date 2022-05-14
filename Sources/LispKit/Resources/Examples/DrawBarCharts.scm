@@ -3,8 +3,9 @@
 ;;; This is a demo of library (lispkit draw chart bar). This library provides a
 ;;; procedure `draw-bar-chart` which draws a bart chart into the given/current
 ;;; drawing. The code below defines three different bar charts and draws them
-;;; all into a PDF file, one chart per A4 page. In the end, the PDF file gets
-;;; opened and shown to the user.
+;;; all into a PDF file, one chart per A4 page. In the end, the PDF file
+;;; `bar-charts.pdf` is saved in the documents folder and gets opened and shown
+;;; to the user.
 ;;; 
 ;;; Author: Matthias Zenger
 ;;; Copyright © 2022 Matthias Zenger. All rights reserved.

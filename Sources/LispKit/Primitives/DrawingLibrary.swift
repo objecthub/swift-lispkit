@@ -1473,9 +1473,9 @@ public final class DrawingLibrary: NativeLibrary {
                                      alpha: 1.0))
               } else {
                 return .object(Color(red: Double((num & 0xff0000) >> 16) / 255.0,
-                                   green: Double((num & 0xff00) >> 8) / 255.0,
-                                   blue: Double(num & 0xff) / 255.0,
-                                   alpha: 1.0))
+                                     green: Double((num & 0xff00) >> 8) / 255.0,
+                                     blue: Double(num & 0xff) / 255.0,
+                                     alpha: 1.0))
               }
             } else {
               throw RuntimeError.custom("eval error", "not a valid hex number designating a " +
