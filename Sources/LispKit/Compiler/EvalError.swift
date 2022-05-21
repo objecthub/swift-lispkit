@@ -113,6 +113,7 @@ public enum EvalError: Int, Hashable {
   case invalidRect
   case cannotLoadImage
   case cannotLoadImageAsset
+  case cannotCreateImage
   case cannotCreateBitmap
   case invalidImageFileType
   case invalidCompositionOperation
@@ -334,6 +335,8 @@ public enum EvalError: Int, Hashable {
         return "cannot load image from file $0"
       case .cannotLoadImageAsset:
         return "cannot load image asset $0 of type $1 from directory $2"
+      case .cannotCreateImage:
+        return "cannot create image from bytevector $0"
       case .cannotCreateBitmap:
         return "cannot create bitmap; error in arguments: $0"
       case .invalidImageFileType:

@@ -142,6 +142,7 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("image?", isImage))
     self.define(Procedure("load-image", loadImage))
     self.define(Procedure("load-image-asset", loadImageAsset))
+    self.define(Procedure("bytevector->image", bytevectorToImage))
     self.define(Procedure("image-size", imageSize))
     self.define(Procedure("set-image-size!", setImageSize))
     self.define(Procedure("bitmap?", isBitmap))
@@ -730,6 +731,14 @@ public final class DrawingLibrary: NativeLibrary {
     } else {
       throw RuntimeError.eval(.cannotLoadImageAsset, name, type, dir ?? .makeString("Images"))
     }
+  }
+  
+  private func bytevectorToImage(expr: Expr, args: Arguments) throws -> Expr {
+    let subvec = try BytevectorLibrary.subVector("bytevector->image", expr, args)
+    guard let nsimage = UIImage(data: Data(subvec)) else {
+      throw RuntimeError.eval(.cannotCreateImage, expr)
+    }
+    return .object(NativeImage(nsimage))
   }
   
   private func imageSize(image: Expr) throws -> Expr {
