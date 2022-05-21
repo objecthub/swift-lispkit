@@ -955,6 +955,8 @@
 		CCCACB5C248D753800F012AC /* SystemOSLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCACB5B248D753800F012AC /* SystemOSLibrary.swift */; };
 		CCCB66E1282DBBC80004827D /* DrawBarCharts.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCCB66E0282DB9790004827D /* DrawBarCharts.scm */; };
 		CCCB66E2282DBBDB0004827D /* DrawBarCharts.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCCB66E0282DB9790004827D /* DrawBarCharts.scm */; };
+		CCCB66E4283056E30004827D /* StyledTextLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCB66E3283056E30004827D /* StyledTextLibrary.swift */; };
+		CCCB66E5283056E30004827D /* StyledTextLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCB66E3283056E30004827D /* StyledTextLibrary.swift */; };
 		CCCEB3FF1DF2DAA9009BF66B /* FileHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCEB3FE1DF2DAA9009BF66B /* FileHandler.swift */; };
 		CCD3E15425C5ECC8007FCE8A /* prolog.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCD3E15325C5EB83007FCE8A /* prolog.sld */; };
 		CCD3E15925C638F5007FCE8A /* Schelog.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCD3E15825C63898007FCE8A /* Schelog.scm */; };
@@ -2889,6 +2891,7 @@
 		CCCAF5AE23B7A71400FE2C60 /* HtmlColors.plist */ = {isa = PBXFileReference; lastKnownFileType = file.bplist; path = HtmlColors.plist; sourceTree = "<group>"; };
 		CCCAF92D1F941A43006692E9 /* Package.swift */ = {isa = PBXFileReference; explicitFileType = sourcecode.swift; fileEncoding = 4; indentWidth = 2; path = Package.swift; sourceTree = "<group>"; tabWidth = 2; };
 		CCCB66E0282DB9790004827D /* DrawBarCharts.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = DrawBarCharts.scm; sourceTree = "<group>"; };
+		CCCB66E3283056E30004827D /* StyledTextLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StyledTextLibrary.swift; sourceTree = "<group>"; };
 		CCCEB3FE1DF2DAA9009BF66B /* FileHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileHandler.swift; sourceTree = "<group>"; };
 		CCD3E15325C5EB83007FCE8A /* prolog.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = prolog.sld; sourceTree = "<group>"; };
 		CCD3E15725C60FBC007FCE8A /* red.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = red.sld; sourceTree = "<group>"; };
@@ -3875,6 +3878,7 @@
 				CCCACB5B248D753800F012AC /* SystemOSLibrary.swift */,
 				CC4575C520F00C4400116F0F /* DrawingLibrary.swift */,
 				CCD5E5972633405900C45EA0 /* DrawingLibrary_iOS.swift */,
+				CCCB66E3283056E30004827D /* StyledTextLibrary.swift */,
 				CCA6C3D023610674007D2AF0 /* MarkdownLibrary.swift */,
 				CC08964D244090D1004503B1 /* SQLiteLibrary.swift */,
 				CCFB412A25B25316005B2429 /* ZipArchiveLibrary.swift */,
@@ -4475,6 +4479,7 @@
 				CC93A6611D0777A9008350C8 /* TextOutput.swift in Sources */,
 				CC5BBC791D5268D000367E8F /* HashTable.swift in Sources */,
 				CC2DA7572781037B00DE69CF /* EvalCondition.swift in Sources */,
+				CCCB66E4283056E30004827D /* StyledTextLibrary.swift in Sources */,
 				CC6A3B6A1C539DCA00E962E2 /* ManagedObjectPool.swift in Sources */,
 				CCC62D921CA9ED6A00E2C43F /* TrackedObject.swift in Sources */,
 				CC38528B23126F7A001D5E56 /* InternalLibrary.swift in Sources */,
@@ -4620,6 +4625,7 @@
 				CCC48C7625E5B94900D082AD /* TextInput.swift in Sources */,
 				CCC48C8D25E5B95B00D082AD /* HashTable.swift in Sources */,
 				CCC48CCC25E5B98600D082AD /* DebugLibrary.swift in Sources */,
+				CCCB66E5283056E30004827D /* StyledTextLibrary.swift in Sources */,
 				CCC48C8C25E5B95B00D082AD /* Port.swift in Sources */,
 				CCC48CD425E5B98600D082AD /* SystemLibrary.swift in Sources */,
 				CCC48CB725E5B97100D082AD /* LibraryManager.swift in Sources */,
@@ -4820,6 +4826,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_TESTING_SEARCH_PATHS = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -4882,6 +4889,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTING_SEARCH_PATHS = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = s;

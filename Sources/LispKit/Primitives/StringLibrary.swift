@@ -527,17 +527,18 @@ public final class StringLibrary: NativeLibrary {
     }
   }
   
-  func stringReplaceRange(_ expr: Expr, _ repl: Expr, _ args: Arguments) throws -> Expr {
+  func stringReplaceRange(_ expr: Expr, _ repl: Expr, _ s: Expr?, _ e: Expr?) throws -> Expr {
     let str = try expr.asMutableStr()
     let to = try repl.asString()
-    guard let (s, e) = args.optional(Expr.makeNumber(0), Expr.makeNumber(str.length)) else {
-      throw RuntimeError.argumentCount(of: "string-insert!",
-                                       min: 2,
-                                       max: 4,
-                                       args: .pair(expr, .pair(repl, .makeList(args))))
+    let start: Int
+    let end: Int
+    if let e = e {
+      end = try e.asInt(below: str.length + 1)
+      start = try s?.asInt(below: end + 1) ?? end
+    } else {
+      start = try s?.asInt(below: str.length + 1) ?? 0
+      end = start
     }
-    let end = try e.asInt(below: str.length + 1)
-    let start = try s.asInt(below: end + 1)
     str.replaceCharacters(in: NSMakeRange(start, end - start), with: to)
     return .void
   }

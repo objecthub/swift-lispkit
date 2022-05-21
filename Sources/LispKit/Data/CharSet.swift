@@ -280,8 +280,11 @@ public final class CharSet: NativeObject {
     return cs
   }
 
-  private class func convert(cs: CharacterSet, target: CharSet? = nil) -> CharSet {
-    let nscs = cs as NSCharacterSet
+  class func convert(cs: CharacterSet, target: CharSet? = nil) -> CharSet {
+    return Self.convert(nscs: cs as NSCharacterSet, target: target)
+  }
+  
+  class func convert(nscs: NSCharacterSet, target: CharSet? = nil) -> CharSet {
     let res = target == nil ? CharSet(immutable: true) : target!
     for ch in 0...UInt16.max {
       if nscs.characterIsMember(ch) {

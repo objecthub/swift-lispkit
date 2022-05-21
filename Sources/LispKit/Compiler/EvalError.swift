@@ -145,6 +145,16 @@ public enum EvalError: Int, Hashable {
   case threadTerminated
   case firstArgOfProcViolation
   case secondArgOfProcViolation
+  case unknownTextAlignment
+  case unknownTextFitMode
+  case unknownWritingDirection
+  case unknownParagraphStyleAttribute
+  case expectedParagraphStyleAttributeKeyword
+  case unknownTextStyleAttribute
+  case expectedTextStyleAttributeKeyword
+  case invalidShadowSpec
+  case cannotMakeStyledText
+  case textStyleNotApplicableToImage
   
   public var message: String {
     switch self {
@@ -388,6 +398,26 @@ public enum EvalError: Int, Hashable {
         return "first argument $0 of $,1 violates requirement: $0 $,2"
       case .secondArgOfProcViolation:
         return "second argument $0 of $,1 violates requirement: $0 $,2"
+      case .unknownTextAlignment:
+        return "unknown text alignment: $0"
+      case .unknownTextFitMode:
+        return "unknown text fit mode: $0"
+      case .unknownWritingDirection:
+        return "unknown writing direction: $0"
+      case .unknownParagraphStyleAttribute:
+        return "unknown paragraph style attribute: $0"
+      case .expectedParagraphStyleAttributeKeyword:
+        return "expected a paragraph style attribute keyword, but received: $0"
+      case .unknownTextStyleAttribute:
+        return "unknown text style attribute: $0"
+      case .expectedTextStyleAttributeKeyword:
+        return "expected a text style attribute keyword, but received: $0"
+      case .invalidShadowSpec:
+        return "invalid shadow specification: $0"
+      case .cannotMakeStyledText:
+        return "cannot create a styled text from $0"
+      case .textStyleNotApplicableToImage:
+        return "text styles are not applicable to image $0 and must be dropped"
     }
   }
   

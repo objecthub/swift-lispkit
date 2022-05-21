@@ -3,7 +3,7 @@
 //  LispKit
 //
 //  Created by Matthias Zenger on 06/07/2018.
-//  Copyright © 2018-2021 ObjectHub. All rights reserved.
+//  Copyright © 2018-2022 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -60,7 +60,48 @@ public final class Color: NativeObject {
     self.blue = blue
     self.alpha = alpha
   }
-
+  
+  public init?(_ cg: CGColor) {
+    guard let model = cg.colorSpace?.model else {
+      return nil
+    }
+    let components = cg.components
+    switch model {
+      case .rgb:
+        self.red = Double(components?[0] ?? 0.0)
+        self.green = Double(components?[1] ?? 0.0)
+        self.blue = Double(components?[2] ?? 0.0)
+        self.alpha = Double(components?[3] ?? 0.0)
+      case .monochrome:
+        let comp = Double(components?[0] ?? 0.0)
+        self.red = comp
+        self.green = comp
+        self.blue = comp
+        self.alpha = Double(components?[1] ?? 0.0)
+      default:
+        return nil
+    }
+  }
+  
+  public init(_ nc: NativeColor) {
+    #if os(iOS) || os(watchOS) || os(tvOS)
+    var red: CGFloat = 0.0
+    var green: CGFloat = 0.0
+    var blue: CGFloat = 0.0
+    var alpha: CGFloat = 0.0
+    nc.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+    self.red = red
+    self.green = green
+    self.blue = blue
+    self.alpha = alpha
+    #elseif os(macOS)
+    self.red = nc.redComponent
+    self.green = nc.greenComponent
+    self.blue = nc.blueComponent
+    self.alpha = nc.alphaComponent
+    #endif
+  }
+  
   /// Return native object type.
   public override var type: Type {
     return Self.type
