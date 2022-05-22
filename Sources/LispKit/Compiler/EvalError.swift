@@ -156,6 +156,7 @@ public enum EvalError: Int, Hashable {
   case invalidShadowSpec
   case cannotMakeStyledText
   case textStyleNotApplicableToImage
+  case unsupportedDocType
   
   public var message: String {
     switch self {
@@ -421,6 +422,8 @@ public enum EvalError: Int, Hashable {
         return "cannot create a styled text from $0"
       case .textStyleNotApplicableToImage:
         return "text styles are not applicable to image $0 and must be dropped"
+      case .unsupportedDocType:
+        return "unsupported document type: $0"
     }
   }
   

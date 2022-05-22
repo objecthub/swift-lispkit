@@ -74,6 +74,13 @@ public final class StyledTextLibrary: NativeLibrary {
   private let leftToRight: Symbol
   private let rightToLeft: Symbol
   
+  // Supported document types
+  private let docDoc: Symbol
+  private let wordDoc: Symbol
+  private let rtfDoc: Symbol
+  private let rtfdDoc: Symbol
+  private let plainDoc: Symbol
+  
   /// Initialize drawing library, in particular its parameter objects.
   public required init(in context: Context) throws {
     self.backgroundColor = context.symbols.intern("background-color")
@@ -125,6 +132,12 @@ public final class StyledTextLibrary: NativeLibrary {
     self.leftToRight = context.symbols.intern("left-to-right")
     self.rightToLeft = context.symbols.intern("right-to-left")
     
+    self.docDoc = context.symbols.intern("doc")
+    self.wordDoc = context.symbols.intern("docx")
+    self.rtfDoc = context.symbols.intern("rtf")
+    self.rtfdDoc = context.symbols.intern("rtfd")
+    self.plainDoc = context.symbols.intern("plain")
+    
     try super.init(in: context)
   }
   
@@ -144,9 +157,12 @@ public final class StyledTextLibrary: NativeLibrary {
   public override func declarations() {
     // Styled text
     self.define(Procedure("styled-text?", isStyledText))
-    self.define(Procedure("make-styled-text", makeStyledText))
     self.define(Procedure("styled-text", styledText))
+    self.define(Procedure("make-styled-text", makeStyledText))
+    self.define(Procedure("load-styled-text", loadStyledText))
     self.define(Procedure("copy-styled-text", copyStyledText))
+    self.define(Procedure("save-styled-text", saveStyledText))
+    self.define(Procedure("bytevector->styled-text", bytevectorToStyledText))
     self.define(Procedure("styled-text=?", styledTextEquals))
     self.define(Procedure("styled-text-string", styledTextString))
     self.define(Procedure("styled-text-insert!", styledTextInsert))
@@ -157,7 +173,7 @@ public final class StyledTextLibrary: NativeLibrary {
     self.define(Procedure("styled-text-remove!", styledTextRemove))
     self.define(Procedure("styled-text-attribute", styledTextAttribute))
     self.define(Procedure("styled-text-attributes", styledTextAttributes))
-    self.define(Procedure("styled-text->rtf", styledTextToRTF))
+    self.define(Procedure("styled-text->bytevector", styledTextToBytevector))
     
     // Text styles
     self.define(Procedure("text-style?", isTextStyle))
@@ -225,6 +241,27 @@ public final class StyledTextLibrary: NativeLibrary {
     return .bytes(MutableBox(res))
   }
   
+  private func documentType(from sym: Symbol,
+                            supportRtfd: Bool = false) -> NSAttributedString.DocumentType? {
+    switch sym {
+      case self.plainDoc:
+        return .plain
+      case self.rtfDoc:
+        return .rtf
+      case self.rtfdDoc:
+        return supportRtfd ? .rtfd : nil
+      #if os(macOS)
+      case self.docDoc:
+        return .docFormat
+      case self.wordDoc:
+        return .officeOpenXML
+        // return .wordML
+      #endif
+      default:
+        return nil
+    }
+  }
+  
   // Styled text
   
   private func isStyledText(expr: Expr) -> Expr {
@@ -232,6 +269,33 @@ public final class StyledTextLibrary: NativeLibrary {
       return .true
     }
     return .false
+  }
+  
+  private func styledText(expr: Expr, args: Arguments) throws -> Expr {
+    let str = try expr.asString()
+    guard let (font, color, pstyle) = args.optional(.false, .false, .false) else {
+      throw RuntimeError.argumentCount(of: "styled-text", min: 1, max: 4,
+                                       args: .pair(expr, .makeList(args)))
+    }
+    let tstyle = TextStyle()
+    if font.isTrue {
+      if color.isFalse && pstyle.isFalse,
+         case .object(let o) = font,
+         let ts = o as? TextStyle {
+        return .object(StyledText(NSMutableAttributedString(string: str,
+                                                            attributes: ts.attributes)))
+      } else {
+        tstyle.attributes[.font] = try self.font(from: font)
+      }
+    }
+    if color.isTrue {
+      tstyle.attributes[.foregroundColor] = try self.color(from: color).nsColor
+    }
+    if pstyle.isTrue {
+      tstyle.attributes[.paragraphStyle] = try self.paragraphStyle(from: pstyle).value
+    }
+    return .object(StyledText(NSMutableAttributedString(string: str,
+                                                        attributes: tstyle.attributes)))
   }
   
   private func makeStyledText(obj: Expr, args: Arguments) throws -> Expr {
@@ -274,31 +338,17 @@ public final class StyledTextLibrary: NativeLibrary {
     }
   }
   
-  private func styledText(expr: Expr, args: Arguments) throws -> Expr {
-    let str = try expr.asString()
-    guard let (font, color, pstyle) = args.optional(.false, .false, .false) else {
-      throw RuntimeError.argumentCount(of: "styled-text", min: 1, max: 4,
-                                       args: .pair(expr, .makeList(args)))
+  private func loadStyledText(filename: Expr, format: Expr) throws -> Expr {
+    let path = self.context.fileHandler.path(try filename.asPath(),
+                                             relativeTo: self.context.evaluator.currentDirectoryPath)
+    if let doctype = self.documentType(from: try format.asSymbol(), supportRtfd: true) {
+      let astr = try NSMutableAttributedString(url: URL(fileURLWithPath: path),
+                                               options: [.documentType : doctype],
+                                               documentAttributes: nil)
+      return .object(StyledText(astr))
+    } else {
+      throw RuntimeError.eval(.unsupportedDocType, format)
     }
-    let tstyle = TextStyle()
-    if font.isTrue {
-      if color.isFalse && pstyle.isFalse,
-         case .object(let o) = font,
-         let ts = o as? TextStyle {
-        return .object(StyledText(NSMutableAttributedString(string: str,
-                                                            attributes: ts.attributes)))
-      } else {
-        tstyle.attributes[.font] = try self.font(from: font)
-      }
-    }
-    if color.isTrue {
-      tstyle.attributes[.foregroundColor] = try self.color(from: color).nsColor
-    }
-    if pstyle.isTrue {
-      tstyle.attributes[.paragraphStyle] = try self.paragraphStyle(from: pstyle).value
-    }
-    return .object(StyledText(NSMutableAttributedString(string: str,
-                                                        attributes: tstyle.attributes)))
   }
   
   private func copyStyledText(text: Expr, start: Expr?, end: Expr?) throws -> Expr {
@@ -314,6 +364,36 @@ public final class StyledTextLibrary: NativeLibrary {
                                                                  length: astring.length - start)))))
     } else {
       return .object(StyledText(NSMutableAttributedString(attributedString: astring)))
+    }
+  }
+  
+  private func saveStyledText(filename: Expr, text: Expr, format: Expr) throws -> Expr {
+    let path = self.context.fileHandler.path(try filename.asPath(),
+                                             relativeTo: self.context.evaluator.currentDirectoryPath)
+    let astr = try self.styledText(from: text).value
+    if let doctype = self.documentType(from: try format.asSymbol(), supportRtfd: true) {
+      let fileWrapper = try? astr.fileWrapper(from: NSMakeRange(0, astr.length),
+                                              documentAttributes: [.documentType : doctype])
+      try fileWrapper?.write(to: URL(fileURLWithPath: path),
+                             options: .atomic,
+                             originalContentsURL: nil)
+    } else {
+      throw RuntimeError.eval(.unsupportedDocType, format)
+    }
+    return .void
+  }
+  
+  private func bytevectorToStyledText(expr: Expr, format: Expr, args: Arguments) throws -> Expr {
+    let subvec = try BytevectorLibrary.subVector("bytevector->styled-text", expr, args)
+    if let docType = self.documentType(from: try format.asSymbol()) {
+      let astr = try NSMutableAttributedString(data: Data(subvec),
+                                               options: [
+                                                .documentType: docType,
+                                                /* .characterEncoding: String.Encoding.utf8 */],
+                                               documentAttributes: nil)
+      return .object(StyledText(astr))
+    } else {
+      throw RuntimeError.eval(.unsupportedDocType, format)
     }
   }
   
@@ -343,6 +423,8 @@ public final class StyledTextLibrary: NativeLibrary {
       end = start
     }
     switch istr {
+      case .false:
+        str.deleteCharacters(in: NSMakeRange(start, end - start))
       case .string(let s):
         if s.length == 0 {
           str.deleteCharacters(in: NSMakeRange(start, end - start))
@@ -350,10 +432,16 @@ public final class StyledTextLibrary: NativeLibrary {
           str.replaceCharacters(in: NSMakeRange(start, end - start), with: s as String)
         }
       case .object(let obj):
-        guard let s = obj as? StyledText else {
-          throw RuntimeError.type(istr, expected: [StyledText.type, .strType])
+        if let image = obj as? NativeImage {
+          let attachment = NSTextAttachment()
+          attachment.image = image.value
+          str.replaceCharacters(in: NSMakeRange(start, end - start),
+                                with: NSMutableAttributedString(attachment: attachment))
+        } else if let s = obj as? StyledText {
+          str.replaceCharacters(in: NSMakeRange(start, end - start), with: s.value)
+        } else {
+          throw RuntimeError.eval(.cannotMakeStyledText, istr)
         }
-        str.replaceCharacters(in: NSMakeRange(start, end - start), with: s.value)
       default:
         throw RuntimeError.type(istr, expected: [StyledText.type, .strType])
     }
@@ -366,11 +454,16 @@ public final class StyledTextLibrary: NativeLibrary {
       switch arg {
         case .string(let s):
           str.replaceCharacters(in: NSMakeRange(str.length, 0), with: s as String)
-        case .object(let obj):
-          guard let s = obj as? StyledText else {
-            throw RuntimeError.type(arg, expected: [StyledText.type, .strType])
+        case .object(let o):
+          if let image = o as? NativeImage {
+            let attachment = NSTextAttachment()
+            attachment.image = image.value
+            str.append(NSMutableAttributedString(attachment: attachment))
+          } else if let s = o as? StyledText {
+            str.append(s.value)
+          } else {
+            throw RuntimeError.eval(.cannotMakeStyledText, arg)
           }
-          str.append(s.value)
         default:
           throw RuntimeError.type(arg, expected: [StyledText.type, .strType])
       }
@@ -482,15 +575,22 @@ public final class StyledTextLibrary: NativeLibrary {
                                .null)))
   }
   
-  private func styledTextToRTF(text: Expr, start: Expr?, end: Expr?) throws -> Expr {
+  private func styledTextToBytevector(text: Expr,
+                                      format: Expr,
+                                      start: Expr?,
+                                      end: Expr?) throws -> Expr {
     let str = try self.styledText(from: text).value
     let e = (end?.isTrue ?? false) ? try end!.asInt(below: str.length + 1) : str.length
     let s = (start?.isTrue ?? false) ? try start!.asInt(below: e + 1) : 0
-    let data = try str.data(from: NSRange(location: s, length: e - s),
-                            documentAttributes: [
-                              .documentType: NSAttributedString.DocumentType.rtf,
-                              .characterEncoding: String.Encoding.utf8])
-    return self.bytevector(from: data)
+    if let docType = self.documentType(from: try format.asSymbol()) {
+      let data = try str.data(from: NSRange(location: s, length: e - s),
+                              documentAttributes: [
+                                .documentType: docType,
+                                /* .characterEncoding: String.Encoding.utf8 */])
+      return self.bytevector(from: data)
+    } else {
+      throw RuntimeError.eval(.unsupportedDocType, format)
+    }
   }
   
   // Text style
