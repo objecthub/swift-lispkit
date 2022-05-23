@@ -39,6 +39,15 @@ public final class StyledTextLibrary: NativeLibrary {
   private let underlineColor: Symbol
   private let writingDirection: Symbol
   
+  // Text block style attributes
+  private let width: Symbol
+  private let height: Symbol
+  private let margin: Symbol
+  private let border: Symbol
+  private let padding: Symbol
+  private let borderColor: Symbol
+  private let verticalAlignment: Symbol
+  
   // Paragraph style attributes
   private let alignment: Symbol
   private let firstHeadIndent: Symbol
@@ -62,6 +71,12 @@ public final class StyledTextLibrary: NativeLibrary {
   private let justified: Symbol
   private let natural: Symbol
   
+  // Vertical alignment
+  private let top: Symbol
+  private let bottom: Symbol
+  private let middle: Symbol
+  private let baseline: Symbol
+  
   // Text fit mode
   private let wordWrap: Symbol
   private let charWrap: Symbol
@@ -80,6 +95,9 @@ public final class StyledTextLibrary: NativeLibrary {
   private let rtfDoc: Symbol
   private let rtfdDoc: Symbol
   private let plainDoc: Symbol
+  
+  // Percentage
+  private let percent: Symbol
   
   /// Initialize drawing library, in particular its parameter objects.
   public required init(in context: Context) throws {
@@ -100,6 +118,14 @@ public final class StyledTextLibrary: NativeLibrary {
     self.superscript = context.symbols.intern("superscript")
     self.underlineColor = context.symbols.intern("underline-color")
   
+    self.width = context.symbols.intern("width")
+    self.height = context.symbols.intern("height")
+    self.margin = context.symbols.intern("margin")
+    self.border = context.symbols.intern("border")
+    self.padding = context.symbols.intern("padding")
+    self.borderColor = context.symbols.intern("border-color")
+    self.verticalAlignment = context.symbols.intern("vertical-alignment")
+    
     self.alignment = context.symbols.intern("alignment")
     self.firstHeadIndent = context.symbols.intern("first-head-indent")
     self.headIndent = context.symbols.intern("head-indent")
@@ -122,6 +148,11 @@ public final class StyledTextLibrary: NativeLibrary {
     self.justified = context.symbols.intern("justified")
     self.natural = context.symbols.intern("natural")
     
+    self.top = context.symbols.intern("top")
+    self.bottom = context.symbols.intern("bottom")
+    self.middle = context.symbols.intern("middle")
+    self.baseline = context.symbols.intern("baseline")
+    
     self.wordWrap = context.symbols.intern("word-wrap")
     self.charWrap = context.symbols.intern("char-wrap")
     self.clip = context.symbols.intern("clip")
@@ -138,6 +169,7 @@ public final class StyledTextLibrary: NativeLibrary {
     self.rtfdDoc = context.symbols.intern("rtfd")
     self.plainDoc = context.symbols.intern("plain")
     
+    self.percent = context.symbols.intern("%")
     try super.init(in: context)
   }
   
@@ -179,11 +211,22 @@ public final class StyledTextLibrary: NativeLibrary {
     self.define(Procedure("text-style?", isTextStyle))
     self.define(Procedure("make-text-style", makeTextStyle))
     self.define(Procedure("copy-text-style", copyTextStyle))
+    self.define(Procedure("text-style-empty?", textStyleEmpty))
     self.define(Procedure("text-style-ref", textStyleRef))
     self.define(Procedure("text-style-set!", textStyleSet))
     self.define(Procedure("text-style-merge!", textStyleMerge))
     self.define(Procedure("text-style-remove!", textStyleRemove))
     self.define(Procedure("text-style-attributes", textStyleAttributes))
+    
+    // Text block styles
+    self.define(Procedure("percent", percentage))
+    self.define(Procedure("percent?", isPercentage))
+    self.define(Procedure("text-block-style?", isTextBlockStyle))
+    self.define(Procedure("make-text-block-style", makeTextBlockStyle))
+    self.define(Procedure("copy-text-block-style", copyTextBlockStyle))
+    self.define(Procedure("text-block-style=?", textBlockStyleEquals))
+    self.define(Procedure("text-block-style-ref", textBlockStyleRef))
+    self.define(Procedure("text-block-style-set!", textBlockStyleSet))
     
     // Paragraph styles
     self.define(Procedure("paragraph-style?", isParagraphStyle))
@@ -197,7 +240,7 @@ public final class StyledTextLibrary: NativeLibrary {
     self.define(Procedure("paragraph-style-tabstop-remove!", paragraphStyleTabstopRemove))
   }
   
-  // Utilities
+  // MARK: - Utilities
   
   private func color(from expr: Expr) throws -> Color {
     guard case .object(let obj) = expr, let color = obj as? Color else {
@@ -227,6 +270,13 @@ public final class StyledTextLibrary: NativeLibrary {
     return style
   }
   
+  private func textBlockStyle(from expr: Expr) throws -> TextBlockStyle {
+    guard case .object(let obj) = expr, let style = obj as? TextBlockStyle else {
+      throw RuntimeError.type(expr, expected: [TextBlockStyle.type])
+    }
+    return style
+  }
+  
   private func paragraphStyle(from expr: Expr) throws -> ParagraphStyle {
     guard case .object(let obj) = expr, let style = obj as? ParagraphStyle else {
       throw RuntimeError.type(expr, expected: [ParagraphStyle.type])
@@ -239,6 +289,32 @@ public final class StyledTextLibrary: NativeLibrary {
     var res = [UInt8](repeating: 0, count: count)
     data.copyBytes(to: &res, count: count)
     return .bytes(MutableBox(res))
+  }
+  
+  private func percentageOrPoints(from expr: Expr) throws -> TextBlockStyle.Value {
+    switch expr {
+      case .false:
+        return .undefined
+      case .pair(.flonum(let x), .symbol(self.percent)):
+        return .percentage(x)
+      default:
+        return .points(try expr.asDouble(coerce: true))
+    }
+  }
+  
+  private func verticalAlignment(from sym: Symbol) -> TextBlockStyle.VerticalAlignment? {
+    switch sym {
+      case self.top:
+        return .top
+      case self.bottom:
+        return .bottom
+      case self.middle:
+        return .middle
+      case self.baseline:
+        return .baseline
+      default:
+        return nil
+    }
   }
   
   private func documentType(from sym: Symbol,
@@ -262,7 +338,7 @@ public final class StyledTextLibrary: NativeLibrary {
     }
   }
   
-  // Styled text
+  // MARK: - Styled text
   
   private func isStyledText(expr: Expr) -> Expr {
     if case .object(let obj) = expr, obj is StyledText {
@@ -593,13 +669,17 @@ public final class StyledTextLibrary: NativeLibrary {
     }
   }
   
-  // Text style
+  // MARK: - Text style
   
   private func isTextStyle(expr: Expr) -> Expr {
     if case .object(let obj) = expr, obj is TextStyle {
       return .true
     }
     return .false
+  }
+  
+  private func textStyleEmpty(style: Expr) throws -> Expr {
+    return .makeBoolean(try self.textStyle(from: style).attributes.isEmpty)
   }
   
   private func makeTextStyle(args: Arguments) throws -> Expr {
@@ -922,7 +1002,7 @@ public final class StyledTextLibrary: NativeLibrary {
     }
   }
   
-  // Text alignment
+  // MARK: - Text alignment
   
   private func textAlignment(from expr: Expr) throws -> NSTextAlignment {
     if expr.isFalse {
@@ -961,7 +1041,277 @@ public final class StyledTextLibrary: NativeLibrary {
     }
   }
   
-  // Paragraph styles
+  // MARK: - Text block styles
+  
+  private func percentage(expr: Expr) throws -> Expr {
+    return .pair(.flonum(try expr.asDouble(coerce: true)), .symbol(self.percent))
+  }
+  
+  private func isPercentage(obj: Expr) throws -> Expr {
+    guard case .pair(.flonum(_), .symbol(self.percent)) = obj else {
+      return .false
+    }
+    return .true
+  }
+  
+  private func isTextBlockStyle(expr: Expr) -> Expr {
+    if case .object(let obj) = expr, obj is TextBlockStyle {
+      return .true
+    }
+    return .false
+  }
+  
+  private func makeTextBlockStyle(args: Arguments) throws -> Expr {
+    let tbstyle = TextBlockStyle()
+    var i = args.startIndex
+    while i < args.endIndex {
+      guard case .symbol(let keyword) = args[i],
+            keyword.identifier.hasSuffix(":") else {
+        throw RuntimeError.eval(.expectedTextBlockStyleAttribute, args[i])
+      }
+      i = args.index(after: i)
+      if i < args.endIndex {
+        var tbattr = keyword.identifier
+        tbattr.removeLast()
+        try self.textBlockStyleSet(tbstyle: tbstyle,
+                                   tbattr: self.context.symbols.intern(tbattr),
+                                   value: args[i])
+        i = args.index(after: i)
+      } else {
+        break
+      }
+    }
+    return .object(tbstyle)
+  }
+  
+  private func copyTextBlockStyle(style: Expr) throws -> Expr {
+    let newStyle = TextBlockStyle()
+    newStyle.copy(from: try self.textBlockStyle(from: style))
+    return .object(newStyle)
+  }
+  
+  private func textBlockStyleEquals(style: Expr, args: Arguments) throws -> Expr {
+    let tbstyle = try self.textBlockStyle(from: style)
+    for arg in args {
+      if !tbstyle.equals(to: try self.textBlockStyle(from: arg)) {
+        return .false
+      }
+    }
+    return .true
+  }
+  
+  private func valueExpr(_ value: TextBlockStyle.Value) -> Expr {
+    switch value {
+      case .undefined:
+        return .false
+      case .points(let x):
+        return .flonum(x)
+      case .percentage(let x):
+        return .pair(.flonum(x), .symbol(self.percent))
+    }
+  }
+  
+  private func offsetsExpr(_ off: TextBlockStyle.Offsets) -> Expr {
+    if off.left == off.right && off.left == off.top && off.left == off.bottom {
+      return self.valueExpr(off.left)
+    } else {
+      return .pair(self.valueExpr(off.left),
+                   .pair(self.valueExpr(off.right),
+                         .pair(self.valueExpr(off.top),
+                               .pair(self.valueExpr(off.bottom), .null))))
+    }
+  }
+  
+  private func textBlockStyleRef(style: Expr, attr: Expr) throws -> Expr {
+    let tbstyle = try self.textBlockStyle(from: style)
+    let tbattr = try attr.asSymbol()
+    switch tbattr {
+      case self.width:
+        if tbstyle.width.minimum == .undefined && tbstyle.width.maximum == .undefined {
+          return self.valueExpr(tbstyle.width.value)
+        } else {
+          return .pair(self.valueExpr(tbstyle.width.minimum),
+                       self.valueExpr(tbstyle.width.maximum))
+        }
+      case self.height:
+        if tbstyle.height.minimum == .undefined && tbstyle.height.maximum == .undefined {
+          return self.valueExpr(tbstyle.height.value)
+        } else {
+          return .pair(self.valueExpr(tbstyle.height.minimum),
+                       self.valueExpr(tbstyle.height.maximum))
+        }
+      case self.margin:
+        return self.offsetsExpr(tbstyle.margin)
+      case self.border:
+        return self.offsetsExpr(tbstyle.border)
+      case self.padding:
+        return self.offsetsExpr(tbstyle.padding)
+      case self.backgroundColor:
+        if let col = tbstyle.backgroundColor {
+          return .object(col)
+        } else {
+          return .false
+        }
+      case self.borderColor:
+        if tbstyle.borderColorLeft == tbstyle.borderColorRight &&
+           tbstyle.borderColorLeft == tbstyle.borderColorTop &&
+           tbstyle.borderColorLeft == tbstyle.borderColorBottom {
+          if let col = tbstyle.borderColorLeft {
+            return .object(col)
+          } else {
+            return .false
+          }
+        } else {
+          let left = tbstyle.borderColorLeft == nil ? Expr.false : .object(tbstyle.borderColorLeft!)
+          let right = tbstyle.borderColorRight == nil ? Expr.false
+                                                      : .object(tbstyle.borderColorRight!)
+          let top = tbstyle.borderColorTop == nil ? Expr.false : .object(tbstyle.borderColorTop!)
+          let bottom = tbstyle.borderColorBottom == nil ? Expr.false
+                                                        : .object(tbstyle.borderColorBottom!)
+          return .pair(left, .pair(right, .pair(top, .pair(bottom, .null))))
+        }
+      case self.verticalAlignment:
+        switch tbstyle.verticalAlignment {
+          case .undefined:
+            return .false
+          case .top:
+            return .symbol(self.top)
+          case .middle:
+            return .symbol(self.middle)
+          case .bottom:
+            return .symbol(self.bottom)
+          case .baseline:
+            return .symbol(self.baseline)
+        }
+      default:
+        throw RuntimeError.eval(.unknownTextBlockStyleAttribute, attr)
+    }
+  }
+  
+  private func textBlockStyleSet(tbstyle: TextBlockStyle,
+                                 tbattr: Symbol,
+                                 value: Expr) throws {
+    switch tbattr {
+      case self.width:
+        switch value {
+          case .false:
+            tbstyle.width.reset()
+          case .pair(.flonum(let x), .symbol(self.percent)):
+            tbstyle.width.value = .percentage(x)
+            tbstyle.width.minimum = .undefined
+            tbstyle.width.maximum = .undefined
+          case .pair(let min, let max):
+            tbstyle.width.value = .undefined
+            tbstyle.width.minimum = try self.percentageOrPoints(from: min)
+            tbstyle.width.maximum = try self.percentageOrPoints(from: max)
+          default:
+            tbstyle.width.value = .points(try value.asDouble(coerce: true))
+            tbstyle.width.minimum = .undefined
+            tbstyle.width.maximum = .undefined
+        }
+      case self.height:
+        switch value {
+          case .false:
+            tbstyle.height.reset()
+          case .pair(.flonum(let x), .symbol(self.percent)):
+            tbstyle.height.value = .percentage(x)
+            tbstyle.height.minimum = .undefined
+            tbstyle.height.maximum = .undefined
+          case .pair(let min, let max):
+            tbstyle.height.value = .undefined
+            tbstyle.height.minimum = try self.percentageOrPoints(from: min)
+            tbstyle.height.maximum = try self.percentageOrPoints(from: max)
+          default:
+            tbstyle.height.value = .points(try value.asDouble(coerce: true))
+            tbstyle.height.minimum = .undefined
+            tbstyle.height.maximum = .undefined
+        }
+      case self.margin:
+        switch value {
+          case .false:
+            tbstyle.margin.reset()
+          case .pair(.flonum(let x), .symbol(self.percent)):
+            tbstyle.margin.set(.percentage(x))
+          case .pair(let left, .pair(let right, .pair(let top, .pair(let bottom, .null)))):
+            tbstyle.margin.left = try self.percentageOrPoints(from: left)
+            tbstyle.margin.right = try self.percentageOrPoints(from: right)
+            tbstyle.margin.top = try self.percentageOrPoints(from: top)
+            tbstyle.margin.bottom = try self.percentageOrPoints(from: bottom)
+          case .pair(let horiz, .pair(let vert, .null)):
+            tbstyle.margin.set(try self.percentageOrPoints(from: horiz),
+                               try self.percentageOrPoints(from: vert))
+          default:
+            tbstyle.margin.set(.points(try value.asDouble(coerce: true)))
+        }
+      case self.border:
+        switch value {
+          case .false:
+            tbstyle.border.reset()
+          case .pair(.flonum(let x), .symbol(self.percent)):
+            tbstyle.border.set(.percentage(x))
+          case .pair(let left, .pair(let right, .pair(let top, .pair(let bottom, .null)))):
+            tbstyle.border.left = try self.percentageOrPoints(from: left)
+            tbstyle.border.right = try self.percentageOrPoints(from: right)
+            tbstyle.border.top = try self.percentageOrPoints(from: top)
+            tbstyle.border.bottom = try self.percentageOrPoints(from: bottom)
+          case .pair(let horiz, .pair(let vert, .null)):
+            tbstyle.border.set(try self.percentageOrPoints(from: horiz),
+                               try self.percentageOrPoints(from: vert))
+          default:
+            tbstyle.border.set(.points(try value.asDouble(coerce: true)))
+        }
+      case self.padding:
+        switch value {
+          case .false:
+            tbstyle.padding.reset()
+          case .pair(.flonum(let x), .symbol(self.percent)):
+            tbstyle.padding.set(.percentage(x))
+          case .pair(let left, .pair(let right, .pair(let top, .pair(let bottom, .null)))):
+            tbstyle.padding.left = try self.percentageOrPoints(from: left)
+            tbstyle.padding.right = try self.percentageOrPoints(from: right)
+            tbstyle.padding.top = try self.percentageOrPoints(from: top)
+            tbstyle.padding.bottom = try self.percentageOrPoints(from: bottom)
+          case .pair(let horiz, .pair(let vert, .null)):
+            tbstyle.padding.set(try self.percentageOrPoints(from: horiz),
+                                try self.percentageOrPoints(from: vert))
+          default:
+            tbstyle.padding.set(.points(try value.asDouble(coerce: true)))
+        }
+      case self.backgroundColor:
+        tbstyle.backgroundColor = value.isTrue ? try self.color(from: value) : nil
+      case self.borderColor:
+        switch value {
+          case .false:
+            tbstyle.setBorderColor(nil)
+          case .pair(let left, .pair(let right, .pair(let top, .pair(let bottom, .null)))):
+            tbstyle.borderColorLeft = left.isTrue ? try self.color(from: left) : nil
+            tbstyle.borderColorRight = right.isTrue ? try self.color(from: right) : nil
+            tbstyle.borderColorTop = top.isTrue ? try self.color(from: top) : nil
+            tbstyle.borderColorBottom = bottom.isTrue ? try self.color(from: bottom) : nil
+          case .pair(let horiz, .pair(let vert, .null)):
+            tbstyle.setBorderColor(horiz.isTrue ? try self.color(from: horiz) : nil,
+                                   vert.isTrue ? try self.color(from: vert) : nil)
+          default:
+            tbstyle.setBorderColor(value.isTrue ? try self.color(from: value) : nil)
+        }
+      case self.verticalAlignment:
+        guard let alignment = self.verticalAlignment(from: try value.asSymbol()) else {
+          throw RuntimeError.eval(.unknownTextAlignment, value)
+        }
+        tbstyle.verticalAlignment = alignment
+      default:
+        throw RuntimeError.eval(.unknownTextBlockStyleAttribute, .symbol(tbattr))
+    }
+  }
+  
+  private func textBlockStyleSet(style: Expr, attr: Expr, value: Expr) throws -> Expr {
+    try self.textBlockStyleSet(tbstyle: try self.textBlockStyle(from: style),
+                               tbattr: try attr.asSymbol(),
+                               value: value)
+    return .void
+  }
+  
+  // MARK: - Paragraph styles
   
   private func isParagraphStyle(expr: Expr) -> Expr {
     if case .object(let obj) = expr, obj is ParagraphStyle {
@@ -1074,7 +1424,7 @@ public final class StyledTextLibrary: NativeLibrary {
             return .false
         }
       default:
-        return .null
+        throw RuntimeError.eval(.unknownParagraphStyleAttribute, attr)
     }
   }
   
@@ -1210,6 +1560,196 @@ public final class StyledText: AnyNativeObject<NSMutableAttributedString> {
   public override var type: Type {
     return StyledText.type
   }
+}
+
+public final class TextBlockStyle: NativeObject {
+  
+  public enum VerticalAlignment: Equatable {
+    case undefined
+    case top
+    case middle
+    case bottom
+    case baseline
+  }
+  
+  public enum Value: Equatable {
+    case undefined
+    case points(CGFloat)
+    case percentage(CGFloat)
+  }
+
+  public struct Dimension: Equatable {
+    var value: Value = .undefined
+    var minimum: Value = .undefined
+    var maximum: Value = .undefined
+    
+    mutating func reset() {
+      self.value = .undefined
+      self.minimum = .undefined
+      self.maximum = .undefined
+    }
+  }
+
+  public struct Offsets: Equatable {
+    var top: Value = .undefined
+    var bottom: Value = .undefined
+    var left: Value = .undefined
+    var right: Value = .undefined
+    
+    mutating func reset() {
+      self.top = .undefined
+      self.bottom = .undefined
+      self.left = .undefined
+      self.right = .undefined
+    }
+    
+    mutating func set(_ val: Value) {
+      self.top = val
+      self.bottom = val
+      self.left = val
+      self.right = val
+    }
+    
+    mutating func set(_ horiz: Value, _ vert: Value) {
+      self.top = vert
+      self.bottom = vert
+      self.left = horiz
+      self.right = horiz
+    }
+  }
+  
+  /// Type representing text block styles.
+  public static let type = Type.objectType(Symbol(uninterned: "text-block-style"))
+  
+  /// Text block style attributes.
+  public var width = Dimension()
+  public var height = Dimension()
+  public var margin = Offsets()
+  public var border = Offsets()
+  public var padding = Offsets()
+  
+  public var verticalAlignment: VerticalAlignment = .undefined
+  public var backgroundColor: Color? = nil
+  public var borderColorTop: Color? = nil
+  public var borderColorBottom: Color? = nil
+  public var borderColorLeft: Color? = nil
+  public var borderColorRight: Color? = nil
+  
+  /// Return the native object type.
+  public override var type: Type {
+    return Self.type
+  }
+  
+  public func setBorderColor(_ col: Color?) {
+    self.borderColorTop = col
+    self.borderColorBottom = col
+    self.borderColorLeft = col
+    self.borderColorRight = col
+  }
+  
+  public func setBorderColor(_ horiz: Color?, _ vert: Color?) {
+    self.borderColorTop = vert
+    self.borderColorBottom = vert
+    self.borderColorLeft = horiz
+    self.borderColorRight = horiz
+  }
+  
+  public func copy(from other: TextBlockStyle) {
+    self.width = other.width
+    self.height = other.height
+    self.margin = other.margin
+    self.border = other.border
+    self.padding = other.padding
+    self.verticalAlignment = other.verticalAlignment
+    self.backgroundColor = other.backgroundColor
+    self.borderColorTop = other.borderColorTop
+    self.borderColorBottom = other.borderColorBottom
+    self.borderColorLeft = other.borderColorLeft
+    self.borderColorRight = other.borderColorRight
+  }
+  
+  public func equals(to other: TextBlockStyle) -> Bool {
+    return self.width == other.width &&
+           self.height == other.height &&
+           self.margin == other.margin &&
+           self.border == other.border &&
+           self.padding == other.padding &&
+           self.verticalAlignment == other.verticalAlignment &&
+           self.backgroundColor == other.backgroundColor &&
+           self.borderColorTop == other.borderColorTop &&
+           self.borderColorBottom == other.borderColorBottom &&
+           self.borderColorLeft == other.borderColorLeft &&
+           self.borderColorRight == other.borderColorRight
+  }
+  
+  // Unfortunately, tables are only supported in macOS (and iOS still does not allow
+  // tables in attributed strings and RTF documents)
+  #if os(macOS)
+  public func initialize(_ block: NSTextBlock) {
+    func setValue(_ val: Value, for dim: NSTextBlock.Dimension) {
+      switch val {
+        case .undefined:
+          break
+        case .points(let x):
+          block.setValue(x, type: .absoluteValueType, for: dim)
+        case .percentage(let x):
+          block.setValue(x, type: .percentageValueType, for: dim)
+      }
+    }
+    func setWidth(_ val: Value, for layer: NSTextBlock.Layer, edge: NSRectEdge) {
+      switch val {
+        case .undefined:
+          break
+        case .points(let x):
+          block.setWidth(x, type: .absoluteValueType, for: layer, edge: edge)
+        case .percentage(let x):
+          block.setWidth(x, type: .percentageValueType, for: layer, edge: edge)
+      }
+    }
+    func setOffsets(_ offsets: Offsets, for layer: NSTextBlock.Layer) {
+      setWidth(offsets.left, for: layer, edge: .minX)
+      setWidth(offsets.right, for: layer, edge: .maxX)
+      setWidth(offsets.top, for: layer, edge: .minY)
+      setWidth(offsets.bottom, for: layer, edge: .maxY)
+    }
+    setValue(self.width.value, for: .width)
+    setValue(self.width.minimum, for: .minimumWidth)
+    setValue(self.width.maximum, for: .maximumWidth)
+    setValue(self.height.value, for: .height)
+    setValue(self.height.minimum, for: .minimumHeight)
+    setValue(self.height.maximum, for: .maximumHeight)
+    setOffsets(self.margin, for: .margin)
+    setOffsets(self.border, for: .border)
+    setOffsets(self.padding, for: .padding)
+    switch self.verticalAlignment {
+      case .undefined:
+        break
+      case .top:
+        block.verticalAlignment = .topAlignment
+      case .bottom:
+        block.verticalAlignment = .bottomAlignment
+      case .middle:
+        block.verticalAlignment = .middleAlignment
+      case .baseline:
+        block.verticalAlignment = .baselineAlignment
+    }
+    if let color = self.backgroundColor?.nsColor {
+      block.backgroundColor = color
+    }
+    if let color = self.borderColorTop?.nsColor {
+      block.setBorderColor(color, for: .minY)
+    }
+    if let color = self.borderColorBottom?.nsColor {
+      block.setBorderColor(color, for: .maxY)
+    }
+    if let color = self.borderColorLeft?.nsColor {
+      block.setBorderColor(color, for: .minX)
+    }
+    if let color = self.borderColorRight?.nsColor {
+      block.setBorderColor(color, for: .maxX)
+    }
+  }
+  #endif
 }
 
 public final class TextStyle: NativeObject {

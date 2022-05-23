@@ -157,6 +157,8 @@ public enum EvalError: Int, Hashable {
   case cannotMakeStyledText
   case textStyleNotApplicableToImage
   case unsupportedDocType
+  case expectedTextBlockStyleAttribute
+  case unknownTextBlockStyleAttribute
   
   public var message: String {
     switch self {
@@ -424,6 +426,10 @@ public enum EvalError: Int, Hashable {
         return "text styles are not applicable to image $0 and must be dropped"
       case .unsupportedDocType:
         return "unsupported document type: $0"
+      case .expectedTextBlockStyleAttribute:
+        return "expected a text block style attribute keyword, but received: $0"
+      case .unknownTextBlockStyleAttribute:
+        return "unknown text block style attribute: $0"
     }
   }
   
