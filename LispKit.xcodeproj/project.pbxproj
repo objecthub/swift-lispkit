@@ -953,6 +953,8 @@
 		CCC9516F2426B3E900FC915F /* 162.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCC9516E2426B1E100FC915F /* 162.sld */; };
 		CCC951712426B6B000FC915F /* SRFI-128.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCC951702426B54600FC915F /* SRFI-128.scm */; };
 		CCCACB5C248D753800F012AC /* SystemOSLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCACB5B248D753800F012AC /* SystemOSLibrary.swift */; };
+		CCCB5C9D28403E870005248D /* 118.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCCB5C9C28403E550005248D /* 118.sld */; };
+		CCCB5C9E28403E960005248D /* 118.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCCB5C9C28403E550005248D /* 118.sld */; };
 		CCCB66E1282DBBC80004827D /* DrawBarCharts.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCCB66E0282DB9790004827D /* DrawBarCharts.scm */; };
 		CCCB66E2282DBBDB0004827D /* DrawBarCharts.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCCB66E0282DB9790004827D /* DrawBarCharts.scm */; };
 		CCCB66E4283056E30004827D /* StyledTextLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCB66E3283056E30004827D /* StyledTextLibrary.swift */; };
@@ -1725,6 +1727,7 @@
 			dstPath = Root/LispKit/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
+				CCCB5C9D28403E870005248D /* 118.sld in Copy pre-installed SRFI libraries */,
 				CC6E93CB281CA1320002C4BC /* 232.sld in Copy pre-installed SRFI libraries */,
 				CC372CE027D56FB50091C474 /* 141.sld in Copy pre-installed SRFI libraries */,
 				CCEF3E3327CB66D900FB56EB /* 149.sld in Copy pre-installed SRFI libraries */,
@@ -1835,6 +1838,7 @@
 			dstPath = Root/LispKit/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
+				CCCB5C9E28403E960005248D /* 118.sld in Copy pre-installed SRFI libraries */,
 				CC6E93CC281CA15A0002C4BC /* 232.sld in Copy pre-installed SRFI libraries */,
 				CC372CE127D56FC60091C474 /* 141.sld in Copy pre-installed SRFI libraries */,
 				CCEF3E3427CB66ED00FB56EB /* 149.sld in Copy pre-installed SRFI libraries */,
@@ -2890,6 +2894,7 @@
 		CCCACB5B248D753800F012AC /* SystemOSLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemOSLibrary.swift; sourceTree = "<group>"; };
 		CCCAF5AE23B7A71400FE2C60 /* HtmlColors.plist */ = {isa = PBXFileReference; lastKnownFileType = file.bplist; path = HtmlColors.plist; sourceTree = "<group>"; };
 		CCCAF92D1F941A43006692E9 /* Package.swift */ = {isa = PBXFileReference; explicitFileType = sourcecode.swift; fileEncoding = 4; indentWidth = 2; path = Package.swift; sourceTree = "<group>"; tabWidth = 2; };
+		CCCB5C9C28403E550005248D /* 118.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 118.sld; sourceTree = "<group>"; };
 		CCCB66E0282DB9790004827D /* DrawBarCharts.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = DrawBarCharts.scm; sourceTree = "<group>"; };
 		CCCB66E3283056E30004827D /* StyledTextLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StyledTextLibrary.swift; sourceTree = "<group>"; };
 		CCCEB3FE1DF2DAA9009BF66B /* FileHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileHandler.swift; sourceTree = "<group>"; };
@@ -3416,6 +3421,7 @@
 				CC26263B20F56DBF00AC08E8 /* 111.sld */,
 				CC26263D20F56F9300AC08E8 /* 112.sld */,
 				CC26263F20F7FB8100AC08E8 /* 113.sld */,
+				CCCB5C9C28403E550005248D /* 118.sld */,
 				CC7AAE6B1EC859E100B0F66C /* 121.sld */,
 				CC2C73DC21A217B500B18661 /* 125.sld */,
 				CCC072471F9C047D0063974E /* 128.sld */,
