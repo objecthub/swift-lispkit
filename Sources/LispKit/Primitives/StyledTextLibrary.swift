@@ -191,6 +191,9 @@ public final class StyledTextLibrary: NativeLibrary {
     self.define(Procedure("styled-text?", isStyledText))
     self.define(Procedure("styled-text", styledText))
     self.define(Procedure("make-styled-text", makeStyledText))
+    #if os(macOS)
+    self.define(Procedure("make-styled-text-table", makeStyledTextTable))
+    #endif
     self.define(Procedure("load-styled-text", loadStyledText))
     self.define(Procedure("copy-styled-text", copyStyledText))
     self.define(Procedure("save-styled-text", saveStyledText))
@@ -238,6 +241,7 @@ public final class StyledTextLibrary: NativeLibrary {
     self.define(Procedure("paragraph-style-tabstops", paragraphStyleTabstops))
     self.define(Procedure("paragraph-style-tabstop-add!", paragraphStyleTabstopAdd))
     self.define(Procedure("paragraph-style-tabstop-remove!", paragraphStyleTabstopRemove))
+    self.define(Procedure("paragraph-style-tabstops-clear!", paragraphStyleTabstopsClear))
   }
   
   // MARK: - Utilities
@@ -256,11 +260,29 @@ public final class StyledTextLibrary: NativeLibrary {
     return fontBox.value
   }
   
-  private func styledText(from expr: Expr) throws -> StyledText {
-    guard case .object(let obj) = expr, let str = obj as? StyledText else {
-      throw RuntimeError.type(expr, expected: [StyledText.type])
+  private func styledText(from expr: Expr, coerce: Bool = false) throws -> StyledText {
+    switch expr {
+      case .string(let s):
+        guard coerce else {
+          throw RuntimeError.type(expr, expected: [StyledText.type])
+        }
+        return StyledText(NSMutableAttributedString(string: s as String))
+      case .object(let o):
+        if coerce, let image = o as? NativeImage {
+          let attachment = NSTextAttachment()
+          attachment.image = image.value
+          return StyledText(NSMutableAttributedString(attachment: attachment))
+        } else if let s = o as? StyledText {
+          return s
+        }
+        fallthrough
+      default:
+        if coerce {
+          throw RuntimeError.type(expr, expected: [StyledText.type, NativeImage.type, .strType])
+        } else {
+          throw RuntimeError.type(expr, expected: [StyledText.type])
+        }
     }
-    return str
   }
   
   private func textStyle(from expr: Expr) throws -> TextStyle {
@@ -413,6 +435,109 @@ public final class StyledTextLibrary: NativeLibrary {
         throw RuntimeError.eval(.cannotMakeStyledText, obj)
     }
   }
+  
+  #if os(macOS)
+  private func makeStyledTextTable(cols: Expr, expr: Expr, args: Arguments) throws -> Expr {
+    guard let (style, dstyle, collapse, hideEmptyCells) =
+            args.optional(.false, .false, .true, .false) else {
+      throw RuntimeError.argumentCount(of: "make-styled-text-table", min: 2, max: 5,
+                                       args: .pair(cols, .pair(expr, .makeList(args))))
+    }
+    let ncols = try cols.asInt(above: 0, below: 101)
+    let tbstyle = style.isTrue ? try self.textBlockStyle(from: style) : TextBlockStyle()
+    let dpsstyle = dstyle.isTrue ? try self.paragraphStyle(from: dstyle).value
+                                 : NSParagraphStyle.default
+    let table = NSTextTable()
+    table.numberOfColumns = ncols
+    table.collapsesBorders = collapse.isTrue
+    table.hidesEmptyCells = hideEmptyCells.isTrue
+    let res = NSMutableAttributedString(string: "\n")
+    var rows = expr
+    var i = 0
+    while case .pair(let row, let next) = rows {
+      var columns = row
+      var j = 0
+      while case .pair(let column, let next) = columns {
+        var span = 1
+        var ctbstyle = tbstyle
+        var str: StyledText
+        let defaultStyle = dpsstyle.mutableCopy() as! NSMutableParagraphStyle
+        var inheritParagraphStyle: Bool = true
+        switch column {
+          case .pair(let text, .null):
+            str = try self.styledText(from: text, coerce: true)
+          case .pair(let text, .pair(let s, .null)):
+            str = try self.styledText(from: text, coerce: true)
+            span = try s.asInt(above: 0, below: ncols - j + 1)
+          case .pair(let text, .pair(let s, .pair(let cstyle, .null))):
+            str = try self.styledText(from: text, coerce: true)
+            span = try s.asInt(above: 0, below: ncols - j + 1)
+            if cstyle.isTrue {
+              ctbstyle = try self.textBlockStyle(from: cstyle)
+            }
+          case .pair(let text, .pair(let s, .pair(let cstyle, .pair(let ps, .null)))):
+            str = try self.styledText(from: text, coerce: true)
+            span = try s.asInt(above: 0, below: ncols - j + 1)
+            if cstyle.isTrue {
+              ctbstyle = try self.textBlockStyle(from: cstyle)
+            }
+            if ps.isTrue {
+              defaultStyle.setParagraphStyle(try self.paragraphStyle(from: ps).value)
+            }
+            inheritParagraphStyle = false
+          default:
+            str = try self.styledText(from: column, coerce: true)
+        }
+        let block = NSTextTableBlock(table: table,
+                                     startingRow: i,
+                                     rowSpan: 1,
+                                     startingColumn: j,
+                                     columnSpan: span)
+        ctbstyle.initialize(block)
+        let start = res.length
+        if inheritParagraphStyle,
+           dstyle.isFalse,
+           str.value.length > 0,
+           let ps = str.value.attribute(.paragraphStyle,
+                                        at: str.value.length - 1,
+                                        effectiveRange: nil) as? NSParagraphStyle {
+          defaultStyle.setParagraphStyle(ps)
+        }
+        defaultStyle.textBlocks.append(block)
+        res.append(str.value)
+        res.mutableString.append("\n")
+        var last: Int = start
+        res.enumerateAttribute(.paragraphStyle,
+                               in: NSRange(location: start, length: res.length - start),
+                               using: { value, range, stop in
+          if let pstyle = value as? NSParagraphStyle {
+            // Apply default style to gap without paragraph style
+            if range.location > last {
+              res.addAttribute(.paragraphStyle,
+                               value: defaultStyle,
+                               range: NSRange(location: last, length: range.location - last))
+            }
+            // Fix existing paragraph style
+            last = range.location + range.length
+            let npstyle = pstyle.mutableCopy() as! NSMutableParagraphStyle
+            npstyle.textBlocks.insert(block, at: 0)
+            res.addAttribute(.paragraphStyle, value: npstyle, range: range)
+          }
+        })
+        if last < res.length {
+          res.addAttribute(.paragraphStyle,
+                           value: defaultStyle,
+                           range: NSRange(location: last, length: res.length - last))
+        }
+        columns = next
+        j += span
+      }
+      rows = next
+      i += 1
+    }
+    return .object(StyledText(res))
+  }
+  #endif
   
   private func loadStyledText(filename: Expr, format: Expr) throws -> Expr {
     let path = self.context.fileHandler.path(try filename.asPath(),
@@ -754,9 +879,7 @@ public final class StyledTextLibrary: NativeLibrary {
         }
       case .paragraphStyle:
         if let pstyle = val as? NSParagraphStyle {
-          let style = NSMutableParagraphStyle()
-          style.setParagraphStyle(pstyle)
-          return .object(ParagraphStyle(style))
+          return .object(ParagraphStyle(pstyle.mutableCopy() as! NSMutableParagraphStyle))
         } else {
           return .false
         }
@@ -1322,6 +1445,7 @@ public final class StyledTextLibrary: NativeLibrary {
   
   private func makeParagraphStyle(args: Arguments) throws -> Expr {
     let pstyle = NSMutableParagraphStyle()
+    pstyle.setParagraphStyle(.default)
     var i = args.startIndex
     while i < args.endIndex {
       guard case .symbol(let keyword) = args[i],
@@ -1548,6 +1672,12 @@ public final class StyledTextLibrary: NativeLibrary {
     let location = try loc.asDouble(coerce: true)
     let alignment = try self.textAlignment(from: align ?? .symbol(self.left))
     pstyle.removeTabStop(NSTextTab(textAlignment: alignment, location: location))
+    return .void
+  }
+  
+  private func paragraphStyleTabstopsClear(style: Expr) throws -> Expr {
+    let pstyle = try self.paragraphStyle(from: style).value
+    pstyle.tabStops.removeAll()
     return .void
   }
 }
