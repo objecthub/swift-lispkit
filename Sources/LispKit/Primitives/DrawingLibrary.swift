@@ -135,6 +135,7 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("draw-ellipse", drawEllipse))
     self.define(Procedure("fill-ellipse", fillEllipse))
     self.define(Procedure("draw-text", drawText))
+    self.define(Procedure("draw-styled-text", drawStyledText))
     self.define(Procedure("draw-html", drawHtml))
     self.define(Procedure("draw-image", drawImage))
     self.define(Procedure("draw-drawing", drawDrawing))
@@ -237,6 +238,7 @@ public final class DrawingLibrary: NativeLibrary {
     
     // Utilities
     self.define(Procedure("text-size", textSize))
+    self.define(Procedure("styled-text-size", styledTextSize))
     self.define(Procedure("html-size", htmlSize))
     
     // Define constants
@@ -581,6 +583,17 @@ public final class DrawingLibrary: NativeLibrary {
                                                  color: clr,
                                                  style: nil,
                                                  at: loc))
+    return .void
+  }
+  
+  private func drawStyledText(text: Expr,
+                              location: Expr,
+                              drawing: Expr?) throws -> Expr {
+    guard case .object(let obj) = text, let attribStr = (obj as? StyledText)?.value else {
+      throw RuntimeError.type(text, expected: [StyledText.type])
+    }
+    let loc = try self.asObjectLocation(location)
+    try self.drawing(from: drawing).append(.attributedText(attribStr, at: loc))
     return .void
   }
   
@@ -1935,6 +1948,23 @@ public final class DrawingLibrary: NativeLibrary {
     let rect = str.boundingRect(with: size,
                                 options: [.usesLineFragmentOrigin, .usesFontLeading],
                                 attributes: attributes)
+    return .pair(.flonum(Double(rect.width)), .flonum(Double(rect.height)))
+  }
+  
+  private func styledTextSize(text: Expr, dimensions: Expr?) throws -> Expr {
+    guard case .object(let obj) = text, let str = (obj as? StyledText)?.value else {
+      throw RuntimeError.type(text, expected: [StyledText.type])
+    }
+    let size: NSSize
+    switch dimensions {
+      case .none:
+        size = NSSize(width: CGFloat.infinity, height: CGFloat.infinity)
+      case .some(.pair(.flonum(let w), .flonum(let h))):
+        size = NSSize(width: w, height: h)
+      case .some(let w):
+        size = NSSize(width: CGFloat(try w.asDouble(coerce: true)), height: CGFloat.infinity)
+    }
+    let rect = str.boundingRect(with: size, options: [.usesLineFragmentOrigin, .usesFontLeading])
     return .pair(.flonum(Double(rect.width)), .flonum(Double(rect.height)))
   }
   
