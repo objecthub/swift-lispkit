@@ -197,6 +197,7 @@ public final class StyledTextLibrary: NativeLibrary {
     self.define(Procedure("load-styled-text", loadStyledText))
     self.define(Procedure("copy-styled-text", copyStyledText))
     self.define(Procedure("save-styled-text", saveStyledText))
+    self.define(Procedure("html->styled-text", htmlToStyledText))
     self.define(Procedure("bytevector->styled-text", bytevectorToStyledText))
     self.define(Procedure("styled-text=?", styledTextEquals))
     self.define(Procedure("styled-text-string", styledTextString))
@@ -208,6 +209,9 @@ public final class StyledTextLibrary: NativeLibrary {
     self.define(Procedure("styled-text-remove!", styledTextRemove))
     self.define(Procedure("styled-text-attribute", styledTextAttribute))
     self.define(Procedure("styled-text-attributes", styledTextAttributes))
+    self.define(Procedure("styled-text-first-attribute", styledTextFirstAttribute))
+    self.define(Procedure("styled-text-first-attributes", styledTextFirstAttributes))
+    self.define(Procedure("styled-text->html", styledTextToHtml))
     self.define(Procedure("styled-text->bytevector", styledTextToBytevector))
     
     // Text styles
@@ -584,6 +588,16 @@ public final class StyledTextLibrary: NativeLibrary {
     return .void
   }
   
+  private func htmlToStyledText(html: Expr) throws -> Expr {
+    let data = Data(try html.asString().utf8)
+    let str = try NSMutableAttributedString(
+                       data: data,
+                       options: [.documentType: NSAttributedString.DocumentType.html,
+                                 .characterEncoding: String.Encoding.utf8.rawValue],
+                       documentAttributes: nil)
+    return .object(StyledText(str))
+  }
+  
   private func bytevectorToStyledText(expr: Expr, format: Expr, args: Arguments) throws -> Expr {
     let subvec = try BytevectorLibrary.subVector("bytevector->styled-text", expr, args)
     if let docType = self.documentType(from: try format.asSymbol()) {
@@ -731,18 +745,18 @@ public final class StyledTextLibrary: NativeLibrary {
     return .void
   }
   
-  private func styledTextAttribute(text: Expr, index: Expr, sym: Expr, args: Arguments) throws -> Expr {
-    guard let (start, end) = args.optional(.false, .false) else {
-      throw RuntimeError.argumentCount(of: "styled-text-attribute", min: 3, max: 5,
-                                       args: .pair(text, .pair(index, .pair(sym, .makeList(args)))))
-    }
+  private func styledTextAttribute(text: Expr,
+                                   sym: Expr,
+                                   index: Expr,
+                                   start: Expr?,
+                                   end: Expr?) throws -> Expr {
     let str = try self.styledText(from: text).value
-    let idx = try index.asInt(below: str.length + 1)
     guard let key = self.attributeKey(from: try sym.asSymbol()) else {
       throw RuntimeError.eval(.unknownTextStyleAttribute, sym)
     }
-    let s = start.isTrue ? try start.asInt(below: idx + 1) : 0
-    let e = end.isTrue ? try end.asInt(above: s, below: str.length + 1) : str.length
+    let idx = try index.asInt(below: str.length + 1)
+    let s = start != nil && start!.isTrue ? try start!.asInt(below: idx + 1) : 0
+    let e = end != nil && end!.isTrue ? try end!.asInt(above: s, below: str.length + 1) : str.length
     var range = NSRange(location: 0, length: 0)
     if let value = str.attribute(key,
                                  at: idx,
@@ -750,21 +764,48 @@ public final class StyledTextLibrary: NativeLibrary {
                                  in: NSRange(location: s, length: e - s)),
        let res = try self.textStyleValue(key: key, value: value) {
       return .values(.pair(res, .pair(.pair(.fixnum(Int64(range.location)),
-                                            .fixnum(Int64(range.location + range.length))), .null)))
-    } else {
-      return .false
+                                            .fixnum(Int64(range.location + range.length))),
+                                      .null)))
     }
+    return .values(.pair(.false, .pair(.false, .null)))
   }
   
-  private func styledTextAttributes(text: Expr, index: Expr, args: Arguments) throws -> Expr {
-    guard let (start, end) = args.optional(.false, .false) else {
-      throw RuntimeError.argumentCount(of: "styled-text-attributes", min: 2, max: 4,
-                                       args: .pair(text, .pair(index, .makeList(args))))
+  private func styledTextFirstAttribute(text: Expr,
+                                        sym: Expr,
+                                        start: Expr?,
+                                        end: Expr?) throws -> Expr {
+    let str = try self.styledText(from: text).value
+    guard let key = self.attributeKey(from: try sym.asSymbol()) else {
+      throw RuntimeError.eval(.unknownTextStyleAttribute, sym)
     }
+    let s = start != nil && start!.isTrue ? try start!.asInt(below: str.length + 1) : 0
+    let e = end != nil && end!.isTrue ? try end!.asInt(above: s, below: str.length + 1) : str.length
+    var res = Expr.undef
+    str.enumerateAttribute(key,
+                           in: NSRange(location: s, length: e - s),
+                           options: [],
+                           using: { value, range, stop in
+      do {
+        if let value = value,
+           let val = try self.textStyleValue(key: key, value: value) {
+          res = .values(.pair(val, .pair(.pair(.fixnum(Int64(range.location)),
+                                               .fixnum(Int64(range.location + range.length))),
+                                         .null)))
+          stop.pointee = false
+        }
+      } catch {}
+    })
+    return res.isUndef ? .values(.pair(.false, .pair(.false, .null))) : res
+  }
+
+  private func styledTextAttributes(text: Expr,
+                                    index: Expr,
+                                    start: Expr?,
+                                    end: Expr?) throws -> Expr {
     let str = try self.styledText(from: text).value
     let idx = try index.asInt(below: str.length + 1)
-    let s = start.isTrue ? try start.asInt(below: idx + 1) : 0
-    let e = end.isTrue ? try end.asInt(above: s, below: str.length + 1) : str.length
+    let s = start != nil && start!.isTrue ? try start!.asInt(below: idx + 1) : 0
+    let e = end != nil && end!.isTrue ? try end!.asInt(above: s, below: str.length + 1) : str.length
     var range = NSRange(location: 0, length: 0)
     let res = TextStyle()
     res.attributes = str.attributes(at: idx,
@@ -774,6 +815,47 @@ public final class StyledTextLibrary: NativeLibrary {
                          .pair(.pair(.fixnum(Int64(range.location)),
                                      .fixnum(Int64(range.location + range.length))),
                                .null)))
+  }
+  
+  private func styledTextFirstAttributes(text: Expr, start: Expr?, end: Expr?) throws -> Expr {
+    let str = try self.styledText(from: text).value
+    let s = start != nil && start!.isTrue ? try start!.asInt(below: str.length + 1) : 0
+    let e = end != nil && end!.isTrue ? try end!.asInt(above: s, below: str.length + 1) : str.length
+    var res = Expr.undef
+    str.enumerateAttributes(in: NSRange(location: s, length: e - s),
+                            options: [],
+                            using: { attribs, range, stop in
+      if !attribs.isEmpty {
+        let tstyle = TextStyle()
+        tstyle.attributes = attribs
+        res = .values(.pair(.object(tstyle),
+                            .pair(.pair(.fixnum(Int64(range.location)),
+                                        .fixnum(Int64(range.location + range.length))),
+                                  .null)))
+        stop.pointee = true
+      }
+    })
+    guard res.isUndef else {
+      return res
+    }
+    return .values(.pair(.false, .pair(.false, .null)))
+  }
+  
+  private func styledTextToHtml(text: Expr,
+                                start: Expr?,
+                                end: Expr?) throws -> Expr {
+    let str = try self.styledText(from: text).value
+    let e = (end?.isTrue ?? false) ? try end!.asInt(below: str.length + 1) : str.length
+    let s = (start?.isTrue ?? false) ? try start!.asInt(below: e + 1) : 0
+    let data = try str.data(
+                     from: NSRange(location: s, length: e - s),
+                     documentAttributes:[.documentType: NSAttributedString.DocumentType.html,
+                                         .characterEncoding: String.Encoding.utf8.rawValue])
+    if let res = String(data: data, encoding: String.Encoding.utf8) {
+      return .makeString(res)
+    } else {
+      return .false
+    }
   }
   
   private func styledTextToBytevector(text: Expr,
