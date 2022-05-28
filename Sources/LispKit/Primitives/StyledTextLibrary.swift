@@ -455,7 +455,7 @@ public final class StyledTextLibrary: NativeLibrary {
     table.numberOfColumns = ncols
     table.collapsesBorders = collapse.isTrue
     table.hidesEmptyCells = hideEmptyCells.isTrue
-    let res = NSMutableAttributedString(string: "\n")
+    let res = NSMutableAttributedString(string: "")
     var rows = expr
     var i = 0
     while case .pair(let row, let next) = rows {

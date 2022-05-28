@@ -955,6 +955,8 @@
 		CCCACB5C248D753800F012AC /* SystemOSLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCACB5B248D753800F012AC /* SystemOSLibrary.swift */; };
 		CCCB5C9D28403E870005248D /* 118.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCCB5C9C28403E550005248D /* 118.sld */; };
 		CCCB5C9E28403E960005248D /* 118.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCCB5C9C28403E550005248D /* 118.sld */; };
+		CCCB5CA0284225470005248D /* StyledTextDoc.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCCB5C9F284224260005248D /* StyledTextDoc.scm */; };
+		CCCB5CA12842255E0005248D /* StyledTextDoc.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCCB5C9F284224260005248D /* StyledTextDoc.scm */; };
 		CCCB66E1282DBBC80004827D /* DrawBarCharts.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCCB66E0282DB9790004827D /* DrawBarCharts.scm */; };
 		CCCB66E2282DBBDB0004827D /* DrawBarCharts.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCCB66E0282DB9790004827D /* DrawBarCharts.scm */; };
 		CCCB66E4283056E30004827D /* StyledTextLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCB66E3283056E30004827D /* StyledTextLibrary.swift */; };
@@ -1338,6 +1340,7 @@
 			dstPath = Root/LispKit/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CCCB5CA0284225470005248D /* StyledTextDoc.scm in Copy examples */,
 				CCCB66E1282DBBC80004827D /* DrawBarCharts.scm in Copy examples */,
 				CCD6414027FABE420065E2BF /* ObjectOrientation.scm in Copy examples */,
 				CC2427DF279E1A5000913C05 /* Channels.scm in Copy examples */,
@@ -2157,6 +2160,7 @@
 			dstPath = Root/LispKit/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CCCB5CA12842255E0005248D /* StyledTextDoc.scm in Copy examples */,
 				CCCB66E2282DBBDB0004827D /* DrawBarCharts.scm in Copy examples */,
 				CCD6414127FABE5C0065E2BF /* ObjectOrientation.scm in Copy examples */,
 				CC2427E0279E1A5F00913C05 /* Channels.scm in Copy examples */,
@@ -2895,6 +2899,7 @@
 		CCCAF5AE23B7A71400FE2C60 /* HtmlColors.plist */ = {isa = PBXFileReference; lastKnownFileType = file.bplist; path = HtmlColors.plist; sourceTree = "<group>"; };
 		CCCAF92D1F941A43006692E9 /* Package.swift */ = {isa = PBXFileReference; explicitFileType = sourcecode.swift; fileEncoding = 4; indentWidth = 2; path = Package.swift; sourceTree = "<group>"; tabWidth = 2; };
 		CCCB5C9C28403E550005248D /* 118.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 118.sld; sourceTree = "<group>"; };
+		CCCB5C9F284224260005248D /* StyledTextDoc.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = StyledTextDoc.scm; sourceTree = "<group>"; };
 		CCCB66E0282DB9790004827D /* DrawBarCharts.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = DrawBarCharts.scm; sourceTree = "<group>"; };
 		CCCB66E3283056E30004827D /* StyledTextLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StyledTextLibrary.swift; sourceTree = "<group>"; };
 		CCCEB3FE1DF2DAA9009BF66B /* FileHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileHandler.swift; sourceTree = "<group>"; };
@@ -4016,6 +4021,7 @@
 				CC8D20F42533C35F00741D07 /* DrawTrees.scm */,
 				CCCB66E0282DB9790004827D /* DrawBarCharts.scm */,
 				CC202DE325AA9D70003901BE /* VisualizePointSets.scm */,
+				CCCB5C9F284224260005248D /* StyledTextDoc.scm */,
 				CC7E7C2524564D33002E8A73 /* Covid.scm */,
 				CCC7A9DB26D0473600F05361 /* EUStats.scm */,
 				CC1EA5C8214E6BF3006BBE7E /* Turtle.scm */,
