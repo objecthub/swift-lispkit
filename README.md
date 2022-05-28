@@ -2,8 +2,8 @@
 ========================
 
 [![Platform: macOS | iOS](https://img.shields.io/badge/Platform-macOS%20%7C%20iOS-blue.svg?style=flat)](https://developer.apple.com/osx/)
-[![Language: Swift 5.5](https://img.shields.io/badge/Language-Swift%205.5-green.svg?style=flat)](https://developer.apple.com/swift/)
-[![IDE: Xcode 13.2](https://img.shields.io/badge/IDE-Xcode%2013.2-orange.svg?style=flat)](https://developer.apple.com/xcode/)
+[![Language: Swift 5.6](https://img.shields.io/badge/Language-Swift%205.6-green.svg?style=flat)](https://developer.apple.com/swift/)
+[![IDE: Xcode 13.4](https://img.shields.io/badge/IDE-Xcode%2013.4-orange.svg?style=flat)](https://developer.apple.com/xcode/)
 [![Carthage: compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![License: Apache](http://img.shields.io/badge/License-Apache-lightgrey.svg?style=flat)](https://raw.githubusercontent.com/objecthub/swift-lispkit/master/LICENSE)
 
@@ -25,14 +25,14 @@ _LispKit_ (without code duplication) and defines a new native as well as Scheme-
 The iOS version of the LispKit framework supports all libraries except for `(lispkit system os)`.
 Library `(lispkit draw)` works consistently across iOS and macOS but does not support color
 lists on iOS. In general, the differences between the macOS and iOS version of the framework
-are minor, but require documentation. Interestingly, the iPhone 12 Pro (2020) seems to consistently
+are minor. Interestingly, the iPhone 12 Pro (2020) seems to consistently
 outperform the MacBook Pro 16" (2019) for simple LispKit benchmarks.
 
 [_LispPad_](http://lisppad.objecthub.net) implements a simple, lightweight, integrated
 development environment for _LispKit_ on macOS with a Cocoa-based UI. The
-[LispPad Library Reference](http://lisppad.objecthub.net/resources/LispPad_Reference_1.6.pdf)
+[LispPad Library Reference](http://lisppad.objecthub.net/resources/LispPad_Reference_1.7.pdf)
 documents the core _LispPad_ and _LispKit_ libraries in
-[PDF](http://lisppad.objecthub.net/resources/LispPad_Reference_1.6.pdf) form. On iOS,
+[PDF](http://lisppad.objecthub.net/resources/LispPad_Reference_1.7.pdf) form. On iOS,
 application [_LispPad Go_](https://apps.apple.com/us/app/lisppad-go/id1565747728) provides a simple
 Scheme IDE based on LispKit. The [source code of _LispPad Go_](https://github.com/objecthub/swift-lisppad-ios)
 is available on GitHub. A much simpler command-line tool for iOS is included in the LispKit
@@ -94,7 +94,8 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit date-time)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Date-Time),
     [`(lispkit draw)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Draw),
     [`(lispkit draw turtle)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Draw-Turtle),
-    `(lispkit styled-text)`,
+    [`(lispkit draw chart bar)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Draw-Chart-Bar),
+    [`(lispkit styled-text)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Styled-Text),
     [`(lispkit datatype)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Datatype),
     [`(lispkit object)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Object),
     [`(lispkit enum)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Enum),
@@ -118,7 +119,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit combinator)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Combinator),
     `(lispkit logic)`,
     [`(lispkit prolog)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Prolog),
-    `(lispkit clos)`,
+    [`(lispkit clos)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Clos),
     [`(lispkit test)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Test),
     `(lispkit prettify)`,
     [`(lispkit text-table)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Text-Table),
@@ -179,6 +180,7 @@ framework:
   - [SRFI 111: Boxes](https://srfi.schemers.org/srfi-111/srfi-111.html)
   - [SRFI 112: Environment inquiry](https://srfi.schemers.org/srfi-112/srfi-112.html)
   - [SRFI 113: Sets and bags](https://srfi.schemers.org/srfi-113/srfi-113.html)
+  - [SRFI 118: Simple adjustable-size strings](https://srfi.schemers.org/srfi-118/srfi-118.html)
   - [SRFI 121: Generators](https://srfi.schemers.org/srfi-121/srfi-121.html)
   - [SRFI 125: Intermediate hash tables](https://srfi.schemers.org/srfi-125/srfi-125.html)
   - [SRFI 128: Comparators](https://srfi.schemers.org/srfi-128/srfi-128.html)
@@ -230,6 +232,7 @@ framework:
   - [SRFI 227: Optional Arguments](https://srfi.schemers.org/srfi-227/srfi-227.html)
   - [SRFI 229: Tagged procedures](https://srfi.schemers.org/srfi-229/srfi-229.html)
   - [SRFI 230: Atomic Operations](https://srfi.schemers.org/srfi-230/srfi-230.html)
+  - [SRFI 232: Flexible curried procedures](https://srfi.schemers.org/srfi-232/srfi-232.html)
 
 
 ## Project
@@ -349,8 +352,8 @@ The following technologies are needed to build the components of the LispKit fra
 command-line tool, all that is needed is the Swift Package Manager. For compiling the framework and trying
 the command-line tool directly in Xcode, the Swift Package Manager is not needed.
 
-- [Swift 5.5](https://developer.apple.com/swift/)
-- [Xcode 13.2](https://developer.apple.com/xcode/)
+- [Swift 5.6](https://developer.apple.com/swift/)
+- [Xcode 13.4](https://developer.apple.com/xcode/)
 - [Swift Package Manager](https://swift.org/package-manager/)
 - [NumberKit](http://github.com/objecthub/swift-numberkit)
 - [MarkdownKit](http://github.com/objecthub/swift-markdownkit)

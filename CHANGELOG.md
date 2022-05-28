@@ -1,5 +1,22 @@
 # Changelog
 
+## 2.2.1 (2022-05-28)
+
+- Fixed bug preventing LispKit to correctly determine the maximum number of threads
+- Optimized display of objects of custom types
+- Optimized code generation for lambdas without captured expressions
+- Revamped code disassembly
+- Fixed division by zero issues with truncate and floor procedures
+- Removed duplicates in results of procedures `available-fonts` and `available-font-families` in library `(lispkit draw)`
+- Changed defaults for procedure `string-insert!` of library `(lispkit string)`
+- Made procedure `open-file` of library `(lispkit system)` work on iOS
+- Reimplemented and extended library `(lispkit enum)` making it compatible with SRFI 209
+- Major revision of library `(lispkit clos)`
+- New procedures in library `(lispkit draw)`: `bytevector->image`, `draw-styled-text`, `styled-text-size`
+- New procedure in library `(lispkit core)`: `procedure-rename`
+- New libraries: `(srfi 118)`, `(srfi 141)`, `(srfi 149)`, `(srfi 232)`, `(lispkit bitset)`, `(lispkit draw chart bar)`, `(lispkit styled-text)`
+- New example code: `ObjectOrientation.scm`, `DrawBarCharts.scm`, `StyledTextDoc.scm`
+
 ## 2.2.0 (2022-02-06)
 
 - Multi-threaded evaluator, executing multiple virtual machines in parallel
