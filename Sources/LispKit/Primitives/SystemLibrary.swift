@@ -502,8 +502,15 @@ public final class SystemLibrary: NativeLibrary {
       #endif
     } else {
       #if os(iOS) || os(watchOS) || os(tvOS)
-      if let url = URL(string: "shareddocuments://\(path)"),
+      if path.starts(with: "/var/"),  // This is a hack! If I just would know how to avoid it...
+         let url = URL(string: "shareddocuments:///private\(path)"),
          UIApplication.shared.canOpenURL(url) {
+        DispatchQueue.main.async {
+          UIApplication.shared.open(url)
+        }
+        return .true
+      } else if let url = URL(string: "shareddocuments://\(path)"),
+                UIApplication.shared.canOpenURL(url) {
         DispatchQueue.main.async {
           UIApplication.shared.open(url)
         }
