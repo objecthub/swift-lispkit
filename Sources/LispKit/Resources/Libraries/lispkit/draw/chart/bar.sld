@@ -99,6 +99,7 @@
     bar-group?
     bar-group
     bar-group-label
+    bar-group-bars
     bar-segment
     ; Draw bar charts
     draw-bar-chart)
