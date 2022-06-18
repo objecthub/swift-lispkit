@@ -1161,31 +1161,60 @@ public final class MathLibrary: NativeLibrary {
   }
   
   private func sin(_ expr: Expr) throws -> Expr {
-    return .makeNumber(Foundation.sin(try expr.asDouble(coerce: true)))
+    if case .complex(let num) = expr {
+      return .makeNumber(NumberKit.sin(num.value))
+    } else {
+      return .makeNumber(Foundation.sin(try expr.asDouble(coerce: true)))
+    }
   }
 
   private func cos(_ expr: Expr) throws -> Expr {
-    return .makeNumber(Foundation.cos(try expr.asDouble(coerce: true)))
+    if case .complex(let num) = expr {
+      return .makeNumber(NumberKit.cos(num.value))
+    } else {
+      return .makeNumber(Foundation.cos(try expr.asDouble(coerce: true)))
+    }
   }
 
   private func tan(_ expr: Expr) throws -> Expr {
-    return .makeNumber(Foundation.tan(try expr.asDouble(coerce: true)))
+    if case .complex(let num) = expr {
+      return .makeNumber(NumberKit.tan(num.value))
+    } else {
+      return .makeNumber(Foundation.tan(try expr.asDouble(coerce: true)))
+    }
   }
 
   private func asin(_ expr: Expr) throws -> Expr {
-    return .makeNumber(Foundation.asin(try expr.asDouble(coerce: true)))
+    if case .complex(let num) = expr {
+      return .makeNumber(NumberKit.asin(num.value))
+    } else {
+      return .makeNumber(Foundation.asin(try expr.asDouble(coerce: true)))
+    }
   }
 
   private func acos(_ expr: Expr) throws -> Expr {
-    return .makeNumber(Foundation.acos(try expr.asDouble(coerce: true)))
+    if case .complex(let num) = expr {
+      return .makeNumber(NumberKit.acos(num.value))
+    } else {
+      return .makeNumber(Foundation.acos(try expr.asDouble(coerce: true)))
+    }
   }
 
   private func atan(_ fst: Expr, _ snd: Expr?) throws -> Expr {
-    let y = try fst.asDouble(coerce: true)
-    if let snd = snd {
-      return .makeNumber(Foundation.atan2(y, try snd.asDouble(coerce: true)))
+    guard let snd = snd else {
+      if case .complex(let num) = fst {
+        return .makeNumber(NumberKit.atan(num.value))
+      } else {
+        return .makeNumber(Foundation.atan(try fst.asDouble(coerce: true)))
+      }
+    }
+    if case .complex(let num) = fst {
+      return .makeNumber(NumberKit.atan2(num.value, try snd.asComplex(coerce: true)))
+    } else if case .complex(let num) = snd {
+      return .makeNumber(NumberKit.atan2(try fst.asComplex(coerce: true), num.value))
     } else {
-      return .makeNumber(Foundation.atan(y))
+      return .makeNumber(Foundation.atan2(try fst.asDouble(coerce: true),
+                                          try snd.asDouble(coerce: true)))
     }
   }
   
