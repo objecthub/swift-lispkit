@@ -23,7 +23,15 @@ import MarkdownKit
 
 public final class MarkdownLibrary: NativeLibrary {
 
-  public let blockType: Tuple
+  // Type tags
+  
+  private let blockTypeTag = Symbol(uninterned: "block")
+  private let listItemTypeTag = Symbol(uninterned: "list-item")
+  private let inlineTypeTag = Symbol(uninterned: "inline")
+  
+  // Datatype elements
+  
+  public let blockType: Expr
   private let document: Symbol
   private let blockquote: Symbol
   private let listItems: Symbol
@@ -37,11 +45,11 @@ public final class MarkdownLibrary: NativeLibrary {
   private let table: Symbol
   private let definitionList: Symbol
 
-  public let listItemType: Tuple
+  public let listItemType: Expr
   private let bullet: Symbol
   private let ordered: Symbol
 
-  public let inlineType: Tuple
+  public let inlineType: Expr
   private let text: Symbol
   private let code: Symbol
   private let emph: Symbol
@@ -59,7 +67,7 @@ public final class MarkdownLibrary: NativeLibrary {
   
   /// Initialize symbols
   public required init(in context: Context) throws {
-    self.blockType = Tuple(.symbol(context.symbols.intern("block")), .null)
+    self.blockType = .pair(.symbol(self.blockTypeTag), .null)
     self.document = context.symbols.intern("document")
     self.blockquote = context.symbols.intern("blockquote")
     self.listItems = context.symbols.intern("list-items")
@@ -72,10 +80,10 @@ public final class MarkdownLibrary: NativeLibrary {
     self.thematicBreak = context.symbols.intern("thematic-break")
     self.table = context.symbols.intern("table")
     self.definitionList = context.symbols.intern("definition-list")
-    self.listItemType = Tuple(.symbol(context.symbols.intern("list-item")), .null)
+    self.listItemType = .pair(.symbol(self.listItemTypeTag), .null)
     self.bullet = context.symbols.intern("bullet")
     self.ordered = context.symbols.intern("ordered")
-    self.inlineType = Tuple(.symbol(context.symbols.intern("inline")), .null)
+    self.inlineType = .pair(.symbol(self.inlineTypeTag), .null)
     self.text = context.symbols.intern("text")
     self.code = context.symbols.intern("code")
     self.emph = context.symbols.intern("emph")
@@ -103,6 +111,9 @@ public final class MarkdownLibrary: NativeLibrary {
 
   /// Declarations of the library.
   public override func declarations() {
+    self.define("block-type-tag", as: .symbol(self.blockTypeTag))
+    self.define("list-item-type-tag", as: .symbol(self.listItemTypeTag))
+    self.define("inline-type-tag", as: .symbol(self.inlineTypeTag))
     self.define(Procedure("markdown-blocks?", isMarkdownBlocks))
     self.define(Procedure("markdown-block?", isMarkdownBlock))
     self.define(Procedure("markdown-block=?", markdownBlockEquals))
@@ -147,17 +158,17 @@ public final class MarkdownLibrary: NativeLibrary {
     self.define(Procedure("text->raw-string", textToRawString))
   }
 
-  private func makeCase(_ type: Tuple, _ sym: Symbol, _ exprs: Expr...) -> Expr {
-    return .tagged(.mpair(type), .pair(.symbol(sym), .makeList(Exprs(exprs))))
+  private func makeCase(_ type: Expr, _ sym: Symbol, _ exprs: Expr...) -> Expr {
+    return .tagged(type, .pair(.symbol(sym), .makeList(Exprs(exprs))))
   }
 
-  private func makeCase(_ type: Tuple,
+  private func makeCase(_ type: Expr,
                         _ sym: Symbol,
                         _ n: Int,
                         _ args: Arguments) throws -> Expr {
     if case .some(.symbol(InternalLibrary.deconstructionTag)) = args.first {
       guard args.count == 2,
-            case .tagged(.mpair(type), let payload) = args[args.index(after: args.startIndex)],
+            case .tagged(type, let payload) = args[args.index(after: args.startIndex)],
             case .pair(.symbol(sym), let res) = payload else {
         return .false
       }
@@ -166,7 +177,7 @@ public final class MarkdownLibrary: NativeLibrary {
     guard args.count == n else {
       throw RuntimeError.argumentCount(num: n, args: .makeList(args))
     }
-    return .tagged(.mpair(type), .pair(.symbol(sym), .makeList(args)))
+    return .tagged(type, .pair(.symbol(sym), .makeList(args)))
   }
 
   private func checkBlocks(_ expr: Expr) throws {
@@ -182,7 +193,7 @@ public final class MarkdownLibrary: NativeLibrary {
   }
 
   private func checkBlock(_ expr: Expr) throws {
-    guard case .tagged(.mpair(self.blockType), _) = expr else {
+    guard case .tagged(self.blockType, _) = expr else {
       throw RuntimeError.custom("type error", "expected value of type block; received \(expr)", [])
     }
   }
@@ -200,7 +211,7 @@ public final class MarkdownLibrary: NativeLibrary {
   }
 
   private func checkListItem(_ expr: Expr) throws {
-    guard case .tagged(.mpair(self.listItemType), _) = expr else {
+    guard case .tagged(self.listItemType, _) = expr else {
       throw RuntimeError.custom("type error",
                                 "expected value of type list-item; received \(expr)", [])
     }
@@ -274,7 +285,7 @@ public final class MarkdownLibrary: NativeLibrary {
   private func checkText(_ expr: Expr) throws {
     var list = expr
     while case .pair(let fragment, let rest) = list {
-      guard case .tagged(.mpair(self.inlineType), _) = fragment else {
+      guard case .tagged(self.inlineType, _) = fragment else {
         break
       }
       list = rest
@@ -301,14 +312,14 @@ public final class MarkdownLibrary: NativeLibrary {
 
   private func isMarkdownBlocks(_ expr: Expr) -> Expr {
     var list = expr
-    while case .pair(.tagged(.mpair(self.blockType), _), let rest) = list {
+    while case .pair(.tagged(self.blockType, _), let rest) = list {
       list = rest
     }
     return .makeBoolean(list == .null)
   }
 
   private func isMarkdownBlock(_ expr: Expr) -> Expr {
-    guard case .tagged(.mpair(self.blockType), _) = expr else {
+    guard case .tagged(self.blockType, _) = expr else {
       return .false
     }
     return .true
@@ -436,14 +447,14 @@ public final class MarkdownLibrary: NativeLibrary {
 
   private func isMarkdownList(_ expr: Expr) -> Expr {
     var list = expr
-    while case .pair(.tagged(.mpair(self.listItemType), _), let rest) = list {
+    while case .pair(.tagged(self.listItemType, _), let rest) = list {
       list = rest
     }
     return .makeBoolean(list == .null)
   }
 
   private func isMarkdownListItem(_ expr: Expr) -> Expr {
-    guard case .tagged(.mpair(self.listItemType), _) = expr else {
+    guard case .tagged(self.listItemType, _) = expr else {
       return .false
     }
     return .true
@@ -478,14 +489,14 @@ public final class MarkdownLibrary: NativeLibrary {
 
   private func isMarkdownText(_ expr: Expr) -> Expr {
     var list = expr
-    while case .pair(.tagged(.mpair(self.inlineType), _), let rest) = list {
+    while case .pair(.tagged(self.inlineType, _), let rest) = list {
       list = rest
     }
     return .makeBoolean(list == .null)
   }
 
   private func isMarkdownInline(_ expr: Expr) -> Expr {
-    guard case .tagged(.mpair(self.inlineType), _) = expr else {
+    guard case .tagged(self.inlineType, _) = expr else {
       return .false
     }
     return .true
@@ -609,7 +620,7 @@ public final class MarkdownLibrary: NativeLibrary {
   }
   
   private func isMarkdown(_ expr: Expr) throws -> Expr {
-    guard case .tagged(.mpair(self.blockType), .pair(.symbol(self.document), _)) = expr else {
+    guard case .tagged(self.blockType, .pair(.symbol(self.document), _)) = expr else {
       return .false
     }
     return (try? self.internMarkdown(block: expr)) == nil ? .false : .true
@@ -631,7 +642,7 @@ public final class MarkdownLibrary: NativeLibrary {
       case .pair(_ , _):
         return .makeString(HtmlGenerator.standard.generate(blocks:
                              try self.internMarkdown(blocks: expr), tight: tight))
-      case .tagged(.mpair(self.blockType), _):
+      case .tagged(self.blockType, _):
         return .makeString(HtmlGenerator.standard.generate(block:
                              try self.internMarkdown(block: expr), tight: tight))
       default:
@@ -646,7 +657,7 @@ public final class MarkdownLibrary: NativeLibrary {
       case .pair(_ , _):
         return .makeString(HtmlGenerator.standard.generate(text:
                              try self.internMarkdown(text: expr)))
-      case .tagged(.mpair(self.inlineType), _):
+      case .tagged(self.inlineType, _):
         return .makeString(HtmlGenerator.standard.generate(textFragment:
                              try self.internMarkdown(fragment: expr)))
       default:
@@ -782,7 +793,7 @@ public final class MarkdownLibrary: NativeLibrary {
     switch expr {
       case .pair(_ , _):
         return .makeString(try self.internMarkdown(text: expr).description)
-      case .tagged(.mpair(self.inlineType), _):
+      case .tagged(self.inlineType, _):
         return .makeString(try self.internMarkdown(fragment: expr).description)
       default:
         throw RuntimeError.custom(
@@ -795,7 +806,7 @@ public final class MarkdownLibrary: NativeLibrary {
     switch expr {
       case .pair(_ , _):
         return .makeString(try self.internMarkdown(text: expr).rawDescription)
-      case .tagged(.mpair(self.inlineType), _):
+      case .tagged(self.inlineType, _):
         return .makeString(try self.internMarkdown(fragment: expr).rawDescription)
       default:
         throw RuntimeError.custom(
@@ -819,7 +830,7 @@ public final class MarkdownLibrary: NativeLibrary {
   }
 
   private func internMarkdown(block expr: Expr) throws -> Block {
-    guard case .tagged(.mpair(self.blockType), .pair(.symbol(let sym), let args)) = expr else {
+    guard case .tagged(self.blockType, .pair(.symbol(let sym), let args)) = expr else {
       throw RuntimeError.custom("type error",
                                 "expected value of type block; received \(expr)",
                                 [])
@@ -901,7 +912,7 @@ public final class MarkdownLibrary: NativeLibrary {
   }
 
   private func internMarkdown(item expr: Expr) throws -> Block {
-    guard case .tagged(.mpair(self.listItemType), .pair(.symbol(let sym), let args)) = expr else {
+    guard case .tagged(self.listItemType, .pair(.symbol(let sym), let args)) = expr else {
       throw RuntimeError.custom("type error",
                                 "expected value of type list-item; received \(expr)",
                                 [])
@@ -1019,7 +1030,7 @@ public final class MarkdownLibrary: NativeLibrary {
   }
 
   private func internMarkdown(fragment expr: Expr) throws -> TextFragment {
-    guard case .tagged(.mpair(self.inlineType),
+    guard case .tagged(self.inlineType,
                        .pair(.symbol(let sym), .pair(let fst, let args))) = expr else {
       throw RuntimeError.custom("type error",
                                 "expected value of type inline; received \(expr)",

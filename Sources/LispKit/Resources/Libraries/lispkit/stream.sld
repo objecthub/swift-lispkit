@@ -32,6 +32,7 @@
 (define-library (lispkit stream)
 
   (export stream?
+          stream-type-tag
           stream-null
           stream-null?
           stream-cons
@@ -79,7 +80,8 @@
             ((pair? strms) (or (proc (car strms)) (exists proc (cdr strms))))
             (else          (error "exists: not a proper list" strms))))
 
-    (define-values (new-stream-list stream-list? stream-list-ref make-stream-list-subtype)
+    (define-values (stream-type-tag new-stream-list stream-list? stream-list-ref
+                    make-stream-list-subtype)
       (make-type 'stream-list))
 
     ;; `stream-null` is a stream that, when forced, is a single object, distinguishable

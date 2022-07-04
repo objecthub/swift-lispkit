@@ -36,6 +36,7 @@
   
   (export make-heap
           heap?
+          heap-type-tag
           heap-empty?
           heap-size
           heap-max
@@ -56,12 +57,14 @@
   
   (begin
 
-    (define-record-type <heap>
-      (heap array size pred<?)
+    (define-record-type heap
+      (new-heap array size pred<?)
       heap?
       (array  heap-array heap-array-set!)
       (size   heap-size  heap-size-set!)
       (pred<? heap-pred<?))
+    
+    (define heap-type-tag (record-type-tag heap))
     
     ;; Set the size of the heap
     (define (set-size! hp size)
@@ -118,7 +121,7 @@
     
     ;; Returns a binary max heap
     (define (make-heap pred<?)
-      (heap (make-vector 4) 0 pred<?))
+      (new-heap (make-vector 4) 0 pred<?))
     
     ;; Returns true if the heap is empty
     (define (heap-empty? hp)
@@ -152,7 +155,7 @@
     
     ;; Returns a copy of `hp`
     (define (heap-copy hp)
-      (heap (vector-copy (heap-array hp)) (heap-size hp) (heap-pred<? hp)))
+      (new-heap (vector-copy (heap-array hp)) (heap-size hp) (heap-pred<? hp)))
     
     ;; Returns a new vector containing all elements of the heap in descending order
     (define (heap->vector hp)

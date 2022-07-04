@@ -40,16 +40,16 @@
 (
   "make-type disjoint procedures"
   #f
-  (let-values (((make-reia1 . reia1*) (make-type 'reia))
-               ((make-reia2 . reia2*) (make-type 'reia)))
+  (let-values (((tpe1 make-reia1 . reia1*) (make-type 'reia))
+               ((tpe2 make-reia2 . reia2*) (make-type 'reia)))
     (eq? make-reia1 make-reia2))
 )
 
 (
   "make-type disjoint types"
   (#f #t)
-  (let-values (((make-reia1 . reia1*) (make-type 'reia))
-               ((make-reia2 . reia2*) (make-type 'reia)))
+  (let-values (((tpe1 make-reia1 . reia1*) (make-type 'reia))
+               ((tpe2 make-reia2 . reia2*) (make-type 'reia)))
     (list (equal? (make-reia1 1) (make-reia2 1))
           (equal? (make-reia1 '(one two)) (make-reia1 '(one two)))))
 )
@@ -58,11 +58,15 @@
   "make-type predicates and subtypes"
   (#t #t #f #f #t)
   (let*-values
-    (((make-reia reia? reia-ref make-reia-subtype) (make-type 'reia))
-     ((make-daughter daughter? daughter-ref make-daughter-subtype) (make-reia-subtype 'daughter))
-     ((make-son son? son-ref make-son-subtype) (make-reia-subtype 'son))
-     ((make-grand-daughter grand-daughter? grand-daughter-ref make-grand-daughter-subtype)
-       (make-daughter-subtype 'grand-daughter)))
+    (((reia-type make-reia reia? reia-ref make-reia-subtype)
+        (make-type 'reia))
+     ((daughter-type make-daughter daughter? daughter-ref make-daughter-subtype)
+        (make-reia-subtype 'daughter))
+     ((son-type make-son son? son-ref make-son-subtype)
+        (make-reia-subtype 'son))
+     ((grand-daughter-type make-grand-daughter grand-daughter? grand-daughter-ref
+       make-grand-daughter-subtype)
+        (make-daughter-subtype 'grand-daughter)))
     (list (reia? (make-reia #f))
           (reia? (make-daughter #f))
           (daughter? (make-reia #f))
@@ -73,7 +77,7 @@
 (
   "make-type instance payload"
   payload
-  (let-values (((make-reia reia? reia-ref . rest) (make-type 'reia)))
+  (let-values (((reia-type make-reia reia? reia-ref . rest) (make-type 'reia)))
     (reia-ref (make-reia 'payload)))
 )
 

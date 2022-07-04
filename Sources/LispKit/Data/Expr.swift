@@ -836,26 +836,26 @@ extension Expr: CustomStringConvertible {
               preconditionFailure("incorrect internal record type state: \(record.kind) | " +
                                   "\(record.description)")
             }
-            guard case .string(let name) = record.exprs[0] else {
+            guard case .symbol(let sym) = record.exprs[0] else {
               preconditionFailure("incorrect encoding of record type")
             }
-            return "#<record-type \(name)>"
+            return "#<record-type \(sym.description)>"
           }
           if let res = objIdString(record) {
             return res
           } else {
-            guard case .string(let name) = type.exprs[0] else {
+            guard case .symbol(let sym) = type.exprs[0] else {
               preconditionFailure("incorrect encoding of record type")
             }
             enclObjs.insert(record)
-            var builder = StringBuilder(prefix: "#<record \(name)",
+            var builder = StringBuilder(prefix: "#<record \(sym.description)",
                                         postfix: ">",
                                         separator: ", ",
                                         initial: ": ")
             var fields = type.exprs[2]
             for expr in record.exprs {
               guard case .pair(let sym, let nextFields) = fields else {
-                preconditionFailure("incorrect encoding of record \(type.exprs[0])")
+                preconditionFailure("incorrect encoding of record \(type.exprs[0].description)")
               }
               builder.append(sym.description, "=", stringReprOf(expr))
               fields = nextFields
@@ -937,9 +937,9 @@ extension Expr: CustomStringConvertible {
           return "#<\(port.typeDescription) \(port.identDescription)>"
         case .object(let obj):
           return obj.string
-        case .tagged(.mpair(let tuple), let expr):
+        case .tagged(.pair(let fst, _), let expr):
           var res = "#<"
-          switch tuple.fst {
+          switch fst {
             case .pair(let head, let tail):
               var builder = StringBuilder(prefix: "", separator: " ")
               builder.append(stringReprOf(head))
@@ -956,7 +956,7 @@ extension Expr: CustomStringConvertible {
             case .object(let obj):
               res += obj.tagString + " "
             default:
-              res += stringReprOf(tuple.fst) + " "
+              res += stringReprOf(fst) + " "
           }
           switch expr {
             case .object(let obj):

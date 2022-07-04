@@ -35,7 +35,7 @@
   (begin
     (define (make-make-type mk-type)
       (lambda (payload)
-        (let-values (((constructor predicate accessor mk-subtype) (mk-type payload)))
+        (let-values (((tpe constructor predicate accessor mk-subtype) (mk-type payload)))
           (values (lambda () payload)
                   constructor
                   predicate

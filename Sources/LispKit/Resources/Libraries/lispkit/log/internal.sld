@@ -36,6 +36,7 @@
 
   ;; Logger datatype
   (export logger?
+          logger-type-tag
           make-logger
           make-logger-object
           close-logger
@@ -104,7 +105,8 @@
 
     ;; Logger datatype
 
-    (define-values (new-logger logger? logger-ref make-logger-subtype) (make-type 'logger))
+    (define-values (logger-type-tag new-logger logger? logger-ref make-logger-subtype)
+      (make-type 'logger))
 
     (define (make-logger-object addproc closeproc state)
       (new-logger (cons (cons addproc closeproc) state)))

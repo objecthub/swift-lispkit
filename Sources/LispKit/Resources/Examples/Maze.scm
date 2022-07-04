@@ -58,7 +58,9 @@
           cell-x
           cell-y)
 
-  (export make-maze
+  (export maze?
+          maze-type-tag
+          make-maze
           maze-width
           maze-height
           maze-bounds
@@ -119,7 +121,7 @@
   )
 
   (begin
-    (define-values (new-maze maze? maze-ref make-maze-subtype) (make-type 'maze))
+    (define-values (maze-type-tag new-maze maze? maze-ref make-maze-subtype) (make-type 'maze))
 
     (define (make-maze width height . args)
       (let-optionals args ((walls 0))

@@ -25,6 +25,7 @@
           eq-set
           eqv-set
           equal-set
+          set-type-tag
           set?
           set-mutable?
           set-empty?
@@ -62,7 +63,7 @@
   
   (begin
 
-    (define-values (new-set set? set-ref make-set-subtype) (make-type 'set))
+    (define-values (set-type-tag new-set set? set-ref make-set-subtype) (make-type 'set))
     
     ;; Make a new empty set using `eq?` as equivalence function
     (define (make-eq-set)

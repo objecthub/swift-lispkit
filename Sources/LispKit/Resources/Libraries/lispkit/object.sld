@@ -190,6 +190,7 @@
   ;; Procedural object interface
   (export make-object
           object?
+          object-type-tag
           method
           object-methods
           add-method!
@@ -204,6 +205,7 @@
   ;; Procedural class interface
   (export make-class
           class?
+          class-type-tag
           root
           object-class
           object-equal?
@@ -223,7 +225,8 @@
 
     ;;; Procedural object functionality
 
-    (define-values (new-object object? object-ref make-object-subtype) (make-type 'object))
+    (define-values (object-type-tag new-object object? object-ref make-object-subtype)
+      (make-type 'object))
 
     (define (make-object . delegates)
       (make-custom-object new-object delegates))
@@ -290,7 +293,8 @@
 
     ;;; Procedural class interface
 
-    (define-values (new-class class? class-ref make-class-subtype) (make-object-subtype 'class))
+    (define-values (class-type-tag new-class class? class-ref make-class-subtype)
+      (make-object-subtype 'class))
 
     ;; Instance methods
     (define-generic (object-class self) #f)

@@ -68,6 +68,7 @@
 (define-library (lispkit text-table)
   
   (export text-table?
+          text-table-type-tag
           text-table-header?
           text-table-row?
           
@@ -103,8 +104,8 @@
     
     ;; Creating text tables
     
-    (define-values
-      (new-text-table text-table? text-table-ref text-table-subtype)
+    (define-values (text-table-type-tag new-text-table text-table? text-table-ref
+                    text-table-subtype)
       (make-type 'text-table))
     
     (define (make-text-table headers . args)

@@ -79,7 +79,7 @@
 
 ;; Ranges
 
-(define-values (new-range range? range-ref make-range-subtype) (make-type 'range))
+(define-values (range-type-tag new-range range? range-ref make-range-subtype) (make-type 'range))
 
 (define (range min max)
   (assert (real? min) (real? max))
@@ -214,8 +214,8 @@
 
 ;; Point sets in a 3-dimensional space
 
-(define-values (new-point-set point-set? point-set-ref make-point-set-subtype)
-               (make-type 'point-set))
+(define-values (point-set-type new-point-set point-set? point-set-ref make-point-set-subtype)
+  (make-type 'point-set))
 
 (define (point a)
   (assert (real-vector? a))

@@ -19,6 +19,7 @@
 //
 
 import Foundation
+import Atomics
 
 public final class EnumLibrary: NativeLibrary {
   
@@ -49,6 +50,7 @@ public final class EnumLibrary: NativeLibrary {
     self.define(Procedure("enum-type-size", self.enumTypeSize))
     self.define(Procedure("enum-min", self.enumMin))
     self.define(Procedure("enum-max", self.enumMax))
+    self.define(Procedure("enum-type-tag", self.enumTypeId))
     self.define(Procedure("enum-type-enums", self.enumTypeEnums))
     self.define(Procedure("enum-type-names", self.enumTypeNames))
     self.define(Procedure("enum-type-tags", self.enumTypeTags))
@@ -306,7 +308,19 @@ public final class EnumLibrary: NativeLibrary {
     guard entries.count > 0 else {
       throw RuntimeError.eval(.enumTypeEmpty)
     }
-    return .object(EnumType(name: name, entries: entries, tag: trd ?? .false))
+    if let name = name {
+      if case .symbol(let sym) = name {
+        return .object(EnumType(id: Symbol(uninterned: sym.identifier),
+                                entries: entries,
+                                tag: trd ?? .false))
+      } else {
+        return .object(EnumType(id: Symbol(uninterned: try name.asString()),
+                                entries: entries,
+                                tag: trd ?? .false))
+      }
+    } else {
+      return .object(EnumType(id: nil, entries: entries, tag: trd ?? .false))
+    }
   }
   
   private func enumTypeSize(expr: Expr) throws -> Expr {
@@ -320,6 +334,10 @@ public final class EnumLibrary: NativeLibrary {
   private func enumMax(expr: Expr) throws -> Expr {
     let etype = try self.enumType(from: expr)
     return self.enumAsExpr(etype.enumCount - 1, for: etype)
+  }
+  
+  private func enumTypeId(expr: Expr) throws -> Expr {
+    return .symbol(try self.enumType(from: expr).id)
   }
   
   private func enumTypeEnums(expr: Expr) throws -> Expr {
@@ -864,7 +882,7 @@ public final class EnumLibrary: NativeLibrary {
       throw RuntimeError.eval(.enumTypeEmpty)
     }
     return self.enumSetAsExpr(NativeBitset(bitset),
-                              for: EnumType(name: name, entries: entries, tag: .false))
+                              for: EnumType(id: nil, entries: entries, tag: .false))
   }
   
   private func enumSetUniverse(eset: Expr) throws -> Expr {
@@ -905,8 +923,11 @@ public final class EnumType: NativeObject {
   /// Type representing enum types
   public static let type = Type.objectType(Symbol(uninterned: "enum-type"))
   
-  /// The enum type name
-  public let name: Expr?
+  /// Count enum type objects
+  public static let count = ManagedAtomic<UInt>(0)
+  
+  /// The enum type id
+  public let id: Symbol
   
   /// The enum values
   public let enums: [Enum]
@@ -921,7 +942,7 @@ public final class EnumType: NativeObject {
   internal var gctag: UInt8 = 0
   
   /// Initializer
-  public init(name: Expr?, entries: [(Symbol, Expr?)], tag: Expr) {
+  public init(id: Symbol?, entries: [(Symbol, Expr?)], tag: Expr) {
     var enums: [Enum] = []
     var nameTable: [Symbol : Int] = [:]
     var i = 0
@@ -930,7 +951,8 @@ public final class EnumType: NativeObject {
       nameTable[sym] = i
       i += 1
     }
-    self.name = name
+    self.id = id ?? Symbol(uninterned: "enum-" +
+                           String(EnumType.count.wrappingIncrementThenLoad(ordering: .relaxed)))
     self.enums = enums
     self.nameTable = nameTable
     self.tag = tag
@@ -968,27 +990,16 @@ public final class EnumType: NativeObject {
     if self.enums.count > 12 {
       enumNames.append(", …")
     }
-    if let name = self.name {
-      return "#<enum-type \(name): \(enumNames)>"
-    } else {
-      return "#<enum-type \(self.identityString): \(enumNames)>"
-    }
+    return "#<enum-type \(self.id.identifier): \(enumNames)>"
   }
   
   public override var tagString: String {
-    if let name = self.name {
-      return "enum \(name)"
-    } else {
-      return "enum \(self.identityString)"
-    }
+    return "enum \(self.id.identifier)"
   }
   
   public override func mark(in gc: GarbageCollector) {
     if self.gctag != gc.tag {
       self.gctag = gc.tag
-      if let name = self.name {
-        gc.markLater(name)
-      }
       gc.markLater(self.tag)
       for e in self.enums {
         gc.markLater(e.tag)

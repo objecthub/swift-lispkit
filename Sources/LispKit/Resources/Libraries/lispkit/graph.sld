@@ -31,6 +31,7 @@
           graph-transpose
           graph-complement
           graph?
+          graph-type-tag
           graph-empty?
           graph-cyclic?
           graph-add-node!
@@ -57,7 +58,8 @@
 
   (begin
 
-    (define-values (new-graph graph? graph-ref make-graph-subtype) (make-type 'graph))
+    (define-values (graph-type-tag new-graph graph? graph-ref make-graph-subtype)
+      (make-type 'graph))
 
     (define (make-graph hash equiv)
       (new-graph (make-hashtable hash equiv)))

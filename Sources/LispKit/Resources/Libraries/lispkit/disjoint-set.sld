@@ -29,6 +29,7 @@
           make-eqv-disjoint-set
           make-disjoint-set
           disjoint-set?
+          disjoint-set-type-tag
           disjoint-set-make
           disjoint-set-find
           disjoint-set-union
@@ -39,9 +40,10 @@
 
   (begin
 
-    (define-values (new-disjoint-set disjoint-set? disjoint-set-ref make-disjoint-set-subtype)
-                   (make-type 'disjoint-set))
-
+    (define-values (disjoint-set-type-tag new-disjoint-set disjoint-set? disjoint-set-ref
+                    make-disjoint-set-subtype)
+      (make-type 'disjoint-set))
+    
     (define (make-eq-disjoint-set)
       (new-disjoint-set (make-eq-hashtable)))
 

@@ -132,11 +132,9 @@ public final class Collection: ManagedObject, CustomStringConvertible {
       case .growableVector:
         return "«gvector \(self.identityString)»"
       case .recordType:
-        return "«record-type:\((try? self.exprs[0].asString()) ?? self.exprs[0].description) " +
-               "\(self.identityString)»"
+        return "«record-type:\(self.exprs[0].description) \(self.identityString)»"
       case .record(let type):
-        return "«record:\((try? type.exprs[0].asString()) ?? type.exprs[0].description) " +
-               "\(self.identityString)»"
+        return "«record:\(type.exprs[0].description) \(self.identityString)»"
     }
   }
 }

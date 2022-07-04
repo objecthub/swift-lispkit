@@ -144,10 +144,10 @@
     (define-syntax define-datatype
       (syntax-rules ()
         ((_ type (c p ...) case ...)
-          (begin (define-values (make pred ref make-subtype) (make-type (quote type)))
+          (begin (define-values (type make pred ref make-subtype) (make-type (quote type)))
                  (define-variant make pred ref ((c p ...) case ...))))
         ((_ type pred (c p ...) case ...)
-          (begin (define-values (make pred ref make-subtype) (make-type (quote type)))
+          (begin (define-values (type make pred ref make-subtype) (make-type (quote type)))
                  (define-variant make pred ref ((c p ...) case ...))))))
 
     ;; Defines a new datatype variant. Two cases are defined: one for variants that have an

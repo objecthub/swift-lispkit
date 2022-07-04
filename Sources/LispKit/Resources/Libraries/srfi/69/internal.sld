@@ -20,6 +20,7 @@
 
   (export new-hash-table
           hash-table?
+          hash-table-type-tag
           get-hashtable
           default-table-size
           default-bound
@@ -51,7 +52,7 @@
     (define missing-key (box 'missing-key))
 
     ;; Defines a new hash-table datatype
-    (define-values (new-hash-table hash-table? get-hashtable _htst) (make-type 'hash-table))
+    (define-values (hash-table-type-tag new-hash-table hash-table? get-hashtable _htst) (make-type 'hash-table))
 
     ;; Returns an appropriate hash function for the given equality function `comparison`
     (define (appropriate-hash-function-for comparison)

@@ -20,6 +20,7 @@
   (export make-stack
           stack
           stack?
+          stack-type-tag
           stack-empty?
           stack-size
           stack=?
@@ -36,7 +37,8 @@
 
   (begin
 
-    (define-values (new-stack stack? stack-ref make-stack-subtype) (make-type 'stack))
+    (define-values (stack-type-tag new-stack stack? stack-ref make-stack-subtype)
+      (make-type 'stack))
 
     (define (stack . elements)
       (new-stack (mcons (length elements) elements)))

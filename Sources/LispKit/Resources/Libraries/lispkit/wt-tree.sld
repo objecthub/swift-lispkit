@@ -64,6 +64,7 @@
           singleton-wt-tree
           alist->wt-tree
           wt-tree?
+          wt-tree-type-tag
           wt-tree/copy
           wt-tree/empty?
           wt-tree/size
@@ -102,7 +103,7 @@
     ;; A tree-type is a collection of those procedures that depend on the ordering relation.
     ;; (written out by hand, using vectors)
     
-    (define-values (new-tree-type wt-tree-type? tree-type-ref make-tree-type-subtype)
+    (define-values (wt-tree-type-tag new-tree-type wt-tree-type? tree-type-ref make-tree-type-subtype)
                    (make-type 'wt-tree-type))
     
     (define (%make-tree-type key<?
@@ -192,7 +193,8 @@
     
     ;;  wt-tree is a wrapper for trees of nodes of a certain wt-tree-type.
 
-    (define-values (new-wt-tree wt-tree? wt-tree-ref make-wt-tree-subtype) (make-type 'wt-tree))
+    (define-values (wt-tree-type new-wt-tree wt-tree? wt-tree-ref make-wt-tree-subtype)
+      (make-type 'wt-tree))
     
     (define (%make-wt-tree type root)
       (new-wt-tree (mcons type root)))

@@ -24,6 +24,7 @@
 
   (export make-hook
           hook?
+          hook-type-tag
           hook-add!
           hook-delete!
           hook-reset!
@@ -34,7 +35,7 @@
 
   (begin
 
-    (define-values (new-hook hook? hook-ref make-hook-subtype) (make-type 'hook))
+    (define-values (hook-type-tag new-hook hook? hook-ref make-hook-subtype) (make-type 'hook))
 
     (define (make-hook arity)
       (new-hook (cons arity (box '()))))

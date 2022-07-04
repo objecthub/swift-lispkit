@@ -41,6 +41,7 @@ public final class RecordLibrary: NativeLibrary {
     self.define(Procedure("record-type?", isRecordType))
     self.define(Procedure("record-type", recordType))
     self.define(Procedure("make-record-type", makeRecordType))
+    self.define(Procedure("record-type-tag", recordTypeId))
     self.define(Procedure("record-type-name", recordTypeName))
     self.define(Procedure("record-type-field-names", recordTypeFieldNames))
     self.define(Procedure("record-type-field-index", recordTypeFieldIndex))
@@ -118,7 +119,7 @@ public final class RecordLibrary: NativeLibrary {
   
   func makeRecordType(_ name: Expr, fields: Expr) throws -> Expr {
     // Check that first argument is a string
-    let _ = try name.asMutableStr()
+    let str = try name.asString()
     // Check that second argument is a proper list of symbols
     var numFields = 0
     var current = fields
@@ -133,7 +134,18 @@ public final class RecordLibrary: NativeLibrary {
       throw RuntimeError.type(fields, expected: [.properListType])
     }
     // Return record type
-    return .record(Collection(kind: .recordType, exprs: [name, .makeNumber(numFields), fields]))
+    return .record(Collection(kind: .recordType,
+                              exprs: [.symbol(Symbol(uninterned: str)),
+                                      .makeNumber(numFields),
+                                      fields]))
+  }
+  
+  func recordTypeId(_ expr: Expr) -> Expr {
+    guard case .record(let record) = expr,
+          case .recordType = record.kind else {
+      return .false
+    }
+    return record.exprs[0]
   }
   
   func recordTypeName(_ expr: Expr) -> Expr {
@@ -141,7 +153,7 @@ public final class RecordLibrary: NativeLibrary {
           case .recordType = record.kind else {
       return .false
     }
-    return record.exprs[0]
+    return .makeString(record.exprs[0].unescapedDescription)
   }
   
   func recordTypeFieldNames(_ expr: Expr) -> Expr {

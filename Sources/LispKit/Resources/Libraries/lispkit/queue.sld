@@ -20,6 +20,7 @@
   (export make-queue
           queue
           queue?
+          queue-type-tag
           queue-empty?
           queue-size
           queue=?
@@ -36,7 +37,8 @@
 
   (begin
 
-    (define-values (new-queue queue? queue-ref make-queue-subtype) (make-type 'queue))
+    (define-values (queue-type-tag new-queue queue? queue-ref make-queue-subtype)
+      (make-type 'queue))
 
     (define (queue . elements)
       (new-queue (mcons (length elements) (list elements))))
