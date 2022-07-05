@@ -2453,6 +2453,7 @@
 		CC028EA8249E3EF900C5761C /* 2020-05-25.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-05-25.data"; sourceTree = "<group>"; };
 		CC028EA9249E3EF900C5761C /* 2020-06-18.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-06-18.data"; sourceTree = "<group>"; };
 		CC050F131D017D3400D32132 /* BytevectorLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = BytevectorLibrary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		CC065BF52873E68A00F02783 /* bar-chart-params.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "bar-chart-params.png"; sourceTree = "<group>"; };
 		CC08964D244090D1004503B1 /* SQLiteLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SQLiteLibrary.swift; sourceTree = "<group>"; };
 		CC08965224413DC6004503B1 /* SQLite.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = SQLite.scm; sourceTree = "<group>"; };
 		CC08F42D25BCF0F30056C92C /* 154.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 154.sld; sourceTree = "<group>"; };
@@ -3305,6 +3306,7 @@
 		CC48055B1CFE366100D608B6 /* Assets */ = {
 			isa = PBXGroup;
 			children = (
+				CC065BF52873E68A00F02783 /* bar-chart-params.png */,
 				CC48055C1CFE366100D608B6 /* lispkit_logo_small.png */,
 				CCEA5A17263D5E6300D78C62 /* lispkit-repl-ios.png */,
 			);
