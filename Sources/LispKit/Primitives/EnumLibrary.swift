@@ -670,7 +670,7 @@ public final class EnumLibrary: NativeLibrary {
   private func enumSetToList(eset: Expr) throws -> Expr {
     let (etype, nbs) = try self.enumSetComponents(from: eset)
     var res = Expr.null
-    for i in (0..<nbs.bitset.count()).reversed() {
+    for i in nbs.bitset.reversed() {
       if let name = etype.enum(at: i)?.name {
         res = .pair(.symbol(name), res)
       }
@@ -681,7 +681,7 @@ public final class EnumLibrary: NativeLibrary {
   private func enumSetToEnumList(eset: Expr) throws -> Expr {
     let (etype, nbs) = try self.enumSetComponents(from: eset)
     var res = Expr.null
-    for i in (0..<nbs.bitset.count()).reversed() {
+    for i in nbs.bitset.reversed() {
       res = .pair(self.enumAsExpr(i, for: etype), res)
     }
     return res
