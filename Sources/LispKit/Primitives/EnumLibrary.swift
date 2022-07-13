@@ -47,10 +47,11 @@ public final class EnumLibrary: NativeLibrary {
     // Enum types
     self.define(Procedure("enum-type?", self.isEnumType))
     self.define(Procedure("make-enum-type", self.makeEnumType))
+    self.define(Procedure("enum-type-type-tag", self.enumTypeId))
     self.define(Procedure("enum-type-size", self.enumTypeSize))
     self.define(Procedure("enum-min", self.enumMin))
     self.define(Procedure("enum-max", self.enumMax))
-    self.define(Procedure("enum-type-tag", self.enumTypeId))
+    self.define(Procedure("enum-type-tag", self.enumTypeTag))
     self.define(Procedure("enum-type-enums", self.enumTypeEnums))
     self.define(Procedure("enum-type-names", self.enumTypeNames))
     self.define(Procedure("enum-type-tags", self.enumTypeTags))
@@ -334,6 +335,10 @@ public final class EnumLibrary: NativeLibrary {
   private func enumMax(expr: Expr) throws -> Expr {
     let etype = try self.enumType(from: expr)
     return self.enumAsExpr(etype.enumCount - 1, for: etype)
+  }
+  
+  private func enumTypeTag(expr: Expr) throws -> Expr {
+    return try self.enumType(from: expr).tag
   }
   
   private func enumTypeId(expr: Expr) throws -> Expr {
