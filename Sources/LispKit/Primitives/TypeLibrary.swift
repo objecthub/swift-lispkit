@@ -262,6 +262,8 @@ public final class TypeLibrary: NativeLibrary {
         switch coll.kind {
           case .vector:
             return .symbol(self.vector)
+          case .immutableVector:
+            return .symbol(self.vector)
           case .growableVector:
             return .symbol(self.gvector)
           default:
