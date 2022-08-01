@@ -76,6 +76,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit system os)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-System-OS),
     [`(lispkit box)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Box),
     [`(lispkit math)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Math),
+    [`(lispkit math matrix)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Math-Matrix),
     [`(lispkit math util)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Math-Util),
     [`(lispkit math stats)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Math-Stats), 
     [`(lispkit list)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-List),

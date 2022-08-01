@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.3.0 (2022-08-01)
+
+- Major revamp of all type-related functionality: each type is now represented by a type tag/symbol; procedure `type-for` from library `(lispkit type)` can be used to determine the type tag of a given object; breaking change for `make-type`, which now returns 5 values (the first is a new type tag)
+- Support complex numbers for trigonometric and inverse trigonometric functions in library `(lispkit math)`: `sin`, `cos`, `tan`, `asin`, `acos`, and `atan`
+- Bug fixes in library `(lispkit draw chart bar)` and `(lispkit enum)`
+- New library: `(lispkit math matrix)`
+
 ## 2.2.1 (2022-05-28)
 
 - Fixed bug preventing LispKit to correctly determine the maximum number of threads
