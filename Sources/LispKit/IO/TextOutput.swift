@@ -149,7 +149,7 @@ open class TextOutput {
     if self.next < self.buffer.count {
       self.buffer[self.next] = ch
     } else if self.target != nil {
-      guard self.flush() else {
+      guard self.flushBuffer() else {
         return false
       }
       self.buffer[self.next] = ch
