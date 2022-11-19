@@ -66,9 +66,9 @@
   (define md4 (document (list (paragraph (list
                 (strong (list (text "one ") (emph (list (text "two"))))) (text " three"))))))
   (define md5 (document (list (paragraph (list (link (list (text "LispPad"))
-                                                     "http://lisppad.objecthub.net"
+                                                     "http://lisppad.app"
                                                      "Mac App"))))))
-  (define md6 (document (list (paragraph (list (html "a href=\"http://objecthub.net\"")
+  (define md6 (document (list (paragraph (list (html "a href=\"http://objecthub.com\"")
                                                (text "homepage")
                                                (html "/a"))))))
   (list
@@ -76,8 +76,8 @@
     (markdown=? md2 (markdown "*one two* three"))
     (markdown=? md3 (markdown "**one two** three"))
     (markdown=? md4 (markdown "**one _two_** three"))
-    (markdown=? md5 (markdown "[LispPad](http://lisppad.objecthub.net \"Mac App\")"))
-    (markdown=? md6 (markdown "<a href=\"http://objecthub.net\">homepage</a>")))
+    (markdown=? md5 (markdown "[LispPad](http://lisppad.app \"Mac App\")"))
+    (markdown=? md6 (markdown "<a href=\"http://objecthub.com\">homepage</a>")))
 )
 
 (

@@ -28,7 +28,7 @@ lists on iOS. In general, the differences between the macOS and iOS version of t
 are minor. Interestingly, the iPhone 12 Pro (2020) seems to consistently
 outperform the MacBook Pro 16" (2019) for simple LispKit benchmarks.
 
-[_LispPad_](http://lisppad.objecthub.net) implements a simple, lightweight, integrated
+[_LispPad_](http://www.lisppad.app) implements a simple, lightweight, integrated
 development environment for _LispKit_ on macOS with a Cocoa-based UI. The
 [LispPad Library Reference](http://lisppad.objecthub.net/resources/LispPad_Reference_1.7.pdf)
 documents the core _LispPad_ and _LispKit_ libraries in
