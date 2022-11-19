@@ -98,6 +98,7 @@ public enum EvalError: Int, Hashable {
   case cyclicImportExport
   case corruptLibrary
   case redefinitionOfImport
+  case stackOverflow
   case unknownFile
   case unknownDirectory
   case unknownSystemDirectory
@@ -308,6 +309,8 @@ public enum EvalError: Int, Hashable {
         return "internal state of library $0 is corrupt ($,1)"
       case .redefinitionOfImport:
         return "redefinition of imported definition $0 in library $1"
+      case .stackOverflow:
+        return "stack overflow"
       case .unknownFile:
         return "file '$,0' unknown or a directory"
       case .unknownDirectory:

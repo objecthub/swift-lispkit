@@ -63,9 +63,9 @@ public final class Evaluator: TrackedObject {
   /// All managed threads
   internal var threads = ThreadManager()
   
-  init(for context: Context) {
+  init(for context: Context, limitStack: Int = 10000000) {
     self.context = context
-    self.main = VirtualMachine(for: context)
+    self.main = VirtualMachine(for: context, limitStack: limitStack)
     context.objects.manage(self.main)
     super.init()
     self.mainThread = NativeThread(EvalThread(worker: self))

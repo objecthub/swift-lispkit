@@ -91,7 +91,8 @@ open class Context {
               includeDocumentPath: String?,
               assetPath: String?,
               gcDelay: Double,
-              features: [String]) {
+              features: [String],
+              limitStack: Int) {
     // Initialize components
     self.delegate = delegate
     self.implementationName = implementationName
@@ -116,7 +117,7 @@ open class Context {
     self.features = supported
     self.libraries = LibraryManager(for: self)
     self.environment = Environment(in: self)
-    self.evaluator = Evaluator(for: self)
+    self.evaluator = Evaluator(for: self, limitStack: limitStack)
     self.inputPort = Port(input: TextInput(source: delegate,
                                            abortionCallback: self.evaluator.isAbortionRequested))
     self.outputPort = Port(output: TextOutput(target: delegate, threshold: 0))

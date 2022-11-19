@@ -65,6 +65,7 @@ public final class ThreadLibrary: NativeLibrary {
     self.define(Procedure("thread-runnable?", self.isThreadRunnable))
     self.define(Procedure("thread-blocked?", self.isThreadBlocked))
     self.define(Procedure("thread-terminated?", self.isThreadTerminated))
+    self.define(Procedure("thread-max-stack", self.threadMaxStack))
     self.define(Procedure("thread-start!", self.threadStart))
     self.define(Procedure("thread-yield!", self.threadYield))
     self.define(Procedure("thread-sleep!", self.threadSleep))
@@ -216,6 +217,50 @@ public final class ThreadLibrary: NativeLibrary {
   
   private func isThreadTerminated(th: Expr) throws -> Expr {
     return .makeBoolean(try self.thread(from: th).value.state == .terminated)
+  }
+  
+  private func threadMaxStack(fst: Expr?, snd: Expr?) throws -> Expr {
+    guard let snd = snd else {
+      guard let fst = fst else {
+        if let limit = self.context.evaluator.threads.current?.value.machine?.limitSp {
+          return .makeNumber(limit)
+        } else {
+          return .false
+        }
+      }
+      switch fst {
+        case .fixnum(let limit):
+          if let machine = self.context.evaluator.threads.current?.value.machine {
+            if limit >= 1000 && limit <= Int64(Int.max) { 
+              _ = machine.setStackLimit(to: Int(limit))
+            }
+            return .makeNumber(machine.limitSp)
+          } else {
+            return .false
+          }
+        case .object(let obj):
+          guard let nt = obj as? NativeThread else {
+            throw RuntimeError.type(fst, expected: [NativeThread.type])
+          }
+          if let machine = nt.value.machine {
+            return .makeNumber(machine.limitSp)
+          } else {
+            return .false
+          }
+        default:
+          throw RuntimeError.type(fst, expected: [.fixnumType])
+      }
+    }
+    let thread = try self.thread(from: fst!)
+    let limit = try snd.asInt()
+    if let machine = thread.value.machine {
+      if limit >= 1000 {
+        _ = machine.setStackLimit(to: limit)
+      }
+      return .makeNumber(machine.limitSp)
+    } else {
+      return .false
+    }
   }
   
   private func threadStart(th: Expr) throws -> Expr {

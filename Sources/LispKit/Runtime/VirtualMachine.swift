@@ -126,8 +126,11 @@ public final class VirtualMachine: ManagedObject {
     }
   }
   
+  /// The stack pointer never grows beyond `limitSp`
+  public private(set) var limitSp: Int
+  
   /// The maximum value of the stack pointer so far (used for debugging)
-  public private(set) var maxSp: Int
+  public private(set) var maxSp: Int = 0
   
   /// Registers
   private var registers: Registers
@@ -148,11 +151,11 @@ public final class VirtualMachine: ManagedObject {
   internal private(set) var abortionRequested: Bool = false
   
   /// Initializes a new virtual machine for the given context.
-  public init(for context: Context) {
+  public init(for context: Context, limitStack: Int = 10000000) {
     self.context = context
     self.stack = Exprs(repeating: .undef, count: 1024)
     self.sp = 0
-    self.maxSp = 0
+    self.limitSp = limitStack <= Int.max - 100 ? limitStack : Int.max - 100
     self.registers = Registers(code: Code([], [], []), captured: [], fp: 0, root: true)
     self.winders = nil
     self.parameters = HashTable(equiv: .eq)
@@ -166,11 +169,21 @@ public final class VirtualMachine: ManagedObject {
     self.context = machine.context
     self.stack = Exprs(repeating: .undef, count: 1024)
     self.sp = 0
-    self.maxSp = 0
+    self.limitSp = machine.limitSp
     self.registers = Registers(code: Code([], [], []), captured: [], fp: 0, root: true)
     self.winders = nil
     self.parameters = HashTable(copy: machine.parameters)
     self.execInstr = 0
+  }
+  
+  /// Sets the stack size limit to `limitSp`
+  public func setStackLimit(to limitSp: Int) -> Bool {
+    if limitSp > self.sp && limitSp <= Int.max - 100 {
+      self.limitSp = limitSp
+      return true
+    } else {
+      return false
+    }
   }
   
   /// Returns a copy of the current virtual machine state.
@@ -369,7 +382,7 @@ public final class VirtualMachine: ManagedObject {
   
   /// Applies `args` to the function `fun` in environment `env`.
   public func apply(_ fun: Expr, to args: Expr) throws -> Expr {
-    self.push(fun)
+    try self.push(fun)
     var n = try self.pushArguments(args)
     let proc = try self.invoke(&n, 1)
     switch proc.kind {
@@ -390,14 +403,19 @@ public final class VirtualMachine: ManagedObject {
   }
   
   /// Pushes the given expression onto the stack.
-  @inline(__always) private func push(_ expr: Expr) {
+  @inline(__always) private func push(_ expr: Expr) throws {
     if self.sp < self.stack.count {
       self.stack[self.sp] = expr
     } else {
-      if self.sp >= self.stack.capacity {
+      if self.sp >= self.stack.capacity && self.sp < (Int.max / 2) {
         self.stack.reserveCapacity(self.sp * 2)
       }
       self.stack.append(expr)
+      if self.sp >= self.limitSp {
+        // We need to bypass exception handling for stack overflows
+        self.abortionRequested = true
+        throw RuntimeError.eval(.stackOverflow)
+      }
     }
     self.sp &+= 1
   }
@@ -408,7 +426,7 @@ public final class VirtualMachine: ManagedObject {
     var args = arglist
     var n = 0
     while case .pair(let arg, let rest) = args {
-      self.push(arg)
+      try self.push(arg)
       n = n &+ 1
       args = rest
     }
@@ -658,20 +676,20 @@ public final class VirtualMachine: ManagedObject {
       switch n {
         case 0:                             // Return parameter value
           self.pop(overhead)
-          self.push(self.context.evaluator.getParam(proc)!)
+          try self.push(self.context.evaluator.getParam(proc)!)
           return proc
         case 1 where tuple.fst.isNull:      // Set parameter value without setter
           let a0 = self.pop()
           self.pop(overhead)
-          self.push(self.context.evaluator.setParam(proc, to: a0))
+          try self.push(self.context.evaluator.setParam(proc, to: a0))
           return proc
         case 1:                             // Set parameter value with setter
           let a0 = self.pop()
           self.drop()
-          self.push(tuple.fst)
-          self.push(.procedure(proc))
-          self.push(a0)
-          self.push(.procedure(self.context.evaluator.setParameterProc))
+          try self.push(tuple.fst)
+          try self.push(.procedure(proc))
+          try self.push(a0)
+          try self.push(.procedure(self.context.evaluator.setParameterProc))
           n = 3
           proc = try tuple.fst.asProcedure()
         default:
@@ -685,15 +703,15 @@ public final class VirtualMachine: ManagedObject {
           case .eval(let eval):
             let generated = Procedure(try eval(self.stack[(self.sp &- n)..<self.sp]))
             self.pop(n + 1)
-            self.push(.procedure(generated))
+            try self.push(.procedure(generated))
             n = 0
             return generated
           case .apply(let apply):
             let (next, args) = try apply(self.stack[(self.sp &- n)..<self.sp])
             self.pop(n + 1)
-            self.push(.procedure(next))
+            try self.push(.procedure(next))
             for arg in args {
-              self.push(arg)
+              try self.push(arg)
             }
             n = args.count
             proc = next
@@ -702,7 +720,7 @@ public final class VirtualMachine: ManagedObject {
               throw RuntimeError.argumentCount(min: 0, max: 0, args: self.popAsList(n))
             }
             self.pop(overhead)
-            self.push(try exec())
+            try self.push(try exec())
             return proc
           case .native1(let exec):
             guard n == 1 else {
@@ -710,7 +728,7 @@ public final class VirtualMachine: ManagedObject {
             }
             let a0 = self.pop()
             self.pop(overhead)
-            self.push(try exec(a0))
+            try self.push(try exec(a0))
             return proc
           case .native2(let exec):
             guard n == 2 else {
@@ -719,7 +737,7 @@ public final class VirtualMachine: ManagedObject {
             let a1 = self.pop()
             let a0 = self.pop()
             self.pop(overhead)
-            self.push(try exec(a0, a1))
+            try self.push(try exec(a0, a1))
             return proc
           case .native3(let exec):
             guard n == 3 else {
@@ -729,7 +747,7 @@ public final class VirtualMachine: ManagedObject {
             let a1 = self.pop()
             let a0 = self.pop()
             self.pop(overhead)
-            self.push(try exec(a0, a1, a2))
+            try self.push(try exec(a0, a1, a2))
             return proc
           case .native4(let exec):
             guard n == 4 else {
@@ -740,16 +758,16 @@ public final class VirtualMachine: ManagedObject {
             let a1 = self.pop()
             let a0 = self.pop()
             self.pop(overhead)
-            self.push(try exec(a0, a1, a2, a3))
+            try self.push(try exec(a0, a1, a2, a3))
             return proc
           case .native0O(let exec):
             if n == 0 {
               self.pop(overhead)
-              self.push(try exec(nil))
+              try self.push(try exec(nil))
             } else if n == 1 {
               let a0 = self.pop()
               self.pop(overhead)
-              self.push(try exec(a0))
+              try self.push(try exec(a0))
             } else {
               throw RuntimeError.argumentCount(min: 1, max: 1, args: self.popAsList(n))
             }
@@ -758,12 +776,12 @@ public final class VirtualMachine: ManagedObject {
             if n == 1 {
               let a0 = self.pop()
               self.pop(overhead)
-              self.push(try exec(a0, nil))
+              try self.push(try exec(a0, nil))
             } else if n == 2 {
               let a1 = self.pop()
               let a0 = self.pop()
               self.pop(overhead)
-              self.push(try exec(a0, a1))
+              try self.push(try exec(a0, a1))
             } else {
               throw RuntimeError.argumentCount(min: 2, max: 2, args: self.popAsList(n))
             }
@@ -773,13 +791,13 @@ public final class VirtualMachine: ManagedObject {
               let a1 = self.pop()
               let a0 = self.pop()
               self.pop(overhead)
-              self.push(try exec(a0, a1, nil))
+              try self.push(try exec(a0, a1, nil))
             } else if n == 3 {
               let a2 = self.pop()
               let a1 = self.pop()
               let a0 = self.pop()
               self.pop(overhead)
-              self.push(try exec(a0, a1, a2))
+              try self.push(try exec(a0, a1, a2))
             } else {
               throw RuntimeError.argumentCount(min: 3, max: 3, args: self.popAsList(n))
             }
@@ -790,14 +808,14 @@ public final class VirtualMachine: ManagedObject {
               let a1 = self.pop()
               let a0 = self.pop()
               self.pop(overhead)
-              self.push(try exec(a0, a1, a2, nil))
+              try self.push(try exec(a0, a1, a2, nil))
             } else if n == 4 {
               let a3 = self.pop()
               let a2 = self.pop()
               let a1 = self.pop()
               let a0 = self.pop()
               self.pop(overhead)
-              self.push(try exec(a0, a1, a2, a3))
+              try self.push(try exec(a0, a1, a2, a3))
             } else {
               throw RuntimeError.argumentCount(min: 3, max: 3, args: self.popAsList(n))
             }
@@ -805,16 +823,16 @@ public final class VirtualMachine: ManagedObject {
           case .native0OO(let exec):
             if n == 0 {
               self.pop(overhead)
-              self.push(try exec(nil, nil))
+              try self.push(try exec(nil, nil))
             } else if n == 1 {
               let a0 = self.pop()
               self.pop(overhead)
-              self.push(try exec(a0, nil))
+              try self.push(try exec(a0, nil))
             } else if n == 2 {
               let a1 = self.pop()
               let a0 = self.pop()
               self.pop(overhead)
-              self.push(try exec(a0, a1))
+              try self.push(try exec(a0, a1))
             } else {
               throw RuntimeError.argumentCount(min: 2, max: 2, args: self.popAsList(n))
             }
@@ -823,18 +841,18 @@ public final class VirtualMachine: ManagedObject {
             if n == 1 {
               let a0 = self.pop()
               self.pop(overhead)
-              self.push(try exec(a0, nil, nil))
+              try self.push(try exec(a0, nil, nil))
             } else if n == 2 {
               let a1 = self.pop()
               let a0 = self.pop()
               self.pop(overhead)
-              self.push(try exec(a0, a1, nil))
+              try self.push(try exec(a0, a1, nil))
             } else if n == 3 {
               let a2 = self.pop()
               let a1 = self.pop()
               let a0 = self.pop()
               self.pop(overhead)
-              self.push(try exec(a0, a1, a2))
+              try self.push(try exec(a0, a1, a2))
             } else {
               throw RuntimeError.argumentCount(min: 3, max: 3, args: self.popAsList(n))
             }
@@ -844,20 +862,20 @@ public final class VirtualMachine: ManagedObject {
               let a1 = self.pop()
               let a0 = self.pop()
               self.pop(overhead)
-              self.push(try exec(a0, a1, nil, nil))
+              try self.push(try exec(a0, a1, nil, nil))
             } else if n == 3 {
               let a2 = self.pop()
               let a1 = self.pop()
               let a0 = self.pop()
               self.pop(overhead)
-              self.push(try exec(a0, a1, a2, nil))
+              try self.push(try exec(a0, a1, a2, nil))
             } else if n == 4 {
               let a3 = self.pop()
               let a2 = self.pop()
               let a1 = self.pop()
               let a0 = self.pop()
               self.pop(overhead)
-              self.push(try exec(a0, a1, a2, a3))
+              try self.push(try exec(a0, a1, a2, a3))
             } else {
               throw RuntimeError.argumentCount(min: 4, max: 4, args: self.popAsList(n))
             }
@@ -868,14 +886,14 @@ public final class VirtualMachine: ManagedObject {
               let a1 = self.pop()
               let a0 = self.pop()
               self.pop(overhead)
-              self.push(try exec(a0, a1, a2, nil, nil))
+              try self.push(try exec(a0, a1, a2, nil, nil))
             } else if n == 4 {
               let a3 = self.pop()
               let a2 = self.pop()
               let a1 = self.pop()
               let a0 = self.pop()
               self.pop(overhead)
-              self.push(try exec(a0, a1, a2, a3, nil))
+              try self.push(try exec(a0, a1, a2, a3, nil))
             } else if n == 5 {
               let a4 = self.pop()
               let a3 = self.pop()
@@ -883,7 +901,7 @@ public final class VirtualMachine: ManagedObject {
               let a1 = self.pop()
               let a0 = self.pop()
               self.pop(overhead)
-              self.push(try exec(a0, a1, a2, a3, a4))
+              try self.push(try exec(a0, a1, a2, a3, a4))
             } else {
               throw RuntimeError.argumentCount(min: 5, max: 5, args: self.popAsList(n))
             }
@@ -891,13 +909,13 @@ public final class VirtualMachine: ManagedObject {
           case .native0R(let exec):
             let res = try exec(self.stack[(self.sp &- n)..<self.sp])
             self.pop(n &+ overhead)
-            self.push(res)
+            try self.push(res)
             return proc
           case .native1R(let exec):
             if n >= 1 {
               let res = try exec(self.stack[self.sp &- n], self.stack[(self.sp &- n &+ 1)..<self.sp])
               self.pop(n &+ overhead)
-              self.push(res)
+              try self.push(res)
             } else {
               throw RuntimeError.argumentCount(min: 1, args: self.popAsList(n))
             }
@@ -908,7 +926,7 @@ public final class VirtualMachine: ManagedObject {
                                  self.stack[self.sp &- n &+ 1],
                                  self.stack[(self.sp &- n &+ 2)..<self.sp])
               self.pop(n &+ overhead)
-              self.push(res)
+              try self.push(res)
             } else {
               throw RuntimeError.argumentCount(min: 2, args: self.popAsList(n))
             }
@@ -920,7 +938,7 @@ public final class VirtualMachine: ManagedObject {
                                  self.stack[self.sp &- n &+ 2],
                                  self.stack[(self.sp &- n &+ 3)..<self.sp])
               self.pop(n &+ overhead)
-              self.push(res)
+              try self.push(res)
             } else {
               throw RuntimeError.argumentCount(min: 3, args: self.popAsList(n))
             }
@@ -954,8 +972,8 @@ public final class VirtualMachine: ManagedObject {
       self.sp = vmState.sp
       self.registers = vmState.registers
       // Push identity function and argument onto restored virtual machine stack
-      self.push(.procedure(CoreLibrary.idProc))
-      self.push(arg)
+      try self.push(.procedure(CoreLibrary.idProc))
+      try self.push(arg)
     }
     return proc
   }
@@ -970,12 +988,12 @@ public final class VirtualMachine: ManagedObject {
   }
   
   @inline(__always) private func execute(_ code: Code, as name: String) throws -> Expr {
-    self.push(.procedure(Procedure(name, code)))
+    try self.push(.procedure(Procedure(name, code)))
     return try self.execute(code, args: 0, captured: noExprs)
   }
   
   @inline(__always) private func execute(_ code: Code) throws -> Expr {
-    self.push(.procedure(Procedure(code)))
+    try self.push(.procedure(Procedure(code)))
     return try self.execute(code, args: 0, captured: noExprs)
   }
   
@@ -1034,7 +1052,7 @@ public final class VirtualMachine: ManagedObject {
           self.sp = self.sp &- 1
           self.stack[self.sp] = .undef
         case .dup:
-          self.push(self.stack[self.sp &- 1])
+          try self.push(self.stack[self.sp &- 1])
         case .swap:
           let top = self.stack[self.sp &- 1]
           self.stack[self.sp &- 1] = self.stack[self.sp &- 2]
@@ -1054,7 +1072,7 @@ public final class VirtualMachine: ManagedObject {
               case .special(_):
                 throw RuntimeError.eval(.illegalKeywordUsage, value)
               default:
-                self.push(value)
+                try self.push(value)
             }
           }
         case .setGlobal(let index):
@@ -1078,7 +1096,7 @@ public final class VirtualMachine: ManagedObject {
           self.context.heap.locations[index] = self.pop()
           self.context.objects.lock.unlock()
         case .pushCaptured(let index):
-          self.push(self.registers.captured[index])
+          try self.push(self.registers.captured[index])
         case .pushCapturedValue(let index):
           guard case .box(let cell) = self.registers.captured[index] else {
             preconditionFailure("pushCapturedValue cannot push \(self.registers.captured[index])")
@@ -1086,7 +1104,7 @@ public final class VirtualMachine: ManagedObject {
           if case .undef = cell.value {
             throw RuntimeError.eval(.variableNotYetInitialized, .undef)
           }
-          self.push(cell.value)
+          try self.push(cell.value)
         case .setCapturedValue(let index):
           guard case .box(let cell) = self.registers.captured[index] else {
             preconditionFailure("setCapturedValue cannot set value of \(self.registers.captured[index])")
@@ -1096,7 +1114,7 @@ public final class VirtualMachine: ManagedObject {
             self.context.objects.manage(cell)
           }
         case .pushLocal(let index):
-          self.push(self.stack[self.registers.fp &+ index])
+          try self.push(self.stack[self.registers.fp &+ index])
         case .setLocal(let index):
           self.stack[self.registers.fp &+ index] = self.pop()
         case .setLocalValue(let index):
@@ -1128,43 +1146,43 @@ public final class VirtualMachine: ManagedObject {
           if case .undef = cell.value {
             throw RuntimeError.eval(.variableNotYetInitialized, .undef)
           }
-          self.push(cell.value)
+          try self.push(cell.value)
         case .pushConstant(let index):
-          self.push(self.registers.code.constants[index])
+          try self.push(self.registers.code.constants[index])
         case .pushProcedure(let index):
-          self.push(self.registers.code.constants[index])
+          try self.push(self.registers.code.constants[index])
         case .pushUndef:
-          self.push(.undef)
+          try self.push(.undef)
         case .pushVoid:
-          self.push(.void)
+          try self.push(.void)
         case .pushEof:
-          self.push(.void)
+          try self.push(.void)
         case .pushNull:
-          self.push(.null)
+          try self.push(.null)
         case .pushTrue:
-          self.push(.true)
+          try self.push(.true)
         case .pushFalse:
-          self.push(.false)
+          try self.push(.false)
         case .pushFixnum(let num):
-          self.push(.fixnum(num))
+          try self.push(.fixnum(num))
         case .pushBignum(let num):
-          self.push(.bignum(num))
+          try self.push(.bignum(num))
         case .pushRat(let num):
-          self.push(.rational(.fixnum(num.numerator), .fixnum(num.denominator)))
+          try self.push(.rational(.fixnum(num.numerator), .fixnum(num.denominator)))
         case .pushBigrat(let num):
-          self.push(.rational(.bignum(num.numerator), .bignum(num.denominator)))
+          try self.push(.rational(.bignum(num.numerator), .bignum(num.denominator)))
         case .pushFlonum(let num):
-          self.push(.flonum(num))
+          try self.push(.flonum(num))
         case .pushComplex(let num):
-          self.push(.complex(ImmutableBox(num)))
+          try self.push(.complex(ImmutableBox(num)))
         case .pushChar(let char):
-          self.push(.char(char))
+          try self.push(.char(char))
         case .pack(let n):
           var list = Expr.null
           for _ in 0..<n {
             list = .pair(self.pop(), list)
           }
-          self.push(.values(list))
+          try self.push(.values(list))
         case .flatpack(let n):
           var list = Expr.null
           for _ in 0..<n {
@@ -1180,7 +1198,7 @@ public final class VirtualMachine: ManagedObject {
                 list = .pair(e, list)
             }
           }
-          self.push(.values(list))
+          try self.push(.values(list))
         case .unpack(let n, let overflow):
           switch self.top() {
             case .void:
@@ -1189,7 +1207,7 @@ public final class VirtualMachine: ManagedObject {
               }
               self.drop()
               if overflow {
-                self.push(.null)
+                try self.push(.null)
               }
             case .values(let list):
               self.drop()
@@ -1203,7 +1221,7 @@ public final class VirtualMachine: ManagedObject {
                     throw RuntimeError.eval(.multiValueCountError, .makeNumber(n), list)
                   }
                 }
-                self.push(value)
+                try self.push(value)
                 m -= 1
                 next = rest
               }
@@ -1211,15 +1229,15 @@ public final class VirtualMachine: ManagedObject {
                 throw RuntimeError.eval(.multiValueCountError, .makeNumber(n), list)
               }
               if overflow {
-                self.push(next)
+                try self.push(next)
               }
             default:
               if n == 1 {
                 if overflow {
-                  self.push(.null)
+                  try self.push(.null)
                 }
               } else if n == 0 && overflow {
-                self.push(.pair(self.popUnsafe(), .null))
+                try self.push(.pair(self.popUnsafe(), .null))
               } else {
                 throw RuntimeError.eval(.multiValueCountError,
                                         .makeNumber(n),
@@ -1237,7 +1255,7 @@ public final class VirtualMachine: ManagedObject {
           } else {
             type = i == -2 ? .continuation : .anonymous
           }
-          self.push(.procedure(Procedure(type,
+          try self.push(.procedure(Procedure(type,
                                          self.captureExprs(n),
                                          self.registers.code.fragments[index])))
         case .makeTaggedClosure(let i, let n, let index):
@@ -1252,7 +1270,7 @@ public final class VirtualMachine: ManagedObject {
             type = i == -2 ? .continuation : .anonymous
           }
           let captured = self.captureExprs(n)
-          self.push(.procedure(Procedure(type,
+          try self.push(.procedure(Procedure(type,
                                          self.pop(),
                                          captured,
                                          self.registers.code.fragments[index])))
@@ -1263,7 +1281,7 @@ public final class VirtualMachine: ManagedObject {
           }
           let future = Promise(kind: .promise, thunk: proc)
           future.managementRef = self.context.objects.reference(to: future)
-          self.push(.promise(future))
+          try self.push(.promise(future))
         case .makeStream:
           let top = self.pop()
           guard case .procedure(let proc) = top else {
@@ -1271,7 +1289,7 @@ public final class VirtualMachine: ManagedObject {
           }
           let future = Promise(kind: .stream, thunk: proc)
           future.managementRef = self.context.objects.reference(to: future)
-          self.push(.promise(future))
+          try self.push(.promise(future))
         case .makeSyntax(let i):
           let transformer = self.pop()
           guard case .procedure(let proc) = transformer else {
@@ -1282,22 +1300,22 @@ public final class VirtualMachine: ManagedObject {
               preconditionFailure(
                 "makeSyntax has broken syntax name \(self.registers.code.constants[i])")
             }
-            self.push(.special(SpecialForm(sym.identifier, proc)))
+            try self.push(.special(SpecialForm(sym.identifier, proc)))
           } else {
-            self.push(.special(SpecialForm(nil, proc)))
+            try self.push(.special(SpecialForm(nil, proc)))
           }
         case .compile:
           let environment = try self.pop().asEnvironment()
           let code = try Compiler.compile(expr: .makeList(self.pop()),
                                           in: .global(environment),
                                           optimize: true)
-          self.push(.procedure(Procedure(code)))
+          try self.push(.procedure(Procedure(code)))
         case .apply(let m):
           let arglist = self.pop()
           var args = arglist
           var n = m &- 1
           while case .pair(let arg, let rest) = args {
-            self.push(arg)
+            try self.push(arg)
             n = n &+ 1
             args = rest
           }
@@ -1312,17 +1330,17 @@ public final class VirtualMachine: ManagedObject {
           }
         case .makeFrame:
           // Push frame pointer
-          self.push(.fixnum(Int64(self.registers.fp)))
+          try self.push(.fixnum(Int64(self.registers.fp)))
           // Reserve space for instruction pointer
-          self.push(.undef)
+          try self.push(.undef)
         case .injectFrame:
           let top = self.pop()
           // Push frame pointer
-          self.push(.fixnum(Int64(self.registers.fp)))
+          try self.push(.fixnum(Int64(self.registers.fp)))
           // Reserve space for instruction pointer
-          self.push(.undef)
+          try self.push(.undef)
           // Push top value onto stack again
-          self.push(top)
+          try self.push(top)
         case .call(let n):
           let tproc = self.printCallTrace(n, tailCall: false)
           // Store instruction pointer
@@ -1393,10 +1411,15 @@ public final class VirtualMachine: ManagedObject {
           while self.sp > self.registers.fp &+ n {
             rest = .pair(self.pop(), rest)
           }
-          self.push(rest)
+          try self.push(rest)
         case .alloc(let n):
           if self.sp &+ n > self.stack.count {
-            if self.sp &+ n >= self.stack.capacity {
+            if self.sp &+ n > self.limitSp {
+              // We need to bypass exception handling for stack overflows
+              self.abortionRequested = true
+              throw RuntimeError.eval(.stackOverflow)
+            }
+            if self.sp &+ n >= self.stack.capacity && self.sp < (Int.max / 2) {
               self.stack.reserveCapacity(self.sp * 2)
             }
             for _ in 0..<(self.sp &+ n &- self.stack.count) {
@@ -1407,7 +1430,12 @@ public final class VirtualMachine: ManagedObject {
         case .allocBelow(let n):
           let top = self.pop()
           if self.sp &+ n > self.stack.count {
-            if self.sp &+ n >= self.stack.capacity {
+            if self.sp &+ n > self.limitSp {
+              // We need to bypass exception handling for stack overflows
+              self.abortionRequested = true
+              throw RuntimeError.eval(.stackOverflow)
+            }
+            if self.sp &+ n >= self.stack.capacity && self.sp < (Int.max / 2) {
               self.stack.reserveCapacity(self.sp * 2)
             }
             for _ in 0..<(self.sp &+ n &- self.stack.count) {
@@ -1415,7 +1443,7 @@ public final class VirtualMachine: ManagedObject {
             }
           }
           self.sp &+= n
-          self.push(top)
+          try self.push(top)
         case .reset(let index, let n):
           for i in (self.registers.fp &+ index)..<(self.registers.fp &+ index &+ n) {
             self.stack[i] = .undef
@@ -1456,7 +1484,7 @@ public final class VirtualMachine: ManagedObject {
           if top.isFalse {
             self.registers.ip = self.registers.ip &+ offset &- 1
           } else {
-            self.push(top)
+            try self.push(top)
           }
         case .branchIfArgMismatch(let n, let offset):
           if self.sp &- n != self.registers.fp {
@@ -1483,11 +1511,11 @@ public final class VirtualMachine: ManagedObject {
             switch future.state {
               case .lazy(let proc):
                 // Push frame pointer
-                self.push(.fixnum(Int64(self.registers.fp)))
+                try self.push(.fixnum(Int64(self.registers.fp)))
                 // Push instruction pointer
-                self.push(.fixnum(Int64(self.registers.ip)))
+                try self.push(.fixnum(Int64(self.registers.ip)))
                 // Push procedure that yields the forced result
-                self.push(.procedure(proc))
+                try self.push(.procedure(proc))
                 // Invoke native function
                 var n = 0
                 if case .closure(_, _, let newcaptured, let newcode) = try self.invoke(&n, 3).kind {
@@ -1538,7 +1566,7 @@ public final class VirtualMachine: ManagedObject {
           let th = self.context.evaluator.thread(for: try self.popUnsafe().asProcedure(),
                                                  name: .false,
                                                  tag: .false)
-          self.push(.object(th))
+          try self.push(.object(th))
           if start {
             try th.value.start()
           }
@@ -1558,7 +1586,7 @@ public final class VirtualMachine: ManagedObject {
                              ErrorDescriptor.eval(EvalError(rawValue: err)!),
                              irritants)
         case .pushCurrentTime:
-          self.push(.flonum(Timer.absoluteTimeInSec))
+          try self.push(.flonum(Timer.absoluteTimeInSec))
         case .display:
           let obj = self.pop()
           switch obj {
@@ -1570,57 +1598,57 @@ public final class VirtualMachine: ManagedObject {
         case .newline:
           self.context.delegate?.print("\n")
         case .eq:
-          self.push(.makeBoolean(eqExpr(self.pop(), self.popUnsafe())))
+          try self.push(.makeBoolean(eqExpr(self.pop(), self.popUnsafe())))
         case .eqv:
-          self.push(.makeBoolean(eqvExpr(self.pop(), self.popUnsafe())))
+          try self.push(.makeBoolean(eqvExpr(self.pop(), self.popUnsafe())))
         case .equal:
-          self.push(.makeBoolean(equalExpr(self.pop(), self.popUnsafe())))
+          try self.push(.makeBoolean(equalExpr(self.pop(), self.popUnsafe())))
         case .isPair:
           if case .pair(_, _) = self.popUnsafe() {
-            self.push(.true)
+            try self.push(.true)
           } else {
-            self.push(.false)
+            try self.push(.false)
           }
         case .isNull:
-          self.push(.makeBoolean(self.popUnsafe() == .null))
+          try self.push(.makeBoolean(self.popUnsafe() == .null))
         case .isUndef:
-          self.push(.makeBoolean(self.popUnsafe() == .undef))
+          try self.push(.makeBoolean(self.popUnsafe() == .undef))
         case .cons:
           let cdr = self.pop()
-          self.push(.pair(self.popUnsafe(), cdr))
+          try self.push(.pair(self.popUnsafe(), cdr))
         case .decons:
           let expr = self.popUnsafe()
           guard case .pair(let car, let cdr) = expr else {
             throw RuntimeError.type(expr, expected: [.pairType])
           }
-          self.push(cdr)
-          self.push(car)
+          try self.push(cdr)
+          try self.push(car)
         case .deconsKeyword:
           let expr = self.popUnsafe()
           guard case .pair(let fst, .pair(let snd, let cdr)) = expr else {
             throw RuntimeError.eval(.expectedKeywordArg, expr)
           }
-          self.push(cdr)
-          self.push(snd)
-          self.push(fst)
+          try self.push(cdr)
+          try self.push(snd)
+          try self.push(fst)
         case .car:
           let expr = self.popUnsafe()
           guard case .pair(let car, _) = expr else {
             throw RuntimeError.type(expr, expected: [.pairType])
           }
-          self.push(car)
+          try self.push(car)
         case .cdr:
           let expr = self.popUnsafe()
           guard case .pair(_, let cdr) = expr else {
             throw RuntimeError.type(expr, expected: [.pairType])
           }
-          self.push(cdr)
+          try self.push(cdr)
         case .list(let n):
           var res = Expr.null
           for _ in 0..<n {
             res = .pair(self.pop(), res)
           }
-          self.push(res)
+          try self.push(res)
         case .vector(let n):
           let vector = Collection(kind: .vector)
           var i = self.sp &- n
@@ -1629,7 +1657,7 @@ public final class VirtualMachine: ManagedObject {
             i = i &+ 1
           }
           self.pop(n)
-          self.push(.vector(vector))
+          try self.push(.vector(vector))
         case .listToVector:
           let expr = self.popUnsafe()
           let vector = Collection(kind: .vector)
@@ -1641,7 +1669,7 @@ public final class VirtualMachine: ManagedObject {
           guard list.isNull else {
             throw RuntimeError.type(expr, expected: [.properListType])
           }
-          self.push(.vector(vector))
+          try self.push(.vector(vector))
         case .vectorAppend(let n):
           let vector = Collection(kind: .vector)
           var i = self.sp &- n
@@ -1650,34 +1678,34 @@ public final class VirtualMachine: ManagedObject {
             i = i &+ 1
           }
           self.pop(n)
-          self.push(.vector(vector))
+          try self.push(.vector(vector))
         case .isVector:
           if case .vector(let vector) = self.popUnsafe(), !vector.isGrowableVector {
-            self.push(.true)
+            try self.push(.true)
           } else {
-            self.push(.false)
+            try self.push(.false)
           }
         case .not:
           if case .false = self.popUnsafe() {
-            self.push(.true)
+            try self.push(.true)
           } else {
-            self.push(.false)
+            try self.push(.false)
           }
         case .fxPlus:
           let rhs = self.pop()
-          self.push(.fixnum(try self.popUnsafe().asInt64() &+ rhs.asInt64()))
+          try self.push(.fixnum(try self.popUnsafe().asInt64() &+ rhs.asInt64()))
         case .fxMinus:
           let rhs = self.pop()
-          self.push(.fixnum(try self.popUnsafe().asInt64() &- rhs.asInt64()))
+          try self.push(.fixnum(try self.popUnsafe().asInt64() &- rhs.asInt64()))
         case .fxMult:
           let rhs = self.pop()
-          self.push(.fixnum(try self.popUnsafe().asInt64() &* rhs.asInt64()))
+          try self.push(.fixnum(try self.popUnsafe().asInt64() &* rhs.asInt64()))
         case .fxDiv:
           let rhs = try self.pop().asInt64()
           guard rhs != 0 else {
             throw RuntimeError.eval(.divisionByZero)
           }
-          self.push(.fixnum(try self.popUnsafe().asInt64() / rhs))
+          try self.push(.fixnum(try self.popUnsafe().asInt64() / rhs))
         case .fxInc:
           let idx = self.sp &- 1
           switch self.stack[idx] {
@@ -1710,7 +1738,7 @@ public final class VirtualMachine: ManagedObject {
             res = res && (lhs == rhs)
             rhs = lhs
           }
-          self.push(.makeBoolean(try (self.popUnsafe().asInt64() == rhs) && res))
+          try self.push(.makeBoolean(try (self.popUnsafe().asInt64() == rhs) && res))
         case .fxLt(let n):
           var rhs = try self.pop().asInt64()
           var res = true
@@ -1719,7 +1747,7 @@ public final class VirtualMachine: ManagedObject {
             res = res && (lhs < rhs)
             rhs = lhs
           }
-          self.push(.makeBoolean(try (self.popUnsafe().asInt64() < rhs) && res))
+          try self.push(.makeBoolean(try (self.popUnsafe().asInt64() < rhs) && res))
         case .fxGt(let n):
           var rhs = try self.pop().asInt64()
           var res = true
@@ -1728,7 +1756,7 @@ public final class VirtualMachine: ManagedObject {
             res = res && (lhs > rhs)
             rhs = lhs
           }
-          self.push(.makeBoolean(try (self.popUnsafe().asInt64() > rhs) && res))
+          try self.push(.makeBoolean(try (self.popUnsafe().asInt64() > rhs) && res))
         case .fxLtEq(let n):
           var rhs = try self.pop().asInt64()
           var res = true
@@ -1737,7 +1765,7 @@ public final class VirtualMachine: ManagedObject {
             res = res && (lhs <= rhs)
             rhs = lhs
           }
-          self.push(.makeBoolean(try (self.popUnsafe().asInt64() <= rhs) && res))
+          try self.push(.makeBoolean(try (self.popUnsafe().asInt64() <= rhs) && res))
         case .fxGtEq(let n):
           var rhs = try self.pop().asInt64()
           var res = true
@@ -1746,23 +1774,23 @@ public final class VirtualMachine: ManagedObject {
             res = res && (lhs >= rhs)
             rhs = lhs
           }
-          self.push(.makeBoolean(try (self.popUnsafe().asInt64() >= rhs) && res))
+          try self.push(.makeBoolean(try (self.popUnsafe().asInt64() >= rhs) && res))
         case .fxAssert:
           guard case .fixnum(_) = self.stack[self.sp &- 1] else {
             throw RuntimeError.type(self.stack[self.sp &- 1], expected: [.fixnumType])
           }
         case .flPlus:
           let rhs = self.pop()
-          self.push(.flonum(try self.popUnsafe().asDouble() + rhs.asDouble()))
+          try self.push(.flonum(try self.popUnsafe().asDouble() + rhs.asDouble()))
         case .flMinus:
           let rhs = self.pop()
-          self.push(.flonum(try self.popUnsafe().asDouble() - rhs.asDouble()))
+          try self.push(.flonum(try self.popUnsafe().asDouble() - rhs.asDouble()))
         case .flMult:
           let rhs = self.pop()
-          self.push(.flonum(try self.popUnsafe().asDouble() * rhs.asDouble()))
+          try self.push(.flonum(try self.popUnsafe().asDouble() * rhs.asDouble()))
         case .flDiv:
           let rhs = self.pop()
-          self.push(.flonum(try self.popUnsafe().asDouble() / rhs.asDouble()))
+          try self.push(.flonum(try self.popUnsafe().asDouble() / rhs.asDouble()))
         case .flNeg:
           let idx = self.sp &- 1
           switch self.stack[idx] {
@@ -1779,7 +1807,7 @@ public final class VirtualMachine: ManagedObject {
             res = res && (lhs == rhs)
             rhs = lhs
           }
-          self.push(.makeBoolean(try (self.popUnsafe().asDouble() == rhs) && res))
+          try self.push(.makeBoolean(try (self.popUnsafe().asDouble() == rhs) && res))
         case .flLt(let n):
           var rhs = try self.pop().asDouble()
           var res = true
@@ -1788,7 +1816,7 @@ public final class VirtualMachine: ManagedObject {
             res = res && (lhs < rhs)
             rhs = lhs
           }
-          self.push(.makeBoolean(try (self.popUnsafe().asDouble() < rhs) && res))
+          try self.push(.makeBoolean(try (self.popUnsafe().asDouble() < rhs) && res))
         case .flGt(let n):
           var rhs = try self.pop().asDouble()
           var res = true
@@ -1797,7 +1825,7 @@ public final class VirtualMachine: ManagedObject {
             res = res && (lhs > rhs)
             rhs = lhs
           }
-          self.push(.makeBoolean(try (self.popUnsafe().asDouble() > rhs) && res))
+          try self.push(.makeBoolean(try (self.popUnsafe().asDouble() > rhs) && res))
         case .flLtEq(let n):
           var rhs = try self.pop().asDouble()
           var res = true
@@ -1806,7 +1834,7 @@ public final class VirtualMachine: ManagedObject {
             res = res && (lhs <= rhs)
             rhs = lhs
           }
-          self.push(.makeBoolean(try (self.popUnsafe().asDouble() <= rhs) && res))
+          try self.push(.makeBoolean(try (self.popUnsafe().asDouble() <= rhs) && res))
         case .flGtEq(let n):
           var rhs = try self.pop().asDouble()
           var res = true
@@ -1815,7 +1843,7 @@ public final class VirtualMachine: ManagedObject {
             res = res && (lhs >= rhs)
             rhs = lhs
           }
-          self.push(.makeBoolean(try (self.popUnsafe().asDouble() >= rhs) && res))
+          try self.push(.makeBoolean(try (self.popUnsafe().asDouble() >= rhs) && res))
         case .flAssert:
           guard case .flonum(_) = self.stack[self.sp &- 1] else {
             throw RuntimeError.type(self.stack[self.sp &- 1], expected: [.floatType])

@@ -57,7 +57,8 @@ public final class LispKitContext: Context {
                        includeDocumentPath: String? = "LispKit",
                        assetPath: String? = nil,
                        gcDelay: Double = 5.0,
-                       features: [String] = []) {
+                       features: [String] = [],
+                       limitStack: Int = 10000000) {
     super.init(delegate: delegate,
                implementationName: implementationName ?? LispKitContext.implementationName,
                implementationVersion: implementationVersion ?? LispKitContext.implementationVersion,
@@ -67,6 +68,7 @@ public final class LispKitContext: Context {
                includeDocumentPath: includeDocumentPath,
                assetPath: assetPath,
                gcDelay: gcDelay,
-               features: features)
+               features: features,
+               limitStack: limitStack)
   }
 }

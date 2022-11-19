@@ -41,6 +41,7 @@ open class LispKitRepl {
   public let roots: RepeatedArgument<String>
   public let searchDocs: SingletonArgument<String>
   public let heapSize: SingletonArgument<Int>
+  public let maxStackSize: SingletonArgument<Int>
   public let importLibs: RepeatedArgument<String>
   public let r7rs: Option
   public let lispkit: Option
@@ -84,6 +85,9 @@ open class LispKitRepl {
     self.heapSize   = f.int("m", "memsize",
                             description: "Initial capacity of the heap memory.",
                             value: 1000)
+    self.maxStackSize = f.int("n", "maxstack",
+                              description: "Maximum stack size",
+                              value: 10000)
     self.importLibs = f.strings("i", "import",
                                 description: "Imports library automatically after startup.")
     self.r7rs       = f.option(nil, "r7rs",
@@ -200,7 +204,8 @@ open class LispKitRepl {
                                   includeInternalResources: includeInternalResources,
                                   includeDocumentPath: self.searchDocs.value ?? defaultDocDirectory,
                                   assetPath: assetPath,
-                                  features: features)
+                                  features: features,
+                                  limitStack: self.maxStackSize.value! * 1000)
     // Configure heap capacity
     if let capacity = self.heapSize.value {
       self.context?.heap.reserveCapacity(capacity)
