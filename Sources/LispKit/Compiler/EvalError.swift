@@ -54,6 +54,7 @@ public enum EvalError: Int, Hashable {
   case notBoundInEnvironment
   case bindingImmutable
   case nonApplicativeValue
+  case executeEmptyList
   case illegalRadix
   case argumentError
   case noMatchingCase
@@ -221,6 +222,8 @@ public enum EvalError: Int, Hashable {
         return "unable to assign value to immutable binding for symbol $0"
       case .nonApplicativeValue:
         return "cannot apply arguments to $0"
+      case .executeEmptyList:
+        return "cannot execute empty application"
       case .illegalRadix:
         return "illegal radix: $0"
       case .argumentError:

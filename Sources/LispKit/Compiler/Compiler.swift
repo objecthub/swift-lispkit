@@ -683,6 +683,8 @@ public final class Compiler {
                                          inTailPos tail: Bool) throws -> Bool {
     let cp = self.checkpointer.checkpoint()
     switch expr {
+      case .null:
+        throw RuntimeError.eval(.executeEmptyList)
       case .symbol(let sym):
         try self.pushValueOf(sym, in: env)
       case .pair(.symbol(let sym), let cdr):

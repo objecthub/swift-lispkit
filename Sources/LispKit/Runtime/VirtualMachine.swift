@@ -559,7 +559,7 @@ public final class VirtualMachine: ManagedObject {
       }
       stackTrace.append(proc)
       if fp > 2 {
-        guard case .fixnum(let newfp) = self.stack[fp &- 3] else {
+        guard case .fixnum(let newfp) = self.stack[fp &- 3], Int(newfp) < fp else {
           // This may happen if an error is thrown
           return stackTrace
         }
