@@ -2,8 +2,8 @@
 ========================
 
 [![Platform: macOS | iOS](https://img.shields.io/badge/Platform-macOS%20%7C%20iOS-blue.svg?style=flat)](https://developer.apple.com/osx/)
-[![Language: Swift 5.6](https://img.shields.io/badge/Language-Swift%205.6-green.svg?style=flat)](https://developer.apple.com/swift/)
-[![IDE: Xcode 13.4](https://img.shields.io/badge/IDE-Xcode%2013.4-orange.svg?style=flat)](https://developer.apple.com/xcode/)
+[![Language: Swift 5.7](https://img.shields.io/badge/Language-Swift%205.7-green.svg?style=flat)](https://developer.apple.com/swift/)
+[![IDE: Xcode 14.1](https://img.shields.io/badge/IDE-Xcode%2014.1-orange.svg?style=flat)](https://developer.apple.com/xcode/)
 [![Carthage: compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![License: Apache](http://img.shields.io/badge/License-Apache-lightgrey.svg?style=flat)](https://raw.githubusercontent.com/objecthub/swift-lispkit/master/LICENSE)
 
@@ -353,11 +353,12 @@ The following technologies are needed to build the components of the LispKit fra
 command-line tool, all that is needed is the Swift Package Manager. For compiling the framework and trying
 the command-line tool directly in Xcode, the Swift Package Manager is not needed.
 
-- [Swift 5.6](https://developer.apple.com/swift/)
-- [Xcode 13.4](https://developer.apple.com/xcode/)
+- [Swift 5.7](https://developer.apple.com/swift/)
+- [Xcode 14.1](https://developer.apple.com/xcode/)
 - [Swift Package Manager](https://swift.org/package-manager/)
 - [NumberKit](http://github.com/objecthub/swift-numberkit)
 - [MarkdownKit](http://github.com/objecthub/swift-markdownkit)
 - [CommandLineKit](http://github.com/objecthub/swift-commandlinekit)
 - [SQLiteExpress](http://github.com/objecthub/swift-sqliteexpress)
 - [ZIPFoundation](https://github.com/weichsel/ZIPFoundation)
+- [Swift Atomics](https://github.com/apple/swift-atomics)

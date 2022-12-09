@@ -63,10 +63,10 @@ let package = Package(
              .upToNextMajor(from: "1.0.3")),
     .package(name: "ZIPFoundation",
              url: "https://github.com/weichsel/ZIPFoundation.git",
-             .upToNextMajor(from: "0.9.15")),
+             .upToNextMajor(from: "0.9.16")),
     .package(name: "swift-atomics",
              url: "https://github.com/apple/swift-atomics.git",
-             .upToNextMajor(from: "1.0.2"))
+             .upToNextMajor(from: "1.0.3"))
   ],
   targets: [
     .target(name: "LispKit",

@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.3.1 (2022-12-10)
+
+- Fixed bug leading to deadlocks when using text ports
+- Fixed bug allowing to execute empty lists
+- Fixed serious bug leading to an infinite loop when iterating through stack traces
+- Limit stack size to prevent application crashes
+- New procedure in library `(lispkit thread)`: `thread-max-stack`
+
 ## 2.3.0 (2022-08-01)
 
 - Major revamp of all type-related functionality: each type is now represented by a type tag/symbol; procedure `type-for` from library `(lispkit type)` can be used to determine the type tag of a given object; breaking change for `make-type`, which now returns 5 values (the first is a new type tag)
