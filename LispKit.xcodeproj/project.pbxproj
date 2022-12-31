@@ -504,6 +504,10 @@
 		CCB5B0FF278B8BDE00B7E32C /* flonum.sld in Resources */ = {isa = PBXBuildFile; fileRef = CCB5B0FE278B8BDE00B7E32C /* flonum.sld */; };
 		CCB5B100278B8D6600B7E32C /* flonum.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CCB5B0FE278B8BDE00B7E32C /* flonum.sld */; };
 		CCB5B101278B8DAB00B7E32C /* flonum.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CCB5B0FE278B8BDE00B7E32C /* flonum.sld */; };
+		CCB7B0CF2960F15000F0DB20 /* 228.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCB7B0CC2960EE5F00F0DB20 /* 228.sld */; };
+		CCB7B0D02960F16700F0DB20 /* SRFI-228.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCB7B0CD2960F04D00F0DB20 /* SRFI-228.scm */; };
+		CCB7B0D12960F17C00F0DB20 /* 228.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCB7B0CC2960EE5F00F0DB20 /* 228.sld */; };
+		CCB7B0D22960F19B00F0DB20 /* SRFI-228.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCB7B0CD2960F04D00F0DB20 /* SRFI-228.scm */; };
 		CCB91C981D57E785001A95DC /* Parameters.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCB91C971D57E784001A95DC /* Parameters.scm */; };
 		CCBDB73B1EDB7C63001606E2 /* Prolog.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCBDB73A1EDB4AB3001606E2 /* Prolog.scm */; };
 		CCBDF72B2749B0C100635B5C /* 229.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCBDF72A2749AFAC00635B5C /* 229.sld */; };
@@ -1106,6 +1110,7 @@
 			dstPath = Root/LispKit/Tests;
 			dstSubfolderSpec = 7;
 			files = (
+				CCB7B0D02960F16700F0DB20 /* SRFI-228.scm in Copy tests */,
 				CC6E93CA281CA1150002C4BC /* SRFI-232.scm in Copy tests */,
 				CC372CDA27D504800091C474 /* LispKit-Enum.scm in Copy tests */,
 				CC2427DC279D678400913C05 /* LispKit-Channel.scm in Copy tests */,
@@ -1734,6 +1739,7 @@
 			dstPath = Root/LispKit/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
+				CCB7B0CF2960F15000F0DB20 /* 228.sld in Copy pre-installed SRFI libraries */,
 				CCCB5C9D28403E870005248D /* 118.sld in Copy pre-installed SRFI libraries */,
 				CC6E93CB281CA1320002C4BC /* 232.sld in Copy pre-installed SRFI libraries */,
 				CC372CE027D56FB50091C474 /* 141.sld in Copy pre-installed SRFI libraries */,
@@ -1845,6 +1851,7 @@
 			dstPath = Root/LispKit/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
+				CCB7B0D12960F17C00F0DB20 /* 228.sld in Copy pre-installed SRFI libraries */,
 				CCCB5C9E28403E960005248D /* 118.sld in Copy pre-installed SRFI libraries */,
 				CC6E93CC281CA15A0002C4BC /* 232.sld in Copy pre-installed SRFI libraries */,
 				CC372CE127D56FC60091C474 /* 141.sld in Copy pre-installed SRFI libraries */,
@@ -2202,6 +2209,7 @@
 			dstPath = Root/LispKit/Tests;
 			dstSubfolderSpec = 7;
 			files = (
+				CCB7B0D22960F19B00F0DB20 /* SRFI-228.scm in Copy tests */,
 				CC6E93CD281CA1650002C4BC /* SRFI-232.scm in Copy tests */,
 				CC372CDB27D5048E0091C474 /* LispKit-Enum.scm in Copy tests */,
 				CC2427DD279D679800913C05 /* LispKit-Channel.scm in Copy tests */,
@@ -2863,6 +2871,8 @@
 		CCB5B0F6278A587300B7E32C /* 144.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 144.sld; sourceTree = "<group>"; };
 		CCB5B0FA278B6FAD00B7E32C /* SRFI-144.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-144.scm"; sourceTree = "<group>"; };
 		CCB5B0FE278B8BDE00B7E32C /* flonum.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = flonum.sld; sourceTree = "<group>"; };
+		CCB7B0CC2960EE5F00F0DB20 /* 228.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 228.sld; sourceTree = "<group>"; };
+		CCB7B0CD2960F04D00F0DB20 /* SRFI-228.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-228.scm"; sourceTree = "<group>"; };
 		CCB91C971D57E784001A95DC /* Parameters.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Parameters.scm; sourceTree = "<group>"; };
 		CCBD755D21E224A7008CD7C8 /* csv.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = csv.sld; sourceTree = "<group>"; };
 		CCBDB73A1EDB4AB3001606E2 /* Prolog.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Prolog.scm; sourceTree = "<group>"; };
@@ -3103,6 +3113,7 @@
 				CC0E57C3268FAA7800693DD2 /* SRFI-223.scm */,
 				CCD4A6F026ED4C9200BEE906 /* SRFI-224.scm */,
 				CCBDF733274AE78E00635B5C /* SRFI-227.scm */,
+				CCB7B0CD2960F04D00F0DB20 /* SRFI-228.scm */,
 				CCBDF72D2749B17600635B5C /* SRFI-229.scm */,
 				CC6E93C9281CA00C0002C4BC /* SRFI-232.scm */,
 			);
@@ -3487,6 +3498,7 @@
 				CC0E57C2268FAA4200693DD2 /* 223.sld */,
 				CCD4A6EF26ED4C7000BEE906 /* 224.sld */,
 				CCBDF730274ADA6300635B5C /* 227.sld */,
+				CCB7B0CC2960EE5F00F0DB20 /* 228.sld */,
 				CCBDF72A2749AFAC00635B5C /* 229.sld */,
 				CC2DA75C2787EBAE00DE69CF /* 230.sld */,
 				CC6E93C8281C9F820002C4BC /* 232.sld */,
