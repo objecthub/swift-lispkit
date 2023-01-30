@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/objecthub/swift-commandlinekit.git",
       "state" : {
-        "revision" : "dd0967785f84476a1a51ef164f9030851fcaaaff",
-        "version" : "0.3.4"
+        "revision" : "c66994d36c654fdd4a27863e5f8aaadc101099eb",
+        "version" : "0.3.5"
       }
     },
     {
@@ -32,8 +32,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/objecthub/swift-numberkit.git",
       "state" : {
-        "revision" : "e8c1cb9e8220001a7efa857fea88c0bd762c56ea",
-        "version" : "2.4.1"
+        "revision" : "0f9c918dcea73f6ff4ff762b8e83a0991ca668d9",
+        "version" : "2.4.2"
       }
     },
     {
