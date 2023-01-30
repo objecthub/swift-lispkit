@@ -6,8 +6,8 @@
         "repositoryURL": "https://github.com/apple/swift-atomics.git",
         "state": {
           "branch": null,
-          "revision": "919eb1d83e02121cdb434c7bfc1f0c66ef17febe",
-          "version": "1.0.2"
+          "revision": "ff3d2212b6b093db7f177d0855adbc4ef9c5f036",
+          "version": "1.0.3"
         }
       },
       {
@@ -15,8 +15,8 @@
         "repositoryURL": "https://github.com/objecthub/swift-commandlinekit.git",
         "state": {
           "branch": null,
-          "revision": "dd0967785f84476a1a51ef164f9030851fcaaaff",
-          "version": "0.3.4"
+          "revision": "c66994d36c654fdd4a27863e5f8aaadc101099eb",
+          "version": "0.3.5"
         }
       },
       {
@@ -33,8 +33,8 @@
         "repositoryURL": "https://github.com/objecthub/swift-numberkit.git",
         "state": {
           "branch": null,
-          "revision": "e8c1cb9e8220001a7efa857fea88c0bd762c56ea",
-          "version": "2.4.1"
+          "revision": "0f9c918dcea73f6ff4ff762b8e83a0991ca668d9",
+          "version": "2.4.2"
         }
       },
       {
@@ -51,8 +51,8 @@
         "repositoryURL": "https://github.com/weichsel/ZIPFoundation.git",
         "state": {
           "branch": null,
-          "revision": "f6a22e7da26314b38bf9befce34ae8e4b2543090",
-          "version": "0.9.15"
+          "revision": "43ec568034b3731101dbf7670765d671c30f54f3",
+          "version": "0.9.16"
         }
       }
     ]

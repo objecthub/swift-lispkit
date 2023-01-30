@@ -12,16 +12,15 @@
 //  A release can be built with these options:
 //  swift build -c release -Xswiftc "-D" -Xswiftc "SPM"
 //
-//  This creates a release binary in .build/release/. Assumung that a LispKit directory is
-//  located in ~/Documents/LispKit, the binary can be invoked like this:
-//  .build/release/LispKitRepl -d LispKit
+//  This creates a release binary in .build/release/ which can be invoked like this:
+//  .build/release/LispKitRepl -r Sources/LispKit/Resources
 //  
 //  This is how to run the tests:
 //  swift test -Xswiftc "-D" -Xswiftc "SPM"
 //  
 //
 //  Created by Matthias Zenger on 16/10/2017.
-//  Copyright © 2017-2022 ObjectHub. All rights reserved.
+//  Copyright © 2017-2023 ObjectHub. All rights reserved.
 //  
 //  Licensed under the Apache License, Version 2.0 (the "License"); you
 //  may not use this file except in compliance with the License.
