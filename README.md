@@ -3,7 +3,7 @@
 
 [![Platform: macOS | iOS](https://img.shields.io/badge/Platform-macOS%20%7C%20iOS-blue.svg?style=flat)](https://developer.apple.com/osx/)
 [![Language: Swift 5.7](https://img.shields.io/badge/Language-Swift%205.7-green.svg?style=flat)](https://developer.apple.com/swift/)
-[![IDE: Xcode 14.1](https://img.shields.io/badge/IDE-Xcode%2014.1-orange.svg?style=flat)](https://developer.apple.com/xcode/)
+[![IDE: Xcode 14.2](https://img.shields.io/badge/IDE-Xcode%2014.2-orange.svg?style=flat)](https://developer.apple.com/xcode/)
 [![Carthage: compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![License: Apache](http://img.shields.io/badge/License-Apache-lightgrey.svg?style=flat)](https://raw.githubusercontent.com/objecthub/swift-lispkit/master/LICENSE)
 
@@ -234,6 +234,8 @@ framework:
   - [SRFI 229: Tagged procedures](https://srfi.schemers.org/srfi-229/srfi-229.html)
   - [SRFI 230: Atomic Operations](https://srfi.schemers.org/srfi-230/srfi-230.html)
   - [SRFI 232: Flexible curried procedures](https://srfi.schemers.org/srfi-232/srfi-232.html)
+  - [SRFI 233: INI files](https://srfi.schemers.org/srfi-233/srfi-233.html)
+  - [SRFI 236: Evaluating expressions in an unspecified order](https://srfi.schemers.org/srfi-236/srfi-236.html)
 
 
 ## Project
@@ -354,7 +356,7 @@ command-line tool, all that is needed is the Swift Package Manager. For compilin
 the command-line tool directly in Xcode, the Swift Package Manager is not needed.
 
 - [Swift 5.7](https://developer.apple.com/swift/)
-- [Xcode 14.1](https://developer.apple.com/xcode/)
+- [Xcode 14.2](https://developer.apple.com/xcode/)
 - [Swift Package Manager](https://swift.org/package-manager/)
 - [NumberKit](http://github.com/objecthub/swift-numberkit)
 - [MarkdownKit](http://github.com/objecthub/swift-markdownkit)

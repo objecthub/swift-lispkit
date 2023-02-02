@@ -969,6 +969,8 @@
 		CCCD1ABA298C6CE40057DCEB /* 233.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCCD1AB8298C6BEE0057DCEB /* 233.sld */; };
 		CCCD1ABC298C6DBF0057DCEB /* SRFI-233.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCCD1ABB298C6D910057DCEB /* SRFI-233.scm */; };
 		CCCD1ABD298C6DCC0057DCEB /* SRFI-233.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCCD1ABB298C6D910057DCEB /* SRFI-233.scm */; };
+		CCCD1ABF298C70C60057DCEB /* 236.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCCD1ABE298C6FEA0057DCEB /* 236.sld */; };
+		CCCD1AC0298C70D60057DCEB /* 236.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCCD1ABE298C6FEA0057DCEB /* 236.sld */; };
 		CCCEB3FF1DF2DAA9009BF66B /* FileHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCEB3FE1DF2DAA9009BF66B /* FileHandler.swift */; };
 		CCD3E15425C5ECC8007FCE8A /* prolog.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCD3E15325C5EB83007FCE8A /* prolog.sld */; };
 		CCD3E15925C638F5007FCE8A /* Schelog.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCD3E15825C63898007FCE8A /* Schelog.scm */; };
@@ -1744,6 +1746,7 @@
 			dstPath = Root/LispKit/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
+				CCCD1ABF298C70C60057DCEB /* 236.sld in Copy pre-installed SRFI libraries */,
 				CCCD1AB9298C6CD50057DCEB /* 233.sld in Copy pre-installed SRFI libraries */,
 				CCB7B0CF2960F15000F0DB20 /* 228.sld in Copy pre-installed SRFI libraries */,
 				CCCB5C9D28403E870005248D /* 118.sld in Copy pre-installed SRFI libraries */,
@@ -1857,6 +1860,7 @@
 			dstPath = Root/LispKit/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
+				CCCD1AC0298C70D60057DCEB /* 236.sld in Copy pre-installed SRFI libraries */,
 				CCCD1ABA298C6CE40057DCEB /* 233.sld in Copy pre-installed SRFI libraries */,
 				CCB7B0D12960F17C00F0DB20 /* 228.sld in Copy pre-installed SRFI libraries */,
 				CCCB5C9E28403E960005248D /* 118.sld in Copy pre-installed SRFI libraries */,
@@ -2927,6 +2931,7 @@
 		CCCB66E3283056E30004827D /* StyledTextLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StyledTextLibrary.swift; sourceTree = "<group>"; };
 		CCCD1AB8298C6BEE0057DCEB /* 233.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 233.sld; sourceTree = "<group>"; };
 		CCCD1ABB298C6D910057DCEB /* SRFI-233.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-233.scm"; sourceTree = "<group>"; };
+		CCCD1ABE298C6FEA0057DCEB /* 236.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 236.sld; sourceTree = "<group>"; };
 		CCCEB3FE1DF2DAA9009BF66B /* FileHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileHandler.swift; sourceTree = "<group>"; };
 		CCD3E15325C5EB83007FCE8A /* prolog.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = prolog.sld; sourceTree = "<group>"; };
 		CCD3E15725C60FBC007FCE8A /* red.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = red.sld; sourceTree = "<group>"; };
@@ -3514,6 +3519,7 @@
 				CC2DA75C2787EBAE00DE69CF /* 230.sld */,
 				CC6E93C8281C9F820002C4BC /* 232.sld */,
 				CCCD1AB8298C6BEE0057DCEB /* 233.sld */,
+				CCCD1ABE298C6FEA0057DCEB /* 236.sld */,
 			);
 			path = srfi;
 			sourceTree = "<group>";
