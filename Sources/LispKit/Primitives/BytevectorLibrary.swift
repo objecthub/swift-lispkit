@@ -126,20 +126,20 @@ public final class BytevectorLibrary: NativeLibrary {
   
   func bytevectorCopy(_ bvec: Expr, args: Arguments) throws -> Expr {
     let bvector = try bvec.asByteVector()
-    guard let (s, e) = args.optional(Expr.makeNumber(bvector.value.count),
-                                     Expr.makeNumber(0)) else {
+    guard let (s, e) = args.optional(Expr.makeNumber(0),
+                                     Expr.makeNumber(bvector.value.count)) else {
       throw RuntimeError.argumentCount(of: "bytevector-copy",
-                                       min: 2,
-                                       max: 2,
+                                       min: 1,
+                                       max: 3,
                                        args: .pair(bvec, .makeList(args)))
     }
     let (start, end) = (try s.asInt(), try e.asInt())
-    guard start >= 0 && start < bvector.value.count else {
+    guard start >= 0 && start <= bvector.value.count else {
       throw RuntimeError.range(parameter: 2,
                                of: "bytevector-copy",
                                s,
                                min: 0,
-                               max: Int64(bvector.value.count - 1))
+                               max: Int64(bvector.value.count))
     }
     guard end >= start && end <= bvector.value.count else {
       throw RuntimeError.range(parameter: 3,
@@ -163,18 +163,18 @@ public final class BytevectorLibrary: NativeLibrary {
                                of: "bytevector-copy!",
                                at,
                                min: 0,
-                               max: Int64(toVec.value.count - 1))
+                               max: Int64(toVec.value.count))
     }
     let fromVec = try from.asByteVector()
-    guard let (s, e) = args.optional(Expr.makeNumber(fromVec.value.count),
-                                     Expr.makeNumber(0)) else {
+    guard let (s, e) = args.optional(Expr.makeNumber(0),
+                                     Expr.makeNumber(fromVec.value.count)) else {
       throw RuntimeError.argumentCount(of: "bytevector-copy!",
                                        min: 3,
                                        max: 5,
                                        args: .pair(to, .pair(at, .pair(from, .makeList(args)))))
     }
     let (start, end) = (try s.asInt(), try e.asInt())
-    guard start >= 0 && start < fromVec.value.count else {
+    guard start >= 0 && start <= fromVec.value.count else {
       throw RuntimeError.range(parameter: 4,
                                of: "bytevector-copy!",
                                s,

@@ -1550,20 +1550,20 @@
 (test #u8(0 255 2)
     (let ((bv (bytevector 0 1 2))) (bytevector-u8-set! bv 1 255) bv))
 
-#;(test #u8() (bytevector-copy #u8()))    ;; TODO
-#;(test #u8(0 1 2) (bytevector-copy #u8(0 1 2)))    ;; TODO
-#;(test #u8(1 2) (bytevector-copy #u8(0 1 2) 1))    ;; TODO
-#;(test #u8(1) (bytevector-copy #u8(0 1 2) 1 2))    ;; TODO
+(test #u8() (bytevector-copy #u8()))
+(test #u8(0 1 2) (bytevector-copy #u8(0 1 2)))
+(test #u8(1 2) (bytevector-copy #u8(0 1 2) 1))
+(test #u8(1) (bytevector-copy #u8(0 1 2) 1 2))
 
-#;(test #u8(1 6 7 4 5)
+(test #u8(1 6 7 4 5)
     (let ((bv (bytevector 1 2 3 4 5)))
       (bytevector-copy! bv 1 #u8(6 7 8 9 10) 0 2)
       bv))    ;; TODO
-#;(test #u8(6 7 8 9 10)
+(test #u8(6 7 8 9 10)
     (let ((bv (bytevector 1 2 3 4 5)))
       (bytevector-copy! bv 0 #u8(6 7 8 9 10))
       bv))    ;; TODO
-#;(test #u8(8 9 10 4 5)
+(test #u8(8 9 10 4 5)
     (let ((bv (bytevector 1 2 3 4 5)))
       (bytevector-copy! bv 0 #u8(6 7 8 9 10) 2)
       bv))    ;; TODO
