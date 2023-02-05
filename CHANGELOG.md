@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.3.2 (2023-02-05)
+
+- Handle assets correctly in the LispKit REPL
+- Improved R7RS regression tests
+- Bugfixes in library `(lispkit bytevector)` for procedures `bytevector-copy` and `bytevector-copy!`
+- Revamp of library `(lispkit graph)` with new procedures: `graph-topological-sort`, `graph-graph-weakly-connected-components`, `graph-strongly-connected-components`, and `graph-shortest-paths`
+- New libraries: `(srfi 228)`, `(srfi 233)`, and `(srfi 236)`
+
 ## 2.3.1 (2022-12-10)
 
 - Fixed bug leading to deadlocks when using text ports
