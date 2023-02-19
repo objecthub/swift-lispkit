@@ -37,6 +37,7 @@ public final class BytevectorLibrary: NativeLibrary {
     self.define(Procedure("make-bytevector", makeBytevector))
     self.define(Procedure("read-binary-file", readBinaryFile))
     self.define(Procedure("write-binary-file", writeBinaryFile))
+    self.define(Procedure("bytevector=?", bytevectorEqual))
     self.define(Procedure("bytevector-length", bytevectorLength))
     self.define(Procedure("bytevector-u8-ref", bytevectorU8Ref))
     self.define(Procedure("bytevector-u8-set!", bytevectorU8Set))
@@ -47,6 +48,8 @@ public final class BytevectorLibrary: NativeLibrary {
     self.define(Procedure("string->utf8", stringToUtf8))
     self.define(Procedure("bytevector->base64", bytevectorToBase64))
     self.define(Procedure("base64->bytevector", base64ToBytevector))
+    self.define(Procedure("bytevector->hex", bytevectorToHex))
+    self.define(Procedure("hex->bytevector", hexToBytevector))
     self.define(Procedure("bytevector-deflate", bytevectorDeflate))
     self.define(Procedure("bytevector-inflate", bytevectorInflate))
     self.define(Procedure("bytevector-zip", bytevectorZip))
@@ -92,7 +95,20 @@ public final class BytevectorLibrary: NativeLibrary {
     let data = NSData(bytesNoCopy: &subvec, length: subvec.count, freeWhenDone: false)
     return .makeBoolean(data.write(toFile: path, atomically: false))
   }
-
+  
+  private func bytevectorEqual(_ args: Arguments) throws -> Expr {
+    var first: ByteVector? = nil
+    for arg in args {
+      let other = try arg.asByteVector()
+      if first == nil {
+        first = other
+      } else if first!.value != other.value {
+        return .false
+      }
+    }
+    return .true
+  }
+  
   func bytevectorLength(_ expr: Expr) throws -> Expr {
     return .makeNumber(try expr.asByteVector().value.count)
   }
@@ -239,6 +255,27 @@ public final class BytevectorLibrary: NativeLibrary {
   func base64ToBytevector(_ string: Expr, args: Arguments) throws -> Expr {
     let substr = try self.subString("base64->bytevector", string, args)
     guard let data = Data(base64Encoded: substr, options: []) else {
+      throw RuntimeError.eval(.cannotDecodeBytevector, .makeString(substr))
+    }
+    return self.bytevector(from: data)
+  }
+  
+  func bytevectorToHex(_ bvec: Expr, args: Arguments) throws -> Expr {
+    if let upperCase = args.first {
+      return .makeString(Data(
+          try Self.subVector("bytevector->hex",
+                             bvec,
+                             args[args.index(after: args.startIndex)...]))
+        .hexEncodedString(upperCase: upperCase.isTrue))
+    } else {
+      return .makeString(Data(
+        try Self.subVector("bytevector->hex", bvec, args)).hexEncodedString())
+    }
+  }
+  
+  func hexToBytevector(_ string: Expr, args: Arguments) throws -> Expr {
+    let substr = try self.subString("hex->bytevector", string, args)
+    guard let data = substr.hexDecodedData() else {
       throw RuntimeError.eval(.cannotDecodeBytevector, .makeString(substr))
     }
     return self.bytevector(from: data)

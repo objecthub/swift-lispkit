@@ -483,7 +483,34 @@ public final class SystemLibrary: NativeLibrary {
       atPath: try expr.asPath(), relativeTo: self.context.evaluator.currentDirectoryPath)
     return .void
   }
-
+  
+  private func appUrl(for path: String) -> URL? {
+    let appPath = path.hasSuffix(".app") ? path : path.appending(".app")
+    if let localAppDir = try? Foundation.FileManager.default.url(for: .applicationDirectory,
+                                                                 in: .localDomainMask,
+                                                                 appropriateFor: nil, create: false) {
+      let localAppPath = self.context.fileHandler.path(appPath, relativeTo: localAppDir.path)
+      if Foundation.FileManager.default.isExecutableFile(atPath: localAppPath) {
+        return URL(fileURLWithPath: localAppPath)
+      }
+    }
+    if let userAppDir = try? Foundation.FileManager.default.url(for: .applicationDirectory,
+                                                                in: .userDomainMask,
+                                                                appropriateFor: nil, create: false) {
+      let userAppPath = self.context.fileHandler.path(appPath, relativeTo: userAppDir.path)
+      if Foundation.FileManager.default.isExecutableFile(atPath: userAppPath) {
+        return URL(fileURLWithPath: userAppPath)
+      }
+    }
+    let customAppPath = self.context.fileHandler.path(appPath,
+                          relativeTo: self.context.evaluator.currentDirectoryPath)
+    if Foundation.FileManager.default.isExecutableFile(atPath: customAppPath) {
+      return URL(fileURLWithPath: customAppPath)
+    } else {
+      return nil
+    }
+  }
+  
   private func openFile(expr: Expr, withApp: Expr?, deactivate: Expr?) throws -> Expr {
     let path = self.context.fileHandler.path(try expr.asPath(),
                                              relativeTo: self.context.evaluator.currentDirectoryPath)
@@ -491,13 +518,23 @@ public final class SystemLibrary: NativeLibrary {
       #if os(iOS) || os(watchOS) || os(tvOS)
       return .false
       #elseif os(macOS)
+      guard let appUrl = self.appUrl(for: try app.asPath()) else {
+        return .false
+      }
       if let deactivate = deactivate {
-        return .makeBoolean(NSWorkspace.shared.openFile(path,
-                                                        withApplication: try app.asString(),
-                                                        andDeactivate: deactivate.isTrue))
+        let config = NSWorkspace.OpenConfiguration()
+        config.activates = deactivate.isTrue
+        NSWorkspace.shared.open([URL(fileURLWithPath: path)],
+                                withApplicationAt: appUrl,
+                                configuration: config)
+        return .makeBoolean(self.context.fileHandler.itemExists(atPath: path))
       } else {
-        return .makeBoolean(NSWorkspace.shared.openFile(path,
-                                                        withApplication: try app.asString()))
+        let config = NSWorkspace.OpenConfiguration()
+        config.activates = true
+        NSWorkspace.shared.open([URL(fileURLWithPath: path)],
+                                withApplicationAt: appUrl,
+                                configuration: config)
+        return .makeBoolean(self.context.fileHandler.itemExists(atPath: path))
       }
       #endif
     } else {
@@ -519,7 +556,8 @@ public final class SystemLibrary: NativeLibrary {
         return .false
       }
       #elseif os(macOS)
-      return .makeBoolean(NSWorkspace.shared.openFile(path))
+      NSWorkspace.shared.open(URL(fileURLWithPath: path))
+      return .makeBoolean(self.context.fileHandler.itemExists(atPath: path))
       #endif
     }
   }

@@ -504,6 +504,8 @@
 		CCB5B0FF278B8BDE00B7E32C /* flonum.sld in Resources */ = {isa = PBXBuildFile; fileRef = CCB5B0FE278B8BDE00B7E32C /* flonum.sld */; };
 		CCB5B100278B8D6600B7E32C /* flonum.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CCB5B0FE278B8BDE00B7E32C /* flonum.sld */; };
 		CCB5B101278B8DAB00B7E32C /* flonum.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CCB5B0FE278B8BDE00B7E32C /* flonum.sld */; };
+		CCB5DF5C29A16D62005E6453 /* Data.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCB5DF5B29A16D62005E6453 /* Data.swift */; };
+		CCB5DF5D29A16D62005E6453 /* Data.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCB5DF5B29A16D62005E6453 /* Data.swift */; };
 		CCB7B0CF2960F15000F0DB20 /* 228.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCB7B0CC2960EE5F00F0DB20 /* 228.sld */; };
 		CCB7B0D02960F16700F0DB20 /* SRFI-228.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCB7B0CD2960F04D00F0DB20 /* SRFI-228.scm */; };
 		CCB7B0D12960F17C00F0DB20 /* 228.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCB7B0CC2960EE5F00F0DB20 /* 228.sld */; };
@@ -2883,6 +2885,7 @@
 		CCB5B0F6278A587300B7E32C /* 144.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 144.sld; sourceTree = "<group>"; };
 		CCB5B0FA278B6FAD00B7E32C /* SRFI-144.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-144.scm"; sourceTree = "<group>"; };
 		CCB5B0FE278B8BDE00B7E32C /* flonum.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = flonum.sld; sourceTree = "<group>"; };
+		CCB5DF5B29A16D62005E6453 /* Data.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Data.swift; sourceTree = "<group>"; };
 		CCB7B0CC2960EE5F00F0DB20 /* 228.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 228.sld; sourceTree = "<group>"; };
 		CCB7B0CD2960F04D00F0DB20 /* SRFI-228.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-228.scm"; sourceTree = "<group>"; };
 		CCB91C971D57E784001A95DC /* Parameters.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Parameters.scm; sourceTree = "<group>"; };
@@ -3993,6 +3996,7 @@
 				CCC072491F9C11FA0063974E /* Sysctl.swift */,
 				CC2DA74F2780FE1100DE69CF /* MethodProfiler.swift */,
 				CC372CDC27D5532D0091C474 /* String.swift */,
+				CCB5DF5B29A16D62005E6453 /* Data.swift */,
 			);
 			path = Base;
 			sourceTree = "<group>";
@@ -4466,6 +4470,7 @@
 				CC5A47211C5295E600EFCF76 /* NativeLibrary.swift in Sources */,
 				CC35F9C2222188BD00895A10 /* DateTimeLibrary.swift in Sources */,
 				CC54924121DC2A44004A0652 /* CharSet.swift in Sources */,
+				CCB5DF5C29A16D62005E6453 /* Data.swift in Sources */,
 				CC6A3B621C52ED7D00E962E2 /* CharLibrary.swift in Sources */,
 				CCA31283204CB7CB0026FF13 /* EvalError.swift in Sources */,
 				CC4E2D371D09691000D77159 /* PortLibrary.swift in Sources */,
@@ -4612,6 +4617,7 @@
 				CCC48C8E25E5B95B00D082AD /* Promise.swift in Sources */,
 				CCC48C9425E5B95B00D082AD /* Type.swift in Sources */,
 				CCC48CAA25E5B97100D082AD /* FeatureRequirement.swift in Sources */,
+				CCB5DF5D29A16D62005E6453 /* Data.swift in Sources */,
 				CC2DA7582781037B00DE69CF /* EvalCondition.swift in Sources */,
 				CCC48C6725E5B94300D082AD /* ScanBuffer.swift in Sources */,
 				CCC48CB825E5B97100D082AD /* GarbageCollector.swift in Sources */,
@@ -4902,7 +4908,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -4961,7 +4967,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
