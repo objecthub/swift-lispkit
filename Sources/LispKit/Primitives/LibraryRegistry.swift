@@ -56,6 +56,7 @@ public struct LibraryRegistry {
     MarkdownLibrary.self,
     SQLiteLibrary.self,
     ZipArchiveLibrary.self,
+    CryptoLibrary.self,
     ThreadLibrary.self
   ]
   #elseif os(macOS)
@@ -90,6 +91,7 @@ public struct LibraryRegistry {
     MarkdownLibrary.self,
     SQLiteLibrary.self,
     ZipArchiveLibrary.self,
+    CryptoLibrary.self,
     ThreadLibrary.self
   ]
   #endif

@@ -248,6 +248,8 @@
 		CC502A951CDABF1E00875D9F /* BuildMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = CC502A941CDABF1E00875D9F /* BuildMetadata.m */; };
 		CC5033AF1CDB9A440045A8FA /* AppInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5033AE1CDB9A440045A8FA /* AppInfo.swift */; };
 		CC5157B926E42B370056B05B /* Procedures.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC5157B826E42B370056B05B /* Procedures.scm */; };
+		CC517E5829A217980096FC72 /* CryptoLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC517E5729A217980096FC72 /* CryptoLibrary.swift */; };
+		CC517E5929A217980096FC72 /* CryptoLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC517E5729A217980096FC72 /* CryptoLibrary.swift */; };
 		CC54923921D97FB7004A0652 /* 101.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC54923821D97F53004A0652 /* 101.sld */; };
 		CC54923B21D9828B004A0652 /* SRFI-101.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC54923A21D9823B004A0652 /* SRFI-101.scm */; };
 		CC54923D21D98F81004A0652 /* rlist.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC54923C21D98E3E004A0652 /* rlist.sld */; };
@@ -2649,6 +2651,7 @@
 		CC502A961CDABF6B00875D9F /* BuildMetadata.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BuildMetadata.h; sourceTree = "<group>"; };
 		CC5033AE1CDB9A440045A8FA /* AppInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppInfo.swift; sourceTree = "<group>"; };
 		CC5157B826E42B370056B05B /* Procedures.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Procedures.scm; sourceTree = "<group>"; };
+		CC517E5729A217980096FC72 /* CryptoLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoLibrary.swift; sourceTree = "<group>"; };
 		CC54923821D97F53004A0652 /* 101.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 101.sld; sourceTree = "<group>"; };
 		CC54923A21D9823B004A0652 /* SRFI-101.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-101.scm"; sourceTree = "<group>"; };
 		CC54923C21D98E3E004A0652 /* rlist.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = rlist.sld; sourceTree = "<group>"; };
@@ -3934,6 +3937,7 @@
 				CCA6C3D023610674007D2AF0 /* MarkdownLibrary.swift */,
 				CC08964D244090D1004503B1 /* SQLiteLibrary.swift */,
 				CCFB412A25B25316005B2429 /* ZipArchiveLibrary.swift */,
+				CC517E5729A217980096FC72 /* CryptoLibrary.swift */,
 				CC2DA7462773195600DE69CF /* ThreadLibrary.swift */,
 				CC38528A23126F7A001D5E56 /* InternalLibrary.swift */,
 			);
@@ -4456,6 +4460,7 @@
 				CC76312920E9550B005F27CE /* Owners.swift in Sources */,
 				CCAD52E61C48468F00DBD8EE /* SyntaxRules.swift in Sources */,
 				CCE4AECE204212EC008BF7E8 /* SourceManager.swift in Sources */,
+				CC517E5829A217980096FC72 /* CryptoLibrary.swift in Sources */,
 				CC4575C620F00C4400116F0F /* DrawingLibrary.swift in Sources */,
 				CCAD52E71C48468F00DBD8EE /* Type.swift in Sources */,
 				CC5A47231C529D4A00EFCF76 /* CoreLibrary.swift in Sources */,
@@ -4636,6 +4641,7 @@
 				CCC48C9A25E5B96800D082AD /* SyntaxError.swift in Sources */,
 				CCC48CB325E5B97100D082AD /* VirtualMachineState.swift in Sources */,
 				CCC48CC525E5B98600D082AD /* DynamicControlLibrary.swift in Sources */,
+				CC517E5929A217980096FC72 /* CryptoLibrary.swift in Sources */,
 				CCD5E5A526346F1500C45EA0 /* Transformation_iOS.swift in Sources */,
 				CCC48C8F25E5B95B00D082AD /* Tuple.swift in Sources */,
 				CCC48CCB25E5B98600D082AD /* MathLibrary.swift in Sources */,

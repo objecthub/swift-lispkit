@@ -161,6 +161,9 @@ public enum EvalError: Int, Hashable {
   case unsupportedDocType
   case expectedTextBlockStyleAttribute
   case unknownTextBlockStyleAttribute
+  case unsupportedCryptoSystem
+  case unsupportedCryptoAlgorithm
+  case keyDoesNotSupportAlgorithm
   
   public var message: String {
     switch self {
@@ -436,6 +439,12 @@ public enum EvalError: Int, Hashable {
         return "expected a text block style attribute keyword, but received: $0"
       case .unknownTextBlockStyleAttribute:
         return "unknown text block style attribute: $0"
+      case .unsupportedCryptoSystem:
+        return "unsupported crypto system: $0"
+      case .unsupportedCryptoAlgorithm:
+        return "unsupported crypto algorithm: $0"
+      case .keyDoesNotSupportAlgorithm:
+        return "secure key $0 does not support $,2 via algorithm $1"
     }
   }
   
