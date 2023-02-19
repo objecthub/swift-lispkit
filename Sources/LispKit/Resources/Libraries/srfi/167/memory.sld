@@ -63,18 +63,7 @@
     (define (const v)
       (lambda ()
         v))
-
-    (define (bytevector=? bv other)
-      (if (not (= (bytevector-length bv) (bytevector-length other)))
-          #f
-          (let loop ((index 0))
-            (if (= (bytevector-length bv) index)
-                #t
-                (if (= (bytevector-u8-ref bv index)
-                       (bytevector-u8-ref other index))
-                    (loop (+ index 1))
-                    #f)))))
-
+    
     (define (u8-list->bytevector lst)
       (apply bytevector lst))
 
