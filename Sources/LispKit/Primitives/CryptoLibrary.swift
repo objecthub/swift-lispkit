@@ -119,7 +119,7 @@ public final class CryptoLibrary: NativeLibrary {
     self.define(Procedure("sha512", self.sha512))
     // Secure keys
     self.define(Procedure("make-private-key", self.makePrivateKey))
-    self.define(Procedure("make-public-key", self.makePublicKey))
+    self.define(Procedure("public-key", self.publicKey))
     self.define(Procedure("secure-key?", self.isSecureKey))
     self.define(Procedure("secure-key-type?", self.isSecureKeyType))
     self.define(Procedure("secure-key-private?", self.isSecureKeyPrivate))
@@ -131,6 +131,8 @@ public final class CryptoLibrary: NativeLibrary {
     self.define(Procedure("secure-key-size", self.secureKeySize))
     self.define(Procedure("secure-key-block-size", self.secureKeyBlockSize))
     self.define(Procedure("secure-key-attributes", self.secureKeyAttributes))
+    self.define(Procedure("secure-key=?", self.secureKeyEquals))
+    self.define(Procedure("secure-key-data=?", self.secureKeyDataEquals))
     self.define(Procedure("secure-key->bytevector", self.secureKeyToBytevector))
     self.define(Procedure("bytevector->private-key", self.bytevectorToPrivateKey))
     self.define(Procedure("bytevector->public-key", self.bytevectorToPublicKey))
@@ -255,6 +257,7 @@ public final class CryptoLibrary: NativeLibrary {
         ]
         let parameters: [CFString: Any] = [
           kSecAttrKeyType: kSecAttrKeyTypeRSA,
+          kSecAttrKeyClass: kSecAttrKeyClassPrivate,
           kSecAttrKeySizeInBits: keySize,
           kSecPrivateKeyAttrs: privateKeyParams
         ]
@@ -269,7 +272,7 @@ public final class CryptoLibrary: NativeLibrary {
     }
   }
   
-  private func makePublicKey(sc: Expr) throws -> Expr {
+  private func publicKey(sc: Expr) throws -> Expr {
     let privateKey = try self.asSecureKey(sc).key
     guard let publicKey = SecKeyCopyPublicKey(privateKey) else {
       return .false
@@ -412,6 +415,41 @@ public final class CryptoLibrary: NativeLibrary {
       }
     }
     return res
+  }
+  
+  private func secureKeyEquals(expr: Expr, args: Arguments) throws -> Expr {
+    let this = try self.asSecureKey(expr)
+    for arg in args {
+      let that = try self.asSecureKey(arg)
+      if this.key != that.key {
+        return .false
+      }
+    }
+    return .true
+  }
+  
+  private func secureKeyDataEquals(expr: Expr, args: Arguments) throws -> Expr {
+    let this = try self.asSecureKey(expr)
+    var error: Unmanaged<CFError>?
+    guard let thisData = SecKeyCopyExternalRepresentation(this.key, &error) as Data? else {
+      if let error = error?.takeRetainedValue() {
+        throw error as Error
+      }
+      return .false
+    }
+    for arg in args {
+      let that = try self.asSecureKey(arg)
+      guard let thatData = SecKeyCopyExternalRepresentation(that.key, &error) as Data? else {
+        if let error = error?.takeRetainedValue() {
+          throw error as Error
+        }
+        return .false
+      }
+      if thisData != thatData {
+        return .false
+      }
+    }
+    return .true
   }
   
   private func secureKeyToBytevector(expr: Expr) throws -> Expr {

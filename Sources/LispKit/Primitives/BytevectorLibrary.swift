@@ -228,23 +228,16 @@ public final class BytevectorLibrary: NativeLibrary {
   }
   
   func utf8ToString(_ bvec: Expr, args: Arguments) throws -> Expr {
-    let subvec = try Self.subVector("utf8->string", bvec, args)
-    var generator = subvec.makeIterator()
-    var str = ""
-    var decoder = UTF8()
-    while case .scalarValue(let scalar) = decoder.decode(&generator) {
-      str.append(String(scalar))
-    }
-    return .makeString(str)
+    return .makeString(String(decoding: Data(try Self.subVector("utf8->string", bvec, args)),
+                              as: UTF8.self))
   }
   
   func stringToUtf8(_ string: Expr, args: Arguments) throws -> Expr {
-    let substr = try self.subString("string->utf8", string, args)
-    var res = [UInt8]()
-    for byte in substr.utf8 {
-      res.append(byte)
+    if let data = try self.subString("string->utf8", string, args).data(using: .utf8) {
+      return Self.bytevector(from: data)
+    } else {
+      return .false
     }
-    return .bytes(MutableBox(res))
   }
   
   func bytevectorToBase64(_ bvec: Expr, args: Arguments) throws -> Expr {
