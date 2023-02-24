@@ -22,6 +22,7 @@
 (load "Tests/LispKit-Enum")
 (load "Tests/LispKit-Match")
 (load "Tests/LispKit-Channel")
+(load "Tests/LispKit-List-Set")
 (load "Tests/SRFI-14")
 (load "Tests/SRFI-18")
 (load "Tests/SRFI-101")

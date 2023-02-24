@@ -33,6 +33,9 @@
 (import (lispkit sqlite))
 (import (lispkit archive zip))
 (import (lispkit system os))
+(import (lispkit thread))
+(import (lispkit crypto))
+(import (lispkit styled-text))
 (import (lispkit debug))
 
 (display "LispKit non-native")
@@ -40,6 +43,7 @@
 
 ; Non-native
 (import (lispkit draw turtle))
+(import (lispkit draw chart bar))
 (import (lispkit log))
 (import (lispkit test))
 (import (lispkit match))
@@ -52,6 +56,8 @@
 (import (lispkit iterate))
 (import (lispkit math util))
 (import (lispkit math stats))
+(import (lispkit math matrix))
+(import (lispkit list set))
 (import (lispkit set))
 (import (lispkit stack))
 (import (lispkit queue))
@@ -172,6 +178,7 @@
 (import (srfi 230))
 (import (srfi 232))
 (import (srfi 233))
+(import (srfi 236))
 
 ; this needs to be last
 (import (srfi 101))
