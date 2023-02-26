@@ -105,7 +105,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit stream)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Stream),
     [`(lispkit thread)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Thread),
     [`(lispkit thread channel)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Thread-Channel),
-    `(lispkit graph)`,
+    [`(lispkit graph)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Graph),
     [`(lispkit match)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Match),
     [`(lispkit iterate)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Iterate),
     [`(lispkit log)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Log),
@@ -128,6 +128,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit markdown)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Markdown),
     [`(lispkit sqlite)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-SQLite),
     [`(lispkit archive zip)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Archive-Zip),
+    `(lispkit crypto)`,
     `(lispkit json)`,
     `(lispkit sxml)`,
     `(lispkit sxml xml)`,
@@ -231,6 +232,7 @@ framework:
   - [SRFI 223: Generalized binary search procedures](https://srfi.schemers.org/srfi-223/srfi-223.html)
   - [SRFI 224: Integer mappings](https://srfi.schemers.org/srfi-224/srfi-224.html)
   - [SRFI 227: Optional Arguments](https://srfi.schemers.org/srfi-227/srfi-227.html)
+  - [SRFI 228: Composing Comparators](https://srfi.schemers.org/srfi-228/srfi-228.html)
   - [SRFI 229: Tagged procedures](https://srfi.schemers.org/srfi-229/srfi-229.html)
   - [SRFI 230: Atomic Operations](https://srfi.schemers.org/srfi-230/srfi-230.html)
   - [SRFI 232: Flexible curried procedures](https://srfi.schemers.org/srfi-232/srfi-232.html)
