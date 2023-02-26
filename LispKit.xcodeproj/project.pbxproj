@@ -2682,6 +2682,8 @@
 		CC517E5729A217980096FC72 /* CryptoLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoLibrary.swift; sourceTree = "<group>"; };
 		CC517E5B29A96E200096FC72 /* set.sld */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = set.sld; sourceTree = "<group>"; };
 		CC517E6029A970520096FC72 /* LispKit-List-Set.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "LispKit-List-Set.scm"; sourceTree = "<group>"; };
+		CC517E6329AC00990096FC72 /* sample-graph.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "sample-graph.png"; sourceTree = "<group>"; };
+		CC517E6429AC00D50096FC72 /* thread-states.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "thread-states.png"; sourceTree = "<group>"; };
 		CC54923821D97F53004A0652 /* 101.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 101.sld; sourceTree = "<group>"; };
 		CC54923A21D9823B004A0652 /* SRFI-101.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-101.scm"; sourceTree = "<group>"; };
 		CC54923C21D98E3E004A0652 /* rlist.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = rlist.sld; sourceTree = "<group>"; };
@@ -3375,6 +3377,8 @@
 		CC48055B1CFE366100D608B6 /* Assets */ = {
 			isa = PBXGroup;
 			children = (
+				CC517E6429AC00D50096FC72 /* thread-states.png */,
+				CC517E6329AC00990096FC72 /* sample-graph.png */,
 				CC065BF52873E68A00F02783 /* bar-chart-params.png */,
 				CC48055C1CFE366100D608B6 /* lispkit_logo_small.png */,
 				CCEA5A17263D5E6300D78C62 /* lispkit-repl-ios.png */,
