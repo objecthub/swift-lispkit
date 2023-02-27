@@ -254,6 +254,8 @@
 		CC517E5F29A96EF80096FC72 /* set.sld in Copy pre-installed LispKit library: LispKit List */ = {isa = PBXBuildFile; fileRef = CC517E5B29A96E200096FC72 /* set.sld */; };
 		CC517E6129A971D10096FC72 /* LispKit-List-Set.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC517E6029A970520096FC72 /* LispKit-List-Set.scm */; };
 		CC517E6229A971E50096FC72 /* LispKit-List-Set.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC517E6029A970520096FC72 /* LispKit-List-Set.scm */; };
+		CC517E6629AC2DE70096FC72 /* Blockchain.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC517E6529AC2DA60096FC72 /* Blockchain.scm */; };
+		CC517E6729AC2DF90096FC72 /* Blockchain.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC517E6529AC2DA60096FC72 /* Blockchain.scm */; };
 		CC54923921D97FB7004A0652 /* 101.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC54923821D97F53004A0652 /* 101.sld */; };
 		CC54923B21D9828B004A0652 /* SRFI-101.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC54923A21D9823B004A0652 /* SRFI-101.scm */; };
 		CC54923D21D98F81004A0652 /* rlist.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC54923C21D98E3E004A0652 /* rlist.sld */; };
@@ -1363,6 +1365,7 @@
 			dstPath = Root/LispKit/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC517E6629AC2DE70096FC72 /* Blockchain.scm in Copy examples */,
 				CCCB5CA0284225470005248D /* StyledTextDoc.scm in Copy examples */,
 				CCCB66E1282DBBC80004827D /* DrawBarCharts.scm in Copy examples */,
 				CCD6414027FABE420065E2BF /* ObjectOrientation.scm in Copy examples */,
@@ -2213,6 +2216,7 @@
 			dstPath = Root/LispKit/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC517E6729AC2DF90096FC72 /* Blockchain.scm in Copy examples */,
 				CCCB5CA12842255E0005248D /* StyledTextDoc.scm in Copy examples */,
 				CCCB66E2282DBBDB0004827D /* DrawBarCharts.scm in Copy examples */,
 				CCD6414127FABE5C0065E2BF /* ObjectOrientation.scm in Copy examples */,
@@ -2684,6 +2688,7 @@
 		CC517E6029A970520096FC72 /* LispKit-List-Set.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "LispKit-List-Set.scm"; sourceTree = "<group>"; };
 		CC517E6329AC00990096FC72 /* sample-graph.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "sample-graph.png"; sourceTree = "<group>"; };
 		CC517E6429AC00D50096FC72 /* thread-states.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "thread-states.png"; sourceTree = "<group>"; };
+		CC517E6529AC2DA60096FC72 /* Blockchain.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Blockchain.scm; sourceTree = "<group>"; };
 		CC54923821D97F53004A0652 /* 101.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 101.sld; sourceTree = "<group>"; };
 		CC54923A21D9823B004A0652 /* SRFI-101.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-101.scm"; sourceTree = "<group>"; };
 		CC54923C21D98E3E004A0652 /* rlist.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = rlist.sld; sourceTree = "<group>"; };
@@ -4106,6 +4111,7 @@
 				CCBDB73A1EDB4AB3001606E2 /* Prolog.scm */,
 				CCD3E15825C63898007FCE8A /* Schelog.scm */,
 				CC4385BD20BB5EE200055289 /* Compiler.scm */,
+				CC517E6529AC2DA60096FC72 /* Blockchain.scm */,
 				CC14F4AE1F9385BF000FB1E0 /* AvlTrees.scm */,
 				CC26264320FA003700AC08E8 /* Plot.scm */,
 				CC8D20F42533C35F00741D07 /* DrawTrees.scm */,
