@@ -40,7 +40,7 @@ import PackageDescription
 let package = Package(
   name: "LispKit",
   platforms: [
-    .macOS(.v10_14)
+    .macOS(.v11)
   ],
   products: [
     .library(name: "LispKit", targets: ["LispKit"]),
