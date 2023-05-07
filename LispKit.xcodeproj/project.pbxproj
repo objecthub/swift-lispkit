@@ -348,6 +348,86 @@
 		CC7C3E9F2246F8BD0082DF7C /* 33.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC7C3E9C2246F1E40082DF7C /* 33.sld */; };
 		CC7C3EA02246F8BD0082DF7C /* 46.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC7C3E9B2246F0A30082DF7C /* 46.sld */; };
 		CC7C3EA12246F8BD0082DF7C /* 55.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC7C3E9A2246EF6D0082DF7C /* 55.sld */; };
+		CC7D4B1A2A084FA50066BA94 /* 2020-01-22.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B0C2A084F160066BA94 /* 2020-01-22.data */; };
+		CC7D4B1B2A084FA50066BA94 /* 2020-01-23.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B042A084F160066BA94 /* 2020-01-23.data */; };
+		CC7D4B1C2A084FA50066BA94 /* 2020-01-24.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B052A084F160066BA94 /* 2020-01-24.data */; };
+		CC7D4B1D2A084FA50066BA94 /* 2020-01-25.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B0B2A084F160066BA94 /* 2020-01-25.data */; };
+		CC7D4B1E2A084FA50066BA94 /* 2020-01-26.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B062A084F160066BA94 /* 2020-01-26.data */; };
+		CC7D4B1F2A084FA50066BA94 /* 2020-01-27.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4AF82A084F150066BA94 /* 2020-01-27.data */; };
+		CC7D4B202A084FA50066BA94 /* 2020-01-28.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B012A084F160066BA94 /* 2020-01-28.data */; };
+		CC7D4B212A084FA50066BA94 /* 2020-01-29.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B092A084F160066BA94 /* 2020-01-29.data */; };
+		CC7D4B222A084FA50066BA94 /* 2020-01-30.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4AF52A084F150066BA94 /* 2020-01-30.data */; };
+		CC7D4B232A084FA50066BA94 /* 2020-01-31.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B002A084F160066BA94 /* 2020-01-31.data */; };
+		CC7D4B242A084FA50066BA94 /* 2020-02-01.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4AF72A084F150066BA94 /* 2020-02-01.data */; };
+		CC7D4B252A084FA50066BA94 /* 2020-02-02.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4AF42A084F150066BA94 /* 2020-02-02.data */; };
+		CC7D4B262A084FA50066BA94 /* 2020-02-03.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4AFE2A084F150066BA94 /* 2020-02-03.data */; };
+		CC7D4B272A084FA50066BA94 /* 2020-02-04.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4AFF2A084F160066BA94 /* 2020-02-04.data */; };
+		CC7D4B282A084FA50066BA94 /* 2020-02-05.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4AF32A084F150066BA94 /* 2020-02-05.data */; };
+		CC7D4B292A084FA50066BA94 /* 2020-02-06.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B032A084F160066BA94 /* 2020-02-06.data */; };
+		CC7D4B2A2A084FA50066BA94 /* 2020-02-07.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4AFC2A084F150066BA94 /* 2020-02-07.data */; };
+		CC7D4B2B2A084FA50066BA94 /* 2020-02-08.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B072A084F160066BA94 /* 2020-02-08.data */; };
+		CC7D4B2C2A084FA50066BA94 /* 2020-02-09.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4AF62A084F150066BA94 /* 2020-02-09.data */; };
+		CC7D4B2D2A084FA50066BA94 /* 2020-02-10.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4AFB2A084F150066BA94 /* 2020-02-10.data */; };
+		CC7D4B2E2A084FA50066BA94 /* 2020-02-11.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B022A084F160066BA94 /* 2020-02-11.data */; };
+		CC7D4B2F2A084FA50066BA94 /* 2020-02-12.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4AFD2A084F150066BA94 /* 2020-02-12.data */; };
+		CC7D4B302A084FA50066BA94 /* 2020-02-13.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B0A2A084F160066BA94 /* 2020-02-13.data */; };
+		CC7D4B312A084FA50066BA94 /* 2020-02-14.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B0D2A084F160066BA94 /* 2020-02-14.data */; };
+		CC7D4B322A084FA50066BA94 /* 2020-02-15.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B082A084F160066BA94 /* 2020-02-15.data */; };
+		CC7D4B332A084FA50066BA94 /* 2020-02-16.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4AF92A084F150066BA94 /* 2020-02-16.data */; };
+		CC7D4B342A084FA50066BA94 /* 2020-02-17.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4AFA2A084F150066BA94 /* 2020-02-17.data */; };
+		CC7D4B352A084FA50066BA94 /* 2020-02-18.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4AF22A084F150066BA94 /* 2020-02-18.data */; };
+		CC7D4B362A084FA50066BA94 /* 2020-02-19.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B0E2A084F160066BA94 /* 2020-02-19.data */; };
+		CC7D4B372A084FC50066BA94 /* 2020-06-20.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B152A084F3A0066BA94 /* 2020-06-20.data */; };
+		CC7D4B382A084FC50066BA94 /* 2020-06-21.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B0F2A084F390066BA94 /* 2020-06-21.data */; };
+		CC7D4B392A084FC50066BA94 /* 2020-06-22.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B182A084F3A0066BA94 /* 2020-06-22.data */; };
+		CC7D4B3A2A084FC50066BA94 /* 2020-06-23.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B172A084F3A0066BA94 /* 2020-06-23.data */; };
+		CC7D4B3B2A084FC50066BA94 /* 2020-06-24.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B142A084F3A0066BA94 /* 2020-06-24.data */; };
+		CC7D4B3C2A084FC50066BA94 /* 2020-06-25.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B132A084F3A0066BA94 /* 2020-06-25.data */; };
+		CC7D4B3D2A084FC50066BA94 /* 2020-06-26.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B102A084F3A0066BA94 /* 2020-06-26.data */; };
+		CC7D4B3E2A084FC50066BA94 /* 2020-06-27.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B162A084F3A0066BA94 /* 2020-06-27.data */; };
+		CC7D4B3F2A084FC50066BA94 /* 2020-06-28.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B112A084F3A0066BA94 /* 2020-06-28.data */; };
+		CC7D4B402A084FC50066BA94 /* 2020-06-29.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B122A084F3A0066BA94 /* 2020-06-29.data */; };
+		CC7D4B412A084FC50066BA94 /* 2020-06-30.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B192A084F3A0066BA94 /* 2020-06-30.data */; };
+		CC7D4B422A08500B0066BA94 /* 2020-01-22.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B0C2A084F160066BA94 /* 2020-01-22.data */; };
+		CC7D4B432A08500B0066BA94 /* 2020-01-23.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B042A084F160066BA94 /* 2020-01-23.data */; };
+		CC7D4B442A08500B0066BA94 /* 2020-01-24.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B052A084F160066BA94 /* 2020-01-24.data */; };
+		CC7D4B452A08500B0066BA94 /* 2020-01-25.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B0B2A084F160066BA94 /* 2020-01-25.data */; };
+		CC7D4B462A08500B0066BA94 /* 2020-01-26.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B062A084F160066BA94 /* 2020-01-26.data */; };
+		CC7D4B472A08500B0066BA94 /* 2020-01-27.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4AF82A084F150066BA94 /* 2020-01-27.data */; };
+		CC7D4B482A08500B0066BA94 /* 2020-01-28.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B012A084F160066BA94 /* 2020-01-28.data */; };
+		CC7D4B492A08500B0066BA94 /* 2020-01-29.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B092A084F160066BA94 /* 2020-01-29.data */; };
+		CC7D4B4A2A08500B0066BA94 /* 2020-01-30.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4AF52A084F150066BA94 /* 2020-01-30.data */; };
+		CC7D4B4B2A08500B0066BA94 /* 2020-01-31.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B002A084F160066BA94 /* 2020-01-31.data */; };
+		CC7D4B4C2A08500B0066BA94 /* 2020-02-01.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4AF72A084F150066BA94 /* 2020-02-01.data */; };
+		CC7D4B4D2A08500B0066BA94 /* 2020-02-02.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4AF42A084F150066BA94 /* 2020-02-02.data */; };
+		CC7D4B4E2A08500B0066BA94 /* 2020-02-03.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4AFE2A084F150066BA94 /* 2020-02-03.data */; };
+		CC7D4B4F2A08500B0066BA94 /* 2020-02-04.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4AFF2A084F160066BA94 /* 2020-02-04.data */; };
+		CC7D4B502A08500B0066BA94 /* 2020-02-05.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4AF32A084F150066BA94 /* 2020-02-05.data */; };
+		CC7D4B512A08500B0066BA94 /* 2020-02-06.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B032A084F160066BA94 /* 2020-02-06.data */; };
+		CC7D4B522A08500B0066BA94 /* 2020-02-07.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4AFC2A084F150066BA94 /* 2020-02-07.data */; };
+		CC7D4B532A08500B0066BA94 /* 2020-02-08.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B072A084F160066BA94 /* 2020-02-08.data */; };
+		CC7D4B542A08500B0066BA94 /* 2020-02-09.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4AF62A084F150066BA94 /* 2020-02-09.data */; };
+		CC7D4B552A08500B0066BA94 /* 2020-02-10.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4AFB2A084F150066BA94 /* 2020-02-10.data */; };
+		CC7D4B562A08500B0066BA94 /* 2020-02-11.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B022A084F160066BA94 /* 2020-02-11.data */; };
+		CC7D4B572A08500B0066BA94 /* 2020-02-12.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4AFD2A084F150066BA94 /* 2020-02-12.data */; };
+		CC7D4B582A08500B0066BA94 /* 2020-02-13.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B0A2A084F160066BA94 /* 2020-02-13.data */; };
+		CC7D4B592A08500B0066BA94 /* 2020-02-14.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B0D2A084F160066BA94 /* 2020-02-14.data */; };
+		CC7D4B5A2A08500B0066BA94 /* 2020-02-15.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B082A084F160066BA94 /* 2020-02-15.data */; };
+		CC7D4B5B2A08500B0066BA94 /* 2020-02-16.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4AF92A084F150066BA94 /* 2020-02-16.data */; };
+		CC7D4B5C2A08500B0066BA94 /* 2020-02-17.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4AFA2A084F150066BA94 /* 2020-02-17.data */; };
+		CC7D4B5D2A08500B0066BA94 /* 2020-02-18.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4AF22A084F150066BA94 /* 2020-02-18.data */; };
+		CC7D4B5E2A08500B0066BA94 /* 2020-02-19.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B0E2A084F160066BA94 /* 2020-02-19.data */; };
+		CC7D4B5F2A0850140066BA94 /* 2020-06-20.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B152A084F3A0066BA94 /* 2020-06-20.data */; };
+		CC7D4B602A0850140066BA94 /* 2020-06-21.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B0F2A084F390066BA94 /* 2020-06-21.data */; };
+		CC7D4B612A0850140066BA94 /* 2020-06-22.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B182A084F3A0066BA94 /* 2020-06-22.data */; };
+		CC7D4B622A0850140066BA94 /* 2020-06-23.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B172A084F3A0066BA94 /* 2020-06-23.data */; };
+		CC7D4B632A0850140066BA94 /* 2020-06-24.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B142A084F3A0066BA94 /* 2020-06-24.data */; };
+		CC7D4B642A0850140066BA94 /* 2020-06-25.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B132A084F3A0066BA94 /* 2020-06-25.data */; };
+		CC7D4B652A0850140066BA94 /* 2020-06-26.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B102A084F3A0066BA94 /* 2020-06-26.data */; };
+		CC7D4B662A0850140066BA94 /* 2020-06-27.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B162A084F3A0066BA94 /* 2020-06-27.data */; };
+		CC7D4B672A0850140066BA94 /* 2020-06-28.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B112A084F3A0066BA94 /* 2020-06-28.data */; };
+		CC7D4B682A0850140066BA94 /* 2020-06-29.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B122A084F3A0066BA94 /* 2020-06-29.data */; };
+		CC7D4B692A0850140066BA94 /* 2020-06-30.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B192A084F3A0066BA94 /* 2020-06-30.data */; };
 		CC7E7C2624564D85002E8A73 /* Covid.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC7E7C2524564D33002E8A73 /* Covid.scm */; };
 		CC7E7C8A24565378002E8A73 /* Covid.sqlite3 in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C882456515A002E8A73 /* Covid.sqlite3 */; };
 		CC7E7C8B24565378002E8A73 /* 2020-02-20.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C6124564FBE002E8A73 /* 2020-02-20.data */; };
@@ -1553,6 +1633,46 @@
 			dstPath = Root/LispKit/Assets/Datasets/Covid;
 			dstSubfolderSpec = 7;
 			files = (
+				CC7D4B372A084FC50066BA94 /* 2020-06-20.data in Copy dataset covid assets */,
+				CC7D4B382A084FC50066BA94 /* 2020-06-21.data in Copy dataset covid assets */,
+				CC7D4B392A084FC50066BA94 /* 2020-06-22.data in Copy dataset covid assets */,
+				CC7D4B3A2A084FC50066BA94 /* 2020-06-23.data in Copy dataset covid assets */,
+				CC7D4B3B2A084FC50066BA94 /* 2020-06-24.data in Copy dataset covid assets */,
+				CC7D4B3C2A084FC50066BA94 /* 2020-06-25.data in Copy dataset covid assets */,
+				CC7D4B3D2A084FC50066BA94 /* 2020-06-26.data in Copy dataset covid assets */,
+				CC7D4B3E2A084FC50066BA94 /* 2020-06-27.data in Copy dataset covid assets */,
+				CC7D4B3F2A084FC50066BA94 /* 2020-06-28.data in Copy dataset covid assets */,
+				CC7D4B402A084FC50066BA94 /* 2020-06-29.data in Copy dataset covid assets */,
+				CC7D4B412A084FC50066BA94 /* 2020-06-30.data in Copy dataset covid assets */,
+				CC7D4B1A2A084FA50066BA94 /* 2020-01-22.data in Copy dataset covid assets */,
+				CC7D4B1B2A084FA50066BA94 /* 2020-01-23.data in Copy dataset covid assets */,
+				CC7D4B1C2A084FA50066BA94 /* 2020-01-24.data in Copy dataset covid assets */,
+				CC7D4B1D2A084FA50066BA94 /* 2020-01-25.data in Copy dataset covid assets */,
+				CC7D4B1E2A084FA50066BA94 /* 2020-01-26.data in Copy dataset covid assets */,
+				CC7D4B1F2A084FA50066BA94 /* 2020-01-27.data in Copy dataset covid assets */,
+				CC7D4B202A084FA50066BA94 /* 2020-01-28.data in Copy dataset covid assets */,
+				CC7D4B212A084FA50066BA94 /* 2020-01-29.data in Copy dataset covid assets */,
+				CC7D4B222A084FA50066BA94 /* 2020-01-30.data in Copy dataset covid assets */,
+				CC7D4B232A084FA50066BA94 /* 2020-01-31.data in Copy dataset covid assets */,
+				CC7D4B242A084FA50066BA94 /* 2020-02-01.data in Copy dataset covid assets */,
+				CC7D4B252A084FA50066BA94 /* 2020-02-02.data in Copy dataset covid assets */,
+				CC7D4B262A084FA50066BA94 /* 2020-02-03.data in Copy dataset covid assets */,
+				CC7D4B272A084FA50066BA94 /* 2020-02-04.data in Copy dataset covid assets */,
+				CC7D4B282A084FA50066BA94 /* 2020-02-05.data in Copy dataset covid assets */,
+				CC7D4B292A084FA50066BA94 /* 2020-02-06.data in Copy dataset covid assets */,
+				CC7D4B2A2A084FA50066BA94 /* 2020-02-07.data in Copy dataset covid assets */,
+				CC7D4B2B2A084FA50066BA94 /* 2020-02-08.data in Copy dataset covid assets */,
+				CC7D4B2C2A084FA50066BA94 /* 2020-02-09.data in Copy dataset covid assets */,
+				CC7D4B2D2A084FA50066BA94 /* 2020-02-10.data in Copy dataset covid assets */,
+				CC7D4B2E2A084FA50066BA94 /* 2020-02-11.data in Copy dataset covid assets */,
+				CC7D4B2F2A084FA50066BA94 /* 2020-02-12.data in Copy dataset covid assets */,
+				CC7D4B302A084FA50066BA94 /* 2020-02-13.data in Copy dataset covid assets */,
+				CC7D4B312A084FA50066BA94 /* 2020-02-14.data in Copy dataset covid assets */,
+				CC7D4B322A084FA50066BA94 /* 2020-02-15.data in Copy dataset covid assets */,
+				CC7D4B332A084FA50066BA94 /* 2020-02-16.data in Copy dataset covid assets */,
+				CC7D4B342A084FA50066BA94 /* 2020-02-17.data in Copy dataset covid assets */,
+				CC7D4B352A084FA50066BA94 /* 2020-02-18.data in Copy dataset covid assets */,
+				CC7D4B362A084FA50066BA94 /* 2020-02-19.data in Copy dataset covid assets */,
 				CC028EAA249E3F5E00C5761C /* 2020-05-23.data in Copy dataset covid assets */,
 				CC028EAB249E3F5E00C5761C /* 2020-05-24.data in Copy dataset covid assets */,
 				CC028EAC249E3F5E00C5761C /* 2020-05-25.data in Copy dataset covid assets */,
@@ -2329,6 +2449,46 @@
 			dstPath = Root/LispKit/Assets/Datasets/Covid;
 			dstSubfolderSpec = 7;
 			files = (
+				CC7D4B5F2A0850140066BA94 /* 2020-06-20.data in Copy dataset covid assets */,
+				CC7D4B602A0850140066BA94 /* 2020-06-21.data in Copy dataset covid assets */,
+				CC7D4B612A0850140066BA94 /* 2020-06-22.data in Copy dataset covid assets */,
+				CC7D4B622A0850140066BA94 /* 2020-06-23.data in Copy dataset covid assets */,
+				CC7D4B632A0850140066BA94 /* 2020-06-24.data in Copy dataset covid assets */,
+				CC7D4B642A0850140066BA94 /* 2020-06-25.data in Copy dataset covid assets */,
+				CC7D4B652A0850140066BA94 /* 2020-06-26.data in Copy dataset covid assets */,
+				CC7D4B662A0850140066BA94 /* 2020-06-27.data in Copy dataset covid assets */,
+				CC7D4B672A0850140066BA94 /* 2020-06-28.data in Copy dataset covid assets */,
+				CC7D4B682A0850140066BA94 /* 2020-06-29.data in Copy dataset covid assets */,
+				CC7D4B692A0850140066BA94 /* 2020-06-30.data in Copy dataset covid assets */,
+				CC7D4B422A08500B0066BA94 /* 2020-01-22.data in Copy dataset covid assets */,
+				CC7D4B432A08500B0066BA94 /* 2020-01-23.data in Copy dataset covid assets */,
+				CC7D4B442A08500B0066BA94 /* 2020-01-24.data in Copy dataset covid assets */,
+				CC7D4B452A08500B0066BA94 /* 2020-01-25.data in Copy dataset covid assets */,
+				CC7D4B462A08500B0066BA94 /* 2020-01-26.data in Copy dataset covid assets */,
+				CC7D4B472A08500B0066BA94 /* 2020-01-27.data in Copy dataset covid assets */,
+				CC7D4B482A08500B0066BA94 /* 2020-01-28.data in Copy dataset covid assets */,
+				CC7D4B492A08500B0066BA94 /* 2020-01-29.data in Copy dataset covid assets */,
+				CC7D4B4A2A08500B0066BA94 /* 2020-01-30.data in Copy dataset covid assets */,
+				CC7D4B4B2A08500B0066BA94 /* 2020-01-31.data in Copy dataset covid assets */,
+				CC7D4B4C2A08500B0066BA94 /* 2020-02-01.data in Copy dataset covid assets */,
+				CC7D4B4D2A08500B0066BA94 /* 2020-02-02.data in Copy dataset covid assets */,
+				CC7D4B4E2A08500B0066BA94 /* 2020-02-03.data in Copy dataset covid assets */,
+				CC7D4B4F2A08500B0066BA94 /* 2020-02-04.data in Copy dataset covid assets */,
+				CC7D4B502A08500B0066BA94 /* 2020-02-05.data in Copy dataset covid assets */,
+				CC7D4B512A08500B0066BA94 /* 2020-02-06.data in Copy dataset covid assets */,
+				CC7D4B522A08500B0066BA94 /* 2020-02-07.data in Copy dataset covid assets */,
+				CC7D4B532A08500B0066BA94 /* 2020-02-08.data in Copy dataset covid assets */,
+				CC7D4B542A08500B0066BA94 /* 2020-02-09.data in Copy dataset covid assets */,
+				CC7D4B552A08500B0066BA94 /* 2020-02-10.data in Copy dataset covid assets */,
+				CC7D4B562A08500B0066BA94 /* 2020-02-11.data in Copy dataset covid assets */,
+				CC7D4B572A08500B0066BA94 /* 2020-02-12.data in Copy dataset covid assets */,
+				CC7D4B582A08500B0066BA94 /* 2020-02-13.data in Copy dataset covid assets */,
+				CC7D4B592A08500B0066BA94 /* 2020-02-14.data in Copy dataset covid assets */,
+				CC7D4B5A2A08500B0066BA94 /* 2020-02-15.data in Copy dataset covid assets */,
+				CC7D4B5B2A08500B0066BA94 /* 2020-02-16.data in Copy dataset covid assets */,
+				CC7D4B5C2A08500B0066BA94 /* 2020-02-17.data in Copy dataset covid assets */,
+				CC7D4B5D2A08500B0066BA94 /* 2020-02-18.data in Copy dataset covid assets */,
+				CC7D4B5E2A08500B0066BA94 /* 2020-02-19.data in Copy dataset covid assets */,
 				CCC48DE625E9879700D082AD /* Covid.sqlite3 in Copy dataset covid assets */,
 				CCC48DE725E9879700D082AD /* 2020-02-20.data in Copy dataset covid assets */,
 				CCC48DE825E9879700D082AD /* 2020-02-21.data in Copy dataset covid assets */,
@@ -2772,6 +2932,46 @@
 		CC7C3E9B2246F0A30082DF7C /* 46.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 46.sld; sourceTree = "<group>"; };
 		CC7C3E9C2246F1E40082DF7C /* 33.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 33.sld; sourceTree = "<group>"; };
 		CC7C3E9D2246F8700082DF7C /* 26.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 26.sld; sourceTree = "<group>"; };
+		CC7D4AF22A084F150066BA94 /* 2020-02-18.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-02-18.data"; sourceTree = "<group>"; };
+		CC7D4AF32A084F150066BA94 /* 2020-02-05.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-02-05.data"; sourceTree = "<group>"; };
+		CC7D4AF42A084F150066BA94 /* 2020-02-02.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-02-02.data"; sourceTree = "<group>"; };
+		CC7D4AF52A084F150066BA94 /* 2020-01-30.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-01-30.data"; sourceTree = "<group>"; };
+		CC7D4AF62A084F150066BA94 /* 2020-02-09.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-02-09.data"; sourceTree = "<group>"; };
+		CC7D4AF72A084F150066BA94 /* 2020-02-01.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-02-01.data"; sourceTree = "<group>"; };
+		CC7D4AF82A084F150066BA94 /* 2020-01-27.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-01-27.data"; sourceTree = "<group>"; };
+		CC7D4AF92A084F150066BA94 /* 2020-02-16.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-02-16.data"; sourceTree = "<group>"; };
+		CC7D4AFA2A084F150066BA94 /* 2020-02-17.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-02-17.data"; sourceTree = "<group>"; };
+		CC7D4AFB2A084F150066BA94 /* 2020-02-10.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-02-10.data"; sourceTree = "<group>"; };
+		CC7D4AFC2A084F150066BA94 /* 2020-02-07.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-02-07.data"; sourceTree = "<group>"; };
+		CC7D4AFD2A084F150066BA94 /* 2020-02-12.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-02-12.data"; sourceTree = "<group>"; };
+		CC7D4AFE2A084F150066BA94 /* 2020-02-03.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-02-03.data"; sourceTree = "<group>"; };
+		CC7D4AFF2A084F160066BA94 /* 2020-02-04.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-02-04.data"; sourceTree = "<group>"; };
+		CC7D4B002A084F160066BA94 /* 2020-01-31.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-01-31.data"; sourceTree = "<group>"; };
+		CC7D4B012A084F160066BA94 /* 2020-01-28.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-01-28.data"; sourceTree = "<group>"; };
+		CC7D4B022A084F160066BA94 /* 2020-02-11.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-02-11.data"; sourceTree = "<group>"; };
+		CC7D4B032A084F160066BA94 /* 2020-02-06.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-02-06.data"; sourceTree = "<group>"; };
+		CC7D4B042A084F160066BA94 /* 2020-01-23.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-01-23.data"; sourceTree = "<group>"; };
+		CC7D4B052A084F160066BA94 /* 2020-01-24.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-01-24.data"; sourceTree = "<group>"; };
+		CC7D4B062A084F160066BA94 /* 2020-01-26.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-01-26.data"; sourceTree = "<group>"; };
+		CC7D4B072A084F160066BA94 /* 2020-02-08.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-02-08.data"; sourceTree = "<group>"; };
+		CC7D4B082A084F160066BA94 /* 2020-02-15.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-02-15.data"; sourceTree = "<group>"; };
+		CC7D4B092A084F160066BA94 /* 2020-01-29.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-01-29.data"; sourceTree = "<group>"; };
+		CC7D4B0A2A084F160066BA94 /* 2020-02-13.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-02-13.data"; sourceTree = "<group>"; };
+		CC7D4B0B2A084F160066BA94 /* 2020-01-25.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-01-25.data"; sourceTree = "<group>"; };
+		CC7D4B0C2A084F160066BA94 /* 2020-01-22.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-01-22.data"; sourceTree = "<group>"; };
+		CC7D4B0D2A084F160066BA94 /* 2020-02-14.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-02-14.data"; sourceTree = "<group>"; };
+		CC7D4B0E2A084F160066BA94 /* 2020-02-19.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-02-19.data"; sourceTree = "<group>"; };
+		CC7D4B0F2A084F390066BA94 /* 2020-06-21.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-06-21.data"; sourceTree = "<group>"; };
+		CC7D4B102A084F3A0066BA94 /* 2020-06-26.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-06-26.data"; sourceTree = "<group>"; };
+		CC7D4B112A084F3A0066BA94 /* 2020-06-28.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-06-28.data"; sourceTree = "<group>"; };
+		CC7D4B122A084F3A0066BA94 /* 2020-06-29.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-06-29.data"; sourceTree = "<group>"; };
+		CC7D4B132A084F3A0066BA94 /* 2020-06-25.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-06-25.data"; sourceTree = "<group>"; };
+		CC7D4B142A084F3A0066BA94 /* 2020-06-24.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-06-24.data"; sourceTree = "<group>"; };
+		CC7D4B152A084F3A0066BA94 /* 2020-06-20.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-06-20.data"; sourceTree = "<group>"; };
+		CC7D4B162A084F3A0066BA94 /* 2020-06-27.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-06-27.data"; sourceTree = "<group>"; };
+		CC7D4B172A084F3A0066BA94 /* 2020-06-23.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-06-23.data"; sourceTree = "<group>"; };
+		CC7D4B182A084F3A0066BA94 /* 2020-06-22.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-06-22.data"; sourceTree = "<group>"; };
+		CC7D4B192A084F3A0066BA94 /* 2020-06-30.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-06-30.data"; sourceTree = "<group>"; };
 		CC7E7C2524564D33002E8A73 /* Covid.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Covid.scm; sourceTree = "<group>"; };
 		CC7E7C2924564FBB002E8A73 /* 2020-03-18.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-03-18.data"; sourceTree = "<group>"; };
 		CC7E7C2C24564FBB002E8A73 /* 2020-03-29.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-03-29.data"; sourceTree = "<group>"; };
@@ -3631,6 +3831,35 @@
 			isa = PBXGroup;
 			children = (
 				CC7E7C882456515A002E8A73 /* Covid.sqlite3 */,
+				CC7D4B0C2A084F160066BA94 /* 2020-01-22.data */,
+				CC7D4B042A084F160066BA94 /* 2020-01-23.data */,
+				CC7D4B052A084F160066BA94 /* 2020-01-24.data */,
+				CC7D4B0B2A084F160066BA94 /* 2020-01-25.data */,
+				CC7D4B062A084F160066BA94 /* 2020-01-26.data */,
+				CC7D4AF82A084F150066BA94 /* 2020-01-27.data */,
+				CC7D4B012A084F160066BA94 /* 2020-01-28.data */,
+				CC7D4B092A084F160066BA94 /* 2020-01-29.data */,
+				CC7D4AF52A084F150066BA94 /* 2020-01-30.data */,
+				CC7D4B002A084F160066BA94 /* 2020-01-31.data */,
+				CC7D4AF72A084F150066BA94 /* 2020-02-01.data */,
+				CC7D4AF42A084F150066BA94 /* 2020-02-02.data */,
+				CC7D4AFE2A084F150066BA94 /* 2020-02-03.data */,
+				CC7D4AFF2A084F160066BA94 /* 2020-02-04.data */,
+				CC7D4AF32A084F150066BA94 /* 2020-02-05.data */,
+				CC7D4B032A084F160066BA94 /* 2020-02-06.data */,
+				CC7D4AFC2A084F150066BA94 /* 2020-02-07.data */,
+				CC7D4B072A084F160066BA94 /* 2020-02-08.data */,
+				CC7D4AF62A084F150066BA94 /* 2020-02-09.data */,
+				CC7D4AFB2A084F150066BA94 /* 2020-02-10.data */,
+				CC7D4B022A084F160066BA94 /* 2020-02-11.data */,
+				CC7D4AFD2A084F150066BA94 /* 2020-02-12.data */,
+				CC7D4B0A2A084F160066BA94 /* 2020-02-13.data */,
+				CC7D4B0D2A084F160066BA94 /* 2020-02-14.data */,
+				CC7D4B082A084F160066BA94 /* 2020-02-15.data */,
+				CC7D4AF92A084F150066BA94 /* 2020-02-16.data */,
+				CC7D4AFA2A084F150066BA94 /* 2020-02-17.data */,
+				CC7D4AF22A084F150066BA94 /* 2020-02-18.data */,
+				CC7D4B0E2A084F160066BA94 /* 2020-02-19.data */,
 				CC7E7C6124564FBE002E8A73 /* 2020-02-20.data */,
 				CC7E7C8524564FC1002E8A73 /* 2020-02-21.data */,
 				CC7E7C7324564FBF002E8A73 /* 2020-02-22.data */,
@@ -3752,6 +3981,17 @@
 				CC028EA5249E3EF900C5761C /* 2020-06-17.data */,
 				CC028EA9249E3EF900C5761C /* 2020-06-18.data */,
 				CC028E98249E3EF700C5761C /* 2020-06-19.data */,
+				CC7D4B152A084F3A0066BA94 /* 2020-06-20.data */,
+				CC7D4B0F2A084F390066BA94 /* 2020-06-21.data */,
+				CC7D4B182A084F3A0066BA94 /* 2020-06-22.data */,
+				CC7D4B172A084F3A0066BA94 /* 2020-06-23.data */,
+				CC7D4B142A084F3A0066BA94 /* 2020-06-24.data */,
+				CC7D4B132A084F3A0066BA94 /* 2020-06-25.data */,
+				CC7D4B102A084F3A0066BA94 /* 2020-06-26.data */,
+				CC7D4B162A084F3A0066BA94 /* 2020-06-27.data */,
+				CC7D4B112A084F3A0066BA94 /* 2020-06-28.data */,
+				CC7D4B122A084F3A0066BA94 /* 2020-06-29.data */,
+				CC7D4B192A084F3A0066BA94 /* 2020-06-30.data */,
 			);
 			path = Covid;
 			sourceTree = "<group>";

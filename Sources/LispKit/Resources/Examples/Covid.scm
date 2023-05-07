@@ -12,10 +12,11 @@
 ;;; `(lispkit date-time)`, `(lispkit csv)`, `(lispkit sqlite)`, and `(lispkit draw)`.
 ;;;
 ;;; Usage:
-;;;   1. Create a new empty directory
+;;;   1. Create a new empty directory.
 ;;;      (make-directory "~/Desktop/covid")
 ;;;   2. Download all data from GitHub. This function does not expect an empty directory.
-;;;      It will complete the missing data and not touch existing files.
+;;;      It will complete the missing data and not touch existing files. By default, all
+;;;      data between default-start-date and default-end-date is read.
 ;;;      (download-daily-metrics "~/Desktop/covid")
 ;;;   3. Read the metric files in the given directory and upload the data into a new SQLite
 ;;;      database.
@@ -26,9 +27,9 @@
 ;;;      (define covid-de (query-country-metrics "~/Desktop/covid.sqlite3" "DE" covid-start))
 ;;;      (define covid-us (query-country-metrics "~/Desktop/covid.sqlite3" "US" covid-start))
 ;;;   5. Generate a country-specific report as a PDF.
-;;;      (save-country-report "~/Desktop/covid-ch-report.pdf" covid-ch "CH" 3 12 1000 100)
-;;;      (save-country-report "~/Desktop/covid-de-report.pdf" covid-de "DE" 3 12 10000 500)
-;;;      (save-country-report "~/Desktop/covid-us-report.pdf" covid-us "US" 3 12 100000 2500)
+;;;      (save-country-report "~/Desktop/covid-ch-report.pdf" covid-ch "CH" 5 15 1000 100)
+;;;      (save-country-report "~/Desktop/covid-de-report.pdf" covid-de "DE" 5 15 5000 500)
+;;;      (save-country-report "~/Desktop/covid-us-report.pdf" covid-us "US" 5 15 50000 2500)
 ;;;
 ;;; LispKit comes with all the assets needed for this example code, in case an internet connection
 ;;; is not available. The directory containing the metric files can be found at
@@ -36,7 +37,7 @@
 ;;; `internal-covid-db`.
 ;;;
 ;;; Author: Matthias Zenger
-;;; Copyright © 2020 Matthias Zenger. All rights reserved.
+;;; Copyright © 2020-2023 Matthias Zenger. All rights reserved.
 ;;;
 ;;; Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 ;;; except in compliance with the License. You may obtain a copy of the License at
@@ -54,6 +55,11 @@
         (lispkit csv)
         (lispkit sqlite)
         (lispkit draw))
+
+;; Default start and end dates
+
+(define default-start-date (date-time 'UTC 2020 01 22 13 00))
+(define default-end-date (date-time 'UTC 2020 06 30 13 00))
 
 ;; Pre-computed SQLite database file path
 
@@ -84,8 +90,8 @@
     ("east timor" . "TL") ("gambia, the" . "GM")
     ("holy see" . "VA") ("hong kong sar" . "HK")
     ("iran (islamic republic of)" . "IR") ("ivory coast" . "CI")
-    ("korea, south" . "KR") ("macao sar" . "MO")
-    ("macau" . "MO") ("mainland china" . "CN")
+    ("korea, north" . "KP") ("korea, south" . "KR")
+    ("macao sar" . "MO") ("macau" . "MO") ("mainland china" . "CN")
     ("ms zaandam" . "??") ("north ireland" . "GB")
     ("occupied palestinian territory" . "PS") ("others" . "??")
     ("palestine" . "PS") ("republic of ireland" . "IE")
@@ -94,11 +100,13 @@
     ("russian federation" . "RU") ("saint barthelemy" . "BL")
     ("saint kitts and nevis" . "KN") ("saint lucia" . "LC")
     ("saint martin" . "MF") ("saint vincent and the grenadines" . "VC")
-    ("sao tome and principe" . "ST") ("taipei and environs" . "TW")
+    ("sao tome and principe" . "ST") ("summer olympics 2020" . "??")
+    ("taipei and environs" . "TW")
     ("taiwan*" . "TW") ("the bahamas" . "BS")
     ("the gambia" . "GM") ("trinidad and tobago" . "TT")
     ("uk" . "GB") ("us" . "US")
-    ("viet nam" . "VN") ("west bank and gaza" . "PS")))
+    ("viet nam" . "VN") ("west bank and gaza" . "PS")
+    ("winter olympics 2022" . "??")))
 
 ;; Create a mapping from country name strings to ISO country code strings
 
@@ -174,8 +182,8 @@
 
 (define (download-daily-metrics dir . args)
   (assert (directory-exists? dir))
-  (let-optionals args ((start (date-time 'UTC 2020 01 22 13 00))
-                       (end (date-time 'UTC)))
+  (let-optionals args ((start default-start-date)
+                       (end default-end-date))
     (display (date-time->string start #f "'Updating data between 'yyyy-MM-dd"))
     (display (date-time->string end #f "' and 'yyyy-MM-dd':'"))
     (newline)
@@ -315,8 +323,8 @@
 ;;   - New active cases
 
 (define (query-country-metrics dbpath country . args)
-  (let-optionals args ((start (date-time 'UTC 2020 01 22))
-                       (end (date-time 'UTC)))
+  (let-optionals args ((start default-start-date)
+                       (end default-end-date))
     (let ((db (open-database dbpath sqlite-readonly)))
       (unwind-protect
         (let ((stmt (prepare-statement db country-report-stmt)))
