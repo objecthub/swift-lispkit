@@ -48,51 +48,55 @@ let package = Package(
     .executable(name: "LispKitRepl", targets: ["LispKitRepl"])
   ],
   dependencies: [
-    .package(name: "NumberKit",
-             url: "https://github.com/objecthub/swift-numberkit.git",
-             .upToNextMajor(from: "2.4.2")),
-    .package(name: "MarkdownKit",
-             url: "https://github.com/objecthub/swift-markdownkit.git",
-             .upToNextMajor(from: "1.1.5")),
-    .package(name: "CommandLineKit",
-             url: "https://github.com/objecthub/swift-commandlinekit.git",
-             .upToNextMajor(from: "0.3.5")),
-    .package(name: "SQLiteExpress",
-             url: "https://github.com/objecthub/swift-sqliteexpress.git",
-             .upToNextMajor(from: "1.0.3")),
-    .package(name: "ZIPFoundation",
-             url: "https://github.com/weichsel/ZIPFoundation.git",
-             .upToNextMajor(from: "0.9.16")),
-    .package(name: "swift-atomics",
-             url: "https://github.com/apple/swift-atomics.git",
-             .upToNextMajor(from: "1.0.3"))
+    .package(url: "https://github.com/objecthub/swift-numberkit.git", from: "2.4.2"),
+    .package(url: "https://github.com/objecthub/swift-markdownkit.git", from: "1.1.7"),
+    .package(url: "https://github.com/objecthub/swift-commandlinekit.git", from: "0.3.5"),
+    .package(url: "https://github.com/objecthub/swift-sqliteexpress.git", from: "1.0.3"),
+    .package(url: "https://github.com/weichsel/ZIPFoundation.git", from: "0.9.16"),
+    .package(url: "https://github.com/apple/swift-atomics.git", from: "1.0.3")
   ],
   targets: [
     .target(name: "LispKit",
-            dependencies: ["NumberKit",
-                           "MarkdownKit",
-                           "SQLiteExpress", 
-                           "ZIPFoundation",
-                           .product(name: "Atomics", package: "swift-atomics")],
-            exclude: ["Info.plist",
-                      "Resources",
-                      "Graphics/Drawing_iOS.swift",
-                      "Graphics/Transformation_iOS.swift",
-                      "Primitives/DrawingLibrary_iOS.swift"]),
+            dependencies: [
+              .product(name: "NumberKit", package: "swift-numberkit"),
+              .product(name: "MarkdownKit", package: "swift-markdownkit"),
+              .product(name: "SQLiteExpress", package: "swift-sqliteexpress"),
+              .product(name: "ZIPFoundation", package: "ZIPFoundation"),
+              .product(name: "Atomics", package: "swift-atomics")
+            ],
+            exclude: [
+              "Info.plist",
+              "Resources",
+              "Graphics/Drawing_iOS.swift",
+              "Graphics/Transformation_iOS.swift",
+              "Primitives/DrawingLibrary_iOS.swift"
+            ]),
     .target(name: "LispKitTools",
-            dependencies: ["LispKit",
-                           "CommandLineKit"],
-            exclude: ["Info.plist"]),
+            dependencies: [
+              .target(name: "LispKit"),
+              .product(name: "CommandLineKit", package: "swift-commandlinekit")
+            ],
+            exclude: [
+              "Info.plist"
+            ]),
     .executableTarget(name: "LispKitRepl",
-                      dependencies: ["LispKit",
-                                     "LispKitTools"],
-                      exclude: ["Info.plist",
-                                "BuildMetadata.m",
-                                "BuildMetadata.h"]),
+                      dependencies: [
+                        .target(name: "LispKit"),
+                        .target(name: "LispKitTools")
+                      ],
+                      exclude: [
+                        "Info.plist",
+                        "BuildMetadata.m",
+                        "BuildMetadata.h"
+                      ]),
     .testTarget(name: "LispKitTests",
-                dependencies: ["LispKit"],
-                exclude: ["Info.plist",
-                          "Code"])
+                dependencies: [
+                  .target(name: "LispKit")
+                ],
+                exclude: [
+                  "Info.plist",
+                  "Code"
+                ])
   ],
   swiftLanguageVersions: [.v5]
 )
