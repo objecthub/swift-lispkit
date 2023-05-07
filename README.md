@@ -321,7 +321,14 @@ Resolving https://github.com/objecthub/swift-commandlinekit.git at 0.3.3
 The debug binary can now be run like this:
 
 ```sh
-`.build/debug/LispKitRepl -r Sources/LispKit/Resources -d LispKit`
+.build/debug/LispKitRepl -r Sources/LispKit/Resources -d LispKit
+```
+
+It is possible to execute a Scheme program at `Sources/LispKit/Resources/Examples/Channels.scm`
+like this:
+
+```sh
+.build/debug/LispKitRepl -r Sources/LispKit/Resources -d LispKit Sources/LispKit/Resources/Examples/Channels.scm
 ```
 
 For experimentation with a new resources directory (e.g. containing new or modified Scheme libraries),
@@ -331,7 +338,9 @@ the binary can also be run via  `.build/debug/LispKitRepl -d LispKit` assuming t
 
 There is also a `Makefile` which provides convenience build rules. Building and running the REPL can
 be achieved, e.g. by invoking `make run` (for the debug REPL) or `make repl` (for the release REPL).
-Details for building such release binaries can be looked up in the
+If a Scheme program should be executed instead of the REPL being run, the `program` variable
+needs to be set, e.g. as in `make run program=path/to/program.scm`. Details for building binaries
+or executing tests can be looked up in the
 [Makefile](https://github.com/objecthub/swift-lispkit/blob/master/Makefile).
 
 ### Building and running the iOS tool
