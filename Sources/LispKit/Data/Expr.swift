@@ -20,6 +20,7 @@
 
 import Foundation
 import NumberKit
+import CLFormat
 
 ///
 /// `Expr` represents LispKit expressions in form of an enumeration with associated values.
@@ -650,13 +651,17 @@ extension Expr {
 
 /// This extension makes `Expr` implement the `CustomStringConvertible`.
 ///
-extension Expr: CustomStringConvertible {
+extension Expr: CustomStringConvertible, CLFormatConvertible {
   
   public var description: String {
     return self.toString()
   }
   
   public var unescapedDescription: String {
+    return self.toString(escape: false)
+  }
+  
+  public var clformatDescription: String {
     return self.toString(escape: false)
   }
   

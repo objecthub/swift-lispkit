@@ -11,6 +11,15 @@
         }
       },
       {
+        "package": "CLFormat",
+        "repositoryURL": "https://github.com/objecthub/swift-clformat.git",
+        "state": {
+          "branch": null,
+          "revision": "6868a027fae9540c48da9a7265a9368b8a7e3775",
+          "version": "1.0.3"
+        }
+      },
+      {
         "package": "CommandLineKit",
         "repositoryURL": "https://github.com/objecthub/swift-commandlinekit.git",
         "state": {

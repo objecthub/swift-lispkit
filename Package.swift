@@ -52,6 +52,7 @@ let package = Package(
     .package(url: "https://github.com/objecthub/swift-markdownkit.git", from: "1.1.7"),
     .package(url: "https://github.com/objecthub/swift-commandlinekit.git", from: "0.3.5"),
     .package(url: "https://github.com/objecthub/swift-sqliteexpress.git", from: "1.0.3"),
+    .package(url: "https://github.com/objecthub/swift-clformat.git", from: "1.0.3"),
     .package(url: "https://github.com/weichsel/ZIPFoundation.git", from: "0.9.16"),
     .package(url: "https://github.com/apple/swift-atomics.git", from: "1.0.3")
   ],
@@ -61,6 +62,7 @@ let package = Package(
               .product(name: "NumberKit", package: "swift-numberkit"),
               .product(name: "MarkdownKit", package: "swift-markdownkit"),
               .product(name: "SQLiteExpress", package: "swift-sqliteexpress"),
+              .product(name: "CLFormat", package: "swift-clformat"),
               .product(name: "ZIPFoundation", package: "ZIPFoundation"),
               .product(name: "Atomics", package: "swift-atomics")
             ],

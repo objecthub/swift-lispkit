@@ -10,6 +10,15 @@
       }
     },
     {
+      "identity" : "swift-clformat",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/objecthub/swift-clformat",
+      "state" : {
+        "revision" : "6868a027fae9540c48da9a7265a9368b8a7e3775",
+        "version" : "1.0.3"
+      }
+    },
+    {
       "identity" : "swift-commandlinekit",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/objecthub/swift-commandlinekit.git",

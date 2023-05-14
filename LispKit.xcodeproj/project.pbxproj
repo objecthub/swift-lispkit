@@ -428,6 +428,9 @@
 		CC7D4B672A0850140066BA94 /* 2020-06-28.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B112A084F3A0066BA94 /* 2020-06-28.data */; };
 		CC7D4B682A0850140066BA94 /* 2020-06-29.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B122A084F3A0066BA94 /* 2020-06-29.data */; };
 		CC7D4B692A0850140066BA94 /* 2020-06-30.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B192A084F3A0066BA94 /* 2020-06-30.data */; };
+		CC7D4B6D2A0D877C0066BA94 /* CLFormat in Frameworks */ = {isa = PBXBuildFile; productRef = CC7D4B6C2A0D877C0066BA94 /* CLFormat */; };
+		CC7D4B6F2A0D88C00066BA94 /* FormatLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC7D4B6E2A0D88C00066BA94 /* FormatLibrary.swift */; };
+		CC7D4B702A0D88C00066BA94 /* FormatLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC7D4B6E2A0D88C00066BA94 /* FormatLibrary.swift */; };
 		CC7E7C2624564D85002E8A73 /* Covid.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC7E7C2524564D33002E8A73 /* Covid.scm */; };
 		CC7E7C8A24565378002E8A73 /* Covid.sqlite3 in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C882456515A002E8A73 /* Covid.sqlite3 */; };
 		CC7E7C8B24565378002E8A73 /* 2020-02-20.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C6124564FBE002E8A73 /* 2020-02-20.data */; };
@@ -2972,6 +2975,7 @@
 		CC7D4B172A084F3A0066BA94 /* 2020-06-23.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-06-23.data"; sourceTree = "<group>"; };
 		CC7D4B182A084F3A0066BA94 /* 2020-06-22.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-06-22.data"; sourceTree = "<group>"; };
 		CC7D4B192A084F3A0066BA94 /* 2020-06-30.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-06-30.data"; sourceTree = "<group>"; };
+		CC7D4B6E2A0D88C00066BA94 /* FormatLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormatLibrary.swift; sourceTree = "<group>"; };
 		CC7E7C2524564D33002E8A73 /* Covid.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Covid.scm; sourceTree = "<group>"; };
 		CC7E7C2924564FBB002E8A73 /* 2020-03-18.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-03-18.data"; sourceTree = "<group>"; };
 		CC7E7C2C24564FBB002E8A73 /* 2020-03-29.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-03-29.data"; sourceTree = "<group>"; };
@@ -3285,6 +3289,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CC7D4B6D2A0D877C0066BA94 /* CLFormat in Frameworks */,
 				CCA6C3D42361149D007D2AF0 /* MarkdownKit in Frameworks */,
 				CC5E53032355AAD400C72CE2 /* NumberKit in Frameworks */,
 				CC2DA73A2770012300DE69CF /* Atomics in Frameworks */,
@@ -4217,6 +4222,7 @@
 				CC6A3B611C52ED7D00E962E2 /* CharLibrary.swift */,
 				CC54923E21DAF364004A0652 /* CharSetLibrary.swift */,
 				CC6A3B5F1C52EBD700E962E2 /* StringLibrary.swift */,
+				CC7D4B6E2A0D88C00066BA94 /* FormatLibrary.swift */,
 				CC7A125C21EA7C5E00ABEA17 /* RegexpLibrary.swift */,
 				CC4E2D361D09691000D77159 /* PortLibrary.swift */,
 				CCCACB5B248D753800F012AC /* SystemOSLibrary.swift */,
@@ -4491,6 +4497,7 @@
 				CC089650244091E9004503B1 /* SQLiteExpress */,
 				CCFB412625B2523C005B2429 /* ZIPFoundation */,
 				CC2DA7392770012300DE69CF /* Atomics */,
+				CC7D4B6C2A0D877C0066BA94 /* CLFormat */,
 			);
 			productName = LispKit;
 			productReference = CCAD52BA1C48403800DBD8EE /* LispKit.framework */;
@@ -4634,6 +4641,7 @@
 				CC08964F244091E9004503B1 /* XCRemoteSwiftPackageReference "swift-sqliteexpress" */,
 				CCFB412525B2523C005B2429 /* XCRemoteSwiftPackageReference "ZIPFoundation" */,
 				CC2DA7382770012300DE69CF /* XCRemoteSwiftPackageReference "swift-atomics" */,
+				CC7D4B6B2A0D877C0066BA94 /* XCRemoteSwiftPackageReference "swift-clformat" */,
 			);
 			productRefGroup = CCAD52BB1C48403800DBD8EE /* Products */;
 			projectDirPath = "";
@@ -4826,6 +4834,7 @@
 				CC372CCC27D013BF0091C474 /* EnumLibrary.swift in Sources */,
 				CC90500F1D384C4E008CE60A /* Tuple.swift in Sources */,
 				CC6A3B641C52EED400E962E2 /* MathLibrary.swift in Sources */,
+				CC7D4B6F2A0D88C00066BA94 /* FormatLibrary.swift in Sources */,
 				CC8EDE4C1D0317AD004E0636 /* Port.swift in Sources */,
 				CCB585BB1E15AA4D0064BB18 /* Heap.swift in Sources */,
 				CC93A6611D0777A9008350C8 /* TextOutput.swift in Sources */,
@@ -4977,6 +4986,7 @@
 				CC2DA7552781036D00DE69CF /* EvalMutex.swift in Sources */,
 				CCC48CC425E5B98600D082AD /* BoxLibrary.swift in Sources */,
 				CCC48C7625E5B94900D082AD /* TextInput.swift in Sources */,
+				CC7D4B702A0D88C00066BA94 /* FormatLibrary.swift in Sources */,
 				CCC48C8D25E5B95B00D082AD /* HashTable.swift in Sources */,
 				CCC48CCC25E5B98600D082AD /* DebugLibrary.swift in Sources */,
 				CCCB66E5283056E30004827D /* StyledTextLibrary.swift in Sources */,
@@ -5628,6 +5638,14 @@
 				minimumVersion = 0.3.5;
 			};
 		};
+		CC7D4B6B2A0D877C0066BA94 /* XCRemoteSwiftPackageReference "swift-clformat" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/objecthub/swift-clformat";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.3;
+			};
+		};
 		CCA6C3D22361149D007D2AF0 /* XCRemoteSwiftPackageReference "swift-markdownkit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/objecthub/swift-markdownkit.git";
@@ -5671,6 +5689,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = CC5E53012355AAD400C72CE2 /* XCRemoteSwiftPackageReference "swift-numberkit" */;
 			productName = NumberKit;
+		};
+		CC7D4B6C2A0D877C0066BA94 /* CLFormat */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CC7D4B6B2A0D877C0066BA94 /* XCRemoteSwiftPackageReference "swift-clformat" */;
+			productName = CLFormat;
 		};
 		CCA6C3D32361149D007D2AF0 /* MarkdownKit */ = {
 			isa = XCSwiftPackageProductDependency;
