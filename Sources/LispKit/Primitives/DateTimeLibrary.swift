@@ -721,4 +721,18 @@ public final class NativeDateTime: AnyNativeObject<DateComponents> {
     formatter.timeZone = self.value.timeZone ?? TimeZone.current
     return "#<date-time \(formatter.string(from: date))>"
   }
+  
+  public override func unpack() -> Exprs {
+    return [.makeString(self.identityString),
+            .makeString(self.value.timeZone!.identifier),
+            .fixnum(Int64(self.value.year!)),
+            .fixnum(Int64(self.value.month!)),
+            .fixnum(Int64(self.value.day!)),
+            .fixnum(Int64(self.value.hour!)),
+            .fixnum(Int64(self.value.minute!)),
+            .fixnum(Int64(self.value.second!)),
+            .fixnum(Int64(self.value.nanosecond!)),
+            .fixnum(Int64(self.value.weekday!)),
+            .fixnum(Int64(self.value.weekOfYear!))]
+  }
 }

@@ -25,15 +25,15 @@ import Foundation
 /// subclassed to implement custom object types in LispKit.
 ///
 open class NativeObject: Reference {
-
+  
   public override init() {
     super.init()
   }
-
+  
   open var type: Type {
     preconditionFailure("NativeObject.type undefined: NativeObject instantiated")
   }
-
+  
   open var string: String {
     return "#<\(self.type) \(self.identityString)>"
   }
@@ -45,13 +45,17 @@ open class NativeObject: Reference {
   open var hash: Int {
     return self.hashValue
   }
-
+  
   open func equals(_ obj: NativeObject) -> Bool {
     return self === obj
   }
   
   open func mark(in gc: GarbageCollector) {
     // do nothing by default
+  }
+  
+  open func unpack() -> Exprs {
+    return [.makeString(self.identityString)]
   }
   
   public override var typeDescription: String {

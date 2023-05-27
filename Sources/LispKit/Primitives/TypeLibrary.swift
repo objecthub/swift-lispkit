@@ -216,7 +216,7 @@ public final class TypeLibrary: NativeLibrary {
       """)
   }
   
-  private func typeOf(expr: Expr) -> Expr {
+  public func typeOf(expr: Expr) -> Expr {
     switch expr {
       case .undef:
         return .false

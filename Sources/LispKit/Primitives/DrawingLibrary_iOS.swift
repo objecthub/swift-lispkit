@@ -1891,9 +1891,16 @@ public final class NativeFont: AnyNativeObject<UIFont> {
   public override var type: Type {
     return NativeFont.type
   }
-
+  
   public override var string: String {
     return "#<font \(self.value.fontName) \(self.value.pointSize)>"
+  }
+  
+  public override func unpack() -> Exprs {
+    return [.makeString(self.value.fontName),
+            .makeString(self.value.displayName ?? self.value.fontName),
+            .makeString(self.value.familyName ?? self.value.fontName),
+            .makeNumber(self.value.pointSize)]
   }
 }
 
@@ -1904,6 +1911,21 @@ public final class NativeImage: AnyMutableNativeObject<UIImage> {
 
   public override var type: Type {
     return NativeImage.type
+  }
+  
+  public override var string: String {
+    if let width = Int64(exactly: floor(self.value.size.width)),
+       let height = Int64(exactly: floor(self.value.size.height)) {
+      return "#<image \(self.identityString): \(width)×\(height)>"
+    } else {
+      return "#<image \(self.identityString)>"
+    }
+  }
+  
+  public override func unpack() -> Exprs {
+    return [.makeString(self.identityString),
+            .makeNumber(self.value.size.width),
+            .makeNumber(self.value.size.height)]
   }
 }
 

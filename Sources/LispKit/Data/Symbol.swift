@@ -47,7 +47,7 @@ public final class Symbol: Reference, CustomStringConvertible {
   public init(_ sym: Symbol, _ env: Env) {
     self.kind = .generated(sym, env.weakEnv)
   }
-
+  
   public var identifier: String {
     switch self.kind {
       case .interned(let ident):

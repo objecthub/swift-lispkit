@@ -43,6 +43,15 @@ public final class NativeThread: AnyNativeObject<EvalThread> {
     return "#<thread \(nameStr): \(self.value.state)>"
   }
   
+  /// Unpack this native object.
+  public override func unpack() -> Exprs {
+    let nameStr = self.value.name.isFalse ? self.identityString : self.value.name.description
+    return [.makeString(self.identityString),
+            .makeString(nameStr),
+            .makeNumber(self.value.state.rawValue),
+            self.value.threadTag]
+  }
+  
   /// Implements the mark phase of the garbage collector for this native object.
   public override func mark(in gc: GarbageCollector) {
     self.value.mark(in: gc)
@@ -82,7 +91,7 @@ public final class EvalThread: ManagedObject, ThreadBlocker, CustomStringConvert
   ///     \            v            /
   ///      +-----> TERMINATED <----+
   /// 
-  public enum State: CustomStringConvertible {
+  public enum State: Int, CustomStringConvertible {
     case new
     case runnable
     case blocked

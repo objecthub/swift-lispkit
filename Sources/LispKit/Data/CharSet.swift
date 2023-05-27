@@ -69,7 +69,17 @@ public final class CharSet: NativeObject {
       self.chars.insert(ch)
     }
   }
-
+  
+  public override func unpack() -> Exprs {
+    var res: Exprs = []
+    res.reserveCapacity(self.chars.count)
+    for ch in self.chars {
+      res.append(.char(ch))
+    }
+    return [.makeString(self.identityString),
+            .vector(Collection(kind: .immutableVector, exprs: res))]
+  }
+  
   public func contains(_ ch: UniChar) -> Bool {
     return self.chars.contains(ch)
   }

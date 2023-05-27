@@ -165,6 +165,7 @@ public enum EvalError: Int, Hashable {
   case unsupportedCryptoAlgorithm
   case keyDoesNotSupportAlgorithm
   case controlStringMissing
+  case invalidDefaultFormatConfig
   
   public var message: String {
     switch self {
@@ -448,6 +449,8 @@ public enum EvalError: Int, Hashable {
         return "secure key $0 does not support $,2 via algorithm $1"
       case .controlStringMissing:
         return "control string missing in format arguments"
+      case .invalidDefaultFormatConfig:
+        return "invalid default format table: $0"
     }
   }
   

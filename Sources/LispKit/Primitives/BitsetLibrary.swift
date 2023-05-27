@@ -348,6 +348,15 @@ public final class NativeBitset: NativeObject {
     return "#<bitset: \(res)>"
   }
   
+  public override func unpack() -> Exprs {
+    var bits: Exprs = []
+    for bit in self.bitset {
+      bits.append(.fixnum(Int64(bit)))
+    }
+    return [.makeString(self.identityString),
+            .vector(Collection(kind: .immutableVector, exprs: bits))]
+  }
+  
   public override var tagString: String {
     var res = self.bitset.prefix(40).map { $0.description }.joined(separator: ", ")
     if self.bitset.count() > 40 {

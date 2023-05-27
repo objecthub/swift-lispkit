@@ -385,4 +385,19 @@ public final class ZipArchive: NativeObject {
       return "#<zip-archive \(self.archive.url.path)>"
     }
   }
+  
+  public override func unpack() -> Exprs {
+    let accessMode: Int
+    switch self.archive.accessMode {
+      case .create:
+        accessMode = 0
+      case .read:
+        accessMode = 1
+      case .update:
+        accessMode = 2
+    }
+    return [.makeString(self.identityString),
+            self.archive.url.path.isEmpty ? .false : .makeString(self.archive.url.path),
+            .makeNumber(accessMode)]
+  }
 }

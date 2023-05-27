@@ -431,6 +431,7 @@
 		CC7D4B6D2A0D877C0066BA94 /* CLFormat in Frameworks */ = {isa = PBXBuildFile; productRef = CC7D4B6C2A0D877C0066BA94 /* CLFormat */; };
 		CC7D4B6F2A0D88C00066BA94 /* FormatLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC7D4B6E2A0D88C00066BA94 /* FormatLibrary.swift */; };
 		CC7D4B702A0D88C00066BA94 /* FormatLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC7D4B6E2A0D88C00066BA94 /* FormatLibrary.swift */; };
+		CC7D4B762A2151D20066BA94 /* Format.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC7D4B752A208EF90066BA94 /* Format.scm */; };
 		CC7E7C2624564D85002E8A73 /* Covid.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC7E7C2524564D33002E8A73 /* Covid.scm */; };
 		CC7E7C8A24565378002E8A73 /* Covid.sqlite3 in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C882456515A002E8A73 /* Covid.sqlite3 */; };
 		CC7E7C8B24565378002E8A73 /* 2020-02-20.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C6124564FBE002E8A73 /* 2020-02-20.data */; };
@@ -2976,6 +2977,7 @@
 		CC7D4B182A084F3A0066BA94 /* 2020-06-22.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-06-22.data"; sourceTree = "<group>"; };
 		CC7D4B192A084F3A0066BA94 /* 2020-06-30.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-06-30.data"; sourceTree = "<group>"; };
 		CC7D4B6E2A0D88C00066BA94 /* FormatLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormatLibrary.swift; sourceTree = "<group>"; };
+		CC7D4B752A208EF90066BA94 /* Format.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Format.scm; sourceTree = "<group>"; };
 		CC7E7C2524564D33002E8A73 /* Covid.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Covid.scm; sourceTree = "<group>"; };
 		CC7E7C2924564FBB002E8A73 /* 2020-03-18.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-03-18.data"; sourceTree = "<group>"; };
 		CC7E7C2C24564FBB002E8A73 /* 2020-03-29.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-03-29.data"; sourceTree = "<group>"; };
@@ -3423,6 +3425,7 @@
 				CCF602E3239BE71F00087740 /* Markdown.scm */,
 				CC08965224413DC6004503B1 /* SQLite.scm */,
 				CC436C411FFD94870095559E /* Logic.scm */,
+				CC7D4B752A208EF90066BA94 /* Format.scm */,
 				CC8218901E3FFFAB009CA653 /* SRFI19.scm */,
 				CC5E473E20D2D95E00F21B03 /* SRFI69.scm */,
 				CC48EBC51F3E437300233FA9 /* SRFI35.scm */,
@@ -4691,6 +4694,7 @@
 				CC131C4C1CDE0C3D006C030C /* SyntaxRules.scm in Resources */,
 				CCEFE6151ED8F56600DFED9B /* SRFI133.scm in Resources */,
 				CCC48C4A25E32AE600D082AD /* Environments.scm in Resources */,
+				CC7D4B762A2151D20066BA94 /* Format.scm in Resources */,
 				CC8169271D1FADEC003FADEA /* Ports.scm in Resources */,
 				CC48EBD71F3F38E800233FA9 /* SRFI135.scm in Resources */,
 				CC79DE081F8993EE00CE7A5D /* LightweightTypes.scm in Resources */,
@@ -5361,7 +5365,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispKitTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -5381,7 +5385,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispKitTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -5643,7 +5647,7 @@
 			repositoryURL = "https://github.com/objecthub/swift-clformat";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.3;
+				minimumVersion = 1.0.6;
 			};
 		};
 		CCA6C3D22361149D007D2AF0 /* XCRemoteSwiftPackageReference "swift-markdownkit" */ = {

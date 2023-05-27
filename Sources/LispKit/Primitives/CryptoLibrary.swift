@@ -706,4 +706,30 @@ public final class SecureKey: NativeObject {
       return "#<secure-key \(self.identityString)>"
     }
   }
+  
+  public override func unpack() -> Exprs {
+    var type: Int = 0
+    var kind: Int = 0
+    var esize: Int = 0
+    var ksize: Int = 0
+    if let attribs = self.attributes() {
+      if let val = attribs["type" as CFString] as? String, val == "42" {
+        type = 1 // RSA
+      }
+      if let val = attribs["kcls" as CFString] as? String {
+        kind = val == "1" ? 1 /* private */ : 2 /* public */
+      }
+      if let size = attribs["esiz" as CFString] as? Int {
+        esize = size
+      }
+      if let size = attribs["bsiz" as CFString] as? Int {
+        ksize = size
+      }
+    }
+    return [.makeString(self.identityString),
+            .makeNumber(type),
+            .makeNumber(kind),
+            .makeNumber(ksize),
+            .makeNumber(esize)]
+  }
 }

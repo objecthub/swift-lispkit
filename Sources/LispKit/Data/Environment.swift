@@ -93,7 +93,7 @@ public final class Environment: Reference, CustomStringConvertible {
   
   /// The bindings are associations between symbols and locations. Each association is tagged
   /// with information on mutability and whether it's an imported binding.
-  private var bindings: [Symbol : LocationRef]
+  internal private(set) var bindings: [Symbol : LocationRef]
   
   /// A weak box object pointing at this environment
   public private(set) var box: WeakBox<Environment>!

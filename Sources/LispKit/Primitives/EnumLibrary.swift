@@ -998,6 +998,17 @@ public final class EnumType: NativeObject {
     return "#<enum-type \(self.id.identifier): \(enumNames)>"
   }
   
+  public override func unpack() -> Exprs {
+    var exprs: Exprs = []
+    for e in self.enums {
+      exprs.append(.symbol(e.name))
+    }
+    return [.makeString(self.identityString),
+            .makeString(self.id.identifier),
+            .vector(Collection(kind: .immutableVector, exprs: exprs)),
+            self.tag]
+  }
+  
   public override var tagString: String {
     return "enum \(self.id.identifier)"
   }

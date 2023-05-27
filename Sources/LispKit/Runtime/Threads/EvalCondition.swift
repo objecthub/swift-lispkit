@@ -96,4 +96,11 @@ public final class EvalCondition: NativeObject, ThreadBlocker {
     let nameStr = self.name.isFalse ? self.identityString : self.name.description
     return "#<condition \(nameStr)>"
   }
+  
+  public override func unpack() -> Exprs {
+    let nameStr = self.name.isFalse ? self.identityString : self.name.description
+    return [.makeString(self.identityString),
+            .makeString(nameStr),
+            self.tag]
+  }
 }

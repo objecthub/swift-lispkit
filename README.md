@@ -91,6 +91,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit char)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Char),
     [`(lispkit char-set)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Char-Set),
     [`(lispkit string)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-String),
+    `(lispkit format)`,
     [`(lispkit port)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Port),
     [`(lispkit date-time)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Date-Time),
     [`(lispkit draw)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Draw),

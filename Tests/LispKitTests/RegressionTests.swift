@@ -111,6 +111,10 @@ class RegressionTests: LispKitTestCase {
     self.execute(file: "Logic")
   }
   
+  func testFormat() {
+    self.execute(file: "Format")
+  }
+  
   func testSRFI19() {
     self.execute(file: "SRFI19")
   }

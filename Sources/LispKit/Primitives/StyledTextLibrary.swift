@@ -2040,6 +2040,17 @@ public final class TextStyle: NativeObject {
     }
     return "#<text-style \(res)>"
   }
+  
+  public override func unpack() -> Exprs {
+    var attribs: Exprs = []
+    for (key, _) in self.attributes {
+      if let keyName = self.keyName(for: key) {
+        attribs.append(.makeString(keyName))
+      }
+    }
+    return [.makeString(self.identityString),
+            .vector(Collection(kind: .immutableVector, exprs: attribs))]
+  }
 }
 
 public final class ParagraphStyle: AnyNativeObject<NSMutableParagraphStyle> {

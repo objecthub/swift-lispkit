@@ -40,7 +40,7 @@ public final class EvalMutex: NativeObject, ThreadBlocker {
   public static let type = Type.objectType(Symbol(uninterned: "mutex"))
   
   /// Every mutex has one of the following four states (see above)
-  public enum State: CustomStringConvertible {
+  public enum State: Int, CustomStringConvertible {
     case lockedOwned
     case lockedNotOwned
     case unlockedAbandoned
@@ -219,5 +219,13 @@ public final class EvalMutex: NativeObject, ThreadBlocker {
   public override var string: String {
     let nameStr = self.name.isFalse ? self.identityString : self.name.description
     return "#<mutex \(nameStr): \(self.state)>"
+  }
+  
+  public override func unpack() -> Exprs {
+    let nameStr = self.name.isFalse ? self.identityString : self.name.description
+    return [.makeString(self.identityString),
+            .makeString(nameStr),
+            .makeNumber(self.state.rawValue),
+            self.tag]
   }
 }

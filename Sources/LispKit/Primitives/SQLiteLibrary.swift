@@ -384,6 +384,12 @@ public final class SQLiteDB: NativeObject {
     let pathString = self.path == nil ? "" : " " + self.path!
     return "#<sqlite-database\(pathString) \(self.identityString)>"
   }
+  
+  public override func unpack() -> Exprs {
+    return [.makeString(self.identityString),
+            self.path == nil ? .false : .makeString(self.path!),
+            .makeNumber(self.db.totalChanges)]
+  }
 }
 
 public final class SQLiteStmt: NativeObject {

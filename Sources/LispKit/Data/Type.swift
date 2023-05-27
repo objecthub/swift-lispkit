@@ -209,6 +209,15 @@ public enum Type: Hashable, CustomStringConvertible {
   public func includes(_ type: Type) -> Bool {
     return self.included.contains(type)
   }
+  
+  public func objectTypeTag() -> Expr? {
+    switch self {
+      case .objectType(let sym):
+        return .symbol(sym)
+      default:
+        return nil
+    }
+  }
 }
 
 private let procedureSubtypes  : Set<Type> = [.procedureType,

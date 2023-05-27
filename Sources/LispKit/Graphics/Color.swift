@@ -116,6 +116,14 @@ public final class Color: NativeObject {
     }
   }
   
+  /// Unpack this native object.
+  public override func unpack() -> Exprs {
+    return [.flonum(self.red),
+            .flonum(self.green),
+            .flonum(self.blue),
+            .flonum(self.alpha)]
+  }
+  
   /// The corresponding `NSColor` object
   public var nsColor: NativeColor {
     #if os(iOS) || os(watchOS) || os(tvOS)
