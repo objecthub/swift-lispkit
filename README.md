@@ -239,6 +239,7 @@ framework:
   - [SRFI 232: Flexible curried procedures](https://srfi.schemers.org/srfi-232/srfi-232.html)
   - [SRFI 233: INI files](https://srfi.schemers.org/srfi-233/srfi-233.html)
   - [SRFI 236: Evaluating expressions in an unspecified order](https://srfi.schemers.org/srfi-236/srfi-236.html)
+  - [SRFI 239: Destructuring Lists](https://srfi.schemers.org/srfi-239/srfi-239.html)
 
 
 ## Project
