@@ -432,6 +432,8 @@
 		CC7D4B6F2A0D88C00066BA94 /* FormatLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC7D4B6E2A0D88C00066BA94 /* FormatLibrary.swift */; };
 		CC7D4B702A0D88C00066BA94 /* FormatLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC7D4B6E2A0D88C00066BA94 /* FormatLibrary.swift */; };
 		CC7D4B762A2151D20066BA94 /* Format.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC7D4B752A208EF90066BA94 /* Format.scm */; };
+		CC7D4B792A2558990066BA94 /* 239.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC7D4B782A2554760066BA94 /* 239.sld */; };
+		CC7D4B7A2A2558B20066BA94 /* 239.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC7D4B782A2554760066BA94 /* 239.sld */; };
 		CC7E7C2624564D85002E8A73 /* Covid.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC7E7C2524564D33002E8A73 /* Covid.scm */; };
 		CC7E7C8A24565378002E8A73 /* Covid.sqlite3 in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C882456515A002E8A73 /* Covid.sqlite3 */; };
 		CC7E7C8B24565378002E8A73 /* 2020-02-20.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C6124564FBE002E8A73 /* 2020-02-20.data */; };
@@ -1904,6 +1906,7 @@
 			dstPath = Root/LispKit/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
+				CC7D4B792A2558990066BA94 /* 239.sld in Copy pre-installed SRFI libraries */,
 				CCCD1ABF298C70C60057DCEB /* 236.sld in Copy pre-installed SRFI libraries */,
 				CCCD1AB9298C6CD50057DCEB /* 233.sld in Copy pre-installed SRFI libraries */,
 				CCB7B0CF2960F15000F0DB20 /* 228.sld in Copy pre-installed SRFI libraries */,
@@ -2018,6 +2021,7 @@
 			dstPath = Root/LispKit/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
+				CC7D4B7A2A2558B20066BA94 /* 239.sld in Copy pre-installed SRFI libraries */,
 				CCCD1AC0298C70D60057DCEB /* 236.sld in Copy pre-installed SRFI libraries */,
 				CCCD1ABA298C6CE40057DCEB /* 233.sld in Copy pre-installed SRFI libraries */,
 				CCB7B0D12960F17C00F0DB20 /* 228.sld in Copy pre-installed SRFI libraries */,
@@ -2978,6 +2982,7 @@
 		CC7D4B192A084F3A0066BA94 /* 2020-06-30.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-06-30.data"; sourceTree = "<group>"; };
 		CC7D4B6E2A0D88C00066BA94 /* FormatLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormatLibrary.swift; sourceTree = "<group>"; };
 		CC7D4B752A208EF90066BA94 /* Format.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Format.scm; sourceTree = "<group>"; };
+		CC7D4B782A2554760066BA94 /* 239.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 239.sld; sourceTree = "<group>"; };
 		CC7E7C2524564D33002E8A73 /* Covid.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Covid.scm; sourceTree = "<group>"; };
 		CC7E7C2924564FBB002E8A73 /* 2020-03-18.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-03-18.data"; sourceTree = "<group>"; };
 		CC7E7C2C24564FBB002E8A73 /* 2020-03-29.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-03-29.data"; sourceTree = "<group>"; };
@@ -3783,6 +3788,7 @@
 				CC6E93C8281C9F820002C4BC /* 232.sld */,
 				CCCD1AB8298C6BEE0057DCEB /* 233.sld */,
 				CCCD1ABE298C6FEA0057DCEB /* 236.sld */,
+				CC7D4B782A2554760066BA94 /* 239.sld */,
 			);
 			path = srfi;
 			sourceTree = "<group>";
