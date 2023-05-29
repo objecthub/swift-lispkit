@@ -37,6 +37,7 @@ public final class CharSetLibrary: NativeLibrary {
   
   /// Declarations of the library.
   public override func declarations() {
+    self.define("char-set-type-tag", as: CharSet.type.objectTypeTag())
     self.define(Procedure("char-set", charSet))
     self.define(Procedure("immutable-char-set", immutableCharSet))
     self.define(Procedure("list->char-set", listToCharSet))

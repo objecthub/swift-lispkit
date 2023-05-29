@@ -113,3 +113,37 @@
                                " This is ~:[False~;True~]. ~@[My name is ~A. ~]! ~3{~A ~}")
                 2 "unknown" '(1 "two" 3 4)))
 )
+
+(
+  "Data-type based formatting"
+  ("17/3" "17|3" "kar = 123; kdr = (1 2)" "content = {\n  length = 4,\n  content = #(1 2 3 4)\n}"
+   "content = {\n  length = 4,\n  content = <1, 2, 3, 4>\n}"
+   "content = {\n  length = 4,\n  content = [1, 2, 3, 4]\n}")
+  (define-record-type <pare>
+    (kons x y)
+    pare?
+    (x kar set-kar!)
+    (y kdr set-kdr!))
+  (define s1 (format "~S" 17/3))
+  (format-config-control-set! 'rational "~D|~D")
+  (define s2 (format "~S" 17/3))
+  (format-config-control-set! <pare> "~*kar = ~W; kdr = ~W")
+  (define s3 (format "~S" (kons 123 '(1 2))))
+  (define-values
+    (stack-type-tag new-stack stack? stack-ref make-stack-subtype)
+    (make-type 'stack))
+  (define (stack . elements)
+    (new-stack (mcons (length elements) (apply vector elements))))
+  (format-config-control-set! stack-type-tag "content = {~%  ~`~*length = ~W,~%  content = ~W~‘~%}")
+  (define s4 (format "~S" (stack 1 2 3 4)))
+  (define fc (make-format-config #f))
+  (format-config-control-set! fc 'mpair "~*length = ~S,~%  content = ~S")
+  (format-config-control-set! fc 'vector "<~{~#[~;~W~:;~W, ~]~}>")
+  (format-config-control-set! stack-type-tag "content = {~%  ~S~%}" fc)
+  (define s5 (format "~S" (stack 1 2 3 4)))
+  (format-config-control-set!
+    stack-type-tag
+    "content = {~%  ~`~*length = ~W,~%  content = [~{~#[~;~W~:;~W, ~]~}]~‘~%}")
+  (define s6 (format "~S" (stack 1 2 3 4)))
+  (list s1 s2 s3 s4 s5 s6)
+)

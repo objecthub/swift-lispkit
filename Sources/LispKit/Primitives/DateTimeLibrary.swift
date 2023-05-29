@@ -78,6 +78,7 @@ public final class DateTimeLibrary: NativeLibrary {
     self.define(Procedure("timezone-name", self.timeZoneName))
     self.define(Procedure("timezone-abbreviation", self.timeZoneAbbreviation))
     self.define(Procedure("timezone-gmt-offset", self.timeZoneGmtOffset))
+    self.define("date-time-type-tag", as: NativeDateTime.type.objectTypeTag())
     self.define(Procedure("date-time?", self.isDateTime))
     self.define(Procedure("date-time", self.dateTime))
     self.define(Procedure("week->date-time", self.weekToDateTime))

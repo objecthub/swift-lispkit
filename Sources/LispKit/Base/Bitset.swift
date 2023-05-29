@@ -513,16 +513,15 @@ public final class Bitset: Sequence, Equatable, CustomStringConvertible,
     return 2 * mincap
   }
 
-   // caller is responsible to ensure that index < wordcount otherwise this function fails!
+   // caller is responsible to ensure that index < wordcount
   func increaseWordCount(_ newWordCount: Int) {
-    if(newWordCount <= wordcount) {
-     print(newWordCount, wordcount)
-    }
     if newWordCount > capacity {
       growWordCapacity(Bitset.nextCapacity(mincap : newWordCount))
     }
-    for i in wordcount..<newWordCount {
-      data[i] = 0
+    if newWordCount > wordcount {
+      for i in wordcount..<newWordCount {
+        data[i] = 0
+      }
     }
     wordcount = newWordCount
   }

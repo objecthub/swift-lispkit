@@ -59,6 +59,7 @@ public final class RegexpLibrary: NativeLibrary {
   
   /// Declarations of the library.
   public override func declarations() {
+    self.define("regexp-type-tag", as: NativeRegularExpression.type.objectTypeTag())
     self.define(Procedure("regexp?", isRegexp))
     self.define(Procedure("regexp", regexp))
     self.define(Procedure("regexp-pattern", regexpPattern))
@@ -370,7 +371,7 @@ public final class RegexpLibrary: NativeLibrary {
 public final class NativeRegularExpression: AnyNativeObject<NSRegularExpression> {
 
   /// Type representing regular expressions.
-  public static let type = Type.objectType(Symbol(uninterned: "regular expression"))
+  public static let type = Type.objectType(Symbol(uninterned: "regexp"))
 
   public override var type: Type {
     return NativeRegularExpression.type

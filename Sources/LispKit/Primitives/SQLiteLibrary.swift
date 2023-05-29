@@ -51,6 +51,8 @@ public final class SQLiteLibrary: NativeLibrary {
 
   /// Declarations of the library.
   public override func declarations() {
+    self.define("sqlite-database-type-tag", as: SQLiteDB.type.objectTypeTag())
+    self.define("sqlite-statement-type-tag", as: SQLiteStmt.type.objectTypeTag())
     self.defineOpenOption("sqlite-readonly", as: .readOnly)
     self.defineOpenOption("sqlite-readwrite", as: .readWrite)
     self.defineOpenOption("sqlite-create", as: .create)

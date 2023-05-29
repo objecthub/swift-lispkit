@@ -118,6 +118,7 @@ public final class CryptoLibrary: NativeLibrary {
     self.define(Procedure("sha384", self.sha384))
     self.define(Procedure("sha512", self.sha512))
     // Secure keys
+    self.define("secure-key-type-tag", as: SecureKey.type.objectTypeTag())
     self.define(Procedure("make-private-key", self.makePrivateKey))
     self.define(Procedure("public-key", self.publicKey))
     self.define(Procedure("secure-key?", self.isSecureKey))

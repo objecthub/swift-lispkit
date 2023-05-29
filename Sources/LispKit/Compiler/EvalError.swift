@@ -166,6 +166,7 @@ public enum EvalError: Int, Hashable {
   case keyDoesNotSupportAlgorithm
   case controlStringMissing
   case invalidDefaultFormatConfig
+  case cannotUseFormatConfigAsLayer
   
   public var message: String {
     switch self {
@@ -450,7 +451,9 @@ public enum EvalError: Int, Hashable {
       case .controlStringMissing:
         return "control string missing in format arguments"
       case .invalidDefaultFormatConfig:
-        return "invalid default format table: $0"
+        return "invalid default format configuration: $0"
+      case .cannotUseFormatConfigAsLayer:
+        return "cannot use format configuration $0 as layer on top of $1"
     }
   }
   

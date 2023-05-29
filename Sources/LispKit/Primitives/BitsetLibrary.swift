@@ -39,6 +39,7 @@ public final class BitsetLibrary: NativeLibrary {
   
   /// Declarations of the library.
   public override func declarations() {
+    self.define("bitset-type-tag", as: NativeBitset.type.objectTypeTag())
     self.define(Procedure("bitset?", isBitset))
     self.define(Procedure("bitset", bitset))
     self.define(Procedure("list->bitset", listToBitset))

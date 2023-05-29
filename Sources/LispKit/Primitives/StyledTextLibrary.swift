@@ -188,6 +188,7 @@ public final class StyledTextLibrary: NativeLibrary {
   /// Declarations of the library.
   public override func declarations() {
     // Styled text
+    self.define("styled-text-type-tag", as: StyledText.type.objectTypeTag())
     self.define(Procedure("styled-text?", isStyledText))
     self.define(Procedure("styled-text", styledText))
     self.define(Procedure("make-styled-text", makeStyledText))
@@ -215,6 +216,7 @@ public final class StyledTextLibrary: NativeLibrary {
     self.define(Procedure("styled-text->bytevector", styledTextToBytevector))
     
     // Text styles
+    self.define("text-style-type-tag", as: TextStyle.type.objectTypeTag())
     self.define(Procedure("text-style?", isTextStyle))
     self.define(Procedure("make-text-style", makeTextStyle))
     self.define(Procedure("copy-text-style", copyTextStyle))
@@ -226,6 +228,7 @@ public final class StyledTextLibrary: NativeLibrary {
     self.define(Procedure("text-style-attributes", textStyleAttributes))
     
     // Text block styles
+    self.define("text-block-style-type-tag", as: TextBlockStyle.type.objectTypeTag())
     self.define(Procedure("percent", percentage))
     self.define(Procedure("percent?", isPercentage))
     self.define(Procedure("text-block-style?", isTextBlockStyle))
@@ -236,6 +239,7 @@ public final class StyledTextLibrary: NativeLibrary {
     self.define(Procedure("text-block-style-set!", textBlockStyleSet))
     
     // Paragraph styles
+    self.define("paragraph-style-type-tag", as: ParagraphStyle.type.objectTypeTag())
     self.define(Procedure("paragraph-style?", isParagraphStyle))
     self.define(Procedure("make-paragraph-style", makeParagraphStyle))
     self.define(Procedure("copy-paragraph-style", copyParagraphStyle))

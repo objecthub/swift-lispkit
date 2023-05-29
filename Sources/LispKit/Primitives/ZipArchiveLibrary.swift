@@ -46,6 +46,7 @@ public final class ZipArchiveLibrary: NativeLibrary {
     self.define(Procedure("open-zip-archive", self.openZipArchive))
     
     // Archive-level data
+    self.define("zip-archive-type-tag", as: ZipArchive.type.objectTypeTag())
     self.define(Procedure("zip-archive?", self.isZipArchive))
     self.define(Procedure("zip-archive-mutable?", self.zipArchiveMutable))
     self.define(Procedure("zip-archive-path", self.zipArchivePath))

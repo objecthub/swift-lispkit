@@ -36,6 +36,7 @@
 (import (lispkit thread))
 (import (lispkit crypto))
 (import (lispkit styled-text))
+(import (lispkit format))
 (import (lispkit debug))
 
 (display "LispKit non-native")

@@ -5647,7 +5647,7 @@
 			repositoryURL = "https://github.com/objecthub/swift-clformat";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.6;
+				minimumVersion = 1.0.8;
 			};
 		};
 		CCA6C3D22361149D007D2AF0 /* XCRemoteSwiftPackageReference "swift-markdownkit" */ = {

@@ -111,6 +111,7 @@ public final class DrawingLibrary: NativeLibrary {
     self.define("current-shape", as: self.shapeParam)
     
     // Drawings
+    self.define("drawing-type-tag", as: Drawing.type.objectTypeTag())
     self.define(Procedure("drawing?", isDrawing))
     self.define(Procedure("make-drawing", makeDrawing))
     self.define(Procedure("copy-drawing", copyDrawing))
@@ -140,6 +141,7 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("save-drawings", saveDrawings))
     
     // Images/bitmaps
+    self.define("image-type-tag", as: NativeImage.type.objectTypeTag())
     self.define(Procedure("image?", isImage))
     self.define(Procedure("load-image", loadImage))
     self.define(Procedure("load-image-asset", loadImageAsset))
@@ -158,6 +160,7 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("bitmap->bytevector", bitmapToBytevector))
     
     // Shapes
+    self.define("shape-type-tag", as: Shape.type.objectTypeTag())
     self.define(Procedure("shape?", isShape))
     self.define(Procedure("make-shape", makeShape))
     self.define(Procedure("copy-shape", copyShape))
@@ -181,6 +184,7 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("shape-bounds", shapeBounds))
     
     // Transformations
+    self.define("transformation-type-tag", as: Transformation.type.objectTypeTag())
     self.define(Procedure("transformation?", isTransformation))
     self.define(Procedure("transformation", transformation))
     self.define(Procedure("invert", invert))
@@ -189,6 +193,7 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("rotate", rotate))
     
     // Colors
+    self.define("color-type-tag", as: Color.type.objectTypeTag())
     self.define(Procedure("color?", isColor))
     self.define(Procedure("color", color))
     self.define(Procedure("color->hex", colorToHex))
@@ -198,6 +203,7 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("color-alpha", colorAlpha))
     
     // Fonts/points/sizes/rects
+    self.define("font-type-tag", as: NativeFont.type.objectTypeTag())
     self.define(Procedure("font?", isFont))
     self.define(Procedure("font", font))
     self.define(Procedure("font-name", fontName))

@@ -53,6 +53,28 @@ public final class FormatLibrary: NativeLibrary {
     var clFormatConfig = CLFormatConfig.standard
     clFormatConfig.setArgumentFactory(makeArguments: FormatArguments.init)
     clFormatConfig.parse("s", "S", appending: sexprDirSpec)
+    clFormatConfig.parse("`") { parser, parameters, modifiers in
+      _ = try parser.nextChar()
+      let (control, directive) = try parser.parse()
+      guard let directive = directive,
+            directive.specifier.identifier == LispKitDirectiveSpecifier.unwrapEnd.identifier,
+            parameters.parameterCount == 0,
+            !modifiers.contains(.at),
+            !modifiers.contains(.colon),
+            !modifiers.contains(.plus) else {
+        throw CLControlError.malformedDirectiveSyntax("unwrap", "~`...~‘")
+      }
+      return .append(parameters, modifiers, LispKitDirectiveSpecifier.unwrap(control))
+    }
+    clFormatConfig.parse("‘") { parser, parameters, modifiers in
+      guard parameters.parameterCount == 0,
+            !modifiers.contains(.at),
+            !modifiers.contains(.colon),
+            !modifiers.contains(.plus) else {
+        throw CLControlError.malformedDirective("~\(modifiers))‘")
+      }
+      return .exit(parameters, modifiers, LispKitDirectiveSpecifier.unwrapEnd)
+    }
     self.sexprDirSpec = sexprDirSpec
     self.clFormatConfig = clFormatConfig
     self.baseFormatConfig = formatConfig
@@ -284,15 +306,51 @@ public final class FormatLibrary: NativeLibrary {
     return .void
   }
   
-  private func formatConfigControlSet(fst: Expr, snd: Expr, trd: Expr?) throws -> Expr {
-    let fconf = try self.formatConfig(from: trd == nil ? nil : fst)
-    let typeTag = try (trd == nil ? fst : snd).asSymbol()
-    let controlStr = trd == nil ? snd : trd!
-    if controlStr.isFalse {
-      fconf.format(typeTag, with: nil)
+  private func formatConfigControlSet(fst: Expr, snd: Expr, trd: Expr?, fth: Expr?) throws -> Expr {
+    let fconf: FormatConfig
+    let typeExpr: Expr
+    let controlExpr: Expr
+    let configExpr: Expr?
+    // If the second argument is a string or false, we use the default config
+    switch snd {
+      case .false, .string(_):
+        fconf = try self.formatConfig(from: nil)
+        typeExpr = fst
+        controlExpr = snd
+        configExpr = trd
+      default:
+        fconf = try self.formatConfig(from: fst)
+        typeExpr = snd
+        guard let trd = trd else {
+          return .null // TODO: return error
+        }
+        controlExpr = trd
+        configExpr = fth
+    }
+    let typeTag: Symbol
+    // Allow record types as type tags
+    if case .record(let record) = typeExpr, case .recordType = record.kind {
+      typeTag = try record.exprs[0].asSymbol()
+    // Assume this is a type tag
+    } else {
+      typeTag = try typeExpr.asSymbol()
+    }
+    if controlExpr.isFalse {
+      fconf.removeFormat(typeTag)
+    } else if let configExpr = configExpr {
+      guard case .object(let obj) = configExpr, let conf = obj as? FormatConfig else {
+        throw RuntimeError.type(configExpr, expected: [FormatConfig.type])
+      }
+      guard conf.outerConfig == nil else {
+        return .null // TODO: return error
+      }
+      fconf.format(typeTag,
+                   with: try CLControl(string: controlExpr.asString(), config: self.clFormatConfig),
+                   in: conf)
     } else {
       fconf.format(typeTag,
-                   with: try CLControl(string: controlStr.asString(), config: self.clFormatConfig))
+                   with: try CLControl(string: controlExpr.asString(), config: self.clFormatConfig),
+                   in: nil)
     }
     return .void
   }
@@ -332,6 +390,11 @@ public final class FormatLibrary: NativeLibrary {
 
 public final class FormatConfig: NativeObject {
   
+  public struct FormatControl {
+    let control: CLControl
+    let env: FormatConfig?
+  }
+  
   /// Type representing format configurations
   public static let type = Type.objectType(Symbol(uninterned: "format-config"))
   
@@ -345,7 +408,7 @@ public final class FormatConfig: NativeObject {
   public var lineWidth: Int?
   
   /// Control dictionary for ~S directives
-  public private(set) var controlDict: [Symbol : CLControl]
+  public private(set) var controlDict: [Symbol : FormatControl]
   
   /// Outer configuration
   public let outerConfig: FormatConfig?
@@ -358,12 +421,12 @@ public final class FormatConfig: NativeObject {
     self.outerConfig = outerConfig
   }
   
-  public init(copy: FormatConfig) {
+  public init(copy: FormatConfig, outer: FormatConfig? = nil) {
     self.locale = copy.locale
     self.tabWidth = copy.tabWidth
     self.lineWidth = copy.lineWidth
     self.controlDict = copy.controlDict
-    self.outerConfig = copy.outerConfig
+    self.outerConfig = outer ?? copy.outerConfig
   }
   
   public init(collapse: FormatConfig) {
@@ -377,6 +440,13 @@ public final class FormatConfig: NativeObject {
       self.controlDict.merge(fconf.controlDict) { (current, _) in current }
       outer = fconf.outerConfig
     }
+  }
+  
+  public func rebase(with: FormatConfig) throws -> FormatConfig {
+    guard self.outerConfig == nil else {
+      throw RuntimeError.eval(.cannotUseFormatConfigAsLayer, .object(self), .object(with))
+    }
+    return FormatConfig(copy: self, outer: with)
   }
   
   public override var type: Type {
@@ -445,15 +515,15 @@ public final class FormatConfig: NativeObject {
     return self.lineWidth ?? self.outerConfig?.getLineWidth() ?? 80
   }
   
-  public func format(_ type: Symbol, with control: CLControl?) {
-    if let control = control {
-      self.controlDict[type] = control
-    } else {
-      self.controlDict.removeValue(forKey: type)
-    }
+  public func format(_ type: Symbol, with control: CLControl, in env: FormatConfig?) {
+    self.controlDict[type] = FormatControl(control: control, env: env)
   }
   
-  public func control(for type: Symbol) -> CLControl? {
+  public func removeFormat(_ type: Symbol) {
+    self.controlDict.removeValue(forKey: type)
+  }
+  
+  public func control(for type: Symbol) -> FormatControl? {
     return self.controlDict[type] ?? self.outerConfig?.control(for: type)
   }
 }
@@ -605,6 +675,66 @@ class FormatArguments: CLFormat.Arguments {
   }
 }
 
+public enum LispKitDirectiveSpecifier: DirectiveSpecifier {
+  case unwrap(CLControl)
+  case unwrapEnd
+  
+  public var identifier: Character {
+    switch self {
+      case .unwrap(_):
+        return "`"
+      case .unwrapEnd:
+        return "'"
+    }
+  }
+  
+  public func apply(context: CLFormat.Context,
+                    parameters: CLFormat.Parameters,
+                    modifiers: CLFormat.Modifiers,
+                    arguments: CLFormat.Arguments) throws -> CLFormat.Instruction {
+    switch self {
+      case .unwrap(let control):
+        let unpacked: [Any?]
+        if let arg = try arguments.next() {
+          if let expr = arg as? Expr {
+            unpacked = SExprDirectiveSpecifier.unpack(expr)
+          } else if let x = arg as? CustomStringConvertible {
+            unpacked = [Expr.makeString(x.description)]
+          } else {
+            unpacked = [Expr.makeString("\(arg)")]
+          }
+        } else {
+          unpacked = [Expr.false]
+        }
+        let args = context.config.makeArguments(locale: arguments.locale,
+                                                tabsize: arguments.tabsize,
+                                                linewidth: arguments.linewidth,
+                                                args: unpacked)
+        let str = try control.format(with: args, in: context).string
+        return .append(StandardDirectiveSpecifier.pad(string: str,
+                                                      left: modifiers.contains(.at),
+                                                      right: !modifiers.contains(.at),
+                                                      padchar: try parameters.character(3) ?? " ",
+                                                      ellipsis: try parameters.character(5) ?? "…",
+                                                      mincol: try parameters.number(0) ?? 0,
+                                                      colinc: try parameters.number(1) ?? 1,
+                                                      minpad: try parameters.number(2) ?? 0,
+                                                      maxcol: try parameters.number(4)))
+      default:
+        throw CLFormatError.unsupportedDirective("~\(self.identifier)")
+    }
+  }
+  
+  public var description: String {
+    switch self {
+      case .unwrap(let control):
+        return "`" + control.description + "'"
+      default:
+        return String(self.identifier)
+    }
+  }
+}
+
 public class SExprDirectiveSpecifier: DirectiveSpecifier {
   internal weak var typeLibrary: TypeLibrary?
   
@@ -616,7 +746,7 @@ public class SExprDirectiveSpecifier: DirectiveSpecifier {
     return "S"
   }
   
-  public func unpack(_ expr: Expr) -> [Any?] {
+  public static func unpack(_ expr: Expr) -> [Any?] {
     switch expr {
       case .rational(let num, let denom):
         return [num, denom]
@@ -709,30 +839,26 @@ public class SExprDirectiveSpecifier: DirectiveSpecifier {
     return [expr]
   }
   
-  func debugOut(_ str: String) -> Bool {
-    print(str)
-    return true
-  }
-  
   public func apply(context: CLFormat.Context,
                     parameters: CLFormat.Parameters,
                     modifiers: CLFormat.Modifiers,
                     arguments: CLFormat.Arguments) throws -> CLFormat.Instruction {
     let str: String
     if let arg = try arguments.next() {
-      print("custom ~s processing for expr: \(arg)")
       if let expr = arg as? Expr,
-         debugOut("is expr, type library \(self.typeLibrary == nil ? "missing" : "ok")"),
          case .some(.symbol(let typeSym)) = self.typeLibrary?.typeOf(expr: expr),
-         debugOut("is type = \(typeSym.identifier)"),
          let formatConfig = context.config.environment["formatConfig"] as? FormatConfig,
-         let control = formatConfig.control(for: typeSym) {
-        let unpacked = self.unpack(expr)
+         let formatControl = formatConfig.control(for: typeSym) {
+        let unpacked = Self.unpack(expr)
         let args = context.config.makeArguments(locale: arguments.locale,
                                                 tabsize: arguments.tabsize,
                                                 linewidth: arguments.linewidth,
                                                 args: unpacked)
-        return .append(try control.format(with: args, in: context).string)
+        var config = context.config
+        if let env = formatControl.env {
+          config.environment["formatConfig"] = try env.rebase(with: formatConfig)
+        }
+        str = try formatControl.control.format(with: args, in: context.reconfig(config)).string
       } else if let x = arg as? CustomStringConvertible {
         str = x.description
       } else {

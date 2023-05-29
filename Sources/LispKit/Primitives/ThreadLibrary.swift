@@ -54,6 +54,7 @@ public final class ThreadLibrary: NativeLibrary {
 
   /// Declarations of the library.
   public override func declarations() {
+    self.define("thread-type-tag", as: NativeThread.type.objectTypeTag())
     self.define(Procedure("current-thread", self.currentThread))
     self.define(Procedure("thread?", self.isThread))
     self.define(SpecialForm("go", self.compileGo))
@@ -71,6 +72,7 @@ public final class ThreadLibrary: NativeLibrary {
     self.define(Procedure("thread-sleep!", self.threadSleep))
     self.define(Procedure("thread-terminate!", self.threadTerminate))
     self.define(Procedure("thread-join!", self.threadJoin))
+    self.define("mutex-type-tag", as: EvalMutex.type.objectTypeTag())
     self.define(Procedure("mutex?", self.isMutex))
     self.define(Procedure("make-mutex", self.makeMutex))
     self.define(Procedure("mutex-name", self.mutexName))
@@ -79,6 +81,7 @@ public final class ThreadLibrary: NativeLibrary {
     self.define(Procedure("mutex-lock!", self.mutexLock))
     self.define(Procedure("mutex-try-lock!", self.mutexTryLock))
     self.define(Procedure("mutex-unlock!", self.mutexUnlock))
+    self.define("condition-type-tag", as: EvalCondition.type.objectTypeTag())
     self.define(Procedure("condition-variable?", self.isConditionVariable))
     self.define(Procedure("make-condition-variable", self.makeConditionVariable))
     self.define(Procedure("condition-variable-name", self.conditionVariableName))
