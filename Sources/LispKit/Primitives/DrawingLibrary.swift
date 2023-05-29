@@ -2010,7 +2010,6 @@ public final class NativeFont: AnyNativeObject<NSFont> {
   
   public override func unpack() -> Exprs {
     return [.makeString(self.value.fontName),
-            .makeString(self.value.displayName ?? self.value.fontName),
             .makeString(self.value.familyName ?? self.value.fontName),
             .makeNumber(self.value.pointSize)]
   }

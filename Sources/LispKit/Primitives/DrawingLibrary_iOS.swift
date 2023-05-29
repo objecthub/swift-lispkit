@@ -1904,8 +1904,7 @@ public final class NativeFont: AnyNativeObject<UIFont> {
   
   public override func unpack() -> Exprs {
     return [.makeString(self.value.fontName),
-            .makeString(self.value.displayName ?? self.value.fontName),
-            .makeString(self.value.familyName ?? self.value.fontName),
+            .makeString(self.value.familyName),
             .makeNumber(self.value.pointSize)]
   }
 }

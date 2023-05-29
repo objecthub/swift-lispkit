@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/objecthub/swift-clformat",
       "state" : {
-        "revision" : "016535d1d4a3dfe8a1b5f101484ea3fd5a9708cb",
-        "version" : "1.0.8"
+        "revision" : "46729371356b776c8da2b0cf0699e4db1647d25c",
+        "version" : "1.0.10"
       }
     },
     {

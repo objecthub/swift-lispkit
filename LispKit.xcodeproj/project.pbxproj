@@ -434,6 +434,7 @@
 		CC7D4B762A2151D20066BA94 /* Format.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC7D4B752A208EF90066BA94 /* Format.scm */; };
 		CC7D4B792A2558990066BA94 /* 239.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC7D4B782A2554760066BA94 /* 239.sld */; };
 		CC7D4B7A2A2558B20066BA94 /* 239.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC7D4B782A2554760066BA94 /* 239.sld */; };
+		CC7D4B7C2A2559BC0066BA94 /* CLFormat in Frameworks */ = {isa = PBXBuildFile; productRef = CC7D4B7B2A2559BC0066BA94 /* CLFormat */; };
 		CC7E7C2624564D85002E8A73 /* Covid.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC7E7C2524564D33002E8A73 /* Covid.scm */; };
 		CC7E7C8A24565378002E8A73 /* Covid.sqlite3 in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C882456515A002E8A73 /* Covid.sqlite3 */; };
 		CC7E7C8B24565378002E8A73 /* 2020-02-20.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C6124564FBE002E8A73 /* 2020-02-20.data */; };
@@ -3317,6 +3318,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CC7D4B7C2A2559BC0066BA94 /* CLFormat in Frameworks */,
 				CCC48D0525E5BFAE00D082AD /* MarkdownKit in Frameworks */,
 				CCC48D0325E5BFA300D082AD /* NumberKit in Frameworks */,
 				CC2DA73C277001A200DE69CF /* Atomics in Frameworks */,
@@ -4577,6 +4579,7 @@
 				CCC48D0625E5BFB300D082AD /* SQLiteExpress */,
 				CCC48D0825E5BFB800D082AD /* ZIPFoundation */,
 				CC2DA73B277001A200DE69CF /* Atomics */,
+				CC7D4B7B2A2559BC0066BA94 /* CLFormat */,
 			);
 			productName = "LispKit iOS";
 			productReference = CCC48C5625E5B8DC00D082AD /* LispKit.framework */;
@@ -5653,7 +5656,7 @@
 			repositoryURL = "https://github.com/objecthub/swift-clformat";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.8;
+				minimumVersion = 1.0.10;
 			};
 		};
 		CCA6C3D22361149D007D2AF0 /* XCRemoteSwiftPackageReference "swift-markdownkit" */ = {
@@ -5701,6 +5704,11 @@
 			productName = NumberKit;
 		};
 		CC7D4B6C2A0D877C0066BA94 /* CLFormat */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CC7D4B6B2A0D877C0066BA94 /* XCRemoteSwiftPackageReference "swift-clformat" */;
+			productName = CLFormat;
+		};
+		CC7D4B7B2A2559BC0066BA94 /* CLFormat */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = CC7D4B6B2A0D877C0066BA94 /* XCRemoteSwiftPackageReference "swift-clformat" */;
 			productName = CLFormat;
