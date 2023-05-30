@@ -339,9 +339,9 @@ public class RuntimeError: Error, Hashable, CustomStringConvertible {
   /// instance, "$$0" gets expanded into "$0".
   /// It is possible to use placeholders of the form `$,n` for embedding a value using
   /// an unescaped string representation of the value.
-  private func replacePlaceholders(in template: String,
-                                   with values: [Expr],
-                                   recordingUsage used: inout Set<Int>) -> String {
+  internal func replacePlaceholders(in template: String,
+                                    with values: [Expr],
+                                    recordingUsage used: inout Set<Int>) -> String {
     var res: String = ""
     var variable: String = ""
     var parsingVariable = false

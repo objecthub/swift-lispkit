@@ -746,7 +746,7 @@ public class SExprDirectiveSpecifier: DirectiveSpecifier {
     return "S"
   }
   
-  public static func unpack(_ expr: Expr) -> [Any?] {
+  public static func unpack(_ expr: Expr, in context: Context? = nil) -> [Any?] {
     switch expr {
       case .rational(let num, let denom):
         return [num, denom]
@@ -828,11 +828,75 @@ public class SExprDirectiveSpecifier: DirectiveSpecifier {
         return [repr]
       case .object(let obj):
         let exprs = obj.unpack()
-        var res: [Any?] = [Expr.makeString(obj.identityString)]
+        var res: [Any?] = []
         for x in exprs {
           res.append(x)
         }
         return res
+      case .error(let err):
+        let filePath: Expr
+        if let path = context?.sources.sourcePath(for: err.pos.sourceId) {
+          filePath = .makeString(path)
+        } else {
+          filePath = .false
+        }
+        let position = Expr.pair(filePath,
+                           .pair(err.pos.lineIsUnknown ? .false : .fixnum(Int64(err.pos.line)),
+                           .pair(err.pos.columnIsUnknown ? .false : .fixnum(Int64(err.pos.column)),
+                           .null)))
+        let typeId: Int
+        switch err.descriptor {
+          case .lexical(_):
+            typeId = 0
+          case .syntax(_):
+            typeId = 1
+          case .type(_, _):
+            typeId = 2
+          case .range(_, _, _, _):
+            typeId = 3
+          case .argumentCount(_, _, _):
+            typeId = 4
+          case .eval(_):
+            typeId = 5
+          case .os(_):
+            typeId = 6
+          case .abortion:
+            typeId = 7
+          case .uncaught:
+            typeId = 8
+          case .custom(_, _):
+            typeId = 9
+        }
+        let type = Expr.pair(.makeNumber(typeId),
+                       .pair(.makeString(err.descriptor.typeDescription),
+                       .null))
+        var usedIrritants = Set<Int>()
+        var message = err.replacePlaceholders(in: err.descriptor.messageTemplate,
+                                              with: err.irritants,
+                                              recordingUsage: &usedIrritants)
+        var irritants: Exprs = []
+        for index in err.irritants.indices {
+          if !usedIrritants.contains(index) {
+            irritants.append(err.irritants[index])
+          }
+        }
+        var callTrace: Exprs = []
+        if let trace = err.callTrace {
+          for call in err.callTrace ?? [] {
+            callTrace.append(.makeString(call))
+          }
+        } else if let stackTrace = err.stackTrace {
+          for proc in stackTrace {
+            callTrace.append(.makeString(proc.name))
+          }
+        }
+        return [position,
+                Expr.makeNumber(typeId),
+                Expr.makeString(err.descriptor.typeDescription),
+                Expr.makeString(message),
+                Expr.vector(Collection(kind: .immutableVector, exprs: irritants)),
+                err.library ?? Expr.false,
+                Expr.vector(Collection(kind: .immutableVector, exprs: callTrace))]
       default:
         break
     }
