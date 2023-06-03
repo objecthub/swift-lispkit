@@ -52,37 +52,6 @@ import Foundation
 ///
 public final class TypeLibrary: NativeLibrary {
   
-  // Type identifiers
-  
-  private let void: Symbol
-  private let endOfFile: Symbol
-  private let null: Symbol
-  private let boolean: Symbol
-  private let symbol: Symbol
-  private let fixnum: Symbol
-  private let bignum: Symbol
-  private let rational: Symbol
-  private let flonum: Symbol
-  private let complex: Symbol
-  private let char: Symbol
-  private let string: Symbol
-  private let bytevector: Symbol
-  private let pair: Symbol
-  private let mpair: Symbol
-  private let array: Symbol
-  private let vector: Symbol
-  private let gvector: Symbol
-  private let values: Symbol
-  private let procedure: Symbol
-  private let parameter: Symbol
-  private let promise: Symbol
-  private let syntax: Symbol
-  private let environment: Symbol
-  private let hashtable: Symbol
-  private let port: Symbol
-  private let recordType: Symbol
-  private let error: Symbol
-  
   /// Name of the library.
   public override class var name: [String] {
     return ["lispkit", "type"]
@@ -90,34 +59,6 @@ public final class TypeLibrary: NativeLibrary {
   
   /// Initialize type library.
   public required init(in context: Context) throws {
-    self.void = context.symbols.intern("void")
-    self.endOfFile = context.symbols.intern("end-of-file")
-    self.null = context.symbols.intern("null")
-    self.boolean = context.symbols.intern("boolean")
-    self.symbol = context.symbols.intern("symbol")
-    self.fixnum = context.symbols.intern("fixnum")
-    self.bignum = context.symbols.intern("bignum")
-    self.rational = context.symbols.intern("rational")
-    self.flonum = context.symbols.intern("flonum")
-    self.complex = context.symbols.intern("complex")
-    self.char = context.symbols.intern("char")
-    self.string = context.symbols.intern("string")
-    self.bytevector = context.symbols.intern("bytevector")
-    self.pair = context.symbols.intern("pair")
-    self.mpair = context.symbols.intern("mpair")
-    self.array = context.symbols.intern("array")
-    self.vector = context.symbols.intern("vector")
-    self.gvector = context.symbols.intern("gvector")
-    self.values = context.symbols.intern("values")
-    self.procedure = context.symbols.intern("procedure")
-    self.parameter = context.symbols.intern("parameter")
-    self.promise = context.symbols.intern("promise")
-    self.syntax = context.symbols.intern("syntax")
-    self.environment = context.symbols.intern("environment")
-    self.hashtable = context.symbols.intern("hashtable")
-    self.port = context.symbols.intern("port")
-    self.recordType = context.symbols.intern("record-type")
-    self.error = context.symbols.intern("error")
     try super.init(in: context)
   }
   
@@ -217,109 +158,10 @@ public final class TypeLibrary: NativeLibrary {
   }
   
   public func typeOf(expr: Expr) -> Expr {
-    switch expr {
-      case .undef:
-        return .false
-      case .uninit(_):
-        return .false
-      case .void:
-        return .symbol(self.void)
-      case .eof:
-        return .symbol(self.endOfFile)
-      case .null:
-        return .symbol(self.null)
-      case .true:
-        return .symbol(self.boolean)
-      case .false:
-        return .symbol(self.boolean)
-      case .symbol(_):
-        return .symbol(self.symbol)
-      case .fixnum(_):
-        return .symbol(self.fixnum)
-      case .bignum(_):
-        return .symbol(self.bignum)
-      case .rational(_, _):
-        return .symbol(self.rational)
-      case .flonum(_):
-        return .symbol(self.flonum)
-      case .complex(_):
-        return .symbol(self.complex)
-      case .char(_):
-        return .symbol(self.char)
-      case .string(_):
-        return .symbol(self.string)
-      case .bytes(_):
-        return .symbol(self.bytevector)
-      case .pair(_, _):
-        return .symbol(self.pair)
-      case .box(_):
-        return .symbol(self.pair)
-      case .mpair(_):
-        return .symbol(self.mpair)
-      case .array(_):
-        return .symbol(self.array)
-      case .vector(let coll):
-        switch coll.kind {
-          case .vector:
-            return .symbol(self.vector)
-          case .immutableVector:
-            return .symbol(self.vector)
-          case .growableVector:
-            return .symbol(self.gvector)
-          default:
-            return .false
-        }
-      case .record(let coll):
-        switch coll.kind {
-          case .recordType:
-            return .symbol(self.recordType)
-          case .record(let icoll):
-            if case .recordType = icoll.kind {
-              return icoll.exprs[0]
-            } else {
-              return .false
-            }
-          default:
-            return .false
-        }
-      case .table(_):
-        return .symbol(self.hashtable)
-      case .promise(_):
-        return .symbol(self.promise)
-      case .values(_):
-        return .symbol(self.values)
-      case .procedure(let proc):
-        switch proc.kind {
-          case .parameter(_):
-            return .symbol(self.parameter)
-          default:
-            return .symbol(self.procedure)
-        }
-      case .special(_):
-        return .symbol(self.syntax)
-      case .env(_):
-        return .symbol(self.environment)
-      case .port(_):
-        return .symbol(self.port)
-      case .object(let obj):
-        if case .objectType(let sym) = obj.type {
-          return .symbol(sym)
-        } else {
-          return .false
-        }
-      case .tagged(.pair(.symbol(let sym), _), _):
-        return .symbol(sym)
-      case .tagged(let tag, _):
-        if case .object(let objTag) = tag {
-          if let enumType = objTag as? EnumType {
-            return .symbol(enumType.id)
-          }
-        }
-        return .false
-      case .error(_):
-        return .symbol(self.error)
-      case .syntax(_, _):
-        return .false
+    if let sym = expr.typeTag(in: self.context) {
+      return .symbol(sym)
+    } else {
+      return .false
     }
   }
   

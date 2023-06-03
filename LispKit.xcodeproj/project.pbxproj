@@ -435,6 +435,8 @@
 		CC7D4B792A2558990066BA94 /* 239.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC7D4B782A2554760066BA94 /* 239.sld */; };
 		CC7D4B7A2A2558B20066BA94 /* 239.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC7D4B782A2554760066BA94 /* 239.sld */; };
 		CC7D4B7C2A2559BC0066BA94 /* CLFormat in Frameworks */ = {isa = PBXBuildFile; productRef = CC7D4B7B2A2559BC0066BA94 /* CLFormat */; };
+		CC7D4B7E2A2A49B50066BA94 /* Formatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC7D4B7D2A2A49B50066BA94 /* Formatter.swift */; };
+		CC7D4B7F2A2A49B50066BA94 /* Formatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC7D4B7D2A2A49B50066BA94 /* Formatter.swift */; };
 		CC7E7C2624564D85002E8A73 /* Covid.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC7E7C2524564D33002E8A73 /* Covid.scm */; };
 		CC7E7C8A24565378002E8A73 /* Covid.sqlite3 in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C882456515A002E8A73 /* Covid.sqlite3 */; };
 		CC7E7C8B24565378002E8A73 /* 2020-02-20.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C6124564FBE002E8A73 /* 2020-02-20.data */; };
@@ -2984,6 +2986,7 @@
 		CC7D4B6E2A0D88C00066BA94 /* FormatLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormatLibrary.swift; sourceTree = "<group>"; };
 		CC7D4B752A208EF90066BA94 /* Format.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Format.scm; sourceTree = "<group>"; };
 		CC7D4B782A2554760066BA94 /* 239.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 239.sld; sourceTree = "<group>"; };
+		CC7D4B7D2A2A49B50066BA94 /* Formatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Formatter.swift; sourceTree = "<group>"; };
 		CC7E7C2524564D33002E8A73 /* Covid.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Covid.scm; sourceTree = "<group>"; };
 		CC7E7C2924564FBB002E8A73 /* 2020-03-18.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-03-18.data"; sourceTree = "<group>"; };
 		CC7E7C2C24564FBB002E8A73 /* 2020-03-29.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-03-29.data"; sourceTree = "<group>"; };
@@ -4332,6 +4335,7 @@
 				CC0980A81C67E81C006B7FB1 /* Code.swift */,
 				CC2DA735276FFC4200DE69CF /* Registers.swift */,
 				CC2DA7432772663600DE69CF /* Evaluator.swift */,
+				CC7D4B7D2A2A49B50066BA94 /* Formatter.swift */,
 				CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */,
 				CCC41DC51D2851FB003CB4D0 /* VirtualMachineState.swift */,
 				CC0A984D233E70C400C52573 /* GarbageCollector.swift */,
@@ -4855,6 +4859,7 @@
 				CC2DA7572781037B00DE69CF /* EvalCondition.swift in Sources */,
 				CCCB66E4283056E30004827D /* StyledTextLibrary.swift in Sources */,
 				CC6A3B6A1C539DCA00E962E2 /* ManagedObjectPool.swift in Sources */,
+				CC7D4B7E2A2A49B50066BA94 /* Formatter.swift in Sources */,
 				CCC62D921CA9ED6A00E2C43F /* TrackedObject.swift in Sources */,
 				CC38528B23126F7A001D5E56 /* InternalLibrary.swift in Sources */,
 				CC2DA7472773195600DE69CF /* ThreadLibrary.swift in Sources */,
@@ -4934,6 +4939,7 @@
 				CCC48C6425E5B94300D082AD /* ManagedObject.swift in Sources */,
 				CC2DA74B27747A8B00DE69CF /* EvalThread.swift in Sources */,
 				CCC48C8E25E5B95B00D082AD /* Promise.swift in Sources */,
+				CC7D4B7F2A2A49B50066BA94 /* Formatter.swift in Sources */,
 				CCC48C9425E5B95B00D082AD /* Type.swift in Sources */,
 				CCC48CAA25E5B97100D082AD /* FeatureRequirement.swift in Sources */,
 				CCB5DF5D29A16D62005E6453 /* Data.swift in Sources */,

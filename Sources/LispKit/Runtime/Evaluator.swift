@@ -21,8 +21,8 @@
 import Foundation
 
 ///
-/// Class `Evaluator` implements an API for 
-/// 
+/// Class `Evaluator` implements an API for parsing, executing, and outputting Scheme
+/// code and values.
 /// 
 public final class Evaluator: TrackedObject {
   

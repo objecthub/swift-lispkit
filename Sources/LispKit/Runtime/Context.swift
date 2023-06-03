@@ -69,6 +69,9 @@ open class Context {
   /// The evaluator for executing code.
   public private(set) var evaluator: Evaluator! = nil
   
+  /// The expression formatter of this context.
+  public private(set) var formatter: Formatter! = nil
+  
   /// The features exposed by the LispKit interpreter defined by this context
   public let features: Set<String>
   
@@ -118,6 +121,7 @@ open class Context {
     self.libraries = LibraryManager(for: self)
     self.environment = Environment(in: self)
     self.evaluator = Evaluator(for: self, limitStack: limitStack)
+    self.formatter = Formatter(for: self)
     self.inputPort = Port(input: TextInput(source: delegate,
                                            abortionCallback: self.evaluator.isAbortionRequested))
     self.outputPort = Port(output: TextOutput(target: delegate, threshold: 0))
