@@ -237,6 +237,155 @@ public enum Expr: Hashable {
     }
   }
   
+  public func unpack(in context: Context? = nil) -> Exprs? {
+    switch self {
+      case .rational(let num, let denom):
+        return [num, denom]
+      case .complex(let cpl):
+        return [Expr.flonum(cpl.value.re), Expr.flonum(cpl.value.im)]
+      case .symbol(let sym):
+        return [Expr.makeString(sym.identifier),
+                Expr.makeString(sym.description)]
+      case .bytes(let bvec):
+        var exprs: Exprs = []
+        for x in bvec.value {
+          exprs.append(.fixnum(Int64(x)))
+        }
+        return [Expr.makeString(bvec.identityString),
+                Expr.vector(Collection(kind: .immutableVector, exprs: exprs))]
+      case .box(let x):
+        return [Expr.makeString(x.identityString), x.value]
+      case .mpair(let x):
+        return [Expr.makeString(x.identityString), x.fst, x.snd]
+      case .table(let ht):
+        var exprs: Exprs = []
+        for bucket in ht.buckets {
+          var current = bucket
+          while case .pair(.pair(let key, let value), let next) = current {
+            exprs.append(.pair(key, .pair(value, .null)))
+            current = next
+          }
+        }
+        return [Expr.makeString(ht.identityString),
+                Expr.vector(Collection(kind: .immutableVector, exprs: exprs))]
+      case .env(let ev):
+        var exprs: Exprs = []
+        for (sym, val) in ev.bindings {
+          let suffix: Expr
+          switch val {
+            case .undefined:
+              suffix = .pair(.fixnum(0), .null)
+            case .mutable(let n):
+              suffix = .pair(.fixnum(1), .pair(.fixnum(Int64(n)), .null))
+            case .mutableImport(let n):
+              suffix = .pair(.fixnum(2), .pair(.fixnum(Int64(n)), .null))
+            case .immutableImport(let n):
+              suffix = .pair(.fixnum(3), .pair(.fixnum(Int64(n)), .null))
+          }
+          exprs.append(.pair(.symbol(sym), suffix))
+        }
+        switch ev.kind {
+          case .library(let name):
+            return [Expr.makeString(ev.identityString),
+                    Expr.fixnum(0),
+                    name,
+                    Expr.vector(Collection(kind: .immutableVector, exprs: exprs))]
+          case .program(let file):
+            return [Expr.makeString(ev.identityString),
+                    Expr.fixnum(1),
+                    Expr.makeString(file),
+                    Expr.vector(Collection(kind: .immutableVector, exprs: exprs))]
+          case .repl:
+            return [Expr.makeString(ev.identityString),
+                    Expr.fixnum(2),
+                    Expr.vector(Collection(kind: .immutableVector, exprs: exprs))]
+          case .custom:
+            return [Expr.makeString(ev.identityString),
+                    Expr.fixnum(3),
+                    Expr.vector(Collection(kind: .immutableVector, exprs: exprs))]
+        }
+      case .record(let col):
+        if case .record(let icoll) = col.kind,
+           case .recordType = icoll.kind {
+          var res: Exprs = [Expr.makeString(col.identityString)]
+          for x in col.exprs {
+            res.append(x)
+          }
+          return res
+        }
+      case .tagged(.pair(.symbol(_), _), let repr):
+        return [repr]
+      case .tagged(.object(_), let repr):
+        return [repr]
+      case .object(let obj):
+        return obj.unpack()
+      case .error(let err):
+        let filePath: Expr
+        if let path = context?.sources.sourcePath(for: err.pos.sourceId) {
+          filePath = .makeString(path)
+        } else {
+          filePath = .false
+        }
+        let position = Expr.pair(filePath,
+                           .pair(err.pos.lineIsUnknown ? .false : .fixnum(Int64(err.pos.line)),
+                           .pair(err.pos.columnIsUnknown ? .false : .fixnum(Int64(err.pos.column)),
+                           .null)))
+        let typeId: Int
+        switch err.descriptor {
+          case .lexical(_):
+            typeId = 0
+          case .syntax(_):
+            typeId = 1
+          case .type(_, _):
+            typeId = 2
+          case .range(_, _, _, _):
+            typeId = 3
+          case .argumentCount(_, _, _):
+            typeId = 4
+          case .eval(_):
+            typeId = 5
+          case .os(_):
+            typeId = 6
+          case .abortion:
+            typeId = 7
+          case .uncaught:
+            typeId = 8
+          case .custom(_, _):
+            typeId = 9
+        }
+        var usedIrritants = Set<Int>()
+        let message = err.replacePlaceholders(in: err.descriptor.messageTemplate,
+                                              with: err.irritants,
+                                              recordingUsage: &usedIrritants)
+        var irritants: Exprs = []
+        for index in err.irritants.indices {
+          if !usedIrritants.contains(index) {
+            irritants.append(err.irritants[index])
+          }
+        }
+        var callTrace: Exprs = []
+        if let trace = err.callTrace {
+          for call in trace {
+            callTrace.append(.makeString(call))
+          }
+        } else if let stackTrace = err.stackTrace {
+          for proc in stackTrace {
+            callTrace.append(.makeString(proc.name))
+          }
+        }
+        return [position,
+                Expr.makeNumber(typeId),
+                Expr.makeString(err.descriptor.typeDescription),
+                Expr.makeString(message),
+                Expr.vector(Collection(kind: .immutableVector, exprs: irritants)),
+                err.library ?? Expr.false,
+                Expr.vector(Collection(kind: .immutableVector, exprs: callTrace))]
+      default:
+        break
+    }
+    return nil
+  }
+  
   /// Returns the position of this expression.
   public var pos: SourcePosition {
     switch self {

@@ -38,6 +38,7 @@ public final class FormatLibrary: NativeLibrary {
     self.define(Procedure("format-config", self.formatConfigConstr))
     self.define(Procedure("make-format-config", self.makeFormatConfig))
     self.define(Procedure("copy-format-config", self.copyFormatConfig))
+    self.define(Procedure("merge-format-config", self.mergeFormatConfig))
     self.define(Procedure("format-config-locale", self.formatConfigLocale))
     self.define(Procedure("format-config-locale-set!", self.formatConfigLocaleSet))
     self.define(Procedure("format-config-tabwidth", self.formatConfigTabWidth))
@@ -88,13 +89,14 @@ public final class FormatLibrary: NativeLibrary {
         throw RuntimeError.eval(.portClosed, .port(port))
       }
       guard case .textOutputPort(let out) = port.kind else {
-        throw RuntimeError.type(.port(port), expected: [.textInputPortType])
+        throw RuntimeError.type(.port(port), expected: [.textOutputPortType])
       }
       output = out
       arg = iterator.next()
     }
     if case .some(.object(let obj)) = arg, let outerConf = obj as? FormatConfig {
       fconfig = FormatConfig(outerConfig: outerConf)
+      arg = iterator.next()
     } else {
       fconfig = FormatConfig(outerConfig: try self.defaultFormatConfig())
     }
@@ -196,6 +198,11 @@ public final class FormatLibrary: NativeLibrary {
     }
   }
   
+  private func mergeFormatConfig(child: Expr, parent: Expr) throws -> Expr {
+    return .object(FormatConfig(collapse: try self.formatConfig(from: child),
+                                outer: try self.formatConfig(from: parent)))
+  }
+  
   private func formatConfigLocale(config: Expr?) throws -> Expr {
     let fconf = try self.formatConfig(from: config)
     return .symbol(self.context.symbols.intern(fconf.getLocale().identifier))
@@ -276,9 +283,6 @@ public final class FormatLibrary: NativeLibrary {
     } else if let configExpr = configExpr {
       guard case .object(let obj) = configExpr, let conf = obj as? FormatConfig else {
         throw RuntimeError.type(configExpr, expected: [FormatConfig.type])
-      }
-      guard conf.outerConfig == nil else {
-        throw RuntimeError.eval(.cannotUseFormatConfigWithParent, .object(conf), typeExpr)
       }
       fconf.format(typeTag,
                    with: try CLControl(string: controlExpr.asString(),

@@ -104,6 +104,8 @@ open class Formatter {
 
 public final class FormatConfig: NativeObject {
   
+  public static let empty = FormatConfig(outerConfig: nil)
+  
   public struct FormatControl {
     let control: CLControl
     let env: FormatConfig?
@@ -143,24 +145,17 @@ public final class FormatConfig: NativeObject {
     self.outerConfig = outer ?? copy.outerConfig
   }
   
-  public init(collapse: FormatConfig) {
+  public init(collapse: FormatConfig, outer: FormatConfig? = nil) {
     self.locale = collapse.getLocale()
     self.tabWidth = collapse.getTabWidth()
     self.lineWidth = collapse.getLineWidth()
     self.controlDict = collapse.controlDict
-    self.outerConfig = nil
-    var outer = collapse.outerConfig
-    while let fconf = outer {
+    self.outerConfig = outer
+    var parent = collapse.outerConfig
+    while let fconf = parent {
       self.controlDict.merge(fconf.controlDict) { (current, _) in current }
-      outer = fconf.outerConfig
+      parent = fconf.outerConfig
     }
-  }
-  
-  public func rebase(with: FormatConfig) throws -> FormatConfig {
-    guard self.outerConfig == nil else {
-      throw RuntimeError.eval(.cannotUseFormatConfigAsLayer, .object(self), .object(with))
-    }
-    return FormatConfig(copy: self, outer: with)
   }
   
   public override var type: Type {
@@ -400,160 +395,6 @@ public class SExprDirectiveSpecifier: DirectiveSpecifier {
     return "S"
   }
   
-  public static func unpack(_ expr: Expr, in context: Context? = nil) -> [Any?] {
-    switch expr {
-      case .rational(let num, let denom):
-        return [num, denom]
-      case .complex(let cpl):
-        return [Expr.flonum(cpl.value.re), Expr.flonum(cpl.value.im)]
-      case .symbol(let sym):
-        return [Expr.makeString(sym.identifier),
-                Expr.makeString(sym.description)]
-      case .bytes(let bvec):
-        var exprs: Exprs = []
-        for x in bvec.value {
-          exprs.append(.fixnum(Int64(x)))
-        }
-        return [Expr.makeString(bvec.identityString),
-                Expr.vector(Collection(kind: .immutableVector, exprs: exprs))]
-      case .box(let x):
-        return [Expr.makeString(x.identityString), x.value]
-      case .mpair(let x):
-        return [Expr.makeString(x.identityString), x.fst, x.snd]
-      case .table(let ht):
-        var exprs: Exprs = []
-        for bucket in ht.buckets {
-          var current = bucket
-          while case .pair(.pair(let key, let value), let next) = current {
-            exprs.append(.pair(key, .pair(value, .null)))
-            current = next
-          }
-        }
-        return [Expr.makeString(ht.identityString),
-                Expr.vector(Collection(kind: .immutableVector, exprs: exprs))]
-      case .env(let ev):
-        var exprs: Exprs = []
-        for (sym, val) in ev.bindings {
-          let suffix: Expr
-          switch val {
-            case .undefined:
-              suffix = .pair(.fixnum(0), .null)
-            case .mutable(let n):
-              suffix = .pair(.fixnum(1), .pair(.fixnum(Int64(n)), .null))
-            case .mutableImport(let n):
-              suffix = .pair(.fixnum(2), .pair(.fixnum(Int64(n)), .null))
-            case .immutableImport(let n):
-              suffix = .pair(.fixnum(3), .pair(.fixnum(Int64(n)), .null))
-          }
-          exprs.append(.pair(.symbol(sym), suffix))
-        }
-        switch ev.kind {
-          case .library(let name):
-            return [Expr.makeString(ev.identityString),
-                    Expr.fixnum(0),
-                    name,
-                    Expr.vector(Collection(kind: .immutableVector, exprs: exprs))]
-          case .program(let file):
-            return [Expr.makeString(ev.identityString),
-                    Expr.fixnum(1),
-                    Expr.makeString(file),
-                    Expr.vector(Collection(kind: .immutableVector, exprs: exprs))]
-          case .repl:
-            return [Expr.makeString(ev.identityString),
-                    Expr.fixnum(2),
-                    Expr.vector(Collection(kind: .immutableVector, exprs: exprs))]
-          case .custom:
-            return [Expr.makeString(ev.identityString),
-                    Expr.fixnum(3),
-                    Expr.vector(Collection(kind: .immutableVector, exprs: exprs))]
-        }
-      case .record(let col):
-        if case .record(let icoll) = col.kind,
-           case .recordType = icoll.kind {
-          var res: [Any?] = [Expr.makeString(col.identityString)]
-          for x in col.exprs {
-            res.append(x)
-          }
-          return res
-        }
-      case .tagged(.pair(.symbol(_), _), let repr):
-        return [repr]
-      case .tagged(.object(_), let repr):
-        return [repr]
-      case .object(let obj):
-        let exprs = obj.unpack()
-        var res: [Any?] = []
-        for x in exprs {
-          res.append(x)
-        }
-        return res
-      case .error(let err):
-        let filePath: Expr
-        if let path = context?.sources.sourcePath(for: err.pos.sourceId) {
-          filePath = .makeString(path)
-        } else {
-          filePath = .false
-        }
-        let position = Expr.pair(filePath,
-                           .pair(err.pos.lineIsUnknown ? .false : .fixnum(Int64(err.pos.line)),
-                           .pair(err.pos.columnIsUnknown ? .false : .fixnum(Int64(err.pos.column)),
-                           .null)))
-        let typeId: Int
-        switch err.descriptor {
-          case .lexical(_):
-            typeId = 0
-          case .syntax(_):
-            typeId = 1
-          case .type(_, _):
-            typeId = 2
-          case .range(_, _, _, _):
-            typeId = 3
-          case .argumentCount(_, _, _):
-            typeId = 4
-          case .eval(_):
-            typeId = 5
-          case .os(_):
-            typeId = 6
-          case .abortion:
-            typeId = 7
-          case .uncaught:
-            typeId = 8
-          case .custom(_, _):
-            typeId = 9
-        }
-        var usedIrritants = Set<Int>()
-        let message = err.replacePlaceholders(in: err.descriptor.messageTemplate,
-                                              with: err.irritants,
-                                              recordingUsage: &usedIrritants)
-        var irritants: Exprs = []
-        for index in err.irritants.indices {
-          if !usedIrritants.contains(index) {
-            irritants.append(err.irritants[index])
-          }
-        }
-        var callTrace: Exprs = []
-        if let trace = err.callTrace {
-          for call in trace {
-            callTrace.append(.makeString(call))
-          }
-        } else if let stackTrace = err.stackTrace {
-          for proc in stackTrace {
-            callTrace.append(.makeString(proc.name))
-          }
-        }
-        return [position,
-                Expr.makeNumber(typeId),
-                Expr.makeString(err.descriptor.typeDescription),
-                Expr.makeString(message),
-                Expr.vector(Collection(kind: .immutableVector, exprs: irritants)),
-                err.library ?? Expr.false,
-                Expr.vector(Collection(kind: .immutableVector, exprs: callTrace))]
-      default:
-        break
-    }
-    return [expr]
-  }
-  
   public func apply(context: CLFormat.Context,
                     parameters: CLFormat.Parameters,
                     modifiers: CLFormat.Modifiers,
@@ -564,14 +405,17 @@ public class SExprDirectiveSpecifier: DirectiveSpecifier {
          case .some(let typeSym) = expr.typeTag(in: self.context),
          let formatConfig = context.config.environment["formatConfig"] as? FormatConfig,
          let formatControl = formatConfig.control(for: typeSym) {
-        let unpacked = Self.unpack(expr)
+        var unpacked: [Any?] = []
+        for arg in expr.unpack(in: self.context) ?? [expr] {
+          unpacked.append(arg)
+        }
         let args = context.config.makeArguments(locale: arguments.locale,
                                                 tabsize: arguments.tabsize,
                                                 linewidth: arguments.linewidth,
                                                 args: unpacked)
         var config = context.config
         if let env = formatControl.env {
-          config.environment["formatConfig"] = try env.rebase(with: formatConfig)
+          config.environment["formatConfig"] = FormatConfig(collapse: env, outer: formatConfig)
         }
         str = try formatControl.control.format(with: args, in: context.reconfig(config)).string
       } else if let x = arg as? CustomStringConvertible {
@@ -620,7 +464,11 @@ public enum LispKitDirectiveSpecifier: DirectiveSpecifier {
         let unpacked: [Any?]
         if let arg = try arguments.next() {
           if let expr = arg as? Expr {
-            unpacked = SExprDirectiveSpecifier.unpack(expr)
+            var args: [Any?] = []
+            for arg in expr.unpack() ?? [expr] {
+              args.append(arg)
+            }
+            unpacked = args
           } else if let x = arg as? CustomStringConvertible {
             unpacked = [Expr.makeString(x.description)]
           } else {

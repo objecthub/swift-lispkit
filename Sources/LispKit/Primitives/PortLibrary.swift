@@ -19,6 +19,7 @@
 //
 
 import Foundation
+import CLFormat
 
 ///
 /// Port library: based on R7RS spec.
@@ -99,8 +100,10 @@ public final class PortLibrary: NativeLibrary {
     self.define(Procedure("write", write))
     self.define(Procedure("write-shared", writeShared))
     self.define(Procedure("write-simple", writeSimple))
+    self.define(Procedure("write-formatted", writeFormatted))
     self.define(Procedure("display", display))
     self.define(Procedure("display*", displayStar))
+    self.define(Procedure("display-format", displayFormat))
     self.define(Procedure("newline", newline))
     self.define(Procedure("write-char", writeChar))
     self.define(Procedure("write-string", writeString))
@@ -233,7 +236,7 @@ public final class PortLibrary: NativeLibrary {
       throw RuntimeError.eval(.portClosed, .port(port))
     }
     guard case .textOutputPort(let output) = port.kind else {
-      throw RuntimeError.type(.port(port), expected: [.textInputPortType])
+      throw RuntimeError.type(.port(port), expected: [.textOutputPortType])
     }
     return output
   }
@@ -244,7 +247,7 @@ public final class PortLibrary: NativeLibrary {
       throw RuntimeError.eval(.portClosed, .port(port))
     }
     guard case .binaryOutputPort(let output) = port.kind else {
-      throw RuntimeError.type(.port(port), expected: [.binaryInputPortType])
+      throw RuntimeError.type(.port(port), expected: [.binaryOutputPortType])
     }
     return output
   }
@@ -630,6 +633,54 @@ public final class PortLibrary: NativeLibrary {
     return .void
   }
   
+  private func defaultFormatConfig() throws -> FormatConfig {
+    guard let value =
+                self.context.evaluator.getParam(self.context.formatter.formatConfigParam) else {
+      throw RuntimeError.eval(.invalidDefaultFormatConfig, .false)
+    }
+    guard case .object(let obj) = value, let config = obj as? FormatConfig else {
+      throw RuntimeError.eval(.invalidDefaultFormatConfig, value)
+    }
+    return config
+  }
+  
+  private func formatConfig(from expr: Expr?) throws -> FormatConfig {
+    guard let expr = expr else {
+      return try self.defaultFormatConfig()
+    }
+    switch expr {
+      case .false:
+        return FormatConfig.empty
+      case .true:
+        return try self.defaultFormatConfig()
+      case .object(let obj):
+        if let conf = obj as? FormatConfig {
+          return conf
+        }
+      default:
+        break
+    }
+    throw RuntimeError.type(expr, expected: [FormatConfig.type])
+  }
+  
+  func writeFormatted(_ expr: Expr, config: Expr?, port: Expr?) throws -> Expr {
+    let output = try self.textOutputFrom(port, open: true)
+    let fconfig = FormatConfig(outerConfig: try self.formatConfig(from: config))
+    var clFormatConfig = self.context.formatter.clFormatConfig
+    clFormatConfig.environment["formatConfig"] = fconfig
+    let res = try clformat("~S",
+                           config: clFormatConfig,
+                           locale: fconfig.getLocale(),
+                           tabsize: fconfig.getTabWidth(),
+                           linewidth: fconfig.getLineWidth(),
+                           arguments: [expr])
+    guard output.writeString(res) else {
+      let outPort = try port ?? .port(self.defaultPort(self.outputPortParam))
+      throw RuntimeError.eval(.cannotWriteToPort, outPort)
+    }
+    return .void
+  }
+  
   func display(_ expr: Expr, _ port: Expr? = nil) throws -> Expr {
     let output = try self.textOutputFrom(port, open: true)
     guard output.writeString(expr.unescapedDescription) else {
@@ -645,13 +696,82 @@ public final class PortLibrary: NativeLibrary {
       throw RuntimeError.eval(.portClosed, .port(port))
     }
     guard case .textOutputPort(let output) = port.kind else {
-      throw RuntimeError.type(.port(port), expected: [.textInputPortType])
+      throw RuntimeError.type(.port(port), expected: [.textOutputPortType])
     }
     var buffer = expr.unescapedDescription
     for arg in args {
       buffer += arg.unescapedDescription
     }
     guard output.writeString(buffer) else {
+      throw RuntimeError.eval(.cannotWriteToPort, .port(port))
+    }
+    return .void
+  }
+  
+  func displayFormat(_ args: Arguments) throws -> Expr {
+    let port = try self.defaultPort(self.outputPortParam)
+    guard port.isOpen else {
+      throw RuntimeError.eval(.portClosed, .port(port))
+    }
+    guard case .textOutputPort(let op) = port.kind else {
+      throw RuntimeError.type(.port(port), expected: [.textOutputPortType])
+    }
+    var output = op
+    var fconfig: FormatConfig
+    var arguments: [Any?] = []
+    var iterator = args.makeIterator()
+    var arg = iterator.next()
+    if case .some(.port(let port)) = arg {
+      guard port.isOpen else {
+        throw RuntimeError.eval(.portClosed, .port(port))
+      }
+      guard case .textOutputPort(let out) = port.kind else {
+        throw RuntimeError.type(.port(port), expected: [.textOutputPortType])
+      }
+      output = out
+      arg = iterator.next()
+    }
+    if case .some(.object(let obj)) = arg, let outerConf = obj as? FormatConfig {
+      fconfig = FormatConfig(outerConfig: outerConf)
+      arg = iterator.next()
+    } else {
+      fconfig = FormatConfig(outerConfig: try self.defaultFormatConfig())
+    }
+    if case .some(.symbol(let sym)) = arg {
+      fconfig.locale = Locale(identifier: sym.identifier)
+      arg = iterator.next()
+    }
+    if case .some(.fixnum(let num)) = arg {
+      guard let tsize = Int(exactly: num), tsize > 0, tsize <= 1000 else {
+        throw RuntimeError.range(arg!, min: 1, max: 1000)
+      }
+      fconfig.tabWidth = tsize
+      arg = iterator.next()
+    }
+    if case .some(.fixnum(let num)) = arg {
+      guard let len = Int(exactly: num), len > 0, len < Int.max - 100 else {
+        throw RuntimeError.range(arg!, min: 1, max: Int64(Int.max))
+      }
+      fconfig.lineWidth = len
+      arg = iterator.next()
+    }
+    guard case .some(.string(let control)) = arg else {
+      throw RuntimeError(SourcePosition.unknown,
+                         ErrorDescriptor.eval(.controlStringMissing),
+                         Array(args))
+    }
+    while let arg = iterator.next() {
+      arguments.append(arg)
+    }
+    var clFormatConfig = self.context.formatter.clFormatConfig
+    clFormatConfig.environment["formatConfig"] = fconfig
+    let res = try clformat(control as String,
+                           config: clFormatConfig,
+                           locale: fconfig.getLocale(),
+                           tabsize: fconfig.getTabWidth(),
+                           linewidth: fconfig.getLineWidth(),
+                           arguments: arguments)
+    guard output.writeString(res) else {
       throw RuntimeError.eval(.cannotWriteToPort, .port(port))
     }
     return .void
