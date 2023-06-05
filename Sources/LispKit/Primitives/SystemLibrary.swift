@@ -114,6 +114,7 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("host-name", self.hostName))
     self.define(Procedure("current-user-name", self.currentUserName))
     self.define(Procedure("user-data", self.userData))
+    self.define(Procedure("terminal-size", self.terminalSize))
     self.define(Procedure("open-url", self.openUrl))
     self.define(Procedure("http-get", httpGet))
   }
@@ -792,7 +793,15 @@ public final class SystemLibrary: NativeLibrary {
                                    .pair(.makeString(dir),
                                          .pair(.makeString(shell), .null))))))
   }
-
+  
+  private func terminalSize() -> Expr {
+    if let size = Sysctl.terminalSize {
+      return .pair(.makeNumber(size.cols), .makeNumber(size.rows))
+    } else {
+      return .false
+    }
+  }
+  
   private func openUrl(_ expr: Expr) throws -> Expr {
     #if os(iOS) || os(watchOS) || os(tvOS)
     DispatchQueue.main.async {

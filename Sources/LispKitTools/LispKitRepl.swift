@@ -51,6 +51,8 @@ open class LispKitRepl {
   public let extended: Option
   public let strict: Option
   public let quiet: Option
+  public let raw: Option
+  public let tabWidth: SingletonArgument<Int>
   public let help: Option
 
   // LispKit setup
@@ -109,6 +111,11 @@ open class LispKitRepl {
                                             "the application.")
     self.quiet      = f.option("q", "quiet",
                                description: "In quiet mode, optional messages are not printed.")
+    self.raw        = f.option("u", "unformat",
+                               description: "Disable formatting of results.")
+    self.tabWidth   = f.int("t", "tabwidth",
+                            description: "Width of a tab character.",
+                            value: 2)
     self.help       = f.option("h", "help",
                                description: "Show description of usage and options of this tools.")
     // Instantiate the terminal
@@ -116,7 +123,7 @@ open class LispKitRepl {
     // Reset context
     self.context = nil
   }
-
+  
   // Define prompt/read logic based on `terminal`
   open func readCommand(withPrompt: Bool = true) -> String? {
     if let ln = self.lineReader {
@@ -356,12 +363,27 @@ open class LispKitRepl {
     return true
   }
 
+  open func display(_ expr: Expr) {
+    if let context = self.context,
+       !self.raw.wasSet,
+       let str = try? context.formatter.format("~S~%",
+                                               config: context.formatter.replFormatConfig,
+                                               locale: Locale.current,
+                                               tabsize: self.tabWidth.value,
+                                               linewidth: Sysctl.terminalSize?.cols ?? 80,
+                                               arguments: [expr]) {
+      self.terminal.print(str)
+    } else {
+      self.terminal.print("\(expr.description)\n")
+    }
+  }
+  
   open func printResult(_ res: Expr) {
     // For multiple values being returned, print each value on a separate line
     if case .values(let expr) = res {
       var next = expr
       while case .pair(let x, let rest) = next {
-        self.terminal.print("\(x.description)\n")
+        self.display(x)
         next = rest
       }
     // For errors print the error message
@@ -373,7 +395,7 @@ open class LispKitRepl {
       }
     // For non-void results, print result
     } else if res != .void {
-      self.terminal.print("\(res.description)\n")
+      self.display(res)
     }
   }
   

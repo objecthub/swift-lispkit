@@ -200,18 +200,28 @@ public struct Sysctl {
   }
   
   #if os(macOS)
-    /// e.g. 2659000000 (not available on iOS)
-    public static var cpuFreq: Int64 {
-      return try! Sysctl.valueOfType(Int64.self, forName: "hw.cpufrequency")
-    }
+  /// e.g. 2659000000 (not available on iOS)
+  public static var cpuFreq: Int64 {
+    return try! Sysctl.valueOfType(Int64.self, forName: "hw.cpufrequency")
+  }
 
-    /// e.g. 25769803776 (not available on iOS)
-    public static var memSize: UInt64 {
-      return try! Sysctl.valueOfType(UInt64.self, forKeys: [CTL_HW, HW_MEMSIZE])
-    }
+  /// e.g. 25769803776 (not available on iOS)
+  public static var memSize: UInt64 {
+    return try! Sysctl.valueOfType(UInt64.self, forKeys: [CTL_HW, HW_MEMSIZE])
+  }
   #endif
   
   public static var maxThreads: Int32? {
     return try? Sysctl.valueOfType(Int32.self, forName: "kern.num_taskthreads")
+  }
+  
+  public static var terminalSize: (rows: Int, cols: Int)? {
+    #if os(macOS)
+    var w = winsize()
+    if ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) == 0 && w.ws_row > 0 && w.ws_col > 0 {
+      return (rows: Int(w.ws_row), cols: Int(w.ws_col))
+    }
+    #endif
+    return nil
   }
 }

@@ -31,6 +31,7 @@ public final class FormatLibrary: NativeLibrary {
   /// Declarations of the library.
   public override func declarations() {
     self.define("base-format-config", as: .object(self.context.formatter.baseFormatConfig))
+    self.define("repl-format-config", as: .object(self.context.formatter.replFormatConfig))
     self.define("current-format-config", as: self.context.formatter.formatConfigParam)
     self.define("format-config-type-tag", as: FormatConfig.type.objectTypeTag())
     self.define(Procedure("format", self.format))

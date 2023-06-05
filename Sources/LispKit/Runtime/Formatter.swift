@@ -23,6 +23,9 @@ open class Formatter {
   /// Base configuration of the `format` procedure
   public let baseFormatConfig: FormatConfig
   
+  /// Configuration of the `format` procedure for usage by REPLs
+  public let replFormatConfig: FormatConfig
+  
   /// Exported parameter objects
   public let formatConfigParam: Procedure
   
@@ -62,6 +65,7 @@ open class Formatter {
     self.sexprDirSpec = sexprDirSpec
     self.clFormatConfig = clFormatConfig
     self.baseFormatConfig = formatConfig
+    self.replFormatConfig = FormatConfig(outerConfig: formatConfig)
     self.formatConfigParam = Procedure(.null, .object(formatConfig))
   }
   
