@@ -200,18 +200,34 @@ final class Interpreter: ContextDelegate, ObservableObject {
         var next = expr
         while case .pair(let x, let rest) = next {
           if message.isEmpty {
-            message = x.description
+            message = (try? context.formatter.format("~S",
+                                                     config: context.formatter.replFormatConfig,
+                                                     locale: Locale.current,
+                                                     tabsize: 4,
+                                                     linewidth: 80,
+                                                     arguments: [x])) ?? x.description
           } else {
             message += "\n"
-            message += x.description
+            message += (try? context.formatter.format("~S",
+                                                      config: context.formatter.replFormatConfig,
+                                                      locale: Locale.current,
+                                                      tabsize: 4,
+                                                      linewidth: 80,
+                                                      arguments: [x])) ?? x.description
           }
           next = rest
         }
         context.update(withReplResult: res)
         return ConsoleOutput(kind: .result, text: message)
       default:
+        let str = (try? context.formatter.format("~S",
+                                                 config: context.formatter.replFormatConfig,
+                                                 locale: Locale.current,
+                                                 tabsize: 4,
+                                                 linewidth: 80,
+                                                 arguments: [res])) ?? res.description
         context.update(withReplResult: res)
-        return ConsoleOutput(kind: .result, text: res.description)
+        return ConsoleOutput(kind: .result, text: str)
     }
   }
   
