@@ -60,9 +60,9 @@ public final class RecordLibrary: NativeLibrary {
       "  (syntax-rules ()",
       "    ((_ name type fields)",
       "      (define name",
-      "        (let ((indices (record-type-field-index type fields)))",
+      "        (let ((indices (record-type-field-index type fields))(t type))",
       "          (define (name . args)",
-      "            (record-set! (make-record type) indices args type)) name)))))")
+      "            (record-set! (make-record t) indices args t)) name)))))")
     self.define("record-predicate", via:
       "(define (record-predicate type) (lambda (x) (record? x type)))")
     self.define("record-field-accessor", via:
@@ -77,17 +77,17 @@ public final class RecordLibrary: NativeLibrary {
       "(define-syntax _define-record-field",
       "  (syntax-rules ()",
       "    ((_ type field accessor)",
-      "      (define accessor (let ((index (record-type-field-index type 'field)))",
-      "                         (define (accessor record) (record-ref record index type))",
+      "      (define accessor (let ((index (record-type-field-index type 'field))(t type))",
+      "                         (define (accessor record) (record-ref record index t))",
       "                         accessor)))",
       "    ((_ type field accessor mutator)",
       "      (begin",
-      "        (define accessor (let ((index (record-type-field-index type 'field)))",
-      "                           (define (accessor record) (record-ref record index type))",
+      "        (define accessor (let ((index (record-type-field-index type 'field))(t type))",
+      "                           (define (accessor record) (record-ref record index t))",
       "                           accessor))",
-      "        (define mutator (let ((index (record-type-field-index type 'field)))",
+      "        (define mutator (let ((index (record-type-field-index type 'field))(t type))",
       "                          (define (mutator record value)",
-      "                            (record-set! record index value type))",
+      "                            (record-set! record index value t))",
       "                          mutator))))))")
     self.define("define-record-type", via:
       "(define-syntax define-record-type",
@@ -106,13 +106,13 @@ public final class RecordLibrary: NativeLibrary {
       "      (begin",
       "        (define type (make-record-type (symbol->string 'type) '(field ...)))",
       "        (_define-record-constructor constr type '(cfield ...))",
-      "        (define (pred x) (record? x type))",
+      "        (define pred (let ((t type)) (define (pred x) (record? x t)) pred))",
       "        (_define-record-field type field accessor . mutator) ... (void)))",
       "    ((_ (type parent) (constr cfield ...) pred (field accessor . mutator) ...)",
       "      (begin",
       "        (define type (make-record-type (symbol->string 'type) '(field ...) parent))",
       "        (_define-record-constructor constr type '(cfield ...))",
-      "        (define (pred x) (record? x type))",
+      "        (define pred (let ((t type)) (define (pred x) (record? x t)) pred))",
       "        (_define-record-field type field accessor . mutator) ... (void)))",
       "    ((_ type (constr cfield ...) #f (field accessor . mutator) ...)",
       "      (begin",
@@ -123,7 +123,7 @@ public final class RecordLibrary: NativeLibrary {
       "      (begin",
       "        (define type (make-record-type (symbol->string 'type) '(field ...)))",
       "        (_define-record-constructor constr type '(cfield ...))",
-      "        (define (pred x) (record? x type))",
+      "        (define pred (let ((t type)) (define (pred x) (record? x t)) pred))",
       "        (_define-record-field type field accessor . mutator) ... (void)))))")
   }
   

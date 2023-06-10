@@ -115,6 +115,7 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("current-user-name", self.currentUserName))
     self.define(Procedure("user-data", self.userData))
     self.define(Procedure("terminal-size", self.terminalSize))
+    self.define(Procedure("make-uuid", self.makeUUID))
     self.define(Procedure("open-url", self.openUrl))
     self.define(Procedure("http-get", httpGet))
   }
@@ -800,6 +801,10 @@ public final class SystemLibrary: NativeLibrary {
     } else {
       return .false
     }
+  }
+  
+  private func makeUUID() -> Expr {
+    return .makeString(UUID().uuidString)
   }
   
   private func openUrl(_ expr: Expr) throws -> Expr {
