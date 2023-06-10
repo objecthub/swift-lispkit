@@ -310,6 +310,9 @@ public final class Scanner {
             case SEMI_CH:
               self.nextCh()
               self.token.kind = .hashsemi
+            case QUEST_CH:
+              self.nextCh()
+              self.token.kind = .undef
             case BS_CH:
               self.nextCh()
               self.scanCharacterLiteral()
@@ -933,6 +936,7 @@ public struct Token: CustomStringConvertible {
   
   public var description: String {
     switch self.kind {
+      case .undef      : return "#?"
       case .error      : return self.errorVal == nil ? "<error>" : "<error: \(self.errorVal!)>"
       case .eof        : return "<eof>"
       case .ident      : return self.strVal
@@ -987,6 +991,7 @@ public struct Token: CustomStringConvertible {
 }
 
 public enum TokenKind: Int, CustomStringConvertible {
+  case undef
   case error
   case eof
   case ident
@@ -1014,6 +1019,7 @@ public enum TokenKind: Int, CustomStringConvertible {
   
   public var description: String {
     switch self {
+      case .undef      : return "UNDEF"
       case .error      : return "ERROR"
       case .eof        : return "EOF"
       case .ident      : return "IDENT"
@@ -1047,6 +1053,7 @@ func UniChar(_ str: String) -> UniChar {
 }
 
 let EOF_CH: UniChar    = 0
+let QUEST_CH           = UniChar("?")
 let EOL_CH             = UniChar("\n")
 let RET_CH             = UniChar("\r")
 let TAB_CH             = UniChar("\t")

@@ -274,7 +274,7 @@ public final class FormatLibrary: NativeLibrary {
     let typeTag: Symbol
     // Allow record types as type tags
     if case .record(let record) = typeExpr, case .recordType = record.kind {
-      typeTag = try record.exprs[0].asSymbol()
+      typeTag = try record.exprs[Collection.RecordType.typeTag.rawValue].asSymbol()
     // Assume this is a type tag
     } else {
       typeTag = try typeExpr.asSymbol()

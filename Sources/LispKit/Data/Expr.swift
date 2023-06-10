@@ -188,7 +188,8 @@ public enum Expr: Hashable {
           case .recordType:
             return context.symbols.recordType
           case .record(let icoll):
-            if case .recordType = icoll.kind, case .symbol(let res) = icoll.exprs[0] {
+            if case .recordType = icoll.kind,
+               case .symbol(let res) = icoll.exprs[Collection.RecordType.typeTag.rawValue] {
               return res
             } else {
               return nil
@@ -239,6 +240,10 @@ public enum Expr: Hashable {
   
   public func unpack(in context: Context? = nil) -> Exprs? {
     switch self {
+      case .false:
+        return [.makeNumber(0)]
+      case .true:
+        return [.makeNumber(1)]
       case .rational(let num, let denom):
         return [num, denom]
       case .complex(let cpl):
@@ -305,13 +310,28 @@ public enum Expr: Hashable {
                     Expr.vector(Collection(kind: .immutableVector, exprs: exprs))]
         }
       case .record(let col):
-        if case .record(let icoll) = col.kind,
-           case .recordType = icoll.kind {
-          var res: Exprs = [Expr.makeString(col.identityString)]
-          for x in col.exprs {
-            res.append(x)
-          }
-          return res
+        switch col.kind {
+          case .record(let icoll):
+            if case .recordType = icoll.kind {
+              var res: Exprs = [Expr.makeString(col.identityString)]
+              for x in col.exprs {
+                res.append(x)
+              }
+              return res
+            }
+          case .recordType:
+            let syms = Collection.RecordType.fields(col)
+            var allFields = Expr.null
+            for sym in syms.reversed() {
+              allFields = .pair(.symbol(sym), allFields)
+            }
+            return [Expr.makeString(col.identityString),
+                    col.exprs[Collection.RecordType.typeTag.rawValue],
+                    col.exprs[Collection.RecordType.parent.rawValue],
+                    col.exprs[Collection.RecordType.fields.rawValue],
+                    allFields]
+          default:
+            break
         }
       case .tagged(.pair(.symbol(_), _), let repr):
         return [repr]
@@ -957,7 +977,7 @@ extension Expr: CustomStringConvertible, CLFormatConvertible {
     func stringReprOf(_ expr: Expr) -> String {
       switch expr {
         case .undef:
-          return "#<undef>"
+          return "#?"
         case .void:
           return "#<void>"
         case .eof:
@@ -970,9 +990,9 @@ extension Expr: CustomStringConvertible, CLFormatConvertible {
           return "#f"
         case .uninit(let sym):
           guard escape else {
-            return "#<uninit \(sym.rawIdentifier)>"
+            return "#<? \(sym.rawIdentifier)>"
           }
-          return "#<uninit \(sym.description)>"
+          return "#<? \(sym.description)>"
         case .symbol(let sym):
           guard escape else {
             return sym.rawIdentifier
@@ -1097,15 +1117,23 @@ extension Expr: CustomStringConvertible, CLFormatConvertible {
               preconditionFailure("incorrect internal record type state: \(record.kind) | " +
                                   "\(record.description)")
             }
-            guard case .symbol(let sym) = record.exprs[0] else {
+            guard case .symbol(let sym) = record.exprs[
+                                            Collection.RecordType.typeTag.rawValue] else {
               preconditionFailure("incorrect encoding of record type")
             }
-            return "#<record-type \(sym.description)>"
+            if case .record(let coll) = record.exprs[Collection.RecordType.parent.rawValue],
+               case .recordType = coll.kind,
+               case .symbol(let psym) = coll.exprs[Collection.RecordType.typeTag.rawValue] {
+              return "#<record-type \(sym.description): \(psym.description)>"
+            } else {
+              return "#<record-type \(sym.description)>"
+            }
           }
           if let res = objIdString(record) {
             return res
           } else {
-            guard case .symbol(let sym) = type.exprs[0] else {
+            guard case .symbol(let sym) = type.exprs[
+                                            Collection.RecordType.typeTag.rawValue] else {
               preconditionFailure("incorrect encoding of record type")
             }
             enclObjs.insert(record)
@@ -1113,13 +1141,11 @@ extension Expr: CustomStringConvertible, CLFormatConvertible {
                                         postfix: ">",
                                         separator: ", ",
                                         initial: ": ")
-            var fields = type.exprs[2]
-            for expr in record.exprs {
-              guard case .pair(let sym, let nextFields) = fields else {
-                preconditionFailure("incorrect encoding of record \(type.exprs[0].description)")
-              }
-              builder.append(sym.description, "=", stringReprOf(expr))
-              fields = nextFields
+            let fields = Collection.RecordType.fields(type)
+            precondition(fields.count == record.exprs.count,
+                         "record encoding error; field counts not matching")
+            for i in 0..<fields.count {
+              builder.append(fields[i].description, "=", stringReprOf(record.exprs[i]))
             }
             enclObjs.remove(record)
             return fixString(record, builder.description)

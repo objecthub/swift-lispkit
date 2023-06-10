@@ -61,6 +61,8 @@ public final class Parser {
     let token = self.scanner.token
     let pos = self.sourcePosition
     switch token.kind {
+      case .undef:
+        res = .undef
       case .error:
         let lexicalError = token.errorVal!
         self.scanner.next()

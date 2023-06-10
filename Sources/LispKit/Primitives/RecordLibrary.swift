@@ -43,6 +43,7 @@ public final class RecordLibrary: NativeLibrary {
     self.define(Procedure("make-record-type", makeRecordType))
     self.define(Procedure("record-type-tag", recordTypeId))
     self.define(Procedure("record-type-name", recordTypeName))
+    self.define(Procedure("record-type-parent", recordTypeParent))
     self.define(Procedure("record-type-field-names", recordTypeFieldNames))
     self.define(Procedure("record-type-field-index", recordTypeFieldIndex))
     self.define(Procedure("make-record", makeRecord))
@@ -54,6 +55,14 @@ public final class RecordLibrary: NativeLibrary {
       "    (lambda args",
       "      (let ((record (make-record type)))",
       "        (record-set! record indices args type) record))))")
+    self.define("_define-record-constructor", via:
+      "(define-syntax _define-record-constructor",
+      "  (syntax-rules ()",
+      "    ((_ name type fields)",
+      "      (define name",
+      "        (let ((indices (record-type-field-index type fields)))",
+      "          (define (name . args)",
+      "            (record-set! (make-record type) indices args type)) name)))))")
     self.define("record-predicate", via:
       "(define (record-predicate type) (lambda (x) (record? x type)))")
     self.define("record-field-accessor", via:
@@ -68,20 +77,66 @@ public final class RecordLibrary: NativeLibrary {
       "(define-syntax _define-record-field",
       "  (syntax-rules ()",
       "    ((_ type field accessor)",
-      "      (define accessor (record-field-accessor type 'field)))",
+      "      (define accessor (let ((index (record-type-field-index type 'field)))",
+      "                         (define (accessor record) (record-ref record index type))",
+      "                         accessor)))",
       "    ((_ type field accessor mutator)",
       "      (begin",
-      "        (define accessor (record-field-accessor type 'field))",
-      "        (define mutator (record-field-mutator type 'field))))))")
+      "        (define accessor (let ((index (record-type-field-index type 'field)))",
+      "                           (define (accessor record) (record-ref record index type))",
+      "                           accessor))",
+      "        (define mutator (let ((index (record-type-field-index type 'field)))",
+      "                          (define (mutator record value)",
+      "                            (record-set! record index value type))",
+      "                          mutator))))))")
     self.define("define-record-type", via:
       "(define-syntax define-record-type",
       "  (syntax-rules ()",
+      "    ((_ (type) (constr cfield ...) #f (field accessor . mutator) ...)",
+      "      (begin",
+      "        (define type (make-record-type (symbol->string 'type) '(field ...)))",
+      "        (_define-record-constructor constr type '(cfield ...))",
+      "        (_define-record-field type field accessor . mutator) ... (void)))",
+      "    ((_ (type parent) (constr cfield ...) #f (field accessor . mutator) ...)",
+      "      (begin",
+      "        (define type (make-record-type (symbol->string 'type) '(field ...) parent))",
+      "        (_define-record-constructor constr type '(cfield ...))",
+      "        (_define-record-field type field accessor . mutator) ... (void)))",
+      "    ((_ (type) (constr cfield ...) pred (field accessor . mutator) ...)",
+      "      (begin",
+      "        (define type (make-record-type (symbol->string 'type) '(field ...)))",
+      "        (_define-record-constructor constr type '(cfield ...))",
+      "        (define (pred x) (record? x type))",
+      "        (_define-record-field type field accessor . mutator) ... (void)))",
+      "    ((_ (type parent) (constr cfield ...) pred (field accessor . mutator) ...)",
+      "      (begin",
+      "        (define type (make-record-type (symbol->string 'type) '(field ...) parent))",
+      "        (_define-record-constructor constr type '(cfield ...))",
+      "        (define (pred x) (record? x type))",
+      "        (_define-record-field type field accessor . mutator) ... (void)))",
+      "    ((_ type (constr cfield ...) #f (field accessor . mutator) ...)",
+      "      (begin",
+      "        (define type (make-record-type (symbol->string 'type) '(field ...)))",
+      "        (_define-record-constructor constr type '(cfield ...))",
+      "        (_define-record-field type field accessor . mutator) ... (void)))",
       "    ((_ type (constr cfield ...) pred (field accessor . mutator) ...)",
       "      (begin",
       "        (define type (make-record-type (symbol->string 'type) '(field ...)))",
-      "        (define constr (record-constructor type '(cfield ...)))",
-      "        (define pred (record-predicate type))",
+      "        (_define-record-constructor constr type '(cfield ...))",
+      "        (define (pred x) (record? x type))",
       "        (_define-record-field type field accessor . mutator) ... (void)))))")
+  }
+  
+  private func isSubtypeOf(_ subType: Collection, _ superType: Collection) -> Bool {
+    var recordType = subType
+    while superType !== recordType {
+      guard case .record(let coll) = recordType.exprs[Collection.RecordType.parent.rawValue],
+            case .recordType = coll.kind else {
+        return false
+      }
+      recordType = coll
+    }
+    return true
   }
   
   func isRecord(_ expr: Expr, rtype: Expr?) -> Expr {
@@ -98,7 +153,7 @@ public final class RecordLibrary: NativeLibrary {
           case .recordType = type.kind else {
       return .false
     }
-    return .makeBoolean(type === exprtype)
+    return .makeBoolean(self.isSubtypeOf(exprtype, type))
   }
   
   func isRecordType(_ expr: Expr) -> Expr {
@@ -117,7 +172,7 @@ public final class RecordLibrary: NativeLibrary {
     return .record(type)
   }
   
-  func makeRecordType(_ name: Expr, fields: Expr) throws -> Expr {
+  func makeRecordType(name: Expr, fields: Expr, parent: Expr?) throws -> Expr {
     // Check that first argument is a string
     let str = try name.asString()
     // Check that second argument is a proper list of symbols
@@ -133,11 +188,27 @@ public final class RecordLibrary: NativeLibrary {
     guard case .null = current else {
       throw RuntimeError.type(fields, expected: [.properListType])
     }
-    // Return record type
-    return .record(Collection(kind: .recordType,
-                              exprs: [.symbol(Symbol(uninterned: str)),
-                                      .makeNumber(numFields),
-                                      fields]))
+    if let parent = parent, parent != .false {
+      guard case .record(let coll) = parent,
+            case .recordType = coll.kind,
+            let parentFields = try? coll.exprs[
+                                 Collection.RecordType.totalFieldCount.rawValue].asInt() else {
+        throw RuntimeError.type(parent, expected: [.recordType])
+      }
+      return .record(Collection(kind: .recordType,
+                                exprs: [.symbol(Symbol(uninterned: str)),
+                                        parent,
+                                        .makeNumber(numFields + parentFields),
+                                        .makeNumber(numFields),
+                                        fields]))
+    } else {
+      return .record(Collection(kind: .recordType,
+                                exprs: [.symbol(Symbol(uninterned: str)),
+                                        .false,
+                                        .makeNumber(numFields),
+                                        .makeNumber(numFields),
+                                        fields]))
+    }
   }
   
   func recordTypeId(_ expr: Expr) -> Expr {
@@ -145,7 +216,7 @@ public final class RecordLibrary: NativeLibrary {
           case .recordType = record.kind else {
       return .false
     }
-    return record.exprs[0]
+    return record.exprs[Collection.RecordType.typeTag.rawValue]
   }
   
   func recordTypeName(_ expr: Expr) -> Expr {
@@ -153,15 +224,33 @@ public final class RecordLibrary: NativeLibrary {
           case .recordType = record.kind else {
       return .false
     }
-    return .makeString(record.exprs[0].unescapedDescription)
+    return .makeString(
+             record.exprs[Collection.RecordType.typeTag.rawValue].unescapedDescription)
   }
   
-  func recordTypeFieldNames(_ expr: Expr) -> Expr {
+  func recordTypeParent(_ expr: Expr) -> Expr {
     guard case .record(let record) = expr,
           case .recordType = record.kind else {
       return .false
     }
-    return record.exprs[2]
+    return record.exprs[Collection.RecordType.parent.rawValue]
+  }
+  
+  func recordTypeFieldNames(_ expr: Expr, _ all: Expr?) -> Expr {
+    guard case .record(let record) = expr,
+          case .recordType = record.kind else {
+      return .false
+    }
+    if all?.isTrue ?? false {
+      let syms = Collection.RecordType.fields(record)
+      var allFields = Expr.null
+      for sym in syms.reversed() {
+        allFields = .pair(.symbol(sym), allFields)
+      }
+      return allFields
+    } else {
+      return record.exprs[Collection.RecordType.fields.rawValue]
+    }
   }
   
   func recordTypeFieldIndex(_ expr: Expr, name: Expr) throws -> Expr {
@@ -171,7 +260,7 @@ public final class RecordLibrary: NativeLibrary {
     }
     switch name {
       case .symbol(let field):
-        guard let index = self.indexOfField(field, in: record.exprs[2]) else {
+        guard let index = self.indexOfField(field, in: record) else {
           throw RuntimeError.eval(.unknownFieldOfRecordType, expr, name)
         }
         return .makeNumber(index)
@@ -182,7 +271,7 @@ public final class RecordLibrary: NativeLibrary {
         var current = name
         while case .pair(let sym, let next) = current {
           let field = try sym.asSymbol()
-          guard let index = self.indexOfField(field, in: record.exprs[2]) else {
+          guard let index = self.indexOfField(field, in: record) else {
             throw RuntimeError.eval(.unknownFieldOfRecordType, expr, sym)
           }
           indices.append(.makeNumber(index))
@@ -197,9 +286,15 @@ public final class RecordLibrary: NativeLibrary {
     }
   }
   
-  private func indexOfField(_ field: Symbol, in fields: Expr) -> Int? {
-    var index = 0
-    var current = fields
+  private func indexOfField(_ field: Symbol, in recordType: Collection) -> Int? {
+    guard case .recordType = recordType.kind,
+          let total = try? recordType.exprs[Collection.RecordType.totalFieldCount.rawValue].asInt(),
+          let count = try? recordType.exprs[
+                             Collection.RecordType.fieldCount.rawValue].asInt() else {
+      return nil
+    }
+    var index = total - count
+    var current = recordType.exprs[Collection.RecordType.fields.rawValue]
     while case .pair(.symbol(let sym), let next) = current {
       if sym == field {
         return index
@@ -207,19 +302,23 @@ public final class RecordLibrary: NativeLibrary {
       index += 1
       current = next
     }
-    return nil
+    if let parent = try? recordType.exprs[
+                           Collection.RecordType.parent.rawValue].recordAsCollection() {
+      return self.indexOfField(field, in: parent)
+    } else {
+      return nil
+    }
   }
   
   func makeRecord(_ expr: Expr) throws -> Expr {
     let type = try expr.recordAsCollection()
-    guard case .recordType = type.kind else {
+    guard case .recordType = type.kind,
+          let total = try? type.exprs[
+                             Collection.RecordType.totalFieldCount.rawValue].asInt() else {
       return .false
     }
-    guard case .fixnum(let size) = type.exprs[1] else {
-      preconditionFailure("broken record type encoding: \(type)")
-    }
     return .record(
-      Collection(kind: .record(type), exprs: Exprs(repeating: .undef, count: Int(size))))
+      Collection(kind: .record(type), exprs: Exprs(repeating: .undef, count: total)))
   }
   
   func recordRef(_ expr: Expr, _ index: Expr, _ type: Expr?) throws -> Expr {
@@ -231,8 +330,10 @@ public final class RecordLibrary: NativeLibrary {
         throw RuntimeError.eval(.expectedRecordToAccessField, type, expr)
       }
       guard case .record(let exprtype) = record.kind,
-            tpe === exprtype else {
-        throw RuntimeError.eval(.expectedRecordToAccessField, tpe.exprs[0], expr)
+            self.isSubtypeOf(exprtype, tpe) else {
+        throw RuntimeError.eval(.expectedRecordToAccessField,
+                                tpe.exprs[Collection.RecordType.typeTag.rawValue],
+                                expr)
       }
     }
     guard idx >= 0 && idx < record.exprs.count else {
@@ -254,8 +355,10 @@ public final class RecordLibrary: NativeLibrary {
             case .recordType = tpe.kind else {
         throw RuntimeError.eval(.expectedRecordToAccessField, type, expr)
       }
-      guard tpe === exprtype else {
-        throw RuntimeError.eval(.expectedRecordToAccessField, tpe.exprs[0], expr)
+      guard self.isSubtypeOf(exprtype, tpe) else {
+        throw RuntimeError.eval(.expectedRecordToAccessField,
+                                tpe.exprs[Collection.RecordType.typeTag.rawValue],
+                                expr)
       }
     }
     switch index {
@@ -311,6 +414,7 @@ public final class RecordLibrary: NativeLibrary {
         guard currentValue.isNull else {
           throw RuntimeError.eval(.fieldCountError, .makeNumber(numFields), value)
         }
+        return expr
       default:
         throw RuntimeError.type(index, expected: [.fixnumType])
     }

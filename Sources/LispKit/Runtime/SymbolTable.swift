@@ -30,7 +30,6 @@ public final class SymbolTable: Sequence {
   private let gensymLock = EmbeddedUnfairLock()
   private var gensymCounter: UInt64 = 0
   
-  public let undef           = Symbol("<undef>")
   public let dotdotdot       = Symbol("…")
   public let ellipsis        = Symbol("...")
   public let wildcard        = Symbol("_")
@@ -118,7 +117,6 @@ public final class SymbolTable: Sequence {
     func register(_ sym: Symbol) {
       self.symTable[sym.identifier] = sym
     }
-    register(self.undef)
     register(self.ellipsis)
     register(self.wildcard)
     register(self.append)

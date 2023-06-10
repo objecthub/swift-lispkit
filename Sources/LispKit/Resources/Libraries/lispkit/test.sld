@@ -65,7 +65,7 @@
 
     (define open-test-groups (make-stack))
 
-    (define-record-type test-group
+    (define-record-type <test-group>
       (make-test-group name passed failed start-time)
       test-group?
       (name test-group-name)

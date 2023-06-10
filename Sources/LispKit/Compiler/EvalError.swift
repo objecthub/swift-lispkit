@@ -284,7 +284,7 @@ public enum EvalError: Int, Hashable {
       case .unknownFieldOfRecordType:
         return "unknown field $1 of record type $0"
       case .expectedRecordToAccessField:
-        return "expected record of type $0 to access field: $1"
+        return "expected record of type $0 to access field but received $1"
       case .fieldCountError:
         return "expected values for $0 fields, received instead: $1"
       case .enumTypeEmpty:

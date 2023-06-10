@@ -57,6 +57,36 @@ public final class Collection: ManagedObject, CustomStringConvertible {
     }
   }
   
+  enum RecordType: Int {
+    case typeTag = 0
+    case parent = 1
+    case totalFieldCount = 2
+    case fieldCount = 3
+    case fields = 4
+    
+    static func fields(_ coll: Collection) -> [Symbol] {
+      guard case .recordType = coll.kind else {
+        return []
+      }
+      var res: [Symbol] = []
+      var type: Collection = coll
+      while true {
+        var fields = type.exprs[RecordType.fields.rawValue]
+        var slice: [Symbol] = []
+        while case .pair(.symbol(let sym), let next) = fields {
+          slice.append(sym)
+          fields = next
+        }
+        res.insert(contentsOf: slice, at: 0)
+        guard case .record(let coll) = type.exprs[RecordType.parent.rawValue],
+              case .recordType = coll.kind else {
+          return res
+        }
+        type = coll
+      }
+    }
+  }
+  
   /// The kind of this collection
   public private(set) var kind: Kind
   
@@ -132,9 +162,11 @@ public final class Collection: ManagedObject, CustomStringConvertible {
       case .growableVector:
         return "«gvector \(self.identityString)»"
       case .recordType:
-        return "«record-type:\(self.exprs[0].description) \(self.identityString)»"
+        return "«record-type:\(self.exprs[Collection.RecordType.typeTag.rawValue].description)"
+               + " \(self.identityString)»"
       case .record(let type):
-        return "«record:\(type.exprs[0].description) \(self.identityString)»"
+        return "«record:\(type.exprs[Collection.RecordType.typeTag.rawValue].description)"
+               + " \(self.identityString)»"
     }
   }
 }
