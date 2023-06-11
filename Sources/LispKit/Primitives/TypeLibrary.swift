@@ -68,7 +68,7 @@ public final class TypeLibrary: NativeLibrary {
                                                 "syntax-rules", "lambda", "values", "quote", "void",
                                                 "identity")
     self.`import`(from: ["lispkit", "list"],    "null?", "cons", "car", "cdr", "cadr", "cddr")
-    self.`import`(from: ["lispkit", "control"], "if", "let", "let*", "begin")
+    self.`import`(from: ["lispkit", "control"], "if", "let", "let*", "let-values", "begin")
     self.`import`(from: ["lispkit", "dynamic"], "error", "assert")
   }
   
@@ -105,8 +105,13 @@ public final class TypeLibrary: NativeLibrary {
       """)
     self.define("extensible-type-tag", via:
       "(define (extensible-type-tag expr) (car (_type-repr-ref expr)))")
-    self.define("object", via:
-      "(define object (_make-type-repr make-type identity 'object))")
+    self.define("_object-pair", via: """
+      (define _object-pair (let-values (((otag onew opred oref osub) (make-type 'object)))
+                             (cons (_make-type-repr osub identity otag) otag)))
+      """)
+    self.define("_object", via: "(define _object (car _object-pair))")
+    self.define("object", via: "(define object (car _object-pair))")
+    self.define("object-type-tag", via: "(define object-type-tag (cdr _object-pair))")
     self.define(Procedure("_first-car", self.firstCar))
     self.define(Procedure("_apply-to-constructor", self.applyToConstructor))
     self.define("_define-operation", via: """
@@ -133,11 +138,11 @@ public final class TypeLibrary: NativeLibrary {
       (define-syntax define-type
         (syntax-rules ()
           ((_ (type) pred ((make x ...) expr ...) ((func . ys) stmt ...) ...)
-            (define-type (type object) pred ((make x ...) expr ...) ref ((func . ys) stmt ...) ...))
+            (define-type (type _object) pred ((make x ...) expr ...) ref ((func . ys) stmt ...) ...))
           ((_ (type super) pred ((make x ...) expr ...) ((func . ys) stmt ...) ...)
             (define-type (type super) pred ((make x ...) expr ...) ref ((func . ys) stmt ...) ...))
           ((_ (type) pred ((make x ...) expr ...) ref ((func . ys) stmt ...) ...)
-            (define-type (type object) pred ((make x ...) expr ...) ref ((func . ys) stmt ...) ...))
+            (define-type (type _object) pred ((make x ...) expr ...) ref ((func . ys) stmt ...) ...))
           ((_ (type super) pred ((make x ...) expr ...) ref ((func . ys) stmt ...) ...)
             (begin
               (define-values (tpe new pred ref make-subtype)
@@ -158,10 +163,14 @@ public final class TypeLibrary: NativeLibrary {
   }
   
   public func typeOf(expr: Expr) -> Expr {
-    if let sym = expr.typeTag(in: self.context) {
-      return .symbol(sym)
+    if let syms = expr.typeTag(in: self.context) {
+      var res = Expr.null
+      for sym in syms.reversed() {
+        res = .pair(.symbol(sym), res)
+      }
+      return res
     } else {
-      return .false
+      return .null
     }
   }
   

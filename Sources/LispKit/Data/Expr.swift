@@ -130,66 +130,74 @@ public enum Expr: Hashable {
     }
   }
   
-  public func typeTag(in context: Context) -> Symbol? {
+  public func typeTag(in context: Context) -> [Symbol]? {
     switch self {
       case .undef:
         return nil
       case .uninit(_):
         return nil
       case .void:
-        return context.symbols.void
+        return [context.symbols.void]
       case .eof:
-        return context.symbols.endOfFile
+        return [context.symbols.endOfFile]
       case .null:
-        return context.symbols.null
+        return [context.symbols.null]
       case .true:
-        return context.symbols.boolean
+        return [context.symbols.boolean]
       case .false:
-        return context.symbols.boolean
+        return [context.symbols.boolean]
       case .symbol(_):
-        return context.symbols.symbol
+        return [context.symbols.symbol]
       case .fixnum(_):
-        return context.symbols.fixnum
+        return [context.symbols.fixnum]
       case .bignum(_):
-        return context.symbols.bignum
+        return [context.symbols.bignum]
       case .rational(_, _):
-        return context.symbols.rational
+        return [context.symbols.rational]
       case .flonum(_):
-        return context.symbols.flonum
+        return [context.symbols.flonum]
       case .complex(_):
-        return context.symbols.complex
+        return [context.symbols.complex]
       case .char(_):
-        return context.symbols.char
+        return [context.symbols.char]
       case .string(_):
-        return context.symbols.string
+        return [context.symbols.string]
       case .bytes(_):
-        return context.symbols.bytevector
+        return [context.symbols.bytevector]
       case .pair(_, _):
-        return context.symbols.pair
+        return [context.symbols.pair]
       case .box(_):
-        return context.symbols.pair
+        return [context.symbols.pair]
       case .mpair(_):
-        return context.symbols.mpair
+        return [context.symbols.mpair]
       case .array(_):
-        return context.symbols.array
+        return [context.symbols.array]
       case .vector(let coll):
         switch coll.kind {
           case .vector:
-            return context.symbols.vector
+            return [context.symbols.vector]
           case .immutableVector:
-            return context.symbols.vector
+            return [context.symbols.vector]
           case .growableVector:
-            return context.symbols.gvector
+            return [context.symbols.gvector]
           default:
             return nil
         }
       case .record(let coll):
         switch coll.kind {
           case .recordType:
-            return context.symbols.recordType
+            return [context.symbols.recordType]
           case .record(let icoll):
             if case .recordType = icoll.kind,
-               case .symbol(let res) = icoll.exprs[Collection.RecordType.typeTag.rawValue] {
+               case .symbol(let curr) = icoll.exprs[Collection.RecordType.typeTag.rawValue] {
+              var res = [curr]
+              var rectype = icoll.exprs[Collection.RecordType.parent.rawValue]
+              while case .record(let col) = rectype,
+                    case .recordType = col.kind,
+                    case .symbol(let sym) = col.exprs[Collection.RecordType.typeTag.rawValue] {
+                res.append(sym)
+                rectype = col.exprs[Collection.RecordType.parent.rawValue]
+              }
               return res
             } else {
               return nil
@@ -198,41 +206,47 @@ public enum Expr: Hashable {
             return nil
         }
       case .table(_):
-        return context.symbols.hashtable
+        return [context.symbols.hashtable]
       case .promise(_):
-        return context.symbols.promise
+        return [context.symbols.promise]
       case .values(_):
-        return context.symbols.values
+        return [context.symbols.values]
       case .procedure(let proc):
         switch proc.kind {
           case .parameter(_):
-            return context.symbols.parameter
+            return [context.symbols.parameter]
           default:
-            return context.symbols.procedure
+            return [context.symbols.procedure]
         }
       case .special(_):
-        return context.symbols.syntax
+        return [context.symbols.syntax]
       case .env(_):
-        return context.symbols.environment
+        return [context.symbols.environment]
       case .port(_):
-        return context.symbols.port
+        return [context.symbols.port]
       case .object(let obj):
         if case .objectType(let sym) = obj.type {
-          return sym
+          return [sym]
         } else {
           return nil
         }
-      case .tagged(.pair(.symbol(let sym), _), _):
-        return sym
+      case .tagged(.pair(.symbol(let sym), let rest), _):
+        var res = [sym]
+        var taglist = rest
+        while case .pair(.symbol(let s), let next) = taglist {
+          res.append(s)
+          taglist = next
+        }
+        return res
       case .tagged(let tag, _):
         if case .object(let objTag) = tag {
           if let enumType = objTag as? EnumType {
-            return enumType.id
+            return [enumType.id]
           }
         }
         return nil
       case .error(_):
-        return context.symbols.error
+        return [context.symbols.error]
       case .syntax(_, _):
         return nil
     }

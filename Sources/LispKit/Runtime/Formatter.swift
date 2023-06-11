@@ -406,22 +406,34 @@ public class SExprDirectiveSpecifier: DirectiveSpecifier {
     let str: String
     if let arg = try arguments.next() {
       if let expr = arg as? Expr,
-         case .some(let typeSym) = expr.typeTag(in: self.context),
-         let formatConfig = context.config.environment["formatConfig"] as? FormatConfig,
-         let formatControl = formatConfig.control(for: typeSym) {
-        var unpacked: [Any?] = []
-        for arg in expr.unpack(in: self.context) ?? [expr] {
-          unpacked.append(arg)
+         case .some(let typeSyms) = expr.typeTag(in: self.context),
+         let formatConfig = context.config.environment["formatConfig"] as? FormatConfig {
+        var res: String? = nil
+        for typeSym in typeSyms {
+          if let formatControl = formatConfig.control(for: typeSym) {
+            var unpacked: [Any?] = []
+            for arg in expr.unpack(in: self.context) ?? [expr] {
+              unpacked.append(arg)
+            }
+            let args = context.config.makeArguments(locale: arguments.locale,
+                                                    tabsize: arguments.tabsize,
+                                                    linewidth: arguments.linewidth,
+                                                    args: unpacked)
+            var config = context.config
+            if let env = formatControl.env {
+              config.environment["formatConfig"] = FormatConfig(collapse: env, outer: formatConfig)
+            }
+            res = try formatControl.control.format(with: args, in: context.reconfig(config)).string
+            break
+          }
         }
-        let args = context.config.makeArguments(locale: arguments.locale,
-                                                tabsize: arguments.tabsize,
-                                                linewidth: arguments.linewidth,
-                                                args: unpacked)
-        var config = context.config
-        if let env = formatControl.env {
-          config.environment["formatConfig"] = FormatConfig(collapse: env, outer: formatConfig)
+        if let res = res {
+          str = res
+        } else if let x = arg as? CustomStringConvertible {
+          str = x.description
+        } else {
+          str = "\(arg)"
         }
-        str = try formatControl.control.format(with: args, in: context.reconfig(config)).string
       } else if let x = arg as? CustomStringConvertible {
         str = x.description
       } else {
