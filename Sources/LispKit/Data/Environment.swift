@@ -117,6 +117,9 @@ public final class Environment: Reference, CustomStringConvertible {
     self.bindings = [:]
     super.init()
     self.box = WeakBox(self)
+    self.define(context.symbols.`import`,
+                as: .special(SpecialForm(context.symbols.`import`.description,
+                                         Environment.compileImport)))
   }
   
   /// Initializes an environment for executing the declarations of a library.
@@ -149,12 +152,19 @@ public final class Environment: Reference, CustomStringConvertible {
   }
   
   /// Initializes a custom environment with the given import sets.
-  public init(in context: Context, importing importSets: [ImportSet]) throws {
+  public init(in context: Context,
+              importing importSets: [ImportSet],
+              includeImport: Bool = false) throws {
     self.kind = .custom
     self.context = context
     self.bindings = [:]
     super.init()
     self.box = WeakBox(self)
+    if includeImport {
+      self.define(context.symbols.`import`,
+                  as: .special(SpecialForm(context.symbols.`import`.description,
+                                           Environment.compileImport)))
+    }
     for importSet in importSets {
       _ = try self.import(from: importSet)
     }

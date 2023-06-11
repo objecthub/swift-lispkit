@@ -479,7 +479,7 @@ open class Library: Reference, CustomStringConvertible {
           guard exportList.isNull else {
             throw RuntimeError.eval(.malformedLibraryDefinition, decl)
           }
-        case .pair(.symbol(self.context.symbols.exportOpen), let spec):
+        case .pair(.symbol(self.context.symbols.exportMutable), let spec):
           var exportList = spec
           while case .pair(let export, let next) = exportList {
             switch export {

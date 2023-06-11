@@ -498,13 +498,18 @@ public final class Compiler {
   }
   
   /// Bind symbol `sym` to the value on top of the stack in environment `env`.
-  public func setValueOf(_ sym: Symbol, in env: Env) {
+  public func setValueOf(_ sym: Symbol, in env: Env) throws {
     switch self.setLocalValueOf(sym, in: env) {
       case .success:
         break; // Nothing to do
       case .globalLookupRequired(let lexicalSym, let environment):
-        let loc = self.forceDefinedLocationRef(for: lexicalSym, in: environment).location!
-        self.emit(.setGlobal(loc))
+        let ref = self.forceDefinedLocationRef(for: lexicalSym, in: environment)
+        if case .repl = environment.kind {
+          // allow re-assigning values to immutable imports if this happens in the REPL
+        } else if ref.isImmutable {
+          throw RuntimeError.eval(.bindingImmutable, .symbol(sym))
+        }
+        self.emit(.setGlobal(ref.location!))
       case .macroExpansionRequired(_):
         preconditionFailure("setting bindings should never trigger macro expansion")
     }

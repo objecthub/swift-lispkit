@@ -62,6 +62,7 @@ public final class CoreLibrary: NativeLibrary {
     // Loading primitives
     self.loader = Procedure("<loader>", compileAndEvalFirst)
     self.define(Procedure("load", load))
+    self.define(Procedure("load-program", loadProgram))
     
     // Definition primitives
     self.defineSpecial = SpecialForm("define", compileDefine)
@@ -528,6 +529,26 @@ public final class CoreLibrary: NativeLibrary {
     // Hand over work to `compileAndEvalFirst`
     return (self.loader, [exprs, .makeString(sourceDir), .env(environment!)])
   }
+  
+  private func loadProgram(args: Arguments) throws -> (Procedure, Exprs) {
+    guard args.count == 1 else {
+      throw RuntimeError.argumentCount(of: "load-program", min: 1, max: 1, args: .makeList(args))
+    }
+    // Determine filename
+    let path = try args.first!.asPath()
+    let filename =
+      self.context.fileHandler.filePath(
+        forFile: path, relativeTo: self.context.evaluator.currentDirectoryPath) ??
+      self.context.fileHandler.libraryFilePath(
+        forFile: path, relativeTo: self.context.evaluator.currentDirectoryPath) ??
+      self.context.fileHandler.path(path, relativeTo: self.context.evaluator.currentDirectoryPath)
+    // Load file, parse expressions, and create program environment
+    let exprs = try self.context.evaluator.parse(file: filename)
+    let sourceDir = self.context.fileHandler.directory(filename)
+    let environment = Environment(in: self.context, for: filename)
+    // Hand over work to `compileAndEvalFirst`
+    return (self.loader, [exprs, .makeString(sourceDir), .env(environment)])
+  }
 
   private func compileAndEvalFirst(args: Arguments) throws -> (Procedure, Exprs) {
     guard args.count == 3 else {
@@ -878,7 +899,7 @@ public final class CoreLibrary: NativeLibrary {
     }
     let sym = try symbol.asSymbol()
     try compiler.compile(value, in: env, inTailPos: false)
-    compiler.setValueOf(sym, in: env)
+    try compiler.setValueOf(sym, in: env)
     compiler.emit(.pushVoid)
     return false
   }
@@ -1460,13 +1481,21 @@ public final class CoreLibrary: NativeLibrary {
   
   private func environment(exprs: Arguments) throws -> Expr {
     var importSets = [ImportSet]()
+    var includeImport = false
     for expr in exprs {
-      guard let importSet = ImportSet(expr, in: self.context) else {
+      if case .true = expr {
+        includeImport = true
+      } else if case .false = expr {
+        includeImport = false
+      } else if let importSet = ImportSet(expr, in: self.context) {
+        importSets.append(importSet)
+      } else {
         throw RuntimeError.eval(.malformedImportSet, expr)
       }
-      importSets.append(importSet)
     }
-    return Expr.env(try Environment(in: self.context, importing: importSets))
+    return Expr.env(try Environment(in: self.context,
+                                    importing: importSets,
+                                    includeImport: includeImport))
   }
   
   private func environmentBoundNames(expr: Expr) throws -> Expr {
