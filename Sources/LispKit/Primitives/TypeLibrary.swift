@@ -12,7 +12,7 @@
 //  points and colored points using the declarative interface via `define-type`:
 //
 //  ```
-//  (define-type (point object)
+//  (define-type (point obj)
 //    point?
 //    ((make-point x y) (cons x y))
 //    ((point-x (p)) (car p))
@@ -30,7 +30,7 @@
 //  ```
 //
 //  Created by Matthias Zenger on 07/10/2017.
-//  Copyright © 2017 ObjectHub. All rights reserved.
+//  Copyright © 2017-2023 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -105,13 +105,13 @@ public final class TypeLibrary: NativeLibrary {
       """)
     self.define("extensible-type-tag", via:
       "(define (extensible-type-tag expr) (car (_type-repr-ref expr)))")
-    self.define("_object-pair", via: """
-      (define _object-pair (let-values (((otag onew opred oref osub) (make-type 'object)))
+    self.define("_obj-pair", via: """
+      (define _obj-pair (let-values (((otag onew opred oref osub) (make-type 'obj)))
                              (cons (_make-type-repr osub identity otag) otag)))
       """)
-    self.define("_object", via: "(define _object (car _object-pair))")
-    self.define("object", via: "(define object (car _object-pair))")
-    self.define("object-type-tag", via: "(define object-type-tag (cdr _object-pair))")
+    self.define("_obj", via: "(define _obj (car _obj-pair))")
+    self.define("obj", via: "(define obj (car _obj-pair))")
+    self.define("obj-type-tag", via: "(define obj-type-tag (cdr _obj-pair))")
     self.define(Procedure("_first-car", self.firstCar))
     self.define(Procedure("_apply-to-constructor", self.applyToConstructor))
     self.define("_define-operation", via: """
@@ -138,11 +138,11 @@ public final class TypeLibrary: NativeLibrary {
       (define-syntax define-type
         (syntax-rules ()
           ((_ (type) pred ((make x ...) expr ...) ((func . ys) stmt ...) ...)
-            (define-type (type _object) pred ((make x ...) expr ...) ref ((func . ys) stmt ...) ...))
+            (define-type (type _obj) pred ((make x ...) expr ...) ref ((func . ys) stmt ...) ...))
           ((_ (type super) pred ((make x ...) expr ...) ((func . ys) stmt ...) ...)
             (define-type (type super) pred ((make x ...) expr ...) ref ((func . ys) stmt ...) ...))
           ((_ (type) pred ((make x ...) expr ...) ref ((func . ys) stmt ...) ...)
-            (define-type (type _object) pred ((make x ...) expr ...) ref ((func . ys) stmt ...) ...))
+            (define-type (type _obj) pred ((make x ...) expr ...) ref ((func . ys) stmt ...) ...))
           ((_ (type super) pred ((make x ...) expr ...) ref ((func . ys) stmt ...) ...)
             (begin
               (define-values (tpe new pred ref make-subtype)

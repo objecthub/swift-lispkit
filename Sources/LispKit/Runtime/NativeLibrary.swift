@@ -168,7 +168,7 @@ open class NativeLibrary: Library {
                                         export: Bool = true) -> Int {
     let ident = self.context.symbols.intern(name)
     let location = self.context.heap.allocateLocation(for: expr ?? .uninit(ident))
-    if export {
+    if export && !name.hasPrefix("_") {
       if mutable {
         self.exports[ident] = .mutable(location)
         self.exportDecls[ident] = .mutable(ident)

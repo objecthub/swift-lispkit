@@ -106,7 +106,7 @@
 (
   "define-type for extensible types"
   (111 222 333 red 17)
-  (define-type (stack object)
+  (define-type (stack obj)
     stack?
     ((make-stack) (box '()))
     ((stack-empty? (self))
