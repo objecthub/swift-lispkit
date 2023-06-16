@@ -1,5 +1,7 @@
 ;;; Approximate Pi
 ;;;
+;;; Example usage: (pi-as-string 200)
+;;; 
 ;;; Author: Matthias Zenger
 ;;; Copyright © 2017 Matthias Zenger. All rights reserved.
 ;;;

@@ -57,7 +57,7 @@
 
 (import (lispkit base)
         (prefix (lispkit pdf) pdf:)
-        (import (srfi 27)))
+        (srfi 27))
 
 (define-syntax dotimes
   (syntax-rules ()

@@ -19,6 +19,7 @@
 (test-begin "LispKit regression tests")
 
 (load "Tests/R7RS")
+(load "Tests/LispKit-Record")
 (load "Tests/LispKit-Enum")
 (load "Tests/LispKit-Match")
 (load "Tests/LispKit-Channel")

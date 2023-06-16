@@ -36,7 +36,7 @@
 ;;;                         (watch)
 ;;;                         (pants shoes belt)
 ;;;                         (undershorts pants shoes)
-;;;                         (socks shoes))
+;;;                         (socks shoes)))
 ;;;     ==> (socks undershorts pants shoes watch shirt belt tie jacket)
 ;;;  
 ;;;  The original code from the algorithm below was written by Mikael Djurfeldt.

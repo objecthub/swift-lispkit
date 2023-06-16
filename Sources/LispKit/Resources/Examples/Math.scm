@@ -109,6 +109,7 @@
 
 ;; Displays a function table for function `f`. Arguments for `f` range from `xmin` to
 ;; `xmax`. The table has `steps` entries showing x and f(x).
+;; Example usage: (function-table (lambda (x) (+ (* 0.5 x) (/ 1.0 x))) 1 10 10)
 (define (function-table f xmin xmax steps . args)
   (let-optionals args ((xlen 10)  ; length of x column
                        (xprec 1)  ; precision of x column

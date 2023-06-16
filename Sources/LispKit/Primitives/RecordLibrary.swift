@@ -89,42 +89,47 @@ public final class RecordLibrary: NativeLibrary {
       "                          (define (mutator record value)",
       "                            (record-set! record index value t))",
       "                          mutator))))))")
+    self.define("_define-record-type", via:
+      "(define-syntax _define-record-type",
+      "  (syntax-rules ()",
+      "    ((_ type parent #f args #f (field accessor . mutator) ...)",
+      "      (begin",
+      "        (define type (make-record-type (symbol->string 'type) '(field ...) parent))",
+      "        (_define-record-field type field accessor . mutator) ...))",
+      "    ((_ type parent constr args #f (field accessor . mutator) ...)",
+      "      (begin",
+      "        (define type (make-record-type (symbol->string 'type) '(field ...) parent))",
+      "        (_define-record-constructor constr type args)",
+      "        (_define-record-field type field accessor . mutator) ...))",
+      "    ((_ type parent #f args pred (field accessor . mutator) ...)",
+      "      (begin",
+      "        (define type (make-record-type (symbol->string 'type) '(field ...) parent))",
+      "        (define pred (let ((t type)) (define (pred x) (record? x t)) pred))",
+      "        (_define-record-field type field accessor . mutator) ...))",
+      "    ((_ type parent constr args pred (field accessor . mutator) ...)",
+      "      (begin",
+      "        (define type (make-record-type (symbol->string 'type) '(field ...) parent))",
+      "        (_define-record-constructor constr type args)",
+      "        (define pred (let ((t type)) (define (pred x) (record? x t)) pred))",
+      "        (_define-record-field type field accessor . mutator) ...))))")
     self.define("define-record-type", via:
       "(define-syntax define-record-type",
       "  (syntax-rules ()",
-      "    ((_ (type) (constr cfield ...) #f (field accessor . mutator) ...)",
-      "      (begin",
-      "        (define type (make-record-type (symbol->string 'type) '(field ...)))",
-      "        (_define-record-constructor constr type '(cfield ...))",
-      "        (_define-record-field type field accessor . mutator) ... (void)))",
-      "    ((_ (type parent) (constr cfield ...) #f (field accessor . mutator) ...)",
-      "      (begin",
-      "        (define type (make-record-type (symbol->string 'type) '(field ...) parent))",
-      "        (_define-record-constructor constr type '(cfield ...))",
-      "        (_define-record-field type field accessor . mutator) ... (void)))",
-      "    ((_ (type) (constr cfield ...) pred (field accessor . mutator) ...)",
-      "      (begin",
-      "        (define type (make-record-type (symbol->string 'type) '(field ...)))",
-      "        (_define-record-constructor constr type '(cfield ...))",
-      "        (define pred (let ((t type)) (define (pred x) (record? x t)) pred))",
-      "        (_define-record-field type field accessor . mutator) ... (void)))",
-      "    ((_ (type parent) (constr cfield ...) pred (field accessor . mutator) ...)",
-      "      (begin",
-      "        (define type (make-record-type (symbol->string 'type) '(field ...) parent))",
-      "        (_define-record-constructor constr type '(cfield ...))",
-      "        (define pred (let ((t type)) (define (pred x) (record? x t)) pred))",
-      "        (_define-record-field type field accessor . mutator) ... (void)))",
-      "    ((_ type (constr cfield ...) #f (field accessor . mutator) ...)",
-      "      (begin",
-      "        (define type (make-record-type (symbol->string 'type) '(field ...)))",
-      "        (_define-record-constructor constr type '(cfield ...))",
-      "        (_define-record-field type field accessor . mutator) ... (void)))",
-      "    ((_ type (constr cfield ...) pred (field accessor . mutator) ...)",
-      "      (begin",
-      "        (define type (make-record-type (symbol->string 'type) '(field ...)))",
-      "        (_define-record-constructor constr type '(cfield ...))",
-      "        (define pred (let ((t type)) (define (pred x) (record? x t)) pred))",
-      "        (_define-record-field type field accessor . mutator) ... (void)))))")
+      "    ((_ (type parent) #f #f field ...)",
+      "      (_define-record-type type parent #f #f #f field ...))",
+      "    ((_ (type parent) (constr cfield ...) #f field ...)",
+      "      (_define-record-type type parent constr (quote (cfield ...)) #f field ...))",
+      "    ((_ (type parent) #f pred field ...)",
+      "      (_define-record-type type parent #f #f pred field ...))",
+      "    ((_ (type parent) (constr cfield ...) pred field ...)",
+      "      (_define-record-type type parent constr (quote (cfield ...)) pred field ...))",
+      "    ((_ (type parent) constr pred field ...)",
+      "      (_define-record-type type parent constr",
+      "                           (record-type-field-names type #t) pred field ...))",
+      "    ((_ (type) constr pred field ...)",
+      "      (define-record-type (type #f) constr pred field ...))",
+      "    ((_ type constr pred field ...)",
+      "      (define-record-type (type #f) constr pred field ...))))")
   }
   
   private func isSubtypeOf(_ subType: Collection, _ superType: Collection) -> Bool {
@@ -377,6 +382,7 @@ public final class RecordLibrary: NativeLibrary {
         guard value.isNull else {
           throw RuntimeError.eval(.fieldCountError, .makeNumber(0), value)
         }
+        return expr
       case .pair(_, _):
         var allSimple = true
         var numFields = 0
