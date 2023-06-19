@@ -179,7 +179,9 @@
 (import (srfi 230))
 (import (srfi 232))
 (import (srfi 233))
+(import (srfi 235))
 (import (srfi 236))
+(import (srfi 239))
 
 ; this needs to be last
 (import (srfi 101))

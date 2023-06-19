@@ -233,6 +233,10 @@
 		CC48EBD31F3E5CFC00233FA9 /* kernel0.sld in Copy pre-installed LispKit library: SRFI 135 */ = {isa = PBXBuildFile; fileRef = CC48EBCB1F3E5AA700233FA9 /* kernel0.sld */; };
 		CC48EBD51F3E617800233FA9 /* 135.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC48EBC71F3E55F700233FA9 /* 135.sld */; };
 		CC48EBD71F3F38E800233FA9 /* SRFI135.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC48EBD61F3F380A00233FA9 /* SRFI135.scm */; };
+		CC491BB92A407D71008CA24C /* 235.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC491BB82A407C56008CA24C /* 235.sld */; };
+		CC491BBB2A407D91008CA24C /* 235.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC491BB82A407C56008CA24C /* 235.sld */; };
+		CC491BBC2A407DAB008CA24C /* SRFI-235.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC491BB72A407B1C008CA24C /* SRFI-235.scm */; };
+		CC491BBD2A407DBA008CA24C /* SRFI-235.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC491BB72A407B1C008CA24C /* SRFI-235.scm */; };
 		CC498A8B23882C35002734E0 /* 175.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC498A8A23882C19002734E0 /* 175.sld */; };
 		CC498A9D238B3744002734E0 /* disjoint-set.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC498A9C238B368E002734E0 /* disjoint-set.sld */; };
 		CC4A7DB922585E1700936034 /* stream.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC4A7DB822585D9100936034 /* stream.sld */; };
@@ -1219,6 +1223,7 @@
 			dstPath = Root/LispKit/Tests;
 			dstSubfolderSpec = 7;
 			files = (
+				CC491BBC2A407DAB008CA24C /* SRFI-235.scm in Copy tests */,
 				CCB457462A3CFBC700599565 /* LispKit-Record.scm in Copy tests */,
 				CC517E6129A971D10096FC72 /* LispKit-List-Set.scm in Copy tests */,
 				CCCD1ABC298C6DBF0057DCEB /* SRFI-233.scm in Copy tests */,
@@ -1914,6 +1919,7 @@
 			dstPath = Root/LispKit/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
+				CC491BB92A407D71008CA24C /* 235.sld in Copy pre-installed SRFI libraries */,
 				CCB457432A3A6BE200599565 /* 131.sld in Copy pre-installed SRFI libraries */,
 				CC7D4B792A2558990066BA94 /* 239.sld in Copy pre-installed SRFI libraries */,
 				CCCD1ABF298C70C60057DCEB /* 236.sld in Copy pre-installed SRFI libraries */,
@@ -2030,6 +2036,7 @@
 			dstPath = Root/LispKit/Libraries/srfi;
 			dstSubfolderSpec = 7;
 			files = (
+				CC491BBB2A407D91008CA24C /* 235.sld in Copy pre-installed SRFI libraries */,
 				CCB457442A3A6BF400599565 /* 131.sld in Copy pre-installed SRFI libraries */,
 				CC7D4B7A2A2558B20066BA94 /* 239.sld in Copy pre-installed SRFI libraries */,
 				CCCD1AC0298C70D60057DCEB /* 236.sld in Copy pre-installed SRFI libraries */,
@@ -2393,6 +2400,7 @@
 			dstPath = Root/LispKit/Tests;
 			dstSubfolderSpec = 7;
 			files = (
+				CC491BBD2A407DBA008CA24C /* SRFI-235.scm in Copy tests */,
 				CCB457472A3CFBD600599565 /* LispKit-Record.scm in Copy tests */,
 				CC517E6229A971E50096FC72 /* LispKit-List-Set.scm in Copy tests */,
 				CCCD1ABD298C6DCC0057DCEB /* SRFI-233.scm in Copy tests */,
@@ -2845,6 +2853,8 @@
 		CC48EBCE1F3E5AF300233FA9 /* derived.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = derived.sld; sourceTree = "<group>"; };
 		CC48EBCF1F3E5B0400233FA9 /* primitive.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = primitive.sld; sourceTree = "<group>"; };
 		CC48EBD61F3F380A00233FA9 /* SRFI135.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SRFI135.scm; sourceTree = "<group>"; };
+		CC491BB72A407B1C008CA24C /* SRFI-235.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-235.scm"; sourceTree = "<group>"; };
+		CC491BB82A407C56008CA24C /* 235.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 235.sld; sourceTree = "<group>"; };
 		CC498A8A23882C19002734E0 /* 175.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 175.sld; sourceTree = "<group>"; };
 		CC498A9C238B368E002734E0 /* disjoint-set.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = "disjoint-set.sld"; sourceTree = "<group>"; };
 		CC4A7DB822585D9100936034 /* stream.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = stream.sld; sourceTree = "<group>"; };
@@ -3404,6 +3414,7 @@
 				CCBDF72D2749B17600635B5C /* SRFI-229.scm */,
 				CC6E93C9281CA00C0002C4BC /* SRFI-232.scm */,
 				CCCD1ABB298C6D910057DCEB /* SRFI-233.scm */,
+				CC491BB72A407B1C008CA24C /* SRFI-235.scm */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -3804,6 +3815,7 @@
 				CC2DA75C2787EBAE00DE69CF /* 230.sld */,
 				CC6E93C8281C9F820002C4BC /* 232.sld */,
 				CCCD1AB8298C6BEE0057DCEB /* 233.sld */,
+				CC491BB82A407C56008CA24C /* 235.sld */,
 				CCCD1ABE298C6FEA0057DCEB /* 236.sld */,
 				CC7D4B782A2554760066BA94 /* 239.sld */,
 			);
