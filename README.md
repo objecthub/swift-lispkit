@@ -2,8 +2,8 @@
 ========================
 
 [![Platform: macOS | iOS](https://img.shields.io/badge/Platform-macOS%20%7C%20iOS-blue.svg?style=flat)](https://developer.apple.com/osx/)
-[![Language: Swift 5.7](https://img.shields.io/badge/Language-Swift%205.7-green.svg?style=flat)](https://developer.apple.com/swift/)
-[![IDE: Xcode 14.2](https://img.shields.io/badge/IDE-Xcode%2014.2-orange.svg?style=flat)](https://developer.apple.com/xcode/)
+[![Language: Swift 5.7](https://img.shields.io/badge/Language-Swift%205.8-green.svg?style=flat)](https://developer.apple.com/swift/)
+[![IDE: Xcode 14.2](https://img.shields.io/badge/IDE-Xcode%2014.3-orange.svg?style=flat)](https://developer.apple.com/xcode/)
 [![Carthage: compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![License: Apache](http://img.shields.io/badge/License-Apache-lightgrey.svg?style=flat)](https://raw.githubusercontent.com/objecthub/swift-lispkit/master/LICENSE)
 
@@ -91,7 +91,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit char)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Char),
     [`(lispkit char-set)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Char-Set),
     [`(lispkit string)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-String),
-    `(lispkit format)`,
+    [`(lispkit format)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Format),
     [`(lispkit port)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Port),
     [`(lispkit date-time)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Date-Time),
     [`(lispkit draw)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Draw),
@@ -129,7 +129,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit markdown)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Markdown),
     [`(lispkit sqlite)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-SQLite),
     [`(lispkit archive zip)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Archive-Zip),
-    `(lispkit crypto)`,
+    [`(lispkit crypto)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Crypto),
     `(lispkit json)`,
     `(lispkit sxml)`,
     `(lispkit sxml xml)`,
@@ -238,6 +238,7 @@ framework:
   - [SRFI 230: Atomic Operations](https://srfi.schemers.org/srfi-230/srfi-230.html)
   - [SRFI 232: Flexible curried procedures](https://srfi.schemers.org/srfi-232/srfi-232.html)
   - [SRFI 233: INI files](https://srfi.schemers.org/srfi-233/srfi-233.html)
+  - [SRFI 235: Combinators](https://srfi.schemers.org/srfi-235/srfi-235.html)  
   - [SRFI 236: Evaluating expressions in an unspecified order](https://srfi.schemers.org/srfi-236/srfi-236.html)
   - [SRFI 239: Destructuring Lists](https://srfi.schemers.org/srfi-239/srfi-239.html)
 
@@ -368,8 +369,8 @@ The following technologies are needed to build the components of the LispKit fra
 command-line tool, all that is needed is the Swift Package Manager. For compiling the framework and trying
 the command-line tool directly in Xcode, the Swift Package Manager is not needed.
 
-- [Swift 5.7](https://developer.apple.com/swift/)
-- [Xcode 14.2](https://developer.apple.com/xcode/)
+- [Swift 5.8](https://developer.apple.com/swift/)
+- [Xcode 14.3](https://developer.apple.com/xcode/)
 - [Swift Package Manager](https://swift.org/package-manager/)
 - [NumberKit](http://github.com/objecthub/swift-numberkit)
 - [MarkdownKit](http://github.com/objecthub/swift-markdownkit)
