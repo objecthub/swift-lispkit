@@ -19,6 +19,7 @@
 //
 
 import Foundation
+import CLFormat
 
 #if os(iOS) || os(watchOS) || os(tvOS)
 import UIKit
@@ -89,8 +90,11 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("current-jiffy", self.currentJiffy))
     self.define(Procedure("jiffies-per-second", self.jiffiesPerSecond))
     self.define(Procedure("available-regions", self.availableRegions))
+    self.define(Procedure("available-region?", self.isAvailableRegion))
     self.define(Procedure("region-name", self.regionName))
+    self.define(Procedure("region-flag", self.regionFlag))
     self.define(Procedure("available-languages", self.availableLanguages))
+    self.define(Procedure("available-language?", self.isAvailableLanguage))
     self.define(Procedure("language-name", self.languageName))
     self.define(Procedure("available-locales", self.availableLocales))
     self.define(Procedure("available-locale?", self.isAvailableLocale))
@@ -98,6 +102,12 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("locale-region", self.localeRegion))
     self.define(Procedure("locale-language", self.localeLanguage))
     self.define(Procedure("locale-currency", self.localeCurrency))
+    self.define(Procedure("available-currencies", self.availableCurrencies))
+    self.define(Procedure("available-currency?", self.isAvailableCurrency))
+    self.define(Procedure("currency-name", self.currencyName))
+    self.define(Procedure("currency-code", self.currencyCode))
+    self.define(Procedure("currency-numeric-code", self.currencyNumericCode))
+    self.define(Procedure("currency-symbol", self.currencySymbol))
     self.define(Procedure("features", self.features))
     self.define(Procedure("implementation-name", self.implementationName))
     self.define(Procedure("implementation-version", self.implementationVersion))
@@ -610,6 +620,13 @@ public final class SystemLibrary: NativeLibrary {
     }
     return res
   }
+  
+  private func isAvailableRegion(_ expr: Expr) -> Expr {
+    guard case .string(let str) = expr else {
+      return .false
+    }
+    return .makeBoolean(Locale.isoRegionCodes.contains(str as String))
+  }
 
   private func regionName(_ expr: Expr, _ locale: Expr?) throws -> Expr {
     let region = try expr.asString()
@@ -618,7 +635,24 @@ public final class SystemLibrary: NativeLibrary {
     }
     return .makeString(name)
   }
-
+  
+  private func regionFlag(_ expr: Expr) throws -> Expr {
+    let region = try expr.asString()
+    guard Locale.isoRegionCodes.contains(region) else {
+      return .false
+    }
+    let base : UInt32 = 127397
+    var s = ""
+    for v in region.unicodeScalars {
+      if let scalar = UnicodeScalar(base + v.value) {
+        s.unicodeScalars.append(scalar)
+      } else {
+        return .false
+      }
+    }
+    return .makeString(s)
+  }
+  
   private func availableLanguages() -> Expr {
     var res = Expr.null
     for lang in Locale.isoLanguageCodes.reversed() {
@@ -626,7 +660,14 @@ public final class SystemLibrary: NativeLibrary {
     }
     return res
   }
-
+  
+  private func isAvailableLanguage(_ expr: Expr) -> Expr {
+    guard case .string(let str) = expr else {
+      return .false
+    }
+    return .makeBoolean(Locale.isoLanguageCodes.contains(str as String))
+  }
+  
   private func languageName(_ expr: Expr, _ locale: Expr?) throws -> Expr {
     let lang = try expr.asString()
     guard let name = try self.asLocale(locale).localizedString(forLanguageCode: lang) else {
@@ -648,14 +689,27 @@ public final class SystemLibrary: NativeLibrary {
   }
 
   private func locale(_ language: Expr?, _ country: Expr?) throws -> Expr {
-    guard let lang = language else {
+    guard let language = language else {
       return .symbol(self.context.symbols.intern(Locale.current.identifier))
     }
-    var components: [String : String] = ["kCFLocaleLanguageCodeKey" : try lang.asString()]
-    if let country = country {
-      components["kCFLocaleCountryCodeKey"] = try country.asString()
+    var components: [String : String] = [:]
+    switch language {
+      case .false:
+        break;
+      case .symbol(let sym) where country == nil:
+        return .symbol(self.context.symbols.intern(
+          NSLocale.canonicalLocaleIdentifier(from: sym.identifier)))
+      default:
+        components["kCFLocaleLanguageCodeKey"] = try language.asString()
     }
-    return .symbol(self.context.symbols.intern(Locale.identifier(fromComponents: components)))
+    if let country = country {
+      if case .false = country {
+      } else {
+        components["kCFLocaleCountryCodeKey"] = try country.asString()
+      }
+    }
+    return .symbol(self.context.symbols.intern(
+      NSLocale.canonicalLocaleIdentifier(from: Locale.identifier(fromComponents: components))))
   }
 
   private func localeRegion(_ expr: Expr) throws -> Expr {
@@ -676,9 +730,97 @@ public final class SystemLibrary: NativeLibrary {
     guard let currency = Locale(identifier: try expr.asSymbol().identifier).currencyCode else {
       return .false
     }
-    return .makeString(currency)
+    return .symbol(self.context.symbols.intern(currency))
   }
-
+  
+  private func availableCurrencies() -> Expr {
+    var res = Expr.null
+    for cur in Locale.isoCurrencyCodes.reversed() {
+      res = .pair(.symbol(self.context.symbols.intern(cur)), res)
+    }
+    return res
+  }
+  
+  private func isAvailableCurrency(_ expr: Expr) -> Expr {
+    guard case .symbol(let sym) = expr else {
+      return .false
+    }
+    return .makeBoolean(Locale.isoCurrencyCodes.contains(sym.identifier))
+  }
+  
+  private func currencyName(_ expr: Expr, _ locale: Expr?) throws -> Expr {
+    let code: String?
+    switch expr {
+      case .fixnum(let num) where num < 1000 && num >= 0:
+        code = Currency(numericCode: Int(num))?.alphabeticCode
+      case .string(let str):
+        code = str as String
+      default:
+        code = try expr.asSymbol().identifier
+    }
+    if let c = code,
+       let name = try self.asLocale(locale).localizedString(forCurrencyCode: c) {
+      return .makeString(name)
+    } else {
+      return .false
+    }
+  }
+  
+  private func currencyCode(_ expr: Expr) throws -> Expr {
+    let code: String?
+    switch expr {
+      case .fixnum(let num) where num < 1000 && num >= 0:
+        code = Currency(numericCode: Int(num))?.alphabeticCode
+      case .string(let str):
+        code = str as String
+      default:
+        code = try expr.asSymbol().identifier
+    }
+    if let code = code, Locale.isoCurrencyCodes.contains(code) {
+      return .makeString(code)
+    } else {
+      return .false
+    }
+  }
+  
+  private func currencyNumericCode(_ expr: Expr) throws -> Expr {
+    switch expr {
+      case .fixnum(let num) where num < 1000 && num >= 0:
+        if let currency = Currency(numericCode: Int(num)) {
+          return .makeNumber(Int(currency.numericCode))
+        }
+      case .string(let str):
+        if let currency = Currency(alphabeticCode: str as String) {
+          return .makeNumber(Int(currency.numericCode))
+        }
+      default:
+        let sym = try expr.asSymbol()
+        if let currency = Currency(alphabeticCode: sym.identifier) {
+          return .makeNumber(Int(currency.numericCode))
+        }
+    }
+    return .false
+  }
+  
+  private func currencySymbol(_ expr: Expr, loc: Expr?) throws -> Expr {
+    let locale = try self.asLocale(loc)
+    let code: String?
+    switch expr {
+      case .fixnum(let num) where num < 1000 && num >= 0:
+        code = Currency(numericCode: Int(num))?.alphabeticCode
+      case .string(let str):
+        code = str as String
+      default:
+        code = try expr.asSymbol().identifier
+    }
+    if let code = code,
+       let symbol = (locale as NSLocale).displayName(forKey: .currencySymbol, value: code) {
+      return .makeString(symbol)
+    } else {
+      return .false
+    }
+  }
+  
   private func features() -> Expr {
     var res: Expr = .null
     for feature in self.context.features {

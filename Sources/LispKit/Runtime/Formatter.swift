@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import NumberKit
 import CLFormat
 
 open class Formatter {
@@ -40,6 +41,11 @@ open class Formatter {
     var clFormatConfig = CLFormatConfig.standard
     clFormatConfig.setArgumentFactory(makeArguments: FormatArguments.init)
     clFormatConfig.parse("s", "S", appending: sexprDirSpec)
+    clFormatConfig.parse("c", "C", appending: LispKitDirectiveSpecifier.character)
+    clFormatConfig.parse("d", "D", appending: LispKitDirectiveSpecifier.decimal)
+    clFormatConfig.parse("b", "B", appending: LispKitDirectiveSpecifier.binary)
+    clFormatConfig.parse("o", "O", appending: LispKitDirectiveSpecifier.octal)
+    clFormatConfig.parse("x", "X", appending: LispKitDirectiveSpecifier.hexadecimal)
     clFormatConfig.parse("`") { parser, parameters, modifiers in
       _ = try parser.nextChar()
       let (control, directive) = try parser.parse()
@@ -459,15 +465,99 @@ public class SExprDirectiveSpecifier: DirectiveSpecifier {
 }
 
 public enum LispKitDirectiveSpecifier: DirectiveSpecifier {
+  case decimal
+  case binary
+  case octal
+  case hexadecimal
+  case character
   case unwrap(CLControl)
   case unwrapEnd
   
   public var identifier: Character {
     switch self {
+      case .decimal:
+        return "D"
+      case .binary:
+        return "B"
+      case .octal:
+        return "O"
+      case .hexadecimal:
+        return "X"
+      case .character:
+        return "C"
       case .unwrap(_):
         return "`"
       case .unwrapEnd:
         return "'"
+    }
+  }
+  
+  private func number(context: CLFormat.Context,
+                      parameters: CLFormat.Parameters,
+                      modifiers: CLFormat.Modifiers,
+                      arguments: CLFormat.Arguments,
+                      radix: Int,
+                      groupsep: Character,
+                      groupsize: Int) throws -> CLFormat.Instruction {
+    do {
+      let number = try arguments.nextAsNumber()
+      if let str = NumberFormat.format(
+                     number,
+                     radix: radix,
+                     mincol: try parameters.number(0) ?? 0,
+                     padchar: try parameters.character(1) ?? " ",
+                     groupsep: try parameters.character(2) ?? groupsep,
+                     groupsize: try parameters.number(3) ?? groupsize,
+                     usegroup: modifiers.contains(.colon),
+                     forcesign: modifiers.contains(.at),
+                     uppercase: modifiers.contains(.plus),
+                     force: true) {
+        return .append(str)
+      } else {
+        throw CLFormatError.cannotRepresentNumber(number, radix)
+      }
+    } catch CLFormatError.expectedNumberArgument(let n, let arg) where arg is Expr {
+      if let expr = arg as? Expr, case .bignum(let num) = expr {
+        let groupChar = try parameters.character(2)
+        var groupSep: String? =
+          modifiers.contains(.plus) ?
+            ((groupChar == nil) ? arguments.locale?.groupingSeparator : String(groupChar!)) :
+            nil
+        if groupSep == nil && modifiers.contains(.colon) {
+          groupSep = (groupChar == nil) ? String(groupsep) : String(groupChar!)
+        }
+        let base: BigInt.Base
+        switch radix {
+          case 16:
+            base = .hex
+          case 10:
+            base = .dec
+          case 8:
+            base = .oct
+          case 2:
+            base = .bin
+          default:
+            base = .dec
+        }
+        let res = num.toString(base: base,
+                               groupSep: groupSep,
+                               groupSize: try parameters.number(3) ?? groupsize,
+                               forceSign: modifiers.contains(.at),
+                               plusSign: "+",
+                               minusSign: "-")
+        return .append(StandardDirectiveSpecifier.pad(string: res,
+                                                      left: true,
+                                                      right: false,
+                                                      padchar: try parameters.character(1) ??
+                                                               " ",
+                                                      ellipsis: "…",
+                                                      mincol: try parameters.number(0) ?? 0,
+                                                      colinc: 1,
+                                                      minpad: 0,
+                                                      maxcol: nil))
+      } else {
+        throw CLFormatError.expectedNumberArgument(n, arg)
+      }
     }
   }
   
@@ -476,6 +566,106 @@ public enum LispKitDirectiveSpecifier: DirectiveSpecifier {
                     modifiers: CLFormat.Modifiers,
                     arguments: CLFormat.Arguments) throws -> CLFormat.Instruction {
     switch self {
+      case .decimal:
+        do {
+          return .append(NumberFormat.format(try arguments.nextAsNumber(),
+                                             style: .decimal,
+                                             mincol: try parameters.number(0) ?? 0,
+                                             padchar: try parameters.character(1) ?? " ",
+                                             groupsep: try parameters.character(2),
+                                             groupsize: try parameters.number(3),
+                                             locale: arguments.locale,
+                                             usegroup: modifiers.contains(.colon),
+                                             uselocale: modifiers.contains(.plus),
+                                             forcesign: modifiers.contains(.at)))
+        } catch CLFormatError.expectedNumberArgument(let n, let arg) where arg is Expr {
+          if let expr = arg as? Expr, case .bignum(let num) = expr {
+            let groupChar = try parameters.character(2)
+            var groupSep: String? =
+              modifiers.contains(.plus) ?
+                ((groupChar == nil) ? arguments.locale?.groupingSeparator : String(groupChar!)) :
+                nil
+            if groupSep == nil && modifiers.contains(.colon) {
+              groupSep = (groupChar == nil) ? "," : String(groupChar!)
+            }
+            let res = num.toString(base: .dec,
+                                   groupSep: groupSep,
+                                   groupSize: try parameters.number(3) ?? 3,
+                                   forceSign: modifiers.contains(.at),
+                                   plusSign: "+",
+                                   minusSign: "-")
+            return .append(StandardDirectiveSpecifier.pad(string: res,
+                                                          left: true,
+                                                          right: false,
+                                                          padchar: try parameters.character(1) ??
+                                                                   " ",
+                                                          ellipsis: "…",
+                                                          mincol: try parameters.number(0) ?? 0,
+                                                          colinc: 1,
+                                                          minpad: 0,
+                                                          maxcol: nil))
+          } else {
+            throw CLFormatError.expectedNumberArgument(n, arg)
+          }
+        }
+      case .binary:
+        return try self.number(context: context,
+                               parameters: parameters,
+                               modifiers: modifiers,
+                               arguments: arguments,
+                               radix: 2,
+                               groupsep: " ",
+                               groupsize: 4)
+      case .octal:
+        return try self.number(context: context,
+                               parameters: parameters,
+                               modifiers: modifiers,
+                               arguments: arguments,
+                               radix: 8,
+                               groupsep: " ",
+                               groupsize: 4)
+      case .hexadecimal:
+        return try self.number(context: context,
+                               parameters: parameters,
+                               modifiers: modifiers,
+                               arguments: arguments,
+                               radix: 16,
+                               groupsep: ":",
+                               groupsize: 2)
+      case .character:
+        let char = try arguments.nextAsCharacter()
+        let str = String(char)
+        // Unicode-based character representation
+        if modifiers.contains(.at) {
+          if modifiers.contains(.colon) {
+            if modifiers.contains(.plus) {
+                // Output unicode scalar names
+              return .append(str.flatMap(\.unicodeScalars)
+                                .compactMap(\.properties.name)
+                                .joined(separator: ", "))
+            } else {
+              // Output unicode scalar codes
+              return .append(str.applyingTransform(.init("Any-Hex/Unicode"), reverse: false) ?? str)
+            }
+          } else if let usc = char.utf16.first {
+            return .append(Expr.char(UniChar(usc)).description)
+          } else {
+            return .append("#\\\(char)")
+          }
+        // XML-based character representations
+        } else if modifiers.contains(.colon) {
+          if modifiers.contains(.plus) {
+              // Encode character using XML character names
+            return .append(str.encodingNamedCharacters())
+          } else {
+              // Unicode-based character encoding in XML
+            return .append(str.applyingTransform(.init("Any-Hex/XML"), reverse: false) ?? str)
+          }
+        } else if modifiers.contains(.plus) {
+          return .append("\"\(Expr.escapeStr("\(char)"))\"")
+        } else {
+          return .append("\(char)")
+        }
       case .unwrap(let control):
         let unpacked: [Any?]
         if let arg = try arguments.next() {

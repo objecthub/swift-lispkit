@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-atomics.git",
       "state" : {
-        "revision" : "ff3d2212b6b093db7f177d0855adbc4ef9c5f036",
-        "version" : "1.0.3"
+        "revision" : "6c89474e62719ddcc1e9614989fff2f68208fe10",
+        "version" : "1.1.0"
       }
     },
     {
@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/objecthub/swift-clformat",
       "state" : {
-        "revision" : "46729371356b776c8da2b0cf0699e4db1647d25c",
-        "version" : "1.0.10"
+        "branch" : "main",
+        "revision" : "76b1b0fd03b3b9dde1e13b3e8e2c9fcd0c7f55c4"
       }
     },
     {
@@ -41,8 +41,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/objecthub/swift-numberkit.git",
       "state" : {
-        "revision" : "0f9c918dcea73f6ff4ff762b8e83a0991ca668d9",
-        "version" : "2.4.2"
+        "branch" : "master",
+        "revision" : "91e712eb05d779c011396f7f1ccc84d3d1447976"
       }
     },
     {

@@ -32,7 +32,7 @@
 
 (
   "Character directive formatting"
-  ("Ü" "&#xA9;" "&copy;" "\\u{dc}" "\"\\u{dc}\"" "U+00DC" "LATIN CAPITAL LETTER U WITH DIAERESIS")
+  ("Ü" "&#xA9;" "&copy;" "#\\Ü" "#\\Ü" "U+00DC" "LATIN CAPITAL LETTER U WITH DIAERESIS")
   (list (format "~C" #\Ü)
         (format "~:C" #\©)
         (format "~:+C" #\©)
