@@ -43,6 +43,7 @@ public final class BitsetLibrary: NativeLibrary {
     self.define(Procedure("bitset?", isBitset))
     self.define(Procedure("bitset", bitset))
     self.define(Procedure("list->bitset", listToBitset))
+    self.define(Procedure("fixnum->bitset", fixnumToBitset))
     self.define(Procedure("bitset-copy", bitsetCopy))
     self.define(Procedure("bitset-size", bitsetSize))
     self.define(Procedure("bitset-next", bitsetNext))
@@ -64,6 +65,7 @@ public final class BitsetLibrary: NativeLibrary {
     self.define(Procedure("bitset>?", bitsetGreaterThan))
     self.define(Procedure("bitset>=?", bitsetGreaterThanEqual))
     self.define(Procedure("bitset->list", bitsetToList))
+    self.define(Procedure("bitset->fixnum", bitsetToFixnum))
     self.define("bitset-for-each", via: """
       (define (bitset-for-each f bs)
         (do ((i (bitset-next bs 0) (bitset-next bs (fx1+ i))))
@@ -121,6 +123,17 @@ public final class BitsetLibrary: NativeLibrary {
       bs.add(try arg.asInt(above: 0, below: 100000))
     }
     return .object(NativeBitset(bs))
+  }
+  
+  private func fixnumToBitset(expr: Expr) throws -> Expr {
+    let x = try expr.asInt64()
+    var bits: [Int] = []
+    for n in x.trailingZeroBitCount..<Int64.bitWidth {
+      if (x >> n) & 1 == 1 {
+        bits.append(n)
+      }
+    }
+    return .object(NativeBitset(Bitset(bits)))
   }
   
   private func listToBitset(expr: Expr) throws -> Expr {
@@ -318,6 +331,21 @@ public final class BitsetLibrary: NativeLibrary {
       res = .pair(.fixnum(Int64(x)), res)
     }
     return res
+  }
+  
+  private func bitsetToFixnum(bs: Expr) throws -> Expr {
+    let bits = Array(try self.asBitset(expr: bs).bitset)
+    guard let last = bits.last else {
+      return .fixnum(0)
+    }
+    guard last < Int64.bitWidth else {
+      return .false
+    }
+    var res: Int64 = 0
+    for n in bits {
+      res |= 1 << n
+    }
+    return .fixnum(res)
   }
 }
 
