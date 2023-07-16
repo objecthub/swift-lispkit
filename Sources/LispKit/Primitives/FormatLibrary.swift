@@ -47,6 +47,7 @@ public final class FormatLibrary: NativeLibrary {
     self.define(Procedure("format-config-linewidth", self.formatConfigLineWidth))
     self.define(Procedure("format-config-linewidth-set!", self.formatConfigLineWidthSet))
     self.define(Procedure("format-config-control-set!", self.formatConfigControlSet))
+    self.define(Procedure("format-config-control-remove!", self.formatConfigControlRemove))
     self.define(Procedure("format-config-controls", self.formatConfigControls))
     self.define(Procedure("format-config-parent", self.formatConfigParent))
   }
@@ -153,19 +154,61 @@ public final class FormatLibrary: NativeLibrary {
   }
   
   private func formatConfigConstr(args: Arguments) throws -> Expr {
-    guard let (loc, twidth, lwidth, outer) =
-            args.optional(.false, .false, .false, .true) else {
-      throw RuntimeError.argumentCount(of: "format-config", min: 0, max: 4, args: .makeList(args))
+    var iterator = args.makeIterator()
+    var arg = iterator.next()
+    let fconf: FormatConfig
+    if case .some(.object(_)) = arg {
+      fconf = FormatConfig(outerConfig: try self.formatConfig(from: arg!))
+      arg = iterator.next()
+    } else if case .some(.false) = arg {
+      fconf = FormatConfig(outerConfig: nil)
+      arg = iterator.next()
+    } else {
+      fconf = FormatConfig(outerConfig: try self.formatConfig(from: nil))
     }
-    let fconf = FormatConfig(outerConfig: outer.isTrue ? try self.formatConfig(from: outer) : nil)
-    if loc.isTrue {
-      fconf.locale = Locale(identifier: try loc.asSymbol().identifier)
+    if case .some(.symbol(let sym)) = arg {
+      fconf.locale = Locale(identifier: sym.identifier)
+      arg = iterator.next()
     }
-    if twidth.isTrue {
-      fconf.tabWidth = try twidth.asInt(above: 1, below: 1000)
+    if case .some(.fixnum(_)) = arg {
+      fconf.tabWidth = try arg!.asInt(above: 1, below: 1000)
+      arg = iterator.next()
     }
-    if lwidth.isTrue {
-      fconf.lineWidth = try twidth.asInt(above: 1, below: Int.max - 100)
+    if case .some(.fixnum(_)) = arg {
+      fconf.lineWidth = try arg!.asInt(above: 1, below: Int.max - 100)
+      arg = iterator.next()
+    }
+    while case .some(.pair(let typeExpr, .pair(let controlExpr, let cdr))) = arg {
+      let typeTag: Symbol
+      // Allow record types as type tags
+      if case .record(let record) = typeExpr, case .recordType = record.kind {
+        typeTag = try record.exprs[Collection.RecordType.typeTag.rawValue].asSymbol()
+      // Assume this is a type tag
+      } else {
+        typeTag = try typeExpr.asSymbol()
+      }
+      if controlExpr.isFalse {
+        fconf.formatNatively(typeTag)
+      } else if case .pair(let configExpr, .null) = cdr {
+        guard case .object(let obj) = configExpr, let conf = obj as? FormatConfig else {
+          throw RuntimeError.type(configExpr, expected: [FormatConfig.type])
+        }
+        fconf.format(typeTag,
+                     with: try CLControl(string: controlExpr.asString(),
+                                         config: self.context.formatter.clFormatConfig),
+                     in: conf)
+      } else if case .null = cdr {
+        fconf.format(typeTag,
+                     with: try CLControl(string: controlExpr.asString(),
+                                         config: self.context.formatter.clFormatConfig),
+                     in: nil)
+      } else {
+        throw RuntimeError.eval(.invalidControlSpec, arg!)
+      }
+      arg = iterator.next()
+    }
+    guard arg == nil else {
+      throw RuntimeError.eval(.invalidControlSpec, arg!)
     }
     return .object(fconf)
   }
@@ -255,7 +298,7 @@ public final class FormatLibrary: NativeLibrary {
     let typeExpr: Expr
     let controlExpr: Expr
     let configExpr: Expr?
-    // If the second argument is a string or false, we use the default config
+      // If the second argument is a string or false, we use the default config
     switch snd {
       case .false, .string(_):
         fconf = try self.formatConfig(from: nil)
@@ -272,14 +315,16 @@ public final class FormatLibrary: NativeLibrary {
         configExpr = fth
     }
     let typeTag: Symbol
-    // Allow record types as type tags
+      // Allow record types as type tags
     if case .record(let record) = typeExpr, case .recordType = record.kind {
       typeTag = try record.exprs[Collection.RecordType.typeTag.rawValue].asSymbol()
-    // Assume this is a type tag
+        // Assume this is a type tag
     } else {
       typeTag = try typeExpr.asSymbol()
     }
-    if controlExpr.isFalse {
+    if case .true = controlExpr {
+      fconf.formatNatively(typeTag)
+    } else if controlExpr.isFalse {
       fconf.removeFormat(typeTag)
     } else if let configExpr = configExpr {
       guard case .object(let obj) = configExpr, let conf = obj as? FormatConfig else {
@@ -295,6 +340,28 @@ public final class FormatLibrary: NativeLibrary {
                                        config: self.context.formatter.clFormatConfig),
                    in: nil)
     }
+    return .void
+  }
+  
+  private func formatConfigControlRemove(fst: Expr, snd: Expr?) throws -> Expr {
+    let fconf: FormatConfig
+    let typeExpr: Expr
+    if let snd = snd {
+      fconf = try self.formatConfig(from: fst)
+      typeExpr = snd
+    } else {
+      fconf = try self.formatConfig(from: nil)
+      typeExpr = fst
+    }
+    let typeTag: Symbol
+    // Allow record types as type tags
+    if case .record(let record) = typeExpr, case .recordType = record.kind {
+      typeTag = try record.exprs[Collection.RecordType.typeTag.rawValue].asSymbol()
+    // Assume this is a type tag
+    } else {
+      typeTag = try typeExpr.asSymbol()
+    }
+    fconf.removeFormat(typeTag)
     return .void
   }
   

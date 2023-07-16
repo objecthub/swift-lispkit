@@ -166,6 +166,7 @@ public enum EvalError: Int, Hashable {
   case keyDoesNotSupportAlgorithm
   case controlStringMissing
   case invalidDefaultFormatConfig
+  case invalidControlSpec
   
   public var message: String {
     switch self {
@@ -451,6 +452,8 @@ public enum EvalError: Int, Hashable {
         return "control string missing in format arguments"
       case .invalidDefaultFormatConfig:
         return "invalid default format configuration: $0"
+      case .invalidControlSpec:
+        return "invalid formatting control specifier: $0"
     }
   }
   

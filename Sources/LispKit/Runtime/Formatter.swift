@@ -72,7 +72,7 @@ open class Formatter {
     self.clFormatConfig = clFormatConfig
     self.baseFormatConfig = formatConfig
     self.replFormatConfig = FormatConfig(outerConfig: formatConfig)
-    self.formatConfigParam = Procedure(.null, .object(formatConfig))
+    self.formatConfigParam = Procedure(.null, .object(FormatConfig(outerConfig: formatConfig)))
   }
   
   open func format(_ control: String,
@@ -116,9 +116,9 @@ public final class FormatConfig: NativeObject {
   
   public static let empty = FormatConfig(outerConfig: nil)
   
-  public struct FormatControl {
-    let control: CLControl
-    let env: FormatConfig?
+  public enum FormatControl {
+    case native
+    case custom(CLControl, FormatConfig?)
   }
   
   /// Type representing format configurations
@@ -235,7 +235,11 @@ public final class FormatConfig: NativeObject {
   }
   
   public func format(_ type: Symbol, with control: CLControl, in env: FormatConfig?) {
-    self.controlDict[type] = FormatControl(control: control, env: env)
+    self.controlDict[type] = .custom(control, env)
+  }
+  
+  public func formatNatively(_ type: Symbol) {
+    self.controlDict[type] = .native
   }
   
   public func removeFormat(_ type: Symbol) {
@@ -416,7 +420,7 @@ public class SExprDirectiveSpecifier: DirectiveSpecifier {
          let formatConfig = context.config.environment["formatConfig"] as? FormatConfig {
         var res: String? = nil
         for typeSym in typeSyms {
-          if let formatControl = formatConfig.control(for: typeSym) {
+          if case .some(.custom(let control, let env)) = formatConfig.control(for: typeSym) {
             var unpacked: [Any?] = []
             for arg in expr.unpack(in: self.context) ?? [expr] {
               unpacked.append(arg)
@@ -426,10 +430,10 @@ public class SExprDirectiveSpecifier: DirectiveSpecifier {
                                                     linewidth: arguments.linewidth,
                                                     args: unpacked)
             var config = context.config
-            if let env = formatControl.env {
+            if let env = env {
               config.environment["formatConfig"] = FormatConfig(collapse: env, outer: formatConfig)
             }
-            res = try formatControl.control.format(with: args, in: context.reconfig(config)).string
+            res = try control.format(with: args, in: context.reconfig(config)).string
             break
           }
         }
