@@ -656,11 +656,17 @@ public enum ErrorDescriptor: Hashable {
         return error.message
       case .os(let error):
         let nserror = error as NSError
+        var prefix = ""
         if let underlying = nserror.userInfo[NSUnderlyingErrorKey] as? NSError {
-          let prefix = underlying.localizedFailureReason ?? underlying.localizedDescription
-          return "\(prefix): \(error.localizedDescription) (error \(nserror.code))"
+          let prefixDescr = underlying.localizedFailureReason ?? underlying.localizedDescription
+          prefix = "\(prefixDescr.firstLowercased): "
+        }
+        if nserror.domain == NSOSStatusErrorDomain,
+           let descr = nserror.userInfo["NSDescription"] as? String {
+          return "\(prefix)\(descr.firstLowercased) (\(nserror.domain): \(nserror.code))"
         } else {
-          return "\(error.localizedDescription) (error \(nserror.code))"
+          return "\(prefix)\(error.localizedDescription.firstLowercased) " +
+                 "(\(nserror.domain): \(nserror.code))"
         }
       case .abortion:
         return "abortion"

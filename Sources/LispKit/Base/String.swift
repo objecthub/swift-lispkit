@@ -84,4 +84,8 @@ extension String {
     }
     return Data(bytes)
   }
+  
+  var firstLowercased: String {
+    return self.prefix(1).lowercased() + self.dropFirst()
+  }
 }
