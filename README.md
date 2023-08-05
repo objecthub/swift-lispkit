@@ -2,8 +2,8 @@
 ========================
 
 [![Platform: macOS | iOS](https://img.shields.io/badge/Platform-macOS%20%7C%20iOS-blue.svg?style=flat)](https://developer.apple.com/osx/)
-[![Language: Swift 5.7](https://img.shields.io/badge/Language-Swift%205.8-green.svg?style=flat)](https://developer.apple.com/swift/)
-[![IDE: Xcode 14.2](https://img.shields.io/badge/IDE-Xcode%2014.3-orange.svg?style=flat)](https://developer.apple.com/xcode/)
+[![Language: Swift 5.8](https://img.shields.io/badge/Language-Swift%205.8-green.svg?style=flat)](https://developer.apple.com/swift/)
+[![IDE: Xcode 14.3](https://img.shields.io/badge/IDE-Xcode%2014.3-orange.svg?style=flat)](https://developer.apple.com/xcode/)
 [![Carthage: compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![License: Apache](http://img.shields.io/badge/License-Apache-lightgrey.svg?style=flat)](https://raw.githubusercontent.com/objecthub/swift-lispkit/master/LICENSE)
 
@@ -80,6 +80,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit math util)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Math-Util),
     [`(lispkit math stats)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Math-Stats), 
     [`(lispkit list)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-List),
+    [`(lispkit list set)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-List-Set),
     [`(lispkit hashtable)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Hashtable),
     [`(lispkit dynamic)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Dynamic),
     [`(lispkit type)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Type),
