@@ -141,7 +141,7 @@ public enum Expr: Hashable {
       case .eof:
         return [context.symbols.endOfFile]
       case .null:
-        return [context.symbols.null]
+        return [context.symbols.null, context.symbols.list]
       case .true:
         return [context.symbols.boolean]
       case .false:
@@ -149,15 +149,25 @@ public enum Expr: Hashable {
       case .symbol(_):
         return [context.symbols.symbol]
       case .fixnum(_):
-        return [context.symbols.fixnum]
+        return [context.symbols.fixnum,
+                context.symbols.integer,
+                context.symbols.real,
+                context.symbols.number]
       case .bignum(_):
-        return [context.symbols.bignum]
+        return [context.symbols.bignum,
+                context.symbols.integer,
+                context.symbols.real,
+                context.symbols.number]
       case .rational(_, _):
-        return [context.symbols.rational]
+        return [context.symbols.rational,
+                context.symbols.real,
+                context.symbols.number]
       case .flonum(_):
-        return [context.symbols.flonum]
+        return [context.symbols.flonum,
+                context.symbols.real,
+                context.symbols.number]
       case .complex(_):
-        return [context.symbols.complex]
+        return [context.symbols.complex, context.symbols.number]
       case .char(_):
         return [context.symbols.char]
       case .string(_):
@@ -165,9 +175,9 @@ public enum Expr: Hashable {
       case .bytes(_):
         return [context.symbols.bytevector]
       case .pair(_, _):
-        return [context.symbols.pair]
+        return [context.symbols.pair, context.symbols.list]
       case .box(_):
-        return [context.symbols.pair]
+        return [context.symbols.box]
       case .mpair(_):
         return [context.symbols.mpair]
       case .array(_):
@@ -222,8 +232,14 @@ public enum Expr: Hashable {
         return [context.symbols.syntax]
       case .env(_):
         return [context.symbols.environment]
-      case .port(_):
-        return [context.symbols.port]
+      case .port(let port):
+        if port.isInputPort {
+          return [context.symbols.inputPort, context.symbols.port]
+        } else if port.isOutputPort {
+          return [context.symbols.outputPort, context.symbols.port]
+        } else { // Not sure if this ever happens
+          return [context.symbols.port]
+        }
       case .object(let obj):
         if case .objectType(let sym) = obj.type {
           return [sym]

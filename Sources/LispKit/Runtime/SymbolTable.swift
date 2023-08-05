@@ -100,9 +100,15 @@ public final class SymbolTable: Sequence {
   public let environment     = Symbol("environment")
   public let hashtable       = Symbol("hashtable")
   public let port            = Symbol("port")
+  public let inputPort       = Symbol("input-port")
+  public let outputPort      = Symbol("output-port")
   public let recordType      = Symbol("record-type")
   public let error           = Symbol("error")
-
+  public let integer         = Symbol("integer")
+  public let real            = Symbol("real")
+  public let number          = Symbol("number")
+  public let box             = Symbol("box")
+  
   public init() {
     self.registerNativeSymbols()
   }
