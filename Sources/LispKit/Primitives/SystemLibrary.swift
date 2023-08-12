@@ -125,9 +125,10 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("current-user-name", self.currentUserName))
     self.define(Procedure("user-data", self.userData))
     self.define(Procedure("terminal-size", self.terminalSize))
-    self.define(Procedure("make-uuid", self.makeUUID))
     self.define(Procedure("open-url", self.openUrl))
     self.define(Procedure("http-get", httpGet))
+    self.define(Procedure("make-uuid-bytevector", makeUuidBytevector))
+    self.define(Procedure("make-uuid-string", makeUuidString))
   }
   
   private func compileSourceDirectory(compiler: Compiler,
@@ -945,10 +946,6 @@ public final class SystemLibrary: NativeLibrary {
     }
   }
   
-  private func makeUUID() -> Expr {
-    return .makeString(UUID().uuidString)
-  }
-  
   private func openUrl(_ expr: Expr) throws -> Expr {
     #if os(iOS) || os(watchOS) || os(tvOS)
     DispatchQueue.main.async {
@@ -992,7 +989,37 @@ public final class SystemLibrary: NativeLibrary {
     }
     return .values(.pair(response, .pair(.bytes(MutableBox(bytes)), .null)))
   }
-
+  
+  func makeUuidBytevector(_ expr: Expr?) throws -> Expr {
+    let uuid: UUID
+    if let str = expr {
+      if let u = UUID(uuidString: try str.asString()) {
+        uuid = u
+      } else {
+        return .false
+      }
+    } else {
+      uuid = UUID()
+    }
+    let (u1,u2,u3,u4,u5,u6,u7,u8,u9,u10,u11,u12,u13,u14,u15,u16) = uuid.uuid
+    return .bytes(MutableBox([u1,u2,u3,u4,u5,u6,u7,u8,u9,u10,u11,u12,u13,u14,u15,u16]))
+  }
+  
+  func makeUuidString(_ args: Arguments) throws -> Expr {
+    if let expr = args.first {
+      let remaining = args[args.index(after: args.startIndex)...]
+      let u = try BytevectorLibrary.subVector("make-uuid-string", expr, remaining)
+      guard u.count == 16 else {
+        return .false
+      }
+      let uuid = UUID(uuid: (u[0], u[1], u[2], u[3], u[4], u[5], u[6], u[7], u[8],
+                             u[9], u[10], u[11], u[12], u[13], u[14], u[15]))
+      return .makeString(uuid.uuidString)
+    } else {
+      return .makeString(UUID().uuidString)
+    }
+  }
+  
   private func asLocale(_ expr: Expr?) throws -> Locale {
     guard let locale = expr else {
       return Locale.current
