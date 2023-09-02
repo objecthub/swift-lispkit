@@ -709,18 +709,11 @@ public final class PortLibrary: NativeLibrary {
   }
   
   func displayFormat(_ args: Arguments) throws -> Expr {
-    let port = try self.defaultPort(self.outputPortParam)
-    guard port.isOpen else {
-      throw RuntimeError.eval(.portClosed, .port(port))
-    }
-    guard case .textOutputPort(let op) = port.kind else {
-      throw RuntimeError.type(.port(port), expected: [.textOutputPortType])
-    }
-    var output = op
     var fconfig: FormatConfig
     var arguments: [Any?] = []
     var iterator = args.makeIterator()
     var arg = iterator.next()
+    var output: TextOutput
     if case .some(.port(let port)) = arg {
       guard port.isOpen else {
         throw RuntimeError.eval(.portClosed, .port(port))
@@ -730,6 +723,15 @@ public final class PortLibrary: NativeLibrary {
       }
       output = out
       arg = iterator.next()
+    } else {
+      let port = try self.defaultPort(self.outputPortParam)
+      guard port.isOpen else {
+        throw RuntimeError.eval(.portClosed, .port(port))
+      }
+      guard case .textOutputPort(let out) = port.kind else {
+        throw RuntimeError.type(.port(port), expected: [.textOutputPortType])
+      }
+      output = out
     }
     if case .some(.object(let obj)) = arg, let outerConf = obj as? FormatConfig {
       fconfig = FormatConfig(outerConfig: outerConf)
@@ -772,7 +774,7 @@ public final class PortLibrary: NativeLibrary {
                            linewidth: fconfig.getLineWidth(),
                            arguments: arguments)
     guard output.writeString(res) else {
-      throw RuntimeError.eval(.cannotWriteToPort, .port(port))
+      throw RuntimeError.eval(.cannotWriteToPort, .port(Port(output: output)))
     }
     return .void
   }
