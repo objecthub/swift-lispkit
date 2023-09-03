@@ -177,6 +177,9 @@
 		CC2DA7622788774C00DE69CF /* SRFI-18.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC2DA7602788756D00DE69CF /* SRFI-18.scm */; };
 		CC2DA7632788825D00DE69CF /* 230.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC2DA75C2787EBAE00DE69CF /* 230.sld */; };
 		CC2DA764278882C000DE69CF /* 230.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC2DA75C2787EBAE00DE69CF /* 230.sld */; };
+		CC2FB07A2AA3D7A800A20C71 /* TarArchiveLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2FB0792AA3D7A800A20C71 /* TarArchiveLibrary.swift */; };
+		CC2FB07B2AA3D7A800A20C71 /* TarArchiveLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2FB0792AA3D7A800A20C71 /* TarArchiveLibrary.swift */; };
+		CC2FB07E2AA3D83E00A20C71 /* SWCompression in Frameworks */ = {isa = PBXBuildFile; productRef = CC2FB07D2AA3D83E00A20C71 /* SWCompression */; };
 		CC31A6981D3AC223008D7728 /* Hash.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC31A6971D3AC223008D7728 /* Hash.swift */; };
 		CC35F9C2222188BD00895A10 /* DateTimeLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35F9C1222188BC00895A10 /* DateTimeLibrary.swift */; };
 		CC35FD0D1C6FA4B700C8B992 /* VirtualMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */; };
@@ -2806,6 +2809,7 @@
 		CC2DA75C2787EBAE00DE69CF /* 230.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 230.sld; sourceTree = "<group>"; };
 		CC2DA75D27886FB200DE69CF /* 18.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 18.sld; sourceTree = "<group>"; };
 		CC2DA7602788756D00DE69CF /* SRFI-18.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-18.scm"; sourceTree = "<group>"; };
+		CC2FB0792AA3D7A800A20C71 /* TarArchiveLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TarArchiveLibrary.swift; sourceTree = "<group>"; };
 		CC31A6971D3AC223008D7728 /* Hash.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Hash.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC35F9C1222188BC00895A10 /* DateTimeLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateTimeLibrary.swift; sourceTree = "<group>"; };
 		CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = VirtualMachine.swift; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -3325,6 +3329,7 @@
 				CC5E53032355AAD400C72CE2 /* NumberKit in Frameworks */,
 				CC2DA73A2770012300DE69CF /* Atomics in Frameworks */,
 				CC089651244091E9004503B1 /* SQLiteExpress in Frameworks */,
+				CC2FB07E2AA3D83E00A20C71 /* SWCompression in Frameworks */,
 				CCFB412725B2523C005B2429 /* ZIPFoundation in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4270,6 +4275,7 @@
 				CCA6C3D023610674007D2AF0 /* MarkdownLibrary.swift */,
 				CC08964D244090D1004503B1 /* SQLiteLibrary.swift */,
 				CCFB412A25B25316005B2429 /* ZipArchiveLibrary.swift */,
+				CC2FB0792AA3D7A800A20C71 /* TarArchiveLibrary.swift */,
 				CC517E5729A217980096FC72 /* CryptoLibrary.swift */,
 				CC2DA7462773195600DE69CF /* ThreadLibrary.swift */,
 				CC38528A23126F7A001D5E56 /* InternalLibrary.swift */,
@@ -4537,6 +4543,7 @@
 				CCFB412625B2523C005B2429 /* ZIPFoundation */,
 				CC2DA7392770012300DE69CF /* Atomics */,
 				CC7D4B6C2A0D877C0066BA94 /* CLFormat */,
+				CC2FB07D2AA3D83E00A20C71 /* SWCompression */,
 			);
 			productName = LispKit;
 			productReference = CCAD52BA1C48403800DBD8EE /* LispKit.framework */;
@@ -4682,6 +4689,7 @@
 				CCFB412525B2523C005B2429 /* XCRemoteSwiftPackageReference "ZIPFoundation" */,
 				CC2DA7382770012300DE69CF /* XCRemoteSwiftPackageReference "swift-atomics" */,
 				CC7D4B6B2A0D877C0066BA94 /* XCRemoteSwiftPackageReference "swift-clformat" */,
+				CC2FB07C2AA3D83E00A20C71 /* XCRemoteSwiftPackageReference "SWCompression" */,
 			);
 			productRefGroup = CCAD52BB1C48403800DBD8EE /* Products */;
 			projectDirPath = "";
@@ -4840,6 +4848,7 @@
 				CCD81AD21CE75823009EB087 /* Checkpointer.swift in Sources */,
 				CC01903B1C89D02200DB8BF9 /* CaptureGroup.swift in Sources */,
 				CCC5319E1D16E40D00FAED6E /* TextInputSource.swift in Sources */,
+				CC2FB07A2AA3D7A800A20C71 /* TarArchiveLibrary.swift in Sources */,
 				CCAD52F81C48474500DBD8EE /* Context.swift in Sources */,
 				CC050F141D017D3400D32132 /* BytevectorLibrary.swift in Sources */,
 				CC372CCF27D31EC30091C474 /* Bitset.swift in Sources */,
@@ -5006,6 +5015,7 @@
 				CCC48CB925E5B97100D082AD /* Heap.swift in Sources */,
 				CC372CD027D31EC30091C474 /* Bitset.swift in Sources */,
 				CCC48CC725E5B98600D082AD /* ControlFlowLibrary.swift in Sources */,
+				CC2FB07B2AA3D7A800A20C71 /* TarArchiveLibrary.swift in Sources */,
 				CCC48C9325E5B95B00D082AD /* Environment.swift in Sources */,
 				CCC48CB225E5B97100D082AD /* SyntaxRules.swift in Sources */,
 				CCC48CB525E5B97100D082AD /* Code.swift in Sources */,
@@ -5683,6 +5693,14 @@
 				minimumVersion = 1.0.3;
 			};
 		};
+		CC2FB07C2AA3D83E00A20C71 /* XCRemoteSwiftPackageReference "SWCompression" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/tsolomko/SWCompression";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.0.0;
+			};
+		};
 		CC5E53012355AAD400C72CE2 /* XCRemoteSwiftPackageReference "swift-numberkit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/objecthub/swift-numberkit.git";
@@ -5740,6 +5758,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = CC2DA7382770012300DE69CF /* XCRemoteSwiftPackageReference "swift-atomics" */;
 			productName = Atomics;
+		};
+		CC2FB07D2AA3D83E00A20C71 /* SWCompression */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CC2FB07C2AA3D83E00A20C71 /* XCRemoteSwiftPackageReference "SWCompression" */;
+			productName = SWCompression;
 		};
 		CC458D822386043500231A63 /* CommandLineKit */ = {
 			isa = XCSwiftPackageProductDependency;

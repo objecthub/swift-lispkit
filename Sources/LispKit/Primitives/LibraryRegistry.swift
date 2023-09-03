@@ -93,6 +93,7 @@ public struct LibraryRegistry {
     MarkdownLibrary.self,
     SQLiteLibrary.self,
     ZipArchiveLibrary.self,
+    TarArchiveLibrary.self,
     CryptoLibrary.self,
     ThreadLibrary.self
   ]

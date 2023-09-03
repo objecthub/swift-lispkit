@@ -1446,10 +1446,10 @@ public final class MathLibrary: NativeLibrary {
       }
       switch try NumberPair(acc, e) {
         case .fixnumPair(let lhs, let rhs):
-          let (res, overflow) = Rational.gcdWithOverflow(lhs, rhs)
-          acc = overflow ? .makeNumber(Rational.gcd(BigInt(lhs), BigInt(rhs))) : .makeNumber(res)
+          let (res, overflow) = Int64.gcdWithOverflow(lhs, rhs)
+          acc = overflow ? .makeNumber(BigInt.gcd(BigInt(lhs), BigInt(rhs))) : .makeNumber(res)
         case .bignumPair(let lhs, let rhs):
-          acc = .makeNumber(Rational.gcd(lhs, rhs))
+          acc = .makeNumber(BigInt.gcd(lhs, rhs))
         case .rationalPair(let lhs, let rhs):
           let (res, overflow) = lhs.gcdReportingOverflow(with: rhs)
           acc = overflow ?
@@ -1476,10 +1476,10 @@ public final class MathLibrary: NativeLibrary {
       }
       switch try NumberPair(acc, e) {
         case .fixnumPair(let lhs, let rhs):
-          let (res, overflow) = Rational.lcmWithOverflow(lhs, rhs)
-          acc = overflow ? .makeNumber(Rational.lcm(BigInt(lhs), BigInt(rhs))) : .makeNumber(res)
+          let (res, overflow) = Int64.lcmWithOverflow(lhs, rhs)
+          acc = overflow ? .makeNumber(BigInt.lcm(BigInt(lhs), BigInt(rhs))) : .makeNumber(res)
         case .bignumPair(let lhs, let rhs):
-          acc = .makeNumber(Rational.lcm(lhs, rhs))
+          acc = .makeNumber(BigInt.lcm(lhs, rhs))
         case .rationalPair(let lhs, let rhs):
           let (res, overflow) = lhs.lcmReportingOverflow(with: rhs)
           acc = overflow ?

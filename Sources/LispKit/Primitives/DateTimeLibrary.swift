@@ -42,7 +42,7 @@ public final class DateTimeLibrary: NativeLibrary {
   private let dateTimeFull: Symbol
 
   // Calendar used by this library; this is hard-coded to the gregorian calendar for now.
-  private let calendar = Calendar(identifier: Calendar.Identifier.gregorian)
+  static let calendar = Calendar(identifier: Calendar.Identifier.gregorian)
   
   /// Initialize time zone name styles
   public required init(in context: Context) throws {
@@ -202,7 +202,7 @@ public final class DateTimeLibrary: NativeLibrary {
   private func dateTime(args: Arguments) throws -> Expr {
     guard args.count > 1 else {
       return .object(
-        NativeDateTime(self.calendar.dateComponents(in: try self.asTimeZone(args.first),
+        NativeDateTime(Self.calendar.dateComponents(in: try self.asTimeZone(args.first),
                                                     from: Date())))
     }
     var components = Expr.null
@@ -249,7 +249,7 @@ public final class DateTimeLibrary: NativeLibrary {
     } else if !time.isNull {
       throw RuntimeError.eval(.invalidDateTime, components)
     }
-    let dc = DateComponents(calendar: self.calendar,
+    let dc = DateComponents(calendar: Self.calendar,
                             timeZone: tz,
                             year: Int(y),
                             month: Int(m),
@@ -315,7 +315,7 @@ public final class DateTimeLibrary: NativeLibrary {
     } else if !day.isNull {
       throw RuntimeError.eval(.invalidDateTime, components)
     }
-    let dc = DateComponents(calendar: self.calendar,
+    let dc = DateComponents(calendar: Self.calendar,
                             timeZone: tz,
                             hour: hour,
                             minute: minute,
@@ -332,7 +332,7 @@ public final class DateTimeLibrary: NativeLibrary {
 
   private func secondsToDateTime(_ seconds: Expr, _ timeZone: Expr?) throws -> Expr {
     let date = Date(timeIntervalSince1970: try seconds.asDouble(coerce: true))
-    return .object(NativeDateTime(self.calendar.dateComponents(in: try self.asTimeZone(timeZone),
+    return .object(NativeDateTime(Self.calendar.dateComponents(in: try self.asTimeZone(timeZone),
                                                                from: date)))
   }
 
@@ -344,7 +344,7 @@ public final class DateTimeLibrary: NativeLibrary {
                                        args: .pair(str, .makeList(args)))
     }
     let formatter = DateFormatter()
-    formatter.calendar = self.calendar
+    formatter.calendar = Self.calendar
     formatter.locale = try self.asLocale(locale == .false ? nil : locale)
     formatter.timeZone = try self.asTimeZone(timeZone)
     if dateFormat == .false {
@@ -366,7 +366,7 @@ public final class DateTimeLibrary: NativeLibrary {
     guard let date = formatter.date(from: try str.asString()) else {
       return .false
     }
-    return .object(NativeDateTime(self.calendar.dateComponents(in: formatter.timeZone,
+    return .object(NativeDateTime(Self.calendar.dateComponents(in: formatter.timeZone,
                                                                from: date)))
   }
 
@@ -384,7 +384,7 @@ public final class DateTimeLibrary: NativeLibrary {
     guard let date = dateComponents.date else {
       throw RuntimeError.type(expr, expected: [NativeDateTime.type])
     }
-    let dc = DateComponents(calendar: self.calendar,
+    let dc = DateComponents(calendar: Self.calendar,
                             timeZone: dateComponents.timeZone,
                             year: 0,
                             month: 0,
@@ -393,11 +393,11 @@ public final class DateTimeLibrary: NativeLibrary {
                             minute: try min.asInt(above: Int.min),
                             second: try sec.asInt(above: Int.min),
                             nanosecond: try nano.asInt(above: Int.min))
-    guard let target = self.calendar.date(byAdding: dc, to: date, wrappingComponents: false),
+    guard let target = Self.calendar.date(byAdding: dc, to: date, wrappingComponents: false),
       let timeZone = dateComponents.timeZone else {
       return .false
     }
-    return .object(NativeDateTime(self.calendar.dateComponents(in: timeZone, from: target)))
+    return .object(NativeDateTime(Self.calendar.dateComponents(in: timeZone, from: target)))
   }
   
   private func dateTimeAddSeconds(_ expr: Expr, _ seconds: Expr) throws -> Expr {
@@ -410,7 +410,7 @@ public final class DateTimeLibrary: NativeLibrary {
     guard let timeZone = dateComponents.timeZone else {
       return .false
     }
-    return .object(NativeDateTime(self.calendar.dateComponents(in: timeZone, from: target)))
+    return .object(NativeDateTime(Self.calendar.dateComponents(in: timeZone, from: target)))
   }
   
   private func dateTimeDiffSeconds(_ expr: Expr, _ target: Expr) throws -> Expr {
@@ -432,7 +432,7 @@ public final class DateTimeLibrary: NativeLibrary {
       throw RuntimeError.type(expr, expected: [NativeDateTime.type])
     }
     let tzone = try self.asTimeZone(timeZone)
-    return .object(NativeDateTime(self.calendar.dateComponents(in: tzone, from: date)))
+    return .object(NativeDateTime(Self.calendar.dateComponents(in: tzone, from: date)))
   }
 
   private func isDateTimeSame(_ lhs: Expr, _ rhs: Expr) throws -> Expr {
@@ -504,7 +504,7 @@ public final class DateTimeLibrary: NativeLibrary {
       throw RuntimeError.type(expr, expected: [NativeDateTime.type])
     }
     let formatter = DateFormatter()
-    formatter.calendar = dateComponents.calendar ?? self.calendar
+    formatter.calendar = dateComponents.calendar ?? Self.calendar
     formatter.timeZone = dateComponents.timeZone ?? TimeZone.current
     formatter.locale = try self.asLocale(locale)
     if let format = dateFormat {
@@ -600,7 +600,7 @@ public final class DateTimeLibrary: NativeLibrary {
     guard let next = dateComponents.timeZone!.nextDaylightSavingTimeTransition(after: date) else {
       return .false
     }
-    return .object(NativeDateTime(self.calendar.dateComponents(in: dateComponents.timeZone!,
+    return .object(NativeDateTime(Self.calendar.dateComponents(in: dateComponents.timeZone!,
                                                                from: next)))
   }
   
@@ -677,7 +677,7 @@ public final class DateTimeLibrary: NativeLibrary {
   }
 
   private func toDateTime(_ date: Date, in timeZone: TimeZone) -> Expr? {
-    return .object(NativeDateTime(self.calendar.dateComponents(in: timeZone, from: date)))
+    return .object(NativeDateTime(Self.calendar.dateComponents(in: timeZone, from: date)))
   }
 
   private func toDateTime(_ dc: DateComponents) -> Expr? {
