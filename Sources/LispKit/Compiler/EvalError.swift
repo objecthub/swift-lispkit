@@ -135,6 +135,8 @@ public enum EvalError: Int, Hashable {
   case cannotMutateZipArchive
   case zipArchiveEntryDoesNotExist
   case zipEntryTooLarge
+  case tarArchiveEntryDoesNotExist
+  case cannotWriteTarArchive
   case unknownFileOrDirectory
   case abandonedMutex
   case mutexUseInInvalidContext
@@ -390,6 +392,10 @@ public enum EvalError: Int, Hashable {
         return "no entry for path $,1 in zip archive $0"
       case .zipEntryTooLarge:
         return "zip entry too large: $0"
+      case .tarArchiveEntryDoesNotExist:
+        return "no entry for path $,1 in tar archive $0"
+      case .cannotWriteTarArchive:
+        return "cannot write tar archive $0; missing file path"
       case .unknownFileOrDirectory:
         return "unknown file or directory $,0"
       case .abandonedMutex:

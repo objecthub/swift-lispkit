@@ -27,7 +27,7 @@ import Foundation
 /// is used by the LispKit core library.
 /// 
 public final class FileHandler {
-  private let fileManager: FileManager
+  internal let fileManager: FileManager
   public var searchUrls: [URL]
   public var librarySearchUrls: [URL]
   public var assetSearchUrls: [URL]

@@ -1,4 +1,4 @@
-// swift-tools-version:5.4
+// swift-tools-version:5.5
 //
 //  Package.swift
 //  LispKit
@@ -49,12 +49,13 @@ let package = Package(
     .executable(name: "LispKitRepl", targets: ["LispKitRepl"])
   ],
   dependencies: [
-    .package(url: "https://github.com/objecthub/swift-numberkit.git", from: "2.4.2"),
+    .package(url: "https://github.com/objecthub/swift-numberkit.git", branch: "master"),
     .package(url: "https://github.com/objecthub/swift-markdownkit.git", from: "1.1.7"),
     .package(url: "https://github.com/objecthub/swift-commandlinekit.git", from: "0.3.5"),
     .package(url: "https://github.com/objecthub/swift-sqliteexpress.git", from: "1.0.3"),
     .package(url: "https://github.com/objecthub/swift-clformat.git", from: "1.0.10"),
     .package(url: "https://github.com/weichsel/ZIPFoundation.git", from: "0.9.16"),
+    .package(url: "https://github.com/tsolomko/SWCompression.git", from: "4.8.5"),
     .package(url: "https://github.com/apple/swift-atomics.git", from: "1.1.0")
   ],
   targets: [
@@ -65,6 +66,7 @@ let package = Package(
               .product(name: "SQLiteExpress", package: "swift-sqliteexpress"),
               .product(name: "CLFormat", package: "swift-clformat"),
               .product(name: "ZIPFoundation", package: "ZIPFoundation"),
+              .product(name: "SWCompression", package: "SWCompression"),
               .product(name: "Atomics", package: "swift-atomics")
             ],
             exclude: [
