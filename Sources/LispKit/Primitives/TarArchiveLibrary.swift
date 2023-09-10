@@ -68,9 +68,9 @@ public final class TarArchiveLibrary: NativeLibrary {
     self.define(Procedure("tar-entry-data", self.tarEntryData))
     
     // Adding and removing entries
-    self.define(Procedure("add-tar-entry", self.addTarEntry))
-    self.define(Procedure("set-tar-entry", self.setTarEntry))
-    self.define(Procedure("delete-tar-entry", self.deleteTarEntry))
+    self.define(Procedure("add-tar-entry!", self.addTarEntry))
+    self.define(Procedure("set-tar-entry!", self.setTarEntry))
+    self.define(Procedure("delete-tar-entry!", self.deleteTarEntry))
     
     // Extracting entries
     self.define(Procedure("extract-tar-entry", self.extractTarEntry))

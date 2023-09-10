@@ -129,6 +129,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit csv)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-CSV),
     [`(lispkit markdown)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Markdown),
     [`(lispkit sqlite)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-SQLite),
+    [`(lispkit archive tar)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Archive-Tar),
     [`(lispkit archive zip)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Archive-Zip),
     [`(lispkit crypto)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Crypto),
     `(lispkit json)`,
