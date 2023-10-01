@@ -32,9 +32,9 @@
         "package": "CLFormat",
         "repositoryURL": "https://github.com/objecthub/swift-clformat.git",
         "state": {
-          "branch": null,
-          "revision": "46729371356b776c8da2b0cf0699e4db1647d25c",
-          "version": "1.0.10"
+          "branch": "main",
+          "revision": "266c9795fe259e954d076fad903ed30d35ef1d0d",
+          "version": null
         }
       },
       {
@@ -78,8 +78,8 @@
         "repositoryURL": "https://github.com/weichsel/ZIPFoundation.git",
         "state": {
           "branch": null,
-          "revision": "43ec568034b3731101dbf7670765d671c30f54f3",
-          "version": "0.9.16"
+          "revision": "a3f5c2bae0f04b0bce9ef3c4ba6bd1031a0564c4",
+          "version": "0.9.17"
         }
       }
     ]
