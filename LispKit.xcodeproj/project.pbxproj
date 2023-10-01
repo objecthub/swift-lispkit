@@ -298,6 +298,7 @@
 		CC5E53032355AAD400C72CE2 /* NumberKit in Frameworks */ = {isa = PBXBuildFile; productRef = CC5E53022355AAD400C72CE2 /* NumberKit */; };
 		CC5E53082357A2FA00C72CE2 /* 174.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC5E530723579CF200C72CE2 /* 174.sld */; };
 		CC5E530A235836A900C72CE2 /* SRFI-174.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC5E53092358359900C72CE2 /* SRFI-174.scm */; };
+		CC61CB382ACA116500C5A032 /* SWCompression in Frameworks */ = {isa = PBXBuildFile; productRef = CC61CB372ACA116500C5A032 /* SWCompression */; };
 		CC624CD827374DA8005F15B3 /* util.sld in Copy pre-installed LispKit library: LispKit Math */ = {isa = PBXBuildFile; fileRef = CC624CD627374BF4005F15B3 /* util.sld */; };
 		CC624CDA27374E8E005F15B3 /* util.sld in Copy pre-installed LispKit library: LispKit Math */ = {isa = PBXBuildFile; fileRef = CC624CD627374BF4005F15B3 /* util.sld */; };
 		CC624CDC2737D21E005F15B3 /* stats.sld in Copy pre-installed LispKit library: LispKit Math */ = {isa = PBXBuildFile; fileRef = CC624CDB2737D16E005F15B3 /* stats.sld */; };
@@ -3351,6 +3352,7 @@
 				CCC48D0325E5BFA300D082AD /* NumberKit in Frameworks */,
 				CC2DA73C277001A200DE69CF /* Atomics in Frameworks */,
 				CCC48D0725E5BFB300D082AD /* SQLiteExpress in Frameworks */,
+				CC61CB382ACA116500C5A032 /* SWCompression in Frameworks */,
 				CCC48D0925E5BFB800D082AD /* ZIPFoundation in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4615,6 +4617,7 @@
 				CCC48D0825E5BFB800D082AD /* ZIPFoundation */,
 				CC2DA73B277001A200DE69CF /* Atomics */,
 				CC7D4B7B2A2559BC0066BA94 /* CLFormat */,
+				CC61CB372ACA116500C5A032 /* SWCompression */,
 			);
 			productName = "LispKit iOS";
 			productReference = CCC48C5625E5B8DC00D082AD /* LispKit.framework */;
@@ -5776,6 +5779,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = CC5E53012355AAD400C72CE2 /* XCRemoteSwiftPackageReference "swift-numberkit" */;
 			productName = NumberKit;
+		};
+		CC61CB372ACA116500C5A032 /* SWCompression */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CC2FB07C2AA3D83E00A20C71 /* XCRemoteSwiftPackageReference "SWCompression" */;
+			productName = SWCompression;
 		};
 		CC7D4B6C2A0D877C0066BA94 /* CLFormat */ = {
 			isa = XCSwiftPackageProductDependency;
