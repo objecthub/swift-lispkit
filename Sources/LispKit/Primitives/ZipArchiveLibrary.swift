@@ -97,28 +97,32 @@ public final class ZipArchiveLibrary: NativeLibrary {
   
   private func makeZipArchive(_ expr: Expr?, _ update: Expr?) throws -> Expr {
     guard let bvector = try expr?.asByteVector() else {
-      guard let archive = Archive(accessMode: .create) else {
+      guard let archive = try? Archive(accessMode: .create, pathEncoding: nil) else {
         throw RuntimeError.eval(.cannotCreateInMemoryZipArchive)
       }
       return .object(ZipArchive(archive))
     }
-    guard let archive = Archive(data: Data(bvector.value),
-                                accessMode: (update ?? .false).isTrue ? .update : .read) else {
+    guard let archive = try? Archive(data: Data(bvector.value),
+                                     accessMode: (update ?? .false).isTrue ? .update : .read,
+                                     pathEncoding: nil) else {
       throw RuntimeError.eval(.cannotMakeInMemoryZipArchiveFromData, expr!)
     }
     return .object(ZipArchive(archive))
   }
   
   private func createZipArchive(_ expr: Expr) throws -> Expr {
-    guard let archive = Archive(url: try self.url(from: expr), accessMode: .create) else {
+    guard let archive = try? Archive(url: try self.url(from: expr),
+                                     accessMode: .create,
+                                     pathEncoding: nil) else {
       throw RuntimeError.eval(.cannotCreateZipArchive, expr)
     }
     return .object(ZipArchive(archive))
   }
   
   private func openZipArchive(_ expr: Expr, _ update: Expr?) throws -> Expr {
-    guard let archive = Archive(url: try self.url(from: expr),
-                                accessMode: (update ?? .false).isTrue ? .update : .read) else {
+    guard let archive = try? Archive(url: try self.url(from: expr),
+                                     accessMode: (update ?? .false).isTrue ? .update : .read,
+                                     pathEncoding: nil) else {
       throw RuntimeError.eval(.cannotOpenZipArchive, expr)
     }
     return .object(ZipArchive(archive))
