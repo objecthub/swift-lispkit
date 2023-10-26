@@ -90,9 +90,7 @@ let package = Package(
                         .target(name: "LispKitTools")
                       ],
                       exclude: [
-                        "Info.plist",
-                        "BuildMetadata.m",
-                        "BuildMetadata.h"
+                        "AppInfo.tmpl"
                       ]),
     .testTarget(name: "LispKitTests",
                 dependencies: [

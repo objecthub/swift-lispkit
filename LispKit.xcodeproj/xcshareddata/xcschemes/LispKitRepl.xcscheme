@@ -14,8 +14,8 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "CC1227351CBFE74500821EB7"
-               BuildableName = "LispKitRepl.app"
+               BlueprintIdentifier = "CC74D33A2AEA47420054CC5A"
+               BuildableName = "LispKitRepl"
                BlueprintName = "LispKitRepl"
                ReferencedContainer = "container:LispKit.xcodeproj">
             </BuildableReference>
@@ -30,8 +30,8 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "CC1227351CBFE74500821EB7"
-            BuildableName = "LispKitRepl.app"
+            BlueprintIdentifier = "CC74D33A2AEA47420054CC5A"
+            BuildableName = "LispKitRepl"
             BlueprintName = "LispKitRepl"
             ReferencedContainer = "container:LispKit.xcodeproj">
          </BuildableReference>
@@ -63,8 +63,8 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "CC1227351CBFE74500821EB7"
-            BuildableName = "LispKitRepl.app"
+            BlueprintIdentifier = "CC74D33A2AEA47420054CC5A"
+            BuildableName = "LispKitRepl"
             BlueprintName = "LispKitRepl"
             ReferencedContainer = "container:LispKit.xcodeproj">
          </BuildableReference>
@@ -87,8 +87,8 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "CC1227351CBFE74500821EB7"
-            BuildableName = "LispKitRepl.app"
+            BlueprintIdentifier = "CC74D33A2AEA47420054CC5A"
+            BuildableName = "LispKitRepl"
             BlueprintName = "LispKitRepl"
             ReferencedContainer = "container:LispKit.xcodeproj">
          </BuildableReference>

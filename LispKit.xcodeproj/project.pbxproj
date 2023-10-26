@@ -72,7 +72,6 @@
 		CC0E57C7268FAAFB00693DD2 /* SRFI-223.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC0E57C3268FAA7800693DD2 /* SRFI-223.scm */; };
 		CC0EBFF91ED37FB7004510B2 /* Math.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC0EBFF81ED37A76004510B2 /* Math.scm */; };
 		CC10404D1F53789D0045144A /* pdf.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC10404C1F5378660045144A /* pdf.sld */; };
-		CC1227391CBFE74500821EB7 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1227381CBFE74500821EB7 /* main.swift */; };
 		CC131C4C1CDE0C3D006C030C /* SyntaxRules.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC131C4B1CDE0C3D006C030C /* SyntaxRules.scm */; };
 		CC131C4E1CDE0DCA006C030C /* RegressionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC131C4D1CDE0DCA006C030C /* RegressionTests.swift */; };
 		CC131C501CDE0E01006C030C /* LispKitTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC131C4F1CDE0E01006C030C /* LispKitTestCase.swift */; };
@@ -94,8 +93,6 @@
 		CC1867402750E9A400B31427 /* 166.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC1867322750E5F600B31427 /* 166.sld */; };
 		CC1867422750EAC300B31427 /* SRFI-166.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC1867412750E9F900B31427 /* SRFI-166.scm */; };
 		CC1867432750EADC00B31427 /* SRFI-166.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC1867412750E9F900B31427 /* SRFI-166.scm */; };
-		CC1AAE3B1CC3CF0F00D1806F /* LispKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCAD52BA1C48403800DBD8EE /* LispKit.framework */; };
-		CC1AAE3C1CC3CF0F00D1806F /* LispKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CCAD52BA1C48403800DBD8EE /* LispKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CC1D6CBA258CCE1A00D36645 /* EditDistance.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC1D6CB9258CCCFF00D36645 /* EditDistance.scm */; };
 		CC1D6CBE258CDE8200D36645 /* 209.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC1D6CBD258CDE3700D36645 /* 209.sld */; };
 		CC1D6CC2258CE0B700D36645 /* SRFI-209.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC1D6CC1258CDF0000D36645 /* SRFI-209.scm */; };
@@ -222,8 +219,6 @@
 		CC4575C820F00EE000116F0F /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC4575C720F00EE000116F0F /* Color.swift */; };
 		CC458D832386043500231A63 /* CommandLineKit in Frameworks */ = {isa = PBXBuildFile; productRef = CC458D822386043500231A63 /* CommandLineKit */; };
 		CC458D842386045500231A63 /* LispKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCAD52BA1C48403800DBD8EE /* LispKit.framework */; };
-		CC458D892386049500231A63 /* LispKitTools.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC3B64272386025500807476 /* LispKitTools.framework */; };
-		CC458D8A2386049500231A63 /* LispKitTools.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CC3B64272386025500807476 /* LispKitTools.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CC474EAF1ECFAC3F00B535E3 /* Pi.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCFBE5C31ECBA8DA0032254B /* Pi.scm */; };
 		CC474EB11ED03CB100B535E3 /* Queens.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC474EB01ED0390200B535E3 /* Queens.scm */; };
 		CC474EB31ED08D8D00B535E3 /* SRFI134.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC474EB21ED08C9700B535E3 /* SRFI134.scm */; };
@@ -252,8 +247,6 @@
 		CC4A7DC9225A35C500936034 /* SRFI-165.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC4A7DC8225A344300936034 /* SRFI-165.scm */; };
 		CC4D2C9F1D5EDA2A00A02256 /* RecordLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC4D2C9E1D5EDA2A00A02256 /* RecordLibrary.swift */; };
 		CC4E2D371D09691000D77159 /* PortLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC4E2D361D09691000D77159 /* PortLibrary.swift */; };
-		CC502A951CDABF1E00875D9F /* BuildMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = CC502A941CDABF1E00875D9F /* BuildMetadata.m */; };
-		CC5033AF1CDB9A440045A8FA /* AppInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5033AE1CDB9A440045A8FA /* AppInfo.swift */; };
 		CC5157B926E42B370056B05B /* Procedures.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC5157B826E42B370056B05B /* Procedures.scm */; };
 		CC517E5829A217980096FC72 /* CryptoLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC517E5729A217980096FC72 /* CryptoLibrary.swift */; };
 		CC517E5929A217980096FC72 /* CryptoLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC517E5729A217980096FC72 /* CryptoLibrary.swift */; };
@@ -333,6 +326,12 @@
 		CC703A1F218D0B3000E71EA9 /* support.sld in Copy pre-installed LispKit library: LispKit CLOS Support */ = {isa = PBXBuildFile; fileRef = CC703A1C218D09F700E71EA9 /* support.sld */; };
 		CC703A21218D123F00E71EA9 /* 95.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC703A20218D122100E71EA9 /* 95.sld */; };
 		CC72862D1F52B32C00EEBC58 /* heap.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC72862C1F52B2F600EEBC58 /* heap.sld */; };
+		CC74D3462AEA47DA0054CC5A /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC74D3452AEA47DA0054CC5A /* main.swift */; };
+		CC74D3482AEA48000054CC5A /* AppInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC74D3472AEA48000054CC5A /* AppInfo.swift */; };
+		CC74D34C2AEA498D0054CC5A /* LispKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCAD52BA1C48403800DBD8EE /* LispKit.framework */; };
+		CC74D34D2AEA498D0054CC5A /* LispKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CCAD52BA1C48403800DBD8EE /* LispKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		CC74D3512AEA49910054CC5A /* LispKitTools.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC3B64272386025500807476 /* LispKitTools.framework */; };
+		CC74D3522AEA49910054CC5A /* LispKitTools.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CC3B64272386025500807476 /* LispKitTools.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CC750BD81F5AC71500CD82A2 /* PDF.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC750BD71F5AC68900CD82A2 /* PDF.scm */; };
 		CC750BDA1F5B776700CD82A2 /* prettify.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC750BD91F5B772200CD82A2 /* prettify.sld */; };
 		CC76312120E9518F005F27CE /* Drawing.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC76312020E9518F005F27CE /* Drawing.swift */; };
@@ -1183,13 +1182,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		CC1AAE3D1CC3CF0F00D1806F /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = CCAD52B11C48403800DBD8EE /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = CCAD52B91C48403800DBD8EE;
-			remoteInfo = LispKit;
-		};
 		CC458D862386045500231A63 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = CCAD52B11C48403800DBD8EE /* Project object */;
@@ -1197,7 +1189,14 @@
 			remoteGlobalIDString = CCAD52B91C48403800DBD8EE;
 			remoteInfo = LispKit;
 		};
-		CC458D8B2386049500231A63 /* PBXContainerItemProxy */ = {
+		CC74D34E2AEA498D0054CC5A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CCAD52B11C48403800DBD8EE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CCAD52B91C48403800DBD8EE;
+			remoteInfo = LispKit;
+		};
+		CC74D3532AEA49910054CC5A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = CCAD52B11C48403800DBD8EE /* Project object */;
 			proxyType = 1;
@@ -1304,18 +1303,6 @@
 			);
 			name = "Copy pre-installed LispKit library: SRFI 166";
 			runOnlyForDeploymentPostprocessing = 0;
-		};
-		CC1AAE3F1CC3CF0F00D1806F /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 8;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				CC1AAE3C1CC3CF0F00D1806F /* LispKit.framework in Embed Frameworks */,
-				CC458D8A2386049500231A63 /* LispKitTools.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 1;
 		};
 		CC240E8F24FB1C6C00FF6D0F /* Copy pre-installed LispKit library: LispKit SXML parsers */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -1648,6 +1635,27 @@
 				CC703A1F218D0B3000E71EA9 /* support.sld in Copy pre-installed LispKit library: LispKit CLOS Support */,
 			);
 			name = "Copy pre-installed LispKit library: LispKit CLOS Support";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC74D3392AEA47420054CC5A /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		CC74D3502AEA498D0054CC5A /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				CC74D34D2AEA498D0054CC5A /* LispKit.framework in Embed Frameworks */,
+				CC74D3522AEA49910054CC5A /* LispKitTools.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		CC7E7C8924565342002E8A73 /* Copy dataset covid assets */ = {
@@ -2734,9 +2742,6 @@
 		CC0E57C3268FAA7800693DD2 /* SRFI-223.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-223.scm"; sourceTree = "<group>"; };
 		CC0EBFF81ED37A76004510B2 /* Math.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Math.scm; sourceTree = "<group>"; };
 		CC10404C1F5378660045144A /* pdf.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pdf.sld; sourceTree = "<group>"; };
-		CC1227361CBFE74500821EB7 /* LispKitRepl.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LispKitRepl.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		CC1227381CBFE74500821EB7 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
-		CC12273A1CBFE74500821EB7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CC131C4B1CDE0C3D006C030C /* SyntaxRules.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SyntaxRules.scm; sourceTree = "<group>"; };
 		CC131C4D1CDE0DCA006C030C /* RegressionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RegressionTests.swift; sourceTree = "<group>"; };
 		CC131C4F1CDE0E01006C030C /* LispKitTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = LispKitTestCase.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -2872,10 +2877,6 @@
 		CC4A7DC8225A344300936034 /* SRFI-165.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-165.scm"; sourceTree = "<group>"; };
 		CC4D2C9E1D5EDA2A00A02256 /* RecordLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = RecordLibrary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC4E2D361D09691000D77159 /* PortLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = PortLibrary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
-		CC502A931CDABF1E00875D9F /* LispKitReplBridgingHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LispKitReplBridgingHeader.h; sourceTree = "<group>"; };
-		CC502A941CDABF1E00875D9F /* BuildMetadata.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BuildMetadata.m; sourceTree = "<group>"; };
-		CC502A961CDABF6B00875D9F /* BuildMetadata.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BuildMetadata.h; sourceTree = "<group>"; };
-		CC5033AE1CDB9A440045A8FA /* AppInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppInfo.swift; sourceTree = "<group>"; };
 		CC5157B826E42B370056B05B /* Procedures.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Procedures.scm; sourceTree = "<group>"; };
 		CC517E5729A217980096FC72 /* CryptoLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoLibrary.swift; sourceTree = "<group>"; };
 		CC517E5B29A96E200096FC72 /* set.sld */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = set.sld; sourceTree = "<group>"; };
@@ -2944,6 +2945,10 @@
 		CC703A1C218D09F700E71EA9 /* support.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = support.sld; sourceTree = "<group>"; };
 		CC703A20218D122100E71EA9 /* 95.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 95.sld; sourceTree = "<group>"; };
 		CC72862C1F52B2F600EEBC58 /* heap.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = heap.sld; sourceTree = "<group>"; };
+		CC74D33B2AEA47420054CC5A /* LispKitRepl */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = LispKitRepl; sourceTree = BUILT_PRODUCTS_DIR; };
+		CC74D3452AEA47DA0054CC5A /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		CC74D3472AEA48000054CC5A /* AppInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppInfo.swift; sourceTree = "<group>"; };
+		CC74D3492AEA48260054CC5A /* AppInfo.tmpl */ = {isa = PBXFileReference; lastKnownFileType = text; path = AppInfo.tmpl; sourceTree = "<group>"; };
 		CC750BD71F5AC68900CD82A2 /* PDF.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = PDF.scm; sourceTree = "<group>"; };
 		CC750BD91F5B772200CD82A2 /* prettify.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = prettify.sld; sourceTree = "<group>"; };
 		CC76312020E9518F005F27CE /* Drawing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Drawing.swift; sourceTree = "<group>"; };
@@ -3303,21 +3308,21 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		CC1227341CBFE74500821EB7 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				CC1AAE3B1CC3CF0F00D1806F /* LispKit.framework in Frameworks */,
-				CC458D892386049500231A63 /* LispKitTools.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		CC3B64242386025500807476 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				CC458D832386043500231A63 /* CommandLineKit in Frameworks */,
 				CC458D842386045500231A63 /* LispKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC74D3382AEA47420054CC5A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CC74D34C2AEA498D0054CC5A /* LispKit.framework in Frameworks */,
+				CC74D3512AEA49910054CC5A /* LispKitTools.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3424,20 +3429,6 @@
 				CC491BB72A407B1C008CA24C /* SRFI-235.scm */,
 			);
 			path = Tests;
-			sourceTree = "<group>";
-		};
-		CC1227371CBFE74500821EB7 /* LispKitRepl */ = {
-			isa = PBXGroup;
-			children = (
-				CC1227381CBFE74500821EB7 /* main.swift */,
-				CC5033AE1CDB9A440045A8FA /* AppInfo.swift */,
-				CC502A941CDABF1E00875D9F /* BuildMetadata.m */,
-				CC502A961CDABF6B00875D9F /* BuildMetadata.h */,
-				CC12273A1CBFE74500821EB7 /* Info.plist */,
-				CC502A931CDABF1E00875D9F /* LispKitReplBridgingHeader.h */,
-			);
-			name = LispKitRepl;
-			path = Sources/LispKitRepl;
 			sourceTree = "<group>";
 		};
 		CC131C4A1CDE0C3D006C030C /* Code */ = {
@@ -3855,6 +3846,17 @@
 			path = clos;
 			sourceTree = "<group>";
 		};
+		CC74D33C2AEA47420054CC5A /* LispKitRepl */ = {
+			isa = PBXGroup;
+			children = (
+				CC74D3452AEA47DA0054CC5A /* main.swift */,
+				CC74D3472AEA48000054CC5A /* AppInfo.swift */,
+				CC74D3492AEA48260054CC5A /* AppInfo.tmpl */,
+			);
+			name = LispKitRepl;
+			path = Sources/LispKitRepl;
+			sourceTree = "<group>";
+		};
 		CC76311F20E95144005F27CE /* Graphics */ = {
 			isa = PBXGroup;
 			children = (
@@ -4159,7 +4161,7 @@
 				CCAD52BC1C48403800DBD8EE /* LispKit */,
 				CCC48C5725E5B8DC00D082AD /* LispKit iOS */,
 				CC3B64282386025500807476 /* LispKitTools */,
-				CC1227371CBFE74500821EB7 /* LispKitRepl */,
+				CC74D33C2AEA47420054CC5A /* LispKitRepl */,
 				CCD5E5B72634B62100C45EA0 /* LispKitRepl iOS */,
 				CCAD52C81C48403900DBD8EE /* LispKitTests */,
 				CCAD52BB1C48403800DBD8EE /* Products */,
@@ -4172,10 +4174,10 @@
 			children = (
 				CCAD52BA1C48403800DBD8EE /* LispKit.framework */,
 				CCAD52C41C48403900DBD8EE /* LispKitTests.xctest */,
-				CC1227361CBFE74500821EB7 /* LispKitRepl.app */,
 				CC3B64272386025500807476 /* LispKitTools.framework */,
 				CCC48C5625E5B8DC00D082AD /* LispKit.framework */,
 				CCD5E5B62634B62100C45EA0 /* LispKitRepl iOS.app */,
+				CC74D33B2AEA47420054CC5A /* LispKitRepl */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -4453,27 +4455,6 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		CC1227351CBFE74500821EB7 /* LispKitRepl */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = CC12273D1CBFE74500821EB7 /* Build configuration list for PBXNativeTarget "LispKitRepl" */;
-			buildPhases = (
-				CC1227331CBFE74500821EB7 /* Sources */,
-				CC1227341CBFE74500821EB7 /* Frameworks */,
-				CC1AAE3F1CC3CF0F00D1806F /* Embed Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				CC1AAE3E1CC3CF0F00D1806F /* PBXTargetDependency */,
-				CC458D8C2386049500231A63 /* PBXTargetDependency */,
-			);
-			name = LispKitRepl;
-			packageProductDependencies = (
-			);
-			productName = LispKitRepl;
-			productReference = CC1227361CBFE74500821EB7 /* LispKitRepl.app */;
-			productType = "com.apple.product-type.application";
-		};
 		CC3B64262386025500807476 /* LispKitTools */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = CC3B642C2386025500807476 /* Build configuration list for PBXNativeTarget "LispKitTools" */;
@@ -4496,6 +4477,27 @@
 			productName = LispKitTools;
 			productReference = CC3B64272386025500807476 /* LispKitTools.framework */;
 			productType = "com.apple.product-type.framework";
+		};
+		CC74D33A2AEA47420054CC5A /* LispKitRepl */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CC74D33F2AEA47420054CC5A /* Build configuration list for PBXNativeTarget "LispKitRepl" */;
+			buildPhases = (
+				CC74D34A2AEA483D0054CC5A /* ShellScript */,
+				CC74D3372AEA47420054CC5A /* Sources */,
+				CC74D3382AEA47420054CC5A /* Frameworks */,
+				CC74D3392AEA47420054CC5A /* CopyFiles */,
+				CC74D3502AEA498D0054CC5A /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CC74D34F2AEA498D0054CC5A /* PBXTargetDependency */,
+				CC74D3542AEA49910054CC5A /* PBXTargetDependency */,
+			);
+			name = LispKitRepl;
+			productName = LispKitRepl;
+			productReference = CC74D33B2AEA47420054CC5A /* LispKitRepl */;
+			productType = "com.apple.product-type.tool";
 		};
 		CCAD52B91C48403800DBD8EE /* LispKit */ = {
 			isa = PBXNativeTarget;
@@ -4649,16 +4651,16 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastSwiftUpdateCheck = 1240;
+				LastSwiftUpdateCheck = 1500;
 				LastUpgradeCheck = 1500;
 				ORGANIZATIONNAME = ObjectHub;
 				TargetAttributes = {
-					CC1227351CBFE74500821EB7 = {
-						CreatedOnToolsVersion = 7.3;
-						LastSwiftMigration = 1020;
-					};
 					CC3B64262386025500807476 = {
 						CreatedOnToolsVersion = 11.2.1;
+					};
+					CC74D33A2AEA47420054CC5A = {
+						CreatedOnToolsVersion = 15.0.1;
+						LastSwiftMigration = 1500;
 					};
 					CCAD52B91C48403800DBD8EE = {
 						CreatedOnToolsVersion = 7.2;
@@ -4702,7 +4704,7 @@
 				CCAD52B91C48403800DBD8EE /* LispKit */,
 				CCC48C5525E5B8DC00D082AD /* LispKit iOS */,
 				CC3B64262386025500807476 /* LispKitTools */,
-				CC1227351CBFE74500821EB7 /* LispKitRepl */,
+				CC74D33A2AEA47420054CC5A /* LispKitRepl */,
 				CCD5E5B52634B62100C45EA0 /* LispKitRepl iOS */,
 				CCAD52C31C48403900DBD8EE /* LispKitTests */,
 			);
@@ -4770,22 +4772,44 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
-/* Begin PBXSourcesBuildPhase section */
-		CC1227331CBFE74500821EB7 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
+/* Begin PBXShellScriptBuildPhase section */
+		CC74D34A2AEA483D0054CC5A /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
-				CC1227391CBFE74500821EB7 /* main.swift in Sources */,
-				CC502A951CDABF1E00875D9F /* BuildMetadata.m in Sources */,
-				CC5033AF1CDB9A440045A8FA /* AppInfo.swift in Sources */,
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/Sources/LispKitRepl/AppInfo.tmpl",
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(SRCROOT)/Sources/LispKitRepl/AppInfo.swift",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "timestamp=$(date +%s)\nsed \"s/CURRENT-DATE/$timestamp/\" $SCRIPT_INPUT_FILE_0 > $SCRIPT_OUTPUT_FILE_0\n";
 		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
 		CC3B64232386025500807476 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				CC3B642F2386027C00807476 /* LispKitRepl.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC74D3372AEA47420054CC5A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CC74D3462AEA47DA0054CC5A /* main.swift in Sources */,
+				CC74D3482AEA48000054CC5A /* AppInfo.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5070,20 +5094,20 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		CC1AAE3E1CC3CF0F00D1806F /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = CCAD52B91C48403800DBD8EE /* LispKit */;
-			targetProxy = CC1AAE3D1CC3CF0F00D1806F /* PBXContainerItemProxy */;
-		};
 		CC458D872386045500231A63 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = CCAD52B91C48403800DBD8EE /* LispKit */;
 			targetProxy = CC458D862386045500231A63 /* PBXContainerItemProxy */;
 		};
-		CC458D8C2386049500231A63 /* PBXTargetDependency */ = {
+		CC74D34F2AEA498D0054CC5A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CCAD52B91C48403800DBD8EE /* LispKit */;
+			targetProxy = CC74D34E2AEA498D0054CC5A /* PBXContainerItemProxy */;
+		};
+		CC74D3542AEA49910054CC5A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = CC3B64262386025500807476 /* LispKitTools */;
-			targetProxy = CC458D8B2386049500231A63 /* PBXContainerItemProxy */;
+			targetProxy = CC74D3532AEA49910054CC5A /* PBXContainerItemProxy */;
 		};
 		CCAD52C71C48403900DBD8EE /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -5098,54 +5122,6 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		CC12273B1CBFE74500821EB7 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "-";
-				COMBINE_HIDPI_IMAGES = YES;
-				DEAD_CODE_STRIPPING = YES;
-				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
-				INFOPLIST_FILE = Sources/LispKitRepl/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../Frameworks",
-				);
-				"OTHER_SWIFT_FLAGS[arch=*]" = "-D DEBUG";
-				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispKitRepl;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
-				SWIFT_OBJC_BRIDGING_HEADER = Sources/LispKitRepl/LispKitReplBridgingHeader.h;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
-			};
-			name = Debug;
-		};
-		CC12273C1CBFE74500821EB7 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "-";
-				COMBINE_HIDPI_IMAGES = YES;
-				DEAD_CODE_STRIPPING = YES;
-				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
-				INFOPLIST_FILE = Sources/LispKitRepl/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispKitRepl;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
-				SWIFT_OBJC_BRIDGING_HEADER = Sources/LispKitRepl/LispKitReplBridgingHeader.h;
-				SWIFT_VERSION = 5.0;
-			};
-			name = Release;
-		};
 		CC3B642D2386025500807476 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -5222,6 +5198,63 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		CC74D3402AEA47420054CC5A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = NO;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispKitRepl;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		CC74D3412AEA47420054CC5A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = NO;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = net.objecthub.LispKitRepl;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = macosx;
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
@@ -5617,20 +5650,20 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		CC12273D1CBFE74500821EB7 /* Build configuration list for PBXNativeTarget "LispKitRepl" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				CC12273B1CBFE74500821EB7 /* Debug */,
-				CC12273C1CBFE74500821EB7 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		CC3B642C2386025500807476 /* Build configuration list for PBXNativeTarget "LispKitTools" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				CC3B642D2386025500807476 /* Debug */,
 				CC3B642E2386025500807476 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CC74D33F2AEA47420054CC5A /* Build configuration list for PBXNativeTarget "LispKitRepl" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CC74D3402AEA47420054CC5A /* Debug */,
+				CC74D3412AEA47420054CC5A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
