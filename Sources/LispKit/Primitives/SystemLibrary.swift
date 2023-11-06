@@ -896,7 +896,7 @@ public final class SystemLibrary: NativeLibrary {
     #if os(macOS)
       return .makeString("macOS")
     #elseif os(iOS)
-      return .makeString("iOS")
+      return .makeString(UIDevice.current.userInterfaceIdiom == .pad ? "iPadOS" : "iOS")
     #elseif os(Linux)
       return .makeString("Linux")
     #endif

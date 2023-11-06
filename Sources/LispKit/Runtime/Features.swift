@@ -19,6 +19,9 @@
 //
 
 import Foundation
+#if os(iOS) || os(watchOS) || os(tvOS)
+import UIKit
+#endif
 
 public enum Feature: String {
   case lispkit = "lispkit"
@@ -36,6 +39,7 @@ public enum Feature: String {
   case macos = "macos"
   case macosx = "macosx"
   case ios = "ios"
+  case ipados = "ipados"
   case linux = "linux"
   case i386 = "i386"
   case x8664 = "x86-64"
@@ -71,7 +75,11 @@ public enum Feature: String {
       set.insert(Feature.macos.rawValue)
       set.insert(Feature.macosx.rawValue)
     #elseif os(iOS)
-      set.insert(Feature.ios.rawValue)
+      if UIDevice.current.userInterfaceIdiom == .pad {
+        set.insert(Feature.ipados.rawValue)
+      } else {
+        set.insert(Feature.ios.rawValue)
+      }
     #elseif os(Linux)
       set.insert(Feature.linux.rawValue)
     #endif
