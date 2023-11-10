@@ -492,7 +492,7 @@ public enum BitmapImageFileType {
   case jpeg
   case png
   
-  func data(for image: UIImage) -> Data? {
+  public func data(for image: UIImage) -> Data? {
     guard let cgImage = image.cgImage else {
       return nil
     }
