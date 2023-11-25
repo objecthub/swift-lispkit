@@ -54,6 +54,7 @@ public final class Drawing: NativeObject {
   /// Appends a new drawing instruction.
   @discardableResult public func append(_ instruction: DrawingInstruction) -> Bool {
     switch instruction {
+      // Do not allow recursive dependencies
       case .inline(let drawing), .include(let drawing, _):
         if drawing.includes(self) {
           return false
@@ -63,6 +64,11 @@ public final class Drawing: NativeObject {
     }
     self.instructions.append(instruction)
     return true
+  }
+  
+  /// Clears all drawing instructions
+  public func clear() {
+    self.instructions.removeAll()
   }
   
   /// Draws the drawing to the current graphics context clipped to a given shape. The drawing is

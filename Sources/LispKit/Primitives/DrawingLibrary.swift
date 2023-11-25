@@ -119,6 +119,7 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("drawing?", isDrawing))
     self.define(Procedure("make-drawing", makeDrawing))
     self.define(Procedure("copy-drawing", copyDrawing))
+    self.define(Procedure("clear-drawing", clearDrawing))
     self.define(Procedure("set-color", setColor))
     self.define(Procedure("set-fill-color", setFillColor))
     self.define(Procedure("set-line-width", setLineWidth))
@@ -404,6 +405,11 @@ public final class DrawingLibrary: NativeLibrary {
   
   private func copyDrawing(drawing: Expr) throws -> Expr {
     return .object(Drawing(copy: try self.drawing(from: drawing)))
+  }
+  
+  private func clearDrawing(drawing: Expr) throws -> Expr {
+    try self.drawing(from: drawing).clear()
+    return .void
   }
   
   private func setColor(color: Expr, drawing: Expr?) throws -> Expr {

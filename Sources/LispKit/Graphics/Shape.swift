@@ -143,6 +143,7 @@ public final class Shape: NativeObject {
   @discardableResult public func append(_ constructor: ShapeConstructor) -> Bool {
     if case .include(let other) = constructor {
       other.owners.compact()
+      // Do not allow recursive dependencies
       if other.includes(self) {
         return false
       }
