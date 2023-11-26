@@ -340,9 +340,9 @@ public enum ShapePrototype {
         #elseif os(macOS)
         bezierPath.appendArc(withCenter: center,
                              radius: CGFloat(radius),
-                             startAngle: CGFloat(start),
-                             endAngle: CGFloat(end),
-                             clockwise: clockwise)
+                             startAngle: CGFloat(start * 180 / .pi), // Seriously? In degrees?
+                             endAngle: CGFloat(end * 180 / .pi),
+                             clockwise: !clockwise)
         #endif
         return bezierPath
       case .glyphs(let str, let rect, let font, let flipped):
