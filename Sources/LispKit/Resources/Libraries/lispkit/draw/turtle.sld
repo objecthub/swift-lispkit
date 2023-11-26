@@ -55,10 +55,11 @@
           left
           right
           forward
-          backward)
+          backward
+          arc)
 
   (import (lispkit base)
-          (lispkit draw))
+          (rename (lispkit draw) (arc arcshape)))
 
   (begin
 
@@ -134,6 +135,17 @@
       (let-optionals args ((turtle (current-turtle)))
         (forward (- len) turtle)))
 
+    (define (arc degrees radius . args)
+      (let-optionals args ((turtle (current-turtle)))
+        (if (turtle-pen-down? turtle)
+            (with-drawing (turtle-drawing turtle)
+              (draw (arcshape (point (turtle-x turtle) (turtle-y turtle))
+                              radius
+                              (turtle-angle turtle)
+                              (+ (radian degrees) (turtle-angle turtle))
+                              (> degrees 0)))))
+        (turn degrees turtle)))
+    
     (define (radian angle)
       (inexact (/ (* angle pi) 180.0)))
   )
