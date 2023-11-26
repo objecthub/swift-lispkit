@@ -87,7 +87,7 @@ public struct LibraryRegistry {
     RegexpLibrary.self,
     PortLibrary.self,
     BaseLibrary.self,
-    SystemOSLibrary.self,
+    SystemCallLibrary.self,
     DrawingLibrary.self,
     StyledTextLibrary.self,
     InternalLibrary.self,

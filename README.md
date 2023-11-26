@@ -22,7 +22,7 @@ The [NumericalScheme](https://github.com/objecthub/swift-numericalscheme) demo
 showcases how to create a derived _LispKit_ interpreter that inherits everything from
 _LispKit_ (without code duplication) and defines a new native as well as Scheme-based library.
 
-The iOS version of the LispKit framework supports all libraries except for `(lispkit system os)`.
+The iOS version of the LispKit framework supports all libraries except for `(lispkit system call)`.
 Library `(lispkit draw)` works consistently across iOS and macOS but does not support color
 lists on iOS. In general, the differences between the macOS and iOS version of the framework
 are minor. Interestingly, the iPhone 12 Pro (2020) seems to consistently
@@ -73,7 +73,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit core)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Core),
     [`(lispkit control)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Control),
     [`(lispkit system)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-System),
-    [`(lispkit system os)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-System-OS),
+    [`(lispkit system call)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-System-OS),
     [`(lispkit box)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Box),
     [`(lispkit math)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Math),
     [`(lispkit math matrix)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Math-Matrix),

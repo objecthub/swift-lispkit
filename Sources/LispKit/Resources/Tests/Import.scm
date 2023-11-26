@@ -32,7 +32,7 @@
 (import (lispkit markdown))
 (import (lispkit sqlite))
 (import (lispkit archive zip))
-(import (lispkit system os))
+(import (lispkit system call))
 (import (lispkit thread))
 (import (lispkit crypto))
 (import (lispkit styled-text))

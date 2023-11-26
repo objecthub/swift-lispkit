@@ -1,9 +1,9 @@
 //
-//  SystemOSLibrary.swift
+//  SystemCallLibrary.swift
 //  LispKit
 //
 //  Created by Matthias Zenger on 07/06/2020.
-//  Copyright © 2020 ObjectHub. All rights reserved.
+//  Copyright © 2020-2023 ObjectHub. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -21,9 +21,9 @@
 import Foundation
 
 ///
-/// System OS library
+/// System Call library
 ///
-public final class SystemOSLibrary: NativeLibrary {
+public final class SystemCallLibrary: NativeLibrary {
 
   /// Imported native library
   private unowned var portLibrary: PortLibrary!
@@ -35,7 +35,7 @@ public final class SystemOSLibrary: NativeLibrary {
 
   /// Name of the library.
   public override class var name: [String] {
-    return ["lispkit", "system", "os"]
+    return ["lispkit", "system", "call"]
   }
 
   /// Dependencies of the library.
