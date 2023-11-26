@@ -1,8 +1,9 @@
 ;;; LISPKIT DRAW TURTLE
 ;;;
-;;; This is a simple library implementing turtle graphics. A new turtle plane gets created
-;;; by invoking `make-turtle`. `make-turtle` sets the origin of the plane as well as a scaling
-;;; factor. A range of functions for modifying the state of a turtle plane is provided:
+;;; This is a simple library implementing turtle graphics. A new turtle plane gets
+;;; created by invoking `make-turtle`. `make-turtle` sets the origin of the plane
+;;; as well as a scaling factor. A range of functions for modifying the state of a
+;;; turtle plane is provided:
 ;;; 
 ;;;   - `(pen-up turtle)`: Lifts the turtle from the plane
 ;;;   - `(pen-down turtle)`: Drops the turtle onto the plane
@@ -14,23 +15,24 @@
 ;;;   - `(turn angle turtle)`: Turns the turtle by the given angle (in radians)
 ;;;   - `(left angle turtle)`: Turn left by the given angle (in radians)
 ;;;   - `(right angle turtle)`: Turn right by the given angle (in radians)
-;;;   - `(forward length turtle)`: Moves forward by `length` units drawing a line if the
-;;;     pen is down
-;;;   - `(backward length turtle)`: Moves backward by `length` units drawing a line if the
-;;;     pen is down
+;;;   - `(forward length turtle)`: Moves forward by `length` units drawing a
+;;;     line if the pen is down
+;;;   - `(backward length turtle)`: Moves backward by `length` units drawing a
+;;;     line if the pen is down
 ;;;
 ;;; Author: Matthias Zenger
-;;; Copyright © 2018 Matthias Zenger. All rights reserved.
+;;; Copyright © 2018-2023 Matthias Zenger. All rights reserved.
 ;;;
-;;; Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
-;;; except in compliance with the License. You may obtain a copy of the License at
+;;; Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+;;; this file except in compliance with the License. You may obtain a copy of the
+;;; License at
 ;;;
 ;;;   http://www.apache.org/licenses/LICENSE-2.0
 ;;;
-;;; Unless required by applicable law or agreed to in writing, software distributed under the
-;;; License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-;;; either express or implied. See the License for the specific language governing permissions
-;;; and limitations under the License.
+;;; Unless required by applicable law or agreed to in writing, software distributed
+;;; under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+;;; CONDITIONS OF ANY KIND, either express or implied. See the License for the
+;;; specific language governing permissions and limitations under the License.
 
 (define-library (lispkit draw turtle)
 
@@ -38,6 +40,10 @@
           make-turtle
           current-turtle
           turtle-drawing
+          turtle-x
+          turtle-y
+          turtle-angle
+          turtle-pen-down?
           pen-up
           pen-down
           pen-color

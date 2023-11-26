@@ -45,7 +45,7 @@ public struct AppInfo {
   public static let buildDate = { () -> String in
     let dateFormatter = DateFormatter()
     dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
-    return dateFormatter.string(from: Date(timeIntervalSince1970: 1700948712))
+    return dateFormatter.string(from: Date(timeIntervalSince1970: 1700961329))
   }()
   public static let buildAnnotation = " (\(AppInfo.buildDate))"
 }
