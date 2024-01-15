@@ -123,7 +123,7 @@
   (go (let loop () (channel-select ((tick -> _) (channel-select ((reply <- 2) (loop)))))))
   (go (let loop () (channel-select ((tick -> _) (channel-select ((reply <- 3) (loop)))))))
   (go (let loop () (channel-select ((tick -> _) (channel-select ((reply <- 4) (loop)))))))
-  (thread-sleep! .11)   ; just a little past the last tick
+  (thread-sleep! .107)   ; just a little past the last tick
   (channel-close reply) ; allow goroutines to exit (this is an antipattern in golang,
                         ; hopefully ok here!)
   ; So, we've ticked every 100ms in 1 second. That should give us exactly 10 results,

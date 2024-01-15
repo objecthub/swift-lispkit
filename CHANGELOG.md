@@ -1,5 +1,27 @@
 # Changelog
 
+## 2.4.0 (2024-01-15)
+
+- Ported universal formatting facility from Common Lisp and made it available via library `(lispkit format)`
+- Library `(lispkit records)` now supports extensible records compatible to SRFI 131
+- New procedures in library `(lispkit system)`: `available-region?`, `region-flag`, `available-language?`, `available-currencies`, `available-currency?`, `currency-name`, `currency-code`, `currency-numeric-code`, and `currency-symbol`
+- New procedures in library `(lispkit port)`: `display-format`, `write-formatted`
+- New procedures in library `(lispkit bitset)`: `fixnum->bitset`, `bitset->fixnum`
+- New procedures in library `(lispkit system)`: `terminal-size`, `make-uuid-string`, `make-uuid-bytevector`
+- New procedure in library `(lispkit draw)`: `clear-drawing`
+- New procedures in library `(lispkit draw turtle)`: `arc`, `turtle-x`, `turtle-y`, `turtle-angle`, `turtle-pen-down?`
+- New procedure `load-program` in library `(lispkit core)` supports executing programs in an empty environment
+- Procedure `type-of` of library `(lispkit type)` now returns a list of type tags (from most specific to least specific type)
+- Renamed library `(lispkit system os)` to `(lispkit system call)`
+- Renamed `object` in library `(lispkit type)` to `obj` to prevent conflicts with other libraries
+- Extend library `(lispkit bytevector)` with procedures `bytevector=?`, `bytevector->hex`, and `hex->bytevector`
+- Reimplementation of procedure `open-file` in library `(lispkit system)` supporting custom application paths
+- Enforce that imported (immutable) definitions cannot be mutated, unless it's in the REPL; `export-mutable` in library definitions enable mutability
+- Allow configuration of REPL output via format config `repl-format-config` of library `(lispkit format)`
+- Improved display of OS-level exceptions and errors in REPL
+- New libraries: `(lispkit format)`, `(lispkit crypto)`, `(lispkit archive tar)`, `(lispkit list set)`, `(srfi 239)`, `(srfi 235)`.
+- New sample code: `Blockchain.scm`
+
 ## 2.3.2 (2023-02-05)
 
 - Handle assets correctly in the LispKit REPL
