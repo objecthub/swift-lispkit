@@ -1318,16 +1318,16 @@ extension Expr: CustomStringConvertible, CLFormatConvertible {
     var res = ""
     for c in str {
       switch c {
-        case "\u{7}":  res += "\\a"
-        case "\u{8}":  res += "\\b"
-        case "\t":     res += "\\t"
-        case "\n":     res += "\\n"
-        case "\u{11}": res += "\\v"
-        case "\u{12}": res += "\\f"
-        case "\r":     res += "\\r"
-        case "\"":     res += "\\\""
-        case "\\":     res += "\\\\"
-        default:       res.append(c)
+        case "\u{7}": res += "\\a"
+        case "\u{8}": res += "\\b"
+        case "\t":    res += "\\t"
+        case "\n":    res += "\\n"
+        case "\u{b}": res += "\\v"
+        case "\u{c}": res += "\\f"
+        case "\r":    res += "\\r"
+        case "\"":    res += "\\\""
+        case "\\":    res += "\\\\"
+        default:      res.append(c)
       }
     }
     return res
