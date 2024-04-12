@@ -1,4 +1,5 @@
 {
+  "originHash" : "a9fc159c45d70d5544520585e4f0bc8d1c1bc67124a2215f817486c309f94eba",
   "pins" : [
     {
       "identity" : "bitbytedata",
@@ -23,8 +24,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-atomics.git",
       "state" : {
-        "revision" : "6c89474e62719ddcc1e9614989fff2f68208fe10",
-        "version" : "1.1.0"
+        "revision" : "cd142fd2f64be2100422d658e7411e39489da985",
+        "version" : "1.2.0"
       }
     },
     {
@@ -59,8 +60,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/objecthub/swift-numberkit.git",
       "state" : {
-        "branch" : "master",
-        "revision" : "4320694f83f11ff4b464efff914406d7e2c49787"
+        "revision" : "e83875a43061dccb8f82772089207ea2e7a88a8a",
+        "version" : "2.5.0"
       }
     },
     {
@@ -77,10 +78,10 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/weichsel/ZIPFoundation",
       "state" : {
-        "revision" : "a3f5c2bae0f04b0bce9ef3c4ba6bd1031a0564c4",
-        "version" : "0.9.17"
+        "revision" : "02b6abe5f6eef7e3cbd5f247c5cc24e246efcfe0",
+        "version" : "0.9.19"
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }
