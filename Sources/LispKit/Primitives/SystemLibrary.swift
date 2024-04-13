@@ -93,6 +93,9 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("available-region?", self.isAvailableRegion))
     self.define(Procedure("region-name", self.regionName))
     self.define(Procedure("region-flag", self.regionFlag))
+    self.define(Procedure("region-continent", self.regionContinent))
+    self.define(Procedure("region-parent", self.regionParent))
+    self.define(Procedure("region-subregions", self.regionSubregions))
     self.define(Procedure("available-languages", self.availableLanguages))
     self.define(Procedure("available-language?", self.isAvailableLanguage))
     self.define(Procedure("language-name", self.languageName))
@@ -616,8 +619,8 @@ public final class SystemLibrary: NativeLibrary {
 
   private func availableRegions() -> Expr {
     var res = Expr.null
-    for reg in Locale.isoRegionCodes.reversed() {
-      res = .pair(.makeString(reg), res)
+    for reg in Locale.Region.isoRegions.reversed() {
+      res = .pair(.makeString(reg.identifier), res)
     }
     return res
   }
@@ -626,9 +629,11 @@ public final class SystemLibrary: NativeLibrary {
     guard case .string(let str) = expr else {
       return .false
     }
-    return .makeBoolean(Locale.isoRegionCodes.contains(str as String))
+    let region = Locale.Region(str as String)
+    // return .makeBoolean(Locale.Region.isoRegions.contains(region))
+    return .makeBoolean(region.isISORegion)
   }
-
+  
   private func regionName(_ expr: Expr, _ locale: Expr?) throws -> Expr {
     let region = try expr.asString()
     guard let name = try self.asLocale(locale).localizedString(forRegionCode: region) else {
@@ -638,13 +643,14 @@ public final class SystemLibrary: NativeLibrary {
   }
   
   private func regionFlag(_ expr: Expr) throws -> Expr {
-    let region = try expr.asString()
-    guard Locale.isoRegionCodes.contains(region) else {
+    let regionStr = try expr.asString()
+    let region = Locale.Region(regionStr)
+    guard Locale.Region.isoRegions.contains(region) else {
       return .false
     }
     let base : UInt32 = 127397
     var s = ""
-    for v in region.unicodeScalars {
+    for v in regionStr.unicodeScalars {
       if let scalar = UnicodeScalar(base + v.value) {
         s.unicodeScalars.append(scalar)
       } else {
@@ -654,10 +660,47 @@ public final class SystemLibrary: NativeLibrary {
     return .makeString(s)
   }
   
+  private func regionContinent(_ expr: Expr) throws -> Expr {
+    let reg = Locale.Region(try expr.asString())
+    if reg == .unknown {
+      return .false
+    }
+    if let continent = reg.continent {
+      return .makeString(continent.identifier)
+    } else {
+      return .false
+    }
+  }
+  
+  private func regionParent(_ expr: Expr) throws -> Expr {
+    let reg = Locale.Region(try expr.asString())
+    if reg == .unknown {
+      return .false
+    }
+    if let parent = reg.containingRegion {
+      return .makeString(parent.identifier)
+    } else {
+      return .false
+    }
+  }
+  
+  private func regionSubregions(_ expr: Expr) throws -> Expr {
+    let reg = Locale.Region(try expr.asString())
+    if reg == .unknown {
+      return .false
+    }
+    let subregions = reg.subRegions
+    var res = Expr.null
+    for region in subregions {
+      res = .pair(.makeString(region.identifier), res)
+    }
+    return res
+  }
+  
   private func availableLanguages() -> Expr {
     var res = Expr.null
-    for lang in Locale.isoLanguageCodes.reversed() {
-      res = .pair(.makeString(lang), res)
+    for lang in Locale.LanguageCode.isoLanguageCodes.reversed() {
+      res = .pair(.makeString(lang.identifier), res)
     }
     return res
   }
@@ -666,7 +709,8 @@ public final class SystemLibrary: NativeLibrary {
     guard case .string(let str) = expr else {
       return .false
     }
-    return .makeBoolean(Locale.isoLanguageCodes.contains(str as String))
+    let lang = Locale.LanguageCode(str as String)
+    return .makeBoolean(Locale.LanguageCode.isoLanguageCodes.contains(lang))
   }
   
   private func languageName(_ expr: Expr, _ locale: Expr?) throws -> Expr {
@@ -712,23 +756,24 @@ public final class SystemLibrary: NativeLibrary {
     return .symbol(self.context.symbols.intern(
       NSLocale.canonicalLocaleIdentifier(from: Locale.identifier(fromComponents: components))))
   }
-
+  
   private func localeRegion(_ expr: Expr) throws -> Expr {
-    guard let region = Locale(identifier: try expr.asSymbol().identifier).regionCode else {
+    guard let region = Locale(identifier: try expr.asSymbol().identifier).region?.identifier else {
       return .false
     }
     return .makeString(region)
   }
 
   private func localeLanguage(_ expr: Expr) throws -> Expr {
-    guard let language = Locale(identifier: try expr.asSymbol().identifier).languageCode else {
+    guard let language = Locale(identifier: try expr.asSymbol().identifier)
+                           .language.languageCode?.identifier else {
       return .false
     }
     return .makeString(language)
   }
 
   private func localeCurrency(_ expr: Expr) throws -> Expr {
-    guard let currency = Locale(identifier: try expr.asSymbol().identifier).currencyCode else {
+    guard let currency = Locale(identifier: try expr.asSymbol().identifier).currency?.identifier else {
       return .false
     }
     return .symbol(self.context.symbols.intern(currency))
@@ -736,8 +781,8 @@ public final class SystemLibrary: NativeLibrary {
   
   private func availableCurrencies() -> Expr {
     var res = Expr.null
-    for cur in Locale.isoCurrencyCodes.reversed() {
-      res = .pair(.symbol(self.context.symbols.intern(cur)), res)
+    for cur in Locale.Currency.isoCurrencies.reversed() {
+      res = .pair(.symbol(self.context.symbols.intern(cur.identifier)), res)
     }
     return res
   }
@@ -746,7 +791,8 @@ public final class SystemLibrary: NativeLibrary {
     guard case .symbol(let sym) = expr else {
       return .false
     }
-    return .makeBoolean(Locale.isoCurrencyCodes.contains(sym.identifier))
+    let currency = Locale.Currency(sym.identifier)
+    return .makeBoolean(Locale.Currency.isoCurrencies.contains(currency))
   }
   
   private func currencyName(_ expr: Expr, _ locale: Expr?) throws -> Expr {
@@ -777,7 +823,7 @@ public final class SystemLibrary: NativeLibrary {
       default:
         code = try expr.asSymbol().identifier
     }
-    if let code = code, Locale.isoCurrencyCodes.contains(code) {
+    if let code = code, Locale.Currency.isoCurrencies.contains(Locale.Currency(code)) {
       return .makeString(code)
     } else {
       return .false

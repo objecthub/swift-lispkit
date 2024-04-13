@@ -59,8 +59,8 @@
         "package": "NumberKit",
         "repositoryURL": "https://github.com/objecthub/swift-numberkit.git",
         "state": {
-          "branch": "master",
-          "revision": "4320694f83f11ff4b464efff914406d7e2c49787",
+          "branch": "2.5.0",
+          "revision": "e83875a43061dccb8f82772089207ea2e7a88a8a",
           "version": null
         }
       },
