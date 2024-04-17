@@ -1,4 +1,4 @@
-// swift-tools-version:5.5
+// swift-tools-version:5.7
 //
 //  Package.swift
 //  LispKit
@@ -40,8 +40,8 @@ import PackageDescription
 let package = Package(
   name: "LispKit",
   platforms: [
-    .macOS("13.3"),
-    .iOS(.v14)
+    .macOS(.v13),
+    .iOS(.v16)
   ],
   products: [
     .library(name: "LispKit", targets: ["LispKit"]),
@@ -49,7 +49,7 @@ let package = Package(
     .executable(name: "LispKitRepl", targets: ["LispKitRepl"])
   ],
   dependencies: [
-    .package(url: "https://github.com/objecthub/swift-numberkit.git", branch: "2.5.0"),
+    .package(url: "https://github.com/objecthub/swift-numberkit.git", branch: "2.5.1"),
     .package(url: "https://github.com/objecthub/swift-markdownkit.git", from: "1.1.7"),
     .package(url: "https://github.com/objecthub/swift-commandlinekit.git", from: "0.3.5"),
     .package(url: "https://github.com/objecthub/swift-sqliteexpress.git", from: "1.0.3"),
