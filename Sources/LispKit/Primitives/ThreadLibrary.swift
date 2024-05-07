@@ -97,6 +97,7 @@ public final class ThreadLibrary: NativeLibrary {
     self.define(Procedure("processor-count", self.processorCount))
     self.define(Procedure("runnable-thread-count", self.runnableThreadCount))
     self.define(Procedure("allocated-thread-count", self.allocatedThreadCount))
+    self.define(Procedure("abort-running-threads", self.abortRunningThreads))
     self.define("with-mutex", via:
       "(define-syntax with-mutex",
       "  (syntax-rules ()",
@@ -484,5 +485,27 @@ public final class ThreadLibrary: NativeLibrary {
   
   private func allocatedThreadCount() -> Expr {
     return .makeNumber(EvalThread.allocated.load(ordering: .relaxed))
+  }
+  
+  private func abortRunningThreads() -> Expr {
+    guard let thread = self.context.evaluator.threads.current,
+          thread == self.context.evaluator.mainThread else {
+      return .fixnum(0)
+    }
+    let initial = self.context.evaluator.threads.count
+    // Release all locks
+    thread.value.mutex.lock()
+    thread.value.abandonLocks()
+    thread.value.mutex.unlock()
+    // Terminate all threads if there are threads besides the main thread
+    if initial > 1 {
+      self.context.evaluator.threads.abortAll(except: Thread.current)
+      if !self.context.evaluator.threads.waitForTerminationOfAll(timeout: 1.0) {
+        // Not sure why the following line is sometimes needed...
+        self.context.evaluator.threads.abortAll(except: Thread.current)
+        _ = self.context.evaluator.threads.waitForTerminationOfAll(timeout: 0.5)
+      }
+    }
+    return .makeNumber(initial - self.context.evaluator.threads.count)
   }
 }

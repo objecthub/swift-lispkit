@@ -58,7 +58,7 @@ public final class Evaluator: TrackedObject {
   private let main: VirtualMachine
   
   /// The main evaluation thread object (it's just a proxy for the thread executing an expression)
-  private var mainThread: NativeThread! = nil
+  internal private(set) var mainThread: NativeThread! = nil
   
   /// All managed threads
   internal var threads = ThreadManager()

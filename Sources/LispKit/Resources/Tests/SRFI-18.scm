@@ -31,7 +31,8 @@
 
 (import (lispkit base)
         (lispkit test)
-        (srfi 18))
+        (srfi 18)
+        (only (lispkit thread) abort-running-threads))
 
 (test-begin "SRFI 18: Multithreading support")
 
@@ -138,5 +139,7 @@
     (mutex-unlock! mutex)
     (list (thread-join! th1 0.1 'timeout3)
           (thread-join! th2 0.1 'timeout4))))
+
+(test "abort running threads" 2 (abort-running-threads))
 
 (test-end)

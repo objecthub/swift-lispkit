@@ -255,4 +255,6 @@
   (channel-close c 3) (test "first channel-close gets 3" 3 (channel-select ((c -> m f) f)))
   (channel-close c 4) (test "first channel-close gets 4" 4 (channel-select ((c -> m f) f))))
 
+(test "abort running threads" 0 (abort-running-threads))
+
 (test-end)

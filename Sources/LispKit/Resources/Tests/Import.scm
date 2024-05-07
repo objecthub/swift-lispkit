@@ -66,7 +66,6 @@
 (import (lispkit graph))
 (import (lispkit wt-tree))
 (import (lispkit stream))
-(import (lispkit thread))
 (import (lispkit prettify))
 (import (lispkit text-table))
 (import (lispkit csv))
