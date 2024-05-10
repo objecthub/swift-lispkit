@@ -349,7 +349,7 @@ public final class BitsetLibrary: NativeLibrary {
   }
 }
 
-public final class NativeBitset: NativeObject {
+public struct NativeBitset: CustomExpr {
   
   /// Type representing enum sets
   public static let type = Type.objectType(Symbol(uninterned: "bitset"))
@@ -365,32 +365,43 @@ public final class NativeBitset: NativeObject {
     self.bitset = copy == nil ? Bitset() : Bitset(copy!)
   }
   
-  public override var type: Type {
+  public var type: Type {
     return Self.type
   }
   
-  public override var string: String {
+  public var string: String {
     var res = self.bitset.prefix(50).map { $0.description }.joined(separator: ", ")
     if self.bitset.count() > 50 {
       res.append(", …")
     }
-    return "#<bitset: \(res)>"
+    return "#<bitset \(res)>"
   }
   
-  public override func unpack() -> Exprs {
-    var bits: Exprs = []
-    for bit in self.bitset {
-      bits.append(.fixnum(Int64(bit)))
-    }
-    return [.makeString(self.identityString),
-            .vector(Collection(kind: .immutableVector, exprs: bits))]
-  }
-  
-  public override var tagString: String {
+  public var tagString: String {
     var res = self.bitset.prefix(40).map { $0.description }.joined(separator: ", ")
     if self.bitset.count() > 40 {
       res.append(", …")
     }
-    return res
+    return "bitset \(res)"
+  }
+  
+  public var hash: Int {
+    return self.bitset.hashValue
+  }
+  
+  public func equals(to expr: Expr) -> Bool {
+    guard case .object(let obj) = expr,
+          let other = obj as? NativeBitset else {
+      return false
+    }
+    return self == other
+  }
+  
+  public func unpack() -> Exprs {
+    var bits: Exprs = []
+    for bit in self.bitset {
+      bits.append(.fixnum(Int64(bit)))
+    }
+    return [.vector(Collection(kind: .immutableVector, exprs: bits))]
   }
 }

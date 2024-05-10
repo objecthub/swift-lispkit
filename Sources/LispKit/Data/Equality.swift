@@ -224,8 +224,8 @@ public func equalExpr(_ this: Expr, _ that: Expr) -> Bool {
         return e1 == e2
       case (.port(let p1), .port(let p2)):
         return p1 == p2
-      case (.object(let o1), .object(let o2)):
-        return o1.equals(o2)
+      case (.object(let o1), let expr):
+        return o1.equals(to: expr)
       case (.tagged(let t1, let e1), .tagged(let t2, let e2)):
         return eqvExpr(t1, t2) && equals(e1, e2)
       case (.error(let e1), .error(let e2)):
@@ -306,8 +306,8 @@ public func eqvExpr(_ lhs: Expr, _ rhs: Expr) -> Bool {
       return e1 === e2
     case (.port(let p1), .port(let p2)):
       return p1 === p2
-    case (.object(let o1), .object(let o2)):
-      return o1 === o2
+    case (.object(let o1), let expr):
+      return o1.eqv(to: expr)
     case (.tagged(let t1, let e1), .tagged(let t2, let e2)):
       return eqvExpr(t1, t2) && eqvExpr(e1, e2)
     case (.error(let e1), .error(let e2)):
@@ -379,8 +379,8 @@ public func eqExpr(_ lhs: Expr, _ rhs: Expr) -> Bool {
       return e1 === e2
     case (.port(let p1), .port(let p2)):
       return p1 === p2
-    case (.object(let o1), .object(let o2)):
-      return o1 === o2
+    case (.object(let o1), let expr):
+      return o1.eq(to: expr)
     case (.tagged(let t1, let e1), .tagged(let t2, let e2)):
       return eqvExpr(t1, t2) && eqExpr(e1, e2)
     case (.error(let e1), .error(let e2)):

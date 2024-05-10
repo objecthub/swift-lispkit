@@ -24,8 +24,8 @@ import Foundation
 /// `NativeObject` is the superclass of all native object types. This class needs to be
 /// subclassed to implement custom object types in LispKit.
 ///
-open class NativeObject: Reference {
-  
+open class NativeObject: Reference, CustomExpr {
+
   public override init() {
     super.init()
   }
@@ -44,6 +44,14 @@ open class NativeObject: Reference {
   
   open var hash: Int {
     return self.hashValue
+  }
+  
+  open func equals(to expr: Expr) -> Bool {
+    guard case .object(let obj) = expr,
+          let other = obj as? NativeObject else {
+      return false
+    }
+    return self.equals(other)
   }
   
   open func equals(_ obj: NativeObject) -> Bool {

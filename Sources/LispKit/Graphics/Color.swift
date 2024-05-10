@@ -25,11 +25,17 @@ import UIKit
 import AppKit
 #endif
 
+#if os(iOS) || os(watchOS) || os(tvOS)
+public typealias NativeColor = UIColor
+#elseif os(macOS)
+public typealias NativeColor = NSColor
+#endif
+
 ///
 /// Representation of a RGB color.
 ///
-public final class Color: NativeObject {
-
+public struct Color: CustomExpr {
+  
   /// Type representing colors.
   public static let type = Type.objectType(Symbol(uninterned: "color"))
 
@@ -103,21 +109,27 @@ public final class Color: NativeObject {
   }
   
   /// Return native object type.
-  public override var type: Type {
+  public var type: Type {
     return Self.type
   }
 
-  /// Return string representation of native object.
-  public override var string: String {
+  /// Return string representation for colors.
+  public var tagString: String {
     if self.alpha < 1.0 {
-      return "#<color \(self.red) \(self.green) \(self.blue) \(self.alpha)>"
+      if self.red == self.green && self.red == self.blue {
+        return "color \(self.red) \(self.alpha)"
+      } else {
+        return "color \(self.red) \(self.green) \(self.blue) \(self.alpha)"
+      }
+    } else if self.red == self.green && self.red == self.blue {
+      return "color \(self.red)"
     } else {
-      return "#<color \(self.red) \(self.green) \(self.blue)>"
+      return "color \(self.red) \(self.green) \(self.blue)"
     }
   }
   
   /// Unpack this native object.
-  public override func unpack() -> Exprs {
+  public func unpack() -> Exprs {
     return [.flonum(self.red),
             .flonum(self.green),
             .flonum(self.blue),
@@ -159,7 +171,7 @@ public final class Color: NativeObject {
   }
   #endif
   
-  public override var hash: Int {
+  public var hash: Int {
     var hasher = Hasher()
     hasher.combine(self.red)
     hasher.combine(self.green)
@@ -167,9 +179,10 @@ public final class Color: NativeObject {
     hasher.combine(self.alpha)
     return hasher.finalize()
   }
-
-  public override func equals(_ obj: NativeObject) -> Bool {
-    guard let other = obj as? Color else {
+  
+  public func equals(to expr: Expr) -> Bool {
+    guard case .object(let obj) = expr,
+          let other = obj as? Color else {
       return false
     }
     return self.red == other.red &&
@@ -178,9 +191,3 @@ public final class Color: NativeObject {
            self.alpha == other.alpha
   }
 }
-
-#if os(iOS) || os(watchOS) || os(tvOS)
-public typealias NativeColor = UIColor
-#elseif os(macOS)
-public typealias NativeColor = NSColor
-#endif

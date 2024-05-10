@@ -55,7 +55,7 @@ public enum Expr: Hashable {
   case special(SpecialForm)
   case env(Environment)
   case port(Port)
-  case object(NativeObject)
+  case object(any CustomExpr)
   indirect case tagged(Expr, Expr)
   case error(RuntimeError)
   indirect case syntax(SourcePosition, Expr)
@@ -946,7 +946,7 @@ extension Expr {
     return port
   }
   
-  @inline(__always) public func asObject(of type: Type) throws -> NativeObject {
+  @inline(__always) public func asObject(of type: Type) throws -> any CustomExpr {
     guard case .object(let obj) = self, obj.type == type else {
       throw RuntimeError.type(self, expected: [type])
     }
