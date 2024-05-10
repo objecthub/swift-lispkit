@@ -39,6 +39,11 @@
            (do ((maxvar count)
                 (var 0 (fx1+ var)))
                ((fx>= var maxvar))
+             body ...))
+        ((_ count body ...)
+           (do ((maxvar count)
+                (var 0 (fx1+ var)))
+               ((fx>= var maxvar))
              body ...))))
 
     (define-syntax dolist

@@ -50,13 +50,13 @@ let package = Package(
   ],
   dependencies: [
     .package(url: "https://github.com/objecthub/swift-numberkit.git", branch: "2.5.1"),
-    .package(url: "https://github.com/objecthub/swift-markdownkit.git", from: "1.1.7"),
+    .package(url: "https://github.com/objecthub/swift-markdownkit.git", from: "1.1.8"),
     .package(url: "https://github.com/objecthub/swift-commandlinekit.git", from: "0.3.5"),
     .package(url: "https://github.com/objecthub/swift-sqliteexpress.git", from: "1.0.3"),
     .package(url: "https://github.com/objecthub/swift-clformat.git", branch: "main"),
-    .package(url: "https://github.com/weichsel/ZIPFoundation.git", from: "0.9.17"),
-    .package(url: "https://github.com/tsolomko/SWCompression.git", from: "4.8.5"),
-    .package(url: "https://github.com/apple/swift-atomics.git", from: "1.1.0")
+    .package(url: "https://github.com/weichsel/ZIPFoundation.git", from: "0.9.19"),
+    .package(url: "https://github.com/tsolomko/SWCompression.git", from: "4.8.6"),
+    .package(url: "https://github.com/apple/swift-atomics.git", from: "1.2.0")
   ],
   targets: [
     .target(name: "LispKit",
