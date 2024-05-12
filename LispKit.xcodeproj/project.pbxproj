@@ -5776,8 +5776,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/objecthub/swift-clformat";
 			requirement = {
-				branch = main;
-				kind = branch;
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.1.0;
 			};
 		};
 		CCA6C3D22361149D007D2AF0 /* XCRemoteSwiftPackageReference "swift-markdownkit" */ = {
