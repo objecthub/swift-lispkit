@@ -368,7 +368,11 @@ public enum Expr: Hashable {
       case .tagged(.object(_), let repr):
         return [repr]
       case .object(let obj):
-        return obj.unpack()
+        if let context {
+          return obj.unpack(in: context)
+        } else {
+          return nil
+        }
       case .error(let err):
         let filePath: Expr
         if let path = context?.sources.sourcePath(for: err.pos.sourceId) {

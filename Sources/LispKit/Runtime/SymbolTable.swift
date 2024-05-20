@@ -108,6 +108,7 @@ public final class SymbolTable: Sequence {
   public let real            = Symbol("real")
   public let number          = Symbol("number")
   public let box             = Symbol("box")
+  public let object          = Symbol("object")
   
   public init() {
     self.registerNativeSymbols()
@@ -193,6 +194,7 @@ public final class SymbolTable: Sequence {
     register(self.port)
     register(self.recordType)
     register(self.error)
+    register(self.object)
   }
   
   /// Returns true if there is already an interned symbol for identifier `ident`.

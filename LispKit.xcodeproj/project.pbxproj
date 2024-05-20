@@ -95,6 +95,10 @@
 		CC1867432750EADC00B31427 /* SRFI-166.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC1867412750E9F900B31427 /* SRFI-166.scm */; };
 		CC1D53322BE7AB4000EE1A24 /* CustomExpr.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1D53312BE7AB4000EE1A24 /* CustomExpr.swift */; };
 		CC1D53332BE7AB4000EE1A24 /* CustomExpr.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1D53312BE7AB4000EE1A24 /* CustomExpr.swift */; };
+		CC1D53392BF16F9F00EE1A24 /* DynamicJSON in Frameworks */ = {isa = PBXBuildFile; productRef = CC1D53382BF16F9F00EE1A24 /* DynamicJSON */; };
+		CC1D533B2BF16FB900EE1A24 /* DynamicJSON in Frameworks */ = {isa = PBXBuildFile; productRef = CC1D533A2BF16FB900EE1A24 /* DynamicJSON */; };
+		CC1D533D2BF1709E00EE1A24 /* JSONLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1D533C2BF1709E00EE1A24 /* JSONLibrary.swift */; };
+		CC1D533E2BF1709E00EE1A24 /* JSONLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1D533C2BF1709E00EE1A24 /* JSONLibrary.swift */; };
 		CC1D6CBA258CCE1A00D36645 /* EditDistance.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC1D6CB9258CCCFF00D36645 /* EditDistance.scm */; };
 		CC1D6CBE258CDE8200D36645 /* 209.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC1D6CBD258CDE3700D36645 /* 209.sld */; };
 		CC1D6CC2258CE0B700D36645 /* SRFI-209.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC1D6CC1258CDF0000D36645 /* SRFI-209.scm */; };
@@ -205,7 +209,7 @@
 		CC38529B231B329E001D5E56 /* memoization.sld in Copy pre-installed third-party Adapton library */ = {isa = PBXBuildFile; fileRef = CC385294231B2FA4001D5E56 /* memoization.sld */; };
 		CC38529C231B32A8001D5E56 /* set.sld in Copy pre-installed third-party Adapton library */ = {isa = PBXBuildFile; fileRef = CC385292231B2F2C001D5E56 /* set.sld */; };
 		CC3852A0232529E7001D5E56 /* Maze.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC38529F23252217001D5E56 /* Maze.scm */; };
-		CC3A025A1F97FD72009B959C /* json.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC3A02591F97F3E1009B959C /* json.sld */; };
+		CC3A025A1F97FD72009B959C /* deprecated.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC3A02591F97F3E1009B959C /* deprecated.sld */; };
 		CC3B641A23822BCE00807476 /* NativeObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC3B641923822BCE00807476 /* NativeObject.swift */; };
 		CC3B642B2386025500807476 /* LispKitTools.h in Headers */ = {isa = PBXBuildFile; fileRef = CC3B64292386025500807476 /* LispKitTools.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		CC3B642F2386027C00807476 /* LispKitRepl.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC3B641B2383390D00807476 /* LispKitRepl.swift */; };
@@ -837,7 +841,7 @@
 		CCC48D9D25E9806600D082AD /* stream.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC4A7DB822585D9100936034 /* stream.sld */; };
 		CCC48D9E25E9806600D082AD /* prettify.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC750BD91F5B772200CD82A2 /* prettify.sld */; };
 		CCC48D9F25E9806600D082AD /* csv.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCBD755D21E224A7008CD7C8 /* csv.sld */; };
-		CCC48DA025E9806600D082AD /* json.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC3A02591F97F3E1009B959C /* json.sld */; };
+		CCC48DA025E9806600D082AD /* deprecated.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC3A02591F97F3E1009B959C /* deprecated.sld */; };
 		CCC48DA125E9806600D082AD /* pdf.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC10404C1F5378660045144A /* pdf.sld */; };
 		CCC48DA225E9806600D082AD /* clos.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC703A1A218D09B600E71EA9 /* clos.sld */; };
 		CCC48DA325E9806600D082AD /* prolog.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCD3E15325C5EB83007FCE8A /* prolog.sld */; };
@@ -1569,7 +1573,7 @@
 				CC90B2341FE55E8B0044F724 /* stack.sld in Copy pre-installed LispKit libraries */,
 				CC68B3A91FCCCDEE00EB4AF9 /* object.sld in Copy pre-installed LispKit libraries */,
 				CCEEF3931FB3CB50006C4581 /* wt-tree.sld in Copy pre-installed LispKit libraries */,
-				CC3A025A1F97FD72009B959C /* json.sld in Copy pre-installed LispKit libraries */,
+				CC3A025A1F97FD72009B959C /* deprecated.sld in Copy pre-installed LispKit libraries */,
 				CCE7CA461F8EC07000FD7ECA /* iterate.sld in Copy pre-installed LispKit libraries */,
 				CC2345411F655BD800C38817 /* datatype.sld in Copy pre-installed LispKit libraries */,
 				CC750BDA1F5B776700CD82A2 /* prettify.sld in Copy pre-installed LispKit libraries */,
@@ -2244,7 +2248,7 @@
 				CCC48D9D25E9806600D082AD /* stream.sld in Copy pre-installed LispKit libraries */,
 				CCC48D9E25E9806600D082AD /* prettify.sld in Copy pre-installed LispKit libraries */,
 				CCC48D9F25E9806600D082AD /* csv.sld in Copy pre-installed LispKit libraries */,
-				CCC48DA025E9806600D082AD /* json.sld in Copy pre-installed LispKit libraries */,
+				CCC48DA025E9806600D082AD /* deprecated.sld in Copy pre-installed LispKit libraries */,
 				CCC48DA125E9806600D082AD /* pdf.sld in Copy pre-installed LispKit libraries */,
 				CCC48DA225E9806600D082AD /* clos.sld in Copy pre-installed LispKit libraries */,
 				CCC48DA325E9806600D082AD /* prolog.sld in Copy pre-installed LispKit libraries */,
@@ -2759,6 +2763,7 @@
 		CC1867322750E5F600B31427 /* 166.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 166.sld; sourceTree = "<group>"; };
 		CC1867412750E9F900B31427 /* SRFI-166.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-166.scm"; sourceTree = "<group>"; };
 		CC1D53312BE7AB4000EE1A24 /* CustomExpr.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomExpr.swift; sourceTree = "<group>"; };
+		CC1D533C2BF1709E00EE1A24 /* JSONLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONLibrary.swift; sourceTree = "<group>"; };
 		CC1D6CB9258CCCFF00D36645 /* EditDistance.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = EditDistance.scm; sourceTree = "<group>"; };
 		CC1D6CBD258CDE3700D36645 /* 209.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 209.sld; sourceTree = "<group>"; };
 		CC1D6CC1258CDF0000D36645 /* SRFI-209.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-209.scm"; sourceTree = "<group>"; };
@@ -2837,7 +2842,7 @@
 		CC385295231B2FD1001D5E56 /* micro.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = micro.sld; sourceTree = "<group>"; };
 		CC385296231B2FED001D5E56 /* mini.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = mini.sld; sourceTree = "<group>"; };
 		CC38529F23252217001D5E56 /* Maze.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Maze.scm; sourceTree = "<group>"; };
-		CC3A02591F97F3E1009B959C /* json.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = json.sld; sourceTree = "<group>"; };
+		CC3A02591F97F3E1009B959C /* deprecated.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = deprecated.sld; sourceTree = "<group>"; };
 		CC3B641923822BCE00807476 /* NativeObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeObject.swift; sourceTree = "<group>"; };
 		CC3B641B2383390D00807476 /* LispKitRepl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LispKitRepl.swift; sourceTree = "<group>"; };
 		CC3B64272386025500807476 /* LispKitTools.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = LispKitTools.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -3335,6 +3340,7 @@
 			files = (
 				CC7D4B6D2A0D877C0066BA94 /* CLFormat in Frameworks */,
 				CCA6C3D42361149D007D2AF0 /* MarkdownKit in Frameworks */,
+				CC1D53392BF16F9F00EE1A24 /* DynamicJSON in Frameworks */,
 				CC5E53032355AAD400C72CE2 /* NumberKit in Frameworks */,
 				CC2DA73A2770012300DE69CF /* Atomics in Frameworks */,
 				CC089651244091E9004503B1 /* SQLiteExpress in Frameworks */,
@@ -3357,6 +3363,7 @@
 			files = (
 				CC7D4B7C2A2559BC0066BA94 /* CLFormat in Frameworks */,
 				CCC48D0525E5BFAE00D082AD /* MarkdownKit in Frameworks */,
+				CC1D533B2BF16FB900EE1A24 /* DynamicJSON in Frameworks */,
 				CCC48D0325E5BFA300D082AD /* NumberKit in Frameworks */,
 				CC2DA73C277001A200DE69CF /* Atomics in Frameworks */,
 				CCC48D0725E5BFB300D082AD /* SQLiteExpress in Frameworks */,
@@ -3483,6 +3490,14 @@
 				CC1867312750E5E100B31427 /* unicode.sld */,
 			);
 			path = 166;
+			sourceTree = "<group>";
+		};
+		CC1D533F2BF171D400EE1A24 /* json */ = {
+			isa = PBXGroup;
+			children = (
+				CC3A02591F97F3E1009B959C /* deprecated.sld */,
+			);
+			path = json;
 			sourceTree = "<group>";
 		};
 		CC240E8A24FB144500FF6D0F /* sxml */ = {
@@ -3695,12 +3710,12 @@
 				CC750BD91F5B772200CD82A2 /* prettify.sld */,
 				CC8BBA2926BF38F200552B8F /* text-table.sld */,
 				CCBD755D21E224A7008CD7C8 /* csv.sld */,
-				CC3A02591F97F3E1009B959C /* json.sld */,
 				CC10404C1F5378660045144A /* pdf.sld */,
 				CC703A1A218D09B600E71EA9 /* clos.sld */,
 				CCD3E15325C5EB83007FCE8A /* prolog.sld */,
 				CC436C3F1FFBD5090095559E /* logic.sld */,
 				CC240E8D24FB1B1B00FF6D0F /* sxml.sld */,
+				CC1D533F2BF171D400EE1A24 /* json */,
 				CC372CD427D4F3320091C474 /* enum */,
 				CC624CD527374BC7005F15B3 /* math */,
 				CC517E5A29A96DF00096FC72 /* list */,
@@ -4286,6 +4301,7 @@
 				CC2FB0792AA3D7A800A20C71 /* TarArchiveLibrary.swift */,
 				CC517E5729A217980096FC72 /* CryptoLibrary.swift */,
 				CC2DA7462773195600DE69CF /* ThreadLibrary.swift */,
+				CC1D533C2BF1709E00EE1A24 /* JSONLibrary.swift */,
 				CC38528A23126F7A001D5E56 /* InternalLibrary.swift */,
 			);
 			path = Primitives;
@@ -4552,6 +4568,7 @@
 				CC2DA7392770012300DE69CF /* Atomics */,
 				CC7D4B6C2A0D877C0066BA94 /* CLFormat */,
 				CC2FB07D2AA3D83E00A20C71 /* SWCompression */,
+				CC1D53382BF16F9F00EE1A24 /* DynamicJSON */,
 			);
 			productName = LispKit;
 			productReference = CCAD52BA1C48403800DBD8EE /* LispKit.framework */;
@@ -4624,6 +4641,7 @@
 				CC2DA73B277001A200DE69CF /* Atomics */,
 				CC7D4B7B2A2559BC0066BA94 /* CLFormat */,
 				CC61CB372ACA116500C5A032 /* SWCompression */,
+				CC1D533A2BF16FB900EE1A24 /* DynamicJSON */,
 			);
 			productName = "LispKit iOS";
 			productReference = CCC48C5625E5B8DC00D082AD /* LispKit.framework */;
@@ -4700,6 +4718,7 @@
 				CC2DA7382770012300DE69CF /* XCRemoteSwiftPackageReference "swift-atomics" */,
 				CC7D4B6B2A0D877C0066BA94 /* XCRemoteSwiftPackageReference "swift-clformat" */,
 				CC2FB07C2AA3D83E00A20C71 /* XCRemoteSwiftPackageReference "SWCompression" */,
+				CC1D53372BF16F7E00EE1A24 /* XCRemoteSwiftPackageReference "swift-dynamicjson" */,
 			);
 			productRefGroup = CCAD52BB1C48403800DBD8EE /* Products */;
 			projectDirPath = "";
@@ -4837,6 +4856,7 @@
 				CC76312120E9518F005F27CE /* Drawing.swift in Sources */,
 				CC8EDE6E1D07263D004E0636 /* BinaryInput.swift in Sources */,
 				CC0980AB1C67E84C006B7FB1 /* Cell.swift in Sources */,
+				CC1D533D2BF1709E00EE1A24 /* JSONLibrary.swift in Sources */,
 				CC3C92441D84C0D800016C28 /* Library.swift in Sources */,
 				CC76312920E9550B005F27CE /* Owners.swift in Sources */,
 				CCAD52E61C48468F00DBD8EE /* SyntaxRules.swift in Sources */,
@@ -4997,6 +5017,7 @@
 				CCC48CAB25E5B97100D082AD /* ContextDelegate.swift in Sources */,
 				CCC48CBE25E5B98600D082AD /* HashTableLibrary.swift in Sources */,
 				CCC48CAD25E5B97100D082AD /* SymbolTable.swift in Sources */,
+				CC1D533E2BF1709E00EE1A24 /* JSONLibrary.swift in Sources */,
 				CCC48C6C25E5B94300D082AD /* Owners.swift in Sources */,
 				CC2DA7482773195600DE69CF /* ThreadLibrary.swift in Sources */,
 				CCC48C8925E5B95B00D082AD /* NativeObject.swift in Sources */,
@@ -5740,6 +5761,14 @@
 				minimumVersion = 1.0.3;
 			};
 		};
+		CC1D53372BF16F7E00EE1A24 /* XCRemoteSwiftPackageReference "swift-dynamicjson" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/objecthub/swift-dynamicjson";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 		CC2DA7382770012300DE69CF /* XCRemoteSwiftPackageReference "swift-atomics" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/apple/swift-atomics.git";
@@ -5803,6 +5832,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = CC08964F244091E9004503B1 /* XCRemoteSwiftPackageReference "swift-sqliteexpress" */;
 			productName = SQLiteExpress;
+		};
+		CC1D53382BF16F9F00EE1A24 /* DynamicJSON */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CC1D53372BF16F7E00EE1A24 /* XCRemoteSwiftPackageReference "swift-dynamicjson" */;
+			productName = DynamicJSON;
+		};
+		CC1D533A2BF16FB900EE1A24 /* DynamicJSON */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CC1D53372BF16F7E00EE1A24 /* XCRemoteSwiftPackageReference "swift-dynamicjson" */;
+			productName = DynamicJSON;
 		};
 		CC2DA7392770012300DE69CF /* Atomics */ = {
 			isa = XCSwiftPackageProductDependency;

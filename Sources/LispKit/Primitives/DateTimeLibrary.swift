@@ -723,7 +723,7 @@ public final class NativeDateTime: AnyNativeObject<DateComponents> {
     return "#<date-time \(formatter.string(from: date))>"
   }
   
-  public override func unpack() -> Exprs {
+  public override func unpack(in context: Context) -> Exprs {
     return [.makeString(self.identityString),
             .makeString(self.value.timeZone!.identifier),
             .fixnum(Int64(self.value.year!)),

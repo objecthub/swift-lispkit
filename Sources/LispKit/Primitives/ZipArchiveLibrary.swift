@@ -391,7 +391,7 @@ public final class ZipArchive: NativeObject {
     }
   }
   
-  public override func unpack() -> Exprs {
+  public override func unpack(in context: Context) -> Exprs {
     let accessMode: Int
     switch self.archive.accessMode {
       case .create:

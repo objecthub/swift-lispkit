@@ -1,5 +1,5 @@
 {
-  "originHash" : "a9fc159c45d70d5544520585e4f0bc8d1c1bc67124a2215f817486c309f94eba",
+  "originHash" : "370aae9e273733f43c61fd6c64d5af4fb71eadcc4e1ee70f8883c0b1b716db40",
   "pins" : [
     {
       "identity" : "bitbytedata",
@@ -44,6 +44,15 @@
       "state" : {
         "revision" : "c66994d36c654fdd4a27863e5f8aaadc101099eb",
         "version" : "0.3.5"
+      }
+    },
+    {
+      "identity" : "swift-dynamicjson",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/objecthub/swift-dynamicjson",
+      "state" : {
+        "revision" : "83f6e2c7db0e28264cb776ee4e4dbe77f59ce9b4",
+        "version" : "1.0.0"
       }
     },
     {

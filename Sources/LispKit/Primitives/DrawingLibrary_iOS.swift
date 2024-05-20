@@ -1908,7 +1908,7 @@ public final class NativeFont: AnyNativeObject<UIFont> {
     return "#<font \(self.value.fontName) \(self.value.pointSize)>"
   }
   
-  public override func unpack() -> Exprs {
+  public override func unpack(in context: Context) -> Exprs {
     return [.makeString(self.value.fontName),
             .makeString(self.value.familyName),
             .makeNumber(self.value.pointSize)]
@@ -1933,7 +1933,7 @@ public final class NativeImage: AnyMutableNativeObject<UIImage> {
     }
   }
   
-  public override func unpack() -> Exprs {
+  public override func unpack(in context: Context) -> Exprs {
     return [.makeString(self.identityString),
             .makeNumber(self.value.size.width),
             .makeNumber(self.value.size.height)]
@@ -2026,12 +2026,12 @@ struct FontTraitModifier: OptionSet {
     }
     if self.contains(.smallCaps) {
       let smallLettersToSmallCapsAttribute: [UIFontDescriptor.FeatureKey: Int] = [
-          .featureIdentifier: kLowerCaseType,
-          .typeIdentifier: kLowerCaseSmallCapsSelector
+          .type: kLowerCaseType,
+          .selector: kLowerCaseSmallCapsSelector
       ]
       let capitalLettersToSmallCapsAttribute: [UIFontDescriptor.FeatureKey: Int] = [
-          .featureIdentifier: kUpperCaseType,
-          .typeIdentifier: kUpperCaseSmallCapsSelector
+          .type: kUpperCaseType,
+          .selector: kUpperCaseSmallCapsSelector
       ]
       return (descr.withSymbolicTraits(traits) ?? descr).addingAttributes([
         .featureSettings: [smallLettersToSmallCapsAttribute, capitalLettersToSmallCapsAttribute]

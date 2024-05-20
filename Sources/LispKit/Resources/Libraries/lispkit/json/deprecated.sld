@@ -45,7 +45,7 @@
 ;;; Adaptation to LispKit
 ;;;   Copyright © 2017 Matthias Zenger. All rights reserved.
 
-(define-library (lispkit json)
+(define-library (lispkit json deprecated)
 
   (export json-read
           json-read-string

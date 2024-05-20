@@ -129,7 +129,7 @@ public struct Color: CustomExpr {
   }
   
   /// Unpack this native object.
-  public func unpack() -> Exprs {
+  public func unpack(in context: Context) -> Exprs {
     return [.flonum(self.red),
             .flonum(self.green),
             .flonum(self.blue),

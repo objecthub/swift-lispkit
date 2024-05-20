@@ -169,6 +169,8 @@ public enum EvalError: Int, Hashable {
   case controlStringMissing
   case invalidDefaultFormatConfig
   case invalidControlSpec
+  case cannotConvertToJSON
+  case jsonReferenceExpected
   
   public var message: String {
     switch self {
@@ -460,6 +462,10 @@ public enum EvalError: Int, Hashable {
         return "invalid default format configuration: $0"
       case .invalidControlSpec:
         return "invalid formatting control specifier: $0"
+      case .cannotConvertToJSON:
+        return "cannot convert $0 to JSON"
+      case .jsonReferenceExpected:
+        return "expected JSON reference but found $0"
     }
   }
   

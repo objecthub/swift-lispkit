@@ -381,7 +381,7 @@ public final class NativeRegularExpression: AnyNativeObject<NSRegularExpression>
     return "#<regexp \"\(Expr.escapeStr(self.value.pattern))\">"
   }
   
-  public override func unpack() -> Exprs {
+  public override func unpack(in context: Context) -> Exprs {
     return [.makeString(Expr.escapeStr(self.value.pattern))]
   }
 }

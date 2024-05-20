@@ -397,7 +397,7 @@ public struct NativeBitset: CustomExpr {
     return self == other
   }
   
-  public func unpack() -> Exprs {
+  public func unpack(in context: Context) -> Exprs {
     var bits: Exprs = []
     for bit in self.bitset {
       bits.append(.fixnum(Int64(bit)))

@@ -221,7 +221,7 @@ public final class EvalMutex: NativeObject, ThreadBlocker {
     return "#<mutex \(nameStr): \(self.state)>"
   }
   
-  public override func unpack() -> Exprs {
+  public override func unpack(in context: Context) -> Exprs {
     let nameStr = self.name.isFalse ? self.identityString : self.name.description
     return [.makeString(self.identityString),
             .makeString(nameStr),

@@ -70,7 +70,7 @@ public final class CharSet: NativeObject {
     }
   }
   
-  public override func unpack() -> Exprs {
+  public override func unpack(in context: Context) -> Exprs {
     var res: Exprs = []
     res.reserveCapacity(self.chars.count)
     for ch in self.chars {

@@ -265,7 +265,7 @@ public final class RecordLibrary: NativeLibrary {
     }
     switch name {
       case .symbol(let field):
-        guard let index = self.indexOfField(field, in: record) else {
+        guard let index = Self.indexOfField(field, in: record) else {
           throw RuntimeError.eval(.unknownFieldOfRecordType, expr, name)
         }
         return .makeNumber(index)
@@ -276,7 +276,7 @@ public final class RecordLibrary: NativeLibrary {
         var current = name
         while case .pair(let sym, let next) = current {
           let field = try sym.asSymbol()
-          guard let index = self.indexOfField(field, in: record) else {
+          guard let index = Self.indexOfField(field, in: record) else {
             throw RuntimeError.eval(.unknownFieldOfRecordType, expr, sym)
           }
           indices.append(.makeNumber(index))
@@ -291,7 +291,7 @@ public final class RecordLibrary: NativeLibrary {
     }
   }
   
-  private func indexOfField(_ field: Symbol, in recordType: Collection) -> Int? {
+  internal static func indexOfField(_ field: Symbol, in recordType: Collection) -> Int? {
     guard case .recordType = recordType.kind,
           let total = try? recordType.exprs[Collection.RecordType.totalFieldCount.rawValue].asInt(),
           let count = try? recordType.exprs[

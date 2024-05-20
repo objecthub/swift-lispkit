@@ -37,6 +37,7 @@
 (import (lispkit crypto))
 (import (lispkit styled-text))
 (import (lispkit format))
+(import (lispkit json))
 (import (lispkit debug))
 
 (display "LispKit non-native")
@@ -69,7 +70,7 @@
 (import (lispkit prettify))
 (import (lispkit text-table))
 (import (lispkit csv))
-(import (lispkit json))
+(import (lispkit json deprecated))
 (import (lispkit pdf))
 (import (lispkit clos))
 (import (lispkit disjoint-set))

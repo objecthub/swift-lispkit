@@ -209,7 +209,7 @@ public final class FormatConfig: NativeObject {
     return res + ">"
   }
   
-  public override func unpack() -> Exprs {
+  public override func unpack(in context: Context) -> Exprs {
     var exprs: Exprs = []
     for (typeTag, _) in self.controlDict {
       exprs.append(.symbol(typeTag))

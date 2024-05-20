@@ -62,7 +62,7 @@ open class NativeObject: Reference, CustomExpr {
     // do nothing by default
   }
   
-  open func unpack() -> Exprs {
+  open func unpack(in context: Context) -> Exprs {
     return [.makeString(self.identityString)]
   }
   

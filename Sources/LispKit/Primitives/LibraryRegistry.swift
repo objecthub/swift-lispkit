@@ -59,7 +59,8 @@ public struct LibraryRegistry {
     ZipArchiveLibrary.self,
     TarArchiveLibrary.self,
     CryptoLibrary.self,
-    ThreadLibrary.self
+    ThreadLibrary.self,
+    JSONLibrary.self
   ]
   #elseif os(macOS)
   public private(set) static var nativeLibraries: [NativeLibrary.Type] = [
@@ -96,7 +97,8 @@ public struct LibraryRegistry {
     ZipArchiveLibrary.self,
     TarArchiveLibrary.self,
     CryptoLibrary.self,
-    ThreadLibrary.self
+    ThreadLibrary.self,
+    JSONLibrary.self
   ]
   #endif
   

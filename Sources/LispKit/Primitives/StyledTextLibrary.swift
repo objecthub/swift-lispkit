@@ -2045,7 +2045,7 @@ public final class TextStyle: NativeObject {
     return "#<text-style \(res)>"
   }
   
-  public override func unpack() -> Exprs {
+  public override func unpack(in context: Context) -> Exprs {
     var attribs: Exprs = []
     for (key, _) in self.attributes {
       if let keyName = self.keyName(for: key) {

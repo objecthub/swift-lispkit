@@ -708,7 +708,7 @@ public final class SecureKey: NativeObject {
     }
   }
   
-  public override func unpack() -> Exprs {
+  public override func unpack(in context: Context) -> Exprs {
     var type: Int = 0
     var kind: Int = 0
     var esize: Int = 0

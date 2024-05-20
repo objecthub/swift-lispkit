@@ -2014,7 +2014,7 @@ public final class NativeFont: AnyNativeObject<NSFont> {
     return "#<font \(self.value.fontName) \(self.value.pointSize)>"
   }
   
-  public override func unpack() -> Exprs {
+  public override func unpack(in context: Context) -> Exprs {
     return [.makeString(self.value.fontName),
             .makeString(self.value.familyName ?? self.value.fontName),
             .makeNumber(self.value.pointSize)]
@@ -2039,7 +2039,7 @@ public final class NativeImage: AnyNativeObject<NSImage> {
     }
   }
   
-  public override func unpack() -> Exprs {
+  public override func unpack(in context: Context) -> Exprs {
     return [.makeString(self.identityString),
             .makeNumber(self.value.size.width),
             .makeNumber(self.value.size.height)]

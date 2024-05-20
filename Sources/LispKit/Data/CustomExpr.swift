@@ -33,7 +33,7 @@ public protocol CustomExpr: Hashable {
   func eqv(to expr: Expr) -> Bool
   func eq(to expr: Expr) -> Bool
   func mark(in gc: GarbageCollector)
-  func unpack() -> Exprs
+  func unpack(in context: Context) -> Exprs
 }
 
 extension CustomExpr {

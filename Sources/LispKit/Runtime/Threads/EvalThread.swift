@@ -44,7 +44,7 @@ public final class NativeThread: AnyNativeObject<EvalThread> {
   }
   
   /// Unpack this native object.
-  public override func unpack() -> Exprs {
+  public override func unpack(in context: Context) -> Exprs {
     let nameStr = self.value.name.isFalse ? self.identityString : self.value.name.description
     return [.makeString(self.identityString),
             .makeString(nameStr),

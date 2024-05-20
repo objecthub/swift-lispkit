@@ -998,7 +998,7 @@ public final class EnumType: NativeObject {
     return "#<enum-type \(self.id.identifier): \(enumNames)>"
   }
   
-  public override func unpack() -> Exprs {
+  public override func unpack(in context: Context) -> Exprs {
     var exprs: Exprs = []
     for e in self.enums {
       exprs.append(.symbol(e.name))
