@@ -171,6 +171,8 @@ public enum EvalError: Int, Hashable {
   case invalidControlSpec
   case cannotConvertToJSON
   case jsonReferenceExpected
+  case invalidJSONPatchOp
+  case unableToCreateJSONPatch
   
   public var message: String {
     switch self {
@@ -466,6 +468,10 @@ public enum EvalError: Int, Hashable {
         return "cannot convert $0 to JSON"
       case .jsonReferenceExpected:
         return "expected JSON reference but found $0"
+      case .invalidJSONPatchOp:
+        return "invalid JSON patch operation: $0"
+      case .unableToCreateJSONPatch:
+        return "unable to create JSON patch from $0"
     }
   }
   

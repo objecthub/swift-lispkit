@@ -34,11 +34,21 @@ public final class JSONLibrary: NativeLibrary {
                                           nan: "NaN")
   
   // Symbols
-  // private let null: Symbol
+  private let add: Symbol
+  private let remove: Symbol
+  private let replace: Symbol
+  private let move: Symbol
+  private let copy: Symbol
+  private let test: Symbol
   
   /// Initialize symbols
   public required init(in context: Context) throws {
-    // self.null = context.symbols.intern("null")
+    self.add = context.symbols.intern("add")
+    self.remove = context.symbols.intern("remove")
+    self.replace = context.symbols.intern("replace")
+    self.move = context.symbols.intern("move")
+    self.copy = context.symbols.intern("copy")
+    self.test = context.symbols.intern("test")
     try super.init(in: context)
   }
   
@@ -64,13 +74,25 @@ public final class JSONLibrary: NativeLibrary {
   public override func declarations() {
     self.define("json-type-tag", as: JSON.type.objectTypeTag())
     self.define("mutable-json-type-tag", as: MutableJSON.type.objectTypeTag())
+    self.define("json-patch-type-tag", as: NativeJSONPatch.type.objectTypeTag())
     
     // JSON references
     self.define(Procedure("json-location?", self.isJsonLocation))
     self.define(Procedure("json-pointer?", self.isJsonPointer))
     self.define(Procedure("json-reference?", self.isJsonReference))
+    self.define(Procedure("json-self-reference?", self.isJsonSelfReference))
     self.define(Procedure("json-location", self.jsonLocation))
     self.define(Procedure("json-pointer", self.jsonPointer))
+    self.define(Procedure("json-reference-segments", self.jsonReferenceSegments))
+    
+    // JSON patch
+    self.define(Procedure("json-patch?", self.isJsonPatch))
+    self.define(Procedure("json-patch=?", self.isJsonPatchEqual))
+    self.define(Procedure("json-patch", self.jsonPatch))
+    self.define(Procedure("json-patch->list", self.jsonPatchToList))
+    self.define(Procedure("json-patch->json", self.jsonPatchToJson))
+    self.define(Procedure("json-patch-clear!", self.jsonPatchClear))
+    self.define(Procedure("json-patch-append!", self.jsonPatchAppend))
     
     // JSON values
     self.define(Procedure("json?", self.isJson))
@@ -81,15 +103,18 @@ public final class JSONLibrary: NativeLibrary {
     self.define(Procedure("json-array?", self.isJsonArray))
     self.define(Procedure("json-object?", self.isJsonObject))
     self.define(Procedure("json-refinement?", self.isJsonRefinement))
+    self.define(Procedure("json=?", self.isJsonEqual))
     self.define(Procedure("json", self.json))
     self.define(Procedure("string->json", self.stringToJson))
     self.define(Procedure("bytevector->json", self.bytevectorToJson))
     self.define(Procedure("load-json", self.loadJson))
+    self.define(Procedure("json-members", self.jsonMembers))
     self.define(Procedure("json-children", self.jsonChildren))
+    self.define(Procedure("json-children-count", self.jsonChildrenCount))
     self.define(Procedure("json-ref", self.jsonRef))
     self.define(Procedure("json-select", self.jsonSelect))
-    self.define(Procedure("json-update", self.jsonUpdate))
-    self.define(Procedure("json-update-all", self.jsonUpdateAll))
+    self.define(Procedure("json-replace", self.jsonReplace))
+    self.define(Procedure("json-replace-all", self.jsonReplaceAll))
     self.define(Procedure("json->value", self.jsonToValue))
     self.define(Procedure("json->string", self.jsonToString))
     self.define(Procedure("json->bytevector", self.jsonToBytevector))
@@ -106,6 +131,7 @@ public final class JSONLibrary: NativeLibrary {
     
     // JSON queries
     self.define(Procedure("json-path?", self.isJsonPath))
+    self.define(Procedure("json-path-singular?", self.isJsonPathSingular))
     self.define(Procedure("json-query", self.jsonQuery))
     self.define(Procedure("json-query-results", self.jsonQueryResults))
     self.define(Procedure("json-query-locations", self.jsonQueryLocations))
@@ -206,38 +232,32 @@ public final class JSONLibrary: NativeLibrary {
     }
   }
   
-  private func isJsonReference(expr: Expr) throws -> Expr {
+  private func isJsonReference(expr: Expr) -> Expr {
+    do {
+      _ = try self.ref(from: expr)
+      return .true
+    } catch {
+      return .false
+    }
+  }
+  
+  private func isJsonSelfReference(expr: Expr) -> Expr {
     switch expr {
       case .null:
         return .true
-      case .fixnum(let num):
-        if Int(exactly: num) == nil {
-          return .false
-        }
-        return .true
       case .string(let str):
         do {
-          _ = try JSON.reference(from: str as String)
-          return .true
+          let ref = try JSON.reference(from: str as String)
+          if let pointer = ref as? JSONPointer {
+            return .makeBoolean(pointer.segments.isEmpty)
+          } else if let location = ref as? JSONLocation {
+            return .makeBoolean(location == .root)
+          } else {
+            return .false
+          }
         } catch {
           return .false
         }
-      case .pair(_, _):
-        var lst = expr
-        while case .pair(let car, let cdr) = lst {
-          switch car {
-            case .fixnum(let num):
-              if Int(exactly: num) == nil {
-                return .false
-              }
-            case .string(_):
-              break
-            default:
-              return .false
-          }
-          lst = cdr
-        }
-        return .makeBoolean(lst == .null)
       default:
         return .false
     }
@@ -324,6 +344,169 @@ public final class JSONLibrary: NativeLibrary {
     return .makeString(JSONPointer(components: components).description)
   }
   
+  private func jsonReferenceSegments(expr: Expr) throws -> Expr {
+    let ref = try self.ref(from: expr)
+    if let pointer = ref as? JSONPointer {
+      let segments = pointer.segments.map { segment in
+        switch segment {
+          case .member(let member):
+            return Expr.makeString(member)
+          case .index(let member, let num):
+            if let num {
+              return Expr.fixnum(Int64(num))
+            } else {
+              return Expr.makeString(member)
+            }
+        }
+      }
+      return .makeList(Exprs(segments))
+    } else if let location = ref as? JSONLocation {
+      let segments = location.segments.map { segment in
+        switch segment {
+          case .member(let member):
+            return Expr.makeString(member)
+          case .index(let num):
+            return Expr.fixnum(Int64(num))
+        }
+      }
+      return .makeList(Exprs(segments))
+    } else {
+      throw RuntimeError.eval(.jsonReferenceExpected, expr)
+    }
+  }
+  
+  // JSON patch
+  
+  private func isJsonPatch(expr: Expr) -> Expr {
+    guard case .object(let obj) = expr, obj is NativeJSONPatch else {
+      return .false
+    }
+    return .true
+  }
+  
+  private func isJsonPatchEqual(expr: Expr, args: Arguments) throws -> Expr {
+    let lhs = JSONPatch(operations: try self.patch(from: expr).value)
+    for arg in args {
+      guard lhs == JSONPatch(operations: try self.patch(from: arg).value) else {
+        return .false
+      }
+    }
+    return .true
+  }
+  
+  private func toOperation(from expr: Expr) throws -> JSONPatchOperation {
+    switch expr {
+      case .pair(.symbol(self.add), .pair(let pointer, .pair(let value, .null))):
+        if case .string(let ptr) = try self.jsonPointer(expr: pointer) {
+          return .add(try JSONPointer(ptr as String), try self.json(from: value))
+        }
+      case .pair(.symbol(self.remove), .pair(let pointer, .null)):
+        if case .string(let ptr) = try self.jsonPointer(expr: pointer) {
+          return .remove(try JSONPointer(ptr as String))
+        }
+      case .pair(.symbol(self.replace), .pair(let pointer, .pair(let value, .null))):
+        if case .string(let ptr) = try self.jsonPointer(expr: pointer) {
+          return .replace(try JSONPointer(ptr as String), try self.json(from: value))
+        }
+      case .pair(.symbol(self.move), .pair(let pointer, .pair(let from, .null))):
+        if case .string(let ptr) = try self.jsonPointer(expr: pointer),
+           case .string(let frm) = try self.jsonPointer(expr: from) {
+          return .move(try JSONPointer(ptr as String), try JSONPointer(frm as String))
+        }
+      case .pair(.symbol(self.copy), .pair(let pointer, .pair(let from, .null))):
+        if case .string(let ptr) = try self.jsonPointer(expr: pointer),
+           case .string(let frm) = try self.jsonPointer(expr: from) {
+          return .copy(try JSONPointer(ptr as String), try JSONPointer(frm as String))
+        }
+      case .pair(.symbol(self.test), .pair(let pointer, .pair(let value, .null))):
+        if case .string(let ptr) = try self.jsonPointer(expr: pointer) {
+          return .test(try JSONPointer(ptr as String), try self.json(from: value))
+        }
+      default:
+        break
+    }
+    throw RuntimeError.eval(.invalidJSONPatchOp, expr)
+  }
+  
+  private func jsonPatch(expr: Expr?) throws -> Expr {
+    guard let expr else {
+      return .object(NativeJSONPatch([]))
+    }
+    switch expr {
+      case .null:
+        return .object(NativeJSONPatch([]))
+      case .pair(_, _):
+        var lst = expr
+        var operations: [JSONPatchOperation] = []
+        while case .pair(let car, let cdr) = lst {
+          operations.append(try self.toOperation(from: car))
+          lst = cdr
+        }
+        guard case .null = lst else {
+          throw RuntimeError.eval(.invalidJSONPatchOp, lst)
+        }
+        return .object(NativeJSONPatch(operations))
+      case .object(let obj):
+        guard let json = obj as? JSON else {
+          throw RuntimeError.type(expr, expected: [JSON.type])
+        }
+        let patch: JSONPatch = try json.coerce()
+        return .object(NativeJSONPatch(patch.operations))
+      default:
+        throw RuntimeError.eval(.unableToCreateJSONPatch, expr)
+    }
+  }
+  
+  private func jsonPatchToList(expr: Expr) throws -> Expr {
+    let operations = try self.patch(from: expr).value
+    var res = Expr.null
+    for operation in operations.reversed() {
+      switch operation {
+        case .add(let pointer, let value):
+          res = .pair(.pair(.symbol(self.add),
+                            .pair(.makeString(pointer.description),
+                                  .pair(.object(value), .null))), res)
+        case .remove(let pointer):
+          res = .pair(.pair(.symbol(self.remove),
+                            .pair(.makeString(pointer.description), .null)), res)
+        case .replace(let pointer, let value):
+          res = .pair(.pair(.symbol(self.replace),
+                            .pair(.makeString(pointer.description),
+                                  .pair(.object(value), .null))), res)
+        case .move(let pointer, let from):
+          res = .pair(.pair(.symbol(self.move),
+                            .pair(.makeString(pointer.description),
+                                  .pair(.makeString(from.description), .null))), res)
+        case .copy(let pointer, let from):
+          res = .pair(.pair(.symbol(self.copy),
+                            .pair(.makeString(pointer.description),
+                                  .pair(.makeString(from.description), .null))), res)
+        case .test(let pointer, let value):
+          res = .pair(.pair(.symbol(self.test),
+                            .pair(.makeString(pointer.description),
+                                  .pair(.object(value), .null))), res)
+      }
+    }
+    return res
+  }
+  
+  private func jsonPatchToJson(expr: Expr) throws -> Expr {
+    return .object(try JSON(encodable: JSONPatch(operations: try self.patch(from: expr).value)))
+  }
+  
+  private func jsonPatchClear(expr: Expr) throws -> Expr {
+    try self.patch(from: expr).value = []
+    return .void
+  }
+  
+  private func jsonPatchAppend(expr: Expr, args: Arguments) throws -> Expr {
+    let patch = try self.patch(from: expr)
+    for arg in args {
+      patch.value.append(try self.toOperation(from: arg))
+    }
+    return .void
+  }
+  
   // JSON values
   
   private func isJson(expr: Expr, strict: Expr?) throws -> Expr {
@@ -391,6 +574,16 @@ public final class JSONLibrary: NativeLibrary {
   
   private func isJsonRefinement(expr: Expr, other: Expr) throws -> Expr {
     return .makeBoolean(try self.json(from: expr).isRefinement(of: self.json(from: other)))
+  }
+  
+  private func isJsonEqual(expr: Expr, args: Arguments) throws -> Expr {
+    let lhs = try self.json(from: expr)
+    for arg in args {
+      guard try lhs == self.json(from: arg) else {
+        return .false
+      }
+    }
+    return .true
   }
   
   private func toJSON(_ expr: Expr) throws -> JSON {
@@ -504,6 +697,17 @@ public final class JSONLibrary: NativeLibrary {
                             floatDecodingStrategy: Self.floatDecodingStrategy))
   }
   
+  private func jsonMembers(expr: Expr) throws -> Expr {
+    guard case .object(let dict) = try self.json(from: expr) else {
+      return .null
+    }
+    var res: Expr = .null
+    for member in dict.keys {
+      res = .pair(.symbol(self.context.symbols.intern(member)), res)
+    }
+    return res
+  }
+  
   private func jsonChildren(expr: Expr) throws -> Expr {
     let children = try self.json(from: expr).children
     var res: Expr = .null
@@ -511,6 +715,17 @@ public final class JSONLibrary: NativeLibrary {
       res = .pair(.object(child), res)
     }
     return res
+  }
+  
+  private func jsonChildrenCount(expr: Expr) throws -> Expr {
+    switch try self.json(from: expr) {
+      case .array(let arr):
+        return .makeNumber(arr.count)
+      case .object(let dict):
+        return .makeNumber(dict.count)
+      default:
+        return .fixnum(0)
+    }
   }
   
   private func jsonRef(expr: Expr, ref: Expr) throws -> Expr {
@@ -576,7 +791,7 @@ public final class JSONLibrary: NativeLibrary {
     }
   }
   
-  private func jsonUpdate(expr: Expr, args: Arguments) throws -> Expr {
+  private func jsonReplace(expr: Expr, args: Arguments) throws -> Expr {
     var json = try self.json(from: expr)
     var iter = args.makeIterator()
     while let reference = iter.next() {
@@ -590,7 +805,7 @@ public final class JSONLibrary: NativeLibrary {
     return .object(json)
   }
   
-  private func jsonUpdateAll(expr: Expr, updates: Expr) throws -> Expr {
+  private func jsonReplaceAll(expr: Expr, updates: Expr) throws -> Expr {
     var json = try self.json(from: expr)
     var lst = updates
     while case .pair(let car, let cdr) = lst {
@@ -731,6 +946,15 @@ public final class JSONLibrary: NativeLibrary {
       var parser = JSONPathParser(string: try expr.asString(), strict: strict?.isTrue ?? true)
       _ = try parser.parse()
       return .true
+    } catch {
+      return .false
+    }
+  }
+  
+  private func isJsonPathSingular(expr: Expr, strict: Expr?) throws -> Expr {
+    do {
+      var parser = JSONPathParser(string: try expr.asString(), strict: strict?.isTrue ?? true)
+      return .makeBoolean(try parser.parse().isSingular)
     } catch {
       return .false
     }
@@ -901,7 +1125,7 @@ public final class MutableJSON: AnyMutableNativeObject<JSON> {
   }
 }
 
-public final class NativeJSONPatch: AnyNativeObject<[JSONPatchOperation]> {
+public final class NativeJSONPatch: AnyMutableNativeObject<[JSONPatchOperation]> {
 
   /// Type representing images
   public static let type = Type.objectType(Symbol(uninterned: "json-patch"))
@@ -913,17 +1137,17 @@ public final class NativeJSONPatch: AnyNativeObject<[JSONPatchOperation]> {
   private static func toString(operation: JSONPatchOperation) -> String {
     switch operation {
       case .add(let pointer, let value):
-        return "add \(pointer) \(value.jsonString(tag: nil))"
+        return "(add \"\(pointer)\" \(value.jsonString(tag: nil)))"
       case .remove(let pointer):
-        return "remove \(pointer)"
+        return "(remove \"\(pointer)\")"
       case .replace(let pointer, let value):
-        return "replace \(pointer) \(value.jsonString(tag: nil))"
+        return "(replace \"\(pointer)\" \(value.jsonString(tag: nil)))"
       case .move(let pointer, let from):
-        return "move \(pointer) \(from)"
+        return "(move \"\(pointer)\" \"\(from)\")"
       case .copy(let pointer, let from):
-        return "copy \(pointer) \(from)"
+        return "(copy \"\(pointer)\" \"\(from)\")"
       case .test(let pointer, let value):
-        return "test \(pointer) \(value.jsonString(tag: nil))"
+        return "(test \"\(pointer)\" \(value.jsonString(tag: nil)))"
     }
   }
   
@@ -932,8 +1156,12 @@ public final class NativeJSONPatch: AnyNativeObject<[JSONPatchOperation]> {
   }
   
   public override var tagString: String {
-    let ops = self.value.map(NativeJSONPatch.toString(operation:)).joined(separator: ", ")
-    return "json-patch \(self.identityString) \(ops)"
+    let ops = self.value.map(NativeJSONPatch.toString(operation:))
+    if ops.isEmpty {
+      return "json-patch \(self.identityString)"
+    } else {
+      return "json-patch \(self.identityString): \(ops.joined())"
+    }
   }
   
   public override func unpack(in context: Context) -> Exprs {
