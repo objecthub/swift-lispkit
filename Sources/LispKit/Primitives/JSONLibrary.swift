@@ -85,6 +85,7 @@ public final class JSONLibrary: NativeLibrary {
     self.define(Procedure("string->json", self.stringToJson))
     self.define(Procedure("bytevector->json", self.bytevectorToJson))
     self.define(Procedure("load-json", self.loadJson))
+    self.define(Procedure("json-children", self.jsonChildren))
     self.define(Procedure("json-ref", self.jsonRef))
     self.define(Procedure("json-select", self.jsonSelect))
     self.define(Procedure("json-update", self.jsonUpdate))
@@ -95,6 +96,8 @@ public final class JSONLibrary: NativeLibrary {
     
     // Mutable JSON values
     self.define(Procedure("mutable-json", self.mutableJson))
+    self.define(Procedure("json-set!", self.jsonSet))
+    self.define(Procedure("json-apply!", self.jsonApply))
     
     // Merging JSON values
     self.define(Procedure("json-merge", self.jsonMerge))
@@ -126,6 +129,22 @@ public final class JSONLibrary: NativeLibrary {
       throw RuntimeError.type(expr, expected: [JSON.type])
     }
     return json
+  }
+  
+  private func mutableJson(from expr: Expr) throws -> MutableJSON {
+    guard case .object(let obj) = expr,
+          let mutable = obj as? MutableJSON else {
+      throw RuntimeError.type(expr, expected: [MutableJSON.type])
+    }
+    return mutable
+  }
+  
+  private func patch(from expr: Expr) throws -> NativeJSONPatch {
+    guard case .object(let obj) = expr,
+          let patch = obj as? NativeJSONPatch else {
+      throw RuntimeError.type(expr, expected: [NativeJSONPatch.type])
+    }
+    return patch
   }
   
   private func ref(from: Expr) throws -> JSONReference {
@@ -485,6 +504,15 @@ public final class JSONLibrary: NativeLibrary {
                             floatDecodingStrategy: Self.floatDecodingStrategy))
   }
   
+  private func jsonChildren(expr: Expr) throws -> Expr {
+    let children = try self.json(from: expr).children
+    var res: Expr = .null
+    for child in children.reversed() {
+      res = .pair(.object(child), res)
+    }
+    return res
+  }
+  
   private func jsonRef(expr: Expr, ref: Expr) throws -> Expr {
     let json = try self.json(from: expr)
     switch ref {
@@ -642,6 +670,20 @@ public final class JSONLibrary: NativeLibrary {
     } else {
       return .object(MutableJSON(try self.toJSON(expr)))
     }
+  }
+  
+  private func jsonSet(expr: Expr, reference: Expr, value: Expr) throws -> Expr {
+    let mutable = try self.mutableJson(from: expr)
+    let ref = try self.ref(from: reference)
+    try mutable.value.update(ref, with: try self.json(from: value))
+    return .void
+  }
+  
+  private func jsonApply(expr: Expr, patch: Expr) throws -> Expr {
+    let mutable = try self.mutableJson(from: expr)
+    let patch = try self.patch(from: patch)
+    try mutable.value.apply(patch: JSONPatch(operations: patch.value))
+    return .void
   }
   
   // Merging JSON values
@@ -856,5 +898,45 @@ public final class MutableJSON: AnyMutableNativeObject<JSON> {
   
   public override func unpack(in context: Context) -> Exprs {
     return [.object(self.value)]
+  }
+}
+
+public final class NativeJSONPatch: AnyNativeObject<[JSONPatchOperation]> {
+
+  /// Type representing images
+  public static let type = Type.objectType(Symbol(uninterned: "json-patch"))
+
+  public override var type: Type {
+    return Self.type
+  }
+  
+  private static func toString(operation: JSONPatchOperation) -> String {
+    switch operation {
+      case .add(let pointer, let value):
+        return "add \(pointer) \(value.jsonString(tag: nil))"
+      case .remove(let pointer):
+        return "remove \(pointer)"
+      case .replace(let pointer, let value):
+        return "replace \(pointer) \(value.jsonString(tag: nil))"
+      case .move(let pointer, let from):
+        return "move \(pointer) \(from)"
+      case .copy(let pointer, let from):
+        return "copy \(pointer) \(from)"
+      case .test(let pointer, let value):
+        return "test \(pointer) \(value.jsonString(tag: nil))"
+    }
+  }
+  
+  public override var string: String {
+    return "#<\(self.tagString)>"
+  }
+  
+  public override var tagString: String {
+    let ops = self.value.map(NativeJSONPatch.toString(operation:)).joined(separator: ", ")
+    return "json-patch \(self.identityString) \(ops)"
+  }
+  
+  public override func unpack(in context: Context) -> Exprs {
+    return [.object(self)]
   }
 }
