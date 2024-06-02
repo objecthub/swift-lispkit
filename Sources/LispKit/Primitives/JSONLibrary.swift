@@ -105,6 +105,7 @@ public final class JSONLibrary: NativeLibrary {
     self.define(Procedure("json-refinement?", self.isJsonRefinement))
     self.define(Procedure("json=?", self.isJsonEqual))
     self.define(Procedure("json", self.json))
+    self.define(Procedure("make-json-array", self.makeJsonArray))
     self.define(Procedure("string->json", self.stringToJson))
     self.define(Procedure("bytevector->json", self.bytevectorToJson))
     self.define(Procedure("load-json", self.loadJson))
@@ -112,7 +113,6 @@ public final class JSONLibrary: NativeLibrary {
     self.define(Procedure("json-children", self.jsonChildren))
     self.define(Procedure("json-children-count", self.jsonChildrenCount))
     self.define(Procedure("json-ref", self.jsonRef))
-    self.define(Procedure("json-select", self.jsonSelect))
     self.define(Procedure("json-replace", self.jsonReplace))
     self.define(Procedure("json-replace-all", self.jsonReplaceAll))
     self.define(Procedure("json->value", self.jsonToValue))
@@ -122,6 +122,9 @@ public final class JSONLibrary: NativeLibrary {
     // Mutable JSON values
     self.define(Procedure("mutable-json", self.mutableJson))
     self.define(Procedure("json-set!", self.jsonSet))
+    self.define(Procedure("json-append!", self.jsonAppend))
+    self.define(Procedure("json-insert!", self.jsonInsert))
+    self.define(Procedure("json-remove!", self.jsonRemove))
     self.define(Procedure("json-apply!", self.jsonApply))
     
     // Merging JSON values
@@ -183,6 +186,8 @@ public final class JSONLibrary: NativeLibrary {
         } else {
           throw RuntimeError.eval(.jsonReferenceExpected, from)
         }
+      case .symbol(let sym):
+        return JSONLocation.member(.root, sym.identifier)
       case .string(let str):
         return try JSON.reference(from: str as String)
       case .pair(_, _):
@@ -190,8 +195,8 @@ public final class JSONLibrary: NativeLibrary {
         var location = JSONLocation.root
         while case .pair(let segment, let rest) = lst {
           switch segment {
-            case .string(let str):
-              location = location.select(member: str as String)
+            case .symbol(let sym):
+              location = location.select(member: sym.identifier)
             case .fixnum(let num):
               if let index = Int(exactly: num) {
                 location = location.select(index: index)
@@ -272,6 +277,8 @@ public final class JSONLibrary: NativeLibrary {
           throw RuntimeError.eval(.jsonReferenceExpected, expr)
         }
         return .makeString(JSONLocation.index(.root, index).description)
+      case .symbol(let sym):
+        return .makeString(JSONLocation.member(.root, sym.identifier).description)
       case .string(let str):
         let reference = try JSON.reference(from: str as String)
         if let pointer = reference as? JSONPointer {
@@ -295,8 +302,8 @@ public final class JSONLibrary: NativeLibrary {
                 throw RuntimeError.eval(.jsonReferenceExpected, car)
               }
               location = location.select(index: index)
-            case .string(let member):
-              location = location.select(member: member as String)
+            case .symbol(let sym):
+              location = location.select(member: sym.identifier)
             default:
               throw RuntimeError.eval(.jsonReferenceExpected, car)
           }
@@ -315,6 +322,8 @@ public final class JSONLibrary: NativeLibrary {
         break
       case .fixnum(let num):
         components.append("\(num)")
+      case .symbol(let sym):
+        components.append(sym.identifier)
       case .string(let str):
         let reference = try JSON.reference(from: str as String)
         if let pointer = reference as? JSONPointer {
@@ -331,8 +340,8 @@ public final class JSONLibrary: NativeLibrary {
           switch car {
             case .fixnum(let num):
               components.append("\(num)")
-            case .string(let member):
-              components.append(member as String)
+            case .symbol(let sym):
+              components.append(sym.identifier)
             default:
               throw RuntimeError.eval(.jsonReferenceExpected, car)
           }
@@ -591,7 +600,7 @@ public final class JSONLibrary: NativeLibrary {
       case .symbol(self.context.symbols.null):
         return .null
       case .null:
-        return .array([])
+        return .object([:])
       case .false:
         return .boolean(false)
       case .true:
@@ -600,6 +609,8 @@ public final class JSONLibrary: NativeLibrary {
         return .integer(num)
       case .flonum(let num):
         return .float(num)
+      case .symbol(let sym):
+        return .string(sym.identifier)
       case .string(let str):
         return .string(str as String)
       case .vector(let col):
@@ -672,8 +683,25 @@ public final class JSONLibrary: NativeLibrary {
     }
   }
   
-  private func json(expr: Expr) throws -> Expr {
-    return .object(try self.toJSON(expr))
+  private func json(args: Arguments) throws -> Expr {
+    switch args.count {
+      case 0:
+        return .object(JSON.null)
+      case 1:
+        return .object(try self.toJSON(args.first!))
+      default:
+        var arr: [JSON] = []
+        for arg in args {
+          arr.append(try self.toJSON(arg))
+        }
+        return .object(JSON.array(arr))
+    }
+  }
+  
+  private func makeJsonArray(len: Expr, def: Expr?) throws -> Expr {
+    let length = try len.asInt(above: 0)
+    let `default` = def == nil ? JSON.null : try self.json(from: def!)
+    return .object(JSON.array(Array(repeating: `default`, count: length)))
   }
   
   private func stringToJson(expr: Expr) throws -> Expr {
@@ -728,67 +756,58 @@ public final class JSONLibrary: NativeLibrary {
     }
   }
   
-  private func jsonRef(expr: Expr, ref: Expr) throws -> Expr {
-    let json = try self.json(from: expr)
-    switch ref {
-      case .null:
-        return .object(json)
-      case .string(let str):
-        if let res = try json[ref: str as String] {
-          return .object(res)
-        } else {
-          return .false
-        }
-      case .pair(_, _):
-        var lst = ref
-        var location = JSONLocation.root
-        while case .pair(let segment, let rest) = lst {
-          switch segment {
-            case .string(let str):
-              location = location.select(member: str as String)
-            case .fixnum(let num):
-              if let index = Int(exactly: num) {
-                location = location.select(index: index)
-              } else {
-                return .false
-              }
-            default:
-              return .false
-          }
-          lst = rest
-        }
-        if let res = json[ref: location] {
-          return .object(res)
-        } else {
-          return .false
-        }
-      default:
-        return .false
-    }
-  }
-  
-  private func jsonSelect(expr: Expr, args: Arguments) throws -> Expr {
-    let json = try self.json(from: expr)
-    var location = JSONLocation.root
-    for arg in args {
-      switch arg {
+  private func jsonRef(expr: Expr, refs: Arguments) throws -> Expr {
+    var json = try self.json(from: expr)
+    for ref in refs {
+      switch ref {
+        case .null:
+          break
         case .fixnum(let num):
-          if let index = Int(exactly: num) {
-            location = location.select(index: index)
+          if let index = Int(exactly: num), let res = json[index] {
+            json = res
           } else {
             return .false
           }
-        case .string(let member):
-          location = location.select(member: member as String)
+        case .symbol(let sym):
+          if let res = json[sym.identifier] {
+            json = res
+          } else {
+            return .false
+          }
+        case .string(let str):
+          if let res = try json[ref: str as String] {
+            json = res
+          } else {
+            return .false
+          }
+        case .pair(_, _):
+          var lst = ref
+          var location = JSONLocation.root
+          while case .pair(let segment, let rest) = lst {
+            switch segment {
+              case .symbol(let sym):
+                location = location.select(member: sym.identifier)
+              case .fixnum(let num):
+                if let index = Int(exactly: num) {
+                  location = location.select(index: index)
+                } else {
+                  return .false
+                }
+              default:
+                return .false
+            }
+            lst = rest
+          }
+          if let res = json[ref: location] {
+            json = res
+          } else {
+            return .false
+          }
         default:
           return .false
       }
     }
-    if let res = json[ref: location] {
-      return .object(res)
-    } else {
-      return .false
-    }
+    return .object(json)
   }
   
   private func jsonReplace(expr: Expr, args: Arguments) throws -> Expr {
@@ -892,6 +911,102 @@ public final class JSONLibrary: NativeLibrary {
     let ref = try self.ref(from: reference)
     try mutable.value.update(ref, with: try self.json(from: value))
     return .void
+  }
+  
+  private func jsonAppend(expr: Expr, reference: Expr, args: Arguments) throws -> Expr {
+    let mutable = try self.mutableJson(from: expr)
+    let ref = try self.ref(from: reference)
+    try mutable.value.mutate(ref, array: { arr in
+      for arg in args {
+        switch arg {
+          case .null:
+            break
+          case .pair(_, _):
+            var lst = arg
+            while case .pair(let car, let cdr) = lst {
+              arr.append(try self.json(from: car))
+              lst = cdr
+            }
+            guard case .null = lst else {
+              throw RuntimeError.type(arg, expected: [.properListType])
+            }
+          case .vector(let col):
+            for expr in col.exprs {
+              arr.append(try self.json(from: expr))
+            }
+          default:
+            arr.append(try self.json(from: arg))
+        }
+      }
+    })
+    return .void
+  }
+  
+  private func jsonInsert(expr: Expr, reference: Expr, index: Expr, args: Arguments) throws -> Expr {
+    let mutable = try self.mutableJson(from: expr)
+    let ref = try self.ref(from: reference)
+    let ind = try index.asInt(above: 0)
+    var arr: [JSON] = []
+    for arg in args {
+      switch arg {
+        case .null:
+          break
+        case .pair(_, _):
+          var lst = arg
+          while case .pair(let car, let cdr) = lst {
+            arr.append(try self.json(from: car))
+            lst = cdr
+          }
+          guard case .null = lst else {
+            throw RuntimeError.type(arg, expected: [.properListType])
+          }
+        case .vector(let col):
+          for expr in col.exprs {
+            arr.append(try self.json(from: expr))
+          }
+        default:
+          arr.append(try self.json(from: arg))
+      }
+    }
+    try mutable.value.mutate(ref, array: { a in
+      a.insert(contentsOf: arr, at: ind)
+    })
+    return .void
+  }
+  
+  private func jsonRemove(expr: Expr, references: Arguments) throws -> Expr {
+    let mutable = try self.mutableJson(from: expr)
+    var modified = false
+    for reference in references {
+      let ref = try self.ref(from: reference)
+      if let sref = ref as? any SegmentableJSONReference,
+         let (parent, last) = sref.deselect {
+        try mutable.value.mutate(
+          parent,
+          array: { arr in
+            switch last.index {
+              case.none:
+                break
+              case .fromStart(let ind):
+                if arr.indices.contains(ind) {
+                  arr.remove(at: ind)
+                  modified = true
+                }
+              case .fromEnd(let ind):
+                if arr.indices.contains(ind) {
+                  arr.remove(at: arr.count - ind)
+                  modified = true
+                }
+            }
+          },
+          object: { dict in
+            if let member = last.member {
+              modified = dict.removeValue(forKey: member) != nil || modified
+            }
+          })
+      }
+    }
+    return .makeBoolean(modified)
   }
   
   private func jsonApply(expr: Expr, patch: Expr) throws -> Expr {
