@@ -1101,6 +1101,8 @@
 		CCD4A6F926EDFC7200BEE906 /* 217.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCD4A6F526EDFB9500BEE906 /* 217.sld */; };
 		CCD4A6FA26EDFC8300BEE906 /* SRFI-217.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCD4A6F626EDFBD100BEE906 /* SRFI-217.scm */; };
 		CCD5B51F2C0B79D7002BF2F0 /* JSON.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCD5B51E2C0B79D7002BF2F0 /* JSON.scm */; };
+		CCD5B5222C0D2337002BF2F0 /* JSONSchemaLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD5B5202C0D231E002BF2F0 /* JSONSchemaLibrary.swift */; };
+		CCD5B5232C0D233B002BF2F0 /* JSONSchemaLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD5B5202C0D231E002BF2F0 /* JSONSchemaLibrary.swift */; };
 		CCD5E55C262E342600C45EA0 /* 189.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCD5E558262E309500C45EA0 /* 189.sld */; };
 		CCD5E55D262E342600C45EA0 /* 214.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCD5E559262E31AE00C45EA0 /* 214.sld */; };
 		CCD5E561262E343E00C45EA0 /* 189.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCD5E558262E309500C45EA0 /* 189.sld */; };
@@ -3239,6 +3241,7 @@
 		CCD4A6F526EDFB9500BEE906 /* 217.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 217.sld; sourceTree = "<group>"; };
 		CCD4A6F626EDFBD100BEE906 /* SRFI-217.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-217.scm"; sourceTree = "<group>"; };
 		CCD5B51E2C0B79D7002BF2F0 /* JSON.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = JSON.scm; sourceTree = "<group>"; };
+		CCD5B5202C0D231E002BF2F0 /* JSONSchemaLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONSchemaLibrary.swift; sourceTree = "<group>"; };
 		CCD5E558262E309500C45EA0 /* 189.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 189.sld; sourceTree = "<group>"; };
 		CCD5E559262E31AE00C45EA0 /* 214.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 214.sld; sourceTree = "<group>"; };
 		CCD5E55A262E32EE00C45EA0 /* SRFI-214.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-214.scm"; sourceTree = "<group>"; };
@@ -4305,6 +4308,7 @@
 				CC517E5729A217980096FC72 /* CryptoLibrary.swift */,
 				CC2DA7462773195600DE69CF /* ThreadLibrary.swift */,
 				CC1D533C2BF1709E00EE1A24 /* JSONLibrary.swift */,
+				CCD5B5202C0D231E002BF2F0 /* JSONSchemaLibrary.swift */,
 				CC38528A23126F7A001D5E56 /* InternalLibrary.swift */,
 			);
 			path = Primitives;
@@ -4886,6 +4890,7 @@
 				CC4E2D371D09691000D77159 /* PortLibrary.swift in Sources */,
 				CC6A3B6C1C53EE3200E962E2 /* Promise.swift in Sources */,
 				CC9065B51C5557E4004A88B7 /* ObjectPool.swift in Sources */,
+				CCD5B5222C0D2337002BF2F0 /* JSONSchemaLibrary.swift in Sources */,
 				CC6AB0871C5C28FE008E9460 /* Equality.swift in Sources */,
 				CCAD52E01C48468F00DBD8EE /* Env.swift in Sources */,
 				CC6A3B6E1C53F0F600E962E2 /* Collection.swift in Sources */,
@@ -5020,6 +5025,7 @@
 				CCC48C8625E5B95B00D082AD /* Collection.swift in Sources */,
 				CCC48CAB25E5B97100D082AD /* ContextDelegate.swift in Sources */,
 				CCC48CBE25E5B98600D082AD /* HashTableLibrary.swift in Sources */,
+				CCD5B5232C0D233B002BF2F0 /* JSONSchemaLibrary.swift in Sources */,
 				CCC48CAD25E5B97100D082AD /* SymbolTable.swift in Sources */,
 				CC1D533E2BF1709E00EE1A24 /* JSONLibrary.swift in Sources */,
 				CCC48C6C25E5B94300D082AD /* Owners.swift in Sources */,
@@ -5769,8 +5775,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/objecthub/swift-dynamicjson";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.1;
+				branch = main;
+				kind = branch;
 			};
 		};
 		CC2DA7382770012300DE69CF /* XCRemoteSwiftPackageReference "swift-atomics" */ = {

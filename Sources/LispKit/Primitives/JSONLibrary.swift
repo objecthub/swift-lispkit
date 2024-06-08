@@ -176,7 +176,7 @@ public final class JSONLibrary: NativeLibrary {
     return patch
   }
   
-  private func ref(from: Expr) throws -> JSONReference {
+  internal static func ref(from: Expr) throws -> any SegmentableJSONReference {
     switch from {
       case .null:
         return JSONLocation.root
@@ -239,7 +239,7 @@ public final class JSONLibrary: NativeLibrary {
   
   private func isJsonReference(expr: Expr) -> Expr {
     do {
-      _ = try self.ref(from: expr)
+      _ = try Self.ref(from: expr)
       return .true
     } catch {
       return .false
@@ -354,7 +354,7 @@ public final class JSONLibrary: NativeLibrary {
   }
   
   private func jsonReferenceSegments(expr: Expr) throws -> Expr {
-    let ref = try self.ref(from: expr)
+    let ref = try Self.ref(from: expr)
     if let pointer = ref as? JSONPointer {
       let segments = pointer.segments.map { segment in
         switch segment {
@@ -596,8 +596,12 @@ public final class JSONLibrary: NativeLibrary {
   }
   
   private func toJSON(_ expr: Expr) throws -> JSON {
+    return try Self.toJSON(expr, in: self.context)
+  }
+  
+  internal static func toJSON(_ expr: Expr, in context: Context) throws -> JSON {
     switch expr {
-      case .symbol(self.context.symbols.null):
+      case .symbol(context.symbols.null):
         return .null
       case .null:
         return .object([:])
@@ -618,7 +622,7 @@ public final class JSONLibrary: NativeLibrary {
           case .array, .vector, .immutableVector, .growableVector:
             var arr: [JSON] = []
             for expr in col.exprs {
-              arr.append(try self.toJSON(expr))
+              arr.append(try Self.toJSON(expr, in: context))
             }
             return .array(arr)
           default:
@@ -634,9 +638,9 @@ public final class JSONLibrary: NativeLibrary {
         for sym in syms {
           guard let index = RecordLibrary.indexOfField(sym, in: type),
                 index >= 0 && index < record.exprs.count else {
-            throw RuntimeError.eval(.unknownFieldOfRecordType, expr, name)
+            throw RuntimeError.eval(.unknownFieldOfRecordType, expr, .symbol(sym))
           }
-          dict[sym.identifier] = try self.toJSON(record.exprs[index])
+          dict[sym.identifier] = try Self.toJSON(record.exprs[index], in: context)
         }
         return .object(dict)
       case .pair(_, _):
@@ -645,9 +649,9 @@ public final class JSONLibrary: NativeLibrary {
         while case .pair(.pair(let key, let value), let rest) = rs {
           switch key {
             case .symbol(let member):
-              dict[member.identifier] = try self.toJSON(value)
+              dict[member.identifier] = try Self.toJSON(value, in: context)
             case .string(let member):
-              dict[member as String] = try self.toJSON(value)
+              dict[member as String] = try Self.toJSON(value, in: context)
             default:
               throw RuntimeError.eval(.cannotConvertToJSON, key)
           }
@@ -662,9 +666,9 @@ public final class JSONLibrary: NativeLibrary {
         for (key, value) in table.entries {
           switch key {
             case .symbol(let member):
-              dict[member.identifier] = try self.toJSON(value)
+              dict[member.identifier] = try Self.toJSON(value, in: context)
             case .string(let member):
-              dict[member as String] = try self.toJSON(value)
+              dict[member as String] = try Self.toJSON(value, in: context)
             default:
               throw RuntimeError.eval(.cannotConvertToJSON, key)
           }
@@ -814,7 +818,7 @@ public final class JSONLibrary: NativeLibrary {
     var json = try self.json(from: expr)
     var iter = args.makeIterator()
     while let reference = iter.next() {
-      let ref = try self.ref(from: reference)
+      let ref = try Self.ref(from: reference)
       if let expr = iter.next() {
         try json.update(ref, with: try self.json(from: expr))
       } else {
@@ -831,7 +835,7 @@ public final class JSONLibrary: NativeLibrary {
       guard case .pair(let reference, let expr) = car else {
         throw RuntimeError.type(car, expected: [.pairType])
       }
-      try json.update(try self.ref(from: reference), with: try self.json(from: expr))
+      try json.update(try Self.ref(from: reference), with: try self.json(from: expr))
       lst = cdr
     }
     guard case .null = lst else {
@@ -908,14 +912,14 @@ public final class JSONLibrary: NativeLibrary {
   
   private func jsonSet(expr: Expr, reference: Expr, value: Expr) throws -> Expr {
     let mutable = try self.mutableJson(from: expr)
-    let ref = try self.ref(from: reference)
+    let ref = try Self.ref(from: reference)
     try mutable.value.update(ref, with: try self.json(from: value))
     return .void
   }
   
   private func jsonAppend(expr: Expr, reference: Expr, args: Arguments) throws -> Expr {
     let mutable = try self.mutableJson(from: expr)
-    let ref = try self.ref(from: reference)
+    let ref = try Self.ref(from: reference)
     try mutable.value.mutate(ref, array: { arr in
       for arg in args {
         switch arg {
@@ -944,7 +948,7 @@ public final class JSONLibrary: NativeLibrary {
   
   private func jsonInsert(expr: Expr, reference: Expr, index: Expr, args: Arguments) throws -> Expr {
     let mutable = try self.mutableJson(from: expr)
-    let ref = try self.ref(from: reference)
+    let ref = try Self.ref(from: reference)
     let ind = try index.asInt(above: 0)
     var arr: [JSON] = []
     for arg in args {
@@ -978,9 +982,8 @@ public final class JSONLibrary: NativeLibrary {
     let mutable = try self.mutableJson(from: expr)
     var modified = false
     for reference in references {
-      let ref = try self.ref(from: reference)
-      if let sref = ref as? any SegmentableJSONReference,
-         let (parent, last) = sref.deselect {
+      let ref = try Self.ref(from: reference)
+      if let (parent, last) = ref.deselect {
         try mutable.value.mutate(
           parent,
           array: { arr in
@@ -1104,8 +1107,6 @@ public final class JSONLibrary: NativeLibrary {
 }
 
 extension JSON: CustomExpr {
-  
-  /// Type representing enum sets
   public static let type = Type.objectType(Symbol(uninterned: "json"))
   
   public var type: Type {
@@ -1219,8 +1220,6 @@ extension JSON: CustomExpr {
 }
 
 public final class MutableJSON: AnyMutableNativeObject<JSON> {
-
-  /// Type representing images
   public static let type = Type.objectType(Symbol(uninterned: "mutable-json"))
 
   public override var type: Type {
@@ -1241,8 +1240,6 @@ public final class MutableJSON: AnyMutableNativeObject<JSON> {
 }
 
 public final class NativeJSONPatch: AnyMutableNativeObject<[JSONPatchOperation]> {
-
-  /// Type representing images
   public static let type = Type.objectType(Symbol(uninterned: "json-patch"))
 
   public override var type: Type {

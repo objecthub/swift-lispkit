@@ -173,6 +173,8 @@ public enum EvalError: Int, Hashable {
   case jsonReferenceExpected
   case invalidJSONPatchOp
   case unableToCreateJSONPatch
+  case unsupportedJSONSchemaDialect
+  case undefinedDefaultSchemaRegistry
   
   public var message: String {
     switch self {
@@ -472,6 +474,10 @@ public enum EvalError: Int, Hashable {
         return "invalid JSON patch operation: $0"
       case .unableToCreateJSONPatch:
         return "unable to create JSON patch from $0"
+      case .unsupportedJSONSchemaDialect:
+        return "unsupported JSON schema dialect: $0"
+      case .undefinedDefaultSchemaRegistry:
+        return "undefined default JSON schema registry"
     }
   }
   
