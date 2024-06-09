@@ -59,15 +59,11 @@ public final class JSONLibrary: NativeLibrary {
   
     /// Dependencies of the library.
   public override func dependencies() {
-    /*
-     self.`import`(from: ["lispkit", "core"], "define", "define-syntax", "syntax-rules", "lambda",
-     "apply", "values")
-     self.`import`(from: ["lispkit", "control"], "begin", "let")
-     self.`import`(from: ["lispkit", "dynamic"], "dynamic-wind")
-     self.`import`(from: ["lispkit", "system"], "current-second")
-     self.`import`(from: ["lispkit", "math"], "+", "-")
-     self.`import`(from: ["lispkit", "list"], "cons", "map")
-     */
+    self.`import`(from: ["lispkit", "core"],    "define")
+    self.`import`(from: ["lispkit", "control"], "do")
+    self.`import`(from: ["lispkit", "dynamic"], "assert")
+    self.`import`(from: ["lispkit", "math"],    "fx1+", "fx>=")
+    self.`import`(from: ["lispkit", "list"],    "null?", "car", "cdr")
   }
   
     /// Declarations of the library.
@@ -138,6 +134,23 @@ public final class JSONLibrary: NativeLibrary {
     self.define(Procedure("json-query", self.jsonQuery))
     self.define(Procedure("json-query-results", self.jsonQueryResults))
     self.define(Procedure("json-query-locations", self.jsonQueryLocations))
+    
+    // Higher-order functions
+    self.define("json-for-each-element", via: """
+      (define (json-for-each-element f json)
+        (assert (json-array? json))
+        (do ((len (json-children-count json))
+             (i 0 (fx1+ i)))
+            ((fx>= i len))
+          (f (json-ref json i))))
+    """)
+    self.define("json-for-each-member", via: """
+      (define (json-for-each-member f json)
+        (assert (json-object? json))
+        (do ((members (json-members json) (cdr members)))
+            ((null? members))
+          (f (car members) (json-ref json (car members)))))
+    """)
   }
   
   private func jsonOpt(from expr: Expr) -> JSON? {

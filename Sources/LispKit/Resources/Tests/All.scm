@@ -24,6 +24,7 @@
 (load "Tests/LispKit-Match")
 (load "Tests/LispKit-Channel")
 (load "Tests/LispKit-List-Set")
+(load "Tests/LispKit-JSON-Schema")
 (load "Tests/SRFI-14")
 (load "Tests/SRFI-18")
 (load "Tests/SRFI-101")

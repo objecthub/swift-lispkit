@@ -153,7 +153,7 @@ public final class FileHandler {
   }
   
   public func assetFilePath(forFile name: String,
-                            ofType type: String,
+                            ofType type: String?,
                             inFolder folder: String? = nil,
                             relativeTo root: String? = nil) -> String? {
     var name = name
@@ -168,11 +168,26 @@ public final class FileHandler {
   }
   
   private func searchFile(withName name: String,
-                          ofType type: String,
+                          ofType type: String?,
                           relativeTo root: String? = nil,
                           findIn urls: [URL]) -> String? {
+    // Deal with files (not directories) in the rest of the code
+    guard let type else {
+      // If there is a directory in the current path, then return it.
+      if self.isDirectory(atPath: name, relativeTo: root) {
+        return self.path(name, relativeTo: root)
+      }
+      // Search through all search paths.
+      for url in urls {
+        let path = url.appendingPathComponent(name, isDirectory: true).path
+        if self.isDirectory(atPath: path) {
+          return path
+        }
+      }
+      return nil
+    }
     // Compute suffix
-    let suffix = "." + type
+    let suffix = type.isEmpty ? "" : "." + type
     // If there is a name in the current path (either with or without suffix), then return it.
     if self.isFile(atPath: name, relativeTo: root) {
       return self.path(name, relativeTo: root)

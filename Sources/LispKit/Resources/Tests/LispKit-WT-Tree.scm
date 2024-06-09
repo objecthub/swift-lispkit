@@ -21,7 +21,8 @@
 ;;; LispKit Port:
 ;;;   Copyright © 2021 Matthias Zenger. All rights reserved.
 
-(import (lispkit wt-tree)
+(import (lispkit base)
+        (lispkit wt-tree)
         (srfi 1))
 
 (define (sort1 lst)
@@ -49,7 +50,7 @@
     (if (and (not (null? z)) (equal? y (car z)))
         z
         (cons y z)))
-  (fold-right func () x))
+  (fold-right func '() x))
 
 ;; Engine
 
@@ -187,10 +188,7 @@
 (define (run-test prop)
   (let ((tag (car prop))
         (test (cdr prop)))
-    (display tag)
-    (display ": testing ")
-    (display number-of-tests)
-    (display " cases... ")
+    (display* tag ": testing " number-of-tests " cases... ")
     (let loop ((i 0))
       (cond
         ((>= i number-of-tests)

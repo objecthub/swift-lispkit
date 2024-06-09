@@ -281,11 +281,11 @@ public final class SystemLibrary: NativeLibrary {
     return .makeString(path)
   }
 
-  private func assetFilePath(_ expr: Expr, _ type: Expr, _ dir: Expr?) throws -> Expr {
+  private func assetFilePath(_ expr: Expr, _ type: Expr?, _ dir: Expr?) throws -> Expr {
     if let filename = self.context.fileHandler.assetFilePath(
                         forFile: try expr.asString(),
-                        ofType: try type.asString(),
-                        inFolder: try dir?.asPath(),
+                        ofType: type == .false ? nil : try type?.asString(),
+                        inFolder: dir == .false ? nil : try dir?.asPath(),
                         relativeTo: self.context.evaluator.currentDirectoryPath) {
       return .makeString(filename)
     } else {

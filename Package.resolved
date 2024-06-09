@@ -50,8 +50,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/objecthub/swift-dynamicjson.git",
       "state" : {
-        "revision" : "83f6e2c7db0e28264cb776ee4e4dbe77f59ce9b4",
-        "version" : "1.0.0"
+        "branch" : "main",
+        "revision" : "6b932fda6290b26f39656193dfb9d65e25971c86"
       }
     },
     {

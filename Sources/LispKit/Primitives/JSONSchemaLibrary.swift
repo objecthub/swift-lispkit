@@ -325,8 +325,8 @@ public final class JSONSchemaLibrary: NativeLibrary {
   
   private func schemaRegistryAddSource(path: Expr, base: Expr, registry: Expr?) throws -> Expr {
     _ = try self.schemaRegistry(from: registry)
-      .register(provider: JSONSchemaFileProvider(directory: try self.url(from: path),
-                                                 base: self.schemaIdentifier(from: base)))
+      .register(provider: StaticJSONSchemaFileProvider(directory: self.url(from: path),
+                                                       base: self.schemaIdentifier(from: base)))
     return .void
   }
   

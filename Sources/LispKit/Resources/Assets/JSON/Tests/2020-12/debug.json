@@ -1,0 +1,33 @@
+[
+  {
+      "description": "order of evaluation: $id and $anchor and $ref",
+      "schema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$id": "https://example.com/draft2020-12/ref-and-id2/base.json",
+          "$ref": "#bigint",
+          "$defs": {
+              "bigint": {
+                  "$anchor": "bigint",
+                  "maximum": 10
+              },
+              "smallint": {
+                  "$id": "https://example.com/draft2020-12/ref-and-id2/",
+                  "$anchor": "bigint",
+                  "maximum": 2
+              }
+          }
+      },
+      "tests": [
+          {
+              "description": "data is valid against first definition",
+              "data": 5,
+              "valid": true
+          },
+          {
+              "description": "data is invalid against first definition",
+              "data": 50,
+              "valid": false
+          }
+      ]
+  }
+]

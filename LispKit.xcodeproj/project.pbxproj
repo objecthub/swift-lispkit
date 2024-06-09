@@ -1103,6 +1103,119 @@
 		CCD5B51F2C0B79D7002BF2F0 /* JSON.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCD5B51E2C0B79D7002BF2F0 /* JSON.scm */; };
 		CCD5B5222C0D2337002BF2F0 /* JSONSchemaLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD5B5202C0D231E002BF2F0 /* JSONSchemaLibrary.swift */; };
 		CCD5B5232C0D233B002BF2F0 /* JSONSchemaLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD5B5202C0D231E002BF2F0 /* JSONSchemaLibrary.swift */; };
+		CCD5B5652C14FCA3002BF2F0 /* schema in Copy JSON schema assets */ = {isa = PBXBuildFile; fileRef = CCD5B5272C14F166002BF2F0 /* schema */; };
+		CCD5B5672C14FD1D002BF2F0 /* applicator in Copy JSON meta schema assets */ = {isa = PBXBuildFile; fileRef = CCD5B52C2C14F179002BF2F0 /* applicator */; };
+		CCD5B5682C14FD1D002BF2F0 /* content in Copy JSON meta schema assets */ = {isa = PBXBuildFile; fileRef = CCD5B52E2C14F179002BF2F0 /* content */; };
+		CCD5B5692C14FD1D002BF2F0 /* core in Copy JSON meta schema assets */ = {isa = PBXBuildFile; fileRef = CCD5B5282C14F178002BF2F0 /* core */; };
+		CCD5B56A2C14FD1D002BF2F0 /* format-annotation in Copy JSON meta schema assets */ = {isa = PBXBuildFile; fileRef = CCD5B5292C14F178002BF2F0 /* format-annotation */; };
+		CCD5B56B2C14FD1D002BF2F0 /* meta-data in Copy JSON meta schema assets */ = {isa = PBXBuildFile; fileRef = CCD5B52A2C14F178002BF2F0 /* meta-data */; };
+		CCD5B56C2C14FD1D002BF2F0 /* unevaluated in Copy JSON meta schema assets */ = {isa = PBXBuildFile; fileRef = CCD5B52B2C14F179002BF2F0 /* unevaluated */; };
+		CCD5B56D2C14FD1D002BF2F0 /* validation in Copy JSON meta schema assets */ = {isa = PBXBuildFile; fileRef = CCD5B52D2C14F179002BF2F0 /* validation */; };
+		CCD5B56F2C14FDD6002BF2F0 /* additionalProperties.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5452C14F1E2002BF2F0 /* additionalProperties.json */; };
+		CCD5B5702C14FDD6002BF2F0 /* allOf.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5442C14F1E2002BF2F0 /* allOf.json */; };
+		CCD5B5712C14FDD6002BF2F0 /* anchor.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B53F2C14F1E1002BF2F0 /* anchor.json */; };
+		CCD5B5722C14FDD6002BF2F0 /* anyOf.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B53E2C14F1E1002BF2F0 /* anyOf.json */; };
+		CCD5B5732C14FDD6002BF2F0 /* boolean_schema.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B54B2C14F1E2002BF2F0 /* boolean_schema.json */; };
+		CCD5B5742C14FDD6002BF2F0 /* const.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5522C14F1E2002BF2F0 /* const.json */; };
+		CCD5B5752C14FDD6002BF2F0 /* contains.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B54D2C14F1E2002BF2F0 /* contains.json */; };
+		CCD5B5762C14FDD6002BF2F0 /* content.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5342C14F1E1002BF2F0 /* content.json */; };
+		CCD5B5772C14FDD6002BF2F0 /* debug.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5492C14F1E2002BF2F0 /* debug.json */; };
+		CCD5B5782C14FDD6002BF2F0 /* default.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5462C14F1E2002BF2F0 /* default.json */; };
+		CCD5B5792C14FDD6002BF2F0 /* defs.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5392C14F1E1002BF2F0 /* defs.json */; };
+		CCD5B57A2C14FDD6002BF2F0 /* dependentRequired.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5542C14F1E2002BF2F0 /* dependentRequired.json */; };
+		CCD5B57B2C14FDD6002BF2F0 /* dependentSchemas.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B54C2C14F1E2002BF2F0 /* dependentSchemas.json */; };
+		CCD5B57C2C14FDD6002BF2F0 /* dynamicRef.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5352C14F1E1002BF2F0 /* dynamicRef.json */; };
+		CCD5B57D2C14FDD6002BF2F0 /* enum.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B53B2C14F1E1002BF2F0 /* enum.json */; };
+		CCD5B57E2C14FDD6002BF2F0 /* exclusiveMaximum.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5372C14F1E1002BF2F0 /* exclusiveMaximum.json */; };
+		CCD5B57F2C14FDD6002BF2F0 /* exclusiveMinimum.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5362C14F1E1002BF2F0 /* exclusiveMinimum.json */; };
+		CCD5B5802C14FDD6002BF2F0 /* format.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B55C2C14F1E3002BF2F0 /* format.json */; };
+		CCD5B5812C14FDD6002BF2F0 /* id.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5382C14F1E1002BF2F0 /* id.json */; };
+		CCD5B5822C14FDD6002BF2F0 /* if-then-else.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5472C14F1E2002BF2F0 /* if-then-else.json */; };
+		CCD5B5832C14FDD6002BF2F0 /* infinite-loop-detection.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B54E2C14F1E2002BF2F0 /* infinite-loop-detection.json */; };
+		CCD5B5842C14FDD6002BF2F0 /* items.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5422C14F1E2002BF2F0 /* items.json */; };
+		CCD5B5852C14FDD6002BF2F0 /* maxContains.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5482C14F1E2002BF2F0 /* maxContains.json */; };
+		CCD5B5862C14FDD6002BF2F0 /* maximum.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B53C2C14F1E1002BF2F0 /* maximum.json */; };
+		CCD5B5872C14FDD6002BF2F0 /* maxItems.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B54A2C14F1E2002BF2F0 /* maxItems.json */; };
+		CCD5B5882C14FDD6002BF2F0 /* maxLength.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5592C14F1E3002BF2F0 /* maxLength.json */; };
+		CCD5B5892C14FDD6002BF2F0 /* maxProperties.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B54F2C14F1E2002BF2F0 /* maxProperties.json */; };
+		CCD5B58A2C14FDD6002BF2F0 /* minContains.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B53A2C14F1E1002BF2F0 /* minContains.json */; };
+		CCD5B58B2C14FDD6002BF2F0 /* minimum.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5502C14F1E2002BF2F0 /* minimum.json */; };
+		CCD5B58C2C14FDD6002BF2F0 /* minItems.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5572C14F1E3002BF2F0 /* minItems.json */; };
+		CCD5B58D2C14FDD6002BF2F0 /* minLength.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5402C14F1E1002BF2F0 /* minLength.json */; };
+		CCD5B58E2C14FDD6002BF2F0 /* minProperties.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B53D2C14F1E1002BF2F0 /* minProperties.json */; };
+		CCD5B58F2C14FDD6002BF2F0 /* multipleOf.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B55D2C14F1E3002BF2F0 /* multipleOf.json */; };
+		CCD5B5902C14FDD6002BF2F0 /* not.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5512C14F1E2002BF2F0 /* not.json */; };
+		CCD5B5912C14FDD6002BF2F0 /* oneOf.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5532C14F1E2002BF2F0 /* oneOf.json */; };
+		CCD5B5922C14FDD6002BF2F0 /* pattern.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5552C14F1E2002BF2F0 /* pattern.json */; };
+		CCD5B5932C14FDD6002BF2F0 /* patternProperties.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5322C14F1E1002BF2F0 /* patternProperties.json */; };
+		CCD5B5942C14FDD6002BF2F0 /* prefixItems.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B55E2C14F1E3002BF2F0 /* prefixItems.json */; };
+		CCD5B5952C14FDD6002BF2F0 /* properties.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5562C14F1E2002BF2F0 /* properties.json */; };
+		CCD5B5962C14FDD6002BF2F0 /* propertyNames.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5582C14F1E3002BF2F0 /* propertyNames.json */; };
+		CCD5B5972C14FDD6002BF2F0 /* ref.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B55A2C14F1E3002BF2F0 /* ref.json */; };
+		CCD5B5992C14FDD6002BF2F0 /* required.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B55F2C14F1E3002BF2F0 /* required.json */; };
+		CCD5B59A2C14FDD6002BF2F0 /* type.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5312C14F1E1002BF2F0 /* type.json */; };
+		CCD5B59B2C14FDD6002BF2F0 /* unevaluatedItems.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5412C14F1E1002BF2F0 /* unevaluatedItems.json */; };
+		CCD5B59C2C14FDD6002BF2F0 /* unevaluatedProperties.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5432C14F1E2002BF2F0 /* unevaluatedProperties.json */; };
+		CCD5B59D2C14FDD6002BF2F0 /* uniqueItems.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5302C14F1E1002BF2F0 /* uniqueItems.json */; };
+		CCD5B59F2C14FDE2002BF2F0 /* LICENSE in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5602C14F218002BF2F0 /* LICENSE */; };
+		CCD5B5A12C14FE1B002BF2F0 /* schema in Copy JSON schema assets */ = {isa = PBXBuildFile; fileRef = CCD5B5272C14F166002BF2F0 /* schema */; };
+		CCD5B5A32C14FE45002BF2F0 /* applicator in Copy JSON meta schema assets */ = {isa = PBXBuildFile; fileRef = CCD5B52C2C14F179002BF2F0 /* applicator */; };
+		CCD5B5A42C14FE45002BF2F0 /* content in Copy JSON meta schema assets */ = {isa = PBXBuildFile; fileRef = CCD5B52E2C14F179002BF2F0 /* content */; };
+		CCD5B5A52C14FE45002BF2F0 /* core in Copy JSON meta schema assets */ = {isa = PBXBuildFile; fileRef = CCD5B5282C14F178002BF2F0 /* core */; };
+		CCD5B5A62C14FE45002BF2F0 /* format-annotation in Copy JSON meta schema assets */ = {isa = PBXBuildFile; fileRef = CCD5B5292C14F178002BF2F0 /* format-annotation */; };
+		CCD5B5A72C14FE45002BF2F0 /* meta-data in Copy JSON meta schema assets */ = {isa = PBXBuildFile; fileRef = CCD5B52A2C14F178002BF2F0 /* meta-data */; };
+		CCD5B5A82C14FE45002BF2F0 /* unevaluated in Copy JSON meta schema assets */ = {isa = PBXBuildFile; fileRef = CCD5B52B2C14F179002BF2F0 /* unevaluated */; };
+		CCD5B5A92C14FE45002BF2F0 /* validation in Copy JSON meta schema assets */ = {isa = PBXBuildFile; fileRef = CCD5B52D2C14F179002BF2F0 /* validation */; };
+		CCD5B5AB2C14FE94002BF2F0 /* additionalProperties.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5452C14F1E2002BF2F0 /* additionalProperties.json */; };
+		CCD5B5AC2C14FE94002BF2F0 /* allOf.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5442C14F1E2002BF2F0 /* allOf.json */; };
+		CCD5B5AD2C14FE94002BF2F0 /* anchor.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B53F2C14F1E1002BF2F0 /* anchor.json */; };
+		CCD5B5AE2C14FE94002BF2F0 /* anyOf.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B53E2C14F1E1002BF2F0 /* anyOf.json */; };
+		CCD5B5AF2C14FE94002BF2F0 /* boolean_schema.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B54B2C14F1E2002BF2F0 /* boolean_schema.json */; };
+		CCD5B5B02C14FE94002BF2F0 /* const.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5522C14F1E2002BF2F0 /* const.json */; };
+		CCD5B5B12C14FE94002BF2F0 /* contains.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B54D2C14F1E2002BF2F0 /* contains.json */; };
+		CCD5B5B22C14FE94002BF2F0 /* content.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5342C14F1E1002BF2F0 /* content.json */; };
+		CCD5B5B32C14FE94002BF2F0 /* debug.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5492C14F1E2002BF2F0 /* debug.json */; };
+		CCD5B5B42C14FE94002BF2F0 /* default.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5462C14F1E2002BF2F0 /* default.json */; };
+		CCD5B5B52C14FE94002BF2F0 /* defs.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5392C14F1E1002BF2F0 /* defs.json */; };
+		CCD5B5B62C14FE94002BF2F0 /* dependentRequired.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5542C14F1E2002BF2F0 /* dependentRequired.json */; };
+		CCD5B5B72C14FE94002BF2F0 /* dependentSchemas.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B54C2C14F1E2002BF2F0 /* dependentSchemas.json */; };
+		CCD5B5B82C14FE94002BF2F0 /* dynamicRef.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5352C14F1E1002BF2F0 /* dynamicRef.json */; };
+		CCD5B5B92C14FE94002BF2F0 /* enum.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B53B2C14F1E1002BF2F0 /* enum.json */; };
+		CCD5B5BA2C14FE94002BF2F0 /* exclusiveMaximum.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5372C14F1E1002BF2F0 /* exclusiveMaximum.json */; };
+		CCD5B5BB2C14FE94002BF2F0 /* exclusiveMinimum.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5362C14F1E1002BF2F0 /* exclusiveMinimum.json */; };
+		CCD5B5BC2C14FE94002BF2F0 /* format.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B55C2C14F1E3002BF2F0 /* format.json */; };
+		CCD5B5BD2C14FE94002BF2F0 /* id.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5382C14F1E1002BF2F0 /* id.json */; };
+		CCD5B5BE2C14FE94002BF2F0 /* if-then-else.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5472C14F1E2002BF2F0 /* if-then-else.json */; };
+		CCD5B5BF2C14FE94002BF2F0 /* infinite-loop-detection.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B54E2C14F1E2002BF2F0 /* infinite-loop-detection.json */; };
+		CCD5B5C02C14FE94002BF2F0 /* items.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5422C14F1E2002BF2F0 /* items.json */; };
+		CCD5B5C12C14FE94002BF2F0 /* maxContains.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5482C14F1E2002BF2F0 /* maxContains.json */; };
+		CCD5B5C22C14FE94002BF2F0 /* maximum.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B53C2C14F1E1002BF2F0 /* maximum.json */; };
+		CCD5B5C32C14FE94002BF2F0 /* maxItems.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B54A2C14F1E2002BF2F0 /* maxItems.json */; };
+		CCD5B5C42C14FE94002BF2F0 /* maxLength.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5592C14F1E3002BF2F0 /* maxLength.json */; };
+		CCD5B5C52C14FE94002BF2F0 /* maxProperties.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B54F2C14F1E2002BF2F0 /* maxProperties.json */; };
+		CCD5B5C62C14FE94002BF2F0 /* minContains.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B53A2C14F1E1002BF2F0 /* minContains.json */; };
+		CCD5B5C72C14FE94002BF2F0 /* minimum.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5502C14F1E2002BF2F0 /* minimum.json */; };
+		CCD5B5C82C14FE94002BF2F0 /* minItems.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5572C14F1E3002BF2F0 /* minItems.json */; };
+		CCD5B5C92C14FE94002BF2F0 /* minLength.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5402C14F1E1002BF2F0 /* minLength.json */; };
+		CCD5B5CA2C14FE94002BF2F0 /* minProperties.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B53D2C14F1E1002BF2F0 /* minProperties.json */; };
+		CCD5B5CB2C14FE94002BF2F0 /* multipleOf.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B55D2C14F1E3002BF2F0 /* multipleOf.json */; };
+		CCD5B5CC2C14FE94002BF2F0 /* not.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5512C14F1E2002BF2F0 /* not.json */; };
+		CCD5B5CD2C14FE94002BF2F0 /* oneOf.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5532C14F1E2002BF2F0 /* oneOf.json */; };
+		CCD5B5CE2C14FE94002BF2F0 /* pattern.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5552C14F1E2002BF2F0 /* pattern.json */; };
+		CCD5B5CF2C14FE94002BF2F0 /* patternProperties.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5322C14F1E1002BF2F0 /* patternProperties.json */; };
+		CCD5B5D02C14FE94002BF2F0 /* prefixItems.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B55E2C14F1E3002BF2F0 /* prefixItems.json */; };
+		CCD5B5D12C14FE94002BF2F0 /* properties.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5562C14F1E2002BF2F0 /* properties.json */; };
+		CCD5B5D22C14FE94002BF2F0 /* propertyNames.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5582C14F1E3002BF2F0 /* propertyNames.json */; };
+		CCD5B5D32C14FE94002BF2F0 /* ref.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B55A2C14F1E3002BF2F0 /* ref.json */; };
+		CCD5B5D52C14FE94002BF2F0 /* required.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B55F2C14F1E3002BF2F0 /* required.json */; };
+		CCD5B5D62C14FE94002BF2F0 /* type.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5312C14F1E1002BF2F0 /* type.json */; };
+		CCD5B5D72C14FE94002BF2F0 /* unevaluatedItems.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5412C14F1E1002BF2F0 /* unevaluatedItems.json */; };
+		CCD5B5D82C14FE94002BF2F0 /* unevaluatedProperties.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5432C14F1E2002BF2F0 /* unevaluatedProperties.json */; };
+		CCD5B5D92C14FE94002BF2F0 /* uniqueItems.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5302C14F1E1002BF2F0 /* uniqueItems.json */; };
+		CCD5B5DB2C14FEA5002BF2F0 /* LICENSE in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5602C14F218002BF2F0 /* LICENSE */; };
+		CCD5B5DD2C150189002BF2F0 /* LispKit-JSON-Schema.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCD5B5DC2C150189002BF2F0 /* LispKit-JSON-Schema.scm */; };
+		CCD5B5DE2C152B21002BF2F0 /* LispKit-JSON-Schema.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCD5B5DC2C150189002BF2F0 /* LispKit-JSON-Schema.scm */; };
+		CCD5B5DF2C152B38002BF2F0 /* LispKit-JSON-Schema.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCD5B5DC2C150189002BF2F0 /* LispKit-JSON-Schema.scm */; };
 		CCD5E55C262E342600C45EA0 /* 189.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCD5E558262E309500C45EA0 /* 189.sld */; };
 		CCD5E55D262E342600C45EA0 /* 214.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCD5E559262E31AE00C45EA0 /* 214.sld */; };
 		CCD5E561262E343E00C45EA0 /* 189.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCD5E558262E309500C45EA0 /* 189.sld */; };
@@ -1235,6 +1348,7 @@
 			dstPath = Root/LispKit/Tests;
 			dstSubfolderSpec = 7;
 			files = (
+				CCD5B5DE2C152B21002BF2F0 /* LispKit-JSON-Schema.scm in Copy tests */,
 				CC491BBC2A407DAB008CA24C /* SRFI-235.scm in Copy tests */,
 				CCB457462A3CFBC700599565 /* LispKit-Record.scm in Copy tests */,
 				CC517E6129A971D10096FC72 /* LispKit-List-Set.scm in Copy tests */,
@@ -2421,6 +2535,7 @@
 			dstPath = Root/LispKit/Tests;
 			dstSubfolderSpec = 7;
 			files = (
+				CCD5B5DF2C152B38002BF2F0 /* LispKit-JSON-Schema.scm in Copy tests */,
 				CC491BBD2A407DBA008CA24C /* SRFI-235.scm in Copy tests */,
 				CCB457472A3CFBD600599565 /* LispKit-Record.scm in Copy tests */,
 				CC517E6229A971E50096FC72 /* LispKit-List-Set.scm in Copy tests */,
@@ -2661,6 +2776,176 @@
 				CCC48E5F25E9879900D082AD /* 2020-06-19.data in Copy dataset covid assets */,
 			);
 			name = "Copy dataset covid assets";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCD5B5642C14FC59002BF2F0 /* Copy JSON schema assets */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "Root/LispKit/Assets/JSON/Schema/2020-12";
+			dstSubfolderSpec = 7;
+			files = (
+				CCD5B5652C14FCA3002BF2F0 /* schema in Copy JSON schema assets */,
+			);
+			name = "Copy JSON schema assets";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCD5B5662C14FCF0002BF2F0 /* Copy JSON meta schema assets */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "Root/LispKit/Assets/JSON/Schema/2020-12/meta";
+			dstSubfolderSpec = 7;
+			files = (
+				CCD5B5672C14FD1D002BF2F0 /* applicator in Copy JSON meta schema assets */,
+				CCD5B5682C14FD1D002BF2F0 /* content in Copy JSON meta schema assets */,
+				CCD5B5692C14FD1D002BF2F0 /* core in Copy JSON meta schema assets */,
+				CCD5B56A2C14FD1D002BF2F0 /* format-annotation in Copy JSON meta schema assets */,
+				CCD5B56B2C14FD1D002BF2F0 /* meta-data in Copy JSON meta schema assets */,
+				CCD5B56C2C14FD1D002BF2F0 /* unevaluated in Copy JSON meta schema assets */,
+				CCD5B56D2C14FD1D002BF2F0 /* validation in Copy JSON meta schema assets */,
+			);
+			name = "Copy JSON meta schema assets";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCD5B56E2C14FDA5002BF2F0 /* Copy JSON schema test assets */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "Root/LispKit/Assets/JSON/Tests/2020-12";
+			dstSubfolderSpec = 7;
+			files = (
+				CCD5B59F2C14FDE2002BF2F0 /* LICENSE in Copy JSON schema test assets */,
+				CCD5B56F2C14FDD6002BF2F0 /* additionalProperties.json in Copy JSON schema test assets */,
+				CCD5B5702C14FDD6002BF2F0 /* allOf.json in Copy JSON schema test assets */,
+				CCD5B5712C14FDD6002BF2F0 /* anchor.json in Copy JSON schema test assets */,
+				CCD5B5722C14FDD6002BF2F0 /* anyOf.json in Copy JSON schema test assets */,
+				CCD5B5732C14FDD6002BF2F0 /* boolean_schema.json in Copy JSON schema test assets */,
+				CCD5B5742C14FDD6002BF2F0 /* const.json in Copy JSON schema test assets */,
+				CCD5B5752C14FDD6002BF2F0 /* contains.json in Copy JSON schema test assets */,
+				CCD5B5762C14FDD6002BF2F0 /* content.json in Copy JSON schema test assets */,
+				CCD5B5772C14FDD6002BF2F0 /* debug.json in Copy JSON schema test assets */,
+				CCD5B5782C14FDD6002BF2F0 /* default.json in Copy JSON schema test assets */,
+				CCD5B5792C14FDD6002BF2F0 /* defs.json in Copy JSON schema test assets */,
+				CCD5B57A2C14FDD6002BF2F0 /* dependentRequired.json in Copy JSON schema test assets */,
+				CCD5B57B2C14FDD6002BF2F0 /* dependentSchemas.json in Copy JSON schema test assets */,
+				CCD5B57C2C14FDD6002BF2F0 /* dynamicRef.json in Copy JSON schema test assets */,
+				CCD5B57D2C14FDD6002BF2F0 /* enum.json in Copy JSON schema test assets */,
+				CCD5B57E2C14FDD6002BF2F0 /* exclusiveMaximum.json in Copy JSON schema test assets */,
+				CCD5B57F2C14FDD6002BF2F0 /* exclusiveMinimum.json in Copy JSON schema test assets */,
+				CCD5B5802C14FDD6002BF2F0 /* format.json in Copy JSON schema test assets */,
+				CCD5B5812C14FDD6002BF2F0 /* id.json in Copy JSON schema test assets */,
+				CCD5B5822C14FDD6002BF2F0 /* if-then-else.json in Copy JSON schema test assets */,
+				CCD5B5832C14FDD6002BF2F0 /* infinite-loop-detection.json in Copy JSON schema test assets */,
+				CCD5B5842C14FDD6002BF2F0 /* items.json in Copy JSON schema test assets */,
+				CCD5B5852C14FDD6002BF2F0 /* maxContains.json in Copy JSON schema test assets */,
+				CCD5B5862C14FDD6002BF2F0 /* maximum.json in Copy JSON schema test assets */,
+				CCD5B5872C14FDD6002BF2F0 /* maxItems.json in Copy JSON schema test assets */,
+				CCD5B5882C14FDD6002BF2F0 /* maxLength.json in Copy JSON schema test assets */,
+				CCD5B5892C14FDD6002BF2F0 /* maxProperties.json in Copy JSON schema test assets */,
+				CCD5B58A2C14FDD6002BF2F0 /* minContains.json in Copy JSON schema test assets */,
+				CCD5B58B2C14FDD6002BF2F0 /* minimum.json in Copy JSON schema test assets */,
+				CCD5B58C2C14FDD6002BF2F0 /* minItems.json in Copy JSON schema test assets */,
+				CCD5B58D2C14FDD6002BF2F0 /* minLength.json in Copy JSON schema test assets */,
+				CCD5B58E2C14FDD6002BF2F0 /* minProperties.json in Copy JSON schema test assets */,
+				CCD5B58F2C14FDD6002BF2F0 /* multipleOf.json in Copy JSON schema test assets */,
+				CCD5B5902C14FDD6002BF2F0 /* not.json in Copy JSON schema test assets */,
+				CCD5B5912C14FDD6002BF2F0 /* oneOf.json in Copy JSON schema test assets */,
+				CCD5B5922C14FDD6002BF2F0 /* pattern.json in Copy JSON schema test assets */,
+				CCD5B5932C14FDD6002BF2F0 /* patternProperties.json in Copy JSON schema test assets */,
+				CCD5B5942C14FDD6002BF2F0 /* prefixItems.json in Copy JSON schema test assets */,
+				CCD5B5952C14FDD6002BF2F0 /* properties.json in Copy JSON schema test assets */,
+				CCD5B5962C14FDD6002BF2F0 /* propertyNames.json in Copy JSON schema test assets */,
+				CCD5B5972C14FDD6002BF2F0 /* ref.json in Copy JSON schema test assets */,
+				CCD5B5992C14FDD6002BF2F0 /* required.json in Copy JSON schema test assets */,
+				CCD5B59A2C14FDD6002BF2F0 /* type.json in Copy JSON schema test assets */,
+				CCD5B59B2C14FDD6002BF2F0 /* unevaluatedItems.json in Copy JSON schema test assets */,
+				CCD5B59C2C14FDD6002BF2F0 /* unevaluatedProperties.json in Copy JSON schema test assets */,
+				CCD5B59D2C14FDD6002BF2F0 /* uniqueItems.json in Copy JSON schema test assets */,
+			);
+			name = "Copy JSON schema test assets";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCD5B5A02C14FE02002BF2F0 /* Copy JSON schema assets */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "Root/LispKit/Assets/JSON/Schema/2020-12";
+			dstSubfolderSpec = 7;
+			files = (
+				CCD5B5A12C14FE1B002BF2F0 /* schema in Copy JSON schema assets */,
+			);
+			name = "Copy JSON schema assets";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCD5B5A22C14FE27002BF2F0 /* Copy JSON meta schema assets */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "Root/LispKit/Assets/JSON/Schema/2020-12/meta";
+			dstSubfolderSpec = 7;
+			files = (
+				CCD5B5A32C14FE45002BF2F0 /* applicator in Copy JSON meta schema assets */,
+				CCD5B5A42C14FE45002BF2F0 /* content in Copy JSON meta schema assets */,
+				CCD5B5A52C14FE45002BF2F0 /* core in Copy JSON meta schema assets */,
+				CCD5B5A62C14FE45002BF2F0 /* format-annotation in Copy JSON meta schema assets */,
+				CCD5B5A72C14FE45002BF2F0 /* meta-data in Copy JSON meta schema assets */,
+				CCD5B5A82C14FE45002BF2F0 /* unevaluated in Copy JSON meta schema assets */,
+				CCD5B5A92C14FE45002BF2F0 /* validation in Copy JSON meta schema assets */,
+			);
+			name = "Copy JSON meta schema assets";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCD5B5AA2C14FE73002BF2F0 /* Copy JSON schema test assets */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "Root/LispKit/Assets/JSON/Tests/2020-12";
+			dstSubfolderSpec = 7;
+			files = (
+				CCD5B5DB2C14FEA5002BF2F0 /* LICENSE in Copy JSON schema test assets */,
+				CCD5B5AB2C14FE94002BF2F0 /* additionalProperties.json in Copy JSON schema test assets */,
+				CCD5B5AC2C14FE94002BF2F0 /* allOf.json in Copy JSON schema test assets */,
+				CCD5B5AD2C14FE94002BF2F0 /* anchor.json in Copy JSON schema test assets */,
+				CCD5B5AE2C14FE94002BF2F0 /* anyOf.json in Copy JSON schema test assets */,
+				CCD5B5AF2C14FE94002BF2F0 /* boolean_schema.json in Copy JSON schema test assets */,
+				CCD5B5B02C14FE94002BF2F0 /* const.json in Copy JSON schema test assets */,
+				CCD5B5B12C14FE94002BF2F0 /* contains.json in Copy JSON schema test assets */,
+				CCD5B5B22C14FE94002BF2F0 /* content.json in Copy JSON schema test assets */,
+				CCD5B5B32C14FE94002BF2F0 /* debug.json in Copy JSON schema test assets */,
+				CCD5B5B42C14FE94002BF2F0 /* default.json in Copy JSON schema test assets */,
+				CCD5B5B52C14FE94002BF2F0 /* defs.json in Copy JSON schema test assets */,
+				CCD5B5B62C14FE94002BF2F0 /* dependentRequired.json in Copy JSON schema test assets */,
+				CCD5B5B72C14FE94002BF2F0 /* dependentSchemas.json in Copy JSON schema test assets */,
+				CCD5B5B82C14FE94002BF2F0 /* dynamicRef.json in Copy JSON schema test assets */,
+				CCD5B5B92C14FE94002BF2F0 /* enum.json in Copy JSON schema test assets */,
+				CCD5B5BA2C14FE94002BF2F0 /* exclusiveMaximum.json in Copy JSON schema test assets */,
+				CCD5B5BB2C14FE94002BF2F0 /* exclusiveMinimum.json in Copy JSON schema test assets */,
+				CCD5B5BC2C14FE94002BF2F0 /* format.json in Copy JSON schema test assets */,
+				CCD5B5BD2C14FE94002BF2F0 /* id.json in Copy JSON schema test assets */,
+				CCD5B5BE2C14FE94002BF2F0 /* if-then-else.json in Copy JSON schema test assets */,
+				CCD5B5BF2C14FE94002BF2F0 /* infinite-loop-detection.json in Copy JSON schema test assets */,
+				CCD5B5C02C14FE94002BF2F0 /* items.json in Copy JSON schema test assets */,
+				CCD5B5C12C14FE94002BF2F0 /* maxContains.json in Copy JSON schema test assets */,
+				CCD5B5C22C14FE94002BF2F0 /* maximum.json in Copy JSON schema test assets */,
+				CCD5B5C32C14FE94002BF2F0 /* maxItems.json in Copy JSON schema test assets */,
+				CCD5B5C42C14FE94002BF2F0 /* maxLength.json in Copy JSON schema test assets */,
+				CCD5B5C52C14FE94002BF2F0 /* maxProperties.json in Copy JSON schema test assets */,
+				CCD5B5C62C14FE94002BF2F0 /* minContains.json in Copy JSON schema test assets */,
+				CCD5B5C72C14FE94002BF2F0 /* minimum.json in Copy JSON schema test assets */,
+				CCD5B5C82C14FE94002BF2F0 /* minItems.json in Copy JSON schema test assets */,
+				CCD5B5C92C14FE94002BF2F0 /* minLength.json in Copy JSON schema test assets */,
+				CCD5B5CA2C14FE94002BF2F0 /* minProperties.json in Copy JSON schema test assets */,
+				CCD5B5CB2C14FE94002BF2F0 /* multipleOf.json in Copy JSON schema test assets */,
+				CCD5B5CC2C14FE94002BF2F0 /* not.json in Copy JSON schema test assets */,
+				CCD5B5CD2C14FE94002BF2F0 /* oneOf.json in Copy JSON schema test assets */,
+				CCD5B5CE2C14FE94002BF2F0 /* pattern.json in Copy JSON schema test assets */,
+				CCD5B5CF2C14FE94002BF2F0 /* patternProperties.json in Copy JSON schema test assets */,
+				CCD5B5D02C14FE94002BF2F0 /* prefixItems.json in Copy JSON schema test assets */,
+				CCD5B5D12C14FE94002BF2F0 /* properties.json in Copy JSON schema test assets */,
+				CCD5B5D22C14FE94002BF2F0 /* propertyNames.json in Copy JSON schema test assets */,
+				CCD5B5D32C14FE94002BF2F0 /* ref.json in Copy JSON schema test assets */,
+				CCD5B5D52C14FE94002BF2F0 /* required.json in Copy JSON schema test assets */,
+				CCD5B5D62C14FE94002BF2F0 /* type.json in Copy JSON schema test assets */,
+				CCD5B5D72C14FE94002BF2F0 /* unevaluatedItems.json in Copy JSON schema test assets */,
+				CCD5B5D82C14FE94002BF2F0 /* unevaluatedProperties.json in Copy JSON schema test assets */,
+				CCD5B5D92C14FE94002BF2F0 /* uniqueItems.json in Copy JSON schema test assets */,
+			);
+			name = "Copy JSON schema test assets";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		CCD5E5E72634B87C00C45EA0 /* Embed Frameworks */ = {
@@ -3242,6 +3527,62 @@
 		CCD4A6F626EDFBD100BEE906 /* SRFI-217.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-217.scm"; sourceTree = "<group>"; };
 		CCD5B51E2C0B79D7002BF2F0 /* JSON.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = JSON.scm; sourceTree = "<group>"; };
 		CCD5B5202C0D231E002BF2F0 /* JSONSchemaLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONSchemaLibrary.swift; sourceTree = "<group>"; };
+		CCD5B5272C14F166002BF2F0 /* schema */ = {isa = PBXFileReference; lastKnownFileType = text; path = schema; sourceTree = "<group>"; };
+		CCD5B5282C14F178002BF2F0 /* core */ = {isa = PBXFileReference; lastKnownFileType = text; path = core; sourceTree = "<group>"; };
+		CCD5B5292C14F178002BF2F0 /* format-annotation */ = {isa = PBXFileReference; lastKnownFileType = text; path = "format-annotation"; sourceTree = "<group>"; };
+		CCD5B52A2C14F178002BF2F0 /* meta-data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "meta-data"; sourceTree = "<group>"; };
+		CCD5B52B2C14F179002BF2F0 /* unevaluated */ = {isa = PBXFileReference; lastKnownFileType = text; path = unevaluated; sourceTree = "<group>"; };
+		CCD5B52C2C14F179002BF2F0 /* applicator */ = {isa = PBXFileReference; lastKnownFileType = text; path = applicator; sourceTree = "<group>"; };
+		CCD5B52D2C14F179002BF2F0 /* validation */ = {isa = PBXFileReference; lastKnownFileType = text; path = validation; sourceTree = "<group>"; };
+		CCD5B52E2C14F179002BF2F0 /* content */ = {isa = PBXFileReference; lastKnownFileType = text; path = content; sourceTree = "<group>"; };
+		CCD5B5302C14F1E1002BF2F0 /* uniqueItems.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = uniqueItems.json; sourceTree = "<group>"; };
+		CCD5B5312C14F1E1002BF2F0 /* type.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = type.json; sourceTree = "<group>"; };
+		CCD5B5322C14F1E1002BF2F0 /* patternProperties.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = patternProperties.json; sourceTree = "<group>"; };
+		CCD5B5342C14F1E1002BF2F0 /* content.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = content.json; sourceTree = "<group>"; };
+		CCD5B5352C14F1E1002BF2F0 /* dynamicRef.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = dynamicRef.json; sourceTree = "<group>"; };
+		CCD5B5362C14F1E1002BF2F0 /* exclusiveMinimum.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = exclusiveMinimum.json; sourceTree = "<group>"; };
+		CCD5B5372C14F1E1002BF2F0 /* exclusiveMaximum.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = exclusiveMaximum.json; sourceTree = "<group>"; };
+		CCD5B5382C14F1E1002BF2F0 /* id.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = id.json; sourceTree = "<group>"; };
+		CCD5B5392C14F1E1002BF2F0 /* defs.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = defs.json; sourceTree = "<group>"; };
+		CCD5B53A2C14F1E1002BF2F0 /* minContains.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = minContains.json; sourceTree = "<group>"; };
+		CCD5B53B2C14F1E1002BF2F0 /* enum.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = enum.json; sourceTree = "<group>"; };
+		CCD5B53C2C14F1E1002BF2F0 /* maximum.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = maximum.json; sourceTree = "<group>"; };
+		CCD5B53D2C14F1E1002BF2F0 /* minProperties.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = minProperties.json; sourceTree = "<group>"; };
+		CCD5B53E2C14F1E1002BF2F0 /* anyOf.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = anyOf.json; sourceTree = "<group>"; };
+		CCD5B53F2C14F1E1002BF2F0 /* anchor.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = anchor.json; sourceTree = "<group>"; };
+		CCD5B5402C14F1E1002BF2F0 /* minLength.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = minLength.json; sourceTree = "<group>"; };
+		CCD5B5412C14F1E1002BF2F0 /* unevaluatedItems.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = unevaluatedItems.json; sourceTree = "<group>"; };
+		CCD5B5422C14F1E2002BF2F0 /* items.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = items.json; sourceTree = "<group>"; };
+		CCD5B5432C14F1E2002BF2F0 /* unevaluatedProperties.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = unevaluatedProperties.json; sourceTree = "<group>"; };
+		CCD5B5442C14F1E2002BF2F0 /* allOf.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = allOf.json; sourceTree = "<group>"; };
+		CCD5B5452C14F1E2002BF2F0 /* additionalProperties.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = additionalProperties.json; sourceTree = "<group>"; };
+		CCD5B5462C14F1E2002BF2F0 /* default.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = default.json; sourceTree = "<group>"; };
+		CCD5B5472C14F1E2002BF2F0 /* if-then-else.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "if-then-else.json"; sourceTree = "<group>"; };
+		CCD5B5482C14F1E2002BF2F0 /* maxContains.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = maxContains.json; sourceTree = "<group>"; };
+		CCD5B5492C14F1E2002BF2F0 /* debug.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = debug.json; sourceTree = "<group>"; };
+		CCD5B54A2C14F1E2002BF2F0 /* maxItems.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = maxItems.json; sourceTree = "<group>"; };
+		CCD5B54B2C14F1E2002BF2F0 /* boolean_schema.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = boolean_schema.json; sourceTree = "<group>"; };
+		CCD5B54C2C14F1E2002BF2F0 /* dependentSchemas.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = dependentSchemas.json; sourceTree = "<group>"; };
+		CCD5B54D2C14F1E2002BF2F0 /* contains.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = contains.json; sourceTree = "<group>"; };
+		CCD5B54E2C14F1E2002BF2F0 /* infinite-loop-detection.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "infinite-loop-detection.json"; sourceTree = "<group>"; };
+		CCD5B54F2C14F1E2002BF2F0 /* maxProperties.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = maxProperties.json; sourceTree = "<group>"; };
+		CCD5B5502C14F1E2002BF2F0 /* minimum.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = minimum.json; sourceTree = "<group>"; };
+		CCD5B5512C14F1E2002BF2F0 /* not.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = not.json; sourceTree = "<group>"; };
+		CCD5B5522C14F1E2002BF2F0 /* const.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = const.json; sourceTree = "<group>"; };
+		CCD5B5532C14F1E2002BF2F0 /* oneOf.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = oneOf.json; sourceTree = "<group>"; };
+		CCD5B5542C14F1E2002BF2F0 /* dependentRequired.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = dependentRequired.json; sourceTree = "<group>"; };
+		CCD5B5552C14F1E2002BF2F0 /* pattern.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = pattern.json; sourceTree = "<group>"; };
+		CCD5B5562C14F1E2002BF2F0 /* properties.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = properties.json; sourceTree = "<group>"; };
+		CCD5B5572C14F1E3002BF2F0 /* minItems.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = minItems.json; sourceTree = "<group>"; };
+		CCD5B5582C14F1E3002BF2F0 /* propertyNames.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = propertyNames.json; sourceTree = "<group>"; };
+		CCD5B5592C14F1E3002BF2F0 /* maxLength.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = maxLength.json; sourceTree = "<group>"; };
+		CCD5B55A2C14F1E3002BF2F0 /* ref.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ref.json; sourceTree = "<group>"; };
+		CCD5B55C2C14F1E3002BF2F0 /* format.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = format.json; sourceTree = "<group>"; };
+		CCD5B55D2C14F1E3002BF2F0 /* multipleOf.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = multipleOf.json; sourceTree = "<group>"; };
+		CCD5B55E2C14F1E3002BF2F0 /* prefixItems.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = prefixItems.json; sourceTree = "<group>"; };
+		CCD5B55F2C14F1E3002BF2F0 /* required.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = required.json; sourceTree = "<group>"; };
+		CCD5B5602C14F218002BF2F0 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		CCD5B5DC2C150189002BF2F0 /* LispKit-JSON-Schema.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "LispKit-JSON-Schema.scm"; sourceTree = "<group>"; };
 		CCD5E558262E309500C45EA0 /* 189.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 189.sld; sourceTree = "<group>"; };
 		CCD5E559262E31AE00C45EA0 /* 214.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 214.sld; sourceTree = "<group>"; };
 		CCD5E55A262E32EE00C45EA0 /* SRFI-214.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-214.scm"; sourceTree = "<group>"; };
@@ -3407,6 +3748,7 @@
 				CCC48BF025D8623A00D082AD /* LispKit-WT-Tree.scm */,
 				CC2427D7279D65F200913C05 /* LispKit-Channel.scm */,
 				CC517E6029A970520096FC72 /* LispKit-List-Set.scm */,
+				CCD5B5DC2C150189002BF2F0 /* LispKit-JSON-Schema.scm */,
 				CC54924421DCDEA1004A0652 /* SRFI-14.scm */,
 				CC2DA7602788756D00DE69CF /* SRFI-18.scm */,
 				CC54923A21D9823B004A0652 /* SRFI-101.scm */,
@@ -3535,6 +3877,7 @@
 		CC299DF523B7E7FE007B8459 /* Assets */ = {
 			isa = PBXGroup;
 			children = (
+				CCD5B5242C14F0F8002BF2F0 /* JSON */,
 				CC7E7C2724564F67002E8A73 /* Datasets */,
 				CC299DFB23B808CF007B8459 /* Images */,
 				CC299DF623B7E822007B8459 /* ColorLists */,
@@ -4324,6 +4667,108 @@
 			path = "Sources/LispKit iOS";
 			sourceTree = "<group>";
 		};
+		CCD5B5242C14F0F8002BF2F0 /* JSON */ = {
+			isa = PBXGroup;
+			children = (
+				CCD5B5622C14F9A5002BF2F0 /* Schema */,
+				CCD5B52F2C14F19C002BF2F0 /* Tests */,
+			);
+			path = JSON;
+			sourceTree = "<group>";
+		};
+		CCD5B5252C14F116002BF2F0 /* 2020-12 */ = {
+			isa = PBXGroup;
+			children = (
+				CCD5B5272C14F166002BF2F0 /* schema */,
+				CCD5B5262C14F148002BF2F0 /* meta */,
+			);
+			path = "2020-12";
+			sourceTree = "<group>";
+		};
+		CCD5B5262C14F148002BF2F0 /* meta */ = {
+			isa = PBXGroup;
+			children = (
+				CCD5B52C2C14F179002BF2F0 /* applicator */,
+				CCD5B52E2C14F179002BF2F0 /* content */,
+				CCD5B5282C14F178002BF2F0 /* core */,
+				CCD5B5292C14F178002BF2F0 /* format-annotation */,
+				CCD5B52A2C14F178002BF2F0 /* meta-data */,
+				CCD5B52B2C14F179002BF2F0 /* unevaluated */,
+				CCD5B52D2C14F179002BF2F0 /* validation */,
+			);
+			path = meta;
+			sourceTree = "<group>";
+		};
+		CCD5B52F2C14F19C002BF2F0 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				CCD5B5612C14F960002BF2F0 /* 2020-12 */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		CCD5B5612C14F960002BF2F0 /* 2020-12 */ = {
+			isa = PBXGroup;
+			children = (
+				CCD5B5602C14F218002BF2F0 /* LICENSE */,
+				CCD5B5452C14F1E2002BF2F0 /* additionalProperties.json */,
+				CCD5B5442C14F1E2002BF2F0 /* allOf.json */,
+				CCD5B53F2C14F1E1002BF2F0 /* anchor.json */,
+				CCD5B53E2C14F1E1002BF2F0 /* anyOf.json */,
+				CCD5B54B2C14F1E2002BF2F0 /* boolean_schema.json */,
+				CCD5B5522C14F1E2002BF2F0 /* const.json */,
+				CCD5B54D2C14F1E2002BF2F0 /* contains.json */,
+				CCD5B5342C14F1E1002BF2F0 /* content.json */,
+				CCD5B5492C14F1E2002BF2F0 /* debug.json */,
+				CCD5B5462C14F1E2002BF2F0 /* default.json */,
+				CCD5B5392C14F1E1002BF2F0 /* defs.json */,
+				CCD5B5542C14F1E2002BF2F0 /* dependentRequired.json */,
+				CCD5B54C2C14F1E2002BF2F0 /* dependentSchemas.json */,
+				CCD5B5352C14F1E1002BF2F0 /* dynamicRef.json */,
+				CCD5B53B2C14F1E1002BF2F0 /* enum.json */,
+				CCD5B5372C14F1E1002BF2F0 /* exclusiveMaximum.json */,
+				CCD5B5362C14F1E1002BF2F0 /* exclusiveMinimum.json */,
+				CCD5B55C2C14F1E3002BF2F0 /* format.json */,
+				CCD5B5382C14F1E1002BF2F0 /* id.json */,
+				CCD5B5472C14F1E2002BF2F0 /* if-then-else.json */,
+				CCD5B54E2C14F1E2002BF2F0 /* infinite-loop-detection.json */,
+				CCD5B5422C14F1E2002BF2F0 /* items.json */,
+				CCD5B5482C14F1E2002BF2F0 /* maxContains.json */,
+				CCD5B53C2C14F1E1002BF2F0 /* maximum.json */,
+				CCD5B54A2C14F1E2002BF2F0 /* maxItems.json */,
+				CCD5B5592C14F1E3002BF2F0 /* maxLength.json */,
+				CCD5B54F2C14F1E2002BF2F0 /* maxProperties.json */,
+				CCD5B53A2C14F1E1002BF2F0 /* minContains.json */,
+				CCD5B5502C14F1E2002BF2F0 /* minimum.json */,
+				CCD5B5572C14F1E3002BF2F0 /* minItems.json */,
+				CCD5B5402C14F1E1002BF2F0 /* minLength.json */,
+				CCD5B53D2C14F1E1002BF2F0 /* minProperties.json */,
+				CCD5B55D2C14F1E3002BF2F0 /* multipleOf.json */,
+				CCD5B5512C14F1E2002BF2F0 /* not.json */,
+				CCD5B5532C14F1E2002BF2F0 /* oneOf.json */,
+				CCD5B5552C14F1E2002BF2F0 /* pattern.json */,
+				CCD5B5322C14F1E1002BF2F0 /* patternProperties.json */,
+				CCD5B55E2C14F1E3002BF2F0 /* prefixItems.json */,
+				CCD5B5562C14F1E2002BF2F0 /* properties.json */,
+				CCD5B5582C14F1E3002BF2F0 /* propertyNames.json */,
+				CCD5B55A2C14F1E3002BF2F0 /* ref.json */,
+				CCD5B55F2C14F1E3002BF2F0 /* required.json */,
+				CCD5B5312C14F1E1002BF2F0 /* type.json */,
+				CCD5B5412C14F1E1002BF2F0 /* unevaluatedItems.json */,
+				CCD5B5432C14F1E2002BF2F0 /* unevaluatedProperties.json */,
+				CCD5B5302C14F1E1002BF2F0 /* uniqueItems.json */,
+			);
+			path = "2020-12";
+			sourceTree = "<group>";
+		};
+		CCD5B5622C14F9A5002BF2F0 /* Schema */ = {
+			isa = PBXGroup;
+			children = (
+				CCD5B5252C14F116002BF2F0 /* 2020-12 */,
+			);
+			path = Schema;
+			sourceTree = "<group>";
+		};
 		CCD5E5B72634B62100C45EA0 /* LispKitRepl iOS */ = {
 			isa = PBXGroup;
 			children = (
@@ -4561,6 +5006,9 @@
 				CC299DF923B7ED4E007B8459 /* Copy color list assets */,
 				CC299DFD23B80950007B8459 /* Copy image assets */,
 				CC7E7C8924565342002E8A73 /* Copy dataset covid assets */,
+				CCD5B5642C14FC59002BF2F0 /* Copy JSON schema assets */,
+				CCD5B5662C14FCF0002BF2F0 /* Copy JSON meta schema assets */,
+				CCD5B56E2C14FDA5002BF2F0 /* Copy JSON schema test assets */,
 			);
 			buildRules = (
 			);
@@ -4634,6 +5082,9 @@
 				CCC48DE325E986CA00D082AD /* Copy color list assets */,
 				CCC48DE425E9872C00D082AD /* Copy image assets */,
 				CCC48DE525E9875D00D082AD /* Copy dataset covid assets */,
+				CCD5B5A02C14FE02002BF2F0 /* Copy JSON schema assets */,
+				CCD5B5A22C14FE27002BF2F0 /* Copy JSON meta schema assets */,
+				CCD5B5AA2C14FE73002BF2F0 /* Copy JSON schema test assets */,
 			);
 			buildRules = (
 			);
@@ -4773,6 +5224,7 @@
 				CCB5B0FF278B8BDE00B7E32C /* flonum.sld in Resources */,
 				CC2345431F655C0A00C38817 /* Datatypes.scm in Resources */,
 				CCB5B0F7278A587300B7E32C /* 144.sld in Resources */,
+				CCD5B5DD2C150189002BF2F0 /* LispKit-JSON-Schema.scm in Resources */,
 				CC131C4C1CDE0C3D006C030C /* SyntaxRules.scm in Resources */,
 				CCEFE6151ED8F56600DFED9B /* SRFI133.scm in Resources */,
 				CCC48C4A25E32AE600D082AD /* Environments.scm in Resources */,
