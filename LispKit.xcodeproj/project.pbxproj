@@ -609,13 +609,10 @@
 		CCB585B81E15A6E70064BB18 /* ContextDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCB585B71E15A6E70064BB18 /* ContextDelegate.swift */; };
 		CCB585BB1E15AA4D0064BB18 /* Heap.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCB585BA1E15AA4D0064BB18 /* Heap.swift */; };
 		CCB5B0F5278A21F700B7E32C /* Math.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCB5B0F4278A21F700B7E32C /* Math.scm */; };
-		CCB5B0F7278A587300B7E32C /* 144.sld in Resources */ = {isa = PBXBuildFile; fileRef = CCB5B0F6278A587300B7E32C /* 144.sld */; };
 		CCB5B0F8278A589000B7E32C /* 144.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCB5B0F6278A587300B7E32C /* 144.sld */; };
 		CCB5B0F9278A589C00B7E32C /* 144.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCB5B0F6278A587300B7E32C /* 144.sld */; };
-		CCB5B0FB278B6FAD00B7E32C /* SRFI-144.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCB5B0FA278B6FAD00B7E32C /* SRFI-144.scm */; };
 		CCB5B0FC278B71CA00B7E32C /* SRFI-144.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCB5B0FA278B6FAD00B7E32C /* SRFI-144.scm */; };
 		CCB5B0FD278B71DC00B7E32C /* SRFI-144.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCB5B0FA278B6FAD00B7E32C /* SRFI-144.scm */; };
-		CCB5B0FF278B8BDE00B7E32C /* flonum.sld in Resources */ = {isa = PBXBuildFile; fileRef = CCB5B0FE278B8BDE00B7E32C /* flonum.sld */; };
 		CCB5B100278B8D6600B7E32C /* flonum.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CCB5B0FE278B8BDE00B7E32C /* flonum.sld */; };
 		CCB5B101278B8DAB00B7E32C /* flonum.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CCB5B0FE278B8BDE00B7E32C /* flonum.sld */; };
 		CCB5DF5C29A16D62005E6453 /* Data.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCB5DF5B29A16D62005E6453 /* Data.swift */; };
@@ -1213,9 +1210,12 @@
 		CCD5B5D82C14FE94002BF2F0 /* unevaluatedProperties.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5432C14F1E2002BF2F0 /* unevaluatedProperties.json */; };
 		CCD5B5D92C14FE94002BF2F0 /* uniqueItems.json in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5302C14F1E1002BF2F0 /* uniqueItems.json */; };
 		CCD5B5DB2C14FEA5002BF2F0 /* LICENSE in Copy JSON schema test assets */ = {isa = PBXBuildFile; fileRef = CCD5B5602C14F218002BF2F0 /* LICENSE */; };
-		CCD5B5DD2C150189002BF2F0 /* LispKit-JSON-Schema.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCD5B5DC2C150189002BF2F0 /* LispKit-JSON-Schema.scm */; };
 		CCD5B5DE2C152B21002BF2F0 /* LispKit-JSON-Schema.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCD5B5DC2C150189002BF2F0 /* LispKit-JSON-Schema.scm */; };
 		CCD5B5DF2C152B38002BF2F0 /* LispKit-JSON-Schema.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCD5B5DC2C150189002BF2F0 /* LispKit-JSON-Schema.scm */; };
+		CCD5B5E82C15F108002BF2F0 /* person in Copy JSON custom schema assets */ = {isa = PBXBuildFile; fileRef = CCD5B5E52C15EF9E002BF2F0 /* person */; };
+		CCD5B5EA2C15F14A002BF2F0 /* person in Copy JSON custom schema assets */ = {isa = PBXBuildFile; fileRef = CCD5B5E52C15EF9E002BF2F0 /* person */; };
+		CCD5B5ED2C16E6A6002BF2F0 /* JSON.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCD5B5EB2C16E430002BF2F0 /* JSON.scm */; };
+		CCD5B5EE2C16E6B8002BF2F0 /* JSON.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCD5B5EB2C16E430002BF2F0 /* JSON.scm */; };
 		CCD5E55C262E342600C45EA0 /* 189.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCD5E558262E309500C45EA0 /* 189.sld */; };
 		CCD5E55D262E342600C45EA0 /* 214.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCD5E559262E31AE00C45EA0 /* 214.sld */; };
 		CCD5E561262E343E00C45EA0 /* 189.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCD5E558262E309500C45EA0 /* 189.sld */; };
@@ -1578,6 +1578,7 @@
 			dstPath = Root/LispKit/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CCD5B5ED2C16E6A6002BF2F0 /* JSON.scm in Copy examples */,
 				CC517E6629AC2DE70096FC72 /* Blockchain.scm in Copy examples */,
 				CCCB5CA0284225470005248D /* StyledTextDoc.scm in Copy examples */,
 				CCCB66E1282DBBC80004827D /* DrawBarCharts.scm in Copy examples */,
@@ -2496,6 +2497,7 @@
 			dstPath = Root/LispKit/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CCD5B5EE2C16E6B8002BF2F0 /* JSON.scm in Copy examples */,
 				CC517E6729AC2DF90096FC72 /* Blockchain.scm in Copy examples */,
 				CCCB5CA12842255E0005248D /* StyledTextDoc.scm in Copy examples */,
 				CCCB66E2282DBBDB0004827D /* DrawBarCharts.scm in Copy examples */,
@@ -2946,6 +2948,28 @@
 				CCD5B5D92C14FE94002BF2F0 /* uniqueItems.json in Copy JSON schema test assets */,
 			);
 			name = "Copy JSON schema test assets";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCD5B5E72C15F0CC002BF2F0 /* Copy JSON custom schema assets */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Root/LispKit/Assets/JSON/Schema/custom;
+			dstSubfolderSpec = 7;
+			files = (
+				CCD5B5E82C15F108002BF2F0 /* person in Copy JSON custom schema assets */,
+			);
+			name = "Copy JSON custom schema assets";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCD5B5E92C15F120002BF2F0 /* Copy JSON custom schema assets */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Root/LispKit/Assets/JSON/Schema/custom;
+			dstSubfolderSpec = 7;
+			files = (
+				CCD5B5EA2C15F14A002BF2F0 /* person in Copy JSON custom schema assets */,
+			);
+			name = "Copy JSON custom schema assets";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		CCD5E5E72634B87C00C45EA0 /* Embed Frameworks */ = {
@@ -3583,6 +3607,8 @@
 		CCD5B55F2C14F1E3002BF2F0 /* required.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = required.json; sourceTree = "<group>"; };
 		CCD5B5602C14F218002BF2F0 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		CCD5B5DC2C150189002BF2F0 /* LispKit-JSON-Schema.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "LispKit-JSON-Schema.scm"; sourceTree = "<group>"; };
+		CCD5B5E52C15EF9E002BF2F0 /* person */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = person; path = Sources/LispKit/Resources/Assets/JSON/Schema/Custom/person; sourceTree = SOURCE_ROOT; };
+		CCD5B5EB2C16E430002BF2F0 /* JSON.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = JSON.scm; sourceTree = "<group>"; };
 		CCD5E558262E309500C45EA0 /* 189.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 189.sld; sourceTree = "<group>"; };
 		CCD5E559262E31AE00C45EA0 /* 214.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 214.sld; sourceTree = "<group>"; };
 		CCD5E55A262E32EE00C45EA0 /* SRFI-214.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-214.scm"; sourceTree = "<group>"; };
@@ -4764,9 +4790,18 @@
 		CCD5B5622C14F9A5002BF2F0 /* Schema */ = {
 			isa = PBXGroup;
 			children = (
+				CCD5B5E42C15EF71002BF2F0 /* custom */,
 				CCD5B5252C14F116002BF2F0 /* 2020-12 */,
 			);
 			path = Schema;
+			sourceTree = "<group>";
+		};
+		CCD5B5E42C15EF71002BF2F0 /* custom */ = {
+			isa = PBXGroup;
+			children = (
+				CCD5B5E52C15EF9E002BF2F0 /* person */,
+			);
+			path = custom;
 			sourceTree = "<group>";
 		};
 		CCD5E5B72634B62100C45EA0 /* LispKitRepl iOS */ = {
@@ -4891,6 +4926,7 @@
 				CC38529F23252217001D5E56 /* Maze.scm */,
 				CCD6413F27FABA7D0065E2BF /* ObjectOrientation.scm */,
 				CC750BD71F5AC68900CD82A2 /* PDF.scm */,
+				CCD5B5EB2C16E430002BF2F0 /* JSON.scm */,
 				CC4385BB20BAB79500055289 /* HTTP.scm */,
 				CC9ED3FB2710E6DB004B1E29 /* paip */,
 			);
@@ -5009,6 +5045,7 @@
 				CCD5B5642C14FC59002BF2F0 /* Copy JSON schema assets */,
 				CCD5B5662C14FCF0002BF2F0 /* Copy JSON meta schema assets */,
 				CCD5B56E2C14FDA5002BF2F0 /* Copy JSON schema test assets */,
+				CCD5B5E72C15F0CC002BF2F0 /* Copy JSON custom schema assets */,
 			);
 			buildRules = (
 			);
@@ -5085,6 +5122,7 @@
 				CCD5B5A02C14FE02002BF2F0 /* Copy JSON schema assets */,
 				CCD5B5A22C14FE27002BF2F0 /* Copy JSON meta schema assets */,
 				CCD5B5AA2C14FE73002BF2F0 /* Copy JSON schema test assets */,
+				CCD5B5E92C15F120002BF2F0 /* Copy JSON custom schema assets */,
 			);
 			buildRules = (
 			);
@@ -5221,10 +5259,7 @@
 				CCB91C981D57E785001A95DC /* Parameters.scm in Resources */,
 				CC436C421FFD96800095559E /* Logic.scm in Resources */,
 				CC0AEFFA1F52311600119BF6 /* SRFI152.scm in Resources */,
-				CCB5B0FF278B8BDE00B7E32C /* flonum.sld in Resources */,
 				CC2345431F655C0A00C38817 /* Datatypes.scm in Resources */,
-				CCB5B0F7278A587300B7E32C /* 144.sld in Resources */,
-				CCD5B5DD2C150189002BF2F0 /* LispKit-JSON-Schema.scm in Resources */,
 				CC131C4C1CDE0C3D006C030C /* SyntaxRules.scm in Resources */,
 				CCEFE6151ED8F56600DFED9B /* SRFI133.scm in Resources */,
 				CCC48C4A25E32AE600D082AD /* Environments.scm in Resources */,
@@ -5240,7 +5275,6 @@
 				CCC41DCA1D330439003CB4D0 /* DynamicWind.scm in Resources */,
 				CCB5B0F5278A21F700B7E32C /* Math.scm in Resources */,
 				CCDAD5521D4813E900A7EE4F /* HashTables.scm in Resources */,
-				CCB5B0FB278B6FAD00B7E32C /* SRFI-144.scm in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

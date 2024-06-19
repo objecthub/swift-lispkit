@@ -1,0 +1,63 @@
+{
+  "$id": "https://lisppad.app/schema/person",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "person",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "birthday": {
+      "type": "string",
+      "format": "date"
+    },
+    "numChildren": {
+      "type": "integer",
+      "default": 0
+    },
+    "address": {
+      "oneOf": [
+        {
+          "type": "string",
+          "default": "12345 Mcity"
+        },
+        {
+          "$ref": "#address",
+          "default": {
+            "city": "Mcity",
+            "postalCode": "12345"
+          }
+        }
+      ]
+    },
+    "email": {
+      "type": "array",
+      "maxItems": 3,
+      "items": {
+        "type": "string",
+        "format": "email"
+      }
+    }
+  },
+  "required": ["name", "birthday"],
+  "$defs": {
+    "address": {
+      "$anchor": "address",
+      "type": "object",
+      "properties": {
+        "street": {
+          "type": "string"
+        },
+        "city": {
+          "type": "string"
+        },
+        "postalCode": {
+          "type": "string",
+          "pattern": "\\d{5}"
+        }
+      },
+      "required": ["city", "postalCode"]
+    }
+  }
+}

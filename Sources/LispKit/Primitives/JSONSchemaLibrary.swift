@@ -73,6 +73,8 @@ public final class JSONSchemaLibrary: NativeLibrary {
   public override func declarations() {
     // Type tags
     self.define("json-schema-registry-tag", as: JSONSchemaRegistry.type.objectTypeTag())
+    self.define("json-schema-tag", as: JSONSchemaResource.type.objectTypeTag())
+    self.define("validation-result-tag", as: JSONValidationResult.type.objectTypeTag())
     
     // Parameter objects
     self.define("current-schema-registry", as: self.registryParam)
@@ -146,6 +148,7 @@ public final class JSONSchemaLibrary: NativeLibrary {
     self.define(Procedure("validation-result-errors", self.validationResultErrors))
     self.define(Procedure("validation-result-tags", self.validationResultTags))
     self.define(Procedure("validation-result-formats", self.validationResultFormats))
+    self.define(Procedure("validation-result-defaults", self.validationResultDefaults))
   }
   
   private func jsonOpt(from expr: Expr) -> JSON? {
@@ -170,7 +173,10 @@ public final class JSONSchemaLibrary: NativeLibrary {
   
   private func dialect(from expr: Expr?) throws -> JSONSchemaDialect {
     guard case .pair(let meta, var vocab) = expr else {
-      return JSONSchemaDraft2020.Dialect.default
+      if expr == nil || expr == .true {
+        return JSONSchemaDraft2020.Dialect.default
+      }
+      throw RuntimeError.eval(.unsupportedJSONSchemaDialect, expr!)
     }
     let metaschema = try meta.asString()
     guard metaschema == Self.draft2020Metaschema else {
@@ -297,8 +303,33 @@ public final class JSONSchemaLibrary: NativeLibrary {
     return .true
   }
   
-  private func makeSchemaRegistry(dialect: Expr?) throws -> Expr {
-    return .object(JSONSchemaRegistry(defaultDialect: try self.dialect(from: dialect)))
+  private func makeSchemaRegistry(dialect: Expr?, args: Arguments) throws -> Expr {
+    guard let (meta, custom) = args.optional(.false, .false) else {
+      throw RuntimeError.argumentCount(of: "make-schema-registry",
+                                       min: 0,
+                                       max: 3,
+                                       args: dialect == nil ? .null
+                                                            : .pair(dialect!, .makeList(args)))
+    }
+    let registry = JSONSchemaRegistry(defaultDialect: try self.dialect(from: dialect))
+    if meta.isTrue,
+       let path = self.context.fileHandler.assetFilePath(forFile: "JSON/Schema/2020-12",
+                                                         ofType: nil) {
+      registry.register(provider:
+        StaticJSONSchemaFileProvider(
+          directory: URL(fileURLWithPath: path, isDirectory: true),
+          base: JSONSchemaIdentifier(string: "https://json-schema.org/draft/2020-12/")!))
+    }
+    if custom != .false,
+       let path = self.context.fileHandler.assetFilePath(forFile: "JSON/Schema/custom",
+                                                         ofType: nil),
+       let identifier = custom == .true ? JSONSchemaIdentifier(string: "https://lisppad.app/schema/")
+                                        : JSONSchemaIdentifier(string: try custom.asString()) {
+      registry.register(provider:
+        StaticJSONSchemaFileProvider(directory: URL(fileURLWithPath: path, isDirectory: true),
+                                     base: identifier))
+    }
+    return .object(registry)
   }
   
   private func schemaRegistryCopy(registry: Expr?) throws -> Expr {
@@ -564,6 +595,22 @@ public final class JSONSchemaLibrary: NativeLibrary {
       res = .pair(.pair(.pair(.object(format.value.value), .makeString(format.value.location.description)),
                         .pair(.makeString(format.location.description),
                               .pair(.pair(.makeString(format.message.format), spec), .null))),
+                  res)
+    }
+    return res
+  }
+  
+  private func validationResultDefaults(expr: Expr) throws -> Expr {
+    let defaults = try self.validationResult(from: expr).result.defaults
+    var res = Expr.null
+    for (location, (exists, values)) in defaults {
+      var set = Expr.null
+      for v in values {
+        set = .pair(.object(v), set)
+      }
+      res = .pair(.pair(.makeString(location.description),
+                        .pair(.makeBoolean(exists),
+                              .pair(set, .null))),
                   res)
     }
     return res

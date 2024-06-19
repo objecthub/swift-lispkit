@@ -133,6 +133,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit archive zip)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Archive-Zip),
     [`(lispkit crypto)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Crypto),
     `(lispkit json)`,
+    `(lispkit json schema)`,
     `(lispkit sxml)`,
     `(lispkit sxml xml)`,
     `(lispkit sxml html)`,
