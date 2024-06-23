@@ -60,6 +60,7 @@ public struct LibraryRegistry {
     TarArchiveLibrary.self,
     CryptoLibrary.self,
     ThreadLibrary.self,
+    ThreadFutureLibrary.self,
     JSONLibrary.self,
     JSONSchemaLibrary.self
   ]
@@ -99,6 +100,7 @@ public struct LibraryRegistry {
     TarArchiveLibrary.self,
     CryptoLibrary.self,
     ThreadLibrary.self,
+    ThreadFutureLibrary.self,
     JSONLibrary.self,
     JSONSchemaLibrary.self
   ]

@@ -1216,6 +1216,8 @@
 		CCD5B5EA2C15F14A002BF2F0 /* person in Copy JSON custom schema assets */ = {isa = PBXBuildFile; fileRef = CCD5B5E52C15EF9E002BF2F0 /* person */; };
 		CCD5B5ED2C16E6A6002BF2F0 /* JSON.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCD5B5EB2C16E430002BF2F0 /* JSON.scm */; };
 		CCD5B5EE2C16E6B8002BF2F0 /* JSON.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCD5B5EB2C16E430002BF2F0 /* JSON.scm */; };
+		CCD5B6082C276696002BF2F0 /* ThreadFutureLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD5B6072C276696002BF2F0 /* ThreadFutureLibrary.swift */; };
+		CCD5B6092C276696002BF2F0 /* ThreadFutureLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD5B6072C276696002BF2F0 /* ThreadFutureLibrary.swift */; };
 		CCD5E55C262E342600C45EA0 /* 189.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCD5E558262E309500C45EA0 /* 189.sld */; };
 		CCD5E55D262E342600C45EA0 /* 214.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCD5E559262E31AE00C45EA0 /* 214.sld */; };
 		CCD5E561262E343E00C45EA0 /* 189.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCD5E558262E309500C45EA0 /* 189.sld */; };
@@ -3609,6 +3611,7 @@
 		CCD5B5DC2C150189002BF2F0 /* LispKit-JSON-Schema.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "LispKit-JSON-Schema.scm"; sourceTree = "<group>"; };
 		CCD5B5E52C15EF9E002BF2F0 /* person */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = person; path = Sources/LispKit/Resources/Assets/JSON/Schema/Custom/person; sourceTree = SOURCE_ROOT; };
 		CCD5B5EB2C16E430002BF2F0 /* JSON.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = JSON.scm; sourceTree = "<group>"; };
+		CCD5B6072C276696002BF2F0 /* ThreadFutureLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadFutureLibrary.swift; sourceTree = "<group>"; };
 		CCD5E558262E309500C45EA0 /* 189.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 189.sld; sourceTree = "<group>"; };
 		CCD5E559262E31AE00C45EA0 /* 214.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 214.sld; sourceTree = "<group>"; };
 		CCD5E55A262E32EE00C45EA0 /* SRFI-214.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-214.scm"; sourceTree = "<group>"; };
@@ -4676,6 +4679,7 @@
 				CC2FB0792AA3D7A800A20C71 /* TarArchiveLibrary.swift */,
 				CC517E5729A217980096FC72 /* CryptoLibrary.swift */,
 				CC2DA7462773195600DE69CF /* ThreadLibrary.swift */,
+				CCD5B6072C276696002BF2F0 /* ThreadFutureLibrary.swift */,
 				CC1D533C2BF1709E00EE1A24 /* JSONLibrary.swift */,
 				CCD5B5202C0D231E002BF2F0 /* JSONSchemaLibrary.swift */,
 				CC38528A23126F7A001D5E56 /* InternalLibrary.swift */,
@@ -5437,6 +5441,7 @@
 				CCB585BB1E15AA4D0064BB18 /* Heap.swift in Sources */,
 				CC93A6611D0777A9008350C8 /* TextOutput.swift in Sources */,
 				CC5BBC791D5268D000367E8F /* HashTable.swift in Sources */,
+				CCD5B6082C276696002BF2F0 /* ThreadFutureLibrary.swift in Sources */,
 				CC2DA7572781037B00DE69CF /* EvalCondition.swift in Sources */,
 				CCCB66E4283056E30004827D /* StyledTextLibrary.swift in Sources */,
 				CC6A3B6A1C539DCA00E962E2 /* ManagedObjectPool.swift in Sources */,
@@ -5491,6 +5496,7 @@
 				CC1D53332BE7AB4000EE1A24 /* CustomExpr.swift in Sources */,
 				CCC48CC625E5B98600D082AD /* BytevectorLibrary.swift in Sources */,
 				CCC48C6F25E5B94300D082AD /* Timer.swift in Sources */,
+				CCD5B6092C276696002BF2F0 /* ThreadFutureLibrary.swift in Sources */,
 				CCC48CC825E5B98600D082AD /* RegexpLibrary.swift in Sources */,
 				CCC48CAE25E5B97100D082AD /* SourceManager.swift in Sources */,
 				CCC48CD825E5B98600D082AD /* PortLibrary.swift in Sources */,

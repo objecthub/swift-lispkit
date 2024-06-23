@@ -51,30 +51,21 @@ public final class JSONSchemaLibrary: NativeLibrary {
     try super.init(in: context)
   }
   
-    /// Name of the library.
+  /// Name of the library.
   public override class var name: [String] {
     return ["lispkit", "json", "schema"]
   }
   
-    /// Dependencies of the library.
+  /// Dependencies of the library.
   public override func dependencies() {
-    /*
-     self.`import`(from: ["lispkit", "core"], "define", "define-syntax", "syntax-rules", "lambda",
-     "apply", "values")
-     self.`import`(from: ["lispkit", "control"], "begin", "let")
-     self.`import`(from: ["lispkit", "dynamic"], "dynamic-wind")
-     self.`import`(from: ["lispkit", "system"], "current-second")
-     self.`import`(from: ["lispkit", "math"], "+", "-")
-     self.`import`(from: ["lispkit", "list"], "cons", "map")
-     */
   }
   
-    /// Declarations of the library.
+  /// Declarations of the library.
   public override func declarations() {
     // Type tags
-    self.define("json-schema-registry-tag", as: JSONSchemaRegistry.type.objectTypeTag())
-    self.define("json-schema-tag", as: JSONSchemaResource.type.objectTypeTag())
-    self.define("validation-result-tag", as: JSONValidationResult.type.objectTypeTag())
+    self.define("schema-registry-type-tag", as: JSONSchemaRegistry.type.objectTypeTag())
+    self.define("json-schema-type-tag", as: JSONSchemaResource.type.objectTypeTag())
+    self.define("validation-result-type-tag", as: JSONValidationResult.type.objectTypeTag())
     
     // Parameter objects
     self.define("current-schema-registry", as: self.registryParam)

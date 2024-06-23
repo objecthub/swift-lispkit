@@ -175,6 +175,7 @@ public enum EvalError: Int, Hashable {
   case unableToCreateJSONPatch
   case unsupportedJSONSchemaDialect
   case undefinedDefaultSchemaRegistry
+  case settingFutureValueTwice
   
   public var message: String {
     switch self {
@@ -478,6 +479,8 @@ public enum EvalError: Int, Hashable {
         return "unsupported JSON schema dialect: $0"
       case .undefinedDefaultSchemaRegistry:
         return "undefined default JSON schema registry"
+      case .settingFutureValueTwice:
+        return "trying to set value of future $0 twice; attempted to assign $1"
     }
   }
   

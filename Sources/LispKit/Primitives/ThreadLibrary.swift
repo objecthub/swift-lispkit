@@ -98,6 +98,7 @@ public final class ThreadLibrary: NativeLibrary {
     self.define(Procedure("runnable-thread-count", self.runnableThreadCount))
     self.define(Procedure("allocated-thread-count", self.allocatedThreadCount))
     self.define(Procedure("abort-running-threads", self.abortRunningThreads))
+    self.define(Procedure("wait-threads-terminated", self.waitThreadsTerminated))
     self.define("with-mutex", via:
       "(define-syntax with-mutex",
       "  (syntax-rules ()",
@@ -507,5 +508,11 @@ public final class ThreadLibrary: NativeLibrary {
       }
     }
     return .makeNumber(initial - self.context.evaluator.threads.count)
+  }
+  
+  private func waitThreadsTerminated(timeout: Expr?) throws -> Expr {
+    return .makeBoolean(
+      self.context.evaluator.threads.waitForTerminationOfAll(
+        timeout: try timeout?.asDouble(coerce: true)))
   }
 }
