@@ -1218,6 +1218,8 @@
 		CCD5B5EE2C16E6B8002BF2F0 /* JSON.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCD5B5EB2C16E430002BF2F0 /* JSON.scm */; };
 		CCD5B6082C276696002BF2F0 /* ThreadFutureLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD5B6072C276696002BF2F0 /* ThreadFutureLibrary.swift */; };
 		CCD5B6092C276696002BF2F0 /* ThreadFutureLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD5B6072C276696002BF2F0 /* ThreadFutureLibrary.swift */; };
+		CCD5B60B2C295951002BF2F0 /* HTTPLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD5B60A2C295951002BF2F0 /* HTTPLibrary.swift */; };
+		CCD5B60C2C295951002BF2F0 /* HTTPLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD5B60A2C295951002BF2F0 /* HTTPLibrary.swift */; };
 		CCD5E55C262E342600C45EA0 /* 189.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCD5E558262E309500C45EA0 /* 189.sld */; };
 		CCD5E55D262E342600C45EA0 /* 214.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCD5E559262E31AE00C45EA0 /* 214.sld */; };
 		CCD5E561262E343E00C45EA0 /* 189.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCD5E558262E309500C45EA0 /* 189.sld */; };
@@ -3612,6 +3614,7 @@
 		CCD5B5E52C15EF9E002BF2F0 /* person */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = person; path = Sources/LispKit/Resources/Assets/JSON/Schema/Custom/person; sourceTree = SOURCE_ROOT; };
 		CCD5B5EB2C16E430002BF2F0 /* JSON.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = JSON.scm; sourceTree = "<group>"; };
 		CCD5B6072C276696002BF2F0 /* ThreadFutureLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadFutureLibrary.swift; sourceTree = "<group>"; };
+		CCD5B60A2C295951002BF2F0 /* HTTPLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPLibrary.swift; sourceTree = "<group>"; };
 		CCD5E558262E309500C45EA0 /* 189.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 189.sld; sourceTree = "<group>"; };
 		CCD5E559262E31AE00C45EA0 /* 214.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 214.sld; sourceTree = "<group>"; };
 		CCD5E55A262E32EE00C45EA0 /* SRFI-214.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-214.scm"; sourceTree = "<group>"; };
@@ -4680,6 +4683,7 @@
 				CC517E5729A217980096FC72 /* CryptoLibrary.swift */,
 				CC2DA7462773195600DE69CF /* ThreadLibrary.swift */,
 				CCD5B6072C276696002BF2F0 /* ThreadFutureLibrary.swift */,
+				CCD5B60A2C295951002BF2F0 /* HTTPLibrary.swift */,
 				CC1D533C2BF1709E00EE1A24 /* JSONLibrary.swift */,
 				CCD5B5202C0D231E002BF2F0 /* JSONSchemaLibrary.swift */,
 				CC38528A23126F7A001D5E56 /* InternalLibrary.swift */,
@@ -5369,6 +5373,7 @@
 				CCA3127F204CB7900026FF13 /* LexicalError.swift in Sources */,
 				CC76312320E951C2005F27CE /* Shape.swift in Sources */,
 				CCC531A01D18595500FAED6E /* TextOutputTarget.swift in Sources */,
+				CCD5B60B2C295951002BF2F0 /* HTTPLibrary.swift in Sources */,
 				CC240E8924FA41B100FF6D0F /* DebugLibrary.swift in Sources */,
 				CC14F4B01F939486000FB1E0 /* Features.swift in Sources */,
 				CC5A47211C5295E600EFCF76 /* NativeLibrary.swift in Sources */,
@@ -5493,6 +5498,7 @@
 				CCC48CD725E5B98600D082AD /* ZipArchiveLibrary.swift in Sources */,
 				CCC48CB025E5B97100D082AD /* FileHandler.swift in Sources */,
 				CCC48C9025E5B95B00D082AD /* Cell.swift in Sources */,
+				CCD5B60C2C295951002BF2F0 /* HTTPLibrary.swift in Sources */,
 				CC1D53332BE7AB4000EE1A24 /* CustomExpr.swift in Sources */,
 				CCC48CC625E5B98600D082AD /* BytevectorLibrary.swift in Sources */,
 				CCC48C6F25E5B94300D082AD /* Timer.swift in Sources */,

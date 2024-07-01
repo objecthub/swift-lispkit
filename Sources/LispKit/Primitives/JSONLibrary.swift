@@ -1248,7 +1248,8 @@ public final class MutableJSON: AnyMutableNativeObject<JSON> {
   }
   
   public override func unpack(in context: Context) -> Exprs {
-    return [.object(self.value)]
+    return [.makeString(self.identityString),
+            .makeString(self.value.jsonString(tag: nil))]
   }
 }
 
@@ -1290,6 +1291,13 @@ public final class NativeJSONPatch: AnyMutableNativeObject<[JSONPatchOperation]>
   }
   
   public override func unpack(in context: Context) -> Exprs {
-    return [.object(self)]
+    let ops = self.value.map(NativeJSONPatch.toString(operation:))
+    let operations: Expr
+    if ops.isEmpty {
+      operations = .false
+    } else {
+      operations = .makeString(ops.joined())
+    }
+    return [.makeString(self.identityString), operations]
   }
 }

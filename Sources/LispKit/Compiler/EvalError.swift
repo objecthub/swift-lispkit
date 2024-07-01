@@ -176,6 +176,11 @@ public enum EvalError: Int, Hashable {
   case unsupportedJSONSchemaDialect
   case undefinedDefaultSchemaRegistry
   case settingFutureValueTwice
+  case unknownCachePolicy
+  case undefinedDefaultHttpSession
+  case invalidHttpHeaderSpec
+  case serverError
+  case unsupportedHttpMethod
   
   public var message: String {
     switch self {
@@ -481,6 +486,16 @@ public enum EvalError: Int, Hashable {
         return "undefined default JSON schema registry"
       case .settingFutureValueTwice:
         return "trying to set value of future $0 twice; attempted to assign $1"
+      case .unknownCachePolicy:
+        return "unknown HTTP request cache policy: $0"
+      case .undefinedDefaultHttpSession:
+        return "undefined default http session"
+      case .invalidHttpHeaderSpec:
+        return "invalid HTTP header specification starting $1 in $0"
+      case .serverError:
+        return "server error: did not receive data"
+      case .unsupportedHttpMethod:
+        return "unsupported HTTP method: $0"
     }
   }
   

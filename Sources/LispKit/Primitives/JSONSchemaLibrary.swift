@@ -644,7 +644,9 @@ extension JSONSchemaRegistry: CustomExpr {
   }
   
   public func unpack(in context: Context) -> Exprs {
-    return []
+    return [.makeString(self.identityString),
+            .makeNumber(self.dialects.count),
+            .makeNumber(self.resources.count)]
   }
   
   public static func ==(lhs: JSONSchemaRegistry, rhs: JSONSchemaRegistry) -> Bool {
@@ -692,7 +694,8 @@ extension JSONSchemaResource: CustomExpr {
   }
   
   public func unpack(in context: Context) -> Exprs {
-    return []
+    return [.makeString(self.identityString),
+            self.id == nil ? .false : .makeString(self.id!.string)]
   }
   
   public static func ==(lhs: JSONSchemaResource, rhs: JSONSchemaResource) -> Bool {
@@ -700,7 +703,7 @@ extension JSONSchemaResource: CustomExpr {
   }
 }
 
-final class JSONValidationResult: NativeObject {
+public final class JSONValidationResult: NativeObject {
   public static let type = Type.objectType(Symbol(uninterned: "json-validation-result"))
 
   public let result: JSONSchemaValidationResult
@@ -744,6 +747,9 @@ final class JSONValidationResult: NativeObject {
   }
   
   public override func unpack(in context: Context) -> Exprs {
-    return []
+    return [.makeString(self.identityString),
+            .makeNumber(self.result.errors.count),
+            .makeNumber(self.result.tags.count),
+            .makeNumber(self.result.formatConstraints.count)]
   }
 }

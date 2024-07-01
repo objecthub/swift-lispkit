@@ -117,7 +117,7 @@ public final class ThreadFutureLibrary: NativeLibrary {
   }
   
   private func makeFuture() throws -> Expr {
-    return .object(Future())
+    return .object(Future(external: true))
   }
   
   private func futureDone(expr: Expr) throws -> Expr {
@@ -144,90 +144,124 @@ public final class ThreadFutureLibrary: NativeLibrary {
   }
 }
 
+enum FutureSync {
+  case `external`(mutex: EvalMutex, condition: EvalCondition)
+  case `internal`(condition: NSCondition)
+  
+  func lock(in context: Context) throws {
+    switch self {
+      case .external(let mutex, _):
+        guard let current = context.evaluator.threads.current,
+              try mutex.lock(in: current.value, for: current.value) else {
+          throw RuntimeError.eval(.mutexUseInInvalidContext, .object(mutex))
+        }
+      case .internal(let condition):
+        condition.lock()
+    }
+  }
+  
+  func unlock(in context: Context) throws {
+    switch self {
+      case .external(let mutex, _):
+        guard let current = context.evaluator.threads.current else {
+          throw RuntimeError.eval(.mutexUseInInvalidContext, .object(mutex))
+        }
+        _ = try mutex.unlock(in: current.value)
+      case .internal(let condition):
+        condition.unlock()
+    }
+  }
+  
+  func wait(in context: Context, timeout: TimeInterval? = nil) throws {
+    switch self {
+      case .external(let mutex, let condition):
+        guard let current = context.evaluator.threads.current else {
+          throw RuntimeError.eval(.mutexUseInInvalidContext, .object(mutex))
+        }
+        _ = try mutex.unlock(in: current.value, condition: condition, timeout: timeout)
+      case .internal(let condition):
+        if let timeout {
+          var target = Date()
+          target.addTimeInterval(timeout)
+          while Date() < target && !context.evaluator.isAbortionRequested() {
+            var nextCheckpoint = Date()
+            nextCheckpoint.addTimeInterval(0.5)
+            if condition.wait(until: nextCheckpoint < target ? nextCheckpoint : target) {
+              break
+            }
+          }
+        } else {
+          while !context.evaluator.isAbortionRequested() {
+            var nextCheckpoint = Date()
+            nextCheckpoint.addTimeInterval(0.5)
+            if condition.wait(until: nextCheckpoint) {
+              break
+            }
+          }
+        }
+    }
+  }
+  
+  func signal() {
+    switch self {
+      case .external(_, let condition):
+        condition.signal()
+      case .internal(let condition):
+        condition.signal()
+    }
+  }
+}
+
 public final class Future: NativeObject {
 
   /// Type representing zip archives
   public static let type = Type.objectType(Symbol(uninterned: "future"))
   
-  /// Mutex to protect the result
-  public let mutex: EvalMutex
-  
-  /// Condition variable to manage threads blocking on retrieving a result
-  public let condition: EvalCondition
+  /// Condition to protect the result
+  private let sync: FutureSync
   
   /// The result once computed
   public var result: (value: Expr, error: Bool)? = nil
   
   /// Initializer
-  public override init() {
-    self.mutex = EvalMutex()
-    self.condition = EvalCondition()
-    super.init()
-  }
-  
-  private func lock(in context: Context) throws -> Bool {
-    guard let current = context.evaluator.threads.current else {
-      throw RuntimeError.eval(.mutexUseInInvalidContext, .object(self.mutex))
-    }
-    return try mutex.lock(in: current.value, for: current.value)
-  }
-  
-  private func unlock(in context: Context) throws {
-    guard let current = context.evaluator.threads.current else {
-      throw RuntimeError.eval(.mutexUseInInvalidContext, .object(self.mutex))
-    }
-    _ = try mutex.unlock(in: current.value)
-  }
-  
-  private func wait(in context: Context, timeout: TimeInterval? = nil) throws {
-    guard let current = context.evaluator.threads.current else {
-      throw RuntimeError.eval(.mutexUseInInvalidContext, .object(self.mutex))
-    }
-    _ = try mutex.unlock(in: current.value, condition: self.condition, timeout: timeout)
+  public init(external: Bool) {
+    self.sync = external ? .external(mutex: EvalMutex(), condition: EvalCondition())
+                         : .internal(condition: NSCondition())
   }
   
   public func resultAvailable(in context: Context) throws -> Bool {
-    if try self.lock(in: context) {
-      defer {
-        try? self.unlock(in: context)
-      }
-      return self.result != nil
-    } else {
-      throw RuntimeError.eval(.mutexUseInInvalidContext, .object(self.mutex))
+    try self.sync.lock(in: context)
+    defer {
+      try? self.sync.unlock(in: context)
     }
+    return self.result != nil
   }
   
   public func setResult(in context: Context, to result: Expr, raise: Bool = false) throws -> Bool {
-    if try self.lock(in: context) {
-      defer {
-        try? self.unlock(in: context)
-      }
-      guard self.result == nil else {
-        return false
-      }
-      self.result = (result, raise)
-      self.condition.signal()
-      return true
-    } else {
-      throw RuntimeError.eval(.mutexUseInInvalidContext, .object(self.mutex))
+    try self.sync.lock(in: context)
+    defer {
+      try? self.sync.unlock(in: context)
     }
+    guard self.result == nil else {
+      return false
+    }
+    self.result = (result, raise)
+    self.sync.signal()
+    return true
   }
   
   public func getResult(in context: Context, timeout: TimeInterval? = nil) throws -> (value: Expr, error: Bool)? {
-    if try self.lock(in: context) {
-      if self.result == nil {
-        try self.wait(in: context, timeout: timeout)
-      }
-      guard let result = self.result else {
-        return nil
-      }
-      defer {
-        try? self.unlock(in: context)
-      }
-      return result
-    } else {
-      throw RuntimeError.eval(.mutexUseInInvalidContext, .object(self.mutex))
+    try self.sync.lock(in: context)
+    defer {
+      try? self.sync.unlock(in: context)
     }
+    if self.result == nil {
+      try self.sync.wait(in: context, timeout: timeout)
+    }
+    guard let result = self.result else {
+      return nil
+    }
+    return result
   }
   
   public override var type: Type {
@@ -241,17 +275,16 @@ public final class Future: NativeObject {
   public override var tagString: String {
     switch self.result {
       case .none:
-        return "\(Self.type) \(self.identityString) ?"
+        return "\(Self.type) \(self.identityString)"
       case .some((value: let expr, error: false)):
-        return "\(Self.type) \(self.identityString) success: \(expr)"
+        return "\(Self.type) \(self.identityString): \(expr)"
       case .some((value: let expr, error: true)):
-        return "\(Self.type) \(self.identityString) error: \(expr)"
+        return "\(Self.type) \(self.identityString)! \(expr)"
     }
   }
   
   public override func mark(in gc: GarbageCollector) {
-    gc.markLater(.object(self.mutex))
-    gc.markLater(.object(self.condition))
+    // nothing to collect for the objects stored in sync
     if let expr = self.result?.value {
       gc.markLater(expr)
     }
