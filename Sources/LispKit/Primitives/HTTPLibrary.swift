@@ -132,7 +132,7 @@ public final class HTTPLibrary: NativeLibrary {
     return .true
   }
   
-  fileprivate static func cachePolicy(from: Expr) throws -> URLRequest.CachePolicy {
+  public static func cachePolicy(from: Expr) throws -> URLRequest.CachePolicy {
     guard case .symbol(let sym) = from else {
       throw RuntimeError.eval(.unknownCachePolicy, from)
     }
@@ -154,7 +154,7 @@ public final class HTTPLibrary: NativeLibrary {
     }
   }
   
-  fileprivate static func string(forCachePolicy policy: URLRequest.CachePolicy) -> String {
+  public static func string(forCachePolicy policy: URLRequest.CachePolicy) -> String {
     switch policy {
       case .useProtocolCachePolicy:
         return "use-protocol-cache-policy"
@@ -173,8 +173,8 @@ public final class HTTPLibrary: NativeLibrary {
     }
   }
   
-  private func overrideConfig(_ config: inout URLSessionConfiguration,
-                              with iter: inout IndexingIterator<Arguments>) throws {
+  public static func overrideConfig(_ config: inout URLSessionConfiguration,
+                                    with iter: inout IndexingIterator<Arguments>) throws {
     if let timeout = iter.next() {
       config.timeoutIntervalForRequest = try timeout.asDouble(coerce: true)
     }
@@ -214,7 +214,7 @@ public final class HTTPLibrary: NativeLibrary {
           throw RuntimeError.type(prototype, expected: [HTTPSession.type])
       }
     }
-    try self.overrideConfig(&config, with: &iter)
+    try Self.overrideConfig(&config, with: &iter)
     guard iter.next() == nil else {
       throw RuntimeError.argumentCount(of: "make-http-session",
                                        min: 0,
@@ -345,7 +345,7 @@ public final class HTTPLibrary: NativeLibrary {
     let result = Future(external: false)
     switch request.method {
       case "GET", "HEAD", "POST", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH":
-        session.dataTask(with: request.urlRequest(for: session),
+        session.dataTask(with: session.request(from: request),
                          completionHandler: self.responseHandler(result)).resume()
       default:
         throw RuntimeError.eval(.unsupportedHttpMethod, .makeString(request.method))
@@ -570,15 +570,15 @@ public final class HTTPLibrary: NativeLibrary {
 public final class HTTPRequest: NativeObject {
   public static let type = Type.objectType(Symbol(uninterned: "http-request"))
   
-  let url: URL
-  let method: String
-  var headers: [String : String]
-  var body: [UInt8]? = nil
-  var timeoutIntervalForRequest: TimeInterval? = nil
-  var httpShouldSetCookies: Bool? = nil
-  var requestCachePolicy: URLRequest.CachePolicy? = nil
-  var httpShouldUsePipelining: Bool? = nil
-  var allowsCellularAccess: Bool? = nil
+  public let url: URL
+  public let method: String
+  public var headers: [String : String]
+  public var body: [UInt8]? = nil
+  public var timeoutIntervalForRequest: TimeInterval? = nil
+  public var httpShouldSetCookies: Bool? = nil
+  public var requestCachePolicy: URLRequest.CachePolicy? = nil
+  public var httpShouldUsePipelining: Bool? = nil
+  public var allowsCellularAccess: Bool? = nil
   
   public init(url: URL, method: String, args: Arguments) throws {
     switch method {
@@ -676,35 +676,13 @@ public final class HTTPRequest: NativeObject {
     res.allowsCellularAccess = self.allowsCellularAccess
     return res
   }
-  
-  public func urlRequest(for session: HTTPSession) -> URLRequest {
-    var request = URLRequest(url: self.url)
-    request.httpMethod = self.method
-    for (key, value) in self.headers {
-      request.setValue(value, forHTTPHeaderField: key)
-    }
-    if let data = self.body {
-      request.httpBody = Data(data)
-    }
-    request.timeoutInterval = self.timeoutIntervalForRequest ??
-                              session.session.configuration.timeoutIntervalForRequest
-    request.httpShouldHandleCookies = self.httpShouldSetCookies ??
-                                      session.session.configuration.httpShouldSetCookies
-    request.cachePolicy = self.requestCachePolicy ??
-                          session.session.configuration.requestCachePolicy
-    request.httpShouldUsePipelining = self.httpShouldUsePipelining ??
-                                      session.session.configuration.httpShouldUsePipelining
-    request.allowsCellularAccess = self.allowsCellularAccess ??
-                                   session.session.configuration.allowsCellularAccess
-    return request
-  }
 }
 
 public final class HTTPResponse: NativeObject {
   public static let type = Type.objectType(Symbol(uninterned: "http-response"))
 
-  let response: HTTPURLResponse
-  let body: Expr
+  public let response: HTTPURLResponse
+  public let body: Expr
   
   public init(response: HTTPURLResponse, body: Data) {
     var data = [UInt8](repeating: 0, count: body.count)
@@ -761,7 +739,7 @@ public final class HTTPResponse: NativeObject {
 public final class HTTPSession: NativeObject {
   public static let type = Type.objectType(Symbol(uninterned: "http-session"))
 
-  fileprivate let session: URLSession
+  public let session: URLSession
   
   public init(session: URLSession) {
     self.session = session
@@ -822,6 +800,28 @@ public final class HTTPSession: NativeObject {
             .makeNumber(self.session.configuration.httpMaximumConnectionsPerHost),
             .makeBoolean(self.session.configuration.httpShouldUsePipelining),
             .makeBoolean(self.session.configuration.allowsCellularAccess)]
+  }
+  
+  public func request(from req: HTTPRequest) -> URLRequest {
+    var request = URLRequest(url: req.url)
+    request.httpMethod = req.method
+    for (key, value) in req.headers {
+      request.setValue(value, forHTTPHeaderField: key)
+    }
+    if let data = req.body {
+      request.httpBody = Data(data)
+    }
+    request.timeoutInterval = req.timeoutIntervalForRequest ??
+                              self.session.configuration.timeoutIntervalForRequest
+    request.httpShouldHandleCookies = req.httpShouldSetCookies ??
+                                      self.session.configuration.httpShouldSetCookies
+    request.cachePolicy = req.requestCachePolicy ??
+                          self.session.configuration.requestCachePolicy
+    request.httpShouldUsePipelining = req.httpShouldUsePipelining ??
+                                      self.session.configuration.httpShouldUsePipelining
+    request.allowsCellularAccess = req.allowsCellularAccess ??
+                                   self.session.configuration.allowsCellularAccess
+    return request
   }
   
   public func dataTask(with request: URLRequest,
