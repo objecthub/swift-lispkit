@@ -1220,6 +1220,12 @@
 		CCD5B6092C276696002BF2F0 /* ThreadFutureLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD5B6072C276696002BF2F0 /* ThreadFutureLibrary.swift */; };
 		CCD5B60B2C295951002BF2F0 /* HTTPLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD5B60A2C295951002BF2F0 /* HTTPLibrary.swift */; };
 		CCD5B60C2C295951002BF2F0 /* HTTPLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD5B60A2C295951002BF2F0 /* HTTPLibrary.swift */; };
+		CCD5B6162C3BC480002BF2F0 /* HTTPAOuthLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD5B6152C3BC480002BF2F0 /* HTTPAOuthLibrary.swift */; };
+		CCD5B6172C3BC480002BF2F0 /* HTTPAOuthLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD5B6152C3BC480002BF2F0 /* HTTPAOuthLibrary.swift */; };
+		CCD5B61A2C3BC57A002BF2F0 /* OAuth2 in Frameworks */ = {isa = PBXBuildFile; productRef = CCD5B6192C3BC57A002BF2F0 /* OAuth2 */; };
+		CCD5B61C2C3BC773002BF2F0 /* OAuth2 in Frameworks */ = {isa = PBXBuildFile; productRef = CCD5B61B2C3BC773002BF2F0 /* OAuth2 */; };
+		CCD5B6202C3BCAB0002BF2F0 /* LispKitReplOAuthConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD5B61D2C3BCA1D002BF2F0 /* LispKitReplOAuthConfig.swift */; };
+		CCD5B6242C409E64002BF2F0 /* UIApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD5B6212C3BCE08002BF2F0 /* UIApplication.swift */; };
 		CCD5E55C262E342600C45EA0 /* 189.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCD5E558262E309500C45EA0 /* 189.sld */; };
 		CCD5E55D262E342600C45EA0 /* 214.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCD5E559262E31AE00C45EA0 /* 214.sld */; };
 		CCD5E561262E343E00C45EA0 /* 189.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCD5E558262E309500C45EA0 /* 189.sld */; };
@@ -3615,6 +3621,9 @@
 		CCD5B5EB2C16E430002BF2F0 /* JSON.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = JSON.scm; sourceTree = "<group>"; };
 		CCD5B6072C276696002BF2F0 /* ThreadFutureLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadFutureLibrary.swift; sourceTree = "<group>"; };
 		CCD5B60A2C295951002BF2F0 /* HTTPLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPLibrary.swift; sourceTree = "<group>"; };
+		CCD5B6152C3BC480002BF2F0 /* HTTPAOuthLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPAOuthLibrary.swift; sourceTree = "<group>"; };
+		CCD5B61D2C3BCA1D002BF2F0 /* LispKitReplOAuthConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LispKitReplOAuthConfig.swift; sourceTree = "<group>"; };
+		CCD5B6212C3BCE08002BF2F0 /* UIApplication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIApplication.swift; sourceTree = "<group>"; };
 		CCD5E558262E309500C45EA0 /* 189.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 189.sld; sourceTree = "<group>"; };
 		CCD5E559262E31AE00C45EA0 /* 214.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 214.sld; sourceTree = "<group>"; };
 		CCD5E55A262E32EE00C45EA0 /* SRFI-214.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-214.scm"; sourceTree = "<group>"; };
@@ -3716,6 +3725,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CCD5B61A2C3BC57A002BF2F0 /* OAuth2 in Frameworks */,
 				CC7D4B6D2A0D877C0066BA94 /* CLFormat in Frameworks */,
 				CCA6C3D42361149D007D2AF0 /* MarkdownKit in Frameworks */,
 				CC1D53392BF16F9F00EE1A24 /* DynamicJSON in Frameworks */,
@@ -3739,6 +3749,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CCD5B61C2C3BC773002BF2F0 /* OAuth2 in Frameworks */,
 				CC7D4B7C2A2559BC0066BA94 /* CLFormat in Frameworks */,
 				CCC48D0525E5BFAE00D082AD /* MarkdownKit in Frameworks */,
 				CC1D533B2BF16FB900EE1A24 /* DynamicJSON in Frameworks */,
@@ -4684,6 +4695,7 @@
 				CC2DA7462773195600DE69CF /* ThreadLibrary.swift */,
 				CCD5B6072C276696002BF2F0 /* ThreadFutureLibrary.swift */,
 				CCD5B60A2C295951002BF2F0 /* HTTPLibrary.swift */,
+				CCD5B6152C3BC480002BF2F0 /* HTTPAOuthLibrary.swift */,
 				CC1D533C2BF1709E00EE1A24 /* JSONLibrary.swift */,
 				CCD5B5202C0D231E002BF2F0 /* JSONSchemaLibrary.swift */,
 				CC38528A23126F7A001D5E56 /* InternalLibrary.swift */,
@@ -4821,6 +4833,8 @@
 				CCD5E5DD2634B7C700C45EA0 /* Interpreter.swift */,
 				CCD5E5EB2634B8F100C45EA0 /* ConsoleOutput.swift */,
 				CCD5E5F02634B98B00C45EA0 /* PortableURL.swift */,
+				CCD5B61D2C3BCA1D002BF2F0 /* LispKitReplOAuthConfig.swift */,
+				CCD5B6212C3BCE08002BF2F0 /* UIApplication.swift */,
 				CCD5E5BC2634B62200C45EA0 /* Assets.xcassets */,
 				CCD5E5C12634B62200C45EA0 /* Info.plist */,
 				CCD5E5BE2634B62200C45EA0 /* Preview Content */,
@@ -5069,6 +5083,7 @@
 				CC7D4B6C2A0D877C0066BA94 /* CLFormat */,
 				CC2FB07D2AA3D83E00A20C71 /* SWCompression */,
 				CC1D53382BF16F9F00EE1A24 /* DynamicJSON */,
+				CCD5B6192C3BC57A002BF2F0 /* OAuth2 */,
 			);
 			productName = LispKit;
 			productReference = CCAD52BA1C48403800DBD8EE /* LispKit.framework */;
@@ -5146,6 +5161,7 @@
 				CC7D4B7B2A2559BC0066BA94 /* CLFormat */,
 				CC61CB372ACA116500C5A032 /* SWCompression */,
 				CC1D533A2BF16FB900EE1A24 /* DynamicJSON */,
+				CCD5B61B2C3BC773002BF2F0 /* OAuth2 */,
 			);
 			productName = "LispKit iOS";
 			productReference = CCC48C5625E5B8DC00D082AD /* LispKit.framework */;
@@ -5223,6 +5239,7 @@
 				CC7D4B6B2A0D877C0066BA94 /* XCRemoteSwiftPackageReference "swift-clformat" */,
 				CC2FB07C2AA3D83E00A20C71 /* XCRemoteSwiftPackageReference "SWCompression" */,
 				CC1D53372BF16F7E00EE1A24 /* XCRemoteSwiftPackageReference "swift-dynamicjson" */,
+				CCD5B6182C3BC57A002BF2F0 /* XCRemoteSwiftPackageReference "OAuth2" */,
 			);
 			productRefGroup = CCAD52BB1C48403800DBD8EE /* Products */;
 			projectDirPath = "";
@@ -5436,6 +5453,7 @@
 				CC2DA74A27747A8B00DE69CF /* EvalThread.swift in Sources */,
 				CC3B641A23822BCE00807476 /* NativeObject.swift in Sources */,
 				CC2DA74D2775131A00DE69CF /* ThreadManager.swift in Sources */,
+				CCD5B6162C3BC480002BF2F0 /* HTTPAOuthLibrary.swift in Sources */,
 				CC1D53322BE7AB4000EE1A24 /* CustomExpr.swift in Sources */,
 				CC0BA16C1DFC843C0063B9DE /* SystemLibrary.swift in Sources */,
 				CC372CCC27D013BF0091C474 /* EnumLibrary.swift in Sources */,
@@ -5538,6 +5556,7 @@
 				CC7D4B7F2A2A49B50066BA94 /* Formatter.swift in Sources */,
 				CCC48C9425E5B95B00D082AD /* Type.swift in Sources */,
 				CCC48CAA25E5B97100D082AD /* FeatureRequirement.swift in Sources */,
+				CCD5B6172C3BC480002BF2F0 /* HTTPAOuthLibrary.swift in Sources */,
 				CCB5DF5D29A16D62005E6453 /* Data.swift in Sources */,
 				CC2DA7582781037B00DE69CF /* EvalCondition.swift in Sources */,
 				CCC48C6725E5B94300D082AD /* ScanBuffer.swift in Sources */,
@@ -5617,11 +5636,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CCD5B6242C409E64002BF2F0 /* UIApplication.swift in Sources */,
 				CCD5E5F12634B98B00C45EA0 /* PortableURL.swift in Sources */,
 				CCD5E5DE2634B7C700C45EA0 /* Interpreter.swift in Sources */,
 				CCD5E5BB2634B62200C45EA0 /* ContentView.swift in Sources */,
 				CCD5E5EC2634B8F100C45EA0 /* ConsoleOutput.swift in Sources */,
 				CCD5E5F62634C7B600C45EA0 /* ConsoleView.swift in Sources */,
+				CCD5B6202C3BCAB0002BF2F0 /* LispKitReplOAuthConfig.swift in Sources */,
 				CCD5E5B92634B62200C45EA0 /* LispKitReplApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -6325,6 +6346,14 @@
 				minimumVersion = 1.1.8;
 			};
 		};
+		CCD5B6182C3BC57A002BF2F0 /* XCRemoteSwiftPackageReference "OAuth2" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/p2/OAuth2";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.3.5;
+			};
+		};
 		CCFB412525B2523C005B2429 /* XCRemoteSwiftPackageReference "ZIPFoundation" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/weichsel/ZIPFoundation";
@@ -6415,6 +6444,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = CCFB412525B2523C005B2429 /* XCRemoteSwiftPackageReference "ZIPFoundation" */;
 			productName = ZIPFoundation;
+		};
+		CCD5B6192C3BC57A002BF2F0 /* OAuth2 */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CCD5B6182C3BC57A002BF2F0 /* XCRemoteSwiftPackageReference "OAuth2" */;
+			productName = OAuth2;
+		};
+		CCD5B61B2C3BC773002BF2F0 /* OAuth2 */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CCD5B6182C3BC57A002BF2F0 /* XCRemoteSwiftPackageReference "OAuth2" */;
+			productName = OAuth2;
 		};
 		CCFB412625B2523C005B2429 /* ZIPFoundation */ = {
 			isa = XCSwiftPackageProductDependency;

@@ -19,6 +19,7 @@
 //
 
 import SwiftUI
+import LispKit
 
 @main
 struct LispKitReplApp: App {
@@ -28,6 +29,11 @@ struct LispKitReplApp: App {
     WindowGroup {
       ContentView()
         .environmentObject(self.interpreter)
+        .onOpenURL { url in
+          if url.scheme == "lispkit" && url.host == "oauth" {
+            HTTPOAuthLibrary.authRequestManager.redirect(url: url)
+          }
+        }
     }
   }
 }

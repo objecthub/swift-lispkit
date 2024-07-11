@@ -97,8 +97,7 @@ struct ConsoleView: View {
             .font(self.font)
             .allowsTightening(false)
             .autocapitalization(.none)
-            .disableAutocorrection(true)
-            .offset(y: 1))
+            .disableAutocorrection(true))
         .padding(.leading, 4)
       Button(action: action) {
         if !self.ready && self.readingStatus == .accept {

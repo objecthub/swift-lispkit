@@ -57,6 +57,7 @@ let package = Package(
     .package(url: "https://github.com/objecthub/swift-dynamicjson.git", branch: "main"),
     .package(url: "https://github.com/weichsel/ZIPFoundation.git", from: "0.9.19"),
     .package(url: "https://github.com/tsolomko/SWCompression.git", from: "4.8.6"),
+    .package(url: "https://github.com/p2/OAuth2.git", from: "5.3.5"),
     .package(url: "https://github.com/apple/swift-atomics.git", from: "1.2.0")
   ],
   targets: [
@@ -69,6 +70,7 @@ let package = Package(
               .product(name: "DynamicJSON", package: "swift-dynamicjson"),
               .product(name: "ZIPFoundation", package: "ZIPFoundation"),
               .product(name: "SWCompression", package: "SWCompression"),
+              .product(name: "OAuth2", package: "OAuth2"),
               .product(name: "Atomics", package: "swift-atomics")
             ],
             exclude: [

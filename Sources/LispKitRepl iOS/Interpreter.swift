@@ -63,6 +63,7 @@ final class Interpreter: ContextDelegate, ObservableObject {
     self.processingQueue.qualityOfService = .userInitiated
     self.processingQueue.maxConcurrentOperationCount = 1
     self.processingQueue.addOperation(self.initialize)
+    HTTPOAuthLibrary.libraryConfig = LispKitReplOAuthConfig.self
   }
   
   func append(output: ConsoleOutput) {

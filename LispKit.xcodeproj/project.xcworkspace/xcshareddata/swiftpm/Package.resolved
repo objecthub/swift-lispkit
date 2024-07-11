@@ -1,5 +1,5 @@
 {
-  "originHash" : "d06372259e966d4fa38f1264305e9e15196edb522875bd5d39ef5559d300c267",
+  "originHash" : "c0cf977fd6347d3cc8de46822359ed43d81d8a9d5f35685d1112a0e50aed672d",
   "pins" : [
     {
       "identity" : "bitbytedata",
@@ -8,6 +8,15 @@
       "state" : {
         "revision" : "cdcdc5177ad536cfb11b95c620f926a81014b7fe",
         "version" : "2.0.4"
+      }
+    },
+    {
+      "identity" : "oauth2",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/p2/OAuth2",
+      "state" : {
+        "revision" : "3f6a18beb221636581e66d8d0cbec1a3948b4df3",
+        "version" : "5.3.5"
       }
     },
     {

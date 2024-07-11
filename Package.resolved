@@ -10,6 +10,15 @@
       }
     },
     {
+      "identity" : "oauth2",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/p2/OAuth2.git",
+      "state" : {
+        "revision" : "3f6a18beb221636581e66d8d0cbec1a3948b4df3",
+        "version" : "5.3.5"
+      }
+    },
+    {
       "identity" : "swcompression",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/tsolomko/SWCompression.git",

@@ -294,13 +294,12 @@ public final class JSONSchemaLibrary: NativeLibrary {
     return .true
   }
   
-  private func makeSchemaRegistry(dialect: Expr?, args: Arguments) throws -> Expr {
-    guard let (meta, custom) = args.optional(.false, .false) else {
+  private func makeSchemaRegistry(args: Arguments) throws -> Expr {
+    guard let (dialect, meta, custom) = args.optional(.true, .false, .false) else {
       throw RuntimeError.argumentCount(of: "make-schema-registry",
                                        min: 0,
                                        max: 3,
-                                       args: dialect == nil ? .null
-                                                            : .pair(dialect!, .makeList(args)))
+                                       args: .makeList(args))
     }
     let registry = JSONSchemaRegistry(defaultDialect: try self.dialect(from: dialect))
     if meta.isTrue,

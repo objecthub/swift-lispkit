@@ -55,7 +55,7 @@ struct ContentView: View {
             ready: $interpreter.isReady)
         Spacer()
       }
-      .navigationBarTitle("LispPadRepl", displayMode: .inline)
+      .navigationBarTitle("LispKitRepl", displayMode: .inline)
       .navigationBarItems(
         trailing: HStack(alignment: .center, spacing: 16) {
           if self.interpreter.isReady {
