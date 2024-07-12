@@ -46,6 +46,12 @@ public final class HTTPOAuthLibrary: NativeLibrary {
   private let clientCredentialsReddit: Symbol
   private let passwordGrant: Symbol
   private let deviceGrant: Symbol
+  private let userCode: Symbol
+  private let verificationUrl: Symbol
+  private let verificationUrlComplete: Symbol
+  private let expiresIn: Symbol
+  private let interval: Symbol
+  private let deviceCode: Symbol
   
   /// Initialize symbols.
   public required init(in context: Context) throws {
@@ -62,6 +68,12 @@ public final class HTTPOAuthLibrary: NativeLibrary {
     self.clientCredentialsReddit = context.symbols.intern("client-credentials-reddit")
     self.passwordGrant = context.symbols.intern("password-grant")
     self.deviceGrant = context.symbols.intern("device-grant")
+    self.userCode = context.symbols.intern("user-code")
+    self.verificationUrl = context.symbols.intern("verification-url")
+    self.verificationUrlComplete = context.symbols.intern("verification-url-complete")
+    self.expiresIn = context.symbols.intern("expires-in")
+    self.interval = context.symbols.intern("interval")
+    self.deviceCode = context.symbols.intern("device-code")
     try super.init(in: context)
   }
   
@@ -88,6 +100,7 @@ public final class HTTPOAuthLibrary: NativeLibrary {
     self.define(Procedure("oauth2-refresh-token", self.oauth2RefreshToken))
     self.define(Procedure("oauth2-forget-tokens!", self.oauth2ForgetTokens))
     self.define(Procedure("oauth2-cancel-requests!", self.oauth2ForgetTokens))
+    self.define(Procedure("oauth2-request-codes", self.oauth2RequestCodes))
     self.define(Procedure("oauth2-authorize!", self.oauth2Authorize))
     self.define(Procedure("http-request-sign!", self.httpRequestSign))
     self.define(Procedure("oauth2-session?", self.isOAuth2Session))
@@ -161,7 +174,7 @@ public final class HTTPOAuthLibrary: NativeLibrary {
       case self.passwordGrant:
         oauth2 = OAuth2PasswordGrant(settings: settings)
       case self.deviceGrant:
-        oauth2 = OAuth2DeviceGrant(settings: settings)
+        oauth2 = OAuth2DeviceGrantLK(settings: settings)
       default:
         throw RuntimeError.custom("error", "unknown flow identifier", [.symbol(flow)])
     }
@@ -476,6 +489,21 @@ public final class HTTPOAuthLibrary: NativeLibrary {
     return settings
   }
   
+  private func oauth2Params(from: Expr?) throws -> OAuth2StringDict? {
+    guard var list = from else {
+      return nil
+    }
+    var dict: OAuth2StringDict = [:]
+    while case .pair(.pair(let key, let value), let rest) = list {
+      dict[try key.asString()] = try value.asString()
+      list = rest
+    }
+    guard case .null = list else {
+      throw RuntimeError.type(from!, expected: [.properListType])
+    }
+    return dict
+  }
+  
   private func oauth2AccessToken(expr: Expr) throws -> Expr {
     if let token = try self.oauth2(from: expr).oauth2.accessToken {
       return .makeString(token)
@@ -533,7 +561,49 @@ public final class HTTPOAuthLibrary: NativeLibrary {
     return res
   }
   
-  private func authorizeHandler(_ f: Future) -> (OAuth2JSON?, OAuth2Error?) -> Void {
+  private func oauth2RequestCodes(expr: Expr, nonTextual: Expr?, params: Expr?) throws -> Expr {
+    let oauth2 = try self.oauth2(from: expr)
+    guard let client = oauth2.oauth2 as? OAuth2DeviceGrantLK else {
+      throw RuntimeError.custom("error", "expecting oauth2 client for the device-grant flow: ", [expr])
+    }
+    let params = params == nil ? [:] : try self.oauth2Params(from: params!)
+    let f = Future(external: false)
+    HTTPOAuthLibrary.authRequestManager.register(oauth2: client, result: f, in: self.context)
+    client.start(useNonTextualTransmission: nonTextual?.isTrue ?? false, params: params, queue: nil) { codes, error in
+      defer {
+        HTTPOAuthLibrary.authRequestManager.unregister(future: f, in: self.context)
+      }
+      do {
+        if let error {
+          _ = try f.setResult(in: self.context, to: .error(RuntimeError.os(error)), raise: true)
+        } else if let codes {
+          var res = Expr.null
+          res = .pair(.pair(.symbol(self.interval), .makeNumber(codes.interval)), res)
+          res = .pair(.pair(.symbol(self.deviceCode), .makeString(codes.deviceCode)), res)
+          if let url = codes.verificationUrlComplete {
+            res = .pair(.pair(.symbol(self.verificationUrlComplete), .makeString(url.absoluteString)), res)
+          }
+          res = .pair(.pair(.symbol(self.verificationUrl), .makeString(codes.verificationUrl.absoluteString)), res)
+          res = .pair(.pair(.symbol(self.expiresIn), .makeNumber(codes.expiresIn)), res)
+          res = .pair(.pair(.symbol(self.userCode), .makeString(codes.userCode)), res)
+          _ = try f.setResult(in: self.context, to: res, raise: false)
+        } else {
+          _ = try f.setResult(in: self.context,
+                                   to: .error(RuntimeError.eval(.serverError)),
+                                   raise: true)
+        }
+      } catch {
+        do {
+          _ = try f.setResult(in: self.context,
+                                   to: .error(RuntimeError.eval(.serverError, .object(f))),
+                                   raise: true)
+        } catch {}
+      }
+    }
+    return .object(f)
+  }
+  
+  private func authorizeHandler(_ f: Future) -> (OAuth2JSON?, Error?) -> Void {
     return { params, error in
       defer {
         HTTPOAuthLibrary.authRequestManager.unregister(future: f, in: self.context)
@@ -562,7 +632,35 @@ public final class HTTPOAuthLibrary: NativeLibrary {
     let oauth2 = try self.oauth2(from: expr)
     let f = Future(external: false)
     HTTPOAuthLibrary.authRequestManager.register(oauth2: oauth2.oauth2, result: f, in: self.context)
-    oauth2.oauth2.authorize(callback: self.authorizeHandler(f))
+    if let oauth2DeviceGrant = oauth2.oauth2 as? OAuth2DeviceGrantLK {
+      if oauth2DeviceGrant.hasUnexpiredAccessToken() {
+        var params = Expr.null
+        params = .pair(.pair(.makeString("token_type"), .makeString("bearer")), params)
+        if let scope = oauth2DeviceGrant.scope {
+          params = .pair(.pair(.makeString("scope"), .makeString(scope)), params)
+        }
+        if let accessToken = oauth2DeviceGrant.accessToken {
+          params = .pair(.pair(.makeString("access_token"), .makeString(accessToken)), params)
+        }
+        _ = try f.setResult(in: self.context, to: params, raise: false)
+      } else if let deviceCode = oauth2DeviceGrant.deviceCode {
+        let callback = self.authorizeHandler(f)
+        oauth2DeviceGrant.getDeviceAccessToken(deviceCode: deviceCode,
+                                               interval: oauth2DeviceGrant.pollingInterval,
+                                               queue: .global(qos: .default)) { params, error in
+          if let params {
+            oauth2DeviceGrant.didAuthorize(withParameters: params)
+          } else if let error {
+            oauth2DeviceGrant.didFail(with: error.asOAuth2Error)
+          }
+          callback(params, error)
+        }
+      } else {
+        throw RuntimeError.custom("error", "OAuth2 device grant client did not yet receive device code: ", [expr])
+      }
+    } else {
+      oauth2.oauth2.authorize(callback: self.authorizeHandler(f))
+    }
     return .object(f)
   }
   
