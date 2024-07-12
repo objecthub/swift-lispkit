@@ -4,13 +4,13 @@ all: run
 
 run: debug
 ifeq ($(program),)
-	.build/debug/LispKitRepl -r Sources/LispKit/Resources -d LispKit
+	.build/debug/LispKitRepl -x -r Sources/LispKit/Resources -d LispKit
 else
-	.build/debug/LispKitRepl -r Sources/LispKit/Resources -d LispKit $(program)
+	.build/debug/LispKitRepl -x -r Sources/LispKit/Resources -d LispKit $(program)
 endif
 
 debug: replinfo
-	swift build -Xswiftc "-D" -Xswiftc "SPM"
+	swift build
 
 repl: release
 ifeq ($(program),)
@@ -20,13 +20,13 @@ else
 endif
 
 release: replinfo
-	swift build -c release -Xswiftc "-D" -Xswiftc "SPM"
+	swift build -c release
 
 replinfo:
 	sed "s/CURRENT-DATE/$(shell date +%s)/" Sources/LispKitRepl/AppInfo.tmpl > Sources/LispKitRepl/AppInfo.swift
 
 test:
-	swift test -Xswiftc "-D" -Xswiftc "SPM"
+	swift test
 
 update:
 	carthage update --platform macOS

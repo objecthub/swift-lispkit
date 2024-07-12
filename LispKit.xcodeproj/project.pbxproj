@@ -332,7 +332,6 @@
 		CC703A1F218D0B3000E71EA9 /* support.sld in Copy pre-installed LispKit library: LispKit CLOS Support */ = {isa = PBXBuildFile; fileRef = CC703A1C218D09F700E71EA9 /* support.sld */; };
 		CC703A21218D123F00E71EA9 /* 95.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC703A20218D122100E71EA9 /* 95.sld */; };
 		CC72862D1F52B32C00EEBC58 /* heap.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC72862C1F52B2F600EEBC58 /* heap.sld */; };
-		CC74D3462AEA47DA0054CC5A /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC74D3452AEA47DA0054CC5A /* main.swift */; };
 		CC74D3482AEA48000054CC5A /* AppInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC74D3472AEA48000054CC5A /* AppInfo.swift */; };
 		CC74D34C2AEA498D0054CC5A /* LispKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCAD52BA1C48403800DBD8EE /* LispKit.framework */; };
 		CC74D34D2AEA498D0054CC5A /* LispKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CCAD52BA1C48403800DBD8EE /* LispKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -1292,6 +1291,9 @@
 		CCE4AECE204212EC008BF7E8 /* SourceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE4AECD204212EC008BF7E8 /* SourceManager.swift */; };
 		CCE4AED0204217D8008BF7E8 /* SourcePosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE4AECF204217D8008BF7E8 /* SourcePosition.swift */; };
 		CCE7CA461F8EC07000FD7ECA /* iterate.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCE7CA451F8D819600FD7ECA /* iterate.sld */; };
+		CCE9C27F2C41B72000DE1AD7 /* OAuth2DeviceGrantLK.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE9C27E2C41B72000DE1AD7 /* OAuth2DeviceGrantLK.swift */; };
+		CCE9C2802C41B72000DE1AD7 /* OAuth2DeviceGrantLK.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE9C27E2C41B72000DE1AD7 /* OAuth2DeviceGrantLK.swift */; };
+		CCE9C2992C41DCA800DE1AD7 /* LispKitRepl.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE9C2812C41D70300DE1AD7 /* LispKitRepl.swift */; };
 		CCEEF3911FAF4024006C4581 /* 158.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCEEF3901FAF3F70006C4581 /* 158.sld */; };
 		CCEEF3931FB3CB50006C4581 /* wt-tree.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCEEF3921FB3CB03006C4581 /* wt-tree.sld */; };
 		CCEF3E3327CB66D900FB56EB /* 149.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCEF3E3227CB656700FB56EB /* 149.sld */; };
@@ -3276,7 +3278,6 @@
 		CC703A20218D122100E71EA9 /* 95.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 95.sld; sourceTree = "<group>"; };
 		CC72862C1F52B2F600EEBC58 /* heap.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = heap.sld; sourceTree = "<group>"; };
 		CC74D33B2AEA47420054CC5A /* LispKitRepl */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = LispKitRepl; sourceTree = BUILT_PRODUCTS_DIR; };
-		CC74D3452AEA47DA0054CC5A /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		CC74D3472AEA48000054CC5A /* AppInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppInfo.swift; sourceTree = "<group>"; };
 		CC74D3492AEA48260054CC5A /* AppInfo.tmpl */ = {isa = PBXFileReference; lastKnownFileType = text; path = AppInfo.tmpl; sourceTree = "<group>"; };
 		CC750BD71F5AC68900CD82A2 /* PDF.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = PDF.scm; sourceTree = "<group>"; };
@@ -3683,6 +3684,8 @@
 		CCE4AECD204212EC008BF7E8 /* SourceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourceManager.swift; sourceTree = "<group>"; };
 		CCE4AECF204217D8008BF7E8 /* SourcePosition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourcePosition.swift; sourceTree = "<group>"; };
 		CCE7CA451F8D819600FD7ECA /* iterate.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = iterate.sld; sourceTree = "<group>"; tabWidth = 3; };
+		CCE9C27E2C41B72000DE1AD7 /* OAuth2DeviceGrantLK.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OAuth2DeviceGrantLK.swift; sourceTree = "<group>"; };
+		CCE9C2812C41D70300DE1AD7 /* LispKitRepl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LispKitRepl.swift; sourceTree = "<group>"; };
 		CCEA5A17263D5E6300D78C62 /* lispkit-repl-ios.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "lispkit-repl-ios.png"; sourceTree = "<group>"; };
 		CCEEF3901FAF3F70006C4581 /* 158.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 158.sld; sourceTree = "<group>"; };
 		CCEEF3921FB3CB03006C4581 /* wt-tree.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "wt-tree.sld"; sourceTree = "<group>"; };
@@ -4259,7 +4262,7 @@
 		CC74D33C2AEA47420054CC5A /* LispKitRepl */ = {
 			isa = PBXGroup;
 			children = (
-				CC74D3452AEA47DA0054CC5A /* main.swift */,
+				CCE9C2812C41D70300DE1AD7 /* LispKitRepl.swift */,
 				CC74D3472AEA48000054CC5A /* AppInfo.swift */,
 				CC74D3492AEA48260054CC5A /* AppInfo.tmpl */,
 			);
@@ -4873,6 +4876,7 @@
 				CC2DA74F2780FE1100DE69CF /* MethodProfiler.swift */,
 				CC372CDC27D5532D0091C474 /* String.swift */,
 				CCB5DF5B29A16D62005E6453 /* Data.swift */,
+				CCE9C27E2C41B72000DE1AD7 /* OAuth2DeviceGrantLK.swift */,
 			);
 			path = Base;
 			sourceTree = "<group>";
@@ -5350,7 +5354,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CC74D3462AEA47DA0054CC5A /* main.swift in Sources */,
+				CCE9C2992C41DCA800DE1AD7 /* LispKitRepl.swift in Sources */,
 				CC74D3482AEA48000054CC5A /* AppInfo.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -5465,6 +5469,7 @@
 				CC93A6611D0777A9008350C8 /* TextOutput.swift in Sources */,
 				CC5BBC791D5268D000367E8F /* HashTable.swift in Sources */,
 				CCD5B6082C276696002BF2F0 /* ThreadFutureLibrary.swift in Sources */,
+				CCE9C27F2C41B72000DE1AD7 /* OAuth2DeviceGrantLK.swift in Sources */,
 				CC2DA7572781037B00DE69CF /* EvalCondition.swift in Sources */,
 				CCCB66E4283056E30004827D /* StyledTextLibrary.swift in Sources */,
 				CC6A3B6A1C539DCA00E962E2 /* ManagedObjectPool.swift in Sources */,
@@ -5517,6 +5522,7 @@
 				CCC48CB025E5B97100D082AD /* FileHandler.swift in Sources */,
 				CCC48C9025E5B95B00D082AD /* Cell.swift in Sources */,
 				CCD5B60C2C295951002BF2F0 /* HTTPLibrary.swift in Sources */,
+				CCE9C2802C41B72000DE1AD7 /* OAuth2DeviceGrantLK.swift in Sources */,
 				CC1D53332BE7AB4000EE1A24 /* CustomExpr.swift in Sources */,
 				CCC48CC625E5B98600D082AD /* BytevectorLibrary.swift in Sources */,
 				CCC48C6F25E5B94300D082AD /* Timer.swift in Sources */,

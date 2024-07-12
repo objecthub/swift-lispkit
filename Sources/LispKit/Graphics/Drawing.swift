@@ -20,6 +20,7 @@
 
 import CoreGraphics
 import Cocoa
+import AppKit
 
 ///
 /// Class `Drawing` represents a sequence of drawing instructions. The class offers the

@@ -32,6 +32,7 @@ open class LispKitRepl {
   public let toolVersion: String
   public let toolBuild: String
   public let toolCopyright: String
+  public var toolMessage: String? = nil
 
   // Flags
   public let flags: Flags
@@ -53,6 +54,7 @@ open class LispKitRepl {
   public let quiet: Option
   public let raw: Option
   public let tabWidth: SingletonArgument<Int>
+  public let runloop: Option
   public let help: Option
 
   // LispKit setup
@@ -116,6 +118,8 @@ open class LispKitRepl {
     self.tabWidth   = f.int("t", "tabwidth",
                             description: "Width of a tab character.",
                             value: 2)
+    self.runloop    = f.option("x", "runloop",
+                               description: "Enable runloop, i.e. support asynchronous APIs")
     self.help       = f.option("h", "help",
                                description: "Show description of usage and options of this tools.")
     // Instantiate the terminal
@@ -439,6 +443,9 @@ open class LispKitRepl {
     let props = Terminal.fullColorSupport ? TextStyle.bold.properties : TextProperties.none
     self.printOpt(props.apply(to: "\(self.toolName) \(self.toolVersion)\(self.toolBuild)"))
     self.printOpt(props.apply(to: "\(self.toolCopyright)"))
+    if let toolMessage = self.toolMessage {
+      self.printOpt(TextProperties.none.apply(to: toolMessage))
+    }
   }
 
   open func runRepl() -> Bool {

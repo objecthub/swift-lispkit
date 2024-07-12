@@ -19,6 +19,7 @@
 //
 
 import Foundation
+import LispKit
 
 ///
 /// Struct `AppInfo` provides meta-information on the application and build-related
@@ -30,22 +31,19 @@ public struct AppInfo {
   public static let name = "LispKit Shell"
   
   // Version of the application
-  public static let version = "2.4.2"
+  public static let version = "2.5"
   
   // Copyright message
   public static let copyright = "Copyright © 2016–2024 Matthias Zenger. All rights reserved."
   
-  #if SPM
-    public static let prompt = "> "
-  #else
-    public static let prompt = "➤ "
-  #endif
+  // Prompt string
+  public static let prompt = LispKitContext.bundle == nil ? "> " : "➤ "
   
   // Build date/time
   public static let buildDate = { () -> String in
     let dateFormatter = DateFormatter()
     dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
-    return dateFormatter.string(from: Date(timeIntervalSince1970: 1717359751))
+    return dateFormatter.string(from: Date(timeIntervalSince1970: 1720824594))
   }()
   public static let buildAnnotation = " (\(AppInfo.buildDate))"
 }

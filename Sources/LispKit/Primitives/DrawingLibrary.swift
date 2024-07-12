@@ -20,6 +20,7 @@
 
 import Foundation
 import Cocoa
+import AppKit
 import MarkdownKit
 
 ///
