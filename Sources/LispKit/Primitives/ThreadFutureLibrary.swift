@@ -221,7 +221,7 @@ public final class Future: NativeObject {
   private let sync: FutureSync
   
   /// The result once computed
-  public var result: (value: Expr, error: Bool)? = nil
+  public var result: (value: Cell, error: Bool)? = nil
   
   /// Initializer
   public init(external: Bool) {
@@ -245,7 +245,10 @@ public final class Future: NativeObject {
     guard self.result == nil else {
       return false
     }
-    self.result = (result, raise)
+    // Guarantee that the referenced cell is managed by a managed object pool if needed
+    let cell = Cell(.undef)
+    (result.isAtom ? cell : context.objects.manage(cell)).value = result
+    self.result = (cell, raise)
     self.sync.signal()
     return true
   }
@@ -261,7 +264,7 @@ public final class Future: NativeObject {
     guard let result = self.result else {
       return nil
     }
-    return result
+    return (result.0.value, result.1)
   }
   
   public override var type: Type {
@@ -283,10 +286,13 @@ public final class Future: NativeObject {
     }
   }
   
+  public var isAtom: Bool {
+    return false
+  }
+  
   public override func mark(in gc: GarbageCollector) {
-    // nothing to collect for the objects stored in sync
-    if let expr = self.result?.value {
-      gc.markLater(expr)
+    if let cell = self.result?.value {
+      gc.markLater(.box(cell))
     }
   }
   
@@ -294,10 +300,10 @@ public final class Future: NativeObject {
     switch self.result {
       case .none:
         return [.makeString(identityString)]
-      case .some((value: let expr, error: false)):
-        return [.makeString(identityString), expr, .false]
-      case .some((value: let expr, error: true)):
-        return [.makeString(identityString), expr, .true]
+      case .some((value: let cell, error: false)):
+        return [.makeString(identityString), cell.value, .false]
+      case .some((value: let cell, error: true)):
+        return [.makeString(identityString), cell.value, .true]
     }
   }
 }

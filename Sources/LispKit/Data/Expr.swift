@@ -623,8 +623,11 @@ public enum Expr: Hashable {
     switch self {
       case .undef, .void, .eof, .null, .true, .false, .uninit(_), .symbol(_),
            .fixnum(_), .bignum(_), .rational(_, _), .flonum(_), .complex(_),
-           .char(_), .string(_), .bytes(_), .env(_), .port(_), .object(_):
+           .char(_), .string(_), .bytes(_), .env(_), .port(_):
         return true
+      case .pair(let car0, .pair(let car1, .pair(let car2, .pair(let car3, let cdr)))):
+        return car0.isSimpleAtom && car1.isSimpleAtom && car2.isSimpleAtom && car3.isSimpleAtom &&
+               cdr.isSimpleAtom
       case .pair(let car0, .pair(let car1, .pair(let car2, let cdr))):
         return car0.isSimpleAtom && car1.isSimpleAtom && car2.isSimpleAtom && cdr.isSimpleAtom
       case .pair(let car0, .pair(let car1, let cdr)):
@@ -635,6 +638,8 @@ public enum Expr: Hashable {
         return tag.isSimpleAtom && expr.isAtom
       case .values(let expr):
         return expr.isAtom
+      case .object(let expr):
+        return expr.isAtom
       default:
         return false
     }
@@ -644,8 +649,10 @@ public enum Expr: Hashable {
     switch self {
       case .undef, .void, .eof, .null, .true, .false, .uninit(_), .symbol(_),
            .fixnum(_), .bignum(_), .rational(_, _), .flonum(_), .complex(_),
-           .char(_), .string(_), .bytes(_), .env(_), .port(_), .object(_):
+           .char(_), .string(_), .bytes(_), .env(_), .port(_):
         return true
+      case .object(let expr):
+        return expr.isAtom
       default:
         return false
     }

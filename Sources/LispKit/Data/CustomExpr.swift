@@ -28,6 +28,7 @@ public protocol CustomExpr: Hashable {
   var typeDescription: String { get }
   var string: String { get }
   var tagString: String { get }
+  var isAtom: Bool { get }
   var hash: Int { get }
   func equals(to expr: Expr) -> Bool
   func eqv(to expr: Expr) -> Bool
@@ -37,16 +38,16 @@ public protocol CustomExpr: Hashable {
 }
 
 extension CustomExpr {
-  public var type: Type {
-    preconditionFailure("NativeObject.type undefined: NativeObject instantiated")
-  }
-  
   public var string: String {
     return "#<\(self.tagString)>"
   }
   
   public var typeDescription: String {
     return self.type.description
+  }
+  
+  public var isAtom: Bool {
+    return true
   }
   
   public func eqv(to expr: Expr) -> Bool {
