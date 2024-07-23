@@ -55,6 +55,7 @@ open class LispKitRepl {
   public let raw: Option
   public let tabWidth: SingletonArgument<Int>
   public let runloop: Option
+  public let systemStackSize: SingletonArgument<Int>
   public let help: Option
 
   // LispKit setup
@@ -120,6 +121,9 @@ open class LispKitRepl {
                             value: 2)
     self.runloop    = f.option("x", "runloop",
                                description: "Enable runloop, i.e. support asynchronous APIs")
+    self.systemStackSize = f.int("y", "systemstack",
+                                 description: "Stack size (in KB) of interpreter thread " +
+                                              "(if --runloop is used)")
     self.help       = f.option("h", "help",
                                description: "Show description of usage and options of this tools.")
     // Instantiate the terminal

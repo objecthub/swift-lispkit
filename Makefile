@@ -14,9 +14,9 @@ debug: replinfo
 
 repl: release
 ifeq ($(program),)
-	.build/release/LispKitRepl -r Sources/LispKit/Resources -d LispKit
+	.build/release/LispKitRepl -x -r Sources/LispKit/Resources -d LispKit
 else
-	.build/release/LispKitRepl -r Sources/LispKit/Resources -d LispKit $(program)
+	.build/release/LispKitRepl -x -r Sources/LispKit/Resources -d LispKit $(program)
 endif
 
 release: replinfo

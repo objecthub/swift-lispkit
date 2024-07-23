@@ -554,6 +554,10 @@ public enum Expr: Hashable {
     switch self {
       case .symbol(let sym):
         return .symbol(sym.root)
+      case .pair(let car0, .pair(let car1, .pair(let car2, let cdr))):
+        return .pair(car0.datum, .pair(car1.datum, .pair(car2.datum, cdr.datum)))
+      case .pair(let car0, .pair(let car1, let cdr)):
+        return .pair(car0.datum, .pair(car1.datum, cdr.datum))
       case .pair(let car, let cdr):
         return .pair(car.datum, cdr.datum)
       case .syntax(_, let expr):

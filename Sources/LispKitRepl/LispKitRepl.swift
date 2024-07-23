@@ -56,6 +56,9 @@ struct LispKitRepl {
           repl.release()
           exit(succeeded ? 0 : 1)
         }
+        // Set stack size of interpreter thread (12 MByte by default)
+        main.stackSize = (repl.systemStackSize.value ?? (12 * 1024)) * 1024
+        main.qualityOfService = .userInitiated
         main.start()
         RunLoop.current.run()
       } else {
