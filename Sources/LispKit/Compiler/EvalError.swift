@@ -181,6 +181,9 @@ public enum EvalError: Int, Hashable {
   case invalidHttpHeaderSpec
   case serverError
   case unsupportedHttpMethod
+  case insertIntoClosedQueue
+  case insertIntoMaxQueue
+  case queueIsEmpty
   
   public var message: String {
     switch self {
@@ -496,6 +499,12 @@ public enum EvalError: Int, Hashable {
         return "server error: did not receive data"
       case .unsupportedHttpMethod:
         return "unsupported HTTP method: $0"
+      case .insertIntoClosedQueue:
+        return "trying to insert elements from $0 into closed queue $1"
+      case .insertIntoMaxQueue:
+        return "trying to insert elements from $0 into queue $1 of maximum length"
+      case .queueIsEmpty:
+        return "cannot complete operation since queue $0 is empty"
     }
   }
   

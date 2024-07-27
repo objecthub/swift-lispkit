@@ -217,7 +217,7 @@ public final class GrowableVectorLibrary: NativeLibrary {
   }
   
   private func gvectorAppendDestructive(_ expr: Expr, _ args: Arguments) throws -> Expr {
-    let vec = try expr.vectorAsCollection(growable: true)
+    let vec = self.context.objects.manage(try expr.vectorAsCollection(growable: true))
     for arg in args {
       vec.exprs.append(contentsOf: try arg.vectorAsCollection().exprs)
     }

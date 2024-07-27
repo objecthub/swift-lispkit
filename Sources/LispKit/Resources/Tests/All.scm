@@ -23,6 +23,7 @@
 (load "Tests/LispKit-Enum")
 (load "Tests/LispKit-Match")
 (load "Tests/LispKit-Channel")
+(load "Tests/LispKit-Shared-Queue")
 (load "Tests/LispKit-List-Set")
 (load "Tests/LispKit-JSON-Schema")
 (load "Tests/SRFI-14")

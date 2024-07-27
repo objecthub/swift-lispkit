@@ -1077,6 +1077,12 @@
 		CCCB66E2282DBBDB0004827D /* DrawBarCharts.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCCB66E0282DB9790004827D /* DrawBarCharts.scm */; };
 		CCCB66E4283056E30004827D /* StyledTextLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCB66E3283056E30004827D /* StyledTextLibrary.swift */; };
 		CCCB66E5283056E30004827D /* StyledTextLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCB66E3283056E30004827D /* StyledTextLibrary.swift */; };
+		CCCCEC882C504AF400509902 /* NanoHTTP in Frameworks */ = {isa = PBXBuildFile; productRef = CCCCEC872C504AF400509902 /* NanoHTTP */; };
+		CCCCEC8A2C504B3C00509902 /* HTTPServerLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCCEC892C504B3C00509902 /* HTTPServerLibrary.swift */; };
+		CCCCEC8B2C504B3C00509902 /* HTTPServerLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCCEC892C504B3C00509902 /* HTTPServerLibrary.swift */; };
+		CCCCEC8D2C50520600509902 /* SharedQueueLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCCEC8C2C50520600509902 /* SharedQueueLibrary.swift */; };
+		CCCCEC8E2C50520600509902 /* SharedQueueLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCCEC8C2C50520600509902 /* SharedQueueLibrary.swift */; };
+		CCCCEC902C5457A600509902 /* LispKit-Shared-Queue.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCCCEC8F2C5454BB00509902 /* LispKit-Shared-Queue.scm */; };
 		CCCD1AB9298C6CD50057DCEB /* 233.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCCD1AB8298C6BEE0057DCEB /* 233.sld */; };
 		CCCD1ABA298C6CE40057DCEB /* 233.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCCD1AB8298C6BEE0057DCEB /* 233.sld */; };
 		CCCD1ABC298C6DBF0057DCEB /* SRFI-233.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCCD1ABB298C6D910057DCEB /* SRFI-233.scm */; };
@@ -1360,6 +1366,7 @@
 			dstPath = Root/LispKit/Tests;
 			dstSubfolderSpec = 7;
 			files = (
+				CCCCEC902C5457A600509902 /* LispKit-Shared-Queue.scm in Copy tests */,
 				CCD5B5DE2C152B21002BF2F0 /* LispKit-JSON-Schema.scm in Copy tests */,
 				CC491BBC2A407DAB008CA24C /* SRFI-235.scm in Copy tests */,
 				CCB457462A3CFBC700599565 /* LispKit-Record.scm in Copy tests */,
@@ -3548,6 +3555,9 @@
 		CCCB5C9F284224260005248D /* StyledTextDoc.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = StyledTextDoc.scm; sourceTree = "<group>"; };
 		CCCB66E0282DB9790004827D /* DrawBarCharts.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = DrawBarCharts.scm; sourceTree = "<group>"; };
 		CCCB66E3283056E30004827D /* StyledTextLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StyledTextLibrary.swift; sourceTree = "<group>"; };
+		CCCCEC892C504B3C00509902 /* HTTPServerLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPServerLibrary.swift; sourceTree = "<group>"; };
+		CCCCEC8C2C50520600509902 /* SharedQueueLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedQueueLibrary.swift; sourceTree = "<group>"; };
+		CCCCEC8F2C5454BB00509902 /* LispKit-Shared-Queue.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "LispKit-Shared-Queue.scm"; sourceTree = "<group>"; };
 		CCCD1AB8298C6BEE0057DCEB /* 233.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 233.sld; sourceTree = "<group>"; };
 		CCCD1ABB298C6D910057DCEB /* SRFI-233.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-233.scm"; sourceTree = "<group>"; };
 		CCCD1ABE298C6FEA0057DCEB /* 236.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 236.sld; sourceTree = "<group>"; };
@@ -3732,6 +3742,7 @@
 				CC7D4B6D2A0D877C0066BA94 /* CLFormat in Frameworks */,
 				CCA6C3D42361149D007D2AF0 /* MarkdownKit in Frameworks */,
 				CC1D53392BF16F9F00EE1A24 /* DynamicJSON in Frameworks */,
+				CCCCEC882C504AF400509902 /* NanoHTTP in Frameworks */,
 				CC5E53032355AAD400C72CE2 /* NumberKit in Frameworks */,
 				CC2DA73A2770012300DE69CF /* Atomics in Frameworks */,
 				CC089651244091E9004503B1 /* SQLiteExpress in Frameworks */,
@@ -3793,6 +3804,7 @@
 				CC7A125A21E94D1700ABEA17 /* LispKit-Match.scm */,
 				CCC48BF025D8623A00D082AD /* LispKit-WT-Tree.scm */,
 				CC2427D7279D65F200913C05 /* LispKit-Channel.scm */,
+				CCCCEC8F2C5454BB00509902 /* LispKit-Shared-Queue.scm */,
 				CC517E6029A970520096FC72 /* LispKit-List-Set.scm */,
 				CCD5B5DC2C150189002BF2F0 /* LispKit-JSON-Schema.scm */,
 				CC54924421DCDEA1004A0652 /* SRFI-14.scm */,
@@ -4697,7 +4709,9 @@
 				CC517E5729A217980096FC72 /* CryptoLibrary.swift */,
 				CC2DA7462773195600DE69CF /* ThreadLibrary.swift */,
 				CCD5B6072C276696002BF2F0 /* ThreadFutureLibrary.swift */,
+				CCCCEC8C2C50520600509902 /* SharedQueueLibrary.swift */,
 				CCD5B60A2C295951002BF2F0 /* HTTPLibrary.swift */,
+				CCCCEC892C504B3C00509902 /* HTTPServerLibrary.swift */,
 				CCD5B6152C3BC480002BF2F0 /* HTTPAOuthLibrary.swift */,
 				CC1D533C2BF1709E00EE1A24 /* JSONLibrary.swift */,
 				CCD5B5202C0D231E002BF2F0 /* JSONSchemaLibrary.swift */,
@@ -5088,6 +5102,7 @@
 				CC2FB07D2AA3D83E00A20C71 /* SWCompression */,
 				CC1D53382BF16F9F00EE1A24 /* DynamicJSON */,
 				CCD5B6192C3BC57A002BF2F0 /* OAuth2 */,
+				CCCCEC872C504AF400509902 /* NanoHTTP */,
 			);
 			productName = LispKit;
 			productReference = CCAD52BA1C48403800DBD8EE /* LispKit.framework */;
@@ -5244,6 +5259,7 @@
 				CC2FB07C2AA3D83E00A20C71 /* XCRemoteSwiftPackageReference "SWCompression" */,
 				CC1D53372BF16F7E00EE1A24 /* XCRemoteSwiftPackageReference "swift-dynamicjson" */,
 				CCD5B6182C3BC57A002BF2F0 /* XCRemoteSwiftPackageReference "OAuth2" */,
+				CCCCEC862C504AF400509902 /* XCRemoteSwiftPackageReference "swift-nanohttp" */,
 			);
 			productRefGroup = CCAD52BB1C48403800DBD8EE /* Products */;
 			projectDirPath = "";
@@ -5422,6 +5438,7 @@
 				CCAD52E41C48468F00DBD8EE /* Scanner.swift in Sources */,
 				CC2DA7542781036D00DE69CF /* EvalMutex.swift in Sources */,
 				CC201A6D1DBD72C100045A4D /* LibraryRegistry.swift in Sources */,
+				CCCCEC8A2C504B3C00509902 /* HTTPServerLibrary.swift in Sources */,
 				CCD81AD21CE75823009EB087 /* Checkpointer.swift in Sources */,
 				CC01903B1C89D02200DB8BF9 /* CaptureGroup.swift in Sources */,
 				CCC5319E1D16E40D00FAED6E /* TextInputSource.swift in Sources */,
@@ -5464,6 +5481,7 @@
 				CC90500F1D384C4E008CE60A /* Tuple.swift in Sources */,
 				CC6A3B641C52EED400E962E2 /* MathLibrary.swift in Sources */,
 				CC7D4B6F2A0D88C00066BA94 /* FormatLibrary.swift in Sources */,
+				CCCCEC8D2C50520600509902 /* SharedQueueLibrary.swift in Sources */,
 				CC8EDE4C1D0317AD004E0636 /* Port.swift in Sources */,
 				CCB585BB1E15AA4D0064BB18 /* Heap.swift in Sources */,
 				CC93A6611D0777A9008350C8 /* TextOutput.swift in Sources */,
@@ -5564,6 +5582,7 @@
 				CCC48CAA25E5B97100D082AD /* FeatureRequirement.swift in Sources */,
 				CCD5B6172C3BC480002BF2F0 /* HTTPAOuthLibrary.swift in Sources */,
 				CCB5DF5D29A16D62005E6453 /* Data.swift in Sources */,
+				CCCCEC8E2C50520600509902 /* SharedQueueLibrary.swift in Sources */,
 				CC2DA7582781037B00DE69CF /* EvalCondition.swift in Sources */,
 				CCC48C6725E5B94300D082AD /* ScanBuffer.swift in Sources */,
 				CCC48CB825E5B97100D082AD /* GarbageCollector.swift in Sources */,
@@ -5634,6 +5653,7 @@
 				CCC48C8C25E5B95B00D082AD /* Port.swift in Sources */,
 				CCC48CD425E5B98600D082AD /* SystemLibrary.swift in Sources */,
 				CCC48CB725E5B97100D082AD /* LibraryManager.swift in Sources */,
+				CCCCEC8B2C504B3C00509902 /* HTTPServerLibrary.swift in Sources */,
 				CCD5E58C2632395200C45EA0 /* DrawingDocument.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -6352,6 +6372,14 @@
 				minimumVersion = 1.1.8;
 			};
 		};
+		CCCCEC862C504AF400509902 /* XCRemoteSwiftPackageReference "swift-nanohttp" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/objecthub/swift-nanohttp";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		CCD5B6182C3BC57A002BF2F0 /* XCRemoteSwiftPackageReference "OAuth2" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/p2/OAuth2";
@@ -6450,6 +6478,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = CCFB412525B2523C005B2429 /* XCRemoteSwiftPackageReference "ZIPFoundation" */;
 			productName = ZIPFoundation;
+		};
+		CCCCEC872C504AF400509902 /* NanoHTTP */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CCCCEC862C504AF400509902 /* XCRemoteSwiftPackageReference "swift-nanohttp" */;
+			productName = NanoHTTP;
 		};
 		CCD5B6192C3BC57A002BF2F0 /* OAuth2 */ = {
 			isa = XCSwiftPackageProductDependency;

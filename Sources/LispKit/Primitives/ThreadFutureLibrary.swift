@@ -210,6 +210,15 @@ enum FutureSync {
         condition.signal()
     }
   }
+  
+  func broadcast() {
+    switch self {
+      case .external(_, let condition):
+        condition.broadcast()
+      case .internal(let condition):
+        condition.broadcast()
+    }
+  }
 }
 
 public final class Future: NativeObject {
@@ -249,7 +258,7 @@ public final class Future: NativeObject {
     let cell = Cell(.undef)
     (result.isAtom ? cell : context.objects.manage(cell)).value = result
     self.result = (cell, raise)
-    self.sync.signal()
+    self.sync.broadcast()
     return true
   }
   
