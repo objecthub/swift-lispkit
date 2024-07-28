@@ -1,5 +1,5 @@
 {
-  "originHash" : "86932f3d53dfd059251477fcf4509e3e612af3f690a8e23517c504b7f62435f9",
+  "originHash" : "0875630412004da20fc5751457beed3b68fc2f50f4cb09bf3427655d8d4e0936",
   "pins" : [
     {
       "identity" : "bitbytedata",
@@ -79,7 +79,7 @@
       "location" : "https://github.com/objecthub/swift-nanohttp",
       "state" : {
         "branch" : "main",
-        "revision" : "2ad983b7d1b7cbbb8fc792737b2a46102145791b"
+        "revision" : "65186592cae3196bbaebf27b4771303ab0cddfae"
       }
     },
     {

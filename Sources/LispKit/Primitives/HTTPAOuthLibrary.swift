@@ -1070,7 +1070,31 @@ public protocol HTTPOAuthConfig {
 }
 
 public final class LispKitHTTPOAuthConfig: HTTPOAuthConfig {
+  
+  public final class Logger: OAuth2DebugLogger {
+    private weak var context: LispKit.Context?
+    
+    public init(context: LispKit.Context?, level: OAuth2LogLevel = OAuth2LogLevel.debug) {
+      super.init(level)
+      self.level = level
+    }
+    
+    public func log(_ atLevel: OAuth2LogLevel,
+                    module: String?,
+                    filename: String?,
+                    line: Int?,
+                    function: String?,
+                    msg: @autoclosure() -> String) {
+      if level != .off && atLevel.rawValue >= level.rawValue {
+        self.context?.delegate?.print("[\(atLevel)] \(module ?? ""): \(msg())")
+      }
+    }
+  }
+  
+  private weak var context: LispKit.Context?
+  
   public init(context: LispKit.Context) {
+    self.context = context
   }
   
   public func configureEmbeddedAuth(oauth2: OAuth2) {
@@ -1081,6 +1105,6 @@ public final class LispKitHTTPOAuthConfig: HTTPOAuthConfig {
   }
   
   public func createLogger(level: OAuth2LogLevel) -> OAuth2Logger {
-    return OAuth2DebugLogger(level)
+    return Logger(context: self.context, level: level)
   }
 }
