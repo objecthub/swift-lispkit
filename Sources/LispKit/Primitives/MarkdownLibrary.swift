@@ -151,8 +151,11 @@ public final class MarkdownLibrary: NativeLibrary {
     self.define(Procedure("markdown?", isMarkdown))
     self.define(Procedure("markdown=?", markdownEquals))
     self.define(Procedure("markdown->html", markdownToHtml))
+    self.define(Procedure("markdown->sxml", markdownToSxml))
     self.define(Procedure("blocks->html", blocksToHtml))
+    self.define(Procedure("blocks->sxml", blocksToSxml))
     self.define(Procedure("text->html", textToHtml))
+    self.define(Procedure("text->sxml", textToSxml))
     self.define(Procedure("markdown->html-doc", markdownToHtmlDoc))
     self.define(Procedure("text->string", textToString))
     self.define(Procedure("text->raw-string", textToRawString))
@@ -636,6 +639,11 @@ public final class MarkdownLibrary: NativeLibrary {
     return .makeString(HtmlGenerator.standard.generate(doc: try self.internMarkdown(block: md)))
   }
   
+  private func markdownToSxml(_ md: Expr) throws -> Expr {
+    let gen = SXMLGenerator(context: self.context)
+    return gen.generate(block: try self.internMarkdown(block: md))
+  }
+  
   private func blocksToHtml(_ expr: Expr, tight: Expr?) throws -> Expr {
     let tight = tight?.isTrue ?? false
     switch expr {
@@ -652,6 +660,21 @@ public final class MarkdownLibrary: NativeLibrary {
     }
   }
   
+  private func blocksToSxml(_ expr: Expr, tight: Expr?) throws -> Expr {
+    let gen = SXMLGenerator(context: self.context)
+    let tight = tight?.isTrue ?? false
+    switch expr {
+      case .pair(_ , _):
+        return gen.generate(blocks: try self.internMarkdown(blocks: expr), tight: tight)
+      case .tagged(self.blockType, _):
+        return gen.generate(block: try self.internMarkdown(block: expr), tight: tight)
+      default:
+        throw RuntimeError.custom(
+          "type error", "blocks->sxml expects argument of type block or list of block; " +
+          "received \(expr)", [])
+    }
+  }
+  
   private func textToHtml(_ expr: Expr) throws -> Expr {
     switch expr {
       case .pair(_ , _):
@@ -663,6 +686,20 @@ public final class MarkdownLibrary: NativeLibrary {
       default:
         throw RuntimeError.custom(
           "type error", "text->html expects argument of type inline or list of inline; " +
+          "received \(expr)", [])
+    }
+  }
+  
+  private func textToSxml(_ expr: Expr) throws -> Expr {
+    let gen = SXMLGenerator(context: self.context)
+    switch expr {
+      case .pair(_ , _):
+        return gen.generate(text: try self.internMarkdown(text: expr))
+      case .tagged(self.inlineType, _):
+        return gen.generate(textFragment: try self.internMarkdown(fragment: expr))
+      default:
+        throw RuntimeError.custom(
+          "type error", "text->sxml expects argument of type inline or list of inline; " +
           "received \(expr)", [])
     }
   }
@@ -1057,9 +1094,18 @@ public final class MarkdownLibrary: NativeLibrary {
         return .autolink(.email, Substring(try fst.asString()))
       case self.image:
         if case .pair(let uri, let title) = args {
-          return .image(try self.internMarkdown(text: fst),
-                        uri.isFalse ? nil : try uri.asString(),
-                        title.isFalse ? nil : try title.asString())
+          switch title {
+            case .false, .null, .pair(.false, _), .pair(.null, _):
+              return .image(try self.internMarkdown(text: fst),
+                            uri.isFalse ? nil : try uri.asString(),
+                            nil)
+            case .string(let str), .pair(.string(let str), _):
+              return .image(try self.internMarkdown(text: fst),
+                            uri.isFalse ? nil : try uri.asString(),
+                            str as String)
+            default:
+              break
+          }
         }
       case self.html:
         return .html(Substring(try fst.asString()))
@@ -1286,5 +1332,251 @@ public final class MarkdownLibrary: NativeLibrary {
     } else {
       return .false
     }
+  }
+}
+
+open class SXMLGenerator {
+  var context: Context
+  
+  public init(context: Context) {
+    self.context = context
+  }
+  
+  private func symbol(_ str: String) -> Expr {
+    return .symbol(self.context.symbols.intern(str))
+  }
+  
+  private func attribs(_ attribs: [String : Expr]) -> Expr {
+    var res = Expr.null
+    for (key, value) in attribs {
+      res = .pair(.pair(self.symbol(key), .pair(value, .null)), res)
+    }
+    return .pair(self.symbol("@"), res)
+  }
+  
+  open func generate(blocks: Blocks, tight: Bool = false) -> Expr {
+    var res = Expr.null
+    for block in blocks.reversed() {
+      res = .pair(self.generate(block: block, tight: tight), res)
+    }
+    return res
+  }
+
+  open func generate(block: Block, tight: Bool = false) -> Expr {
+    switch block {
+      case .document(let blocks):
+        return self.generate(blocks: blocks)
+      case .blockquote(let blocks):
+        return .pair(self.symbol("blockquote"), self.generate(blocks: blocks))
+      case .list(let start, let tight, let blocks):
+        if let startNumber = start {
+          return .pair(self.symbol("ol"),
+                       .pair(self.attribs(["start" : .makeNumber(startNumber)]),
+                             self.generate(blocks: blocks, tight: tight)))
+        } else {
+          return .pair(self.symbol("ul"), self.generate(blocks: blocks, tight: tight))
+        }
+      case .listItem(_, _, let blocks):
+        if tight, let text = blocks.text {
+          return .pair(self.symbol("li"), self.generate(text: text))
+        } else {
+          return .pair(self.symbol("li"), self.generate(blocks: blocks))
+        }
+      case .paragraph(let text):
+        return .pair(self.symbol("p"), self.generate(text: text))
+      case .heading(let n, let text):
+        let tag = "h\(n > 0 && n < 7 ? n : 1)"
+        return .pair(self.symbol(tag), self.generate(text: text))
+      case .indentedCode(let lines):
+        return .pair(self.symbol("pre"),
+                     .pair(.pair(self.symbol("code"),
+                                 .pair(.pair(self.symbol("@raw"),
+                                             .pair(.makeString(self.generate(lines: lines).encodingPredefinedXmlEntities()),
+                                                   .null)),
+                                       .null)),
+                           .null))
+      case .fencedCode(let lang, let lines):
+        if let language = lang {
+          return .pair(self.symbol("pre"),
+                       .pair(.pair(self.symbol("code"),
+                                   .pair(.pair(self.symbol("@"),
+                                               .pair(.pair(self.symbol("class"),
+                                                           .pair(.makeString(language), .null)),
+                                                     .null)),
+                                         .pair(.pair(self.symbol("@raw"),
+                                                     .pair(.makeString(self.generate(lines: lines, separator: "").encodingPredefinedXmlEntities()),
+                                                           .null)),
+                                               .null))),
+                             .null))
+        } else {
+          return .pair(self.symbol("pre"),
+                       .pair(.pair(self.symbol("code"),
+                                   .pair(.pair(self.symbol("@raw"),
+                                               .pair(.makeString(self.generate(lines: lines, separator: "").encodingPredefinedXmlEntities()),
+                                                     .null)),
+                                         .null)),
+                             .null))
+        }
+      case .htmlBlock(let lines):
+        return .pair(self.symbol("@raw"),
+                     .pair(.makeString(self.generate(lines: lines)),
+                           .null))
+      case .referenceDef(_, _, _):
+        return .null
+      case .thematicBreak:
+        return .pair(self.symbol("hr"), .null)
+      case .table(let header, let align, let rows):
+        var tagsuffix: [[String : Expr]] = []
+        for a in align {
+          switch a {
+            case .undefined:
+              tagsuffix.append([:])
+            case .left:
+              tagsuffix.append(["align" : .makeString("left")])
+            case .right:
+              tagsuffix.append(["align" : .makeString("right")])
+            case .center:
+              tagsuffix.append(["align" : .makeString("center")])
+          }
+        }
+        var hd: Exprs = []
+        var i = 0
+        for head in header {
+          if i < tagsuffix.count {
+            hd.append(.pair(self.symbol("th"), .pair(self.attribs(tagsuffix[i]), self.generate(text: head))))
+          } else {
+            hd.append(.pair(self.symbol("th"), self.generate(text: head)))
+          }
+          i += 1
+        }
+        var bd: Exprs = []
+        for row in rows {
+          var r: Exprs = []
+          i = 0
+          for cell in row {
+            if i < tagsuffix.count {
+              r.append(.pair(self.symbol("td"), .pair(self.attribs(tagsuffix[i]), self.generate(text: cell))))
+            } else {
+              r.append(.pair(self.symbol("td"), self.generate(text: cell)))
+            }
+            i += 1
+          }
+          bd.append(.pair(self.symbol("tr"), .makeList(r)))
+        }
+        return .pair(self.symbol("table"),
+                     .pair(.pair(self.symbol("thead"),
+                                 .pair(.pair(self.symbol("tr"), .makeList(hd)), .null)),
+                           .pair(.pair(self.symbol("tbody"), .makeList(bd)),
+                                 .null)))
+      case .definitionList(let defs):
+        var ds = Expr.null
+        for def in defs.reversed() {
+          for descr in def.descriptions.reversed() {
+            if case .listItem(_, _, let blocks) = descr {
+              if blocks.count == 1,
+                 case .paragraph(let text) = blocks.first! {
+                ds = .pair(.pair(self.symbol("dd"), self.generate(text: text)), ds)
+              } else {
+                ds = .pair(.pair(self.symbol("dd"), self.generate(blocks: blocks)), ds)
+              }
+            }
+          }
+          ds = .pair(.pair(self.symbol("dt"), self.generate(text: def.item)), ds)
+        }
+        return .pair(self.symbol("dl"), ds)
+      case .custom(let customBlock):
+        return .pair(self.symbol("@raw"),
+                     .pair(.makeString(customBlock.generateHtml(via: HtmlGenerator.standard, tight: tight)),
+                           .null))
+    }
+  }
+
+  open func generate(text: Text) -> Expr {
+    var res = Expr.null
+    for fragment in text.reversed() {
+      res = .pair(self.generate(textFragment: fragment), res)
+    }
+    return res
+  }
+
+  open func generate(textFragment fragment: TextFragment) -> Expr {
+    switch fragment {
+      case .text(let str):
+        return .makeString(String(str).decodingNamedCharacters())
+      case .code(let str):
+        return .pair(self.symbol("code"), .pair(.makeString(String(str)), .null))
+      case .emph(let text):
+        return .pair(self.symbol("em"), .pair(self.generate(text: text), .null))
+      case .strong(let text):
+        return .pair(self.symbol("strong"), .pair(self.generate(text: text), .null))
+      case .link(let text, let uri, let title):
+        let titleAttr: Expr = title == nil ? .null : .pair(.pair(self.symbol("title"),
+                                                                 .pair(.makeString(title!), .null)),
+                                                           .null)
+        return .pair(self.symbol("a"),
+                     .pair(.pair(self.symbol("@"),
+                                 .pair(.pair(self.symbol("href"),
+                                             .pair(.makeString(uri ?? ""), .null)),
+                                       titleAttr)),
+                           .pair(self.generate(text: text), .null)))
+      case .autolink(let type, let str):
+        switch type {
+          case .uri:
+            return .pair(self.symbol("a"),
+                         .pair(.pair(self.symbol("@"),
+                                     .pair(.pair(self.symbol("href"),
+                                                 .pair(.makeString(String(str)), .null)),
+                                           .null)),
+                               .pair(.makeString(String(str)), .null)))
+          case .email:
+            return .pair(self.symbol("a"),
+                         .pair(.pair(self.symbol("@"),
+                                     .pair(.pair(self.symbol("href"),
+                                                 .pair(.makeString("mailto:" + str), .null)),
+                                           .null)),
+                               .pair(.makeString(String(str)), .null)))
+        }
+      case .image(let text, let uri, let title):
+        if let uri = uri {
+          var attr: [String : Expr]  = [
+            "src" : .makeString(uri),
+            "alt" : .makeString(text.rawDescription)
+          ]
+          if let title {
+            attr["title"] = .makeString(title)
+          }
+          return .pair(self.symbol("img"), .pair(self.attribs(attr), .null))
+        } else {
+          return self.generate(text: text)
+        }
+      case .html(let tag):
+        return .pair(self.symbol("@raw"), .pair(.makeString("<\(tag.description)>"), .null))
+      case .delimiter(let ch, let n, _):
+        var res = String(ch)
+        for _ in 1..<n {
+          res.append(ch)
+        }
+        return .makeString(res)
+      case .softLineBreak:
+        return .makeString("\n")
+      case .hardLineBreak:
+        return .pair(self.symbol("br"), .null)
+      case .custom(let customTextFragment):
+        return .pair(self.symbol("@raw"),
+                     .pair(.makeString(customTextFragment.generateHtml(via: HtmlGenerator.standard)),
+                           .null))
+    }
+  }
+
+  open func generate(lines: Lines, separator: String = "\n") -> String {
+    var res = ""
+    for line in lines {
+      if res.isEmpty {
+        res = String(line)
+      } else {
+        res += separator + line
+      }
+    }
+    return res
   }
 }
