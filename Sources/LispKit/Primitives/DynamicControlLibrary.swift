@@ -103,6 +103,7 @@ public final class DynamicControlLibrary: NativeLibrary {
     self.define(Procedure("error-object-message", errorObjectMessage))
     self.define(Procedure("error-object-irritants", errorObjectIrritants))
     self.define(Procedure("error-object-stacktrace", errorObjectStackTrace))
+    self.define(Procedure("error-object->string", errorObjectToString))
     self.define(Procedure("error-object?", isErrorObject))
     self.define(Procedure("read-error?", isReadError))
     self.define(Procedure("file-error?", isFileError))
@@ -410,10 +411,14 @@ public final class DynamicControlLibrary: NativeLibrary {
     }
   }
   
-  private func errorObjectMessage(expr: Expr) throws -> Expr {
+  private func errorObjectMessage(expr: Expr, raw: Expr?) throws -> Expr {
     switch expr {
       case .error(let err):
-        return .makeString(err.message)
+        if raw?.isTrue ?? false {
+          return .makeString(err.descriptor.messageTemplate)
+        } else {
+          return .makeString(err.message)
+        }
       default:
         throw RuntimeError.type(expr, expected: [.errorType])
     }
@@ -439,6 +444,25 @@ public final class DynamicControlLibrary: NativeLibrary {
           res = .pair(.procedure(proc), res)
         }
         return res
+      default:
+        throw RuntimeError.type(expr, expected: [.errorType])
+    }
+  }
+  
+  private func errorObjectToString(expr: Expr, expanded: Expr?) throws -> Expr {
+    switch expr {
+      case .error(let err):
+        if let expanded {
+          if expanded.isFalse {
+            return .makeString(err.inlineDescription)
+          } else if case .symbol(let sym) = expanded, sym.identifier == "printable" {
+            return .makeString(err.printableDescription(context: self.context))
+          } else {
+            return .makeString(err.description)
+          }
+        } else {
+          return .makeString(err.inlineDescription)
+        }
       default:
         throw RuntimeError.type(expr, expected: [.errorType])
     }

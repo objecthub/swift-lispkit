@@ -43,6 +43,20 @@ public final class HTTPServerLibrary: NativeLibrary {
 
   /// Dependencies of the library.
   public override func dependencies() {
+    self.`import`(from: ["lispkit", "core"], "define", "lambda", "case-lambda", "or", "quote",
+                                             "not")
+    self.`import`(from: ["lispkit", "control"], "let-optionals", "cond", "do", "if")
+    self.`import`(from: ["lispkit", "dynamic"], "try", "error-object->string")
+    self.`import`(from: ["lispkit", "thread"], "current-thread", "make-thread", "thread-yield!",
+                                               "thread-start!")
+    self.`import`(from: ["lispkit", "thread", "shared-queue"], "shared-queue-dequeue/wait!")
+    self.`import`(from: ["lispkit", "string"], "string-append")
+    self.`import`(from: ["lispkit", "math"], "+", "-", ">=", "number->string")
+    self.`import`(from: ["lispkit", "list"], "pair?", "cons", "car", "cdr", "fold-left")
+    self.`import`(from: ["lispkit", "sxml"], "sxml->html")
+    self.`import`(from: ["lispkit", "markdown"], "markdown?", "markdown->html",
+                                                 "markdown-block?", "markdown-blocks?", "blocks->html",
+                                                 "markdown-inline?", "markdown-text?", "text->html")
   }
 
   /// Declarations of the library.
@@ -54,16 +68,23 @@ public final class HTTPServerLibrary: NativeLibrary {
     self.define(Procedure("http-server-open-connections", self.httpServerOpenConnections))
     self.define(Procedure("http-server-routes", self.httpServerRoutes))
     self.define(Procedure("http-server-handlers", self.httpServerHandlers))
-    self.define(Procedure("http-server-request-queue", self.httpServerRequestQueue))
     self.define(Procedure("http-server-log-severity", self.httpServerLogSeverity))
     self.define(Procedure("http-server-log-severity-set!", self.httpServerLogSeveritySet))
     self.define(Procedure("http-server-timeout", self.httpServerTimeout))
     self.define(Procedure("http-server-timeout-set!", self.httpServerTimeoutSet))
+    self.define(Procedure("http-server-num-workers", self.httpServerNumWorkers))
+    self.define(Procedure("http-server-log", self.httpServerLog))
     self.define(Procedure("http-server-register!", self.httpServerRegister))
     self.define(Procedure("http-server-register-default!", self.httpServerRegisterDefault))
-    self.define(Procedure("http-server-start!", self.httpServerStart))
+    self.define(Procedure("_http-server-start!", self.httpServerStart), export: false)
     self.define(Procedure("http-server-stop!", self.httpServerStop))
+    self.define(Procedure("_http-server-reset!", self.httpServerReset), export: false)
+    self.define(Procedure("_http-server-attach-worker!", self.httpServerAttachWorker), export: false)
+    self.define(Procedure("_http-server-remove-worker!", self.httpServerRemoveWorker), export: false)
+    self.define(Procedure("http-server-register-middleware!", self.httpServerRegisterMiddleware))
+    self.define(Procedure("_http-server-middleware", self.httpServerMiddleware), export: false)
     self.define(Procedure("srv-request?", self.isSrvRequest))
+    self.define(Procedure("srv-request-server", self.serverRequestServer))
     self.define(Procedure("srv-request-method", self.serverRequestMethod))
     self.define(Procedure("srv-request-path", self.serverRequestPath))
     self.define(Procedure("srv-request-query-param-ref", self.serverRequestQueryParamRef))
@@ -81,8 +102,7 @@ public final class HTTPServerLibrary: NativeLibrary {
     self.define(Procedure("srv-request-form-attributes", self.serverRequestFormAttributes))
     self.define(Procedure("srv-request-address", self.serverRequestAddress))
     self.define(Procedure("srv-request-address", self.serverRequestAddress))
-    self.define(Procedure("srv-request-log", self.serverRequestLog))
-    self.define(Procedure("srv-request-send-response", self.serverRequestSendResponse))
+    self.define(Procedure("_srv-request-send-response", self.serverRequestSendResponse), export: false)
     self.define(Procedure("srv-response?", self.isSrvResponse))
     self.define(Procedure("make-srv-response", self.makeSrvResponse))
     self.define(Procedure("srv-response-status-code", self.srvResponseStatusCode))
@@ -91,8 +111,66 @@ public final class HTTPServerLibrary: NativeLibrary {
     self.define(Procedure("srv-response-header", self.srvResponseHeader))
     self.define(Procedure("srv-response-header-set!", self.srvResponseHeaderSet))
     self.define(Procedure("srv-response-header-remove!", self.srvResponseHeaderRemove))
-    self.define(Procedure("srv-response-body-set!", self.srvResponseBodySet))
+    self.define(Procedure("_srv-response-body-set!", self.srvResponseBodySet), export: false)
     self.define(Procedure("srv-response-body-html-set!", self.srvResponseBodyHtmlSet))
+    self.define("srv-response-body-set!", via:
+      "(define (srv-response-body-set! resp body . args)",
+      "  (let-optionals args ((last #f))",
+      "    (cond ((markdown? body)",
+      "            (srv-response-body-html-set! resp (markdown->html body) last))",
+      "          ((or (markdown-block? body) (markdown-blocks? body))",
+      "            (srv-response-body-html-set! resp (blocks->html body) last))",
+      "          ((or (markdown-inline? body) (markdown-text? body))",
+      "            (srv-response-body-html-set! resp (text->html body) last))",
+      "          ((pair? body)",
+      "            (srv-response-body-html-set! resp (sxml->html body) last))",
+      "          (else",
+      "            (_srv-response-body-set! resp body last)))))")
+    self.define("_make-worker", via:
+      "(define (_make-worker server queue name)",
+      "  (lambda ()",
+      "    (http-server-log server 0 \"worker\" \"started \" name \"/\" (http-server-num-workers server))",
+      "    (_http-server-attach-worker! server (current-thread))",
+      "    (do ((next (shared-queue-dequeue/wait! queue) (shared-queue-dequeue/wait! queue)))",
+      "        ((not next))",
+      "      (http-server-log server 0 \"worker\" name \" received request\")",
+      "      (do ((con next",
+      "             (_srv-request-send-response",
+      "               (cdr con)",
+      "               (try (lambda ()",
+      "                      (or (fold-left (lambda (z x) (or z (x (cdr con)))) #f",
+      "                            (_http-server-middleware server))",
+      "                          ((car con) (cdr con))))",
+      "                    (lambda (e)",
+      "                      (http-server-log server 3 \"worker/err\" name \" handling: \"",
+      "                        (srv-request-method (cdr con)) \" \" (srv-request-path (cdr con))",
+      "                        \"\\n\" (error-object->string e 'printable))",
+      "                      (make-srv-response 500 #f",
+      "                        (string-append \"request handler: \" (error-object->string e 'printable)))))",
+      "               #f)))",
+      "          ((not con))",
+      "        (http-server-log server 0 \"worker\" name \": \"",
+      "          (srv-request-method (cdr con)) \" \" (srv-request-path (cdr con))))",
+      "      (http-server-log server 0 \"worker\" name \" listening\"))",
+      "    (_http-server-remove-worker! server (current-thread))",
+      "    (http-server-log server 0 \"worker\" \"closed \" name \"/\" (http-server-num-workers server))))")
+    self.define("http-server-start!", via:
+      "(define http-server-start!",
+      "  (case-lambda",
+      "    ((server port)",
+      "      (http-server-start! server port #f))",
+      "    ((server port forceIPv4)",
+      "      (http-server-start! server port forceIPv4 3))",
+      "    ((server port forceIPv4 num)",
+      "      (http-server-start! server port forceIPv4 num \"worker \"))",
+      "    ((server port forceIPv4 num prefix)",
+      "      (do ((queue (_http-server-reset! server))",
+      "           (i 0 (+ i 1)))",
+      "          ((>= i num))",
+      "        (thread-start! (make-thread",
+      "          (_make-worker server queue (string-append prefix (number->string i))))))",
+      "      (_http-server-start! server port forceIPv4)",
+      "      (thread-yield!))))")
   }
   
   /// Initializations of the library.
@@ -130,9 +208,10 @@ public final class HTTPServerLibrary: NativeLibrary {
   // HTTP server functionality
   
   private func makeHttpServer(maxLength: Expr?, logging: Expr?) throws -> Expr {
+    let length = maxLength == nil ?
+                   10 : (maxLength!.isFalse ? 10 : try maxLength!.asInt(above: 2, below: 1000))
     return .object(HTTPServer(context: self.context,
-                              queueLength: try maxLength?.asInt(above: 2, below: 1000) ?? 10,
-                              queueCapacity: nil,
+                              queueLength: length,
                               requestEnteringTimeout: 2.0,
                               minLogSeverity: try logging?.asInt(above: 0, below: 6) ?? 1))
   }
@@ -171,8 +250,8 @@ public final class HTTPServerLibrary: NativeLibrary {
     return .makeList(try self.httpServer(from: expr).handlers.exprs)
   }
   
-  private func httpServerRequestQueue(expr: Expr) throws -> Expr {
-    return .object(try self.httpServer(from: expr).queue)
+  private func httpServerReset(expr: Expr) throws -> Expr {
+    return .object(try self.httpServer(from: expr).resetIfNeeded(in: self.context))
   }
   
   private func httpServerLogSeverity(expr: Expr) throws -> Expr {
@@ -190,6 +269,17 @@ public final class HTTPServerLibrary: NativeLibrary {
   
   private func httpServerTimeoutSet(expr: Expr, value: Expr) throws -> Expr {
     try self.httpServer(from: expr).requestEnteringTimeout = try value.asDouble(coerce: true)
+    return .void
+  }
+  
+  private func httpServerLog(expr: Expr, level: Expr, tag: Expr, args: Arguments) throws -> Expr {
+    let server = try self.httpServer(from: expr)
+    let tag = tag.isFalse ? nil : try tag.asString()
+    var str = ""
+    for arg in args {
+      str = str + arg.unescapedDescription
+    }
+    server.log(level: try level.asInt(above: 0, below: 6), tag: tag, str)
     return .void
   }
   
@@ -216,9 +306,45 @@ public final class HTTPServerLibrary: NativeLibrary {
     return .void
   }
   
-  private func httpServerStop(expr: Expr) throws -> Expr {
-    try self.httpServer(from: expr).stop()
+  private func httpServerStop(expr: Expr, force: Expr?) throws -> Expr {
+    let server = try self.httpServer(from: expr)
+    server.stop()
+    if force?.isTrue ?? false {
+      try server.queue.abort(in: self.context)
+    } else {
+      try server.queue.close(in: self.context)
+    }
     return .void
+  }
+  
+  private func httpServerNumWorkers(expr: Expr) throws -> Expr {
+    return .makeNumber(try self.httpServer(from: expr).numWorkers)
+  }
+  
+  private func httpServerAttachWorker(expr: Expr, worker: Expr) throws -> Expr {
+    guard case .object(let obj) = worker, let thread = obj as? NativeThread else {
+      throw RuntimeError.type(worker, expected: [NativeThread.type])
+    }
+    try self.httpServer(from: expr).register(worker: thread)
+    return .void
+  }
+  
+  private func httpServerRemoveWorker(expr: Expr, worker: Expr) throws -> Expr {
+    guard case .object(let obj) = worker, let thread = obj as? NativeThread else {
+      throw RuntimeError.type(worker, expected: [NativeThread.type])
+    }
+    try self.httpServer(from: expr).remove(worker: thread)
+    return .void
+  }
+  
+  private func httpServerRegisterMiddleware(expr: Expr, processor: Expr) throws -> Expr {
+    let proc = try processor.asProcedure()
+    try self.httpServer(from: expr).register(middlewareHandler: .procedure(proc))
+    return .void
+  }
+  
+  private func httpServerMiddleware(expr: Expr) throws -> Expr {
+    return .makeList(try self.httpServer(from: expr).middlewareHandlers.exprs)
   }
   
   // HTTP server request functionality
@@ -228,6 +354,14 @@ public final class HTTPServerLibrary: NativeLibrary {
       return .false
     }
     return .true
+  }
+  
+  private func serverRequestServer(expr: Expr) throws -> Expr {
+    guard let obj = try self.httpServerRequest(from: expr).connection.server,
+          let server = obj as? HTTPServer else {
+      return .false
+    }
+    return .object(server)
   }
   
   private func serverRequestMethod(expr: Expr) throws -> Expr {
@@ -345,18 +479,6 @@ public final class HTTPServerLibrary: NativeLibrary {
       return .false
     }
     return .makeString(str)
-  }
-  
-  private func serverRequestLog(expr: Expr, level: Expr, args: Arguments) throws -> Expr {
-    let request = try self.httpServerRequest(from: expr)
-    if let x = request.connection.server, let server = x as? HTTPServer {
-      var str = ""
-      for arg in args {
-        str = try str + arg.asString()
-      }
-      server.log(level: try level.asInt(above: 0, below: 6), str)
-    }
-    return .void
   }
   
   private func serverRequestSendResponse(expr: Expr,
@@ -561,29 +683,35 @@ open class HTTPServer: NanoHTTPServer, CustomExpr {
   public static let type = Type.objectType(Symbol(uninterned: "http-server"))
   
   public weak var context: Context?
-  public let queue: SharedQueue
+  public let lock: NSLock
+  public private(set) var queue: SharedQueue
   public let handlers: Collection
+  public let middlewareHandlers: Collection
+  public let workers: Collection
   public var requestEnteringTimeout: TimeInterval
   public var minLogSeverity: Int // 0 = debug, 1 = info, 2 = warn, 3 = err, 4 = fatal
   
   public init(context: Context,
               queueLength: Int,
-              queueCapacity: Int? = nil,
               requestEnteringTimeout: TimeInterval = 2.0,
               minLogSeverity: Int = 1) {
     self.context = context
-    self.queue = SharedQueue(external: true, maxLength: queueLength, capacity: queueCapacity)
+    self.lock = NSLock()
+    self.queue = SharedQueue(external: true, maxLength: queueLength)
     self.handlers = Collection(kind: .growableVector)
+    self.middlewareHandlers = Collection(kind: .growableVector)
+    self.workers = Collection(kind: .growableVector)
     self.requestEnteringTimeout = requestEnteringTimeout
     self.minLogSeverity = minLogSeverity
     context.objects.manage(self.handlers)
+    context.objects.manage(self.workers)
     super.init()
     self.setUpMiddleware()
   }
   
   open func setUpMiddleware() {
     self.middleware.append { [weak self] request in
-      self?.log(level: 1, "\(request.address ?? "?") -> \(request.method) \(request.path)")
+      self?.log(level: 1, tag: "req", "\(request.method) \(request.path) (\(request.address ?? "?"))")
       return nil
     }
   }
@@ -608,9 +736,9 @@ open class HTTPServer: NanoHTTPServer, CustomExpr {
   
   open override func listen(priority: DispatchQoS.QoSClass?) {
     let port = (try? self.port()) ?? -1
-    self.log(level: 1, "http server started for port \(port)")
+    self.log(level: 1, tag: "server", "server started for port \(port)")
     super.listen(priority: priority)
-    self.log(level: 1, "http server stopped for port \(port)")
+    self.log(level: 1, tag: "server", "server stopped for port \(port)")
   }
   
   open override func handle(connection: NanoHTTPConnection) {
@@ -640,14 +768,86 @@ open class HTTPServer: NanoHTTPServer, CustomExpr {
     _ = connection.send(response, dontKeepAlive: true)
   }
   
-  open func log(level: Int, _ str: String) {
+  open func log(level: Int, tag: String? = nil, _ str: String) {
+    let tag = tag == nil ? "http" : "http/\(tag!)"
     if level >= self.minLogSeverity {
-      self.log(str + "\n")
+      self.context?.delegate?.print("[\(tag)] \(str)\n")
     }
   }
   
   open override func log(_ str: String) {
-    self.context?.delegate?.print(str)
+    self.log(level: 3, tag: "server", str)
+  }
+  
+  public var numWorkers: Int {
+    self.lock.lock()
+    defer {
+      self.lock.unlock()
+    }
+    return self.workers.exprs.count
+  }
+  
+  open func register(worker: NativeThread) throws {
+    self.lock.lock()
+    defer {
+      self.lock.unlock()
+    }
+    for expr in self.workers.exprs {
+      guard case .object(let obj) = expr, let thread = obj as? NativeThread else {
+        continue
+      }
+      if thread === worker {
+        return
+      }
+    }
+    self.workers.exprs.append(.object(worker))
+  }
+  
+  open func remove(worker: NativeThread) throws {
+    self.lock.lock()
+    defer {
+      self.lock.unlock()
+    }
+    self.workers.exprs.removeAll { expr in
+      guard case .object(let obj) = expr, let thread = obj as? NativeThread else {
+        return false
+      }
+      return thread === worker
+    }
+  }
+  
+  open func register(middlewareHandler handler: Expr) throws {
+    self.lock.lock()
+    defer {
+      self.lock.unlock()
+    }
+    self.middlewareHandlers.exprs.append(handler)
+  }
+  
+  open var middlewareHandlerSequence: Exprs {
+    self.lock.lock()
+    defer {
+      self.lock.unlock()
+    }
+    return self.middlewareHandlers.exprs
+  }
+  
+  open func resetIfNeeded(in context: Context) throws -> SharedQueue {
+    self.lock.lock()
+    defer {
+      self.lock.unlock()
+    }
+    if try self.queue.isClosed(in: context) {
+      self.queue = SharedQueue(external: true, maxLength: self.queue.maxLength)
+    }
+    for expr in self.workers.exprs {
+      guard case .object(let obj) = expr, let thread = obj as? NativeThread else {
+        continue
+      }
+      _ = thread.value.abort()
+    }
+    self.workers.exprs.removeAll()
+    return self.queue
   }
   
   public var type: Type {
@@ -690,6 +890,8 @@ open class HTTPServer: NanoHTTPServer, CustomExpr {
   public func mark(in gc: GarbageCollector) {
     self.queue.mark(in: gc)
     gc.mark(self.handlers)
+    gc.mark(self.middlewareHandlers)
+    gc.mark(self.workers)
   }
   
   public func unpack(in context: Context) -> Exprs {
@@ -708,18 +910,15 @@ open class HTTPServer: NanoHTTPServer, CustomExpr {
 public protocol HTTPServerConfig {
   func createServer(context: Context,
                     queueLength: Int,
-                    queueCapacity: Int?,
                     requestEnteringTimeout: TimeInterval) -> HTTPServer
 }
 
 public struct LispKitHTTPServerConfig: HTTPServerConfig {
   public func createServer(context: Context,
                            queueLength: Int,
-                           queueCapacity: Int?,
                            requestEnteringTimeout: TimeInterval) -> HTTPServer {
     return HTTPServer(context: context,
                       queueLength: queueLength,
-                      queueCapacity: queueCapacity,
                       requestEnteringTimeout: requestEnteringTimeout)
   }
 }

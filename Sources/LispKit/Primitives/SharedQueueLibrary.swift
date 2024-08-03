@@ -60,6 +60,7 @@ public final class SharedQueueLibrary: NativeLibrary {
     self.define(Procedure("shared-queue-dequeue/wait!", self.sharedQueueDequeueWait))
     self.define(Procedure("shared-queue-push/wait!", self.sharedQueuePushWait))
     self.define(Procedure("shared-queue-pop/wait!", self.sharedQueuePopWait))
+    self.define(Procedure("shared-queue-close!", self.sharedQueueClose))
   }
   
   private func sharedQueue(from expr: Expr) throws -> SharedQueue {
@@ -92,9 +93,10 @@ public final class SharedQueueLibrary: NativeLibrary {
                             maxLength: maxLength,
                             capacity: try capacity?.asInt(above: 2, below: 100000))
     var list = expr
+    var exprs: Exprs = []
     while case .pair(let car, let cdr) = list {
-      if queue.queue.exprs.count < (maxLength ?? Int.max) {
-        queue.queue.exprs.append(car)
+      if exprs.count < (maxLength ?? Int.max) {
+        exprs.append(car)
       } else {
         throw RuntimeError.eval(.insertIntoMaxQueue, car, .object(queue))
       }
@@ -103,6 +105,12 @@ public final class SharedQueueLibrary: NativeLibrary {
     guard case .null = list else {
       throw RuntimeError.type(expr, expected: [.properListType])
     }
+    _ = try queue.enqueue(in: self.context,
+                          values: exprs,
+                          timeout: nil,
+                          push: false,
+                          wait: false,
+                          close: false)
     return .object(queue)
   }
   
@@ -165,7 +173,7 @@ public final class SharedQueueLibrary: NativeLibrary {
                    timeout: nil,
                    wait: false,
                    close: false,
-                   callback: { $0.queue.exprs.removeLast() }) ?? fallback {
+                   callback: { $0.exprs.removeLast() }) ?? fallback {
       return res
     }
     throw RuntimeError.eval(.queueIsEmpty, expr)
@@ -178,8 +186,8 @@ public final class SharedQueueLibrary: NativeLibrary {
                  wait: false,
                  close: false,
                  callback: {
-                   let res = Expr.makeList(fromStack: Array($0.queue.exprs))
-                   $0.queue.exprs.removeAll(keepingCapacity: false)
+                   let res = Expr.makeList(fromStack: Array($0.exprs))
+                   $0.exprs.removeAll(keepingCapacity: false)
                    return res
                  }) ?? .null
   }
@@ -202,7 +210,7 @@ public final class SharedQueueLibrary: NativeLibrary {
                    timeout: nil,
                    wait: false,
                    close: false,
-                   callback: { $0.queue.exprs.removeLast() }) ?? fallback {
+                   callback: { $0.exprs.removeLast() }) ?? fallback {
       return res
     }
     throw RuntimeError.eval(.queueIsEmpty, expr)
@@ -241,7 +249,7 @@ public final class SharedQueueLibrary: NativeLibrary {
                    timeout: timeo,
                    wait: true,
                    close: close.isTrue,
-                   callback: { $0.queue.exprs.removeLast() }) ?? fallback
+                   callback: { $0.exprs.removeLast() }) ?? fallback
   }
   
   private func sharedQueuePushWait(expr: Expr, obj: Expr, args: Arguments) throws -> Expr {
@@ -277,7 +285,17 @@ public final class SharedQueueLibrary: NativeLibrary {
                    timeout: timeo,
                    wait: true,
                    close: close.isTrue,
-                   callback: { $0.queue.exprs.removeLast() }) ?? fallback
+                   callback: { $0.exprs.removeLast() }) ?? fallback
+  }
+  
+  private func sharedQueueClose(expr: Expr, force: Expr?) throws -> Expr {
+    let queue = try self.sharedQueue(from: expr)
+    if force?.isTrue ?? false {
+      try queue.abort(in: self.context)
+    } else {
+      try queue.close(in: self.context)
+    }
+    return .void
   }
 }
 
@@ -288,9 +306,10 @@ public final class SharedQueue: NativeObject {
   
   /// Condition to protect the result
   private let sync: FutureSync
+  private let lock: NSLock
   
   /// The actual queue as a collection
-  public var queue: Collection
+  private let queue: Collection
   
   /// The maximum length of the queue
   public var maxLength: Int
@@ -313,6 +332,7 @@ public final class SharedQueue: NativeObject {
   public init(external: Bool, maxLength: Int? = nil, capacity: Int? = nil) {
     self.sync = external ? .external(mutex: EvalMutex(), condition: EvalCondition())
                          : .internal(condition: NSCondition())
+    self.lock = NSLock()
     self.queue = Collection(kind: .growableVector)
     self.maxLength = (maxLength ?? Int.max) < 0 ? 0 : (maxLength ?? Int.max)
     self.parked = [:]
@@ -328,7 +348,9 @@ public final class SharedQueue: NativeObject {
   
   public func copy(in context: Context) throws -> SharedQueue {
     try self.sync.lock(in: context)
+    self.lock.lock()
     defer {
+      self.lock.unlock()
       try? self.sync.unlock(in: context)
     }
     let res = SharedQueue(external: true,
@@ -340,7 +362,9 @@ public final class SharedQueue: NativeObject {
   
   public func isClosed(in context: Context) throws -> Bool {
     try self.sync.lock(in: context)
+    self.lock.lock()
     defer {
+      self.lock.unlock()
       try? self.sync.unlock(in: context)
     }
     return self.closed
@@ -348,7 +372,9 @@ public final class SharedQueue: NativeObject {
   
   public func isAborted(in context: Context) throws -> Bool {
     try self.sync.lock(in: context)
+    self.lock.lock()
     defer {
+      self.lock.unlock()
       try? self.sync.unlock(in: context)
     }
     return self.aborted
@@ -359,16 +385,35 @@ public final class SharedQueue: NativeObject {
     defer {
       try? self.sync.unlock(in: context)
     }
+    self.lock.lock()
     guard !self.aborted else {
       return
     }
     self.aborted = true
+    self.lock.unlock()
+    self.sync.broadcast()
+  }
+  
+  public func close(in context: Context) throws {
+    try self.sync.lock(in: context)
+    defer {
+      try? self.sync.unlock(in: context)
+    }
+    self.lock.lock()
+    guard !self.aborted else {
+      self.lock.unlock()
+      return
+    }
+    self.closed = true
+    self.lock.unlock()
     self.sync.broadcast()
   }
   
   public func isEmpty(in context: Context) throws -> Bool {
     try self.sync.lock(in: context)
+    self.lock.lock()
     defer {
+      self.lock.unlock()
       try? self.sync.unlock(in: context)
     }
     return self.queue.exprs.isEmpty
@@ -376,7 +421,9 @@ public final class SharedQueue: NativeObject {
   
   public func length(in context: Context) throws -> Int {
     try self.sync.lock(in: context)
+    self.lock.lock()
     defer {
+      self.lock.unlock()
       try? self.sync.unlock(in: context)
     }
     return self.queue.exprs.count
@@ -384,7 +431,9 @@ public final class SharedQueue: NativeObject {
   
   public func roomLeft(in context: Context) throws -> Int {
     try self.sync.lock(in: context)
+    self.lock.lock()
     defer {
+      self.lock.unlock()
       try? self.sync.unlock(in: context)
     }
     return self.maxLength - self.queue.exprs.count
@@ -392,7 +441,9 @@ public final class SharedQueue: NativeObject {
   
   public func front(in context: Context) throws -> Expr? {
     try self.sync.lock(in: context)
+    self.lock.lock()
     defer {
+      self.lock.unlock()
       try? self.sync.unlock(in: context)
     }
     return self.queue.exprs.last
@@ -400,7 +451,9 @@ public final class SharedQueue: NativeObject {
   
   public func rear(in context: Context) throws -> Expr? {
     try self.sync.lock(in: context)
+    self.lock.lock()
     defer {
+      self.lock.unlock()
       try? self.sync.unlock(in: context)
     }
     return self.queue.exprs.first
@@ -408,7 +461,9 @@ public final class SharedQueue: NativeObject {
   
   public func waiting(in context: Context) throws -> (readers: Int, writers: Int) {
     try self.sync.lock(in: context)
+    self.lock.lock()
     defer {
+      self.lock.unlock()
       try? self.sync.unlock(in: context)
     }
     return (readers: self.waitingReaders, writers: self.waitingWriters)
@@ -416,7 +471,9 @@ public final class SharedQueue: NativeObject {
   
   public func toList(in context: Context) throws -> Expr {
     try self.sync.lock(in: context)
+    self.lock.lock()
     defer {
+      self.lock.unlock()
       try? self.sync.unlock(in: context)
     }
     return .makeList(fromStack: Array(self.queue.exprs))
@@ -432,6 +489,7 @@ public final class SharedQueue: NativeObject {
     defer {
       try? self.sync.unlock(in: context)
     }
+    self.lock.lock()
     if wait && !self.aborted && !self.closed {
       var index = self.nextParkingId
       for value in values {
@@ -453,14 +511,18 @@ public final class SharedQueue: NativeObject {
               !context.evaluator.isAbortionRequested() {
         let remaining = self.remainingTimeout(target: target)
         if remaining == nil || remaining! > 0 {
+          self.lock.unlock()
           try self.sync.wait(in: context, timeout: remaining)
+          self.lock.lock()
         }
       }
     }
     if self.closed || self.aborted {
+      self.lock.unlock()
       throw RuntimeError.eval(.insertIntoClosedQueue, .makeList(values), .object(self))
     } else if self.queue.exprs.count + values.count > self.maxLength ||
                 context.evaluator.isAbortionRequested() {
+      self.lock.unlock()
       return false
     }
     // Guarantee that the referenced cell is managed by a managed object pool if needed
@@ -476,6 +538,7 @@ public final class SharedQueue: NativeObject {
     if close {
       self.closed = true
     }
+    self.lock.unlock()
     self.sync.broadcast()
     return true
   }
@@ -484,11 +547,12 @@ public final class SharedQueue: NativeObject {
                          timeout: TimeInterval? = nil,
                          wait: Bool = false,
                          close: Bool = false,
-                         callback: (SharedQueue) -> T) throws -> T? {
+                         callback: (Collection) -> T) throws -> T? {
     try self.sync.lock(in: context)
     defer {
       try? self.sync.unlock(in: context)
     }
+    self.lock.lock()
     if wait && !self.aborted {
       self.waitingReaders += 1
       defer {
@@ -502,19 +566,24 @@ public final class SharedQueue: NativeObject {
               !context.evaluator.isAbortionRequested() {
         let remaining = self.remainingTimeout(target: target)
         if remaining == nil || remaining! > 0 {
+          self.lock.unlock()
           try self.sync.wait(in: context, timeout: remaining)
+          self.lock.lock()
         }
       }
     }
     if self.queue.exprs.isEmpty || self.aborted || context.evaluator.isAbortionRequested() {
+      self.lock.unlock()
       return nil
+    } else {
+      let result = callback(self.queue)
+      if close {
+        self.closed = true
+      }
+      self.lock.unlock()
+      self.sync.broadcast()
+      return result
     }
-    let result = callback(self)
-    if close {
-      self.closed = true
-    }
-    self.sync.broadcast()
-    return result
   }
   
   public override var type: Type {
@@ -526,6 +595,10 @@ public final class SharedQueue: NativeObject {
   }
   
   public override var tagString: String {
+    self.lock.lock()
+    defer {
+      self.lock.unlock()
+    }
     var res = "\(Self.type) \(self.identityString)"
     var sep = ": "
     for i in 0..<min(self.queue.exprs.count, 10) {
@@ -547,6 +620,10 @@ public final class SharedQueue: NativeObject {
   }
   
   public override func unpack(in context: Context) -> Exprs {
+    self.lock.lock()
+    defer {
+      self.lock.unlock()
+    }
     var res: Exprs = [.makeString(identityString)]
     for i in 0..<min(self.queue.exprs.count, 10) {
       res.append(self.queue.exprs[i])
