@@ -22,7 +22,7 @@ import Foundation
 import MarkdownKit
 
 public final class MarkdownLibrary: NativeLibrary {
-
+  
   // Type tags
   
   private let blockTypeTag = Symbol(uninterned: "block")
@@ -44,11 +44,11 @@ public final class MarkdownLibrary: NativeLibrary {
   private let thematicBreak: Symbol
   private let table: Symbol
   private let definitionList: Symbol
-
+  
   public let listItemType: Expr
   private let bullet: Symbol
   private let ordered: Symbol
-
+  
   public let inlineType: Expr
   private let text: Symbol
   private let code: Symbol
@@ -99,16 +99,16 @@ public final class MarkdownLibrary: NativeLibrary {
     self.center = context.symbols.intern("c")
     try super.init(in: context)
   }
-
+  
   /// Name of the library.
   public override class var name: [String] {
     return ["lispkit", "markdown"]
   }
-
+  
   /// Dependencies of the library.
   public override func dependencies() {
   }
-
+  
   /// Declarations of the library.
   public override func declarations() {
     self.define("block-type-tag", as: .symbol(self.blockTypeTag))
@@ -150,21 +150,23 @@ public final class MarkdownLibrary: NativeLibrary {
     self.define(Procedure("markdown", markdown))
     self.define(Procedure("markdown?", isMarkdown))
     self.define(Procedure("markdown=?", markdownEquals))
+    self.define(Procedure("markdown->html-doc", markdownToHtmlDoc))
     self.define(Procedure("markdown->html", markdownToHtml))
     self.define(Procedure("markdown->sxml", markdownToSxml))
+    self.define(Procedure("markdown->raw-string", markdownToRawString))
     self.define(Procedure("blocks->html", blocksToHtml))
     self.define(Procedure("blocks->sxml", blocksToSxml))
+    self.define(Procedure("blocks->raw-string", blocksToRawString))
     self.define(Procedure("text->html", textToHtml))
     self.define(Procedure("text->sxml", textToSxml))
-    self.define(Procedure("markdown->html-doc", markdownToHtmlDoc))
     self.define(Procedure("text->string", textToString))
     self.define(Procedure("text->raw-string", textToRawString))
   }
-
+  
   private func makeCase(_ type: Expr, _ sym: Symbol, _ exprs: Expr...) -> Expr {
     return .tagged(type, .pair(.symbol(sym), .makeList(Exprs(exprs))))
   }
-
+  
   private func makeCase(_ type: Expr,
                         _ sym: Symbol,
                         _ n: Int,
@@ -182,7 +184,7 @@ public final class MarkdownLibrary: NativeLibrary {
     }
     return .tagged(type, .pair(.symbol(sym), .makeList(args)))
   }
-
+  
   private func checkBlocks(_ expr: Expr) throws {
     var list = expr
     while case .pair(let block, let rest) = list {
@@ -194,13 +196,13 @@ public final class MarkdownLibrary: NativeLibrary {
                                 "markdown block lists must be proper lists: \(expr)", [])
     }
   }
-
+  
   private func checkBlock(_ expr: Expr) throws {
     guard case .tagged(self.blockType, _) = expr else {
       throw RuntimeError.custom("type error", "expected value of type block; received \(expr)", [])
     }
   }
-
+  
   private func checkListItems(_ expr: Expr) throws {
     var list = expr
     while case .pair(let item, let rest) = list {
@@ -212,7 +214,7 @@ public final class MarkdownLibrary: NativeLibrary {
                                 "markdown list items must be proper lists: \(expr)", [])
     }
   }
-
+  
   private func checkListItem(_ expr: Expr) throws {
     guard case .tagged(self.listItemType, _) = expr else {
       throw RuntimeError.custom("type error",
@@ -242,20 +244,20 @@ public final class MarkdownLibrary: NativeLibrary {
   
   private func checkAlignments(_ expr: Expr) throws {
     var list = expr
-    outer: while case .pair(let alignment, let rest) = list {
-      if alignment.isTrue {
-        guard case .symbol(let sym) = alignment else {
-          break
-        }
-        switch sym {
-          case self.left, self.right, self.center:
-            break
-          default:
-            break outer
-        }
+  outer: while case .pair(let alignment, let rest) = list {
+    if alignment.isTrue {
+      guard case .symbol(let sym) = alignment else {
+        break
       }
-      list = rest
+      switch sym {
+        case self.left, self.right, self.center:
+          break
+        default:
+          break outer
+      }
     }
+    list = rest
+  }
     guard list.isNull else {
       throw RuntimeError.custom("type error",
                                 "not a valid list of markdown table column alignments: \(expr)", [])
@@ -295,10 +297,10 @@ public final class MarkdownLibrary: NativeLibrary {
     }
     guard list.isNull else {
       throw RuntimeError.custom("type error", "markdown text must be represented by a proper " +
-                                              "list of inline elements: \(expr)", [])
+                                "list of inline elements: \(expr)", [])
     }
   }
-
+  
   private func checkLines(_ expr: Expr) throws {
     var list = expr
     while case .pair(let line, let rest) = list {
@@ -309,10 +311,10 @@ public final class MarkdownLibrary: NativeLibrary {
     }
     guard list.isNull else {
       throw RuntimeError.custom("type error", "markdown text lines must be represented by a " +
-                                              "proper list of strings: \(expr)", [])
+                                "proper list of strings: \(expr)", [])
     }
   }
-
+  
   private func isMarkdownBlocks(_ expr: Expr) -> Expr {
     var list = expr
     while case .pair(.tagged(self.blockType, _), let rest) = list {
@@ -320,20 +322,20 @@ public final class MarkdownLibrary: NativeLibrary {
     }
     return .makeBoolean(list == .null)
   }
-
+  
   private func isMarkdownBlock(_ expr: Expr) -> Expr {
     guard case .tagged(self.blockType, _) = expr else {
       return .false
     }
     return .true
   }
-
+  
   private func markdownBlockEquals(_ lhs: Expr, _ rhs: Expr) throws -> Expr {
     let lhsMd = try self.internMarkdown(block: lhs)
     let rhsMd = try self.internMarkdown(block: rhs)
     return .makeBoolean(lhsMd == rhsMd)
   }
-
+  
   private func document(_ args: Arguments) throws -> Expr {
     let res = try self.makeCase(self.blockType, self.document, 1, args)
     guard case .tagged(_, _) = res else {
@@ -342,7 +344,7 @@ public final class MarkdownLibrary: NativeLibrary {
     try self.checkBlocks(args.first!)
     return res
   }
-
+  
   private func blockquote(_ args: Arguments) throws -> Expr {
     let res = try self.makeCase(self.blockType, self.blockquote, 1, args)
     guard case .tagged(_, _) = res else {
@@ -351,7 +353,7 @@ public final class MarkdownLibrary: NativeLibrary {
     try self.checkBlocks(args.first!)
     return res
   }
-
+  
   private func listItems(_ args: Arguments) throws -> Expr {
     let res = try self.makeCase(self.blockType, self.listItems, 3, args)
     guard case .tagged(_, _) = res else {
@@ -363,7 +365,7 @@ public final class MarkdownLibrary: NativeLibrary {
     try self.checkListItems(args[args.index(args.startIndex, offsetBy: 2)])
     return res
   }
-
+  
   private func paragraph(_ args: Arguments) throws -> Expr {
     let res = try self.makeCase(self.blockType, self.paragraph, 1, args)
     guard case .tagged(_, _) = res else {
@@ -372,7 +374,7 @@ public final class MarkdownLibrary: NativeLibrary {
     try self.checkText(args.first!)
     return res
   }
-
+  
   private func heading(_ args: Arguments) throws -> Expr {
     let res = try self.makeCase(self.blockType, self.heading, 2, args)
     guard case .tagged(_, _) = res else {
@@ -382,7 +384,7 @@ public final class MarkdownLibrary: NativeLibrary {
     try self.checkText(args[args.index(args.startIndex, offsetBy: 1)])
     return res
   }
-
+  
   private func indentedCode(_ args: Arguments) throws -> Expr {
     let res = try self.makeCase(self.blockType, self.indentedCode, 1, args)
     guard case .tagged(_, _) = res else {
@@ -391,7 +393,7 @@ public final class MarkdownLibrary: NativeLibrary {
     try self.checkLines(args.first!)
     return res
   }
-
+  
   private func fencedCode(_ args: Arguments) throws -> Expr {
     let res = try self.makeCase(self.blockType, self.fencedCode, 2, args)
     guard case .tagged(_, _) = res else {
@@ -403,7 +405,7 @@ public final class MarkdownLibrary: NativeLibrary {
     try self.checkLines(args[args.index(args.startIndex, offsetBy: 1)])
     return res
   }
-
+  
   private func htmlBlock(_ args: Arguments) throws -> Expr {
     let res = try self.makeCase(self.blockType, self.htmlBlock, 1, args)
     guard case .tagged(_, _) = res else {
@@ -412,7 +414,7 @@ public final class MarkdownLibrary: NativeLibrary {
     try self.checkLines(args.first!)
     return res
   }
-
+  
   private func referenceDef(_ args: Arguments) throws -> Expr {
     let res = try self.makeCase(self.blockType, self.referenceDef, 3, args)
     guard case .tagged(_, _) = res else {
@@ -423,7 +425,7 @@ public final class MarkdownLibrary: NativeLibrary {
     try self.checkLines(args[args.index(args.startIndex, offsetBy: 2)])
     return res
   }
-
+  
   private func thematicBreak(_ args: Arguments) throws -> Expr {
     return try self.makeCase(self.blockType, self.thematicBreak, 0, args)
   }
@@ -447,7 +449,7 @@ public final class MarkdownLibrary: NativeLibrary {
     try self.checkDefinitions(args.first!)
     return res
   }
-
+  
   private func isMarkdownList(_ expr: Expr) -> Expr {
     var list = expr
     while case .pair(.tagged(self.listItemType, _), let rest) = list {
@@ -455,20 +457,20 @@ public final class MarkdownLibrary: NativeLibrary {
     }
     return .makeBoolean(list == .null)
   }
-
+  
   private func isMarkdownListItem(_ expr: Expr) -> Expr {
     guard case .tagged(self.listItemType, _) = expr else {
       return .false
     }
     return .true
   }
-
+  
   private func markdownListItemEquals(_ lhs: Expr, _ rhs: Expr) throws -> Expr {
     let lhsMd = try self.internMarkdown(item: lhs)
     let rhsMd = try self.internMarkdown(item: rhs)
     return .makeBoolean(lhsMd == rhsMd)
   }
-
+  
   private func bullet(_ args: Arguments) throws -> Expr {
     let res = try self.makeCase(self.listItemType, self.bullet, 3, args)
     guard case .tagged(_, _) = res else {
@@ -478,7 +480,7 @@ public final class MarkdownLibrary: NativeLibrary {
     try self.checkBlocks(args[args.index(args.startIndex, offsetBy: 2)])
     return res
   }
-
+  
   private func ordered(_ args: Arguments) throws -> Expr {
     let res = try self.makeCase(self.listItemType, self.ordered, 4, args)
     guard case .tagged(_, _) = res else {
@@ -489,7 +491,7 @@ public final class MarkdownLibrary: NativeLibrary {
     try self.checkBlocks(args[args.index(args.startIndex, offsetBy: 3)])
     return res
   }
-
+  
   private func isMarkdownText(_ expr: Expr) -> Expr {
     var list = expr
     while case .pair(.tagged(self.inlineType, _), let rest) = list {
@@ -497,20 +499,20 @@ public final class MarkdownLibrary: NativeLibrary {
     }
     return .makeBoolean(list == .null)
   }
-
+  
   private func isMarkdownInline(_ expr: Expr) -> Expr {
     guard case .tagged(self.inlineType, _) = expr else {
       return .false
     }
     return .true
   }
-
+  
   private func markdownInlineEquals(_ lhs: Expr, _ rhs: Expr) throws -> Expr {
     let lhsMd = try self.internMarkdown(fragment: lhs)
     let rhsMd = try self.internMarkdown(fragment: rhs)
     return .makeBoolean(lhsMd == rhsMd)
   }
-
+  
   private func text(_ args: Arguments) throws -> Expr {
     let res = try self.makeCase(self.inlineType, self.text, 1, args)
     guard case .tagged(_, _) = res else {
@@ -519,7 +521,7 @@ public final class MarkdownLibrary: NativeLibrary {
     _ = try args.first?.asString()
     return res
   }
-
+  
   private func code(_ args: Arguments) throws -> Expr {
     let res = try self.makeCase(self.inlineType, self.code, 1, args)
     guard case .tagged(_, _) = res else {
@@ -528,7 +530,7 @@ public final class MarkdownLibrary: NativeLibrary {
     _ = try args.first?.asString()
     return res
   }
-
+  
   private func emph(_ args: Arguments) throws -> Expr {
     let res = try self.makeCase(self.inlineType, self.emph, 1, args)
     guard case .tagged(_, _) = res else {
@@ -537,7 +539,7 @@ public final class MarkdownLibrary: NativeLibrary {
     try self.checkText(args.first!)
     return res
   }
-
+  
   private func strong(_ args: Arguments) throws -> Expr {
     let res = try self.makeCase(self.inlineType, self.strong, 1, args)
     guard case .tagged(_, _) = res else {
@@ -546,8 +548,8 @@ public final class MarkdownLibrary: NativeLibrary {
     try self.checkText(args.first!)
     return res
   }
-
-
+  
+  
   private func link(_ args: Arguments) throws -> Expr {
     let res = try self.makeCase(self.inlineType, self.link, 3, args)
     guard case .tagged(_, _) = res else {
@@ -564,7 +566,7 @@ public final class MarkdownLibrary: NativeLibrary {
     }
     return res
   }
-
+  
   private func autoLink(_ args: Arguments) throws -> Expr {
     let res = try self.makeCase(self.inlineType, self.autoLink, 1, args)
     guard case .tagged(_, _) = res else {
@@ -573,7 +575,7 @@ public final class MarkdownLibrary: NativeLibrary {
     _ = try args.first?.asString()
     return res
   }
-
+  
   private func emailAutoLink(_ args: Arguments) throws -> Expr {
     let res = try self.makeCase(self.inlineType, self.emailAutoLink, 1, args)
     guard case .tagged(_, _) = res else {
@@ -582,7 +584,7 @@ public final class MarkdownLibrary: NativeLibrary {
     _ = try args.first?.asString()
     return res
   }
-
+  
   private func image(_ args: Arguments) throws -> Expr {
     let res = try self.makeCase(self.inlineType, self.image, 3, args)
     guard case .tagged(_, _) = res else {
@@ -599,7 +601,7 @@ public final class MarkdownLibrary: NativeLibrary {
     }
     return res
   }
-
+  
   private func html(_ args: Arguments) throws -> Expr {
     let res = try self.makeCase(self.inlineType, self.html, 1, args)
     guard case .tagged(_, _) = res else {
@@ -608,14 +610,14 @@ public final class MarkdownLibrary: NativeLibrary {
     _ = try args.first?.asString()
     return res
   }
-
+  
   private func lineBreak(_ args: Arguments) throws -> Expr {
     return try self.makeCase(self.inlineType, self.lineBreak, 1, args)
   }
-
+  
   private func markdown(_ str: Expr, _ extended: Expr?) throws -> Expr {
     let parser = (extended?.isTrue ?? false) ? ExtendedMarkdownParser.standard
-                                             : MarkdownParser.standard
+    : MarkdownParser.standard
     guard let res = self.externMarkdown(parser.parse(try str.asString())) else {
       return .false
     }
@@ -628,80 +630,11 @@ public final class MarkdownLibrary: NativeLibrary {
     }
     return (try? self.internMarkdown(block: expr)) == nil ? .false : .true
   }
-
+  
   private func markdownEquals(_ lhs: Expr, _ rhs: Expr) throws -> Expr {
     let lhsMd = try self.internMarkdown(block: lhs)
     let rhsMd = try self.internMarkdown(block: rhs)
     return .makeBoolean(lhsMd == rhsMd)
-  }
-
-  private func markdownToHtml(_ md: Expr) throws -> Expr {
-    return .makeString(HtmlGenerator.standard.generate(doc: try self.internMarkdown(block: md)))
-  }
-  
-  private func markdownToSxml(_ md: Expr) throws -> Expr {
-    let gen = SXMLGenerator(context: self.context)
-    return gen.generate(block: try self.internMarkdown(block: md))
-  }
-  
-  private func blocksToHtml(_ expr: Expr, tight: Expr?) throws -> Expr {
-    let tight = tight?.isTrue ?? false
-    switch expr {
-      case .pair(_ , _):
-        return .makeString(HtmlGenerator.standard.generate(blocks:
-                             try self.internMarkdown(blocks: expr), tight: tight))
-      case .tagged(self.blockType, _):
-        return .makeString(HtmlGenerator.standard.generate(block:
-                             try self.internMarkdown(block: expr), tight: tight))
-      default:
-        throw RuntimeError.custom(
-          "type error", "blocks->html expects argument of type block or list of block; " +
-          "received \(expr)", [])
-    }
-  }
-  
-  private func blocksToSxml(_ expr: Expr, tight: Expr?) throws -> Expr {
-    let gen = SXMLGenerator(context: self.context)
-    let tight = tight?.isTrue ?? false
-    switch expr {
-      case .pair(_ , _):
-        return gen.generate(blocks: try self.internMarkdown(blocks: expr), tight: tight)
-      case .tagged(self.blockType, _):
-        return gen.generate(block: try self.internMarkdown(block: expr), tight: tight)
-      default:
-        throw RuntimeError.custom(
-          "type error", "blocks->sxml expects argument of type block or list of block; " +
-          "received \(expr)", [])
-    }
-  }
-  
-  private func textToHtml(_ expr: Expr) throws -> Expr {
-    switch expr {
-      case .pair(_ , _):
-        return .makeString(HtmlGenerator.standard.generate(text:
-                             try self.internMarkdown(text: expr)))
-      case .tagged(self.inlineType, _):
-        return .makeString(HtmlGenerator.standard.generate(textFragment:
-                             try self.internMarkdown(fragment: expr)))
-      default:
-        throw RuntimeError.custom(
-          "type error", "text->html expects argument of type inline or list of inline; " +
-          "received \(expr)", [])
-    }
-  }
-  
-  private func textToSxml(_ expr: Expr) throws -> Expr {
-    let gen = SXMLGenerator(context: self.context)
-    switch expr {
-      case .pair(_ , _):
-        return gen.generate(text: try self.internMarkdown(text: expr))
-      case .tagged(self.inlineType, _):
-        return gen.generate(textFragment: try self.internMarkdown(fragment: expr))
-      default:
-        throw RuntimeError.custom(
-          "type error", "text->sxml expects argument of type inline or list of inline; " +
-          "received \(expr)", [])
-    }
   }
   
   private func markdownToHtmlDoc(md: Expr, args: Arguments) throws -> Expr {
@@ -728,17 +661,17 @@ public final class MarkdownLibrary: NativeLibrary {
     }
     if args.count > 1 {
       (codeFontSize, codeFontFamily, codeFontColor) =
-        try self.asSizeFontColor(args[args.startIndex + 1],
-                                 defaultSize: codeFontSize,
-                                 defaultFont: codeFontFamily,
-                                 defaultColor: codeFontColor)
+      try self.asSizeFontColor(args[args.startIndex + 1],
+                               defaultSize: codeFontSize,
+                               defaultFont: codeFontFamily,
+                               defaultColor: codeFontColor)
     }
     if args.count > 2 {
       (codeBlockFontSize, codeBlockFontColor, codeBlockBackground) =
-        try self.asSizeFontColor(args[args.startIndex + 2],
-                                 defaultSize: codeBlockFontSize,
-                                 defaultFont: codeBlockFontColor,
-                                 defaultColor: codeBlockBackground)
+      try self.asSizeFontColor(args[args.startIndex + 2],
+                               defaultSize: codeBlockFontSize,
+                               defaultFont: codeBlockFontColor,
+                               defaultColor: codeBlockBackground)
     }
     if args.count > 3 {
       var list = args[args.startIndex + 3]
@@ -794,8 +727,8 @@ public final class MarkdownLibrary: NativeLibrary {
                                                  h3Color: h3Color,
                                                  h4Color: h4Color)
     return .makeString(
-              attribStrGen.generateHtml(
-                attribStrGen.htmlGenerator.generate(doc: try self.internMarkdown(block: md))))
+      attribStrGen.generateHtml(
+        attribStrGen.htmlGenerator.generate(doc: try self.internMarkdown(block: md))))
   }
   
   private func asSizeFontColor(_ expr: Expr,
@@ -822,10 +755,96 @@ public final class MarkdownLibrary: NativeLibrary {
         return (defaultSize, defaultFont, defaultColor)
       default:
         throw RuntimeError.custom("type error", "triple (float, font, color) needs to be " +
-                                                "represented by a list of up to three elements", [])
+                                  "represented by a list of up to three elements", [])
     }
   }
-
+  
+  private func markdownToHtml(_ md: Expr) throws -> Expr {
+    return .makeString(HtmlGenerator.standard.generate(doc: try self.internMarkdown(block: md)))
+  }
+  
+  private func markdownToSxml(_ md: Expr) throws -> Expr {
+    let gen = SXMLGenerator(context: self.context)
+    return gen.generate(block: try self.internMarkdown(block: md))
+  }
+  
+  private func markdownToRawString(_ md: Expr) throws -> Expr {
+    return .makeString(try self.internMarkdown(block: md).string)
+  }
+  
+  private func blocksToHtml(_ expr: Expr, tight: Expr?) throws -> Expr {
+    let tight = tight?.isTrue ?? false
+    switch expr {
+      case .pair(_ , _):
+        return .makeString(HtmlGenerator.standard.generate(blocks:
+                             try self.internMarkdown(blocks: expr), tight: tight))
+      case .tagged(self.blockType, _):
+        return .makeString(HtmlGenerator.standard.generate(block:
+                             try self.internMarkdown(block: expr), tight: tight))
+      default:
+        throw RuntimeError.custom(
+          "type error", "blocks->html expects argument of type block or list of block; " +
+          "received \(expr)", [])
+    }
+  }
+  
+  private func blocksToSxml(_ expr: Expr, tight: Expr?) throws -> Expr {
+    let gen = SXMLGenerator(context: self.context)
+    let tight = tight?.isTrue ?? false
+    switch expr {
+      case .pair(_ , _):
+        return gen.generate(blocks: try self.internMarkdown(blocks: expr), tight: tight)
+      case .tagged(self.blockType, _):
+        return gen.generate(block: try self.internMarkdown(block: expr), tight: tight)
+      default:
+        throw RuntimeError.custom(
+          "type error", "blocks->sxml expects argument of type block or list of block; " +
+          "received \(expr)", [])
+    }
+  }
+  
+  private func blocksToRawString(_ expr: Expr) throws -> Expr {
+    switch expr {
+      case .pair(_ , _):
+        return .makeString(try self.internMarkdown(blocks: expr).string)
+      case .tagged(self.blockType, _):
+        return .makeString(try self.internMarkdown(block: expr).string)
+      default:
+        throw RuntimeError.custom(
+          "type error", "blocks->raw-string expects argument of type block or list of block; " +
+          "received \(expr)", [])
+    }
+  }
+  
+  private func textToHtml(_ expr: Expr) throws -> Expr {
+    switch expr {
+      case .pair(_ , _):
+        return .makeString(HtmlGenerator.standard.generate(text:
+                             try self.internMarkdown(text: expr)))
+      case .tagged(self.inlineType, _):
+        return .makeString(HtmlGenerator.standard.generate(textFragment:
+                             try self.internMarkdown(fragment: expr)))
+      default:
+        throw RuntimeError.custom(
+          "type error", "text->html expects argument of type inline or list of inline; " +
+          "received \(expr)", [])
+    }
+  }
+  
+  private func textToSxml(_ expr: Expr) throws -> Expr {
+    let gen = SXMLGenerator(context: self.context)
+    switch expr {
+      case .pair(_ , _):
+        return gen.generate(text: try self.internMarkdown(text: expr))
+      case .tagged(self.inlineType, _):
+        return gen.generate(textFragment: try self.internMarkdown(fragment: expr))
+      default:
+        throw RuntimeError.custom(
+          "type error", "text->sxml expects argument of type inline or list of inline; " +
+          "received \(expr)", [])
+    }
+  }
+  
   private func textToString(_ expr: Expr) throws -> Expr {
     switch expr {
       case .pair(_ , _):

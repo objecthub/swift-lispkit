@@ -69,8 +69,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/objecthub/swift-markdownkit.git",
       "state" : {
-        "revision" : "e1132285f2327dba7a34523f4ef5bc5cb8502d39",
-        "version" : "1.1.8"
+        "revision" : "d9bc97f7ad32cfdda621eaaa0eb88082eb75fbd8",
+        "version" : "1.1.9"
       }
     },
     {
