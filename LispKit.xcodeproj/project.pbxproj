@@ -616,6 +616,8 @@
 		CCB5B101278B8DAB00B7E32C /* flonum.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CCB5B0FE278B8BDE00B7E32C /* flonum.sld */; };
 		CCB5DF5C29A16D62005E6453 /* Data.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCB5DF5B29A16D62005E6453 /* Data.swift */; };
 		CCB5DF5D29A16D62005E6453 /* Data.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCB5DF5B29A16D62005E6453 /* Data.swift */; };
+		CCB7520E2C62417500E7C1B0 /* Webserver.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCB7520D2C623F5800E7C1B0 /* Webserver.scm */; };
+		CCB7520F2C62418700E7C1B0 /* Webserver.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCB7520D2C623F5800E7C1B0 /* Webserver.scm */; };
 		CCB7B0CF2960F15000F0DB20 /* 228.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCB7B0CC2960EE5F00F0DB20 /* 228.sld */; };
 		CCB7B0D02960F16700F0DB20 /* SRFI-228.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCB7B0CD2960F04D00F0DB20 /* SRFI-228.scm */; };
 		CCB7B0D12960F17C00F0DB20 /* 228.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCB7B0CC2960EE5F00F0DB20 /* 228.sld */; };
@@ -1597,6 +1599,7 @@
 			dstPath = Root/LispKit/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CCB7520E2C62417500E7C1B0 /* Webserver.scm in Copy examples */,
 				CCD5B5ED2C16E6A6002BF2F0 /* JSON.scm in Copy examples */,
 				CC517E6629AC2DE70096FC72 /* Blockchain.scm in Copy examples */,
 				CCCB5CA0284225470005248D /* StyledTextDoc.scm in Copy examples */,
@@ -2516,6 +2519,7 @@
 			dstPath = Root/LispKit/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CCB7520F2C62418700E7C1B0 /* Webserver.scm in Copy examples */,
 				CCD5B5EE2C16E6B8002BF2F0 /* JSON.scm in Copy examples */,
 				CC517E6729AC2DF90096FC72 /* Blockchain.scm in Copy examples */,
 				CCCB5CA12842255E0005248D /* StyledTextDoc.scm in Copy examples */,
@@ -3509,6 +3513,7 @@
 		CCB5B0FA278B6FAD00B7E32C /* SRFI-144.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-144.scm"; sourceTree = "<group>"; };
 		CCB5B0FE278B8BDE00B7E32C /* flonum.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = flonum.sld; sourceTree = "<group>"; };
 		CCB5DF5B29A16D62005E6453 /* Data.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Data.swift; sourceTree = "<group>"; };
+		CCB7520D2C623F5800E7C1B0 /* Webserver.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Webserver.scm; sourceTree = "<group>"; };
 		CCB7B0CC2960EE5F00F0DB20 /* 228.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 228.sld; sourceTree = "<group>"; };
 		CCB7B0CD2960F04D00F0DB20 /* SRFI-228.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-228.scm"; sourceTree = "<group>"; };
 		CCB91C971D57E784001A95DC /* Parameters.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Parameters.scm; sourceTree = "<group>"; };
@@ -4968,6 +4973,7 @@
 				CC750BD71F5AC68900CD82A2 /* PDF.scm */,
 				CCD5B5EB2C16E430002BF2F0 /* JSON.scm */,
 				CC4385BB20BAB79500055289 /* HTTP.scm */,
+				CCB7520D2C623F5800E7C1B0 /* Webserver.scm */,
 				CC9ED3FB2710E6DB004B1E29 /* paip */,
 			);
 			path = Examples;

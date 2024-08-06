@@ -52,6 +52,8 @@
     
     (define (display-to-string x)
       (cond
+        ((not x)
+          "")
         ((string? x)
           x)
         ((char? x)
@@ -141,6 +143,10 @@
                         ((and (eq? '@raw tag)
                               (string? (car rest)))
                           (display (car rest) out))
+                        ((null? rest)
+                          (display "<" out)
+                          (display tag out)
+                          (display "/>" out))
                         (else
                           (display (html-tag->string tag '()) out)
                           (for-each lp rest)

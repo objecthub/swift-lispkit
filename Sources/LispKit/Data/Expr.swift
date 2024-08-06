@@ -890,6 +890,11 @@ extension Expr {
     return res.expandingTildeInPath
   }
   
+  @inline(__always) public func asAbsolutePath(in context: Context) throws -> String {
+    return context.fileHandler.path(try self.asPath(),
+                                    relativeTo: context.evaluator.currentDirectoryPath)
+  }
+  
   @inline(__always) public func asURL() throws -> URL {
     guard case .string(let res) = self else {
       throw RuntimeError.type(self, expected: [.strType])

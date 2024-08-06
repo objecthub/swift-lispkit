@@ -44,8 +44,8 @@ public final class HTTPServerLibrary: NativeLibrary {
   /// Dependencies of the library.
   public override func dependencies() {
     self.`import`(from: ["lispkit", "core"], "define", "lambda", "case-lambda", "or", "quote",
-                                             "not")
-    self.`import`(from: ["lispkit", "control"], "let-optionals", "cond", "do", "if")
+                                             "not", "eq?")
+    self.`import`(from: ["lispkit", "control"], "let-optionals", "let", "cond", "do", "if")
     self.`import`(from: ["lispkit", "dynamic"], "try", "error-object->string")
     self.`import`(from: ["lispkit", "thread"], "current-thread", "make-thread", "thread-yield!",
                                                "thread-start!")
@@ -61,6 +61,10 @@ public final class HTTPServerLibrary: NativeLibrary {
 
   /// Declarations of the library.
   public override func declarations() {
+    self.define("http-server-type-tag", as: HTTPServer.type.objectTypeTag())
+    self.define("srv-request-type-tag", as: HTTPRequest.type.objectTypeTag())
+    self.define("srv-multipart-type-tag", as: HTTPMultiPart.type.objectTypeTag())
+    self.define("srv-response-type-tag", as: HTTPResponse.type.objectTypeTag())
     self.define(Procedure("http-server?", self.isHttpServer))
     self.define(Procedure("make-http-server", self.makeHttpServer))
     self.define(Procedure("http-server-running?", self.isHttpServerRunning))
@@ -87,24 +91,33 @@ public final class HTTPServerLibrary: NativeLibrary {
     self.define(Procedure("srv-request-server", self.serverRequestServer))
     self.define(Procedure("srv-request-method", self.serverRequestMethod))
     self.define(Procedure("srv-request-path", self.serverRequestPath))
-    self.define(Procedure("srv-request-query-param-ref", self.serverRequestQueryParamRef))
+    self.define(Procedure("srv-request-query-param", self.serverRequestQueryParam))
     self.define(Procedure("srv-request-query-params", self.serverRequestQueryParams))
-    self.define(Procedure("srv-request-path-param-ref", self.serverRequestPathParamRef))
+    self.define(Procedure("srv-request-path-param", self.serverRequestPathParam))
     self.define(Procedure("srv-request-path-param-set!", self.serverRequestPathParamSet))
     self.define(Procedure("srv-request-path-param-remove!", self.serverRequestPathParamRemove))
     self.define(Procedure("srv-request-path-params", self.serverRequestPathParams))
-    self.define(Procedure("srv-request-header-ref", self.serverRequestHeaderRef))
+    self.define(Procedure("srv-request-header", self.serverRequestHeader))
     self.define(Procedure("srv-request-header-set!", self.serverRequestHeaderSet))
     self.define(Procedure("srv-request-header-remove!", self.serverRequestHeaderRemove))
     self.define(Procedure("srv-request-headers", self.serverRequestHeaders))
     self.define(Procedure("srv-request-body", self.serverRequestBody))
     self.define(Procedure("srv-request-body->string", self.serverRequestBodyToString))
     self.define(Procedure("srv-request-form-attributes", self.serverRequestFormAttributes))
+    self.define(Procedure("srv-request-form-multiparts", self.serverRequestFormMultiparts))
     self.define(Procedure("srv-request-address", self.serverRequestAddress))
     self.define(Procedure("srv-request-address", self.serverRequestAddress))
     self.define(Procedure("_srv-request-send-response", self.serverRequestSendResponse), export: false)
+    self.define(Procedure("srv-multipart?", self.isServerMultipart))
+    self.define(Procedure("srv-multipart-headers", self.serverMultipartHeaders))
+    self.define(Procedure("srv-multipart-header", self.serverMultipartHeader))
+    self.define(Procedure("srv-multipart-body", self.serverMultipartBody))
     self.define(Procedure("srv-response?", self.isSrvResponse))
-    self.define(Procedure("make-srv-response", self.makeSrvResponse))
+    self.define(Procedure("_make-srv-response", self.makeSrvResponse), export: false)
+    self.define(Procedure("srv-response-created", self.srvResponseCreated))
+    self.define(Procedure("srv-response-accepted", self.srvResponseAccepted))
+    self.define(Procedure("srv-response-moved-permanently", self.srvResponseMovedPermanently))
+    self.define(Procedure("srv-response-moved-temporarily", self.srvResponseMovedTemporarily))
     self.define(Procedure("srv-response-status-code", self.srvResponseStatusCode))
     self.define(Procedure("srv-response-status-code-set!", self.srvResponseStatusCodeSet))
     self.define(Procedure("srv-response-headers", self.srvResponseHeaders))
@@ -113,19 +126,74 @@ public final class HTTPServerLibrary: NativeLibrary {
     self.define(Procedure("srv-response-header-remove!", self.srvResponseHeaderRemove))
     self.define(Procedure("_srv-response-body-set!", self.srvResponseBodySet), export: false)
     self.define(Procedure("srv-response-body-html-set!", self.srvResponseBodyHtmlSet))
+    self.define(Procedure("parse-http-header-value", self.parseHttpHeaderValue))
+    self.define(Procedure("http-header-param", self.httpHeaderParam))
+    self.define(Procedure("share-file-handler", self.shareFileHandler))
+    self.define(Procedure("share-directory-handler", self.shareDirectoryHandler))
+    self.define(Procedure("browse-directory-handler", self.browseDirectoryHandler))
     self.define("srv-response-body-set!", via:
       "(define (srv-response-body-set! resp body . args)",
       "  (let-optionals args ((last #f))",
       "    (cond ((markdown? body)",
-      "            (srv-response-body-html-set! resp (markdown->html body) last))",
+      "            (srv-response-body-html-set! resp (markdown->html body) #t))",
       "          ((or (markdown-block? body) (markdown-blocks? body))",
-      "            (srv-response-body-html-set! resp (blocks->html body) last))",
+      "            (srv-response-body-html-set! resp (blocks->html body) #t))",
       "          ((or (markdown-inline? body) (markdown-text? body))",
-      "            (srv-response-body-html-set! resp (text->html body) last))",
+      "            (srv-response-body-html-set! resp (text->html body) #t))",
       "          ((pair? body)",
-      "            (srv-response-body-html-set! resp (sxml->html body) last))",
+      "            (srv-response-body-html-set! resp (sxml->html body) (or last (eq? (car body) 'html))))",
       "          (else",
       "            (_srv-response-body-set! resp body last)))))")
+    self.define("make-srv-response", via:
+      "(define (make-srv-response . args)",
+      "  (let-optionals args ((status 200)(headers #f)(body #f)(ct #f))",
+      "    (let ((response (_make-srv-response status headers #f ct)))",
+      "      (srv-response-body-set! response body ct)",
+      "      response)))")
+    self.define("srv-response-ok", via:
+      "(define srv-response-ok (case-lambda",
+      "    ((body) (make-srv-response 200 #f body))",
+      "    ((headers body) (make-srv-response 200 headers body))))")
+    self.define("srv-response-bad-request", via:
+      "(define srv-response-bad-request (case-lambda",
+      "    (() (make-srv-response 400 #f #f))",
+      "    ((body) (make-srv-response 400 #f body))",
+      "    ((headers body) (make-srv-response 400 headers body))))")
+    self.define("srv-response-unauthorized", via:
+      "(define srv-response-unauthorized (case-lambda",
+      "    (() (make-srv-response 401 #f #f))",
+      "    ((body) (make-srv-response 401 #f body))",
+      "    ((headers body) (make-srv-response 401 headers body))))")
+    self.define("srv-response-forbidden", via:
+      "(define srv-response-forbidden (case-lambda",
+      "    (() (make-srv-response 403 #f #f))",
+      "    ((body) (make-srv-response 403 #f body))",
+      "    ((headers body) (make-srv-response 403 headers body))))")
+    self.define("srv-response-not-found", via:
+      "(define srv-response-not-found (case-lambda",
+      "    (() (make-srv-response 404 #f \"not found\"))",
+      "    ((body) (make-srv-response 404 #f body))",
+      "    ((headers body) (make-srv-response 404 headers body))))")
+    self.define("srv-response-method-not-allowed", via:
+      "(define srv-response-method-not-allowed (case-lambda",
+      "    (() (make-srv-response 405 #f #f))",
+      "    ((body) (make-srv-response 405 #f body))",
+      "    ((headers body) (make-srv-response 405 headers body))))")
+    self.define("srv-response-not-acceptable", via:
+      "(define srv-response-not-acceptable (case-lambda",
+      "    (() (make-srv-response 406 #f #f))",
+      "    ((body) (make-srv-response 406 #f body))",
+      "    ((headers body) (make-srv-response 406 headers body))))")
+    self.define("srv-response-internal-server-error", via:
+      "(define srv-response-internal-server-error (case-lambda",
+      "    (() (make-srv-response 500 #f \"internal server error\"))",
+      "    ((body) (make-srv-response 500 #f body))",
+      "    ((headers body) (make-srv-response 500 headers body))))")
+    self.define("srv-response-not-implemented", via:
+      "(define srv-response-not-implemented (case-lambda",
+      "    (() (make-srv-response 501 #f \"not implemented\"))",
+      "    ((body) (make-srv-response 501 #f body))",
+      "    ((headers body) (make-srv-response 501 headers body))))")
     self.define("_make-worker", via:
       "(define (_make-worker server queue name)",
       "  (lambda ()",
@@ -151,7 +219,7 @@ public final class HTTPServerLibrary: NativeLibrary {
       "          ((not con))",
       "        (http-server-log server 0 \"worker\" name \": \"",
       "          (srv-request-method (cdr con)) \" \" (srv-request-path (cdr con))))",
-      "      (http-server-log server 0 \"worker\" name \" listening\"))",
+      "      (http-server-log server 0 \"worker\" name \" idle\"))",
       "    (_http-server-remove-worker! server (current-thread))",
       "    (http-server-log server 0 \"worker\" \"closed \" name \"/\" (http-server-num-workers server))))")
     self.define("http-server-start!", via:
@@ -191,6 +259,13 @@ public final class HTTPServerLibrary: NativeLibrary {
     return request
   }
   
+  private func multiPart(from expr: Expr) throws -> HTTPMultiPart {
+    guard case .object(let obj) = expr, let multipart = obj as? HTTPMultiPart else {
+      throw RuntimeError.type(expr, expected: [HTTPMultiPart.type])
+    }
+    return multipart
+  }
+  
   private func httpServerResponse(from expr: Expr) throws -> HTTPServerResponse {
     guard case .object(let obj) = expr, let request = obj as? HTTPServerResponse else {
       throw RuntimeError.type(expr, expected: [HTTPServerResponse.type])
@@ -209,7 +284,7 @@ public final class HTTPServerLibrary: NativeLibrary {
   
   private func makeHttpServer(maxLength: Expr?, logging: Expr?) throws -> Expr {
     let length = maxLength == nil ?
-                   10 : (maxLength!.isFalse ? 10 : try maxLength!.asInt(above: 2, below: 1000))
+                   10 : (maxLength!.isFalse ? 1000 : try maxLength!.asInt(above: 2, below: 1000))
     return .object(HTTPServer(context: self.context,
                               queueLength: length,
                               requestEnteringTimeout: 2.0,
@@ -241,7 +316,11 @@ public final class HTTPServerLibrary: NativeLibrary {
     let routes = try self.httpServer(from: expr).routes
     var res = Expr.null
     for route in routes {
-      res = .pair(.makeString(route), res)
+      if route.isEmpty {
+        res = .pair(.makeString("/"), res)
+      } else {
+        res = .pair(.makeString(route), res)
+      }
     }
     return res
   }
@@ -283,11 +362,18 @@ public final class HTTPServerLibrary: NativeLibrary {
     return .void
   }
   
-  private func httpServerRegister(expr: Expr, method: Expr, path: Expr, handler: Expr) throws -> Expr {
-    _ = try handler.asProcedure()
-    try self.httpServer(from: expr).register(method: try method.asString(),
-                                             path: try path.asString(),
-                                             handler: handler)
+  private func httpServerRegister(expr: Expr, fst: Expr, snd: Expr, thd: Expr?) throws -> Expr {
+    if let handler = thd {
+      _ = try handler.asProcedure()
+      try self.httpServer(from: expr).register(method: try fst.asString().uppercased(),
+                                               path: try snd.asString(),
+                                               handler: handler)
+    } else {
+      _ = try snd.asProcedure()
+      try self.httpServer(from: expr).register(method: nil,
+                                               path: try fst.asString(),
+                                               handler: snd)
+    }
     return .void
   }
   
@@ -365,14 +451,14 @@ public final class HTTPServerLibrary: NativeLibrary {
   }
   
   private func serverRequestMethod(expr: Expr) throws -> Expr {
-    return .makeString(try self.httpServerRequest(from: expr).connection.request.method)
+    return .makeString(try self.httpServerRequest(from: expr).connection.request.method.uppercased())
   }
   
   private func serverRequestPath(expr: Expr) throws -> Expr {
     return .makeString(try self.httpServerRequest(from: expr).connection.request.path)
   }
   
-  private func serverRequestPathParamRef(expr: Expr, name: Expr, default: Expr?) throws -> Expr {
+  private func serverRequestPathParam(expr: Expr, name: Expr, default: Expr?) throws -> Expr {
     let name = try name.asString()
     guard let res = try self.httpServerRequest(from: expr).connection.request.params[name] else {
       return `default` ?? .false
@@ -401,7 +487,7 @@ public final class HTTPServerLibrary: NativeLibrary {
     return res
   }
   
-  private func serverRequestQueryParamRef(expr: Expr, name: Expr) throws -> Expr {
+  private func serverRequestQueryParam(expr: Expr, name: Expr) throws -> Expr {
     let params = try self.httpServerRequest(from: expr).connection.request.queryParams
     let name = try name.asString()
     var res = Expr.null
@@ -422,7 +508,7 @@ public final class HTTPServerLibrary: NativeLibrary {
     return res
   }
   
-  private func serverRequestHeaderRef(expr: Expr, name: Expr, default: Expr?) throws -> Expr {
+  private func serverRequestHeader(expr: Expr, name: Expr, default: Expr?) throws -> Expr {
     let name = try name.asString()
     guard let res = try self.httpServerRequest(from: expr).connection.request.header(name) else {
       return `default` ?? .false
@@ -474,6 +560,14 @@ public final class HTTPServerLibrary: NativeLibrary {
     return res
   }
   
+  private func serverRequestFormMultiparts(expr: Expr) throws -> Expr {
+    let multiparts =
+      try self.httpServerRequest(from: expr).connection.request.parseMultiPartFormData().map {
+        Expr.object(HTTPMultiPart(multipart: $0))
+      }
+    return .makeList(Exprs(multiparts))
+  }
+  
   private func serverRequestAddress(expr: Expr) throws -> Expr {
     guard let str = try self.httpServerRequest(from: expr).connection.request.address else {
       return .false
@@ -500,6 +594,36 @@ public final class HTTPServerLibrary: NativeLibrary {
     }
   }
   
+  // HTTP server request multi-part functionality
+  
+  private func isServerMultipart(expr: Expr) -> Expr {
+    guard case .object(let obj) = expr, obj is HTTPMultiPart else {
+      return .false
+    }
+    return .true
+  }
+  
+  private func serverMultipartHeaders(expr: Expr) throws -> Expr {
+    let headers = try self.multiPart(from: expr).multipart.headers
+    var res = Expr.null
+    for (key, value) in headers {
+      res = .pair(.pair(.makeString(key), .makeString(value)), res)
+    }
+    return res
+  }
+  
+  private func serverMultipartHeader(expr: Expr, name: Expr, default: Expr?) throws -> Expr {
+    let name = try name.asString().lowercased()
+    guard let res = try self.multiPart(from: expr).multipart.headers[name] else {
+      return `default` ?? .false
+    }
+    return .makeString(res)
+  }
+  
+  private func serverMultipartBody(expr: Expr) throws -> Expr {
+    return .bytes(MutableBox(try self.multiPart(from: expr).multipart.body))
+  }
+  
   // HTTP server response functionality
   
   private func isSrvResponse(expr: Expr) -> Expr {
@@ -507,6 +631,21 @@ public final class HTTPServerLibrary: NativeLibrary {
       return .false
     }
     return .true
+  }
+  
+  private func headers(from hdrs: Expr?) throws -> [String : String] {
+    var headers: [String : String] = [:]
+    if hdrs?.isTrue ?? false {
+      var list = hdrs!
+      while case .pair(.pair(let car, let cdr), let next) = list {
+        headers[try car.asString()] = try cdr.asString()
+        list = next
+      }
+      guard case .null = list else {
+        throw RuntimeError.type(hdrs!, expected: [.properListType])
+      }
+    }
+    return headers
   }
   
   private func makeSrvResponse(args: Arguments) throws -> Expr {
@@ -517,22 +656,45 @@ public final class HTTPServerLibrary: NativeLibrary {
                                        max: 5,
                                        args: .makeList(args))
     }
-    var headers: [String : String] = [:]
-    if hdrs.isTrue {
-      var list = hdrs
-      while case .pair(.pair(let car, let cdr), let next) = list {
-        headers[try car.asString()] = try cdr.asString()
-        list = next
-      }
-      guard case .null = list else {
-        throw RuntimeError.type(hdrs, expected: [.properListType])
-      }
-    }
     return .object(HTTPServerResponse(response:
              NanoHTTPResponse(statusCode: try statusCode.asInt(above: 0, below: 1000),
-                              headers: headers,
+                              headers: try self.headers(from: hdrs),
                               body: try self.srvResponseBody(from: body,
                                                              contentType: ct.isFalse ? nil : ct))))
+  }
+  
+  private func srvResponseOk(fst: Expr?, snd: Expr?) throws -> Expr {
+    let (body, headers) = try self.bodyAndHeader(fst, snd)
+    return .object(HTTPServerResponse(response: .ok(headers: headers, body)))
+  }
+  
+  private func srvResponseCreated() -> Expr {
+    return .object(HTTPServerResponse(response: .created()))
+  }
+  
+  private func srvResponseAccepted() -> Expr {
+    return .object(HTTPServerResponse(response: .accepted()))
+  }
+  
+  private func srvResponseMovedPermanently(expr: Expr, hdrs: Expr?) throws -> Expr {
+    return .object(HTTPServerResponse(response: .movedPermanently(try expr.asString(),
+                                                                  try self.headers(from: hdrs))))
+  }
+  
+  private func srvResponseMovedTemporarily(expr: Expr, hdrs: Expr?) throws -> Expr {
+    return .object(HTTPServerResponse(response: .movedTemporarily(try expr.asString(),
+                                                                  try self.headers(from: hdrs))))
+  }
+  
+  private func bodyAndHeader(_ fst: Expr?, _ snd: Expr?) throws -> (NanoHTTPResponse.Body,
+                                                                    [String : String]) {
+    if let snd {
+      return (try self.srvResponseBody(from: fst!, contentType: nil), try self.headers(from: snd))
+    } else if let fst {
+      return (try self.srvResponseBody(from: fst, contentType: nil), [:])
+    } else {
+      return (.empty, [:])
+    }
   }
   
   private func srvResponseStatusCode(expr: Expr) throws -> Expr {
@@ -553,11 +715,11 @@ public final class HTTPServerLibrary: NativeLibrary {
     return res
   }
   
-  private func srvResponseHeader(expr: Expr, name: Expr) throws -> Expr {
+  private func srvResponseHeader(expr: Expr, name: Expr, default: Expr?) throws -> Expr {
     if let res = try self.httpServerResponse(from: expr).response.headers[name.asString()] {
       return .makeString(res)
     }
-    return .false
+    return `default` ?? .false
   }
   
   private func srvResponseHeaderSet(expr: Expr, name: Expr, value: Expr) throws -> Expr {
@@ -614,6 +776,169 @@ public final class HTTPServerLibrary: NativeLibrary {
       try self.httpServerResponse(from: expr).response.body = .html(html.asString())
     }
     return .void
+  }
+  
+  private func parseHttpHeaderValue(expr: Expr) throws -> Expr {
+    return .makeList(Exprs(universalHeaderValues(try expr.asString())))
+  }
+  
+  private func httpHeaderParam(expr: Expr, name: Expr) throws -> Expr {
+    let name = try name.asString().lowercased()
+    var list = expr
+    while case .pair(let element, let next) = list {
+      if case .pair(.string(let str), let value) = element, (str as String) == name {
+        return value
+      }
+      list = next
+    }
+    return .false
+  }
+  
+  private func parseComponents(_ value: String) -> [String] {
+    var components: [String] = []
+    var inString = false
+    var start = value.startIndex
+    var current = value.startIndex
+    while current < value.endIndex {
+      switch value[current] {
+        case "\"":
+          inString = !inString
+          current = value.index(after: current)
+        case ",":
+          if !inString {
+            let component = String(value[start..<current])
+                              .trimmingCharacters(in: .whitespacesAndNewlines)
+            if !component.isEmpty {
+              components.append(String(value[start..<current]))
+            }
+            current = value.index(after: current)
+            start = current
+          }
+        default:
+          current = value.index(after: current)
+      }
+    }
+    let component = String(value[start..<current])
+                      .trimmingCharacters(in: .whitespacesAndNewlines)
+    if !component.isEmpty {
+      components.append(String(value[start..<current]))
+    }
+    return components
+  }
+
+  private func parseHeaderValue(_ value: String) -> Expr {
+    var components: Exprs = []
+    var inString = false
+    var equals: String.Index? = nil
+    var start = value.startIndex
+    var current = value.startIndex
+    while current < value.endIndex {
+      switch value[current] {
+        case "\"":
+          inString = !inString
+          current = value.index(after: current)
+        case "=":
+          if !inString && equals == nil {
+            equals = current
+          }
+          current = value.index(after: current)
+        case ";":
+          if !inString {
+            var done = false
+            if let equals {
+              let name = String(value[start..<equals])
+                           .trimmingCharacters(in: .whitespacesAndNewlines)
+              if !name.isEmpty {
+                let value = String(value[value.index(after: equals)..<current])
+                              .trimmingCharacters(in: .whitespacesAndNewlines)
+                components.append(.pair(.makeString(name.unquote().lowercased()),
+                                        .makeString(value.unquote())))
+                done = true
+              }
+            }
+            if !done {
+              let token = String(value[start..<current])
+                            .trimmingCharacters(in: .whitespacesAndNewlines)
+              if !token.isEmpty {
+                components.append(.makeString(token.unquote()))
+              }
+            }
+            current = value.index(after: current)
+            start = current
+            equals = nil
+          }
+        default:
+          current = value.index(after: current)
+      }
+    }
+    if let equals {
+      let name = String(value[start..<equals])
+                   .trimmingCharacters(in: .whitespacesAndNewlines)
+      if !name.isEmpty {
+        let value = String(value[value.index(after: equals)..<current])
+                      .trimmingCharacters(in: .whitespacesAndNewlines)
+        components.append(.pair(.makeString(name.unquote().lowercased()),
+                                .makeString(value.unquote())))
+        return .makeList(components)
+      }
+    }
+    let token = String(value[start..<current]).trimmingCharacters(in: .whitespacesAndNewlines)
+    if !token.isEmpty {
+      components.append(.makeString(token.unquote()))
+    }
+    return .makeList(components)
+  }
+
+  private func universalHeaderValues(_ value: String) -> [Expr] {
+    return parseComponents(value).map(parseHeaderValue)
+  }
+  
+  private func shareFileHandler(expr: Expr) throws -> Expr {
+    let handler = share(file: try expr.asAbsolutePath(in: self.context))
+    return .procedure(Procedure("share-file") { (request: Expr) in
+      let request = try self.httpServerRequest(from: request)
+      let response = handler(request.connection.request)
+      if response.statusCode == 200,
+         let obj = request.connection.server,
+         let server = obj as? HTTPServer,
+         let (_, value) = request.connection.request.params.first,
+         let path = value.removingPercentEncoding {
+        server.log(level: 1, tag: "worker/share", "sharing file \"\(path)\"")
+      }
+      return .object(HTTPServerResponse(response: response))
+    })
+  }
+  
+  private func shareDirectoryHandler(expr: Expr) throws -> Expr {
+    let handler = share(directory: try expr.asAbsolutePath(in: self.context))
+    return .procedure(Procedure("share-directory") { (request: Expr) in
+      let request = try self.httpServerRequest(from: request)
+      let response = handler(request.connection.request)
+      if response.statusCode == 200,
+         let obj = request.connection.server,
+         let server = obj as? HTTPServer,
+         let (_, value) = request.connection.request.params.first,
+         let path = value.removingPercentEncoding {
+        server.log(level: 1, tag: "worker/share", "sharing directory \"\(path)\"")
+      }
+      return .object(HTTPServerResponse(response: response))
+    })
+  }
+  
+  private func browseDirectoryHandler(expr: Expr) throws -> Expr {
+    let handler = browse(directory: try expr.asAbsolutePath(in: self.context))
+    return .procedure(Procedure("browse-directory") { (request: Expr) in
+      let request = try self.httpServerRequest(from: request)
+      let response = handler(request.connection.request)
+      if response.statusCode == 200,
+         let obj = request.connection.server,
+         let server = obj as? HTTPServer,
+         let (_, value) = request.connection.request.params.first,
+         let path = value.removingPercentEncoding {
+        server.log(level: 1, tag: "worker/share", "browsing directory \"\(path)\"")
+      }
+      return .object(HTTPServerResponse(response: response))
+    })
   }
 }
 
@@ -676,6 +1001,35 @@ public final class HTTPServerResponse: NativeObject {
 }
 
 ///
+/// Represents a HTTP server response object.
+///
+public final class HTTPMultiPart: NativeObject {
+  public static let type = Type.objectType(Symbol(uninterned: "srv-multipart"))
+
+  public var multipart: NanoHTTPRequest.MultiPart
+  
+  init(multipart: NanoHTTPRequest.MultiPart) {
+    self.multipart = multipart
+  }
+  
+  public override var type: Type {
+    return Self.type
+  }
+  
+  public override var string: String {
+    return "#<\(self.tagString)>"
+  }
+  
+  public override var tagString: String {
+    return "\(self.type) \(self.identityString)"
+  }
+  
+  public override func unpack(in context: Context) -> Exprs {
+    return [.makeString(self.identityString)]
+  }
+}
+
+///
 /// Represents a HTTP server object.
 ///
 open class HTTPServer: NanoHTTPServer, CustomExpr {
@@ -711,14 +1065,14 @@ open class HTTPServer: NanoHTTPServer, CustomExpr {
   
   open func setUpMiddleware() {
     self.middleware.append { [weak self] request in
-      self?.log(level: 1, tag: "req", "\(request.method) \(request.path) (\(request.address ?? "?"))")
+      self?.log(level: 1, tag: "req", "\(request.method.uppercased()) \(request.path) (\(request.address ?? "?"))")
       return nil
     }
   }
   
-  open func register(method: String, path: String, handler: Expr) {
+  open func register(method: String?, path: String, handler: Expr) {
     self.handlers.exprs.append(.pair(.makeString(path), handler))
-    self.router.register(method, path: path) { request in
+    self.router.register(method?.uppercased(), path: path) { request in
       let response = NanoHTTPResponse(statusCode: 500, body: .text("unknown internal server error"))
       request.custom[Self.handlerKey] = handler
       return response
