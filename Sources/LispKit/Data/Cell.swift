@@ -21,7 +21,7 @@
 ///
 /// `Cell` implements a mutable expression.
 ///
-public final class Cell: ManagedObject, CustomStringConvertible {
+public class Cell: ManagedObject, CustomStringConvertible {
   
   /// The current value of the cell.
   public var value: Expr

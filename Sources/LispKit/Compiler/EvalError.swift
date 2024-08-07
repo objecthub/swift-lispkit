@@ -184,6 +184,7 @@ public enum EvalError: Int, Hashable {
   case insertIntoClosedQueue
   case insertIntoMaxQueue
   case queueIsEmpty
+  case illegalArithForAtomicBox
   
   public var message: String {
     switch self {
@@ -505,6 +506,8 @@ public enum EvalError: Int, Hashable {
         return "trying to insert elements from $0 into queue $1 of maximum length"
       case .queueIsEmpty:
         return "cannot complete operation since queue $0 is empty"
+      case .illegalArithForAtomicBox:
+        return "cannot apply arithmetic updates to atomic box $0"
     }
   }
   

@@ -24,6 +24,7 @@
 ;;; and limitations under the License.
 
 (import (lispkit base)
+        (lispkit box)
         (lispkit thread)
         (lispkit http server))
 
@@ -153,12 +154,14 @@
 (http-server-register! server "GET" "/not/implemented"
   (lambda (request) (srv-response-not-implemented)))
 
-(define requests-served 0)
+; Counter for processed requests
+(define requests-served (make-atomic-box 0))
 
+; Use this middleware processor to count served requests with an atomic box (needed
+; because middleware is executed concurrently on potentially many different threads)
 (http-server-register-middleware! server
   (lambda (request)
-    ; TODO: this needs to be synchronized
-    (set! requests-served (+ requests-served 1))
+    (atomic-box-inc+mul! requests-served 1)
     #f))
 
 ; Print all log messages
@@ -175,4 +178,4 @@
 (wait-threads-terminated 10)
 
 ; Display the number of requests served
-(display* requests-served " requests served.\n")
+(display* (atomic-box-ref requests-served) " requests served.\n")
