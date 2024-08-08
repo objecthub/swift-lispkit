@@ -91,6 +91,7 @@ public final class HTTPServerLibrary: NativeLibrary {
     self.define(Procedure("srv-request-server", self.serverRequestServer))
     self.define(Procedure("srv-request-method", self.serverRequestMethod))
     self.define(Procedure("srv-request-path", self.serverRequestPath))
+    self.define(Procedure("srv-request-query", self.serverRequestQuery))
     self.define(Procedure("srv-request-query-param", self.serverRequestQueryParam))
     self.define(Procedure("srv-request-query-params", self.serverRequestQueryParams))
     self.define(Procedure("srv-request-path-param", self.serverRequestPathParam))
@@ -456,6 +457,10 @@ public final class HTTPServerLibrary: NativeLibrary {
   
   private func serverRequestPath(expr: Expr) throws -> Expr {
     return .makeString(try self.httpServerRequest(from: expr).connection.request.path)
+  }
+  
+  private func serverRequestQuery(expr: Expr) throws -> Expr {
+    return .makeString(try self.httpServerRequest(from: expr).pathAndParams)
   }
   
   private func serverRequestPathParam(expr: Expr, name: Expr, default: Expr?) throws -> Expr {
@@ -962,12 +967,36 @@ public final class HTTPServerRequest: NativeObject {
     return "#<\(self.tagString)>"
   }
   
+  public var pathAndParams: String {
+    var components = URLComponents()
+    components.path = self.connection.request.path
+    if !self.connection.request.queryParams.isEmpty {
+      components.queryItems = self.connection.request.queryParams.map { k, v in
+        URLQueryItem(name: k, value: v)
+      }
+    }
+    return components.url?.absoluteString ?? self.connection.request.path
+  }
+  
   public override var tagString: String {
-    return "\(self.type) \(self.identityString)"
+    let p = self.connection.request.params.map{ k, v in "\(k)=\(v)" }.joined(separator: " ")
+    var res = "\(self.type): \(self.connection.request.method) " +
+              "\(self.pathAndParams), params=(\(p)), " +
+              "headers=\(self.connection.request.availableHeaders.count)"
+    if !self.connection.request.body.isEmpty {
+      res += ", body=\(self.connection.request.body.count)"
+    }
+    return res
   }
   
   public override func unpack(in context: Context) -> Exprs {
-    return [.makeString(self.identityString)]
+    let p = self.connection.request.params.map{ k, v in Expr.pair(.makeString(k), .makeString(v)) }
+    return [.makeString(self.identityString),
+            .makeString(self.connection.request.method),
+            .makeString(self.pathAndParams),
+            .makeList(Exprs(p)),
+            .makeNumber(self.connection.request.availableHeaders.count),
+            .makeNumber(self.connection.request.body.count)]
   }
 }
 
@@ -991,12 +1020,35 @@ public final class HTTPServerResponse: NativeObject {
     return "#<\(self.tagString)>"
   }
   
+  private var bodyType: String {
+    switch self.response.body {
+      case .empty:
+        return "empty"
+      case .text(_):
+        return "text"
+      case .html(_):
+        return "html"
+      case .json(_):
+        return "json"
+      case .data(_, _):
+        return "data"
+      case .custom(_, _):
+        return "custom"
+      case .socket(_):
+        return "socket"
+    }
+  }
+  
   public override var tagString: String {
-    return "\(self.type) \(self.identityString)"
+    return "\(self.type): status=\(self.response.statusCode), " +
+           "headers=\(self.response.headers.count), body=\(self.bodyType)"
   }
   
   public override func unpack(in context: Context) -> Exprs {
-    return [.makeString(self.identityString)]
+    return [.makeString(self.identityString),
+            .makeNumber(self.response.statusCode),
+            .makeNumber(self.response.headers.count),
+            .makeString(self.bodyType)]
   }
 }
 
@@ -1025,7 +1077,9 @@ public final class HTTPMultiPart: NativeObject {
   }
   
   public override func unpack(in context: Context) -> Exprs {
-    return [.makeString(self.identityString)]
+    return [.makeString(self.identityString),
+            .makeNumber(self.multipart.headers.count),
+            .makeNumber(self.multipart.body.count)]
   }
 }
 
