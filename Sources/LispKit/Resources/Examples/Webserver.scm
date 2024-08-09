@@ -28,19 +28,26 @@
         (lispkit thread)
         (lispkit http server))
 
-; Create a new HTTP server
+;; Returns the local IP address
+(define (local-ip-address . args)
+  (let ((intf (apply available-network-interfaces args)))
+    (and (pair? intf) (cadar intf))))
+
+;; Create a new HTTP server
 (define server (make-http-server))
 
-; Register a default handler
+;; Register a default handler
 (http-server-register-default! server
   (lambda (request) (srv-response-not-found)))
 
-; Serve a page under path "/" that lists all routes
+;; Serve a page under path "/" that lists all routes
 (http-server-register! server "/"
   (lambda (request)
     (make-srv-response 200 #f
       `(p (b "Available routes:")
           (ul . ,(map (lambda (x) `(li (a (@ (href ,x)) ,x))) (http-server-routes server)))))))
+
+;; Register handlers for all supported routes
 
 (http-server-register! server "GET" "/magic"
   (lambda (request)
@@ -154,28 +161,29 @@
 (http-server-register! server "GET" "/not/implemented"
   (lambda (request) (srv-response-not-implemented)))
 
-; Counter for processed requests
+;; Counter for processed requests
 (define requests-served (make-atomic-box 0))
 
-; Use this middleware processor to count served requests with an atomic box (needed
-; because middleware is executed concurrently on potentially many different threads)
+;; Use this middleware processor to count served requests with an atomic box (needed
+;; because middleware is executed concurrently on potentially many different threads)
 (http-server-register-middleware! server
   (lambda (request)
     (atomic-box-inc+mul! requests-served 1)
     #f))
 
-; Print all log messages
-; (http-server-log-severity-set! server 0) 
+;; Print all log messages
+; (http-server-log-severity-set! server 0)
 
-; Display all supported server routes
+;; Display all supported server routes
 (display* "server routes: " (http-server-routes server) "\n")
+(display* "server url: http://" (local-ip-address #t) ":8090\n")
 
-; Start the server. This procedure only terminates when the server is shut down
-; (e.g. via a GET request for path "/close")
+;; Start the server. This procedure only terminates when the server is shut down
+;; (e.g. via a GET request for path "/close")
 (http-server-start! server 8090)
 
-; Wait for all threads to be terminated, but not longer than 10s
+;; Wait for all threads to be terminated, but not longer than 10s
 (wait-threads-terminated 10)
 
-; Display the number of requests served
+;; Display the number of requests served
 (display* (atomic-box-ref requests-served) " requests served.\n")

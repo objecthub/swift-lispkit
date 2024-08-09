@@ -1144,7 +1144,8 @@ open class HTTPServer: NanoHTTPServer, CustomExpr {
   
   open override func listen(priority: DispatchQoS.QoSClass?) {
     let port = (try? self.port()) ?? -1
-    self.log(level: 1, tag: "server", "server started for port \(port)")
+    let url = "http://\(NetworkInterface.localIP ?? "localhost"):\(port)"
+    self.log(level: 1, tag: "server", "server started for port \(port); try connecting at \(url)")
     super.listen(priority: priority)
     self.log(level: 1, tag: "server", "server stopped for port \(port)")
   }
