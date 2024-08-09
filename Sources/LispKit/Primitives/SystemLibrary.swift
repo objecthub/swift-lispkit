@@ -20,6 +20,7 @@
 
 import Foundation
 import CLFormat
+import NanoHTTP
 
 #if os(iOS) || os(watchOS) || os(tvOS)
 import UIKit
@@ -120,6 +121,7 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("physical-memory", self.physicalMemory))
     self.define(Procedure("memory-footprint", self.memoryFootprint))
     self.define(Procedure("system-uptime", self.systemUptime))
+    self.define(Procedure("available-network-interfaces", self.availableNetworkInterfaces))
     self.define(Procedure("os-type", self.osType))
     self.define(Procedure("os-version", self.osVersion))
     self.define(Procedure("os-name", self.osName))
@@ -928,6 +930,18 @@ public final class SystemLibrary: NativeLibrary {
   
   private func systemUptime() -> Expr {
     return .makeNumber(ProcessInfo.processInfo.systemUptime)
+  }
+  
+  private func availableNetworkInterfaces(onlyIpv4: Expr?) -> Expr {
+    var res = Expr.null
+    for intf in NetworkInterface.available() {
+      if (onlyIpv4?.isTrue ?? false) && !intf.ipv4 {
+        continue
+      }
+      res = .pair(.pair(.makeString(intf.name),
+                        .pair(.makeString(intf.ip), .makeString(intf.netmask))), res)
+    }
+    return res
   }
 
   private func osType() -> Expr {

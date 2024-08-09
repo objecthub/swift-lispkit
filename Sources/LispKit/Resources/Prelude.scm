@@ -43,3 +43,7 @@
       (exact (floor (* (rnd) hi))))
     ((lo hi)
       (+ lo (exact (floor (* (rnd) (- hi lo))))))))
+
+(define (local-ip-address . args)
+  (let ((intf (apply available-network-interfaces args)))
+    (and (pair? intf) (cadar intf))))
