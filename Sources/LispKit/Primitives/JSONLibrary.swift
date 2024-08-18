@@ -116,6 +116,7 @@ public final class JSONLibrary: NativeLibrary {
     self.define(Procedure("json->bytevector", self.jsonToBytevector))
     
     // Mutable JSON values
+    self.define(Procedure("mutable-json?", self.isMutableJson))
     self.define(Procedure("mutable-json", self.mutableJson))
     self.define(Procedure("json-set!", self.jsonSet))
     self.define(Procedure("json-append!", self.jsonAppend))
@@ -469,11 +470,14 @@ public final class JSONLibrary: NativeLibrary {
         }
         return .object(NativeJSONPatch(operations))
       case .object(let obj):
-        guard let json = obj as? JSON else {
-          throw RuntimeError.type(expr, expected: [JSON.type])
+        if let patch = obj as? NativeJSONPatch {
+          return .object(NativeJSONPatch(patch.value))
+        } else if let json = obj as? JSON {
+          let patch = try JSONPatch(json)
+          return .object(NativeJSONPatch(patch.operations))
+        } else {
+          throw RuntimeError.type(expr, expected: [JSON.type, NativeJSONPatch.type])
         }
-        let patch: JSONPatch = try json.coerce()
-        return .object(NativeJSONPatch(patch.operations))
       default:
         throw RuntimeError.eval(.unableToCreateJSONPatch, expr)
     }
@@ -913,6 +917,13 @@ public final class JSONLibrary: NativeLibrary {
   
   // Mutable JSON values
   
+  private func isMutableJson(expr: Expr) throws -> Expr {
+    guard case .object(let obj) = expr else {
+      return .false
+    }
+    return .makeBoolean(obj is MutableJSON)
+  }
+  
   private func mutableJson(expr: Expr, forceNew: Expr?) throws -> Expr {
     if forceNew?.isTrue ?? true {
       return .object(MutableJSON(try self.toJSON(expr)))
@@ -1160,7 +1171,7 @@ extension JSON: CustomExpr {
             if dict.count == 1 {
               return "{\(attribute.key)}"
             } else {
-              return "{\(attribute.key),…+\(dict.count - 1)]"
+              return "{\(attribute.key),…+\(dict.count - 1)}"
             }
           } else {
             return "{}"

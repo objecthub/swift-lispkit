@@ -52,6 +52,7 @@ public final class BoxLibrary: NativeLibrary {
     self.define(Procedure("set-mcdr!", self.setMcdr))
     
     // Atomic boxes
+    self.define("atomic-box-type-tag", as: AtomicBox.type.objectTypeTag())
     self.define(Procedure("atomic-box?", self.isAtomicBox))
     self.define(Procedure("make-atomic-box", self.makeAtomicBox))
     self.define(Procedure("atomic-box-ref", self.atomicBoxRef))

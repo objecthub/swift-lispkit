@@ -46,6 +46,7 @@ public final class SharedQueueLibrary: NativeLibrary {
     self.define(Procedure("shared-queue->list", self.sharedQueueToList))
     self.define(Procedure("shared-queue-closed?", self.isSharedQueueClosed))
     self.define(Procedure("shared-queue-empty?", self.isSharedQueueEmpty))
+    self.define(Procedure("shared-queue-max-length", self.sharedQueueMaxLength))
     self.define(Procedure("shared-queue-length", self.sharedQueueLength))
     self.define(Procedure("shared-queue-room", self.sharedQueueRoom))
     self.define(Procedure("shared-queue-front", self.sharedQueueFront))
@@ -126,6 +127,10 @@ public final class SharedQueueLibrary: NativeLibrary {
     return .makeBoolean(try self.sharedQueue(from: expr).isEmpty(in: self.context))
   }
   
+  private func sharedQueueMaxLength(expr: Expr) throws -> Expr {
+    return .makeNumber(try self.sharedQueue(from: expr).maxLength)
+  }
+  
   private func sharedQueueLength(expr: Expr) throws -> Expr {
     return .makeNumber(try self.sharedQueue(from: expr).length(in: self.context))
   }
@@ -179,12 +184,12 @@ public final class SharedQueueLibrary: NativeLibrary {
     throw RuntimeError.eval(.queueIsEmpty, expr)
   }
   
-  private func sharedQueueDequeueAll(expr: Expr) throws -> Expr {
+  private func sharedQueueDequeueAll(expr: Expr, close: Expr?) throws -> Expr {
     return try self.sharedQueue(from: expr).dequeue(
                  in: self.context,
                  timeout: nil,
                  wait: false,
-                 close: false,
+                 close: close?.isTrue ?? false,
                  callback: {
                    let res = Expr.makeList(fromStack: Array($0.exprs))
                    $0.exprs.removeAll(keepingCapacity: false)
@@ -602,8 +607,11 @@ public final class SharedQueue: NativeObject {
     var res = "\(Self.type) \(self.identityString)"
     var sep = ": "
     for i in 0..<min(self.queue.exprs.count, 10) {
-      res += sep + self.queue.exprs[i].description
+      res += sep + self.queue.exprs[self.queue.exprs.count - i - 1].description
       sep = " "
+    }
+    if self.queue.exprs.count > 10 {
+      res.append("...")
     }
     return res
   }

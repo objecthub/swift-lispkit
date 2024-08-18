@@ -44,7 +44,7 @@ public final class JSONSchemaLibrary: NativeLibrary {
   
   /// Initialize symbols
   public required init(in context: Context) throws {
-    self.registryParam = Procedure(.null, .object(JSONSchemaRegistry()))
+    self.registryParam = Procedure(.null, Self.makeDefaultSchemaRegistry(context: context))
     self.deprecated = context.symbols.intern("deprecated")
     self.writeOnly = context.symbols.intern("write-only")
     self.readOnly = context.symbols.intern("read-only")
@@ -292,6 +292,23 @@ public final class JSONSchemaLibrary: NativeLibrary {
       return .makeBoolean(b == boolean)
     }
     return .true
+  }
+  
+  private static func makeDefaultSchemaRegistry(context: Context) -> Expr {
+    let registry = JSONSchemaRegistry()
+    if let path = context.fileHandler.assetFilePath(forFile: "JSON/Schema/2020-12", ofType: nil) {
+      registry.register(provider:
+        StaticJSONSchemaFileProvider(
+          directory: URL(fileURLWithPath: path, isDirectory: true),
+          base: JSONSchemaIdentifier(string: "https://json-schema.org/draft/2020-12/")!))
+    }
+    if let path = context.fileHandler.assetFilePath(forFile: "JSON/Schema/custom", ofType: nil),
+       let identifier = JSONSchemaIdentifier(string: "https://lisppad.app/schema/") {
+      registry.register(provider:
+        StaticJSONSchemaFileProvider(directory: URL(fileURLWithPath: path, isDirectory: true),
+                                     base: identifier))
+    }
+    return .object(registry)
   }
   
   private func makeSchemaRegistry(args: Arguments) throws -> Expr {
@@ -549,7 +566,7 @@ public final class JSONSchemaLibrary: NativeLibrary {
       res = .pair(.pair(.pair(.object(error.value.value), .makeString(error.value.location.description)),
                         .pair(.pair(.object(try JSONSchemaResource(root: error.message.schema)),
                                     .makeString(error.location.description)),
-                        .pair(.makeString(error.message.reason.reason), .null))),
+                              .pair(.makeString(error.message.reason.reason), .null))),
                   res)
     }
     return res

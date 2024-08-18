@@ -30,11 +30,14 @@ struct LispKitRepl {
                                         build: AppInfo.buildAnnotation,
                                         copyright: AppInfo.copyright,
                                         prompt: AppInfo.prompt)
-    let features = ["repl"]
     guard repl.flagsValid() else {
       exit(1)
     }
     if repl.shouldRunRepl() {
+      var features = ["repl"]
+      if repl.runloop.wasSet {
+        features.append("runloop")
+      }
       if LispKitContext.bundle == nil {
         guard repl.configurationSuccessfull(implementationName: "LispKit",
                                             implementationVersion: "2.4.0",

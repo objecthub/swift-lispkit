@@ -79,6 +79,7 @@
 		CC14F4B01F939486000FB1E0 /* Features.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC14F4AF1F939486000FB1E0 /* Features.swift */; };
 		CC14F4B21F93A455000FB1E0 /* FeatureRequirement.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC14F4B11F93A455000FB1E0 /* FeatureRequirement.swift */; };
 		CC14F4B31F93AE04000FB1E0 /* AvlTrees.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC14F4AE1F9385BF000FB1E0 /* AvlTrees.scm */; };
+		CC17F7242C72355800DDC4F9 /* NanoHTTP in Frameworks */ = {isa = PBXBuildFile; productRef = CC17F7232C72355800DDC4F9 /* NanoHTTP */; };
 		CC1867342750E90000B31427 /* pretty.sld in Copy pre-installed LispKit library: SRFI 166 */ = {isa = PBXBuildFile; fileRef = CC1867302750E5D800B31427 /* pretty.sld */; };
 		CC1867352750E90600B31427 /* color.sld in Copy pre-installed LispKit library: SRFI 166 */ = {isa = PBXBuildFile; fileRef = CC18672E2750E57A00B31427 /* color.sld */; };
 		CC1867362750E90D00B31427 /* columnar.sld in Copy pre-installed LispKit library: SRFI 166 */ = {isa = PBXBuildFile; fileRef = CC18672F2750E5C300B31427 /* columnar.sld */; };
@@ -3772,6 +3773,7 @@
 				CC7D4B7C2A2559BC0066BA94 /* CLFormat in Frameworks */,
 				CCC48D0525E5BFAE00D082AD /* MarkdownKit in Frameworks */,
 				CC1D533B2BF16FB900EE1A24 /* DynamicJSON in Frameworks */,
+				CC17F7242C72355800DDC4F9 /* NanoHTTP in Frameworks */,
 				CCC48D0325E5BFA300D082AD /* NumberKit in Frameworks */,
 				CC2DA73C277001A200DE69CF /* Atomics in Frameworks */,
 				CCC48D0725E5BFB300D082AD /* SQLiteExpress in Frameworks */,
@@ -5187,6 +5189,7 @@
 				CC61CB372ACA116500C5A032 /* SWCompression */,
 				CC1D533A2BF16FB900EE1A24 /* DynamicJSON */,
 				CCD5B61B2C3BC773002BF2F0 /* OAuth2 */,
+				CC17F7232C72355800DDC4F9 /* NanoHTTP */,
 			);
 			productName = "LispKit iOS";
 			productReference = CCC48C5625E5B8DC00D082AD /* LispKit.framework */;
@@ -6409,6 +6412,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = CC08964F244091E9004503B1 /* XCRemoteSwiftPackageReference "swift-sqliteexpress" */;
 			productName = SQLiteExpress;
+		};
+		CC17F7232C72355800DDC4F9 /* NanoHTTP */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CCCCEC862C504AF400509902 /* XCRemoteSwiftPackageReference "swift-nanohttp" */;
+			productName = NanoHTTP;
 		};
 		CC1D53382BF16F9F00EE1A24 /* DynamicJSON */ = {
 			isa = XCSwiftPackageProductDependency;
