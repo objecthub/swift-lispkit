@@ -20,6 +20,7 @@
 
 import Foundation
 import NumberKit
+import DynamicJSON
 import CBORCoding
 
 ///
@@ -38,28 +39,30 @@ public struct Serialization: Codable {
   
   /// Structured serialized expression
   public enum SerializableExpr: Codable {
-    case undef
-    case void
+    case ud
+    case vd
     case eof
-    case null
-    case `true`
-    case `false`
-    case uninit(Int)
-    case symbol(Int)
-    case fixnum(Int64)
-    case bignum(BigInt)
-    indirect case rational(SerializableExpr, SerializableExpr)
-    case flonum(Double)
-    case complex(Complex<Double>)
-    case char(UniChar)
-    case string(Int)
-    case bytes(Int)
-    case array(Int)
-    case vector(Int)
-    case table(Int)
-    indirect case pair(SerializableExpr, SerializableExpr)
-    indirect case values(SerializableExpr)
-    indirect case tagged(SerializableExpr, SerializableExpr)
+    case nl
+    case t
+    case f
+    case us(Int)
+    case s(Int)
+    case fx(Int64)
+    case bn(BigInt)
+    indirect case rn(SerializableExpr, SerializableExpr)
+    case fn(Double)
+    case cn(Complex<Double>)
+    case ch(UniChar)
+    case st(Int)
+    case b(Int)
+    case a(Int)
+    case v(Int)
+    case ht(Int)
+    indirect case p(SerializableExpr, SerializableExpr)
+    indirect case l([SerializableExpr], SerializableExpr)
+    indirect case vs(SerializableExpr)
+    indirect case tg(SerializableExpr, SerializableExpr)
+    case j(JSON)
   }
   
   /// Structured serialized symbol
@@ -271,39 +274,48 @@ public struct Serialization: Codable {
     func serialize(_ expr: Expr) throws -> SerializableExpr {
       switch expr {
         case .undef:
-          return .undef
+          return .ud
         case .void:
-          return .void
+          return .vd
         case .eof:
           return .eof
         case .null:
-          return .null
+          return .nl
         case .true:
-          return .true
+          return .t
         case .false:
-          return .false
+          return .f
         case .uninit(let sym):
-          return .uninit(try self.serialize(sym))
+          return .us(try self.serialize(sym))
         case .symbol(let sym):
-          return .symbol(try self.serialize(sym))
+          return .s(try self.serialize(sym))
         case .fixnum(let num):
-          return .fixnum(num)
+          return .fx(num)
         case .bignum(let num):
-          return .bignum(num)
+          return .bn(num)
         case .rational(let numer, let denom):
-          return try .rational(serialize(numer), serialize(denom))
+          return try .rn(serialize(numer), serialize(denom))
         case .flonum(let num):
-          return .flonum(num)
+          return .fn(num)
         case .complex(let num):
-          return .complex(num.value)
+          return .cn(num.value)
         case .char(let ch):
-          return .char(ch)
+          return .ch(ch)
         case .string(let str):
-          return .string(try self.serialize(str))
+          return .st(try self.serialize(str))
         case .bytes(let bvec):
-          return .bytes(try self.serialize(bvec))
-        case .pair(let car, let cdr):
-          return try .pair(serialize(car), serialize(cdr))
+          return .b(try self.serialize(bvec))
+        case .pair(let car, var cdr):
+          var fst: [SerializableExpr] = [try serialize(car)]
+          while case .pair(let head, let tail) = cdr {
+            fst.append(try serialize(head))
+            cdr = tail
+          }
+          if fst.count == 1 {
+            return .p(fst.first!, try serialize(cdr))
+          } else {
+            return .l(fst, try serialize(cdr))
+          }
         case .array(let coll):
           guard case .array = coll.kind else {
             if let unserializable {
@@ -312,11 +324,11 @@ public struct Serialization: Codable {
               throw RuntimeError.eval(.cannotSerialize, expr)
             }
           }
-          return .array(try self.serialize(coll))
+          return .a(try self.serialize(coll))
         case .vector(let coll):
           switch coll.kind {
             case .vector, .immutableVector:
-              return .vector(try self.serialize(coll))
+              return .v(try self.serialize(coll))
             default:
               if let unserializable {
                 return try self.serialize(unserializable)
@@ -327,7 +339,7 @@ public struct Serialization: Codable {
         case .table(let table):
           switch table.equiv {
             case .eq, .eqv, .equal:
-              return .table(try self.serialize(table))
+              return .ht(try self.serialize(table))
             default:
               if let unserializable {
                 return try self.serialize(unserializable)
@@ -336,11 +348,16 @@ public struct Serialization: Codable {
               }
           }
         case .values(let vals):
-          return .values(try serialize(vals))
+          return .vs(try serialize(vals))
         case .tagged(let tag, let expr):
-          return try .tagged(serialize(tag), serialize(expr))
+          return try .tg(serialize(tag), serialize(expr))
         case .syntax(_, let expr):
           return try serialize(expr)
+        case .object(let obj):
+          if let json = obj as? JSON {
+            return .j(json)
+          }
+          fallthrough
         default:
           if let unserializable {
             return try self.serialize(unserializable)
@@ -522,50 +539,58 @@ public struct Serialization: Codable {
     
     private func deserialize(_ expr: SerializableExpr) -> Expr {
       switch expr {
-        case .undef:
+        case .ud:
           return .undef
-        case .void:
+        case .vd:
           return .void
         case .eof:
           return .eof
-        case .null:
+        case .nl:
           return .null
-        case .true:
+        case .t:
           return .true
-        case .false:
+        case .f:
           return .false
-        case .uninit(let i):
+        case .us(let i):
           return .uninit(self.deserialize(symbol: i))
-        case .symbol(let i):
+        case .s(let i):
           return .symbol(self.deserialize(symbol: i))
-        case .fixnum(let num):
+        case .fx(let num):
           return .fixnum(num)
-        case .bignum(let num):
+        case .bn(let num):
           return .bignum(num)
-        case .rational(let numer, let denom):
+        case .rn(let numer, let denom):
           return .rational(deserialize(numer), deserialize(denom))
-        case .flonum(let num):
+        case .fn(let num):
           return .flonum(num)
-        case .complex(let num):
+        case .cn(let num):
           return .complex(DoubleComplex(num))
-        case .char(let ch):
+        case .ch(let ch):
           return .char(ch)
-        case .string(let i):
+        case .st(let i):
           return .string(self.deserialize(string: i))
-        case .bytes(let i):
+        case .b(let i):
           return .bytes(self.deserialize(bytevector: i))
-        case .array(let i):
+        case .a(let i):
           return .array(self.deserialize(array: i))
-        case .vector(let i):
+        case .v(let i):
           return .vector(self.deserialize(vector: i))
-        case .table(let i):
+        case .ht(let i):
           return .table(self.deserialize(table: i))
-        case .pair(let car, let cdr):
+        case .p(let car, let cdr):
           return .pair(deserialize(car), deserialize(cdr))
-        case .values(let exprs):
+        case .l(let elements, let cdr):
+          var res = deserialize(cdr)
+          for elem in elements.reversed() {
+            res = .pair(deserialize(elem), res)
+          }
+          return res
+        case .vs(let exprs):
           return .values(deserialize(exprs))
-        case .tagged(let tag, let expr):
+        case .tg(let tag, let expr):
           return .tagged(deserialize(tag), deserialize(expr))
+        case .j(let json):
+          return .object(json)
       }
     }
   }

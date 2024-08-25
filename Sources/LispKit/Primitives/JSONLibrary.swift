@@ -20,6 +20,7 @@
 
 import Foundation
 import DynamicJSON
+import CBORCoding
 
 public final class JSONLibrary: NativeLibrary {
   
@@ -104,6 +105,7 @@ public final class JSONLibrary: NativeLibrary {
     self.define(Procedure("make-json-array", self.makeJsonArray))
     self.define(Procedure("string->json", self.stringToJson))
     self.define(Procedure("bytevector->json", self.bytevectorToJson))
+    self.define(Procedure("cbor->json", self.cborToJson))
     self.define(Procedure("load-json", self.loadJson))
     self.define(Procedure("json-members", self.jsonMembers))
     self.define(Procedure("json-children", self.jsonChildren))
@@ -114,6 +116,7 @@ public final class JSONLibrary: NativeLibrary {
     self.define(Procedure("json->value", self.jsonToValue))
     self.define(Procedure("json->string", self.jsonToString))
     self.define(Procedure("json->bytevector", self.jsonToBytevector))
+    self.define(Procedure("json->cbor", self.jsonToCbor))
     
     // Mutable JSON values
     self.define(Procedure("mutable-json?", self.isMutableJson))
@@ -738,6 +741,12 @@ public final class JSONLibrary: NativeLibrary {
                             floatDecodingStrategy: Self.floatDecodingStrategy))
   }
   
+  private func cborToJson(expr: Expr, args: Arguments) throws -> Expr {
+    let subvec = try BytevectorLibrary.subVector("bytevector->json", expr, args)
+    let decoder = CBORDecoder()
+    return .object(try decoder.decode(JSON.self, from: Data(subvec)))
+  }
+  
   private func loadJson(filename: Expr) throws -> Expr {
     let path = self.context.fileHandler.path(try filename.asPath(),
                                              relativeTo: self.context.evaluator.currentDirectoryPath)
@@ -909,6 +918,15 @@ public final class JSONLibrary: NativeLibrary {
     let data = try json.data(formatting: options,
                              dateEncodingStrategy: .iso8601,
                              floatEncodingStrategy: Self.floatEncodingStrategy)
+    let count = data.count
+    var res = [UInt8](repeating: 0, count: count)
+    data.copyBytes(to: &res, count: count)
+    return .bytes(MutableBox(res))
+  }
+  
+  private func jsonToCbor(expr: Expr) throws -> Expr {
+    let encoder = CBOREncoder()
+    let data = try encoder.encode(self.json(from: expr))
     let count = data.count
     var res = [UInt8](repeating: 0, count: count)
     data.copyBytes(to: &res, count: count)
