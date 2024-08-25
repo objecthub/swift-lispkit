@@ -624,7 +624,7 @@ public final class JSONSchemaLibrary: NativeLibrary {
   }
 }
 
-extension JSONSchemaRegistry: CustomExpr {
+extension DynamicJSON.JSONSchemaRegistry: LispKit.CustomExpr {
   public static let type = Type.objectType(Symbol(uninterned: "json-schema-registry"))
   
   public var type: Type {
@@ -670,7 +670,7 @@ extension JSONSchemaRegistry: CustomExpr {
   }
 }
 
-extension JSONSchemaResource: CustomExpr {
+extension DynamicJSON.JSONSchemaResource: LispKit.CustomExpr {
   public static let type = Type.objectType(Symbol(uninterned: "json-schema"))
   
   public var type: Type {
