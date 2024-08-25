@@ -39,7 +39,7 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
   }
 
   /// The hash buckets.
-  internal private(set) var buckets: Exprs
+  internal var buckets: Exprs
   
   /// Number of mappings in this hash table
   public private(set) var count: Int
@@ -54,6 +54,14 @@ public final class HashTable: ManagedObject, CustomStringConvertible {
   public init(capacity: Int = 127, mutable: Bool = true, equiv: Equivalence) {
     self.buckets = Exprs(repeating: .null, count: capacity)
     self.count = 0
+    self.mutable = mutable
+    self.equiv = equiv
+  }
+  
+  /// Create a new empty hash table
+  internal init(buckets: Exprs, count: Int, mutable: Bool, equiv: Equivalence) {
+    self.buckets = buckets
+    self.count = count
     self.mutable = mutable
     self.equiv = equiv
   }

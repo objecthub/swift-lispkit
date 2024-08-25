@@ -107,6 +107,8 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit stream)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Stream),
     [`(lispkit thread)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Thread),
     [`(lispkit thread channel)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Thread-Channel),
+    `(lispkit thread future)`,
+    `(lispkit thread shared-queue)`,
     [`(lispkit graph)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Graph),
     [`(lispkit match)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Match),
     [`(lispkit iterate)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Iterate),
@@ -134,6 +136,10 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit crypto)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Crypto),
     `(lispkit json)`,
     `(lispkit json schema)`,
+    `(lispkit http)`,
+    `(lispkit http server)`,
+    `(lispkit http oauth)`,
+    `(lispkit serialize)`,
     `(lispkit sxml)`,
     `(lispkit sxml xml)`,
     `(lispkit sxml html)`,
@@ -381,3 +387,8 @@ the command-line tool directly in Xcode, the Swift Package Manager is not needed
 - [SQLiteExpress](http://github.com/objecthub/swift-sqliteexpress)
 - [ZIPFoundation](https://github.com/weichsel/ZIPFoundation)
 - [Swift Atomics](https://github.com/apple/swift-atomics)
+- [CLFormat](https://github.com/objecthub/swift-clformat)
+- [DynamicJSON](https://github.com/objecthub/swift-dynamicjson)
+- [NanoHTTP](https://github.com/objecthub/swift-nanohttp)
+- [OAuth2](https://github.com/p2/OAuth2)
+- [CBORCoding](https://github.com/SomeRandomiOSDev/CBORCoding)

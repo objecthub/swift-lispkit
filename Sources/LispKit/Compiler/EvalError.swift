@@ -24,7 +24,7 @@ import Foundation
 /// Enumeration `EvalError` represents errors occuring during the evaluation or compilation
 /// of LispKit expressions.
 ///
-public enum EvalError: Int, Hashable {
+public enum EvalError: Int, Hashable, Codable {
   case illegalKeywordUsage
   case illegalFormalParameter
   case illegalFormalRestParameter
@@ -185,6 +185,7 @@ public enum EvalError: Int, Hashable {
   case insertIntoMaxQueue
   case queueIsEmpty
   case illegalArithForAtomicBox
+  case cannotSerialize
   
   public var message: String {
     switch self {
@@ -508,6 +509,8 @@ public enum EvalError: Int, Hashable {
         return "cannot complete operation since queue $0 is empty"
       case .illegalArithForAtomicBox:
         return "cannot apply arithmetic updates to atomic box $0"
+      case .cannotSerialize:
+        return "unable to serialize value: $0"
     }
   }
   

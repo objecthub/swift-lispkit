@@ -440,6 +440,14 @@ public enum Expr: Hashable {
     return nil
   }
   
+  public var isSerializable: Bool {
+    return Serialization.isSerializable(self)
+  }
+  
+  public func serialization(unserializable: Expr? = nil) throws -> Serialization {
+    return try Serialization(for: self, unserializable: unserializable)
+  }
+  
   /// Returns the position of this expression.
   public var pos: SourcePosition {
     switch self {

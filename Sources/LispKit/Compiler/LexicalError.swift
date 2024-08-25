@@ -24,7 +24,7 @@ import Foundation
 /// Enumeration `LexicalError` represents lexical parsing errors emitted by the
 /// scanner.
 ///
-public enum LexicalError: Int, Hashable {
+public enum LexicalError: Int, Hashable, Codable {
   case empty
   case malformedIdentifier
   case brokenIdentifierEncoding

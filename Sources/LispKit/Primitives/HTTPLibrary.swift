@@ -45,6 +45,11 @@ public final class HTTPLibrary: NativeLibrary {
   
   /// Declarations of the library.
   public override func declarations() {
+    // Type tags
+    self.define("http-session-type-tag", as: HTTPSession.type.objectTypeTag())
+    self.define("http-request-type-tag", as: HTTPRequest.type.objectTypeTag())
+    self.define("http-response-type-tag", as: HTTPResponse.type.objectTypeTag())
+
     // Parameter objects
     self.define("current-http-session", as: self.sessionParam)
     
@@ -53,11 +58,11 @@ public final class HTTPLibrary: NativeLibrary {
     self.define(Procedure("make-http-session", self.makeHttpSession))
     self.define(Procedure("http-session-copy", self.httpSessionCopy))
     self.define(Procedure("http-session-timeout", self.httpSessionTimeout))
-    self.define(Procedure("http-session-send-cookies", self.httpSessionSendCookies))
+    self.define(Procedure("http-session-send-cookies?", self.httpSessionSendCookies))
     self.define(Procedure("http-session-cache-policy", self.httpSessionCachePolicy))
     self.define(Procedure("http-session-max-connections", self.httpSessionMaxConnections))
-    self.define(Procedure("http-session-use-pipelining", self.httpSessionUsePipelining))
-    self.define(Procedure("http-session-allow-cellular", self.httpSessionAllowCellular))
+    self.define(Procedure("http-session-use-pipelining?", self.httpSessionUsePipelining))
+    self.define(Procedure("http-session-allow-cellular?", self.httpSessionAllowCellular))
     self.define(Procedure("http-session-tasks", self.httpSessionTasks))
     self.define(Procedure("http-session-flush!", self.httpSessionFlush))
     self.define(Procedure("http-session-reset!", self.httpSessionReset))
@@ -175,7 +180,7 @@ public final class HTTPLibrary: NativeLibrary {
   
   public static func overrideConfig(_ config: inout URLSessionConfiguration,
                                     with iter: inout IndexingIterator<Arguments>) throws {
-    if let timeout = iter.next() {
+    if let timeout = iter.next(), timeout != .false && timeout != .null {
       config.timeoutIntervalForRequest = try timeout.asDouble(coerce: true)
     }
     if let cookies = iter.next(), cookies != .null {
@@ -470,7 +475,7 @@ public final class HTTPLibrary: NativeLibrary {
     if let cache = try self.request(from: expr).requestCachePolicy {
       return .makeString(HTTPLibrary.string(forCachePolicy: cache))
     } else {
-      return .false
+      return .null
     }
   }
   

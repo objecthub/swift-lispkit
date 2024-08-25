@@ -588,7 +588,7 @@ public final class JSONSchemaLibrary: NativeLibrary {
       }
       res = .pair(.pair(.pair(.object(tag.value.value), .makeString(tag.value.location.description)),
                         .pair(.makeString(tag.location.description),
-                        .pair(taglist, .null))),
+                              .pair(taglist, .null))),
                   res)
     }
     return res

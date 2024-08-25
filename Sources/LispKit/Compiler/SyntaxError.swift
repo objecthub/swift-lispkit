@@ -23,7 +23,7 @@ import Foundation
 ///
 /// Enumeration `SyntaxError` represents syntactical errors emitted by the parser.
 ///
-public enum SyntaxError: Int, Hashable {
+public enum SyntaxError: Int, Hashable, Codable {
   case empty
   case closingParenthesisMissing
   case unexpectedClosingParenthesis
