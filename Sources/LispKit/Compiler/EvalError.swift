@@ -186,6 +186,8 @@ public enum EvalError: Int, Hashable, Codable {
   case queueIsEmpty
   case illegalArithForAtomicBox
   case cannotSerialize
+  case expectedAccessibilitySpecifier
+  case illegalPolicySpecifier
   
   public var message: String {
     switch self {
@@ -511,6 +513,10 @@ public enum EvalError: Int, Hashable, Codable {
         return "cannot apply arithmetic updates to atomic box $0"
       case .cannotSerialize:
         return "unable to serialize value: $0"
+      case .expectedAccessibilitySpecifier:
+        return "expected accessibility specifier but received $0"
+      case .illegalPolicySpecifier:
+        return "illegal authentication policy specifier: $0"
     }
   }
   

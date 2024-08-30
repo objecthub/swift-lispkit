@@ -54,8 +54,10 @@ public final class BytevectorLibrary: NativeLibrary {
     self.define(Procedure("bytevector-inflate", bytevectorInflate))
     self.define(Procedure("bytevector-zip", bytevectorZip))
     self.define(Procedure("bytevector-unzip", bytevectorUnzip))
+    self.define(Procedure("bytevector-zip-header?", bytevectorZipHeader))
     self.define(Procedure("bytevector-gzip", bytevectorGzip))
     self.define(Procedure("bytevector-gunzip", bytevectorGunzip))
+    self.define(Procedure("bytevector-gzip-header?", bytevectorGzipHeader))
     self.define(Procedure("bytevector-adler32", bytevectorAdler32))
     self.define(Procedure("bytevector-crc32", bytevectorCrc32))
   }
@@ -305,6 +307,12 @@ public final class BytevectorLibrary: NativeLibrary {
     }
     return Self.bytevector(from: data)
   }
+  
+  private func bytevectorZipHeader(_ bvec: Expr, args: Arguments) throws -> Expr {
+    let subvec = try Self.subVector("bytevector-zip-header?", bvec, args)
+    return .makeBoolean(subvec.count > 4 && subvec[0] == 0x50 && subvec[1] == 0x4b &&
+                        subvec[2] == 0x03 && subvec[3] == 0x04)
+  }
 
   private func bytevectorGzip(_ bvec: Expr, args: Arguments) throws -> Expr {
     let subvec = try Self.subVector("bytevector-gzip", bvec, args)
@@ -320,6 +328,11 @@ public final class BytevectorLibrary: NativeLibrary {
       throw RuntimeError.eval(.cannotDecodeBytevector, .bytes(MutableBox(subvec)))
     }
     return Self.bytevector(from: data)
+  }
+  
+  private func bytevectorGzipHeader(_ bvec: Expr, args: Arguments) throws -> Expr {
+    let subvec = try Self.subVector("bytevector-gzip-header?", bvec, args)
+    return .makeBoolean(subvec.count > 10 && subvec[0] == 0x1f && subvec[1] == 0x8b)
   }
 
   private func bytevectorAdler32(_ bvec: Expr, args: Arguments) throws -> Expr {

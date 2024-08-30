@@ -86,6 +86,8 @@
 		CC17F7432C793EC700DDC4F9 /* CBORCoding in Frameworks */ = {isa = PBXBuildFile; productRef = CC17F7422C793EC700DDC4F9 /* CBORCoding */; };
 		CC17F7452C79474800DDC4F9 /* SerializeLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC17F7442C79474800DDC4F9 /* SerializeLibrary.swift */; };
 		CC17F7462C79474800DDC4F9 /* SerializeLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC17F7442C79474800DDC4F9 /* SerializeLibrary.swift */; };
+		CC17F7482C7DB91000DDC4F9 /* KeychainLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC17F7472C7DB91000DDC4F9 /* KeychainLibrary.swift */; };
+		CC17F7492C7DB91000DDC4F9 /* KeychainLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC17F7472C7DB91000DDC4F9 /* KeychainLibrary.swift */; };
 		CC1867342750E90000B31427 /* pretty.sld in Copy pre-installed LispKit library: SRFI 166 */ = {isa = PBXBuildFile; fileRef = CC1867302750E5D800B31427 /* pretty.sld */; };
 		CC1867352750E90600B31427 /* color.sld in Copy pre-installed LispKit library: SRFI 166 */ = {isa = PBXBuildFile; fileRef = CC18672E2750E57A00B31427 /* color.sld */; };
 		CC1867362750E90D00B31427 /* columnar.sld in Copy pre-installed LispKit library: SRFI 166 */ = {isa = PBXBuildFile; fileRef = CC18672F2750E5C300B31427 /* columnar.sld */; };
@@ -309,6 +311,8 @@
 		CC624CDA27374E8E005F15B3 /* util.sld in Copy pre-installed LispKit library: LispKit Math */ = {isa = PBXBuildFile; fileRef = CC624CD627374BF4005F15B3 /* util.sld */; };
 		CC624CDC2737D21E005F15B3 /* stats.sld in Copy pre-installed LispKit library: LispKit Math */ = {isa = PBXBuildFile; fileRef = CC624CDB2737D16E005F15B3 /* stats.sld */; };
 		CC624CDD2737D234005F15B3 /* stats.sld in Copy pre-installed LispKit library: LispKit Math */ = {isa = PBXBuildFile; fileRef = CC624CDB2737D16E005F15B3 /* stats.sld */; };
+		CC6290842C7DBBFB005AF800 /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = CC6290832C7DBBFB005AF800 /* KeychainAccess */; };
+		CC6290862C7DBC1B005AF800 /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = CC6290852C7DBC1B005AF800 /* KeychainAccess */; };
 		CC6598CF27248DC8004C9B89 /* LispKitContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6598CE27248DC8004C9B89 /* LispKitContext.swift */; };
 		CC6598D027248DC8004C9B89 /* LispKitContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6598CE27248DC8004C9B89 /* LispKitContext.swift */; };
 		CC68B3A91FCCCDEE00EB4AF9 /* object.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC68B3A81FCC73C300EB4AF9 /* object.sld */; };
@@ -3099,6 +3103,7 @@
 		CC14F4B11F93A455000FB1E0 /* FeatureRequirement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureRequirement.swift; sourceTree = "<group>"; };
 		CC17F73C2C78C4FB00DDC4F9 /* Serialization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Serialization.swift; sourceTree = "<group>"; };
 		CC17F7442C79474800DDC4F9 /* SerializeLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SerializeLibrary.swift; sourceTree = "<group>"; };
+		CC17F7472C7DB91000DDC4F9 /* KeychainLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainLibrary.swift; sourceTree = "<group>"; };
 		CC18672D2750E4DC00B31427 /* base.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = base.sld; sourceTree = "<group>"; };
 		CC18672E2750E57A00B31427 /* color.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = color.sld; sourceTree = "<group>"; };
 		CC18672F2750E5C300B31427 /* columnar.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = columnar.sld; sourceTree = "<group>"; };
@@ -3760,6 +3765,7 @@
 				CC5E53032355AAD400C72CE2 /* NumberKit in Frameworks */,
 				CC2DA73A2770012300DE69CF /* Atomics in Frameworks */,
 				CC089651244091E9004503B1 /* SQLiteExpress in Frameworks */,
+				CC6290842C7DBBFB005AF800 /* KeychainAccess in Frameworks */,
 				CC2FB07E2AA3D83E00A20C71 /* SWCompression in Frameworks */,
 				CC17F7412C793E6400DDC4F9 /* CBORCoding in Frameworks */,
 				CCFB412725B2523C005B2429 /* ZIPFoundation in Frameworks */,
@@ -3786,6 +3792,7 @@
 				CCC48D0325E5BFA300D082AD /* NumberKit in Frameworks */,
 				CC2DA73C277001A200DE69CF /* Atomics in Frameworks */,
 				CCC48D0725E5BFB300D082AD /* SQLiteExpress in Frameworks */,
+				CC6290862C7DBC1B005AF800 /* KeychainAccess in Frameworks */,
 				CC61CB382ACA116500C5A032 /* SWCompression in Frameworks */,
 				CC17F7432C793EC700DDC4F9 /* CBORCoding in Frameworks */,
 				CCC48D0925E5BFB800D082AD /* ZIPFoundation in Frameworks */,
@@ -4734,6 +4741,7 @@
 				CCD5B6152C3BC480002BF2F0 /* HTTPAOuthLibrary.swift */,
 				CC1D533C2BF1709E00EE1A24 /* JSONLibrary.swift */,
 				CCD5B5202C0D231E002BF2F0 /* JSONSchemaLibrary.swift */,
+				CC17F7472C7DB91000DDC4F9 /* KeychainLibrary.swift */,
 				CC38528A23126F7A001D5E56 /* InternalLibrary.swift */,
 			);
 			path = Primitives;
@@ -5124,6 +5132,7 @@
 				CCD5B6192C3BC57A002BF2F0 /* OAuth2 */,
 				CCCCEC872C504AF400509902 /* NanoHTTP */,
 				CC17F7402C793E6400DDC4F9 /* CBORCoding */,
+				CC6290832C7DBBFB005AF800 /* KeychainAccess */,
 			);
 			productName = LispKit;
 			productReference = CCAD52BA1C48403800DBD8EE /* LispKit.framework */;
@@ -5204,6 +5213,7 @@
 				CCD5B61B2C3BC773002BF2F0 /* OAuth2 */,
 				CC17F7232C72355800DDC4F9 /* NanoHTTP */,
 				CC17F7422C793EC700DDC4F9 /* CBORCoding */,
+				CC6290852C7DBC1B005AF800 /* KeychainAccess */,
 			);
 			productName = "LispKit iOS";
 			productReference = CCC48C5625E5B8DC00D082AD /* LispKit.framework */;
@@ -5284,6 +5294,7 @@
 				CCD5B6182C3BC57A002BF2F0 /* XCRemoteSwiftPackageReference "OAuth2" */,
 				CCCCEC862C504AF400509902 /* XCRemoteSwiftPackageReference "swift-nanohttp" */,
 				CC17F73F2C793E6400DDC4F9 /* XCRemoteSwiftPackageReference "CBORCoding" */,
+				CC6290822C7DBBFB005AF800 /* XCRemoteSwiftPackageReference "KeychainAccess" */,
 			);
 			productRefGroup = CCAD52BB1C48403800DBD8EE /* Products */;
 			projectDirPath = "";
@@ -5438,6 +5449,7 @@
 				CCD5B60B2C295951002BF2F0 /* HTTPLibrary.swift in Sources */,
 				CC240E8924FA41B100FF6D0F /* DebugLibrary.swift in Sources */,
 				CC14F4B01F939486000FB1E0 /* Features.swift in Sources */,
+				CC17F7482C7DB91000DDC4F9 /* KeychainLibrary.swift in Sources */,
 				CC5A47211C5295E600EFCF76 /* NativeLibrary.swift in Sources */,
 				CC35F9C2222188BD00895A10 /* DateTimeLibrary.swift in Sources */,
 				CC54924121DC2A44004A0652 /* CharSet.swift in Sources */,
@@ -5649,6 +5661,7 @@
 				CC17F7462C79474800DDC4F9 /* SerializeLibrary.swift in Sources */,
 				CCC48CB925E5B97100D082AD /* Heap.swift in Sources */,
 				CC372CD027D31EC30091C474 /* Bitset.swift in Sources */,
+				CC17F7492C7DB91000DDC4F9 /* KeychainLibrary.swift in Sources */,
 				CCC48CC725E5B98600D082AD /* ControlFlowLibrary.swift in Sources */,
 				CC2FB07B2AA3D7A800A20C71 /* TarArchiveLibrary.swift in Sources */,
 				CCC48C9325E5B95B00D082AD /* Environment.swift in Sources */,
@@ -6392,6 +6405,14 @@
 				minimumVersion = 0.3.5;
 			};
 		};
+		CC6290822C7DBBFB005AF800 /* XCRemoteSwiftPackageReference "KeychainAccess" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kishikawakatsumi/KeychainAccess";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
 		CC7D4B6B2A0D877C0066BA94 /* XCRemoteSwiftPackageReference "swift-clformat" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/objecthub/swift-clformat";
@@ -6494,6 +6515,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = CC2FB07C2AA3D83E00A20C71 /* XCRemoteSwiftPackageReference "SWCompression" */;
 			productName = SWCompression;
+		};
+		CC6290832C7DBBFB005AF800 /* KeychainAccess */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CC6290822C7DBBFB005AF800 /* XCRemoteSwiftPackageReference "KeychainAccess" */;
+			productName = KeychainAccess;
+		};
+		CC6290852C7DBC1B005AF800 /* KeychainAccess */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CC6290822C7DBBFB005AF800 /* XCRemoteSwiftPackageReference "KeychainAccess" */;
+			productName = KeychainAccess;
 		};
 		CC7D4B6C2A0D877C0066BA94 /* CLFormat */ = {
 			isa = XCSwiftPackageProductDependency;
