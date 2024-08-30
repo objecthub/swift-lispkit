@@ -1,5 +1,5 @@
 {
-  "originHash" : "6cf686a86728597345ad4bc2c49993a665da041ad7bea1f14414403f1319fc8a",
+  "originHash" : "32220cec0f5a5302fc8bd40fe03e4db67829930c1ef6010465d0c113618234dd",
   "pins" : [
     {
       "identity" : "bitbytedata",
@@ -105,8 +105,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/objecthub/swift-nanohttp",
       "state" : {
-        "branch" : "main",
-        "revision" : "e3c3441ca509ffdb77c9c83cb918673f1c0c2e16"
+        "revision" : "e3c3441ca509ffdb77c9c83cb918673f1c0c2e16",
+        "version" : "1.0.1"
       }
     },
     {

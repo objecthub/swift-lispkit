@@ -74,6 +74,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit control)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Control),
     [`(lispkit system)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-System),
     [`(lispkit system call)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-System-OS),
+    `(lispkit system keychain)`,
     [`(lispkit box)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Box),
     [`(lispkit math)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Math),
     [`(lispkit math matrix)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Math-Matrix),
@@ -392,3 +393,4 @@ the command-line tool directly in Xcode, the Swift Package Manager is not needed
 - [NanoHTTP](https://github.com/objecthub/swift-nanohttp)
 - [OAuth2](https://github.com/p2/OAuth2)
 - [CBORCoding](https://github.com/SomeRandomiOSDev/CBORCoding)
+- [KeychainAccess](https://github.com/kishikawakatsumi/KeychainAccess)

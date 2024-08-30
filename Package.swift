@@ -55,10 +55,12 @@ let package = Package(
     .package(url: "https://github.com/objecthub/swift-sqliteexpress.git", from: "1.0.3"),
     .package(url: "https://github.com/objecthub/swift-clformat.git", from: "1.1.0"),
     .package(url: "https://github.com/objecthub/swift-dynamicjson.git", branch: "main"),
-    .package(url: "https://github.com/objecthub/swift-nanohttp.git", branch: "main"),
+    .package(url: "https://github.com/objecthub/swift-nanohttp.git", from: "1.0.1"),
     .package(url: "https://github.com/weichsel/ZIPFoundation.git", from: "0.9.19"),
     .package(url: "https://github.com/tsolomko/SWCompression.git", from: "4.8.6"),
     .package(url: "https://github.com/p2/OAuth2.git", from: "5.3.5"),
+    .package(url: "https://github.com/SomeRandomiOSDev/CBORCoding.git", from: "1.4.0"),
+    .package(url: "https://github.com/kishikawakatsumi/KeychainAccess.git", branch: "master"),
     .package(url: "https://github.com/apple/swift-atomics.git", from: "1.2.0")
   ],
   targets: [
@@ -73,6 +75,8 @@ let package = Package(
               .product(name: "ZIPFoundation", package: "ZIPFoundation"),
               .product(name: "SWCompression", package: "SWCompression"),
               .product(name: "OAuth2", package: "OAuth2"),
+              .product(name: "CBORCoding", package: "CBORCoding"),
+              .product(name: "KeychainAccess", package: "KeychainAccess"),
               .product(name: "Atomics", package: "swift-atomics")
             ],
             exclude: [

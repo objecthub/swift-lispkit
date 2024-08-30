@@ -6433,8 +6433,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/objecthub/swift-nanohttp";
 			requirement = {
-				branch = main;
-				kind = branch;
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.1;
 			};
 		};
 		CCD5B6182C3BC57A002BF2F0 /* XCRemoteSwiftPackageReference "OAuth2" */ = {

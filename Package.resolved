@@ -10,6 +10,33 @@
       }
     },
     {
+      "identity" : "cborcoding",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SomeRandomiOSDev/CBORCoding.git",
+      "state" : {
+        "revision" : "6fbd643c64cf6ef7a98391820c372d05fa9ed9ab",
+        "version" : "1.4.0"
+      }
+    },
+    {
+      "identity" : "half",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SomeRandomiOSDev/Half",
+      "state" : {
+        "revision" : "14b1ab35ffdf62c999ef1016ec0f8e745a6feed5",
+        "version" : "1.4.2"
+      }
+    },
+    {
+      "identity" : "keychainaccess",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/kishikawakatsumi/KeychainAccess.git",
+      "state" : {
+        "branch" : "master",
+        "revision" : "e0c7eebc5a4465a3c4680764f26b7a61f567cdaf"
+      }
+    },
+    {
       "identity" : "oauth2",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/p2/OAuth2.git",
@@ -68,8 +95,17 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/objecthub/swift-markdownkit.git",
       "state" : {
-        "revision" : "e1132285f2327dba7a34523f4ef5bc5cb8502d39",
-        "version" : "1.1.8"
+        "revision" : "d9bc97f7ad32cfdda621eaaa0eb88082eb75fbd8",
+        "version" : "1.1.9"
+      }
+    },
+    {
+      "identity" : "swift-nanohttp",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/objecthub/swift-nanohttp.git",
+      "state" : {
+        "revision" : "e3c3441ca509ffdb77c9c83cb918673f1c0c2e16",
+        "version" : "1.0.1"
       }
     },
     {
