@@ -1,24 +1,26 @@
 ;;; Maze generation
 ;;;
-;;; This is a slightly bigger example which implements a maze generation framework and
-;;; two sample algorithms which generate random mazes.
+;;; This is a slightly bigger example which implements a maze generation
+;;; framework and two sample algorithms which generate random mazes.
 ;;;
-;;; The code is organized in two parts: the framework for representing and generating
-;;; mazes is implemented in terms of a library `(lispkit example maze)`. It defines a
-;;; new datatype `maze` which implements a maze of given dimensions as a vector of fixnum
-;;; values. Conceptually, a maze is a board of cells. Each cell has up to four walls in
-;;; the directions towards `north`, `south`, `east`, and `west`. In addition, each cell
-;;; provides a 60-bit fixnum value for representing custom flags.
+;;; The code is organized in two parts: the framework for representing and
+;;; generating mazes is implemented in terms of a library
+;;; `(lispkit example maze)`. It defines a new datatype `maze` which
+;;; implements a maze of given dimensions as a vector of fixnum values.
+;;; Conceptually, a maze is a board of cells. Each cell has up to four
+;;; walls in the directions towards `north`, `south`, `east`, and `west`.
+;;; In addition, each cell provides a 60-bit fixnum value for representing
+;;; custom flags.
 ;;;
-;;; The second part of the code imports the library and implements two algorithms for
-;;; generating random mazes: one is based on a randomized backtracking approach doing
-;;; a depth first search, the second one implements a very simple approach by generating
-;;; a random binary tree.
+;;; The second part of the code imports the library and implements two
+;;; algorithms for generating random mazes: one is based on a randomized
+;;; backtracking approach doing a depth first search, the second one
+;;; implements a very simple approach by generating a random binary tree.
 ;;;
-;;; Mazes can be either printed onto a terminal via function `display-maze` or there is
-;;; a simple function `save-maze` which draws a maze into a LispKit drawing which is then
-;;; saved into a PDF file.
-;;;
+;;; Mazes can be either printed onto a terminal via function `display-maze`
+;;; or there is a simple function `save-maze` which draws a maze into a
+;;; LispKit drawing which is then saved into a PDF file.
+;;; 
 ;;; Example usage:
 ;;;   (display-maze (make-maze/randomized-dfs 15 15))
 ;;;   (save-maze "Maze-DFS.pdf" (make-maze/randomized-dfs 40 40) 10 10)
@@ -27,15 +29,17 @@
 ;;; Author: Matthias Zenger
 ;;; Copyright © 2019 Matthias Zenger. All rights reserved.
 ;;;
-;;; Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
-;;; except in compliance with the License. You may obtain a copy of the License at
+;;; Licensed under the Apache License, Version 2.0 (the "License"); you may
+;;; not use this file except in compliance with the License. You may obtain
+;;; a copy of the License at
 ;;;
 ;;;   http://www.apache.org/licenses/LICENSE-2.0
 ;;;
-;;; Unless required by applicable law or agreed to in writing, software distributed under the
-;;; License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-;;; either express or implied. See the License for the specific language governing permissions
-;;; and limitations under the License.
+;;; Unless required by applicable law or agreed to in writing, software
+;;; distributed under the License is distributed on an "AS IS" BASIS,
+;;; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+;;; See the License for the specific language governing permissions and
+;;; limitations under the License.
 
 ;; Library providing functionality for creating, representing and manipulating data structures
 ;; for mazes, maze cells, and directions.

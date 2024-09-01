@@ -1,33 +1,36 @@
 ;;; Sample AVL Tree Library
 ;;;
-;;; This is an example showcasing the usage of libraries to implement abstract data types.
-;;; As opposed to the R7RS standard, LispKit allows for the definition of libraries in programs
-;;; directly. Such "local libraries" can be defined and imported just like globally installed
-;;; libraries in .sld files. They are useful to hide internal functions and to document the
-;;; official interface of a datatype.
+;;; This is an example showcasing the usage of libraries to implement
+;;; abstract data types. As opposed to the R7RS standard, LispKit allows
+;;; for the definition of libraries in programs directly. Such "local
+;;; libraries" can be defined and imported just like globally installed
+;;; libraries in .sld files. They are useful to hide internal functions
+;;; and to document the official interface of a datatype.
 ;;;
-;;; The AVL tree library example below implements purely functional AVL trees: inserting or
-;;; deleting an element from an AVL tree results in a new AVL tree. Internally, AVL trees are
-;;; implemented using algebraic datatypes. Algebraic datatypes usually don't exist in Scheme
-;;; implementations. LispKit provides a lightweight algebraic datatype implementation via
-;;; library `(lispkit datatype)`.
+;;; The AVL tree library example below implements purely functional AVL
+;;; trees: inserting or deleting an element from an AVL tree results in a
+;;; new AVL tree. Internally, AVL trees are implemented using algebraic
+;;; datatypes. Algebraic datatypes usually don't exist in Scheme
+;;; implementations. LispKit provides a lightweight algebraic datatype
+;;; implementation via library `(lispkit datatype)`.
 ;;;
-;;; The end of the file shows how to use the AVL tree library and access functionality defined
-;;; by the library in the same file.
+;;; The end of the file shows how to use the AVL tree library and access
+;;; functionality defined by the library in the same file.
 ;;;
 ;;; Author: Matthias Zenger
 ;;; Copyright © 2017 Matthias Zenger. All rights reserved.
 ;;;
-;;; Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
-;;; except in compliance with the License. You may obtain a copy of the License at
+;;; Licensed under the Apache License, Version 2.0 (the "License"); you may
+;;; not use this file except in compliance with the License. You may obtain
+;;; a copy of the License at
 ;;;
 ;;;   http://www.apache.org/licenses/LICENSE-2.0
 ;;;
-;;; Unless required by applicable law or agreed to in writing, software distributed under the
-;;; License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-;;; either express or implied. See the License for the specific language governing permissions
-;;; and limitations under the License.
-
+;;; Unless required by applicable law or agreed to in writing, software
+;;; distributed under the License is distributed on an "AS IS" BASIS,
+;;; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+;;; See the License for the specific language governing permissions and
+;;; limitations under the License.
 
 (define-library (lispkit example avl-tree)
  
@@ -174,7 +177,8 @@
   )
 )
 
-(import (lispkit example avl-tree))
+(import (lispkit base)
+        (lispkit example avl-tree))
 
 (define tree1 (make-avl-tree 39 21 99 4 1 19 78 41 21))
 (define tree2 (avl-insert 50 tree1))

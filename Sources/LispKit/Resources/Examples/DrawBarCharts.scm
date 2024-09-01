@@ -1,26 +1,26 @@
 ;;; Draw bar charts into a PDF file
 ;;;
-;;; This is a demo of library (lispkit draw chart bar). This library provides a
-;;; procedure `draw-bar-chart` which draws a bart chart into the given/current
-;;; drawing. The code below defines three different bar charts and draws them
-;;; all into a PDF file, one chart per A4 page. In the end, the PDF file
-;;; `bar-charts.pdf` is saved in the documents folder and gets opened and shown
-;;; to the user.
+;;; This is a demo of library (lispkit draw chart bar). This library
+;;; provides a procedure `draw-bar-chart` which draws a bart chart into the
+;;; given/current drawing. The code below defines three different bar charts
+;;; and draws them all into a PDF file, one chart per A4 page. In the end,
+;;; the PDF file `bar-charts.pdf` is saved in the documents folder and gets
+;;; opened and shown to the user.
 ;;; 
 ;;; Author: Matthias Zenger
 ;;; Copyright © 2022 Matthias Zenger. All rights reserved.
 ;;;
-;;; Licensed under the Apache License, Version 2.0 (the "License"); you may not
-;;; use this file except in compliance with the License. You may obtain a copy
-;;; of the License at
+;;; Licensed under the Apache License, Version 2.0 (the "License"); you may
+;;; not use this file except in compliance with the License. You may obtain
+;;; a copy of the License at
 ;;;
 ;;;   http://www.apache.org/licenses/LICENSE-2.0
 ;;;
 ;;; Unless required by applicable law or agreed to in writing, software
-;;; distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-;;; WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-;;; License for the specific language governing permissions and limitations
-;;; under the License.
+;;; distributed under the License is distributed on an "AS IS" BASIS,
+;;; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+;;; See the License for the specific language governing permissions and
+;;; limitations under the License.
 
 (import (lispkit base)
         (lispkit draw)

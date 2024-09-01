@@ -63,6 +63,8 @@ public struct Serialization: Codable {
     indirect case vs(SerializableExpr)
     indirect case tg(SerializableExpr, SerializableExpr)
     case j(JSON)
+    case d(DateComponents)
+    case bs(Data)
   }
   
   /// Structured serialized symbol
@@ -356,6 +358,10 @@ public struct Serialization: Codable {
         case .object(let obj):
           if let json = obj as? JSON {
             return .j(json)
+          } else if let dt = obj as? NativeDateTime {
+            return .d(dt.value)
+          } else if let bs = obj as? NativeBitset {
+            return .bs(bs.bitset.toData())
           }
           fallthrough
         default:
@@ -435,6 +441,8 @@ public struct Serialization: Codable {
           return tag.isSerializable && expr.isSerializable
         case .syntax(_, let expr):
           return expr.isSerializable
+        case .object(let obj):
+          return obj is JSON || obj is NativeDateTime || obj is NativeBitset
         default:
           return false
       }
@@ -591,6 +599,10 @@ public struct Serialization: Codable {
           return .tagged(deserialize(tag), deserialize(expr))
         case .j(let json):
           return .object(json)
+        case .d(let dc):
+          return .object(NativeDateTime(dc))
+        case .bs(let data):
+          return .object(NativeBitset(Bitset(bytes: data)))
       }
     }
   }

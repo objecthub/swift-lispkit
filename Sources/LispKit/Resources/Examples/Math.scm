@@ -3,19 +3,22 @@
 ;;; Author: Matthias Zenger
 ;;; Copyright © 2017-2021 Matthias Zenger. All rights reserved.
 ;;;
-;;; Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
-;;; except in compliance with the License. You may obtain a copy of the License at
+;;; Licensed under the Apache License, Version 2.0 (the "License"); you may
+;;; not use this file except in compliance with the License. You may obtain
+;;; a copy of the License at
 ;;;
 ;;;   http://www.apache.org/licenses/LICENSE-2.0
 ;;;
-;;; Unless required by applicable law or agreed to in writing, software distributed under the
-;;; License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-;;; either express or implied. See the License for the specific language governing permissions
-;;; and limitations under the License.
+;;; Unless required by applicable law or agreed to in writing, software
+;;; distributed under the License is distributed on an "AS IS" BASIS,
+;;; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+;;; See the License for the specific language governing permissions and
+;;; limitations under the License.
 
 (import (lispkit base))
 
-;; Returns the factorial decomposition of integer `n` in form of a list of prime numbers
+;; Returns the factorial decomposition of integer `n` in form of a list of
+;; prime numbers
 (define (factors n)
   (cond ((negative? n) (cons -1 (factors (- n))))
         ((< n 3)       (list n))
@@ -61,7 +64,8 @@
       (* n (fac (- n 1)))))
 
 ;; Solves a quadratic equation of the form: `a * x^2 + b * x + c = 0`
-;; and returns the solutions as a list. If there is no solution, `#f` is returned.
+;; and returns the solutions as a list. If there is no solution, `#f`
+;; is returned.
 (define (roots a b c)
   (if (zero? a)
       (if (zero? b)

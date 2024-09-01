@@ -1,29 +1,32 @@
 ;;; Draw binary trees
 ;;;
-;;; This program implements a layout procedure for binary trees. It is based on the article
-;;; "Tidier Drawing of Trees" by Edward M. Reingold and John S. Tilford in IEEE Transactions
-;;; on Software Engineering, Vol 7, #2, March 1981.
-;;; 
-;;; The layout algorithm, called TR, guarantees a number of aesthetical properties:
-;;;   1. Nodes at the same depth of a tree appear at the same vertical distance from
-;;;      the top of the tree,
-;;;   2. Parent nodes appear centered on top of their children, which are placed from
-;;;      left to right,
-;;;   3. Isomorphic subtrees are drawn the same way, no matter where they appear in the
-;;;      tree, and
-;;;   4. Trees and their mirrors produce symmetrical tree layouts (where mirrored tree
-;;;      structures mirror each other in their representation).
-;;; 
-;;; Within those constraints, the algorithm attempts to make a tree layout as narrow as
-;;; possible, even to the point that one subtree of a given node might cross under another
-;;; sub-tree. The algorithm doesn't always find the optimal solution (the problem is NP
-;;; hard) but it operates in linear time and typically results in aesthetically pleasing
-;;; tree layouts.
-;;; 
-;;; Binary trees are represented as s-expressions. An inner node of a binary tree is
-;;; represented by a list with tree elements: `(<label> <left tree> <right tree>)`. A leaf
-;;; node is just a label. For example: `(1 (2 3 (4 5 #f)) (6 #f 7))` represents this binary tree:
-;;; 
+;;; This program implements a layout procedure for binary trees. It is based
+;;; on the article "Tidier Drawing of Trees" by Edward M. Reingold and John
+;;; S. Tilford in IEEE Transactions on Software Engineering, Vol 7, #2,
+;;; March 1981.
+;;;
+;;; The layout algorithm, called TR, guarantees a number of aesthetical
+;;; properties:
+;;;   1. Nodes at the same depth of a tree appear at the same vertical
+;;;      distance from the top of the tree,
+;;;   2. Parent nodes appear centered on top of their children, which
+;;;      are placed from left to right,
+;;;   3. Isomorphic subtrees are drawn the same way, no matter where
+;;;      they appear in the tree, and
+;;;   4. Trees and their mirrors produce symmetrical tree layouts (where
+;;;      mirrored tree structures mirror each other in their representation).
+;;;
+;;; Within those constraints, the algorithm attempts to make a tree layout
+;;; as narrow as possible, even to the point that one subtree of a given
+;;; node might cross under another sub-tree. The algorithm doesn't always
+;;; find the optimal solution (the problem is NP hard) but it operates in
+;;; linear time and typically results in aesthetically pleasing tree layouts.
+;;;
+;;; Binary trees are represented as s-expressions. An inner node of a binary
+;;; tree is represented by a list with tree elements:
+;;; `(<label> <left tree> <right tree>)`. A leaf node is just a label. For
+;;; example: `(1 (2 3 (4 5 #f)) (6 #f 7))` represents this binary tree:
+;;;
 ;;;              1
 ;;;            /   \
 ;;;           2     6
@@ -32,8 +35,8 @@
 ;;;            /
 ;;;           5
 ;;; 
-;;; The following call of procedure `save-tree-drawing` will store a drawing of this tree
-;;; in a PDF file at file path `~/Desktop/DemoTree.pdf`.
+;;; The following call of procedure `save-tree-drawing` will store a drawing
+;;; of this tree in a PDF file at file path `~/Desktop/DemoTree.pdf`.
 ;;;   (save-tree-drawing "~/Desktop/TestTree.pdf" '(1 (2 3 (4 5 #f)) (6 #f 7)))
 ;;; 
 ;;; Here are a few more layouts of example trees:
@@ -47,15 +50,17 @@
 ;;; Author: Matthias Zenger
 ;;; Copyright © 2020 Matthias Zenger. All rights reserved.
 ;;;
-;;; Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
-;;; except in compliance with the License. You may obtain a copy of the License at
+;;; Licensed under the Apache License, Version 2.0 (the "License"); you may
+;;; not use this file except in compliance with the License. You may obtain
+;;; a copy of the License at
 ;;;
 ;;;   http://www.apache.org/licenses/LICENSE-2.0
 ;;;
-;;; Unless required by applicable law or agreed to in writing, software distributed under the
-;;; License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-;;; either express or implied. See the License for the specific language governing permissions
-;;; and limitations under the License.
+;;; Unless required by applicable law or agreed to in writing, software
+;;; distributed under the License is distributed on an "AS IS" BASIS,
+;;; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+;;; See the License for the specific language governing permissions and
+;;; limitations under the License.
 
 (import (lispkit base)
         (lispkit draw))

@@ -193,6 +193,8 @@
 		CC2FB07B2AA3D7A800A20C71 /* TarArchiveLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2FB0792AA3D7A800A20C71 /* TarArchiveLibrary.swift */; };
 		CC2FB07E2AA3D83E00A20C71 /* SWCompression in Frameworks */ = {isa = PBXBuildFile; productRef = CC2FB07D2AA3D83E00A20C71 /* SWCompression */; };
 		CC31A6981D3AC223008D7728 /* Hash.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC31A6971D3AC223008D7728 /* Hash.swift */; };
+		CC35C01E2C8527EF00DF6E9D /* Keychain.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC35C01D2C8527A800DF6E9D /* Keychain.scm */; };
+		CC35C01F2C85280500DF6E9D /* Keychain.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC35C01D2C8527A800DF6E9D /* Keychain.scm */; };
 		CC35F9C2222188BD00895A10 /* DateTimeLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35F9C1222188BC00895A10 /* DateTimeLibrary.swift */; };
 		CC35FD0D1C6FA4B700C8B992 /* VirtualMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */; };
 		CC35FD0F1C711FEA00C8B992 /* BindingGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35FD0E1C711FEA00C8B992 /* BindingGroup.swift */; };
@@ -1610,6 +1612,7 @@
 			dstPath = Root/LispKit/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC35C01E2C8527EF00DF6E9D /* Keychain.scm in Copy examples */,
 				CCB7520E2C62417500E7C1B0 /* Webserver.scm in Copy examples */,
 				CCD5B5ED2C16E6A6002BF2F0 /* JSON.scm in Copy examples */,
 				CC517E6629AC2DE70096FC72 /* Blockchain.scm in Copy examples */,
@@ -2530,6 +2533,7 @@
 			dstPath = Root/LispKit/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC35C01F2C85280500DF6E9D /* Keychain.scm in Copy examples */,
 				CCB7520F2C62418700E7C1B0 /* Webserver.scm in Copy examples */,
 				CCD5B5EE2C16E6B8002BF2F0 /* JSON.scm in Copy examples */,
 				CC517E6729AC2DF90096FC72 /* Blockchain.scm in Copy examples */,
@@ -3174,6 +3178,7 @@
 		CC2DA7602788756D00DE69CF /* SRFI-18.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-18.scm"; sourceTree = "<group>"; };
 		CC2FB0792AA3D7A800A20C71 /* TarArchiveLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TarArchiveLibrary.swift; sourceTree = "<group>"; };
 		CC31A6971D3AC223008D7728 /* Hash.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Hash.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		CC35C01D2C8527A800DF6E9D /* Keychain.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Keychain.scm; sourceTree = "<group>"; };
 		CC35F9C1222188BC00895A10 /* DateTimeLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateTimeLibrary.swift; sourceTree = "<group>"; };
 		CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = VirtualMachine.swift; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC35FD0E1C711FEA00C8B992 /* BindingGroup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BindingGroup.swift; sourceTree = "<group>"; };
@@ -4996,6 +5001,7 @@
 				CCD5B5EB2C16E430002BF2F0 /* JSON.scm */,
 				CC4385BB20BAB79500055289 /* HTTP.scm */,
 				CCB7520D2C623F5800E7C1B0 /* Webserver.scm */,
+				CC35C01D2C8527A800DF6E9D /* Keychain.scm */,
 				CC9ED3FB2710E6DB004B1E29 /* paip */,
 			);
 			path = Examples;

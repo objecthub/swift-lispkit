@@ -1,24 +1,27 @@
 ;;; Plot graphs into a PDF file
 ;;;
-;;; This is a demo of library (lispkit draw). Function `plot` draws a graph for a
-;;; function for a given range using a number of interpolation points into a given
-;;; rectangle. `plot` is used a number of times in function `plot-demo-page` which
-;;; explains how to compose drawings and save them in a PDF file.
+;;; This is a demo of library (lispkit draw). Function `plot` draws a graph
+;;; for a function for a given range using a number of interpolation points
+;;; into a given rectangle. `plot` is used a number of times in function
+;;; `plot-demo-page` which explains how to compose drawings and save them
+;;; in a PDF file.
 ;;;
 ;;; Usage: (plot-demo-page "graph-demo.pdf")
 ;;;
 ;;; Author: Matthias Zenger
 ;;; Copyright © 2018 Matthias Zenger. All rights reserved.
 ;;;
-;;; Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
-;;; except in compliance with the License. You may obtain a copy of the License at
+;;; Licensed under the Apache License, Version 2.0 (the "License"); you may
+;;; not use this file except in compliance with the License. You may obtain
+;;; a copy of the License at
 ;;;
 ;;;   http://www.apache.org/licenses/LICENSE-2.0
 ;;;
-;;; Unless required by applicable law or agreed to in writing, software distributed under the
-;;; License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-;;; either express or implied. See the License for the specific language governing permissions
-;;; and limitations under the License.
+;;; Unless required by applicable law or agreed to in writing, software
+;;; distributed under the License is distributed on an "AS IS" BASIS,
+;;; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+;;; See the License for the specific language governing permissions and
+;;; limitations under the License.
 
 (import (lispkit base)
         (lispkit draw))

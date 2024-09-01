@@ -310,8 +310,7 @@ public final class BytevectorLibrary: NativeLibrary {
   
   private func bytevectorZipHeader(_ bvec: Expr, args: Arguments) throws -> Expr {
     let subvec = try Self.subVector("bytevector-zip-header?", bvec, args)
-    return .makeBoolean(subvec.count > 4 && subvec[0] == 0x50 && subvec[1] == 0x4b &&
-                        subvec[2] == 0x03 && subvec[3] == 0x04)
+    return .makeBoolean(subvec.count > 5 && subvec[0] == 0x78 && subvec[1] == 0x5e)
   }
 
   private func bytevectorGzip(_ bvec: Expr, args: Arguments) throws -> Expr {

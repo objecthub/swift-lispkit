@@ -1,26 +1,29 @@
 ;;; Spell numbers
 ;;;
-;;; This example code implements a procedure `spell-integer` which takes an integer argument
-;;; and returns a sentence containing that number spelled out in words as a string.
-;;; The algorithm is based on the Racket solution for the Rosetta Code task at
-;;; https://rosettacode.org/wiki/Number_names .
+;;; This example code implements a procedure `spell-integer` which takes an
+;;; integer argument and returns a sentence containing that number spelled
+;;; out in words as a string. The algorithm is based on the Racket solution
+;;; for the Rosetta Code task at https://rosettacode.org/wiki/Number_names .
 ;;;
 ;;; Example usage:
-;;;   (spell-integer 4377901047)  ==> "four billion, three hundred and seventy-seven million,
-;;;                                   nine hundred and one thousand, forty-seven"
+;;;   (spell-integer 4377901047)
+;;;   ==> "four billion, three hundred and seventy-seven million,
+;;;        nine hundred and one thousand, forty-seven"
 ;;;
 ;;; Author: Matthias Zenger
 ;;; Copyright © 2019 Matthias Zenger. All rights reserved.
 ;;;
-;;; Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
-;;; except in compliance with the License. You may obtain a copy of the License at
+;;; Licensed under the Apache License, Version 2.0 (the "License"); you may
+;;; not use this file except in compliance with the License. You may obtain
+;;; a copy of the License at
 ;;;
 ;;;   http://www.apache.org/licenses/LICENSE-2.0
 ;;;
-;;; Unless required by applicable law or agreed to in writing, software distributed under the
-;;; License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-;;; either express or implied. See the License for the specific language governing permissions
-;;; and limitations under the License.
+;;; Unless required by applicable law or agreed to in writing, software
+;;; distributed under the License is distributed on an "AS IS" BASIS,
+;;; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+;;; See the License for the specific language governing permissions and
+;;; limitations under the License.
 
 (import (lispkit base))
 

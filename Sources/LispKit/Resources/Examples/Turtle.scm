@@ -1,8 +1,9 @@
 ;;; Turtle graphics
 ;;;
-;;; This is a demo of library (lispkit draw turtle). Three differerent fractal curves
-;;; are drawn and saved as individual pages in a PDF document. These examples are based
-;;; on the sample code for LILA, a historic Lisp interpreter for Mac OS 8.
+;;; This is a demo of library (lispkit draw turtle). Three differerent
+;;; fractal curves are drawn and saved as individual pages in a PDF
+;;; document. These examples are based on the sample code for LILA,
+;;; a historic Lisp interpreter for Mac OS 8.
 ;;; (see http://zenger.org/lila/).
 ;;;
 ;;; Usage: (save-graphics "turtle-demo.pdf")
@@ -11,15 +12,17 @@
 ;;; Copyright © 2018 Matthias Zenger. All rights reserved.
 ;;; Original copyright © 1994-03-06, Matthias Zenger.
 ;;;
-;;; Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
-;;; except in compliance with the License. You may obtain a copy of the License at
+;;; Licensed under the Apache License, Version 2.0 (the "License"); you may
+;;; not use this file except in compliance with the License. You may obtain
+;;; a copy of the License at
 ;;;
 ;;;   http://www.apache.org/licenses/LICENSE-2.0
 ;;;
-;;; Unless required by applicable law or agreed to in writing, software distributed under the
-;;; License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-;;; either express or implied. See the License for the specific language governing permissions
-;;; and limitations under the License.
+;;; Unless required by applicable law or agreed to in writing, software
+;;; distributed under the License is distributed on an "AS IS" BASIS,
+;;; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+;;; See the License for the specific language governing permissions and
+;;; limitations under the License.
 
 (import (lispkit base)
         (lispkit draw)

@@ -1,35 +1,39 @@
 ;;; Blockchain
 ;;;
-;;; This is an implementation of a very simple blockchain. This code was inspired
-;;; by the book "Introducing Blockchain with Lisp" by Boro Sitnikovski (Apress),
-;;; which incrementally builds a simple blockchain in Racket. The example code in
-;;; this file was written from scratch but keeps a similar structure like the
-;;; Racket implementation, so it can be used together with the book. Nevertheless,
-;;; the actual code is quite different and makes idiomatic use of LispKit coding
-;;; style and libraries. A similar implementation in Java is described here:
+;;; This is an implementation of a very simple blockchain. This code was
+;;; inspired by the book "Introducing Blockchain with Lisp" by Boro
+;;; Sitnikovski (Apress), which incrementally builds a simple blockchain
+;;; in Racket. The example code in this file was written from scratch but
+;;; keeps a similar structure like the Racket implementation, so it can be
+;;; used together with the book. Nevertheless, the actual code is quite
+;;; different and makes idiomatic use of LispKit coding style and libraries.
+;;; A similar implementation in Java is described here:
 ;;; https://medium.com/programmers-blockchain/create-simple-blockchain-java-tutorial-from-scratch-6eeed3cb03fa
 ;;; 
-;;; The code below incrementally introduces all abstractions needed for a simple
-;;; blockchain starting with wallets, including transaction inputs/outputs,
-;;; transactions, blocks, and finally the blockchain data structure itself.
-;;; The implementation only allows for one transaction per block.
-;;; 
-;;; The code provides a comprehensive library of debugging procedures that are
-;;; able to print out the various data structures. The code concludes with an
-;;; example usage of the abstractions.
+;;; The code below incrementally introduces all abstractions needed for
+;;; a simple blockchain starting with wallets, including transaction
+;;; inputs/outputs, transactions, blocks, and finally the blockchain data
+;;; structure itself. The implementation only allows for one transaction
+;;; per block.
+;;;
+;;; The code provides a comprehensive library of debugging procedures that
+;;; are able to print out the various data structures. The code concludes
+;;; with an example usage of the abstractions.
 ;;; 
 ;;; Author: Matthias Zenger
 ;;; Copyright © 2023 Matthias Zenger. All rights reserved.
 ;;;
-;;; Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
-;;; file except in compliance with the License. You may obtain a copy of the License at
+;;; Licensed under the Apache License, Version 2.0 (the "License"); you may
+;;; not use this file except in compliance with the License. You may obtain
+;;; a copy of the License at
 ;;;
 ;;;   http://www.apache.org/licenses/LICENSE-2.0
 ;;;
-;;; Unless required by applicable law or agreed to in writing, software distributed
-;;; under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-;;; CONDITIONS OF ANY KIND, either express or implied. See the License for the specific
-;;; language governing permissions and limitations under the License.
+;;; Unless required by applicable law or agreed to in writing, software
+;;; distributed under the License is distributed on an "AS IS" BASIS,
+;;; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+;;; See the License for the specific language governing permissions and
+;;; limitations under the License.
 
 (import (lispkit base)
         (lispkit math util)

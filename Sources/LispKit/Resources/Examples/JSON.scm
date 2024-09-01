@@ -1,29 +1,34 @@
 ;;; Validate JSON data with JSON schema
 ;;;
-;;; TODO
-;;;
+;;; This code showcases the API provided by libraries `(lispkit json)` and
+;;; `(lispkit json schema)` related to validating JSON data using JSON
+;;; schema.
+;;; 
 ;;; Author: Matthias Zenger
 ;;; Copyright © 2024 Matthias Zenger. All rights reserved.
 ;;;
-;;; Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
-;;; except in compliance with the License. You may obtain a copy of the License at
+;;; Licensed under the Apache License, Version 2.0 (the "License"); you may
+;;; not use this file except in compliance with the License. You may obtain
+;;; a copy of the License at
 ;;;
 ;;;   http://www.apache.org/licenses/LICENSE-2.0
 ;;;
-;;; Unless required by applicable law or agreed to in writing, software distributed under the
-;;; License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-;;; either express or implied. See the License for the specific language governing permissions
-;;; and limitations under the License.
+;;; Unless required by applicable law or agreed to in writing, software
+;;; distributed under the License is distributed on an "AS IS" BASIS,
+;;; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+;;; See the License for the specific language governing permissions and
+;;; limitations under the License.
 
 (import (lispkit base)
         (lispkit json)
         (lispkit json schema))
 
-;; Make a new JSON schema registry. The first `#t` argument makes the schema definitions
-;; in the asset directory `JSON/Schema/2020-12` available via the Schema identifier base
-;; `https://json-schema.org/draft/2020-12`. The second `#t` argument makes the schema
-;; definitions in the asset directory `JSON/Schema/custom` available via the Schema
-;; identifier base `https://lisppad.app/schema`.
+;; Make a new JSON schema registry. The first `#t` argument makes the schema
+;; definitions in the asset directory `JSON/Schema/2020-12` available via
+;; the Schema identifier base `https://json-schema.org/draft/2020-12`. The
+;; second `#t` argument makes the schema definitions in the asset directory
+;; `JSON/Schema/custom` available via the Schema identifier base
+;; `https://lisppad.app/schema`.
 (define registry (make-schema-registry json-draft2020-default #t #t))
 
 (define person-schema (schema-registry-ref "https://lisppad.app/schema/person" registry))

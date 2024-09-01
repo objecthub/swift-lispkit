@@ -1,27 +1,30 @@
 ;;; Webserver
 ;;;
-;;; This program implements a simple web server (only the HTTP protocol is supported)
-;;; with the framework of library `(lispkit http server)`. HTML gets generated from
-;;; SXML, which the various request handlers are generating. Alternatively, plain text
-;;; HTML in string form, Markdown, and JSON is supported to generate the content of HTTP
-;;; responses. Headers are represented as association lists, where each header is
-;;; represented as a pair of strings.
+;;; This program implements a simple web server (only the HTTP protocol is
+;;; supported) with the framework of library `(lispkit http server)`. HTML
+;;; gets generated from SXML, which the various request handlers are
+;;; generating. Alternatively, plain text HTML in string form, Markdown,
+;;; and JSON is supported to generate the content of HTTP responses. Headers
+;;; are represented as association lists, where each header is represented
+;;; as a pair of strings.
 ;;;
-;;; This code was inspired by the demo for Swifter, written by Damian Kołakowski. See:
-;;; https://github.com/httpswift/swifter
+;;; This code was inspired by the demo for Swifter, written by Damian
+;;; Kołakowski. See: https://github.com/httpswift/swifter
 ;;;
 ;;; Author: Matthias Zenger
 ;;; Copyright © 2024 Matthias Zenger. All rights reserved.
 ;;;
-;;; Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
-;;; except in compliance with the License. You may obtain a copy of the License at
+;;; Licensed under the Apache License, Version 2.0 (the "License"); you may
+;;; not use this file except in compliance with the License. You may obtain
+;;; a copy of the License at
 ;;;
 ;;;   http://www.apache.org/licenses/LICENSE-2.0
 ;;;
-;;; Unless required by applicable law or agreed to in writing, software distributed under the
-;;; License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-;;; either express or implied. See the License for the specific language governing permissions
-;;; and limitations under the License.
+;;; Unless required by applicable law or agreed to in writing, software
+;;; distributed under the License is distributed on an "AS IS" BASIS,
+;;; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+;;; See the License for the specific language governing permissions and
+;;; limitations under the License.
 
 (import (lispkit base)
         (lispkit box)
