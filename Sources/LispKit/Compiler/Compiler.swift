@@ -914,12 +914,18 @@ public final class Compiler {
     var exit = false
     if i == 0 {
       // Compilation with no internal definitions
-      while i < exprs.count {
-        if i > 0 {
-          self.emit(.pop)
+      if exprs.isEmpty {
+        // There are no expressions left
+        self.emit(.pushVoid)
+      } else {
+        // Compile sequence of expressions
+        while i < exprs.count {
+          if i > 0 {
+            self.emit(.pop)
+          }
+          exit = try self.compile(exprs[i], in: env, inTailPos: tail && (i == exprs.count - 1))
+          i += 1
         }
-        exit = try self.compile(exprs[i], in: env, inTailPos: tail && (i == exprs.count - 1))
-        i += 1
       }
       return exit
     } else {
@@ -1404,19 +1410,35 @@ public final class Compiler {
     return Code(self.instructions, self.constants, self.fragments)
   }
   
-  /// This is just a placeholder for now. Will add a peephole optimizer eventually. For now,
-  /// only NOOPs are removed.
+  /// This is a simple peephole optimizer. For now, it eliminates NOOPs and combinations
+  /// of PUSH/POP.
   private func optimize() {
     var instrIndex: [Int] = []
-    var numInstr: Int = 0
-    for instr in self.instructions {
-      instrIndex.append(numInstr)
-      if case .noOp = instr {
-        continue
-      }
-      numInstr += 1
-    }
+    var numInstr = 0
     var ip = 0
+    while ip < self.instructions.count {
+      instrIndex.append(numInstr)
+      switch self.instructions[ip] {
+        case .noOp:
+          ip += 1
+        case .pushNull, .pushVoid, .pushTrue,  .pushFalse, .pushUndef, .pushEof, .pushFixnum(_),
+             .pushFlonum(_), .pushChar(_), .pushBignum(_), .pushBigrat(_), .pushComplex(_),
+             .pushCaptured(_), .pushConstant(_), .pushProcedure(_), .pushLocalValue(_),
+             .pushCapturedValue(_):
+          if ip + 1 < self.instructions.count, case .pop = self.instructions[ip + 1] {
+            instrIndex.append(numInstr)
+            self.instructions[ip] = .noOp
+            self.instructions[ip + 1] = .noOp
+            ip += 2
+            continue
+          }
+          fallthrough
+        default:
+          ip += 1
+          numInstr += 1
+      }
+    }
+    ip = 0
     while ip < self.instructions.count {
       switch self.instructions[ip] {
         case .branch(let offset):

@@ -87,6 +87,15 @@ public final class ControlFlowLibrary: NativeLibrary {
     switch first {
       case .null:
         return try compiler.compileSeq(body, in: env, inTailPos: tail)
+      case .pair(.pair(.symbol(_), .pair(.false, .null)), .null),
+           .pair(.pair(.symbol(_), .pair(.true, .null)), .null):
+        if case .pair(.false, .null) = body {
+          return try compiler.compileSeq(body, in: env, inTailPos: tail)
+        } else if case .pair(.true, .null) = body {
+          return try compiler.compileSeq(body, in: env, inTailPos: tail)
+        } else {
+          fallthrough
+        }
       case .pair(_, _):
         let group = try compiler.compileBindings(first,
                                                  in: env,
