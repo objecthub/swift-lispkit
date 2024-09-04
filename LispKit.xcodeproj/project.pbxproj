@@ -195,6 +195,9 @@
 		CC31A6981D3AC223008D7728 /* Hash.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC31A6971D3AC223008D7728 /* Hash.swift */; };
 		CC35C01E2C8527EF00DF6E9D /* Keychain.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC35C01D2C8527A800DF6E9D /* Keychain.scm */; };
 		CC35C01F2C85280500DF6E9D /* Keychain.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC35C01D2C8527A800DF6E9D /* Keychain.scm */; };
+		CC35C0212C88FDA100DF6E9D /* LispKit-Control.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC35C0202C88FCD900DF6E9D /* LispKit-Control.scm */; };
+		CC35C0222C88FDC800DF6E9D /* LispKit-Shared-Queue.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCCCEC8F2C5454BB00509902 /* LispKit-Shared-Queue.scm */; };
+		CC35C0232C88FDD900DF6E9D /* LispKit-Control.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC35C0202C88FCD900DF6E9D /* LispKit-Control.scm */; };
 		CC35F9C2222188BD00895A10 /* DateTimeLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35F9C1222188BC00895A10 /* DateTimeLibrary.swift */; };
 		CC35FD0D1C6FA4B700C8B992 /* VirtualMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */; };
 		CC35FD0F1C711FEA00C8B992 /* BindingGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35FD0E1C711FEA00C8B992 /* BindingGroup.swift */; };
@@ -1381,6 +1384,7 @@
 			dstPath = Root/LispKit/Tests;
 			dstSubfolderSpec = 7;
 			files = (
+				CC35C0212C88FDA100DF6E9D /* LispKit-Control.scm in Copy tests */,
 				CCCCEC902C5457A600509902 /* LispKit-Shared-Queue.scm in Copy tests */,
 				CCD5B5DE2C152B21002BF2F0 /* LispKit-JSON-Schema.scm in Copy tests */,
 				CC491BBC2A407DAB008CA24C /* SRFI-235.scm in Copy tests */,
@@ -2575,6 +2579,8 @@
 			dstPath = Root/LispKit/Tests;
 			dstSubfolderSpec = 7;
 			files = (
+				CC35C0232C88FDD900DF6E9D /* LispKit-Control.scm in Copy tests */,
+				CC35C0222C88FDC800DF6E9D /* LispKit-Shared-Queue.scm in Copy tests */,
 				CCD5B5DF2C152B38002BF2F0 /* LispKit-JSON-Schema.scm in Copy tests */,
 				CC491BBD2A407DBA008CA24C /* SRFI-235.scm in Copy tests */,
 				CCB457472A3CFBD600599565 /* LispKit-Record.scm in Copy tests */,
@@ -3179,6 +3185,7 @@
 		CC2FB0792AA3D7A800A20C71 /* TarArchiveLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TarArchiveLibrary.swift; sourceTree = "<group>"; };
 		CC31A6971D3AC223008D7728 /* Hash.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Hash.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC35C01D2C8527A800DF6E9D /* Keychain.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Keychain.scm; sourceTree = "<group>"; };
+		CC35C0202C88FCD900DF6E9D /* LispKit-Control.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "LispKit-Control.scm"; sourceTree = "<group>"; };
 		CC35F9C1222188BC00895A10 /* DateTimeLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateTimeLibrary.swift; sourceTree = "<group>"; };
 		CC35FD0C1C6FA4B700C8B992 /* VirtualMachine.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = VirtualMachine.swift; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC35FD0E1C711FEA00C8B992 /* BindingGroup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BindingGroup.swift; sourceTree = "<group>"; };
@@ -3828,6 +3835,7 @@
 				CC44E5B121DECB850009969C /* All.scm */,
 				CCE4600221FD178C00B248D9 /* Import.scm */,
 				CC09ECF22198B87200F84713 /* R7RS.scm */,
+				CC35C0202C88FCD900DF6E9D /* LispKit-Control.scm */,
 				CCB457452A3CFA3900599565 /* LispKit-Record.scm */,
 				CC372CD927D504050091C474 /* LispKit-Enum.scm */,
 				CC7A125A21E94D1700ABEA17 /* LispKit-Match.scm */,

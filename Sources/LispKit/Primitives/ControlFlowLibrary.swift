@@ -25,7 +25,14 @@ public final class ControlFlowLibrary: NativeLibrary {
   public override class var name: [String] {
     return ["lispkit", "control"]
   }
-
+  
+  /// Dependencies of the library.
+  public override func dependencies() {
+    self.`import`(from: ["lispkit", "core"], "define", "define-syntax", "not", "quote",
+                                             "syntax-rules", "void", "or")
+    self.`import`(from: ["lispkit", "list"], "car", "cons")
+  }
+  
   /// Declarations of the library.
   public override func declarations() {
     self.define(SpecialForm("begin", self.compileBegin))
@@ -48,6 +55,49 @@ public final class ControlFlowLibrary: NativeLibrary {
     self.define(SpecialForm("unless", self.compileUnless))
     self.define(SpecialForm("cond", self.compileCond))
     self.define(SpecialForm("case", self.compileCase))
+    self.define("if-let*-inner", via: """
+      (define-syntax if-let*-inner
+        (syntax-rules ()
+          ((_ ((var expr) . clauses) body)
+            (let ((var expr)) (if var (if-let*-inner clauses body) #f)))
+          ((_ ((expr) . clauses) body)
+            (if expr (if-let*-inner clauses body) #f))
+          ((_ (var . clauses) body)
+            (begin (let ((var #f)) #f) (if var (if-let*-inner clauses body) #f)))
+          ((_ () body)
+            body)))
+    """)
+    self.define("if-let*", via: """
+      (define-syntax if-let*
+        (syntax-rules ()
+          ((_ () then-part)
+            then-part)
+          ((_ () then-part else-part)
+            then-part)
+          ((_ ((var expr)) then-part)
+            (let ((var expr)) (if var then-part)))
+          ((_ ((var expr)) then-part else-part)
+            (let ((var expr)) (if var then-part else-part)))
+          ((_ ((expr)) then-part)
+            (if expr then-part))
+          ((_ ((expr)) then-part else-part)
+            (if expr then-part else-part))
+          ((_ (var) then-part)
+            (begin (let ((var #f)) #f) (if var then-part)))
+          ((_ (var) then-part else-part)
+            (begin (let ((var #f)) #f) (if var then-part else-part)))
+          ((_ (clause ...) then-part)
+            (or (if-let*-inner (clause ...) then-part) (begin)))
+          ((_ (clause ...) then-part else-part)
+            (car (or (if-let*-inner (clause ...) (cons then-part '()))
+                     (cons else-part '()))))))
+    """)
+    self.define("when-let*", via: """
+      (define-syntax when-let*
+        (syntax-rules ()
+          ((_ (clause ...) body ...)
+            (if-let* (clause ...) (begin body ...)))))
+    """)
   }
 
   private func splitBindings(_ bindingList: Expr) throws -> (Expr, Expr) {
