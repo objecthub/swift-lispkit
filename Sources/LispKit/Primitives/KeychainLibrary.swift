@@ -167,7 +167,11 @@ public final class KeychainLibrary: NativeLibrary {
         case self.devicePasscode:
           res.insert(.devicePasscode)
         case self.watch:
+          #if os(iOS) || os(watchOS) || os(tvOS)
+          throw RuntimeError.eval(.illegalPolicySpecifier, fst)
+          #elseif os(macOS)
           res.insert(.watch)
+          #endif
         case self.or:
           res.insert(.or)
         case self.and:
@@ -201,9 +205,11 @@ public final class KeychainLibrary: NativeLibrary {
     if policy.contains(.devicePasscode) {
       res = .pair(.symbol(self.devicePasscode), res)
     }
+    #if os(macOS)
     if policy.contains(.watch) {
       res = .pair(.symbol(self.watch), res)
     }
+    #endif
     if policy.contains(.or) {
       res = .pair(.symbol(self.or), res)
     }

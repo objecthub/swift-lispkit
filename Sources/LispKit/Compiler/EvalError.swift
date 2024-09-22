@@ -188,6 +188,7 @@ public enum EvalError: Int, Hashable, Codable {
   case cannotSerialize
   case expectedAccessibilitySpecifier
   case illegalPolicySpecifier
+  case unsupportedBarcodeSetting
   
   public var message: String {
     switch self {
@@ -517,6 +518,8 @@ public enum EvalError: Int, Hashable, Codable {
         return "expected accessibility specifier but received $0"
       case .illegalPolicySpecifier:
         return "illegal authentication policy specifier: $0"
+      case .unsupportedBarcodeSetting:
+        return "unsupported barcode setting key: $0"
     }
   }
   

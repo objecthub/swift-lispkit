@@ -423,7 +423,24 @@ public final class HTTPLibrary: NativeLibrary {
   }
   
   private func httpRequestHeaderSet(expr: Expr, key: Expr, value: Expr) throws -> Expr {
-    try self.request(from: expr).headers[try key.asString()] = try value.asString()
+    let val: String
+    switch value {
+      case .symbol(let sym):
+        val = sym.identifier
+      case .fixnum(let num):
+        val = num.description
+      case .flonum(let num):
+        val = num.description
+      case .true:
+        val = "?1"
+      case .false:
+        val = "?0"
+      case .null:
+        val = ""
+      default:
+        val = try value.asString()
+    }
+    try self.request(from: expr).headers[try key.asString()] = val
     return .void
   }
   
@@ -473,7 +490,7 @@ public final class HTTPLibrary: NativeLibrary {
   
   private func httpRequestCachePolicy(expr: Expr) throws -> Expr {
     if let cache = try self.request(from: expr).requestCachePolicy {
-      return .makeString(HTTPLibrary.string(forCachePolicy: cache))
+      return .symbol(self.context.symbols.intern(HTTPLibrary.string(forCachePolicy: cache)))
     } else {
       return .null
     }
@@ -547,20 +564,37 @@ public final class HTTPLibrary: NativeLibrary {
     }
   }
   
-  private func httpResponseHeaders(expr: Expr) throws -> Expr {
+  private func decodeHeaderValueAsStr(_ value: Any) -> Expr? {
+    if let str = value as? String {
+      return .makeString(str)
+    } else if let num = value as? Int {
+      return .makeString(num.description)
+    } else if let bool = value as? Bool {
+      return .makeString(bool ? "?1" : "?0")
+    } else if let real = value as? Double {
+      return .makeString(real.description)
+    } else {
+      return nil
+    }
+  }
+  
+  private func httpResponseHeaders(expr: Expr, asString: Expr?) throws -> Expr {
+    let strval = asString?.isTrue ?? false
     let headers = try self.response(from: expr).response.allHeaderFields
     var res = Expr.null
     for (key, value) in headers {
-      if let keystr = key as? String, let valexpr = self.decodeHeaderValue(value) {
+      if let keystr = key as? String,
+         let valexpr = strval ? self.decodeHeaderValueAsStr(value) : self.decodeHeaderValue(value) {
         res = .pair(.pair(.makeString(keystr), valexpr), res)
       }
     }
     return res
   }
   
-  private func httpResponseHeader(expr: Expr, key: Expr) throws -> Expr {
+  private func httpResponseHeader(expr: Expr, key: Expr, asString: Expr?) throws -> Expr {
+    let strval = asString?.isTrue ?? false
     guard let value = try self.response(from: expr).response.allHeaderFields[key.asString()],
-          let res = self.decodeHeaderValue(value) else {
+          let res = strval ? self.decodeHeaderValueAsStr(value) : self.decodeHeaderValue(value) else {
       return .false
     }
     return res

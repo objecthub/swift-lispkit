@@ -635,6 +635,78 @@ public extension ArraySlice {
     }
   }
   
+  func optional(_ fst: Element,
+                _ snd: Element,
+                _ trd: Element,
+                _ fth: Element,
+                _ tth: Element) -> (Element, Element, Element, Element, Element)? {
+    switch self.count {
+      case 0:
+        return (fst, snd, trd, fth, tth)
+      case 1:
+        return (self[self.startIndex], snd, trd, fth, tth)
+      case 2:
+        return (self[self.startIndex], self[self.startIndex + 1], trd, fth, tth)
+      case 3:
+        return (self[self.startIndex], self[self.startIndex + 1], self[self.startIndex + 2], fth, tth)
+      case 4:
+        return (self[self.startIndex],
+                self[self.startIndex + 1],
+                self[self.startIndex + 2],
+                self[self.startIndex + 3],
+                tth)
+      case 5:
+        return (self[self.startIndex],
+                self[self.startIndex + 1],
+                self[self.startIndex + 2],
+                self[self.startIndex + 3],
+                self[self.startIndex + 4])
+      default:
+        return nil
+    }
+  }
+  
+  func optional(_ fst: Element,
+                _ snd: Element,
+                _ trd: Element,
+                _ fth: Element,
+                _ tth: Element,
+                _ sth: Element) -> (Element, Element, Element, Element, Element, Element)? {
+    switch self.count {
+      case 0:
+        return (fst, snd, trd, fth, tth, sth)
+      case 1:
+        return (self[self.startIndex], snd, trd, fth, tth, sth)
+      case 2:
+        return (self[self.startIndex], self[self.startIndex + 1], trd, fth, tth, sth)
+      case 3:
+        return (self[self.startIndex], self[self.startIndex + 1], self[self.startIndex + 2], fth, tth, sth)
+      case 4:
+        return (self[self.startIndex],
+                self[self.startIndex + 1],
+                self[self.startIndex + 2],
+                self[self.startIndex + 3],
+                tth,
+                sth)
+      case 5:
+        return (self[self.startIndex],
+                self[self.startIndex + 1],
+                self[self.startIndex + 2],
+                self[self.startIndex + 3],
+                self[self.startIndex + 4],
+                sth)
+      case 6:
+        return (self[self.startIndex],
+                self[self.startIndex + 1],
+                self[self.startIndex + 2],
+                self[self.startIndex + 3],
+                self[self.startIndex + 4],
+                self[self.startIndex + 5])
+      default:
+        return nil
+    }
+  }
+  
   func required2() -> (Element, Element)? {
     guard self.count == 2 else {
       return nil

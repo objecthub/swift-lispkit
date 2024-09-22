@@ -215,6 +215,10 @@
 		CC372CDE27D5532D0091C474 /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC372CDC27D5532D0091C474 /* String.swift */; };
 		CC372CE027D56FB50091C474 /* 141.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC372CDF27D56F450091C474 /* 141.sld */; };
 		CC372CE127D56FC60091C474 /* 141.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC372CDF27D56F450091C474 /* 141.sld */; };
+		CC37A1692C9E0CDE00DF6C24 /* Barcode.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC37A1682C9E0CDE00DF6C24 /* Barcode.swift */; };
+		CC37A16A2C9E0CDE00DF6C24 /* Barcode.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC37A1682C9E0CDE00DF6C24 /* Barcode.swift */; };
+		CC37A16C2C9E145100DF6C24 /* DrawBarcodeLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC37A16B2C9E145100DF6C24 /* DrawBarcodeLibrary.swift */; };
+		CC37A16D2C9E145100DF6C24 /* DrawBarcodeLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC37A16B2C9E145100DF6C24 /* DrawBarcodeLibrary.swift */; };
 		CC38528B23126F7A001D5E56 /* InternalLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC38528A23126F7A001D5E56 /* InternalLibrary.swift */; };
 		CC38528E23140FE0001D5E56 /* 173.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC38528C23140CC2001D5E56 /* 173.sld */; };
 		CC38528F23141000001D5E56 /* SRFI-173.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC38528D23140F26001D5E56 /* SRFI-173.scm */; };
@@ -3195,6 +3199,8 @@
 		CC372CD927D504050091C474 /* LispKit-Enum.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "LispKit-Enum.scm"; sourceTree = "<group>"; };
 		CC372CDC27D5532D0091C474 /* String.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = String.swift; sourceTree = "<group>"; };
 		CC372CDF27D56F450091C474 /* 141.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 141.sld; sourceTree = "<group>"; };
+		CC37A1682C9E0CDE00DF6C24 /* Barcode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Barcode.swift; sourceTree = "<group>"; };
+		CC37A16B2C9E145100DF6C24 /* DrawBarcodeLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawBarcodeLibrary.swift; sourceTree = "<group>"; };
 		CC38528A23126F7A001D5E56 /* InternalLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InternalLibrary.swift; sourceTree = "<group>"; };
 		CC38528C23140CC2001D5E56 /* 173.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 173.sld; sourceTree = "<group>"; };
 		CC38528D23140F26001D5E56 /* SRFI-173.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-173.scm"; sourceTree = "<group>"; };
@@ -4329,6 +4335,7 @@
 				CCD5E5A326346F1500C45EA0 /* Transformation_iOS.swift */,
 				CC4575C720F00EE000116F0F /* Color.swift */,
 				CC76312620E95262005F27CE /* DrawingDocument.swift */,
+				CC37A1682C9E0CDE00DF6C24 /* Barcode.swift */,
 			);
 			path = Graphics;
 			sourceTree = "<group>";
@@ -4740,6 +4747,7 @@
 				CCCACB5B248D753800F012AC /* SystemCallLibrary.swift */,
 				CC4575C520F00C4400116F0F /* DrawingLibrary.swift */,
 				CCD5E5972633405900C45EA0 /* DrawingLibrary_iOS.swift */,
+				CC37A16B2C9E145100DF6C24 /* DrawBarcodeLibrary.swift */,
 				CCCB66E3283056E30004827D /* StyledTextLibrary.swift */,
 				CCA6C3D023610674007D2AF0 /* MarkdownLibrary.swift */,
 				CC08964D244090D1004503B1 /* SQLiteLibrary.swift */,
@@ -5444,6 +5452,7 @@
 				CCE2C47A1D9203DE0047E229 /* Environment.swift in Sources */,
 				CC76312120E9518F005F27CE /* Drawing.swift in Sources */,
 				CC8EDE6E1D07263D004E0636 /* BinaryInput.swift in Sources */,
+				CC37A1692C9E0CDE00DF6C24 /* Barcode.swift in Sources */,
 				CC0980AB1C67E84C006B7FB1 /* Cell.swift in Sources */,
 				CC1D533D2BF1709E00EE1A24 /* JSONLibrary.swift in Sources */,
 				CC3C92441D84C0D800016C28 /* Library.swift in Sources */,
@@ -5509,6 +5518,7 @@
 				CC55A8291C50D35C00772B02 /* Procedure.swift in Sources */,
 				CCDF99FC1D3D7A3100FD2A57 /* BoxLibrary.swift in Sources */,
 				CC6A3B701C53F2CF00E962E2 /* SymbolTable.swift in Sources */,
+				CC37A16C2C9E145100DF6C24 /* DrawBarcodeLibrary.swift in Sources */,
 				CC2DA736276FFC4200DE69CF /* Registers.swift in Sources */,
 				CCF529981CBC73F7000C2959 /* StringBuilder.swift in Sources */,
 				CCD839AB1FD0F6000097023E /* Compression.swift in Sources */,
@@ -5579,6 +5589,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CC372CDE27D5532D0091C474 /* String.swift in Sources */,
+				CC37A16D2C9E145100DF6C24 /* DrawBarcodeLibrary.swift in Sources */,
 				CCC48C9225E5B95B00D082AD /* Hash.swift in Sources */,
 				CCC48CCE25E5B98600D082AD /* RecordLibrary.swift in Sources */,
 				CC2DA7422770A4EE00DE69CF /* Locks.swift in Sources */,
@@ -5662,6 +5673,7 @@
 				CCC48C9D25E5B96800D082AD /* Parser.swift in Sources */,
 				CCC48C9125E5B95B00D082AD /* Equality.swift in Sources */,
 				CCC48C9E25E5B96800D082AD /* BindingGroup.swift in Sources */,
+				CC37A16A2C9E0CDE00DF6C24 /* Barcode.swift in Sources */,
 				CCD5E5992633405900C45EA0 /* DrawingLibrary_iOS.swift in Sources */,
 				CCC48CB625E5B97100D082AD /* VirtualMachine.swift in Sources */,
 				CC6598D027248DC8004C9B89 /* LispKitContext.swift in Sources */,
