@@ -99,9 +99,10 @@ public final class HTTPOAuthLibrary: NativeLibrary {
     self.define(Procedure("oauth2-access-token", self.oauth2AccessToken))
     self.define(Procedure("oauth2-refresh-token", self.oauth2RefreshToken))
     self.define(Procedure("oauth2-forget-tokens!", self.oauth2ForgetTokens))
-    self.define(Procedure("oauth2-cancel-requests!", self.oauth2ForgetTokens))
+    self.define(Procedure("oauth2-cancel-requests!", self.oauth2CancelRequests))
     self.define(Procedure("oauth2-request-codes", self.oauth2RequestCodes))
     self.define(Procedure("oauth2-authorize!", self.oauth2Authorize))
+    self.define(Procedure("oauth2-redirect!", self.oauth2Redirect))
     self.define(Procedure("http-request-sign!", self.httpRequestSign))
     self.define(Procedure("oauth2-session?", self.isOAuth2Session))
     self.define(Procedure("make-oauth2-session", self.makeOAuth2Session))
@@ -664,6 +665,23 @@ public final class HTTPOAuthLibrary: NativeLibrary {
     return .object(f)
   }
   
+  private func oauth2Redirect(fst: Expr, snd: Expr?) throws -> Expr {
+    if let snd {
+      let oauth2 = try self.oauth2(from: fst)
+      if let url = URL(string: try snd.asString()) {
+        return .makeBoolean(HTTPOAuthLibrary.authRequestManager.redirect(url: url, oauth: oauth2.oauth2))
+      } else {
+        return .false
+      }
+    } else {
+      if let url = URL(string: try fst.asString()) {
+        return .makeBoolean(HTTPOAuthLibrary.authRequestManager.redirect(url: url))
+      } else {
+        return .false
+      }
+    }
+  }
+  
   private func oauth2CancelRequests(expr: Expr?, timeout: Expr?) throws -> Expr {
     if let expr {
       guard case .object(let obj) = expr else {
@@ -697,7 +715,7 @@ public final class HTTPOAuthLibrary: NativeLibrary {
     }
   }
   
-  private func isOAuth2Session(expr: Expr, args: Arguments) throws -> Expr {
+  private func isOAuth2Session(expr: Expr) throws -> Expr {
     guard case .object(let obj) = expr, obj is OAuth2Session else {
       return .false
     }
@@ -726,6 +744,9 @@ public final class HTTPOAuthLibrary: NativeLibrary {
             break
           } else if let session = obj as? OAuth2Session {
             config = session.configuration
+            if let delegate = session.loader.sessionDelegate as? OAuth2DataLoaderSessionTaskDelegate {
+              host = delegate.host
+            }
             intercept403 = session.loader.alsoIntercept403
             break
           }
@@ -1046,20 +1067,23 @@ public struct AuthenticatedRequestManager {
     }
   }
   
-  public mutating func redirect(url: URL) {
+  public mutating func redirect(url: URL, oauth: OAuth2? = nil) -> Bool {
     self.lock.lock()
     defer {
       self.lock.unlock()
     }
     var i = 0
     while i < self.inProgress.count {
-      do {
-        try self.inProgress[i].oauth2?.handleRedirectURL(url)
-        self.inProgress[i].redirected = .now
-        return
-      } catch {}
+      if oauth == nil || self.inProgress[i].oauth2 === oauth {
+        do {
+          try self.inProgress[i].oauth2?.handleRedirectURL(url)
+          self.inProgress[i].redirected = .now
+          return true
+        } catch { }
+      }
       i += 1
     }
+    return false
   }
 }
 

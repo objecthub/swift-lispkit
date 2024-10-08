@@ -130,6 +130,8 @@ public final class SystemLibrary: NativeLibrary {
     self.define(Procedure("current-user-name", self.currentUserName))
     self.define(Procedure("user-data", self.userData))
     self.define(Procedure("terminal-size", self.terminalSize))
+    self.define(Procedure("url", self.url))
+    self.define(Procedure("url?", self.isUrl))
     self.define(Procedure("open-url", self.openUrl))
     self.define(Procedure("http-get", httpGet))
     self.define(Procedure("make-uuid-bytevector", makeUuidBytevector))
@@ -1004,6 +1006,49 @@ public final class SystemLibrary: NativeLibrary {
     } else {
       return .false
     }
+  }
+  
+  private func url(scheme: Expr, host: Expr, args: Arguments) throws -> Expr {
+    var components = URLComponents()
+    components.scheme = try scheme.asString()
+    components.host = try host.asString()
+    var iter = args.makeIterator()
+    if let arg = iter.next() {
+      components.port = try arg.asInt(above: 0, below: 65536)
+    }
+    if let arg = iter.next() {
+      components.path = try arg.asString()
+    }
+    if let arg = iter.next() {
+      var params: [URLQueryItem] = []
+      var list = arg
+      while case .pair(.pair(let key, let value), let rest) = list {
+        params.append(URLQueryItem(name: try key.asString(),
+                                   value: value.isNull || value.isFalse ? nil : try value.asString()))
+        list = rest
+      }
+      guard case .null = list else {
+        throw RuntimeError.type(arg, expected: [.properListType])
+      }
+      components.queryItems = params
+    }
+    if let arg = iter.next() {
+      components.fragment = try arg.asString()
+    }
+    if let url = components.url {
+      return .makeString(url.absoluteString)
+    } else {
+      return .false
+    }
+  }
+  
+  private func isUrl(_ expr: Expr) throws -> Expr {
+    guard case .string(let str) = expr,
+          let url = URL(string: str as String),
+          url.isFileURL || (url.host != nil && url.scheme != nil) else {
+      return .false
+    }
+    return .true
   }
   
   private func openUrl(_ expr: Expr) throws -> Expr {
