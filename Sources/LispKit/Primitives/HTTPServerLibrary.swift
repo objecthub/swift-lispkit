@@ -460,7 +460,16 @@ public final class HTTPServerLibrary: NativeLibrary {
   }
   
   private func serverRequestQuery(expr: Expr) throws -> Expr {
-    return .makeString(try self.httpServerRequest(from: expr).pathAndParams)
+    let req = try self.httpServerRequest(from: expr)
+    var components = URLComponents()
+    components.path = req.connection.request.path
+    if !req.connection.request.queryParams.isEmpty {
+      components.queryItems = req.connection.request.queryParams.map { k, v in
+        return URLQueryItem(name: k.removingPercentEncoding ?? k,
+                            value: v.removingPercentEncoding ?? v)
+      }
+    }
+    return .makeString(components.url?.absoluteString ?? req.connection.request.path)
   }
   
   private func serverRequestPathParam(expr: Expr, name: Expr, default: Expr?) throws -> Expr {

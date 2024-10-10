@@ -70,6 +70,8 @@ public final class StringLibrary: NativeLibrary {
     self.define(Procedure("string-normalize-separators", stringNormalizeSeparators))
     self.define(Procedure("string-decode-named-chars", stringDecodeNamedChars))
     self.define(Procedure("string-encode-named-chars", stringEncodeNamedChars))
+    self.define(Procedure("url-decode", urlDecode))
+    self.define(Procedure("url-encode", urlEncode))
     self.define(Procedure("list->string", listToString))
     self.define(Procedure("string->list", stringToList))
     self.define(Procedure("substring", substring))
@@ -421,6 +423,50 @@ public final class StringLibrary: NativeLibrary {
       return .string(NSMutableString(string: str.encodingPredefinedXmlEntities()))
     } else {
       return .string(NSMutableString(string: str.encodingNamedCharacters()))
+    }
+  }
+  
+  func urlDecode(_ expr: Expr, _ force: Expr?) throws -> Expr {
+    if let res = try expr.asString().removingPercentEncoding {
+      return .makeString(res)
+    } else if force?.isTrue ?? false {
+      return expr
+    } else {
+      return .false
+    }
+  }
+  
+  func urlEncode(_ expr: Expr, _ allowed: Expr?, _ force: Expr?) throws -> Expr {
+    var allowedChars: CharacterSet = .urlQueryAllowed
+    if let allowed {
+      if case .symbol(let sym) = allowed {
+        switch sym.identifier {
+          case "fragment":
+            allowedChars = .urlFragmentAllowed
+          case "host":
+            allowedChars = .urlHostAllowed
+          case "password":
+            allowedChars = .urlPasswordAllowed
+          case "path":
+            allowedChars = .urlPathAllowed
+          case "query":
+            allowedChars = .urlQueryAllowed
+          case "user":
+            allowedChars = .urlUserAllowed
+          default:
+            return .false
+        }
+      } else {
+        allowedChars = CharacterSet(charactersIn: try allowed.asString())
+      }
+    }
+    if let res = try expr.asString().addingPercentEncoding(withAllowedCharacters: allowedChars)?
+                                    .replacingOccurrences(of: "&", with: "%26") {
+      return .makeString(res)
+    } else if force?.isTrue ?? false {
+      return expr
+    } else {
+      return .false
     }
   }
   

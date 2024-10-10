@@ -16,14 +16,21 @@ public final class LispKitReplOAuthConfig: HTTPOAuthConfig {
   }
   
   public func configureEmbeddedAuth(oauth2: OAuth2) {
-    oauth2.authConfig.authorizeEmbedded = true
-    oauth2.authConfig.ui.useSafariView = false
-    oauth2.authConfig.ui.useAuthenticationSession = true
     if Thread.isMainThread {
-      oauth2.authConfig.authorizeContext = UIApplication.shared.keyWindowPresentedController
+      if let context = UIApplication.shared.keyWindowPresentedController {
+        oauth2.authConfig.authorizeContext = context
+        oauth2.authConfig.authorizeEmbedded = true
+        oauth2.authConfig.ui.useSafariView = false
+        oauth2.authConfig.ui.useAuthenticationSession = true
+      }
     } else {
       DispatchQueue.main.sync {
-        oauth2.authConfig.authorizeContext = UIApplication.shared.keyWindowPresentedController
+        if let context = UIApplication.shared.keyWindowPresentedController {
+          oauth2.authConfig.authorizeContext = context
+          oauth2.authConfig.authorizeEmbedded = true
+          oauth2.authConfig.ui.useSafariView = false
+          oauth2.authConfig.ui.useAuthenticationSession = true
+        }
       }
     }
   }

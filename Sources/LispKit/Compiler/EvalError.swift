@@ -189,6 +189,7 @@ public enum EvalError: Int, Hashable, Codable {
   case expectedAccessibilitySpecifier
   case illegalPolicySpecifier
   case unsupportedBarcodeSetting
+  case oauthError
   
   public var message: String {
     switch self {
@@ -520,6 +521,8 @@ public enum EvalError: Int, Hashable, Codable {
         return "illegal authentication policy specifier: $0"
       case .unsupportedBarcodeSetting:
         return "unsupported barcode setting key: $0"
+      case .oauthError:
+        return "oauth2 error $0: $,1"
     }
   }
   

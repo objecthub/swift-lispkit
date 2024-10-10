@@ -576,7 +576,15 @@ public final class HTTPOAuthLibrary: NativeLibrary {
       }
       do {
         if let error {
-          _ = try f.setResult(in: self.context, to: .error(RuntimeError.os(error)), raise: true)
+          if let authError = error as? OAuth2Error {
+            _ = try f.setResult(in: self.context,
+                                to: .error(RuntimeError.eval(.oauthError,
+                                                             .makeNumber(authError.errorCode),
+                                                             .makeString(authError.description))),
+                                raise: true)
+          } else {
+            _ = try f.setResult(in: self.context, to: .error(RuntimeError.os(error)), raise: true)
+          }
         } else if let codes {
           var res = Expr.null
           res = .pair(.pair(.symbol(self.interval), .makeNumber(codes.interval)), res)
@@ -611,7 +619,15 @@ public final class HTTPOAuthLibrary: NativeLibrary {
       }
       do {
         if let error {
-          _ = try f.setResult(in: self.context, to: .error(RuntimeError.os(error)), raise: true)
+          if let authError = error as? OAuth2Error {
+            _ = try f.setResult(in: self.context,
+                                to: .error(RuntimeError.eval(.oauthError,
+                                                             .makeNumber(authError.errorCode),
+                                                             .makeString(authError.description))),
+                                raise: true)
+          } else {
+            _ = try f.setResult(in: self.context, to: .error(RuntimeError.os(error)), raise: true)
+          }
         } else if let params = self.params(from: params) {
           _ = try f.setResult(in: self.context, to: params, raise: false)
         } else {
@@ -791,7 +807,15 @@ public final class HTTPOAuthLibrary: NativeLibrary {
       }
       do {
         if let error = resp.error {
-          _ = try f.setResult(in: self.context, to: .error(RuntimeError.os(error)), raise: true)
+          if let authError = error as? OAuth2Error {
+            _ = try f.setResult(in: self.context,
+                                to: .error(RuntimeError.eval(.oauthError,
+                                                             .makeNumber(authError.errorCode),
+                                                             .makeString(authError.description))),
+                                raise: true)
+          } else {
+            _ = try f.setResult(in: self.context, to: .error(RuntimeError.os(error)), raise: true)
+          }
         } else if let data = resp.data {
           _ = try f.setResult(in: self.context,
                                    to: .object(HTTPResponse(response: resp.response, body: data)),
@@ -818,8 +842,8 @@ public final class HTTPOAuthLibrary: NativeLibrary {
     switch request.method {
       case "GET", "HEAD", "POST", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH":
         HTTPOAuthLibrary.authRequestManager.register(oauth2: session.loader.oauth2,
-                                                  result: result,
-                                                  in: self.context)
+                                                     result: result,
+                                                     in: self.context)
         session.loader.perform(request: session.request(from: request),
                                callback: self.responseHandler(result))
       default:
@@ -1079,7 +1103,7 @@ public struct AuthenticatedRequestManager {
           try self.inProgress[i].oauth2?.handleRedirectURL(url)
           self.inProgress[i].redirected = .now
           return true
-        } catch { }
+        } catch let error { }
       }
       i += 1
     }
@@ -1122,7 +1146,9 @@ public final class LispKitHTTPOAuthConfig: HTTPOAuthConfig {
   }
   
   public func configureEmbeddedAuth(oauth2: OAuth2) {
-    oauth2.authConfig.authorizeEmbedded = true
+    // The following line could be set to true if there would be a way to determine
+    // a suitable `authorizeContext`.
+    oauth2.authConfig.authorizeEmbedded = false
     oauth2.authConfig.authorizeContext = nil
     oauth2.authConfig.ui.useSafariView = false
     oauth2.authConfig.ui.useAuthenticationSession = true
@@ -1132,3 +1158,101 @@ public final class LispKitHTTPOAuthConfig: HTTPOAuthConfig {
     return Logger(context: self.context, level: level)
   }
 }
+
+extension OAuth2Error {
+  var errorCode: Int {
+    switch self {
+      case .generic(_):
+        return 1
+      case .nsError(_):
+        return 2
+      case .invalidURLComponents(_):
+        return 3
+      case .noClientId:
+        return 4
+      case .noClientSecret:
+        return 5
+      case .noDeviceCodeURL:
+        return 6
+      case .noRedirectURL:
+        return 7
+      case .noUsername:
+        return 8
+      case .noPassword:
+        return 9
+      case .alreadyAuthorizing:
+        return 10
+      case .noAuthorizationContext:
+        return 11
+      case .invalidAuthorizationContext:
+        return 12
+      case .invalidAuthorizationConfiguration(_):
+        return 13
+      case .invalidRedirectURL(_):
+        return 14
+      case .noAccessToken:
+        return 15
+      case .noRefreshToken:
+        return 16
+      case .noRegistrationURL:
+        return 17
+      case .invalidLoginController(_, _):
+        return 18
+      case .noPasswordGrantDelegate:
+        return 19
+      case .notUsingTLS:
+        return 20
+      case .unableToOpenAuthorizeURL:
+        return 21
+      case .invalidRequest(_):
+        return 22
+      case .requestCancelled:
+        return 23
+      case .noTokenType:
+        return 24
+      case .unsupportedTokenType(_):
+        return 25
+      case .noDataInResponse:
+        return 26
+      case .prerequisiteFailed(_):
+        return 27
+      case .missingState:
+        return 28
+      case .invalidState:
+        return 29
+      case .jsonParserError:
+        return 30
+      case .utf8EncodeError:
+        return 31
+      case .utf8DecodeError:
+        return 32
+      case .unauthorizedClient(_):
+        return 33
+      case .forbidden:
+        return 34
+      case .wrongUsernamePassword:
+        return 35
+      case .accessDenied(_):
+        return 36
+      case .unsupportedResponseType(_):
+        return 37
+      case .invalidScope(_):
+        return 38
+      case .serverError:
+        return 39
+      case .temporarilyUnavailable(_):
+        return 40
+      case .invalidGrant(_):
+        return 41
+      case .authorizationPending(_):
+        return 42
+      case .slowDown(_):
+        return 43
+      case .expiredToken(_):
+        return 44
+      case .responseError(_):
+        return 45
+    }
+  }
+}
+

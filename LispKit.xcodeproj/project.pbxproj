@@ -1247,8 +1247,8 @@
 		CCD5B6092C276696002BF2F0 /* ThreadFutureLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD5B6072C276696002BF2F0 /* ThreadFutureLibrary.swift */; };
 		CCD5B60B2C295951002BF2F0 /* HTTPLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD5B60A2C295951002BF2F0 /* HTTPLibrary.swift */; };
 		CCD5B60C2C295951002BF2F0 /* HTTPLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD5B60A2C295951002BF2F0 /* HTTPLibrary.swift */; };
-		CCD5B6162C3BC480002BF2F0 /* HTTPAOuthLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD5B6152C3BC480002BF2F0 /* HTTPAOuthLibrary.swift */; };
-		CCD5B6172C3BC480002BF2F0 /* HTTPAOuthLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD5B6152C3BC480002BF2F0 /* HTTPAOuthLibrary.swift */; };
+		CCD5B6162C3BC480002BF2F0 /* HTTPOAuthLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD5B6152C3BC480002BF2F0 /* HTTPOAuthLibrary.swift */; };
+		CCD5B6172C3BC480002BF2F0 /* HTTPOAuthLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD5B6152C3BC480002BF2F0 /* HTTPOAuthLibrary.swift */; };
 		CCD5B61A2C3BC57A002BF2F0 /* OAuth2 in Frameworks */ = {isa = PBXBuildFile; productRef = CCD5B6192C3BC57A002BF2F0 /* OAuth2 */; };
 		CCD5B61C2C3BC773002BF2F0 /* OAuth2 in Frameworks */ = {isa = PBXBuildFile; productRef = CCD5B61B2C3BC773002BF2F0 /* OAuth2 */; };
 		CCD5B6202C3BCAB0002BF2F0 /* LispKitReplOAuthConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD5B61D2C3BCA1D002BF2F0 /* LispKitReplOAuthConfig.swift */; };
@@ -3077,6 +3077,7 @@
 		CC028EA7249E3EF900C5761C /* 2020-05-29.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-05-29.data"; sourceTree = "<group>"; };
 		CC028EA8249E3EF900C5761C /* 2020-05-25.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-05-25.data"; sourceTree = "<group>"; };
 		CC028EA9249E3EF900C5761C /* 2020-06-18.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-06-18.data"; sourceTree = "<group>"; };
+		CC02EA002CB75C1D00ABFC6F /* WebAPIs.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = WebAPIs.scm; sourceTree = "<group>"; };
 		CC050F131D017D3400D32132 /* BytevectorLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = BytevectorLibrary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC065BF52873E68A00F02783 /* bar-chart-params.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "bar-chart-params.png"; sourceTree = "<group>"; };
 		CC08964D244090D1004503B1 /* SQLiteLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SQLiteLibrary.swift; sourceTree = "<group>"; };
@@ -3669,7 +3670,7 @@
 		CCD5B5EB2C16E430002BF2F0 /* JSON.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = JSON.scm; sourceTree = "<group>"; };
 		CCD5B6072C276696002BF2F0 /* ThreadFutureLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadFutureLibrary.swift; sourceTree = "<group>"; };
 		CCD5B60A2C295951002BF2F0 /* HTTPLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPLibrary.swift; sourceTree = "<group>"; };
-		CCD5B6152C3BC480002BF2F0 /* HTTPAOuthLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPAOuthLibrary.swift; sourceTree = "<group>"; };
+		CCD5B6152C3BC480002BF2F0 /* HTTPOAuthLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPOAuthLibrary.swift; sourceTree = "<group>"; };
 		CCD5B61D2C3BCA1D002BF2F0 /* LispKitReplOAuthConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LispKitReplOAuthConfig.swift; sourceTree = "<group>"; };
 		CCD5B6212C3BCE08002BF2F0 /* UIApplication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIApplication.swift; sourceTree = "<group>"; };
 		CCD5E558262E309500C45EA0 /* 189.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 189.sld; sourceTree = "<group>"; };
@@ -4759,7 +4760,7 @@
 				CCCCEC8C2C50520600509902 /* SharedQueueLibrary.swift */,
 				CCD5B60A2C295951002BF2F0 /* HTTPLibrary.swift */,
 				CCCCEC892C504B3C00509902 /* HTTPServerLibrary.swift */,
-				CCD5B6152C3BC480002BF2F0 /* HTTPAOuthLibrary.swift */,
+				CCD5B6152C3BC480002BF2F0 /* HTTPOAuthLibrary.swift */,
 				CC1D533C2BF1709E00EE1A24 /* JSONLibrary.swift */,
 				CCD5B5202C0D231E002BF2F0 /* JSONSchemaLibrary.swift */,
 				CC17F7472C7DB91000DDC4F9 /* KeychainLibrary.swift */,
@@ -5017,6 +5018,7 @@
 				CCD5B5EB2C16E430002BF2F0 /* JSON.scm */,
 				CC4385BB20BAB79500055289 /* HTTP.scm */,
 				CCB7520D2C623F5800E7C1B0 /* Webserver.scm */,
+				CC02EA002CB75C1D00ABFC6F /* WebAPIs.scm */,
 				CC35C01D2C8527A800DF6E9D /* Keychain.scm */,
 				CC9ED3FB2710E6DB004B1E29 /* paip */,
 			);
@@ -5536,7 +5538,7 @@
 				CC2DA74A27747A8B00DE69CF /* EvalThread.swift in Sources */,
 				CC3B641A23822BCE00807476 /* NativeObject.swift in Sources */,
 				CC2DA74D2775131A00DE69CF /* ThreadManager.swift in Sources */,
-				CCD5B6162C3BC480002BF2F0 /* HTTPAOuthLibrary.swift in Sources */,
+				CCD5B6162C3BC480002BF2F0 /* HTTPOAuthLibrary.swift in Sources */,
 				CC1D53322BE7AB4000EE1A24 /* CustomExpr.swift in Sources */,
 				CC0BA16C1DFC843C0063B9DE /* SystemLibrary.swift in Sources */,
 				CC372CCC27D013BF0091C474 /* EnumLibrary.swift in Sources */,
@@ -5644,7 +5646,7 @@
 				CC7D4B7F2A2A49B50066BA94 /* Formatter.swift in Sources */,
 				CCC48C9425E5B95B00D082AD /* Type.swift in Sources */,
 				CCC48CAA25E5B97100D082AD /* FeatureRequirement.swift in Sources */,
-				CCD5B6172C3BC480002BF2F0 /* HTTPAOuthLibrary.swift in Sources */,
+				CCD5B6172C3BC480002BF2F0 /* HTTPOAuthLibrary.swift in Sources */,
 				CCB5DF5D29A16D62005E6453 /* Data.swift in Sources */,
 				CCCCEC8E2C50520600509902 /* SharedQueueLibrary.swift in Sources */,
 				CC2DA7582781037B00DE69CF /* EvalCondition.swift in Sources */,
