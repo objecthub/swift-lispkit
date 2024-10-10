@@ -438,30 +438,47 @@ public final class StringLibrary: NativeLibrary {
   
   func urlEncode(_ expr: Expr, _ allowed: Expr?, _ force: Expr?) throws -> Expr {
     var allowedChars: CharacterSet = .urlQueryAllowed
+    var encodeAmp = true
     if let allowed {
-      if case .symbol(let sym) = allowed {
-        switch sym.identifier {
-          case "fragment":
-            allowedChars = .urlFragmentAllowed
-          case "host":
-            allowedChars = .urlHostAllowed
-          case "password":
-            allowedChars = .urlPasswordAllowed
-          case "path":
-            allowedChars = .urlPathAllowed
-          case "query":
-            allowedChars = .urlQueryAllowed
-          case "user":
-            allowedChars = .urlUserAllowed
-          default:
-            return .false
-        }
-      } else {
-        allowedChars = CharacterSet(charactersIn: try allowed.asString())
+      switch allowed {
+        case .false:
+          allowedChars = CharacterSet()
+          encodeAmp = false
+        case .true:
+          break
+        case .symbol(let sym):
+          switch sym.identifier {
+            case "fragment":
+              allowedChars = .urlFragmentAllowed
+            case "host":
+              allowedChars = .urlHostAllowed
+            case "password":
+              allowedChars = .urlPasswordAllowed
+            case "path":
+              allowedChars = .urlPathAllowed
+            case "query":
+              allowedChars = .urlQueryAllowed
+            case "user":
+              allowedChars = .urlUserAllowed
+            default:
+              return .false
+          }
+        case .string(let str):
+          allowedChars = CharacterSet(charactersIn: str as String)
+          encodeAmp = !allowedChars.contains("&")
+        case .pair(.string(let str), .null):
+          allowedChars = CharacterSet(charactersIn: str as String).inverted
+          encodeAmp = !allowedChars.contains("&")
+        default:
+          guard case .object(let obj) = allowed, let cs = obj as? CharSet else {
+            throw RuntimeError.type(expr, expected: [CharSet.type])
+          }
+          allowedChars = CharacterSet(charactersIn: String(utf16CodeUnits: cs.array, count: cs.count))
+          encodeAmp = !allowedChars.contains("&")
       }
     }
-    if let res = try expr.asString().addingPercentEncoding(withAllowedCharacters: allowedChars)?
-                                    .replacingOccurrences(of: "&", with: "%26") {
+    let res = try expr.asString().addingPercentEncoding(withAllowedCharacters: allowedChars)
+    if let res = encodeAmp ? (res?.replacingOccurrences(of: "&", with: "%26")) : res {
       return .makeString(res)
     } else if force?.isTrue ?? false {
       return expr

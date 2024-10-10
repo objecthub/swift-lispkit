@@ -1103,7 +1103,7 @@ public struct AuthenticatedRequestManager {
           try self.inProgress[i].oauth2?.handleRedirectURL(url)
           self.inProgress[i].redirected = .now
           return true
-        } catch let error { }
+        } catch { }
       }
       i += 1
     }

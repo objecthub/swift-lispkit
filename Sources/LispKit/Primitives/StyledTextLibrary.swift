@@ -1737,7 +1737,7 @@ public final class StyledTextLibrary: NativeLibrary {
     let pstyle = try self.paragraphStyle(from: style).value
     let location = try loc.asDouble(coerce: true)
     let alignment = try self.textAlignment(from: align ?? .symbol(self.left))
-    if let cset = cset {
+    if let cset {
       guard case .object(let obj) = cset, let cs = obj as? CharSet else {
         throw RuntimeError.type(cset, expected: [CharSet.type])
       }
