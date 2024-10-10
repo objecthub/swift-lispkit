@@ -37,6 +37,8 @@
 		CC028EC3249E3F5E00C5761C /* 2020-06-17.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC028EA5249E3EF900C5761C /* 2020-06-17.data */; };
 		CC028EC4249E3F5E00C5761C /* 2020-06-18.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC028EA9249E3EF900C5761C /* 2020-06-18.data */; };
 		CC028EC5249E3F5E00C5761C /* 2020-06-19.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC028E98249E3EF700C5761C /* 2020-06-19.data */; };
+		CC02EA012CB7DEC900ABFC6F /* WebAPIs.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC02EA002CB75C1D00ABFC6F /* WebAPIs.scm */; };
+		CC02EA022CB7DEDC00ABFC6F /* WebAPIs.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC02EA002CB75C1D00ABFC6F /* WebAPIs.scm */; };
 		CC050F141D017D3400D32132 /* BytevectorLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC050F131D017D3400D32132 /* BytevectorLibrary.swift */; };
 		CC08964E244090D1004503B1 /* SQLiteLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC08964D244090D1004503B1 /* SQLiteLibrary.swift */; };
 		CC089651244091E9004503B1 /* SQLiteExpress in Frameworks */ = {isa = PBXBuildFile; productRef = CC089650244091E9004503B1 /* SQLiteExpress */; };
@@ -1620,6 +1622,7 @@
 			dstPath = Root/LispKit/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC02EA012CB7DEC900ABFC6F /* WebAPIs.scm in Copy examples */,
 				CC35C01E2C8527EF00DF6E9D /* Keychain.scm in Copy examples */,
 				CCB7520E2C62417500E7C1B0 /* Webserver.scm in Copy examples */,
 				CCD5B5ED2C16E6A6002BF2F0 /* JSON.scm in Copy examples */,
@@ -2541,6 +2544,7 @@
 			dstPath = Root/LispKit/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC02EA022CB7DEDC00ABFC6F /* WebAPIs.scm in Copy examples */,
 				CC35C01F2C85280500DF6E9D /* Keychain.scm in Copy examples */,
 				CCB7520F2C62418700E7C1B0 /* Webserver.scm in Copy examples */,
 				CCD5B5EE2C16E6B8002BF2F0 /* JSON.scm in Copy examples */,

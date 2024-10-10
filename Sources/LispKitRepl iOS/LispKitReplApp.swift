@@ -31,7 +31,7 @@ struct LispKitReplApp: App {
         .environmentObject(self.interpreter)
         .onOpenURL { url in
           if url.scheme == "lispkit" && url.host == "oauth" {
-            HTTPOAuthLibrary.authRequestManager.redirect(url: url)
+            _ = HTTPOAuthLibrary.authRequestManager.redirect(url: url)
           }
         }
     }
