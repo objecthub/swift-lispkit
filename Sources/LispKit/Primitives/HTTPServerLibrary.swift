@@ -27,12 +27,12 @@ public final class HTTPServerLibrary: NativeLibrary {
   // Factory for types used in this library
   public static var libraryConfig: HTTPServerConfig = LispKitHTTPServerConfig()
   
-  // Flow identifiers
-  // private let codeGrant: Symbol
+  // Running servers
+  public let lock = NSLock()
+  public var runningServers: Set<HTTPServer> = []
   
   /// Initialize symbols.
   public required init(in context: Context) throws {
-    // self.codeGrant = context.symbols.intern("code-grant")
     try super.init(in: context)
   }
   
@@ -246,6 +246,17 @@ public final class HTTPServerLibrary: NativeLibrary {
   public override func initializations() {
   }
   
+  public func abortRunningServers() {
+    self.lock.lock()
+    for server in self.runningServers {
+      server.stop()
+      do {
+        try server.queue.abort(in: self.context)
+      } catch {}
+    }
+    self.lock.unlock()
+  }
+  
   private func httpServer(from expr: Expr) throws -> HTTPServer {
     guard case .object(let obj) = expr, let server = obj as? HTTPServer else {
       throw RuntimeError.type(expr, expected: [HTTPServer.type])
@@ -386,10 +397,23 @@ public final class HTTPServerLibrary: NativeLibrary {
   
   private func httpServerStart(expr: Expr, port: Expr, forceIPv4: Expr?) throws -> Expr {
     let server = try self.httpServer(from: expr)
-    try server.start(UInt16(port.asInt(above: 0, below: Int(UInt16.max))),
-                     forceIPv4: forceIPv4?.isTrue ?? false,
-                     priority: nil,
-                     handlerPriority: nil)
+    self.lock.lock()
+    self.runningServers.insert(server)
+    self.lock.unlock()
+    defer {
+      self.lock.lock()
+      self.runningServers.remove(server)
+      self.lock.unlock()
+    }
+    guard let current = context.evaluator.threads.current else {
+      return .false
+    }
+    try current.value.execute(server) { server in
+      try server.start(UInt16(port.asInt(above: 0, below: Int(UInt16.max))),
+                       forceIPv4: forceIPv4?.isTrue ?? false,
+                       priority: nil,
+                       handlerPriority: nil)
+    }
     return .void
   }
   
@@ -1095,7 +1119,7 @@ public final class HTTPMultiPart: NativeObject {
 ///
 /// Represents a HTTP server object.
 ///
-open class HTTPServer: NanoHTTPServer, CustomExpr {
+open class HTTPServer: NanoHTTPServer, Abortable, CustomExpr {
   public static let handlerKey = "http-server/handler"
   public static let type = Type.objectType(Symbol(uninterned: "http-server"))
   
@@ -1124,6 +1148,15 @@ open class HTTPServer: NanoHTTPServer, CustomExpr {
     context.objects.manage(self.workers)
     super.init()
     self.setUpMiddleware()
+  }
+  
+  open func abort() {
+    self.stop()
+    if let context {
+      do {
+        try self.queue.abort(in: context)
+      } catch {}
+    }
   }
   
   open func setUpMiddleware() {

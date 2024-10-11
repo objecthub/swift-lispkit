@@ -175,7 +175,7 @@ public final class HTTPOAuthLibrary: NativeLibrary {
       case self.passwordGrant:
         oauth2 = OAuth2PasswordGrant(settings: settings)
       case self.deviceGrant:
-        oauth2 = OAuth2DeviceGrantLK(settings: settings)
+        oauth2 = OAuth2DeviceGrantLK(context: self.context, settings: settings)
       default:
         throw RuntimeError.custom("error", "unknown flow identifier", [.symbol(flow)])
     }
@@ -851,7 +851,6 @@ public final class HTTPOAuthLibrary: NativeLibrary {
     }
     return .object(result)
   }
-  
 }
 
 public final class OAuth2Protocol: NativeObject {
@@ -988,12 +987,14 @@ public struct AuthenticatedRequestManager {
     var redirected: Date?
     weak var oauth2: OAuth2?
     weak var result: Future?
+    weak var context: Context?
     
-    init(oauth2: OAuth2?, result: Future?) {
+    init(oauth2: OAuth2?, result: Future?, context: Context) {
       self.initiated = .now
       self.redirected = nil
       self.oauth2 = oauth2
       self.result = result
+      self.context = context
     }
   }
   
@@ -1018,7 +1019,7 @@ public struct AuthenticatedRequestManager {
         i += 1
       }
     }
-    self.inProgress.append(RequestInProgress(oauth2: oauth2, result: result))
+    self.inProgress.append(RequestInProgress(oauth2: oauth2, result: result, context: context))
   }
   
   public mutating func unregister(oauth2: OAuth2, in context: Context) {
@@ -1065,9 +1066,9 @@ public struct AuthenticatedRequestManager {
   }
   
   public mutating func cancel(timeout: TimeInterval,
-                       oauth2: OAuth2? = nil,
-                       future: Future? = nil,
-                       in context: Context) {
+                              oauth2: OAuth2? = nil,
+                              future: Future? = nil,
+                              in context: Context) {
     self.lock.lock()
     defer {
       self.lock.unlock()
@@ -1084,6 +1085,28 @@ public struct AuthenticatedRequestManager {
           in: context,
           to: .error(RuntimeError.custom("timeout", "OAuth2 authentication canceled", [])),
           raise: true)
+        container.oauth2?.abortAuthorization()
+        self.inProgress.remove(at: i)
+      } else {
+        i += 1
+      }
+    }
+  }
+  
+  public mutating func abortAll(in context: Context) {
+    self.lock.lock()
+    defer {
+      self.lock.unlock()
+    }
+    var i = 0
+    while i < self.inProgress.count {
+      let container = self.inProgress[i]
+      if container.context === context {
+        _ = try? container.result?.setResult(
+          in: context,
+          to: .error(RuntimeError.custom("aborted", "OAuth2 authentication canceled", [])),
+          raise: true)
+        container.oauth2?.abortAuthorization()
         self.inProgress.remove(at: i)
       } else {
         i += 1

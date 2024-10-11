@@ -148,6 +148,9 @@ public final class EvalThread: ManagedObject, ThreadBlocker, CustomStringConvert
     }
   }
   
+  /// A native operation is currently running which can be aborted via `blocker`
+  private var blocker: Abortable? = nil
+  
   /// The components needed to create a worker thread.
   private var config: (VirtualMachine, Int, QualityOfService, Procedure)?
   
@@ -248,8 +251,10 @@ public final class EvalThread: ManagedObject, ThreadBlocker, CustomStringConvert
     self.mutex.lock()
     let res = self.worker?.stop()
     let waitingOn = self.waitingOn
+    let blocker = self.blocker
     self.mutex.unlock()
     waitingOn?.wakeBlockedThreads()
+    blocker?.abort()
     return res
   }
   
@@ -356,6 +361,19 @@ public final class EvalThread: ManagedObject, ThreadBlocker, CustomStringConvert
     self.mutex.broadcast()
   }
   
+  /// Execute long running operation which can be aborted via `blocker`
+  public func execute<B: Abortable, R>(_ blocker: B, _ operation: (B) throws -> R) rethrows -> R {
+    self.mutex.lock()
+    self.blocker = blocker
+    self.mutex.unlock()
+    defer {
+      self.mutex.lock()
+      self.blocker = nil
+      self.mutex.unlock()
+    }
+    return try operation(blocker)
+  }
+  
   /// Helps deallocating a thread.
   public override func clean() {
     self.state = .terminated
@@ -413,13 +431,19 @@ public protocol EvalThreadWorker: AnyObject {
 }
 
 ///
-/// `ThreadBlocker` is implemented by all objects which make other threads potentially
-/// wait.
+/// `ThreadBlocker` is implemented by all objects which make other threads potentially wait.
 /// 
 public protocol ThreadBlocker {
   func wakeBlockedThreads()
   func mark(in gc: GarbageCollector)
   var string: String { get }
+}
+
+///
+/// `Abortable` is implemented by long-running, native operations that can block threads
+///
+public protocol Abortable {
+  func abort()
 }
 
 ///

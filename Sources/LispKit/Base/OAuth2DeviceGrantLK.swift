@@ -21,7 +21,23 @@ open class OAuth2DeviceGrantLK: OAuth2 {
 	override open class var responseType: String? {
 		return ""
 	}
-		
+  
+  private weak var lispkitContext: LispKit.Context?
+  
+  public init(context: LispKit.Context, settings: OAuth2JSON) {
+    self.lispkitContext = context
+    super.init(settings: settings)
+  }
+  
+  public override func perform(request: URLRequest,
+                               callback: @escaping ((OAuth2Response) -> Void)) {
+    if self.lispkitContext?.evaluator.isAbortionRequested() ?? true {
+      self.abortAuthorization()
+    } else {
+      super.perform(request: request, callback: callback)
+    }
+  }
+  
 	open func deviceAccessTokenRequest(with deviceCode: String) throws -> OAuth2AuthRequest {
 		guard let clientId = clientConfig.clientId, !clientId.isEmpty else {
 			throw OAuth2Error.noClientId
@@ -157,9 +173,12 @@ open class OAuth2DeviceGrantLK: OAuth2 {
 				}
 				catch let error {
 					let oaerror = error.asOAuth2Error
-					
-					if oaerror == .authorizationPending(nil) {
-						self.logger?.debug("OAuth2", msg: "AuthorizationPending, repeating in \(interval) seconds.")
+          if self.lispkitContext?.evaluator.isAbortionRequested() ?? true {
+            self.logger?.debug("OAuth2", msg: "Authorization pending; aborting.")
+            self.abortAuthorization()
+            completion(nil, oaerror)
+          } else if oaerror == .authorizationPending(nil) {
+						self.logger?.debug("OAuth2", msg: "Authorization pending; repeating in \(interval) seconds.")
 						queue.asyncAfter(deadline: .now() + interval) {
               self.getDeviceAccessToken(deviceCode: deviceCode,
                                         interval: interval,
@@ -168,7 +187,7 @@ open class OAuth2DeviceGrantLK: OAuth2 {
 						}
 					} else if oaerror == .slowDown(nil) {
 						let updatedInterval = interval + 5 // The 5 seconds increase is required by the RFC8628 standard (https://www.rfc-editor.org/rfc/rfc8628#section-3.5)
-						self.logger?.debug("OAuth2", msg: "SlowDown, repeating in \(updatedInterval) seconds.")
+						self.logger?.debug("OAuth2", msg: "Slow down; repeating in \(updatedInterval) seconds.")
 						queue.asyncAfter(deadline: .now() + updatedInterval) {
               self.getDeviceAccessToken(deviceCode: deviceCode,
                                         interval: updatedInterval,
