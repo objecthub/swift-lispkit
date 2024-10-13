@@ -142,7 +142,7 @@ public final class SystemCallLibrary: NativeLibrary {
       condition.unlock()
     }
     try proc.run()
-    while proc.isRunning && !self.context.evaluator.isAbortionRequested() {
+    while proc.isRunning && !self.context.evaluator.isAbortedOrNotRunning() {
       condition.wait(until: Date(timeInterval: 0.7, since: Date()))
     }
     inputPipe.fileHandleForWriting.writeabilityHandler = nil

@@ -31,7 +31,7 @@ open class OAuth2DeviceGrantLK: OAuth2 {
   
   public override func perform(request: URLRequest,
                                callback: @escaping ((OAuth2Response) -> Void)) {
-    if self.lispkitContext?.evaluator.isAbortionRequested() ?? true {
+    if self.lispkitContext?.evaluator.isAbortedOrNotRunning() ?? true {
       self.abortAuthorization()
     } else {
       super.perform(request: request, callback: callback)
@@ -173,7 +173,7 @@ open class OAuth2DeviceGrantLK: OAuth2 {
 				}
 				catch let error {
 					let oaerror = error.asOAuth2Error
-          if self.lispkitContext?.evaluator.isAbortionRequested() ?? true {
+          if self.lispkitContext?.evaluator.isAbortedOrNotRunning() ?? true {
             self.logger?.debug("OAuth2", msg: "Authorization pending; aborting.")
             self.abortAuthorization()
             completion(nil, oaerror)

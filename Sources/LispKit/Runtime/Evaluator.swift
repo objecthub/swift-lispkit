@@ -116,7 +116,10 @@ public final class Evaluator: TrackedObject {
   
   /// Aborts the currently running execution
   public func abort() {
+    // Abort evaluation
     _ = self.mainThread.value.abort()
+    // Clean up
+    HTTPOAuthLibrary.authRequestManager.abortAll(in: self.context)
   }
   
   // Create evaluation threads
@@ -133,6 +136,16 @@ public final class Evaluator: TrackedObject {
   /// Returns true if an abortion was requested.
   public func isAbortionRequested() -> Bool {
     return self.main.abortionRequested
+  }
+  
+  /// Returns true if this evaluator is executing currently.
+  public func isRunning() -> Bool {
+    return self.main.executing
+  }
+  
+  /// Returns true if this evaluator got aborted or is not running.
+  public func isAbortedOrNotRunning() -> Bool {
+    return self.main.abortionRequested || !self.main.executing
   }
   
   // Parsing of expressions
