@@ -30,9 +30,9 @@ outperform the MacBook Pro 16" (2019) for simple LispKit benchmarks.
 
 [_LispPad_](http://www.lisppad.app) implements a simple, lightweight, integrated
 development environment for _LispKit_ on macOS with a Cocoa-based UI. The
-[LispPad Library Reference](http://lisppad.objecthub.net/resources/LispPad_Reference_1.7.pdf)
+[LispPad Library Reference](https://zenger.org/lisppad/assets/LispPad_Reference_2.0.1.pdf)
 documents the core _LispPad_ and _LispKit_ libraries in
-[PDF](http://lisppad.objecthub.net/resources/LispPad_Reference_1.7.pdf) form. On iOS,
+[PDF](https://zenger.org/lisppad/assets/LispPad_Reference_2.0.1.pdf) form. On iOS,
 application [_LispPad Go_](https://apps.apple.com/us/app/lisppad-go/id1565747728) provides a simple
 Scheme IDE based on LispKit. The [source code of _LispPad Go_](https://github.com/objecthub/swift-lisppad-ios)
 is available on GitHub. A much simpler command-line tool for iOS is included in the LispKit
@@ -75,6 +75,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit system)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-System),
     [`(lispkit system call)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-System-OS),
     `(lispkit system keychain)`,
+    `(lispkit system pasteboard)`, 
     [`(lispkit box)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Box),
     [`(lispkit math)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Math),
     [`(lispkit math matrix)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Math-Matrix),
