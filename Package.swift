@@ -84,7 +84,8 @@ let package = Package(
               "Resources",
               "Graphics/Drawing_iOS.swift",
               "Graphics/Transformation_iOS.swift",
-              "Primitives/DrawingLibrary_iOS.swift"
+              "Primitives/DrawingLibrary_iOS.swift",
+              "Primitives/PasteboardLibrary_iOS.swift"
             ]),
     .target(name: "LispKitTools",
             dependencies: [
