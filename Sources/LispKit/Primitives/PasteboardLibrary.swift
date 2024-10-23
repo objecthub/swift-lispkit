@@ -270,6 +270,12 @@ public final class PasteboardLibrary: NativeLibrary {
     if let obj = NSPasteboard.general.readObjects(forClasses: [NSString.self])?.first,
        let str = obj as? NSString {
       return .makeString(str as String)
+    } else if let data = NSPasteboard.general.data(forType:
+                           NSPasteboard.PasteboardType(rawValue: "public.data")) {
+      let count = data.count
+      var res = [UInt8](repeating: 0, count: count)
+      data.copyBytes(to: &res, count: count)
+      return .bytes(MutableBox(res))
     }
     return .false
   }
