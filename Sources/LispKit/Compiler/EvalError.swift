@@ -190,6 +190,9 @@ public enum EvalError: Int, Hashable, Codable {
   case illegalPolicySpecifier
   case unsupportedBarcodeSetting
   case oauthError
+  case urlFormatConstraintError
+  case urlAuthorityError
+  case urlPrototypeInvalid
   
   public var message: String {
     switch self {
@@ -523,6 +526,12 @@ public enum EvalError: Int, Hashable, Codable {
         return "unsupported barcode setting key: $0"
       case .oauthError:
         return "oauth2 error $0: $,1"
+      case .urlFormatConstraintError:
+        return "not a valid URL format constraint: $0"
+      case .urlAuthorityError:
+        return "invalid URL authority specifier: $0"
+      case .urlPrototypeInvalid:
+        return "$0 is not a valid URL prototype for procedure $,1"
     }
   }
   

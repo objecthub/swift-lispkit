@@ -55,7 +55,7 @@ public final class ControlFlowLibrary: NativeLibrary {
     self.define(SpecialForm("unless", self.compileUnless))
     self.define(SpecialForm("cond", self.compileCond))
     self.define(SpecialForm("case", self.compileCase))
-    self.define("if-let*-inner", via: """
+    self.define("if-let*-inner", export: false, via: """
       (define-syntax if-let*-inner
         (syntax-rules ()
           ((_ ((var expr) . clauses) body)

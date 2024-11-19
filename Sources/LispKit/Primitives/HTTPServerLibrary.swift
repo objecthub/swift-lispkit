@@ -21,6 +21,11 @@
 import Foundation
 import NanoHTTP
 import DynamicJSON
+#if os(iOS) || os(watchOS) || os(tvOS)
+import UIKit
+#elseif os(macOS)
+import Cocoa
+#endif
 
 public final class HTTPServerLibrary: NativeLibrary {
   
@@ -69,6 +74,7 @@ public final class HTTPServerLibrary: NativeLibrary {
     self.define(Procedure("make-http-server", self.makeHttpServer))
     self.define(Procedure("http-server-running?", self.isHttpServerRunning))
     self.define(Procedure("http-server-port", self.httpServerPort))
+    self.define(Procedure("http-server-ipv4", self.isHttpServerIPv4))
     self.define(Procedure("http-server-open-connections", self.httpServerOpenConnections))
     self.define(Procedure("http-server-routes", self.httpServerRoutes))
     self.define(Procedure("http-server-handlers", self.httpServerHandlers))
@@ -107,12 +113,12 @@ public final class HTTPServerLibrary: NativeLibrary {
     self.define(Procedure("srv-request-form-attributes", self.serverRequestFormAttributes))
     self.define(Procedure("srv-request-form-multiparts", self.serverRequestFormMultiparts))
     self.define(Procedure("srv-request-address", self.serverRequestAddress))
-    self.define(Procedure("srv-request-address", self.serverRequestAddress))
     self.define(Procedure("_srv-request-send-response", self.serverRequestSendResponse), export: false)
     self.define(Procedure("srv-multipart?", self.isServerMultipart))
     self.define(Procedure("srv-multipart-headers", self.serverMultipartHeaders))
     self.define(Procedure("srv-multipart-header", self.serverMultipartHeader))
     self.define(Procedure("srv-multipart-body", self.serverMultipartBody))
+    self.define(Procedure("srv-multipart-body->string", self.serverMultipartBodyToString))
     self.define(Procedure("srv-response?", self.isSrvResponse))
     self.define(Procedure("_make-srv-response", self.makeSrvResponse), export: false)
     self.define(Procedure("srv-response-created", self.srvResponseCreated))
@@ -377,7 +383,9 @@ public final class HTTPServerLibrary: NativeLibrary {
   private func httpServerRegister(expr: Expr, fst: Expr, snd: Expr, thd: Expr?) throws -> Expr {
     if let handler = thd {
       _ = try handler.asProcedure()
-      try self.httpServer(from: expr).register(method: try fst.asString().uppercased(),
+      try self.httpServer(from: expr).register(method: fst.isFalse
+                                                 ? nil
+                                                 : try fst.asString().uppercased(),
                                                path: try snd.asString(),
                                                handler: handler)
     } else {
@@ -483,17 +491,31 @@ public final class HTTPServerLibrary: NativeLibrary {
     return .makeString(try self.httpServerRequest(from: expr).connection.request.path)
   }
   
-  private func serverRequestQuery(expr: Expr) throws -> Expr {
+  private func serverRequestQuery(expr: Expr, inclPath: Expr?) throws -> Expr {
     let req = try self.httpServerRequest(from: expr)
     var components = URLComponents()
-    components.path = req.connection.request.path
-    if !req.connection.request.queryParams.isEmpty {
+    if req.connection.request.queryParams.isEmpty {
+      if inclPath?.isTrue ?? false {
+        components.path = req.connection.request.path
+      } else {
+        return .makeString("")
+      }
+    } else {
+      if inclPath?.isTrue ?? false {
+        components.path = req.connection.request.path
+      }
       components.queryItems = req.connection.request.queryParams.map { k, v in
         return URLQueryItem(name: k.removingPercentEncoding ?? k,
                             value: v.removingPercentEncoding ?? v)
       }
     }
-    return .makeString(components.url?.absoluteString ?? req.connection.request.path)
+    if let str = components.string {
+      return .makeString(str)
+    } else if inclPath?.isTrue ?? false {
+      return .makeString(req.connection.request.path)
+    } else {
+      return .makeString("")
+    }
   }
   
   private func serverRequestPathParam(expr: Expr, name: Expr, default: Expr?) throws -> Expr {
@@ -662,6 +684,14 @@ public final class HTTPServerLibrary: NativeLibrary {
     return .bytes(MutableBox(try self.multiPart(from: expr).multipart.body))
   }
   
+  private func serverMultipartBodyToString(expr: Expr) throws -> Expr {
+    guard let str = String(bytes: try self.multiPart(from: expr).multipart.body,
+                           encoding: .utf8) else {
+      return .false
+    }
+    return .makeString(str)
+  }
+  
   // HTTP server response functionality
   
   private func isSrvResponse(expr: Expr) -> Expr {
@@ -770,12 +800,72 @@ public final class HTTPServerLibrary: NativeLibrary {
     return .void
   }
   
+  #if os(iOS) || os(watchOS) || os(tvOS)
+  private func image(_ image: NativeImage, to mimeType: String) -> Data? {
+    var type: BitmapImageFileType
+    switch mimeType {
+      case "image/tiff":
+        type = .tiff
+      case "image/png":
+        type = .png
+      case "image/jpeg":
+        type = .jpeg
+      case "image/gif":
+        type = .gif
+      case "image/bmp":
+        type = .bmp
+      default:
+        return nil
+    }
+    return type.data(for: image.value)
+  }
+  #elseif os(macOS)
+  private func image(_ image: NativeImage, to mimeType: String) -> Data? {
+    var type: NSBitmapImageRep.FileType
+    switch mimeType {
+      case "image/tiff":
+        type = .tiff
+      case "image/png":
+        type = .png
+      case "image/jpeg":
+        type = .jpeg
+      case "image/gif":
+        type = .gif
+      case "image/bmp":
+        type = .bmp
+      default:
+        return nil
+    }
+    for repr in image.value.representations {
+      if let bitmapRepr = repr as? NSBitmapImageRep {
+        return bitmapRepr.representation(using: type, properties: [:])
+      }
+    }
+    return nil
+  }
+  #endif
+  
   private func srvResponseBody(from obj: Expr, contentType: Expr?) throws -> NanoHTTPResponse.Body {
     switch obj {
       case .false:
         return .empty
-      case .string(_):
-        return .text(try obj.asString())
+      case .string(let str):
+        if let ct = try contentType?.asString() {
+          switch ct {
+            case "text/plain":
+              return .text(str as String)
+            case "text/html":
+              return .html(str as String)
+            default:
+              if let data = (str as String).data(using: .utf8) {
+                return .data(data, contentType: ct)
+              } else {
+                return .text(str as String)
+              }
+          }
+        } else {
+          return .text(str as String)
+        }
       case .bytes(let bv):
         return .data(Data(bv.value), contentType: try contentType?.asString())
       case .object(let obj):
@@ -784,12 +874,25 @@ public final class HTTPServerLibrary: NativeLibrary {
         } else if let mutable = obj as? MutableJSON {
           return .json(mutable.value)
         } else if let str = obj as? StyledText {
+          if contentType?.isTrue ?? false {
+            let data = try str.value.data(
+              from: NSMakeRange(0, str.value.length),
+              documentAttributes: [.documentType : NSAttributedString.DocumentType.rtf])
+            return .data(data, contentType: "application/rtf")
+          }
           let data = try str.value.data(
-                       from: NSRange(location: 0, length: str.value.length),
-                       documentAttributes:[.documentType: NSAttributedString.DocumentType.html,
-                                           .characterEncoding: String.Encoding.utf8.rawValue])
+            from: NSRange(location: 0, length: str.value.length),
+            documentAttributes:[.documentType: NSAttributedString.DocumentType.html,
+                                .characterEncoding: String.Encoding.utf8.rawValue])
           if let res = String(data: data, encoding: String.Encoding.utf8) {
             return .htmlBody(res)
+          } else {
+            fallthrough
+          }
+        } else if let image = obj as? NativeImage {
+          let ct = try contentType?.asString() ?? "image/png"
+          if let data = self.image(image, to: ct) {
+            return .data(data, contentType: ct)
           } else {
             fallthrough
           }
@@ -824,7 +927,8 @@ public final class HTTPServerLibrary: NativeLibrary {
     let name = try name.asString().lowercased()
     var list = expr
     while case .pair(let element, let next) = list {
-      if case .pair(.string(let str), let value) = element, (str as String) == name {
+      if case .pair(.string(let str), let value) = element,
+         (str as String).lowercased() == name {
         return value
       }
       list = next
@@ -851,6 +955,8 @@ public final class HTTPServerLibrary: NativeLibrary {
             }
             current = value.index(after: current)
             start = current
+          } else {
+            fallthrough
           }
         default:
           current = value.index(after: current)

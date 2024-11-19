@@ -70,6 +70,7 @@ public enum Type: Hashable, CustomStringConvertible {
   case binaryOutputPortType
   case taggedType
   case syntaxType
+  case urlType
   case objectType(Symbol)
   
   public var description: String {
@@ -170,6 +171,8 @@ public enum Type: Hashable, CustomStringConvertible {
         return "tagged"
       case .syntaxType:
         return "syntax"
+      case .urlType:
+        return "url"
       case .objectType(let sym):
         return sym.identifier
     }
@@ -177,6 +180,8 @@ public enum Type: Hashable, CustomStringConvertible {
   
   public var included: Set<Type> {
     switch self {
+      case .strType:
+        return stringSubtypes
       case .procedureType:
         return procedureSubtypes
       case .numberType:
@@ -220,6 +225,8 @@ public enum Type: Hashable, CustomStringConvertible {
   }
 }
 
+private let stringSubtypes     : Set<Type> = [.strType,
+                                              .urlType]
 private let procedureSubtypes  : Set<Type> = [.procedureType,
                                               .parameterType]
 private let numberSubtypes     : Set<Type> = [.numberType,

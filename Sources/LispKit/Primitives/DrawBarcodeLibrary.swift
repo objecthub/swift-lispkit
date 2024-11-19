@@ -156,7 +156,7 @@ public final class DrawBarcodeLibrary: NativeLibrary {
   private func aztecCodeImage(str: Expr, args: Arguments) throws -> Expr {
     guard let (corr, compact, scale, color, background, dpi) = args.optional(.flonum(23.0),
                                                                              .null,
-                                                                             .flonum(1.0),
+                                                                             .flonum(2.0),
                                                                              .false,
                                                                              .false,
                                                                              .flonum(72.0)) else {

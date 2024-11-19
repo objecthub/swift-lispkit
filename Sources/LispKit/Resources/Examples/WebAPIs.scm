@@ -43,7 +43,7 @@
 
 (http-server-register! server "/"
   (lambda (request)
-    (let ((url (string-append "http://localhost:3000" (srv-request-query request))))
+    (let ((url (string-append "http://localhost:3000" (srv-request-query request #t))))
       (http-server-log server 2 "handler/redirect" url)
       (if (oauth2-redirect! url)
           (make-srv-response 200 #f "redirect registered")
