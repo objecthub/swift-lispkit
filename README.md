@@ -99,6 +99,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit date-time)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Date-Time),
     [`(lispkit draw)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Draw),
     [`(lispkit draw turtle)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Draw-Turtle),
+    [`(lispkit draw barcode)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Draw-Barcode),
     [`(lispkit draw chart bar)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Draw-Chart-Bar),
     [`(lispkit styled-text)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Styled-Text),
     [`(lispkit datatype)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Datatype),
