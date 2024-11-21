@@ -1,19 +1,21 @@
 # Changelog
 
-## 2.5.0 (2024-10-20)
+## 2.5.0 (2024-11-21)
 
 - Support for all major JSON standards via libraries `(lispkit json)` and `(lispkit json schema)` supporting _JSON Pointer_ \([RFC 6901](https://datatracker.ietf.org/doc/html/rfc6901/)\), _JSON Path_ \([RFC 9535](https://datatracker.ietf.org/doc/html/rfc9535/)\), _JSON Patch_ \([RFC 6902](https://datatracker.ietf.org/doc/html/rfc6902/)\), _JSON Merge Patch_ \([RFC 7396](https://datatracker.ietf.org/doc/html/rfc7396/)\) and _JSON Schema_ \([2020-12 Internet Draft specification](https://datatracker.ietf.org/doc/draft-bhutton-json-schema/)\).
 - Support for HTTP-based networking via libraries `(lispkit http)`, `(lispkit http oauth)`, and `(lispkit http server)`, including support for _OAuth 2.0_ \([RFC 6749](https://datatracker.ietf.org/doc/html/rfc6749)\) and simple HTTP servers.
 - Deeper integrations into macOS and iOS operating systems via libraries `(lispkit system keychain)` and `(lispkit system pasteboard)`.
+- New library for handling URLs: `(lispkit url)`
 - New concurrency features with support for _atomic boxes_ via library `(lispkit box)` and thread-safe shared queues via library `(lispkit thread shared-queue)`.
 - Serialization of data into a binary representation for a subset of LispKit's data types via library `(lispkit serialize)`.
 - Support for drawing a variety of different types of bar codes via library `(lispkit draw barcode)`
 - New procedure in library `(lispkit thread)`: `abort-running-threads`
-- New procedures in library `(lispkit system)`: `url`, `url?`, `url-scheme`, `url-host`, `url-port`, `url-path`, `url-query`, `url-fragment`, `file-url`, `file-url?`, `available-network-interfaces`, `region-continent`, `region-parent`, and `region-subregions`
+- New procedures in library `(lispkit system)`: `available-network-interfaces`, `region-continent`, `region-parent`, and `region-subregions`
 - New procedures in library `(lispkit string)`: `url-encode` and `url-decode`
 - New procedures in library `(lispkit bytevector)`: `bytevector-zip-header?` and `bytevector-gzip-header?`
 - New procedures in library `(lispkit markdown)`: `markdown->sxml`, `blocks->sxml`, `text->sxml`, `markdown->raw-string`, and `blocks->raw-string`
-- New/updated procedures and special forms in library `(lispkit control)`: `if-let*`, `when-let*`, `error-object->string` and `error-object-message`
+- New/updated procedures in library `(lispkit dynamic)`: `error-object->string` and `error-object-message`
+- New special forms in library `(lispkit control)`: `if-let*` and `when-let*`
 - LispKitRepl now supports asynchronous libraries (libraries which need a run loop) via command-line argument `-x`
 - New sample code: `Keychain.scm`, `WebAPIs.scm`, and `Webserver.scm`
 
