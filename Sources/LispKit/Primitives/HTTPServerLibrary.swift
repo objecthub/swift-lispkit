@@ -906,7 +906,7 @@ public final class HTTPServerLibrary: NativeLibrary {
   
   private func srvResponseBodySet(expr: Expr, obj: Expr, contentType: Expr?) throws -> Expr {
     try self.httpServerResponse(from: expr).response.body =
-      self.srvResponseBody(from: obj, contentType: contentType)
+      self.srvResponseBody(from: obj, contentType: contentType?.isFalse ?? true ? nil : contentType)
     return .void
   }
   
