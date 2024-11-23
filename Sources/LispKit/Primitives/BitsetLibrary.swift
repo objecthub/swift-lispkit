@@ -389,6 +389,18 @@ public struct NativeBitset: CustomExpr {
     return self.bitset.hashValue
   }
   
+  public func eq(to expr: Expr) -> Bool {
+    guard case .object(let obj) = expr,
+          let other = obj as? NativeBitset else {
+      return false
+    }
+    return self.bitset === other.bitset
+  }
+  
+  public func eqv(to expr: Expr) -> Bool {
+    return self.eq(to: expr)
+  }
+  
   public func equals(to expr: Expr) -> Bool {
     guard case .object(let obj) = expr,
           let other = obj as? NativeBitset else {
