@@ -22,6 +22,7 @@ import CoreGraphics
 import Foundation
 import UIKit
 import MobileCoreServices
+import UniformTypeIdentifiers
 
 ///
 /// Class `Drawing` represents a sequence of drawing instructions. The class offers the
@@ -30,8 +31,8 @@ import MobileCoreServices
 ///   - The drawing can be drawn to the current graphics context
 ///   - The drawing can be written to a file. Natively supported are PDF, PNG, and JPEG.
 ///
-public final class Drawing: NativeObject {
-
+public final class Drawing: NativeObject, CustomStringConvertible, @unchecked Sendable {
+  
   /// Type representing drawings.
   public static let type = Type.objectType(Symbol(uninterned: "drawing"))
   
@@ -51,6 +52,11 @@ public final class Drawing: NativeObject {
   /// Return native object type.
   public override var type: Type {
     return Self.type
+  }
+  
+  /// Return the number of drawing instructions
+  public var numInstructions: Int {
+    return self.instructions.count
   }
   
   /// Appends a new drawing instruction.
@@ -76,8 +82,8 @@ public final class Drawing: NativeObject {
   /// Draws the drawing to the current graphics context clipped to a given shape. The drawing is
   /// put into a new transparency layer. Upon exit, the previous graphics state is being
   /// restored.
-  public func draw(clippedTo shape: Shape? = nil) {
-    if let context = UIGraphicsGetCurrentContext() {
+  public func draw(clippedTo shape: Shape? = nil, in context: CGContext? = nil) {
+    if let context = context ?? UIGraphicsGetCurrentContext() {
       context.saveGState()
       context.beginTransparencyLayer(auxiliaryInfo: nil)
       shape?.compile().addClip()
@@ -85,15 +91,15 @@ public final class Drawing: NativeObject {
         context.endTransparencyLayer()
         context.restoreGState()
       }
-      self.drawInline()
+      self.drawInline(in: context)
     }
   }
   
   /// Draw the drawing into the current graphics context without saving and restoring the
   /// graphics state.
-  public func drawInline() {
+  public func drawInline(in context: CGContext) {
     for instruction in self.instructions {
-      instruction.draw()
+      instruction.draw(in: context)
     }
   }
   
@@ -281,12 +287,22 @@ public final class Drawing: NativeObject {
       instruction.markDirty()
     }
   }
+  
+  public var description: String {
+    var res = "drawing with \(self.instructions.count) instructions"
+    var i = 0
+    for instruction in self.instructions {
+      res += "\n  \(i): \(instruction)"
+      i += 1
+    }
+    return res
+  }
 }
 
 ///
 /// Enumeration of all supported drawing instructions.
 ///
-public enum DrawingInstruction {
+public enum DrawingInstruction: CustomStringConvertible, @unchecked Sendable {
   case setStrokeColor(Color)
   case setFillColor(Color)
   case setStrokeWidth(Double)
@@ -312,48 +328,51 @@ public enum DrawingInstruction {
   case inline(Drawing)
   case include(Drawing, clippedTo: Shape?)
   
-  fileprivate func draw() {
+  /// Draw the instruction if there is a valid current drawing context
+  public func draw() {
+    if let context = UIGraphicsGetCurrentContext() {
+      self.draw(in: context)
+    }
+  }
+  
+  /// Draw the instruction into the given drawing context
+  public func draw(in context: CGContext) {
     switch self {
       case .setStrokeColor(let color):
-        UIGraphicsGetCurrentContext()?.setStrokeColor(color.nsColor.cgColor)
+        context.setStrokeColor(color.nsColor.cgColor)
       case .setFillColor(let color):
-        UIGraphicsGetCurrentContext()?.setFillColor(color.nsColor.cgColor)
+        context.setFillColor(color.nsColor.cgColor)
       case .setStrokeWidth(let width):
-        UIGraphicsGetCurrentContext()?.setLineWidth(CGFloat(width))
+        context.setLineWidth(CGFloat(width))
       case .setBlendMode(let blendMode):
-        UIGraphicsGetCurrentContext()?.setBlendMode(blendMode)
+        context.setBlendMode(blendMode)
       case .setShadow(let color, let dx, let dy, let blurRadius):
-        UIGraphicsGetCurrentContext()?.setShadow(offset: CGSize(width: dx, height: dy),
-                                                 blur: CGFloat(blurRadius),
-                                                 color: color.nsColor.cgColor)
+        context.setShadow(offset: CGSize(width: dx, height: dy),
+                          blur: CGFloat(blurRadius),
+                          color: color.nsColor.cgColor)
       case .removeShadow:
-        UIGraphicsGetCurrentContext()?.setShadow(offset: CGSize(width: 0.0, height: 0.0),
-                                                 blur: 0.0,
-                                                 color: nil)
+        context.setShadow(offset: CGSize(width: 0.0, height: 0.0), blur: 0.0, color: nil)
       case .setTransformation(let transformation):
-        if let transform = UIGraphicsGetCurrentContext()?.ctm {
-          UIGraphicsGetCurrentContext()?.concatenate(transform.inverted())
-          UIGraphicsGetCurrentContext()?.concatenate(transformation.affineTransform)
-        }
+        let transform = context.ctm
+        context.concatenate(transform.inverted())
+        context.concatenate(transformation.affineTransform)
       case .concatTransformation(let transformation):
-        UIGraphicsGetCurrentContext()?.concatenate(transformation.affineTransform)
+        context.concatenate(transformation.affineTransform)
       case .undoTransformation(let transformation):
-        UIGraphicsGetCurrentContext()?.concatenate(transformation.affineTransform.inverted())
+        context.concatenate(transformation.affineTransform.inverted())
       case .strokeLine(let start, let end):
-        if let context = UIGraphicsGetCurrentContext() {
-          context.beginPath()
-          context.move(to: start)
-          context.addLine(to: end)
-          context.strokePath()
-        }
+        context.beginPath()
+        context.move(to: start)
+        context.addLine(to: end)
+        context.strokePath()
       case .strokeRect(let rct):
-        UIGraphicsGetCurrentContext()?.stroke(rct)
+        context.stroke(rct)
       case .fillRect(let rct):
-        UIGraphicsGetCurrentContext()?.fill(rct)
+        context.fill(rct)
       case .strokeEllipse(let rct):
-        UIGraphicsGetCurrentContext()?.strokeEllipse(in: rct)
+        context.strokeEllipse(in: rct)
       case .fillEllipse(let rct):
-        UIGraphicsGetCurrentContext()?.fillEllipse(in: rct)
+        context.fillEllipse(in: rct)
       case .stroke(let shape, let width):
         shape.stroke(lineWidth: width)
       case .strokeDashed(let shape, let width, let dashLengths, let dashPhase):
@@ -361,8 +380,7 @@ public enum DrawingInstruction {
       case .fill(let shape):
         shape.fill()
       case .fillLinearGradient(let shape, let colors, let angle):
-        if let context = UIGraphicsGetCurrentContext(),
-           let gradient = CGGradient(colorsSpace: Color.colorSpaceName,
+        if let gradient = CGGradient(colorsSpace: Color.colorSpaceName,
                                      colors: Color.cgColorArray(colors) as CFArray,
                                      locations: nil) {
           context.saveGState()
@@ -376,8 +394,7 @@ public enum DrawingInstruction {
           context.restoreGState()
         }
       case .fillRadialGradient(let shape, let colors, let center):
-        if let context = UIGraphicsGetCurrentContext(),
-           let gradient = CGGradient(colorsSpace: Color.colorSpaceName,
+        if let gradient = CGGradient(colorsSpace: Color.colorSpaceName,
                                      colors: Color.cgColorArray(colors) as CFArray,
                                      locations: nil) {
           context.saveGState()
@@ -430,10 +447,19 @@ public enum DrawingInstruction {
           case .boundingBox(let box):
             textRect = box
         }
-        str.draw(with: textRect,
-                 options: [.usesLineFragmentOrigin, .usesFontLeading],
-                 attributes: attributes,
-                 context: nil)
+        if let current = UIGraphicsGetCurrentContext(), current == context {
+          str.draw(with: textRect,
+                   options: [.usesLineFragmentOrigin, .usesFontLeading],
+                   attributes: attributes,
+                   context: nil)
+        } else {
+          UIGraphicsPushContext(context)
+          str.draw(with: textRect,
+                   options: [.usesLineFragmentOrigin, .usesFontLeading],
+                   attributes: attributes,
+                   context: nil)
+          UIGraphicsPopContext()
+        }
       case .attributedText(let attribStr, let location):
         let textRect: CGRect
         switch location {
@@ -443,20 +469,92 @@ public enum DrawingInstruction {
           case .boundingBox(let box):
             textRect = box
         }
-        attribStr.draw(with: textRect,
-                       options: [.usesLineFragmentOrigin, .usesFontLeading],
-                       context: nil)
+        if let current = UIGraphicsGetCurrentContext(), current == context {
+          attribStr.draw(with: textRect,
+                         options: [.usesLineFragmentOrigin, .usesFontLeading],
+                         context: nil)
+        } else {
+          UIGraphicsPushContext(context)
+          attribStr.draw(with: textRect,
+                         options: [.usesLineFragmentOrigin, .usesFontLeading],
+                         context: nil)
+          UIGraphicsPopContext()
+        }
       case .image(let image, let location, let oper, let opa):
-        switch location {
-          case .position(let point):
-            image.draw(at: CGPoint(x: point.x, y: point.y), blendMode: oper, alpha: CGFloat(opa))
-          case .boundingBox(let box):
-            image.draw(in: box, blendMode: oper, alpha: CGFloat(opa))
+        if let current = UIGraphicsGetCurrentContext(), current == context {
+          switch location {
+            case .position(let point):
+              image.draw(at: CGPoint(x: point.x, y: point.y), blendMode: oper, alpha: CGFloat(opa))
+            case .boundingBox(let box):
+              image.draw(in: box, blendMode: oper, alpha: CGFloat(opa))
+          }
+        } else {
+          UIGraphicsPushContext(context)
+          switch location {
+            case .position(let point):
+              image.draw(at: CGPoint(x: point.x, y: point.y), blendMode: oper, alpha: CGFloat(opa))
+            case .boundingBox(let box):
+              image.draw(in: box, blendMode: oper, alpha: CGFloat(opa))
+          }
+          UIGraphicsPopContext()
         }
       case .include(let drawing, let clippingRegion):
-        drawing.draw(clippedTo: clippingRegion)
+        drawing.draw(clippedTo: clippingRegion, in: context)
       case .inline(let drawing):
-        drawing.drawInline()
+        drawing.drawInline(in: context)
+    }
+  }
+  
+  public var description: String {
+    switch self {
+      case .setStrokeColor(_):
+        return "setStrokeColor"
+      case .setFillColor(_):
+        return "setFillColor"
+      case .setStrokeWidth(_):
+        return "setStrokeWidth"
+      case .setBlendMode(_):
+        return "setBlendMode"
+      case .setShadow(_, dx: _, dy: _, blurRadius: _):
+        return "setShadow"
+      case .removeShadow:
+        return "setShadow"
+      case .setTransformation(_):
+        return "setTransformation"
+      case .concatTransformation(_):
+        return "concatTransformation"
+      case .undoTransformation(_):
+        return "undoTransformation"
+      case .strokeLine(_, _):
+        return "strokeLine"
+      case .strokeRect(_):
+        return "strokeRect"
+      case .fillRect(_):
+        return "fillRect"
+      case .strokeEllipse(_):
+        return "strokeEllipse"
+      case .fillEllipse(_):
+        return "fillEllipse"
+      case .stroke(_, width: _):
+        return "stroke"
+      case .strokeDashed(_, width: _, lengths: _, phase: _):
+        return "strokeDashed"
+      case .fill(_):
+        return "fill"
+      case .fillLinearGradient(_, _, angle: _):
+        return "fillLinearGradient"
+      case .fillRadialGradient(_, _, relativeCenter: _):
+        return "fillRadialGradient"
+      case .text(_, font: _, color: _, style: _, at: _):
+        return "text"
+      case .attributedText(_, at: _):
+        return "attributedText"
+      case .image(_, _, operation: _, opacity: _):
+        return "image"
+      case .inline(_):
+        return "inline"
+      case .include(_, clippedTo: _):
+        return "include"
     }
   }
   
@@ -516,7 +614,8 @@ public enum BitmapImageFileType {
           kCGImagePropertyOrientation as String : NSNumber(value: image.imageOrientation.rawValue)
         ]
         let md = NSMutableData()
-        guard let dest = CGImageDestinationCreateWithData(md, kUTTypeTIFF, 1, nil) else {
+        guard let dest =
+            CGImageDestinationCreateWithData(md, UTType.tiff.identifier as CFString, 1, nil) else {
           return nil
         }
         CGImageDestinationAddImage(dest, cgImage, options)
@@ -531,7 +630,8 @@ public enum BitmapImageFileType {
           kCGImagePropertyOrientation as String : NSNumber(value: image.imageOrientation.rawValue)
         ]
         let md = NSMutableData()
-        guard let dest = CGImageDestinationCreateWithData(md, kUTTypeBMP, 1, nil) else {
+        guard let dest =
+            CGImageDestinationCreateWithData(md, UTType.bmp.identifier as CFString, 1, nil) else {
           return nil
         }
         CGImageDestinationAddImage(dest, cgImage, options)
@@ -545,7 +645,8 @@ public enum BitmapImageFileType {
           kCGImagePropertyOrientation as String : NSNumber(value: image.imageOrientation.rawValue)
         ]
         let md = NSMutableData()
-        guard let dest = CGImageDestinationCreateWithData(md, kUTTypeGIF, 1, nil) else {
+        guard let dest =
+            CGImageDestinationCreateWithData(md, UTType.gif.identifier as CFString, 1, nil) else {
           return nil
         }
         CGImageDestinationAddImage(dest, cgImage, options)

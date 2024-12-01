@@ -20,6 +20,7 @@
 
 import SwiftUI
 import MobileCoreServices
+import UniformTypeIdentifiers
 
 struct ConsoleView: View {
   let font: Font
@@ -70,7 +71,7 @@ struct ConsoleView: View {
         .padding(.vertical, entry.kind == .command ? 3 : (entry.kind == .output ? 1 : 0))
         .contextMenu {
           Button(action: {
-            UIPasteboard.general.setValue(entry.text, forPasteboardType: kUTTypePlainText as String)
+            UIPasteboard.general.setValue(entry.text, forPasteboardType: UTType.plainText.identifier)
           }) {
             Label("Copy to clipboard", systemImage: "doc.on.doc")
           }
