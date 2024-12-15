@@ -21,6 +21,7 @@
 import CoreGraphics
 import Cocoa
 import AppKit
+import PDFKit
 
 ///
 /// Class `Drawing` represents a sequence of drawing instructions. The class offers the
@@ -84,15 +85,15 @@ public final class Drawing: NativeObject {
         context.cgContext.endTransparencyLayer()
         context.restoreGraphicsState()
       }
-      self.drawInline()
+      self.drawInline(in: context)
     }
   }
   
   /// Draw the drawing into the current graphics context without saving and restoring the
   /// graphics state.
-  public func drawInline() {
+  public func drawInline(in context: NSGraphicsContext) {
     for instruction in self.instructions {
-      instruction.draw()
+      instruction.draw(in: context)
     }
   }
   
@@ -322,19 +323,28 @@ public enum DrawingInstruction {
   case text(String, font: NSFont?, color: Color?, style: NSParagraphStyle?, at: ObjectLocation)
   case attributedText(NSAttributedString, at: ObjectLocation)
   case image(NSImage, ObjectLocation, operation: NSCompositingOperation, opacity: Double)
+  case page(PDFPage, PDFDisplayBox, NSRect)
   case inline(Drawing)
   case include(Drawing, clippedTo: Shape?)
   
-  fileprivate func draw() {
+  /// Draw the instruction if there is a valid current drawing context
+  public func draw() {
+    if let context = NSGraphicsContext.current {
+      self.draw(in: context)
+    }
+  }
+  
+  /// Draw the instruction into the given drawing context
+  public func draw(in context: NSGraphicsContext) {
     switch self {
       case .setStrokeColor(let color):
         color.nsColor.setStroke()
       case .setFillColor(let color):
         color.nsColor.setFill()
       case .setStrokeWidth(let width):
-        NSGraphicsContext.current?.cgContext.setLineWidth(CGFloat(width))
+        context.cgContext.setLineWidth(CGFloat(width))
       case .setBlendMode(let blendMode):
-        NSGraphicsContext.current?.cgContext.setBlendMode(blendMode)
+        context.cgContext.setBlendMode(blendMode)
       case .setShadow(let color, let dx, let dy, let blurRadius):
         let shadow = NSShadow()
         shadow.shadowOffset = NSSize(width: dx, height: dy)
@@ -356,20 +366,19 @@ public enum DrawingInstruction {
         transform.invert()
         transform.concat()
       case .strokeLine(let start, let end):
-        if let context = NSGraphicsContext.current?.cgContext {
-          context.beginPath()
-          context.move(to: start)
-          context.addLine(to: end)
-          context.strokePath()
-        }
+        let context = context.cgContext
+        context.beginPath()
+        context.move(to: start)
+        context.addLine(to: end)
+        context.strokePath()
       case .strokeRect(let rct):
-        NSGraphicsContext.current?.cgContext.stroke(rct)
+        context.cgContext.stroke(rct)
       case .fillRect(let rct):
-        NSGraphicsContext.current?.cgContext.fill(rct)
+        context.cgContext.fill(rct)
       case .strokeEllipse(let rct):
-        NSGraphicsContext.current?.cgContext.strokeEllipse(in: rct)
+        context.cgContext.strokeEllipse(in: rct)
       case .fillEllipse(let rct):
-        NSGraphicsContext.current?.cgContext.fillEllipse(in: rct)
+        context.cgContext.fillEllipse(in: rct)
       case .stroke(let shape, let width):
         shape.stroke(lineWidth: width)
       case .strokeDashed(let shape, let width, let dashLengths, let dashPhase):
@@ -436,10 +445,23 @@ public enum DrawingInstruction {
                        respectFlipped: true,
                        hints: [:])
         }
+      case .page(let page, let box, let rect):
+        let context = context.cgContext
+        context.saveGState()
+        // PDF coordinate system is Y-flipped from Core Graphics
+        context.translateBy(x: rect.origin.x, y: rect.origin.y + rect.height)
+        // Apply the PDF's crop box transform
+        let bounds = page.bounds(for: box)
+        page.transform(context, for: box)
+        // Scale PDF to view size
+        context.scaleBy(x: rect.width / bounds.width, y: -rect.height / bounds.height)
+        // Draw
+        page.draw(with: box, to: context)
+        context.restoreGState()
       case .include(let drawing, let clippingRegion):
         drawing.draw(clippedTo: clippingRegion)
       case .inline(let drawing):
-        drawing.drawInline()
+        drawing.drawInline(in: context)
     }
   }
   

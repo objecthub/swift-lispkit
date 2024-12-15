@@ -71,7 +71,8 @@ public struct LibraryRegistry {
     JSONSchemaLibrary.self,
     HTTPLibrary.self,
     HTTPOAuthLibrary.self,
-    HTTPServerLibrary.self
+    HTTPServerLibrary.self,
+    PDFLibrary.self
   ]
   #elseif os(macOS)
   public private(set) static var nativeLibraries: [NativeLibrary.Type] = [
@@ -120,7 +121,8 @@ public struct LibraryRegistry {
     JSONSchemaLibrary.self,
     HTTPLibrary.self,
     HTTPOAuthLibrary.self,
-    HTTPServerLibrary.self
+    HTTPServerLibrary.self,
+    PDFLibrary.self
   ]
   #endif
   

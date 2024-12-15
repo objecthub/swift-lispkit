@@ -193,6 +193,11 @@ public enum EvalError: Int, Hashable, Codable {
   case urlFormatConstraintError
   case urlAuthorityError
   case urlPrototypeInvalid
+  case cannotCreatePdf
+  case invalidPDFDisplayBox
+  case invalidPDFAccessIdentifier
+  case invalidPDFDocGenerationOption
+  case unknownPDFAnnotationType
   
   public var message: String {
     switch self {
@@ -532,6 +537,16 @@ public enum EvalError: Int, Hashable, Codable {
         return "invalid URL authority specifier: $0"
       case .urlPrototypeInvalid:
         return "$0 is not a valid URL prototype for procedure $,1"
+      case .cannotCreatePdf:
+        return "cannot create pdf document from bytevector $0"
+      case .invalidPDFDisplayBox:
+        return "not a valid PDF display box specifier: $0"
+      case .invalidPDFAccessIdentifier:
+        return "invalid PDF access permission identifier: $0"
+      case .invalidPDFDocGenerationOption:
+        return "invalid PDF document generation option: $0"
+      case .unknownPDFAnnotationType:
+        return "unknown PDF annotation type: $0"
     }
   }
   

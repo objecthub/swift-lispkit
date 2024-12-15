@@ -1,0 +1,4 @@
+static let burnInAnnotationsOption: PDFDocumentWriteOption
+static let optimizeImagesForScreenOption: PDFDocumentWriteOption
+static let saveImagesAsJPEGOption: PDFDocumentWriteOption
+static let saveTextFromOCROption: PDFDocumentWriteOption

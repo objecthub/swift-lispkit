@@ -237,11 +237,14 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("rect?", isRect))
     self.define(Procedure("rect", rect))
     self.define(Procedure("rect-point", rectPoint))
-    self.define(Procedure("rect-size", rectSize))
     self.define(Procedure("rect-x", rectX))
     self.define(Procedure("rect-y", rectY))
+    self.define(Procedure("rect-size", rectSize))
     self.define(Procedure("rect-width", rectWidth))
     self.define(Procedure("rect-height", rectHeight))
+    self.define(Procedure("rect-max-point", rectMaxPoint))
+    self.define(Procedure("rect-max-x", rectMaxX))
+    self.define(Procedure("rect-max-y", rectMaxY))
     self.define(Procedure("move-rect", moveRect))
     
     // Utilities
@@ -924,7 +927,7 @@ public final class DrawingLibrary: NativeLibrary {
     }
   }
   
-  private func makeBitmap(drawing: Expr, size: Expr, dpi: Expr?) throws -> Expr {
+  private func makeBitmap(expr: Expr, size: Expr, dpi: Expr?, ipol: Expr?) throws -> Expr {
     guard case .pair(.flonum(let w), .flonum(let h)) = size, w > 0.0 && h > 0.0 else {
       throw RuntimeError.eval(.invalidSize, size)
     }
@@ -949,27 +952,44 @@ public final class DrawingLibrary: NativeLibrary {
                                         bytesPerRow: 0,
                                         bitsPerPixel: 0) else {
       throw RuntimeError.eval(.cannotCreateBitmap,
-                              .pair(drawing, .pair(size, .pair(dpi ?? .fixnum(72), .null))))
+                              .pair(expr, .pair(size, .pair(dpi ?? .fixnum(72), .null))))
     }
     // Set the intended size of the image (vs. size of the bitmap above)
     bitmap.size = NSSize(width: w, height: h)
     // Create a graphics context for drawing into the bitmap
     guard let context = NSGraphicsContext(bitmapImageRep: bitmap) else {
       throw RuntimeError.eval(.cannotCreateBitmap,
-                              .pair(drawing, .pair(size, .pair(dpi ?? .fixnum(72), .null))))
+                              .pair(expr, .pair(size, .pair(dpi ?? .fixnum(72), .null))))
     }
     let previous = NSGraphicsContext.current
     // Create a flipped graphics context if required
     NSGraphicsContext.current = NSGraphicsContext(cgContext: context.cgContext, flipped: true)
-    let transform = NSAffineTransform()
-    transform.translateX(by: 0.0, yBy: CGFloat(h))
-    transform.scaleX(by: 1.0, yBy: -1.0)
-    transform.concat()
     defer {
       NSGraphicsContext.current = previous
     }
+    // Set interpolation quality
+    if let ipol,
+       let quality = CGInterpolationQuality(rawValue: Int32(try ipol.asInt(above: 0, below: 5))) {
+      NSGraphicsContext.current?.cgContext.interpolationQuality = quality
+    }
     // Draw into the bitmap
-    try self.drawing(from: drawing).draw()
+    switch expr {
+      case .object(let obj):
+        if let imageBox = obj as? NativeImage {
+          imageBox.value.draw(in: NSRect(origin: .zero, size: bitmap.size),
+                              from: .zero,
+                              operation: .copy,
+                              fraction: 1.0)
+          break
+        }
+        fallthrough
+      default:
+        let transform = NSAffineTransform()
+        transform.translateX(by: 0.0, yBy: CGFloat(h))
+        transform.scaleX(by: 1.0, yBy: -1.0)
+        transform.concat()
+        try self.drawing(from: expr).draw()
+    }
     // Create an image and add the bitmap as a representation
     let nsimage = NSImage(size: bitmap.size)
     nsimage.addRepresentation(bitmap)
@@ -1763,6 +1783,14 @@ public final class DrawingLibrary: NativeLibrary {
     return point
   }
   
+  private func rectMaxPoint(expr: Expr) throws -> Expr {
+    guard case .pair(.pair(.flonum(let x), .flonum(let y)),
+                     .pair(.flonum(let w), .flonum(let h))) = expr else {
+      throw RuntimeError.eval(.invalidRect, expr)
+    }
+    return .pair(.flonum(x + w), .flonum(y + h))
+  }
+  
   private func rectX(expr: Expr) throws -> Expr {
     guard case .pair(.pair(.flonum(let x), .flonum(_)), .pair(.flonum(_), .flonum(_))) = expr else {
       throw RuntimeError.eval(.invalidRect, expr)
@@ -1775,6 +1803,20 @@ public final class DrawingLibrary: NativeLibrary {
       throw RuntimeError.eval(.invalidRect, expr)
     }
     return .flonum(y)
+  }
+  
+  private func rectMaxX(expr: Expr) throws -> Expr {
+    guard case .pair(.pair(.flonum(let x), .flonum(_)), .pair(.flonum(let w), .flonum(_))) = expr else {
+      throw RuntimeError.eval(.invalidRect, expr)
+    }
+    return .flonum(x + w)
+  }
+  
+  private func rectMaxY(expr: Expr) throws -> Expr {
+    guard case .pair(.pair(.flonum(_), .flonum(let y)), .pair(.flonum(_), .flonum(let h))) = expr else {
+      throw RuntimeError.eval(.invalidRect, expr)
+    }
+    return .flonum(y + h)
   }
   
   private func rectSize(expr: Expr) throws -> Expr {
