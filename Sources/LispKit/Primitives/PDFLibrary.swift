@@ -195,9 +195,38 @@ public final class PDFLibrary: NativeLibrary {
     self.define(Procedure("pdf-outline-child-insert!", self.pdfOutlineChildInsert))
     self.define(Procedure("pdf-outline-child-remove!", self.pdfOutlineChildRemove))
     
-    // PDF annotations
+      // PDF annotations
     self.define(Procedure("pdf-annotation?", self.isPdfAnnotation))
+    self.define(Procedure("make-pdf-annotation", self.makePdfAnnotation))
+    self.define(Procedure("pdf-annotation-page", self.pdfAnnotationPage))
     self.define(Procedure("pdf-annotation-type", self.pdfAnnotationType))
+    self.define(Procedure("pdf-annotation-bounds", self.pdfAnnotationBounds))
+    self.define(Procedure("pdf-annotation-bounds-set!", self.pdfAnnotationBoundsSet))
+    self.define(Procedure("pdf-annotation-border", self.pdfAnnotationBorder))
+    self.define(Procedure("pdf-annotation-border-set!", self.pdfAnnotationBorderSet))
+    self.define(Procedure("pdf-annotation-contents", self.pdfAnnotationContents))
+    self.define(Procedure("pdf-annotation-contents-set!", self.pdfAnnotationContentsSet))
+    self.define(Procedure("pdf-annotation-font", self.pdfAnnotationFont))
+    self.define(Procedure("pdf-annotation-font-set!", self.pdfAnnotationFontSet))
+    self.define(Procedure("pdf-annotation-color", self.pdfAnnotationColor))
+    self.define(Procedure("pdf-annotation-color-set!", self.pdfAnnotationColorSet))
+    self.define(Procedure("pdf-annotation-background-color", self.pdfAnnotationColor))
+    self.define(Procedure("pdf-annotation-background-color-set!", self.pdfAnnotationColorSet))
+    self.define(Procedure("pdf-annotation-font-color", self.pdfAnnotationFontColor))
+    self.define(Procedure("pdf-annotation-font-color-set!", self.pdfAnnotationFontColorSet))
+    self.define(Procedure("pdf-annotation-modification-date", self.pdfAnnotationModificationDate))
+    self.define(Procedure("pdf-annotation-modification-date-set!", self.pdfAnnotationModificationDateSet))
+    self.define(Procedure("pdf-annotation-username", self.pdfAnnotationUsername))
+    self.define(Procedure("pdf-annotation-username-set!", self.pdfAnnotationUsernameSet))
+    self.define(Procedure("pdf-annotation-action", self.pdfAnnotationAction))
+    self.define(Procedure("pdf-annotation-action-set!", self.pdfAnnotationActionSet))
+    self.define(Procedure("pdf-annotation-display", self.pdfAnnotationDisplay))
+    self.define(Procedure("pdf-annotation-display-set!", self.pdfAnnotationDisplaySet))
+    self.define(Procedure("pdf-annotation-print", self.pdfAnnotationPrint))
+    self.define(Procedure("pdf-annotation-print-set!", self.pdfAnnotationPrintSet))
+    self.define(Procedure("pdf-annotation-highlighted", self.pdfAnnotationHighlighted))
+    self.define(Procedure("pdf-annotation-highlighted-set!", self.pdfAnnotationHighlightedSet))
+    self.define(Procedure("draw-pdf-annotation", self.drawPdfAnnotation))
   }
   
   private func pdf(from expr: Expr) throws -> PDFDocument {
@@ -266,6 +295,84 @@ public final class PDFLibrary: NativeLibrary {
     }
   }
   
+  private func expr(for border: PDFBorder?) -> Expr {
+    guard let border else {
+      return .false
+    }
+    let type: String
+    switch border.style {
+      case .solid:
+        type = "solid"
+      case .dashed:
+        type = "dashed"
+      case .beveled:
+        type = "beveled"
+      case .inset:
+        type = "inset"
+      case .underline:
+        type = "underline"
+      default:
+        return .false
+    }
+    if let dashes = border.dashPattern {
+      var dashPattern = Expr.null
+      for dash in dashes {
+        if let length = dash as? Double {
+          dashPattern = .pair(.flonum(length), dashPattern)
+        }
+      }
+      return .pair(.symbol(self.context.symbols.intern(type)),
+                   .pair(.makeNumber(border.lineWidth),
+                         .pair(dashPattern, .null)))
+    } else {
+      return .pair(.symbol(self.context.symbols.intern(type)),
+                   .pair(.makeNumber(border.lineWidth), .null))
+    }
+  }
+  
+  private func pdfBorder(from: Expr) throws -> PDFBorder {
+    guard case .pair(.symbol(let sym), let tail) = from else {
+      throw RuntimeError.eval(.invalidPDFBorder, from)
+    }
+    let style: PDFBorderStyle
+    switch sym.identifier {
+      case "solid":
+        style = .solid
+      case "dashed":
+        style = .dashed
+      case "beveled":
+        style = .beveled
+      case "inset":
+        style = .inset
+      case "underline":
+        style = .underline
+      default:
+        throw RuntimeError.eval(.invalidPDFBorder, from)
+    }
+    let border = PDFBorder()
+    border.style = style
+    switch tail {
+      case .null:
+        border.lineWidth = 1.0
+        return border
+      case .pair(let width, .null):
+        border.lineWidth = try width.asDouble(coerce: true)
+        return border
+      case .pair(let width, .pair(let dashes, .null)):
+        border.lineWidth = try width.asDouble(coerce: true)
+        var dashLengths: [Any] = []
+        var list = dashes
+        while case .pair(let length, let next) = list {
+          dashLengths.append(try length.asDouble(coerce: true))
+          list = next
+        }
+        border.dashPattern = dashLengths
+        return border
+      default:
+        throw RuntimeError.eval(.invalidPDFBorder, from)
+    }
+  }
+
   private func accessPermissions(from: Expr,
                                  permissions: PDFAccessPermissions? = nil) throws -> PDFAccessPermissions? {
     switch from {
@@ -713,7 +820,11 @@ public final class PDFLibrary: NativeLibrary {
                                                                      .false, .null) else {
       throw RuntimeError.argumentCount(of: "make-pdf-page", min: 0, max: 5, args: .makeList(args))
     }
+    #if os(iOS) || os(watchOS) || os(tvOS)
+    let img: UIImage?
+    #elseif os(macOS)
     let img: NSImage?
+    #endif
     if image.isTrue {
       guard case .object(let obj) = image,
             let imageBox = obj as? NativeImage else {
@@ -866,9 +977,73 @@ public final class PDFLibrary: NativeLibrary {
     guard case .pair(.flonum(let w), .flonum(let h)) = size else {
       throw RuntimeError.eval(.invalidSize, size)
     }
-    let image = page.thumbnail(of: NSSize(width: w, height: h), for: displayBox)
+    let image = page.thumbnail(of: CGSize(width: w, height: h), for: displayBox)
     return .object(NativeImage(image))
   }
+  
+  #if os(iOS) || os(watchOS) || os(tvOS)
+  
+  private func pdfPageToBitmap(expr: Expr,
+                               box: Expr,
+                               size: Expr,
+                               dpi: Expr?,
+                               ipol: Expr?) throws -> Expr {
+    let page = try self.page(from: expr)
+    let displayBox = try self.displayBox(from: box)
+    guard case .pair(.flonum(let w), .flonum(let h)) = size else {
+      throw RuntimeError.eval(.invalidSize, size)
+    }
+    let scale = (try dpi?.asDouble(coerce: true) ?? 72.0)/72.0
+    guard scale > 0.0 && scale <= 10.0 else {
+      throw RuntimeError.range(parameter: 4,
+                               of: "pdf-page->bitmap",
+                               dpi ?? .fixnum(72),
+                               min: 0,
+                               max: 720,
+                               at: SourcePosition.unknown)
+    }
+    // Create a bitmap suitable for storing the image in a PNG
+    guard let context = CGContext(data: nil,
+                                  width: Int(w * scale),
+                                  height: Int(h * scale),
+                                  bitsPerComponent: 8,
+                                  bytesPerRow: 0,
+                                  space: Color.colorSpaceName,
+                                  bitmapInfo: CGBitmapInfo(rawValue:
+                                                  CGImageAlphaInfo.premultipliedFirst.rawValue)
+                                                .union(.byteOrder32Little).rawValue) else {
+      throw RuntimeError.eval(.cannotCreateBitmap,
+                              .pair(expr, .pair(size, .pair(dpi ?? .fixnum(72), .null))))
+    }
+    // Push the new graphics context
+    UIGraphicsPushContext(context)
+    defer {
+      UIGraphicsPopContext()
+    }
+    // Set it up
+    context.saveGState()
+    if let ipol,
+       let quality = CGInterpolationQuality(rawValue: Int32(try ipol.asInt(above: 0, below: 5))) {
+      context.interpolationQuality = quality
+    }
+    page.transform(context, for: displayBox)
+    // Fit the page into the display box
+    let bounds = page.bounds(for: displayBox)
+    context.scaleBy(x: scale * w / bounds.width, y: scale * h / bounds.height)
+    // Draw into the graphics context
+    page.draw(with: displayBox, to: context)
+    context.restoreGState()
+    // Create an image and add the bitmap as a representation
+    guard let cgImage = context.makeImage() else {
+      throw RuntimeError.eval(.cannotCreateBitmap,
+                              .pair(expr, .pair(size, .pair(dpi ?? .fixnum(72), .null))))
+    }
+    // Create a UIImage which has metadata about the scale factor and orientation
+    let uiImage = UIImage(cgImage: cgImage, scale: CGFloat(scale), orientation: .up)
+    return .object(NativeImage(uiImage))
+  }
+  
+  #elseif os(macOS)
   
   private func pdfPageToBitmap(expr: Expr,
                                box: Expr,
@@ -935,6 +1110,8 @@ public final class PDFLibrary: NativeLibrary {
     return .object(NativeImage(nsimage))
   }
   
+  #endif
+  
   private func pdfPageToString(expr: Expr) throws -> Expr {
     guard let str = try self.page(from: expr).string else {
       return .false
@@ -963,7 +1140,7 @@ public final class PDFLibrary: NativeLibrary {
     guard case .object(let obj) = d, let drawing = obj as? Drawing else {
       throw RuntimeError.type(expr, expected: [Drawing.type])
     }
-    drawing.append(.page(page, displayBox, NSRect(x: x, y: y, width: w, height: h)))
+    drawing.append(.page(page, displayBox, CGRect(x: x, y: y, width: w, height: h)))
     return .void
   }
   
@@ -1054,11 +1231,11 @@ public final class PDFLibrary: NativeLibrary {
       case .pair(.symbol(self.goto), .pair(let page, .pair(.pair(let x, let y), .null))):
         return PDFActionGoTo(destination:
                               PDFDestination(page: try self.page(from: page),
-                                             at: NSPoint(x: try x.asDouble(coerce: true),
+                                             at: CGPoint(x: try x.asDouble(coerce: true),
                                                          y: try y.asDouble(coerce: true))))
       case .pair(.symbol(self.gotoRemote), .pair(let url, .pair(let index, .pair(.pair(let x, let y), .null)))):
         return PDFActionRemoteGoTo(pageIndex: try index.asInt(above: 0, below: 100000),
-                                   at: NSPoint(x: try x.asInt(above: 0, below: 100000),
+                                   at: CGPoint(x: try x.asInt(above: 0, below: 100000),
                                                y: try y.asInt(above: 0, below: 100000)),
                                    fileURL: try url.asURL())
       case .pair(.symbol(self.gotoURL), .pair(let url, .null)):
@@ -1117,14 +1294,14 @@ public final class PDFLibrary: NativeLibrary {
       }
       return .pair(.symbol(self.goto),
                    .pair(page,
-                         .pair(.pair(.makeNumber(action.destination.point.x),
-                                     .makeNumber(action.destination.point.y)), .null)))
+                         .pair(.pair(.flonum(action.destination.point.x),
+                                     .flonum(action.destination.point.y)), .null)))
     } else if let action = a as? PDFActionRemoteGoTo {
       return .pair(.symbol(self.gotoRemote),
                    .pair(.makeString(action.url.absoluteString),
                          .pair(.makeNumber(action.pageIndex),
-                               .pair(.pair(.makeNumber(action.point.x),
-                                           .makeNumber(action.point.y)), .null))))
+                               .pair(.pair(.flonum(action.point.x),
+                                           .flonum(action.point.y)), .null))))
     } else if let action = a as? PDFActionURL {
       return .pair(.symbol(self.gotoURL),
                    .pair(action.url == nil ? .false : .makeString(action.url!.absoluteString),
@@ -1180,12 +1357,12 @@ public final class PDFLibrary: NativeLibrary {
       outline.label = try label.asString()
     }
     if page.isTrue {
-      let p: NSPoint
+      let p: CGPoint
       switch point {
         case .false:
-          p = NSPoint(x: kPDFDestinationUnspecifiedValue, y: kPDFDestinationUnspecifiedValue)
+          p = CGPoint(x: kPDFDestinationUnspecifiedValue, y: kPDFDestinationUnspecifiedValue)
         case .pair(let x, let y):
-          p = NSPoint(x: try x.asDouble(coerce: true), y: try y.asDouble(coerce: true))
+          p = CGPoint(x: try x.asDouble(coerce: true), y: try y.asDouble(coerce: true))
         default:
           throw RuntimeError.type(point, expected: [.pairType])
       }
@@ -1234,20 +1411,20 @@ public final class PDFLibrary: NativeLibrary {
     let p: Expr = destination.page == nil ? .false : .object(NativePDFPage(page: destination.page!))
     let pt: Expr = destination.point.x == kPDFDestinationUnspecifiedValue
                  ? .false
-                 : .pair(.makeNumber(destination.point.x), .makeNumber(destination.point.y))
-    return .pair(p, .pair(pt, .pair(.makeNumber(destination.zoom), .null)))
+                 : .pair(.flonum(destination.point.x), .flonum(destination.point.y))
+    return .pair(p, .pair(pt, .pair(.flonum(destination.zoom), .null)))
   }
   
   private func pdfOutlineDestinationSet(expr: Expr, page: Expr, point: Expr?, zoom: Expr?) throws -> Expr {
     let outline = try self.outline(from: expr)
     let page = try self.page(from: page)
-    var p: NSPoint = NSPoint(x: kPDFDestinationUnspecifiedValue, y: kPDFDestinationUnspecifiedValue)
+    var p = CGPoint(x: kPDFDestinationUnspecifiedValue, y: kPDFDestinationUnspecifiedValue)
     if let point {
       switch point {
         case .false:
           break
         case .pair(let x, let y):
-          p = NSPoint(x: try x.asDouble(coerce: true), y: try y.asDouble(coerce: true))
+          p = CGPoint(x: try x.asDouble(coerce: true), y: try y.asDouble(coerce: true))
         default:
           throw RuntimeError.type(point, expected: [.pairType])
       }
@@ -1312,13 +1489,177 @@ public final class PDFLibrary: NativeLibrary {
     return .true
   }
   
-  private func pdfAnnotationType(expr: Expr) throws -> Expr {
-    if let type = try self.annotation(from: expr).type {
-      return .makeString(type)
-    } else {
+  private func makePdfAnnotation(bounds: Expr, type: Expr) throws -> Expr {
+    guard case .pair(.pair(.flonum(let x), .flonum(let y)),
+                     .pair(.flonum(let w), .flonum(let h))) = bounds else {
+      throw RuntimeError.eval(.invalidRect, bounds)
+    }
+    return .object(NativePDFAnnotation(annotation:
+      PDFAnnotation(bounds: CGRect(x: x, y: y, width: w, height: h),
+                    forType: try self.annotationType(from: type),
+                    withProperties: nil)))
+  }
+  
+  private func pdfAnnotationPage(expr: Expr) throws -> Expr {
+    guard let page = try self.annotation(from: expr).page else {
       return .false
     }
+    return .object(NativePDFPage(page: page))
   }
+  
+  private func pdfAnnotationType(expr: Expr) throws -> Expr {
+    guard let type = try self.annotation(from: expr).type else {
+      return .false
+    }
+    return self.annotationTypeExpr(for: type)
+  }
+  
+  private func pdfAnnotationBounds(expr: Expr) throws -> Expr {
+    let bounds = try self.annotation(from: expr).bounds
+    return .pair(.pair(.flonum(bounds.origin.x), .flonum(bounds.origin.y)),
+                 .pair(.flonum(bounds.width), .flonum(bounds.height)))
+  }
+  
+  private func pdfAnnotationBoundsSet(expr: Expr, bounds: Expr) throws -> Expr {
+    guard case .pair(.pair(.flonum(let x), .flonum(let y)),
+                     .pair(.flonum(let w), .flonum(let h))) = bounds else {
+      throw RuntimeError.eval(.invalidRect, bounds)
+    }
+    try self.annotation(from: expr).bounds = CGRect(x: x, y: y, width: w, height: h)
+    return .void
+  }
+  
+  private func pdfAnnotationBorder(expr: Expr) throws -> Expr {
+    return self.expr(for: try self.annotation(from: expr).border)
+  }
+  
+  private func pdfAnnotationBorderSet(expr: Expr, border: Expr) throws -> Expr {
+    try self.annotation(from: expr).border = try self.pdfBorder(from: border)
+    return .void
+  }
+  
+  private func pdfAnnotationContents(expr: Expr) throws -> Expr {
+    guard let contents = try self.annotation(from: expr).contents else {
+      return .false
+    }
+    return .makeString(contents)
+  }
+  
+  private func pdfAnnotationContentsSet(expr: Expr, contents: Expr) throws -> Expr {
+    try self.annotation(from: expr).contents = try contents.asString()
+    return .void
+  }
+  
+  private func pdfAnnotationFont(expr: Expr) throws -> Expr {
+    guard let font = try self.annotation(from: expr).font else {
+      return .false
+    }
+    return .object(NativeFont(font))
+  }
+  
+  private func pdfAnnotationFontSet(expr: Expr, font: Expr) throws -> Expr {
+    guard case .object(let obj) = font, let nfont = obj as? NativeFont else {
+      throw RuntimeError.type(font, expected: [NativeFont.type])
+    }
+    try self.annotation(from: expr).font = nfont.value
+    return .void
+  }
+  
+  private func pdfAnnotationColor(expr: Expr) throws -> Expr {
+    let annotation = try self.annotation(from: expr)
+    return .void
+  }
+  
+  private func pdfAnnotationColorSet(expr: Expr) throws -> Expr {
+    let annotation = try self.annotation(from: expr)
+    return .void
+  }
+  
+  private func pdfAnnotationBackgroundColor(expr: Expr) throws -> Expr {
+    let annotation = try self.annotation(from: expr)
+    return .void
+  }
+  
+  private func pdfAnnotationBackgroundColorSet(expr: Expr) throws -> Expr {
+    let annotation = try self.annotation(from: expr)
+    return .void
+  }
+  
+  private func pdfAnnotationFontColor(expr: Expr) throws -> Expr {
+    let annotation = try self.annotation(from: expr)
+    return .void
+  }
+  
+  private func pdfAnnotationFontColorSet(expr: Expr) throws -> Expr {
+    let annotation = try self.annotation(from: expr)
+    return .void
+  }
+  
+  private func pdfAnnotationModificationDate(expr: Expr) throws -> Expr {
+    let annotation = try self.annotation(from: expr)
+    return .void
+  }
+  
+  private func pdfAnnotationModificationDateSet(expr: Expr) throws -> Expr {
+    let annotation = try self.annotation(from: expr)
+    return .void
+  }
+  
+  private func pdfAnnotationUsername(expr: Expr) throws -> Expr {
+    let annotation = try self.annotation(from: expr)
+    return .void
+  }
+  
+  private func pdfAnnotationUsernameSet(expr: Expr) throws -> Expr {
+    let annotation = try self.annotation(from: expr)
+    return .void
+  }
+  
+  private func pdfAnnotationAction(expr: Expr) throws -> Expr {
+    let annotation = try self.annotation(from: expr)
+    return .void
+  }
+  
+  private func pdfAnnotationActionSet(expr: Expr) throws -> Expr {
+    let annotation = try self.annotation(from: expr)
+    return .void
+  }
+  
+  private func pdfAnnotationDisplay(expr: Expr) throws -> Expr {
+    let annotation = try self.annotation(from: expr)
+    return .void
+  }
+  
+  private func pdfAnnotationDisplaySet(expr: Expr) throws -> Expr {
+    let annotation = try self.annotation(from: expr)
+    return .void
+  }
+  
+  private func pdfAnnotationPrint(expr: Expr) throws -> Expr {
+    let annotation = try self.annotation(from: expr)
+    return .void
+  }
+  
+  private func pdfAnnotationPrintSet(expr: Expr) throws -> Expr {
+    let annotation = try self.annotation(from: expr)
+    return .void
+  }
+  
+  private func pdfAnnotationHighlighted(expr: Expr) throws -> Expr {
+    let annotation = try self.annotation(from: expr)
+    return .void
+  }
+  
+  private func pdfAnnotationHighlightedSet(expr: Expr) throws -> Expr {
+    let annotation = try self.annotation(from: expr)
+    return .void
+  }
+  
+  private func drawPdfAnnotation(expr: Expr) throws -> Expr {
+    let annotation = try self.annotation(from: expr)
+    return .void
+  }
+
 }
 
 ///
@@ -1539,10 +1880,10 @@ public struct NativePDFAnnotation: CustomExpr {
       .makeString(self.identityString),
       p,
       t,
-      .pair(.makeNumber(self.annotation.bounds.origin.x),
-            .pair(.makeNumber(self.annotation.bounds.origin.y),
-                  .pair(.makeNumber(self.annotation.bounds.width),
-                        .pair(.makeNumber(self.annotation.bounds.height), .null))))
+      .pair(.flonum(self.annotation.bounds.origin.x),
+            .pair(.flonum(self.annotation.bounds.origin.y),
+                  .pair(.flonum(self.annotation.bounds.width),
+                        .pair(.flonum(self.annotation.bounds.height), .null))))
     ]))]
   }
 }
@@ -1687,11 +2028,13 @@ public final class LispPadPDFDocument: PDFDocument {
       let cropData = NSData(bytes: &cropBox, length: MemoryLayout.size(ofValue: cropBox))
       let bleedData = NSData(bytes: &bleedBox, length: MemoryLayout.size(ofValue: bleedBox))
       let artData = NSData(bytes: &artBox, length: MemoryLayout.size(ofValue: artBox))
+      #if os(macOS)
       let previousContext = NSGraphicsContext.current
       NSGraphicsContext.current = NSGraphicsContext(cgContext: context, flipped: true)
       defer {
         NSGraphicsContext.current = previousContext
       }
+      #endif
       context.beginPDFPage([kCGPDFContextMediaBox as String: mediaData,
                             kCGPDFContextTrimBox as String: trimData,
                             kCGPDFContextCropBox as String: cropData,
@@ -1729,6 +2072,128 @@ public final class LispPadPDFPage: PDFPage {
     copy.overlay = self.overlay
     return copy
   }
+  
+  #if os(iOS) || os(watchOS) || os(tvOS)
+  
+  public override func draw(with box: PDFDisplayBox, to context: CGContext) {
+    let pageBounds = self.bounds(for: box)
+    if let underlay {
+      context.saveGState()
+      context.translateBy(x: 0.0, y: pageBounds.size.height)
+      context.scaleBy(x: 1.0, y: -1.0)
+      underlay.drawInline(in: context)
+      context.restoreGState()
+    }
+    super.draw(with: box, to: context)
+    if let overlay {
+      context.saveGState()
+      context.translateBy(x: 0.0, y: pageBounds.size.height)
+      context.scaleBy(x: 1.0, y: -1.0)
+      overlay.drawInline(in: context)
+      context.restoreGState()
+    }
+  }
+  
+  public var images: [UIImage] {
+    guard let page = self.pageRef,
+          let dictionary = page.dictionary,
+          let resources = dictionary[CGPDFDictionaryGetDictionary, "Resources"] else {
+      return []
+    }
+    if let xObject = resources[CGPDFDictionaryGetDictionary, "XObject"] {
+      var imageKeys: [String] = []
+      CGPDFDictionaryApplyBlock(xObject, { key, object, _ in
+        var stream: CGPDFStreamRef?
+        guard CGPDFObjectGetValue(object, .stream, &stream),
+              let objectStream = stream,
+              let streamDictionary = CGPDFStreamGetDictionary(objectStream) else {
+          return true
+        }
+        var subtype: UnsafePointer<Int8>?
+        guard CGPDFDictionaryGetName(streamDictionary, "Subtype", &subtype),
+              let subtypeName = subtype else {
+          return true
+        }
+        if String(cString: subtypeName) == "Image" {
+          imageKeys.append(String(cString: key))
+        }
+        return true
+      }, nil)
+      return imageKeys.compactMap { imageKey -> UIImage? in
+        var stream: CGPDFStreamRef?
+        guard CGPDFDictionaryGetStream(xObject, imageKey, &stream), let imageStream = stream else {
+          return nil
+        }
+        guard let dictionary = CGPDFStreamGetDictionary(imageStream) else {
+          return nil
+        }
+        var format: CGPDFDataFormat = .raw
+        guard let data = CGPDFStreamCopyData(imageStream, &format) else {
+          return nil
+        }
+        if format == .JPEG2000 || format == .jpegEncoded {
+          if let colorSpace = try? dictionary[CGPDFDictionaryGetObject, "ColorSpace"]?.getColorSpace(),
+             let provider = CGDataProvider(data: data),
+             let embeddedImage = CGImage(jpegDataProviderSource: provider,
+                                         decode: nil,
+                                         shouldInterpolate: false,
+                                         intent: .defaultIntent),
+             let ci = embeddedImage.copy(colorSpace: colorSpace) {
+            return UIImage(cgImage: ci)
+          } else {
+            return try? self.getNSImage(data: data as CFData, info: dictionary)
+          }
+        } else {
+          return try? self.getNSImage(data: data as CFData, info: dictionary)
+        }
+      }
+    } else {
+      return []
+    }
+  }
+  
+  private func getNSImage(data: CFData, info: CGPDFDictionaryRef) throws -> UIImage {
+    guard let colorSpace = try info[CGPDFDictionaryGetObject, "ColorSpace"]?.getColorSpace() else {
+      throw RawDecodingError.noColorSpace(info.getNameArray(for: "Filter"))
+    }
+    guard let width = info[CGPDFDictionaryGetInteger, "Width"],
+          let height = info[CGPDFDictionaryGetInteger, "Height"] else {
+        throw RawDecodingError.cannotReadSize
+    }
+    guard let bitsPerComponent = info[CGPDFDictionaryGetInteger, "BitsPerComponent"] else {
+      throw RawDecodingError.cannotReadBitsPerComponent
+    }
+    let decode: [CGFloat]?
+    if let decodeRef = info[CGPDFDictionaryGetArray, "Decode"] {
+      let count = CGPDFArrayGetCount(decodeRef)
+      decode = (0..<count).map {
+        decodeRef[CGPDFArrayGetNumber, $0]!
+      }
+    } else {
+      decode = nil
+    }
+    guard let databuffer = CGDataProvider(data: data) else {
+      throw RawDecodingError.cannotConstructImage
+    }
+    guard let image = CGImage(
+      width: width,
+      height: height,
+      bitsPerComponent: bitsPerComponent,
+      bitsPerPixel: bitsPerComponent * colorSpace.numberOfComponents,
+      bytesPerRow: Int((Double(width * bitsPerComponent * colorSpace.numberOfComponents) / 8.0).rounded(.up)),
+      space: colorSpace,
+      bitmapInfo: CGBitmapInfo(),
+      provider: databuffer,
+      decode: decode,
+      shouldInterpolate: false,
+      intent: .defaultIntent
+    ) else {
+      throw RawDecodingError.cannotConstructImage
+    }
+    return UIImage(cgImage: image)
+  }
+  
+  #elseif os(macOS)
   
   public override func draw(with box: PDFDisplayBox, to context: CGContext) {
     var nscontext: NSGraphicsContext? = nil
@@ -1854,6 +2319,7 @@ public final class LispPadPDFPage: PDFPage {
     }
     return NSImage(cgImage: image, size: NSSize(width: width, height: height))
   }
+  #endif
 }
 
 public final class LispPadPDFDocumentDelegate: NSObject, PDFDocumentDelegate {

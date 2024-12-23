@@ -21,6 +21,7 @@
 import CoreGraphics
 import Foundation
 import UIKit
+import PDFKit
 import MobileCoreServices
 import UniformTypeIdentifiers
 
@@ -325,6 +326,7 @@ public enum DrawingInstruction: CustomStringConvertible, @unchecked Sendable {
   case text(String, font: Font?, color: Color?, style: NSParagraphStyle?, at: ObjectLocation)
   case attributedText(NSAttributedString, at: ObjectLocation)
   case image(UIImage, ObjectLocation, operation: CGBlendMode, opacity: Double)
+  case page(PDFPage, PDFDisplayBox, CGRect)
   case inline(Drawing)
   case include(Drawing, clippedTo: Shape?)
   
@@ -498,6 +500,18 @@ public enum DrawingInstruction: CustomStringConvertible, @unchecked Sendable {
           }
           UIGraphicsPopContext()
         }
+      case .page(let page, let box, let rect):
+        context.saveGState()
+        // PDF coordinate system is Y-flipped from Core Graphics
+        context.translateBy(x: rect.origin.x, y: rect.origin.y + rect.height)
+        // Apply the PDF's crop box transform
+        let bounds = page.bounds(for: box)
+        page.transform(context, for: box)
+        // Scale PDF to view size
+        context.scaleBy(x: rect.width / bounds.width, y: -rect.height / bounds.height)
+        // Draw
+        page.draw(with: box, to: context)
+        context.restoreGState()
       case .include(let drawing, let clippingRegion):
         drawing.draw(clippedTo: clippingRegion, in: context)
       case .inline(let drawing):
@@ -551,6 +565,8 @@ public enum DrawingInstruction: CustomStringConvertible, @unchecked Sendable {
         return "attributedText"
       case .image(_, _, operation: _, opacity: _):
         return "image"
+      case .page(_, _, _):
+        return "page"
       case .inline(_):
         return "inline"
       case .include(_, clippedTo: _):

@@ -300,7 +300,7 @@ public final class Drawing: NativeObject {
 ///
 /// Enumeration of all supported drawing instructions.
 ///
-public enum DrawingInstruction {
+public enum DrawingInstruction: CustomStringConvertible {
   case setStrokeColor(Color)
   case setFillColor(Color)
   case setStrokeWidth(Double)
@@ -462,6 +462,61 @@ public enum DrawingInstruction {
         drawing.draw(clippedTo: clippingRegion)
       case .inline(let drawing):
         drawing.drawInline(in: context)
+    }
+  }
+  
+  public var description: String {
+    switch self {
+      case .setStrokeColor(_):
+        return "setStrokeColor"
+      case .setFillColor(_):
+        return "setFillColor"
+      case .setStrokeWidth(_):
+        return "setStrokeWidth"
+      case .setBlendMode(_):
+        return "setBlendMode"
+      case .setShadow(_, dx: _, dy: _, blurRadius: _):
+        return "setShadow"
+      case .removeShadow:
+        return "setShadow"
+      case .setTransformation(_):
+        return "setTransformation"
+      case .concatTransformation(_):
+        return "concatTransformation"
+      case .undoTransformation(_):
+        return "undoTransformation"
+      case .strokeLine(_, _):
+        return "strokeLine"
+      case .strokeRect(_):
+        return "strokeRect"
+      case .fillRect(_):
+        return "fillRect"
+      case .strokeEllipse(_):
+        return "strokeEllipse"
+      case .fillEllipse(_):
+        return "fillEllipse"
+      case .stroke(_, width: _):
+        return "stroke"
+      case .strokeDashed(_, width: _, lengths: _, phase: _):
+        return "strokeDashed"
+      case .fill(_):
+        return "fill"
+      case .fillLinearGradient(_, _, angle: _):
+        return "fillLinearGradient"
+      case .fillRadialGradient(_, _, relativeCenter: _):
+        return "fillRadialGradient"
+      case .text(_, font: _, color: _, style: _, at: _):
+        return "text"
+      case .attributedText(_, at: _):
+        return "attributedText"
+      case .image(_, _, operation: _, opacity: _):
+        return "image"
+      case .page(_, _, _):
+        return "page"
+      case .inline(_):
+        return "inline"
+      case .include(_, clippedTo: _):
+        return "include"
     }
   }
   
