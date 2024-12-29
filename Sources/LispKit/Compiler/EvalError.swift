@@ -199,6 +199,9 @@ public enum EvalError: Int, Hashable, Codable {
   case invalidPDFDocGenerationOption
   case unknownPDFAnnotationType
   case invalidPDFBorder
+  case invalidPDFLineStyle
+  case invalidPDFIconType
+  case invalidPDFMarkupType
   
   public var message: String {
     switch self {
@@ -550,6 +553,12 @@ public enum EvalError: Int, Hashable, Codable {
         return "unknown PDF annotation type: $0"
       case .invalidPDFBorder:
         return "invalid PDF border specifier: $0"
+      case .invalidPDFLineStyle:
+        return "invalid PDF line style: $0"
+      case .invalidPDFIconType:
+        return "invalid PDF text annotation icon type: $0"
+      case .invalidPDFMarkupType:
+        return "invalid PDF text markup type: $0"
     }
   }
   

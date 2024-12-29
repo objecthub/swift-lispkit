@@ -27,7 +27,7 @@ import PDFKit
 ///
 public final class PDFLibrary: NativeLibrary {
   
-  // Symbols
+  // Action types
   public let goto: Symbol
   public let gotoRemote: Symbol
   public let gotoURL: Symbol
@@ -46,11 +46,15 @@ public final class PDFLibrary: NativeLibrary {
   public let print: Symbol
   public let zoomIn: Symbol
   public let zoomOut: Symbol
+  
+  // Display boxes
   public let mediaBox: Symbol
   public let cropBox: Symbol
   public let bleedBox: Symbol
   public let trimBox: Symbol
   public let artBox: Symbol
+  
+  // Annotation types
   public let circle: Symbol
   public let freeText: Symbol
   public let highlight: Symbol
@@ -63,6 +67,35 @@ public final class PDFLibrary: NativeLibrary {
   public let text: Symbol
   public let underline: Symbol
   public let widget: Symbol
+  
+  // Text alignment
+  private let left: Symbol
+  private let right: Symbol
+  private let center: Symbol
+  private let justified: Symbol
+  private let natural: Symbol
+  
+  // Line style
+  // private let square: Symbol
+  // private let circle: Symbol
+  private let diamond: Symbol
+  private let openArrow: Symbol
+  private let closedArrow: Symbol
+  
+  // Text annotation icon type
+  private let comment: Symbol
+  private let key: Symbol
+  private let note: Symbol
+  private let help: Symbol
+  private let newParagraph: Symbol
+  private let paragraph: Symbol
+  private let insert: Symbol
+  
+  // Markup type
+  // private let highlight: Symbol
+  // private let strikeOut: Symbol
+  // private let underline: Symbol
+  private let redact: Symbol
   
   public let pdfDocumentDelegate = LispPadPDFDocumentDelegate()
   
@@ -94,7 +127,7 @@ public final class PDFLibrary: NativeLibrary {
     self.circle = context.symbols.intern("circle")
     self.freeText = context.symbols.intern("free-text")
     self.highlight = context.symbols.intern("highlight")
-    self.ink = context.symbols.intern("ink")
+    self.ink = context.symbols.intern("shape")
     self.link = context.symbols.intern("link")
     self.popup = context.symbols.intern("popup")
     self.square = context.symbols.intern("square")
@@ -103,7 +136,22 @@ public final class PDFLibrary: NativeLibrary {
     self.text = context.symbols.intern("text")
     self.underline = context.symbols.intern("underline")
     self.widget = context.symbols.intern("widget")
-    
+    self.left = context.symbols.intern("left")
+    self.right = context.symbols.intern("right")
+    self.center = context.symbols.intern("center")
+    self.justified = context.symbols.intern("justified")
+    self.natural = context.symbols.intern("natural")
+    self.diamond = context.symbols.intern("diamond")
+    self.openArrow = context.symbols.intern("open-arrow")
+    self.closedArrow = context.symbols.intern("closed-arrow")
+    self.comment = context.symbols.intern("comment")
+    self.key = context.symbols.intern("key")
+    self.note = context.symbols.intern("note")
+    self.help = context.symbols.intern("help")
+    self.newParagraph = context.symbols.intern("new-paragraph")
+    self.paragraph = context.symbols.intern("paragraph")
+    self.insert = context.symbols.intern("insert")
+    self.redact = context.symbols.intern("redact")
     try super.init(in: context)
   }
   
@@ -195,29 +243,56 @@ public final class PDFLibrary: NativeLibrary {
     self.define(Procedure("pdf-outline-child-insert!", self.pdfOutlineChildInsert))
     self.define(Procedure("pdf-outline-child-remove!", self.pdfOutlineChildRemove))
     
-      // PDF annotations
+    // PDF annotations
     self.define(Procedure("pdf-annotation?", self.isPdfAnnotation))
     self.define(Procedure("make-pdf-annotation", self.makePdfAnnotation))
     self.define(Procedure("pdf-annotation-page", self.pdfAnnotationPage))
     self.define(Procedure("pdf-annotation-type", self.pdfAnnotationType))
+    self.define(Procedure("pdf-annotation-name", self.pdfAnnotationName))
+    self.define(Procedure("pdf-annotation-name-set!", self.pdfAnnotationNameSet))
     self.define(Procedure("pdf-annotation-bounds", self.pdfAnnotationBounds))
     self.define(Procedure("pdf-annotation-bounds-set!", self.pdfAnnotationBoundsSet))
     self.define(Procedure("pdf-annotation-border", self.pdfAnnotationBorder))
     self.define(Procedure("pdf-annotation-border-set!", self.pdfAnnotationBorderSet))
     self.define(Procedure("pdf-annotation-contents", self.pdfAnnotationContents))
     self.define(Procedure("pdf-annotation-contents-set!", self.pdfAnnotationContentsSet))
+    self.define(Procedure("pdf-annotation-alignment", self.pdfAnnotationAlignment))
+    self.define(Procedure("pdf-annotation-alignment-set!", self.pdfAnnotationAlignmentSet))
+    self.define(Procedure("pdf-annotation-text-intent", self.pdfAnnotationTextIntent))
+    self.define(Procedure("pdf-annotation-text-intent-set!", self.pdfAnnotationTextIntentSet))
     self.define(Procedure("pdf-annotation-font", self.pdfAnnotationFont))
     self.define(Procedure("pdf-annotation-font-set!", self.pdfAnnotationFontSet))
     self.define(Procedure("pdf-annotation-color", self.pdfAnnotationColor))
     self.define(Procedure("pdf-annotation-color-set!", self.pdfAnnotationColorSet))
-    self.define(Procedure("pdf-annotation-background-color", self.pdfAnnotationColor))
-    self.define(Procedure("pdf-annotation-background-color-set!", self.pdfAnnotationColorSet))
+    self.define(Procedure("pdf-annotation-interior-color", self.pdfAnnotationInteriorColor))
+    self.define(Procedure("pdf-annotation-interior-color-set!", self.pdfAnnotationInteriorColorSet))
+    self.define(Procedure("pdf-annotation-background-color", self.pdfAnnotationBackgroundColor))
+    self.define(Procedure("pdf-annotation-background-color-set!", self.pdfAnnotationBackgroundColorSet))
     self.define(Procedure("pdf-annotation-font-color", self.pdfAnnotationFontColor))
     self.define(Procedure("pdf-annotation-font-color-set!", self.pdfAnnotationFontColorSet))
+    self.define(Procedure("pdf-annotation-start-point", self.pdfAnnotationStartPoint))
+    self.define(Procedure("pdf-annotation-start-point-set!", self.pdfAnnotationStartPointSet))
+    self.define(Procedure("pdf-annotation-end-point", self.pdfAnnotationEndPoint))
+    self.define(Procedure("pdf-annotation-end-point-set!", self.pdfAnnotationEndPointSet))
+    self.define(Procedure("pdf-annotation-icon", self.pdfAnnotationIcon))
+    self.define(Procedure("pdf-annotation-icon-set!", self.pdfAnnotationIconSet))
+    self.define(Procedure("pdf-annotation-stamp", self.pdfAnnotationStamp))
+    self.define(Procedure("pdf-annotation-stamp-set!", self.pdfAnnotationStampSet))
+    self.define(Procedure("pdf-annotation-popup", self.pdfAnnotationPopup))
+    self.define(Procedure("pdf-annotation-popup-set!", self.pdfAnnotationPopupSet))
+    self.define(Procedure("pdf-annotation-markup-points", self.pdfAnnotationMarkupPoints))
+    self.define(Procedure("pdf-annotation-markup-points-set!", self.pdfAnnotationMarkupPointsSet))
+    self.define(Procedure("pdf-annotation-shapes", self.pdfAnnotationShapes))
+    self.define(Procedure("pdf-annotation-shape-add!", self.pdfAnnotationShapeAdd))
+    self.define(Procedure("pdf-annotation-shapes-clear!", self.pdfAnnotationShapesClear))
     self.define(Procedure("pdf-annotation-modification-date", self.pdfAnnotationModificationDate))
     self.define(Procedure("pdf-annotation-modification-date-set!", self.pdfAnnotationModificationDateSet))
     self.define(Procedure("pdf-annotation-username", self.pdfAnnotationUsername))
     self.define(Procedure("pdf-annotation-username-set!", self.pdfAnnotationUsernameSet))
+    self.define(Procedure("pdf-annotation-url", self.pdfAnnotationUrl))
+    self.define(Procedure("pdf-annotation-url-set!", self.pdfAnnotationUrlSet))
+    self.define(Procedure("pdf-annotation-destination", self.pdfAnnotationDestination))
+    self.define(Procedure("pdf-annotation-destination-set!", self.pdfAnnotationDestinationSet))
     self.define(Procedure("pdf-annotation-action", self.pdfAnnotationAction))
     self.define(Procedure("pdf-annotation-action-set!", self.pdfAnnotationActionSet))
     self.define(Procedure("pdf-annotation-display", self.pdfAnnotationDisplay))
@@ -508,6 +583,172 @@ public final class PDFLibrary: NativeLibrary {
         return .symbol(self.widget)
       default:
         return .symbol(self.context.symbols.intern(str))
+    }
+  }
+  
+  private func color(from: Expr) throws -> NativeColor {
+    guard case .object(let obj) = from, let color = obj as? Color else {
+      throw RuntimeError.type(from, expected: [Color.type])
+    }
+    return color.nsColor
+  }
+  
+  private func optColor(from: Expr) throws -> NativeColor? {
+    guard from.isTrue else {
+      return nil
+    }
+    guard case .object(let obj) = from, let color = obj as? Color else {
+      throw RuntimeError.type(from, expected: [Color.type])
+    }
+    return color.nsColor
+  }
+  
+  private func textAlignment(from expr: Expr) throws -> NSTextAlignment {
+    if expr.isFalse {
+      return .natural
+    }
+    switch try expr.asSymbol() {
+      case self.left:
+        return .left
+      case self.right:
+        return .right
+      case self.center:
+        return .center
+      case self.justified:
+        return .justified
+      case self.natural:
+        return .natural
+      default:
+        throw RuntimeError.eval(.unknownTextAlignment, expr)
+    }
+  }
+  
+  private func expr(from alignment: NSTextAlignment) -> Expr {
+    switch alignment {
+      case .left:
+        return .symbol(self.left)
+      case .right:
+        return .symbol(self.right)
+      case .center:
+        return .symbol(self.center)
+      case .justified:
+        return .symbol(self.justified)
+      case .natural:
+        return .symbol(self.natural)
+      @unknown default:
+        return .false
+    }
+  }
+  
+  private func expr(from style: PDFLineStyle) -> Expr {
+    switch style {
+      case .none:
+        return .null
+      case .square:
+        return .symbol(self.square)
+      case .circle:
+        return .symbol(self.circle)
+      case .diamond:
+        return .symbol(self.diamond)
+      case .openArrow:
+        return .symbol(self.openArrow)
+      case .closedArrow:
+        return .symbol(self.closedArrow)
+      @unknown default:
+        return .makeString(PDFAnnotation.name(for: style))
+    }
+  }
+  
+  private func lineStyle(from expr: Expr) throws -> PDFLineStyle {
+    switch expr {
+      case .false, .null:
+        return .none
+      case .symbol(self.square):
+        return .square
+      case .symbol(self.circle):
+        return .circle
+      case .symbol(self.diamond):
+        return .diamond
+      case .symbol(self.openArrow):
+        return .openArrow
+      case .symbol(self.closedArrow):
+        return .closedArrow
+      case .string(let str):
+        return PDFAnnotation.lineStyle(fromName: str as String)
+      default:
+        throw RuntimeError.eval(.invalidPDFLineStyle, expr)
+    }
+  }
+  
+  private func expr(from: PDFTextAnnotationIconType) -> Expr {
+    switch from {
+      case .comment:
+        return .symbol(self.comment)
+      case .key:
+        return .symbol(self.key)
+      case .note:
+        return .symbol(self.note)
+      case .help:
+        return .symbol(self.help)
+      case .newParagraph:
+        return .symbol(self.newParagraph)
+      case .paragraph:
+        return .symbol(self.paragraph)
+      case .insert:
+        return .symbol(self.insert)
+      @unknown default:
+        return .symbol(self.comment)
+    }
+  }
+  
+  private func iconType(for expr: Expr) throws -> PDFTextAnnotationIconType {
+    switch try expr.asSymbol() {
+      case self.comment:
+        return .comment
+      case self.key:
+        return .key
+      case self.note:
+        return .note
+      case self.help:
+        return .help
+      case self.newParagraph:
+        return .newParagraph
+      case self.paragraph:
+        return .paragraph
+      case self.insert:
+        return .insert
+      default:
+        throw RuntimeError.eval(.invalidPDFIconType, expr)
+    }
+  }
+  
+  public func expr(from: PDFMarkupType) -> Expr {
+    switch from {
+      case .highlight:
+        return .symbol(self.highlight)
+      case .strikeOut:
+        return .symbol(self.strikeOut)
+      case .underline:
+        return .symbol(self.underline)
+      case .redact:
+        return .symbol(self.redact)
+      @unknown default:
+        return .symbol(self.highlight)
+    }
+  }
+  
+  public func markupType(from: Expr) throws -> PDFMarkupType {
+    switch from {
+      case .symbol(self.highlight):
+        return .highlight
+      case .symbol(self.strikeOut):
+        return .strikeOut
+      case .symbol(self.underline):
+        return .underline
+      case .symbol(self.redact):
+        return .redact
+      default:
+        throw RuntimeError.eval(.invalidPDFMarkupType, from)
     }
   }
   
@@ -1226,6 +1467,26 @@ public final class PDFLibrary: NativeLibrary {
     return res
   }
   
+  private func destination(for page: Expr, point: Expr?, zoom: Expr?) throws -> PDFDestination {
+    let page = try self.page(from: page)
+    var p = CGPoint(x: kPDFDestinationUnspecifiedValue, y: kPDFDestinationUnspecifiedValue)
+    if let point {
+      switch point {
+        case .false:
+          break
+        case .pair(let x, let y):
+          p = CGPoint(x: try x.asDouble(coerce: true), y: try y.asDouble(coerce: true))
+        default:
+          throw RuntimeError.type(point, expected: [.pairType])
+      }
+    }
+    let destination = PDFDestination(page: page, at: p)
+    if let zoom {
+      destination.zoom = try zoom.asDouble(coerce: true)
+    }
+    return destination
+  }
+  
   private func action(from: Expr) throws -> PDFAction? {
     switch from {
       case .pair(.symbol(self.goto), .pair(let page, .pair(.pair(let x, let y), .null))):
@@ -1282,6 +1543,14 @@ public final class PDFLibrary: NativeLibrary {
       default:
         return nil
     }
+  }
+  
+  private func expr(for destination: PDFDestination) -> Expr {
+    let p: Expr = destination.page == nil ? .false : .object(NativePDFPage(page: destination.page!))
+    let pt: Expr = destination.point.x == kPDFDestinationUnspecifiedValue
+                 ? .false
+                 : .pair(.flonum(destination.point.x), .flonum(destination.point.y))
+    return .pair(p, .pair(pt, .pair(.flonum(destination.zoom), .null)))
   }
   
   private func expr(for a: PDFAction) -> Expr {
@@ -1408,31 +1677,11 @@ public final class PDFLibrary: NativeLibrary {
     guard let destination = try self.outline(from: expr).destination else {
       return .false
     }
-    let p: Expr = destination.page == nil ? .false : .object(NativePDFPage(page: destination.page!))
-    let pt: Expr = destination.point.x == kPDFDestinationUnspecifiedValue
-                 ? .false
-                 : .pair(.flonum(destination.point.x), .flonum(destination.point.y))
-    return .pair(p, .pair(pt, .pair(.flonum(destination.zoom), .null)))
+    return self.expr(for: destination)
   }
   
   private func pdfOutlineDestinationSet(expr: Expr, page: Expr, point: Expr?, zoom: Expr?) throws -> Expr {
-    let outline = try self.outline(from: expr)
-    let page = try self.page(from: page)
-    var p = CGPoint(x: kPDFDestinationUnspecifiedValue, y: kPDFDestinationUnspecifiedValue)
-    if let point {
-      switch point {
-        case .false:
-          break
-        case .pair(let x, let y):
-          p = CGPoint(x: try x.asDouble(coerce: true), y: try y.asDouble(coerce: true))
-        default:
-          throw RuntimeError.type(point, expected: [.pairType])
-      }
-    }
-    outline.destination = PDFDestination(page: page, at: p)
-    if let zoom {
-      outline.destination?.zoom = try zoom.asDouble(coerce: true)
-    }
+    try self.outline(from: expr).destination = try self.destination(for: page, point: point, zoom: zoom)
     return .void
   }
   
@@ -1489,6 +1738,13 @@ public final class PDFLibrary: NativeLibrary {
     return .true
   }
   
+  /// Shape annotations:
+  ///   type = shape
+  ///   border: determines stroke width and style
+  ///   color: determines stroke color
+  /// 
+  /// 
+  
   private func makePdfAnnotation(bounds: Expr, type: Expr) throws -> Expr {
     guard case .pair(.pair(.flonum(let x), .flonum(let y)),
                      .pair(.flonum(let w), .flonum(let h))) = bounds else {
@@ -1512,6 +1768,32 @@ public final class PDFLibrary: NativeLibrary {
       return .false
     }
     return self.annotationTypeExpr(for: type)
+  }
+  
+  private func pdfAnnotationName(expr: Expr) throws -> Expr {
+    guard let value = try self.annotation(from: expr).value(forAnnotationKey: .name),
+          let name = value as? String else {
+      return .false
+    }
+    return .makeString(name)
+  }
+  
+  private func pdfAnnotationNameSet(expr: Expr, value: Expr) throws -> Expr {
+    try self.annotation(from: expr).setValue(try value.asString(), forAnnotationKey: .name)
+    return .void
+  }
+  
+  private func pdfAnnotationTextIntent(expr: Expr) throws -> Expr {
+    guard let value = try self.annotation(from: expr).value(forAnnotationKey: .init(rawValue: "IT")),
+          let intent = value as? String else {
+      return .false
+    }
+    return .makeString(intent)
+  }
+  
+  private func pdfAnnotationTextIntentSet(expr: Expr, value: Expr) throws -> Expr {
+    try self.annotation(from: expr).setValue(try value.asString(), forAnnotationKey: .init(rawValue: "IT"))
+    return .void
   }
   
   private func pdfAnnotationBounds(expr: Expr) throws -> Expr {
@@ -1550,6 +1832,15 @@ public final class PDFLibrary: NativeLibrary {
     return .void
   }
   
+  private func pdfAnnotationAlignment(expr: Expr) throws -> Expr {
+    return self.expr(from: try self.annotation(from: expr).alignment)
+  }
+  
+  private func pdfAnnotationAlignmentSet(expr: Expr, value: Expr) throws -> Expr {
+    try self.annotation(from: expr).alignment = self.textAlignment(from: value)
+    return .void
+  }
+  
   private func pdfAnnotationFont(expr: Expr) throws -> Expr {
     guard let font = try self.annotation(from: expr).font else {
       return .false
@@ -1566,100 +1857,334 @@ public final class PDFLibrary: NativeLibrary {
   }
   
   private func pdfAnnotationColor(expr: Expr) throws -> Expr {
-    let annotation = try self.annotation(from: expr)
-    return .void
+    return .object(Color(try self.annotation(from: expr).color))
   }
   
-  private func pdfAnnotationColorSet(expr: Expr) throws -> Expr {
-    let annotation = try self.annotation(from: expr)
+  private func pdfAnnotationColorSet(expr: Expr, value: Expr) throws -> Expr {
+    try self.annotation(from: expr).color = self.color(from: value)
     return .void
   }
   
   private func pdfAnnotationBackgroundColor(expr: Expr) throws -> Expr {
-    let annotation = try self.annotation(from: expr)
+    guard let color = try self.annotation(from: expr).backgroundColor else {
+      return .false
+    }
+    return .object(Color(color))
+  }
+  
+  private func pdfAnnotationBackgroundColorSet(expr: Expr, value: Expr) throws -> Expr {
+    try self.annotation(from: expr).backgroundColor = self.optColor(from: value)
     return .void
   }
   
-  private func pdfAnnotationBackgroundColorSet(expr: Expr) throws -> Expr {
-    let annotation = try self.annotation(from: expr)
+  private func pdfAnnotationInteriorColor(expr: Expr) throws -> Expr {
+    guard let color = try self.annotation(from: expr).interiorColor else {
+      return .false
+    }
+    return .object(Color(color))
+  }
+  
+  private func pdfAnnotationInteriorColorSet(expr: Expr, value: Expr) throws -> Expr {
+    try self.annotation(from: expr).interiorColor = self.optColor(from: value)
     return .void
   }
   
   private func pdfAnnotationFontColor(expr: Expr) throws -> Expr {
-    let annotation = try self.annotation(from: expr)
+    guard let color = try self.annotation(from: expr).fontColor else {
+      return .false
+    }
+    return .object(Color(color))
+  }
+  
+  private func pdfAnnotationFontColorSet(expr: Expr, value: Expr) throws -> Expr {
+    try self.annotation(from: expr).fontColor = self.optColor(from: value)
     return .void
   }
   
-  private func pdfAnnotationFontColorSet(expr: Expr) throws -> Expr {
+  private func pdfAnnotationStartPoint(expr: Expr) throws -> Expr {
     let annotation = try self.annotation(from: expr)
+    let point = annotation.startPoint
+    let style = annotation.startLineStyle
+    return .pair(.pair(.flonum(point.x), .flonum(point.y)), self.expr(from: style))
+  }
+  
+  private func pdfAnnotationStartPointSet(expr: Expr, value: Expr, style: Expr?) throws -> Expr {
+    let annotation = try self.annotation(from: expr)
+    if let style {
+      guard case .pair(.flonum(let x), .flonum(let y)) = value else {
+        throw RuntimeError.eval(.invalidPoint, value)
+      }
+      annotation.startPoint = CGPoint(x: x, y: y)
+      annotation.startLineStyle = try self.lineStyle(from: style)
+    } else if case .pair(let fst, let snd) = value {
+      if case .pair(.flonum(let x), .flonum(let y)) = fst {
+        annotation.startPoint = CGPoint(x: x, y: y)
+        annotation.startLineStyle = try self.lineStyle(from: snd)
+      } else {
+        annotation.startPoint = CGPoint(x: try fst.asDouble(coerce: true),
+                                        y: try snd.asDouble(coerce: true))
+      }
+    } else {
+      annotation.startLineStyle = try self.lineStyle(from: value)
+    }
+    return .void
+  }
+  
+  private func pdfAnnotationEndPoint(expr: Expr) throws -> Expr {
+    let annotation = try self.annotation(from: expr)
+    let point = annotation.endPoint
+    let style = annotation.endLineStyle
+    return .pair(.pair(.flonum(point.x), .flonum(point.y)), self.expr(from: style))
+  }
+  
+  private func pdfAnnotationEndPointSet(expr: Expr, value: Expr, style: Expr?) throws -> Expr {
+    let annotation = try self.annotation(from: expr)
+    if let style {
+      guard case .pair(.flonum(let x), .flonum(let y)) = value else {
+        throw RuntimeError.eval(.invalidPoint, value)
+      }
+      annotation.endPoint = CGPoint(x: x, y: y)
+      annotation.endLineStyle = try self.lineStyle(from: style)
+    } else if case .pair(let fst, let snd) = value {
+      if case .pair(.flonum(let x), .flonum(let y)) = fst {
+        annotation.endPoint = CGPoint(x: x, y: y)
+        annotation.endLineStyle = try self.lineStyle(from: snd)
+      } else {
+        annotation.endPoint = CGPoint(x: try fst.asDouble(coerce: true),
+                                      y: try snd.asDouble(coerce: true))
+      }
+    } else {
+      annotation.endLineStyle = try self.lineStyle(from: value)
+    }
+    return .void
+  }
+  
+  private func pdfAnnotationIcon(expr: Expr) throws -> Expr {
+    return self.expr(from: try self.annotation(from: expr).iconType)
+  }
+  
+  private func pdfAnnotationIconSet(expr: Expr, value: Expr) throws -> Expr {
+    try self.annotation(from: expr).iconType = try self.iconType(for: value)
+    return .void
+  }
+  
+  private func pdfAnnotationStamp(expr: Expr) throws -> Expr {
+    guard let stamp = try self.annotation(from: expr).stampName else {
+      return .false
+    }
+    return .makeString(stamp)
+  }
+  
+  private func pdfAnnotationStampSet(expr: Expr, value: Expr) throws -> Expr {
+    guard value.isTrue else {
+      try self.annotation(from: expr).stampName = nil
+      return .void
+    }
+    try self.annotation(from: expr).stampName = value.asString()
+    return .void
+  }
+  
+  private func pdfAnnotationPopup(expr: Expr) throws -> Expr {
+    let annotation = try self.annotation(from: expr)
+    guard let popup = annotation.popup else {
+      return .false
+    }
+    return .pair(.object(NativePDFAnnotation(annotation: popup)), .makeBoolean(annotation.isOpen))
+  }
+  
+  private func pdfAnnotationPopupSet(expr: Expr, fst: Expr, snd: Expr?) throws -> Expr {
+    let annotation = try self.annotation(from: expr)
+    if let snd {
+      if !fst.isNull {
+        annotation.popup = fst.isTrue ? try self.annotation(from: fst) : nil
+      }
+      annotation.isOpen = snd.isTrue
+    } else if case .pair(let popup, let open) = fst {
+      annotation.popup = try self.annotation(from: popup)
+      annotation.isOpen = open.isTrue
+    } else if fst.isFalse {
+      annotation.popup = nil
+    } else {
+      annotation.popup = try self.annotation(from: fst)
+    }
+    return .void
+  }
+  
+  private func pdfAnnotationMarkupPoints(expr: Expr) throws -> Expr {
+    guard let points = try self.annotation(from: expr).quadrilateralPoints,
+          !points.isEmpty else {
+      return .false
+    }
+    var res = Expr.null
+    for value in points.reversed() {
+      let point = value.pointValue
+      res = .pair(.pair(.flonum(point.x), .flonum(point.y)), res)
+    }
+    return res
+  }
+  
+  private func pdfAnnotationMarkupPointsSet(expr: Expr, value: Expr) throws -> Expr {
+    guard value.isTrue else {
+      try self.annotation(from: expr).quadrilateralPoints = nil
+      return .void
+    }
+    var points: [NSValue] = []
+    var list = value
+    while case .pair(let point, let rest) = list {
+      guard case .pair(.flonum(let x), .flonum(let y)) = point else {
+        throw RuntimeError.eval(.invalidPoint, point)
+      }
+      points.append(NSValue(point: CGPoint(x: x, y: y)))
+      list = rest
+    }
+    guard case .null = list else {
+      throw RuntimeError.type(value, expected: [.properListType])
+    }
+    try self.annotation(from: expr).quadrilateralPoints = points
+    return .void
+  }
+  
+  private func pdfAnnotationShapes(expr: Expr) throws -> Expr {
+    guard let paths = try self.annotation(from: expr).paths else {
+      return .false
+    }
+    var res = Expr.null
+    for path in paths {
+      res = .pair(.object(Shape(.path(path), closed: false, flipped: false)), res)
+    }
+    return res
+  }
+  
+  private func pdfAnnotationShapeAdd(expr: Expr, shape: Expr) throws -> Expr {
+    guard case .object(let obj) = shape, let shape = obj as? Shape else {
+      throw RuntimeError.type(shape, expected: [Shape.type])
+    }
+    try self.annotation(from: expr).add(shape.compile())
+    return .void
+  }
+  
+  private func pdfAnnotationShapesClear(expr: Expr) throws -> Expr {
+    let annotation = try self.annotation(from: expr)
+    if let paths = annotation.paths {
+      for path in paths {
+        annotation.remove(path)
+      }
+    }
     return .void
   }
   
   private func pdfAnnotationModificationDate(expr: Expr) throws -> Expr {
-    let annotation = try self.annotation(from: expr)
-    return .void
+    guard let date = try self.annotation(from: expr).modificationDate else {
+      return .false
+    }
+    return .object(NativeDateTime(DateTimeLibrary.calendar.dateComponents(in: TimeZone.current,
+                                                                          from: date)))
   }
   
-  private func pdfAnnotationModificationDateSet(expr: Expr) throws -> Expr {
-    let annotation = try self.annotation(from: expr)
+  private func pdfAnnotationModificationDateSet(expr: Expr, value: Expr) throws -> Expr {
+    guard value.isTrue else {
+      try self.annotation(from: expr).modificationDate = nil
+      return .void
+    }
+    guard case .object(let obj) = value,
+          let ndate = obj as? NativeDateTime,
+          let date = ndate.value.date else {
+      throw RuntimeError.type(value, expected: [NativeDateTime.type])
+    }
+    try self.annotation(from: expr).modificationDate = date
     return .void
   }
   
   private func pdfAnnotationUsername(expr: Expr) throws -> Expr {
-    let annotation = try self.annotation(from: expr)
+    guard let username = try self.annotation(from: expr).userName else {
+      return .false
+    }
+    return .makeString(username)
+  }
+  
+  private func pdfAnnotationUsernameSet(expr: Expr, value: Expr) throws -> Expr {
+    try self.annotation(from: expr).userName = value.isTrue ? try value.asString() : nil
     return .void
   }
   
-  private func pdfAnnotationUsernameSet(expr: Expr) throws -> Expr {
-    let annotation = try self.annotation(from: expr)
+  private func pdfAnnotationUrl(expr: Expr) throws -> Expr {
+    guard let url = try self.annotation(from: expr).url else {
+      return .false
+    }
+    return .makeString(url.absoluteString)
+  }
+  
+  private func pdfAnnotationUrlSet(expr: Expr, url: Expr) throws -> Expr {
+    try self.annotation(from: expr).url = url.isTrue ? url.asURL() : nil
+    return .void
+  }
+  
+  private func pdfAnnotationDestination(expr: Expr) throws -> Expr {
+    guard let destination = try self.annotation(from: expr).destination else {
+      return .false
+    }
+    return self.expr(for: destination)
+  }
+  
+  private func pdfAnnotationDestinationSet(expr: Expr, page: Expr, point: Expr?, zoom: Expr?) throws -> Expr {
+    try self.annotation(from: expr).destination = try self.destination(for: page, point: point, zoom: zoom)
     return .void
   }
   
   private func pdfAnnotationAction(expr: Expr) throws -> Expr {
-    let annotation = try self.annotation(from: expr)
-    return .void
+    guard let action = try self.annotation(from: expr).action else {
+      return .false
+    }
+    return self.expr(from: action) ?? .false
   }
   
-  private func pdfAnnotationActionSet(expr: Expr) throws -> Expr {
-    let annotation = try self.annotation(from: expr)
+  private func pdfAnnotationActionSet(expr: Expr, value: Expr) throws -> Expr {
+    try self.annotation(from: expr).action = value.isTrue ? try self.action(from: value) : nil
     return .void
   }
   
   private func pdfAnnotationDisplay(expr: Expr) throws -> Expr {
-    let annotation = try self.annotation(from: expr)
-    return .void
+    return .makeBoolean(try self.annotation(from: expr).shouldDisplay)
   }
   
-  private func pdfAnnotationDisplaySet(expr: Expr) throws -> Expr {
-    let annotation = try self.annotation(from: expr)
+  private func pdfAnnotationDisplaySet(expr: Expr, value: Expr) throws -> Expr {
+    try self.annotation(from: expr).shouldDisplay = value.isTrue
     return .void
   }
   
   private func pdfAnnotationPrint(expr: Expr) throws -> Expr {
-    let annotation = try self.annotation(from: expr)
-    return .void
+    return .makeBoolean(try self.annotation(from: expr).shouldPrint)
   }
   
-  private func pdfAnnotationPrintSet(expr: Expr) throws -> Expr {
-    let annotation = try self.annotation(from: expr)
+  private func pdfAnnotationPrintSet(expr: Expr, value: Expr) throws -> Expr {
+    try self.annotation(from: expr).shouldPrint = value.isTrue
     return .void
   }
   
   private func pdfAnnotationHighlighted(expr: Expr) throws -> Expr {
-    let annotation = try self.annotation(from: expr)
+    return .makeBoolean(try self.annotation(from: expr).isHighlighted)
+  }
+  
+  private func pdfAnnotationHighlightedSet(expr: Expr, value: Expr) throws -> Expr {
+    try self.annotation(from: expr).isHighlighted = value.isTrue
     return .void
   }
   
-  private func pdfAnnotationHighlightedSet(expr: Expr) throws -> Expr {
+  private func drawPdfAnnotation(expr: Expr, box: Expr, rect: Expr, d: Expr) throws -> Expr {
     let annotation = try self.annotation(from: expr)
+    let displayBox = try self.displayBox(from: box)
+    guard case .pair(.pair(.flonum(let x), .flonum(let y)),
+                     .pair(.flonum(let w), .flonum(let h))) = rect else {
+      throw RuntimeError.eval(.invalidRect, rect)
+    }
+    guard case .object(let obj) = d, let drawing = obj as? Drawing else {
+      throw RuntimeError.type(expr, expected: [Drawing.type])
+    }
+    drawing.append(.annotation(annotation, displayBox, CGRect(x: x, y: y, width: w, height: h)))
     return .void
   }
   
-  private func drawPdfAnnotation(expr: Expr) throws -> Expr {
-    let annotation = try self.annotation(from: expr)
-    return .void
-  }
-
+  
 }
 
 ///
@@ -1833,11 +2358,13 @@ public struct NativePDFAnnotation: CustomExpr {
       let npage = NativePDFPage(page: page)
       if let type {
         return "pdf-annotation \(self.identityString): page=\(npage.identityString), " +
-        "type=\(type), bounds=\(bounds)"
+        "type=\(type), bounds=\(bounds), a=\(self.annotation.annotationKeyValues)"
       } else {
         return "pdf-annotation \(self.identityString): page=\(npage.identityString), " +
         "bounds=\(bounds)"
       }
+    } else if let type {
+      return "pdf-annotation \(self.identityString): type=\(type), bounds=\(bounds), a=\(self.annotation.annotationKeyValues)"
     } else {
       return "pdf-annotation \(self.identityString): bounds=\(bounds)"
     }
@@ -2348,14 +2875,17 @@ enum RawDecodingError: Error {
 
 extension CGPDFObjectRef {
   
-  func getName<K>(_ key: K, _ getter: (OpaquePointer, K, UnsafeMutablePointer<UnsafePointer<Int8>?>)->Bool) -> String? {
+  func getName<K>(_ key: K,
+                  _ getter: (OpaquePointer, K, UnsafeMutablePointer<UnsafePointer<Int8>?>) -> Bool)
+      -> String? {
     guard let pointer = self[getter, key] else {
       return nil
     }
     return String(cString: pointer)
   }
 
-  func getName<K>(_ key: K, _ getter: (OpaquePointer, K, UnsafeMutableRawPointer?)->Bool) -> String? {
+  func getName<K>(_ key: K,
+                  _ getter: (OpaquePointer, K, UnsafeMutableRawPointer?)->Bool) -> String? {
     var result: UnsafePointer<UInt8>!
     guard getter(self, key, &result) else {
       return nil
@@ -2371,7 +2901,8 @@ extension CGPDFObjectRef {
     return result
   }
 
-  subscript<R: DefaultInitializer, K>(_ getter: (OpaquePointer, K, UnsafeMutablePointer<R>)->Bool, _ key: K) -> R? {
+  subscript<R: DefaultInitializer, K>(_ getter: (OpaquePointer, K, UnsafeMutablePointer<R>) -> Bool,
+                                      _ key: K) -> R? {
     var result = R()
     guard getter(self, key, &result) else {
       return nil
@@ -2393,7 +2924,9 @@ extension CGPDFObjectRef {
       }
       var names = [String]()
       for index in 0..<CGPDFArrayGetCount(array) {
-        guard let name = array.getName(index, CGPDFArrayGetName) else { continue }
+        guard let name = array.getName(index, CGPDFArrayGetName) else {
+          continue
+        }
         names.append(name)
       }
       assert(names.count == CGPDFArrayGetCount(array))
@@ -2427,63 +2960,58 @@ extension CGPDFObjectRef {
         case "CalGray":
           return CGColorSpaceCreateDeviceGray()
         case "Indexed":
-          guard
-            let base = try array[CGPDFArrayGetObject, 1]?.getColorSpace(),
-            let hival = array[CGPDFArrayGetInteger, 2],
-            hival < 256
-          else {
+          guard let base = try array[CGPDFArrayGetObject, 1]?.getColorSpace(),
+                let hival = array[CGPDFArrayGetInteger, 2],
+                hival < 256 else {
             throw RawDecodingError.corruptColorSpace
           }
           let colorSpace: CGColorSpace?
           if let lookupTable = array[CGPDFArrayGetString, 3] {
-            guard let pointer = CGPDFStringGetBytePtr(lookupTable) else { throw RawDecodingError.corruptColorSpace }
+            guard let pointer = CGPDFStringGetBytePtr(lookupTable) else {
+              throw RawDecodingError.corruptColorSpace
+            }
             colorSpace = CGColorSpace(indexedBaseSpace: base, last: hival, colorTable: pointer)
           } else if let lookupTable = array[CGPDFArrayGetStream, 3] {
             var format = CGPDFDataFormat.raw
             guard let data = CGPDFStreamCopyData(lookupTable, &format) else {
               throw RawDecodingError.corruptColorSpace
             }
-            colorSpace = CGColorSpace(
-              indexedBaseSpace: base,
-              last: hival,
-              colorTable: CFDataGetBytePtr(data)
-            )
+            colorSpace = CGColorSpace(indexedBaseSpace: base,
+                                      last: hival,
+                                      colorTable: CFDataGetBytePtr(data))
           } else {
             throw RawDecodingError.noLookupTable
           }
-          guard let result = colorSpace else { throw RawDecodingError.corruptColorSpace }
+          guard let result = colorSpace else {
+            throw RawDecodingError.corruptColorSpace
+          }
           return result
         case "ICCBased":
           var format = CGPDFDataFormat.raw
-          guard
-            let stream = array[CGPDFArrayGetStream, 1],
-            let info = CGPDFStreamGetDictionary(stream),
-            let componentCount = info[CGPDFDictionaryGetInteger, "N"],
-            let profileData = CGPDFStreamCopyData(stream, &format),
-            let profile = CGDataProvider(data: profileData)
-          else {
+          guard let stream = array[CGPDFArrayGetStream, 1],
+                let info = CGPDFStreamGetDictionary(stream),
+                let componentCount = info[CGPDFDictionaryGetInteger, "N"],
+                let profileData = CGPDFStreamCopyData(stream, &format),
+                let profile = CGDataProvider(data: profileData) else {
             throw RawDecodingError.corruptColorSpace
           }
           let alternate = try info[CGPDFDictionaryGetObject, "Alternate"]?.getColorSpace()
-          guard let colorSpace = CGColorSpace(
-            iccBasedNComponents: componentCount,
-            range: nil,
-            profile: profile,
-            alternate: alternate
-          ) else {
+          guard let colorSpace = CGColorSpace(iccBasedNComponents: componentCount,
+                                              range: nil,
+                                              profile: profile,
+                                              alternate: alternate) else {
             throw RawDecodingError.corruptColorSpace
           }
           return colorSpace
         case "Lab":
-          guard
-            let info = array[CGPDFArrayGetDictionary, 1],
-            let whitePointRef = info[CGPDFDictionaryGetArray, "WhitePoint"]?.asFloatArray()
-          else { throw RawDecodingError.corruptColorSpace }
-          guard let colorSpace = CGColorSpace(
-            labWhitePoint: whitePointRef,
-            blackPoint: info[CGPDFDictionaryGetArray, "BlackPoint"]?.asFloatArray(),
-            range: info[CGPDFDictionaryGetArray, "Range"]?.asFloatArray()
-          ) else {
+          guard let info = array[CGPDFArrayGetDictionary, 1],
+                let whitePointRef = info[CGPDFDictionaryGetArray, "WhitePoint"]?.asFloatArray() else {
+            throw RawDecodingError.corruptColorSpace
+          }
+          guard let colorSpace =
+                  CGColorSpace(labWhitePoint: whitePointRef,
+                               blackPoint: info[CGPDFDictionaryGetArray, "BlackPoint"]?.asFloatArray(),
+                               range: info[CGPDFDictionaryGetArray, "Range"]?.asFloatArray()) else {
             throw RawDecodingError.corruptColorSpace
           }
           return colorSpace

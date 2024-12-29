@@ -219,8 +219,8 @@ public final class Shape: NativeObject {
     return self.compile().bounds
   }
   
-  /// Internal method for computing the `BezierPath` object from the shape definition.
-  func compile() -> BezierPath {
+  /// Method for computing the `BezierPath` object from the shape definition.
+  public func compile() -> BezierPath {
     if let bezierPath = self.bezierPath {
       return bezierPath
     }
@@ -296,6 +296,7 @@ public enum ShapePrototype {
   case arc(center: CGPoint, radius: Double, startAngle: Double, endAngle: Double, clockwise: Bool)
   case glyphs(String, in: CGRect, font: Font, flipped: Bool)
   case interpolated([CGPoint], method: InterpolationMethod)
+  case path(BezierPath)
   case shape(Shape)
   case transformed(Shape, Transformation)
   case flipped(Shape, CGRect?, vertical: Bool, horizontal: Bool)
@@ -416,6 +417,8 @@ public enum ShapePrototype {
         return bezierPath
       case .interpolated(let points, let method):
         return method.compile(points)
+      case .path(let bp):
+        return bp.mutableCopy() as! BezierPath
       case .shape(let shape):
         return shape.compileNew()
       case .transformed(let shape, let transform):

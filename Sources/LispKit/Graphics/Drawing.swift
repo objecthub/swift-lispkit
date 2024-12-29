@@ -324,6 +324,7 @@ public enum DrawingInstruction: CustomStringConvertible {
   case attributedText(NSAttributedString, at: ObjectLocation)
   case image(NSImage, ObjectLocation, operation: NSCompositingOperation, opacity: Double)
   case page(PDFPage, PDFDisplayBox, NSRect)
+  case annotation(PDFAnnotation, PDFDisplayBox, NSRect)
   case inline(Drawing)
   case include(Drawing, clippedTo: Shape?)
   
@@ -458,6 +459,21 @@ public enum DrawingInstruction: CustomStringConvertible {
         // Draw
         page.draw(with: box, to: context)
         context.restoreGState()
+      case .annotation(let annotation, let box, let rect):
+        if let page = annotation.page {
+          let context = context.cgContext
+          context.saveGState()
+          // PDF coordinate system is Y-flipped from Core Graphics
+          context.translateBy(x: rect.origin.x, y: rect.origin.y + rect.height)
+          // Apply the PDF's crop box transform
+          let bounds = page.bounds(for: box)
+          page.transform(context, for: box)
+          // Scale PDF to view size
+          context.scaleBy(x: rect.width / bounds.width, y: -rect.height / bounds.height)
+          // Draw
+          annotation.draw(with: box, in: context)
+          context.restoreGState()
+        }
       case .include(let drawing, let clippingRegion):
         drawing.draw(clippedTo: clippingRegion)
       case .inline(let drawing):
@@ -513,6 +529,8 @@ public enum DrawingInstruction: CustomStringConvertible {
         return "image"
       case .page(_, _, _):
         return "page"
+      case .annotation(_, _, _):
+        return "annotation"
       case .inline(_):
         return "inline"
       case .include(_, clippedTo: _):

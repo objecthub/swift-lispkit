@@ -101,10 +101,21 @@ public struct Color: CustomExpr {
     self.blue = blue
     self.alpha = alpha
     #elseif os(macOS)
-    self.red = nc.redComponent
-    self.green = nc.greenComponent
-    self.blue = nc.blueComponent
-    self.alpha = nc.alphaComponent
+    let cspace = nc.colorSpace
+    if cspace.colorSpaceModel != .rgb,
+       let nc = nc.usingColorSpace(.sRGB) ??
+                nc.usingColorSpace(.deviceRGB) ??
+                nc.usingColorSpace(.genericRGB) {
+      self.red = nc.redComponent
+      self.green = nc.greenComponent
+      self.blue = nc.blueComponent
+      self.alpha = nc.alphaComponent
+    } else {
+      self.red = nc.redComponent
+      self.green = nc.greenComponent
+      self.blue = nc.blueComponent
+      self.alpha = nc.alphaComponent
+    }
     #endif
   }
   
@@ -115,14 +126,17 @@ public struct Color: CustomExpr {
 
   /// Return string representation for colors.
   public var tagString: String {
-    if self.alpha < 1.0 {
+    if self.alpha == 0.0 {
+      return "color clear"
+    } else if self.alpha < 1.0 {
       if self.red == self.green && self.red == self.blue {
         return "color \(self.red) \(self.alpha)"
       } else {
         return "color \(self.red) \(self.green) \(self.blue) \(self.alpha)"
       }
     } else if self.red == self.green && self.red == self.blue {
-      return "color \(self.red)"
+      return self.red == 1.0 ? "color white"
+                             : (self.red == 0.0 ? "color black" : "color \(self.red)")
     } else {
       return "color \(self.red) \(self.green) \(self.blue)"
     }
