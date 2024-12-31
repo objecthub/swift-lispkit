@@ -659,7 +659,7 @@
                                    #t)
                             (bar-chart-stroke-width config))))
               ; Draw legend
-              (if (legend-config? legend-config)
+              (if (and (legend-config? legend-config) (pair? bcolor))
                   (draw-legend bcolor
                                bounds
                                (bar-chart-color config)
