@@ -202,6 +202,9 @@ public enum EvalError: Int, Hashable, Codable {
   case invalidPDFLineStyle
   case invalidPDFIconType
   case invalidPDFMarkupType
+  case invalidPDFPadding
+  case invalidPDFCalloutPoints
+  case cannotMapAttributeValue
   
   public var message: String {
     switch self {
@@ -559,6 +562,12 @@ public enum EvalError: Int, Hashable, Codable {
         return "invalid PDF text annotation icon type: $0"
       case .invalidPDFMarkupType:
         return "invalid PDF text markup type: $0"
+      case .invalidPDFPadding:
+        return "invalid specification of PDF annotation padding: $0"
+      case .invalidPDFCalloutPoints:
+        return "a PDF callout is specified with a list of 2 or 3 points; instead $0 was provided"
+      case .cannotMapAttributeValue:
+        return "unable to interpret attribute value: $0"
     }
   }
   

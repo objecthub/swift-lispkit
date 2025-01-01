@@ -2049,8 +2049,8 @@ extension UIImage {
       data.withUnsafeBytes {
         let bytes = $0.baseAddress?.assumingMemoryBound(to: UInt8.self)
         if let cfData = CFDataCreate(kCFAllocatorDefault, bytes, data.count), 
-            let source = CGImageSourceCreateWithData(cfData, nil) {
-            exifData = CGImageSourceCopyPropertiesAtIndex(source, 0, nil)
+           let source = CGImageSourceCreateWithData(cfData, nil) {
+          exifData = CGImageSourceCopyPropertiesAtIndex(source, 0, nil)
         }
       }
     }
