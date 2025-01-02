@@ -25,6 +25,86 @@
 /// of a given symbol.
 ///
 public final class SymbolTable: Sequence {
+  
+  public struct Enumeration<T: Hashable> {
+    private let name: Expr
+    public let `default`: Symbol?
+    private let unknown: (Symbol) throws -> T?
+    private let values: [Symbol : T]
+    private let symbols: [T : Symbol]
+    
+    public init(name: String,
+                default: T?,
+                unknown: @escaping (Symbol) throws -> T?,
+                cases: [(Symbol, T)]) {
+      var values: [Symbol : T] = [:]
+      var symbols: [T : Symbol] = [:]
+      for c in cases {
+        values[c.0] = c.1
+        symbols[c.1] = c.0
+      }
+      self.name = .makeString(name)
+      self.default = `default` == nil ? nil : symbols[`default`!]
+      self.unknown = unknown
+      self.values = values
+      self.symbols = symbols
+    }
+    
+    public func expr(for value: T?) -> Expr {
+      guard let value else {
+        return .false
+      }
+      guard let sym = self.symbols[value] else {
+        return .null
+      }
+      return .symbol(sym)
+    }
+    
+    public func value(for expr: Expr, default: T? = nil) throws -> T {
+      if expr.isFalse {
+        if let `default` {
+          return `default`
+        } else if let sym = self.default {
+          guard let value = self.values[sym] else {
+            throw RuntimeError.eval(.invalidSymbolicEnumValue, self.name, expr)
+          }
+          return value
+        }
+      }
+      guard case .symbol(let sym) = expr,
+            let value = try self.values[sym] ?? unknown(sym) else {
+        throw RuntimeError.eval(.invalidSymbolicEnumValue, self.name, expr)
+      }
+      return value
+    }
+    
+    public func optValue(for expr: Expr) throws -> T? {
+      guard expr.isTrue else {
+        return nil
+      }
+      guard case .symbol(let sym) = expr,
+            let value = self.values[sym] else {
+        throw RuntimeError.eval(.invalidSymbolicEnumValue, self.name, expr)
+      }
+      return value
+    }
+  }
+  
+  @resultBuilder
+  public struct EnumBuilder<T> {
+    public static func buildBlock(_ components: [(String, T)]...) -> [(String, T)] {
+      return components.flatMap { $0 }
+    }
+    
+    public static func buildExpression(_ expression: (String, T)) -> [(String, T)] {
+      return [expression]
+    }
+    
+    public static func buildExpression(_ expression: [(String, T)]) -> [(String, T)] {
+      return expression
+    }
+  }
+  
   private let lock = EmbeddedUnfairLock()
   private var symTable = [String : Symbol]()
   private let gensymLock = EmbeddedUnfairLock()
@@ -251,5 +331,16 @@ public final class SymbolTable: Sequence {
     self.symTable = [:]
     self.gensymCounter = 0
     self.registerNativeSymbols()
+  }
+  
+  /// Returns a new symbolic enumeration.
+  public func Enum<T: Hashable>(_ name: String,
+                                _ default: T? = nil,
+                                _ unknown: @escaping (Symbol) throws -> T? = { _ in nil },
+                                @EnumBuilder<T> _ build: () -> [(String, T)]) -> Enumeration<T> {
+    return Enumeration(name: name,
+                       default: `default`,
+                       unknown: unknown,
+                       cases: build().map { (str, value) in (self.intern(str), value) })
   }
 }

@@ -194,17 +194,14 @@ public enum EvalError: Int, Hashable, Codable {
   case urlAuthorityError
   case urlPrototypeInvalid
   case cannotCreatePdf
-  case invalidPDFDisplayBox
   case invalidPDFAccessIdentifier
   case invalidPDFDocGenerationOption
   case unknownPDFAnnotationType
   case invalidPDFBorder
-  case invalidPDFLineStyle
-  case invalidPDFIconType
-  case invalidPDFMarkupType
   case invalidPDFPadding
   case invalidPDFCalloutPoints
   case cannotMapAttributeValue
+  case invalidSymbolicEnumValue
   
   public var message: String {
     switch self {
@@ -546,8 +543,6 @@ public enum EvalError: Int, Hashable, Codable {
         return "$0 is not a valid URL prototype for procedure $,1"
       case .cannotCreatePdf:
         return "cannot create pdf document from bytevector $0"
-      case .invalidPDFDisplayBox:
-        return "not a valid PDF display box specifier: $0"
       case .invalidPDFAccessIdentifier:
         return "invalid PDF access permission identifier: $0"
       case .invalidPDFDocGenerationOption:
@@ -556,18 +551,14 @@ public enum EvalError: Int, Hashable, Codable {
         return "unknown PDF annotation type: $0"
       case .invalidPDFBorder:
         return "invalid PDF border specifier: $0"
-      case .invalidPDFLineStyle:
-        return "invalid PDF line style: $0"
-      case .invalidPDFIconType:
-        return "invalid PDF text annotation icon type: $0"
-      case .invalidPDFMarkupType:
-        return "invalid PDF text markup type: $0"
       case .invalidPDFPadding:
         return "invalid specification of PDF annotation padding: $0"
       case .invalidPDFCalloutPoints:
         return "a PDF callout is specified with a list of 2 or 3 points; instead $0 was provided"
       case .cannotMapAttributeValue:
         return "unable to interpret attribute value: $0"
+      case .invalidSymbolicEnumValue:
+        return "invalid ,$0: $1"
     }
   }
   

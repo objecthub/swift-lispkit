@@ -47,13 +47,6 @@ public final class PDFLibrary: NativeLibrary {
   public let zoomIn: Symbol
   public let zoomOut: Symbol
   
-  // Display boxes
-  public let mediaBox: Symbol
-  public let cropBox: Symbol
-  public let bleedBox: Symbol
-  public let trimBox: Symbol
-  public let artBox: Symbol
-  
   // Annotation types
   public let circle: Symbol
   public let freeText: Symbol
@@ -68,34 +61,20 @@ public final class PDFLibrary: NativeLibrary {
   public let underline: Symbol
   public let widget: Symbol
   
-  // Text alignment
-  private let left: Symbol
-  private let right: Symbol
-  private let center: Symbol
-  private let justified: Symbol
-  private let natural: Symbol
+  // Display boxes
+  private let displayBox: SymbolTable.Enumeration<PDFDisplayBox>
   
-  // Line style
-  // private let square: Symbol
-  // private let circle: Symbol
-  private let diamond: Symbol
-  private let openArrow: Symbol
-  private let closedArrow: Symbol
+  // Line styles
+  private let lineStyle: SymbolTable.Enumeration<PDFLineStyle>
+  
+  // Text alignment
+  private let textAlignment: SymbolTable.Enumeration<NSTextAlignment>
   
   // Text annotation icon type
-  private let comment: Symbol
-  private let key: Symbol
-  private let note: Symbol
-  private let help: Symbol
-  private let newParagraph: Symbol
-  private let paragraph: Symbol
-  private let insert: Symbol
+  private let iconType: SymbolTable.Enumeration<PDFTextAnnotationIconType>
   
   // Markup type
-  // private let highlight: Symbol
-  // private let strikeOut: Symbol
-  // private let underline: Symbol
-  private let redact: Symbol
+  private let markupType: SymbolTable.Enumeration<PDFMarkupType>
   
   // Text intent
   private let callout: Symbol
@@ -123,11 +102,6 @@ public final class PDFLibrary: NativeLibrary {
     self.print = context.symbols.intern("print")
     self.zoomIn = context.symbols.intern("zoom-in")
     self.zoomOut = context.symbols.intern("zoom-out")
-    self.mediaBox = context.symbols.intern("media-box")
-    self.cropBox = context.symbols.intern("crop-box")
-    self.bleedBox = context.symbols.intern("bleed-box")
-    self.trimBox = context.symbols.intern("trim-box")
-    self.artBox = context.symbols.intern("art-box")
     self.circle = context.symbols.intern("circle")
     self.freeText = context.symbols.intern("free-text")
     self.highlight = context.symbols.intern("highlight")
@@ -140,24 +114,45 @@ public final class PDFLibrary: NativeLibrary {
     self.text = context.symbols.intern("text")
     self.underline = context.symbols.intern("underline")
     self.widget = context.symbols.intern("widget")
-    self.left = context.symbols.intern("left")
-    self.right = context.symbols.intern("right")
-    self.center = context.symbols.intern("center")
-    self.justified = context.symbols.intern("justified")
-    self.natural = context.symbols.intern("natural")
-    self.diamond = context.symbols.intern("diamond")
-    self.openArrow = context.symbols.intern("open-arrow")
-    self.closedArrow = context.symbols.intern("closed-arrow")
-    self.comment = context.symbols.intern("comment")
-    self.key = context.symbols.intern("key")
-    self.note = context.symbols.intern("note")
-    self.help = context.symbols.intern("help")
-    self.newParagraph = context.symbols.intern("new-paragraph")
-    self.paragraph = context.symbols.intern("paragraph")
-    self.insert = context.symbols.intern("insert")
-    self.redact = context.symbols.intern("redact")
     self.callout = context.symbols.intern("callout")
     self.typeWriter = context.symbols.intern("type-writer")
+    self.displayBox = context.symbols.Enum("PDF display box", .mediaBox) {
+      ("media-box", .mediaBox)
+      ("crop-box", .cropBox)
+      ("bleed-box", .bleedBox)
+      ("trim-box", .trimBox)
+      ("art-box", .artBox)
+    }
+    self.lineStyle = context.symbols.Enum("PDF line style", PDFLineStyle.none) {
+      ("none", .none)
+      ("square", .square)
+      ("circle", .circle)
+      ("diamond", .diamond)
+      ("open-arrow", .openArrow)
+      ("closed-arrow", .closedArrow)
+    }
+    self.textAlignment = context.symbols.Enum("text alignment", .natural) {
+      ("left", .left)
+      ("right", .right)
+      ("center", .center)
+      ("justified", .justified)
+      ("natural", .natural)
+    }
+    self.iconType = context.symbols.Enum("PDF text annotation icon typ", .comment) {
+      ("comment", .comment)
+      ("key", .key)
+      ("note", .note)
+      ("help", .help)
+      ("new-paragraph", .newParagraph)
+      ("paragraph", .paragraph)
+      ("insert", .insert)
+    }
+    self.markupType = context.symbols.Enum("PDF text markup type", .highlight) {
+      ("highlight", .highlight)
+      ("strike-out", .strikeOut)
+      ("underline", .underline)
+      ("redact", .redact)
+    }
     try super.init(in: context)
   }
   
@@ -353,40 +348,6 @@ public final class PDFLibrary: NativeLibrary {
     return outline.outline
   }
   
-  private func displayBox(from expr: Expr) throws -> PDFDisplayBox {
-    switch try expr.asSymbol() {
-      case self.mediaBox:
-        return .mediaBox
-      case self.cropBox:
-        return .cropBox
-      case self.bleedBox:
-        return .bleedBox
-      case self.trimBox:
-        return .trimBox
-      case self.artBox:
-        return .artBox
-      default:
-        throw RuntimeError.eval(.invalidPDFDisplayBox, expr)
-    }
-  }
-  
-  private func expr(from box: PDFDisplayBox) -> Expr {
-    switch box {
-      case .mediaBox:
-        return .symbol(self.mediaBox)
-      case .cropBox:
-        return .symbol(self.cropBox)
-      case .bleedBox:
-        return .symbol(self.bleedBox)
-      case .trimBox:
-        return .symbol(self.trimBox)
-      case .artBox:
-        return .symbol(self.artBox)
-      @unknown default:
-        return .false
-    }
-  }
-  
   private func expr(for border: PDFBorder?) -> Expr {
     guard let border else {
       return .false
@@ -466,7 +427,8 @@ public final class PDFLibrary: NativeLibrary {
   }
 
   private func accessPermissions(from: Expr,
-                                 permissions: PDFAccessPermissions? = nil) throws -> PDFAccessPermissions? {
+                                 permissions: PDFAccessPermissions? = nil)
+      throws -> PDFAccessPermissions? {
     switch from {
       case .false:
         return nil
@@ -503,7 +465,8 @@ public final class PDFLibrary: NativeLibrary {
   }
   
   private func writeOptions(from: Expr?,
-                            permissions: PDFAccessPermissions? = nil) throws -> [PDFDocumentWriteOption : Any] {
+                            permissions: PDFAccessPermissions? = nil)
+      throws -> [PDFDocumentWriteOption : Any] {
     guard from?.isTrue ?? false else {
       return [:]
     }
@@ -620,152 +583,17 @@ public final class PDFLibrary: NativeLibrary {
     return color.nsColor
   }
   
-  private func textAlignment(from expr: Expr) throws -> NSTextAlignment {
-    if expr.isFalse {
-      return .natural
-    }
-    switch try expr.asSymbol() {
-      case self.left:
-        return .left
-      case self.right:
-        return .right
-      case self.center:
-        return .center
-      case self.justified:
-        return .justified
-      case self.natural:
-        return .natural
-      default:
-        throw RuntimeError.eval(.unknownTextAlignment, expr)
-    }
-  }
-  
-  private func expr(from alignment: NSTextAlignment) -> Expr {
-    switch alignment {
-      case .left:
-        return .symbol(self.left)
-      case .right:
-        return .symbol(self.right)
-      case .center:
-        return .symbol(self.center)
-      case .justified:
-        return .symbol(self.justified)
-      case .natural:
-        return .symbol(self.natural)
-      @unknown default:
-        return .false
-    }
-  }
-  
   private func expr(from style: PDFLineStyle) -> Expr {
-    switch style {
-      case .none:
-        return .null
-      case .square:
-        return .symbol(self.square)
-      case .circle:
-        return .symbol(self.circle)
-      case .diamond:
-        return .symbol(self.diamond)
-      case .openArrow:
-        return .symbol(self.openArrow)
-      case .closedArrow:
-        return .symbol(self.closedArrow)
-      @unknown default:
-        return .makeString(PDFAnnotation.name(for: style))
-    }
+    let res = self.lineStyle.expr(for: style)
+    return res.isNull ? .makeString(PDFAnnotation.name(for: style)) : res
   }
   
   private func lineStyle(from expr: Expr) throws -> PDFLineStyle {
     switch expr {
-      case .false, .null:
-        return .none
-      case .symbol(self.square):
-        return .square
-      case .symbol(self.circle):
-        return .circle
-      case .symbol(self.diamond):
-        return .diamond
-      case .symbol(self.openArrow):
-        return .openArrow
-      case .symbol(self.closedArrow):
-        return .closedArrow
       case .string(let str):
         return PDFAnnotation.lineStyle(fromName: str as String)
       default:
-        throw RuntimeError.eval(.invalidPDFLineStyle, expr)
-    }
-  }
-  
-  private func expr(from: PDFTextAnnotationIconType) -> Expr {
-    switch from {
-      case .comment:
-        return .symbol(self.comment)
-      case .key:
-        return .symbol(self.key)
-      case .note:
-        return .symbol(self.note)
-      case .help:
-        return .symbol(self.help)
-      case .newParagraph:
-        return .symbol(self.newParagraph)
-      case .paragraph:
-        return .symbol(self.paragraph)
-      case .insert:
-        return .symbol(self.insert)
-      @unknown default:
-        return .symbol(self.comment)
-    }
-  }
-  
-  private func iconType(for expr: Expr) throws -> PDFTextAnnotationIconType {
-    switch try expr.asSymbol() {
-      case self.comment:
-        return .comment
-      case self.key:
-        return .key
-      case self.note:
-        return .note
-      case self.help:
-        return .help
-      case self.newParagraph:
-        return .newParagraph
-      case self.paragraph:
-        return .paragraph
-      case self.insert:
-        return .insert
-      default:
-        throw RuntimeError.eval(.invalidPDFIconType, expr)
-    }
-  }
-  
-  public func expr(from: PDFMarkupType) -> Expr {
-    switch from {
-      case .highlight:
-        return .symbol(self.highlight)
-      case .strikeOut:
-        return .symbol(self.strikeOut)
-      case .underline:
-        return .symbol(self.underline)
-      case .redact:
-        return .symbol(self.redact)
-      @unknown default:
-        return .symbol(self.highlight)
-    }
-  }
-  
-  public func markupType(from: Expr) throws -> PDFMarkupType {
-    switch from {
-      case .symbol(self.highlight):
-        return .highlight
-      case .symbol(self.strikeOut):
-        return .strikeOut
-      case .symbol(self.underline):
-        return .underline
-      case .symbol(self.redact):
-        return .redact
-      default:
-        throw RuntimeError.eval(.invalidPDFMarkupType, from)
+        return try self.lineStyle.value(for: expr)
     }
   }
   
@@ -1032,10 +860,12 @@ public final class PDFLibrary: NativeLibrary {
     if document.allowsFormFieldEntry {
       res = .pair(.symbol(self.context.symbols.intern("form-field-entry")), res)
     }
-    if (document.accessPermissions.rawValue & PDFAccessPermissions.allowsHighQualityPrinting.rawValue) != 0 {
+    if (document.accessPermissions.rawValue &
+        PDFAccessPermissions.allowsHighQualityPrinting.rawValue) != 0 {
       res = .pair(.symbol(self.context.symbols.intern("high-quality-printing")), res)
     }
-    if (document.accessPermissions.rawValue & PDFAccessPermissions.allowsLowQualityPrinting.rawValue) != 0 {
+    if (document.accessPermissions.rawValue &
+        PDFAccessPermissions.allowsLowQualityPrinting.rawValue) != 0 {
       res = .pair(.symbol(self.context.symbols.intern("low-quality-printing")), res)
     }
     return res
@@ -1181,14 +1011,14 @@ public final class PDFLibrary: NativeLibrary {
   }
   
   private func pdfPageBounds(expr: Expr, box: Expr) throws -> Expr {
-    let bounds = try self.page(from: expr).bounds(for: self.displayBox(from: box))
+    let bounds = try self.page(from: expr).bounds(for: self.displayBox.value(for: box))
     return .pair(.pair(.flonum(bounds.origin.x), .flonum(bounds.origin.y)),
                  .pair(.flonum(bounds.width), .flonum(bounds.height)))
   }
   
   private func pdfPageBoundsSet(expr: Expr, box: Expr, bounds: Expr) throws -> Expr {
     let page = try self.page(from: expr)
-    let displayBox = try self.displayBox(from: box)
+    let displayBox = try self.displayBox.value(for: box)
     guard case .pair(.pair(.flonum(let x), .flonum(let y)),
                      .pair(.flonum(let w), .flonum(let h))) = bounds else {
       throw RuntimeError.eval(.invalidRect, bounds)
@@ -1249,7 +1079,7 @@ public final class PDFLibrary: NativeLibrary {
   
   private func pdfPageThumbnail(expr: Expr, box: Expr, size: Expr) throws -> Expr {
     let page = try self.page(from: expr)
-    let displayBox = try self.displayBox(from: box)
+    let displayBox = try self.displayBox.value(for: box)
     guard case .pair(.flonum(let w), .flonum(let h)) = size else {
       throw RuntimeError.eval(.invalidSize, size)
     }
@@ -1327,7 +1157,7 @@ public final class PDFLibrary: NativeLibrary {
                                dpi: Expr?,
                                ipol: Expr?) throws -> Expr {
     let page = try self.page(from: expr)
-    let displayBox = try self.displayBox(from: box)
+    let displayBox = try self.displayBox.value(for: box)
     guard case .pair(.flonum(let w), .flonum(let h)) = size else {
       throw RuntimeError.eval(.invalidSize, size)
     }
@@ -1408,7 +1238,7 @@ public final class PDFLibrary: NativeLibrary {
   
   private func drawPdfPage(expr: Expr, box: Expr, rect: Expr, d: Expr) throws -> Expr {
     let page = try self.page(from: expr)
-    let displayBox = try self.displayBox(from: box)
+    let displayBox = try self.displayBox.value(for: box)
     guard case .pair(.pair(.flonum(let x), .flonum(let y)),
                      .pair(.flonum(let w), .flonum(let h))) = rect else {
       throw RuntimeError.eval(.invalidRect, rect)
@@ -1527,9 +1357,11 @@ public final class PDFLibrary: NativeLibrary {
       case .pair(.symbol(self.goto), .pair(let page, .pair(.pair(let x, let y), .null))):
         return PDFActionGoTo(destination:
                               PDFDestination(page: try self.page(from: page),
-                                             at: CGPoint(x: try x.asDouble(coerce: true),
-                                                         y: try y.asDouble(coerce: true))))
-      case .pair(.symbol(self.gotoRemote), .pair(let url, .pair(let index, .pair(.pair(let x, let y), .null)))):
+                                             at: CGPoint(
+                                                   x: try x.asDouble(coerce: true),
+                                                   y: try y.asDouble(coerce: true))))
+      case .pair(.symbol(self.gotoRemote), .pair(let url, .pair(let index,
+                                                              .pair(.pair(let x, let y), .null)))):
         return PDFActionRemoteGoTo(pageIndex: try index.asInt(above: 0, below: 100000),
                                    at: CGPoint(x: try x.asInt(above: 0, below: 100000),
                                                y: try y.asInt(above: 0, below: 100000)),
@@ -1715,8 +1547,13 @@ public final class PDFLibrary: NativeLibrary {
     return self.expr(for: destination)
   }
   
-  private func pdfOutlineDestinationSet(expr: Expr, page: Expr, point: Expr?, zoom: Expr?) throws -> Expr {
-    try self.outline(from: expr).destination = try self.destination(for: page, point: point, zoom: zoom)
+  private func pdfOutlineDestinationSet(expr: Expr,
+                                        page: Expr,
+                                        point: Expr?,
+                                        zoom: Expr?) throws -> Expr {
+    try self.outline(from: expr).destination = try self.destination(for: page,
+                                                                    point: point,
+                                                                    zoom: zoom)
     return .void
   }
   
@@ -1917,11 +1754,11 @@ public final class PDFLibrary: NativeLibrary {
   }
   
   private func pdfAnnotationAlignment(expr: Expr) throws -> Expr {
-    return self.expr(from: try self.annotation(from: expr).alignment)
+    return self.textAlignment.expr(for: try self.annotation(from: expr).alignment)
   }
   
   private func pdfAnnotationAlignmentSet(expr: Expr, value: Expr) throws -> Expr {
-    try self.annotation(from: expr).alignment = self.textAlignment(from: value)
+    try self.annotation(from: expr).alignment = self.textAlignment.value(for: value)
     return .void
   }
   
@@ -2044,11 +1881,11 @@ public final class PDFLibrary: NativeLibrary {
   }
   
   private func pdfAnnotationIcon(expr: Expr) throws -> Expr {
-    return self.expr(from: try self.annotation(from: expr).iconType)
+    return self.iconType.expr(for: try self.annotation(from: expr).iconType)
   }
   
   private func pdfAnnotationIconSet(expr: Expr, value: Expr) throws -> Expr {
-    try self.annotation(from: expr).iconType = try self.iconType(for: value)
+    try self.annotation(from: expr).iconType = try self.iconType.value(for: value)
     return .void
   }
   
@@ -2095,11 +1932,11 @@ public final class PDFLibrary: NativeLibrary {
   }
   
   private func pdfAnnotationMarkupType(expr: Expr) throws -> Expr {
-    return self.expr(from: try self.annotation(from: expr).markupType)
+    return self.markupType.expr(for: try self.annotation(from: expr).markupType)
   }
   
   private func pdfAnnotationMarkupTypeSet(expr: Expr, value: Expr) throws -> Expr {
-    try self.annotation(from: expr).markupType = self.markupType(from: value)
+    try self.annotation(from: expr).markupType = self.markupType.value(for: expr)
     return .void
   }
   
@@ -2274,8 +2111,13 @@ public final class PDFLibrary: NativeLibrary {
     return self.expr(for: destination)
   }
   
-  private func pdfAnnotationDestinationSet(expr: Expr, page: Expr, point: Expr?, zoom: Expr?) throws -> Expr {
-    try self.annotation(from: expr).destination = try self.destination(for: page, point: point, zoom: zoom)
+  private func pdfAnnotationDestinationSet(expr: Expr,
+                                           page: Expr,
+                                           point: Expr?,
+                                           zoom: Expr?) throws -> Expr {
+    try self.annotation(from: expr).destination = try self.destination(for: page,
+                                                                       point: point,
+                                                                       zoom: zoom)
     return .void
   }
   
@@ -2357,7 +2199,7 @@ public final class PDFLibrary: NativeLibrary {
   
   private func drawPdfAnnotation(expr: Expr, box: Expr, rect: Expr, d: Expr) throws -> Expr {
     let annotation = try self.annotation(from: expr)
-    let displayBox = try self.displayBox(from: box)
+    let displayBox = try self.displayBox.value(for: box)
     guard case .pair(.pair(.flonum(let x), .flonum(let y)),
                      .pair(.flonum(let w), .flonum(let h))) = rect else {
       throw RuntimeError.eval(.invalidRect, rect)
@@ -2701,7 +2543,8 @@ public final class LispPadPDFDocument: PDFDocument {
                       optimizeImagesForScreen: Bool? = nil,
                       saveImagesAsJPEG: Bool? = nil,
                       saveTextFromOCR: Bool? = nil) -> [PDFDocumentWriteOption : Any]? {
-    var res: [PDFDocumentWriteOption : Any] = [.accessPermissionsOption : accessPermissions ?? self.accessPermissions]
+    var res: [PDFDocumentWriteOption : Any] = [.accessPermissionsOption :
+                                                  accessPermissions ?? self.accessPermissions]
     if let userPassword {
       res[.userPasswordOption] = userPassword
     }
@@ -2756,8 +2599,9 @@ public final class LispPadPDFDocument: PDFDocument {
       context.endPDFPage()
     }
     context.closePDF()
-    guard let flattened = LispPadPDFDocument(data: data as Data,
-                                             delegate: self.delegate as! LispPadPDFDocumentDelegate) else {
+    guard let flattened = LispPadPDFDocument(
+                            data: data as Data,
+                            delegate: self.delegate as! LispPadPDFDocumentDelegate) else {
       return nil
     }
     flattened.documentAttributes = self.documentAttributes
@@ -2844,13 +2688,13 @@ public final class LispPadPDFPage: PDFPage {
           return nil
         }
         if format == .JPEG2000 || format == .jpegEncoded {
-          if let colorSpace = try? dictionary[CGPDFDictionaryGetObject, "ColorSpace"]?.getColorSpace(),
+          if let cspace = try? dictionary[CGPDFDictionaryGetObject, "ColorSpace"]?.getColorSpace(),
              let provider = CGDataProvider(data: data),
              let embeddedImage = CGImage(jpegDataProviderSource: provider,
                                          decode: nil,
                                          shouldInterpolate: false,
                                          intent: .defaultIntent),
-             let ci = embeddedImage.copy(colorSpace: colorSpace) {
+             let ci = embeddedImage.copy(colorSpace: cspace) {
             return UIImage(cgImage: ci)
           } else {
             return try? self.getNSImage(data: data as CFData, info: dictionary)
@@ -2892,7 +2736,8 @@ public final class LispPadPDFPage: PDFPage {
       height: height,
       bitsPerComponent: bitsPerComponent,
       bitsPerPixel: bitsPerComponent * colorSpace.numberOfComponents,
-      bytesPerRow: Int((Double(width * bitsPerComponent * colorSpace.numberOfComponents) / 8.0).rounded(.up)),
+      bytesPerRow: Int((Double(width * bitsPerComponent * colorSpace.numberOfComponents) /
+                          8.0).rounded(.up)),
       space: colorSpace,
       bitmapInfo: CGBitmapInfo(),
       provider: databuffer,
@@ -2971,7 +2816,8 @@ public final class LispPadPDFPage: PDFPage {
           return nil
         }
         if format == .JPEG2000 || format == .jpegEncoded {
-          if let colorSpace = try? dictionary[CGPDFDictionaryGetObject, "ColorSpace"]?.getColorSpace(),
+          if let colorSpace = try? dictionary[CGPDFDictionaryGetObject, "ColorSpace"]?
+                                     .getColorSpace(),
              let provider = CGDataProvider(data: data),
              let embeddedImage = CGImage(jpegDataProviderSource: provider,
                                          decode: nil,
@@ -3019,7 +2865,8 @@ public final class LispPadPDFPage: PDFPage {
       height: height,
       bitsPerComponent: bitsPerComponent,
       bitsPerPixel: bitsPerComponent * colorSpace.numberOfComponents,
-      bytesPerRow: Int((Double(width * bitsPerComponent * colorSpace.numberOfComponents) / 8.0).rounded(.up)),
+      bytesPerRow: Int((Double(width * bitsPerComponent * colorSpace.numberOfComponents) /
+                          8.0).rounded(.up)),
       space: colorSpace,
       bitmapInfo: CGBitmapInfo(),
       provider: databuffer,
@@ -3194,9 +3041,9 @@ extension CGPDFObjectRef {
             throw RawDecodingError.corruptColorSpace
           }
           guard let colorSpace =
-                  CGColorSpace(labWhitePoint: whitePointRef,
-                               blackPoint: info[CGPDFDictionaryGetArray, "BlackPoint"]?.asFloatArray(),
-                               range: info[CGPDFDictionaryGetArray, "Range"]?.asFloatArray()) else {
+              CGColorSpace(labWhitePoint: whitePointRef,
+                           blackPoint: info[CGPDFDictionaryGetArray, "BlackPoint"]?.asFloatArray(),
+                           range: info[CGPDFDictionaryGetArray, "Range"]?.asFloatArray()) else {
             throw RawDecodingError.corruptColorSpace
           }
           return colorSpace
