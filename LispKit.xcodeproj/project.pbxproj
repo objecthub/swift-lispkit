@@ -78,6 +78,8 @@
 		CC131C4E1CDE0DCA006C030C /* RegressionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC131C4D1CDE0DCA006C030C /* RegressionTests.swift */; };
 		CC131C501CDE0E01006C030C /* LispKitTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC131C4F1CDE0E01006C030C /* LispKitTestCase.swift */; };
 		CC131C521CDE840C006C030C /* LocalSyntaxRules.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC131C511CDE840C006C030C /* LocalSyntaxRules.scm */; };
+		CC1348E82D26AB38002DBF0D /* VisionLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1348E72D26AB2F002DBF0D /* VisionLibrary.swift */; };
+		CC1348E92D26AB38002DBF0D /* VisionLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1348E72D26AB2F002DBF0D /* VisionLibrary.swift */; };
 		CC14F4B01F939486000FB1E0 /* Features.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC14F4AF1F939486000FB1E0 /* Features.swift */; };
 		CC14F4B21F93A455000FB1E0 /* FeatureRequirement.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC14F4B11F93A455000FB1E0 /* FeatureRequirement.swift */; };
 		CC14F4B31F93AE04000FB1E0 /* AvlTrees.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC14F4AE1F9385BF000FB1E0 /* AvlTrees.scm */; };
@@ -3123,6 +3125,7 @@
 		CC131C4D1CDE0DCA006C030C /* RegressionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RegressionTests.swift; sourceTree = "<group>"; };
 		CC131C4F1CDE0E01006C030C /* LispKitTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = LispKitTestCase.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC131C511CDE840C006C030C /* LocalSyntaxRules.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LocalSyntaxRules.scm; sourceTree = "<group>"; };
+		CC1348E72D26AB2F002DBF0D /* VisionLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionLibrary.swift; sourceTree = "<group>"; };
 		CC14F4AE1F9385BF000FB1E0 /* AvlTrees.scm */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = text; path = AvlTrees.scm; sourceTree = "<group>"; tabWidth = 2; };
 		CC14F4AF1F939486000FB1E0 /* Features.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Features.swift; sourceTree = "<group>"; };
 		CC14F4B11F93A455000FB1E0 /* FeatureRequirement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureRequirement.swift; sourceTree = "<group>"; };
@@ -4763,6 +4766,7 @@
 				CC4575C520F00C4400116F0F /* DrawingLibrary.swift */,
 				CCD5E5972633405900C45EA0 /* DrawingLibrary_iOS.swift */,
 				CC37A16B2C9E145100DF6C24 /* DrawBarcodeLibrary.swift */,
+				CC1348E72D26AB2F002DBF0D /* VisionLibrary.swift */,
 				CCCB66E3283056E30004827D /* StyledTextLibrary.swift */,
 				CCA6C3D023610674007D2AF0 /* MarkdownLibrary.swift */,
 				CC08964D244090D1004503B1 /* SQLiteLibrary.swift */,
@@ -5472,6 +5476,7 @@
 				CCE2C47A1D9203DE0047E229 /* Environment.swift in Sources */,
 				CC76312120E9518F005F27CE /* Drawing.swift in Sources */,
 				CC8EDE6E1D07263D004E0636 /* BinaryInput.swift in Sources */,
+				CC1348E92D26AB38002DBF0D /* VisionLibrary.swift in Sources */,
 				CC37A1692C9E0CDE00DF6C24 /* Barcode.swift in Sources */,
 				CC0980AB1C67E84C006B7FB1 /* Cell.swift in Sources */,
 				CC1D533D2BF1709E00EE1A24 /* JSONLibrary.swift in Sources */,
@@ -5626,6 +5631,7 @@
 				CCC48CD725E5B98600D082AD /* ZipArchiveLibrary.swift in Sources */,
 				CCC48CB025E5B97100D082AD /* FileHandler.swift in Sources */,
 				CCC48C9025E5B95B00D082AD /* Cell.swift in Sources */,
+				CC1348E82D26AB38002DBF0D /* VisionLibrary.swift in Sources */,
 				CCD5B60C2C295951002BF2F0 /* HTTPLibrary.swift in Sources */,
 				CC17F73E2C78C4FB00DDC4F9 /* Serialization.swift in Sources */,
 				CCE9C2802C41B72000DE1AD7 /* OAuth2DeviceGrantLK.swift in Sources */,

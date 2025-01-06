@@ -152,6 +152,7 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("bitmap?", isBitmap))
     self.define(Procedure("bitmap-size", bitmapSize))
     self.define(Procedure("bitmap-pixels", bitmapPixels))
+    self.define(Procedure("bitmap-ppi", bitmapPpi))
     self.define(Procedure("bitmap-exif-data", bitmapExifData))
     // self.define(Procedure("set-bitmap-exif-data!", setBitmapExifData))
     self.define(Procedure("make-bitmap", makeBitmap))
@@ -167,6 +168,7 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("copy-shape", copyShape))
     self.define(Procedure("line", line))
     self.define(Procedure("polygon", polygon))
+    self.define(Procedure("closed-polygon", closedPolygon))
     self.define(Procedure("rectangle", rectangle))
     self.define(Procedure("circle", circle))
     self.define(Procedure("oval", oval))
@@ -235,6 +237,7 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("rect-width", rectWidth))
     self.define(Procedure("rect-height", rectHeight))
     self.define(Procedure("move-rect", moveRect))
+    self.define(Procedure("inset-rect", insetRect))
     
     // Utilities
     self.define(Procedure("text-size", textSize))
@@ -813,7 +816,14 @@ public final class DrawingLibrary: NativeLibrary {
     }
     return .false
   }
-
+  
+  private func bitmapPpi(expr: Expr) throws -> Expr {
+    if case .object(let obj) = expr, let image = (obj as? NativeImage)?.value {
+      return .makeNumber(image.scale * 72.0)
+    }
+    return .false
+  }
+  
   /*
   private func setBitmapExifData(image: Expr, expr: Expr) throws -> Expr {
     for repr in try self.image(from: image).representations {
@@ -1110,6 +1120,23 @@ public final class DrawingLibrary: NativeLibrary {
   
   private func polygon(args: Arguments) throws -> Expr {
     let shape = Shape()
+    var pointList = self.pointList(args, skipLast: false)
+    while case .pair(let point, let rest) = pointList {
+      guard case .pair(.flonum(let x), .flonum(let y)) = point else {
+        throw RuntimeError.eval(.invalidPoint, point)
+      }
+      if shape.isEmpty {
+        shape.append(.move(to: CGPoint(x: x, y: y)))
+      } else {
+        shape.append(.line(to: CGPoint(x: x, y: y)))
+      }
+      pointList = rest
+    }
+    return .object(shape)
+  }
+  
+  private func closedPolygon(args: Arguments) throws -> Expr {
+    let shape = Shape(closed: true)
     var pointList = self.pointList(args, skipLast: false)
     while case .pair(let point, let rest) = pointList {
       guard case .pair(.flonum(let x), .flonum(let y)) = point else {
@@ -1690,12 +1717,42 @@ public final class DrawingLibrary: NativeLibrary {
     return .flonum(h)
   }
   
-  private func moveRect(expr: Expr, dx: Expr, dy: Expr) throws -> Expr {
+  private func moveRect(expr: Expr, dx: Expr, dy: Expr?) throws -> Expr {
     guard case .pair(.pair(.flonum(let x), .flonum(let y)), let dim) = expr else {
       throw RuntimeError.eval(.invalidRect, expr)
     }
-    return try .pair(.pair(.flonum(x + dx.asDouble(coerce: true)),
-                           .flonum(y + dy.asDouble(coerce: true))), dim)
+    let dx = try dx.asDouble(coerce: true)
+    let dy = try dy?.asDouble(coerce: true) ?? dx
+    return .pair(.pair(.flonum(x + dx), .flonum(y + dy)), dim)
+  }
+  
+  private func insetRect(expr: Expr, dn: Expr, args: Arguments) throws -> Expr {
+    guard case .pair(.pair(.flonum(let x), .flonum(let y)),
+                     .pair(.flonum(let w), .flonum(let h))) = expr else {
+      throw RuntimeError.eval(.invalidRect, expr)
+    }
+    let d = try dn.asDouble(coerce: true)
+    switch args.count {
+      case 0:
+        return .pair(.pair(.flonum(x + d), .flonum(y + d)),
+                     .pair(.flonum(w - 2 * d), .flonum(h - 2 * d)))
+      case 1:
+        let dy = try args.first!.asDouble(coerce: true)
+        return .pair(.pair(.flonum(x + d), .flonum(y + dy)),
+                     .pair(.flonum(w - 2 * d), .flonum(h - 2 * dy)))
+      case 3:
+        var iter = args.makeIterator()
+        let top = try iter.next()!.asDouble(coerce: true)
+        let right = try iter.next()!.asDouble(coerce: true)
+        let bottom = try iter.next()!.asDouble(coerce: true)
+        return .pair(.pair(.flonum(x + d), .flonum(y + top)),
+                     .pair(.flonum(w - d - right), .flonum(h - top - bottom)))
+      default:
+        throw RuntimeError.argumentCount(of: "inset-rect",
+                                         min: 2,
+                                         max: 5,
+                                         expr: .pair(expr, .pair(dn, .makeList(args))))
+    }
   }
   
   private func isFont(expr: Expr) -> Expr {
@@ -1931,6 +1988,18 @@ public final class NativeImage: AnyMutableNativeObject<UIImage> {
     } else {
       return "#<image \(self.identityString)>"
     }
+  }
+  
+  public var width: CGFloat {
+    return self.value.size.width
+  }
+  
+  public var height: CGFloat {
+    return self.value.size.height
+  }
+  
+  public func cgImage() -> CGImage? {
+    return self.value.cgImage
   }
   
   public override func unpack(in context: Context) -> Exprs {

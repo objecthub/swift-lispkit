@@ -1095,7 +1095,7 @@ public final class PDFLibrary: NativeLibrary {
                                dpi: Expr?,
                                ipol: Expr?) throws -> Expr {
     let page = try self.page(from: expr)
-    let displayBox = try self.displayBox(from: box)
+    let displayBox = try self.displayBox.value(for: box)
     guard case .pair(.flonum(let w), .flonum(let h)) = size else {
       throw RuntimeError.eval(.invalidSize, size)
     }

@@ -117,6 +117,7 @@ public enum EvalError: Int, Hashable, Codable {
   case cannotLoadImageAsset
   case cannotCreateImage
   case cannotCreateBitmap
+  case imageIsNotABitmap
   case invalidImageFileType
   case invalidCompositionOperation
   case invalidFlipOrientation
@@ -179,7 +180,9 @@ public enum EvalError: Int, Hashable, Codable {
   case unknownCachePolicy
   case undefinedDefaultHttpSession
   case invalidHttpHeaderSpec
+  case unableToReturnResultViaFuture
   case serverError
+  case visionError
   case unsupportedHttpMethod
   case insertIntoClosedQueue
   case insertIntoMaxQueue
@@ -389,6 +392,8 @@ public enum EvalError: Int, Hashable, Codable {
         return "cannot create image from bytevector $0"
       case .cannotCreateBitmap:
         return "cannot create bitmap; error in arguments: $0"
+      case .imageIsNotABitmap:
+        return "expected a bitmap; provided image is not a bitmap: $0"
       case .invalidImageFileType:
         return "invalid image file type: $0"
       case .invalidCompositionOperation:
@@ -513,8 +518,12 @@ public enum EvalError: Int, Hashable, Codable {
         return "undefined default http session"
       case .invalidHttpHeaderSpec:
         return "invalid HTTP header specification starting $1 in $0"
+      case .unableToReturnResultViaFuture:
+        return "unable to return result via future $0: $1"
       case .serverError:
         return "server error: did not receive data"
+      case .visionError:
+        return "vision handling error: did not receive a result for $0"
       case .unsupportedHttpMethod:
         return "unsupported HTTP method: $0"
       case .insertIntoClosedQueue:

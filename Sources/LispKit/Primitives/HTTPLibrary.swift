@@ -334,11 +334,13 @@ public final class HTTPLibrary: NativeLibrary {
                                    to: .error(RuntimeError.eval(.serverError)),
                                    raise: true)
         }
-      } catch {
+      } catch let error {
         do {
           _ = try f.setResult(in: self.context,
-                                   to: .error(RuntimeError.eval(.serverError, .object(f))),
-                                   raise: true)
+                              to: .error(RuntimeError.eval(.unableToReturnResultViaFuture,
+                                                           .object(f),
+                                                           .error(RuntimeError.os(error)))),
+                              raise: true)
         } catch {}
       }
     }
