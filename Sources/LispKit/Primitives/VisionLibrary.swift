@@ -45,6 +45,8 @@ public final class VisionLibrary: NativeLibrary {
     self.define(Procedure("recognized-text-corners", self.recognizedTextCorners))
     self.define(Procedure("recognized-text-bounds", self.recognizedTextBoundingBox))
     self.define(Procedure("detect-rectangles", self.detectRectangles))
+    self.define(Procedure("supported-barcode-symbologies", self.supportedBarcodeSymbologies))
+    self.define(Procedure("recognize-barcodes", self.recognizeBarcodes))
   }
   
   /// Initializations of the library.
@@ -293,11 +295,12 @@ public final class VisionLibrary: NativeLibrary {
               res = .pair(.pair(.pair(.pair(.flonum(bounds.origin.x), .flonum(bounds.origin.y)),
                                       .pair(.flonum(bounds.width), .flonum(bounds.height))),
                                 .pair(.flonum(Double(obs.confidence)),
-                                      .pair(.pair(.flonum(tl.x), .flonum(tl.y)),
-                                                   .pair(.pair(.flonum(tr.x), .flonum(tr.y)),
+                                      .pair(.pair(.pair(.flonum(tl.x), .flonum(tl.y)),
+                                                        .pair(.pair(.flonum(tr.x), .flonum(tr.y)),
                                                          .pair(.pair(.flonum(br.x), .flonum(br.y)),
                                                                .pair(.pair(.flonum(bl.x), .flonum(bl.y)),
-                                                                     .null)))))), res)
+                                                                     .null)))),
+                                            .null))), res)
             }
           }
           _ = try result.setResult(in: context, to: res, raise: false)
@@ -368,6 +371,209 @@ public final class VisionLibrary: NativeLibrary {
     } else {
       request.maximumObservations = 0
     }
+    try requestHandler.perform([request])
+    return .object(result)
+  }
+  
+  private let defaultSymbologies: [VNBarcodeSymbology] = [
+    .aztec,
+    .code128,
+    .dataMatrix,
+    .ean8,
+    .ean13,
+    .gs1DataBar,
+    .qr,
+    .pdf417
+  ]
+  
+  private func expr(for symbology: VNBarcodeSymbology) -> Expr {
+    var ident = symbology.rawValue
+    switch ident {
+      case VNBarcodeSymbology.aztec.rawValue:
+        ident = "aztec"
+      case VNBarcodeSymbology.codabar.rawValue:
+        ident = "codabar"
+      case VNBarcodeSymbology.code39.rawValue:
+        ident = "code39"
+      case VNBarcodeSymbology.code39Checksum.rawValue:
+        ident = "code39-checksum"
+      case VNBarcodeSymbology.code39FullASCII.rawValue:
+        ident = "code39-full-ascii"
+      case VNBarcodeSymbology.code39FullASCIIChecksum.rawValue:
+        ident = "code39-full-ascii-checksum"
+      case VNBarcodeSymbology.code93.rawValue:
+        ident = "code93"
+      case VNBarcodeSymbology.code93i.rawValue:
+        ident = "code93i"
+      case VNBarcodeSymbology.code128.rawValue:
+        ident = "code128"
+      case VNBarcodeSymbology.dataMatrix.rawValue:
+        ident = "data-matrix"
+      case VNBarcodeSymbology.ean8.rawValue:
+        ident = "ean8"
+      case VNBarcodeSymbology.ean13.rawValue:
+        ident = "ean13"
+      case VNBarcodeSymbology.gs1DataBar.rawValue:
+        ident = "gs1-databar"
+      case VNBarcodeSymbology.gs1DataBarExpanded.rawValue:
+        ident = "gs1-databar-expanded"
+      case VNBarcodeSymbology.gs1DataBarLimited.rawValue:
+        ident = "gs1-databar-limited"
+      case VNBarcodeSymbology.i2of5.rawValue:
+        ident = "i2of5"
+      case VNBarcodeSymbology.i2of5Checksum.rawValue:
+        ident = "i2of5-checksum"
+      case VNBarcodeSymbology.itf14.rawValue:
+        ident = "itf14"
+      case VNBarcodeSymbology.microPDF417.rawValue:
+        ident = "micro-pdf417"
+      case VNBarcodeSymbology.microQR.rawValue:
+        ident = "micro-qr"
+      case VNBarcodeSymbology.qr.rawValue:
+        ident = "qr"
+      case VNBarcodeSymbology.pdf417.rawValue:
+        ident = "pdf417"
+      case VNBarcodeSymbology.upce.rawValue:
+        ident = "upce"
+      case "VNBarcodeSymbologyMSIPlessey":
+        ident = "msi-plessey"
+      default:
+        break
+    }
+    return .symbol(self.context.symbols.intern(ident))
+  }
+  
+  private func symbology(from: Expr) throws -> VNBarcodeSymbology {
+    let ident = try from.asSymbol().identifier
+    switch ident {
+      case "aztec":
+        return .aztec
+      case "codabar":
+        return .codabar
+      case "code39":
+        return .code39
+      case "code39-checksum":
+        return .code39Checksum
+      case "code39-full-ascii":
+        return .code39FullASCII
+      case "code39-full-ascii-checksum":
+        return .code39FullASCIIChecksum
+      case "code93":
+        return .code93
+      case "code93i":
+        return .code93
+      case "code128":
+        return .code128
+      case "data-matrix":
+        return .dataMatrix
+      case "ean8":
+        return .ean8
+      case "ean13":
+        return .ean13
+      case "gs1-databar":
+        return .gs1DataBar
+      case "gs1-databar-expanded":
+        return .gs1DataBarExpanded
+      case "gs1-databar-limited":
+        return .gs1DataBarLimited
+      case "i2of5":
+        return .i2of5
+      case "i2of5-checksum":
+        return .i2of5Checksum
+      case "itf14":
+        return .itf14
+      case "micro-pdf417":
+        return .microPDF417
+      case "micro-qr":
+        return .microQR
+      case "pdf417":
+        return .pdf417
+      case "qr":
+        return .qr
+      case "upce":
+        return .upce
+      case "msi-plessey":
+        return VNBarcodeSymbology(rawValue: "VNBarcodeSymbologyMSIPlessey")
+      default:
+        return VNBarcodeSymbology(rawValue: ident)
+    }
+  }
+  
+  private func supportedBarcodeSymbologies() throws -> Expr {
+    var res = Expr.null
+    for symbology in try VNDetectBarcodesRequest().supportedSymbologies() {
+      res = .pair(self.expr(for: symbology), res)
+    }
+    return res
+  }
+  
+  private func recognizeBarcodes(expr: Expr, symbologies: Expr?) throws -> Expr {
+    let (image, cgImage) = try self.bitmap(from: expr)
+    let requestHandler = VNImageRequestHandler(cgImage: cgImage)
+    let result = Future(external: false)
+    let context = self.context
+    let request = VNDetectBarcodesRequest { (request: VNRequest, error: Error?) in
+      do {
+        if let error = error {
+          _ = try result.setResult(in: context, to: .error(RuntimeError.os(error)), raise: true)
+        } else if let observations = request.results {
+          var res = Expr.null
+          for observation in observations {
+            if let obs = observation as? VNBarcodeObservation {
+              let bounds = self.imageRect(forNormalizedRect: obs.boundingBox,
+                                          width: image.width,
+                                          height: image.height)
+              let bl = self.imagePoint(forNormalizedPoint: obs.bottomLeft, width: image.width, height: image.height)
+              let br = self.imagePoint(forNormalizedPoint: obs.bottomRight, width: image.width, height: image.height)
+              let tr = self.imagePoint(forNormalizedPoint: obs.topRight, width: image.width, height: image.height)
+              let tl = self.imagePoint(forNormalizedPoint: obs.topLeft, width: image.width, height: image.height)
+              let payloadString: Expr
+              if let str = obs.payloadStringValue {
+                payloadString = .makeString(str)
+              } else {
+                payloadString = .false
+              }
+              let symbology: Expr = self.expr(for: obs.symbology)
+              res = .pair(.pair(.pair(.pair(.flonum(bounds.origin.x), .flonum(bounds.origin.y)),
+                                      .pair(.flonum(bounds.width), .flonum(bounds.height))),
+                                .pair(.flonum(Double(obs.confidence)),
+                                      .pair(.pair(.pair(.flonum(tl.x), .flonum(tl.y)),
+                                                        .pair(.pair(.flonum(tr.x), .flonum(tr.y)),
+                                                         .pair(.pair(.flonum(br.x), .flonum(br.y)),
+                                                               .pair(.pair(.flonum(bl.x), .flonum(bl.y)),
+                                                                     .null)))),
+                                            .pair(symbology,
+                                                  .pair(payloadString, .null))))), res)
+            }
+          }
+          _ = try result.setResult(in: context, to: res, raise: false)
+        } else {
+          _ = try result.setResult(in: context, to: .false, raise: false)
+        }
+      } catch let error {
+        do {
+          _ = try result.setResult(in: context,
+                                   to: .error(RuntimeError.eval(.unableToReturnResultViaFuture,
+                                                                .object(result),
+                                                                .error(RuntimeError.os(error)))),
+                                   raise: true)
+        } catch {}
+      }
+    }
+    var syms: [VNBarcodeSymbology] = []
+    if var list = symbologies {
+      while case .pair(let symbology, let rest) = list {
+        syms.append(try self.symbology(from: symbology))
+        list = rest
+      }
+      request.symbologies = syms
+    } else {
+      request.symbologies = self.defaultSymbologies
+    }
+    // Support from iOS 17 on
+    // if let coalesce {
+    //  request.coalesceCompositeSymbologies = coalesce.isTrue
+    // }
     try requestHandler.perform([request])
     return .object(result)
   }
