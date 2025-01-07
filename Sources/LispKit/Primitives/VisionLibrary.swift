@@ -23,21 +23,21 @@ import Vision
 
 public final class VisionLibrary: NativeLibrary {
   
-  /// Initialize symbols.
+    /// Initialize symbols.
   public required init(in context: Context) throws {
     try super.init(in: context)
   }
   
-  /// Name of the library.
+    /// Name of the library.
   public override class var name: [String] {
     return ["lispkit", "vision"]
   }
   
-  /// Dependencies of the library.
+    /// Dependencies of the library.
   public override func dependencies() {
   }
   
-  /// Declarations of the library.
+    /// Declarations of the library.
   public override func declarations() {
     self.define(Procedure("recognize-text", self.recognizeText))
     self.define(Procedure("recognized-text-confidence", self.recognizedTextConfidence))
@@ -47,9 +47,11 @@ public final class VisionLibrary: NativeLibrary {
     self.define(Procedure("detect-rectangles", self.detectRectangles))
     self.define(Procedure("supported-barcode-symbologies", self.supportedBarcodeSymbologies))
     self.define(Procedure("recognize-barcodes", self.recognizeBarcodes))
+    self.define(Procedure("supported-classification-identifiers", self.supportedClassIdent))
+    self.define(Procedure("classify-image", self.classifyImage))
   }
   
-  /// Initializations of the library.
+    /// Initializations of the library.
   public override func initializations() {
   }
   
@@ -94,8 +96,8 @@ public final class VisionLibrary: NativeLibrary {
   }
   
   private func recognizeText(expr: Expr, args: Arguments) throws -> Expr {
-    guard let (candidates, langs, words, minTextHeight) =
-            args.optional(.fixnum(1), .true, .false, .false) else {
+    guard let (area, candidates, langs, words, minTextHeight) =
+            args.optional(.false, .fixnum(1), .true, .false, .false) else {
       throw RuntimeError.argumentCount(of: "recognize-text",
                                        min: 1,
                                        max: 5,
@@ -140,6 +142,13 @@ public final class VisionLibrary: NativeLibrary {
                                    raise: true)
         } catch {}
       }
+    }
+    if area.isTrue {
+      guard case .pair(.pair(.flonum(let x), .flonum(let y)),
+                       .pair(.flonum(let w), .flonum(let h))) = area else {
+        throw RuntimeError.eval(.invalidRect, area)
+      }
+      request.regionOfInterest = CGRect(x: x, y: y, width: w, height: h)
     }
     request.recognitionLevel = .accurate
     request.usesLanguageCorrection = true
@@ -266,8 +275,8 @@ public final class VisionLibrary: NativeLibrary {
   }
   
   private func detectRectangles(expr: Expr, args: Arguments) throws -> Expr {
-    guard let (num, aspectRatio, tolerance, size, confidence) =
-            args.optional(.false, .false, .false, .false, .false) else {
+    guard let (area, num, aspectRatio, tolerance, size, confidence) =
+            args.optional(.false, .false, .false, .false, .false, .false) else {
       throw RuntimeError.argumentCount(of: "detect-rectangles",
                                        min: 1,
                                        max: 6,
@@ -296,10 +305,10 @@ public final class VisionLibrary: NativeLibrary {
                                       .pair(.flonum(bounds.width), .flonum(bounds.height))),
                                 .pair(.flonum(Double(obs.confidence)),
                                       .pair(.pair(.pair(.flonum(tl.x), .flonum(tl.y)),
-                                                        .pair(.pair(.flonum(tr.x), .flonum(tr.y)),
-                                                         .pair(.pair(.flonum(br.x), .flonum(br.y)),
-                                                               .pair(.pair(.flonum(bl.x), .flonum(bl.y)),
-                                                                     .null)))),
+                                                  .pair(.pair(.flonum(tr.x), .flonum(tr.y)),
+                                                        .pair(.pair(.flonum(br.x), .flonum(br.y)),
+                                                              .pair(.pair(.flonum(bl.x), .flonum(bl.y)),
+                                                                    .null)))),
                                             .null))), res)
             }
           }
@@ -316,6 +325,13 @@ public final class VisionLibrary: NativeLibrary {
                                    raise: true)
         } catch {}
       }
+    }
+    if area.isTrue {
+      guard case .pair(.pair(.flonum(let x), .flonum(let y)),
+                       .pair(.flonum(let w), .flonum(let h))) = area else {
+        throw RuntimeError.eval(.invalidRect, area)
+      }
+      request.regionOfInterest = CGRect(x: x, y: y, width: w, height: h)
     }
     if aspectRatio.isTrue {
       guard case .pair(let minARatio, let maxARatio) = aspectRatio else {
@@ -507,7 +523,7 @@ public final class VisionLibrary: NativeLibrary {
     return res
   }
   
-  private func recognizeBarcodes(expr: Expr, symbologies: Expr?) throws -> Expr {
+  private func recognizeBarcodes(expr: Expr, area: Expr?, symbologies: Expr?) throws -> Expr {
     let (image, cgImage) = try self.bitmap(from: expr)
     let requestHandler = VNImageRequestHandler(cgImage: cgImage)
     let result = Future(external: false)
@@ -538,10 +554,10 @@ public final class VisionLibrary: NativeLibrary {
                                       .pair(.flonum(bounds.width), .flonum(bounds.height))),
                                 .pair(.flonum(Double(obs.confidence)),
                                       .pair(.pair(.pair(.flonum(tl.x), .flonum(tl.y)),
-                                                        .pair(.pair(.flonum(tr.x), .flonum(tr.y)),
-                                                         .pair(.pair(.flonum(br.x), .flonum(br.y)),
-                                                               .pair(.pair(.flonum(bl.x), .flonum(bl.y)),
-                                                                     .null)))),
+                                                  .pair(.pair(.flonum(tr.x), .flonum(tr.y)),
+                                                        .pair(.pair(.flonum(br.x), .flonum(br.y)),
+                                                              .pair(.pair(.flonum(bl.x), .flonum(bl.y)),
+                                                                    .null)))),
                                             .pair(symbology,
                                                   .pair(payloadString, .null))))), res)
             }
@@ -560,6 +576,13 @@ public final class VisionLibrary: NativeLibrary {
         } catch {}
       }
     }
+    if let area, area.isTrue {
+      guard case .pair(.pair(.flonum(let x), .flonum(let y)),
+                       .pair(.flonum(let w), .flonum(let h))) = area else {
+        throw RuntimeError.eval(.invalidRect, area)
+      }
+      request.regionOfInterest = CGRect(x: x, y: y, width: w, height: h)
+    }
     var syms: [VNBarcodeSymbology] = []
     if var list = symbologies {
       while case .pair(let symbology, let rest) = list {
@@ -574,6 +597,58 @@ public final class VisionLibrary: NativeLibrary {
     // if let coalesce {
     //  request.coalesceCompositeSymbologies = coalesce.isTrue
     // }
+    try requestHandler.perform([request])
+    return .object(result)
+  }
+  
+  private func supportedClassIdent() throws -> Expr {
+    var res: Exprs = []
+    for identifier in try VNClassifyImageRequest().supportedIdentifiers().sorted() {
+      res.append(.makeString(identifier))
+    }
+    return .makeList(res)
+  }
+  
+  private func classifyImage(expr: Expr, area: Expr?, confidence: Expr?) throws -> Expr {
+    let (_, cgImage) = try self.bitmap(from: expr)
+    let requestHandler = VNImageRequestHandler(cgImage: cgImage)
+    let result = Future(external: false)
+    let context = self.context
+    let minimumConfidence = confidence == nil ? 0.0 : try confidence!.asDouble(coerce: true)
+    let request = VNClassifyImageRequest { (request: VNRequest, error: Error?) in
+      do {
+        if let error = error {
+          _ = try result.setResult(in: context, to: .error(RuntimeError.os(error)), raise: true)
+        } else if let observations = request.results {
+          var res: Exprs = []
+          for observation in observations {
+            if let obs = observation as? VNClassificationObservation,
+               Double(obs.confidence) > minimumConfidence {
+              res.append(.pair(.makeNumber(Double(obs.confidence)),
+                               .pair(.makeString(obs.identifier), .null)))
+            }
+          }
+          _ = try result.setResult(in: context, to: .makeList(res), raise: false)
+        } else {
+          _ = try result.setResult(in: context, to: .false, raise: false)
+        }
+      } catch let error {
+        do {
+          _ = try result.setResult(in: context,
+                                   to: .error(RuntimeError.eval(.unableToReturnResultViaFuture,
+                                                                .object(result),
+                                                                .error(RuntimeError.os(error)))),
+                                   raise: true)
+        } catch {}
+      }
+    }
+    if let area, area.isTrue {
+      guard case .pair(.pair(.flonum(let x), .flonum(let y)),
+                       .pair(.flonum(let w), .flonum(let h))) = area else {
+        throw RuntimeError.eval(.invalidRect, area)
+      }
+      request.regionOfInterest = CGRect(x: x, y: y, width: w, height: h)
+    }
     try requestHandler.perform([request])
     return .object(result)
   }
