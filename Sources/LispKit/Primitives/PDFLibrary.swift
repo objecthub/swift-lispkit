@@ -197,6 +197,13 @@ public final class PDFLibrary: NativeLibrary {
     
     self.define(Procedure("pdf-outline", self.pdfOutline))
     
+    // Predicates
+    self.define(Procedure("pdf-display-box?", self.isDisplayBox))
+    self.define(Procedure("pdf-line-style?", self.isLineStyle))
+    self.define(Procedure("pdf-text-alignment?", self.isTextAlignment))
+    self.define(Procedure("pdf-icon-type?", self.isIconType))
+    self.define(Procedure("pdf-markup-type?", self.isMarkupType))
+    
     // PDF pages
     self.define(Procedure("pdf-page?", self.isPdfPage))
     self.define(Procedure("make-pdf-page", self.makePdfPage))
@@ -757,13 +764,13 @@ public final class PDFLibrary: NativeLibrary {
       case .pair(.symbol(_), _):
         return (try? pdfBorder(from: from)) ?? (try? action(from: from))
       case .vector(let coll):
-        let array = NSArray()
+        let array = NSMutableArray()
         for comp in coll.exprs {
           if let elem = self.attributeValue(from: comp) {
-            array.adding(elem)
+            array.add(elem)
           }
         }
-        return array
+        return NSArray(array: array)
       case .object(let obj):
         if let nd = obj as? NativeDateTime, let date = nd.value.date {
           return date as NSDate
@@ -910,6 +917,28 @@ public final class PDFLibrary: NativeLibrary {
       return .false
     }
     return .object(NativePDFOutline(outline: outline))
+  }
+  
+  // Predicates
+  
+  private func isDisplayBox(obj: Expr) -> Expr {
+    return .makeBoolean(self.displayBox.isValue(obj))
+  }
+  
+  private func isLineStyle(obj: Expr) -> Expr {
+    return .makeBoolean(self.lineStyle.isValue(obj))
+  }
+  
+  private func isTextAlignment(obj: Expr) -> Expr {
+    return .makeBoolean(self.textAlignment.isValue(obj))
+  }
+  
+  private func isIconType(obj: Expr) -> Expr {
+    return .makeBoolean(self.iconType.isValue(obj))
+  }
+  
+  private func isMarkupType(obj: Expr) -> Expr {
+    return .makeBoolean(self.markupType.isValue(obj))
   }
   
   // PDF Pages

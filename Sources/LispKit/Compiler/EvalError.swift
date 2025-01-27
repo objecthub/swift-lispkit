@@ -205,6 +205,8 @@ public enum EvalError: Int, Hashable, Codable {
   case invalidPDFCalloutPoints
   case cannotMapAttributeValue
   case invalidSymbolicEnumValue
+  case invalidFilterParameterValue
+  case invalidAutoAdjustmentOption
   
   public var message: String {
     switch self {
@@ -568,6 +570,10 @@ public enum EvalError: Int, Hashable, Codable {
         return "unable to interpret attribute value: $0"
       case .invalidSymbolicEnumValue:
         return "invalid ,$0: $1"
+      case .invalidFilterParameterValue:
+        return "invalid value for filter parameter $0: $1"
+      case .invalidAutoAdjustmentOption:
+        return "invalid auto adjustment option key: $0"
     }
   }
   

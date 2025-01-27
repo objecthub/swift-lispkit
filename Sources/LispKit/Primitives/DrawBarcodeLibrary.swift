@@ -54,7 +54,7 @@ public final class DrawBarcodeLibrary: NativeLibrary {
     self.define(Procedure("pdf417-code-image", self.pdf417CodeImage))
   }
   
-    /// Initializations of the library.
+  /// Initializations of the library.
   public override func initializations() {
   }
   

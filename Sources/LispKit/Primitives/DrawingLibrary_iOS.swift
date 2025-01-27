@@ -174,6 +174,8 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("oval", oval))
     self.define(Procedure("arc", arc))
     self.define(Procedure("glyphs", glyphs))
+    self.define(Procedure("move-shape", moveShape))
+    self.define(Procedure("scale-shape", scaleShape))
     self.define(Procedure("transform-shape", transformShape))
     self.define(Procedure("flip-shape", flipShape))
     self.define(Procedure("interpolate", interpolate))
@@ -185,6 +187,7 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("relative-curve-to", relativeCurveTo))
     self.define(Procedure("add-shape", addShape))
     self.define(Procedure("shape-bounds", shapeBounds))
+    self.define(Procedure("shape-contains?", shapeContains))
     
     // Transformations
     self.define("transformation-type-tag", as: Transformation.type.objectTypeTag())
@@ -205,7 +208,7 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("color-blue", colorBlue))
     self.define(Procedure("color-alpha", colorAlpha))
     
-    // Fonts/points/sizes/rects
+    // Fonts
     self.define("font-type-tag", as: NativeFont.type.objectTypeTag())
     self.define(Procedure("font?", isFont))
     self.define(Procedure("font", font))
@@ -215,6 +218,8 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("font-traits", fontTraits))
     self.define(Procedure("font-has-traits", fontHasTraits))
     self.define(Procedure("font-size", fontSize))
+    
+    // Points/sizes
     self.define(Procedure("available-fonts", availableFonts))
     self.define(Procedure("available-font-families", availableFontFamilies))
     self.define(Procedure("point?", isPoint))
@@ -222,12 +227,16 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("point-x", pointX))
     self.define(Procedure("point-y", pointY))
     self.define(Procedure("move-point", movePoint))
+    self.define(Procedure("scale-point", scalePoint))
+    self.define(Procedure("transform-point", transformPoint))
     self.define(Procedure("size?", isSize))
     self.define(Procedure("size", size))
     self.define(Procedure("size-width", sizeWidth))
     self.define(Procedure("size-height", sizeHeight))
     self.define(Procedure("increase-size", increaseSize))
     self.define(Procedure("scale-size", scaleSize))
+    
+    // Rects
     self.define(Procedure("rect?", isRect))
     self.define(Procedure("rect", rect))
     self.define(Procedure("rect-point", rectPoint))
@@ -236,8 +245,16 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("rect-y", rectY))
     self.define(Procedure("rect-width", rectWidth))
     self.define(Procedure("rect-height", rectHeight))
+    self.define(Procedure("rect-max-point", rectMaxPoint))
+    self.define(Procedure("rect-max-x", rectMaxX))
+    self.define(Procedure("rect-max-y", rectMaxY))
     self.define(Procedure("move-rect", moveRect))
+    self.define(Procedure("scale-rect", scaleRect))
     self.define(Procedure("inset-rect", insetRect))
+    self.define(Procedure("transform-rect", transformRect))
+    self.define(Procedure("intersect-rect", intersectRect))
+    self.define(Procedure("union-rect", unionRect))
+    self.define(Procedure("rect-contains?", rectContains))
     
     // Utilities
     self.define(Procedure("text-size", textSize))
@@ -857,15 +874,15 @@ public final class DrawingLibrary: NativeLibrary {
       case .null:
         return NSArray()
       case .pair(_, _):
-        let res = NSArray()
+        let res = NSMutableArray()
         var lst = expr
         while case .pair(let head, let tail) = lst {
           if let v = self.exifValue(from: head) {
-            res.adding(v)
+            res.add(v)
           }
           lst = tail
         }
-        return res
+        return NSArray(array: res)
       default:
         return nil
     }
@@ -1231,6 +1248,21 @@ public final class DrawingLibrary: NativeLibrary {
                                  flipped: true)))
   }
   
+  private func moveShape(shape: Expr, dx: Expr, dy: Expr?) throws -> Expr {
+    let dx = try dx.asDouble(coerce: true)
+    let dy = try dy?.asDouble(coerce: true) ?? dx
+    return .object(
+             Shape(.transformed(try self.shape(from: shape),
+                                Transformation(CGAffineTransform(translationX: dx, y: dy)))))
+  }
+  
+  private func scaleShape(shape: Expr, sx: Expr, sy: Expr?) throws -> Expr {
+    let sx = try sx.asDouble(coerce: true)
+    let sy = try sy?.asDouble(coerce: true) ?? sx
+    return .object(Shape(.transformed(try self.shape(from: shape),
+                                      Transformation(CGAffineTransform(scaleX: sx, y: sy)))))
+  }
+  
   private func transformShape(shape: Expr, transformation: Expr) throws -> Expr {
     return .object(Shape(.transformed(try self.shape(from: shape),
                                       try self.tformation(from: transformation))))
@@ -1396,6 +1428,50 @@ public final class DrawingLibrary: NativeLibrary {
     let box = (try self.shape(from: shape)).bounds
     return .pair(.pair(.flonum(Double(box.origin.x)), .flonum(Double(box.origin.y))),
                  .pair(.flonum(Double(box.width)), .flonum(Double(box.height))))
+  }
+  
+  private func shapeContains(shape: Expr, points: Expr, some: Expr?) throws -> Expr {
+    let shape = try self.shape(from: shape)
+    let all = some?.isFalse ?? true
+    switch points {
+      case .null:
+        return .true
+      case .pair(.flonum(let x), .flonum(let y)):
+        return .makeBoolean(shape.contains(CGPoint(x: x, y: y)))
+      case .pair(_, _):
+        var list = points
+        if all {
+          while case .pair(let pnt, let rest) = list {
+            guard case .pair(.flonum(let x), .flonum(_)) = pnt else {
+              throw RuntimeError.eval(.invalidPoint, pnt)
+            }
+            guard shape.contains(CGPoint(x: x, y: 0)) else {
+              return .false
+            }
+            list = rest
+          }
+          guard case .null = list else {
+            throw RuntimeError.type(points, expected: [.properListType])
+          }
+          return .true
+        } else {
+          while case .pair(let pnt, let rest) = list {
+            guard case .pair(.flonum(let x), .flonum(_)) = pnt else {
+              throw RuntimeError.eval(.invalidPoint, pnt)
+            }
+            if shape.contains(CGPoint(x: x, y: 0)) {
+              return .true
+            }
+            list = rest
+          }
+          guard case .null = list else {
+            throw RuntimeError.type(points, expected: [.properListType])
+          }
+          return .false
+        }
+      default:
+        throw RuntimeError.eval(.invalidPoint, points)
+    }
   }
   
   
@@ -1597,6 +1673,24 @@ public final class DrawingLibrary: NativeLibrary {
                      .flonum(y + dy.asDouble(coerce: true)))
   }
   
+  private func scalePoint(expr: Expr, sx: Expr, sy: Expr?) throws -> Expr {
+    guard case .pair(.flonum(let x), .flonum(let y)) = expr else {
+      throw RuntimeError.eval(.invalidPoint, expr)
+    }
+    let sx = try sx.asDouble(coerce: true)
+    let sy = try sy?.asDouble(coerce: true) ?? sx
+    let pnt = CGPoint(x: x, y: y).applying(CGAffineTransform(scaleX: sx, y: sy))
+    return .pair(.flonum(pnt.x), .flonum(pnt.y))
+  }
+  
+  private func transformPoint(expr: Expr, transform: Expr) throws -> Expr {
+    guard case .pair(.flonum(let x), .flonum(let y)) = expr else {
+      throw RuntimeError.eval(.invalidPoint, expr)
+    }
+    let res = CGPoint(x: x, y: y).applying(try self.affineTransform(transform))
+    return .pair(.flonum(res.x), .flonum(res.y))
+  }
+  
   private func isSize(expr: Expr) throws -> Expr {
     guard case .pair(.flonum(_), .flonum(_)) = expr else {
       return .false
@@ -1679,6 +1773,14 @@ public final class DrawingLibrary: NativeLibrary {
     return point
   }
   
+  private func rectMaxPoint(expr: Expr) throws -> Expr {
+    guard case .pair(.pair(.flonum(let x), .flonum(let y)),
+                     .pair(.flonum(let w), .flonum(let h))) = expr else {
+      throw RuntimeError.eval(.invalidRect, expr)
+    }
+    return .pair(.flonum(x + w), .flonum(y + h))
+  }
+  
   private func rectX(expr: Expr) throws -> Expr {
     guard case .pair(.pair(.flonum(let x), .flonum(_)), .pair(.flonum(_), .flonum(_))) = expr else {
       throw RuntimeError.eval(.invalidRect, expr)
@@ -1691,6 +1793,20 @@ public final class DrawingLibrary: NativeLibrary {
       throw RuntimeError.eval(.invalidRect, expr)
     }
     return .flonum(y)
+  }
+  
+  private func rectMaxX(expr: Expr) throws -> Expr {
+    guard case .pair(.pair(.flonum(let x), .flonum(_)), .pair(.flonum(let w), .flonum(_))) = expr else {
+      throw RuntimeError.eval(.invalidRect, expr)
+    }
+    return .flonum(x + w)
+  }
+  
+  private func rectMaxY(expr: Expr) throws -> Expr {
+    guard case .pair(.pair(.flonum(_), .flonum(let y)), .pair(.flonum(_), .flonum(let h))) = expr else {
+      throw RuntimeError.eval(.invalidRect, expr)
+    }
+    return .flonum(y + h)
   }
   
   private func rectSize(expr: Expr) throws -> Expr {
@@ -1726,6 +1842,19 @@ public final class DrawingLibrary: NativeLibrary {
     return .pair(.pair(.flonum(x + dx), .flonum(y + dy)), dim)
   }
   
+  private func scaleRect(expr: Expr, sx: Expr, sy: Expr?) throws -> Expr {
+    guard case .pair(.pair(.flonum(let x), .flonum(let y)),
+                     .pair(.flonum(let w), .flonum(let h))) = expr else {
+      throw RuntimeError.eval(.invalidRect, expr)
+    }
+    let rect = CGRect(origin: CGPoint(x: x, y: y), size: CGSize(width: w, height: h))
+    let sx = try sx.asDouble(coerce: true)
+    let sy = try sy?.asDouble(coerce: true) ?? sx
+    let res = rect.applying(CGAffineTransform(scaleX: sx, y: sy))
+    return .pair(.pair(.flonum(res.origin.x), .flonum(res.origin.y)),
+                 .pair(.flonum(res.width), .flonum(res.height)))
+  }
+  
   private func insetRect(expr: Expr, dn: Expr, args: Arguments) throws -> Expr {
     guard case .pair(.pair(.flonum(let x), .flonum(let y)),
                      .pair(.flonum(let w), .flonum(let h))) = expr else {
@@ -1752,6 +1881,70 @@ public final class DrawingLibrary: NativeLibrary {
                                          min: 2,
                                          max: 5,
                                          expr: .pair(expr, .pair(dn, .makeList(args))))
+    }
+  }
+  
+  private func transformRect(expr: Expr, transform: Expr) throws -> Expr {
+    guard case .pair(.pair(.flonum(let x), .flonum(let y)),
+                     .pair(.flonum(let w), .flonum(let h))) = expr else {
+      throw RuntimeError.eval(.invalidRect, expr)
+    }
+    let res = CGRect(origin: CGPoint(x: x, y: y), size: CGSize(width: w, height: h)).applying(
+                try self.affineTransform(transform))
+    return .pair(.pair(.flonum(res.origin.x), .flonum(res.origin.y)),
+                 .pair(.flonum(res.width), .flonum(res.height)))
+  }
+  
+  private func intersectRect(expr: Expr, other: Expr) throws -> Expr {
+    guard case .pair(.pair(.flonum(let x), .flonum(let y)),
+                     .pair(.flonum(let w), .flonum(let h))) = expr else {
+      throw RuntimeError.eval(.invalidRect, expr)
+    }
+    guard case .pair(.pair(.flonum(let ox), .flonum(let oy)),
+                     .pair(.flonum(let ow), .flonum(let oh))) = other else {
+      throw RuntimeError.eval(.invalidRect, other)
+    }
+    let res = CGRect(x: x, y: y, width: w, height: h).intersection(
+                                                        CGRect(x: ox, y: oy, width: ow, height: oh))
+    if res.isInfinite || res.origin.x.isInfinite || res.origin.y.isInfinite {
+      return .false
+    } else {
+      return .pair(.pair(.flonum(res.origin.x), .flonum(res.origin.y)),
+                   .pair(.flonum(res.width), .flonum(res.height)))
+    }
+  }
+  
+  private func unionRect(expr: Expr, other: Expr) throws -> Expr {
+    guard case .pair(.pair(.flonum(let x), .flonum(let y)),
+                     .pair(.flonum(let w), .flonum(let h))) = expr else {
+      throw RuntimeError.eval(.invalidRect, expr)
+    }
+    guard case .pair(.pair(.flonum(let ox), .flonum(let oy)),
+                     .pair(.flonum(let ow), .flonum(let oh))) = other else {
+      throw RuntimeError.eval(.invalidRect, other)
+    }
+    let res = CGRect(x: x, y: y, width: w, height: h).union(
+                                                        CGRect(x: ox, y: oy, width: ow, height: oh))
+    return .pair(.pair(.flonum(res.origin.x), .flonum(res.origin.y)),
+                 .pair(.flonum(res.width), .flonum(res.height)))
+  }
+  
+  private func rectContains(expr: Expr, other: Expr) throws -> Expr {
+    guard case .pair(.pair(.flonum(let x), .flonum(let y)),
+                     .pair(.flonum(let w), .flonum(let h))) = expr else {
+      throw RuntimeError.eval(.invalidRect, expr)
+    }
+    let rect = CGRect(origin: CGPoint(x: x, y: y), size: CGSize(width: w, height: h))
+    switch other {
+      case .false, .true:
+        return other
+      case .pair(.pair(.flonum(let x), .flonum(let y)), .pair(.flonum(let w), .flonum(let h))):
+        return .makeBoolean(rect.contains(CGRect(origin: CGPoint(x: x, y: y),
+                                                 size: CGSize(width: w, height: h))))
+      case .pair(.flonum(let x), .flonum(let y)):
+        return .makeBoolean(rect.contains(CGPoint(x: x, y: y)))
+      default:
+        throw RuntimeError.eval(.invalidRect, other)
     }
   }
   
@@ -1996,6 +2189,15 @@ public final class NativeImage: AnyMutableNativeObject<UIImage> {
   
   public var height: CGFloat {
     return self.value.size.height
+  }
+  
+  public var imageSize: CGSize {
+    return self.value.size
+  }
+  
+  public var pixelSize: CGSize? {
+    let image = self.value
+    return CGSize(width: image.size.width * image.scale, height: image.size.height * image.scale)
   }
   
   public func cgImage() -> CGImage? {

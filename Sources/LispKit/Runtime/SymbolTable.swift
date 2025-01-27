@@ -50,6 +50,33 @@ public final class SymbolTable: Sequence {
       self.symbols = symbols
     }
     
+    public func symbolList() -> Expr {
+      var res = Expr.null
+      for sym in self.values.keys {
+        res = .pair(.symbol(sym), res)
+      }
+      return res
+    }
+    
+    public func valueList() -> [T] {
+      var res: [T] = []
+      for key in self.symbols.keys {
+        res.append(key)
+      }
+      return res
+    }
+    
+    public func isValue(_ expr: Expr) -> Bool {
+      guard case .symbol(let sym) = expr else {
+        return false
+      }
+      return (try? self.values[sym] ?? unknown(sym)) != nil
+    }
+    
+    public func isKey(_ key: T) -> Bool {
+      return self.symbols[key] != nil
+    }
+    
     public func expr(for value: T?) -> Expr {
       guard let value else {
         return .false
