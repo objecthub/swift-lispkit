@@ -240,8 +240,6 @@
 		CC3C92441D84C0D800016C28 /* Library.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC3C92431D84C0D800016C28 /* Library.swift */; };
 		CC3F782F2157D49000F88F9B /* 51.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC3F782E2157D22B00F88F9B /* 51.sld */; };
 		CC3F78312157D73700F88F9B /* 11.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC3F78302157D63E00F88F9B /* 11.sld */; };
-		CC421D3B2D4786B6006AED19 /* process.sld in Sources */ = {isa = PBXBuildFile; fileRef = CC421D3A2D4786B2006AED19 /* process.sld */; };
-		CC421D3C2D4786B6006AED19 /* process.sld in Sources */ = {isa = PBXBuildFile; fileRef = CC421D3A2D4786B2006AED19 /* process.sld */; };
 		CC421D3E2D478875006AED19 /* process.sld in Copy pre-installed LispKit library: LispKit Image Process */ = {isa = PBXBuildFile; fileRef = CC421D3A2D4786B2006AED19 /* process.sld */; };
 		CC421D562D4C4C90006AED19 /* process.sld in Copy pre-installed LispKit library: LispKit Image Process */ = {isa = PBXBuildFile; fileRef = CC421D3A2D4786B2006AED19 /* process.sld */; };
 		CC436C401FFBD52F0095559E /* logic.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC436C3F1FFBD5090095559E /* logic.sld */; };
@@ -5544,7 +5542,6 @@
 				CC76312920E9550B005F27CE /* Owners.swift in Sources */,
 				CCAD52E61C48468F00DBD8EE /* SyntaxRules.swift in Sources */,
 				CCE4AECE204212EC008BF7E8 /* SourceManager.swift in Sources */,
-				CC421D3B2D4786B6006AED19 /* process.sld in Sources */,
 				CC517E5829A217980096FC72 /* CryptoLibrary.swift in Sources */,
 				CC1348EC2D2E7AD4002DBF0D /* ImageLibrary.swift in Sources */,
 				CC4575C620F00C4400116F0F /* DrawingLibrary.swift in Sources */,
@@ -5764,7 +5761,6 @@
 				CCC48C8F25E5B95B00D082AD /* Tuple.swift in Sources */,
 				CCC48CCB25E5B98600D082AD /* MathLibrary.swift in Sources */,
 				CCC48C7125E5B94300D082AD /* MultiMap.swift in Sources */,
-				CC421D3C2D4786B6006AED19 /* process.sld in Sources */,
 				CCC48C9D25E5B96800D082AD /* Parser.swift in Sources */,
 				CCC48C9125E5B95B00D082AD /* Equality.swift in Sources */,
 				CCC48C9E25E5B96800D082AD /* BindingGroup.swift in Sources */,
