@@ -21,6 +21,8 @@
 
   (export filter-pipeline
           make-filter-proc
+          process-image
+          process-abstract-image
           accordion-fold-transition
           addition-compositing
           affine-clamp
@@ -288,6 +290,14 @@
       (cond ((null? filters) identity)
             ((pair? filters) (apply filter-pipeline (map make-filter-proc1 filters)))
             (else (make-filter-proc1 filters))))
+    
+    ;; Applies the image processors `procs` to image `img`.
+    (define (process-image img . procs)
+      ((apply filter-pipeline procs) (image->abstract-image img)))
+    
+    ;; Applies the image processors `procs` to abstract image `img`.
+    (define (process-abstract-image img . procs)
+      ((apply filter-pipeline procs) img))
     
     ;; Returns an image processor for image filter accordion-fold-transition
     ;; (CIAccordionFoldTransition).

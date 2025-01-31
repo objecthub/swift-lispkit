@@ -1357,6 +1357,12 @@
 		CCF982F71D998B8A00B22A1D /* ImportSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCF982F61D998B8A00B22A1D /* ImportSet.swift */; };
 		CCFB412725B2523C005B2429 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = CCFB412625B2523C005B2429 /* ZIPFoundation */; };
 		CCFB412B25B25316005B2429 /* ZipArchiveLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCFB412A25B25316005B2429 /* ZipArchiveLibrary.swift */; };
+		CCFFD5822D4C53A20092150E /* Inga.jpg in Copy image assets */ = {isa = PBXBuildFile; fileRef = CCFFD5812D4C53510092150E /* Inga.jpg */; };
+		CCFFD5832D4C53AA0092150E /* Billboard.jpg in Copy image assets */ = {isa = PBXBuildFile; fileRef = CCFFD5802D4C53310092150E /* Billboard.jpg */; };
+		CCFFD5842D4C53C90092150E /* Inga.jpg in Copy image assets */ = {isa = PBXBuildFile; fileRef = CCFFD5812D4C53510092150E /* Inga.jpg */; };
+		CCFFD5852D4C53D60092150E /* Billboard.jpg in Copy image assets */ = {isa = PBXBuildFile; fileRef = CCFFD5802D4C53310092150E /* Billboard.jpg */; };
+		CCFFD5872D4C5FC60092150E /* ImageComposition.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCFFD5862D4C5F4A0092150E /* ImageComposition.scm */; };
+		CCFFD5882D4C5FD70092150E /* ImageComposition.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCFFD5862D4C5F4A0092150E /* ImageComposition.scm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1547,6 +1553,8 @@
 			dstPath = Root/LispKit/Assets/Images;
 			dstSubfolderSpec = 7;
 			files = (
+				CCFFD5832D4C53AA0092150E /* Billboard.jpg in Copy image assets */,
+				CCFFD5822D4C53A20092150E /* Inga.jpg in Copy image assets */,
 				CC299DFE23B8096E007B8459 /* LispKitLogo.png in Copy image assets */,
 			);
 			name = "Copy image assets";
@@ -1658,6 +1666,7 @@
 			dstPath = Root/LispKit/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CCFFD5872D4C5FC60092150E /* ImageComposition.scm in Copy examples */,
 				CC02EA012CB7DEC900ABFC6F /* WebAPIs.scm in Copy examples */,
 				CC35C01E2C8527EF00DF6E9D /* Keychain.scm in Copy examples */,
 				CCB7520E2C62417500E7C1B0 /* Webserver.scm in Copy examples */,
@@ -2580,6 +2589,7 @@
 			dstPath = Root/LispKit/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CCFFD5882D4C5FD70092150E /* ImageComposition.scm in Copy examples */,
 				CC02EA022CB7DEDC00ABFC6F /* WebAPIs.scm in Copy examples */,
 				CC35C01F2C85280500DF6E9D /* Keychain.scm in Copy examples */,
 				CCB7520F2C62418700E7C1B0 /* Webserver.scm in Copy examples */,
@@ -2691,6 +2701,8 @@
 			dstPath = Root/LispKit/Assets/Images;
 			dstSubfolderSpec = 7;
 			files = (
+				CCFFD5852D4C53D60092150E /* Billboard.jpg in Copy image assets */,
+				CCFFD5842D4C53C90092150E /* Inga.jpg in Copy image assets */,
 				CCC48E6325E987E300D082AD /* LispKitLogo.png in Copy image assets */,
 			);
 			name = "Copy image assets";
@@ -3798,6 +3810,9 @@
 		CCF982F61D998B8A00B22A1D /* ImportSet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImportSet.swift; sourceTree = "<group>"; };
 		CCFB412A25B25316005B2429 /* ZipArchiveLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZipArchiveLibrary.swift; sourceTree = "<group>"; };
 		CCFBE5C31ECBA8DA0032254B /* Pi.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Pi.scm; sourceTree = "<group>"; };
+		CCFFD5802D4C53310092150E /* Billboard.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Billboard.jpg; sourceTree = "<group>"; };
+		CCFFD5812D4C53510092150E /* Inga.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Inga.jpg; sourceTree = "<group>"; };
+		CCFFD5862D4C5F4A0092150E /* ImageComposition.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = ImageComposition.scm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -4046,6 +4061,8 @@
 			isa = PBXGroup;
 			children = (
 				CC299DFC23B80917007B8459 /* LispKitLogo.png */,
+				CCFFD5802D4C53310092150E /* Billboard.jpg */,
+				CCFFD5812D4C53510092150E /* Inga.jpg */,
 			);
 			path = Images;
 			sourceTree = "<group>";
@@ -5071,6 +5088,7 @@
 				CCCB66E0282DB9790004827D /* DrawBarCharts.scm */,
 				CC202DE325AA9D70003901BE /* VisualizePointSets.scm */,
 				CCCB5C9F284224260005248D /* StyledTextDoc.scm */,
+				CCFFD5862D4C5F4A0092150E /* ImageComposition.scm */,
 				CC7E7C2524564D33002E8A73 /* Covid.scm */,
 				CCC7A9DB26D0473600F05361 /* EUStats.scm */,
 				CC1EA5C8214E6BF3006BBE7E /* Turtle.scm */,
