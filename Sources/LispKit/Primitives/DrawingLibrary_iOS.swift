@@ -233,6 +233,7 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("size", size))
     self.define(Procedure("size-width", sizeWidth))
     self.define(Procedure("size-height", sizeHeight))
+    self.define(Procedure("size-ratio", sizeRatio))
     self.define(Procedure("increase-size", increaseSize))
     self.define(Procedure("scale-size", scaleSize))
     
@@ -248,6 +249,9 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("rect-max-point", rectMaxPoint))
     self.define(Procedure("rect-max-x", rectMaxX))
     self.define(Procedure("rect-max-y", rectMaxY))
+    self.define(Procedure("rect-mid-point", rectMidPoint))
+    self.define(Procedure("rect-mid-x", rectMidX))
+    self.define(Procedure("rect-mid-y", rectMidY))
     self.define(Procedure("move-rect", moveRect))
     self.define(Procedure("scale-rect", scaleRect))
     self.define(Procedure("inset-rect", insetRect))
@@ -1717,6 +1721,13 @@ public final class DrawingLibrary: NativeLibrary {
     }
     return .flonum(h)
   }
+  
+  private func sizeRatio(expr: Expr) throws -> Expr {
+    guard case .pair(.flonum(let w), .flonum(let h)) = expr else {
+      throw RuntimeError.eval(.invalidSize, expr)
+    }
+    return .flonum(w / h)
+  }
 
   private func increaseSize(expr: Expr, dw: Expr, dh: Expr) throws -> Expr {
     guard case .pair(.flonum(let w), .flonum(let h)) = expr else {
@@ -1809,6 +1820,28 @@ public final class DrawingLibrary: NativeLibrary {
     return .flonum(y + h)
   }
   
+  private func rectMidPoint(expr: Expr) throws -> Expr {
+    guard case .pair(.pair(.flonum(let x), .flonum(let y)),
+                     .pair(.flonum(let w), .flonum(let h))) = expr else {
+      throw RuntimeError.eval(.invalidRect, expr)
+    }
+    return .pair(.flonum(x + w / 2.0), .flonum(y + h / 2.0))
+  }
+  
+  private func rectMidX(expr: Expr) throws -> Expr {
+    guard case .pair(.pair(.flonum(let x), .flonum(_)), .pair(.flonum(let w), .flonum(_))) = expr else {
+      throw RuntimeError.eval(.invalidRect, expr)
+    }
+    return .flonum(x + w / 2.0)
+  }
+  
+  private func rectMidY(expr: Expr) throws -> Expr {
+    guard case .pair(.pair(.flonum(_), .flonum(let y)), .pair(.flonum(_), .flonum(let h))) = expr else {
+      throw RuntimeError.eval(.invalidRect, expr)
+    }
+    return .flonum(y + h / 2.0)
+  }
+  
   private func rectSize(expr: Expr) throws -> Expr {
     guard case .pair(.pair(.flonum(_), .flonum(_)), let size) = expr else {
       throw RuntimeError.eval(.invalidRect, expr)
@@ -1842,7 +1875,7 @@ public final class DrawingLibrary: NativeLibrary {
     return .pair(.pair(.flonum(x + dx), .flonum(y + dy)), dim)
   }
   
-  private func scaleRect(expr: Expr, sx: Expr, sy: Expr?) throws -> Expr {
+  private func scaleRect(expr: Expr, sx: Expr, sy: Expr?, preserveMid: Expr?) throws -> Expr {
     guard case .pair(.pair(.flonum(let x), .flonum(let y)),
                      .pair(.flonum(let w), .flonum(let h))) = expr else {
       throw RuntimeError.eval(.invalidRect, expr)
@@ -1850,7 +1883,11 @@ public final class DrawingLibrary: NativeLibrary {
     let rect = CGRect(origin: CGPoint(x: x, y: y), size: CGSize(width: w, height: h))
     let sx = try sx.asDouble(coerce: true)
     let sy = try sy?.asDouble(coerce: true) ?? sx
-    let res = rect.applying(CGAffineTransform(scaleX: sx, y: sy))
+    var res = rect.applying(CGAffineTransform(scaleX: sx, y: sy))
+    if preserveMid?.isTrue ?? false {
+      res = CGRect(origin: CGPoint(x: x + (w - res.width) / 2.0, y: y + (h - res.height) / 2.0),
+                   size: res.size)
+    }
     return .pair(.pair(.flonum(res.origin.x), .flonum(res.origin.y)),
                  .pair(.flonum(res.width), .flonum(res.height)))
   }

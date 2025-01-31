@@ -243,7 +243,7 @@
 		CC421D3B2D4786B6006AED19 /* process.sld in Sources */ = {isa = PBXBuildFile; fileRef = CC421D3A2D4786B2006AED19 /* process.sld */; };
 		CC421D3C2D4786B6006AED19 /* process.sld in Sources */ = {isa = PBXBuildFile; fileRef = CC421D3A2D4786B2006AED19 /* process.sld */; };
 		CC421D3E2D478875006AED19 /* process.sld in Copy pre-installed LispKit library: LispKit Image Process */ = {isa = PBXBuildFile; fileRef = CC421D3A2D4786B2006AED19 /* process.sld */; };
-		CC421D402D4788FF006AED19 /* process.sld in Copy pre-installed LispKit library: LispKit Image Process */ = {isa = PBXBuildFile; fileRef = CC421D3A2D4786B2006AED19 /* process.sld */; };
+		CC421D562D4C4C90006AED19 /* process.sld in Copy pre-installed LispKit library: LispKit Image Process */ = {isa = PBXBuildFile; fileRef = CC421D3A2D4786B2006AED19 /* process.sld */; };
 		CC436C401FFBD52F0095559E /* logic.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC436C3F1FFBD5090095559E /* logic.sld */; };
 		CC436C421FFD96800095559E /* Logic.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC436C411FFD94870095559E /* Logic.scm */; };
 		CC4385BC20BABAA600055289 /* HTTP.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC4385BB20BAB79500055289 /* HTTP.scm */; };
@@ -1637,7 +1637,7 @@
 			dstPath = Root/LispKit/Libraries/lispkit/image;
 			dstSubfolderSpec = 7;
 			files = (
-				CC421D402D4788FF006AED19 /* process.sld in Copy pre-installed LispKit library: LispKit Image Process */,
+				CC421D562D4C4C90006AED19 /* process.sld in Copy pre-installed LispKit library: LispKit Image Process */,
 			);
 			name = "Copy pre-installed LispKit library: LispKit Image Process";
 			runOnlyForDeploymentPostprocessing = 0;

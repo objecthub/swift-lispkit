@@ -206,6 +206,7 @@ public enum EvalError: Int, Hashable, Codable {
   case cannotMapAttributeValue
   case invalidSymbolicEnumValue
   case invalidFilterParameterValue
+  case unknownFilterParameter
   case invalidAutoAdjustmentOption
   
   public var message: String {
@@ -571,7 +572,9 @@ public enum EvalError: Int, Hashable, Codable {
       case .invalidSymbolicEnumValue:
         return "invalid ,$0: $1"
       case .invalidFilterParameterValue:
-        return "invalid value for filter parameter $0: $1"
+        return "invalid value for filter argument $0: $1"
+      case .unknownFilterParameter:
+        return "trying to set unknown image filter argument $0 to $1"
       case .invalidAutoAdjustmentOption:
         return "invalid auto adjustment option key: $0"
     }

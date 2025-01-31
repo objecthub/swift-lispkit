@@ -178,6 +178,7 @@ public final class ImageLibrary: NativeLibrary {
     self.define(Procedure("make-image-filter", self.makeImageFilter))
     self.define(Procedure("image-filter-name", self.imageFilterName))
     self.define(Procedure("image-filter-implementation", self.imageFilterImplementation))
+    self.define(Procedure("image-filter-description", self.imageFilterDescription))
     self.define(Procedure("image-filter-categories", self.imageFilterCategories))
     self.define(Procedure("image-filter-available", self.imageFilterAvailable))
     self.define(Procedure("image-filter-inputs", self.imageFilterInputs))
@@ -404,7 +405,7 @@ public final class ImageLibrary: NativeLibrary {
       throw RuntimeError.type(expr, expected: [Color.type])
     }
     #if os(iOS) || os(watchOS) || os(tvOS)
-    return .object(ImagePipe(ciImage: CIImage(color: CIColor(color: nc.nsColor))))
+    return .object(AbstractImage(ciImage: CIImage(color: CIColor(color: nc.nsColor))))
     #elseif os(macOS)
     return .object(AbstractImage(ciImage:
               CIImage(color: CIColor(color: nc.nsColor) ??
@@ -492,10 +493,10 @@ public final class ImageLibrary: NativeLibrary {
     return .true
   }
   
-  private func parameter(value: Expr, for key: Expr) throws -> Any {
+  private func parameter(value: Expr, for key: Expr) throws -> Any? {
     switch value {
       case .null:
-        return NSDictionary()
+        return nil
       case .true:
         return NSNumber(value: true)
       case .false:
@@ -531,7 +532,11 @@ public final class ImageLibrary: NativeLibrary {
       case .vector(let coll):
         let array = NSMutableArray()
         for comp in coll.exprs {
-          array.add(try self.parameter(value: comp, for: key))
+          if let value = try self.parameter(value: comp, for: key) {
+            array.add(value)
+          } else {
+            throw RuntimeError.eval(.invalidFilterParameterValue, key, value)
+          }
         }
         return NSArray(array: array)
       case .object(let obj):
@@ -682,7 +687,7 @@ public final class ImageLibrary: NativeLibrary {
           return AbstractImage(ciImage: image)
         } else if let nc = obj as? Color {
           #if os(iOS) || os(watchOS) || os(tvOS)
-          return ImagePipe(ciImage: CIImage(color: CIColor(color: nc.nsColor)))
+          return AbstractImage(ciImage: CIImage(color: CIColor(color: nc.nsColor)))
           #elseif os(macOS)
           return AbstractImage(ciImage:
                    CIImage(color: CIColor(color: nc.nsColor) ??
@@ -754,6 +759,15 @@ public final class ImageLibrary: NativeLibrary {
         } else {
           return .makeString(try self.imageFilter(from: expr).ciFilter.name)
         }
+    }
+  }
+  
+  private func imageFilterDescription(expr: Expr) throws -> Expr {
+    if let d = CIFilter.localizedDescription(forFilterName:
+                                              try self.imageFilter(from: expr).ciFilter.name) {
+      return .makeString(d)
+    } else {
+      return .false
     }
   }
   
@@ -875,17 +889,22 @@ public final class ImageLibrary: NativeLibrary {
   }
   
   private func imageFilterArgumentRef(expr: Expr, key: Expr, default: Expr?) throws -> Expr {
-    guard let value = try self.imageFilter(from: expr).ciFilter.value(
-                        forKey: self.name(from: key)) else {
+    let ciFilter = try self.imageFilter(from: expr).ciFilter
+    let key = try self.name(from: key)
+    guard ciFilter.attributes[key] != nil,
+          let value = ciFilter.value(forKey: key) else {
       return `default` ?? .false
     }
     return self.parameterExpr(for: value) ?? .null
   }
   
   private func imageFilterArgumentSet(expr: Expr, key: Expr, value: Expr) throws -> Expr {
+    let ciFilter = try self.imageFilter(from: expr).ciFilter
     let k = try self.name(from: key)
-    try self.imageFilter(from: expr).ciFilter.setValue(self.parameter(value: value, for: key),
-                                                       forKey: k)
+    guard ciFilter.attributes[k] != nil else {
+      throw RuntimeError.eval(.unknownFilterParameter, key, value)
+    }
+    ciFilter.setValue(try self.parameter(value: value, for: key), forKey: k)
     return .void
   }
   
