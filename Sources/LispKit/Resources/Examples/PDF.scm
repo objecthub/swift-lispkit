@@ -2,7 +2,7 @@
 ;;; 
 ;;; This code is an adapted version of the PDF generation examples written by
 ;;; Marc Battyani for the Common Lisp library "cl-pdf". It is using a port of this
-;;; library which is available for LispKit as library (lispkit pdf).
+;;; library which is available for LispKit as library (lispkit pdf legacy).
 ;;; 
 ;;; An example PDF can be generated, for example, via: (pdfex1 "example1.pdf").
 ;;; There are four examples provided: pdfex1, pdfex2, pdfex3, pdfex4.
@@ -56,7 +56,7 @@
 ;;;   Copyright © 2017 Matthias Zenger. All rights reserved.
 
 (import (lispkit base)
-        (prefix (lispkit pdf) pdf:)
+        (prefix (lispkit pdf legacy) pdf:)
         (srfi 27))
 
 (define-syntax dotimes

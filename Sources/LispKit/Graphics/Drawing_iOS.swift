@@ -451,16 +451,20 @@ public enum DrawingInstruction: CustomStringConvertible, @unchecked Sendable {
             textRect = box
         }
         if let current = UIGraphicsGetCurrentContext(), current == context {
+          context.saveGState()
           str.draw(with: textRect,
                    options: [.usesLineFragmentOrigin, .usesFontLeading],
                    attributes: attributes,
                    context: nil)
+          context.restoreGState()
         } else {
           UIGraphicsPushContext(context)
+          context.saveGState()
           str.draw(with: textRect,
                    options: [.usesLineFragmentOrigin, .usesFontLeading],
                    attributes: attributes,
                    context: nil)
+          context.restoreGState()
           UIGraphicsPopContext()
         }
       case .attributedText(let attribStr, let location):

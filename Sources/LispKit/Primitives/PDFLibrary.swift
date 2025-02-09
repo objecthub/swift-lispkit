@@ -80,7 +80,7 @@ public final class PDFLibrary: NativeLibrary {
   private let callout: Symbol
   private let typeWriter: Symbol
   
-  public let pdfDocumentDelegate = LispPadPDFDocumentDelegate()
+  public let pdfDocumentDelegate = LispKitPDFDocumentDelegate()
   
   /// Initialize symbols
   public required init(in context: Context) throws {
@@ -168,6 +168,24 @@ public final class PDFLibrary: NativeLibrary {
   /// Declarations of the library.
   public override func declarations() {
     
+    // Paper sizes
+    self.define("letter-size", as: .pair(.flonum(612.0), .flonum(792.0)))
+    self.define("legal-size", as: .pair(.flonum(612.0), .flonum(1008.0)))
+    self.define("executive-size", as: .pair(.flonum(521.86), .flonum(756.0)))
+    self.define("a2-size", as: .pair(.flonum(1190.55), .flonum(1683.78)))
+    self.define("a3-size", as: .pair(.flonum(841.89), .flonum(1190.55)))
+    self.define("a4-size", as: .pair(.flonum(595.28), .flonum(841.89)))
+    self.define("a5-size", as: .pair(.flonum(419.53), .flonum(595.28)))
+    self.define("a6-size", as: .pair(.flonum(297.64), .flonum(419.53)))
+    self.define("b3-size", as: .pair(.flonum(1000.63), .flonum(1417.32)))
+    self.define("b4-size", as: .pair(.flonum(708.66), .flonum(1000.63)))
+    self.define("b5-size", as: .pair(.flonum(498.90), .flonum(708.66)))
+    self.define("b6-size", as: .pair(.flonum(354.33), .flonum(498.90)))
+    self.define("c3-size", as: .pair(.flonum(918.43), .flonum(1298.27)))
+    self.define("c4-size", as: .pair(.flonum(649.13), .flonum(918.43)))
+    self.define("c5-size", as: .pair(.flonum(459.21), .flonum(649.13)))
+    self.define("c6-size", as: .pair(.flonum(323.15), .flonum(459.21)))
+    
     // PDF documents
     self.define(Procedure("pdf?", self.isPdf))
     self.define(Procedure("pdf-encrypted?", self.isPdfEncrypted))
@@ -190,9 +208,9 @@ public final class PDFLibrary: NativeLibrary {
     self.define(Procedure("pdf-page-count", self.pdfPageCount))
     self.define(Procedure("pdf-pages", self.pdfPages))
     self.define(Procedure("pdf-page", self.pdfPage))
-    self.define(Procedure("pdf-insert-page", self.pdfInsertPage))
-    self.define(Procedure("pdf-remove-page", self.pdfRemovePage))
-    self.define(Procedure("pdf-swap-page", self.pdfSwapPage))
+    self.define(Procedure("pdf-insert-page!", self.pdfInsertPage))
+    self.define(Procedure("pdf-remove-page!", self.pdfRemovePage))
+    self.define(Procedure("pdf-swap-page!", self.pdfSwapPage))
     self.define(Procedure("pdf-page-index", self.pdfPageIndex))
     
     self.define(Procedure("pdf-outline", self.pdfOutline))
@@ -433,9 +451,8 @@ public final class PDFLibrary: NativeLibrary {
     }
   }
 
-  private func accessPermissions(from: Expr,
-                                 permissions: PDFAccessPermissions? = nil)
-      throws -> PDFAccessPermissions? {
+  private func accessPermissions(from: Expr, permissions: PDFAccessPermissions? = nil)
+                                                              throws -> PDFAccessPermissions? {
     switch from {
       case .false:
         return nil
@@ -471,9 +488,8 @@ public final class PDFLibrary: NativeLibrary {
     }
   }
   
-  private func writeOptions(from: Expr?,
-                            permissions: PDFAccessPermissions? = nil)
-      throws -> [PDFDocumentWriteOption : Any] {
+  private func writeOptions(from: Expr?, permissions: PDFAccessPermissions? = nil)
+                                                        throws -> [PDFDocumentWriteOption : Any] {
     guard from?.isTrue ?? false else {
       return [:]
     }
@@ -481,14 +497,19 @@ public final class PDFLibrary: NativeLibrary {
     var list = from!
     while case .pair(.pair(let k, let value), let rest) = list {
       let key = try k.asSymbol().identifier
-      if value.isTrue {
+      if !value.isNull {
         switch key {
           case "user-password":
-            res[.userPasswordOption] = try value.asString()
+            if value.isTrue {
+              res[.userPasswordOption] = try value.asString()
+            }
           case "owner-password":
-            res[.ownerPasswordOption] = try value.asString()
+            if value.isTrue {
+              res[.ownerPasswordOption] = try value.asString()
+            }
           case "access-permissions":
-            if let permissions = try self.accessPermissions(from: value, permissions: permissions) {
+            if value.isTrue,
+               let permissions = try self.accessPermissions(from: value, permissions: permissions) {
               res[.accessPermissionsOption] = permissions
             }
           case "burn-in-annotations":
@@ -627,12 +648,12 @@ public final class PDFLibrary: NativeLibrary {
   
   private func makePdf() -> Expr {
     return .object(NativePDFDocument(document:
-                                      LispPadPDFDocument(delegate: self.pdfDocumentDelegate)))
+                                      LispKitPDFDocument(delegate: self.pdfDocumentDelegate)))
   }
   
   private func bytevectorToPdf(expr: Expr, args: Arguments) throws -> Expr {
     let subvec = try BytevectorLibrary.subVector("bytevector->pdf", expr, args)
-    guard let document = LispPadPDFDocument(data: Data(subvec),
+    guard let document = LispKitPDFDocument(data: Data(subvec),
                                             delegate: self.pdfDocumentDelegate) else {
       throw RuntimeError.eval(.cannotCreatePdf, expr)
     }
@@ -642,7 +663,7 @@ public final class PDFLibrary: NativeLibrary {
   private func loadPdf(filename: Expr) throws -> Expr {
     let path = self.context.fileHandler.path(try filename.asPath(),
                                              relativeTo: self.context.evaluator.currentDirectoryPath)
-    guard let document = LispPadPDFDocument(url: URL(fileURLWithPath: path),
+    guard let document = LispKitPDFDocument(url: URL(fileURLWithPath: path),
                                             delegate: self.pdfDocumentDelegate) else {
       return .false
     }
@@ -652,7 +673,7 @@ public final class PDFLibrary: NativeLibrary {
   private func savePdf(filename: Expr, expr: Expr, opt: Expr?) throws -> Expr {
     let url = URL(fileURLWithPath: self.context.fileHandler.path(try filename.asPath(),
                   relativeTo: self.context.evaluator.currentDirectoryPath))
-    guard let document = try self.pdf(from: expr) as? LispPadPDFDocument else {
+    guard let document = try self.pdf(from: expr) as? LispKitPDFDocument else {
       return .false
     }
     let newDocument = document.persistDrawings() ?? document
@@ -674,7 +695,7 @@ public final class PDFLibrary: NativeLibrary {
   }
   
   private func pdfToBytevector(expr: Expr, opt: Expr?) throws -> Expr {
-    guard let document = try self.pdf(from: expr) as? LispPadPDFDocument else {
+    guard let document = try self.pdf(from: expr) as? LispKitPDFDocument else {
       return .false
     }
     let options = try self.writeOptions(from: opt, permissions: document.accessPermissions)
@@ -955,21 +976,37 @@ public final class PDFLibrary: NativeLibrary {
                                                                      .false, .null) else {
       throw RuntimeError.argumentCount(of: "make-pdf-page", min: 0, max: 5, args: .makeList(args))
     }
+    var options: [PDFPage.ImageInitializationOption : Any] = [:]
     #if os(iOS) || os(watchOS) || os(tvOS)
     let img: UIImage?
     #elseif os(macOS)
     let img: NSImage?
     #endif
-    if image.isTrue {
-      guard case .object(let obj) = image,
-            let imageBox = obj as? NativeImage else {
+    switch image {
+      case .false:
+        img = nil
+      case .pair(.flonum(let w), .flonum(let h)):
+        guard compress.isFalse, rotate.isFalse, media.isFalse, upscale.isFalse else {
+          throw RuntimeError.type(image, expected: [NativeImage.type])
+        }
+        options[.mediaBox] = CGRect(x: 0, y: 0, width: w, height: h)
+        img = nil
+      case .pair(.pair(.flonum(let x), .flonum(let y)),
+                 .pair(.flonum(let w), .flonum(let h))):
+        guard compress.isFalse, rotate.isFalse, media.isFalse, upscale.isFalse else {
+          throw RuntimeError.type(image, expected: [NativeImage.type])
+        }
+        options[.mediaBox] = CGRect(x: x, y: y, width: w, height: h)
+        img = nil
+      case .object(let obj):
+        if let imageBox = obj as? NativeImage {
+          img = imageBox.value
+        } else {
+          fallthrough
+        }
+      default:
         throw RuntimeError.type(image, expected: [NativeImage.type])
-      }
-      img = imageBox.value
-    } else {
-      img = nil
     }
-    var options: [PDFPage.ImageInitializationOption : Any] = [:]
     if compress.isTrue {
       var compr = try compress.asDouble(coerce: true)
       if compr < 0.0 {
@@ -983,12 +1020,16 @@ public final class PDFLibrary: NativeLibrary {
     if rotate.isTrue {
       options[.rotation] = try rotate.asInt(above: 0, below: 100000)
     }
-    if media.isTrue {
-      guard case .pair(.pair(.flonum(let x), .flonum(let y)),
-                       .pair(.flonum(let w), .flonum(let h))) = media else {
+    switch media {
+      case .false:
+        break
+      case .pair(.flonum(let w), .flonum(let h)):
+        options[.mediaBox] = CGRect(x: 0, y: 0, width: w, height: h)
+      case .pair(.pair(.flonum(let x), .flonum(let y)),
+                 .pair(.flonum(let w), .flonum(let h))):
+        options[.mediaBox] = CGRect(x: x, y: y, width: w, height: h)
+      default:
         throw RuntimeError.eval(.invalidRect, media)
-      }
-      options[.mediaBox] = CGRect(x: x, y: y, width: w, height: h)
     }
     if !upscale.isNull {
       options[.upscaleIfSmaller] = upscale.isTrue
@@ -1048,11 +1089,15 @@ public final class PDFLibrary: NativeLibrary {
   private func pdfPageBoundsSet(expr: Expr, box: Expr, bounds: Expr) throws -> Expr {
     let page = try self.page(from: expr)
     let displayBox = try self.displayBox.value(for: box)
-    guard case .pair(.pair(.flonum(let x), .flonum(let y)),
-                     .pair(.flonum(let w), .flonum(let h))) = bounds else {
-      throw RuntimeError.eval(.invalidRect, bounds)
+    switch bounds {
+      case .pair(.flonum(let w), .flonum(let h)):
+        page.setBounds(CGRect(x: 0, y: 0, width: w, height: h), for: displayBox)
+      case .pair(.pair(.flonum(let x), .flonum(let y)),
+                 .pair(.flonum(let w), .flonum(let h))):
+        page.setBounds(CGRect(x: x, y: y, width: w, height: h), for: displayBox)
+      default:
+        throw RuntimeError.eval(.invalidRect, bounds)
     }
-    page.setBounds(CGRect(x: x, y: y, width: w, height: h), for: displayBox)
     return .void
   }
   
@@ -1082,20 +1127,28 @@ public final class PDFLibrary: NativeLibrary {
     return res
   }
   
-  private func pdfPageAnnotationRef(expr: Expr) throws -> Expr {
+  private func pdfPageAnnotationRef(expr: Expr, point: Expr) throws -> Expr {
+    guard case .pair(.flonum(let x), .flonum(let y)) = point else {
+      throw RuntimeError.eval(.invalidPoint, point)
+    }
+    guard let annot = try self.page(from: expr).annotation(at: CGPoint(x: x, y: y)) else {
+      return .false
+    }
+    return .object(NativePDFAnnotation(annotation: annot))
+  }
+  
+  private func pdfPageAnnotationAdd(expr: Expr, annot: Expr) throws -> Expr {
+    try self.page(from: expr).addAnnotation(self.annotation(from: annot))
     return .void
   }
   
-  private func pdfPageAnnotationAdd(expr: Expr) throws -> Expr {
-    return .void
-  }
-  
-  private func pdfPageAnnotationRemove(expr: Expr) throws -> Expr {
+  private func pdfPageAnnotationRemove(expr: Expr, annot: Expr) throws -> Expr {
+    try self.page(from: expr).removeAnnotation(self.annotation(from: annot))
     return .void
   }
   
   private func pdfPageImages(expr: Expr) throws -> Expr {
-    guard let page = try self.page(from: expr) as? LispPadPDFPage else {
+    guard let page = try self.page(from: expr) as? LispKitPDFPage else {
       return .false
     }
     let images = page.images
@@ -1268,19 +1321,23 @@ public final class PDFLibrary: NativeLibrary {
   private func drawPdfPage(expr: Expr, box: Expr, rect: Expr, d: Expr) throws -> Expr {
     let page = try self.page(from: expr)
     let displayBox = try self.displayBox.value(for: box)
-    guard case .pair(.pair(.flonum(let x), .flonum(let y)),
-                     .pair(.flonum(let w), .flonum(let h))) = rect else {
-      throw RuntimeError.eval(.invalidRect, rect)
-    }
     guard case .object(let obj) = d, let drawing = obj as? Drawing else {
       throw RuntimeError.type(expr, expected: [Drawing.type])
     }
-    drawing.append(.page(page, displayBox, CGRect(x: x, y: y, width: w, height: h)))
+    switch rect {
+      case .pair(.flonum(let w), .flonum(let h)):
+        drawing.append(.page(page, displayBox, CGRect(x: 0, y: 0, width: w, height: h)))
+      case .pair(.pair(.flonum(let x), .flonum(let y)),
+                 .pair(.flonum(let w), .flonum(let h))):
+        drawing.append(.page(page, displayBox, CGRect(x: x, y: y, width: w, height: h)))
+      default:
+        throw RuntimeError.eval(.invalidRect, rect)
+    }
     return .void
   }
   
   private func pdfPageUnderlay(expr: Expr) throws -> Expr {
-    guard let page = try self.page(from: expr) as? LispPadPDFPage else {
+    guard let page = try self.page(from: expr) as? LispKitPDFPage else {
       return .false
     }
     if let drawing = page.underlay {
@@ -1291,7 +1348,7 @@ public final class PDFLibrary: NativeLibrary {
   }
   
   private func pdfPageUnderlaySet(expr: Expr, d: Expr) throws -> Expr {
-    guard let page = try self.page(from: expr) as? LispPadPDFPage else {
+    guard let page = try self.page(from: expr) as? LispKitPDFPage else {
       return .false
     }
     guard d.isTrue else {
@@ -1306,7 +1363,7 @@ public final class PDFLibrary: NativeLibrary {
   }
   
   private func pdfPageOverlay(expr: Expr) throws -> Expr {
-    guard let page = try self.page(from: expr) as? LispPadPDFPage else {
+    guard let page = try self.page(from: expr) as? LispKitPDFPage else {
       return .false
     }
     if let drawing = page.overlay {
@@ -1317,7 +1374,7 @@ public final class PDFLibrary: NativeLibrary {
   }
   
   private func pdfPageOverlaySet(expr: Expr, d: Expr) throws -> Expr {
-    guard let page = try self.page(from: expr) as? LispPadPDFPage else {
+    guard let page = try self.page(from: expr) as? LispKitPDFPage else {
       return .false
     }
     guard d.isTrue else {
@@ -2390,7 +2447,8 @@ public struct NativePDFAnnotation: CustomExpr {
     fmt.maximumFractionDigits = 2
     fmt.roundingMode = .halfEven
     fmt.numberStyle = .decimal
-    let bounds = "(\(fmt.string(for: self.annotation.bounds.width) ?? "?") x " +
+    fmt.usesGroupingSeparator = false
+    let bounds = "(\(fmt.string(for: self.annotation.bounds.width) ?? "?") × " +
                  "\(fmt.string(for: self.annotation.bounds.height) ?? "?"))@" +
                  "(\(fmt.string(for: self.annotation.bounds.origin.x) ?? "?"), " +
                  "\(fmt.string(for: self.annotation.bounds.origin.y) ?? "?"))"
@@ -2548,21 +2606,33 @@ public struct NativePDFOutline: CustomExpr {
   }
 }
 
-public final class LispPadPDFDocument: PDFDocument {
+public final class LispKitPDFDocument: PDFDocument {
   
-  public init(delegate: LispPadPDFDocumentDelegate) {
+  public init(delegate: LispKitPDFDocumentDelegate) {
     super.init()
     self.delegate = delegate
   }
   
-  public init?(data: Data, delegate: LispPadPDFDocumentDelegate) {
+  public init?(data: Data, delegate: LispKitPDFDocumentDelegate) {
     super.init(data: data)
     self.delegate = delegate
   }
   
-  public init?(url: URL, delegate: LispPadPDFDocumentDelegate) {
+  public init?(url: URL, delegate: LispKitPDFDocumentDelegate) {
     super.init(url: url)
     self.delegate = delegate
+  }
+  
+  public var hasDrawings: Bool {
+    for y in stride(from: 0, to: self.pageCount, by: 1) {
+      guard let page = self.page(at: y) as? LispKitPDFPage else {
+        return true
+      }
+      if page.underlay != nil || page.overlay != nil {
+        return true
+      }
+    }
+    return false
   }
   
   public func options(userPassword: String? = nil,
@@ -2592,7 +2662,10 @@ public final class LispPadPDFDocument: PDFDocument {
     return res
   }
   
-  public func persistDrawings() -> LispPadPDFDocument? {
+  public func persistDrawings() -> PDFDocument? {
+    guard self.hasDrawings else {
+      return self
+    }
     let data = NSMutableData()
     guard let consumer = CGDataConsumer(data: data as CFMutableData),
           let context = CGContext(consumer: consumer, mediaBox: nil, nil) else {
@@ -2624,13 +2697,14 @@ public final class LispPadPDFDocument: PDFDocument {
                             kCGPDFContextCropBox as String: cropData,
                             kCGPDFContextBleedBox as String: bleedData,
                             kCGPDFContextArtBox as String: artData] as CFDictionary)
+      let displaysAnnotations = page.displaysAnnotations
+      page.displaysAnnotations = false
       page.draw(with: .mediaBox, to: context)
+      page.displaysAnnotations = displaysAnnotations
       context.endPDFPage()
     }
     context.closePDF()
-    guard let flattened = LispPadPDFDocument(
-                            data: data as Data,
-                            delegate: self.delegate as! LispPadPDFDocumentDelegate) else {
+    guard let flattened = PDFDocument(data: data as Data) else {
       return nil
     }
     flattened.documentAttributes = self.documentAttributes
@@ -2639,6 +2713,8 @@ public final class LispPadPDFDocument: PDFDocument {
       guard let oldPage = self.page(at: i), let newPage = flattened.page(at: i) else {
         continue
       }
+      newPage.displaysAnnotations = oldPage.displaysAnnotations
+      newPage.rotation = oldPage.rotation
       for annotation in oldPage.annotations {
         newPage.addAnnotation(annotation)
       }
@@ -2647,12 +2723,12 @@ public final class LispPadPDFDocument: PDFDocument {
   }
 }
 
-public final class LispPadPDFPage: PDFPage {
+public final class LispKitPDFPage: PDFPage {
   var underlay: Drawing? = nil
   var overlay: Drawing? = nil
   
   public override func copy(with zone: NSZone?) -> Any {
-    let copy = super.copy(with: zone) as! LispPadPDFPage
+    let copy = super.copy(with: zone) as! LispKitPDFPage
     copy.underlay = self.underlay
     copy.overlay = self.overlay
     return copy
@@ -2910,9 +2986,9 @@ public final class LispPadPDFPage: PDFPage {
   #endif
 }
 
-public final class LispPadPDFDocumentDelegate: NSObject, PDFDocumentDelegate {
+public final class LispKitPDFDocumentDelegate: NSObject, PDFDocumentDelegate {
   public func classForPage() -> AnyClass {
-      return LispPadPDFPage.self
+      return LispKitPDFPage.self
   }
 }
 

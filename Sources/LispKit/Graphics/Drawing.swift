@@ -413,9 +413,12 @@ public enum DrawingInstruction: CustomStringConvertible {
           case .boundingBox(let box):
             textRect = box
         }
+        let context = context.cgContext
+        context.saveGState()
         str.draw(with: textRect,
                  options: [.usesLineFragmentOrigin, .usesFontLeading],
                  attributes: attributes)
+        context.restoreGState()
       case .attributedText(let attribStr, let location):
         let textRect: NSRect
         switch location {

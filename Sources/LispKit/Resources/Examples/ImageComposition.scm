@@ -72,12 +72,12 @@
 (define rect
   (abstract-image-bounds
     (process-abstract-image
-        (image->abstract-image billboard-image)
-        (perspective-correction (billboard-point (list-ref polygon 0))
-                                (billboard-point (list-ref polygon 1))
-                                (billboard-point (list-ref polygon 2))
-                                (billboard-point (list-ref polygon 3))
-                                #t))))
+      (image->abstract-image billboard-image)
+      (perspective-correction (billboard-point (list-ref polygon 0))
+                              (billboard-point (list-ref polygon 1))
+                              (billboard-point (list-ref polygon 2))
+                              (billboard-point (list-ref polygon 3))
+                              #t))))
 
 ;; Create an abstract image from the loaded cat image
 (define cat-input (image->abstract-image cat-image))

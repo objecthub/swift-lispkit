@@ -23,21 +23,21 @@ import Vision
 
 public final class VisionLibrary: NativeLibrary {
   
-    /// Initialize symbols.
+  /// Initialize symbols.
   public required init(in context: Context) throws {
     try super.init(in: context)
   }
   
-    /// Name of the library.
+  /// Name of the library.
   public override class var name: [String] {
     return ["lispkit", "vision"]
   }
   
-    /// Dependencies of the library.
+  /// Dependencies of the library.
   public override func dependencies() {
   }
   
-    /// Declarations of the library.
+  /// Declarations of the library.
   public override func declarations() {
     self.define(Procedure("recognize-text", self.recognizeText))
     self.define(Procedure("recognized-text-confidence", self.recognizedTextConfidence))
@@ -51,7 +51,7 @@ public final class VisionLibrary: NativeLibrary {
     self.define(Procedure("classify-image", self.classifyImage))
   }
   
-    /// Initializations of the library.
+  /// Initializations of the library.
   public override func initializations() {
   }
   
@@ -114,7 +114,7 @@ public final class VisionLibrary: NativeLibrary {
           _ = try result.setResult(in: context, to: .error(RuntimeError.os(error)), raise: true)
         } else if let observations = request.results {
           var res = Expr.null
-          for observation in observations {
+          for observation in observations.reversed() {
             if let textObservation = observation as? VNRecognizedTextObservation {
               var obs = Expr.null
               for candidate in textObservation.topCandidates(top).reversed() {
@@ -292,7 +292,7 @@ public final class VisionLibrary: NativeLibrary {
           _ = try result.setResult(in: context, to: .error(RuntimeError.os(error)), raise: true)
         } else if let observations = request.results {
           var res = Expr.null
-          for observation in observations {
+          for observation in observations.reversed() {
             if let obs = observation as? VNRectangleObservation {
               let bounds = self.imageRect(forNormalizedRect: obs.boundingBox,
                                           width: image.width,
@@ -534,7 +534,7 @@ public final class VisionLibrary: NativeLibrary {
           _ = try result.setResult(in: context, to: .error(RuntimeError.os(error)), raise: true)
         } else if let observations = request.results {
           var res = Expr.null
-          for observation in observations {
+          for observation in observations.reversed() {
             if let obs = observation as? VNBarcodeObservation {
               let bounds = self.imageRect(forNormalizedRect: obs.boundingBox,
                                           width: image.width,
@@ -698,4 +698,3 @@ public struct RecognizedText: CustomExpr {
     ]))]
   }
 }
-

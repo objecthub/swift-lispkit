@@ -73,7 +73,7 @@
 		CC0E57C6268FAAE800693DD2 /* 223.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC0E57C2268FAA4200693DD2 /* 223.sld */; };
 		CC0E57C7268FAAFB00693DD2 /* SRFI-223.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC0E57C3268FAA7800693DD2 /* SRFI-223.scm */; };
 		CC0EBFF91ED37FB7004510B2 /* Math.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC0EBFF81ED37A76004510B2 /* Math.scm */; };
-		CC10404D1F53789D0045144A /* pdf.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC10404C1F5378660045144A /* pdf.sld */; };
+		CC10404D1F53789D0045144A /* legacy.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC10404C1F5378660045144A /* legacy.sld */; };
 		CC131C4C1CDE0C3D006C030C /* SyntaxRules.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC131C4B1CDE0C3D006C030C /* SyntaxRules.scm */; };
 		CC131C4E1CDE0DCA006C030C /* RegressionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC131C4D1CDE0DCA006C030C /* RegressionTests.swift */; };
 		CC131C501CDE0E01006C030C /* LispKitTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC131C4F1CDE0E01006C030C /* LispKitTestCase.swift */; };
@@ -872,7 +872,7 @@
 		CCC48D9E25E9806600D082AD /* prettify.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC750BD91F5B772200CD82A2 /* prettify.sld */; };
 		CCC48D9F25E9806600D082AD /* csv.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCBD755D21E224A7008CD7C8 /* csv.sld */; };
 		CCC48DA025E9806600D082AD /* deprecated.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC3A02591F97F3E1009B959C /* deprecated.sld */; };
-		CCC48DA125E9806600D082AD /* pdf.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC10404C1F5378660045144A /* pdf.sld */; };
+		CCC48DA125E9806600D082AD /* legacy.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC10404C1F5378660045144A /* legacy.sld */; };
 		CCC48DA225E9806600D082AD /* clos.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC703A1A218D09B600E71EA9 /* clos.sld */; };
 		CCC48DA325E9806600D082AD /* prolog.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCD3E15325C5EB83007FCE8A /* prolog.sld */; };
 		CCC48DA425E9806600D082AD /* logic.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC436C3F1FFBD5090095559E /* logic.sld */; };
@@ -1785,7 +1785,7 @@
 				CCE7CA461F8EC07000FD7ECA /* iterate.sld in Copy pre-installed LispKit libraries */,
 				CC2345411F655BD800C38817 /* datatype.sld in Copy pre-installed LispKit libraries */,
 				CC750BDA1F5B776700CD82A2 /* prettify.sld in Copy pre-installed LispKit libraries */,
-				CC10404D1F53789D0045144A /* pdf.sld in Copy pre-installed LispKit libraries */,
+				CC10404D1F53789D0045144A /* legacy.sld in Copy pre-installed LispKit libraries */,
 				CC72862D1F52B32C00EEBC58 /* heap.sld in Copy pre-installed LispKit libraries */,
 				CC5848031E56920600BE6497 /* set.sld in Copy pre-installed LispKit libraries */,
 			);
@@ -2457,7 +2457,7 @@
 				CCC48D9E25E9806600D082AD /* prettify.sld in Copy pre-installed LispKit libraries */,
 				CCC48D9F25E9806600D082AD /* csv.sld in Copy pre-installed LispKit libraries */,
 				CCC48DA025E9806600D082AD /* deprecated.sld in Copy pre-installed LispKit libraries */,
-				CCC48DA125E9806600D082AD /* pdf.sld in Copy pre-installed LispKit libraries */,
+				CCC48DA125E9806600D082AD /* legacy.sld in Copy pre-installed LispKit libraries */,
 				CCC48DA225E9806600D082AD /* clos.sld in Copy pre-installed LispKit libraries */,
 				CCC48DA325E9806600D082AD /* prolog.sld in Copy pre-installed LispKit libraries */,
 				CCC48DA425E9806600D082AD /* logic.sld in Copy pre-installed LispKit libraries */,
@@ -3158,7 +3158,7 @@
 		CC0E57C2268FAA4200693DD2 /* 223.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 223.sld; sourceTree = "<group>"; };
 		CC0E57C3268FAA7800693DD2 /* SRFI-223.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-223.scm"; sourceTree = "<group>"; };
 		CC0EBFF81ED37A76004510B2 /* Math.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Math.scm; sourceTree = "<group>"; };
-		CC10404C1F5378660045144A /* pdf.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pdf.sld; sourceTree = "<group>"; };
+		CC10404C1F5378660045144A /* legacy.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = legacy.sld; sourceTree = "<group>"; };
 		CC131C4B1CDE0C3D006C030C /* SyntaxRules.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SyntaxRules.scm; sourceTree = "<group>"; };
 		CC131C4D1CDE0DCA006C030C /* RegressionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RegressionTests.swift; sourceTree = "<group>"; };
 		CC131C4F1CDE0E01006C030C /* LispKitTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = LispKitTestCase.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -4231,7 +4231,6 @@
 				CC750BD91F5B772200CD82A2 /* prettify.sld */,
 				CC8BBA2926BF38F200552B8F /* text-table.sld */,
 				CCBD755D21E224A7008CD7C8 /* csv.sld */,
-				CC10404C1F5378660045144A /* pdf.sld */,
 				CC703A1A218D09B600E71EA9 /* clos.sld */,
 				CCD3E15325C5EB83007FCE8A /* prolog.sld */,
 				CC436C3F1FFBD5090095559E /* logic.sld */,
@@ -4245,6 +4244,7 @@
 				CC703A1B218D09D100E71EA9 /* clos */,
 				CC26AD3E21470AC90090D9EE /* draw */,
 				CC421D392D478698006AED19 /* image */,
+				CCFFD5892D4D9AB60092150E /* pdf */,
 				CC240E8A24FB144500FF6D0F /* sxml */,
 			);
 			path = lispkit;
@@ -5101,6 +5101,14 @@
 				CC9ED3FB2710E6DB004B1E29 /* paip */,
 			);
 			path = Examples;
+			sourceTree = "<group>";
+		};
+		CCFFD5892D4D9AB60092150E /* pdf */ = {
+			isa = PBXGroup;
+			children = (
+				CC10404C1F5378660045144A /* legacy.sld */,
+			);
+			path = pdf;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

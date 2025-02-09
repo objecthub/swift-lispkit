@@ -54,7 +54,7 @@
 ;;; Adaptation to LispKit
 ;;;   Copyright © 2017 Matthias Zenger. All rights reserved.
 
-(define-library (lispkit pdf)
+(define-library (lispkit pdf legacy)
   
   (export *page-stream*
           set-page-stream

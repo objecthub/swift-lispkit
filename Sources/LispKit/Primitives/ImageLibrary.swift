@@ -991,31 +991,50 @@ public final class ImageLibrary: NativeLibrary {
   private func applyImageFilter(expr: Expr, args: Arguments) throws -> Expr {
     var image = try self.abstractImage(from: expr).ciImage
     for a in args {
+      if case .null = a {
+        continue
+      }
       var list = a
-      if case .pair(.symbol(_), _) = a {
-        list = .pair(a, .null)
+      switch a {
+        case .pair(.symbol(_), _):
+          list = .pair(a, .null)
+        case .object(_):
+          list = .pair(a, .null)
+        default:
+          break
       }
       while case .pair(let arg, let rest) = list {
-        guard case .pair(let ident, let params) = arg else {
-          throw RuntimeError.type(arg, expected: [.pairType])
-        }
-        let name: String
-        if case .symbol(let sym) = ident {
-          guard let mappedName = self.filterName[sym] else {
-            return .false
-          }
-          name = mappedName
-        } else {
-          name = try ident.asString()
-        }
-        guard let filter = CIFilter(name: name,
-                                    parameters: try self.parameters(from: params, input: image)) else {
-          return .false
-        }
-        if let outputImage = filter.outputImage {
-          image = outputImage
-        } else {
-          return .false
+        switch arg {
+          case .object(_):
+            let ciFilter = try self.imageFilter(from: arg).ciFilter
+            ciFilter.setValue(image, forKey: kCIInputImageKey)
+            if let outputImage = ciFilter.outputImage {
+              image = outputImage
+            } else {
+              return .false
+            }
+          case .pair(let ident, let params):
+            let name: String
+            if case .symbol(let sym) = ident {
+              guard let mappedName = self.filterName[sym] else {
+                return .false
+              }
+              name = mappedName
+            } else {
+              name = try ident.asString()
+            }
+            guard let filter = CIFilter(name: name,
+                                        parameters: try self.parameters(from: params, input: image)) else {
+              return .false
+            }
+            if let outputImage = filter.outputImage {
+              image = outputImage
+            } else {
+              return .false
+            }
+          default:
+            Swift.print("falling through: \(arg)")
+            throw RuntimeError.type(arg, expected: [.pairType])
         }
         list = rest
       }

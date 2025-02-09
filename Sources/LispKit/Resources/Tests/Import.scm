@@ -71,7 +71,7 @@
 (import (lispkit text-table))
 (import (lispkit csv))
 (import (lispkit json deprecated))
-(import (lispkit pdf))
+(import (lispkit pdf legacy))
 (import (lispkit clos))
 (import (lispkit disjoint-set))
 (import (lispkit sxml))
