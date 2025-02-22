@@ -393,6 +393,7 @@ the command-line tool directly in Xcode, the Swift Package Manager is not needed
 - [CommandLineKit](http://github.com/objecthub/swift-commandlinekit)
 - [SQLiteExpress](http://github.com/objecthub/swift-sqliteexpress)
 - [ZIPFoundation](https://github.com/weichsel/ZIPFoundation)
+- [SWCompression](https://github.com/tsolomko/SWCompression)
 - [Swift Atomics](https://github.com/apple/swift-atomics)
 - [CLFormat](https://github.com/objecthub/swift-clformat)
 - [DynamicJSON](https://github.com/objecthub/swift-dynamicjson)

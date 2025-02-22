@@ -272,9 +272,11 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("text-size", textSize))
     self.define(Procedure("styled-text-size", styledTextSize))
     self.define(Procedure("html-size", htmlSize))
+    self.define(Procedure("transpose", transpose))
     
     // Define constants
     self.define("zero-point", via: "(define zero-point (point 0 0))")
+    self.define("zero-size", via: "(define zero-size (size 0 0))")
     self.define("black", via: "(define black (color 0 0 0))")
     self.define("gray", via: "(define gray (color 0.5 0.5 0.5))")
     self.define("white", via: "(define white (color 1 1 1))")
@@ -1164,9 +1166,13 @@ public final class DrawingLibrary: NativeLibrary {
     return .false
   }
   
-  private func makeShape(expr: Expr?) throws -> Expr {
+  private func makeShape(expr: Expr?, freeze: Expr?) throws -> Expr {
     if let prototype = expr {
-      return .object(Shape(.shape(try self.shape(from: prototype))))
+      if freeze?.isTrue ?? false {
+        return .object(Shape(.path(try self.shape(from: prototype).compile())))
+      } else {
+        return .object(Shape(.shape(try self.shape(from: prototype))))
+      }
     }
     return .object(Shape())
   }
@@ -2308,6 +2314,84 @@ public final class DrawingLibrary: NativeLibrary {
     }
     let rect = str.boundingRect(with: size, options: [.usesLineFragmentOrigin, .usesFontLeading])
     return .pair(.flonum(Double(rect.width)), .flonum(Double(rect.height)))
+  }
+  
+  private func sizeSpecifier(_ expr: Expr) throws -> CGSize {
+    switch expr {
+      case .pair(.flonum(let w), .flonum(let h)):
+        return CGSize(width: w, height: h)
+      case .pair(.pair(.flonum(_), .flonum(_)), .pair(.flonum(let w), .flonum(let h))):
+        return CGSize(width: w, height: h)
+      case .object(let obj):
+        if let imageBox = obj as? NativeImage {
+          return imageBox.imageSize
+        } else {
+          fallthrough
+        }
+      default:
+        throw RuntimeError.eval(.invalidSize, expr)
+    }
+  }
+  
+  private func transpose(_ expr: Expr, sx: Double, sy: Double, height: Double) throws -> Expr {
+    switch expr {
+      case .true, .false, .null:
+        return expr
+      case .pair(.flonum(let x), .flonum(let y)):
+        let pnt = CGPoint(x: x, y: y)
+        var res = pnt.applying(CGAffineTransform(scaleX: sx, y: sy))
+        if sy < 0.0 {
+          res = res.applying(CGAffineTransform(translationX: 0, y: height))
+        }
+        return .pair(.flonum(res.x), .flonum(res.y))
+      case .pair(.pair(.flonum(let x), .flonum(let y)), .pair(.flonum(let w), .flonum(let h))):
+        let rect = CGRect(x: x, y: y, width: w, height: h)
+        var res = rect.applying(CGAffineTransform(scaleX: sx, y: sy))
+        if sy < 0 {
+          res = res.applying(CGAffineTransform(translationX: 0, y: height))
+        }
+        return .pair(.pair(.flonum(res.origin.x), .flonum(res.origin.y)),
+                     .pair(.flonum(res.width), .flonum(res.height)))
+      default:
+        var shape = Shape(.transformed(try self.shape(from: expr),
+                                       Transformation(AffineTransform(scaleByX: sx, byY: sy))))
+        if sy < 0 {
+          shape = Shape(.transformed(shape,
+                                     Transformation(AffineTransform(translationByX: 0, byY: height))))
+        }
+        return .object(shape)
+    }
+  }
+  
+  private func transpose(expr: Expr, current: Expr, new: Expr, flip: Expr?) throws -> Expr {
+    let base = try self.sizeSpecifier(current)
+    let target = try self.sizeSpecifier(new)
+    let sx = target.width / base.width
+    let sy = ((flip?.isTrue ?? false) ? -1.0 : 1.0) * (target.height / base.height)
+    switch expr {
+      case .true, .false, .null:
+        return expr
+      case .pair(.flonum(_), .flonum(_)):
+        return try self.transpose(expr, sx: sx, sy: sy, height: target.height)
+      case .pair(.pair(.flonum(_), .flonum(_)), .pair(.flonum(_), .flonum(_))):
+        return try self.transpose(expr, sx: sx, sy: sy, height: target.height)
+      case .pair(_, _):
+        var list = expr
+        var res = Expr.null
+        while case .pair(let elem, let next) = list {
+          res = .pair(try self.transpose(elem, sx: sx, sy: sy, height: target.height), res)
+          list = next
+        }
+        return res
+      case .vector(let coll):
+        var res = Exprs()
+        for elem in coll.exprs {
+          res.append(try self.transpose(elem, sx: sx, sy: sy, height: target.height))
+        }
+        return .vector(Collection(kind: coll.kind, exprs: res))
+      default:
+        return try self.transpose(expr, sx: sx, sy: sy, height: target.height)
+    }
   }
 }
 
