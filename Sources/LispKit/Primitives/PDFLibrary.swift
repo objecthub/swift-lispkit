@@ -1121,7 +1121,7 @@ public final class PDFLibrary: NativeLibrary {
   
   private func pdfPageAnnotations(expr: Expr) throws -> Expr {
     var res = Expr.null
-    for annotation in try self.page(from: expr).annotations {
+    for annotation in try self.page(from: expr).annotations.reversed() {
       res = .pair(.object(NativePDFAnnotation(annotation: annotation)), res)
     }
     return res
@@ -2468,19 +2468,23 @@ public struct NativePDFAnnotation: CustomExpr {
     } else {
       type = nil
     }
+    let initial: String
+    if let popup = self.annotation.popup {
+      initial = "pdf-annotation \(self.identityString): popup=\(String(UInt(bitPattern: ObjectIdentifier(popup)), radix: 16)), "
+    } else {
+      initial = "pdf-annotation \(self.identityString): "
+    }
     if let page = self.annotation.page {
       let npage = NativePDFPage(page: page)
       if let type {
-        return "pdf-annotation \(self.identityString): page=\(npage.identityString), " +
-        "type=\(type), bounds=\(bounds)"
+        return "\(initial)page=\(npage.identityString), type=\(type), bounds=\(bounds)"
       } else {
-        return "pdf-annotation \(self.identityString): page=\(npage.identityString), " +
-        "bounds=\(bounds)"
+        return "\(initial)page=\(npage.identityString), bounds=\(bounds)"
       }
     } else if let type {
-      return "pdf-annotation \(self.identityString): type=\(type), bounds=\(bounds)"
+      return "\(initial)type=\(type), bounds=\(bounds)"
     } else {
-      return "pdf-annotation \(self.identityString): bounds=\(bounds)"
+      return "\(initial)bounds=\(bounds)"
     }
   }
   

@@ -60,6 +60,10 @@
 		CC0AEFF81F522BF600119BF6 /* 152.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC0AEFF71F522A7500119BF6 /* 152.sld */; };
 		CC0AEFFA1F52311600119BF6 /* SRFI152.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC0AEFF91F52303400119BF6 /* SRFI152.scm */; };
 		CC0BA16C1DFC843C0063B9DE /* SystemLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0BA16B1DFC843C0063B9DE /* SystemLibrary.swift */; };
+		CC0CB00F2D74B835008B17DB /* Page.jpg in Copy image assets */ = {isa = PBXBuildFile; fileRef = CC0CB00E2D74B7E6008B17DB /* Page.jpg */; };
+		CC0CB0102D74BD32008B17DB /* Page.jpg in Copy image assets */ = {isa = PBXBuildFile; fileRef = CC0CB00E2D74B7E6008B17DB /* Page.jpg */; };
+		CC0CB0122D74FE32008B17DB /* OCR.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC0CB0112D74BD8E008B17DB /* OCR.scm */; };
+		CC0CB0132D74FE69008B17DB /* OCR.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC0CB0112D74BD8E008B17DB /* OCR.scm */; };
 		CC0D7B312544A5F400FB9301 /* 180.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC0D7B302544A4A400FB9301 /* 180.sld */; };
 		CC0D7B352544AAAC00FB9301 /* 9.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC0D7B342544AA0300FB9301 /* 9.sld */; };
 		CC0D7B3C2544B06700FB9301 /* 210.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC0D7B382544AF2600FB9301 /* 210.sld */; };
@@ -1551,6 +1555,7 @@
 			dstPath = Root/LispKit/Assets/Images;
 			dstSubfolderSpec = 7;
 			files = (
+				CC0CB00F2D74B835008B17DB /* Page.jpg in Copy image assets */,
 				CCFFD5832D4C53AA0092150E /* Billboard.jpg in Copy image assets */,
 				CCFFD5822D4C53A20092150E /* Inga.jpg in Copy image assets */,
 				CC299DFE23B8096E007B8459 /* LispKitLogo.png in Copy image assets */,
@@ -1664,6 +1669,7 @@
 			dstPath = Root/LispKit/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC0CB0122D74FE32008B17DB /* OCR.scm in Copy examples */,
 				CCFFD5872D4C5FC60092150E /* ImageComposition.scm in Copy examples */,
 				CC02EA012CB7DEC900ABFC6F /* WebAPIs.scm in Copy examples */,
 				CC35C01E2C8527EF00DF6E9D /* Keychain.scm in Copy examples */,
@@ -2587,6 +2593,7 @@
 			dstPath = Root/LispKit/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC0CB0132D74FE69008B17DB /* OCR.scm in Copy examples */,
 				CCFFD5882D4C5FD70092150E /* ImageComposition.scm in Copy examples */,
 				CC02EA022CB7DEDC00ABFC6F /* WebAPIs.scm in Copy examples */,
 				CC35C01F2C85280500DF6E9D /* Keychain.scm in Copy examples */,
@@ -2699,6 +2706,7 @@
 			dstPath = Root/LispKit/Assets/Images;
 			dstSubfolderSpec = 7;
 			files = (
+				CC0CB0102D74BD32008B17DB /* Page.jpg in Copy image assets */,
 				CCFFD5852D4C53D60092150E /* Billboard.jpg in Copy image assets */,
 				CCFFD5842D4C53C90092150E /* Inga.jpg in Copy image assets */,
 				CCC48E6325E987E300D082AD /* LispKitLogo.png in Copy image assets */,
@@ -3149,6 +3157,8 @@
 		CC0AEFF71F522A7500119BF6 /* 152.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 152.sld; sourceTree = "<group>"; };
 		CC0AEFF91F52303400119BF6 /* SRFI152.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SRFI152.scm; sourceTree = "<group>"; };
 		CC0BA16B1DFC843C0063B9DE /* SystemLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SystemLibrary.swift; sourceTree = "<group>"; };
+		CC0CB00E2D74B7E6008B17DB /* Page.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Page.jpg; sourceTree = "<group>"; };
+		CC0CB0112D74BD8E008B17DB /* OCR.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = OCR.scm; sourceTree = "<group>"; };
 		CC0D7B302544A4A400FB9301 /* 180.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 180.sld; sourceTree = "<group>"; };
 		CC0D7B342544AA0300FB9301 /* 9.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 9.sld; sourceTree = "<group>"; };
 		CC0D7B382544AF2600FB9301 /* 210.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 210.sld; sourceTree = "<group>"; };
@@ -4058,9 +4068,10 @@
 		CC299DFB23B808CF007B8459 /* Images */ = {
 			isa = PBXGroup;
 			children = (
-				CC299DFC23B80917007B8459 /* LispKitLogo.png */,
 				CCFFD5802D4C53310092150E /* Billboard.jpg */,
 				CCFFD5812D4C53510092150E /* Inga.jpg */,
+				CC299DFC23B80917007B8459 /* LispKitLogo.png */,
+				CC0CB00E2D74B7E6008B17DB /* Page.jpg */,
 			);
 			path = Images;
 			sourceTree = "<group>";
@@ -5087,6 +5098,7 @@
 				CC202DE325AA9D70003901BE /* VisualizePointSets.scm */,
 				CCCB5C9F284224260005248D /* StyledTextDoc.scm */,
 				CCFFD5862D4C5F4A0092150E /* ImageComposition.scm */,
+				CC0CB0112D74BD8E008B17DB /* OCR.scm */,
 				CC7E7C2524564D33002E8A73 /* Covid.scm */,
 				CCC7A9DB26D0473600F05361 /* EUStats.scm */,
 				CC1EA5C8214E6BF3006BBE7E /* Turtle.scm */,

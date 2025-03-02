@@ -2363,11 +2363,23 @@ public final class DrawingLibrary: NativeLibrary {
     }
   }
   
-  private func transpose(expr: Expr, current: Expr, new: Expr, flip: Expr?) throws -> Expr {
-    let base = try self.sizeSpecifier(current)
-    let target = try self.sizeSpecifier(new)
+  private func transpose(expr: Expr, current: Expr, new: Expr, flp: Expr?) throws -> Expr {
+    let base: CGSize = try self.sizeSpecifier(current)
+    let target: CGSize
+    let flip: Bool
+    switch new {
+      case .false:
+        target = base
+        flip = false
+      case .true:
+        target = base
+        flip = true
+      default:
+        target = try self.sizeSpecifier(new)
+        flip = flp?.isTrue ?? false
+    }
     let sx = target.width / base.width
-    let sy = ((flip?.isTrue ?? false) ? -1.0 : 1.0) * (target.height / base.height)
+    let sy = (flip ? -1.0 : 1.0) * (target.height / base.height)
     switch expr {
       case .true, .false, .null:
         return expr

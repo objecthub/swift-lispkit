@@ -1033,7 +1033,6 @@ public final class ImageLibrary: NativeLibrary {
               return .false
             }
           default:
-            Swift.print("falling through: \(arg)")
             throw RuntimeError.type(arg, expected: [.pairType])
         }
         list = rest
