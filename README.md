@@ -257,6 +257,7 @@ framework:
   - [SRFI 235: Combinators](https://srfi.schemers.org/srfi-235/srfi-235.html)  
   - [SRFI 236: Evaluating expressions in an unspecified order](https://srfi.schemers.org/srfi-236/srfi-236.html)
   - [SRFI 239: Destructuring Lists](https://srfi.schemers.org/srfi-239/srfi-239.html)
+  - [SRFI 258: Uninterned Symbols](https://srfi.schemers.org/srfi-258/srfi-258.html)
 
 
 ## Project
@@ -401,3 +402,9 @@ the command-line tool directly in Xcode, the Swift Package Manager is not needed
 - [OAuth2](https://github.com/p2/OAuth2)
 - [CBORCoding](https://github.com/SomeRandomiOSDev/CBORCoding)
 - [KeychainAccess](https://github.com/kishikawakatsumi/KeychainAccess)
+
+
+## Copyright
+
+Author: Matthias Zenger (<matthias@objecthub.com>)  
+Copyright © 2016-2025 Matthias Zenger. All rights reserved.
