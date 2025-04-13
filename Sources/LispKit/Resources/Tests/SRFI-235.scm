@@ -31,7 +31,7 @@
         (srfi 235)
         (srfi 1))
 
-(test-begin "Combinators")
+(test-begin "SRFI 235: Combinators")
 
 (test-group
   "Combinators: constantly"

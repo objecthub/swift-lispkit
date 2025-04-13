@@ -107,7 +107,9 @@ public final class CoreLibrary: NativeLibrary {
     self.define(Procedure("symbol?", isSymbol))
     self.define(Procedure("symbol-interned?", isSymbolInterned))
     self.define(Procedure("gensym", gensym))
-    self.define(Procedure("symbol=?", stringEquals))
+    self.define(Procedure("generate-uninterned-symbol", generateUninternedSymbol))
+    self.define(Procedure("symbol=?", symbolEquals))
+    self.define(Procedure("symbol<?", symbolLess))
     self.define(Procedure("string->symbol", stringToSymbol))
     self.define(Procedure("string->uninterned-symbol", stringToUninternedSymbol))
     self.define(Procedure("symbol->string", symbolToString))
@@ -1136,15 +1138,45 @@ public final class CoreLibrary: NativeLibrary {
   }
   
   private func gensym(expr: Expr?) throws -> Expr {
-    return .symbol(self.context.symbols.gensym(try expr?.asString() ?? "g"))
+    switch expr {
+      case .none, .some(.false):
+        return .symbol(self.context.symbols.gensym("g"))
+      case .some(.symbol(let sym)):
+        return .symbol(self.context.symbols.gensym(sym.identifier))
+      case .some(let e):
+        return .symbol(self.context.symbols.gensym(try e.asString()))
+    }
   }
   
-  private func stringEquals(expr: Expr, args: Arguments) throws -> Expr {
+  private func generateUninternedSymbol(expr: Expr?) throws -> Expr {
+    switch expr {
+      case .none, .some(.false):
+        return .symbol(self.context.symbols.gensym("g", intern: false))
+      case .some(.symbol(let sym)):
+        return .symbol(self.context.symbols.gensym(sym.identifier, intern: false))
+      case .some(let e):
+        return .symbol(self.context.symbols.gensym(try e.asString(), intern: false))
+    }
+  }
+  
+  private func symbolEquals(expr: Expr, args: Arguments) throws -> Expr {
     let sym = try expr.asSymbol()
     for arg in args {
       guard try sym == arg.asSymbol() else {
         return .false
       }
+    }
+    return .true
+  }
+  
+  private func symbolLess(expr: Expr, args: Arguments) throws -> Expr {
+    var sym = try expr.asSymbol().identifier
+    for arg in args {
+      let str = try arg.asSymbol().identifier
+      guard sym < str else {
+        return .false
+      }
+      sym = str
     }
     return .true
   }
