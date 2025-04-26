@@ -64,25 +64,19 @@ open class LispKitTestCase: XCTestCase {
   
   override open func setUp() {
     super.setUp()
-    #if SPM
-      self.context = LispKitContext(delegate: self.terminal)
+    let context = LispKitContext(delegate: self.terminal)
+    self.context = context
+    if context.fileHandler.isDirectory(atPath: "Sources/LispKit/Resources") {
       let root = URL(fileURLWithPath: "Sources/LispKit/Resources", isDirectory: true)
       _ = self.context?.fileHandler.prependSearchPath(root.path)
       _ = self.context?.fileHandler.prependLibrarySearchPath(root
                                      .appendingPathComponent("Libraries", isDirectory: true).path)
-      do {
-        try self.context?.environment.import(BaseLibrary.name)
-      } catch {
-        preconditionFailure("cannot import (lispkit base) into test context")
-      }
-    #else
-      self.context = LispKitContext(delegate: terminal)
-      do {
-        try self.context?.environment.import(BaseLibrary.name)
-      } catch {
-        preconditionFailure("cannot import (lispkit base) into test context")
-      }
-    #endif
+    }
+    do {
+      try self.context?.environment.import(BaseLibrary.name)
+    } catch {
+      preconditionFailure("cannot import (lispkit base) into test context")
+    }
   }
   
   override open func tearDown() {
@@ -116,21 +110,19 @@ open class LispKitTestCase: XCTestCase {
   }
   
   public func loadTestCode(from filename: String) -> (UInt16, String)? {
-    #if SPM
+    let bundle = Bundle(for: type(of: self))
+    if let path = bundle.path(forResource: filename, ofType: "scm") {
+      do {
+        return try self.context?.sources.readSource(for: path)
+      } catch {
+      }
+    } else {
       let path = "Tests/LispKitTests/Code/\(filename).scm"
       do {
         return try self.context?.sources.readSource(for: path)
       } catch {
       }
-    #else
-      let bundle = Bundle(for: type(of: self))
-      if let path = bundle.path(forResource: filename, ofType: "scm") {
-        do {
-          return try self.context?.sources.readSource(for: path)
-        } catch {
-        }
-      }
-    #endif
+    }
     return nil
   }
   
