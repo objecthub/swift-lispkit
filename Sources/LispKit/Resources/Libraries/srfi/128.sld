@@ -157,10 +157,7 @@
       (if (= (real-part a) (real-part b))
           (< (imag-part a) (imag-part b))
           (< (real-part a) (real-part b))))
-
-    (define (symbol<? a b)
-      (string<? (symbol->string a) (symbol->string b)))
-
+    
     ;; Wrapped equality predicates
     ;; These comparators don't have ordering functions.
 
