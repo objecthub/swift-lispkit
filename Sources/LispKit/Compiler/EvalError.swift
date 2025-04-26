@@ -197,6 +197,7 @@ public enum EvalError: Int, Hashable, Codable {
   case urlAuthorityError
   case urlPrototypeInvalid
   case cannotCreatePdf
+  case cannotLoadPdf
   case invalidPDFAccessIdentifier
   case invalidPDFDocGenerationOption
   case unknownPDFAnnotationType
@@ -555,6 +556,8 @@ public enum EvalError: Int, Hashable, Codable {
         return "$0 is not a valid URL prototype for procedure $,1"
       case .cannotCreatePdf:
         return "cannot create pdf document from bytevector $0"
+      case .cannotLoadPdf:
+        return "cannot load pdf document from file $0"
       case .invalidPDFAccessIdentifier:
         return "invalid PDF access permission identifier: $0"
       case .invalidPDFDocGenerationOption:

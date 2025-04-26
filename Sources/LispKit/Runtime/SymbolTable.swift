@@ -329,7 +329,7 @@ public final class SymbolTable: Sequence {
   }
   
   /// Generates a new interned symbol.
-  public func gensym(_ basename: String) -> Symbol {
+  public func gensym(_ basename: String, intern: Bool = true) -> Symbol {
     self.gensymLock.lock()
     defer {
       self.gensymLock.unlock()
@@ -339,7 +339,7 @@ public final class SymbolTable: Sequence {
       ident = basename + String(self.gensymCounter)
       self.gensymCounter &+= 1
     } while self.exists(ident)
-    return self.intern(ident)
+    return intern ? self.intern(ident) : Symbol(uninterned: ident)
   }
   
   /// Generates an interned symbol by concatenating `prefix` and `sym`.
