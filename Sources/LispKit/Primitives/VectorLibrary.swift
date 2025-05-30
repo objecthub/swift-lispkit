@@ -360,17 +360,23 @@ public final class VectorLibrary: NativeLibrary {
   }
   
   private func listToVector(_ expr: Expr) throws -> Expr {
-    guard case (let exprs, .null) = expr.toExprs() else {
+    if case .vector(let collection) = expr {
+      return .vector(Collection(kind: .vector, exprs: collection.exprs))
+    } else if case (let exprs, .null) = expr.toExprs() {
+      return .vector(Collection(kind: .vector, exprs: exprs))
+    } else {
       throw RuntimeError.type(expr, expected: [.properListType])
     }
-    return .vector(Collection(kind: .vector, exprs: exprs))
   }
   
   private func listToImmutableVector(_ expr: Expr) throws -> Expr {
-    guard case (let exprs, .null) = expr.toExprs() else {
+    if case .vector(let collection) = expr {
+      return .vector(Collection(kind: .immutableVector, exprs: collection.exprs))
+    } else if case (let exprs, .null) = expr.toExprs() {
+      return .vector(Collection(kind: .immutableVector, exprs: exprs))
+    } else {
       throw RuntimeError.type(expr, expected: [.properListType])
     }
-    return .vector(Collection(kind: .immutableVector, exprs: exprs))
   }
   
   private func vectorToList(_ vec: Expr, start: Expr?, end: Expr?) throws -> Expr {

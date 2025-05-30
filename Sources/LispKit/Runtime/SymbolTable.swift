@@ -143,6 +143,8 @@ public final class SymbolTable: Sequence {
   public let append          = Symbol("append")
   public let cons            = Symbol("cons")
   public let list            = Symbol("list")
+  public let listToVector    = Symbol("list->vector")
+  public let vectorAppend    = Symbol("vector-append")
   public let quote           = Symbol("quote")
   public let quasiquote      = Symbol("quasiquote")
   public let unquote         = Symbol("unquote")
@@ -231,11 +233,14 @@ public final class SymbolTable: Sequence {
     func register(_ sym: Symbol) {
       self.symTable[sym.identifier] = sym
     }
+    register(self.dotdotdot)
     register(self.ellipsis)
     register(self.wildcard)
     register(self.append)
     register(self.cons)
     register(self.list)
+    register(self.listToVector)
+    register(self.vectorAppend)
     register(self.quote)
     register(self.quasiquote)
     register(self.unquote)
@@ -274,6 +279,7 @@ public final class SymbolTable: Sequence {
     register(self.starOne)
     register(self.starTwo)
     register(self.starThree)
+    register(self.void)
     register(self.endOfFile)
     register(self.null)
     register(self.boolean)
@@ -299,8 +305,14 @@ public final class SymbolTable: Sequence {
     register(self.environment)
     register(self.hashtable)
     register(self.port)
+    register(self.inputPort)
+    register(self.outputPort)
     register(self.recordType)
     register(self.error)
+    register(self.integer)
+    register(self.real)
+    register(self.number)
+    register(self.box)
     register(self.object)
   }
   

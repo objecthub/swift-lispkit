@@ -386,41 +386,74 @@ public final class CoreLibrary: NativeLibrary {
   }
   
   private func reduceQQ(_ expr: Expr, in env: Env) throws -> Expr {
-    guard case .pair(let car, let cdr) = expr else {
-      return Expr.makeList(.symbol(Symbol(self.context.symbols.quote, env.global)), expr)
-    }
-    switch car {
-      case .symbol(let s) where s.root == self.context.symbols.unquote:
-        guard case .pair(let cadr, .null) = cdr else {
-          throw RuntimeError.eval(.invalidContextInQuasiquote,
-                                  .symbol(self.context.symbols.unquote),
-                                  car)
+    switch expr {
+      case .pair(let car, let cdr):
+        switch car {
+          case .symbol(let s) where s.root == self.context.symbols.unquote:
+            guard case .pair(let cadr, .null) = cdr else {
+              throw RuntimeError.eval(.invalidContextInQuasiquote,
+                                      .symbol(self.context.symbols.unquote),
+                                      car)
+            }
+            return cadr
+          case .symbol(let s) where s.root == self.context.symbols.quasiquote:
+            guard case .pair(let cadr, .null) = cdr else {
+              throw RuntimeError.eval(.invalidContextInQuasiquote,
+                                      .symbol(self.context.symbols.quasiquote),
+                                      car)
+            }
+            return try reduceQQ(reduceQQ(cadr, in: env), in: env)
+          case .symbol(let s) where s.root == self.context.symbols.unquoteSplicing:
+            throw RuntimeError.eval(.invalidContextInQuasiquote,
+                                    .symbol(self.context.symbols.unquoteSplicing),
+                                    car)
+          case .pair(.symbol(let s), let cdar) where s.root == self.context.symbols.unquoteSplicing:
+            guard case .pair(let cadar, .null) = cdar else {
+              throw RuntimeError.eval(.invalidContextInQuasiquote,
+                                      .symbol(self.context.symbols.unquoteSplicing),
+                                      car)
+            }
+            return Expr.makeList(.symbol(Symbol(self.context.symbols.append, env.global)),
+                                 cadar,
+                                 try reduceQQ(cdr, in: env))
+          default:
+            return Expr.makeList(.symbol(Symbol(self.context.symbols.cons, env.global)),
+                                 try reduceQQ(car, in: env),
+                                 try reduceQQ(cdr, in: env))
         }
-        return cadr
-      case .symbol(let s) where s.root == self.context.symbols.quasiquote:
-        guard case .pair(let cadr, .null) = cdr else {
-          throw RuntimeError.eval(.invalidContextInQuasiquote,
-                                  .symbol(self.context.symbols.quasiquote),
-                                  car)
+      case .vector(let col):
+        var segments = Expr.null
+        var current = Expr.null
+        for expr in col.exprs.reversed() {
+          switch expr {
+            case .pair(.symbol(let s), let rest) where s.root == self.context.symbols.unquoteSplicing:
+              let segment = Expr.pair(.symbol(Symbol(self.context.symbols.listToVector, env.global)),
+                                      rest)
+              if current.isNull {
+                segments = .pair(segment, segments)
+              } else {
+                segments = .pair(segment,
+                                 .pair(.pair(.symbol(Symbol(self.context.symbols.vector, env.global)),
+                                             current),
+                                       segments))
+                current = .null
+              }
+            default:
+              current = .pair(try reduceQQ(expr, in: env), current)
+          }
         }
-        return try reduceQQ(reduceQQ(cadr, in: env), in: env)
-      case .symbol(let s) where s.root == self.context.symbols.unquoteSplicing:
-        throw RuntimeError.eval(.invalidContextInQuasiquote,
-                                .symbol(self.context.symbols.unquoteSplicing),
-                                car)
-      case .pair(.symbol(let s), let cdar) where s.root == self.context.symbols.unquoteSplicing:
-        guard case .pair(let cadar, .null) = cdar else {
-          throw RuntimeError.eval(.invalidContextInQuasiquote,
-                                  .symbol(self.context.symbols.unquoteSplicing),
-                                  car)
+        if segments.isNull {
+          return .pair(.symbol(Symbol(self.context.symbols.vector, env.global)), current)
+        } else if current.isNull {
+          return .pair(.symbol(Symbol(self.context.symbols.vectorAppend, env.global)), segments)
+        } else {
+          return .pair(.symbol(Symbol(self.context.symbols.vectorAppend, env.global)),
+                       .pair(.pair(.symbol(Symbol(self.context.symbols.vector, env.global)),
+                                   current),
+                             segments))
         }
-        return Expr.makeList(.symbol(Symbol(self.context.symbols.append, env.global)),
-                             cadar,
-                             try reduceQQ(cdr, in: env))
       default:
-        return Expr.makeList(.symbol(Symbol(self.context.symbols.cons, env.global)),
-                             try reduceQQ(car, in: env),
-                             try reduceQQ(cdr, in: env))
+        return .makeList(.symbol(Symbol(self.context.symbols.quote, env.global)), expr)
     }
   }
   
