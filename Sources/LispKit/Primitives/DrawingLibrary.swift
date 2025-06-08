@@ -38,6 +38,7 @@ public final class DrawingLibrary: NativeLibrary {
   /// Symbols used in enumeration values
   
   // Bitmap file types
+  private let formatPDF: Symbol
   private let formatPNG: Symbol
   private let formatJPG: Symbol
   private let formatGIF: Symbol
@@ -71,6 +72,7 @@ public final class DrawingLibrary: NativeLibrary {
   public required init(in context: Context) throws {
     self.drawingParam = Procedure(.null, .false)
     self.shapeParam = Procedure(.null, .false)
+    self.formatPDF = context.symbols.intern("pdf")
     self.formatPNG = context.symbols.intern("png")
     self.formatJPG = context.symbols.intern("jpg")
     self.formatGIF = context.symbols.intern("gif")
@@ -151,7 +153,9 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("image?", isImage))
     self.define(Procedure("load-image", loadImage))
     self.define(Procedure("load-image-asset", loadImageAsset))
+    self.define(Procedure("save-image", saveImage))
     self.define(Procedure("bytevector->image", bytevectorToImage))
+    self.define(Procedure("image->bytevector", imageToBytevector))
     self.define(Procedure("image-size", imageSize))
     self.define(Procedure("set-image-size!", setImageSize))
     self.define(Procedure("bitmap?", isBitmap))
@@ -781,27 +785,68 @@ public final class DrawingLibrary: NativeLibrary {
     return .false
   }
   
-  private func loadImage(filename: Expr) throws -> Expr {
+  private func loadImage(filename: Expr, forceBM: Expr?) throws -> Expr {
     let path = self.context.fileHandler.path(try filename.asPath(),
                                              relativeTo: self.context.evaluator.currentDirectoryPath)
-    guard let nsimage = NSImage(contentsOfFile: path) else {
-      throw RuntimeError.eval(.cannotLoadImage, filename)
-    }
-    return .object(NativeImage(nsimage))
+    return try self.loadImage(path: path, forceBM: forceBM)
   }
   
-  private func loadImageAsset(name: Expr, type: Expr, dir: Expr? = nil) throws -> Expr {
+  private func loadImageAsset(name: Expr, type: Expr, dir: Expr?, forceBM: Expr?) throws -> Expr {
+    let dir = ((dir?.isTrue ?? false) ? try dir?.asPath() : nil) ?? "Images"
     if let path = self.context.fileHandler.assetFilePath(
                     forFile: try name.asString(),
                     ofType: try type.asString(),
-                    inFolder: try dir?.asPath() ?? "Images",
+                    inFolder: dir,
                     relativeTo: self.context.evaluator.currentDirectoryPath) {
-      guard let nsimage = NSImage(contentsOfFile: path) else {
-        throw RuntimeError.eval(.cannotLoadImageAsset, name, type, dir ?? .makeString("Images"))
-      }
-      return .object(NativeImage(nsimage))
+      return try self.loadImage(path: path, forceBM: forceBM)
     } else {
-      throw RuntimeError.eval(.cannotLoadImageAsset, name, type, dir ?? .makeString("Images"))
+      throw RuntimeError.eval(.cannotLoadImageAsset, name, type, .makeString(dir))
+    }
+  }
+  
+  private func loadImage(path: String, forceBM: Expr?) throws -> Expr {
+    if let image = NSImage(contentsOfFile: path) {
+      guard let forceBM, forceBM.isTrue else {
+        return .object(NativeImage(image))
+      }
+      var nonBitmapRepr: NSImageRep? = nil
+      for repr in image.representations {
+        if repr is NSBitmapImageRep {
+          return .object(NativeImage(image))
+        } else {
+          nonBitmapRepr = repr
+        }
+      }
+      guard let nonBitmapRepr else {
+        throw RuntimeError.eval(.cannotLoadImage, .makeString(path))
+      }
+      if let cgImage = nonBitmapRepr.cgImage(forProposedRect: nil, context: nil, hints: nil) {
+        let rep = NSBitmapImageRep(cgImage: cgImage)
+        rep.size = image.size
+        while let repr = image.representations.last {
+          image.removeRepresentation(repr)
+        }
+        image.addRepresentation(rep)
+        return .object(NativeImage(image))
+      }
+    }
+    throw RuntimeError.eval(.cannotLoadImage, .makeString(path))
+  }
+  
+  private func saveImage(filename: Expr, expr: Expr, format: Expr, quality: Expr?) throws -> Expr {
+    guard let data = try self.imageData(image: try self.image(from: expr),
+                                        format: format,
+                                        quality: quality) else {
+      return .false
+    }
+    let url = URL(fileURLWithPath:
+      self.context.fileHandler.path(try filename.asPath(),
+                                    relativeTo: self.context.evaluator.currentDirectoryPath))
+    do {
+      try data.write(to: url, options: .atomic)
+      return .true
+    } catch {
+      return .false
     }
   }
   
@@ -811,6 +856,79 @@ public final class DrawingLibrary: NativeLibrary {
       throw RuntimeError.eval(.cannotCreateImage, expr)
     }
     return .object(NativeImage(nsimage))
+  }
+  
+  private func imageToBytevector(expr: Expr, format: Expr, quality: Expr?) throws -> Expr {
+    let image = try self.image(from: expr)
+    guard let data = try self.imageData(image: image, format: format, quality: quality) else {
+      return .false
+    }
+    let count = data.count
+    var res = [UInt8](repeating: 0, count: count)
+    data.copyBytes(to: &res, count: count)
+    return .bytes(MutableBox(res))
+  }
+  
+  private func imageData(image: NSImage, format: Expr, quality: Expr?) throws -> Data? {
+    guard case .symbol(let sym) = format else {
+      throw RuntimeError.eval(.invalidImageFileType, format)
+    }
+    if sym == self.formatPDF {
+      var mediaBox = NSRect(x: 0, y: 0, width: image.size.width, height: image.size.height)
+      let pdfData = NSMutableData()
+      guard let cgImage =  image.cgImage(forProposedRect: &mediaBox, context: nil, hints: nil),
+            let pdfConsumer = CGDataConsumer(data: pdfData as CFMutableData),
+            let pdfContext = CGContext(consumer: pdfConsumer, mediaBox: &mediaBox, nil) else {
+        return nil
+      }
+      let previousContext = NSGraphicsContext.current
+      NSGraphicsContext.current = NSGraphicsContext(cgContext: pdfContext, flipped: false)
+      defer {
+        NSGraphicsContext.current = previousContext
+      }
+      pdfContext.beginPage(mediaBox: &mediaBox)
+      pdfContext.draw(cgImage, in: mediaBox)
+      pdfContext.endPage()
+      pdfContext.closePDF()
+      return pdfData as Data
+    } else {
+      let fileType: NSBitmapImageRep.FileType
+      switch sym {
+        case self.formatPNG:
+          fileType = .png
+        case self.formatPNG:
+          fileType = .png
+        case self.formatJPG:
+          fileType = .jpeg
+        case self.formatGIF:
+          fileType = .gif
+        case self.formatBMP:
+          fileType = .bmp
+        case self.formatTIFF:
+          fileType = .tiff
+        default:
+          throw RuntimeError.eval(.invalidImageFileType, format)
+      }
+      var properties: [NSBitmapImageRep.PropertyKey : Any] = [:]
+      if let qualityFactor = try quality?.asDouble(coerce: true) {
+        if qualityFactor > 1.0 {
+          properties[.compressionFactor] = NSNumber(value: 1.0)
+        } else if qualityFactor < 0.0 {
+          properties[.compressionFactor] = NSNumber(value: 0.0)
+        } else {
+          properties[.compressionFactor] = NSNumber(value: qualityFactor)
+        }
+      }
+      for repr in image.representations {
+        if let bitmapRepr = repr as? NSBitmapImageRep {
+          return bitmapRepr.representation(using: fileType, properties: properties)
+        }
+      }
+      let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil)!
+      let bitmapRepr = NSBitmapImageRep(cgImage: cgImage)
+      bitmapRepr.size = image.size
+      return bitmapRepr.representation(using: fileType, properties: properties)
+    }
   }
   
   private func imageSize(image: Expr) throws -> Expr {
@@ -1076,7 +1194,7 @@ public final class DrawingLibrary: NativeLibrary {
     return .object(NativeImage(res))
   }
   
-  private func saveBitmap(filename: Expr, bitmap: Expr, format: Expr) throws -> Expr {
+  private func saveBitmap(filename: Expr, bitmap: Expr, format: Expr, quality: Expr?) throws -> Expr {
     guard case .symbol(let sym) = format else {
       throw RuntimeError.eval(.invalidImageFileType, format)
     }
@@ -1097,12 +1215,24 @@ public final class DrawingLibrary: NativeLibrary {
     }
     return self.saveInFile(try self.image(from: bitmap),
                            try filename.asPath(),
-                           fileType) ? .true : .false
+                           fileType,
+                           try quality?.asDouble(coerce: true)) ? .true : .false
   }
   
   private func saveInFile(_ image: NSImage,
                           _ filename: String,
-                          _ filetype: NSBitmapImageRep.FileType) -> Bool {
+                          _ filetype: NSBitmapImageRep.FileType,
+                          _ qualityFactor: Double?) -> Bool {
+    var properties: [NSBitmapImageRep.PropertyKey : Any] = [:]
+    if let qualityFactor {
+      if qualityFactor < 0.0 {
+        properties[.compressionFactor] = NSNumber(value: 0.0)
+      } else if qualityFactor > 1.0 {
+        properties[.compressionFactor] = NSNumber(value: 1.0)
+      } else {
+        properties[.compressionFactor] = NSNumber(value: qualityFactor)
+      }
+    }
     let url = URL(fileURLWithPath:
       self.context.fileHandler.path(filename,
                                     relativeTo: self.context.evaluator.currentDirectoryPath))
@@ -1111,7 +1241,7 @@ public final class DrawingLibrary: NativeLibrary {
     for repr in image.representations {
       // Encode bitmap
       if let bitmapRepr = repr as? NSBitmapImageRep,
-        let data = bitmapRepr.representation(using: filetype, properties: [:]) {
+        let data = bitmapRepr.representation(using: filetype, properties: properties) {
         // Write encoded data into a file
         do {
           try data.write(to: url, options: .atomic)
@@ -1124,7 +1254,7 @@ public final class DrawingLibrary: NativeLibrary {
     return false
   }
   
-  private func bitmapToBytevector(bitmap: Expr, format: Expr) throws -> Expr {
+  private func bitmapToBytevector(bitmap: Expr, format: Expr, quality: Expr?) throws -> Expr {
     let image = try self.image(from: bitmap)
     guard case .symbol(let sym) = format else {
       throw RuntimeError.eval(.invalidImageFileType, format)
@@ -1144,9 +1274,19 @@ public final class DrawingLibrary: NativeLibrary {
       default:
         throw RuntimeError.eval(.invalidImageFileType, format)
     }
+    var properties: [NSBitmapImageRep.PropertyKey : Any] = [:]
+    if let qualityFactor = try quality?.asDouble(coerce: true) {
+      if qualityFactor > 1.0 {
+        properties[.compressionFactor] = NSNumber(value: 1.0)
+      } else if qualityFactor < 0.0 {
+        properties[.compressionFactor] = NSNumber(value: 0.0)
+      } else {
+        properties[.compressionFactor] = NSNumber(value: qualityFactor)
+      }
+    }
     for repr in image.representations {
       if let bitmapRepr = repr as? NSBitmapImageRep,
-         let data = bitmapRepr.representation(using: fileType, properties: [:]) {
+         let data = bitmapRepr.representation(using: fileType, properties: properties) {
         let count = data.count
         var res = [UInt8](repeating: 0, count: count)
         data.copyBytes(to: &res, count: count)

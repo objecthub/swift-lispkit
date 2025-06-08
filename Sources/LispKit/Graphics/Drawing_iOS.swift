@@ -204,6 +204,7 @@ public final class Drawing: NativeObject, CustomStringConvertible, @unchecked Se
                              height: height,
                              scale: scale,
                              format: .png,
+                             qualityFactor: nil,
                              flipped: flipped)
   }
   
@@ -221,12 +222,14 @@ public final class Drawing: NativeObject, CustomStringConvertible, @unchecked Se
                         width: Int,
                         height: Int,
                         scale: Double = 1.0,
+                        qualityFactor: Double = 0.8,
                         flipped: Bool = false) -> Bool {
     return self.saveAsBitmap(url: url,
                              width: width,
                              height: height,
                              scale: scale,
                              format: .jpeg,
+                             qualityFactor: qualityFactor,
                              flipped: flipped)
   }
   
@@ -245,6 +248,7 @@ public final class Drawing: NativeObject, CustomStringConvertible, @unchecked Se
                            height: Int,
                            scale: Double,
                            format: BitmapImageFileType,
+                           qualityFactor: Double?,
                            flipped: Bool) -> Bool {
     // Create a bitmap suitable for storing the image in a PNG
     guard let context = CGContext(data: nil,
@@ -271,7 +275,7 @@ public final class Drawing: NativeObject, CustomStringConvertible, @unchecked Se
     self.draw()
     // Encode bitmap
     guard let image = UIGraphicsGetImageFromCurrentImageContext(),
-          let data = format.data(for: image) else {
+          let data = format.data(for: image, qualityFactor: qualityFactor) else {
       return false
     }
     // Write encoded data into a file
@@ -633,16 +637,18 @@ public enum BitmapImageFileType {
   case jpeg
   case png
   
-  public func data(for image: UIImage) -> Data? {
-    guard let cgImage = image.cgImage else {
-      return nil
-    }
+  // qualityFactor = 0: maximum compression
+  // qualityFactor = 1: no compression
+  public func data(for image: UIImage, qualityFactor: Double?) -> Data? {
     switch self {
       case .tiff:
+        guard let cgImage = image.cgImage else {
+          return nil
+        }
         let tiffOptions: Dictionary<String, Int> = [
           kCGImagePropertyTIFFCompression as String: 4
         ]
-        let options: NSDictionary = [
+        let options: NSMutableDictionary = [
           kCGImagePropertyTIFFDictionary as String : tiffOptions,
           // kCGImagePropertyDepth as String : 1,
           kCGImagePropertyDPIWidth as String : Int(CGFloat(cgImage.width)*72.0/image.size.width),
@@ -650,6 +656,9 @@ public enum BitmapImageFileType {
           kCGImagePropertyColorModel as String : kCGImagePropertyColorModelRGB as String,
           kCGImagePropertyOrientation as String : NSNumber(value: image.imageOrientation.rawValue)
         ]
+        if let qualityFactor {
+          options[kCGImageDestinationLossyCompressionQuality as String] = qualityFactor as NSNumber
+        }
         let md = NSMutableData()
         guard let dest =
             CGImageDestinationCreateWithData(md, UTType.tiff.identifier as CFString, 1, nil) else {
@@ -659,13 +668,19 @@ public enum BitmapImageFileType {
         CGImageDestinationFinalize(dest)
         return md as Data
       case .bmp:
-        let options: NSDictionary = [
+        guard let cgImage = image.cgImage else {
+          return nil
+        }
+        let options: NSMutableDictionary = [
           kCGImagePropertyDPIWidth as String : Int(CGFloat(cgImage.width)*72.0/image.size.width),
           kCGImagePropertyDPIHeight as String : Int(CGFloat(cgImage.height)*72.0/image.size.height),
           kCGImagePropertyColorModel as String : kCGImagePropertyColorModelRGB as String,
           kCGImagePropertyHasAlpha as String: NSNumber(value: true),
           kCGImagePropertyOrientation as String : NSNumber(value: image.imageOrientation.rawValue)
         ]
+        if let qualityFactor {
+          options[kCGImageDestinationLossyCompressionQuality as String] = qualityFactor as NSNumber
+        }
         let md = NSMutableData()
         guard let dest =
             CGImageDestinationCreateWithData(md, UTType.bmp.identifier as CFString, 1, nil) else {
@@ -675,12 +690,18 @@ public enum BitmapImageFileType {
         CGImageDestinationFinalize(dest)
         return md as Data
       case .gif:
-        let options: NSDictionary = [
+        guard let cgImage = image.cgImage else {
+          return nil
+        }
+        let options: NSMutableDictionary = [
           kCGImagePropertyDPIWidth as String : Int(CGFloat(cgImage.width)*72.0/image.size.width),
           kCGImagePropertyDPIHeight as String : Int(CGFloat(cgImage.height)*72.0/image.size.height),
           kCGImagePropertyColorModel as String : kCGImagePropertyColorModelRGB as String,
           kCGImagePropertyOrientation as String : NSNumber(value: image.imageOrientation.rawValue)
         ]
+        if let qualityFactor {
+          options[kCGImageDestinationLossyCompressionQuality as String] = qualityFactor as NSNumber
+        }
         let md = NSMutableData()
         guard let dest =
             CGImageDestinationCreateWithData(md, UTType.gif.identifier as CFString, 1, nil) else {
@@ -690,7 +711,7 @@ public enum BitmapImageFileType {
         CGImageDestinationFinalize(dest)
         return md as Data
       case .jpeg:
-        return image.jpegData(compressionQuality: 0.8)
+        return image.jpegData(compressionQuality: qualityFactor ?? 0.8)
       case .png:
         return image.pngData()
     }

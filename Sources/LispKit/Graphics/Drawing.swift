@@ -200,6 +200,7 @@ public final class Drawing: NativeObject {
                              height: height,
                              scale: scale,
                              format: NSBitmapImageRep.FileType.png,
+                             qualityFactor: nil,
                              flipped: flipped)
   }
   
@@ -217,12 +218,14 @@ public final class Drawing: NativeObject {
                         width: Int,
                         height: Int,
                         scale: Double = 1.0,
+                        qualityFactor: Double = 0.8,
                         flipped: Bool = false) -> Bool {
     return self.saveAsBitmap(url: url,
                              width: width,
                              height: height,
                              scale: scale,
                              format: NSBitmapImageRep.FileType.jpeg,
+                             qualityFactor: qualityFactor,
                              flipped: flipped)
   }
   
@@ -241,6 +244,7 @@ public final class Drawing: NativeObject {
                            height: Int,
                            scale: Double,
                            format: NSBitmapImageRep.FileType,
+                           qualityFactor: Double?,
                            flipped: Bool) -> Bool {
     // Create a bitmap suitable for storing the image in a PNG
     guard let bitmap = NSBitmapImageRep(bitmapDataPlanes: nil,
@@ -278,7 +282,17 @@ public final class Drawing: NativeObject {
     // Draw the image
     self.draw()
     // Encode bitmap in PNG format
-    guard let data = bitmap.representation(using: format, properties: [:]) else {
+    var properties: [NSBitmapImageRep.PropertyKey : Any] = [:]
+    if let qualityFactor {
+      if qualityFactor > 1.0 {
+        properties[.compressionFactor] = NSNumber(value: 1.0)
+      } else if qualityFactor < 0.0 {
+        properties[.compressionFactor] = NSNumber(value: 0.0)
+      } else {
+        properties[.compressionFactor] = NSNumber(value: qualityFactor)
+      }
+    }
+    guard let data = bitmap.representation(using: format, properties: properties) else {
       return false
     }
     // Write encoded data into a file

@@ -34,6 +34,7 @@ public final class DrawingLibrary: NativeLibrary {
   /// Symbols used in enumeration values
   
   // Bitmap file types
+  private let formatPDF: Symbol
   private let formatPNG: Symbol
   private let formatJPG: Symbol
   private let formatGIF: Symbol
@@ -67,6 +68,7 @@ public final class DrawingLibrary: NativeLibrary {
   public required init(in context: Context) throws {
     self.drawingParam = Procedure(.null, .false)
     self.shapeParam = Procedure(.null, .false)
+    self.formatPDF = context.symbols.intern("pdf")
     self.formatPNG = context.symbols.intern("png")
     self.formatJPG = context.symbols.intern("jpg")
     self.formatGIF = context.symbols.intern("gif")
@@ -146,7 +148,9 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("image?", isImage))
     self.define(Procedure("load-image", loadImage))
     self.define(Procedure("load-image-asset", loadImageAsset))
+    self.define(Procedure("save-image", saveImage))
     self.define(Procedure("bytevector->image", bytevectorToImage))
+    self.define(Procedure("image->bytevector", imageToBytevector))
     self.define(Procedure("image-size", imageSize))
     self.define(Procedure("set-image-size!", setImageSize))
     self.define(Procedure("bitmap?", isBitmap))
@@ -760,36 +764,150 @@ public final class DrawingLibrary: NativeLibrary {
     return .false
   }
   
-  private func loadImage(filename: Expr) throws -> Expr {
+  private func loadImage(filename: Expr, forceBM: Expr?) throws -> Expr {
     let path = self.context.fileHandler.path(try filename.asPath(),
                                              relativeTo: self.context.evaluator.currentDirectoryPath)
-    guard let nsimage = UIImage(contentsOfFile: path) else {
-      throw RuntimeError.eval(.cannotLoadImage, filename)
-    }
-    return .object(NativeImage(nsimage))
+    return try self.loadImage(path: path, forceBM: forceBM)
   }
   
-  private func loadImageAsset(name: Expr, type: Expr, dir: Expr? = nil) throws -> Expr {
+  private func loadImageAsset(name: Expr, type: Expr, dir: Expr?, forceBM: Expr?) throws -> Expr {
+    let dir = ((dir?.isTrue ?? false) ? try dir?.asPath() : nil) ?? "Images"
     if let path = self.context.fileHandler.assetFilePath(
                     forFile: try name.asString(),
                     ofType: try type.asString(),
-                    inFolder: try dir?.asPath() ?? "Images",
+                    inFolder: dir,
                     relativeTo: self.context.evaluator.currentDirectoryPath) {
-      guard let nsimage = UIImage(contentsOfFile: path) else {
-        throw RuntimeError.eval(.cannotLoadImageAsset, name, type, dir ?? .makeString("Images"))
-      }
-      return .object(NativeImage(nsimage))
+      return try self.loadImage(path: path, forceBM: forceBM)
     } else {
-      throw RuntimeError.eval(.cannotLoadImageAsset, name, type, dir ?? .makeString("Images"))
+      throw RuntimeError.eval(.cannotLoadImageAsset, name, type, .makeString(dir))
+    }
+  }
+  
+  private func loadImage(path: String, forceBM: Expr?) throws -> Expr {
+    if let image = UIImage(contentsOfFile: path) {
+      return .object(NativeImage(image))
+    } else {
+      let url = URL(fileURLWithPath: path)
+      if let document = CGPDFDocument(url as CFURL),
+         let page = document.page(at: 1) {
+        let pageRect = page.getBoxRect(.mediaBox)
+        let renderer = UIGraphicsImageRenderer(size: pageRect.size)
+        let proc: (UIGraphicsImageRendererContext) -> Void = { ctx in
+          ctx.cgContext.translateBy(x: 0.0, y: pageRect.size.height)
+          ctx.cgContext.scaleBy(x: 1.0, y: -1.0)
+          ctx.cgContext.drawPDFPage(page)
+        }
+        if forceBM?.isTrue ?? false {
+          if let image = UIImage(data: renderer.pngData(actions: proc), scale: 2.0) {
+            return .object(NativeImage(image))
+          }
+        } else {
+          return .object(NativeImage(renderer.image(actions: proc)))
+        }
+      }
+    }
+    throw RuntimeError.eval(.cannotLoadImage, .makeString(path))
+  }
+  
+  private func saveImage(filename: Expr, expr: Expr, format: Expr, quality: Expr?) throws -> Expr {
+    guard let data = try self.imageData(image: try self.image(from: expr),
+                                        format: format,
+                                        quality: quality) else {
+      return .false
+    }
+    let url = URL(fileURLWithPath:
+      self.context.fileHandler.path(try filename.asPath(),
+                                    relativeTo: self.context.evaluator.currentDirectoryPath))
+    do {
+      try data.write(to: url, options: .atomic)
+      return .true
+    } catch {
+      return .false
     }
   }
   
   private func bytevectorToImage(expr: Expr, args: Arguments) throws -> Expr {
-    let subvec = try BytevectorLibrary.subVector("bytevector->image", expr, args)
-    guard let nsimage = UIImage(data: Data(subvec)) else {
-      throw RuntimeError.eval(.cannotCreateImage, expr)
+    let data = Data(try BytevectorLibrary.subVector("bytevector->image", expr, args))
+    if let image = UIImage(data: data) {
+      return .object(NativeImage(image))
     }
-    return .object(NativeImage(nsimage))
+    if let dataProvider = CGDataProvider(data: data as CFData),
+       let document = CGPDFDocument(dataProvider),
+       let page = document.page(at: 1) {
+      let pageRect = page.getBoxRect(.mediaBox)
+      let renderer = UIGraphicsImageRenderer(size: pageRect.size)
+      let proc: (UIGraphicsImageRendererContext) -> Void = { ctx in
+        ctx.cgContext.translateBy(x: 0.0, y: pageRect.size.height)
+        ctx.cgContext.scaleBy(x: 1.0, y: -1.0)
+        ctx.cgContext.drawPDFPage(page)
+      }
+      return .object(NativeImage(renderer.image(actions: proc)))
+    }
+    throw RuntimeError.eval(.cannotCreateImage, expr)
+  }
+  
+  private func imageToBytevector(expr: Expr, format: Expr, quality: Expr?) throws -> Expr {
+    let image = try self.image(from: expr)
+    guard let data = try self.imageData(image: image, format: format, quality: quality) else {
+      return .false
+    }
+    let count = data.count
+    var res = [UInt8](repeating: 0, count: count)
+    data.copyBytes(to: &res, count: count)
+    return .bytes(MutableBox(res))
+  }
+  
+  private func imageData(image: UIImage, format: Expr, quality: Expr?) throws -> Data? {
+    guard case .symbol(let sym) = format else {
+      throw RuntimeError.eval(.invalidImageFileType, format)
+    }
+    if sym == self.formatPDF {
+      var mediaBox = CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height)
+      let pdfData = NSMutableData()
+      guard let cgImage =  image.cgImage,
+            let pdfConsumer = CGDataConsumer(data: pdfData as CFMutableData),
+            let pdfContext = CGContext(consumer: pdfConsumer, mediaBox: &mediaBox, nil) else {
+        return nil
+      }
+      let pageInfo: NSDictionary = [
+        kCGPDFContextMediaBox : NSData(bytes: &mediaBox,
+                                       length: MemoryLayout.size(ofValue: mediaBox))
+      ]
+      pdfContext.beginPDFPage(pageInfo)
+      pdfContext.draw(cgImage, in: mediaBox)
+      pdfContext.endPage()
+      pdfContext.closePDF()
+      return pdfData as Data
+    } else {
+      let fileType: BitmapImageFileType
+      switch sym {
+        case self.formatPNG:
+          fileType = .png
+        case self.formatJPG:
+          fileType = .jpeg
+        case self.formatGIF:
+          fileType = .gif
+        case self.formatBMP:
+          fileType = .bmp
+        case self.formatTIFF:
+          fileType = .tiff
+        default:
+          throw RuntimeError.eval(.invalidImageFileType, format)
+      }
+      let qualityFactor: Double?
+      if let qf = try quality?.asDouble(coerce: true) {
+        if qf < 0.0 {
+          qualityFactor = 0.0
+        } else if qf > 1.0 {
+          qualityFactor = 1.0
+        } else {
+          qualityFactor = qf
+        }
+      } else {
+        qualityFactor = nil
+      }
+      return fileType.data(for: image, qualityFactor: qualityFactor)
+    }
   }
   
   private func imageSize(image: Expr) throws -> Expr {
@@ -1015,7 +1133,7 @@ public final class DrawingLibrary: NativeLibrary {
     return .object(NativeImage(UIImage(cgImage: res, scale: orig.scale, orientation: .up)))
   }
   
-  private func saveBitmap(filename: Expr, bitmap: Expr, format: Expr) throws -> Expr {
+  private func saveBitmap(filename: Expr, bitmap: Expr, format: Expr, quality: Expr?) throws -> Expr {
     guard case .symbol(let sym) = format else {
       throw RuntimeError.eval(.invalidImageFileType, format)
     }
@@ -1034,18 +1152,44 @@ public final class DrawingLibrary: NativeLibrary {
       default:
         throw RuntimeError.eval(.invalidImageFileType, format)
     }
+    let qualityFactor: Double?
+    if let qf = try quality?.asDouble(coerce: true) {
+      if qf < 0.0 {
+        qualityFactor = 0.0
+      } else if qf > 1.0 {
+        qualityFactor = 1.0
+      } else {
+        qualityFactor = qf
+      }
+    } else {
+      qualityFactor = nil
+    }
     return self.saveInFile(try self.image(from: bitmap),
                            try filename.asPath(),
-                           fileType) ? .true : .false
+                           fileType,
+                           qualityFactor) ? .true : .false
   }
   
   private func saveInFile(_ image: UIImage,
                           _ filename: String,
-                          _ filetype: BitmapImageFileType) -> Bool {
+                          _ filetype: BitmapImageFileType,
+                          _ qf: Double?) -> Bool {
+    let qualityFactor: Double?
+    if let qf = qf {
+      if qf < 0.0 {
+        qualityFactor = 0.0
+      } else if qf > 1.0 {
+        qualityFactor = 1.0
+      } else {
+        qualityFactor = qf
+      }
+    } else {
+      qualityFactor = nil
+    }
     let url = URL(fileURLWithPath:
       self.context.fileHandler.path(filename,
                                     relativeTo: self.context.evaluator.currentDirectoryPath))
-    guard let data = filetype.data(for: image) else {
+    guard let data = filetype.data(for: image, qualityFactor: qualityFactor) else {
       return false
     }
     do {
@@ -1056,7 +1200,7 @@ public final class DrawingLibrary: NativeLibrary {
     }
   }
   
-  private func bitmapToBytevector(bitmap: Expr, format: Expr) throws -> Expr {
+  private func bitmapToBytevector(bitmap: Expr, format: Expr, quality: Expr?) throws -> Expr {
     let image = try self.image(from: bitmap)
     guard case .symbol(let sym) = format else {
       throw RuntimeError.eval(.invalidImageFileType, format)
@@ -1076,7 +1220,19 @@ public final class DrawingLibrary: NativeLibrary {
       default:
         throw RuntimeError.eval(.invalidImageFileType, format)
     }
-    guard let data = fileType.data(for: image) else {
+    let qualityFactor: Double?
+    if let qf = try quality?.asDouble(coerce: true) {
+      if qf < 0.0 {
+        qualityFactor = 0.0
+      } else if qf > 1.0 {
+        qualityFactor = 1.0
+      } else {
+        qualityFactor = qf
+      }
+    } else {
+      qualityFactor = nil
+    }
+    guard let data = fileType.data(for: image, qualityFactor: qualityFactor) else {
       return .false
     }
     let count = data.count

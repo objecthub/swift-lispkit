@@ -244,6 +244,8 @@
 		CC3C92441D84C0D800016C28 /* Library.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC3C92431D84C0D800016C28 /* Library.swift */; };
 		CC3F782F2157D49000F88F9B /* 51.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC3F782E2157D22B00F88F9B /* 51.sld */; };
 		CC3F78312157D73700F88F9B /* 11.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC3F78302157D63E00F88F9B /* 11.sld */; };
+		CC4132252DF44ABB00D77CF6 /* Diagram.pdf in Copy image assets */ = {isa = PBXBuildFile; fileRef = CC4132242DF4475700D77CF6 /* Diagram.pdf */; };
+		CC4132262DF44ADA00D77CF6 /* Diagram.pdf in Copy image assets */ = {isa = PBXBuildFile; fileRef = CC4132242DF4475700D77CF6 /* Diagram.pdf */; };
 		CC421D3E2D478875006AED19 /* process.sld in Copy pre-installed LispKit library: LispKit Image Process */ = {isa = PBXBuildFile; fileRef = CC421D3A2D4786B2006AED19 /* process.sld */; };
 		CC421D562D4C4C90006AED19 /* process.sld in Copy pre-installed LispKit library: LispKit Image Process */ = {isa = PBXBuildFile; fileRef = CC421D3A2D4786B2006AED19 /* process.sld */; };
 		CC436C401FFBD52F0095559E /* logic.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC436C3F1FFBD5090095559E /* logic.sld */; };
@@ -1560,6 +1562,7 @@
 			dstPath = Root/LispKit/Assets/Images;
 			dstSubfolderSpec = 7;
 			files = (
+				CC4132252DF44ABB00D77CF6 /* Diagram.pdf in Copy image assets */,
 				CC0CB00F2D74B835008B17DB /* Page.jpg in Copy image assets */,
 				CCFFD5832D4C53AA0092150E /* Billboard.jpg in Copy image assets */,
 				CCFFD5822D4C53A20092150E /* Inga.jpg in Copy image assets */,
@@ -2714,6 +2717,7 @@
 			dstPath = Root/LispKit/Assets/Images;
 			dstSubfolderSpec = 7;
 			files = (
+				CC4132262DF44ADA00D77CF6 /* Diagram.pdf in Copy image assets */,
 				CC0CB0102D74BD32008B17DB /* Page.jpg in Copy image assets */,
 				CCFFD5852D4C53D60092150E /* Billboard.jpg in Copy image assets */,
 				CCFFD5842D4C53C90092150E /* Inga.jpg in Copy image assets */,
@@ -3290,6 +3294,7 @@
 		CC3C92431D84C0D800016C28 /* Library.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Library.swift; sourceTree = "<group>"; wrapsLines = 1; };
 		CC3F782E2157D22B00F88F9B /* 51.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 51.sld; sourceTree = "<group>"; };
 		CC3F78302157D63E00F88F9B /* 11.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 11.sld; sourceTree = "<group>"; };
+		CC4132242DF4475700D77CF6 /* Diagram.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = Diagram.pdf; sourceTree = "<group>"; };
 		CC421D3A2D4786B2006AED19 /* process.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = process.sld; sourceTree = "<group>"; };
 		CC436C3F1FFBD5090095559E /* logic.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = logic.sld; sourceTree = "<group>"; };
 		CC436C411FFD94870095559E /* Logic.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Logic.scm; sourceTree = "<group>"; };
@@ -4083,6 +4088,7 @@
 				CCFFD5812D4C53510092150E /* Inga.jpg */,
 				CC299DFC23B80917007B8459 /* LispKitLogo.png */,
 				CC0CB00E2D74B7E6008B17DB /* Page.jpg */,
+				CC4132242DF4475700D77CF6 /* Diagram.pdf */,
 			);
 			path = Images;
 			sourceTree = "<group>";
