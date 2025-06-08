@@ -246,6 +246,14 @@
 		CC3F78312157D73700F88F9B /* 11.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC3F78302157D63E00F88F9B /* 11.sld */; };
 		CC4132252DF44ABB00D77CF6 /* Diagram.pdf in Copy image assets */ = {isa = PBXBuildFile; fileRef = CC4132242DF4475700D77CF6 /* Diagram.pdf */; };
 		CC4132262DF44ADA00D77CF6 /* Diagram.pdf in Copy image assets */ = {isa = PBXBuildFile; fileRef = CC4132242DF4475700D77CF6 /* Diagram.pdf */; };
+		CC4132282DF593BA00D77CF6 /* DrawMapLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC4132272DF593BA00D77CF6 /* DrawMapLibrary.swift */; };
+		CC4132292DF593BA00D77CF6 /* DrawMapLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC4132272DF593BA00D77CF6 /* DrawMapLibrary.swift */; };
+		CC41322C2DF5B67900D77CF6 /* LocationLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC41322B2DF5B67900D77CF6 /* LocationLibrary.swift */; };
+		CC41322D2DF5B67900D77CF6 /* LocationLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC41322B2DF5B67900D77CF6 /* LocationLibrary.swift */; };
+		CC41322F2DF5B74700D77CF6 /* TimezoneLookup.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC41322E2DF5B74600D77CF6 /* TimezoneLookup.swift */; };
+		CC4132302DF5B74700D77CF6 /* TimezoneLookup.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC41322E2DF5B74600D77CF6 /* TimezoneLookup.swift */; };
+		CC4132312DF5CB8300D77CF6 /* DrawMaps.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC41322A2DF5989300D77CF6 /* DrawMaps.scm */; };
+		CC4132322DF5CB9500D77CF6 /* DrawMaps.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC41322A2DF5989300D77CF6 /* DrawMaps.scm */; };
 		CC421D3E2D478875006AED19 /* process.sld in Copy pre-installed LispKit library: LispKit Image Process */ = {isa = PBXBuildFile; fileRef = CC421D3A2D4786B2006AED19 /* process.sld */; };
 		CC421D562D4C4C90006AED19 /* process.sld in Copy pre-installed LispKit library: LispKit Image Process */ = {isa = PBXBuildFile; fileRef = CC421D3A2D4786B2006AED19 /* process.sld */; };
 		CC436C401FFBD52F0095559E /* logic.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC436C3F1FFBD5090095559E /* logic.sld */; };
@@ -1677,6 +1685,7 @@
 			dstPath = Root/LispKit/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC4132312DF5CB8300D77CF6 /* DrawMaps.scm in Copy examples */,
 				CC0CB0122D74FE32008B17DB /* OCR.scm in Copy examples */,
 				CCFFD5872D4C5FC60092150E /* ImageComposition.scm in Copy examples */,
 				CC02EA012CB7DEC900ABFC6F /* WebAPIs.scm in Copy examples */,
@@ -2603,6 +2612,7 @@
 			dstPath = Root/LispKit/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC4132322DF5CB9500D77CF6 /* DrawMaps.scm in Copy examples */,
 				CC0CB0132D74FE69008B17DB /* OCR.scm in Copy examples */,
 				CCFFD5882D4C5FD70092150E /* ImageComposition.scm in Copy examples */,
 				CC02EA022CB7DEDC00ABFC6F /* WebAPIs.scm in Copy examples */,
@@ -3295,6 +3305,10 @@
 		CC3F782E2157D22B00F88F9B /* 51.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 51.sld; sourceTree = "<group>"; };
 		CC3F78302157D63E00F88F9B /* 11.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 11.sld; sourceTree = "<group>"; };
 		CC4132242DF4475700D77CF6 /* Diagram.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = Diagram.pdf; sourceTree = "<group>"; };
+		CC4132272DF593BA00D77CF6 /* DrawMapLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawMapLibrary.swift; sourceTree = "<group>"; };
+		CC41322A2DF5989300D77CF6 /* DrawMaps.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = DrawMaps.scm; sourceTree = "<group>"; };
+		CC41322B2DF5B67900D77CF6 /* LocationLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationLibrary.swift; sourceTree = "<group>"; };
+		CC41322E2DF5B74600D77CF6 /* TimezoneLookup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimezoneLookup.swift; sourceTree = "<group>"; };
 		CC421D3A2D4786B2006AED19 /* process.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = process.sld; sourceTree = "<group>"; };
 		CC436C3F1FFBD5090095559E /* logic.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = logic.sld; sourceTree = "<group>"; };
 		CC436C411FFD94870095559E /* Logic.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Logic.scm; sourceTree = "<group>"; };
@@ -4849,6 +4863,8 @@
 				CC4575C520F00C4400116F0F /* DrawingLibrary.swift */,
 				CCD5E5972633405900C45EA0 /* DrawingLibrary_iOS.swift */,
 				CC37A16B2C9E145100DF6C24 /* DrawBarcodeLibrary.swift */,
+				CC4132272DF593BA00D77CF6 /* DrawMapLibrary.swift */,
+				CC41322B2DF5B67900D77CF6 /* LocationLibrary.swift */,
 				CC1348EA2D2E7AD0002DBF0D /* ImageLibrary.swift */,
 				CC1348E72D26AB2F002DBF0D /* VisionLibrary.swift */,
 				CCCB66E3283056E30004827D /* StyledTextLibrary.swift */,
@@ -5046,6 +5062,7 @@
 				CC372CDC27D5532D0091C474 /* String.swift */,
 				CCB5DF5B29A16D62005E6453 /* Data.swift */,
 				CCE9C27E2C41B72000DE1AD7 /* OAuth2DeviceGrantLK.swift */,
+				CC41322E2DF5B74600D77CF6 /* TimezoneLookup.swift */,
 			);
 			path = Base;
 			sourceTree = "<group>";
@@ -5112,6 +5129,7 @@
 				CC14F4AE1F9385BF000FB1E0 /* AvlTrees.scm */,
 				CC26264320FA003700AC08E8 /* Plot.scm */,
 				CC8D20F42533C35F00741D07 /* DrawTrees.scm */,
+				CC41322A2DF5989300D77CF6 /* DrawMaps.scm */,
 				CCCB66E0282DB9790004827D /* DrawBarCharts.scm */,
 				CC202DE325AA9D70003901BE /* VisualizePointSets.scm */,
 				CCCB5C9F284224260005248D /* StyledTextDoc.scm */,
@@ -5575,6 +5593,7 @@
 				CC1348E92D26AB38002DBF0D /* VisionLibrary.swift in Sources */,
 				CC37A1692C9E0CDE00DF6C24 /* Barcode.swift in Sources */,
 				CC0980AB1C67E84C006B7FB1 /* Cell.swift in Sources */,
+				CC41322F2DF5B74700D77CF6 /* TimezoneLookup.swift in Sources */,
 				CC1D533D2BF1709E00EE1A24 /* JSONLibrary.swift in Sources */,
 				CC3C92441D84C0D800016C28 /* Library.swift in Sources */,
 				CC76312920E9550B005F27CE /* Owners.swift in Sources */,
@@ -5670,6 +5689,7 @@
 				CC8EDE4C1D0317AD004E0636 /* Port.swift in Sources */,
 				CCB585BB1E15AA4D0064BB18 /* Heap.swift in Sources */,
 				CC93A6611D0777A9008350C8 /* TextOutput.swift in Sources */,
+				CC4132282DF593BA00D77CF6 /* DrawMapLibrary.swift in Sources */,
 				CC5BBC791D5268D000367E8F /* HashTable.swift in Sources */,
 				CCD5B6082C276696002BF2F0 /* ThreadFutureLibrary.swift in Sources */,
 				CCE9C27F2C41B72000DE1AD7 /* OAuth2DeviceGrantLK.swift in Sources */,
@@ -5689,6 +5709,7 @@
 				CC5A47251C52E08900EFCF76 /* ControlFlowLibrary.swift in Sources */,
 				CCB585B81E15A6E70064BB18 /* ContextDelegate.swift in Sources */,
 				CC08964E244090D1004503B1 /* SQLiteLibrary.swift in Sources */,
+				CC41322C2DF5B67900D77CF6 /* LocationLibrary.swift in Sources */,
 				CC76312520E95204005F27CE /* Transformation.swift in Sources */,
 				CC6A3B681C52F17200E962E2 /* BaseLibrary.swift in Sources */,
 				CC5C0A3F1D8EBE0A00CE2E98 /* MultiMap.swift in Sources */,
@@ -5753,6 +5774,7 @@
 				CCC48CC225E5B98600D082AD /* DateTimeLibrary.swift in Sources */,
 				CCC48C7725E5B94900D082AD /* TextInputSource.swift in Sources */,
 				CCC48CA425E5B96800D082AD /* Env.swift in Sources */,
+				CC4132292DF593BA00D77CF6 /* DrawMapLibrary.swift in Sources */,
 				CCC48C7C25E5B94900D082AD /* TextOutput.swift in Sources */,
 				CCC48C8625E5B95B00D082AD /* Collection.swift in Sources */,
 				CCC48CAB25E5B97100D082AD /* ContextDelegate.swift in Sources */,
@@ -5800,6 +5822,7 @@
 				CCC48CCB25E5B98600D082AD /* MathLibrary.swift in Sources */,
 				CCC48C7125E5B94300D082AD /* MultiMap.swift in Sources */,
 				CCC48C9D25E5B96800D082AD /* Parser.swift in Sources */,
+				CC4132302DF5B74700D77CF6 /* TimezoneLookup.swift in Sources */,
 				CCC48C9125E5B95B00D082AD /* Equality.swift in Sources */,
 				CCC48C9E25E5B96800D082AD /* BindingGroup.swift in Sources */,
 				CC37A16A2C9E0CDE00DF6C24 /* Barcode.swift in Sources */,
@@ -5849,6 +5872,7 @@
 				CCCB66E5283056E30004827D /* StyledTextLibrary.swift in Sources */,
 				CCC48C8C25E5B95B00D082AD /* Port.swift in Sources */,
 				CCC48CD425E5B98600D082AD /* SystemLibrary.swift in Sources */,
+				CC41322D2DF5B67900D77CF6 /* LocationLibrary.swift in Sources */,
 				CCC48CB725E5B97100D082AD /* LibraryManager.swift in Sources */,
 				CCCCEC8B2C504B3C00509902 /* HTTPServerLibrary.swift in Sources */,
 				CCD5E58C2632395200C45EA0 /* DrawingDocument.swift in Sources */,
