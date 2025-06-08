@@ -21,10 +21,11 @@
 ;;; License for the specific language governing permissions and limitations
 ;;; under the License.
 
-(import (lispkit draw)
-        (lispkit math stats)
-        (lispkit location)
+(import (lispkit base)
+        (lispkit draw)
         (lispkit draw map)
+        (lispkit location)
+        (lispkit math stats)
         (lispkit thread future))
 
 ;; Load the font used for showing the distance label
