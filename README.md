@@ -38,6 +38,9 @@ Scheme IDE based on LispKit. The [source code of _LispPad Go_](https://github.co
 is available on GitHub. A much simpler command-line tool for iOS is included in the LispKit
 framework itself (see below).
 
+Example code that runs using the standard LispKit distribution both on macOS and iOS can be found
+[here](https://github.com/objecthub/swift-lispkit/tree/master/Sources/LispKit/Resources/Examples).
+
 
 ## Features
 
@@ -100,10 +103,12 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit draw)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Draw),
     [`(lispkit draw turtle)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Draw-Turtle),
     [`(lispkit draw barcode)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Draw-Barcode),
+    [`(lispkit draw map)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Draw-Map),
     [`(lispkit draw chart bar)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Draw-Chart-Bar),
     [`(lispkit image)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Image),
     [`(lispkit image process)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Image-Process),
     [`(lispkit vision)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Vision),
+    [`(lispkit location)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Location),
     [`(lispkit styled-text)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Styled-Text),
     [`(lispkit datatype)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Datatype),
     [`(lispkit object)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Object),
