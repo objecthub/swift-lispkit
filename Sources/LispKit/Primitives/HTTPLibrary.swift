@@ -653,6 +653,33 @@ public final class HTTPRequest: NativeObject {
     }
   }
   
+  public func request() -> URLRequest {
+    var request = URLRequest(url: self.url)
+    request.httpMethod = self.method
+    for (key, value) in self.headers {
+      request.setValue(value, forHTTPHeaderField: key)
+    }
+    if let data = self.body {
+      request.httpBody = Data(data)
+    }
+    if let timeout = self.timeoutIntervalForRequest {
+      request.timeoutInterval = timeout
+    }
+    if let setCookies = self.httpShouldSetCookies {
+      request.httpShouldHandleCookies = setCookies
+    }
+    if let cachePolicy = self.requestCachePolicy {
+      request.cachePolicy = cachePolicy
+    }
+    if let usePipelining = self.httpShouldUsePipelining {
+      request.httpShouldUsePipelining = usePipelining
+    }
+    if let cellAccess = self.allowsCellularAccess {
+      request.allowsCellularAccess = cellAccess
+    }
+    return request
+  }
+  
   public override var type: Type {
     return Self.type
   }

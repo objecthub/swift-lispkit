@@ -573,7 +573,7 @@ public final class DrawingLibrary: NativeLibrary {
   private func fillRect(expr: Expr, drawing: Expr?) throws -> Expr {
     guard case .pair(.pair(.flonum(let x), .flonum(let y)),
                      .pair(.flonum(let w), .flonum(let h))) = expr else {
-                      throw RuntimeError.eval(.invalidRect, expr)
+      throw RuntimeError.eval(.invalidRect, expr)
     }
     try self.drawing(from: drawing).append(.fillRect(NSRect(x: x, y: y, width: w, height: h)))
     return .void

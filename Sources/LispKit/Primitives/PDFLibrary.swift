@@ -2352,11 +2352,9 @@ public struct NativePDFDocument: CustomExpr {
     } else {
       path = .false
     }
-    return [.vector(Collection(kind: .immutableVector, exprs: [
-      .makeString(self.identityString),
-      .makeNumber(self.document.pageCount),
-      path
-    ]))]
+    return [.makeString(self.identityString),
+            .makeNumber(self.document.pageCount),
+            path]
   }
 }
 
@@ -2421,11 +2419,7 @@ public struct NativePDFPage: CustomExpr {
     } else {
       label = .false
     }
-    return [.vector(Collection(kind: .immutableVector, exprs: [
-      .makeString(self.identityString),
-      doc,
-      label
-    ]))]
+    return [.makeString(self.identityString), doc, label]
   }
 }
 
@@ -2521,7 +2515,7 @@ public struct NativePDFAnnotation: CustomExpr {
     } else {
       t = .false
     }
-    return [.vector(Collection(kind: .immutableVector, exprs: [
+    return [
       .makeString(self.identityString),
       p,
       t,
@@ -2529,7 +2523,7 @@ public struct NativePDFAnnotation: CustomExpr {
             .pair(.flonum(self.annotation.bounds.origin.y),
                   .pair(.flonum(self.annotation.bounds.width),
                         .pair(.flonum(self.annotation.bounds.height), .null))))
-    ]))]
+    ]
   }
 }
 
@@ -2600,13 +2594,13 @@ public struct NativePDFOutline: CustomExpr {
     }
     let index = self.outline.index
     let label = self.outline.label
-    return [.vector(Collection(kind: .immutableVector, exprs: [
+    return [
       .makeString(self.identityString),
       parent == nil ? .false : .makeString(parent!.identityString),
       .makeNumber(index),
       label == nil ? .false : .makeString(label!),
       .makeNumber(self.outline.numberOfChildren)
-    ]))]
+    ]
   }
 }
 

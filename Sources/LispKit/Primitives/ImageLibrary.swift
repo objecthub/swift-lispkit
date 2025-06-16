@@ -1139,11 +1139,9 @@ public struct ImageCoefficients: CustomExpr {
   }
   
   public func unpack(in context: Context) -> Exprs {
-    return [.vector(Collection(kind: .immutableVector, exprs: [
-      .makeString(self.identityString),
-      .makeNumber(self.ciVector.count),
-      .makeString(self.appendElems(to: ""))
-    ]))]
+    return [.makeString(self.identityString),
+            .makeNumber(self.ciVector.count),
+            .makeString(self.appendElems(to: ""))]
   }
 }
 
@@ -1253,10 +1251,8 @@ public struct AbstractImage: CustomExpr {
   }
   
   public func unpack(in context: Context) -> Exprs {
-    return [.vector(Collection(kind: .immutableVector, exprs: [
-      .makeString(self.identityString),
-      .pair(.makeNumber(self.ciImage.extent.width), .makeNumber(self.ciImage.extent.height))
-    ]))]
+    return [.makeString(self.identityString),
+            .pair(.makeNumber(self.ciImage.extent.width), .makeNumber(self.ciImage.extent.height))]
   }
 }
 
@@ -1299,9 +1295,7 @@ public struct AbstractImage: CustomExpr {
     }
     
     public func unpack(in context: Context) -> Exprs {
-      return [.vector(Collection(kind: .immutableVector, exprs: [
-        .makeString(self.identityString),
-        .makeString(self.ciFilter.name)
-      ]))]
+      return [.makeString(self.identityString),
+              .makeString(self.ciFilter.name)]
     }
   }

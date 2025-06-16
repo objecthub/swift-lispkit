@@ -691,10 +691,8 @@ public struct RecognizedText: CustomExpr {
   }
   
   public func unpack(in context: Context) -> Exprs {
-    return [.vector(Collection(kind: .immutableVector, exprs: [
-      .makeString(self.identityString),
-      .makeNumber(Double(self.recognized.confidence)),
-      .makeString(self.recognized.string.truncated(limit: 32))
-    ]))]
+    return [.makeString(self.identityString),
+            .makeNumber(Double(self.recognized.confidence)),
+            .makeString(self.recognized.string.truncated(limit: 32))]
   }
 }

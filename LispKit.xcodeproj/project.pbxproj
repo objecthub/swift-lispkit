@@ -254,6 +254,14 @@
 		CC4132302DF5B74700D77CF6 /* TimezoneLookup.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC41322E2DF5B74600D77CF6 /* TimezoneLookup.swift */; };
 		CC4132312DF5CB8300D77CF6 /* DrawMaps.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC41322A2DF5989300D77CF6 /* DrawMaps.scm */; };
 		CC4132322DF5CB9500D77CF6 /* DrawMaps.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC41322A2DF5989300D77CF6 /* DrawMaps.scm */; };
+		CC4132342DF653F000D77CF6 /* DrawWebLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC4132332DF653F000D77CF6 /* DrawWebLibrary.swift */; };
+		CC4132352DF653F000D77CF6 /* DrawWebLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC4132332DF653F000D77CF6 /* DrawWebLibrary.swift */; };
+		CC41323B2DF701C600D77CF6 /* mermaid.min.js in Copy JavaScript mermaid assets */ = {isa = PBXBuildFile; fileRef = CC4132382DF700E900D77CF6 /* mermaid.min.js */; };
+		CC41323C2DF701D500D77CF6 /* LICENSE.txt in Copy JavaScript mermaid assets */ = {isa = PBXBuildFile; fileRef = CC4132392DF7014A00D77CF6 /* LICENSE.txt */; };
+		CC41323E2DF7020200D77CF6 /* LICENSE.txt in Copy JavaScript mermaid assets */ = {isa = PBXBuildFile; fileRef = CC4132392DF7014A00D77CF6 /* LICENSE.txt */; };
+		CC41323F2DF7020900D77CF6 /* mermaid.min.js in Copy JavaScript mermaid assets */ = {isa = PBXBuildFile; fileRef = CC4132382DF700E900D77CF6 /* mermaid.min.js */; };
+		CC4132432DF9BB0A00D77CF6 /* MermaidDiagrams.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC4132422DF9BA7100D77CF6 /* MermaidDiagrams.scm */; };
+		CC4132442DF9BB1E00D77CF6 /* MermaidDiagrams.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC4132422DF9BA7100D77CF6 /* MermaidDiagrams.scm */; };
 		CC421D3E2D478875006AED19 /* process.sld in Copy pre-installed LispKit library: LispKit Image Process */ = {isa = PBXBuildFile; fileRef = CC421D3A2D4786B2006AED19 /* process.sld */; };
 		CC421D562D4C4C90006AED19 /* process.sld in Copy pre-installed LispKit library: LispKit Image Process */ = {isa = PBXBuildFile; fileRef = CC421D3A2D4786B2006AED19 /* process.sld */; };
 		CC436C401FFBD52F0095559E /* logic.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC436C3F1FFBD5090095559E /* logic.sld */; };
@@ -1647,6 +1655,30 @@
 			name = "Copy pre-installed third-party Adapton library";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CC41323A2DF701A800D77CF6 /* Copy JavaScript mermaid assets */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Root/LispKit/Assets/JavaScript/Mermaid;
+			dstSubfolderSpec = 7;
+			files = (
+				CC41323C2DF701D500D77CF6 /* LICENSE.txt in Copy JavaScript mermaid assets */,
+				CC41323B2DF701C600D77CF6 /* mermaid.min.js in Copy JavaScript mermaid assets */,
+			);
+			name = "Copy JavaScript mermaid assets";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC41323D2DF701F700D77CF6 /* Copy JavaScript mermaid assets */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Root/LispKit/Assets/JavaScript/Mermaid;
+			dstSubfolderSpec = 7;
+			files = (
+				CC41323F2DF7020900D77CF6 /* mermaid.min.js in Copy JavaScript mermaid assets */,
+				CC41323E2DF7020200D77CF6 /* LICENSE.txt in Copy JavaScript mermaid assets */,
+			);
+			name = "Copy JavaScript mermaid assets";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CC421D3D2D478860006AED19 /* Copy pre-installed LispKit library: LispKit Image Process */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1685,6 +1717,7 @@
 			dstPath = Root/LispKit/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC4132432DF9BB0A00D77CF6 /* MermaidDiagrams.scm in Copy examples */,
 				CC4132312DF5CB8300D77CF6 /* DrawMaps.scm in Copy examples */,
 				CC0CB0122D74FE32008B17DB /* OCR.scm in Copy examples */,
 				CCFFD5872D4C5FC60092150E /* ImageComposition.scm in Copy examples */,
@@ -2612,6 +2645,7 @@
 			dstPath = Root/LispKit/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC4132442DF9BB1E00D77CF6 /* MermaidDiagrams.scm in Copy examples */,
 				CC4132322DF5CB9500D77CF6 /* DrawMaps.scm in Copy examples */,
 				CC0CB0132D74FE69008B17DB /* OCR.scm in Copy examples */,
 				CCFFD5882D4C5FD70092150E /* ImageComposition.scm in Copy examples */,
@@ -3309,6 +3343,10 @@
 		CC41322A2DF5989300D77CF6 /* DrawMaps.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = DrawMaps.scm; sourceTree = "<group>"; };
 		CC41322B2DF5B67900D77CF6 /* LocationLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationLibrary.swift; sourceTree = "<group>"; };
 		CC41322E2DF5B74600D77CF6 /* TimezoneLookup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimezoneLookup.swift; sourceTree = "<group>"; };
+		CC4132332DF653F000D77CF6 /* DrawWebLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawWebLibrary.swift; sourceTree = "<group>"; };
+		CC4132382DF700E900D77CF6 /* mermaid.min.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = mermaid.min.js; sourceTree = "<group>"; };
+		CC4132392DF7014A00D77CF6 /* LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
+		CC4132422DF9BA7100D77CF6 /* MermaidDiagrams.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = MermaidDiagrams.scm; sourceTree = "<group>"; };
 		CC421D3A2D4786B2006AED19 /* process.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = process.sld; sourceTree = "<group>"; };
 		CC436C3F1FFBD5090095559E /* logic.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = logic.sld; sourceTree = "<group>"; };
 		CC436C411FFD94870095559E /* Logic.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Logic.scm; sourceTree = "<group>"; };
@@ -4079,6 +4117,7 @@
 		CC299DF523B7E7FE007B8459 /* Assets */ = {
 			isa = PBXGroup;
 			children = (
+				CC4132362DF6FE8C00D77CF6 /* JavaScript */,
 				CCD5B5242C14F0F8002BF2F0 /* JSON */,
 				CC7E7C2724564F67002E8A73 /* Datasets */,
 				CC299DFB23B808CF007B8459 /* Images */,
@@ -4188,6 +4227,23 @@
 			);
 			name = LispKitTools;
 			path = Sources/LispKitTools;
+			sourceTree = "<group>";
+		};
+		CC4132362DF6FE8C00D77CF6 /* JavaScript */ = {
+			isa = PBXGroup;
+			children = (
+				CC4132372DF700C500D77CF6 /* Mermaid */,
+			);
+			path = JavaScript;
+			sourceTree = "<group>";
+		};
+		CC4132372DF700C500D77CF6 /* Mermaid */ = {
+			isa = PBXGroup;
+			children = (
+				CC4132382DF700E900D77CF6 /* mermaid.min.js */,
+				CC4132392DF7014A00D77CF6 /* LICENSE.txt */,
+			);
+			path = Mermaid;
 			sourceTree = "<group>";
 		};
 		CC421D392D478698006AED19 /* image */ = {
@@ -4864,6 +4920,7 @@
 				CCD5E5972633405900C45EA0 /* DrawingLibrary_iOS.swift */,
 				CC37A16B2C9E145100DF6C24 /* DrawBarcodeLibrary.swift */,
 				CC4132272DF593BA00D77CF6 /* DrawMapLibrary.swift */,
+				CC4132332DF653F000D77CF6 /* DrawWebLibrary.swift */,
 				CC41322B2DF5B67900D77CF6 /* LocationLibrary.swift */,
 				CC1348EA2D2E7AD0002DBF0D /* ImageLibrary.swift */,
 				CC1348E72D26AB2F002DBF0D /* VisionLibrary.swift */,
@@ -5134,6 +5191,7 @@
 				CC202DE325AA9D70003901BE /* VisualizePointSets.scm */,
 				CCCB5C9F284224260005248D /* StyledTextDoc.scm */,
 				CCFFD5862D4C5F4A0092150E /* ImageComposition.scm */,
+				CC4132422DF9BA7100D77CF6 /* MermaidDiagrams.scm */,
 				CC0CB0112D74BD8E008B17DB /* OCR.scm */,
 				CC7E7C2524564D33002E8A73 /* Covid.scm */,
 				CCC7A9DB26D0473600F05361 /* EUStats.scm */,
@@ -5273,6 +5331,7 @@
 				CCD5B5662C14FCF0002BF2F0 /* Copy JSON meta schema assets */,
 				CCD5B56E2C14FDA5002BF2F0 /* Copy JSON schema test assets */,
 				CCD5B5E72C15F0CC002BF2F0 /* Copy JSON custom schema assets */,
+				CC41323A2DF701A800D77CF6 /* Copy JavaScript mermaid assets */,
 			);
 			buildRules = (
 			);
@@ -5355,6 +5414,7 @@
 				CCD5B5A22C14FE27002BF2F0 /* Copy JSON meta schema assets */,
 				CCD5B5AA2C14FE73002BF2F0 /* Copy JSON schema test assets */,
 				CCD5B5E92C15F120002BF2F0 /* Copy JSON custom schema assets */,
+				CC41323D2DF701F700D77CF6 /* Copy JavaScript mermaid assets */,
 			);
 			buildRules = (
 			);
@@ -5638,6 +5698,7 @@
 				CCC41DC61D2851FB003CB4D0 /* VirtualMachineState.swift in Sources */,
 				CCAD52E41C48468F00DBD8EE /* Scanner.swift in Sources */,
 				CC2DA7542781036D00DE69CF /* EvalMutex.swift in Sources */,
+				CC4132352DF653F000D77CF6 /* DrawWebLibrary.swift in Sources */,
 				CC201A6D1DBD72C100045A4D /* LibraryRegistry.swift in Sources */,
 				CCCCEC8A2C504B3C00509902 /* HTTPServerLibrary.swift in Sources */,
 				CCD81AD21CE75823009EB087 /* Checkpointer.swift in Sources */,
@@ -5775,6 +5836,7 @@
 				CCC48C7725E5B94900D082AD /* TextInputSource.swift in Sources */,
 				CCC48CA425E5B96800D082AD /* Env.swift in Sources */,
 				CC4132292DF593BA00D77CF6 /* DrawMapLibrary.swift in Sources */,
+				CC4132342DF653F000D77CF6 /* DrawWebLibrary.swift in Sources */,
 				CCC48C7C25E5B94900D082AD /* TextOutput.swift in Sources */,
 				CCC48C8625E5B95B00D082AD /* Collection.swift in Sources */,
 				CCC48CAB25E5B97100D082AD /* ContextDelegate.swift in Sources */,
