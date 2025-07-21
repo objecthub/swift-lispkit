@@ -171,6 +171,7 @@ public enum EvalError: Int, Hashable, Codable {
   case invalidDefaultFormatConfig
   case invalidControlSpec
   case cannotConvertToJSON
+  case notAJSONObject
   case jsonReferenceExpected
   case invalidJSONPatchOp
   case unableToCreateJSONPatch
@@ -506,6 +507,8 @@ public enum EvalError: Int, Hashable, Codable {
         return "invalid formatting control specifier: $0"
       case .cannotConvertToJSON:
         return "cannot convert $0 to JSON"
+      case .notAJSONObject:
+        return "expected a JSON object instead of $0"
       case .jsonReferenceExpected:
         return "expected JSON reference but found $0"
       case .invalidJSONPatchOp:

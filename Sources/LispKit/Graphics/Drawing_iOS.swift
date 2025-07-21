@@ -372,6 +372,7 @@ public enum DrawingInstruction: CustomStringConvertible, @unchecked Sendable {
         context.move(to: start)
         context.addLine(to: end)
         context.strokePath()
+        // context.drawPath(using: .stroke)
       case .strokeRect(let rct):
         context.stroke(rct)
       case .fillRect(let rct):

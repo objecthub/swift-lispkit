@@ -1386,7 +1386,7 @@ public final class CoreLibrary: NativeLibrary {
           guard let featureReq = FeatureRequirement(reqs, in: compiler.context) else {
             throw RuntimeError.eval(.malformedCondExpandClause, cas)
           }
-          if try featureReq.valid(in: compiler.context) {
+          if featureReq.valid(in: compiler.context) {
             return try compiler.compileSeq(exprs,
                                            in: env,
                                            inTailPos: tail,

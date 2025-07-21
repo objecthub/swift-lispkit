@@ -36,9 +36,11 @@ public final class EnumLibrary: NativeLibrary {
   /// Dependencies of the library.
   public override func dependencies() {
     self.`import`(from: ["lispkit", "core"], "define", "define-syntax", "syntax-rules", "lambda",
-                                             "quote", "and", "or", "not", "eq?")
+                                             "quote", "and", "or", "not", "eq?", "case-lambda")
     self.`import`(from: ["lispkit", "control"], "do", "if", "cond", "begin", "let")
     self.`import`(from: ["lispkit", "list"], "cons", "reverse", "map")
+    self.`import`(from: ["lispkit", "hashtable"], "alist->equal-hashtable", "hashtable-ref",
+                                                  "make-hashtable", "alist->hashtable!")
     self.`import`(from: ["lispkit", "math"], "fx1+")
   }
   
@@ -137,6 +139,22 @@ public final class EnumLibrary: NativeLibrary {
       "  (let ((type (enum-set-type eset)))" +
       "    (lambda (name)" +
       "      (cond ((enum-name->enum type name) => enum-ordinal) (else #f)))))")
+    self.define("enum-tag-mapper", via: """
+      (define enum-tag-mapper
+        (case-lambda
+          ((etype)
+            (enum-tag-mapper etype alist->equal-hashtable))
+          ((etype makeht)
+            (let ((xmap (makeht
+                          (map (lambda (e) (cons (enum-tag e) e))
+                               (enum-type-enums etype)))))
+              (lambda (x) (hashtable-ref xmap x #f))))
+          ((etype hash equal)
+            (enum-tag-mapper etype
+              (lambda (xs)
+                (let ((ht (make-hashtable hash equal)))
+                  (alist->hashtable! ht xs) ht))))))
+    """)
     self.define("enum-set-any?", via: """
       (define (enum-set-any? f bs)
         (do ((i (enum-set-next bs (enum-min (enum-set-type bs))) (enum-set-next bs (enum-next i))))
@@ -193,6 +211,7 @@ public final class EnumLibrary: NativeLibrary {
               (define etype (make-enum-type '(name-val ...)))
               (define-syntax type-name
                 (syntax-rules ()
+                  ((_) etype)
                   ((_ name)
                     (enum-name->enum etype 'name))))
               (define-syntax constructor
@@ -208,6 +227,7 @@ public final class EnumLibrary: NativeLibrary {
               (define etype (make-enum-type '(name-val ...)))
               (define-syntax type-name
                 (syntax-rules ()
+                  ((_) etype)
                   ((_ name)
                     (and (enum-name->enum etype 'name) 'name))))
               (define-syntax constructor

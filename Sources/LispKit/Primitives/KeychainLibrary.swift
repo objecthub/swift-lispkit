@@ -302,12 +302,12 @@ public final class KeychainLibrary: NativeLibrary {
     return .makeBoolean(try self.keychain(from: expr).contains(key.asString()))
   }
   
-  private func keychainRef(_ expr: Expr, _ key: Expr) throws -> Expr {
+  private func keychainRef(_ expr: Expr, _ key: Expr, _ def: Expr?) throws -> Expr {
     let keychain = try self.keychain(from: expr)
     if let data = try keychain.getData(key.asString())?.gunzip() {
       return try Serialization(data: data).deserialize(in: self.context)
     } else {
-      return .false
+      return def ?? .false
     }
   }
   
@@ -541,11 +541,11 @@ public final class NativeKeychain: NativeObject {
   
   public override var tagString: String {
     if let accessGroup = self.keychain.accessGroup {
-      return "\(Self.type) \(self.keychain.service) \(accessGroup)"
+      return "\(Self.type) \"\(self.keychain.service)\" \(accessGroup)"
     } else if self.keychain.service.isEmpty {
       return "\(Self.type) \(self.identityString)"
     } else {
-      return "\(Self.type) \(self.keychain.service)"
+      return "\(Self.type) \"\(self.keychain.service)\""
     }
   }
   

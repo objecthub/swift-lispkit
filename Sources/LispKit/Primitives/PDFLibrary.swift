@@ -52,6 +52,7 @@ public final class PDFLibrary: NativeLibrary {
   public let freeText: Symbol
   public let highlight: Symbol
   public let ink: Symbol
+  public let line: Symbol
   public let link: Symbol
   public let popup: Symbol
   public let square: Symbol
@@ -106,6 +107,7 @@ public final class PDFLibrary: NativeLibrary {
     self.freeText = context.symbols.intern("free-text")
     self.highlight = context.symbols.intern("highlight")
     self.ink = context.symbols.intern("shape")
+    self.line = context.symbols.intern("line")
     self.link = context.symbols.intern("link")
     self.popup = context.symbols.intern("popup")
     self.square = context.symbols.intern("square")
@@ -214,6 +216,7 @@ public final class PDFLibrary: NativeLibrary {
     self.define(Procedure("pdf-page-index", self.pdfPageIndex))
     
     self.define(Procedure("pdf-outline", self.pdfOutline))
+    self.define(Procedure("pdf-outline-set!", self.pdfOutlineSet))
     
     // Predicates
     self.define(Procedure("pdf-display-box?", self.isDisplayBox))
@@ -542,6 +545,8 @@ public final class PDFLibrary: NativeLibrary {
         return .highlight
       case self.ink:
         return .ink
+      case self.line:
+        return .line
       case self.link:
         return .link
       case self.popup:
@@ -573,6 +578,8 @@ public final class PDFLibrary: NativeLibrary {
         return .symbol(self.highlight)
       case "Ink":
         return .symbol(self.ink)
+      case "Line":
+        return .symbol(self.line)
       case "Link":
         return .symbol(self.link)
       case "Popup":
@@ -908,10 +915,18 @@ public final class PDFLibrary: NativeLibrary {
     }
   }
   
-  private func pdfInsertPage(expr: Expr, index: Expr, page: Expr) throws -> Expr {
+  private func pdfInsertPage(expr: Expr, index: Expr, page: Expr?) throws -> Expr {
     let document = try self.pdf(from: expr)
-    try document.insert(self.page(from: page),
-                        at: index.asInt(above: 0, below: document.pageCount + 1))
+    if let page {
+      let page = try self.page(from: page)
+      if index.isFalse {
+        document.insert(page, at: document.pageCount)
+      } else {
+        try document.insert(page, at: index.asInt(above: 0, below: document.pageCount + 1))
+      }
+    } else {
+      try document.insert(self.page(from: index), at: document.pageCount)
+    }
     return .void
   }
   
@@ -938,6 +953,15 @@ public final class PDFLibrary: NativeLibrary {
       return .false
     }
     return .object(NativePDFOutline(outline: outline))
+  }
+  
+  private func pdfOutlineSet(expr: Expr, outline: Expr) throws -> Expr {
+    if outline.isFalse {
+      try self.pdf(from: expr).outlineRoot = nil
+    } else {
+      try self.pdf(from: expr).outlineRoot = try self.outline(from: outline)
+    }
+    return .void
   }
   
   // Predicates
@@ -986,14 +1010,14 @@ public final class PDFLibrary: NativeLibrary {
       case .false:
         img = nil
       case .pair(.flonum(let w), .flonum(let h)):
-        guard compress.isFalse, rotate.isFalse, media.isFalse, upscale.isFalse else {
+        guard compress.isFalse, rotate.isFalse, media.isFalse, upscale.isNull else {
           throw RuntimeError.type(image, expected: [NativeImage.type])
         }
         options[.mediaBox] = CGRect(x: 0, y: 0, width: w, height: h)
         img = nil
       case .pair(.pair(.flonum(let x), .flonum(let y)),
                  .pair(.flonum(let w), .flonum(let h))):
-        guard compress.isFalse, rotate.isFalse, media.isFalse, upscale.isFalse else {
+        guard compress.isFalse, rotate.isFalse, media.isFalse, upscale.isNull else {
           throw RuntimeError.type(image, expected: [NativeImage.type])
         }
         options[.mediaBox] = CGRect(x: x, y: y, width: w, height: h)
@@ -1035,13 +1059,17 @@ public final class PDFLibrary: NativeLibrary {
       options[.upscaleIfSmaller] = upscale.isTrue
     }
     if let img {
-      if let page = PDFPage(image: img, options: options) {
+      if let page = LispKitPDFPage(image: img, options: options) {
         return .object(NativePDFPage(page: page))
       } else {
         return .false
       }
     } else {
-      return .object(NativePDFPage(page: PDFPage()))
+      let page = LispKitPDFPage()
+      if let box = options[.mediaBox] as? CGRect {
+        page.setBounds(box, for: .mediaBox)
+      }
+      return .object(NativePDFPage(page: page))
     }
   }
   
@@ -1659,8 +1687,12 @@ public final class PDFLibrary: NativeLibrary {
     return .makeBoolean(try self.outline(from: expr).isOpen)
   }
   
-  private func pdfOutlineOpenSet(expr: Expr, open: Expr) throws -> Expr {
-    try self.outline(from: expr).isOpen = open.isTrue
+  private func pdfOutlineOpenSet(expr: Expr, open: Expr?) throws -> Expr {
+    if let open {
+      try self.outline(from: expr).isOpen = open.isTrue
+    } else {
+      try self.outline(from: expr).isOpen.toggle()
+    }
     return .void
   }
   
@@ -1675,9 +1707,18 @@ public final class PDFLibrary: NativeLibrary {
     return .false
   }
   
-  private func pdfOutlineChildInsert(expr: Expr, index: Expr, child: Expr) throws -> Expr {
-    try self.outline(from: expr).insertChild(self.outline(from: child),
-                                             at: index.asInt(above: 0, below: 100000))
+  private func pdfOutlineChildInsert(expr: Expr, index: Expr, child: Expr?) throws -> Expr {
+    let outline = try self.outline(from: expr)
+    if let child {
+      if index.isFalse {
+        try outline.insertChild(self.outline(from: child), at: outline.numberOfChildren)
+      } else {
+        try outline.insertChild(self.outline(from: child),
+                                at: index.asInt(above: 0, below: outline.numberOfChildren + 1))
+      }
+    } else {
+      try outline.insertChild(self.outline(from: index), at: outline.numberOfChildren)
+    }
     return .void
   }
   
@@ -1737,7 +1778,11 @@ public final class PDFLibrary: NativeLibrary {
   }
   
   private func pdfAnnotationNameSet(expr: Expr, value: Expr) throws -> Expr {
-    try self.annotation(from: expr).setValue(try value.asString(), forAnnotationKey: .name)
+    if value.isFalse {
+      try self.annotation(from: expr).removeValue(forAnnotationKey: .name)
+    } else {
+      try self.annotation(from: expr).setValue(try value.asString(), forAnnotationKey: .name)
+    }
     return .void
   }
   
@@ -1759,6 +1804,9 @@ public final class PDFLibrary: NativeLibrary {
   private func pdfAnnotationTextIntentSet(expr: Expr, value: Expr) throws -> Expr {
     let intent: String
     switch value {
+      case .false:
+        try self.annotation(from: expr).removeValue(forAnnotationKey: .init(rawValue: "IT"))
+        return .void
       case .symbol(self.callout):
         intent = "/FreeTextCallout"
       case .symbol(self.typeWriter):
@@ -1804,17 +1852,21 @@ public final class PDFLibrary: NativeLibrary {
   }
   
   private func pdfAnnotationPaddingSet(expr: Expr, v: Expr) throws -> Expr {
-    guard case .pair(let left, .pair(let top, .pair(let right, .pair(let bottom, .null)))) = v else {
-      throw RuntimeError.eval(.invalidPDFPadding, v)
+    if v.isFalse {
+      try self.annotation(from: expr).removeValue(forAnnotationKey: .init(rawValue: "RD"))
+    } else {
+      guard case .pair(let left, .pair(let top, .pair(let right, .pair(let bottom, .null)))) = v else {
+        throw RuntimeError.eval(.invalidPDFPadding, v)
+      }
+      let l = try left.asDouble(coerce: true)
+      let t = try top.asDouble(coerce: true)
+      let r = try right.asDouble(coerce: true)
+      let b = try bottom.asDouble(coerce: true)
+      guard l >= 0.0, t >= 0.0, r >= 0.0, b >= 0.0 else {
+        throw RuntimeError.eval(.invalidPDFPadding, v)
+      }
+      try self.annotation(from: expr).setValue([l, b, r, t], forAnnotationKey: .init(rawValue: "RD"))
     }
-    let l = try left.asDouble(coerce: true)
-    let t = try top.asDouble(coerce: true)
-    let r = try right.asDouble(coerce: true)
-    let b = try bottom.asDouble(coerce: true)
-    guard l >= 0.0, t >= 0.0, r >= 0.0, b >= 0.0 else {
-      throw RuntimeError.eval(.invalidPDFPadding, v)
-    }
-    try self.annotation(from: expr).setValue([l, b, r, t], forAnnotationKey: .init(rawValue: "RD"))
     return .void
   }
   
@@ -1835,7 +1887,11 @@ public final class PDFLibrary: NativeLibrary {
   }
   
   private func pdfAnnotationContentsSet(expr: Expr, contents: Expr) throws -> Expr {
-    try self.annotation(from: expr).contents = try contents.asString()
+    if contents.isFalse {
+      try self.annotation(from: expr).contents = nil
+    } else {
+      try self.annotation(from: expr).contents = try contents.asString()
+    }
     return .void
   }
   
@@ -2093,6 +2149,8 @@ public final class PDFLibrary: NativeLibrary {
   
   private func pdfAnnotationCalloutPointsSet(expr: Expr, value: Expr) throws -> Expr {
     switch value {
+      case .false:
+        try self.annotation(from: expr).removeValue(forAnnotationKey: .init(rawValue: "CL"))
       case .pair(.pair(let x1, let y1), .pair(.pair(let x2, let y2), .null)):
         try self.annotation(from: expr).setValue([x1.asDouble(coerce: true),
                                                   y1.asDouble(coerce: true),
@@ -2449,7 +2507,7 @@ public struct NativePDFAnnotation: CustomExpr {
     let type: String?
     if let str = self.annotation.type {
       switch str {
-        case "Circle", "Highlight", "Ink", "Link", "Popup", "Square", "Stamp", "Text",
+        case "Circle", "Highlight", "Ink", "Line", "Link", "Popup", "Square", "Stamp", "Text",
              "Underline", "Widget":
           type = str.firstLowercased
         case "FreeText":
@@ -2677,7 +2735,7 @@ public final class LispKitPDFDocument: PDFDocument {
       var trimBox = page.bounds(for: .trimBox)
       var cropBox = page.bounds(for: .cropBox)
       var bleedBox = page.bounds(for: .bleedBox)
-      var artBox = page.bounds(for: .bleedBox)
+      var artBox = page.bounds(for: .artBox)
       let mediaData = NSData(bytes: &mediaBox, length: MemoryLayout.size(ofValue: mediaBox))
       let trimData = NSData(bytes: &trimBox, length: MemoryLayout.size(ofValue: trimBox))
       let cropData = NSData(bytes: &cropBox, length: MemoryLayout.size(ofValue: cropBox))

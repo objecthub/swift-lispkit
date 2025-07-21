@@ -343,31 +343,51 @@ public final class DateTimeLibrary: NativeLibrary {
                                        max: 4,
                                        args: .pair(str, .makeList(args)))
     }
-    let formatter = DateFormatter()
-    formatter.calendar = Self.calendar
-    formatter.locale = try self.asLocale(locale == .false ? nil : locale)
-    formatter.timeZone = try self.asTimeZone(timeZone)
-    if dateFormat == .false {
-      formatter.dateStyle = .short
-      formatter.timeStyle = .medium
-    } else {
-      switch dateFormat {
-        case .pair(let dateStyle, .pair(let timeStyle, _)):
-          formatter.dateStyle = try self.asDateStyle(dateStyle)
-          formatter.timeStyle = try self.asDateStyle(timeStyle)
-        case .symbol(_):
-          let style = try self.asDateStyle(dateFormat)
-          formatter.dateStyle = style
-          formatter.timeStyle = style
-        default:
-          formatter.dateFormat = try dateFormat.asString()
+    if locale.isFalse && dateFormat.isFalse {
+      let formatter = ISO8601DateFormatter()
+      formatter.timeZone = TimeZone(identifier: "UTC")
+      if timeZone.isTrue {
+        formatter.timeZone = try self.asTimeZone(timeZone)
       }
+      formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+      formatter.formatOptions.remove(.withTimeZone)
+      let str = try str.asString()
+      var d = formatter.date(from: str)
+      if d == nil {
+        formatter.formatOptions.remove(.withFractionalSeconds)
+        d = formatter.date(from: str)
+      }
+      guard let d else {
+        return .false
+      }
+      return .object(NativeDateTime(Self.calendar.dateComponents(in: formatter.timeZone, from: d)))
+    } else {
+      let formatter = DateFormatter()
+      formatter.calendar = Self.calendar
+      formatter.locale = try self.asLocale(locale == .false ? nil : locale)
+      formatter.timeZone = try self.asTimeZone(timeZone)
+      if dateFormat == .false {
+        formatter.dateStyle = .short
+        formatter.timeStyle = .medium
+      } else {
+        switch dateFormat {
+          case .pair(let dateStyle, .pair(let timeStyle, _)):
+            formatter.dateStyle = try self.asDateStyle(dateStyle)
+            formatter.timeStyle = try self.asDateStyle(timeStyle)
+          case .symbol(_):
+            let style = try self.asDateStyle(dateFormat)
+            formatter.dateStyle = style
+            formatter.timeStyle = style
+          default:
+            formatter.dateFormat = try dateFormat.asString()
+        }
+      }
+      guard let date = formatter.date(from: try str.asString()) else {
+        return .false
+      }
+      return .object(NativeDateTime(Self.calendar.dateComponents(in: formatter.timeZone,
+                                                                 from: date)))
     }
-    guard let date = formatter.date(from: try str.asString()) else {
-      return .false
-    }
-    return .object(NativeDateTime(Self.calendar.dateComponents(in: formatter.timeZone,
-                                                               from: date)))
   }
 
   private func dateTimeAdd(_ expr: Expr, _ days: Expr, _ args: Arguments) throws -> Expr {
@@ -526,13 +546,21 @@ public final class DateTimeLibrary: NativeLibrary {
     return .makeString(formatter.string(from: date))
   }
 
-  private func dateTimeToISO8601String(_ expr: Expr) throws -> Expr {
+  private func dateTimeToISO8601String(_ expr: Expr, fract: Expr?, exclTz: Expr?) throws -> Expr {
     let dateComponents = try self.asDateComponents(expr)
     guard let date = dateComponents.date else {
       throw RuntimeError.type(expr, expected: [NativeDateTime.type])
     }
     let formatter = ISO8601DateFormatter()
-    formatter.timeZone = dateComponents.timeZone ?? TimeZone.current
+    formatter.timeZone = dateComponents.timeZone ?? TimeZone(identifier: "UTC") ?? TimeZone.current
+    if fract?.isTrue ?? false {
+      formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+    } else {
+      formatter.formatOptions = [.withInternetDateTime]
+    }
+    if exclTz?.isTrue ?? false {
+      formatter.formatOptions.remove(.withTimeZone)
+    }
     return .makeString(formatter.string(from: date))
   }
 

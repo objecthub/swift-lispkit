@@ -139,6 +139,7 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("draw-html", drawHtml))
     self.define(Procedure("draw-image", drawImage))
     self.define(Procedure("draw-drawing", drawDrawing))
+    self.define(Procedure("clip-drawing", clipDrawing))
     self.define(Procedure("inline-drawing", inlineDrawing))
     self.define(Procedure("save-drawing", saveDrawing))
     self.define(Procedure("save-drawings", saveDrawings))
@@ -2374,7 +2375,7 @@ public final class DrawingLibrary: NativeLibrary {
       case .pair(.pair(.flonum(let x), .flonum(let y)), .pair(.flonum(let w), .flonum(let h))):
         let rect = CGRect(x: x, y: y, width: w, height: h)
         var res = rect.applying(CGAffineTransform(scaleX: sx, y: sy))
-        if sy < 0 {
+        if sy < 0.0 {
           res = res.applying(CGAffineTransform(translationX: 0, y: height))
         }
         return .pair(.pair(.flonum(res.origin.x), .flonum(res.origin.y)),
@@ -2382,7 +2383,7 @@ public final class DrawingLibrary: NativeLibrary {
       default:
         var shape = Shape(.transformed(try self.shape(from: expr),
                                        Transformation(CGAffineTransform(scaleX: sx, y: sy))))
-        if sy < 0 {
+        if sy < 0.0 {
           shape = Shape(.transformed(shape,
                                      Transformation(CGAffineTransform(translationX: 0, y: height))))
         }

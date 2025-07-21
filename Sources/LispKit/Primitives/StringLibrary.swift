@@ -70,6 +70,7 @@ public final class StringLibrary: NativeLibrary {
     self.define(Procedure("string-normalize-separators", stringNormalizeSeparators))
     self.define(Procedure("string-decode-named-chars", stringDecodeNamedChars))
     self.define(Procedure("string-encode-named-chars", stringEncodeNamedChars))
+    self.define(Procedure("object->string", objectToString))
     self.define(Procedure("list->string", listToString))
     self.define(Procedure("string->list", stringToList))
     self.define(Procedure("substring", substring))
@@ -442,6 +443,10 @@ public final class StringLibrary: NativeLibrary {
       end -= 1
     }
     return res
+  }
+  
+  func objectToString(_ expr: Expr, write: Expr?) throws -> Expr {
+    return .makeString(expr.toString(escape: write?.isTrue ?? false))
   }
   
   func listToString(_ expr: Expr) throws -> Expr {

@@ -596,7 +596,7 @@ open class Library: Reference, CustomStringConvertible {
                 guard let featureReq = FeatureRequirement(reqs, in: self.context) else {
                   throw RuntimeError.eval(.malformedCondExpandClause, clause)
                 }
-                if try featureReq.valid(in: self.context) {
+                if featureReq.valid(in: self.context) {
                   defs = exprs
                   var j = i
                   while case .pair(let decl, let next) = defs {

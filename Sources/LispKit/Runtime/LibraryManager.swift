@@ -57,6 +57,22 @@ public final class LibraryManager: TrackedObject, CustomStringConvertible {
     return AnySequence(self.libraries.values)
   }
   
+  /// Checks if there is a library available to be loaded (if not loaded already)
+  public func isAvailable(_ name: Expr) -> Bool {
+    if self.unknownLibraries.contains(name) {
+      return false
+    } else if self.libraries[name] == nil {
+      if let filename = self.filename(name),
+         self.context.fileHandler.libraryFilePath(forFile: filename) != nil {
+        return true
+      } else {
+        return false
+      }
+    } else {
+      return true
+    }
+  }
+  
   /// Returns the library loaded by this library manager with the given name.
   public func lookup(_ name: [String]) throws -> Library? {
     return try self.lookup(self.name(name))

@@ -60,11 +60,11 @@ public final class JSONLibrary: NativeLibrary {
   
     /// Dependencies of the library.
   public override func dependencies() {
-    self.`import`(from: ["lispkit", "core"],    "define")
-    self.`import`(from: ["lispkit", "control"], "do")
+    self.`import`(from: ["lispkit", "core"],    "define", "define-syntax", "syntax-rules", "quote")
+    self.`import`(from: ["lispkit", "control"], "do", "let", "if")
     self.`import`(from: ["lispkit", "dynamic"], "assert")
     self.`import`(from: ["lispkit", "math"],    "fx1+", "fx>=")
-    self.`import`(from: ["lispkit", "list"],    "null?", "car", "cdr")
+    self.`import`(from: ["lispkit", "list"],    "null?", "car", "cdr", "cons")
   }
   
     /// Declarations of the library.
@@ -99,6 +99,7 @@ public final class JSONLibrary: NativeLibrary {
     self.define(Procedure("json-string?", self.isJsonString))
     self.define(Procedure("json-array?", self.isJsonArray))
     self.define(Procedure("json-object?", self.isJsonObject))
+    self.define(Procedure("json-member?", self.isJsonMember))
     self.define(Procedure("json-refinement?", self.isJsonRefinement))
     self.define(Procedure("json=?", self.isJsonEqual))
     self.define(Procedure("json", self.json))
@@ -108,6 +109,7 @@ public final class JSONLibrary: NativeLibrary {
     self.define(Procedure("cbor->json", self.cborToJson))
     self.define(Procedure("load-json", self.loadJson))
     self.define(Procedure("json-members", self.jsonMembers))
+    self.define(Procedure("json-member", self.jsonMember))
     self.define(Procedure("json-children", self.jsonChildren))
     self.define(Procedure("json-children-count", self.jsonChildrenCount))
     self.define(Procedure("json-ref", self.jsonRef))
@@ -138,6 +140,28 @@ public final class JSONLibrary: NativeLibrary {
     self.define(Procedure("json-query", self.jsonQuery))
     self.define(Procedure("json-query-results", self.jsonQueryResults))
     self.define(Procedure("json-query-locations", self.jsonQueryLocations))
+    
+    // Syntax
+    self.define("_name-value-pairs", via: """
+      (define-syntax _name-value-pairs
+        (syntax-rules ()
+          ((_ ())
+            '())
+          ((_ ((name value) . pairs))
+            (let ((name value)
+                  (rest (_name-value-pairs pairs)))
+              (if name (cons (cons 'name name) rest) rest)))
+          ((_ ((name value valid) . pairs))
+            (let ((name value)
+                  (rest (_name-value-pairs pairs)))
+              (if (valid name) (cons (cons 'name name) rest) rest)))))
+    """)
+    self.define("json-object", via: """
+      (define-syntax json-object
+        (syntax-rules ()
+          ((_ . nvpairs)
+            (json (_name-value-pairs nvpairs)))))
+    """)
     
     // Higher-order functions
     self.define("json-for-each-element", via: """
@@ -601,6 +625,18 @@ public final class JSONLibrary: NativeLibrary {
     return .true
   }
   
+  private func isJsonMember(expr: Expr, member: Expr) throws -> Expr {
+    guard let json = self.jsonOpt(from: expr),
+          case .object(let dict) = json else {
+      return .false
+    }
+    if case .string(let str) = member {
+      return .makeBoolean(dict[str as String] != nil)
+    } else {
+      return .makeBoolean(dict[try member.asSymbol().identifier] != nil)
+    }
+  }
+  
   private func isJsonRefinement(expr: Expr, other: Expr) throws -> Expr {
     return .makeBoolean(try self.json(from: expr).isRefinement(of: self.json(from: other)))
   }
@@ -667,6 +703,10 @@ public final class JSONLibrary: NativeLibrary {
         var rs = expr
         var dict: [String : JSON] = [:]
         while case .pair(.pair(let key, let value), let rest) = rs {
+          guard case .void = value else {
+            rs = rest
+            continue
+          }
           switch key {
             case .symbol(let member):
               dict[member.identifier] = try Self.toJSON(value, in: context)
@@ -684,6 +724,9 @@ public final class JSONLibrary: NativeLibrary {
       case .table(let table):
         var dict: [String : JSON] = [:]
         for (key, value) in table.entries {
+          guard case .void = value else {
+            continue
+          }
           switch key {
             case .symbol(let member):
               dict[member.identifier] = try Self.toJSON(value, in: context)
@@ -753,6 +796,38 @@ public final class JSONLibrary: NativeLibrary {
     return .object(try JSON(url: URL(fileURLWithPath: path),
                             dateDecodingStrategy: .iso8601,
                             floatDecodingStrategy: Self.floatDecodingStrategy))
+  }
+  
+  private func jsonMember(expr: Expr, member: Expr, def: Expr?) throws -> Expr {
+    var json = try self.json(from: expr)
+    var members: Expr
+    switch member {
+      case .null, .pair(_, _):
+        members = member
+      default:
+        members = .pair(member, .null)
+    }
+    while case .pair(let ref, let next) = members {
+      guard case .object(let dict) = json else {
+        throw RuntimeError.eval(.notAJSONObject, expr)
+      }
+      if case .string(let str) = ref {
+        if let value = dict[str as String] {
+          json = value
+        } else {
+          return def ?? .false
+        }
+      } else if let value = dict[try ref.asSymbol().identifier] {
+        json = value
+      } else {
+        return def ?? .false
+      }
+      members = next
+    }
+    guard members.isNull else {
+      throw RuntimeError.type(member, expected: [.properListType])
+    }
+    return json.toExpr(in: self.context)
   }
   
   private func jsonMembers(expr: Expr) throws -> Expr {
@@ -870,8 +945,12 @@ public final class JSONLibrary: NativeLibrary {
     return .object(json)
   }
   
-  private func jsonToValue(expr: Expr) throws -> Expr {
-    return try self.json(from: expr).toExpr(in: self.context)
+  private func jsonToValue(expr: Expr, def: Expr?) throws -> Expr {
+    if expr.isFalse, let def {
+      return def
+    } else {
+      return try self.json(from: expr).toExpr(in: self.context)
+    }
   }
   
   private func jsonToString(expr: Expr, args: Arguments) throws -> Expr {
