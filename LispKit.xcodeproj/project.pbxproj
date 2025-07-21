@@ -633,6 +633,8 @@
 		CC9ED4082710EC88004B1E29 /* patmatch.sld in Copy examples/paip */ = {isa = PBXBuildFile; fileRef = CC9ED3FD2710E778004B1E29 /* patmatch.sld */; };
 		CC9ED4092710EC90004B1E29 /* simplifier.sld in Copy examples/paip */ = {isa = PBXBuildFile; fileRef = CC9ED3FE2710E7CB004B1E29 /* simplifier.sld */; };
 		CC9ED40A2710ECA5004B1E29 /* Simplifier.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC9ED3FF2710E926004B1E29 /* Simplifier.scm */; };
+		CC9FF30C2E2E92BC00D4C445 /* Pinterest.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC9FF30B2E2E926E00D4C445 /* Pinterest.scm */; };
+		CC9FF30D2E2E92CD00D4C445 /* Pinterest.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC9FF30B2E2E926E00D4C445 /* Pinterest.scm */; };
 		CCA3127D204CB74A0026FF13 /* RuntimeError.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA3127C204CB74A0026FF13 /* RuntimeError.swift */; };
 		CCA3127F204CB7900026FF13 /* LexicalError.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA3127E204CB7900026FF13 /* LexicalError.swift */; };
 		CCA31281204CB7A60026FF13 /* SyntaxError.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA31280204CB7A60026FF13 /* SyntaxError.swift */; };
@@ -1717,6 +1719,7 @@
 			dstPath = Root/LispKit/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC9FF30C2E2E92BC00D4C445 /* Pinterest.scm in Copy examples */,
 				CC4132432DF9BB0A00D77CF6 /* MermaidDiagrams.scm in Copy examples */,
 				CC4132312DF5CB8300D77CF6 /* DrawMaps.scm in Copy examples */,
 				CC0CB0122D74FE32008B17DB /* OCR.scm in Copy examples */,
@@ -2645,6 +2648,7 @@
 			dstPath = Root/LispKit/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC9FF30D2E2E92CD00D4C445 /* Pinterest.scm in Copy examples */,
 				CC4132442DF9BB1E00D77CF6 /* MermaidDiagrams.scm in Copy examples */,
 				CC4132322DF5CB9500D77CF6 /* DrawMaps.scm in Copy examples */,
 				CC0CB0132D74FE69008B17DB /* OCR.scm in Copy examples */,
@@ -3644,6 +3648,7 @@
 		CC9ED3FD2710E778004B1E29 /* patmatch.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = patmatch.sld; sourceTree = "<group>"; };
 		CC9ED3FE2710E7CB004B1E29 /* simplifier.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = simplifier.sld; sourceTree = "<group>"; };
 		CC9ED3FF2710E926004B1E29 /* Simplifier.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Simplifier.scm; sourceTree = "<group>"; };
+		CC9FF30B2E2E926E00D4C445 /* Pinterest.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Pinterest.scm; sourceTree = "<group>"; };
 		CCA3127C204CB74A0026FF13 /* RuntimeError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeError.swift; sourceTree = "<group>"; };
 		CCA3127E204CB7900026FF13 /* LexicalError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexicalError.swift; sourceTree = "<group>"; };
 		CCA31280204CB7A60026FF13 /* SyntaxError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyntaxError.swift; sourceTree = "<group>"; };
@@ -5204,6 +5209,7 @@
 				CCB7520D2C623F5800E7C1B0 /* Webserver.scm */,
 				CC02EA002CB75C1D00ABFC6F /* WebAPIs.scm */,
 				CC35C01D2C8527A800DF6E9D /* Keychain.scm */,
+				CC9FF30B2E2E926E00D4C445 /* Pinterest.scm */,
 				CC9ED3FB2710E6DB004B1E29 /* paip */,
 			);
 			path = Examples;
