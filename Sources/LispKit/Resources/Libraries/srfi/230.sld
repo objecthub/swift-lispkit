@@ -69,7 +69,10 @@
           atomic-pair-compare-and-swap!
           atomic-fence)
   
-  (import (lispkit base)
+  (import (except (lispkit base)
+            atomic-box? make-atomic-box atomic-box-ref atomic-box-set!
+            atomic-box-swap! atomic-box-compare-and-set! atomic-box-compare-and-swap!
+            atomic-box-inc+mul!)
           (lispkit thread))
   
   (begin

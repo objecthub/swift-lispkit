@@ -77,7 +77,6 @@
 		CC0E57C6268FAAE800693DD2 /* 223.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC0E57C2268FAA4200693DD2 /* 223.sld */; };
 		CC0E57C7268FAAFB00693DD2 /* SRFI-223.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC0E57C3268FAA7800693DD2 /* SRFI-223.scm */; };
 		CC0EBFF91ED37FB7004510B2 /* Math.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC0EBFF81ED37A76004510B2 /* Math.scm */; };
-		CC10404D1F53789D0045144A /* legacy.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC10404C1F5378660045144A /* legacy.sld */; };
 		CC131C4C1CDE0C3D006C030C /* SyntaxRules.scm in Resources */ = {isa = PBXBuildFile; fileRef = CC131C4B1CDE0C3D006C030C /* SyntaxRules.scm */; };
 		CC131C4E1CDE0DCA006C030C /* RegressionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC131C4D1CDE0DCA006C030C /* RegressionTests.swift */; };
 		CC131C501CDE0E01006C030C /* LispKitTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC131C4F1CDE0E01006C030C /* LispKitTestCase.swift */; };
@@ -237,7 +236,6 @@
 		CC38529B231B329E001D5E56 /* memoization.sld in Copy pre-installed third-party Adapton library */ = {isa = PBXBuildFile; fileRef = CC385294231B2FA4001D5E56 /* memoization.sld */; };
 		CC38529C231B32A8001D5E56 /* set.sld in Copy pre-installed third-party Adapton library */ = {isa = PBXBuildFile; fileRef = CC385292231B2F2C001D5E56 /* set.sld */; };
 		CC3852A0232529E7001D5E56 /* Maze.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC38529F23252217001D5E56 /* Maze.scm */; };
-		CC3A025A1F97FD72009B959C /* deprecated.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC3A02591F97F3E1009B959C /* deprecated.sld */; };
 		CC3B641A23822BCE00807476 /* NativeObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC3B641923822BCE00807476 /* NativeObject.swift */; };
 		CC3B642B2386025500807476 /* LispKitTools.h in Headers */ = {isa = PBXBuildFile; fileRef = CC3B64292386025500807476 /* LispKitTools.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		CC3B642F2386027C00807476 /* LispKitRepl.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC3B641B2383390D00807476 /* LispKitRepl.swift */; };
@@ -700,6 +698,10 @@
 		CCC41DC61D2851FB003CB4D0 /* VirtualMachineState.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC41DC51D2851FB003CB4D0 /* VirtualMachineState.swift */; };
 		CCC41DC81D2B14AD003CB4D0 /* CallCC.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCC41DC71D2B14AD003CB4D0 /* CallCC.scm */; };
 		CCC41DCA1D330439003CB4D0 /* DynamicWind.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCC41DC91D330439003CB4D0 /* DynamicWind.scm */; };
+		CCC430B82E494CFA00952664 /* deprecated.sld in Copy pre-installed LispKit library: LispKit JSON deprecated */ = {isa = PBXBuildFile; fileRef = CC3A02591F97F3E1009B959C /* deprecated.sld */; };
+		CCC430BA2E494DAA00952664 /* legacy.sld in Copy pre-installed LispKit library: LispKit PDF legacy */ = {isa = PBXBuildFile; fileRef = CC10404C1F5378660045144A /* legacy.sld */; };
+		CCC430BC2E4951E700952664 /* legacy.sld in Copy pre-installed LispKit library: LispKit PDF legacy */ = {isa = PBXBuildFile; fileRef = CC10404C1F5378660045144A /* legacy.sld */; };
+		CCC430BE2E49522200952664 /* deprecated.sld in Copy pre-installed LispKit library: LispKit JSON deprecated */ = {isa = PBXBuildFile; fileRef = CC3A02591F97F3E1009B959C /* deprecated.sld */; };
 		CCC48BF125D862C700D082AD /* LispKit-WT-Tree.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCC48BF025D8623A00D082AD /* LispKit-WT-Tree.scm */; };
 		CCC48C4A25E32AE600D082AD /* Environments.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCC48C4925E327D200D082AD /* Environments.scm */; };
 		CCC48C6425E5B94300D082AD /* ManagedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE0429D1C9E8C8B00CA7BC4 /* ManagedObject.swift */; };
@@ -895,8 +897,6 @@
 		CCC48D9D25E9806600D082AD /* stream.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC4A7DB822585D9100936034 /* stream.sld */; };
 		CCC48D9E25E9806600D082AD /* prettify.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC750BD91F5B772200CD82A2 /* prettify.sld */; };
 		CCC48D9F25E9806600D082AD /* csv.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCBD755D21E224A7008CD7C8 /* csv.sld */; };
-		CCC48DA025E9806600D082AD /* deprecated.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC3A02591F97F3E1009B959C /* deprecated.sld */; };
-		CCC48DA125E9806600D082AD /* legacy.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC10404C1F5378660045144A /* legacy.sld */; };
 		CCC48DA225E9806600D082AD /* clos.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC703A1A218D09B600E71EA9 /* clos.sld */; };
 		CCC48DA325E9806600D082AD /* prolog.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCD3E15325C5EB83007FCE8A /* prolog.sld */; };
 		CCC48DA425E9806600D082AD /* logic.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CC436C3F1FFBD5090095559E /* logic.sld */; };
@@ -1840,11 +1840,9 @@
 				CC90B2341FE55E8B0044F724 /* stack.sld in Copy pre-installed LispKit libraries */,
 				CC68B3A91FCCCDEE00EB4AF9 /* object.sld in Copy pre-installed LispKit libraries */,
 				CCEEF3931FB3CB50006C4581 /* wt-tree.sld in Copy pre-installed LispKit libraries */,
-				CC3A025A1F97FD72009B959C /* deprecated.sld in Copy pre-installed LispKit libraries */,
 				CCE7CA461F8EC07000FD7ECA /* iterate.sld in Copy pre-installed LispKit libraries */,
 				CC2345411F655BD800C38817 /* datatype.sld in Copy pre-installed LispKit libraries */,
 				CC750BDA1F5B776700CD82A2 /* prettify.sld in Copy pre-installed LispKit libraries */,
-				CC10404D1F53789D0045144A /* legacy.sld in Copy pre-installed LispKit libraries */,
 				CC72862D1F52B32C00EEBC58 /* heap.sld in Copy pre-installed LispKit libraries */,
 				CC5848031E56920600BE6497 /* set.sld in Copy pre-installed LispKit libraries */,
 			);
@@ -2305,6 +2303,50 @@
 			name = "Copy pre-installed SRFI libraries";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CCC430B72E494CDE00952664 /* Copy pre-installed LispKit library: LispKit JSON deprecated */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Root/LispKit/Libraries/lispkit/json;
+			dstSubfolderSpec = 7;
+			files = (
+				CCC430B82E494CFA00952664 /* deprecated.sld in Copy pre-installed LispKit library: LispKit JSON deprecated */,
+			);
+			name = "Copy pre-installed LispKit library: LispKit JSON deprecated";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCC430B92E494D9900952664 /* Copy pre-installed LispKit library: LispKit PDF legacy */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Root/LispKit/Libraries/lispkit/pdf;
+			dstSubfolderSpec = 7;
+			files = (
+				CCC430BA2E494DAA00952664 /* legacy.sld in Copy pre-installed LispKit library: LispKit PDF legacy */,
+			);
+			name = "Copy pre-installed LispKit library: LispKit PDF legacy";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCC430BB2E4951BE00952664 /* Copy pre-installed LispKit library: LispKit PDF legacy */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Root/LispKit/Libraries/lispkit/pdf;
+			dstSubfolderSpec = 7;
+			files = (
+				CCC430BC2E4951E700952664 /* legacy.sld in Copy pre-installed LispKit library: LispKit PDF legacy */,
+			);
+			name = "Copy pre-installed LispKit library: LispKit PDF legacy";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCC430BD2E49520F00952664 /* Copy pre-installed LispKit library: LispKit JSON deprecated */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Root/LispKit/Libraries/lispkit/json;
+			dstSubfolderSpec = 7;
+			files = (
+				CCC430BE2E49522200952664 /* deprecated.sld in Copy pre-installed LispKit library: LispKit JSON deprecated */,
+			);
+			name = "Copy pre-installed LispKit library: LispKit JSON deprecated";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CCC48D1C25E5CC7F00D082AD /* Copy default prelude */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -2517,8 +2559,6 @@
 				CCC48D9D25E9806600D082AD /* stream.sld in Copy pre-installed LispKit libraries */,
 				CCC48D9E25E9806600D082AD /* prettify.sld in Copy pre-installed LispKit libraries */,
 				CCC48D9F25E9806600D082AD /* csv.sld in Copy pre-installed LispKit libraries */,
-				CCC48DA025E9806600D082AD /* deprecated.sld in Copy pre-installed LispKit libraries */,
-				CCC48DA125E9806600D082AD /* legacy.sld in Copy pre-installed LispKit libraries */,
 				CCC48DA225E9806600D082AD /* clos.sld in Copy pre-installed LispKit libraries */,
 				CCC48DA325E9806600D082AD /* prolog.sld in Copy pre-installed LispKit libraries */,
 				CCC48DA425E9806600D082AD /* logic.sld in Copy pre-installed LispKit libraries */,
@@ -5324,6 +5364,8 @@
 				CC703A1E218D0AF500E71EA9 /* Copy pre-installed LispKit library: LispKit CLOS Support */,
 				CC82933121D6E9A6003E1D3C /* Copy pre-installed LispKit library: LispKit Log Internal */,
 				CC240E8F24FB1C6C00FF6D0F /* Copy pre-installed LispKit library: LispKit SXML parsers */,
+				CCC430B72E494CDE00952664 /* Copy pre-installed LispKit library: LispKit JSON deprecated */,
+				CCC430B92E494D9900952664 /* Copy pre-installed LispKit library: LispKit PDF legacy */,
 				CC7F7C191FC04B8A00639166 /* Copy pre-installed Scheme libraries */,
 				CC385297231B3042001D5E56 /* Copy pre-installed third-party libraries */,
 				CC385298231B325C001D5E56 /* Copy pre-installed third-party Adapton library */,
@@ -5407,6 +5449,8 @@
 				CCC48DAE25E980D400D082AD /* Copy pre-installed LispKit library: LispKit CLOS Support */,
 				CCC48DAF25E982A100D082AD /* Copy pre-installed LispKit library: LispKit Log Internal */,
 				CCC48DB025E982E300D082AD /* Copy pre-installed LispKit library: LispKit SXML parsers */,
+				CCC430BD2E49520F00952664 /* Copy pre-installed LispKit library: LispKit JSON deprecated */,
+				CCC430BB2E4951BE00952664 /* Copy pre-installed LispKit library: LispKit PDF legacy */,
 				CCC48DB125E9832100D082AD /* Copy pre-installed Scheme libraries */,
 				CCC48DDF25E9861600D082AD /* Copy pre-installed third-party libraries */,
 				CCC48DE025E9862C00D082AD /* Copy pre-installed third-party Adapton library */,

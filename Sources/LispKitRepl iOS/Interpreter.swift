@@ -136,7 +136,9 @@ final class Interpreter: ContextDelegate, ObservableObject {
     }
     let context = LispKitContext(delegate: self,
                                  initialHomePath: PortableURL.Base.documents.url?.path,
-                                 features: ["lispkitrepl"])
+                                 features: ["lispkitrepl"],
+                                 limitStack: 10000 * 1000)
+    context.heap.reserveCapacity(1000)
     // Setup search paths
     if let librariesPath = PortableURL.Base.documents.url?.appendingPathComponent("Libraries/").path {
       _ = context.fileHandler.prependLibrarySearchPath(librariesPath)

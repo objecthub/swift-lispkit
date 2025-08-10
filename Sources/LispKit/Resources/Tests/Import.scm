@@ -5,15 +5,17 @@
 ;;; Author: Matthias Zenger
 ;;; Copyright © 2019-2022 Matthias Zenger. All rights reserved.
 ;;;
-;;; Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
-;;; except in compliance with the License. You may obtain a copy of the License at
+;;; Licensed under the Apache License, Version 2.0 (the "License"); you may
+;;; not use this file except in compliance with the License. You may obtain
+;;; a copy of the License at
 ;;;
 ;;;   http://www.apache.org/licenses/LICENSE-2.0
 ;;;
-;;; Unless required by applicable law or agreed to in writing, software distributed under the
-;;; License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-;;; either express or implied. See the License for the specific language governing permissions
-;;; and limitations under the License.
+;;; Unless required by applicable law or agreed to in writing, software
+;;; distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+;;; WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+;;; License for the specific language governing permissions and limitations
+;;; under the License.
 
 ;; LispKit
 
@@ -28,17 +30,40 @@
 (import (lispkit bitset))
 (import (lispkit enum))
 (import (lispkit regexp))
+(import (lispkit url))
 (import (lispkit draw))
+(import (lispkit draw barcode))
+(import (lispkit draw map))
+(import (lispkit draw web))
 (import (lispkit markdown))
 (import (lispkit sqlite))
+(import (lispkit archive tar))
 (import (lispkit archive zip))
-(import (lispkit system call))
+(import (lispkit system))
+(import (lispkit system keychain))
+(import (lispkit system pasteboard))
 (import (lispkit thread))
+(import (lispkit thread future))
+(import (lispkit thread shared-queue))
 (import (lispkit crypto))
 (import (lispkit styled-text))
 (import (lispkit format))
 (import (lispkit json))
+(import (lispkit json schema))
+(import (lispkit http))
+(import (lispkit http server))
+(import (lispkit http oauth))
+(import (lispkit location))
+(import (lispkit image))
+(import (lispkit vision))
 (import (lispkit debug))
+
+; Mac-specific
+(cond-expand (macos
+  (display "LispKit Mac-specific")
+  (newline)
+  
+  (import (lispkit system call))))
 
 (display "LispKit non-native")
 (newline)
@@ -166,7 +191,6 @@
 (import (srfi 215))
 (import (srfi 216))
 (import (srfi sicp))
-(import (srfi 214))
 (import (srfi 217))
 (import (srfi 219))
 (import (srfi 221))
@@ -182,6 +206,7 @@
 (import (srfi 235))
 (import (srfi 236))
 (import (srfi 239))
+(import (srfi 258))
 
 ; this needs to be last
 (import (srfi 101))
