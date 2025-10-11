@@ -624,6 +624,9 @@ public final class JSONSchemaLibrary: NativeLibrary {
   }
 }
 
+extension DynamicJSON.JSONSchemaRegistry: @retroactive Hashable {}
+extension DynamicJSON.JSONSchemaRegistry: @retroactive Equatable {}
+
 extension DynamicJSON.JSONSchemaRegistry: LispKit.CustomExpr {
   public static let type = Type.objectType(Symbol(uninterned: "json-schema-registry"))
   
@@ -669,6 +672,9 @@ extension DynamicJSON.JSONSchemaRegistry: LispKit.CustomExpr {
     return lhs === rhs
   }
 }
+
+extension DynamicJSON.JSONSchemaResource: @retroactive Hashable {}
+extension DynamicJSON.JSONSchemaResource: @retroactive Equatable {}
 
 extension DynamicJSON.JSONSchemaResource: LispKit.CustomExpr {
   public static let type = Type.objectType(Symbol(uninterned: "json-schema"))
