@@ -2814,10 +2814,10 @@ public final class LispKitPDFPage: PDFPage {
   public var images: [UIImage] {
     guard let page = self.pageRef,
           let dictionary = page.dictionary,
-          let resources = dictionary[CGPDFDictionaryGetDictionary, "Resources"] else {
+          let resources = dictionary.getDictionary(for: "Resources") else {
       return []
     }
-    if let xObject = resources[CGPDFDictionaryGetDictionary, "XObject"] {
+    if let xObject = resources.getDictionary(for: "XObject") {
       var imageKeys: [String] = []
       CGPDFDictionaryApplyBlock(xObject, { key, object, _ in
         var stream: CGPDFStreamRef?
@@ -2849,7 +2849,8 @@ public final class LispKitPDFPage: PDFPage {
           return nil
         }
         if format == .JPEG2000 || format == .jpegEncoded {
-          if let cspace = try? dictionary[CGPDFDictionaryGetObject, "ColorSpace"]?.getColorSpace(),
+          if let colorSpaceObject = dictionary.getObject(for: "ColorSpace"),
+             let cspace = try? colorSpaceObject.getColorSpace(),
              let provider = CGDataProvider(data: data),
              let embeddedImage = CGImage(jpegDataProviderSource: provider,
                                          decode: nil,
@@ -2870,22 +2871,20 @@ public final class LispKitPDFPage: PDFPage {
   }
   
   private func getNSImage(data: CFData, info: CGPDFDictionaryRef) throws -> UIImage {
-    guard let colorSpace = try info[CGPDFDictionaryGetObject, "ColorSpace"]?.getColorSpace() else {
+    guard let colorSpaceObject = info.getObject(for: "ColorSpace"),
+          let colorSpace = try? colorSpaceObject.getColorSpace() else {
       throw RawDecodingError.noColorSpace(info.getNameArray(for: "Filter"))
     }
-    guard let width = info[CGPDFDictionaryGetInteger, "Width"],
-          let height = info[CGPDFDictionaryGetInteger, "Height"] else {
+    guard let width = info.getInteger(for: "Width"),
+          let height = info.getInteger(for: "Height") else {
         throw RawDecodingError.cannotReadSize
     }
-    guard let bitsPerComponent = info[CGPDFDictionaryGetInteger, "BitsPerComponent"] else {
+    guard let bitsPerComponent = info.getInteger(for: "BitsPerComponent") else {
       throw RawDecodingError.cannotReadBitsPerComponent
     }
     let decode: [CGFloat]?
-    if let decodeRef = info[CGPDFDictionaryGetArray, "Decode"] {
-      let count = CGPDFArrayGetCount(decodeRef)
-      decode = (0..<count).map {
-        decodeRef[CGPDFArrayGetNumber, $0]!
-      }
+    if let decodeRef = info.getArray(for: "Decode") {
+      decode = decodeRef.asFloatArray()
     } else {
       decode = nil
     }
@@ -2942,10 +2941,10 @@ public final class LispKitPDFPage: PDFPage {
   public var images: [NSImage] {
     guard let page = self.pageRef,
           let dictionary = page.dictionary,
-          let resources = dictionary[CGPDFDictionaryGetDictionary, "Resources"] else {
+          let resources = dictionary.getDictionary(for: "Resources") else {
       return []
     }
-    if let xObject = resources[CGPDFDictionaryGetDictionary, "XObject"] {
+    if let xObject = resources.getDictionary(for: "XObject") {
       var imageKeys: [String] = []
       CGPDFDictionaryApplyBlock(xObject, { key, object, _ in
         var stream: CGPDFStreamRef?
@@ -2977,8 +2976,8 @@ public final class LispKitPDFPage: PDFPage {
           return nil
         }
         if format == .JPEG2000 || format == .jpegEncoded {
-          if let colorSpace = try? dictionary[CGPDFDictionaryGetObject, "ColorSpace"]?
-                                     .getColorSpace(),
+          if let colorSpaceObject = dictionary.getObject(for: "ColorSpace"),
+             let colorSpace = try? colorSpaceObject.getColorSpace(),
              let provider = CGDataProvider(data: data),
              let embeddedImage = CGImage(jpegDataProviderSource: provider,
                                          decode: nil,
@@ -2999,22 +2998,20 @@ public final class LispKitPDFPage: PDFPage {
   }
   
   private func getNSImage(data: CFData, info: CGPDFDictionaryRef) throws -> NSImage {
-    guard let colorSpace = try info[CGPDFDictionaryGetObject, "ColorSpace"]?.getColorSpace() else {
+    guard let colorSpaceObject = info.getObject(for: "ColorSpace"),
+          let colorSpace = try? colorSpaceObject.getColorSpace() else {
       throw RawDecodingError.noColorSpace(info.getNameArray(for: "Filter"))
     }
-    guard let width = info[CGPDFDictionaryGetInteger, "Width"],
-          let height = info[CGPDFDictionaryGetInteger, "Height"] else {
+    guard let width = info.getInteger(for: "Width"),
+          let height = info.getInteger(for: "Height") else {
         throw RawDecodingError.cannotReadSize
     }
-    guard let bitsPerComponent = info[CGPDFDictionaryGetInteger, "BitsPerComponent"] else {
+    guard let bitsPerComponent = info.getInteger(for: "BitsPerComponent") else {
       throw RawDecodingError.cannotReadBitsPerComponent
     }
     let decode: [CGFloat]?
-    if let decodeRef = info[CGPDFDictionaryGetArray, "Decode"] {
-      let count = CGPDFArrayGetCount(decodeRef)
-      decode = (0..<count).map {
-        decodeRef[CGPDFArrayGetNumber, $0]!
-      }
+    if let decodeRef = info.getArray(for: "Decode") {
+      decode = decodeRef.asFloatArray()
     } else {
       decode = nil
     }
@@ -3048,87 +3045,166 @@ public final class LispKitPDFDocumentDelegate: NSObject, PDFDocumentDelegate {
   }
 }
 
-protocol DefaultInitializer {
-  init()
-}
-
-extension Int: DefaultInitializer {}
-
-extension CGFloat: DefaultInitializer {}
 
 enum RawDecodingError: Error {
   case cannotConstructImage
   case cannotReadSize
   case cannotReadBitsPerComponent
   case noColorSpace([String]?)
-  case unkownColorSpace(String)
+  case unknownColorSpace(String)
   case corruptColorSpace
   case noLookupTable
 }
 
-extension CGPDFObjectRef {
-  
-  func getName<K>(_ key: K,
-                  _ getter: (OpaquePointer, K, UnsafeMutablePointer<UnsafePointer<Int8>?>) -> Bool)
-      -> String? {
-    guard let pointer = self[getter, key] else {
-      return nil
-    }
-    return String(cString: pointer)
-  }
-
-  func getName<K>(_ key: K,
-                  _ getter: (OpaquePointer, K, UnsafeMutableRawPointer?)->Bool) -> String? {
-    var result: UnsafePointer<UInt8>!
-    guard getter(self, key, &result) else {
-      return nil
-    }
-    return String(cString: result)
-  }
-
-  subscript<R, K>(_ getter: (OpaquePointer, K, UnsafeMutablePointer<R?>)->Bool, _ key: K) -> R? {
-    var result: R!
-    guard getter(self, key, &result) else {
-      return nil
-    }
-    return result
-  }
-
-  subscript<R: DefaultInitializer, K>(_ getter: (OpaquePointer, K, UnsafeMutablePointer<R>) -> Bool,
-                                      _ key: K) -> R? {
-    var result = R()
-    guard getter(self, key, &result) else {
-      return nil
-    }
-    return result
-  }
-  
-  func getNameArray(for key: String) -> [String]? {
-    var object: CGPDFObjectRef!
+// Helper functions for working with Core Graphics PDF types
+extension CGPDFDictionaryRef {
+  func getObject(for key: String) -> CGPDFObjectRef? {
+    var object: CGPDFObjectRef?
     guard CGPDFDictionaryGetObject(self, key, &object) else {
       return nil
     }
-    if let name = object.getName(.name, CGPDFObjectGetValue) {
+    return object
+  }
+  
+  func getDictionary(for key: String) -> CGPDFDictionaryRef? {
+    var dictionary: CGPDFDictionaryRef?
+    guard CGPDFDictionaryGetDictionary(self, key, &dictionary) else {
+      return nil
+    }
+    return dictionary
+  }
+  
+  func getArray(for key: String) -> CGPDFArrayRef? {
+    var array: CGPDFArrayRef?
+    guard CGPDFDictionaryGetArray(self, key, &array) else {
+      return nil
+    }
+    return array
+  }
+  
+  func getNameArray(for key: String) -> [String]? {
+    guard let object = self.getObject(for: key) else {
+      return nil
+    }
+    if let name = object.getName() {
       return [name]
     } else {
-      var array: CGPDFArrayRef!
-      guard CGPDFObjectGetValue(self, .array, &array) else {
+      var array: CGPDFArrayRef?
+      guard CGPDFObjectGetValue(object, .array, &array),
+            let pdfArray = array else {
         return nil
       }
-      var names = [String]()
-      for index in 0..<CGPDFArrayGetCount(array) {
-        guard let name = array.getName(index, CGPDFArrayGetName) else {
+      var names: [String] = []
+      for index in 0..<CGPDFArrayGetCount(pdfArray) {
+        guard let name = pdfArray.getName(at: index) else {
           continue
         }
         names.append(name)
       }
-      assert(names.count == CGPDFArrayGetCount(array))
       return names
     }
   }
+  
+  func getInteger(for key: String) -> Int? {
+    var integer: CGPDFInteger = 0
+    guard CGPDFDictionaryGetInteger(self, key, &integer) else {
+      return nil
+    }
+    return Int(integer)
+  }
+  
+  func getStream(for key: String) -> CGPDFStreamRef? {
+    var stream: CGPDFStreamRef?
+    guard CGPDFDictionaryGetStream(self, key, &stream) else {
+      return nil
+    }
+    return stream
+  }
+  
+  func getString(for key: String) -> CGPDFStringRef? {
+    var string: CGPDFStringRef?
+    guard CGPDFDictionaryGetString(self, key, &string) else {
+      return nil
+    }
+    return string
+  }
+}
 
+extension CGPDFArrayRef {
+  func getObject(at index: Int) -> CGPDFObjectRef? {
+    var object: CGPDFObjectRef?
+    guard CGPDFArrayGetObject(self, index, &object) else {
+      return nil
+    }
+    return object
+  }
+  
+  func getDictionary(at index: Int) -> CGPDFDictionaryRef? {
+    var dictionary: CGPDFDictionaryRef?
+    guard CGPDFArrayGetDictionary(self, index, &dictionary) else {
+      return nil
+    }
+    return dictionary
+  }
+  
+  func getInteger(at index: Int) -> Int? {
+    var integer: CGPDFInteger = 0
+    guard CGPDFArrayGetInteger(self, index, &integer) else {
+      return nil
+    }
+    return Int(integer)
+  }
+  
+  func getNumber(at index: Int) -> CGFloat? {
+    var number: CGPDFReal = 0
+    guard CGPDFArrayGetNumber(self, index, &number) else {
+      return nil
+    }
+    return number
+  }
+  
+  func getString(at index: Int) -> CGPDFStringRef? {
+    var string: CGPDFStringRef?
+    guard CGPDFArrayGetString(self, index, &string) else {
+      return nil
+    }
+    return string
+  }
+  
+  func getStream(at index: Int) -> CGPDFStreamRef? {
+    var stream: CGPDFStreamRef?
+    guard CGPDFArrayGetStream(self, index, &stream) else {
+      return nil
+    }
+    return stream
+  }
+  
+  func getName(at index: Int) -> String? {
+    var name: UnsafePointer<Int8>?
+    guard CGPDFArrayGetName(self, index, &name), let namePtr = name else {
+      return nil
+    }
+    return String(cString: namePtr)
+  }
+  
+  func asFloatArray() -> [CGFloat] {
+    return (0..<CGPDFArrayGetCount(self)).compactMap { index in
+      return self.getNumber(at: index)
+    }
+  }
+}
+
+extension CGPDFObjectRef {
+  func getName() -> String? {
+    var name: UnsafePointer<Int8>?
+    guard CGPDFObjectGetValue(self, .name, &name), let namePtr = name else {
+      return nil
+    }
+    return String(cString: namePtr)
+  }
+  
   func getColorSpace() throws -> CGColorSpace {
-    if let name = getName(.name, CGPDFObjectGetValue) {
+    if let name = self.getName() {
       switch name {
         case "DeviceGray":
           return CGColorSpaceCreateDeviceGray()
@@ -3137,14 +3213,14 @@ extension CGPDFObjectRef {
         case "DeviceCMYK":
           return CGColorSpaceCreateDeviceCMYK()
         default:
-          throw RawDecodingError.unkownColorSpace(name)
+          throw RawDecodingError.unknownColorSpace(name)
       }
     } else {
-      var array: CGPDFArrayRef!
-      guard CGPDFObjectGetValue(self, .array, &array) else {
+      var array: CGPDFArrayRef?
+      guard CGPDFObjectGetValue(self, .array, &array), let pdfArray = array else {
         throw RawDecodingError.corruptColorSpace
       }
-      guard let name = array.getName(0, CGPDFArrayGetName) else {
+      guard let name = pdfArray.getName(at: 0) else {
         throw RawDecodingError.corruptColorSpace
       }
       switch name {
@@ -3153,18 +3229,19 @@ extension CGPDFObjectRef {
         case "CalGray":
           return CGColorSpaceCreateDeviceGray()
         case "Indexed":
-          guard let base = try array[CGPDFArrayGetObject, 1]?.getColorSpace(),
-                let hival = array[CGPDFArrayGetInteger, 2],
+          guard let baseObject = pdfArray.getObject(at: 1),
+                let base = try? baseObject.getColorSpace(),
+                let hival = pdfArray.getInteger(at: 2),
                 hival < 256 else {
             throw RawDecodingError.corruptColorSpace
           }
           let colorSpace: CGColorSpace?
-          if let lookupTable = array[CGPDFArrayGetString, 3] {
+          if let lookupTable = pdfArray.getString(at: 3) {
             guard let pointer = CGPDFStringGetBytePtr(lookupTable) else {
               throw RawDecodingError.corruptColorSpace
             }
             colorSpace = CGColorSpace(indexedBaseSpace: base, last: hival, colorTable: pointer)
-          } else if let lookupTable = array[CGPDFArrayGetStream, 3] {
+          } else if let lookupTable = pdfArray.getStream(at: 3) {
             var format = CGPDFDataFormat.raw
             guard let data = CGPDFStreamCopyData(lookupTable, &format) else {
               throw RawDecodingError.corruptColorSpace
@@ -3181,14 +3258,14 @@ extension CGPDFObjectRef {
           return result
         case "ICCBased":
           var format = CGPDFDataFormat.raw
-          guard let stream = array[CGPDFArrayGetStream, 1],
+          guard let stream = pdfArray.getStream(at: 1),
                 let info = CGPDFStreamGetDictionary(stream),
-                let componentCount = info[CGPDFDictionaryGetInteger, "N"],
+                let componentCount = info.getInteger(for: "N"),
                 let profileData = CGPDFStreamCopyData(stream, &format),
                 let profile = CGDataProvider(data: profileData) else {
             throw RawDecodingError.corruptColorSpace
           }
-          let alternate = try info[CGPDFDictionaryGetObject, "Alternate"]?.getColorSpace()
+          let alternate = try info.getObject(for: "Alternate")?.getColorSpace()
           guard let colorSpace = CGColorSpace(iccBasedNComponents: componentCount,
                                               range: nil,
                                               profile: profile,
@@ -3197,26 +3274,22 @@ extension CGPDFObjectRef {
           }
           return colorSpace
         case "Lab":
-          guard let info = array[CGPDFArrayGetDictionary, 1],
-                let whitePointRef = info[CGPDFDictionaryGetArray, "WhitePoint"]?.asFloatArray() else {
+          guard let info = pdfArray.getDictionary(at: 1),
+                let whitePointArray = info.getArray(for: "WhitePoint") else {
             throw RawDecodingError.corruptColorSpace
           }
-          guard let colorSpace =
-              CGColorSpace(labWhitePoint: whitePointRef,
-                           blackPoint: info[CGPDFDictionaryGetArray, "BlackPoint"]?.asFloatArray(),
-                           range: info[CGPDFDictionaryGetArray, "Range"]?.asFloatArray()) else {
+          let whitePoint = whitePointArray.asFloatArray()
+          let blackPoint = info.getArray(for: "BlackPoint")?.asFloatArray()
+          let range = info.getArray(for: "Range")?.asFloatArray()
+          guard let colorSpace = CGColorSpace(labWhitePoint: whitePoint,
+                                              blackPoint: blackPoint,
+                                              range: range) else {
             throw RawDecodingError.corruptColorSpace
           }
           return colorSpace
         default:
-          throw RawDecodingError.unkownColorSpace(name)
+          throw RawDecodingError.unknownColorSpace(name)
       }
-    }
-  }
-
-  func asFloatArray() -> [CGFloat] {
-    return (0..<CGPDFArrayGetCount(self)).map {
-      self[CGPDFArrayGetNumber, $0]!
     }
   }
 }

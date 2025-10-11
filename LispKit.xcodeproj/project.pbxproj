@@ -3926,7 +3926,7 @@
 		CCF602E723A0F6B900087740 /* pack.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = pack.sld; sourceTree = "<group>"; };
 		CCF602E823A0F6CB00087740 /* memory.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = memory.sld; sourceTree = "<group>"; };
 		CCF602E923A0F8F800087740 /* SRFI-167.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-167.scm"; sourceTree = "<group>"; };
-		CCF964042D00D65900F85FBA /* PDFLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFLibrary.swift; sourceTree = "<group>"; };
+		CCF964042D00D65900F85FBA /* PDFLibrary.swift */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.swift; path = PDFLibrary.swift; sourceTree = "<group>"; tabWidth = 2; };
 		CCF982F61D998B8A00B22A1D /* ImportSet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImportSet.swift; sourceTree = "<group>"; };
 		CCFB412A25B25316005B2429 /* ZipArchiveLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZipArchiveLibrary.swift; sourceTree = "<group>"; };
 		CCFBE5C31ECBA8DA0032254B /* Pi.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Pi.scm; sourceTree = "<group>"; };
