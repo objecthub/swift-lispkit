@@ -776,11 +776,15 @@ public final class MarkdownLibrary: NativeLibrary {
     let tight = tight?.isTrue ?? false
     switch expr {
       case .pair(_ , _):
-        return .makeString(HtmlGenerator.standard.generate(blocks:
-                             try self.internMarkdown(blocks: expr), tight: tight))
+        return .makeString(HtmlGenerator.standard.generate(
+                 blocks: try self.internMarkdown(blocks: expr),
+                 parent: .none,
+                 tight: tight))
       case .tagged(self.blockType, _):
-        return .makeString(HtmlGenerator.standard.generate(block:
-                             try self.internMarkdown(block: expr), tight: tight))
+        return .makeString(HtmlGenerator.standard.generate(
+                 block: try self.internMarkdown(block: expr),
+                 parent: .none,
+                 tight: tight))
       default:
         throw RuntimeError.custom(
           "type error", "blocks->html expects argument of type block or list of block; " +
@@ -977,7 +981,7 @@ public final class MarkdownLibrary: NativeLibrary {
       case self.bullet:
         if case .pair(let char, .pair(let tight, .pair(let blocks, .null))) = args {
           return .listItem(.bullet(Character(unicodeScalar(try char.asUniChar()))),
-                           tight.isTrue,
+                           tight.isTrue ? (tight.isNull ? .initial : .tight) : .loose,
                            try self.internMarkdown(blocks: blocks))
         }
       case self.ordered:
@@ -985,8 +989,8 @@ public final class MarkdownLibrary: NativeLibrary {
                                        .pair(let tight, .pair(let blocks, .null)))) = args {
           return .listItem(.ordered(try start.asInt(),
                                     Character(unicodeScalar(try char.asUniChar()))),
-                         tight.isTrue,
-                         try self.internMarkdown(blocks: blocks))
+                           tight.isTrue ? (tight.isNull ? .initial : .tight) : .loose,
+                           try self.internMarkdown(blocks: blocks))
       }
       default:
         break
@@ -1159,6 +1163,17 @@ public final class MarkdownLibrary: NativeLibrary {
     }
     return .makeList(exprs)
   }
+  
+  private func externDensity(_ density: ListDensity) -> Expr {
+    switch density {
+      case .initial:
+        return .null
+      case .loose:
+        return .false
+      case .tight:
+        return .true
+    }
+  }
 
   private func externMarkdown(_ block: Block) -> Expr? {
     switch block {
@@ -1188,14 +1203,14 @@ public final class MarkdownLibrary: NativeLibrary {
         return self.makeCase(self.listItemType,
                              self.bullet,
                              .char(ch.utf16.first!),
-                             .makeBoolean(tight),
+                             self.externDensity(tight),
                              self.externMarkdown(blocks))
       case .listItem(.ordered(let n, let ch), let tight, let blocks):
         return self.makeCase(self.listItemType,
                              self.ordered,
                              .makeNumber(n),
                              .char(ch.utf16.first!),
-                             .makeBoolean(tight),
+                             self.externDensity(tight),
                              self.externMarkdown(blocks))
       case .paragraph(let text):
         return self.makeCase(self.blockType,
