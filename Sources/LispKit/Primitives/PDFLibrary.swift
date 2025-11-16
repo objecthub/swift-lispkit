@@ -1446,7 +1446,17 @@ public final class PDFLibrary: NativeLibrary {
     return res
   }
   
-  private func destination(for page: Expr, point: Expr?, zoom: Expr?) throws -> PDFDestination {
+  private func destination(for page: Expr, point: Expr?, zoom: Expr?) throws -> PDFDestination? {
+    if point == nil && zoom == nil {
+      switch page {
+        case .false:
+          return nil
+        case .pair(let p, .pair(let pt, .pair(let z, .null))):
+          return try self.destination(for: p, point: pt, zoom: z)
+        default:
+          break
+      }
+    }
     let page = try self.page(from: page)
     var p = CGPoint(x: kPDFDestinationUnspecifiedValue, y: kPDFDestinationUnspecifiedValue)
     if let point {
@@ -1460,7 +1470,7 @@ public final class PDFLibrary: NativeLibrary {
       }
     }
     let destination = PDFDestination(page: page, at: p)
-    if let zoom {
+    if let zoom, zoom.isTrue {
       destination.zoom = try zoom.asDouble(coerce: true)
     }
     return destination
