@@ -120,7 +120,8 @@ public final class DrawWebLibrary: NativeLibrary {
   }
   
   private func makeWebClient(width: Expr, args: Arguments) throws -> Expr {
-    guard let (scripts, viewPort, appName, d) = args.optional(.null, .false, .false, .false) else {
+    guard let (scripts, viewPort, appName, d, prefs) =
+            args.optional(.null, .false, .false, .false, .null) else {
       throw RuntimeError.argumentCount(of: "make-web-client",
                                        min: 1,
                                        max: 5,
@@ -158,9 +159,9 @@ public final class DrawWebLibrary: NativeLibrary {
         break
       default:
         let viewport = "var meta = document.createElement('meta');\n" +
-                       "meta.setAttribute('name', 'viewport');\n" +
-                       "meta.setAttribute('content', '\(try viewPort.asString())');\n" +
-                       "document.getElementsByTagName('head')[0].appendChild(meta);"
+        "meta.setAttribute('name', 'viewport');\n" +
+        "meta.setAttribute('content', '\(try viewPort.asString())');\n" +
+        "document.getElementsByTagName('head')[0].appendChild(meta);"
         userScripts.append((source: viewport, injection: .atDocumentStart, main: true))
     }
     var list = scripts
@@ -188,6 +189,44 @@ public final class DrawWebLibrary: NativeLibrary {
     guard list.isNull else {
       throw RuntimeError.type(scripts, expected: [.properListType])
     }
+    var prefFeatures: [String : Bool] = [
+      "allowFileAccessFromFileURLs" : true
+    ]
+    var features: [String : Bool] = [
+      "allowUniversalAccessFromFileURLs" : true,
+      "sward".reversed() + "background".capitalized : false
+    ]
+    list = prefs
+    while case .pair(let feature, let rest) = list {
+      switch feature {
+        case .symbol(let sym):
+          features[sym.rawIdentifier] = true
+        case .string(let str):
+          features[str as String] = true
+        case .pair(.symbol(let sym), let val):
+          var ident = sym.rawIdentifier
+          if ident.hasPrefix(":") {
+            ident.removeFirst()
+            prefFeatures[ident] = val.isTrue
+          } else {
+            features[ident] = val.isTrue
+          }
+        case .pair(.string(let str), let val):
+          var ident = str as String
+          if ident.hasPrefix(":") {
+            ident.removeFirst()
+            prefFeatures[ident] = val.isTrue
+          } else {
+            features[ident] = val.isTrue
+          }
+        default:
+          throw RuntimeError.type(feature, expected: [.symbolType, .strType, .pairType])
+      }
+      list = rest
+    }
+    guard list.isNull else {
+      throw RuntimeError.type(prefs, expected: [.properListType])
+    }
     return DispatchQueue.main.sync {
       let config = WKWebViewConfiguration()
       if appName.isTrue {
@@ -195,9 +234,12 @@ public final class DrawWebLibrary: NativeLibrary {
       }
       config.limitsNavigationsToAppBoundDomains = false
       config.suppressesIncrementalRendering = true
-      config.preferences.setValue(true, forKey: "allowFileAccessFromFileURLs")
-      config.setValue(true, forKey: "allowUniversalAccessFromFileURLs")
-      config.setValue(false, forKey: "sward".reversed() + "background".capitalized)
+      for (key, val) in prefFeatures {
+        config.preferences.setValue(val, forKey: key)
+      }
+      for (key, val) in features {
+        config.setValue(val, forKey: key)
+      }
       let contentController = WKUserContentController()
       for (source, injection, main) in userScripts {
         contentController.addUserScript(WKUserScript(source: source,
