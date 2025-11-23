@@ -1532,10 +1532,12 @@ public final class VirtualMachine: ManagedObject {
                 // Jump over StoreInPromise operation
                 self.registers.ip = self.registers.ip &+ 1
             }
+          } else {
+            throw RuntimeError.type(self.stack[self.sp &- 1], expected: [.promiseType])
           }
         case .storeInPromise:
           guard case .promise(let future) = self.stack[self.sp &- 2] else {
-            preconditionFailure()
+            throw RuntimeError.type(self.stack[self.sp &- 2], expected: [.promiseType])
           }
           switch future.state {
             case .lazy(_), .shared(_):
