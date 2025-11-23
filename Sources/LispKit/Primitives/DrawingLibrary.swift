@@ -925,10 +925,13 @@ public final class DrawingLibrary: NativeLibrary {
           return bitmapRepr.representation(using: fileType, properties: properties)
         }
       }
-      let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil)!
-      let bitmapRepr = NSBitmapImageRep(cgImage: cgImage)
-      bitmapRepr.size = image.size
-      return bitmapRepr.representation(using: fileType, properties: properties)
+      if let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) {
+        let bitmapRepr = NSBitmapImageRep(cgImage: cgImage)
+        bitmapRepr.size = image.size
+        return bitmapRepr.representation(using: fileType, properties: properties)
+      } else {
+        return nil
+      }
     }
   }
   

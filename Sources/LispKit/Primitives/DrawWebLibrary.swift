@@ -83,53 +83,62 @@ public final class DrawWebLibrary: NativeLibrary {
         return .all
       case .symbol(self.trim):
         return .trim
-      case .pair(.symbol(self.inset), .pair(let top, .pair(let right,
-                                                           .pair(let bottom, .pair(let left, .null))))):
+      case .pair(.symbol(self.inset),
+                 .pair(let top, .pair(let right, .pair(let bottom, .pair(let left, .null))))):
         return .inset(top: try top.asDouble(coerce: true),
                       right: try right.asDouble(coerce: true),
                       bottom: try bottom.asDouble(coerce: true),
                       left: try left.asDouble(coerce: true))
-      case .pair(.symbol(self.insetTrimmed), .pair(let top, .pair(let right,
-                                                                  .pair(let bottom, .pair(let left, .null))))):
+      case .pair(.symbol(self.insetTrimmed),
+                 .pair(let top, .pair(let right, .pair(let bottom, .pair(let left, .null))))):
         return .insetTrimmed(top: try top.asDouble(coerce: true),
                              right: try right.asDouble(coerce: true),
                              bottom: try bottom.asDouble(coerce: true),
                              left: try left.asDouble(coerce: true))
-      case .pair(.symbol(self.rect), .pair(let x, .pair(let y,
-                                                        .pair(let width, .pair(let height, .null))))),
+      case .pair(.symbol(self.rect),
+                 .pair(let x, .pair(let y, .pair(let width, .pair(let height, .null))))),
           .pair(.symbol(self.rect), .pair(.pair(let x, let y), .pair(let width, let height))):
-        return .rect(x: try x.asDouble(coerce: true),
-                     y: try y.asDouble(coerce: true),
-                     width: try width.asDouble(coerce: true),
-                     height: try height.asDouble(coerce: true))
-      case .pair(.symbol(self.rectTrimmed), .pair(let x, .pair(let y,
-                                                               .pair(let width, .pair(let height, .null))))),
+        return .rect(x: try x.asPositiveDouble(),
+                     y: try y.asPositiveDouble(),
+                     width: try width.asPositiveDouble(),
+                     height: try height.asPositiveDouble())
+      case .pair(.symbol(self.rectTrimmed),
+                 .pair(let x, .pair(let y, .pair(let width, .pair(let height, .null))))),
           .pair(.symbol(self.rectTrimmed), .pair(.pair(let x, let y), .pair(let width, let height))):
-        return .rectTrimmed(x: try x.asDouble(coerce: true),
-                            y: try y.asDouble(coerce: true),
-                            width: try width.asDouble(coerce: true),
-                            height: try height.asDouble(coerce: true))
+        return .rectTrimmed(x: try x.asPositiveDouble(),
+                            y: try y.asPositiveDouble(),
+                            width: try width.asPositiveDouble(),
+                            height: try height.asPositiveDouble())
       case .pair(.pair(let x, let y), .pair(let width, let height)):
-        return .rect(x: try x.asDouble(coerce: true),
-                     y: try y.asDouble(coerce: true),
-                     width: try width.asDouble(coerce: true),
-                     height: try height.asDouble(coerce: true))
+        return .rect(x: try x.asPositiveDouble(),
+                     y: try y.asPositiveDouble(),
+                     width: try width.asPositiveDouble(),
+                     height: try height.asPositiveDouble())
       default:
         throw RuntimeError.eval(.invalidCropMode, from)
     }
   }
   
   private func makeWebClient(width: Expr, args: Arguments) throws -> Expr {
-    guard let (scripts, viewPort, appName, d, prefs) =
-            args.optional(.null, .false, .false, .false, .null) else {
+    guard let (scripts, viewPort, appName, d, h, prefs) =
+            args.optional(.null, .false, .false, .false, .false, .null) else {
       throw RuntimeError.argumentCount(of: "make-web-client",
                                        min: 1,
                                        max: 5,
                                        args: .pair(width, .makeList(args)))
     }
-    let width = try width.asDouble(coerce: true)
+    let width = try width.asPositiveDouble()
     let applicationName = appName.isTrue ? try appName.asString() : nil
-    let delay: TimeInterval? = d.isTrue ? max(0, try d.asDouble(coerce: true)) : nil
+    let delay: TimeInterval? = d.isTrue ? try d.asPositiveDouble() : nil
+    let height: WebClient.Correction
+    switch h {
+      case .false, .null, .pair(.false, .null):
+        height = .none
+      case .pair(let x, .null):
+        height = .relative(try x.asDouble(coerce: true))
+      default:
+        height = .absolute(try h.asPositiveDouble())
+    }
     var userScripts: [(source: String, injection: WKUserScriptInjectionTime, main: Bool)] = []
     switch viewPort {
       case .false:
@@ -248,6 +257,7 @@ public final class DrawWebLibrary: NativeLibrary {
       }
       config.userContentController = contentController
       return .object(WebClient(width: width,
+                               height: height,
                                config: config,
                                delay: delay))
     }
@@ -274,6 +284,25 @@ public final class DrawWebLibrary: NativeLibrary {
     } catch {}
   }
   
+  private func sizeOverrides(from expr: Expr?) throws -> (CGFloat?, WebClient.Correction?) {
+    if let expr {
+      switch expr {
+        case .false:
+          return (nil, nil)
+        case .pair(let x, .pair(let y, .null)):
+          return (x.isFalse ? nil : try x.asPositiveDouble(),
+                  y.isFalse ? nil : .relative(try y.asDouble(coerce: true)))
+        case .pair(let x, let y):
+          return (x.isFalse ? nil : try x.asPositiveDouble(),
+                  y.isFalse ? nil : .absolute(try y.asPositiveDouble()))
+        default:
+          return (try expr.asPositiveDouble(), nil)
+      }
+    } else {
+      return (nil, nil)
+    }
+  }
+  
   private func webClientSnapshotHtml(expr: Expr,
                                      content: Expr,
                                      third: Expr,
@@ -284,29 +313,30 @@ public final class DrawWebLibrary: NativeLibrary {
     let source: WebClient.ContentSource
     let crop: WebClient.CropMode
     let w: CGFloat?
+    let h: WebClient.Correction?
     if let fourth {
       switch third {
         case .false:
           source = .html(content: str, baseURL: nil)
           crop = try self.cropMode(from: fourth)
-          w = width == nil ? nil : try width!.asDouble(coerce: true)
+          (w, h) = try self.sizeOverrides(from: width)
         case .string(let baseUrl):
           source = .html(content: str, baseURL: URL(string: baseUrl as String))
           crop = try self.cropMode(from: fourth)
-          w = width == nil ? nil : try width!.asDouble(coerce: true)
+          (w, h) = try self.sizeOverrides(from: width)
         default:
           source = .html(content: str, baseURL: nil)
           crop = try self.cropMode(from: third)
-          w = try fourth.asDouble(coerce: true)
+          (w, h) = try self.sizeOverrides(from: fourth)
       }
     } else {
       source = .html(content: str, baseURL: nil)
       crop = try self.cropMode(from: third)
-      w = nil
+      (w, h) = (nil, nil)
     }
     let result = Future(external: false)
     let context = self.context
-    wc.image(source: source, crop: crop, width: w) { res in
+    wc.image(source: source, crop: crop, width: w, height: h) { res in
       switch res {
         case .success(let image):
           do {
@@ -346,10 +376,10 @@ public final class DrawWebLibrary: NativeLibrary {
                                                 charEnc: try enc.asString(),
                                                 baseURL: baseUrl)
     let crop: WebClient.CropMode = try self.cropMode(from: crp)
-    let w: CGFloat? = width.isFalse ? nil : try width.asDouble(coerce: true)
+    let (w, h) = try self.sizeOverrides(from: width)
     let result = Future(external: false)
     let context = self.context
-    wc.image(source: source, crop: crop, width: w) { res in
+    wc.image(source: source, crop: crop, width: w, height: h) { res in
       switch res {
         case .success(let image):
           do {
@@ -377,10 +407,10 @@ public final class DrawWebLibrary: NativeLibrary {
                   directoryHint: .isDirectory)
     let source: WebClient.ContentSource = .file(url: url, allowReadAccessTo: dir)
     let crop = (crop == nil) ? .all : try self.cropMode(from: crop!)
-    let width: CGFloat? = (width == nil) ? nil : try width!.asDouble(coerce: true)
+    let (width, height) = try self.sizeOverrides(from: width)
     let result = Future(external: false)
     let context = self.context
-    wc.image(source: source, crop: crop, width: width) { res in
+    wc.image(source: source, crop: crop, width: width, height: height) { res in
       switch res {
         case .success(let image):
           do {
@@ -410,10 +440,10 @@ public final class DrawWebLibrary: NativeLibrary {
     }
     let source: WebClient.ContentSource = .url(request: request)
     let crop = (crop == nil) ? .all : try self.cropMode(from: crop!)
-    let width: CGFloat? = (w == nil) ? nil : try w!.asDouble(coerce: true)
+    let (width, height) = try self.sizeOverrides(from: w)
     let result = Future(external: false)
     let context = self.context
-    wc.image(source: source, crop: crop, width: width) { res in
+    wc.image(source: source, crop: crop, width: width, height: height) { res in
       switch res {
         case .success(let image):
           do {
@@ -437,24 +467,24 @@ public final class DrawWebLibrary: NativeLibrary {
     let source: WebClient.ContentSource
     let crop: WebClient.CropMode
     if let fourth {
+      source = .html(content: str,
+                     baseURL: third!.isFalse ? nil : URL(string: try third!.asString()))
+      crop = fourth.isFalse ? .all : try self.cropMode(from: fourth)
+    } else if let third {
       switch third {
         case .false:
           source = .html(content: str, baseURL: nil)
-          crop = try self.cropMode(from: fourth)
-        case .string(let baseUrl):
-          source = .html(content: str, baseURL: URL(string: baseUrl as String))
-          crop = try self.cropMode(from: fourth)
+          crop = .all
+        case .string(let url):
+          source = .html(content: str, baseURL: URL(string: url as String))
+          crop = .all
         default:
           source = .html(content: str, baseURL: nil)
-          crop = try self.cropMode(from: third!)
+          crop = try self.cropMode(from: third)
       }
     } else {
       source = .html(content: str, baseURL: nil)
-      if let third {
-        crop = try self.cropMode(from: third)
-      } else {
-        crop = .all
-      }
+      crop = .all
     }
     let result = Future(external: false)
     let context = self.context
@@ -529,7 +559,7 @@ public final class DrawWebLibrary: NativeLibrary {
                               relativeTo: self.context.evaluator.currentDirectoryPath),
                   directoryHint: .isDirectory)
     let source: WebClient.ContentSource = .file(url: url, allowReadAccessTo: dir)
-    let crop = (crop == nil) ? .all : try self.cropMode(from: crop!)
+    let crop = (crop?.isFalse ?? true) ? .all : try self.cropMode(from: crop!)
     let result = Future(external: false)
     let context = self.context
     wc.pdf(source: source, crop: crop, transparent: true) { res in
@@ -638,8 +668,31 @@ public class WebClient: NSObject, WKNavigationDelegate, CustomExpr {
   }
   
   private enum ExportMethod {
-    case image(crop: CropMode, width: CGFloat?, handler: (Result<NativeImage, Error>) -> Void)
+    case image(crop: CropMode,
+               width: CGFloat?,
+               height: Correction?,
+               handler: (Result<NativeImage, Error>) -> Void)
     case pdf(crop: CropMode, transparent: Bool, handler: (Result<Data, Error>) -> Void)
+    
+    func height(detected: CGFloat, computed: CGFloat) -> CGFloat {
+      switch self {
+        case .image(crop: _, width: _, height: let height, handler: _):
+          if let height {
+            switch height {
+              case .none:
+                return detected
+              case .relative(let x):
+                return detected + x
+              case .absolute(let x):
+                return x
+            }
+          } else {
+            return computed
+          }
+        case .pdf(crop: _, transparent: _, handler: _):
+          return computed
+      }
+    }
   }
   
   public enum ExportError: Error {
@@ -663,16 +716,47 @@ public class WebClient: NSObject, WKNavigationDelegate, CustomExpr {
     }
   }
   
+  public enum Correction {
+    case none
+    case relative(CGFloat)
+    case absolute(CGFloat)
+    
+    var expr: Expr {
+      switch self {
+        case .none:
+          return .false
+        case .relative(let x):
+          return .makeNumber(x)
+        case .absolute(let x):
+          return .pair(.makeNumber(x), .null)
+      }
+    }
+    
+    func compute(detected: CGFloat) -> CGFloat {
+      switch self {
+        case .none:
+          return detected
+        case .relative(let x):
+          return detected + x
+        case .absolute(let x):
+          return x
+      }
+    }
+  }
+  
   private let webView: WKWebView
   private let width: CGFloat
+  private let height: Correction
   private var delay: TimeInterval?
   private var method: ExportMethod?
   private var queue: [(ContentSource, ExportMethod)]
   
   public init(width: CGFloat,
+              height: Correction,
               config: WKWebViewConfiguration = WKWebViewConfiguration(),
               delay: TimeInterval? = nil) {
     self.width = width
+    self.height = height
     self.webView = WKWebView(frame: CGRect(x: 0, y: 0, width: width, height: 0),
                              configuration: config)
     #if os(iOS) || os(watchOS) || os(tvOS)
@@ -716,6 +800,7 @@ public class WebClient: NSObject, WKNavigationDelegate, CustomExpr {
   public func unpack(in context: LispKit.Context) -> Exprs {
     return [.makeString(self.identityString),
             .makeNumber(self.width),
+            self.height.expr,
             delay == nil ? .false : .makeNumber(self.delay!)]
   }
   
@@ -770,9 +855,10 @@ public class WebClient: NSObject, WKNavigationDelegate, CustomExpr {
   public func image(source: ContentSource,
                     crop: CropMode = .all,
                     width: CGFloat? = nil,
+                    height: Correction? = nil,
                     handler: @escaping (Result<NativeImage, Error>) -> Void) {
     self.configure(source: source,
-                   method: .image(crop: crop, width: width, handler: { result in
+                   method: .image(crop: crop, width: width, height: height, handler: { result in
                      handler(result)
                      self.nextSnapshot()
                    }))
@@ -784,7 +870,7 @@ public class WebClient: NSObject, WKNavigationDelegate, CustomExpr {
         break
       case .pdf(crop: _, transparent: _, handler: let completionHandler):
         completionHandler(.failure(error))
-      case .image(crop: _, width: _, handler: let completionHandler):
+      case .image(crop: _, width: _, height: _, handler: let completionHandler):
         completionHandler(.failure(error))
     }
   }
@@ -799,14 +885,21 @@ public class WebClient: NSObject, WKNavigationDelegate, CustomExpr {
         switch self.method {
           case .none:
             break
-          case .image(crop: let crop, width: let widthOverride, handler: let completionHandler):
+          case .image(crop: let crop,
+                      width: let widthOverride,
+                      height: _,
+                      handler: let completionHandler):
             switch context {
               case .error(let error):
                 completionHandler(.failure(error))
               case .parameters(left: _, top: _, width: _, height: _):
                 let snapshotConfig = WKSnapshotConfiguration()
-                snapshotConfig.rect = crop.rect(in: webView, context: context)
-                snapshotConfig.afterScreenUpdates = false
+                if case .all = crop {
+                  snapshotConfig.rect = .null
+                } else {
+                  snapshotConfig.rect = crop.rect(in: webView, context: context)
+                }
+                snapshotConfig.afterScreenUpdates = true
                 if let widthOverride {
                   snapshotConfig.snapshotWidth = NSNumber(value: max(0.0, widthOverride).native)
                 }
@@ -847,12 +940,16 @@ public class WebClient: NSObject, WKNavigationDelegate, CustomExpr {
           webView.evaluateJavaScript("document.body.scrollHeight",
                                      completionHandler: { (height, error) in
             do {
-              if let h = height as? CGFloat {
+              if let ht = height as? CGFloat {
+                let hc = self.height.compute(detected: ht)
+                let h = self.method?.height(detected: ht, computed: hc) ?? hc
                 let (left, top, width) = try dimensions.dimensions
-                webView.frame = CGRect(x: 0,
-                                       y: 0,
-                                       width: webView.frame.width,
-                                       height: h)
+                webView.frame = CGRect(x: 0, y: 0, width: webView.frame.width, height: h + 2 * top)
+                callback(.parameters(left: left, top: top, width: width, height: h))
+              } else if case .absolute(let hc) = self.height {
+                let h = self.method?.height(detected: hc, computed: hc) ?? hc
+                let (left, top, width) = try dimensions.dimensions
+                webView.frame = CGRect(x: 0, y: 0, width: webView.frame.width, height: h + 2 * top)
                 callback(.parameters(left: left, top: top, width: width, height: h))
               } else {
                 callback(.error(error ?? ExportError.noResponse))
@@ -897,7 +994,7 @@ public class WebClient: NSObject, WKNavigationDelegate, CustomExpr {
   }
 }
 
-internal class PageDimensions {
+internal class PageDimensions: CustomStringConvertible {
   private let condition: NSCondition = NSCondition()
   private var leftValue: CGFloat? = nil
   private var topValue: CGFloat? = nil
@@ -950,5 +1047,10 @@ internal class PageDimensions {
       self.errorValue = error ?? WebClient.ExportError.noResponse
     }
     self.condition.broadcast()
+  }
+  
+  var description: String {
+    return "{ left = \(leftValue ?? -1.0), top = \(topValue ?? -1.0)" +
+           ", width = \(widthValue ?? -1.0), error = \(errorValue?.localizedDescription ?? "none")}"
   }
 }

@@ -805,6 +805,15 @@ extension Expr {
     }
   }
   
+  public func asPositiveDouble() throws -> Double {
+    let x = try self.asDouble(coerce: true)
+    if x < 0.0 {
+      throw RuntimeError.eval(.negativeFlonum, self)
+    } else {
+      return x
+    }
+  }
+  
   public func asComplex(coerce: Bool = false) throws -> Complex<Double> {
     if !coerce {
       switch self {

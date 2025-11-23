@@ -105,6 +105,7 @@ public enum EvalError: Int, Hashable, Codable {
   case unknownSystemDirectory
   case cannotDecodeBytevector
   case cannotEncodeBytevector
+  case negativeFlonum
   case invalidDateTime
   case invalidTimeZone
   case invalidDateStyle
@@ -284,7 +285,7 @@ public enum EvalError: Int, Hashable, Codable {
       case .procedureWithoutTag:
         return "procedure does not have a tag"
       case .multiValueCountError:
-        return "expected $0 values to be returned, but received instead: $1"
+        return "expected $0 values to be returned, but received: $1"
       case .outOfScope:
         return "out of scope evaluation of $0"
       case .defineInLocalEnv:
@@ -330,9 +331,9 @@ public enum EvalError: Int, Hashable, Codable {
       case .unknownFieldOfRecordType:
         return "unknown field $1 of record type $0"
       case .expectedRecordToAccessField:
-        return "expected record of type $0 to access field but received $1"
+        return "expected record of type $0 to access field, but received: $1"
       case .fieldCountError:
-        return "expected values for $0 fields, received instead: $1"
+        return "expected values for $0 fields, but received: $1"
       case .enumTypeEmpty:
         return "enum-types must have at least one enum value"
       case .invalidEnumValue:
@@ -375,6 +376,8 @@ public enum EvalError: Int, Hashable, Codable {
         return "unable to decode $0 into bytevector"
       case .cannotEncodeBytevector:
         return "unable to encode bytevector $0"
+      case .negativeFlonum:
+        return "expected non-negative flonum, but received: $0"
       case .invalidDateTime:
         return "invalid/incomplete date-time components: $0"
       case .invalidTimeZone:
@@ -546,7 +549,7 @@ public enum EvalError: Int, Hashable, Codable {
       case .cannotSerialize:
         return "unable to serialize value: $0"
       case .expectedAccessibilitySpecifier:
-        return "expected accessibility specifier but received $0"
+        return "expected accessibility specifier, but received: $0"
       case .illegalPolicySpecifier:
         return "illegal authentication policy specifier: $0"
       case .unsupportedBarcodeSetting:
