@@ -102,7 +102,7 @@ public final class JSONLibrary: NativeLibrary {
     self.define(Procedure("json-member?", self.isJsonMember))
     self.define(Procedure("json-refinement?", self.isJsonRefinement))
     self.define(Procedure("json=?", self.isJsonEqual))
-    self.define(Procedure("json", self.json))
+    self.define(Procedure("json", self.jsonConstr))
     self.define(Procedure("make-json-array", self.makeJsonArray))
     self.define(Procedure("string->json", self.stringToJson))
     self.define(Procedure("bytevector->json", self.bytevectorToJson))
@@ -703,7 +703,7 @@ public final class JSONLibrary: NativeLibrary {
         var rs = expr
         var dict: [String : JSON] = [:]
         while case .pair(.pair(let key, let value), let rest) = rs {
-          guard case .void = value else {
+          if case .void = value {
             rs = rest
             continue
           }
@@ -750,7 +750,7 @@ public final class JSONLibrary: NativeLibrary {
     }
   }
   
-  private func json(args: Arguments) throws -> Expr {
+  private func jsonConstr(args: Arguments) throws -> Expr {
     switch args.count {
       case 0:
         return .object(JSON.null)

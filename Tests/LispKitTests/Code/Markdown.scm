@@ -33,11 +33,11 @@
                      (paragraph (list (text "Foo") (line-break #t) (text "Bar"))))))))
   (define list-doc (document (list
                      (list-items #f #t (list
-                       (bullet #\- #f (list (paragraph (list (text "Alpha")))))
+                       (bullet #\- '() (list (paragraph (list (text "Alpha")))))
                        (bullet #\- #t (list (paragraph (list (text "Beta"))))))))))
   (define list2-doc (document (list
                       (list-items 1 #t (list
-                        (ordered 1 #\. #f (list (paragraph (list (text "Eins")))))
+                        (ordered 1 #\. '() (list (paragraph (list (text "Eins")))))
                         (ordered 2 #\. #t (list (paragraph (list (text "Zwei"))))))))))
   (define icode-doc (document (list (indented-code '("#1\n" "#2")))))
   (define fcode-doc (document (list (fenced-code "swift" '("let x = 1 + 2\n")))))
@@ -119,13 +119,13 @@
       (heading 1 (list (text "Header")))
       (definition-list (list
         (list (list (text "Software"))
-              (bullet #\: #t (list
+              (bullet #\: #f (list
                 (paragraph (list (text "programs used by a")))
                 (list-items #f #t (list
                   (bullet #\- #t (list (paragraph (list (text "device")))))
                   (bullet #\- #t (list (paragraph (list (emph (list (text "computer")))))))))
                 (paragraph (list (text "and other systems")))))
-              (bullet #\: #f (list
+              (bullet #\: '() (list
                 (paragraph (list (text "operating instructions"))))))
         (list (list (text "Hardware"))
               (bullet #\: #t (list

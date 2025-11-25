@@ -153,6 +153,7 @@ public final class MarkdownLibrary: NativeLibrary {
     self.define(Procedure("markdown->html-doc", markdownToHtmlDoc))
     self.define(Procedure("markdown->html", markdownToHtml))
     self.define(Procedure("markdown->sxml", markdownToSxml))
+    self.define(Procedure("markdown->debug-string", markdownToDebugString))
     self.define(Procedure("markdown->raw-string", markdownToRawString))
     self.define(Procedure("blocks->html", blocksToHtml))
     self.define(Procedure("blocks->sxml", blocksToSxml))
@@ -766,6 +767,10 @@ public final class MarkdownLibrary: NativeLibrary {
   private func markdownToSxml(_ md: Expr) throws -> Expr {
     let gen = SXMLGenerator(context: self.context)
     return gen.generate(block: try self.internMarkdown(block: md))
+  }
+  
+  private func markdownToDebugString(_ md: Expr) throws -> Expr {
+    return .makeString(try self.internMarkdown(block: md).description)
   }
   
   private func markdownToRawString(_ md: Expr) throws -> Expr {
