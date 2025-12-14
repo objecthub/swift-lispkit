@@ -3518,7 +3518,6 @@
 		CC6F36922EEF7F6200666DE2 /* (lispkit hashtable).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit hashtable).md"; sourceTree = "<group>"; };
 		CC6F36932EEF7F6200666DE2 /* (lispkit heap).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit heap).md"; sourceTree = "<group>"; };
 		CC6F36942EEF7F6200666DE2 /* (lispkit http oauth).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit http oauth).md"; sourceTree = "<group>"; };
-		CC6F36952EEF7F6200666DE2 /* (lispkit http oauth) Usage.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit http oauth) Usage.md"; sourceTree = "<group>"; };
 		CC6F36962EEF7F6200666DE2 /* (lispkit http server).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit http server).md"; sourceTree = "<group>"; };
 		CC6F36972EEF7F6200666DE2 /* (lispkit http).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit http).md"; sourceTree = "<group>"; };
 		CC6F36982EEF7F6200666DE2 /* (lispkit image process).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit image process).md"; sourceTree = "<group>"; };
@@ -4635,7 +4634,6 @@
 				CC6F36922EEF7F6200666DE2 /* (lispkit hashtable).md */,
 				CC6F36932EEF7F6200666DE2 /* (lispkit heap).md */,
 				CC6F36942EEF7F6200666DE2 /* (lispkit http oauth).md */,
-				CC6F36952EEF7F6200666DE2 /* (lispkit http oauth) Usage.md */,
 				CC6F36962EEF7F6200666DE2 /* (lispkit http server).md */,
 				CC6F36972EEF7F6200666DE2 /* (lispkit http).md */,
 				CC6F36982EEF7F6200666DE2 /* (lispkit image process).md */,
