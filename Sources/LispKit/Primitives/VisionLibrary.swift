@@ -40,6 +40,7 @@ public final class VisionLibrary: NativeLibrary {
   /// Declarations of the library.
   public override func declarations() {
     self.define(Procedure("recognize-text", self.recognizeText))
+    self.define(Procedure("recognized-text?", self.isRecognizedText))
     self.define(Procedure("recognized-text-confidence", self.recognizedTextConfidence))
     self.define(Procedure("recognized-text-string", self.recognizedTextString))
     self.define(Procedure("recognized-text-corners", self.recognizedTextCorners))
@@ -198,6 +199,13 @@ public final class VisionLibrary: NativeLibrary {
     // try request.supportedRecognitionLanguages()
     try requestHandler.perform([request])
     return .object(result)
+  }
+  
+  private func isRecognizedText(expr: Expr) throws -> Expr {
+    guard case .object(let obj) = expr, obj is RecognizedText else {
+      return .false
+    }
+    return .true
   }
   
   private func recognizedTextConfidence(expr: Expr) throws -> Expr {

@@ -213,6 +213,8 @@ public enum EvalError: Int, Hashable, Codable {
   case invalidAutoAdjustmentOption
   case invalidCropMode
   case invalidUserScript
+  case unsupportedFilterParameter
+  case unknownFilter
   
   public var message: String {
     switch self {
@@ -592,6 +594,10 @@ public enum EvalError: Int, Hashable, Codable {
         return "invalid web client crop mode: $0"
       case .invalidUserScript:
         return "invalid user script specification: $0; needs to be a string or a list with up to three values"
+      case .unsupportedFilterParameter:
+        return "filter parameter $0 is not supported by image filter $1"
+      case .unknownFilter:
+        return "cannot apply unknown image filter $0"
     }
   }
   

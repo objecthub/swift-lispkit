@@ -361,7 +361,7 @@ public final class ImageLibrary: NativeLibrary {
       let res: AbstractImage?
       switch expr {
         case .false:
-          res = AbstractImage(ciImage: .empty())
+          res = AbstractImage(ciImage: .empty(), flipped: flip?.isTrue ?? false)
         case .string(_):
           res = AbstractImage(
                   url: URL(fileURLWithPath:
@@ -387,7 +387,7 @@ public final class ImageLibrary: NativeLibrary {
       }
       return .object(res)
     } else {
-      return .object(AbstractImage(ciImage: .empty()))
+      return .object(AbstractImage(ciImage: .empty(), flipped: flip?.isTrue ?? false))
     }
   }
   
@@ -654,8 +654,8 @@ public final class ImageLibrary: NativeLibrary {
     return res
   }
   
-  private func coerceToImagePipe(from: Expr!) throws -> AbstractImage? {
-    guard let from else {
+  private func coerceToImagePipe(from: Expr?) throws -> AbstractImage? {
+    guard let from, from.isTrue else {
       return nil
     }
     switch from {
@@ -722,11 +722,26 @@ public final class ImageLibrary: NativeLibrary {
       name = try expr.asString()
     }
     let aimg = try self.coerceToImagePipe(from: input)
-    guard let filter = CIFilter(
-                         name: name,
-                         parameters: try self.parameters(from: params, input: aimg?.ciImage)) else {
+    let parameters = try self.parameters(from: params, input: aimg?.ciImage)
+    guard let filter = CIFilter(name: name) else {
       return .false
     }
+    // Collect all supported argument keys
+    var paramNames: Set<String> = []
+    for name in filter.inputKeys {
+      paramNames.insert(name)
+    }
+    // Update all provided arguments
+    for (k, value) in parameters {
+      if paramNames.contains(k) {
+        filter.setValue(value, forKey: k)
+      } else {
+        throw RuntimeError.eval(.unsupportedFilterParameter, .makeString(k), expr)
+      }
+    }
+    /* guard let filter = CIFilter(name: name, parameters: parameters) else {
+      return .false
+    } */
     return .object(ImageFilter(ciFilter: filter, identifier: self.filterIdentifier[name]))
   }
   
@@ -998,6 +1013,8 @@ public final class ImageLibrary: NativeLibrary {
       switch a {
         case .pair(.symbol(_), _):
           list = .pair(a, .null)
+        case .pair(.string(_), _):
+          list = .pair(a, .null)
         case .object(_):
           list = .pair(a, .null)
         default:
@@ -1017,16 +1034,30 @@ public final class ImageLibrary: NativeLibrary {
             let name: String
             if case .symbol(let sym) = ident {
               guard let mappedName = self.filterName[sym] else {
-                return .false
+                throw RuntimeError.eval(.unknownFilter, ident)
               }
               name = mappedName
             } else {
               name = try ident.asString()
             }
-            guard let filter = CIFilter(name: name,
-                                        parameters: try self.parameters(from: params, input: image)) else {
-              return .false
+            let parameters = try self.parameters(from: params, input: image)
+            guard let filter = CIFilter(name: name) else {
+              throw RuntimeError.eval(.unknownFilter, .makeString(name))
             }
+            // Collect all supported argument keys
+            var paramNames: Set<String> = []
+            for name in filter.inputKeys {
+              paramNames.insert(name)
+            }
+            // Update all provided arguments
+            for (k, value) in parameters {
+              if paramNames.contains(k) {
+                filter.setValue(value, forKey: k)
+              } else {
+                throw RuntimeError.eval(.unsupportedFilterParameter, .makeString(k), ident)
+              }
+            }
+            // Obtain output image
             if let outputImage = filter.outputImage {
               image = outputImage
             } else {
