@@ -3563,6 +3563,7 @@
 		CC6F36C02EEF7F6200666DE2 /* (lispkit url).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit url).md"; sourceTree = "<group>"; };
 		CC6F36C12EEF7F6200666DE2 /* (lispkit vector).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit vector).md"; sourceTree = "<group>"; };
 		CC6F36C22EEF7F6200666DE2 /* (lispkit vision).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit vision).md"; sourceTree = "<group>"; };
+		CC6F36C42EEF845600666DE2 /* CLAUDE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CLAUDE.md; sourceTree = "<group>"; };
 		CC703A12218BC40600E71EA9 /* 23.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 23.sld; sourceTree = "<group>"; };
 		CC703A16218BC61D00E71EA9 /* 34.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 34.sld; sourceTree = "<group>"; };
 		CC703A17218BC7D000E71EA9 /* 39.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 39.sld; sourceTree = "<group>"; };
@@ -5003,6 +5004,7 @@
 				CCC937471C4F02DF00A5608F /* CHANGELOG.md */,
 				CC3C4E051CD81C5E00C78F89 /* TODO.md */,
 				CCC937451C4F02AF00A5608F /* LICENSE */,
+				CC6F36C42EEF845600666DE2 /* CLAUDE.md */,
 				CC8DC5C623E7408500396182 /* Makefile */,
 				CCCAF92D1F941A43006692E9 /* Package.swift */,
 				CC48055B1CFE366100D608B6 /* Assets */,
