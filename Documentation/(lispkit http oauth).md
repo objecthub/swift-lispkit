@@ -204,6 +204,11 @@ If boolean argument _non-textual?_ is set to true (default is false), the device
 
 Initiates an OAuth 2.0-based authorization via the flow specified in the _oauth_ client. Procedure `oauth2-authorize!` returns a future which eventually contains an association list with the attributes contained in the successful JSON response to the authorization request. If the request failed, then the future will refer to the error that lead to the failure of the authorization.
 
+**(oauth2-redirect! _redirect-url_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(oauth2-redirect! _oauth redirect-url_)**  
+
+Handles an OAuth 2.0 redirect callback by processing the _redirect-url_ received from the authorization server. This procedure extracts the authorization code or access token from the redirect URL and completes the authorization flow for the _oauth_ client. Returns a boolean indicating whether the processing of the redirect was successfull. This is typically used in conjunction with custom URL scheme handlers or redirect URI interceptors.
+
 **(http-request-sign! _request oauth_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Signs the HTTP request _request_ (see library `(lispkit http)`) by including an `Authorization` HTTP header that refers to the access token contained in the authorization client _oauth_. Procedure `http-request-sign!` returns `#t` if the header could successfully be added to _request_; otherwise `#f` is returned.

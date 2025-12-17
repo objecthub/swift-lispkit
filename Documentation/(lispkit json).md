@@ -53,7 +53,7 @@ Returns `#t` if _obj_ is a JSON array; `#f` otherwise.
 
 **(json-object? _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Returns `#t` if _obj_ is a JSON value; `#f` otherwise.
+Returns `#t` if _obj_ is a JSON object; `#f` otherwise.
 
 **(json)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(json _x_)**  
@@ -77,6 +77,15 @@ The following mapping rules are being used for regular Scheme values _x_:
   - For all other Scheme values, an error is signaled
 
 The inverse mapping is implemented by procedure `json->value`.
+
+**(json-object (_name value_) ...)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[syntax]</span>  
+
+Creates a JSON object with the given name/value pairs. _name_ should be a symbol and _value_ is an expression that evaluates to a value that can be converted to JSON. This is a syntax form that expands to a call to `json` with an association list.
+
+```scheme
+(json-object (name "John") (age 30) (city "New York"))
+⇒  #json-object with members: name, age, city
+```
 
 **(make-json-array _len_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(make-json-array _len default_)**  
@@ -117,6 +126,12 @@ Returns a JSON value for the data structure represented in string _str_.
 
 Decodes the given bytevector _bvec_ between _start_ and _end_ and returns a JSON value for the encoded value. If is an error if _bvec_ between _start_ and _end_ does not represent a JSON value encoded in a UTF8-encoded string. If _end_ is not provided, it is assumed to be the length of _bvec_. If _start_ is not provided, it is assumed to be 0.
 
+**(cbor-\>json _bvec_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(cbor-\>json _bvec start_)**  
+**(cbor-\>json _bvec start end_)**  
+
+Decodes a CBOR (Concise Binary Object Representation) encoded value from bytevector _bvec_ between _start_ and _end_ and returns the corresponding JSON value. CBOR is a binary data format defined in RFC 8949. If _end_ is not provided, it is assumed to be the length of _bvec_. If _start_ is not provided, it is assumed to be 0.
+
 **(load-json _path_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Loads a text file at _path_, parses its content as JSON and returns it as a JSON value.
@@ -124,6 +139,24 @@ Loads a text file at _path_, parses its content as JSON and returns it as a JSON
 **(json-members _json_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 If _json_ represents a JSON object, then `json-members` returns a list of all members of this object. Each member is represented as a symbol. For all other JSON values, `json-members` returns an empty list.
+
+**(json-member? _obj member_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns `#t` if the JSON value _obj_ is an object and has a member with the given _member_ name (a string or symbol); `#f` otherwise.
+
+**(json-member _json member_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(json-member _json member default_)**  
+**(json-member _json members_)**  
+**(json-member _json members default_)**  
+
+Returns the value of the given _member_ (a string or symbol) in JSON object _json_. If _member_ is a list of member names, follows the path through nested JSON objects. If the member is not found, returns _default_, or `#f` if _default_ is not provided.
+
+```scheme
+(define x (string->json "{ \"a\": { \"b\": 42 } }"))
+(json-member x 'a)      ⇒  ((b . 42))
+(json-member x '(a b))  ⇒  42
+(json-member x "c" 99)  ⇒  99
+```
 
 **(json-children _json_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
@@ -162,6 +195,10 @@ Returns a string representation of _json_. The output is pretty-printed if _pret
 **(json->bytevector _json pretty? sort? slash?_)**  
 
 Returns a bytevector of a UTF8-encoded string representation of _json_. The output options _pretty?_, _sort?_, and _slash?_ correspond to the options of procedure `json->string`.
+
+**(json-\>cbor _json_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns a bytevector containing the CBOR (Concise Binary Object Representation) encoding of _json_. CBOR is a binary data format defined in RFC 8949 that provides a compact representation of JSON-like data structures.
 
 **(json-for-each-element _f arr_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 

@@ -121,6 +121,10 @@ Returns to the top-level of the read-eval-print loop with _obj_ as the result (o
 
 ## Exceptions
 
+**(current-exception-handler)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns the current exception handler, which is a procedure that accepts one argument (the exception object). This is useful for inspecting or wrapping the current exception handling behavior.
+
 **(with-exception-handler _handler thunk_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 The `with-exception-handler` procedure returns the results of invoking _thunk_. _handler_ is installed as the current exception handler in the dynamic environment used for the invocation of _thunk_. It is an error if _handler_ does not accept one argument. It is also an error if _thunk_ does not accept zero arguments.
@@ -264,3 +268,7 @@ The `exit` procedure must not signal an exception or return to its continuation.
 **(emergency-exit _obj_)**  
 
 Terminates the program without running any outstanding `dynamic-wind` "after procedures" and communicates an exit value to the operating system in the same manner as `exit`.
+
+**(abort-eventually)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Signals that execution should be aborted as soon as possible. This procedure is typically used in response to user cancellation requests or when a computation should be terminated gracefully. Unlike `exit` or `emergency-exit`, this procedure returns normally and allows the current computation to continue, but sets a flag that will cause the interpreter to abort when it checks for cancellation.

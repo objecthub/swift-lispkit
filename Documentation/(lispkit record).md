@@ -138,6 +138,11 @@ Returns a list of the symbols naming the fields in members of the type represent
 
 Returns a record type descriptor for the parent type of the record type represented by the record type descriptor _rtd_. `record-type-parent` returns `#f` if _rtd_ does not have a parent type.
 
+**(record-type-field-index _rtd field_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(record-type-field-index _rtd fields_)**  
+
+Returns the zero-based index of the given _field_ (a symbol) within the record type represented by record type descriptor _rtd_. If _fields_ is a list of symbols, returns a list of corresponding indices. This procedure is useful for implementing efficient field access. It is an error if _field_ is not a field name of the record type.
+
 **(record-type-tag _rtd_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 
 Returns the type tag, i.e. an uninterned symbol, representing the type of records defined by _rtd_. The result of `record-type-tag` can be used together with procedure `type-of` of library `(lispkit type)`.
@@ -145,6 +150,18 @@ Returns the type tag, i.e. an uninterned symbol, representing the type of record
 **(make-record _rtd_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 
 Returns an uninitialized instance of the record type for which _rtd_ is the record type descriptor.
+
+**(record-ref _record index_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(record-ref _record index rtd_)**  
+
+Returns the value of the field at zero-based _index_ in _record_. If _rtd_ (a record type descriptor) is provided, verifies that _record_ is of the specified type. It is an error if _index_ is out of bounds or if _record_ is not of the appropriate type.
+
+**(record-set! _record index value_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(record-set! _record index value rtd_)**  
+**(record-set! _record indices values_)**  
+**(record-set! _record indices values rtd_)**  
+
+Sets the field at zero-based _index_ in _record_ to _value_. If _rtd_ (a record type descriptor) is provided, verifies that _record_ is of the specified type. If _indices_ is a list of indices and _values_ is a list of values, sets multiple fields at once. It is an error if any index is out of bounds, if _record_ is not of the appropriate type, or if _record_ is immutable.
 
 **(record-constructor _rtd fields_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 

@@ -123,6 +123,10 @@ This is a fixnum value for specifying an option how databases are opened or crea
 
 SQLite database objects are either created in memory with procedure `make-database` or they are created on disk by calling procedure `open-database`. `open-database` can also be used for opening an existing database. SQLite stores databases in regular files on disk.
 
+**sqlite-database-type-tag** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[object]</span>  
+
+Symbol representing the `sqlite-database` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all sqlite database objects.
+
 **(make-database)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 **(make-database _options_)**  
 
@@ -173,6 +177,10 @@ Procedure `database-total-changes` returns the total number of rows inserted, mo
 ### SQL statements
 
 SQL statements are created with procedure `prepare-statement`. This procedure returns a statement object which encapsulates a compiled SQL query. The compiled SQL query can be executed by repeatedly calling procedure `process-statement`. As long as `process-statement` returns `#f`, a new result row can be extracted from the statement object with procedures such as `column-count`, `column-name`, `column-type`, `column-value`, `row-names`, `row-types`, `row-values`, and `row-alist`. As soon as `process-statement` returns `#t`, processing is complete. With procedure `reset-statement`, a statement object can be reset such that it can be executed again.
+
+**sqlite-statement-type-tag** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[object]</span>  
+
+Symbol representing the `sqlite-statement` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all sqlite statement objects.
 
 **(sqlite-statement? _obj_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 

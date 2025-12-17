@@ -98,6 +98,10 @@ The following flags control various aspects of regular expression matching. Thes
 
 Returns `#t` if _obj_ is a regular expression object; otherwise `#f` is returned.
 
+**regexp-type-tag** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[object]</span>  
+
+Symbol representing the `regexp` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all regular expression objects.
+
 **(regexp _str_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 **(regexp _str opt ..._)**   
 

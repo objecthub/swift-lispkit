@@ -897,8 +897,6 @@ public final class DrawingLibrary: NativeLibrary {
       switch sym {
         case self.formatPNG:
           fileType = .png
-        case self.formatPNG:
-          fileType = .png
         case self.formatJPG:
           fileType = .jpeg
         case self.formatGIF:

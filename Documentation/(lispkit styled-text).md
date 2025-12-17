@@ -27,6 +27,10 @@ A styled text object is mutable and consists of a string and a set of character 
 
 Library `(lispkit styled-text)` provides functionality to create styled text objects, to compose them, to style them, and to introspect existing stylistic attributes.
 
+**styled-text-type-tag** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[object]</span>  
+
+Symbol representing the `styled-text` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all styled text objects.
+
 **(styled-text? _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns `#t` if _obj_ is a styled text object, otherwise `#f` is returned.
@@ -224,6 +228,10 @@ This procedure returns two values. The first is a text style object capturing al
 
 Text style objects encapsulate a set of stylistic attributes, such as `font`, `background-color`, `baseline-offset`, `kern`, `obli	queness`, etc. Text style objects are mutable. Attributes can be inspected, added, and removed.
 
+**text-style-type-tag** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[object]</span>  
+
+Symbol representing the `text-style` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all text style objects.
+
 **(text-style? _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns `#t` if _obj_ is a text style object; otherwise `#f` is returned.
@@ -316,6 +324,10 @@ Text block style objects encapsulate attributes describing how text is layed out
 Text block style objects are mutable. They define values for all attributes, i.e. there are defaults for all attributes set for newly created text block style objects.
 
 
+**text-block-style-type-tag** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[object]</span>  
+
+Symbol representing the `text-block-style` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all text block style objects.
+
 **(percent _num_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Some text block style attributes allow for relative values. Procedure `percent` encodes a fixnum _num_ as a percentage (i.e. `(num . %)`).
@@ -379,6 +391,10 @@ Paragraph style objects define how a paragraph of text is layed out in terms of 
    - `writing-direction`: Writing direction of a paragraph. Supported are: `natural` (automatic), `left-to-right`, and `right-to-left`.
 
 Paragraph style objects are mutable. They encapsulate one value for each supported paragraph style attribute.
+
+**paragraph-style-type-tag** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[object]</span>  
+
+Symbol representing the `paragraph-style` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all paragraph style objects.
 
 **(paragraph-style? _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 

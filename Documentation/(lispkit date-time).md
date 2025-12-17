@@ -86,6 +86,10 @@ Returns a floating-point number representing the number of seconds since 00:00 U
 
 ## Date-times
 
+**date-time-type-tag** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[object]</span>  
+
+Symbol representing the `date-time` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all date/time objects.
+
 **(date-time? _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns `#t` if _obj_ is a date-time object; returns `#f` otherwise.

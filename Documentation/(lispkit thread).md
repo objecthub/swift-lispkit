@@ -49,6 +49,10 @@ Each thread has its own dynamic environment. When a thread's dynamic environment
 
 ### Thread-management API
 
+**thread-type-tag** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[object]</span>  
+
+Symbol representing the `thread` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all thread objects.
+
 **(current-thread)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns the current thread, i.e. the thread executing the current expression.
@@ -222,9 +226,13 @@ Upon creation, a mutex can be associated with a tag, which is an arbitrary objec
 
 ### Mutex-management API
 
+**mutex-type-tag** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[object]</span>  
+
+Symbol representing the `mutex` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all mutex objects.
+
 **(mutex? _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Returns `#t` if _obj_ is a mutex, otherwise returns `#f`.  
+Returns `#t` if _obj_ is a mutex, otherwise returns `#f`.
 
 **(make-mutex)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(make-mutex _name_)**  
@@ -327,9 +335,13 @@ Each condition variable has a tag which can be used in an application specific w
 
 ### Condition variable management
 
+**condition-type-tag** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[object]</span>
+
+Symbol representing the `condition` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all condition objects.
+
 **(condition-variable? _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Returns `#t` if _obj_ is a condition variable, otherwise returns `#f`.  
+Returns `#t` if _obj_ is a condition variable, otherwise returns `#f`.
 
 **(make-condition-variable)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(make-condition-variable _name_)**  

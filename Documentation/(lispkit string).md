@@ -48,6 +48,10 @@ Returns a newly allocated string composed of the arguments. It is analogous to p
 
 Returns a newly allocated string composed of the characters contained in _list_.
 
+**(object-\>string _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns a string representation of _obj_. This procedure converts the object to a human-readable string format, similar to what would be displayed when the object is printed.
+
 **(string-ref _str k_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 The `string-ref` procedure returns character _k_ of string _str_ using zero-origin indexing. It is an error if _k_ is not a valid index of string _str_.

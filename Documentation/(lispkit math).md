@@ -645,9 +645,17 @@ Returns `#t` if fixnum _n_ equals to 0.
 
 Returns `#t` if fixnum _n_ is positive, i.e. _n > 0_.
 
-**(fxnegative? _n_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(fxnegative? _n_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns `#t` if fixnum _n_ is negative, i.e. _n < 0_.
+
+**(fxeven? _n_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns `#t` if fixnum _n_ is even, i.e. divisible by 2.
+
+**(fxodd? _n_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns `#t` if fixnum _n_ is odd, i.e. not divisible by 2.
 
 **(fxabs _n_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 
@@ -895,7 +903,11 @@ Returns the minimum value of the provided flonum values _x ..._. If no arguments
 
 Returns the maximum value of the provided flonum values _x ..._. If no arguments are provided, negative infinity is returned.
 
-**(flrandom)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(flsqrt _x_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns the square root of flonum _x_. The result is a flonum. If _x_ is negative, the result is `+nan.0`.
+
+**(flrandom)** <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(flrandom _max_)**  
 **(flrandom _min max_)**  
 

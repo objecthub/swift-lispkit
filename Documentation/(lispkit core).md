@@ -472,11 +472,20 @@ Returns `#t` if _obj_ is an interned symbol, otherwise returns `#f`.
 **(gensym)** <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(gensym _str_)**  
 
-Returns a new (fresh) symbol whose name consists of prefix _str_ followed by a number. If _str_ is not provided, "g" is used as a prefix.
+Returns a new (fresh) interned symbol whose name consists of prefix _str_ followed by a number. _str_ is either a symbol or a string. If _str_ is not provided or set to `#f`, "g" is used as a prefix.
+
+**(generate-uninterned-symbol)** <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(generate-uninterned-symbol _str_)**  
+
+Returns a new uninterned symbol whose name consists of prefix _str_ followed by a number. _str_ is either a symbol or a string. If _str_ is not provided or set to `#f`, "g" is used as a prefix. This procedure is similar to `gensym` but always generates uninterned symbols.
 
 **(symbol=? _sym ..._)** <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns `#t` if all the arguments are symbols and all have the same names in the sense of `string=?`.
+
+**(symbol\<? _sym ..._)** <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns `#t` if the identifiers of the symbols _sym ..._ are monotonically increasing in lexicographic order (according to `string<?`), otherwise returns `#f`.
 
 **(string-\>symbol _str_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
 

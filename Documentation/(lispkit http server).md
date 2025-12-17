@@ -68,6 +68,10 @@ After starting the server, three requests are made for `/hello/Matthias`, `/hell
 
 ## HTTP servers
 
+**http-server-ipv4** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[object]</span>  
+
+Constant representing the IPv4 network interface type. This can be used when creating or configuring HTTP servers to force IPv4 usage.
+
 **http-server-type-tag** <span style="float:right;text-align:rigth;">[constant]</span>  
 
 Symbol representing the `http-server` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all HTTP server objects.

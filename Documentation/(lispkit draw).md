@@ -9,6 +9,10 @@ Both drawings and shapes are based on a coordinate system whose zero point is in
 
 Drawings are mutable objects created via `make-drawing`. The functions listed in this section change the state of a drawing object and they persist drawing instructions defining the drawing. For most functions, the drawing is an optional argument. If it is not provided, the function applies to the drawing provided by the `current-drawing` parammeter object.
 
+**drawing-type-tag** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[object]</span>  
+
+Symbol representing the `drawing` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all drawing objects.
+
 **current-drawing** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[parameter object]</span>  
 
 Defines the _current drawing_, which is used as a default by all functions for which the drawing argument is optional. If there is no current drawing, this parameter is set to `#f`.
@@ -214,6 +218,10 @@ This form is used in the context of drawing into `current-drawing`. It enables t
 
 Shapes are mutable objects created via a number of constructors, including `make-shape`, `copy-shape`, `line`, `polygon`, `rectangular`, `circle`, `oval`, `arc`, and `glyphs`. Besides the constructors, functions like `move-to`, `line-to` and `curve-to` are used to extend a shape. For those functions, the affected shape is an optional argument. If it is not provided, the function applies to the shape defined by the `current-shape` parammeter object.
 
+**shape-type-tag** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[object]</span>  
+
+Symbol representing the `shape` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all shape objects.
+
 **current-shape** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[parameter object]</span>  
 
 Defines the _current shape_, which is used as a default by all functions for which the shape argument is optional. If there is no current shape, this parameter is set to `#f`.
@@ -239,6 +247,10 @@ Retuns a new line shape. _start_ and _end_ are the start and end points of the l
 
 Returns a new polygon shape. The polygon is defined in terms of a sequence of points.
 
+**(closed-polygon _point ..._)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns a new closed polygon shape. The polygon is defined in terms of a sequence of points and automatically closes by connecting the last point to the first.
+
 **(rectangle _point size_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(rectangle _point size radius_)**  
 **(rectangle _point size xradius yradius_)**  
@@ -261,6 +273,16 @@ Returns a new arc shape. The arc is defined via the arguments _point_, _radius_,
 **(glyphs _str point size font_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns a new "glyphs" shape. This is a shape defined by a string _str_ rendered in the given size and font at a given point. _font_ is a font object, _size_ is the font size in points, and _point_ are the start coordinates where the glyphs are drawn.
+
+**(move-shape _shape dx_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(move-shape _shape dx dy_)**  
+
+Returns a new shape by translating _shape_ by _dx_ horizontally and _dy_ vertically. If _dy_ is not provided, the shape is moved by _dx_ in both directions.
+
+**(scale-shape _shape sx_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(scale-shape _shape sx sy_)**  
+
+Returns a new shape by scaling _shape_ by factor _sx_ horizontally and _sy_ vertically. If _sy_ is not provided, the shape is scaled uniformly by _sx_ in both directions.
 
 **(transform-shape _shape tf_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
@@ -318,6 +340,12 @@ Adds shape _other_ to the shape specified by argument _shape_ or parameter objec
 
 Returns the bounding box for the given shape as a rect.
 
+**(shape-contains? _shape point_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(shape-contains? _shape points_)**  
+**(shape-contains? _shape points some?_)**  
+
+Returns `#t` if _shape_ contains the given _point_ or _points_. _point_ is a single point, or _points_ is a list of points. If _some?_ is `#f` (the default), all points must be contained in the shape. If _some?_ is `#t`, returns `#t` if at least one point is contained in the shape.
+
 **(shape _body ..._)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[syntax]</span>  
 
 Creates a new empty shape, binds parameter object `current-shape` to it and executes the body statements in the dynamic scope of this binding. This special form returns the new drawing.
@@ -330,6 +358,10 @@ Binds parameter object `current-shape` to _shape_ and executes the body statemen
 ## Images
 
 Images are objects representing immutable pictures of mutable size and metadata. Images are either loaded from image files or they are created from drawings. Images are either vector-based or bitmap-based. The current image API only allows loading vector-based images from PDF files. Bitmap-based images, on the other hand, can be loaded from PNG, JPG, GIF, etc. image files or they are created by drawing a drawing object into an empty bitmap. Bitmap-based images optionally have mutable EXIF data.
+
+**image-type-tag** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[object]</span>  
+
+Symbol representing the `image` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all image objects.
 
 **(image? _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
@@ -356,6 +388,16 @@ where _dir_ is `"Images"` if it is not provided as a parameter. It then searches
 
 Loads an image from the binary data provided by bytevector _bvec_ between positions _start_ and _end_ and returns the corresponding image object.
 
+**(image-\>bytevector _image format_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(image-\>bytevector _image format quality_)**  
+
+Returns a bytevector containing the encoded image data for _image_ in the specified _format_. _format_ is a symbol specifying the image format (e.g., `png`, `jpg`, `gif`, `bmp`, `tiff`, or `pdf`). _quality_ is an optional floating-point number between 0.0 and 1.0 specifying the compression quality for formats that support it (e.g., JPEG). Returns `#f` if the conversion fails.
+
+**(save-image _path image format_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(save-image _path image format quality_)**  
+
+Saves _image_ to a file at the given filepath _path_ in the specified _format_. _format_ is a symbol specifying the image format (e.g., `png`, `jpg`, `gif`, `bmp`, `tiff`, or `pdf`). _quality_ is an optional floating-point number between 0.0 and 1.0 specifying the compression quality for formats that support it (e.g., JPEG). Returns `#t` if successful, `#f` otherwise.
+
 **(image-size _image_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns the size of the given image object in points.
@@ -375,6 +417,10 @@ Returns the size of the bitmap _bmap_ in points. If _bmap_ is not a bitmap objec
 **(bitmap-pixels _bmap_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns the number of horizontal and vertical pixels of the bitmap _bmap_ as a size. If _bmap_ is not a bitmap object, `bitmap-size` returns `#f`.
+
+**(bitmap-ppi _bmap_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns the pixels per inch (PPI) resolution of the bitmap _bmap_. This is calculated from the pixel dimensions and the size in points. If _bmap_ is not a bitmap object or the PPI cannot be determined, returns `#f`.
 
 **(bitmap-exif-data _bmap_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
@@ -482,6 +528,10 @@ A transformation is an immutable object defining an affine transformation. Trans
 
 Transformations are typically used in drawings to transform drawing instructions. They can also be used to transform shapes.
 
+**transformation-type-tag** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[object]</span>  
+
+Symbol representing the `transformation` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all transformation objects.
+
 **(transformation? _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns `#t` if _obj_ is a transformation. Otherwise, it returns `#f`.
@@ -515,6 +565,10 @@ Returns a transformation for rotating the coordinate system by _angle_ (in radia
 Colors are immutable objects defining colors in terms of four components: red, green, blue and alpha. Library `(lispkit draw)` currently only supports RGB color spaces.
 
 `(lispkit draw)` supports the concept of _color lists_ on _macOS_. A color list is provided as a `.plist` file and stored in the "ColorLists" asset directory of LispKit. It maps color names expressed as symbols to color values. Color lists need to be loaded explicitly via procedure `load-color-list`.
+
+**color-type-tag** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[object]</span>  
+
+Symbol representing the `color` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all color objects.
 
 **(color? _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
@@ -590,6 +644,10 @@ Returns a list of color identifiers supported by the given color list. _clist_ i
 ## Fonts
 
 Fonts are immutable objects defining fonts in terms of a font name and a font size (in points).
+
+**font-type-tag** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[object]</span>  
+
+Symbol representing the `font` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all font objects.
 
 **(font? _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
@@ -669,6 +727,10 @@ Returns all the available font families, i.e. all font families for which there 
 
 A _point_ describes a location on a two-dimensional plane consisting of a _x_ and _y_ coordinate. Points are represented as pairs of floating-point numbers where the car representes the x-coordinate and the cdr represents the y-coordinate. Even though an expression like `'(3.5 . -2.0)` does represent a point, it is recommended to always construct points via function `point`; e.g. `(point 3.5 -2.0)`.
 
+**zero-point** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[object]</span>  
+
+The _zero point_, i.e `(point 0.0 0.0)`.
+
 **(point? _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns `#t` if _obj_ is a valid point. Otherwise, it returns `#f`.
@@ -676,10 +738,6 @@ Returns `#t` if _obj_ is a valid point. Otherwise, it returns `#f`.
 **(point _x y_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns a point for coordinates _x_ and _y_.
-
-**(move-point _point dx fy_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
-
-Moves _point_ by _dx_ and _dy_ and returns the result as a point.
 
 **(point-x _point_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
@@ -689,14 +747,27 @@ Returns the x-coordinate for _point_.
 
 Returns the y-coordinate for _point_.
 
-**zero-point** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[object]</span>  
+**(move-point _point dx dy_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-The _zero point_, i.e `(point 0.0 0.0)`.
+Moves _point_ by _dx_ and _dy_ and returns the result as a point.
+
+**(scale-point _point sx_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(scale-point _point sx sy_)**  
+
+Scales _point_ by factor _sx_ horizontally and _sy_ vertically, and returns the result. If _sy_ is not provided, the point is scaled uniformly by _sx_ in both directions.
+
+**(transform-point _point transformation_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Applies the given affine _transformation_ to _point_ and returns the result.
 
 
 ## Size
 
 A _size_ describes the dimensions of a rectangle consisting of _width_ and _height_ values. Sizes are represented as pairs of floating-point numbers where the car representes the width and the cdr represents the height. Even though an expression like `'(5.0 . 3.0)` does represent a size, it is recommended to always construct sizes via function `size`; e.g. `(size 5.0 3.0)`.
+
+**zero-size** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[object]</span>  
+
+The zero size, i.e. `(size 0.0 0.0)`.
 
 **(size? _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
@@ -717,6 +788,10 @@ Returns the height for _size_.
 **(increase-size _size dx dy_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns a new size object whose width is increased by _dx_ and whose height is increased by _dy_.
+
+**(size-ratio _size_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns the aspect ratio of _size_, i.e. the width divided by the height.
 
 **(scale-size _size factor_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
@@ -772,13 +847,55 @@ Returns the x-coordinate of the lower right corner point of _rect_.
 
 Returns the y-coordinate of the lower right corner point of _rect_.
 
+**(rect-mid-point _rect_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns the center point of _rect_, i.e. the midpoint between the upper left and lower right corners.
+
+**(rect-mid-x _rect_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns the x-coordinate of the center point of _rect_.
+
+**(rect-mid-y _rect_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns the y-coordinate of the center point of _rect_.
+
 **(move-rect _rect d_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(move-rect _rect dx dy_)**  
 
 Moves _rect_ by _dx_ and _dy_ and returns the result. If only one argument _d_ is provided, _rect_ is moved by _d_ both horizontally and vertically.
+
+**(scale-rect _rect sx_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(scale-rect _rect sx sy_)**  
+**(scale-rect _rect sx sy preserve-mid?_)**  
+
+Scales _rect_ by factor _sx_ horizontally and _sy_ vertically, and returns the result. If _sy_ is not provided, the rect is scaled uniformly by _sx_ in both directions. If _preserve-mid?_ is true, the rectangle's center point is preserved during scaling.
 
 **(inset-rect _rect d_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(inset-rect _rect horizental vertical_)**  
 **(inset-rect _rect left top right bottom_)**  
 
 Insets _rect_ on all sides as specified by the arguments. If only _d_ is provided, it specifies the amount added to the rectangle's left and top and the amount subtracted from the rectangle's right and bottom. _horizontal_ specifies the amount added to the rectangle's left and subtracted from the rectangle's right. _vertical_ specifies the amount added to the rectangle's top and subtracted from the rectangle's bottom. If _left_, _top_, _right_, and _bottom_ are given individually, they specify the amounts to add/subtract from the individual sides.
+
+**(transform-rect _rect tf_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Applies the given transformation _tf_ to _rect_ and returns the result.
+
+**(intersect-rect _rect1 rect2_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns the intersection of _rect1_ and _rect2_ as a new rect. If the rectangles do not intersect, returns `#f`.
+
+**(union-rect _rect1 rect2_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns the smallest rect that contains both _rect1_ and _rect2_.
+
+**(rect-contains? _rect obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns `#t` if _rect_ contains _obj_. _obj_ can be either a point or another rect. For a rect to contain another rect, the second rect must be completely within the first rect.
+
+
+## Utilities
+
+**(transpose _expr cur-size new-size_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(transpose _expr cur-size new-size flip?_)**  
+
+Transposes coordinates in _expr_ from a coordinate system with _cur-size_ to a new coordinate system with _new-size_. This is useful for transforming drawings between different canvas sizes. _expr_ can be a point, rect, list, or vector containing points and rects. If _flip?_ is true or if _new-size_ is `#f`, the y-coordinates are flipped vertically. _cur-size_ and _new-size_ are either size objects, rects, or images.

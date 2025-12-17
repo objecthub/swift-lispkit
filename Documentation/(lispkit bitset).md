@@ -3,6 +3,10 @@
 Library `(lispkit bitset)` implements bit sets of arbitrary size. Bit sets are mutable objects. The API of library `(lispkit bitset)` provides functionality to create, to inspect, to compose, and to mutate bit sets efficiently.
 
 
+**bitset-type-tag** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[object]</span>  
+
+Symbol representing the `bitset` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all bitset objects.
+
 **(bitset? _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns `#t` if _obj_ is a bit set, `#f` otherwise.

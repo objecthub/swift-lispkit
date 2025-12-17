@@ -45,6 +45,10 @@ Library `(lispkit char-set)` predefines these frequently used immutable characte
 
 Note that there may be characters in `char-set:letter` that are neither upper or lower case. The `char-set:whitespaces` character set contains whitespace and newline characters. `char-set:blanks` only contains whitespace (i.e. "blank") characters. `char-set:newlines` only contains newline characters.
 
+**char-set-type-tag** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[object]</span>  
+
+Symbol representing the `char-set` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all character set objects.
+
 ## Predicates
 
 **(char-set? _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  

@@ -233,7 +233,11 @@ Converts a Markdown block or list of blocks _bs_ into SXML representation. _tigh
 
 Converts Markdown inline text or a list of inline text objects _txt_ into SXML representation.
 
-**(markdown-\>raw-string _md_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(markdown-\>debug-string _md_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Converts a Markdown document _md_ into a debug string representation showing the internal structure. _md_ needs to satisfy the `markdown?` predicate.
+
+**(markdown-\>raw-string _md_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Converts a Markdown document _md_ into raw text, a string ignoring any markup. _md_ needs to satisfy the _markdown?_ predicate.
 

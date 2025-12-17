@@ -496,6 +496,10 @@ Returns the build number of the operating system on which the Scheme implementat
 
 Returns the (major) release version of the operating system on which the Scheme implementation is running as a string. For macOS 10.14.1, this procedure returns "10.14".
 
+**(host-name)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns the network host name of the computer running the LispKit interpreter as a string. This is typically the name assigned to the machine on the local network.
+
 **(current-user-name)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns the username of the user running the Scheme implementation as a string.
