@@ -28,8 +28,5 @@ replinfo:
 test:
 	swift test
 
-update:
-	carthage update --platform macOS
-
 clean:
 	rm -rf .build

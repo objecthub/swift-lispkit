@@ -59,8 +59,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-atomics.git",
       "state" : {
-        "revision" : "cd142fd2f64be2100422d658e7411e39489da985",
-        "version" : "1.2.0"
+        "revision" : "b601256eab081c0f92f059e12818ac1d4f178ff7",
+        "version" : "1.3.0"
       }
     },
     {
@@ -68,8 +68,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/objecthub/swift-clformat.git",
       "state" : {
-        "revision" : "74767e432b8e2982b1315d38bc1bdbfb398699e5",
-        "version" : "1.1.0"
+        "revision" : "de4f1d7f3681c36eeee573bdc6afa75f0539b367",
+        "version" : "1.1.1"
       }
     },
     {
@@ -77,8 +77,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/objecthub/swift-commandlinekit.git",
       "state" : {
-        "revision" : "c66994d36c654fdd4a27863e5f8aaadc101099eb",
-        "version" : "0.3.5"
+        "revision" : "9e7654dc2d5b475b82f0a7b375ed9108876dbb5f",
+        "version" : "1.0.0"
       }
     },
     {
@@ -95,8 +95,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/objecthub/swift-markdownkit.git",
       "state" : {
-        "revision" : "d9bc97f7ad32cfdda621eaaa0eb88082eb75fbd8",
-        "version" : "1.1.9"
+        "revision" : "0904c81cb39ae1ba918b03a692a6fb27fe171a0b",
+        "version" : "1.3.0"
       }
     },
     {
@@ -131,8 +131,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/weichsel/ZIPFoundation.git",
       "state" : {
-        "revision" : "02b6abe5f6eef7e3cbd5f247c5cc24e246efcfe0",
-        "version" : "0.9.19"
+        "revision" : "22787ffb59de99e5dc1fbfe80b19c97a904ad48d",
+        "version" : "0.9.20"
       }
     }
   ],

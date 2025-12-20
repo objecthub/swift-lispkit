@@ -216,7 +216,7 @@ Sets the value of the specified image _filter_ argument _key_ to _value_. This i
 
 Image filters have attributes, which are key value pairs associated with image filter objects. Attributes have types, which can be determined by using the `image-filter-argument` procedure and extracting the `type` property. Here is an example:
 
-```swift
+```scheme
 (define f (make-image-filter 'color-cross-polynomial))
 (image-filter-inputs f)
 ⇒  (input-image input-red-coefficients input-green-coefficients input-blue-coefficients)
@@ -249,7 +249,7 @@ Interprets the first two coefficient values `x` and `y` as a point, returning `(
 
 Interprets the first four coefficient values `x`, `y`, `width`, and `hight` as a rectangle, returning `((x . y) . (width . height))`. Returns `#f` if fewer than four coefficients are available.
 
-```swift
+```scheme
 (define r (rect '(1 . 2) '(3 . 4)))
 r  ⇒  ((1.0 . 2.0) 3.0 . 4.0)
 (define c (image-coefficients r))

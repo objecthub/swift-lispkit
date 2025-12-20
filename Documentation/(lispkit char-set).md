@@ -95,19 +95,19 @@ Return a newly allocated immutable character set containing the given characters
 
 Returns a newly allocated copy of the character set _cs_. The copy is mutable by default unless parameter _mutable?_ is provided and set to `#f`.
 
-**(list->char-set _char-list_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
-**(list->char-set _char-list base-cs_)**  
+**(list-\>char-set _char-list_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(list-\>char-set _char-list base-cs_)**  
 
 Return a newly allocated mutable character set containing the characters in the list of characters _char-list_. If character set _base-cs_ is provided, the characters from _base-cs_ are added to it as well.
 
-**(string->char-set _s_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
-**(string->char-set _s base-cs_)**  
+**(string-\>char-set _s_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(string-\>char-set _s base-cs_)**  
 
 Return a newly allocated mutable character set containing the characters of the string _s_. If character set _base-cs_ is provided, the characters from _base-cs_ are added to it as well.
 
-**(ucs-range->char-set _lower upper_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
-**(ucs-range->char-set _lower upper base-cs_)**  
-**(ucs-range->char-set _lower upper limit base-cs_)**  
+**(ucs-range-\>char-set _lower upper_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(ucs-range-\>char-set _lower upper base-cs_)**  
+**(ucs-range-\>char-set _lower upper limit base-cs_)**  
 
 Returns a newly allocated mutable character set containing every character whose ISO/IEC 10646 UCS-4 code lies in the half-open range _[lower,upper)_. _lower_ and _upper_ are exact non-negative integers where _lower <= upper <= limit_ is required to hold. _limit_ is either an exact non-negative integer specifying the maximum upper limit, or it is `#t` which specifies the maximum UTF-16 code unit value. If _limit_ is not provided, a very large default is assumed (equivalent to _limit_ being `#f`).
 
@@ -123,7 +123,7 @@ If character set _base-cs_ is provided, the characters of _base-cs_ are included
 
 Returns a new character set containing every character _c_ in character set _cs_ such that _(pred c)_ returns true. If character set _base-cs_ is provided, the characters specified by _base-cs_ are added to it.
 
-**(->char-set _x_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(-\>char-set _x_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Coerces object _x_ into a character set. _x_ may be a string, character or character set. A string is converted to the set of its constituent characters; a character is converted to a singleton character set; a character set is returned as is. This procedure is intended for use by other procedures that want to provide "user-friendly", wide-spectrum interfaces to their clients.
 
@@ -138,11 +138,11 @@ Returns the number of elements in character set _cs_.
 
 Apply _pred_ to the characters of character set _cs_, and return the number of characters that caused the predicate to return `#t`.
 
-**(char-set->list _cs_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(char-set-\>list _cs_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 This procedure returns a list of the characters of character set _cs_. The order in which _cs_'s characters appear in the list is not defined, and may be different from one call to another.
 
-**(char-set->string _cs_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(char-set-\>string _cs_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 This procedure returns a string containing the characters of character set _cs_. The order in which _cs_'s characters appear in the string is not defined, and may be different from one call to another.
 
@@ -211,16 +211,16 @@ These are update variants of the set-algebra functions mutating the first charac
 
 Adds every character _c_ in _cs_ for which _(pred c)_ returns `#t` to the given character set `base-cs`.
 
-**(list->char-set! _char-list base-cs_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(list-\>char-set! _char-list base-cs_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Add the characters from the character list _char-list_ to character set _base-cs_ and return the mutated character set _base-cs_.
 
-**(string->char-set! _s base-cs_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(string-\>char-set! _s base-cs_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Add the characters of the string _s_ to character set _base-cs_ and return the mutated character set _base-cs_.
 
-**(ucs-range->char-set! _lower upper base-cs_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
-**(ucs-range->char-set! _lower upper limit base-cs_)**  
+**(ucs-range-\>char-set! _lower upper base-cs_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(ucs-range-\>char-set! _lower upper limit base-cs_)**  
 
 Mutates the mutable character set _base-cs_ including every character whose ISO/IEC 10646 UCS-4 code lies in the half-open range _[lower,upper)_. _lower_ and _upper_ are exact non-negative integers where _lower <= upper <= limit_ is required to hold. _limit_ is either an exact non-negative integer specifying the maximum upper limit, or it is `#t` which specifies the maximum UTF-16 code unit value. If _limit_ is not provided, a very large default is assumed (equivalent to _limit_ being `#f`).
 
