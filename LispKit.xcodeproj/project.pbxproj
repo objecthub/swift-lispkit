@@ -3423,6 +3423,8 @@
 		CC4A7DC42259763F00936034 /* mapping.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = mapping.sld; sourceTree = "<group>"; };
 		CC4A7DC6225A021E00936034 /* 165.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 165.sld; sourceTree = "<group>"; };
 		CC4A7DC8225A344300936034 /* SRFI-165.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-165.scm"; sourceTree = "<group>"; };
+		CC4ACF6B2EF89D4D00D70394 /* lispkit-wrapper.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "lispkit-wrapper.sh"; sourceTree = "<group>"; };
+		CC4ACF6C2EF8A5AF00D70394 /* README */ = {isa = PBXFileReference; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
 		CC4D2C9E1D5EDA2A00A02256 /* RecordLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = RecordLibrary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC4E2D361D09691000D77159 /* PortLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = PortLibrary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC5157B826E42B370056B05B /* Procedures.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Procedures.scm; sourceTree = "<group>"; };
@@ -4698,6 +4700,8 @@
 				CCE9C2812C41D70300DE1AD7 /* LispKitRepl.swift */,
 				CC74D3472AEA48000054CC5A /* AppInfo.swift */,
 				CC74D3492AEA48260054CC5A /* AppInfo.tmpl */,
+				CC4ACF6B2EF89D4D00D70394 /* lispkit-wrapper.sh */,
+				CC4ACF6C2EF8A5AF00D70394 /* README */,
 			);
 			name = LispKitRepl;
 			path = Sources/LispKitRepl;
@@ -5822,7 +5826,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "timestamp=$(date +%s)\nsed \"s/CURRENT-DATE/$timestamp/\" $SCRIPT_INPUT_FILE_0 > $SCRIPT_OUTPUT_FILE_0\n";
+			shellScript = "timestamp=$(date +%s)\nversion=2.6.0\nsed \"s/CURRENT-DATE/$timestamp/g;s/CURRENT-VERSION/$version/g\" $SCRIPT_INPUT_FILE_0 > $SCRIPT_OUTPUT_FILE_0\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

@@ -28,10 +28,10 @@ import LispKit
 public struct AppInfo {
   
   // Name of the application
-  public static let name = "LispKit Shell"
+  public static let name = "LispKit Scheme"
   
   // Version of the application
-  public static let version = "2.6"
+  public static let version = "2.6.0"
   
   // Copyright message
   public static let copyright = "Copyright © 2016–2025 Matthias Zenger. All rights reserved."
@@ -43,7 +43,7 @@ public struct AppInfo {
   public static let buildDate = { () -> String in
     let dateFormatter = DateFormatter()
     dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
-    return dateFormatter.string(from: Date(timeIntervalSince1970: 1766280261))
+    return dateFormatter.string(from: Date(timeIntervalSince1970: 1766361118))
   }()
   public static let buildAnnotation = " (\(AppInfo.buildDate))"
 }

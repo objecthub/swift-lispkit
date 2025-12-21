@@ -101,7 +101,9 @@ let package = Package(
                         .target(name: "LispKitTools")
                       ],
                       exclude: [
-                        "AppInfo.tmpl"
+                        "AppInfo.tmpl",
+                        "lispkit-wrapper.sh",
+                        "README"
                       ]),
     .testTarget(name: "LispKitTests",
                 dependencies: [

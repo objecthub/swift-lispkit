@@ -1,0 +1,15 @@
+LISPKIT RELEASE CURRENT-VERSION
+
+LispKit is a framework for building Lisp-based extension and scripting
+languages for macOS and iOS applications. LispKit is fully written in
+the programming language Swift 5. LispKit implements a core language
+based on the R7RS (small) Scheme standard. It is extensible, allowing
+the inclusion of new native libraries written in Swift, of new libraries
+written in Scheme, as well as custom modifications of the core
+environment consisting of a compiler, a virtual machine as well as
+the core libraries.
+
+Documentation: http://lisppad.app
+Repository: https://github.com/objecthub/swift-lispkit
+
+Copyright © 2016-2025 Matthias Zenger, matthias@objecthub.com
