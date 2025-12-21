@@ -380,7 +380,7 @@ There is a single button with a trash can in the toolbar for resetting the inter
 button for cancelling running programs (e.g. if there is an infinite loop or other deadlock).
 
 There is also a more advanced
-[open-source iOS application called _LispPad Go_](https://github.com/objecthub/swift-lisppad-ioshttps://github.com/objecthub/swift-lisppad-ios)
+[open-source iOS application called _LispPad Go_](https://github.com/objecthub/swift-lisppad-ios)
 which implements a complete IDE for LispKit. _LispPad Go_ is available from the
 [iOS app store](https://apps.apple.com/us/app/lisppad-go/id1565747728).
 
