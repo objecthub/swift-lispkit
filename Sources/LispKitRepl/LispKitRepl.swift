@@ -40,7 +40,7 @@ struct LispKitRepl {
       }
       if LispKitContext.bundle == nil {
         guard repl.configurationSuccessfull(implementationName: "LispKit",
-                                            implementationVersion: "2.5.0",
+                                            implementationVersion: "2.6.0",
                                             includeInternalResources: false,
                                             defaultDocDirectory: "LispKit",
                                             features: features) else {

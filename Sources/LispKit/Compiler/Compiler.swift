@@ -608,13 +608,16 @@ public final class Compiler {
                     case .primitive(_):
                       return nil
                     case .macro(let transformer):
-                      let expanded = try
-                        self.checkpointer.expansion(cp) ??
-                      self.context.evaluator.machine.apply(.procedure(transformer),
-                                                           to: .pair(cdr, .null))
-                      self.checkpointer.associate(.expansion(expanded), with: cp)
-                      // log("expanded = \(expanded)")
-                      return expanded
+                      if let expanded = self.checkpointer.expansion(cp) {
+                        return expanded
+                      } else {
+                        let expanded =
+                          try self.context.evaluator.machine.apply(.procedure(transformer),
+                                                                   to: .pair(cdr, .null))
+                        self.checkpointer.associate(.expansion(expanded), with: cp)
+                        // log("expanded = \(expanded)")
+                        return expanded
+                      }
                   }
                 default:
                   return nil
@@ -718,13 +721,15 @@ public final class Compiler {
                     case .primitive(let formCompiler):
                       return try formCompiler(self, expr, env, tail)
                     case .macro(let transformer):
-                      let expanded = try
-                        self.checkpointer.expansion(cp) ??
-                        self.context.evaluator.machine.apply(.procedure(transformer),
-                                                             to: .pair(cdr, .null))
-                      self.checkpointer.associate(.expansion(expanded), with: cp)
-                      // log("expanded = \(expanded)")
-                      return try self.compile(expanded, in: env, inTailPos: tail)
+                      if let expanded = self.checkpointer.expansion(cp) {
+                        return try self.compile(expanded, in: env, inTailPos: tail)
+                      } else {
+                        let expanded = try self.context.evaluator.machine.apply(.procedure(transformer),
+                                                                                to: .pair(cdr, .null))
+                        self.checkpointer.associate(.expansion(expanded), with: cp)
+                        // log("expanded = \(expanded)")
+                        return try self.compile(expanded, in: env, inTailPos: tail)
+                      }
                   }
                 default:
                   break // Compile as normal global function call

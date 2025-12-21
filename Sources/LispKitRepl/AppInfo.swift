@@ -31,7 +31,7 @@ public struct AppInfo {
   public static let name = "LispKit Shell"
   
   // Version of the application
-  public static let version = "2.5"
+  public static let version = "2.6"
   
   // Copyright message
   public static let copyright = "Copyright © 2016–2025 Matthias Zenger. All rights reserved."
@@ -43,7 +43,7 @@ public struct AppInfo {
   public static let buildDate = { () -> String in
     let dateFormatter = DateFormatter()
     dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
-    return dateFormatter.string(from: Date(timeIntervalSince1970: 1763765582))
+    return dateFormatter.string(from: Date(timeIntervalSince1970: 1766280261))
   }()
   public static let buildAnnotation = " (\(AppInfo.buildDate))"
 }

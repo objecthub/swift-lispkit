@@ -188,10 +188,11 @@
 ;;;
 ;;;   http://www.apache.org/licenses/LICENSE-2.0
 ;;;
-;;; Unless required by applicable law or agreed to in writing, software distributed under the
-;;; License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-;;; either express or implied. See the License for the specific language governing permissions
-;;; and limitations under the License.
+;;; Unless required by applicable law or agreed to in writing, software
+;;; distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+;;; WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+;;; License for the specific language governing permissions and limitations
+;;; under the License.
 
 (define-library (lispkit object)
 
@@ -264,11 +265,13 @@
                     (cons (car methods) (delete (cdr methods)))))))))
 
     (define (make-generic-procedure . impl)
-      (letrec* ((proc (if (pair? impl)
-                          (if (procedure? (car impl))
-                              (car impl)
-                              (error "generic implementation not a procedure: $0" (car impl)))
-                          (lambda (obj . params) (error "method not supported for object $0" obj))))
+      (letrec* ((proc
+                  (if (pair? impl)
+                      (if (procedure? (car impl))
+                          (car impl)
+                          (error "generic implementation not a procedure: $0" (car impl)))
+                      (lambda (obj . params)
+                        (error "method not supported for object $0" obj))))
                 (generic (lambda (obj . args)
                            (apply (or (and (object? obj) (method obj generic)) proc)
                                   obj
@@ -292,7 +295,8 @@
         ((_ (name self arg ... . rest))
            (define name (make-generic-procedure)))
         ((_ (name self arg ... . rest) e1 e2 ...)
-           (define name (make-generic-procedure (lambda (self arg ... . rest) e1 e2 ...))))))
+           (define name (make-generic-procedure
+                          (lambda (self arg ... . rest) e1 e2 ...))))))
 
     (define-syntax invoke
       (syntax-rules ()
@@ -338,12 +342,14 @@
       (if (not (symbol? name))
           (error "class name required to be a symbol: $0" name))
       (for-each
-        (lambda (super) (if (not (class? super)) (error "illegal superclass of $0: $1" name super)))
+        (lambda (super)
+          (if (not (class? super))
+              (error "illegal superclass of $0: $1" name super)))
         superclasses)
       (if (not (procedure? constructor))
           (error "class constructor required to be a procedure" name constructor))
       (let ((class (make-custom-object new-class '())))
-        (let-values (((new-instance instance? instance-ref make-instance-subtype)
+        (let-values (((type-tag new-instance instance? instance-ref make-instance-subtype)
                         (make-object-subtype name)))
           (add-method! class class-name
             (lambda (self) name))
@@ -382,7 +388,8 @@
                    (let* ((s delegate) ...)
                      (values (list s ...)
                              (lambda (obj)
-                               (add-method! obj method (lambda (self arg ... . rest) e1 e2 ...))
+                               (add-method! obj method
+                                 (lambda (self arg ... . rest) e1 e2 ...))
                                ... )))))))
          ((_ (name . args) pred? (super ...)
                init ...
@@ -396,7 +403,8 @@
                      (let* ((s delegate) ...)
                        (values (list s ...)
                                (lambda (obj)
-                                 (add-method! obj method (lambda (self arg ... . rest) e1 e2 ...))
+                                 (add-method! obj method
+                                   (lambda (self arg ... . rest) e1 e2 ...))
                                  ... ))))))
               (define (pred? x) (subclass? (object-class obj) name))))))
 

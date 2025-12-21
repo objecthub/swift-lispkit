@@ -1,5 +1,24 @@
 # Changelog
 
+## 2.6.0 (2025-12-21)
+
+- Documentation for libraries is now included in this repository
+- New library for handling locations: `(lispkit location)`
+- New library for creating and editing PDF documents: `(lispkit pdf)`
+- New library for solving computer vision problems: `(lispkit vision)`; the library supports optical character recognition (OCR), shape detection, barcode recognition, and image classification.
+- New libraries for processing/manipulating images, providing access to Apple's _Core Image_ framework: `(lispkit image)`, `(lispkit image process)`
+- New library for drawing maps: `(lispkit draw map)`
+- New library for making and drawing snapshots of web pages: `(lispkit draw web)`
+- New exported definitions in library `(lispkit draw)`: `clip-drawing`, `bitmap-ppi`, `closed-polygon`, `inset-rect`, `size-ratio`, `rect-mid-point`, `rect-mid-x`, `rect-mid-y`, `zero-size`, `transpose`. `make-shape` accepts a second optional argument `freeze?` which makes it possible to create a new shape from an existing one without introducing a dependency.
+- Improvements for reading and writing images via `(lispkit draw)`: PDF files can now be read via `load-image`, `load-image-asset` and `bytevector->image` also on iOS. New procedures `save-image` and `image->bytevector` support saving images as PDF. `save-bitmap` and `bitmap->bytevector` now support a "quality factor" which indicates how strongly an image should be compressed.
+- New procedures in library `(lispkit core)`: `generate-uninterned-symbol`, `symbol<?`
+- New functionality for library `(lispkit enum)`: procedure `enum-tag-mapper` and enum constructors without name (to return the enum type)
+- Make it easier to generate `date-time` strings with procedure `date-time->iso8601-string` and parse date-time strings via `string->date-time` conforming with ISO 8601/RFC 3339.
+- Fixes `quasiquote` for expressions involving array literals
+- Fixes the `(library ...)` directive of `cond-expand`
+- Fixes classes in library `(lispkit object)`; generic procedure `object->string` was renamed to `object-description`
+- New sample code: `ImageComposition.scm`, `OCR.scm`, `MermaidDiagrams.scm`, `Pinterest.scm`
+
 ## 2.5.0 (2024-11-21)
 
 - Support for all major JSON standards via libraries `(lispkit json)` and `(lispkit json schema)` supporting _JSON Pointer_ \([RFC 6901](https://datatracker.ietf.org/doc/html/rfc6901/)\), _JSON Path_ \([RFC 9535](https://datatracker.ietf.org/doc/html/rfc9535/)\), _JSON Patch_ \([RFC 6902](https://datatracker.ietf.org/doc/html/rfc6902/)\), _JSON Merge Patch_ \([RFC 7396](https://datatracker.ietf.org/doc/html/rfc7396/)\) and _JSON Schema_ \([2020-12 Internet Draft specification](https://datatracker.ietf.org/doc/draft-bhutton-json-schema/)\).

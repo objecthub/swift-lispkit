@@ -103,30 +103,12 @@ public final class Checkpointer: CustomStringConvertible {
   }
 }
 
-public enum CheckpointData: Hashable, CustomStringConvertible {
+public enum CheckpointData: Equatable, Hashable, CustomStringConvertible {
   case systemDefined
   case imported
   case fromGlobalEnv(Expr)
   case valueBinding(Symbol)
   case expansion(Expr)
-  
-  public func hash(into hasher: inout Hasher) {
-    switch self {
-      case .systemDefined:
-        hasher.combine(1)
-      case .imported:
-        hasher.combine(2)
-      case .fromGlobalEnv(let expr):
-        hasher.combine(3)
-        hasher.combine(expr)
-      case .valueBinding(let sym):
-        hasher.combine(4)
-        hasher.combine(sym)
-      case .expansion(let expr):
-        hasher.combine(5)
-        hasher.combine(expr)
-    }
-  }
   
   public var description: String {
     switch self {

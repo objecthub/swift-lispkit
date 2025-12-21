@@ -136,7 +136,7 @@ Constructs a date-time representation of the same point in time like _dtime_, bu
 **(string-\>date-time _str tz locale_)**  
 **(string-\>date-time _str tz locale format_)**  
 
-Extracts a date and time from the given string _str_ in the time zone _tz_, or the current time zone if _tz_ is omitted. The format of the string representation is defined in terms of _locale_ and _format_. _format_ can have three different forms:
+Extracts a date and time from the given string _str_ in the time zone _tz_, or the current time zone if _tz_ is omitted. The format of the string representation is defined in terms of _locale_ and _format_. If both _locale_ and _format_ are omitted or set to `#f`, `string->date-time` assumes the date and time is in ISO 8601 format with UTC as timezone. _format_ can have three different forms:
 
 1. Combined format identifier for date and time: `date-time` parsing is based on the settings of the operating system. _format_ is one of the following symbols: `none`, `short`, `medium`, `long`, or `full`.
 2. Separate format identifiers for date and time: `date-time` parsing is based on the settings of the operating system, but the format for dates and times is specified separately. _format_ is a list of the form `(`_dateformat_ _timeformat_`)` where both _dateformat_ and _timeformat_ are one of the 5 symbols listed under 1. This makes it possible, for instance, to just parse a date (without time) in string form to a date-time object, e.g. by using `(short none)` as _format_.
@@ -195,8 +195,10 @@ HH:mm:ss.SSS            ~~>  11:02:19.213
 ```
 
 **(date-time-\>iso8601-string _dtime_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(date-time-\>iso8601-string _dtime fract_)**  
+**(date-time-\>iso8601-string _dtime fract? excl-tz_)**  
 
-Returns a string representation of the date-time object _dtime_ in ISO 8601 format.
+Returns a string representation of the date-time object _dtime_ in ISO 8601 format. If _fract?_ is set to true, seconds are output as floating-point numbers, i.e. with fractional values (default is `#f`). If _excl-tz?_ is set to true, no timezone designator is included in the output (default is `#f`).
 
 **(date-time-timezone _dtime_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 

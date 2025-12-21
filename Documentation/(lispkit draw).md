@@ -232,8 +232,9 @@ Returns `#t` if _obj_ is a shape. Otherwise, it returns `#f`.
 
 **(make-shape)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(make-shape _prototype_)**  
+**(make-shape _prototype freeze?_)**  
 
-Returns a new shape object. If argument _prototype_ is provided, the new shape object will inherit from shape _prototype_; i.e. the new shape's definition will extend the definition of shape _prototype_.
+Returns a new shape object. If argument _prototype_ is provided, the new shape object will inherit from shape _prototype_; i.e. the new shape's definition will extend the definition of shape _prototype_. If _freeze?_ is provided and set to true, if will create a copy of _prototype_ and make the new shape inherit from the copy. In this case, the returned shape has no dependency on _prototype_, i.e. further changes to _prototype_ are ignored.
 
 **(copy-shape _shape_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
@@ -510,12 +511,14 @@ Crops a rectangle from the given bitmap and returns the result in a new bitmap. 
 Blurs the given bitmap with the given blur radius and returns the result in a new bitmap of the same size.
 
 **(save-bitmap _path bitmap format_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(save-bitmap _path bitmap format compr_)**  
 
-Saves a given bitmap-based image _bitmap_ in a file at filepath _path_. _format_ is a symbol specifying the image file format. Supported are: `png`, `jpg`, `gif`, `bmp`, and `tiff`.
+Saves a given bitmap-based image _bitmap_ in a file at filepath _path_. _format_ is a symbol specifying the image file format. Supported are: `png`, `jpg`, `gif`, `bmp`, and `tiff`. _compr_ is a floating-point number between 0.0 and 1.0, with 1.0 resulting in no compression and 0.0 resulting in the maximum compression possible. This compression factor applies only if `jpg` is used.
 
 **(bitmap-\>bytevector _bitmap format_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(bitmap-\>bytevector _bitmap format compr_)**  
 
-Returns a bytevector with an encoding of _bitmap_ in the given format. _format_ is a symbol specifying the image format. Supported are: `png`, `jpg`, `gif`, `bmp`, and `tiff`.
+Returns a bytevector with an encoding of _bitmap_ in the given format. _format_ is a symbol specifying the image format. Supported are: `png`, `jpg`, `gif`, `bmp`, and `tiff`. _compr_ is a floating-point number between 0.0 and 1.0, with 1.0 resulting in no compression and 0.0 resulting in the maximum compression possible. This compression factor applies only if `jpg` is used.
 
 
 ## Transformations

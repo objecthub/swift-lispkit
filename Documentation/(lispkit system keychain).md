@@ -62,8 +62,9 @@ Returns `#t` if the given _keychain_ client synchronizes keychain item updates a
 Returns `#t` if _keychain_ contains an item for the given _key_, `#f` otherwise. _keychain_ is a keychain client object, _key_ is a string.
 
 **(keychain-ref _keychain key_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(keychain-ref _keychain key default_)**  
 
-With `keychain-ref` it is possible to retrieve the value set via `keychain-set!` from the item in _keychain_ identified via `key`. Such values are stored in the keychain in serialized fashion. `keychain-ref` deserializes the data and returns the result of this operation. _keychain_ is a keychain client object, _key_ is a string.
+With `keychain-ref` it is possible to retrieve the value set via `keychain-set!` from the item in _keychain_ identified via `key`. Such values are stored in the keychain in serialized fashion. `keychain-ref` deserializes the data and returns the result of this operation. _keychain_ is a keychain client object, _key_ is a string. If the key is unknown, _default_ is returned. If _default_ is not provided, `#f` is used.
 
 **(keychain-ref-attributes _keychain key_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 

@@ -14,7 +14,7 @@ The `define-enum` and `define-enumeration` forms defines an enumeration type and
 
 _type-name_ is an identifier that is bound as a syntactic keyword; _symbol ..._ are the symbols that comprise the universe of the enumeration (in order).
 
-`(`_type-name_ _symbol_`)` checks whether the name of _symbol_ is in the universe associated with _type-name_. If it is, `(`_type-name_ _symbol_`)` is equivalent to _symbol_. It is a syntax violation if it is not.
+`(`_type-name_ _symbol_`)` checks whether the name of _symbol_ is in the universe associated with _type-name_. If it is, `(`_type-name_ _symbol_`)` is equivalent to _symbol_. It is a syntax violation if it is not. `(`_type-name_`)` returns the type of the enumeration.
 
 _constructor_ is an identifier that is bound to a syntactic form that, given any finite sequence of the symbols in the universe, possibly with duplicates, expands into an expression that evaluates to the enumeration set of those symbols.
 
