@@ -72,11 +72,14 @@ uninstall:
 # Create distributable tarball
 dist: release
 	@echo "Creating distribution tarball for version $(VERSION)..."
-	mkdir -p Distributions/lispkit-$(VERSION)
-	cp .build/release/LispKitRepl Distributions/lispkit-$(VERSION)/
+	mkdir -p Distributions/lispkit-$(VERSION)/bin
+	cp .build/release/LispKitRepl Distributions/lispkit-$(VERSION)/bin
+	sed "s/share\/lispkit\/Resources/Resources/g;s/libexec\/lispkit/bin/g" Sources/LispKitRepl/lispkit-wrapper.sh > Distributions/lispkit-$(VERSION)/bin/lispkit
+	chmod 755 Distributions/lispkit-$(VERSION)/bin/lispkit
 	cp -R Sources/LispKit/Resources Distributions/lispkit-$(VERSION)/
 	sed "s/CURRENT-VERSION/$(VERSION)/" Sources/LispKitRepl/README > Distributions/lispkit-$(VERSION)/README
 	cp LICENSE Distributions/lispkit-$(VERSION)/ 2>/dev/null || true
 	cd Distributions && tar czf lispkit-$(VERSION).tar.gz lispkit-$(VERSION)
 	rm -rf Distributions/lispkit-$(VERSION)
+	shasum -a 256 Distributions/lispkit-$(VERSION).tar.gz
 	@echo "Tarball created: Distributions/lispkit-$(VERSION).tar.gz"

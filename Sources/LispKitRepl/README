@@ -1,4 +1,7 @@
 LISPKIT RELEASE CURRENT-VERSION
+=====================
+
+# OVERVIEW
 
 LispKit is a framework for building Lisp-based extension and scripting
 languages for macOS and iOS applications. LispKit is fully written in
@@ -9,7 +12,66 @@ written in Scheme, as well as custom modifications of the core
 environment consisting of a compiler, a virtual machine as well as
 the core libraries.
 
+# INSTALL
+
+Place the directory of this distribution anywhere and include the bin
+directory of this distribution in your path.
+
+# USAGE
+
+lispkit [<option> ...] [---] [<program> <arg> ...]
+
+options:
+  -f, --filepath <value> ...
+      Adds file paths in which programs are searched for.
+  -l, --libpath <value> ...
+      Adds file paths in which libraries are searched for.
+  -a, --assetpath <value> ...
+      Adds file paths in which assets are searched for.
+  -d, --documents <value>
+      Search for files and libraries in folder ~/Documents/<value>.
+  -r, --root <value> ...
+      Directories in which to search for files and libraries.
+  -m, --memsize <value>
+      Initial capacity of the heap memory.
+  -n, --maxstack <value>
+      Maximum stack size
+  -i, --import <value> ...
+      Imports library automatically after startup.
+  --r7rs
+      Imports library (scheme base).
+  --lispkit
+      Imports library (lispkit base).
+  -p, --prelude <value>
+      Path to prelude file which gets executed after loading all
+      provided libraries.
+  -c, --prompt <value>
+      String used as prompt in REPL.
+  -b, --basic
+      Use basic line reader only.
+  -e, --extendednames
+      Use extended procedure names.
+  -s, --strict
+      In strict mode, initialization warnings terminate the application.
+  -q, --quiet
+      In quiet mode, optional messages are not printed.
+  -u, --unformat
+      Disable formatting of results.
+  -t, --tabwidth <value>
+      Width of a tab character.
+  -x, --runloop
+      Enable runloop, i.e. support asynchronous APIs
+  -y, --systemstack <value>
+      Stack size (in KB) of interpreter thread (if --runloop is used)
+  -h, --help
+      Show description of usage and options of this tools.
+
+# DOCUMENTATION
+
 Documentation: http://lisppad.app
 Repository: https://github.com/objecthub/swift-lispkit
 
-Copyright © 2016-2025 Matthias Zenger, matthias@objecthub.com
+# COPYRIGHT
+
+Copyright © 2016-2025 Matthias Zenger (matthias@objecthub.com).
+All rights reserved.
