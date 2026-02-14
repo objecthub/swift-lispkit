@@ -120,7 +120,7 @@ public final class DrawWebLibrary: NativeLibrary {
   }
   
   private func makeWebClient(width: Expr, args: Arguments) throws -> Expr {
-    guard let (scripts, viewPort, appName, d, h, prefs) =
+    guard let (scripts, vp, appName, d, h, prefs) =
             args.optional(.null, .false, .false, .false, .false, .null) else {
       throw RuntimeError.argumentCount(of: "make-web-client",
                                        min: 1,
@@ -140,6 +140,12 @@ public final class DrawWebLibrary: NativeLibrary {
         height = .absolute(try h.asPositiveDouble())
     }
     var userScripts: [(source: String, injection: WKUserScriptInjectionTime, main: Bool)] = []
+    var viewPort: Expr = vp
+    var ignoresViewportScaleLimits = false
+    if case .pair(let viewp, let ignore) = vp {
+      ignoresViewportScaleLimits = ignore.isTrue
+      viewPort = viewp
+    }
     switch viewPort {
       case .false:
         let viewport = """
@@ -205,11 +211,22 @@ public final class DrawWebLibrary: NativeLibrary {
       "allowUniversalAccessFromFileURLs" : true,
       "sward".reversed() + "background".capitalized : false
     ]
+    var contentMode = WKWebpagePreferences.ContentMode.desktop
     list = prefs
     while case .pair(let feature, let rest) = list {
       switch feature {
         case .symbol(let sym):
-          features[sym.rawIdentifier] = true
+          let ident = sym.rawIdentifier
+          switch ident {
+            case "desktop":
+              contentMode = .desktop
+            case "mobile":
+              contentMode = .mobile
+            case "recommended":
+              contentMode = .recommended
+            default:
+              features[sym.rawIdentifier] = true
+          }
         case .string(let str):
           features[str as String] = true
         case .pair(.symbol(let sym), let val):
@@ -241,8 +258,18 @@ public final class DrawWebLibrary: NativeLibrary {
       if appName.isTrue {
         config.applicationNameForUserAgent = applicationName
       }
+      // Default configurations
       config.limitsNavigationsToAppBoundDomains = false
       config.suppressesIncrementalRendering = true
+      #if os(iOS) || os(watchOS) || os(tvOS)
+      config.ignoresViewportScaleLimits = ignoresViewportScaleLimits
+      // config.preferences.shouldPrintBackgrounds = false
+      #endif
+      // Set web page rendering preferences
+      let prefs = WKWebpagePreferences()
+      prefs.preferredContentMode = contentMode
+      prefs.allowsContentJavaScript = true
+      config.defaultWebpagePreferences = prefs
       for (key, val) in prefFeatures {
         config.preferences.setValue(val, forKey: key)
       }
@@ -761,6 +788,7 @@ public class WebClient: NSObject, WKNavigationDelegate, CustomExpr {
                              configuration: config)
     #if os(iOS) || os(watchOS) || os(tvOS)
     self.webView.setMinimumViewportInset(.zero, maximumViewportInset: .zero)
+    self.webView.scrollView.contentInsetAdjustmentBehavior = .never
     #elseif os(macOS)
     self.webView.setValue(false, forKey: "sward".reversed() + "background".capitalized)
     self.webView.setMinimumViewportInset(NSEdgeInsetsZero, maximumViewportInset: NSEdgeInsetsZero)

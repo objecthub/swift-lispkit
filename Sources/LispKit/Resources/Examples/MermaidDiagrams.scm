@@ -240,7 +240,7 @@
 ;; pages and creates PDF snapshots which become the pages of the returned PDF file.
 (define (mermaid-pdf . args)
   (let* (; Make a new web client
-         (wc (make-web-client 500 (list mermaid-js)))
+         (wc (make-web-client (cond-expand (ios 975) (else 500)) (list mermaid-js)))
          ; Create PDF snapshots for every document
          (pdfs (map (lambda (doc)
                       (web-client-pdf-snapshot-html wc (sxml->html doc) 'trim))

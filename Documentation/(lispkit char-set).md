@@ -118,11 +118,6 @@ This signature is compatible with the SRFI 16 specification which states that if
 
 If character set _base-cs_ is provided, the characters of _base-cs_ are included in the newly allocated mutable character set.
 
-**(char-set-filter _pred cs_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
-**(char-set-filter _pred cs base-cs_)**  
-
-Returns a new character set containing every character _c_ in character set _cs_ such that _(pred c)_ returns true. If character set _base-cs_ is provided, the characters specified by _base-cs_ are added to it.
-
 **(-\>char-set _x_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Coerces object _x_ into a character set. _x_ may be a string, character or character set. A string is converted to the set of its constituent characters; a character is converted to a singleton character set; a character set is returned as is. This procedure is intended for use by other procedures that want to provide "user-friendly", wide-spectrum interfaces to their clients.
@@ -184,6 +179,10 @@ Boundary cases:
 
 `char-set-diff+intersection` returns both the difference and the intersection of the arguments, i.e. it partitions its first parameter. It is equivalent to `(values (char-set-difference cs1 cs2 ...) (char-set-intersection cs1 (char-set-union cs2 ...)))` but can be implemented more efficiently.
 
+**(char-set-filter _pred cs_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(char-set-filter _pred cs base-cs_)**  
+
+Returns a new character set containing every character _c_ in character set _cs_ such that _(pred c)_ returns true. If character set _base-cs_ is provided, the characters specified by _base-cs_ are added to it.
 
 ## Mutating character sets
 

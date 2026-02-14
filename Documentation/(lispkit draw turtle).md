@@ -29,10 +29,6 @@ Returns a new turtle object. _x_ and _y_ determine the "home point" of the turtl
 
 Returns the drawing associated with the given _turtle_.
 
-**(turtle-drawing _turtle_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
-
-Returns the drawing associated with the given _turtle_.
-
 **(turtle-x _turtle_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns the x coordinate of the position of the given _turtle_.
@@ -117,4 +113,3 @@ Moves _turtle_ backward by _distance_ units drawing a line if the pen is down. I
 **(arc _angle radius turtle_)**  
 
 Turns the turtle by the given _angle_ (in radians) and draws an arc with _radius_ around the current turtle position if the pen is down. If _turtle_ is not provided, the turtle defined by `current-turtle` is used.
-

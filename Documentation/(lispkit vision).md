@@ -66,9 +66,9 @@ Returns the axis-aligned bounding box as `((x . y) . (width . height))`. Optiona
 
 Returns a list of supported barcode symbology identifiers each refering to a type of barcode. Supported symbology identifiers include: `aztec`, `codabar`, `code39`, `code39-checksum`, `code39-full-ascii`, `code39-full-ascii-checksum`, `code93`, `code93i`, `code128`, `data-matrix`, `ean8`, `ean13`, `gs1-databar`, `gs1-databar-expanded`, `gs1-databar-limited`, `i2of5`, `i2of5-checksum`, `itf14`, `micro-pdf417`, `micro-qr`, `qr`, `pdf417`, `upce`, `msi-plessey`.
 
-**(recognize-barcodes _image_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>
-**(recognize-barcodes _image area_)**
-**(recognize-barcodes _image area symbologies_)**
+**(recognize-barcodes _image_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(recognize-barcodes _image area_)**  
+**(recognize-barcodes _image area symbologies_)**  
 
 Recognizes barcodes in bitmap _image_ and returns a future eventually refering to a list of detected barcodes, each with corresponding metadata. Each result has the form `(((x . y) . (width . height)) confidence  (top-left top-right bottom-right bottom-left) symbology payload-string)` where `((x . y) . (width . height))` defines a bounding box, `confidence` defines a confidence level ranging from 0.0 to 1.0, where 0.0 represents no confidence and 1.0 represents full confidence, and `top-left`, `top-right`, `bottom-right` and `bottom-left` all are points in normalized coordinates relative to the image’s lower-left corner. `symbology` is a symbology identifier (a symbol) and `payload-string` a decoded payload string.
 
@@ -77,7 +77,7 @@ _area_ is a region of interest provided as a rectangular of form `((x . y) . (wi
 
 ## Image Classification
 
-**(supported-classification-identifiers)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>
+**(supported-classification-identifiers)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns a list of all supported image classification identifiers. Each identifier is a string representing objects, scenes, and concepts that the vision system can recognize.
 

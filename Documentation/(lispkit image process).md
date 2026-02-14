@@ -141,7 +141,7 @@ Generate a QR Code image for message data.
 
 Filter categories: `builtin`, `generator`, `still-image`
 
-**(random-generator)**
+**(random-generator)** <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns an image generator for image filter `random-generator` (`CIRandomGenerator`).
 Generates an image of infinite extent whose pixel values are made up of four independent, uniformly-distributed random numbers in the 0 to 1 range.
@@ -690,7 +690,7 @@ Brightens the background image samples to reflect the source image samples. Sour
 
 Filter categories: `composite-operation`, `builtin`, `video`, `interlaced`, `still-image`, `non-square-pixels`
 
-**(color-invert)**
+**(color-invert)** <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns an image processor for image filter `color-invert` (`CIColorInvert`).
 Inverts the colors in an image.
@@ -760,7 +760,7 @@ Produces a binarized image from an image and a threshold value. The red, green a
 
 Filter categories: `builtin`, `video`, `color-adjustment`, `interlaced`, `still-image`, `non-square-pixels`
 
-**(color-threshold-otsu)**
+**(color-threshold-otsu)** <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns an image processor for image filter `color-threshold-otsu` (`CIColorThresholdOtsu`).
 Produces a binarized image from an image with finite extent. The threshold is calculated from the image histogram using Otsu’s method. The red, green and blue channels of the resulting image will be one if its value is greater than the threshold and zero otherwise.
@@ -777,7 +777,7 @@ Calculates the average color for each column of the specified area in an image, 
 
 Filter categories: `builtin`, `video`, `high-dynamic-range`, `reduction`, `still-image`
 
-**(comic-effect)**
+**(comic-effect)** <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns an image processor for image filter `comic-effect` (`CIComicEffect`).
 Simulates a comic book drawing by outlining edges and applying a color halftone effect.
@@ -960,7 +960,7 @@ Simulates miniaturization effect created by Tilt & Shift lens by performing dept
 
 Filter categories: `builtin`, `video`, `stylize`, `still-image`
 
-**(depth-to-disparity)**
+**(depth-to-disparity)** <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns an image processor for image filter `depth-to-disparity` (`CIDepthToDisparity`).
 Convert a depth data image to disparity data.
@@ -1000,7 +1000,7 @@ Transitions from one image to another using the shape defined by a mask.
 
 Filter categories: `builtin`, `video`, `transition`, `high-dynamic-range`, `still-image`
 
-**(disparity-to-depth)**
+**(disparity-to-depth)** <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns an image processor for image filter `disparity-to-depth` (`CIDisparityToDepth`).
 Convert a disparity data image to depth data.
@@ -1210,7 +1210,7 @@ Produces a tiled image from a source image by applying 4 translation operations.
 
 Filter categories: `tile-effect`, `builtin`, `video`, `high-dynamic-range`, `still-image`
 
-**(gabor-gradients)**
+**(gabor-gradients)** <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns an image processor for image filter `gabor-gradients` (`CIGaborGradients`).
 Applies multichannel 5 by 5 Gabor gradient filter to an image. The resulting image has maximum horizontal gradient in the red channel and the maximum vertical gradient in the green channel. The gradient values can be positive or negative.
@@ -1547,7 +1547,7 @@ A blend mode that is a combination of linear burn and linear dodge blend modes.
 
 Filter categories: `composite-operation`, `builtin`, `video`, `interlaced`, `still-image`, `non-square-pixels`
 
-**(linear-to-srgbtone-curve)**
+**(linear-to-srgbtone-curve)** <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns an image processor for image filter `linear-to-srgbtone-curve` (`CILinearToSRGBToneCurve`).
 Converts an image in linear space to sRGB space.
@@ -1599,7 +1599,7 @@ Blurs an image according to the brightness levels in a mask image.
 
 Filter categories: `builtin`, `blur`, `video`, `high-dynamic-range`, `still-image`
 
-**(mask-to-alpha)**
+**(mask-to-alpha)** <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns an image processor for image filter `mask-to-alpha` (`CIMaskToAlpha`).
 Converts a grayscale image to a white image that is masked by alpha. The white values from the source image produce the inside of the mask; the black values become completely transparent.
@@ -1607,7 +1607,7 @@ Converts a grayscale image to a white image that is masked by alpha. The white v
 
 Filter categories: `builtin`, `video`, `interlaced`, `color-effect`, `still-image`, `non-square-pixels`
 
-**(maximum-component)**
+**(maximum-component)** <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns an image processor for image filter `maximum-component` (`CIMaximumComponent`).
 Converts an image to grayscale using the maximum of the three color components.
@@ -1634,7 +1634,7 @@ Produces a scaled version of a source image that uses the maximum of neighboring
 
 Filter categories: `builtin`, `video`, `high-dynamic-range`, `still-image`, `geometry-adjustment`
 
-**(median-filter)**
+**(median-filter)** <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns an image processor for image filter `median-filter` (`CIMedianFilter`).
 Computes the median value for a group of neighboring pixels and replaces each pixel value with the median. The effect is to reduce noise.
@@ -1642,7 +1642,7 @@ Computes the median value for a group of neighboring pixels and replaces each pi
 
 Filter categories: `builtin`, `blur`, `video`, `high-dynamic-range`, `still-image`
 
-**(minimum-component)**
+**(minimum-component)** <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns an image processor for image filter `minimum-component` (`CIMinimumComponent`).
 Converts an image to grayscale using the minimum of the three color components.
@@ -2096,7 +2096,7 @@ Calculates the average color for each row of the specified area in an image, ret
 
 Filter categories: `builtin`, `video`, `high-dynamic-range`, `reduction`, `still-image`
 
-**(saliency-map-filter)**
+**(saliency-map-filter)** <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns an image processor for image filter `saliency-map-filter` (`CISaliencyMapFilter`).
 Generates output image as a saliency map of the input image.
@@ -2104,7 +2104,7 @@ Generates output image as a saliency map of the input image.
 
 Filter categories: `builtin`, `video`, `stylize`, `still-image`
 
-**(sample-nearest)**
+**(sample-nearest)** <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns an image processor for image filter `sample-nearest` (`CISampleNearest`).
 Produces an image that forces the image sampling to “nearest” mode instead of the default “linear” mode. This filter can be used to alter the behavior of filters that alter the geometry of an image. The output of this filter should be passed as the input to the geometry filter. For example, passing the output of this filter to CIAffineTransform can be used to produce a pixelated upsampled image.
@@ -2193,7 +2193,7 @@ Generates a gradient that varies along a linear axis between two defined endpoin
 
 Filter categories: `builtin`, `video`, `gradient`, `high-dynamic-range`, `still-image`
 
-**(sobel-gradients)**
+**(sobel-gradients)** <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns an image processor for image filter `sobel-gradients` (`CISobelGradients`).
 Applies multichannel 3 by 3 Sobel gradient filter to an image. The resulting image has maximum horizontal gradient in the red channel and the maximum vertical gradient in the green channel. The gradient values can be positive or negative.
@@ -2279,7 +2279,7 @@ Applies a directional spotlight effect to an image.
 
 Filter categories: `builtin`, `video`, `high-dynamic-range`, `stylize`, `still-image`
 
-**(srgbtone-curve-to-linear)**
+**(srgbtone-curve-to-linear)** <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns an image processor for image filter `srgbtone-curve-to-linear` (`CISRGBToneCurveToLinear`).
 Converts an image in sRGB space to linear space.
@@ -2341,7 +2341,7 @@ Adapt the reference white point for an image.
 
 Filter categories: `builtin`, `video`, `high-dynamic-range`, `color-adjustment`, `interlaced`, `still-image`, `non-square-pixels`
 
-**(thermal)**
+**(thermal)** <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns an image processor for image filter `thermal` (`CIThermal`).
 Apply a “Thermal” style effect to an image.
@@ -2500,11 +2500,10 @@ Adjusts the reference white point for an image and maps all colors in the source
 
 Filter categories: `builtin`, `video`, `high-dynamic-range`, `color-adjustment`, `interlaced`, `still-image`, `non-square-pixels`
 
-**(xray)**
+**(xray)** <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns an image processor for image filter `xray` (`CIXRay`).
 Apply an “XRay” style effect to an image.
-
 
 Filter categories: `builtin`, `video`, `interlaced`, `color-effect`, `still-image`, `non-square-pixels`
 
