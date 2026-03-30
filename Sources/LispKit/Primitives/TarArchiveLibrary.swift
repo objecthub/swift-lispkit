@@ -566,6 +566,10 @@ public final class TarArchive: NativeObject {
     }
   }
   
+  public var data: Data {
+    return TarContainer.create(from: self.entries)
+  }
+  
   public func get(path: String) -> TarEntry? {
     for entry in self.entries {
       if entry.info.name == path {
