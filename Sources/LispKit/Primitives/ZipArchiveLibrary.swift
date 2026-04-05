@@ -374,9 +374,30 @@ public final class ZipArchive: NativeObject {
   /// The zip archive
   public let archive: Archive
   
-  /// Initializer
+  /// Initializer based on existing Archive
   public init(_ archive: Archive) {
     self.archive = archive
+  }
+  
+  /// Initializer based on existing data
+  public init?(_ data: Data, _ update: Bool? = nil) {
+    if let update {
+      if let archive = try? Archive(data: data,
+                                    accessMode: update ? .update : .read,
+                                    pathEncoding: nil) {
+        self.archive = archive
+      } else {
+        return nil
+      }
+    } else {
+      if let archive = try? Archive(data: data, accessMode: .update, pathEncoding: nil) {
+        self.archive = archive
+      } else if let archive = try? Archive(data: data, accessMode: .read, pathEncoding: nil) {
+        self.archive = archive
+      } else {
+        return nil
+      }
+    }
   }
   
   public override var type: Type {
