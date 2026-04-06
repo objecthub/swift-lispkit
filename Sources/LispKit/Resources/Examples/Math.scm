@@ -1,7 +1,7 @@
 ;;; Math tools
 ;;;
 ;;; Author: Matthias Zenger
-;;; Copyright © 2017-2021 Matthias Zenger. All rights reserved.
+;;; Copyright © 2017-2026 Matthias Zenger. All rights reserved.
 ;;;
 ;;; Licensed under the Apache License, Version 2.0 (the "License"); you may
 ;;; not use this file except in compliance with the License. You may obtain
@@ -17,18 +17,22 @@
 
 (import (lispkit base))
 
-;; Returns the factorial decomposition of integer `n` in form of a list of
-;; prime numbers
+;; Returns the factorial decomposition of integer `n` in form of
+;; a list of prime numbers
 (define (factors n)
-  (cond ((negative? n) (cons -1 (factors (- n))))
-        ((< n 3)       (list n))
-        ((even? n)     (cons 2 (factors (/ n 2))))
-        (else          (let loop ((divisor 3) (n n))
-                         (if (> (square divisor) n)
-                             (list n)
-                             (if (zero? (modulo n divisor))
-                                 (cons divisor (loop divisor (/ n divisor)))
-                                 (loop (+ divisor 2) n)))))))
+  (cond ((negative? n)
+          (cons -1 (factors (- n))))
+        ((< n 3)
+          (list n))
+        ((even? n)
+          (cons 2 (factors (/ n 2))))
+        (else
+          (let loop ((divisor 3) (n n))
+            (if (> (square divisor) n)
+                (list n)
+                (if (zero? (modulo n divisor))
+                    (cons divisor (loop divisor (/ n divisor)))
+                    (loop (+ divisor 2) n)))))))
 
 ;; Returns `#t` if integer `n` is a prime number, `#f` otherwise.
 (define (prime? n)
@@ -36,10 +40,11 @@
         ((= n 1)   #f)
         ((= n 2)   #t)
         ((even? n) #f)
-        (else      (let loop ((d 3))
-                     (cond ((> (square d) n)        #t)
-                           ((zero? (remainder n d)) #f)
-                           (else                    (loop (+ d 2))))))))
+        (else
+          (let loop ((d 3))
+            (cond ((> (square d) n)        #t)
+                  ((zero? (remainder n d)) #f)
+                  (else                    (loop (+ d 2))))))))
 
 ;; Returns the `n`-th Fibonacci number.
 (define (fib n)
@@ -64,8 +69,8 @@
       (* n (fac (- n 1)))))
 
 ;; Solves a quadratic equation of the form: `a * x^2 + b * x + c = 0`
-;; and returns the solutions as a list. If there is no solution, `#f`
-;; is returned.
+;; and returns the solutions as a list. If there is no solution,
+;; `#f` is returned.
 (define (roots a b c)
   (if (zero? a)
       (if (zero? b)
@@ -81,26 +86,32 @@
 
 ;; Returns a list of all permutations of the given list `xs`
 (define (permutations xs)
-  (cond ((null? xs)
-          (list (list)))
-        ((null? (cdr xs))
-          (list xs))
-        (else
-          (let splice ((l '())
-                       (m (car xs))
-                       (r (cdr xs)))
-            (append (map (lambda (x) (cons m x)) (permutations (append l r)))
-                    (if (null? r) '() (splice (cons m l) (car r) (cdr r))))))))
+  (cond
+    ((null? xs)
+      (list (list)))
+    ((null? (cdr xs))
+      (list xs))
+    (else
+      (let splice ((l '())
+                   (m (car xs))
+                   (r (cdr xs)))
+        (append (map (lambda (x) (cons m x))
+                     (permutations (append l r)))
+                (if (null? r)
+                    '()
+                    (splice (cons m l) (car r) (cdr r))))))))
 
 ;; Returns all `k`-combinations of elements in `xs` as a list.
 (define (combination k xs)
-  (cond ((zero? k)
-          (list (list)))
-        ((null? xs)
-          xs)
-        (else
-          (append (map (lambda (y) (cons (car xs) y)) (combination (- k 1) (cdr xs)))
-                  (combination k (cdr xs))))))
+  (cond
+    ((zero? k)
+      (list (list)))
+    ((null? xs)
+      xs)
+    (else
+      (append (map (lambda (y) (cons (car xs) y))
+                   (combination (- k 1) (cdr xs)))
+              (combination k (cdr xs))))))
 
 ;; Returns all possible combinations of elements in `xs` as a list.
 (define (combinations xs)
@@ -111,9 +122,11 @@
              (v (map (lambda (x) (cons head x)) s)))
         (append s v))))
 
-;; Displays a function table for function `f`. Arguments for `f` range from `xmin` to
-;; `xmax`. The table has `steps` entries showing x and f(x).
-;; Example usage: (function-table (lambda (x) (+ (* 0.5 x) (/ 1.0 x))) 1 10 10)
+;; Displays a function table for function `f`. Arguments for `f`
+;; range from `xmin` to `xmax`. The table has `steps` entries
+;; showing x and f(x).
+;; Example usage:
+;; (function-table (lambda (x) (+ (* 0.5 x) (/ 1.0 x))) 1 10 10)
 (define (function-table f xmin xmax steps . args)
   (let-optionals args ((xlen 10)  ; length of x column
                        (xprec 1)  ; precision of x column
@@ -142,3 +155,25 @@
                  (make-string xlen #\─) "─┴"
                  (make-string ylen #\─) "─┘"))
       (newline))))
+
+;; Returns a random floating-point number.
+(define rnd
+  (let ((a 69069)
+        (c 1)
+        (m (expt 2 32))
+        (seed 19380110))
+    (lambda new-seed
+      (if (pair? new-seed)
+          (set! seed (car new-seed))
+          (set! seed (modulo (+ (* seed a) c) m)))
+      (inexact (/ seed m)))))
+
+;; Returns a random integer number.
+(define random-integer
+  (case-lambda
+    ((hi)
+      (exact (floor (* (rnd) hi))))
+    ((lo hi)
+      (+ lo (exact (floor (* (rnd) (- hi lo))))))))
+
+(void)
