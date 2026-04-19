@@ -1215,13 +1215,14 @@ public struct AbstractImage: CustomExpr {
     guard let cgImage = image.value.cgImage else {
       return nil
     }
+    var ciImage = CIImage(cgImage: cgImage).oriented(image.value.cgOrientation)
     #elseif os(macOS)
     var rect = CGRect(origin: CGPoint(x: 0, y: 0), size: image.value.size)
     guard let cgImage = image.value.cgImage(forProposedRect: &rect, context: nil, hints: nil) else {
       return nil
     }
-    #endif
     var ciImage = CIImage(cgImage: cgImage)
+    #endif
     if flipped {
       let height = ciImage.extent.height
       ciImage = ciImage.transformed(by: CGAffineTransformMakeScale(1, -1))

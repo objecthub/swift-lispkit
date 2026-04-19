@@ -1096,29 +1096,6 @@ public final class DrawingLibrary: NativeLibrary {
     return .object(NativeImage(uiImage))
   }
   
-  private func orient(from io: UIImage.Orientation) -> CGImagePropertyOrientation {
-    switch io {
-      case .up:
-        return .up
-      case .upMirrored:
-        return .upMirrored
-      case .down:
-        return .down
-      case .downMirrored:
-        return .downMirrored
-      case .left:
-        return .left
-      case .leftMirrored:
-        return .leftMirrored
-      case .right:
-        return .right
-      case .rightMirrored:
-        return .rightMirrored
-      @unknown default:
-        return .up
-    }
-  }
-  
   private lazy var coreImageContext = CIContext()
   
   private func bitmapCrop(bitmap: Expr, rect: Expr) throws -> Expr {
@@ -1137,7 +1114,7 @@ public final class DrawingLibrary: NativeLibrary {
             options: [
               .applyOrientationProperty : true,
               .properties: [
-                kCGImagePropertyOrientation : self.orient(from: image.imageOrientation).rawValue
+                kCGImagePropertyOrientation : image.cgOrientation.rawValue
               ]])?.cropped(to: bounds),
           let res = self.coreImageContext.createCGImage(newImage, from: newImage.extent) else {
       return .false
@@ -1152,7 +1129,7 @@ public final class DrawingLibrary: NativeLibrary {
                 options: [
                   .applyOrientationProperty : true,
                   .properties: [
-                    kCGImagePropertyOrientation : self.orient(from: orig.imageOrientation).rawValue
+                    kCGImagePropertyOrientation : orig.cgOrientation.rawValue
                   ]]) else {
       return .false
     }
@@ -2639,6 +2616,30 @@ struct FontTraitModifier: OptionSet {
 }
 
 extension UIImage {
+  
+  var cgOrientation: CGImagePropertyOrientation {
+    switch self.imageOrientation {
+      case .up:
+        return .up
+      case .upMirrored:
+        return .upMirrored
+      case .down:
+        return .down
+      case .downMirrored:
+        return .downMirrored
+      case .left:
+        return .left
+      case .leftMirrored:
+        return .leftMirrored
+      case .right:
+        return .right
+      case .rightMirrored:
+        return .rightMirrored
+      @unknown default:
+        return .up
+    }
+  }
+  
   func getExifData() -> CFDictionary? {
     var exifData: CFDictionary? = nil
     if let data = self.jpegData(compressionQuality: 1.0) {

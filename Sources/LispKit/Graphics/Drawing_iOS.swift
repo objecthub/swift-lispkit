@@ -655,7 +655,7 @@ public enum BitmapImageFileType {
           kCGImagePropertyDPIWidth as String : Int(CGFloat(cgImage.width)*72.0/image.size.width),
           kCGImagePropertyDPIHeight as String : Int(CGFloat(cgImage.height)*72.0/image.size.height),
           kCGImagePropertyColorModel as String : kCGImagePropertyColorModelRGB as String,
-          kCGImagePropertyOrientation as String : NSNumber(value: image.imageOrientation.rawValue)
+          kCGImagePropertyOrientation as String : NSNumber(value: image.cgOrientation.rawValue)
         ]
         if let qualityFactor {
           options[kCGImageDestinationLossyCompressionQuality as String] = qualityFactor as NSNumber
@@ -677,7 +677,7 @@ public enum BitmapImageFileType {
           kCGImagePropertyDPIHeight as String : Int(CGFloat(cgImage.height)*72.0/image.size.height),
           kCGImagePropertyColorModel as String : kCGImagePropertyColorModelRGB as String,
           kCGImagePropertyHasAlpha as String: NSNumber(value: true),
-          kCGImagePropertyOrientation as String : NSNumber(value: image.imageOrientation.rawValue)
+          kCGImagePropertyOrientation as String : NSNumber(value: image.cgOrientation.rawValue)
         ]
         if let qualityFactor {
           options[kCGImageDestinationLossyCompressionQuality as String] = qualityFactor as NSNumber
@@ -698,7 +698,7 @@ public enum BitmapImageFileType {
           kCGImagePropertyDPIWidth as String : Int(CGFloat(cgImage.width)*72.0/image.size.width),
           kCGImagePropertyDPIHeight as String : Int(CGFloat(cgImage.height)*72.0/image.size.height),
           kCGImagePropertyColorModel as String : kCGImagePropertyColorModelRGB as String,
-          kCGImagePropertyOrientation as String : NSNumber(value: image.imageOrientation.rawValue)
+          kCGImagePropertyOrientation as String : NSNumber(value: image.cgOrientation.rawValue)
         ]
         if let qualityFactor {
           options[kCGImageDestinationLossyCompressionQuality as String] = qualityFactor as NSNumber
