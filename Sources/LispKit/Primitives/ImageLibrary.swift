@@ -1186,7 +1186,8 @@ public struct AbstractImage: CustomExpr {
   public let ciImage: CIImage
   
   public init?(url: URL, flipped: Bool = false) {
-    guard var ciImage = CIImage(contentsOf: url) else {
+    guard var ciImage = CIImage(contentsOf: url,
+                                options: [.applyOrientationProperty : true]) else {
       return nil
     }
     if flipped {

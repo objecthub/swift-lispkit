@@ -1096,6 +1096,29 @@ public final class DrawingLibrary: NativeLibrary {
     return .object(NativeImage(uiImage))
   }
   
+  private func orient(from io: UIImage.Orientation) -> CGImagePropertyOrientation {
+    switch io {
+      case .up:
+        return .up
+      case .upMirrored:
+        return .upMirrored
+      case .down:
+        return .down
+      case .downMirrored:
+        return .downMirrored
+      case .left:
+        return .left
+      case .leftMirrored:
+        return .leftMirrored
+      case .right:
+        return .right
+      case .rightMirrored:
+        return .rightMirrored
+      @unknown default:
+        return .up
+    }
+  }
+  
   private lazy var coreImageContext = CIContext()
   
   private func bitmapCrop(bitmap: Expr, rect: Expr) throws -> Expr {
@@ -1109,7 +1132,13 @@ public final class DrawingLibrary: NativeLibrary {
     let bounds = CGRect(x: x, y: y, width: w, height: h)
                    .intersection(CGRect(x: 0, y: 0, width: pixels.width, height: pixels.height))
     guard bounds.width > 0, bounds.height > 0,
-          let newImage = CIImage(image: image)?.cropped(to: bounds),
+          let newImage = CIImage(
+            image: image,
+            options: [
+              .applyOrientationProperty : true,
+              .properties: [
+                kCGImagePropertyOrientation : self.orient(from: image.imageOrientation).rawValue
+              ]])?.cropped(to: bounds),
           let res = self.coreImageContext.createCGImage(newImage, from: newImage.extent) else {
       return .false
     }
@@ -1118,7 +1147,13 @@ public final class DrawingLibrary: NativeLibrary {
   
   private func bitmapBlur(bitmap: Expr, radius: Expr) throws -> Expr {
     let orig = try self.image(from: bitmap)
-    guard let image = CIImage(image: orig) else {
+    guard let image = CIImage(
+                image: orig,
+                options: [
+                  .applyOrientationProperty : true,
+                  .properties: [
+                    kCGImagePropertyOrientation : self.orient(from: orig.imageOrientation).rawValue
+                  ]]) else {
       return .false
     }
     let radius = CGFloat(try radius.asDouble(coerce: true))
