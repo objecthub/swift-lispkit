@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.6.1 (2026-04-26)
+
+- Moved random number procedures from `Prelude.scm` into `Examples/Math.scm`
+- Several bug fixes in library `(lispkit image)`, especially related to preserving the orientation of images
+- Fix `Examples/MermaidDiagrams.scm`
+
 ## 2.6.0 (2025-12-21)
 
 - Documentation for libraries is now included in this repository

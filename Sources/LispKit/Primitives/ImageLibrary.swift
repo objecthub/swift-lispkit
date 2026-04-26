@@ -1199,7 +1199,8 @@ public struct AbstractImage: CustomExpr {
   }
   
   public init?(data: Data, flipped: Bool = false) {
-    guard var ciImage = CIImage(data: data) else {
+    guard var ciImage = CIImage(data: data,
+                                options: [.applyOrientationProperty : true]) else {
       return nil
     }
     if flipped {

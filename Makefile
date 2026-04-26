@@ -5,7 +5,7 @@ PREFIX ?= /usr/local
 BINDIR = $(PREFIX)/bin
 LIBEXECDIR = $(PREFIX)/libexec/lispkit
 SHAREDIR = $(PREFIX)/share/lispkit
-VERSION = 2.6.0
+VERSION = 2.6.1
 
 # Test install to a temporary location
 #   make install PREFIX=/tmp/lispkit-test
