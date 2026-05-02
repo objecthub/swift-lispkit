@@ -10,7 +10,7 @@
 ;;; with a given delta.
 ;;; 
 ;;; Author: Matthias Zenger
-;;; Copyright © 2022 Matthias Zenger. All rights reserved.
+;;; Copyright © 2022-2026 Matthias Zenger. All rights reserved.
 ;;;
 ;;; Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 ;;; except in compliance with the License. You may obtain a copy of the License at
@@ -25,25 +25,6 @@
 (define-library (lispkit draw chart bar)
   
   (export
-    ; Legends
-    make-legend-config
-    legend-config?
-    legend-font
-    legend-font-set!
-    legend-stroke-width
-    legend-stroke-width-set!
-    legend-horizontal-offset
-    legend-horizontal-offset-set!
-    legend-vertical-offset
-    legend-vertical-offset-set!
-    legend-sample-area-width
-    legend-sample-area-width-set!
-    legend-sample-length
-    legend-sample-length-set!
-    legend-line-pad
-    legend-line-pad-set!
-    legend-entry-pad
-    legend-entry-pad-set!
     ; Bar chart configs
     make-bar-chart-config
     bar-chart-config?
@@ -89,6 +70,7 @@
     bar-chart-xaxis-overhead-set!
     bar-chart-yaxis-overhead
     bar-chart-yaxis-overhead-set!
+    
     ; Bar specs
     bar-spec?
     bar?
@@ -101,56 +83,14 @@
     bar-group-label
     bar-group-bars
     bar-segment
+    
     ; Draw bar charts
     draw-bar-chart)
   
   (import (lispkit base)
-          (lispkit math util)
-          (lispkit draw))
-  
-  ;; Legends
-  
-  (begin
-    (define-record-type <legend-config>
-      (legend-config
-        legend-font                  ; font used in legends
-        legend-stroke-width          ; width of a stroke for drawing the bounding box
-        legend-horizontal-offset     ; horizontal offset from chart bounds (neg = right offset)
-        legend-vertical-offset       ; vertical offset from chart bounds (neg = bottom offset)
-        legend-sample-area-width     ; width of the sample area
-        legend-sample-length         ; heigh and width of the color sample box
-        legend-line-pad              ; padding between lines
-        legend-entry-pad)            ; top/bottom and left/right padding around legend
-      legend-config?
-      (legend-font legend-font legend-font-set!)
-      (legend-stroke-width legend-stroke-width legend-stroke-width-set!)
-      (legend-horizontal-offset legend-horizontal-offset legend-horizontal-offset-set!)
-      (legend-vertical-offset legend-vertical-offset legend-vertical-offset-set!)
-      (legend-sample-area-width legend-sample-area-width legend-sample-area-width-set!)
-      (legend-sample-length legend-sample-length legend-sample-length-set!)
-      (legend-line-pad legend-line-pad legend-line-pad-set!)
-      (legend-entry-pad legend-entry-pad legend-entry-pad-set!))
-    
-    (define (make-legend-config . args)
-      (let-keywords args
-        ((font              (font "Helvetica" 10)) ; font used in legends
-         (stroke-width      1)       ; width of a stroke for drawing the bounding box
-         (horizontal-offset 70)      ; horizontal offset from chart bounds (neg = right offset)
-         (vertical-offset   10)      ; vertical offset from chart bounds (neg = bottom offset)
-         (sample-area-width 17)      ; width of the sample area
-         (sample-length     10)      ; heigh and width of the color sample box
-         (line-pad          3)       ; padding between lines
-         (entry-pad         6))      ; top/bottom and left/right padding around legend
-        (legend-config
-          font
-          stroke-width
-          horizontal-offset
-          vertical-offset
-          sample-area-width
-          sample-length
-          line-pad
-          entry-pad)))
-  )
+          (lispkit draw)
+          (lispkit draw chart)
+          (lispkit math util))
   
   ;; Bar charts
   
@@ -393,8 +333,10 @@
                    (bar-chart-color config))))
     
     ; Draws the legend
-    (define (draw-legend bcolor bounds color bgcolor config)
+    (define (draw-legend bcolor bounds c bgc config)
       (let* ((lfont (legend-font config))
+             (color (or (legend-color config) c))
+             (bgcolor (or (legend-bg-color config) bgc))
              (legend-size (fold-left (lambda (acc x)
                                        (let ((s (text-size (car x) lfont)))
                                          (size (max (size-width acc)
@@ -428,11 +370,13 @@
                                     (- (rect-height bounds)
                                        (size-height legend-size)
                                        (- (legend-vertical-offset config))))))))
-        (set-color gray)
-        (set-fill-color bgcolor)
-        (set-line-width (legend-stroke-width config))
-        (fill-rect (rect origin legend-size))
-        (draw-rect (rect origin legend-size))
+        (let ((surface (if (> (legend-corner-radius config) 0)
+                           (rectangle origin legend-size (legend-corner-radius config))
+                           (rectangle origin legend-size))))
+          (set-fill-color bgcolor)
+          (fill surface)
+          (set-color gray)
+          (draw surface (legend-stroke-width config)))
         (do ((bs bcolor (cdr bs))
              (dy (+ (point-y origin) (legend-entry-pad config))))
           ((not (pair? bs)))

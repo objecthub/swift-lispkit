@@ -1,6 +1,6 @@
 ;;; Draw bar charts into a PDF file
 ;;;
-;;; This is a demo of library (lispkit draw chart bar). This library
+;;; This is a demo of library `(lispkit draw chart bar)`. This library
 ;;; provides a procedure `draw-bar-chart` which draws a bart chart into the
 ;;; given/current drawing. The code below defines three different bar charts
 ;;; and draws them all into a PDF file, one chart per A4 page. In the end,
@@ -24,6 +24,7 @@
 
 (import (lispkit base)
         (lispkit draw)
+        (lispkit draw chart)
         (lispkit draw chart bar))
 
 ;; Size of the generated PDF (we use A4 here)
@@ -227,7 +228,7 @@
     (list temp-range-diag a4-size)
     (list smedia-diag a4-size))
   "Sample charts"
-  "Matthias Zenger")
+  "Demo Author")
 
 ;; Open the generated PDF file
 (open-file pdf-file-path)
