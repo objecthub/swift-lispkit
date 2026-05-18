@@ -192,7 +192,7 @@ open class LispKitRepl {
       print(self.flags.usageDescription(
               usageName: TextStyle.bold.properties.apply(to: "usage:"),
               synopsis: "[<option> ...] [---] [<program> <arg> ...]",
-              usageStyle: TextProperties.none,
+              usageStyle: TextProperties.empty,
               optionsName: TextStyle.bold.properties.apply(to: "options:"),
               flagStyle: TextStyle.italic.properties),
             terminator: "")
@@ -444,11 +444,11 @@ open class LispKitRepl {
   }
 
   open func printHeader() {
-    let props = Terminal.fullColorSupport ? TextStyle.bold.properties : TextProperties.none
+    let props = Terminal.fullColorSupport ? TextStyle.bold.properties : TextProperties.empty
     self.printOpt(props.apply(to: "\(self.toolName) \(self.toolVersion)\(self.toolBuild)"))
     self.printOpt(props.apply(to: "\(self.toolCopyright)"))
     if let toolMessage = self.toolMessage {
-      self.printOpt(TextProperties.none.apply(to: toolMessage))
+      self.printOpt(TextProperties.empty.apply(to: toolMessage))
     }
   }
 
