@@ -1301,7 +1301,7 @@ public final class MathLibrary: NativeLibrary {
     let scanner = Scanner(input: input, prescan: false)
     scanner.skipSpace()
     guard scanner.ch != EOF_CH else {
-      throw RuntimeError.type(expr, expected: [.numberType])
+      return .false
     }
     scanner.scanSignedNumber(radix)
     let token = scanner.token
