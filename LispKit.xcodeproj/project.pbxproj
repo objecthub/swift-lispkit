@@ -615,6 +615,10 @@
 		CC8EDE6E1D07263D004E0636 /* BinaryInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8EDE6D1D07263D004E0636 /* BinaryInput.swift */; };
 		CC8EDE701D07265E004E0636 /* TextInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8EDE6F1D07265E004E0636 /* TextInput.swift */; };
 		CC8EDE721D0727A4004E0636 /* ScanBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC8EDE711D0727A4004E0636 /* ScanBuffer.swift */; };
+		CC8F27742FBBB617000AF851 /* Connect4.scm in Sources */ = {isa = PBXBuildFile; fileRef = CC8F27732FBBB615000AF851 /* Connect4.scm */; };
+		CC8F27752FBBB617000AF851 /* Connect4.scm in Sources */ = {isa = PBXBuildFile; fileRef = CC8F27732FBBB615000AF851 /* Connect4.scm */; };
+		CC8F27762FBBB7E3000AF851 /* Connect4.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC8F27732FBBB615000AF851 /* Connect4.scm */; };
+		CC8F27772FBBB809000AF851 /* Connect4.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC8F27732FBBB615000AF851 /* Connect4.scm */; };
 		CC90500B1D36F52F008CE60A /* DynamicControlLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC90500A1D36F52F008CE60A /* DynamicControlLibrary.swift */; };
 		CC90500F1D384C4E008CE60A /* Tuple.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC90500E1D384C4E008CE60A /* Tuple.swift */; };
 		CC9065B51C5557E4004A88B7 /* ObjectPool.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC9065B41C5557E4004A88B7 /* ObjectPool.swift */; };
@@ -1726,6 +1730,7 @@
 			dstPath = Root/LispKit/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC8F27762FBBB7E3000AF851 /* Connect4.scm in Copy examples */,
 				CC7CCB7E2FA5771F00C05C77 /* DrawFunctionCharts.scm in Copy examples */,
 				CC9FF30C2E2E92BC00D4C445 /* Pinterest.scm in Copy examples */,
 				CC4132432DF9BB0A00D77CF6 /* MermaidDiagrams.scm in Copy examples */,
@@ -2699,6 +2704,7 @@
 			dstPath = Root/LispKit/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC8F27772FBBB809000AF851 /* Connect4.scm in Copy examples */,
 				CC7CCB7D2FA5770600C05C77 /* DrawFunctionCharts.scm in Copy examples */,
 				CC9FF30D2E2E92CD00D4C445 /* Pinterest.scm in Copy examples */,
 				CC4132442DF9BB1E00D77CF6 /* MermaidDiagrams.scm in Copy examples */,
@@ -3765,6 +3771,7 @@
 		CC8EDE6D1D07263D004E0636 /* BinaryInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BinaryInput.swift; sourceTree = "<group>"; };
 		CC8EDE6F1D07265E004E0636 /* TextInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextInput.swift; sourceTree = "<group>"; };
 		CC8EDE711D0727A4004E0636 /* ScanBuffer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScanBuffer.swift; sourceTree = "<group>"; };
+		CC8F27732FBBB615000AF851 /* Connect4.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Connect4.scm; sourceTree = "<group>"; };
 		CC90500A1D36F52F008CE60A /* DynamicControlLibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = DynamicControlLibrary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CC90500E1D384C4E008CE60A /* Tuple.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tuple.swift; sourceTree = "<group>"; };
 		CC9065B41C5557E4004A88B7 /* ObjectPool.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObjectPool.swift; sourceTree = "<group>"; };
@@ -5408,6 +5415,7 @@
 				CC1D6CB9258CCCFF00D36645 /* EditDistance.scm */,
 				CC474EB01ED0390200B535E3 /* Queens.scm */,
 				CCC284DB236D8CF100DC85E8 /* Sudoku.scm */,
+				CC8F27732FBBB615000AF851 /* Connect4.scm */,
 				CC5E474220D45A8900F21B03 /* Coroutines.scm */,
 				CCBDB73A1EDB4AB3001606E2 /* Prolog.scm */,
 				CCD3E15825C63898007FCE8A /* Schelog.scm */,
@@ -6002,6 +6010,7 @@
 				CC2DA7442772663700DE69CF /* Evaluator.swift in Sources */,
 				CC09CC5121F12C7800C16864 /* GrowableVectorLibrary.swift in Sources */,
 				CC894F202CC3022800896B1D /* PasteboardLibrary.swift in Sources */,
+				CC8F27752FBBB617000AF851 /* Connect4.scm in Sources */,
 				CC31A6981D3AC223008D7728 /* Hash.swift in Sources */,
 				CC5A47251C52E08900EFCF76 /* ControlFlowLibrary.swift in Sources */,
 				CCB585B81E15A6E70064BB18 /* ContextDelegate.swift in Sources */,
@@ -6054,6 +6063,7 @@
 				CCC48CC625E5B98600D082AD /* BytevectorLibrary.swift in Sources */,
 				CCC48C6F25E5B94300D082AD /* Timer.swift in Sources */,
 				CCD5B6092C276696002BF2F0 /* ThreadFutureLibrary.swift in Sources */,
+				CC8F27742FBBB617000AF851 /* Connect4.scm in Sources */,
 				CCC48CC825E5B98600D082AD /* RegexpLibrary.swift in Sources */,
 				CCC48CAE25E5B97100D082AD /* SourceManager.swift in Sources */,
 				CCC48CD825E5B98600D082AD /* PortLibrary.swift in Sources */,

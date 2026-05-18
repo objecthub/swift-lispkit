@@ -190,8 +190,8 @@
 ;; Displays a grid table on the default text output port.
 (define (display-grid values)
   (let* ((w (fx1+ (fold-left (lambda (z x) (max z (length x))) 0 (hashtable-value-list values))))
-         (divider (make-string (fx* w 3) #\-))
-         (line (string-append divider "+" divider "+" divider)))
+         (divider (make-string (fx* w 3) #\─))
+         (line (string-append divider "┼" divider "┼" divider)))
     (for-each
       (lambda (rb)
         (for-each
@@ -200,7 +200,7 @@
               (fold-left
                 (lambda (z cb)
                   (string-append z
-                    (if (string-empty? z) "" "|")
+                    (if (string-empty? z) "" "│")
                     (fold-left (lambda (z c)
                                  (string-append z
                                    (string-pad-center (value->string values (join r c)) #\space w)))
@@ -223,7 +223,7 @@
 
 (define (solve-all . gridspecs)
   (for-each (lambda (gridspec)
-              (display (string-pad-center (string-append " " (car gridspec) " ") #\= 20))
+              (display (string-pad-center (string-append " " (car gridspec) " ") #\═ 20))
               (newline)
               (display-grid (solve (cdr gridspec)))
               (newline))
