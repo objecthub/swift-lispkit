@@ -6,8 +6,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/tsolomko/BitByteData",
       "state" : {
-        "revision" : "cdcdc5177ad536cfb11b95c620f926a81014b7fe",
-        "version" : "2.0.4"
+        "revision" : "e1a5443be67daf0833cbb5f4fa3a06a265ca3105",
+        "version" : "2.1.0"
       }
     },
     {
@@ -51,8 +51,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/tsolomko/SWCompression",
       "state" : {
-        "revision" : "390e0b0af8dd19a600005a242a89e570ff482e09",
-        "version" : "4.8.6"
+        "revision" : "c729f0baa49e91bafef3921fea663db2b75acc46",
+        "version" : "4.9.0"
       }
     },
     {
@@ -69,8 +69,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/objecthub/swift-clformat",
       "state" : {
-        "revision" : "de4f1d7f3681c36eeee573bdc6afa75f0539b367",
-        "version" : "1.1.1"
+        "branch" : "main",
+        "revision" : "7103253ee2d8aaf30d589b626835f715cd22bc8d"
       }
     },
     {
@@ -97,7 +97,7 @@
       "location" : "https://github.com/objecthub/swift-markdownkit.git",
       "state" : {
         "branch" : "master",
-        "revision" : "9cfc8c6bf63318e766cf50fd40a14455b05706ed"
+        "revision" : "297138fb9230f802bbc45818dea4a68e3226739f"
       }
     },
     {

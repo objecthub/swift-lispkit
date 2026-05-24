@@ -41,7 +41,7 @@ let package = Package(
   name: "LispKit",
   platforms: [
     .macOS("13.4"),
-    .iOS(.v16)
+    .iOS(.v17)
   ],
   products: [
     .library(name: "LispKit", targets: ["LispKit"]),
@@ -53,7 +53,7 @@ let package = Package(
     .package(url: "https://github.com/objecthub/swift-markdownkit.git", branch: "master"),
     .package(url: "https://github.com/objecthub/swift-commandlinekit.git", from: "1.0.0"),
     .package(url: "https://github.com/objecthub/swift-sqliteexpress.git", from: "1.0.3"),
-    .package(url: "https://github.com/objecthub/swift-clformat.git", from: "1.1.1"),
+    .package(url: "https://github.com/objecthub/swift-clformat.git", branch: "main"),
     .package(url: "https://github.com/objecthub/swift-dynamicjson.git", branch: "main"),
     .package(url: "https://github.com/objecthub/swift-nanohttp.git", from: "1.0.1"),
     .package(url: "https://github.com/weichsel/ZIPFoundation.git", from: "0.9.20"),
