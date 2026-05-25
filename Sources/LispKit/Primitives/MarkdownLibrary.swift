@@ -150,6 +150,8 @@ public final class MarkdownLibrary: NativeLibrary {
     self.define(Procedure("markdown", markdown))
     self.define(Procedure("markdown?", isMarkdown))
     self.define(Procedure("markdown=?", markdownEquals))
+    self.define(Procedure("markdown->string", markdownToString))
+    self.define(Procedure("markdown->styled-text", markdownToStyledText))
     self.define(Procedure("markdown->html-doc", markdownToHtmlDoc))
     self.define(Procedure("markdown->html", markdownToHtml))
     self.define(Procedure("markdown->sxml", markdownToSxml))
@@ -638,7 +640,24 @@ public final class MarkdownLibrary: NativeLibrary {
     return .makeBoolean(lhsMd == rhsMd)
   }
   
-  private func markdownToHtmlDoc(md: Expr, args: Arguments) throws -> Expr {
+  private func markdownToString(_ md: Expr, _ width: Expr?, _ ansi: Expr?) throws -> Expr {
+    let md = try self.internMarkdown(block: md)
+    let maxCols: Int
+    if let width, width.isTrue {
+      maxCols = try width.asInt(above: 0, below: 10000)
+    } else if let size = Sysctl.terminalSize {
+      maxCols = size.cols
+    } else {
+      maxCols = 80
+    }
+    if let ansi, ansi.isTrue {
+      return .makeString(TerminalGenerator(numColumns: maxCols).generate(doc: md).encodedString)
+    } else {
+      return .makeString(StringGenerator(numColumns: maxCols).generate(doc: md))
+    }
+  }
+  
+  private func attributedStringGenerator(from args: Arguments) throws -> AttributedStringGenerator {
     var fontSize: Float = 14.0
     var fontFamily = "\"Times New Roman\",Times,serif"
     var fontColor = MarkdownKit.mdDefaultColor
@@ -648,33 +667,34 @@ public final class MarkdownLibrary: NativeLibrary {
     var codeBlockFontSize: Float = 12.0
     var codeBlockFontColor = MarkdownKit.mdDefaultColor
     var codeBlockBackground = MarkdownKit.mdDefaultBackgroundColor
+    var syntaxHighlighting: AttributedStringGenerator.SyntaxHighlightingConfig? = .default
     var borderColor = "#bbb"
     var blockquoteColor = "#99c"
     var h1Color = MarkdownKit.mdDefaultColor
     var h2Color = MarkdownKit.mdDefaultColor
     var h3Color = MarkdownKit.mdDefaultColor
     var h4Color = MarkdownKit.mdDefaultColor
-    if args.count > 0 {
+    if args.count > 0 && args.first!.isTrue {
       (fontSize, fontFamily, fontColor) = try self.asSizeFontColor(args.first!,
                                                                    defaultSize: fontSize,
                                                                    defaultFont: fontFamily,
                                                                    defaultColor: fontColor)
     }
-    if args.count > 1 {
+    if args.count > 1 && args[args.startIndex + 1].isTrue {
       (codeFontSize, codeFontFamily, codeFontColor) =
       try self.asSizeFontColor(args[args.startIndex + 1],
                                defaultSize: codeFontSize,
                                defaultFont: codeFontFamily,
                                defaultColor: codeFontColor)
     }
-    if args.count > 2 {
+    if args.count > 2 && args[args.startIndex + 2].isTrue {
       (codeBlockFontSize, codeBlockFontColor, codeBlockBackground) =
       try self.asSizeFontColor(args[args.startIndex + 2],
                                defaultSize: codeBlockFontSize,
                                defaultFont: codeBlockFontColor,
                                defaultColor: codeBlockBackground)
     }
-    if args.count > 3 {
+    if args.count > 3 && args[args.startIndex + 3].isTrue {
       var list = args[args.startIndex + 3]
       if case .pair(let head, let tail) = list {
         if !head.isFalse {
@@ -712,24 +732,85 @@ public final class MarkdownLibrary: NativeLibrary {
         }
       }
     }
-    let attribStrGen = AttributedStringGenerator(fontSize: fontSize,
-                                                 fontFamily: fontFamily,
-                                                 fontColor: fontColor,
-                                                 codeFontSize: codeFontSize,
-                                                 codeFontFamily: codeFontFamily,
-                                                 codeFontColor: codeFontColor,
-                                                 codeBlockFontSize: codeBlockFontSize,
-                                                 codeBlockFontColor: codeBlockFontColor,
-                                                 codeBlockBackground: codeBlockBackground,
-                                                 borderColor: borderColor,
-                                                 blockquoteColor: blockquoteColor,
-                                                 h1Color: h1Color,
-                                                 h2Color: h2Color,
-                                                 h3Color: h3Color,
-                                                 h4Color: h4Color)
+    if args.count > 4 && args[args.startIndex + 4].isTrue {
+      var list = args[args.startIndex + 4]
+      var theme: String? = nil
+      var ignoreSyntacticIssues: Bool? = nil
+      var ignoredLanguages: Set<String>? = nil
+      var highlightIndentedCodeBlocks: Bool? = nil
+      switch list {
+        case .null, .true:
+          syntaxHighlighting = nil
+        case .pair(let head, let tail):
+          if head.isTrue {
+            theme = try head.asString()
+          }
+          list = tail
+        default:
+          break
+      }
+      if case .pair(let head, let tail) = list {
+        if !head.isNull {
+          ignoreSyntacticIssues = head.isTrue
+        }
+        list = tail
+      }
+      if case .pair(var head, let tail) = list {
+        if head.isTrue {
+          ignoredLanguages = []
+          while case .pair(let x, let next) = head {
+            ignoredLanguages?.insert(try x.asString())
+            head = next
+          }
+        }
+        list = tail
+      }
+      if case .pair(let head, let tail) = list {
+        if !head.isNull {
+          highlightIndentedCodeBlocks = head.isTrue
+        }
+        list = tail
+      }
+      if let hl = syntaxHighlighting {
+        syntaxHighlighting = .init(
+          theme: theme ?? hl.theme,
+          ignoreSyntacticIssues: ignoreSyntacticIssues ?? hl.ignoreSyntacticIssues,
+          ignoredLanguages: ignoredLanguages ?? hl.ignoredLanguages,
+          highlightIndentedCodeBlocks: highlightIndentedCodeBlocks ?? hl.highlightIndentedCodeBlocks)
+      }
+    }
+    return AttributedStringGenerator(fontSize: fontSize,
+                                     fontFamily: fontFamily,
+                                     fontColor: fontColor,
+                                     codeFontSize: codeFontSize,
+                                     codeFontFamily: codeFontFamily,
+                                     codeFontColor: codeFontColor,
+                                     codeBlockFontSize: codeBlockFontSize,
+                                     codeBlockFontColor: codeBlockFontColor,
+                                     codeBlockBackground: codeBlockBackground,
+                                     syntaxHighlighting: syntaxHighlighting,
+                                     borderColor: borderColor,
+                                     blockquoteColor: blockquoteColor,
+                                     h1Color: h1Color,
+                                     h2Color: h2Color,
+                                     h3Color: h3Color,
+                                     h4Color: h4Color)
+  }
+  
+  private func markdownToHtmlDoc(md: Expr, args: Arguments) throws -> Expr {
+    let attribStrGen = try self.attributedStringGenerator(from: args)
     return .makeString(
       attribStrGen.generateHtml(
         attribStrGen.htmlGenerator.generate(doc: try self.internMarkdown(block: md))))
+  }
+  
+  private func markdownToStyledText(md: Expr, args: Arguments) throws -> Expr {
+    let attribStrGen = try self.attributedStringGenerator(from: args)
+    if let astr = attribStrGen.generate(doc: try self.internMarkdown(block: md)) {
+      return .object(StyledText(NSMutableAttributedString(attributedString: astr)))
+    } else {
+      return .false
+    }
   }
   
   private func asSizeFontColor(_ expr: Expr,
