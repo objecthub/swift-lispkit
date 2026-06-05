@@ -78,8 +78,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/objecthub/swift-commandlinekit.git",
       "state" : {
-        "branch" : "master",
-        "revision" : "d042197211d3e8d9b701e0c5f26a2f0bc438bf70"
+        "revision" : "58aa1a2285c5b8ad54e874a2bd66f790eb7e1766",
+        "version" : "1.1.1"
       }
     },
     {
@@ -96,8 +96,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/objecthub/swift-markdownkit.git",
       "state" : {
-        "branch" : "master",
-        "revision" : "8b999efde2236572aeaa52df4d47f2314b6d2b68"
+        "revision" : "e18a9a4ef03bad01d784352b6f7cd8da2e0dbf54",
+        "version" : "1.4.1"
       }
     },
     {

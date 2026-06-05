@@ -68,8 +68,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/objecthub/swift-clformat.git",
       "state" : {
-        "revision" : "de4f1d7f3681c36eeee573bdc6afa75f0539b367",
-        "version" : "1.1.1"
+        "branch" : "main",
+        "revision" : "7103253ee2d8aaf30d589b626835f715cd22bc8d"
       }
     },
     {
@@ -77,8 +77,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/objecthub/swift-commandlinekit.git",
       "state" : {
-        "branch" : "master",
-        "revision" : "d042197211d3e8d9b701e0c5f26a2f0bc438bf70"
+        "revision" : "58aa1a2285c5b8ad54e874a2bd66f790eb7e1766",
+        "version" : "1.1.1"
       }
     },
     {
@@ -95,8 +95,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/objecthub/swift-markdownkit.git",
       "state" : {
-        "branch" : "master",
-        "revision" : "297138fb9230f802bbc45818dea4a68e3226739f"
+        "revision" : "e18a9a4ef03bad01d784352b6f7cd8da2e0dbf54",
+        "version" : "1.4.1"
       }
     },
     {

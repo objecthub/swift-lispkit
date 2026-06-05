@@ -1,4 +1,4 @@
-// swift-tools-version:5.7
+// swift-tools-version:5.9
 //
 //  Package.swift
 //  LispKit
@@ -50,8 +50,8 @@ let package = Package(
   ],
   dependencies: [
     .package(url: "https://github.com/objecthub/swift-numberkit.git", from: "2.6.0"),
-    .package(url: "https://github.com/objecthub/swift-markdownkit.git", branch: "master"),
-    .package(url: "https://github.com/objecthub/swift-commandlinekit.git", from: "1.0.0"),
+    .package(url: "https://github.com/objecthub/swift-markdownkit.git", from: "1.4.1"),
+    .package(url: "https://github.com/objecthub/swift-commandlinekit.git", from: "1.1.1"),
     .package(url: "https://github.com/objecthub/swift-sqliteexpress.git", from: "1.0.3"),
     .package(url: "https://github.com/objecthub/swift-clformat.git", branch: "main"),
     .package(url: "https://github.com/objecthub/swift-dynamicjson.git", branch: "main"),

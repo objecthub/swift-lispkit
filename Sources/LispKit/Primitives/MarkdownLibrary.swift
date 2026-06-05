@@ -20,6 +20,7 @@
 
 import Foundation
 import MarkdownKit
+import CommandLineKit
 
 public final class MarkdownLibrary: NativeLibrary {
   
@@ -620,7 +621,7 @@ public final class MarkdownLibrary: NativeLibrary {
   
   private func markdown(_ str: Expr, _ extended: Expr?) throws -> Expr {
     let parser = (extended?.isTrue ?? false) ? ExtendedMarkdownParser.standard
-    : MarkdownParser.standard
+                                             : MarkdownParser.standard
     guard let res = self.externMarkdown(parser.parse(try str.asString())) else {
       return .false
     }
@@ -640,6 +641,433 @@ public final class MarkdownLibrary: NativeLibrary {
     return .makeBoolean(lhsMd == rhsMd)
   }
   
+  /// Convert an `Expr` to `TextProperties`.
+  /// The format can be:
+  /// - #f or () for empty properties
+  /// - A symbol representing a predefined style (e.g., 'bold, 'italic, 'red, etc.)
+  /// - A list of up to 3 elements: (textColor backgroundColor styles...)
+  ///   where textColor and backgroundColor are symbols or #f,
+  ///   and styles is a list of style symbols
+  private func asTextProperties(_ expr: Expr) throws -> TextProperties? {
+    switch expr {
+      case .false:
+          return nil
+      case .null:
+        return .empty
+      case .symbol(let sym):
+        // Check for predefined styles
+        switch sym.identifier {
+          case "default":
+            return .default
+          case "bold":
+            return .bold
+          case "dim":
+            return .dim
+          case "italic":
+            return .italic
+          case "underline":
+            return .underline
+          case "blink":
+            return .blink
+          case "swap":
+            return .swap
+          case "strikethrough":
+            return .strikethrough
+          case "default-color":
+            return .defaultColor
+          case "black":
+            return .black
+          case "maroon":
+            return .maroon
+          case "green":
+            return .green
+          case "olive":
+            return .olive
+          case "navy":
+            return .navy
+          case "purple":
+            return .purple
+          case "teal":
+            return .teal
+          case "silver":
+            return .silver
+          case "grey":
+            return .grey
+          case "red":
+            return .red
+          case "lime":
+            return .lime
+          case "yellow":
+            return .yellow
+          case "blue":
+            return .blue
+          case "fuchsia":
+            return .fuchsia
+          case "aqua":
+            return .aqua
+          case "white":
+            return .white
+          default:
+            throw RuntimeError.eval(.notAValidTextProperty, expr)
+        }
+      case .pair(let textColorExpr, let rest):
+        // Parse as (textColor backgroundColor styles...)
+        let textColor = try self.asTextColor(textColorExpr)
+        var backgroundColor: BackgroundColor? = nil
+        var textStyles: Set<CommandLineKit.TextStyle> = []
+        switch rest {
+          case .null:
+            break
+          case .pair(let bgExpr, let styleRest):
+            // Parse background color
+            backgroundColor = try self.asBackgroundColor(bgExpr)
+            // Parse remaining elements as text styles
+            var styleList = styleRest
+            while case .pair(let styleExpr, let next) = styleList {
+              if let style = try self.asTextStyle(styleExpr) {
+                textStyles.insert(style)
+              }
+              styleList = next
+            }
+          default:
+            throw RuntimeError.eval(.notAValidTextProperty, expr)
+        }
+        return TextProperties(textColor: textColor,
+                             backgroundColor: backgroundColor,
+                             textStyles: textStyles)
+      default:
+        throw RuntimeError.eval(.notAValidTextProperty, expr)
+    }
+  }
+  
+  /// Convert an `Expr` to `TextColor`
+  private func asTextColor(_ expr: Expr) throws -> TextColor? {
+    switch expr {
+      case .false:
+        return nil
+      case .symbol(let sym):
+        switch sym.identifier {
+          case "default":
+            return .default
+          case "black":
+            return .black
+          case "maroon":
+            return .maroon
+          case "green":
+            return .green
+          case "olive":
+            return .olive
+          case "navy":
+            return .navy
+          case "purple":
+            return .purple
+          case "teal":
+            return .teal
+          case "silver":
+            return .silver
+          case "grey":
+            return .grey
+          case "red":
+            return .red
+          case "lime":
+            return .lime
+          case "yellow":
+            return .yellow
+          case "blue":
+            return .blue
+          case "fuchsia":
+            return .fuchsia
+          case "aqua":
+            return .aqua
+          case "white":
+            return .white
+          default:
+            break
+        }
+      case .string(let mstr):
+        let str: String = mstr.hasPrefix("#") ? mstr.substring(from: 1) : (mstr as String)
+        if let num = Int64(str as String, radix: 16) {
+          if str.count <= 3 {
+            return TextColor(rgb: (Double((num & 0xf00) >> 8) / 15.0,
+                                   Double((num & 0xf0) >> 4) / 15.0,
+                                   Double(num & 0xf) / 15.0), fullColorSupport: true)
+          } else {
+            return TextColor(rgb: (Double((num & 0xff0000) >> 16) / 255.0,
+                                   Double((num & 0xff00) >> 8) / 255.0,
+                                   Double(num & 0xff) / 255.0), fullColorSupport: true)
+          }
+        }
+      case .object(let obj):
+        if let color = obj as? Color {
+          return TextColor(rgb: (color.red, color.green, color.blue),
+                                 fullColorSupport: true)
+        }
+      case .fixnum(let x):
+        if x >= UInt8.min && x <= UInt8.max {
+          return .extended(UInt8(x))
+        }
+      default:
+        break
+    }
+    throw RuntimeError.eval(.notAValidTextColor, expr)
+  }
+  
+  /// Convert an `Expr` to `BackgroundColor`
+  private func asBackgroundColor(_ expr: Expr) throws -> BackgroundColor? {
+    switch expr {
+      case .false:
+        return nil
+      case .symbol(let sym):
+        switch sym.identifier {
+          case "default":
+            return .default
+          case "black":
+            return .black
+          case "white":
+            return .white
+          case "red":
+            return .red
+          case "green":
+            return .green
+          case "yellow":
+            return .yellow
+          case "blue":
+            return .blue
+          case "magenta":
+            return .magenta
+          case "cyan":
+            return .cyan
+          case "light-black":
+            return .lightBlack
+          case "light-red":
+            return .lightRed
+          case "light-green":
+            return .lightGreen
+          case "light-yellow":
+            return .lightYellow
+          case "light-blue":
+            return .lightBlue
+          case "light-magenta":
+            return .lightMagenta
+          case "light-cyan":
+            return .lightCyan
+          case "light-white":
+            return .lightWhite
+          default:
+            break
+        }
+      case .string(let mstr):
+        let str: String = mstr.hasPrefix("#") ? mstr.substring(from: 1) : (mstr as String)
+        if let num = Int64(str as String, radix: 16) {
+          if str.count <= 3 {
+            return BackgroundColor(rgb: (Double((num & 0xf00) >> 8) / 15.0,
+                                         Double((num & 0xf0) >> 4) / 15.0,
+                                         Double(num & 0xf) / 15.0), fullColorSupport: true)
+          } else {
+            return BackgroundColor(rgb: (Double((num & 0xff0000) >> 16) / 255.0,
+                                         Double((num & 0xff00) >> 8) / 255.0,
+                                         Double(num & 0xff) / 255.0), fullColorSupport: true)
+          }
+        }
+      case .object(let obj):
+        if let color = obj as? Color {
+          return BackgroundColor(rgb: (color.red, color.green, color.blue),
+                                 fullColorSupport: true)
+        }
+      case .fixnum(let x):
+        if x >= UInt8.min && x <= UInt8.max {
+          return .extended(UInt8(x))
+        }
+      default:
+        break
+    }
+    throw RuntimeError.eval(.notAValidBackgroundColor, expr)
+  }
+  
+  /// Convert an `Expr` to `TextStyle`
+  private func asTextStyle(_ expr: Expr) throws -> CommandLineKit.TextStyle? {
+    switch expr {
+      case .false:
+        return nil
+      case .symbol(let sym):
+        switch sym.identifier {
+          case "default":
+            return .default
+          case "bold":
+            return .bold
+          case "dim":
+            return .dim
+          case "italic":
+            return .italic
+          case "underline":
+            return .underline
+          case "blink":
+            return .blink
+          case "swap":
+            return .swap
+          case "strikethrough":
+            return .strikethrough
+          default:
+            break
+        }
+      default:
+        break
+    }
+    throw RuntimeError.eval(.notAValidTextStyle, expr)
+  }
+  
+  /// Convert a list `Expr` to an array of `TextProperties` (for header properties)
+  private func asTextPropertiesList(_ expr: Expr) throws -> [TextProperties] {
+    var result: [TextProperties] = []
+    var list = expr
+    while case .pair(let head, let tail) = list {
+      result.append(try self.asTextProperties(head) ?? .empty)
+      list = tail
+    }
+    return result
+  }
+  
+  /// Create a `TerminalGenerator` with configuration extracted from the `ansi` parameter.
+  /// The `ansi` parameter is expected to be a list with the following structure:
+  /// (headerProperties linkProperties codeProperties codeBlockBorderProperties
+  ///  codeBlockLangProperties emphasisProperties strongProperties defTermProperties
+  ///  defDescrProperties blockquoteProperties breakProperties syntaxHighlighting)
+  private func terminalGenerator(numColumns: Int, ansi: Expr) throws -> TerminalGenerator {
+    var list = ansi
+    // Extract headerProperties (list of TextProperties)
+    var headerProperties: [TextProperties]? = nil
+    if case .pair(let head, let tail) = list {
+      if head.isTrue {
+        headerProperties = try self.asTextPropertiesList(head)
+      }
+      list = tail
+    }
+    // Extract linkProperties
+    var linkProperties: TextProperties? = nil
+    if case .pair(let head, let tail) = list {
+      linkProperties = try self.asTextProperties(head)
+      list = tail
+    }
+    // Extract codeProperties
+    var codeProperties: TextProperties? = nil
+    if case .pair(let head, let tail) = list {
+      codeProperties = try self.asTextProperties(head)
+      list = tail
+    }
+    // Extract codeBlockBorderProperties
+    var codeBlockBorderProperties: TextProperties? = nil
+    if case .pair(let head, let tail) = list {
+      codeBlockBorderProperties = try self.asTextProperties(head)
+      list = tail
+    }
+    // Extract codeBlockLangProperties
+    var codeBlockLangProperties: TextProperties? = nil
+    if case .pair(let head, let tail) = list {
+      codeBlockLangProperties = try self.asTextProperties(head)
+      list = tail
+    }
+    // Extract emphasisProperties
+    var emphasisProperties: TextProperties? = nil
+    if case .pair(let head, let tail) = list {
+      emphasisProperties = try self.asTextProperties(head)
+      list = tail
+    }
+    // Extract strongProperties
+    var strongProperties: TextProperties? = nil
+    if case .pair(let head, let tail) = list {
+      strongProperties = try self.asTextProperties(head)
+      list = tail
+    }
+    // Extract defTermProperties
+    var defTermProperties: TextProperties? = nil
+    if case .pair(let head, let tail) = list {
+      defTermProperties = try self.asTextProperties(head)
+      list = tail
+    }
+    // Extract defDescrProperties
+    var defDescrProperties: TextProperties? = nil
+    if case .pair(let head, let tail) = list {
+      defDescrProperties = try self.asTextProperties(head)
+      list = tail
+    }
+    // Extract blockquoteProperties
+    var blockquoteProperties: TextProperties? = nil
+    if case .pair(let head, let tail) = list {
+      blockquoteProperties = try self.asTextProperties(head)
+      list = tail
+    }
+    // Extract breakProperties
+    var breakProperties: TextProperties? = nil
+    if case .pair(let head, let tail) = list {
+      breakProperties = try self.asTextProperties(head)
+      list = tail
+    }
+    // Extract syntaxHighlighting configuration
+    var syntaxHighlighting: TerminalGenerator.SyntaxHighlightingConfig? = .default
+    if case .pair(let head, _) = list {
+      if head.isFalse {
+        syntaxHighlighting = nil
+      } else if case .pair(let themeExpr, let hlTail) = head {
+        var theme: String = TerminalGenerator.SyntaxHighlightingConfig.default.theme
+        var ignoreSyntacticIssues: Bool = true
+        var ignoredLanguages: Set<String> = []
+        var highlightIndentedCodeBlocks: Bool = true
+        var fullColorSupport: Bool = true
+        if themeExpr.isTrue {
+          theme = try themeExpr.asString()
+        }
+        var hlList = hlTail
+        if case .pair(let issuesExpr, let hlNext) = hlList {
+          if !issuesExpr.isNull {
+            ignoreSyntacticIssues = issuesExpr.isTrue
+          }
+          hlList = hlNext
+        }
+        if case .pair(let langsExpr, let hlNext) = hlList {
+          if langsExpr.isTrue {
+            var langList = langsExpr
+            while case .pair(let lang, let next) = langList {
+              ignoredLanguages.insert(try lang.asString())
+              langList = next
+            }
+          }
+          hlList = hlNext
+        }
+        if case .pair(let indentedExpr, let hlNext) = hlList {
+          if !indentedExpr.isNull {
+            highlightIndentedCodeBlocks = indentedExpr.isTrue
+          }
+          hlList = hlNext
+        }
+        if case .pair(let fullColorExpr, _) = hlList {
+          if !fullColorExpr.isNull {
+            fullColorSupport = fullColorExpr.isTrue
+          }
+        }
+        syntaxHighlighting = TerminalGenerator.SyntaxHighlightingConfig(
+                                theme: theme,
+                                ignoreSyntacticIssues: ignoreSyntacticIssues,
+                                ignoredLanguages: ignoredLanguages,
+                                highlightIndentedCodeBlocks: highlightIndentedCodeBlocks,
+                                fullColorSupport: fullColorSupport)
+      }
+    }
+    return TerminalGenerator(
+             numColumns: numColumns,
+             headerProperties: headerProperties,
+             linkProperties: linkProperties,
+             codeProperties: codeProperties,
+             codeBlockBorderProperties: codeBlockBorderProperties,
+             codeBlockLangProperties: codeBlockLangProperties,
+             emphasisProperties: emphasisProperties,
+             strongProperties: strongProperties,
+             defTermProperties: defTermProperties,
+             defDescrProperties: defDescrProperties,
+             blockquoteProperties: blockquoteProperties,
+             breakProperties: breakProperties,
+             syntaxHighlighting: syntaxHighlighting)
+  }
+  
   private func markdownToString(_ md: Expr, _ width: Expr?, _ ansi: Expr?) throws -> Expr {
     let md = try self.internMarkdown(block: md)
     let maxCols: Int
@@ -651,7 +1079,12 @@ public final class MarkdownLibrary: NativeLibrary {
       maxCols = 80
     }
     if let ansi, ansi.isTrue {
-      return .makeString(TerminalGenerator(numColumns: maxCols).generate(doc: md).encodedString)
+      if case .true = ansi {
+        return .makeString(TerminalGenerator(numColumns: maxCols).generate(doc: md).encodedString)
+      } else {
+        let generator = try self.terminalGenerator(numColumns: maxCols, ansi: ansi)
+        return .makeString(generator.generate(doc: md).encodedString)
+      }
     } else {
       return .makeString(StringGenerator(numColumns: maxCols).generate(doc: md))
     }

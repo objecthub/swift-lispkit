@@ -651,6 +651,10 @@
 		CCA7DC2E2387602500785FBE /* SRFI-175.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCA7DC2D23875FE500785FBE /* SRFI-175.scm */; };
 		CCA8017223D4AF8E005F2323 /* 87.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCA8017123D4AD87005F2323 /* 87.sld */; };
 		CCA8017323D4AF8E005F2323 /* 98.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCA8017023D4AC91005F2323 /* 98.sld */; };
+		CCAC49232FD360FD00D85F2A /* SampleText.md in Copy assets/documents */ = {isa = PBXBuildFile; fileRef = CCAC49212FD35F8300D85F2A /* SampleText.md */; };
+		CCAC49252FD3617600D85F2A /* SampleText.md in Copy assets/documents */ = {isa = PBXBuildFile; fileRef = CCAC49212FD35F8300D85F2A /* SampleText.md */; };
+		CCAC49272FD36F9B00D85F2A /* AnsiMarkdown.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCAC49262FD3625400D85F2A /* AnsiMarkdown.scm */; };
+		CCAC49282FD36FA900D85F2A /* AnsiMarkdown.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCAC49262FD3625400D85F2A /* AnsiMarkdown.scm */; };
 		CCAD52BE1C48403900DBD8EE /* LispKit.h in Headers */ = {isa = PBXBuildFile; fileRef = CCAD52BD1C48403900DBD8EE /* LispKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		CCAD52C51C48403900DBD8EE /* LispKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCAD52BA1C48403800DBD8EE /* LispKit.framework */; };
 		CCAD52CA1C48403900DBD8EE /* SmallTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCAD52C91C48403900DBD8EE /* SmallTests.swift */; };
@@ -1728,6 +1732,7 @@
 			dstPath = Root/LispKit/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CCAC49272FD36F9B00D85F2A /* AnsiMarkdown.scm in Copy examples */,
 				CC8F277B2FBBBF30000AF851 /* Connect4.scm in Copy examples */,
 				CC7CCB7E2FA5771F00C05C77 /* DrawFunctionCharts.scm in Copy examples */,
 				CC9FF30C2E2E92BC00D4C445 /* Pinterest.scm in Copy examples */,
@@ -2316,6 +2321,28 @@
 			name = "Copy pre-installed SRFI libraries";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CCAC49222FD360EC00D85F2A /* Copy assets/documents */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Root/LispKit/Assets/Documents;
+			dstSubfolderSpec = 7;
+			files = (
+				CCAC49232FD360FD00D85F2A /* SampleText.md in Copy assets/documents */,
+			);
+			name = "Copy assets/documents";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCAC49242FD3612B00D85F2A /* Copy assets/documents */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Root/LispKit/Assets/Documents;
+			dstSubfolderSpec = 7;
+			files = (
+				CCAC49252FD3617600D85F2A /* SampleText.md in Copy assets/documents */,
+			);
+			name = "Copy assets/documents";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CCC430B72E494CDE00952664 /* Copy pre-installed LispKit library: LispKit JSON deprecated */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -2702,6 +2729,7 @@
 			dstPath = Root/LispKit/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CCAC49282FD36FA900D85F2A /* AnsiMarkdown.scm in Copy examples */,
 				CC8F277C2FBBBF41000AF851 /* Connect4.scm in Copy examples */,
 				CC7CCB7D2FA5770600C05C77 /* DrawFunctionCharts.scm in Copy examples */,
 				CC9FF30D2E2E92CD00D4C445 /* Pinterest.scm in Copy examples */,
@@ -3797,6 +3825,8 @@
 		CCA7DC2D23875FE500785FBE /* SRFI-175.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-175.scm"; sourceTree = "<group>"; };
 		CCA8017023D4AC91005F2323 /* 98.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 98.sld; sourceTree = "<group>"; };
 		CCA8017123D4AD87005F2323 /* 87.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 87.sld; sourceTree = "<group>"; };
+		CCAC49212FD35F8300D85F2A /* SampleText.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = SampleText.md; sourceTree = "<group>"; };
+		CCAC49262FD3625400D85F2A /* AnsiMarkdown.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = AnsiMarkdown.scm; sourceTree = "<group>"; };
 		CCAD52BA1C48403800DBD8EE /* LispKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = LispKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CCAD52BD1C48403900DBD8EE /* LispKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LispKit.h; sourceTree = "<group>"; };
 		CCAD52BF1C48403900DBD8EE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -4263,6 +4293,7 @@
 		CC299DF523B7E7FE007B8459 /* Assets */ = {
 			isa = PBXGroup;
 			children = (
+				CCAC49202FD35F7400D85F2A /* Documents */,
 				CC4132362DF6FE8C00D77CF6 /* JavaScript */,
 				CCD5B5242C14F0F8002BF2F0 /* JSON */,
 				CC7E7C2724564F67002E8A73 /* Datasets */,
@@ -5023,6 +5054,14 @@
 			path = Libraries;
 			sourceTree = "<group>";
 		};
+		CCAC49202FD35F7400D85F2A /* Documents */ = {
+			isa = PBXGroup;
+			children = (
+				CCAC49212FD35F8300D85F2A /* SampleText.md */,
+			);
+			path = Documents;
+			sourceTree = "<group>";
+		};
 		CCAD52B01C48403800DBD8EE = {
 			isa = PBXGroup;
 			children = (
@@ -5442,6 +5481,7 @@
 				CC02EA002CB75C1D00ABFC6F /* WebAPIs.scm */,
 				CC35C01D2C8527A800DF6E9D /* Keychain.scm */,
 				CC9FF30B2E2E926E00D4C445 /* Pinterest.scm */,
+				CCAC49262FD3625400D85F2A /* AnsiMarkdown.scm */,
 				CC9ED3FB2710E6DB004B1E29 /* paip */,
 			);
 			path = Examples;
@@ -5572,6 +5612,7 @@
 				CCD5B56E2C14FDA5002BF2F0 /* Copy JSON schema test assets */,
 				CCD5B5E72C15F0CC002BF2F0 /* Copy JSON custom schema assets */,
 				CC41323A2DF701A800D77CF6 /* Copy JavaScript mermaid assets */,
+				CCAC49222FD360EC00D85F2A /* Copy assets/documents */,
 			);
 			buildRules = (
 			);
@@ -5657,6 +5698,7 @@
 				CCD5B5AA2C14FE73002BF2F0 /* Copy JSON schema test assets */,
 				CCD5B5E92C15F120002BF2F0 /* Copy JSON custom schema assets */,
 				CC41323D2DF701F700D77CF6 /* Copy JavaScript mermaid assets */,
+				CCAC49242FD3612B00D85F2A /* Copy assets/documents */,
 			);
 			buildRules = (
 			);
@@ -6888,7 +6930,7 @@
 			repositoryURL = "https://github.com/objecthub/swift-commandlinekit.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.0;
+				minimumVersion = 1.1.1;
 			};
 		};
 		CC6290822C7DBBFB005AF800 /* XCRemoteSwiftPackageReference "KeychainAccess" */ = {
@@ -6911,8 +6953,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/objecthub/swift-markdownkit.git";
 			requirement = {
-				branch = master;
-				kind = branch;
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.4.1;
 			};
 		};
 		CCCCEC862C504AF400509902 /* XCRemoteSwiftPackageReference "swift-nanohttp" */ = {

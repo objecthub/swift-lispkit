@@ -215,6 +215,10 @@ public enum EvalError: Int, Hashable, Codable {
   case invalidUserScript
   case unsupportedFilterParameter
   case unknownFilter
+  case notAValidTextColor
+  case notAValidBackgroundColor
+  case notAValidTextStyle
+  case notAValidTextProperty
   
   public var message: String {
     switch self {
@@ -598,6 +602,14 @@ public enum EvalError: Int, Hashable, Codable {
         return "filter parameter $0 is not supported by image filter $1"
       case .unknownFilter:
         return "cannot apply unknown image filter $0"
+      case .notAValidTextColor:
+        return "not a valid text color: $0"
+      case .notAValidBackgroundColor:
+        return "not a valid background color: $0"
+      case .notAValidTextStyle:
+        return "not a valid text style: $0"
+      case .notAValidTextProperty:
+        return "invalid text properties: $0"
     }
   }
   
