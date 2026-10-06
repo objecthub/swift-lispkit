@@ -5762,7 +5762,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1500;
-				LastUpgradeCheck = 2660;
+				LastUpgradeCheck = 2700;
 				ORGANIZATIONNAME = ObjectHub;
 				TargetAttributes = {
 					CC3B64262386025500807476 = {
@@ -6934,7 +6934,7 @@
 			repositoryURL = "https://github.com/objecthub/swift-numberkit.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 2.6.1;
+				minimumVersion = 3.0.0;
 			};
 		};
 		CC5E53042355AB0700C72CE2 /* XCRemoteSwiftPackageReference "swift-commandlinekit" */ = {
