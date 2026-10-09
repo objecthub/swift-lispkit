@@ -78,8 +78,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/objecthub/swift-commandlinekit.git",
       "state" : {
-        "revision" : "58aa1a2285c5b8ad54e874a2bd66f790eb7e1766",
-        "version" : "1.1.1"
+        "revision" : "42fd8de62cbfa53ad3e88717d6d9b1f8c8cea0dd",
+        "version" : "1.1.2"
       }
     },
     {
@@ -87,8 +87,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/objecthub/swift-dynamicjson",
       "state" : {
-        "branch" : "main",
-        "revision" : "9648f32126ade414b00b9551c27870d4ad9b168c"
+        "revision" : "8721505f61cdbc2298852d2e84b17f5c97346be8",
+        "version" : "2.0.0"
       }
     },
     {
@@ -97,7 +97,7 @@
       "location" : "https://github.com/objecthub/swift-markdownkit.git",
       "state" : {
         "branch" : "master",
-        "revision" : "876a94418b7bc6dfd41211fa9c8658c009ecd7a9"
+        "revision" : "5c0b7b2871e238cfd12896ea87008e3fe99ba222"
       }
     },
     {
@@ -114,8 +114,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/objecthub/swift-numberkit.git",
       "state" : {
-        "revision" : "6182110549aa7cf614cb6fff3d6142e65be9b602",
-        "version" : "2.6.1"
+        "revision" : "ac0762770fcfda2d88c34857ce8954cd31c4aac9",
+        "version" : "3.0.0"
       }
     },
     {
