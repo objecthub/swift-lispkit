@@ -416,11 +416,11 @@ public final class HTTPServerLibrary: NativeLibrary {
     guard let current = context.evaluator.threads.current else {
       return .false
     }
+    // The server runs on this thread until it is stopped. Its network I/O and `handle(connection:)`
+    // are executed here, which is what allows handing requests over to the worker threads via
+    // a `SharedQueue` (see `HTTPServer.configuration`).
     try current.value.execute(server) { server in
-      try server.start(UInt16(port.asInt(above: 0, below: Int(UInt16.max))),
-                       forceIPv4: forceIPv4?.isTrue ?? false,
-                       priority: nil,
-                       handlerPriority: nil)
+      try server.run(UInt16(port.asInt(above: 0, below: Int(UInt16.max))))
     }
     return .void
   }
@@ -505,8 +505,7 @@ public final class HTTPServerLibrary: NativeLibrary {
         components.path = req.connection.request.path
       }
       components.queryItems = req.connection.request.queryParams.map { k, v in
-        return URLQueryItem(name: k.removingPercentEncoding ?? k,
-                            value: v.removingPercentEncoding ?? v)
+        return URLQueryItem(name: k, value: v)
       }
     }
     if let str = components.string {
@@ -643,7 +642,7 @@ public final class HTTPServerLibrary: NativeLibrary {
     guard let res = connection.send(response, dontKeepAlive: dontKeepAlive?.isTrue ?? false) else {
       return .false
     }
-    var new = res.handler(res.request)
+    var new = res.response()
     if let handler = res.request.custom[HTTPServer.handlerKey] as? Expr {
       res.request.custom.removeValue(forKey: HTTPServer.handlerKey)
       return .pair(handler, .object(HTTPServerRequest(connection: res)))
@@ -1038,48 +1037,45 @@ public final class HTTPServerLibrary: NativeLibrary {
   }
   
   private func shareFileHandler(expr: Expr) throws -> Expr {
-    let handler = share(file: try expr.asAbsolutePath(in: self.context))
+    let handler = NanoFiles.share(file: try expr.asAbsolutePath(in: self.context))
     return .procedure(Procedure("share-file") { (request: Expr) in
       let request = try self.httpServerRequest(from: request)
-      let response = handler(request.connection.request)
+      let response = try handler(request.connection.request)
       if response.statusCode == 200,
          let obj = request.connection.server,
          let server = obj as? HTTPServer,
-         let (_, value) = request.connection.request.params.first,
-         let path = value.removingPercentEncoding {
-        server.log(level: 1, tag: "worker/share", "sharing file \"\(path)\"")
+         let (_, path) = request.connection.request.params.first {
+        server.log(level: 1, tag: "worker/share", "sharing file \(path.debugDescription)")
       }
       return .object(HTTPServerResponse(response: response))
     })
   }
   
   private func shareDirectoryHandler(expr: Expr) throws -> Expr {
-    let handler = share(directory: try expr.asAbsolutePath(in: self.context))
+    let handler = NanoFiles.share(directory: try expr.asAbsolutePath(in: self.context))
     return .procedure(Procedure("share-directory") { (request: Expr) in
       let request = try self.httpServerRequest(from: request)
-      let response = handler(request.connection.request)
+      let response = try handler(request.connection.request)
       if response.statusCode == 200,
          let obj = request.connection.server,
          let server = obj as? HTTPServer,
-         let (_, value) = request.connection.request.params.first,
-         let path = value.removingPercentEncoding {
-        server.log(level: 1, tag: "worker/share", "sharing directory \"\(path)\"")
+         let (_, path) = request.connection.request.params.first {
+        server.log(level: 1, tag: "worker/share", "sharing directory \(path.debugDescription)")
       }
       return .object(HTTPServerResponse(response: response))
     })
   }
   
   private func browseDirectoryHandler(expr: Expr) throws -> Expr {
-    let handler = browse(directory: try expr.asAbsolutePath(in: self.context))
+    let handler = NanoFiles.browse(directory: try expr.asAbsolutePath(in: self.context))
     return .procedure(Procedure("browse-directory") { (request: Expr) in
       let request = try self.httpServerRequest(from: request)
-      let response = handler(request.connection.request)
+      let response = try handler(request.connection.request)
       if response.statusCode == 200,
          let obj = request.connection.server,
          let server = obj as? HTTPServer,
-         let (_, value) = request.connection.request.params.first,
-         let path = value.removingPercentEncoding {
-        server.log(level: 1, tag: "worker/share", "browsing directory \"\(path)\"")
+         let (_, path) = request.connection.request.params.first {
+        server.log(level: 1, tag: "worker/share", "browsing directory \(path.debugDescription)")
       }
       return .object(HTTPServerResponse(response: response))
     })
@@ -1175,6 +1171,8 @@ public final class HTTPServerResponse: NativeObject {
         return "custom"
       case .socket(_):
         return "socket"
+      case .session(_):
+        return "session"
     }
   }
   
@@ -1252,7 +1250,12 @@ open class HTTPServer: NanoHTTPServer, Abortable, CustomExpr {
     self.minLogSeverity = minLogSeverity
     context.objects.manage(self.handlers)
     context.objects.manage(self.workers)
-    super.init()
+    // The whole network I/O of the server runs on the Scheme thread executing `run`; this is
+    // the thread that is able to enqueue requests into `queue`
+    var configuration = Configuration()
+    configuration.threading = .singleThread
+    super.init(configuration: configuration)
+    self.configuration.logger = HTTPServerLogger(server: self)
     self.setUpMiddleware()
   }
   
@@ -1266,9 +1269,10 @@ open class HTTPServer: NanoHTTPServer, Abortable, CustomExpr {
   }
   
   open func setUpMiddleware() {
-    self.middleware.append { [weak self] request in
-      self?.log(level: 1, tag: "req", "\(request.method.uppercased()) \(request.path) (\(request.address ?? "?"))")
-      return nil
+    self.middleware.append { [weak self] request, next in
+      self?.log(level: 1, tag: "req",
+                "\(request.method.uppercased()) \(request.rawPath) (\(request.address ?? "?"))")
+      return try next(request)
     }
   }
   
@@ -1290,16 +1294,25 @@ open class HTTPServer: NanoHTTPServer, Abortable, CustomExpr {
     }
   }
   
-  open override func listen(priority: DispatchQoS.QoSClass?) {
+  open override func listen() {
     let port = (try? self.port()) ?? -1
-    let url = "http://\(NetworkInterface.localIP ?? "localhost"):\(port)"
-    self.log(level: 1, tag: "server", "server started for port \(port); try connecting at \(url)")
-    super.listen(priority: priority)
+    let host: String
+    switch self.configuration.listenAddress {
+      case .loopback:
+        host = "127.0.0.1"
+      case .allInterfaces, .address("0.0.0.0"), .address("::"):
+        host = NanoNetworkInterface.localIP ?? "localhost"
+      case .address(let address):
+        host = address.contains(":") ? "[\(address)]" : address
+    }
+    self.log(level: 1, tag: "server",
+             "server started for port \(port); try connecting at http://\(host):\(port)")
+    super.listen()
     self.log(level: 1, tag: "server", "server stopped for port \(port)")
   }
-  
+
   open override func handle(connection: NanoHTTPConnection) {
-    var response = connection.handler(connection.request)
+    var response = connection.response()
     if let handler = connection.request.custom[Self.handlerKey] as? Expr,
        let context = self.context {
       let handlingRequest = Expr.pair(handler, .object(HTTPServerRequest(connection: connection)))
@@ -1330,10 +1343,6 @@ open class HTTPServer: NanoHTTPServer, Abortable, CustomExpr {
     if level >= self.minLogSeverity {
       self.context?.delegate?.print("[\(tag)] \(str)\n")
     }
-  }
-  
-  open override func log(_ str: String) {
-    self.log(level: 3, tag: "server", str)
   }
   
   public var numWorkers: Int {
@@ -1461,6 +1470,35 @@ open class HTTPServer: NanoHTTPServer, Abortable, CustomExpr {
   
   public static func ==(lhs: HTTPServer, rhs: HTTPServer) -> Bool {
     return lhs === rhs
+  }
+}
+
+///
+/// Forwards the log messages of NanoHTTP to the logging facility of an `HTTPServer`.
+/// `NanoLogLevel` and the log levels of `HTTPServer` agree for levels 0 (debug) to 3 (error).
+///
+final class HTTPServerLogger: NanoHTTPLogger {
+  private weak var server: HTTPServer?
+
+  init(server: HTTPServer) {
+    self.server = server
+  }
+
+  func log(_ level: NanoLogLevel, _ message: @autoclosure () -> String) {
+    if let server, level.rawValue >= server.minLogSeverity {
+      server.log(level: level.rawValue, tag: "server", message())
+    }
+  }
+}
+
+private extension String {
+
+  /// Removes enclosing double quotes, if there are any.
+  func unquote() -> String {
+    if self.first == "\"" && self.count >= 2 && self.last == "\"" {
+      return String(self[self.index(after: self.startIndex)..<self.index(before: self.endIndex)])
+    }
+    return self
   }
 }
 

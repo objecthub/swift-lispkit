@@ -1037,7 +1037,7 @@ public final class SystemLibrary: NativeLibrary {
   
   private func availableNetworkInterfaces(onlyIpv4: Expr?) -> Expr {
     var res = Expr.null
-    for intf in NetworkInterface.available() {
+    for intf in NanoNetworkInterface.available() {
       if (onlyIpv4?.isTrue ?? false) && !intf.ipv4 {
         continue
       }

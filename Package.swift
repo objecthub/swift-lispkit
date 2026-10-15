@@ -56,7 +56,7 @@ let package = Package(
     .package(url: "https://github.com/objecthub/swift-sqliteexpress.git", from: "1.0.3"),
     .package(url: "https://github.com/objecthub/swift-clformat.git", from: "1.2.1"),
     .package(url: "https://github.com/objecthub/swift-dynamicjson.git", from: "2.0.0"),
-    .package(url: "https://github.com/objecthub/swift-nanohttp.git", from: "1.0.1"),
+    .package(url: "https://github.com/objecthub/swift-nanohttp.git", from: "2.1.1"),
     .package(url: "https://github.com/weichsel/ZIPFoundation.git", from: "0.9.20"),
     .package(url: "https://github.com/tsolomko/SWCompression.git", from: "4.9.1"),
     .package(url: "https://github.com/p2/OAuth2.git", from: "5.3.5"),
