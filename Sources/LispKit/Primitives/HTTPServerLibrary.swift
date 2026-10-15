@@ -234,17 +234,17 @@ public final class HTTPServerLibrary: NativeLibrary {
       "  (case-lambda",
       "    ((server port)",
       "      (http-server-start! server port #f))",
-      "    ((server port forceIPv4)",
-      "      (http-server-start! server port forceIPv4 3))",
-      "    ((server port forceIPv4 num)",
-      "      (http-server-start! server port forceIPv4 num \"worker \"))",
-      "    ((server port forceIPv4 num prefix)",
+      "    ((server port address)",
+      "      (http-server-start! server port address 3))",
+      "    ((server port address num)",
+      "      (http-server-start! server port address num \"worker \"))",
+      "    ((server port address num prefix)",
       "      (do ((queue (_http-server-reset! server))",
       "           (i 0 (+ i 1)))",
       "          ((>= i num))",
       "        (thread-start! (make-thread",
       "          (_make-worker server queue (string-append prefix (number->string i))))))",
-      "      (_http-server-start! server port forceIPv4)",
+      "      (_http-server-start! server port address)",
       "      (thread-yield!))))")
   }
   
@@ -407,8 +407,40 @@ public final class HTTPServerLibrary: NativeLibrary {
     return .void
   }
   
-  private func httpServerStart(expr: Expr, port: Expr, forceIPv4: Expr?) throws -> Expr {
+  /// Maps the address argument of `http-server-start!` to the address a server listens at: `#f`
+  /// (or no argument) is the loopback address, which is reachable from this machine only, `#t`
+  /// stands for all network interfaces, and a string is an IPv4 or IPv6 address of this machine.
+  private func listenAddress(from expr: Expr?) throws -> NanoHTTPServerIO.NanoListenAddress {
+    guard let expr else {
+      return .loopback
+    }
+    switch expr {
+      case .false:
+        return .loopback
+      case .true:
+        return .allInterfaces
+      case .string(let str):
+        return .address(str as String)
+      default:
+        throw RuntimeError.type(expr, expected: [.booleanType, .strType])
+    }
+  }
+
+  private func httpServerStart(expr: Expr, port: Expr, address: Expr?) throws -> Expr {
     let server = try self.httpServer(from: expr)
+    do {
+      return try self.runHttpServer(server, port: port, address: address)
+    } catch {
+      // The worker threads started by `http-server-start!` would wait for requests forever
+      if !server.operating {
+        try? server.queue.close(in: self.context)
+      }
+      throw error
+    }
+  }
+
+  private func runHttpServer(_ server: HTTPServer, port: Expr, address: Expr?) throws -> Expr {
+    let address = try self.listenAddress(from: address)
     guard let current = context.evaluator.threads.current else {
       return .false
     }
@@ -433,6 +465,7 @@ public final class HTTPServerLibrary: NativeLibrary {
     // The server runs on this thread until it is stopped. Its network I/O and `handle(connection:)`
     // are executed here, which is what allows handing requests over to the worker threads via
     // a `SharedQueue` (see `HTTPServer.configuration`).
+    server.configuration.listenAddress = address
     try current.value.execute(server) { server in
       try server.run(UInt16(port.asInt(above: 0, below: Int(UInt16.max))))
     }

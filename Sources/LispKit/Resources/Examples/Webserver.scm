@@ -62,7 +62,8 @@
 
 (http-server-register! server "GET" "/close"
   (lambda (request)
-    (http-server-stop! (srv-request-server request))
+    ;; Stop the server with a delay on a separate thread, such that the response gets sent
+    (spawn (thunk (thread-sleep! 1.0) (http-server-stop! (srv-request-server request))))
     (make-srv-response 200 #f "this closed the server")))
 
 (http-server-register! server "GET" "/error"
@@ -179,10 +180,12 @@
 
 ;; Display all supported server routes
 (display* "server routes: " (http-server-routes server) "\n")
-(display* "server url: http://" (local-ip-address #t) ":8090\n")
+(display* "server url: http://localhost:8090\n")
 
 ;; Start the server. This procedure only terminates when the server is shut down
-;; (e.g. via a GET request for path "/close")
+;; (e.g. via a GET request for path "/close"). By default, the server listens on the
+;; loopback address, i.e. it is only reachable from this machine. Pass `#t` as a third
+;; argument to make it available on all network interfaces.
 (http-server-start! server 8090)
 
 ;; Wait for all threads to be terminated, but not longer than 10s
