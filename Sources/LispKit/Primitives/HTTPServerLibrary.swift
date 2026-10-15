@@ -98,7 +98,6 @@ public final class HTTPServerLibrary: NativeLibrary {
     self.define(Procedure("srv-request-server", self.serverRequestServer))
     self.define(Procedure("srv-request-method", self.serverRequestMethod))
     self.define(Procedure("srv-request-path", self.serverRequestPath))
-    self.define(Procedure("_srv-request-raw-path", self.serverRequestRawPath), export: false)
     self.define(Procedure("srv-request-query", self.serverRequestQuery))
     self.define(Procedure("srv-request-query-param", self.serverRequestQueryParam))
     self.define(Procedure("srv-request-query-params", self.serverRequestQueryParams))
@@ -219,13 +218,13 @@ public final class HTTPServerLibrary: NativeLibrary {
       "                   ((car next) (cdr next))))",
       "             (lambda (e)",
       "               (http-server-log server 3 \"worker/err\" name \" handling: \"",
-      "                 (srv-request-method (cdr next)) \" \" (_srv-request-raw-path (cdr next))",
+      "                 (srv-request-method (cdr next)) \" \" (srv-request-path (cdr next))",
       "                 \"\\n\" (error-object->string e 'printable))",
       "               (make-srv-response 500 #f",
       "                 (string-append \"request handler: \" (error-object->string e 'printable)))))",
       "        #f)",
       "      (http-server-log server 0 \"worker\" name \": \"",
-      "        (srv-request-method (cdr next)) \" \" (_srv-request-raw-path (cdr next)))",
+      "        (srv-request-method (cdr next)) \" \" (srv-request-path (cdr next)))",
       "      (http-server-log server 0 \"worker\" name \" idle\"))",
       "    (_http-server-remove-worker! server (current-thread))",
       "    (http-server-log server 0 \"worker\" \"closed \" name \"/\" (http-server-num-workers server))))")
@@ -534,39 +533,42 @@ public final class HTTPServerLibrary: NativeLibrary {
     return .makeString(try self.httpServerRequest(from: expr).connection.request.method.uppercased())
   }
   
-  private func serverRequestPath(expr: Expr) throws -> Expr {
-    return .makeString(try self.httpServerRequest(from: expr).connection.request.path)
-  }
-  
-  /// Returns the path as sent by the client, i.e. still percent-encoded. Used for logging,
-  /// since the decoded path may contain arbitrary characters, e.g. line breaks.
-  private func serverRequestRawPath(expr: Expr) throws -> Expr {
-    return .makeString(try self.httpServerRequest(from: expr).connection.request.rawPath)
+  /// By default, this returns the path as sent by the client, i.e. still percent-encoded (this
+  /// also keeps `%2F` and `/` apart, and avoids that the path gets decoded twice, which can
+  /// turn `%252e%252e` into `..`). With `decode` set to true, the decoded path is returned; it
+  /// can contain arbitrary characters, e.g. line breaks.
+  private func serverRequestPath(expr: Expr, decode: Expr?) throws -> Expr {
+    let request = try self.httpServerRequest(from: expr).connection.request
+    return .makeString(decode?.isTrue ?? false ? request.path : request.rawPath)
   }
 
+  /// Returns the query exactly as sent by the client, including the leading `?` (or the empty
+  /// string if there is no query). Rebuilding the query from the decoded parameters would not
+  /// be lossless, e.g. `%2B` (a plus) and `+` (a space) can not be told apart afterwards.
   private func serverRequestQuery(expr: Expr, inclPath: Expr?) throws -> Expr {
-    let req = try self.httpServerRequest(from: expr)
-    var components = URLComponents()
-    if req.connection.request.queryParams.isEmpty {
-      if inclPath?.isTrue ?? false {
-        components.path = req.connection.request.path
-      } else {
-        return .makeString("")
-      }
-    } else {
-      if inclPath?.isTrue ?? false {
-        components.path = req.connection.request.path
-      }
-      components.queryItems = req.connection.request.queryParams.map { k, v in
-        return URLQueryItem(name: k, value: v)
-      }
+    let request = try self.httpServerRequest(from: expr).connection.request
+    var res = inclPath?.isTrue ?? false ? request.rawPath : ""
+    if let query = request.rawQuery, !query.isEmpty {
+      res += "?" + query
     }
-    if let str = components.string {
-      return .makeString(str)
-    } else if inclPath?.isTrue ?? false {
-      return .makeString(req.connection.request.path)
-    } else {
-      return .makeString("")
+    return .makeString(res)
+  }
+
+  /// Returns the query parameters of a request as pairs of name and value. By default, names
+  /// and values are returned as sent by the client, i.e. still percent-encoded, with `+` left
+  /// as it is. If `decode` is true, they are decoded.
+  private func queryParams(of request: NanoHTTPRequest, decode: Expr?) -> [(String, String)] {
+    if decode?.isTrue ?? false {
+      return request.queryParams
+    }
+    guard let query = request.rawQuery else {
+      return []
+    }
+    return query.split(separator: "&", omittingEmptySubsequences: true).map { pair in
+      if let separator = pair.firstIndex(of: "=") {
+        return (String(pair[..<separator]), String(pair[pair.index(after: separator)...]))
+      }
+      return (String(pair), "")
     }
   }
   
@@ -599,8 +601,9 @@ public final class HTTPServerLibrary: NativeLibrary {
     return res
   }
   
-  private func serverRequestQueryParam(expr: Expr, name: Expr) throws -> Expr {
-    let params = try self.httpServerRequest(from: expr).connection.request.queryParams
+  private func serverRequestQueryParam(expr: Expr, name: Expr, decode: Expr?) throws -> Expr {
+    let params = self.queryParams(of: try self.httpServerRequest(from: expr).connection.request,
+                                  decode: decode)
     let name = try name.asString()
     var res = Expr.null
     for (param, value) in params.reversed() {
@@ -611,8 +614,9 @@ public final class HTTPServerLibrary: NativeLibrary {
     return res
   }
   
-  private func serverRequestQueryParams(expr: Expr) throws -> Expr {
-    let attributes = try self.httpServerRequest(from: expr).connection.request.queryParams
+  private func serverRequestQueryParams(expr: Expr, decode: Expr?) throws -> Expr {
+    let attributes = self.queryParams(of: try self.httpServerRequest(from: expr).connection.request,
+                                      decode: decode)
     var res = Expr.null
     for (name, value) in attributes {
       res = .pair(.pair(.makeString(name), .makeString(value)), res)
