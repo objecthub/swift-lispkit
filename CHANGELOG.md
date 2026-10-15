@@ -15,6 +15,7 @@
 - Fixed responses with JSON bodies (JSON values, mutable JSON values, and Scheme data mapped to JSON). Before, the response consisted of the text "Serialization error: invalidObject".
 - A failing `http-server-start!` (e.g. because the port is in use) does not leave its worker threads behind anymore.
 - `Examples/Webserver.scm` stops the server from a separate thread so that the request which stops the server is answered.
+- Fixed data races in the thread runtime that could crash the interpreter when threads blocked on a mutex or a shared queue were aborted, or when threads were started while other threads were being registered or removed. This could happen, for instance, when an HTTP server was stopped and started again while serving requests.
 - Completed and corrected the documentation of library `(lispkit http server)`.
 
 ## 2.6.2 (2026-08-08)
