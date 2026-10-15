@@ -35,7 +35,8 @@ public final class HTTPServerLibrary: NativeLibrary {
   // Running servers
   public let lock = NSLock()
   public var runningServers: Set<HTTPServer> = []
-  
+  private var activeRuns: [ObjectIdentifier : Int] = [:]
+
   /// Initialize symbols.
   public required init(in context: Context) throws {
     try super.init(in: context)
@@ -97,6 +98,7 @@ public final class HTTPServerLibrary: NativeLibrary {
     self.define(Procedure("srv-request-server", self.serverRequestServer))
     self.define(Procedure("srv-request-method", self.serverRequestMethod))
     self.define(Procedure("srv-request-path", self.serverRequestPath))
+    self.define(Procedure("_srv-request-raw-path", self.serverRequestRawPath), export: false)
     self.define(Procedure("srv-request-query", self.serverRequestQuery))
     self.define(Procedure("srv-request-query-param", self.serverRequestQueryParam))
     self.define(Procedure("srv-request-query-params", self.serverRequestQueryParams))
@@ -209,23 +211,21 @@ public final class HTTPServerLibrary: NativeLibrary {
       "    (do ((next (shared-queue-dequeue/wait! queue) (shared-queue-dequeue/wait! queue)))",
       "        ((not next))",
       "      (http-server-log server 0 \"worker\" name \" received request\")",
-      "      (do ((con next",
-      "             (_srv-request-send-response",
-      "               (cdr con)",
-      "               (try (lambda ()",
-      "                      (or (fold-left (lambda (z x) (or z (x (cdr con)))) #f",
-      "                            (_http-server-middleware server))",
-      "                          ((car con) (cdr con))))",
-      "                    (lambda (e)",
-      "                      (http-server-log server 3 \"worker/err\" name \" handling: \"",
-      "                        (srv-request-method (cdr con)) \" \" (srv-request-path (cdr con))",
-      "                        \"\\n\" (error-object->string e 'printable))",
-      "                      (make-srv-response 500 #f",
-      "                        (string-append \"request handler: \" (error-object->string e 'printable)))))",
-      "               #f)))",
-      "          ((not con))",
-      "        (http-server-log server 0 \"worker\" name \": \"",
-      "          (srv-request-method (cdr con)) \" \" (srv-request-path (cdr con))))",
+      "      (_srv-request-send-response",
+      "        (cdr next)",
+      "        (try (lambda ()",
+      "               (or (fold-left (lambda (z x) (or z (x (cdr next)))) #f",
+      "                     (_http-server-middleware server))",
+      "                   ((car next) (cdr next))))",
+      "             (lambda (e)",
+      "               (http-server-log server 3 \"worker/err\" name \" handling: \"",
+      "                 (srv-request-method (cdr next)) \" \" (_srv-request-raw-path (cdr next))",
+      "                 \"\\n\" (error-object->string e 'printable))",
+      "               (make-srv-response 500 #f",
+      "                 (string-append \"request handler: \" (error-object->string e 'printable)))))",
+      "        #f)",
+      "      (http-server-log server 0 \"worker\" name \": \"",
+      "        (srv-request-method (cdr next)) \" \" (_srv-request-raw-path (cdr next)))",
       "      (http-server-log server 0 \"worker\" name \" idle\"))",
       "    (_http-server-remove-worker! server (current-thread))",
       "    (http-server-log server 0 \"worker\" \"closed \" name \"/\" (http-server-num-workers server))))")
@@ -361,11 +361,15 @@ public final class HTTPServerLibrary: NativeLibrary {
   }
   
   private func httpServerTimeout(expr: Expr) throws -> Expr {
-    return .makeNumber(try self.httpServer(from: expr).requestEnteringTimeout)
+    guard let timeout = try self.httpServer(from: expr).requestEnteringTimeout else {
+      return .false
+    }
+    return .makeNumber(timeout)
   }
   
   private func httpServerTimeoutSet(expr: Expr, value: Expr) throws -> Expr {
-    try self.httpServer(from: expr).requestEnteringTimeout = try value.asDouble(coerce: true)
+    try self.httpServer(from: expr).requestEnteringTimeout =
+      value.isFalse ? nil : try value.asDouble(coerce: true)
     return .void
   }
   
@@ -405,16 +409,26 @@ public final class HTTPServerLibrary: NativeLibrary {
   
   private func httpServerStart(expr: Expr, port: Expr, forceIPv4: Expr?) throws -> Expr {
     let server = try self.httpServer(from: expr)
+    guard let current = context.evaluator.threads.current else {
+      return .false
+    }
+    // `stop` returns before the thread that was running the server has returned from `run`.
+    // A server that gets started again right away is therefore executed by two threads for a
+    // short while, and only the last one to return must unregister the server.
+    let id = ObjectIdentifier(server)
     self.lock.lock()
+    self.activeRuns[id, default: 0] += 1
     self.runningServers.insert(server)
     self.lock.unlock()
     defer {
       self.lock.lock()
-      self.runningServers.remove(server)
+      if let runs = self.activeRuns[id], runs > 1 {
+        self.activeRuns[id] = runs - 1
+      } else {
+        self.activeRuns.removeValue(forKey: id)
+        self.runningServers.remove(server)
+      }
       self.lock.unlock()
-    }
-    guard let current = context.evaluator.threads.current else {
-      return .false
     }
     // The server runs on this thread until it is stopped. Its network I/O and `handle(connection:)`
     // are executed here, which is what allows handing requests over to the worker threads via
@@ -491,6 +505,12 @@ public final class HTTPServerLibrary: NativeLibrary {
     return .makeString(try self.httpServerRequest(from: expr).connection.request.path)
   }
   
+  /// Returns the path as sent by the client, i.e. still percent-encoded. Used for logging,
+  /// since the decoded path may contain arbitrary characters, e.g. line breaks.
+  private func serverRequestRawPath(expr: Expr) throws -> Expr {
+    return .makeString(try self.httpServerRequest(from: expr).connection.request.rawPath)
+  }
+
   private func serverRequestQuery(expr: Expr, inclPath: Expr?) throws -> Expr {
     let req = try self.httpServerRequest(from: expr)
     var components = URLComponents()
@@ -637,20 +657,23 @@ public final class HTTPServerLibrary: NativeLibrary {
   private func serverRequestSendResponse(expr: Expr,
                                          response: Expr,
                                          dontKeepAlive: Expr?) throws -> Expr {
-    let connection = try self.httpServerRequest(from: expr).connection
-    let response = try self.httpServerResponse(from: response).response
-    guard let res = connection.send(response, dontKeepAlive: dontKeepAlive?.isTrue ?? false) else {
+    let request = try self.httpServerRequest(from: expr)
+    // The token of the request has to be used, even if the handler did not produce a response;
+    // otherwise the connection is closed without an answer and the worker thread terminates.
+    guard case .object(let obj) = response, let srvResponse = obj as? HTTPServerResponse else {
+      (request.connection.server as? HTTPServer)?.log(
+        level: 3, tag: "worker/err",
+        "handling: \(request.connection.request.method) \(request.connection.request.rawPath)" +
+        "\nrequest handler returned \(response) instead of a response")
+      request.pending.send(NanoHTTPResponse(statusCode: 500,
+                                            body: .text("request handler did not return a response")),
+                           dontKeepAlive: true)
       return .false
     }
-    var new = res.response()
-    if let handler = res.request.custom[HTTPServer.handlerKey] as? Expr {
-      res.request.custom.removeValue(forKey: HTTPServer.handlerKey)
-      return .pair(handler, .object(HTTPServerRequest(connection: res)))
-    } else {
-      new.body = .text("internal server error: could not connect to handler")
-      _ = res.send(new, dontKeepAlive: true)
-      return .false
-    }
+    // `send` returns immediately: the response is written by the server, which also waits for
+    // the next request on the connection. That request will arrive via `HTTPServer.handle`.
+    return .makeBoolean(request.pending.send(srvResponse.response,
+                                             dontKeepAlive: dontKeepAlive?.isTrue ?? false))
   }
   
   // HTTP server request multi-part functionality
@@ -1089,9 +1112,15 @@ public final class HTTPServerRequest: NativeObject {
   public static let type = Type.objectType(Symbol(uninterned: "srv-request"))
 
   public let connection: NanoHTTPConnection
-  
-  init(connection: NanoHTTPConnection) {
+
+  /// The token used for answering the request, once a worker has produced a response. The
+  /// server does not read from the connection while the answer is pending. If this token gets
+  /// released without ever being used, the connection is closed.
+  public let pending: NanoHTTPDeferredResponse
+
+  init(connection: NanoHTTPConnection, pending: NanoHTTPDeferredResponse) {
     self.connection = connection
+    self.pending = pending
   }
   
   public override var type: Type {
@@ -1233,12 +1262,31 @@ open class HTTPServer: NanoHTTPServer, Abortable, CustomExpr {
   public let handlers: Collection
   public let middlewareHandlers: Collection
   public let workers: Collection
-  public var requestEnteringTimeout: TimeInterval
+  private var requestEnteringTimeoutValue: TimeInterval?
+
+  /// The maximum time in seconds a request waits for room in the request queue. A request that
+  /// does not get into the queue within that time is refused with 503. While a request waits, the
+  /// network thread of the server is blocked. If this is `nil`, requests do not wait at all and
+  /// are refused right away if the queue is full.
+  public var requestEnteringTimeout: TimeInterval? {
+    get {
+      self.lock.lock()
+      defer {
+        self.lock.unlock()
+      }
+      return self.requestEnteringTimeoutValue
+    }
+    set {
+      self.lock.lock()
+      self.requestEnteringTimeoutValue = newValue
+      self.lock.unlock()
+    }
+  }
   public var minLogSeverity: Int // 0 = debug, 1 = info, 2 = warn, 3 = err, 4 = fatal
   
   public init(context: Context,
               queueLength: Int,
-              requestEnteringTimeout: TimeInterval = 2.0,
+              requestEnteringTimeout: TimeInterval? = 2.0,
               minLogSeverity: Int = 1) {
     self.context = context
     self.lock = NSLock()
@@ -1246,14 +1294,19 @@ open class HTTPServer: NanoHTTPServer, Abortable, CustomExpr {
     self.handlers = Collection(kind: .growableVector)
     self.middlewareHandlers = Collection(kind: .growableVector)
     self.workers = Collection(kind: .growableVector)
-    self.requestEnteringTimeout = requestEnteringTimeout
+    self.requestEnteringTimeoutValue = requestEnteringTimeout
     self.minLogSeverity = minLogSeverity
     context.objects.manage(self.handlers)
     context.objects.manage(self.workers)
     // The whole network I/O of the server runs on the Scheme thread executing `run`; this is
-    // the thread that is able to enqueue requests into `queue`
+    // the thread that is able to enqueue requests into `queue`. Handlers run on worker threads
+    // and answer via deferred responses. What blocks the network thread blocks the server: a
+    // client that stalls in the middle of a request (`readTimeout`) or does not read its
+    // response (`writeTimeout`) holds up everybody for that long, so these are short.
     var configuration = Configuration()
     configuration.threading = .singleThread
+    configuration.readTimeout = 5
+    configuration.writeTimeout = 5
     super.init(configuration: configuration)
     self.configuration.logger = HTTPServerLogger(server: self)
     self.setUpMiddleware()
@@ -1311,31 +1364,49 @@ open class HTTPServer: NanoHTTPServer, Abortable, CustomExpr {
     self.log(level: 1, tag: "server", "server stopped for port \(port)")
   }
 
+  /// Called on the thread running the server for every request; it never blocks. A request
+  /// matching a registered handler is entered into `queue` together with the token for
+  /// answering it later (`deferResponse`), and is answered by a worker thread. All other
+  /// requests were answered already by NanoHTTP itself (e.g. `OPTIONS`, `405`, `403`, `404`
+  /// without default handler, errors); the response is sent right away.
   open override func handle(connection: NanoHTTPConnection) {
-    var response = connection.response()
-    if let handler = connection.request.custom[Self.handlerKey] as? Expr,
-       let context = self.context {
-      let handlingRequest = Expr.pair(handler, .object(HTTPServerRequest(connection: connection)))
-      connection.request.custom.removeValue(forKey: Self.handlerKey)
-      do {
-        if try self.queue.enqueue(in: context,
-                                  values: [handlingRequest],
-                                  timeout: self.requestEnteringTimeout,
-                                  push: false,
-                                  wait: true,
-                                  close: false) {
-          // Successfully entered the request into the request handling queue; exit
-          return
-        }
-        response.body = .text("overloaded: could not invoke request handler")
-      } catch let e {
-        response.body = .text("internal server error: \(e.localizedDescription)")
-      }
-    } else {
-      response.body = .text("internal server error: could not connect to handler")
+    let response = connection.response()
+    guard let handler = connection.request.custom.removeValue(forKey: Self.handlerKey) as? Expr else {
+      _ = connection.send(response)
+      return
     }
-    // Default: send error as it wasn't possible to invoke the handler
-    _ = connection.send(response, dontKeepAlive: true)
+    guard let context = self.context else {
+      _ = connection.send(NanoHTTPResponse(statusCode: 500,
+                                           body: .text("internal server error: no context")),
+                          dontKeepAlive: true)
+      return
+    }
+    let pending = connection.deferResponse()
+    let handlingRequest = Expr.pair(handler,
+                                    .object(HTTPServerRequest(connection: connection,
+                                                              pending: pending)))
+    do {
+      // If the queue is full, this waits up to `requestEnteringTimeout` for room, blocking the
+      // network thread (like in earlier versions); without a timeout, the request is refused
+      // right away.
+      let timeout = self.requestEnteringTimeout
+      if try self.queue.enqueue(in: context,
+                                values: [handlingRequest],
+                                timeout: timeout,
+                                push: false,
+                                wait: timeout != nil,
+                                close: false) {
+        return
+      }
+      pending.send(NanoHTTPResponse(statusCode: 503,
+                                    headers: ["Retry-After": "1"],
+                                    body: .text("overloaded: could not invoke request handler")),
+                   dontKeepAlive: true)
+    } catch let e {
+      pending.send(NanoHTTPResponse(statusCode: 500,
+                                    body: .text("internal server error: \(e.localizedDescription)")),
+                   dontKeepAlive: true)
+    }
   }
   
   open func log(level: Int, tag: String? = nil, _ str: String) {
@@ -1441,7 +1512,8 @@ open class HTTPServer: NanoHTTPServer, Abortable, CustomExpr {
     if let context, let reqcount = try? self.queue.length(in: context)  {
       res += "requests=\(reqcount), "
     }
-    res += "timeout=\(self.requestEnteringTimeout), severity=\(self.minLogSeverity)"
+    res += "timeout=\(self.requestEnteringTimeout.map { "\($0)" } ?? "none"), " +
+           "severity=\(self.minLogSeverity)"
     return res
   }
   
@@ -1464,7 +1536,7 @@ open class HTTPServer: NanoHTTPServer, Abortable, CustomExpr {
     return [.makeString(self.identityString),
             .object(self.queue),
             .vector(self.handlers),
-            .makeNumber(self.requestEnteringTimeout),
+            self.requestEnteringTimeout.map { .makeNumber($0) } ?? .false,
             .makeNumber(self.minLogSeverity)]
   }
   
