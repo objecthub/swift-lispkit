@@ -36,6 +36,10 @@ public final class ThreadManager {
   }
   
   public var count: Int {
+    self.mutex.lock()
+    defer {
+      self.mutex.unlock()
+    }
     return self.threads.count
   }
   

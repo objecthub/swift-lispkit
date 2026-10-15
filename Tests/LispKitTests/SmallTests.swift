@@ -37,4 +37,47 @@ class SmallTests: LispKitTestCase {
     assertStackEmpty()
   }
 
+  /// Aborting threads while they are blocked on (or just waking up from) a shared queue
+  /// reads `EvalThread.waitingOn` concurrently with the threads updating it.
+  func testAbortThreadsBlockedOnSharedQueue() {
+    XCTAssertEqual(
+      self.eval("(import (lispkit thread) (lispkit thread shared-queue)) " +
+                "(define (abort-round) " +
+                "  (let* ((q (make-shared-queue 50)) " +
+                "         (ws (map (lambda (k) " +
+                "                    (make-thread " +
+                "                      (lambda () " +
+                "                        (do ((x (shared-queue-dequeue/wait! q) " +
+                "                                (shared-queue-dequeue/wait! q))) " +
+                "                            ((not x)))))) " +
+                "                  '(1 2 3 4))) " +
+                "         (prod (spawn (lambda () " +
+                "                        (do ((j 0 (+ j 1))) ((= j 4000)) " +
+                "                          (shared-queue-enqueue/wait! q j 0.5)))))) " +
+                "    (for-each thread-start! ws) " +
+                "    (thread-sleep! 0.002) " +
+                "    (for-each thread-terminate! ws) " +
+                "    (shared-queue-close! q) " +
+                "    (thread-terminate! prod))) " +
+                "(do ((i 0 (+ i 1))) ((= i 100)) (abort-round)) " +
+                "'done"), self.value("done"))
+  }
+
+  /// Starting threads concurrently reads the number of threads, while threads are being
+  /// registered and removed.
+  func testStartThreadsConcurrently() {
+    XCTAssertEqual(
+      self.eval("(import (lispkit thread)) " +
+                "(define (spawn-round) " +
+                "  (let ((spawners " +
+                "          (map (lambda (k) " +
+                "                 (spawn (lambda () " +
+                "                          (do ((j 0 (+ j 1))) ((= j 60)) " +
+                "                            (thread-start! (make-thread (lambda () 'x))))))) " +
+                "               '(1 2 3 4)))) " +
+                "    (for-each thread-join! spawners))) " +
+                "(do ((i 0 (+ i 1))) ((= i 100)) (spawn-round)) " +
+                "'done"), self.value("done"))
+  }
+
 }

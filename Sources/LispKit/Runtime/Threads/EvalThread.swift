@@ -137,14 +137,34 @@ public final class EvalThread: ManagedObject, ThreadBlocker, CustomStringConvert
   /// A set of locks owned by the thread during the execution.
   fileprivate var locks: Set<EvalMutex> = []
   
+  /// Protects `waitingOnBlocker`. The waiting thread updates `waitingOn` while holding the lock of the
+  /// object it blocks on (not `mutex`), whereas `abort()` and the garbage collector read it from
+  /// other threads. A `ThreadBlocker?` is a multi-word existential value which can get torn if
+  /// it is read while it is being written. This lock is a leaf lock: nothing else is ever
+  /// acquired while holding it.
+  private let waitingLock = UnfairLock()
+
+  /// The object this thread is blocked by (accessed via `waitingOn`).
+  private var waitingOnBlocker: ThreadBlocker? = nil
+
   /// Mutex this thread is blocked by.
-  internal var waitingOn: ThreadBlocker? = nil {
-    didSet {
-      if self.state == .runnable && self.waitingOn != nil {
-        self.state = .blocked
-      } else if self.state == .blocked && self.waitingOn == nil {
-        self.state = .runnable
+  internal var waitingOn: ThreadBlocker? {
+    get {
+      return self.waitingLock.sync { self.waitingOnBlocker }
+    }
+    set {
+      // Release the previous blocker outside of the critical section
+      var previous: ThreadBlocker? = nil
+      self.waitingLock.sync {
+        previous = self.waitingOnBlocker
+        self.waitingOnBlocker = newValue
+        if self.state == .runnable && newValue != nil {
+          self.state = .blocked
+        } else if self.state == .blocked && newValue == nil {
+          self.state = .runnable
+        }
       }
+      withExtendedLifetime(previous) {}
     }
   }
   
