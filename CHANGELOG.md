@@ -1,5 +1,22 @@
 # Changelog
 
+## 2.6.3 (unreleased)
+
+- Library `(lispkit http server)` is now based on version 2.1.1 of the NanoHTTP framework. This changes the behavior of HTTP servers in a number of ways, summarized below.
+- **Breaking change:** HTTP servers listen on the loopback address by default, i.e. they are only reachable from the machine they run on. Before, servers listened on all network interfaces. The third argument of `http-server-start!` is now an _address_ instead of the boolean `forceIPv4`: `#f` (the default) stands for the loopback address, `#t` for all network interfaces (IPv4 and IPv6), and a string is an IPv4 or IPv6 address of the machine (e.g. `"192.168.1.20"`, `"0.0.0.0"`, `"::1"`). Programs serving other machines need to pass `#t` or an address.
+- `http-server-ipv4` returns `#t` if a server listens on an IPv4 socket. This is the case for servers listening on the loopback address (the default) or on an IPv4 address, but not for servers listening on all network interfaces or on an IPv6 address.
+- **Security:** the new NanoHTTP version fixes a path traversal vulnerability in the request handlers returned by `share-directory-handler` and `browse-directory-handler`, through which files outside of the shared directory could be requested. Requests with `..` segments (also in percent-encoded form), NUL characters or symbolic links leading out of the shared directory are now refused with status 403. Please update programs using these handlers.
+- Request paths and query values are percent-decoded by NanoHTTP now. To not change the behavior of existing programs, `srv-request-path`, `srv-request-query-param` and `srv-request-query-params` return the values as sent by the client, i.e. still percent-encoded. Each of these procedures has a new optional argument `decode?`; if it is `#t`, decoded values are returned (where `+` in query parameters stands for a space). `srv-request-query` returns the query exactly as sent by the client.
+- **Breaking change:** the values of path parameters (see `srv-request-path-param` and `srv-request-path-params`) are always percent-decoded exactly once. This was already the case for the values of single-segment variables (`:svar`), but the values of path variables (`::pvar`) used to be returned as sent by the client, i.e. still percent-encoded. Programs that decode the value of a `::pvar` themselves must not do so anymore: decoding it a second time can yield a different path than the client sent (e.g. `%252e%252e` turns into `..`). The path as sent by the client is available via `srv-request-path`.
+- Procedure `srv-request-form-attributes` decodes `%2B` as a plus now (it used to be turned into a space), and `srv-request-form-multiparts` returns the empty list for a malformed `multipart/form-data` body.
+- HTTP connections are persistent (HTTP/1.1 keep-alive). Requests are handed over to worker threads, which answer them via deferred responses. Idle connections therefore do not occupy any worker threads anymore: a server uses the thread calling `http-server-start!` plus its worker threads, independent of the number of clients.
+- HTTP servers answer `HEAD` and `OPTIONS` requests and requests for unsupported methods (status 405) by themselves, and refuse requests that are too large (status 413, 414, 431), that stall for more than 5 seconds (status 408), or that arrive while 128 connections are open (status 503). Every response has a `Date` header. See the documentation for details.
+- A request that cannot enter the full request queue is refused with status 503 and a `Retry-After` header. Procedure `http-server-timeout-set!` now also accepts `#f`, in which case requests are refused immediately instead of waiting for room in the queue; `http-server-timeout` returns `#f` for such servers.
+- Fixed responses with JSON bodies (JSON values, mutable JSON values, and Scheme data mapped to JSON). Before, the response consisted of the text "Serialization error: invalidObject".
+- A failing `http-server-start!` (e.g. because the port is in use) does not leave its worker threads behind anymore.
+- `Examples/Webserver.scm` stops the server from a separate thread so that the request which stops the server is answered.
+- Completed and corrected the documentation of library `(lispkit http server)`.
+
 ## 2.6.2 (2026-08-08)
 
 - New library for drawing function charts: `(lispkit draw chart function)`

@@ -4,7 +4,7 @@ Library `(lispkit http server)` implements a simple multi-threaded HTTP server w
 
 For processing an HTTP request, the HTTP server first sends the request through the middleware processors in the order they were registered. As soon as one middleware processor returns a response, this response becomes the response of the request. Only when all middleware processors did not return a response, the request handler matching the route is being invoked and the result of this handler defines the response for the request.
 
-The following script configures and starts a simple web server. Please note that procedure `http-server-start!` does not terminate until the web server is shut down (e.g. by visiting "/quit" for the server below).
+The following script configures and starts a simple web server. By default, a server listens on the loopback address, i.e. it can only be reached from the machine it is running on; see procedure `http-server-start!` for making a server available to other machines. Please note that procedure `http-server-start!` does not terminate until the web server is shut down (e.g. by visiting "/quit" for the server below).
 
 ```scheme
 (import (lispkit thread)
@@ -51,26 +51,54 @@ After starting the server, three requests are made for `/hello/Matthias`, `/hell
 [http/worker] started worker 0/0
 [http/worker] started worker 1/1
 [http/worker] started worker 2/2
-[http/server] server started for port 3000; try connecting at http://192.168.10.175:3000
-[http/req] GET /hello/Matthias (::8044:1200:60:0)
+[http/server] server started for port 3000; try connecting at http://127.0.0.1:3000
+[http/req] GET /hello/Matthias (127.0.0.1)
+[http/worker] worker 1 received request
+[http/worker] worker 1: GET /hello/Matthias
+[http/worker] worker 1 idle
+[http/req] GET /hello/World (127.0.0.1)
 [http/worker] worker 0 received request
-[http/worker] worker 0: GET /hello/Matthias
-[http/req] GET /hello/World (::8044:1200:60:0)
 [http/worker] worker 0: GET /hello/World
-[http/req] GET /quit (::8044:1200:60:0)
-[http/worker] worker 0: GET /quit
 [http/worker] worker 0 idle
-[http/server] server stopped for port 3000
-[http/worker] closed worker 1/2
-[http/worker] closed worker 0/1
+[http/req] GET /quit (127.0.0.1)
+[http/worker] worker 1 received request
+[http/worker] worker 1: GET /quit
+[http/worker] worker 1 idle
+[http/worker] closed worker 0/0
 [http/worker] closed worker 2/0
+[http/worker] closed worker 1/0
+[http/server] server stopped for port 3000
 ```
 
+The worker threads are picking up requests from a queue; which worker handles a request is not deterministic.
+
+## Server behavior
+
+A server listens on the _loopback address_ by default. It can only be reached from the machine it is running on. Procedure `http-server-start!` has an optional argument for listening on all network interfaces or on a specific address.
+
+Servers support persistent HTTP/1.1 connections: a client can send many requests via the same connection. A connection that does not send a request for 60 seconds is closed. Idle connections do not occupy worker threads. Each request is entered into a queue and answered by the next available worker thread, independent of the connection it was received on.
+
+Accepting connections, reading requests and writing responses is done by the thread calling `http-server-start!`. A client which stalls while sending a request or does not read its response delays all other clients. For this reason, a server gives up on a client which does not make progress for 5 seconds.
+
+The following requests are answered by the server itself, without invoking a request handler:
+
+  - `HEAD` requests are answered by the handler registered for `GET`; the response body is not sent.
+  - `OPTIONS` requests for a path with registered handlers are answered with status 204 and an `Allow` header, unless there is a handler for `OPTIONS`.
+  - Requests for a path with registered handlers, but not for the method of the request, are answered with status 405 and an `Allow` header.
+  - Requests for a path without handler are answered with status 404 unless a default handler is registered via `http-server-register-default!`.
+  - Malformed requests are answered with status 400. Requests with a request line or header line of more than 8 KiB are answered with status 414 and 431 respectively. Requests with headers of more than 64 KiB are answered with status 431, and requests with a body of more than 64 MiB with status 413.
+  - Requests which are not completed within 5 seconds are answered with status 408.
+  - New connections are refused with status 503 while there are 128 open connections. Requests which find the request queue full are refused with status 503 as well (see `http-server-timeout-set!`).
+
+Every response includes a `Date` header.
+
+### Paths and query values
+
+The path and the query of a request are available as sent by the client, i.e. percent-encoded (e.g. `/caf%C3%A9`), and decoded (`/café`). Decoding loses information: after decoding, `%2F` can no longer be distinguished from a path separator. Furthermore, a value that gets decoded twice can turn into something different than the client sent, e.g. `%252e%252e` first turns into `%2e%2e` and then into `..`, which is dangerous for values used as file paths.
+
+For this reason, procedures `srv-request-path`, `srv-request-query`, `srv-request-query-param` and `srv-request-query-params` return values as sent by the client by default. Procedures `srv-request-path`, `srv-request-query-param` and `srv-request-query-params` have an optional argument for returning decoded values. Path parameters (see `srv-request-path-param`) and the attributes of a form (see `srv-request-form-attributes`) are always decoded exactly once.
+
 ## HTTP servers
-
-**http-server-ipv4** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[object]</span>  
-
-Constant representing the IPv4 network interface type. This can be used when creating or configuring HTTP servers to force IPv4 usage.
 
 **http-server-type-tag** <span style="float:right;text-align:rigth;">[constant]</span>  
 
@@ -84,7 +112,7 @@ Returns `#t` if _obj_ is a HTTP server object; `#f` otherwise.
 **(make-http-server _queue-size_)**  
 **(make-http-server _queue-size log-level_)**  
 
-Creates a new HTTP server. _queue-size_ is the maximum number of requests the server is able to queue up before starting to reject requests. _log-level_ is the minimum log level for the new HTTP server. _log-level_ is an integer between 0 (= `debug`) and 4 (= `fatal`). Only log messages above and including the level will be output. For details on log levels see the documentation of `(lispkit log)`.
+Creates a new HTTP server. _queue-size_ is the maximum number of requests the server is able to queue up before starting to reject requests (the default is 10). _log-level_ is the minimum log level for the new HTTP server. _log-level_ is an integer between 0 (= `debug`) and 4 (= `fatal`). Only log messages above and including the level will be output. For details on log levels see the documentation of `(lispkit log)`.
 
 **(http-server-running? _server_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
@@ -92,11 +120,11 @@ Returns `#t` if the HTTP server _server_ is currently running; `#f` otherwise.
 
 **(http-server-port _server_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Returns `#t` if the HTTP server _server_ is currently running; `#f` otherwise.
+Returns the port the HTTP server _server_ is listening on. If _server_ is not running, `#f` is returned.
 
-**(http-server-ipv4? _server_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(http-server-ipv4 _server_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Returns `#t` if the HTTP server _server_ is forcing the usage of IPv4; returns `#f` otherwise.
+Returns `#t` if the HTTP server _server_ is listening on an IPv4 socket, i.e. if it is listening on the loopback address or on an IPv4 address; returns `#f` if _server_ is listening on an IPv6 address or on all network interfaces (which are served via a combined socket for IPv4 and IPv6). An error is signaled if _server_ is not running.
 
 **(http-server-open-connections _server_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
@@ -120,11 +148,11 @@ Sets the minimum log level for HTTP server _server_ to _log-level_. _log-level_ 
 
 **(http-server-timeout _server_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Returns the timeout used by HTTP server _server_ in seconds. Once a request is received by _server_, it is put into a queue from which request processing worker threads pick up their work. The timeout determines how long requests stay in that queue at most before they are either processed or the server returns an error indicating that the request was not processed.
+Returns the timeout used by HTTP server _server_ in seconds, or `#f` if the server does not use a timeout. Once a request is received by _server_, it is put into a queue from which request processing worker threads pick up their work. If this queue is full, the request waits for room in the queue, but not longer than the timeout. If the request cannot be entered into the queue within that time, the server refuses the request with status 503 (`Service Unavailable`) and a `Retry-After` header. While a request waits, the server is not able to process any other request. The default timeout is 2 seconds.
 
 **(http-server-timeout-set! _server timeout_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Sets the timeout used by HTTP server _server_ to _timeout_ seconds.
+Sets the timeout used by HTTP server _server_ to _timeout_ seconds. If _timeout_ is `#f`, the timeout mechanism is switched off: a request which finds the queue full is refused immediately with status 503, so a full queue never delays other requests.
 
 **(http-server-num-workers _server_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
@@ -162,15 +190,21 @@ Registers a default _handler_ for HTTP server _server_. Without a default handle
 Registers a middleware processor for the given HTTP server _server_. A middleware processor is a function that receives an HTTP request of type `srv-request` and either returns `#f` (request not handled) or an HTTP response of type `srv-response` (request handled). For processing an HTTP request, _server_ first sends the request through the middleware processors in the order they were registered. As soon as one middleware processor returns a response, this response becomes the response of the request. Only after all middleware processors returned `#f`, the request handler matching the route is being invoked and the result of this handler defines the response for the request.
 
 **(http-server-start! _server port_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
-**(http-server-start! _server port forceIPv4_)**  
-**(http-server-start! _server port forceIPv4 num_)**  
-**(http-server-start! _server port forceIPv4 num name_)**  
+**(http-server-start! _server port address_)**  
+**(http-server-start! _server port address num_)**  
+**(http-server-start! _server port address num name_)**  
 
-Starts the HTTP server _server_ listening on _port_ for requests. If boolean argument _forceIPv4_ is set to `#t`, the usage of IPv4 is enforced. _num_ is the number of worker threads used for processing requests (default is 3). _name_ is the prefix used for naming worker threads. _name_ followed by the worker thread number determines each worker threads name. The default for _name_ is `"worker "`. Procedure `http-server-start!` terminates only when the server is stopped, i.e. it is typically invoked on a thread to not block the execution of a program.
+Starts the HTTP server _server_ listening on _port_ for requests. _address_ determines which network addresses the server accepts connections on:
+
+  - `#f` (the default) stands for the loopback address: _server_ can only be reached from the machine it is running on.
+  - `#t` stands for all network interfaces of the machine, IPv4 and IPv6: _server_ can be reached from all machines that can reach this machine.
+  - A string is an IPv4 or IPv6 address of the machine, e.g. `"192.168.1.20"`, `"0.0.0.0"` (all IPv4 interfaces) or `"::1"` (the IPv6 loopback address).
+
+An error is signaled if _server_ cannot start listening, e.g. because _port_ is in use or because _address_ is not an address of the machine. _num_ is the number of worker threads used for processing requests (default is 3). _name_ is the prefix used for naming worker threads. _name_ followed by the worker thread number determines each worker threads name. The default for _name_ is `"worker "`. Procedure `http-server-start!` terminates only when the server is stopped, i.e. it is typically invoked on a thread to not block the execution of a program.
 
 **(http-server-stop! _server_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Stops a running HTTP server _server_. All worker threads are terminated and procedure `http-server-start!`, which was used to start the server, returns.
+Stops a running HTTP server _server_. All worker threads are terminated and procedure `http-server-start!`, which was used to start the server, returns. Stopping a server closes all its connections. If a request handler stops the server, the response of that request can therefore get lost. To make sure the response is sent, stop the server from a different thread after a short delay, as done in the example above.
 
 
 ## Server requests
@@ -194,32 +228,35 @@ Returns the HTTP server which issued this HTTP server request object. `srv-reque
 Returns the HTTP method for the given HTTP server request _req_ as a string. The supported HTTP methods are: `"GET"`, `"HEAD"`, `"POST"`, `"PUT"`, `"DELETE"`, `"CONNECT"`, `"OPTIONS"`, `"TRACE"`, and `"PATCH"`.
 
 **(srv-request-path _req_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(srv-request-path _req decode?_)**  
 
-Returns the URL path of the given HTTP server request _req_ as a string.
+Returns the URL path of the given HTTP server request _req_ as a string. By default, the path is returned as sent by the client, i.e. it is percent-encoded (e.g. `/caf%C3%A9`). If _decode?_ is set to `#t`, the decoded path is returned (e.g. `/café`). A decoded path cannot distinguish `%2F` from a path separator, and it can contain arbitrary characters, including line breaks. It should not be decoded again; for instance, `%252e%252e` turns into `%2e%2e` when decoded once, and into `..` when decoded twice.
 
 **(srv-request-query _req_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(srv-request-query _req incl-path?_)**  
 
-Returns the URL query of the given HTTP server request _req_ as a string. If _incl-path?_ is provided and set to true, then the query is prefixed with the path of _req_.
+Returns the URL query of the given HTTP server request _req_ as a string, exactly as sent by the client, including the leading `?`. If _req_ does not have a query, the empty string is returned. If _incl-path?_ is provided and set to true, then the query is prefixed with the path of _req_ (as returned by `srv-request-path`, i.e. as sent by the client).
 
 **(srv-request-query-param _req name_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(srv-request-query-param _req name decode?_)**  
 
-Returns the values of the query parameter _name_ (a string) for the given HTTP server request _req_ as a list of strings. If the query parameter _name_ was not used in _req_, the empty list is returned.
+Returns the values of the query parameter _name_ (a string) for the given HTTP server request _req_ as a list of strings. If the query parameter _name_ was not used in _req_, the empty list is returned. By default, parameter names and values are compared and returned as sent by the client, i.e. percent-encoded and with `+` characters left as they are. If _decode?_ is set to `#t`, names and values are decoded: percent-encoded characters are replaced and `+` stands for a space.
 
 **(srv-request-query-params _req_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(srv-request-query-params _req decode?_)**  
 
-Returns all query parameters for the given HTTP server request _req_ as an association list consisting of string pairs, mapping query parameter names to query parameter values.
+Returns all query parameters for the given HTTP server request _req_ as an association list consisting of string pairs, mapping query parameter names to query parameter values. By default, names and values are returned as sent by the client, i.e. percent-encoded and with `+` characters left as they are. If _decode?_ is set to `#t`, names and values are decoded: percent-encoded characters are replaced and `+` stands for a space.
 
 **(srv-request-path-param _req name_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(srv-request-path-param _req name default_)**  
 
 Returns the value of the path parameter _name_ (a string) for the given HTTP server request _req_ as a string. If the path parameter _name_ is undefined in _req_, _default_ is returned instead if provided. Otherwise, `#f` is returned.
 
-Path parameters are determined when a request path gets matched with the available routes of an HTTP server. For details, see documentation for procedure `http-server-register!`.
+Path parameters are determined when a request path gets matched with the available routes of an HTTP server. For details, see documentation for procedure `http-server-register!`. The values of path parameters are percent-decoded. A value can therefore contain a `/` if the path of the request contained `%2F`.
 
 **(srv-request-path-params _req_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Returns all path parameters for the given HTTP server request _req_ as an association list consisting of string pairs, mapping path parameter names to path parameter values. Path parameters are determined when a request path gets matched with the available routes of an HTTP server. For details, see documentation for procedure `http-server-register!`.
+Returns all path parameters for the given HTTP server request _req_ as an association list consisting of string pairs, mapping path parameter names to path parameter values. Path parameters are determined when a request path gets matched with the available routes of an HTTP server. For details, see documentation for procedure `http-server-register!`. The values of path parameters are percent-decoded.
 
 **(srv-request-path-param-set! _req name value_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
@@ -256,11 +293,11 @@ Returns the body of the HTTP server request _req_ as a UTF8-encoded string. If a
 
 **(srv-request-form-attributes _req_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Parses the body if its content type is `application/x-www-form-urlencoded` and returns the query parameters in the body as an association list mapping query names to query values.
+Parses the body if its content type is `application/x-www-form-urlencoded` and returns the query parameters in the body as an association list mapping query names to query values. Names and values are decoded: percent-encoded characters are replaced and `+` stands for a space.
 
 **(srv-request-form-multiparts _req_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Parses the body if its content type is `multipart/form-data` and returns a list of multi-part request objects of type `srv-multipart`.
+Parses the body if its content type is `multipart/form-data` and returns a list of multi-part request objects of type `srv-multipart`. If the body is not a well-formed `multipart/form-data` body, e.g. because it has no closing boundary, then the empty list is returned.
 
 **(srv-request-address _req_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
@@ -481,12 +518,14 @@ Extracts the header value for header _name_ from the association list _headers_,
 
 **(share-file-handler _filepath_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Returns a HTTP request handler for downloading a file at the given _filepath_, an absolute file path.
+Returns a HTTP request handler for downloading a file at the given _filepath_, an absolute file path. The handler sends the file with `ETag` and `Last-Modified` headers, and supports conditional requests and range requests.
 
 **(share-directory-handler _root_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Returns a HTTP request handler for downloading a file at the file path consisting of the first path variable of the request which is considered to be relative to absolute directory path _root_.
+Returns a HTTP request handler for downloading a file at the file path consisting of the first path variable of the request which is considered to be relative to absolute directory path _root_. The handler needs to be registered for a route ending in a path variable (e.g. `"/public/::path"`). Files are sent like by `share-file-handler`. A request for a directory is redirected to the same path with a `/` appended and then answered with the file `index.html` or `default.html` of the directory, if there is one.
+
+Requests which contain `..` segments or NUL characters, or which refer to files outside of _root_ via symbolic links, are refused with status 403. This also applies to encoded forms such as `%2e%2e`. Requests for files which do not exist are answered with status 404.
 
 **(browse-directory-handler _root_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Returns a HTTP request handler for browsing the files in the directory consisting of the first path variable of the request which is considered to be relative to absolute directory path _root_.
+Returns a HTTP request handler for browsing the files in the directory consisting of the first path variable of the request which is considered to be relative to absolute directory path _root_. The handler needs to be registered for a route ending in a path variable (e.g. `"/files/::path"`). Directories are answered with an HTML page listing their entries, files are sent like by `share-file-handler`. The same restrictions as for `share-directory-handler` apply.
