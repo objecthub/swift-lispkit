@@ -2,7 +2,7 @@
 ;;; Regression test data
 ;;;
 ;;; Author: Matthias Zenger
-;;; Copyright © 2019 ObjectHub. All rights reserved.
+;;; Copyright © 2019-2026 ObjectHub. All rights reserved.
 ;;;
 ;;; Licensed under the Apache License, Version 2.0 (the "License");
 ;;; you may not use this file except in compliance with the License.
@@ -149,4 +149,97 @@
                                                  "  :  > One\n"
                                                  "     > Two")
                                   #t)))
+)
+
+(
+  "Markdown underline and strikethrough"
+  (#t #t #t #t #t #t #t #t #t #t #t)
+  (define md1 (document (list (paragraph (list (underline (list (text "one"))) (text " two"))))))
+  (define md2 (document (list (paragraph (list (strikethrough (list (text "one"))) (text " two"))))))
+  (define md3 (document (list (paragraph (list
+                (strong (list (text "a ") (strikethrough (list (text "b"))))) (text " c"))))))
+  (define md4 (document (list (paragraph (list
+                (strong (list (text "a ") (strikethrough (list (underline (list (text "b"))))))) 
+                (text " c"))))))
+  (list
+    (markdown=? md1 (markdown "~one~ two" 'full))
+    (markdown=? md2 (markdown "~~one~~ two" 'full))
+    (markdown=? md3 (markdown "**a ~~b~~** c" 'full))
+    (not (markdown=? md1 (markdown "~one~ two" #t)))
+    (and (markdown-inline? (underline '())) (markdown-inline? (strikethrough '())))
+    (equal? (markdown->html md1) "<p><u>one</u> two</p>\n")
+    (equal? (markdown->html md2) "<p><del>one</del> two</p>\n")
+    (equal? (markdown->html md4) "<p><strong>a <del><u>b</u></del></strong> c</p>\n")
+    (equal? (markdown->sxml md1) '((p (u ("one")) " two")))
+    (equal? (markdown->sxml md2) '((p (del ("one")) " two")))
+    (equal? (markdown->raw-string md4) "a b c"))
+)
+
+(
+  "Markdown task lists"
+  (#t #t #t #t #t #t #t #t #t #t)
+  (define t1 (task #f (bullet #\- '() (list (paragraph (list (text "open")))))))
+  (define t2 (task #t (bullet #\- #t (list (paragraph (list (text "done")))))))
+  (define t3 (task #t (ordered 1 #\. '() (list (paragraph (list (text "one")))))))
+  (define t4 (task #f (ordered 2 #\. #t (list (paragraph (list (text "two")))))))
+  (define doc1 (document (list (list-items #f #t (list t1 t2)))))
+  (define doc2 (document (list (list-items 1 #t (list t3 t4)))))
+  (list
+    (markdown=? doc1 (markdown "- [ ] open\n- [x] done" 'full))
+    (markdown=? doc2 (markdown "1. [x] one\n2. [ ] two" 'full))
+    (not (markdown=? doc1 (markdown "- [ ] open\n- [x] done" #t)))
+    (and (markdown-list-item? t1) (markdown-list-item? t3))
+    (markdown-list-item=? t1 (task #f (bullet #\- '() (list (paragraph (list (text "open")))))))
+    (not (markdown-list-item=? t1 t2))
+    (equal? (markdown->html doc1)
+            (string-append "<ul>\n"
+                           "<li><input disabled=\"\" type=\"checkbox\"> open</li>\n"
+                           "<li><input checked=\"\" disabled=\"\" type=\"checkbox\"> done</li>\n"
+                           "</ul>\n"))
+    (equal? (markdown->html doc2)
+            (string-append "<ol start=\"1\">\n"
+                           "<li><input checked=\"\" disabled=\"\" type=\"checkbox\"> one</li>\n"
+                           "<li><input disabled=\"\" type=\"checkbox\"> two</li>\n"
+                           "</ol>\n"))
+    (equal? (markdown->sxml doc1)
+            '((ul (li (input (@ (disabled "") (type "checkbox"))) " " "open")
+                  (li (input (@ (checked "") (disabled "") (type "checkbox"))) " " "done"))))
+    (equal? (markdown->string doc1 40) "  [ ] open\n  [x] done"))
+)
+
+(
+  "Markdown pattern matching of new constructs"
+  ((#t "done") (1 "u"))
+  (import (lispkit datatype))
+  (define item (task #t (bullet #\- #t (list (paragraph (list (text "done")))))))
+  (define und (underline (list (text "u"))))
+  (list
+    (match item
+      ((task checked? (bullet ch tight? (list (paragraph (list (text str)))))) (list checked? str))
+      (else '()))
+    (match und
+      ((underline (list (text str))) (list 1 str))
+      (else '())))
+)
+
+(
+  "Markdown task item must wrap a bullet or ordered item"
+  <error>
+  (task #t (task #t (bullet #\- #t '())))
+)
+
+(
+  "Markdown underline requires inline text"
+  <error>
+  (underline "text")
+)
+
+(
+  "Markdown ANSI strings with underline and strikethrough"
+  ("~u~ ~~s~~" "\x1b;[4mu\x1b;[0m \x1b;[9ms\x1b;[0m" "\x1b;[91mu\x1b;[0m \x1b;[96ms\x1b;[0m")
+  (define md (markdown "~u~ ~~s~~" 'full))
+  (list
+    (markdown->string md 40)
+    (markdown->string md 40 #t)
+    (markdown->string md 40 (list #f #f #f #f #f #f #f #f #f #f #f #t 'red 'aqua)))
 )

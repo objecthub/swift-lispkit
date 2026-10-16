@@ -219,6 +219,8 @@ public enum EvalError: Int, Hashable, Codable {
   case notAValidBackgroundColor
   case notAValidTextStyle
   case notAValidTextProperty
+  case notAValidTask
+  case notAValidListItem
   
   public var message: String {
     switch self {
@@ -610,6 +612,10 @@ public enum EvalError: Int, Hashable, Codable {
         return "not a valid text style: $0"
       case .notAValidTextProperty:
         return "invalid text properties: $0"
+      case .notAValidTask:
+        return "task expects a bullet or ordered list-item but received $0"
+      case .notAValidListItem:
+        return "malformed expression of type list-item: $0"
     }
   }
   

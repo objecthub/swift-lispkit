@@ -49,12 +49,15 @@ public final class MarkdownLibrary: NativeLibrary {
   public let listItemType: Expr
   private let bullet: Symbol
   private let ordered: Symbol
-  
+  private let task: Symbol
+
   public let inlineType: Expr
   private let text: Symbol
   private let code: Symbol
   private let emph: Symbol
   private let strong: Symbol
+  private let underline: Symbol
+  private let strikethrough: Symbol
   private let link: Symbol
   private let autoLink: Symbol
   private let emailAutoLink: Symbol
@@ -93,11 +96,14 @@ public final class MarkdownLibrary: NativeLibrary {
     self.listItemType = .pair(.symbol(self.listItemTypeTag), .null)
     self.bullet = context.symbols.intern("bullet")
     self.ordered = context.symbols.intern("ordered")
+    self.task = context.symbols.intern("task")
     self.inlineType = .pair(.symbol(self.inlineTypeTag), .null)
     self.text = context.symbols.intern("text")
     self.code = context.symbols.intern("code")
     self.emph = context.symbols.intern("emph")
     self.strong = context.symbols.intern("strong")
+    self.underline = context.symbols.intern("underline")
+    self.strikethrough = context.symbols.intern("strikethrough")
     self.link = context.symbols.intern("link")
     self.autoLink = context.symbols.intern("auto-link")
     self.emailAutoLink = context.symbols.intern("email-auto-link")
@@ -144,6 +150,7 @@ public final class MarkdownLibrary: NativeLibrary {
     self.define(Procedure("markdown-list-item=?", markdownListItemEquals))
     self.define(Procedure("bullet", bullet))
     self.define(Procedure("ordered", ordered))
+    self.define(Procedure("task", task))
     self.define(Procedure("markdown-text?", isMarkdownText))
     self.define(Procedure("markdown-inline?", isMarkdownInline))
     self.define(Procedure("markdown-inline=?",markdownInlineEquals))
@@ -151,6 +158,8 @@ public final class MarkdownLibrary: NativeLibrary {
     self.define(Procedure("code", code))
     self.define(Procedure("emph", emph))
     self.define(Procedure("strong", strong))
+    self.define(Procedure("underline", underline))
+    self.define(Procedure("strikethrough", strikethrough))
     self.define(Procedure("link", link))
     self.define(Procedure("auto-link", autoLink))
     self.define(Procedure("email-auto-link", emailAutoLink))
@@ -506,7 +515,20 @@ public final class MarkdownLibrary: NativeLibrary {
     try self.checkBlocks(args[args.index(args.startIndex, offsetBy: 3)])
     return res
   }
-  
+
+  private func task(_ args: Arguments) throws -> Expr {
+    let res = try self.makeCase(self.listItemType, self.task, 2, args)
+    guard case .tagged(_, _) = res else {
+      return res
+    }
+    let item = args[args.index(args.startIndex, offsetBy: 1)]
+    guard case .tagged(self.listItemType, .pair(.symbol(let sym), _)) = item,
+          sym == self.bullet || sym == self.ordered else {
+      throw RuntimeError.eval(.notAValidTask, item)
+    }
+    return res
+  }
+
   private func isMarkdownText(_ expr: Expr) -> Expr {
     var list = expr
     while case .pair(.tagged(self.inlineType, _), let rest) = list {
@@ -563,8 +585,25 @@ public final class MarkdownLibrary: NativeLibrary {
     try self.checkText(args.first!)
     return res
   }
-  
-  
+
+  private func underline(_ args: Arguments) throws -> Expr {
+    let res = try self.makeCase(self.inlineType, self.underline, 1, args)
+    guard case .tagged(_, _) = res else {
+      return res
+    }
+    try self.checkText(args.first!)
+    return res
+  }
+
+  private func strikethrough(_ args: Arguments) throws -> Expr {
+    let res = try self.makeCase(self.inlineType, self.strikethrough, 1, args)
+    guard case .tagged(_, _) = res else {
+      return res
+    }
+    try self.checkText(args.first!)
+    return res
+  }
+
   private func link(_ args: Arguments) throws -> Expr {
     let res = try self.makeCase(self.inlineType, self.link, 3, args)
     guard case .tagged(_, _) = res else {
@@ -631,8 +670,14 @@ public final class MarkdownLibrary: NativeLibrary {
   }
   
   private func markdown(_ str: Expr, _ extended: Expr?) throws -> Expr {
-    let parser = (extended?.isTrue ?? false) ? ExtendedMarkdownParser.standard
-                                             : MarkdownParser.standard
+    let parser: MarkdownParser
+    if case .symbol(let sym) = extended, sym.identifier == "full" {
+      parser = FullMarkdownParser.standard
+    } else if extended?.isTrue ?? false {
+      parser = ExtendedMarkdownParser.standard
+    } else {
+      parser = MarkdownParser.standard
+    }
     guard let res = self.externMarkdown(parser.parse(try str.asString())) else {
       return .false
     }
@@ -942,7 +987,8 @@ public final class MarkdownLibrary: NativeLibrary {
   /// The `ansi` parameter is expected to be a list with the following structure:
   /// (headerProperties linkProperties codeProperties codeBlockBorderProperties
   ///  codeBlockLangProperties emphasisProperties strongProperties defTermProperties
-  ///  defDescrProperties blockquoteProperties breakProperties syntaxHighlighting)
+  ///  defDescrProperties blockquoteProperties breakProperties syntaxHighlighting
+  ///  underlineProperties strikethroughProperties)
   private func terminalGenerator(numColumns: Int, ansi: Expr) throws -> TerminalGenerator {
     var list = ansi
     // Extract headerProperties (list of TextProperties)
@@ -1015,7 +1061,8 @@ public final class MarkdownLibrary: NativeLibrary {
     }
     // Extract syntaxHighlighting configuration
     var syntaxHighlighting: TerminalGenerator.SyntaxHighlightingConfig? = .default
-    if case .pair(let head, _) = list {
+    if case .pair(let head, let tail) = list {
+      list = tail
       if head.isFalse {
         syntaxHighlighting = nil
       } else if case .pair(let themeExpr, let hlTail) = head {
@@ -1063,6 +1110,18 @@ public final class MarkdownLibrary: NativeLibrary {
                                 fullColorSupport: fullColorSupport)
       }
     }
+    // Extract underlineProperties
+    var underlineProperties: TextProperties? = nil
+    if case .pair(let head, let tail) = list {
+      underlineProperties = try self.asTextProperties(head)
+      list = tail
+    }
+    // Extract strikethroughProperties
+    var strikethroughProperties: TextProperties? = nil
+    if case .pair(let head, let tail) = list {
+      strikethroughProperties = try self.asTextProperties(head)
+      list = tail
+    }
     return TerminalGenerator(
              numColumns: numColumns,
              headerProperties: headerProperties,
@@ -1072,6 +1131,8 @@ public final class MarkdownLibrary: NativeLibrary {
              codeBlockLangProperties: codeBlockLangProperties,
              emphasisProperties: emphasisProperties,
              strongProperties: strongProperties,
+             underlineProperties: underlineProperties,
+             strikethroughProperties: strikethroughProperties,
              defTermProperties: defTermProperties,
              defDescrProperties: defDescrProperties,
              blockquoteProperties: blockquoteProperties,
@@ -1508,9 +1569,7 @@ public final class MarkdownLibrary: NativeLibrary {
 
   private func internMarkdown(item expr: Expr) throws -> Block {
     guard case .tagged(self.listItemType, .pair(.symbol(let sym), let args)) = expr else {
-      throw RuntimeError.custom("type error",
-                                "expected value of type list-item; received \(expr)",
-                                [])
+      throw RuntimeError.eval(.notAValidListItem, expr)
     }
     switch sym {
       case self.bullet:
@@ -1526,11 +1585,17 @@ public final class MarkdownLibrary: NativeLibrary {
                                     Character(unicodeScalar(try char.asUniChar()))),
                            tight.isTrue ? (tight.isNull ? .initial : .tight) : .loose,
                            try self.internMarkdown(blocks: blocks))
-      }
+        }
+      case self.task:
+        if case .pair(let checked, .pair(let item, .null)) = args,
+           case .listItem(let type, let density, let blocks) = try self.internMarkdown(item: item),
+           !type.isTask {
+          return .listItem(.task(type, checked: checked.isTrue), density, blocks)
+        }
       default:
         break
     }
-    throw RuntimeError.custom("eval error", "malformed expression of type list-item: \(expr)", [])
+    throw RuntimeError.eval(.notAValidListItem, expr)
   }
   
   private func internMarkdown(definitions expr: Expr) throws -> Definitions {
@@ -1640,6 +1705,10 @@ public final class MarkdownLibrary: NativeLibrary {
         return .emph(try self.internMarkdown(text: fst))
       case self.strong:
         return .strong(try self.internMarkdown(text: fst))
+      case self.underline:
+        return .underline(try self.internMarkdown(text: fst))
+      case self.strikethrough:
+        return .strikethrough(try self.internMarkdown(text: fst))
       case self.link:
         if case .pair(let uri, .pair(let title, .null)) = args {
           return .link(try self.internMarkdown(text: fst),
@@ -1735,24 +1804,7 @@ public final class MarkdownLibrary: NativeLibrary {
                               self.externMarkdown(blocks))
         }
       case .listItem(let type, let tight, let blocks):
-        // Task list items are represented like other list items of the same marker
-        switch type.marker {
-          case .bullet(let ch):
-            return self.makeCase(self.listItemType,
-                                 self.bullet,
-                                 .char(ch.utf16.first!),
-                                 self.externDensity(tight),
-                                 self.externMarkdown(blocks))
-          case .ordered(let n, let ch):
-            return self.makeCase(self.listItemType,
-                                 self.ordered,
-                                 .makeNumber(n),
-                                 .char(ch.utf16.first!),
-                                 self.externDensity(tight),
-                                 self.externMarkdown(blocks))
-          case .task(_, _):
-            return nil
-        }
+        return self.externMarkdown(type, tight, blocks)
       case .paragraph(let text):
         return self.makeCase(self.blockType,
                              self.paragraph,
@@ -1798,6 +1850,31 @@ public final class MarkdownLibrary: NativeLibrary {
     }
   }
   
+  private func externMarkdown(_ type: ListType,
+                              _ density: ListDensity,
+                              _ blocks: Blocks) -> Expr {
+    switch type {
+      case .bullet(let ch):
+        return self.makeCase(self.listItemType,
+                             self.bullet,
+                             .char(ch.utf16.first!),
+                             self.externDensity(density),
+                             self.externMarkdown(blocks))
+      case .ordered(let n, let ch):
+        return self.makeCase(self.listItemType,
+                             self.ordered,
+                             .makeNumber(n),
+                             .char(ch.utf16.first!),
+                             self.externDensity(density),
+                             self.externMarkdown(blocks))
+      case .task(let marker, let checked):
+        return self.makeCase(self.listItemType,
+                             self.task,
+                             .makeBoolean(checked),
+                             self.externMarkdown(marker.marker, density, blocks))
+    }
+  }
+
   private func externMarkdown(_ definitions: Definitions) -> Expr {
     var exprs: Exprs = []
     for definition in definitions {
@@ -1846,22 +1923,12 @@ public final class MarkdownLibrary: NativeLibrary {
   
   private func externMarkdown(_ text: Text) -> Expr {
     var exprs: Exprs = []
-    self.externMarkdown(text, into: &exprs)
-    return .makeList(exprs)
-  }
-
-  private func externMarkdown(_ text: Text, into exprs: inout Exprs) {
     for fragment in text {
-      switch fragment {
-        case .underline(let inner), .strikethrough(let inner):
-          // There are no inline types for underlined and struck-through text; keep the text
-          self.externMarkdown(inner, into: &exprs)
-        default:
-          if let expr = self.externMarkdown(fragment) {
-            exprs.append(expr)
-          }
+      if let expr = self.externMarkdown(fragment) {
+        exprs.append(expr)
       }
     }
+    return .makeList(exprs)
   }
 
   private func externMarkdown(_ fragment: TextFragment) -> Expr? {
@@ -1874,8 +1941,10 @@ public final class MarkdownLibrary: NativeLibrary {
         return self.makeCase(self.inlineType, self.emph, self.externMarkdown(text))
       case .strong(let text):
         return self.makeCase(self.inlineType, self.strong, self.externMarkdown(text))
-      case .underline(_), .strikethrough(_):
-        return nil // handled by `externMarkdown(_:into:)`
+      case .underline(let text):
+        return self.makeCase(self.inlineType, self.underline, self.externMarkdown(text))
+      case .strikethrough(let text):
+        return self.makeCase(self.inlineType, self.strikethrough, self.externMarkdown(text))
       case .link(let text, let uri, let title):
         return self.makeCase(self.inlineType,
                              self.link,
@@ -1968,6 +2037,17 @@ open class SXMLGenerator {
     return .pair(self.symbol("@"), res)
   }
   
+  /// Mirrors `HtmlGenerator.generate(taskCheckbox:)`: `<input checked="" disabled="" type="checkbox">`
+  open func checkbox(checked: Bool) -> Expr {
+    var attribs = Expr.null
+    attribs = .pair(.pair(self.symbol("type"), .pair(.makeString("checkbox"), .null)), attribs)
+    attribs = .pair(.pair(self.symbol("disabled"), .pair(.makeString(""), .null)), attribs)
+    if checked {
+      attribs = .pair(.pair(self.symbol("checked"), .pair(.makeString(""), .null)), attribs)
+    }
+    return .pair(self.symbol("input"), .pair(.pair(self.symbol("@"), attribs), .null))
+  }
+
   open func generate(blocks: Blocks, tight: Bool = false) -> Expr {
     var res = Expr.null
     for block in blocks.reversed() {
@@ -1990,11 +2070,20 @@ open class SXMLGenerator {
         } else {
           return .pair(self.symbol("ul"), self.generate(blocks: blocks, tight: tight))
         }
-      case .listItem(_, _, let blocks):
+      case .listItem(let type, _, let blocks):
+        // The checkbox of a task list item is the first thing in its first paragraph
+        let checkbox: Exprs = type.checked.map { [self.checkbox(checked: $0), .makeString(" ")] } ?? []
         if tight, let text = blocks.text {
-          return .pair(self.symbol("li"), self.generate(text: text))
+          return .pair(self.symbol("li"),
+                       checkbox.reversed().reduce(self.generate(text: text)) { .pair($1, $0) })
+        } else if !checkbox.isEmpty, case .paragraph(let text) = blocks.first {
+          let first = Expr.pair(self.symbol("p"),
+                                checkbox.reversed().reduce(self.generate(text: text)) { .pair($1, $0) })
+          return .pair(self.symbol("li"),
+                       .pair(first, self.generate(blocks: Blocks(blocks.dropFirst()))))
         } else {
-          return .pair(self.symbol("li"), self.generate(blocks: blocks))
+          return .pair(self.symbol("li"),
+                       checkbox.reversed().reduce(self.generate(blocks: blocks)) { .pair($1, $0) })
         }
       case .paragraph(let text):
         return .pair(self.symbol("p"), self.generate(text: text))

@@ -48,8 +48,12 @@ At the top-level, a Markdown document consist of a list of _blocks_. The followi
   (bullet ch tight? blocks)
       where (and (char? ch) (markdown-blocks? blocks))
   (ordered num ch tight? blocks)
-      where (and (fixnum? num) (char? ch) (markdown-blocks? blocks)))
+      where (and (fixnum? num) (char? ch) (markdown-blocks? blocks))
+  (task checked? item)
+      where (and (boolean? checked?) (markdown-list-item? item)))
 ```
+
+`(bullet ch tight? blocks)` is an item of a bullet list with bullet character _ch_ and `(ordered num ch tight? blocks)` is an item of an ordered list with number _num_ and delimiter character _ch_ (`.` or `)`). `(task checked? item)` turns a `bullet` or `ordered` list item _item_ into a _task list item_ (written `- [ ] to do` or `- [x] done` in Markdown) with a checkbox that is checked if _checked?_ is true. A task list item is never nested in another one. Task list items are only created when parsing Markdown with the _full_ parser (see `markdown` below).
 
 The most frequent Markdown block type is a paragraph. `(paragraph text)` represents a single paragraph of text where _text_ refers to a list of inline text fragments of type `inline` (see below). `(heading level text)` defines a heading block for a heading of a given level, where _level_ is a number starting with 1 (up to 6). `(indented-code lines)` represents a code block consisting of a list of text lines each represented by a string. `(fenced-code lang lines)` is similar: it defines a code block with code expressed in the given language _lang_. `(html lines)` defines a HTML block consisting of the given lines of text. `(reference-def label dest title)` introduces a reference definition consisting of a given _label_, a destination URI _dest_, as well as a _title_ string. `(table header alignments rows)` defines a table consisting of _headers_, a list of markdown text describing the header of each column, _alignments_, a list of symbols `l` (= left), `c` (= center), and `r` (= right), and _rows_, a list of lists of markdown text. `(definition-list defs)` represents a definition list where _defs_ refers to a list of definitions. A definition has the form `(name def ...)` where _name_ is markdown text defining a name, and _def_ is a bullet item using `:` as bullet character. Finally, `(thematic-break)` introduces a thematic break block separating the previous and following blocks visually, often via a line.
 
@@ -67,6 +71,10 @@ Markdown text is represented as lists of inline text segments, each represented 
       where (markdown-text? text)
   (strong text)
       where (markdown-text? text)
+  (underline text)
+      where (markdown-text? text)
+  (strikethrough text)
+      where (markdown-text? text)
   (link text uri title)
       where (and (markdown-text? text) (string? uri) (string? title))
   (auto-link uri)
@@ -80,7 +88,7 @@ Markdown text is represented as lists of inline text segments, each represented 
   (line-break hard?))
 ```
 
-`(text str)` refers to a text segment consisting of string _str_. `(code str)` refers to a code string _str_ (often displayed as verbatim text). `(emph text)` represents emphasized _text_ (often displayed as italics). `(strong text)` represents _text_ in boldface. `(link text uri title)` represents a hyperlink with _text_ linking to _uri_ and _title_ representing a title for the link. `(auto-link uri)` is a link where _uri_ is both the text and the destination URI. `(email-auto-link email)` is a "mailto:" link to the given email address _email_. `(image text uri title)` inserts an image at _uri_ with image description _text_ and image link title _title_. `(html tag)` represents a single HTML tag of the form `<`_tag_`>`. Finally, `(line-break #f)` introduces a "soft line break", whereas `(line-break #t)` inserts a "hard line break".
+`(text str)` refers to a text segment consisting of string _str_. `(code str)` refers to a code string _str_ (often displayed as verbatim text). `(emph text)` represents emphasized _text_ (often displayed as italics). `(strong text)` represents _text_ in boldface. `(underline text)` represents underlined _text_ and `(strikethrough text)` represents _text_ that is struck through; both are only created when parsing Markdown with the _full_ parser (see `markdown` below). `(link text uri title)` represents a hyperlink with _text_ linking to _uri_ and _title_ representing a title for the link. `(auto-link uri)` is a link where _uri_ is both the text and the destination URI. `(email-auto-link email)` is a "mailto:" link to the given email address _email_. `(image text uri title)` inserts an image at _uri_ with image description _text_ and image link title _title_. `(html tag)` represents a single HTML tag of the form `<`_tag_`>`. Finally, `(line-break #f)` introduces a "soft line break", whereas `(line-break #t)` inserts a "hard line break".
 
 ## Creating Markdown documents
 
@@ -196,8 +204,15 @@ Returns `#t` if _obj_ is a valid markdown document, i.e. an instance of the `doc
 Returns `#t` if markdown documents _lhs_ and _rhs_ are equals; otherwise it returns `#f`.
 
 **(markdown _str_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(markdown _str extended_)**   
 
 Parses the text in Markdown format in _str_ and returns a representation of the abstract syntax using the algebraic datatypes `block`, `list-item`, and `inline`.
+
+The optional argument _extended_ selects the Markdown dialect that is parsed:
+
+- `#f` (the default) parses standard [CommonMark](https://commonmark.org).
+- `#t` additionally supports tables and definition lists.
+- The symbol `full` supports everything supported by `#t`, and in addition underlined text (`~text~`), text that is struck through (`~~text~~`), and task lists (`- [ ] to do` and `- [x] done`). The resulting document may contain `underline` and `strikethrough` inline elements as well as `task` list items.
 
 **(markdown-\>html _md_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 
@@ -229,7 +244,7 @@ _syntax_ configures syntax highlighting for code blocks and is a list with up to
 
 Converts a Markdown document _md_ into a plain-text string suitable for display on a terminal. _md_ needs to satisfy the _markdown?_ predicate. _width_ specifies the number of columns available for typesetting; if _width_ is omitted or `#f`, the current terminal size (as determined by `terminal-size`) is used if available, falling back to 80 columns otherwise.
 
-If _ansi_ is omitted or `#f`, the output is plain text without ANSI escape sequences. If _ansi_ is `#t`, the output uses ANSI escape sequences with default styling for headers, links, code, emphasis, etc. so that the result can be printed to an ANSI-compatible terminal with visual markup. Alternatively, _ansi_ can be a list configuring the styling and colors used for each document element, as well as syntax highlighting for code blocks. This configuration list has up to twelve elements, all of which are optional and can be omitted from the end of the list, or set to `#f` individually to fall back to the corresponding default:
+If _ansi_ is omitted or `#f`, the output is plain text without ANSI escape sequences. If _ansi_ is `#t`, the output uses ANSI escape sequences with default styling for headers, links, code, emphasis, etc. so that the result can be printed to an ANSI-compatible terminal with visual markup. Alternatively, _ansi_ can be a list configuring the styling and colors used for each document element, as well as syntax highlighting for code blocks. This configuration list has up to fourteen elements, all of which are optional and can be omitted from the end of the list, or set to `#f` individually to fall back to the corresponding default:
 
 1. _header-properties_: a list of text properties (see below), one for each header level, e.g. `(h1-properties h2-properties ...)`. Headers for which no entry is provided are typeset using the properties of the last provided entry, or without styling if the list is empty.
 2. _link-properties_: text properties used for typesetting link text.
@@ -243,6 +258,8 @@ If _ansi_ is omitted or `#f`, the output is plain text without ANSI escape seque
 10. _blockquote-properties_: text properties used for typesetting block quotes.
 11. _break-properties_: text properties used for typesetting thematic breaks (horizontal rules).
 12. _syntax-highlighting_: configuration for syntax-highlighting the content of code blocks. `#f` disables syntax highlighting entirely; omitting this element (or ending the list before it) enables syntax highlighting with default settings. Otherwise, this is a list with up to five elements _(theme ignore-syntax-errors? ignored-languages highlight-indented-code-blocks? full-color?)_, all of which are optional: _theme_ is the name of a syntax highlighting theme (a string), or `#f` for the default theme; _ignore-syntax-errors?_ is a boolean determining whether syntactic issues in the code being highlighted should be ignored (default: `#t`); _ignored-languages_ is a list of language name strings for which syntax highlighting is skipped; _highlight-indented-code-blocks?_ is a boolean determining whether indented (as opposed to fenced) code blocks are syntax-highlighted (default: `#t`); _full-color?_ is a boolean determining whether full RGB colors are used for highlighting as opposed to the limited, extended ANSI color palette (default: `#t`).
+13. _underline-properties_: text properties used for underlined text (e.g. `~this~`, supported by the _full_ Markdown parser). The default is `underline`. Since this element follows _syntax-highlighting_, specify `#t` for the latter to keep syntax highlighting enabled with default settings.
+14. _strikethrough-properties_: text properties used for text that is struck through (e.g. `~~this~~`, supported by the _full_ Markdown parser). The default is `strikethrough`.
 
 Each _properties_ argument above is a "text properties" value in one of the following formats:
 
