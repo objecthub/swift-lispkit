@@ -1250,7 +1250,7 @@ public final class MarkdownLibrary: NativeLibrary {
     let attribStrGen = try self.attributedStringGenerator(from: args)
     return .makeString(
       attribStrGen.generateHtml(
-        attribStrGen.htmlGenerator.generate(doc: try self.internMarkdown(block: md))))
+        attribStrGen.htmlGenerator().generate(doc: try self.internMarkdown(block: md))))
   }
   
   private func markdownToStyledText(md: Expr, args: Arguments) throws -> Expr {
@@ -1734,19 +1734,25 @@ public final class MarkdownLibrary: NativeLibrary {
                               .makeBoolean(tight),
                               self.externMarkdown(blocks))
         }
-      case .listItem(.bullet(let ch), let tight, let blocks):
-        return self.makeCase(self.listItemType,
-                             self.bullet,
-                             .char(ch.utf16.first!),
-                             self.externDensity(tight),
-                             self.externMarkdown(blocks))
-      case .listItem(.ordered(let n, let ch), let tight, let blocks):
-        return self.makeCase(self.listItemType,
-                             self.ordered,
-                             .makeNumber(n),
-                             .char(ch.utf16.first!),
-                             self.externDensity(tight),
-                             self.externMarkdown(blocks))
+      case .listItem(let type, let tight, let blocks):
+        // Task list items are represented like other list items of the same marker
+        switch type.marker {
+          case .bullet(let ch):
+            return self.makeCase(self.listItemType,
+                                 self.bullet,
+                                 .char(ch.utf16.first!),
+                                 self.externDensity(tight),
+                                 self.externMarkdown(blocks))
+          case .ordered(let n, let ch):
+            return self.makeCase(self.listItemType,
+                                 self.ordered,
+                                 .makeNumber(n),
+                                 .char(ch.utf16.first!),
+                                 self.externDensity(tight),
+                                 self.externMarkdown(blocks))
+          case .task(_, _):
+            return nil
+        }
       case .paragraph(let text):
         return self.makeCase(self.blockType,
                              self.paragraph,
@@ -1840,12 +1846,22 @@ public final class MarkdownLibrary: NativeLibrary {
   
   private func externMarkdown(_ text: Text) -> Expr {
     var exprs: Exprs = []
+    self.externMarkdown(text, into: &exprs)
+    return .makeList(exprs)
+  }
+
+  private func externMarkdown(_ text: Text, into exprs: inout Exprs) {
     for fragment in text {
-      if let expr = self.externMarkdown(fragment) {
-        exprs.append(expr)
+      switch fragment {
+        case .underline(let inner), .strikethrough(let inner):
+          // There are no inline types for underlined and struck-through text; keep the text
+          self.externMarkdown(inner, into: &exprs)
+        default:
+          if let expr = self.externMarkdown(fragment) {
+            exprs.append(expr)
+          }
       }
     }
-    return .makeList(exprs)
   }
 
   private func externMarkdown(_ fragment: TextFragment) -> Expr? {
@@ -1858,6 +1874,8 @@ public final class MarkdownLibrary: NativeLibrary {
         return self.makeCase(self.inlineType, self.emph, self.externMarkdown(text))
       case .strong(let text):
         return self.makeCase(self.inlineType, self.strong, self.externMarkdown(text))
+      case .underline(_), .strikethrough(_):
+        return nil // handled by `externMarkdown(_:into:)`
       case .link(let text, let uri, let title):
         return self.makeCase(self.inlineType,
                              self.link,
@@ -2105,6 +2123,10 @@ open class SXMLGenerator {
         return .pair(self.symbol("em"), .pair(self.generate(text: text), .null))
       case .strong(let text):
         return .pair(self.symbol("strong"), .pair(self.generate(text: text), .null))
+      case .underline(let text):
+        return .pair(self.symbol("u"), .pair(self.generate(text: text), .null))
+      case .strikethrough(let text):
+        return .pair(self.symbol("del"), .pair(self.generate(text: text), .null))
       case .link(let text, let uri, let title):
         let titleAttr: Expr = title == nil ? .null : .pair(.pair(self.symbol("title"),
                                                                  .pair(.makeString(title!), .null)),

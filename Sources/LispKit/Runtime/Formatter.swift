@@ -420,7 +420,7 @@ class FormatArguments: CLFormat.Arguments {
   }
 }
 
-public class SExprDirectiveSpecifier: DirectiveSpecifier {
+public final class SExprDirectiveSpecifier: DirectiveSpecifier, @unchecked Sendable {
   public unowned let context: Context
   
   public init(context: Context) {
