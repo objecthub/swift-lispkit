@@ -503,6 +503,7 @@
 		CC7D4B7C2A2559BC0066BA94 /* CLFormat in Frameworks */ = {isa = PBXBuildFile; productRef = CC7D4B7B2A2559BC0066BA94 /* CLFormat */; };
 		CC7D4B7E2A2A49B50066BA94 /* Formatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC7D4B7D2A2A49B50066BA94 /* Formatter.swift */; };
 		CC7D4B7F2A2A49B50066BA94 /* Formatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC7D4B7D2A2A49B50066BA94 /* Formatter.swift */; };
+		CC7E57A100000000000000A2 /* HTTPServerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC7E57A100000000000000A1 /* HTTPServerTests.swift */; };
 		CC7E7C2624564D85002E8A73 /* Covid.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC7E7C2524564D33002E8A73 /* Covid.scm */; };
 		CC7E7C8A24565378002E8A73 /* Covid.sqlite3 in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C882456515A002E8A73 /* Covid.sqlite3 */; };
 		CC7E7C8B24565378002E8A73 /* 2020-02-20.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7E7C6124564FBE002E8A73 /* 2020-02-20.data */; };
@@ -3689,6 +3690,7 @@
 		CC7D4B752A208EF90066BA94 /* Format.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Format.scm; sourceTree = "<group>"; };
 		CC7D4B782A2554760066BA94 /* 239.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 239.sld; sourceTree = "<group>"; };
 		CC7D4B7D2A2A49B50066BA94 /* Formatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Formatter.swift; sourceTree = "<group>"; };
+		CC7E57A100000000000000A1 /* HTTPServerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPServerTests.swift; sourceTree = "<group>"; };
 		CC7E7C2524564D33002E8A73 /* Covid.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Covid.scm; sourceTree = "<group>"; };
 		CC7E7C2924564FBB002E8A73 /* 2020-03-18.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-03-18.data"; sourceTree = "<group>"; };
 		CC7E7C2C24564FBB002E8A73 /* 2020-03-29.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-03-29.data"; sourceTree = "<group>"; };
@@ -5133,6 +5135,7 @@
 			children = (
 				CC131C4F1CDE0E01006C030C /* LispKitTestCase.swift */,
 				CCAD52C91C48403900DBD8EE /* SmallTests.swift */,
+				CC7E57A100000000000000A1 /* HTTPServerTests.swift */,
 				CC131C4D1CDE0DCA006C030C /* RegressionTests.swift */,
 				CCAD52CB1C48403900DBD8EE /* Info.plist */,
 				CC131C4A1CDE0C3D006C030C /* Code */,
@@ -6084,6 +6087,7 @@
 				CC131C501CDE0E01006C030C /* LispKitTestCase.swift in Sources */,
 				CC131C4E1CDE0DCA006C030C /* RegressionTests.swift in Sources */,
 				CCAD52CA1C48403900DBD8EE /* SmallTests.swift in Sources */,
+				CC7E57A100000000000000A2 /* HTTPServerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
