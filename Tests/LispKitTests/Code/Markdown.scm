@@ -243,3 +243,133 @@
     (markdown->string md 40 #t)
     (markdown->string md 40 (list #f #f #f #f #f #f #f #f #f #f #f #t 'red 'aqua)))
 )
+
+(
+  "Markdown style configurations"
+  #t
+  (define legacy
+    (markdown-style-config '(18 "Helvetica" "#123456") '(11 #f "#222") '(10 "#111" "#eee")
+                           '("#aaa" #f "#f00" "#0f0") '("xcode" #f ("scheme") #f)))
+  (and
+    (equal? (markdown-style-config) '())
+    (equal? (markdown-style-config #f #f #f #f #f) '())
+    (equal? legacy
+            '((font-size . 18) (font-family . "Helvetica") (font-color . "#123456")
+              (code-font-size . 11) (code-font-color . "#222")
+              (code-block-font-size . 10) (code-block-font-color . "#111")
+              (code-block-background . "#eee")
+              (border-color . "#aaa") (h1-color . "#f00") (h2-color . "#0f0")
+              (syntax-highlighting (theme . "xcode") (ignore-syntax-errors . #f)
+                                   (ignored-languages "scheme")
+                                   (highlight-indented-code-blocks . #f))))
+    (equal? (markdown-style-config #f #f #f #f #t) '((syntax-highlighting . #f)))
+    (equal? (markdown-style-config #f #f #f #f '()) '((syntax-highlighting . #f)))
+    (equal? (markdown-style-config #f #f #f #f '(#f #f))
+            '((syntax-highlighting (ignore-syntax-errors . #f)))))
+)
+
+(
+  "Markdown HTML documents with configurations"
+  (#t #t #t #t #t #t #t #t #t #t #t #t #t #t)
+  (import (lispkit string))
+  (define md (markdown (string-append "# Head\n\nText ![img](http://example.org/a.png) "
+                                      "<b>raw</b>\n\n```scheme\n(+ 1 2)\n```\n")))
+  (define (has? str sub) (and (string-contains str sub) #t))
+  (define default (markdown->html-doc md))
+  (define restricted (markdown->html-doc md '((remote-images . none) (safe-mode . #t))))
+  (define styled (markdown->html-doc md '((font-family . "Zapfino") (h1-color . "#abcdef")
+                                          (custom-style . "p.mine { x: y }")
+                                          (max-image-width . "123px")
+                                          (max-image-height . "45px"))))
+  (define first-wins (markdown->html-doc md '((font-family . "First") (font-family . "Second"))))
+  (define ported (markdown->html-doc md (markdown-style-config '(30 "Verdana" "#654321"))))
+  (define untrusted (markdown->html-doc md '((preset . untrusted) (remote-images . any))))
+  (list
+    (has? default "example.org/a.png")
+    (has? default "<b>raw</b>")
+    (not (has? restricted "example.org/a.png"))
+    (not (has? restricted "<b>raw</b>"))
+    (has? styled "Zapfino")
+    (has? styled "#abcdef")
+    (has? styled "p.mine { x: y }")
+    (and (has? styled "123px") (has? styled "45px"))
+    (and (has? first-wins "First") (not (has? first-wins "Second")))
+    (and (has? ported "Verdana") (has? ported "#654321"))
+    (has? untrusted "example.org/a.png")
+    (not (has? untrusted "<b>raw</b>"))
+    (string? (markdown->html-doc md #f))
+    (string? (markdown->html-doc md '((syntax-highlighting . #f) (tight-lists . #t)
+                                      (version . pre-os26)))))
+)
+
+(
+  "Markdown styled text"
+  (#t #t #t #t #t #t)
+  (import (lispkit styled-text))
+  (define md (markdown "# Title\n\nSome *text* and `code`.\n\n- [x] done\n- [ ] open\n" 'full))
+  (list
+    (styled-text? (markdown->styled-text md))
+    (styled-text? (markdown->styled-text md #f))
+    (styled-text? (markdown->styled-text md '()))
+    (styled-text? (markdown->styled-text md '((font-size . 20) (font-family . "Helvetica")
+                                              (preset . untrusted) (timeout . 20)
+                                              (text-size-multiplier . 1.5)
+                                              (syntax-highlighting . #f))))
+    (styled-text? (markdown->styled-text md (markdown-style-config '(12 "Menlo" "#112233")
+                                                                   #f #f #f #t)))
+    (styled-text? (markdown->styled-text md '((version . pre-os26) (tight-lists . #t)))))
+)
+
+(
+  "Markdown configuration with unknown key"
+  <error>
+  (markdown->html-doc (markdown "text") '((no-such-key . 1)))
+)
+
+(
+  "Markdown configuration with wrongly typed value"
+  <error>
+  (markdown->html-doc (markdown "text") '((font-size . "big")))
+)
+
+(
+  "Markdown configuration that is no association list"
+  <error>
+  (markdown->html-doc (markdown "text") 42)
+)
+
+(
+  "Markdown configuration in legacy positional form"
+  <error>
+  (markdown->html-doc (markdown "text") '(18 "Helvetica" "#000000"))
+)
+
+(
+  "Markdown configuration with invalid image access"
+  <error>
+  (markdown->html-doc (markdown "text") '((local-images . 5)))
+)
+
+(
+  "Markdown configuration with invalid version"
+  <error>
+  (markdown->styled-text (markdown "text") '((version . future)))
+)
+
+(
+  "Markdown configuration with invalid timeout"
+  <error>
+  (markdown->styled-text (markdown "text") '((timeout . -3)))
+)
+
+(
+  "Markdown positional style arguments are not supported anymore"
+  <error>
+  (markdown->styled-text (markdown "text") '(14 "Helvetica" "#000000") #f)
+)
+
+(
+  "Markdown style configuration with invalid argument"
+  <error>
+  (markdown-style-config '(12 "Menlo" "#112233" "too many"))
+)

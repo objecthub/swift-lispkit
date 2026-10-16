@@ -170,6 +170,7 @@ public final class MarkdownLibrary: NativeLibrary {
     self.define(Procedure("markdown?", isMarkdown))
     self.define(Procedure("markdown=?", markdownEquals))
     self.define(Procedure("markdown->string", markdownToString))
+    self.define(Procedure("markdown-style-config", markdownStyleConfig))
     self.define(Procedure("markdown->styled-text", markdownToStyledText))
     self.define(Procedure("markdown->html-doc", markdownToHtmlDoc))
     self.define(Procedure("markdown->html", markdownToHtml))
@@ -1165,130 +1166,283 @@ public final class MarkdownLibrary: NativeLibrary {
     }
   }
   
-  private func attributedStringGenerator(from args: Arguments) throws -> AttributedStringGenerator {
-    var fontSize: Float = 14.0
-    var fontFamily = "\"Times New Roman\",Times,serif"
-    var fontColor = MarkdownKit.mdDefaultColor
-    var codeFontSize: Float = 13.0
-    var codeFontFamily = "\"Consolas\",\"Andale Mono\",\"Courier New\",Courier,monospace"
-    var codeFontColor = MarkdownKit.mdDefaultColor
-    var codeBlockFontSize: Float = 12.0
-    var codeBlockFontColor = MarkdownKit.mdDefaultColor
-    var codeBlockBackground = MarkdownKit.mdDefaultBackgroundColor
-    var syntaxHighlighting: AttributedStringGenerator.SyntaxHighlightingConfig? = .default
-    var borderColor = "#bbb"
-    var blockquoteColor = "#99c"
-    var h1Color = MarkdownKit.mdDefaultColor
-    var h2Color = MarkdownKit.mdDefaultColor
-    var h3Color = MarkdownKit.mdDefaultColor
-    var h4Color = MarkdownKit.mdDefaultColor
-    if args.count > 0 && args.first!.isTrue {
-      (fontSize, fontFamily, fontColor) = try self.asSizeFontColor(args.first!,
-                                                                   defaultSize: fontSize,
-                                                                   defaultFont: fontFamily,
-                                                                   defaultColor: fontColor)
+  // MARK: - Configuration of attributed string generators
+  
+  private typealias RenderingOptions = AttributedStringGenerator.RenderingOptions
+  private typealias ImageAccess = AttributedStringGenerator.ImageAccess
+  private typealias ConfigEntries = [String : (entry: Expr, value: Expr)]
+  
+  /// Keys of the association lists configuring attributed string generators
+  private static let configKeys: Set<String> = [
+    "font-size", "font-family", "font-color",
+    "code-font-size", "code-font-family", "code-font-color",
+    "code-block-font-size", "code-block-font-color", "code-block-background",
+    "border-color", "blockquote-color", "h1-color", "h2-color", "h3-color", "h4-color",
+    "syntax-highlighting", "tight-lists", "version",
+    "max-image-width", "max-image-height", "custom-style", "image-base-url",
+    "preset", "base-url", "timeout", "local-images", "remote-images", "image-extensions",
+    "safe-mode", "text-size-multiplier"
+  ]
+  
+  /// Keys of the association lists configuring syntax highlighting
+  private static let syntaxHighlightingKeys: Set<String> = [
+    "theme", "ignore-syntax-errors", "ignored-languages", "highlight-indented-code-blocks"
+  ]
+  
+  /// Extracts the entries of a configuration, i.e. an association list with symbol keys, for a
+  /// given set of allowed keys. If a key occurs more than once, the first occurrence is used.
+  /// `#f` and `()` stand for empty configurations.
+  private func configEntries(_ config: Expr?, allowed: Set<String>) throws -> ConfigEntries {
+    guard let config = config, !config.isFalse else {
+      return [:]
     }
-    if args.count > 1 && args[args.startIndex + 1].isTrue {
-      (codeFontSize, codeFontFamily, codeFontColor) =
-      try self.asSizeFontColor(args[args.startIndex + 1],
-                               defaultSize: codeFontSize,
-                               defaultFont: codeFontFamily,
-                               defaultColor: codeFontColor)
+    var entries: ConfigEntries = [:]
+    var list = config
+    while case .pair(let entry, let rest) = list {
+      guard case .pair(.symbol(let sym), let value) = entry, allowed.contains(sym.identifier) else {
+        throw RuntimeError.eval(.notAValidMarkdownConfig, entry)
+      }
+      if entries[sym.identifier] == nil {
+        entries[sym.identifier] = (entry, value)
+      }
+      list = rest
     }
-    if args.count > 2 && args[args.startIndex + 2].isTrue {
-      (codeBlockFontSize, codeBlockFontColor, codeBlockBackground) =
-      try self.asSizeFontColor(args[args.startIndex + 2],
-                               defaultSize: codeBlockFontSize,
-                               defaultFont: codeBlockFontColor,
-                               defaultColor: codeBlockBackground)
+    guard list.isNull else {
+      throw RuntimeError.eval(.notAValidMarkdownConfig, config)
     }
-    if args.count > 3 && args[args.startIndex + 3].isTrue {
-      var list = args[args.startIndex + 3]
-      if case .pair(let head, let tail) = list {
-        if !head.isFalse {
-          borderColor = try head.asString()
-        }
-        list = tail
-      }
-      if case .pair(let head, let tail) = list {
-        if !head.isFalse {
-          blockquoteColor = try head.asString()
-        }
-        list = tail
-      }
-      if case .pair(let head, let tail) = list {
-        if !head.isFalse {
-          h1Color = try head.asString()
-        }
-        list = tail
-      }
-      if case .pair(let head, let tail) = list {
-        if !head.isFalse {
-          h2Color = try head.asString()
-        }
-        list = tail
-      }
-      if case .pair(let head, let tail) = list {
-        if !head.isFalse {
-          h3Color = try head.asString()
-        }
-        list = tail
-      }
-      if case .pair(let head, _) = list {
-        if !head.isFalse {
-          h4Color = try head.asString()
-        }
-      }
+    return entries
+  }
+  
+  /// Returns the string value for `key`; `nil` if the key is missing or its value is `#f`.
+  private func configString(_ entries: ConfigEntries, _ key: String) throws -> String? {
+    guard let (entry, value) = entries[key], !value.isFalse else {
+      return nil
     }
-    if args.count > 4 && args[args.startIndex + 4].isTrue {
-      var list = args[args.startIndex + 4]
-      var theme: String? = nil
-      var ignoreSyntacticIssues: Bool? = nil
-      var ignoredLanguages: Set<String>? = nil
-      var highlightIndentedCodeBlocks: Bool? = nil
-      switch list {
-        case .null, .true:
-          syntaxHighlighting = nil
-        case .pair(let head, let tail):
-          if head.isTrue {
-            theme = try head.asString()
+    guard case .string(let str) = value else {
+      throw RuntimeError.eval(.notAValidMarkdownConfig, entry)
+    }
+    return str as String
+  }
+  
+  /// Returns the number for `key`; `nil` if the key is missing or its value is `#f`.
+  private func configDouble(_ entries: ConfigEntries, _ key: String) throws -> Double? {
+    guard let (entry, value) = entries[key], !value.isFalse else {
+      return nil
+    }
+    switch value {
+      case .fixnum(let n):
+        return Double(n)
+      case .flonum(let x):
+        return x
+      default:
+        throw RuntimeError.eval(.notAValidMarkdownConfig, entry)
+    }
+  }
+  
+  /// Returns the boolean for `key`; `nil` if the key is missing.
+  private func configBool(_ entries: ConfigEntries, _ key: String) throws -> Bool? {
+    guard let (entry, value) = entries[key] else {
+      return nil
+    }
+    switch value {
+      case .true:
+        return true
+      case .false:
+        return false
+      default:
+        throw RuntimeError.eval(.notAValidMarkdownConfig, entry)
+    }
+  }
+  
+  /// Returns the list of strings for `key`; `nil` if the key is missing or its value is `#f`.
+  private func configStrings(_ entries: ConfigEntries, _ key: String) throws -> [String]? {
+    guard let (entry, value) = entries[key], !value.isFalse else {
+      return nil
+    }
+    var res: [String] = []
+    var list = value
+    while case .pair(.string(let str), let rest) = list {
+      res.append(str as String)
+      list = rest
+    }
+    guard list.isNull else {
+      throw RuntimeError.eval(.notAValidMarkdownConfig, entry)
+    }
+    return res
+  }
+  
+  /// Returns the name of the symbol for `key` if it is one of `names`; `nil` if the key is
+  /// missing or its value is `#f`.
+  private func configSymbol(_ entries: ConfigEntries,
+                            _ key: String,
+                            in names: Set<String>) throws -> String? {
+    guard let (entry, value) = entries[key], !value.isFalse else {
+      return nil
+    }
+    guard case .symbol(let sym) = value, names.contains(sym.identifier) else {
+      throw RuntimeError.eval(.notAValidMarkdownConfig, entry)
+    }
+    return sym.identifier
+  }
+  
+  /// Maps a string to a URL. Strings starting with a scheme like `http:` are interpreted as
+  /// URLs, all other strings as paths (relative to the current directory) of directories.
+  private func asURL(_ str: String) -> URL {
+    if let url = URL(string: str),
+       let scheme = url.scheme?.lowercased(),
+       ["http", "https", "file"].contains(scheme) {
+      return url
+    }
+    return URL(fileURLWithPath: self.context.fileHandler.path(
+                                  str,
+                                  relativeTo: self.context.evaluator.currentDirectoryPath),
+               isDirectory: true)
+  }
+  
+  private func configURL(_ entries: ConfigEntries, _ key: String) throws -> URL? {
+    return try self.configString(entries, key).map { self.asURL($0) }
+  }
+  
+  /// Returns the image access for `key`: `none`, `any`, or a string for restricting access to
+  /// a directory (local images) or to a web site (remote images).
+  private func configImageAccess(_ entries: ConfigEntries,
+                                 _ key: String,
+                                 remote: Bool) throws -> ImageAccess? {
+    guard let (entry, value) = entries[key], !value.isFalse else {
+      return nil
+    }
+    switch value {
+      case .symbol(let sym) where sym.identifier == "none":
+        return ImageAccess.none
+      case .symbol(let sym) where sym.identifier == "any":
+        return ImageAccess.any
+      case .string(let str):
+        if remote {
+          guard let url = URL(string: str as String),
+                let scheme = url.scheme?.lowercased(),
+                scheme == "http" || scheme == "https" else {
+            throw RuntimeError.eval(.notAValidMarkdownConfig, entry)
           }
-          list = tail
-        default:
-          break
-      }
-      if case .pair(let head, let tail) = list {
-        if !head.isNull {
-          ignoreSyntacticIssues = head.isTrue
+          return ImageAccess.within(url)
+        } else {
+          return ImageAccess.within(self.asURL(str as String))
         }
-        list = tail
-      }
-      if case .pair(var head, let tail) = list {
-        if head.isTrue {
-          ignoredLanguages = []
-          while case .pair(let x, let next) = head {
-            ignoredLanguages?.insert(try x.asString())
-            head = next
-          }
-        }
-        list = tail
-      }
-      if case .pair(let head, let tail) = list {
-        if !head.isNull {
-          highlightIndentedCodeBlocks = head.isTrue
-        }
-        list = tail
-      }
-      if let hl = syntaxHighlighting {
-        syntaxHighlighting = .init(
-          theme: theme ?? hl.theme,
-          ignoreSyntacticIssues: ignoreSyntacticIssues ?? hl.ignoreSyntacticIssues,
-          ignoredLanguages: ignoredLanguages ?? hl.ignoredLanguages,
-          highlightIndentedCodeBlocks: highlightIndentedCodeBlocks ??
+      default:
+        throw RuntimeError.eval(.notAValidMarkdownConfig, entry)
+    }
+  }
+  
+  private func syntaxHighlightingConfig(
+                 _ entry: Expr,
+                 _ value: Expr) throws -> AttributedStringGenerator.SyntaxHighlightingConfig? {
+    switch value {
+      case .false:
+        return nil
+      case .true, .null:
+        return .default
+      default:
+        let entries = try self.configEntries(value,
+                                             allowed: MarkdownLibrary.syntaxHighlightingKeys)
+        let hl = AttributedStringGenerator.SyntaxHighlightingConfig.default
+        return .init(
+          theme: try self.configString(entries, "theme") ?? hl.theme,
+          ignoreSyntacticIssues: try self.configBool(entries, "ignore-syntax-errors") ??
+                                 hl.ignoreSyntacticIssues,
+          ignoredLanguages: Set(try self.configStrings(entries, "ignored-languages") ??
+                                Array(hl.ignoredLanguages)),
+          highlightIndentedCodeBlocks: try self.configBool(entries,
+                                                           "highlight-indented-code-blocks") ??
                                        hl.highlightIndentedCodeBlocks)
+    }
+  }
+  
+  /// Creates an attributed string generator from a configuration, i.e. an association list with
+  /// symbol keys (see `MarkdownLibrary.configKeys`). The first entry for a key is used. All
+  /// entries are optional; `#f` and `()` stand for the default configuration.
+  private func attributedStringGenerator(config: Expr?) throws -> AttributedStringGenerator {
+    let entries = try self.configEntries(config, allowed: MarkdownLibrary.configKeys)
+    // Fonts and colors
+    let defaultColor = MarkdownKit.mdDefaultColor
+    let fontSize = try self.configDouble(entries, "font-size").map { Float($0) } ?? 14.0
+    let fontFamily = try self.configString(entries, "font-family") ??
+                     "\"Times New Roman\",Times,serif"
+    let fontColor = try self.configString(entries, "font-color") ?? defaultColor
+    let codeFontSize = try self.configDouble(entries, "code-font-size").map { Float($0) } ?? 13.0
+    let codeFontFamily = try self.configString(entries, "code-font-family") ??
+      "\"Consolas\",\"Andale Mono\",\"Courier New\",Courier,monospace"
+    let codeFontColor = try self.configString(entries, "code-font-color") ?? defaultColor
+    let codeBlockFontSize = try self.configDouble(entries, "code-block-font-size")
+                                .map { Float($0) } ?? 12.0
+    let codeBlockFontColor = try self.configString(entries, "code-block-font-color") ??
+                             defaultColor
+    let codeBlockBackground = try self.configString(entries, "code-block-background") ??
+                              MarkdownKit.mdDefaultBackgroundColor
+    let borderColor = try self.configString(entries, "border-color") ?? "#bbb"
+    let blockquoteColor = try self.configString(entries, "blockquote-color") ?? "#99c"
+    let h1Color = try self.configString(entries, "h1-color") ?? defaultColor
+    let h2Color = try self.configString(entries, "h2-color") ?? defaultColor
+    let h3Color = try self.configString(entries, "h3-color") ?? defaultColor
+    let h4Color = try self.configString(entries, "h4-color") ?? defaultColor
+    // Syntax highlighting
+    var syntaxHighlighting: AttributedStringGenerator.SyntaxHighlightingConfig? = .default
+    if let (entry, value) = entries["syntax-highlighting"] {
+      syntaxHighlighting = try self.syntaxHighlightingConfig(entry, value)
+    }
+    // Generator options
+    let version: AttributedStringGenerator.Version
+    switch try self.configSymbol(entries, "version", in: ["os26", "pre-os26"]) {
+      case .some("pre-os26"):
+        version = .preOS26
+      default:
+        version = .OS26
+    }
+    var options: AttributedStringGenerator.Options = []
+    if try self.configBool(entries, "tight-lists") ?? false {
+      options.insert(.tightLists)
+    }
+    let maxImageWidth = try self.configString(entries, "max-image-width")
+    let maxImageHeight = try self.configString(entries, "max-image-height")
+    let customStyle = try self.configString(entries, "custom-style") ?? ""
+    let imageBaseUrl = try self.configURL(entries, "image-base-url")
+    // Rendering options
+    let preset: RenderingOptions
+    switch try self.configSymbol(entries, "preset", in: ["trusted", "untrusted"]) {
+      case .some("untrusted"):
+        preset = .untrusted
+      default:
+        preset = .trusted
+    }
+    var timeout = preset.timeout
+    if let (entry, value) = entries["timeout"] {
+      if value.isFalse {
+        timeout = nil
+      } else if let seconds = try self.configDouble(entries, "timeout"), seconds > 0.0 {
+        timeout = seconds
+      } else {
+        throw RuntimeError.eval(.notAValidMarkdownConfig, entry)
       }
     }
-    return AttributedStringGenerator(fontSize: fontSize,
+    var textSizeMultiplier = preset.textSizeMultiplier
+    if let multiplier = try self.configDouble(entries, "text-size-multiplier") {
+      guard multiplier > 0.0 else {
+        throw RuntimeError.eval(.notAValidMarkdownConfig, entries["text-size-multiplier"]!.entry)
+      }
+      textSizeMultiplier = multiplier
+    }
+    let renderingOptions = RenderingOptions(
+      baseUrl: try self.configURL(entries, "base-url") ?? preset.baseUrl,
+      timeout: timeout,
+      localImages: try self.configImageAccess(entries, "local-images", remote: false) ??
+                   preset.localImages,
+      remoteImages: try self.configImageAccess(entries, "remote-images", remote: true) ??
+                    preset.remoteImages,
+      imageExtensions: try self.configStrings(entries, "image-extensions").map { Set($0) } ??
+                       preset.imageExtensions,
+      safeMode: try self.configBool(entries, "safe-mode") ?? preset.safeMode,
+      textSizeMultiplier: textSizeMultiplier)
+    return AttributedStringGenerator(version: version,
+                                     options: options,
+                                     fontSize: fontSize,
                                      fontFamily: fontFamily,
                                      fontColor: fontColor,
                                      codeFontSize: codeFontSize,
@@ -1304,51 +1458,234 @@ public final class MarkdownLibrary: NativeLibrary {
                                      h1Color: h1Color,
                                      h2Color: h2Color,
                                      h3Color: h3Color,
-                                     h4Color: h4Color)
+                                     h4Color: h4Color,
+                                     maxImageWidth: maxImageWidth,
+                                     maxImageHeight: maxImageHeight,
+                                     customStyle: customStyle,
+                                     imageBaseUrl: imageBaseUrl,
+                                     renderingOptions: renderingOptions)
   }
   
-  private func markdownToHtmlDoc(md: Expr, args: Arguments) throws -> Expr {
-    let attribStrGen = try self.attributedStringGenerator(from: args)
+  // MARK: - Converting positional style arguments into configurations
+  
+  private func configSymbol(_ name: String) -> Expr {
+    return .symbol(self.context.symbols.intern(name))
+  }
+  
+  /// Maps a list `(v0 v1 ...)` of up to `keys.count` values, where `#f` stands for "not
+  /// specified", to the entries for `keys`. The first value needs to be a number if
+  /// `numeric` is true; all other values need to be strings.
+  private func legacyEntries(_ expr: Expr,
+                             keys: [String],
+                             numeric: Bool) throws -> [(String, Expr)] {
+    guard !expr.isFalse else {
+      return []
+    }
+    var res: [(String, Expr)] = []
+    var list = expr
+    var i = 0
+    while case .pair(let value, let rest) = list {
+      guard i < keys.count else {
+        throw RuntimeError.eval(.notAValidMarkdownConfig, expr)
+      }
+      if !value.isFalse {
+        switch value {
+          case .fixnum(_), .flonum(_):
+            guard numeric && i == 0 else {
+              throw RuntimeError.eval(.notAValidMarkdownConfig, expr)
+            }
+          case .string(_):
+            guard !(numeric && i == 0) else {
+              throw RuntimeError.eval(.notAValidMarkdownConfig, expr)
+            }
+          default:
+            throw RuntimeError.eval(.notAValidMarkdownConfig, expr)
+        }
+        res.append((keys[i], value))
+      }
+      list = rest
+      i += 1
+    }
+    guard list.isNull else {
+      throw RuntimeError.eval(.notAValidMarkdownConfig, expr)
+    }
+    return res
+  }
+  
+  /// Maps the legacy argument for syntax highlighting, a list
+  /// `(theme ignore-syntax-errors? ignored-languages highlight-indented-code-blocks?)`, to
+  /// configuration entries. In the legacy format, `#f` stands for the default configuration,
+  /// whereas `#t` and `()` disable syntax highlighting.
+  private func legacySyntaxEntries(_ expr: Expr) throws -> [(String, Expr)] {
+    switch expr {
+      case .false:
+        return []
+      case .true, .null:
+        return [("syntax-highlighting", .false)]
+      case .pair(_, _):
+        var res: [(String, Expr)] = []
+        var list = expr
+        var i = 0
+        while case .pair(let value, let rest) = list {
+          switch i {
+            case 0:
+              if !value.isFalse {
+                guard case .string(_) = value else {
+                  throw RuntimeError.eval(.notAValidMarkdownConfig, expr)
+                }
+                res.append(("theme", value))
+              }
+            case 1:
+              if !value.isNull {
+                res.append(("ignore-syntax-errors", .makeBoolean(value.isTrue)))
+              }
+            case 2:
+              if !value.isFalse {
+                var langs = value
+                while case .pair(.string(_), let next) = langs {
+                  langs = next
+                }
+                guard langs.isNull else {
+                  throw RuntimeError.eval(.notAValidMarkdownConfig, expr)
+                }
+                res.append(("ignored-languages", value))
+              }
+            case 3:
+              if !value.isNull {
+                res.append(("highlight-indented-code-blocks", .makeBoolean(value.isTrue)))
+              }
+            default:
+              throw RuntimeError.eval(.notAValidMarkdownConfig, expr)
+          }
+          list = rest
+          i += 1
+        }
+        guard list.isNull else {
+          throw RuntimeError.eval(.notAValidMarkdownConfig, expr)
+        }
+        return [("syntax-highlighting",
+                 .makeList(Exprs(res.map { .pair(self.configSymbol($0.0), $0.1) })))]
+      default:
+        throw RuntimeError.eval(.notAValidMarkdownConfig, expr)
+    }
+  }
+  
+  /// Implements `markdown-style-config`, which maps the positional arguments for configuring
+  /// the style of attributed strings and HTML documents to a configuration.
+  private func markdownStyleConfig(_ args: Arguments) throws -> Expr {
+    guard args.count <= 5 else {
+      throw RuntimeError.argumentCount(min: 0, max: 5, args: .makeList(args))
+    }
+    let args = Array(args)
+    var entries: [(String, Expr)] = []
+    if args.count > 0 {
+      entries += try self.legacyEntries(args[0],
+                                        keys: ["font-size", "font-family", "font-color"],
+                                        numeric: true)
+    }
+    if args.count > 1 {
+      entries += try self.legacyEntries(args[1],
+                                        keys: ["code-font-size",
+                                               "code-font-family",
+                                               "code-font-color"],
+                                        numeric: true)
+    }
+    if args.count > 2 {
+      entries += try self.legacyEntries(args[2],
+                                        keys: ["code-block-font-size",
+                                               "code-block-font-color",
+                                               "code-block-background"],
+                                        numeric: true)
+    }
+    if args.count > 3 {
+      entries += try self.legacyEntries(args[3],
+                                        keys: ["border-color", "blockquote-color",
+                                               "h1-color", "h2-color", "h3-color", "h4-color"],
+                                        numeric: false)
+    }
+    if args.count > 4 {
+      entries += try self.legacySyntaxEntries(args[4])
+    }
+    return .makeList(Exprs(entries.map { .pair(self.configSymbol($0.0), $0.1) }))
+  }
+  
+  // MARK: - Generating HTML documents and styled text
+  
+  private func markdownToHtmlDoc(md: Expr, config: Expr?) throws -> Expr {
+    let attribStrGen = try self.attributedStringGenerator(config: config)
     return .makeString(
       attribStrGen.generateHtml(
         attribStrGen.htmlGenerator().generate(doc: try self.internMarkdown(block: md))))
   }
   
-  private func markdownToStyledText(md: Expr, args: Arguments) throws -> Expr {
-    let attribStrGen = try self.attributedStringGenerator(from: args)
-    if let astr = attribStrGen.generate(doc: try self.internMarkdown(block: md)) {
-      return .object(StyledText(NSMutableAttributedString(attributedString: astr)))
-    } else {
-      return .false
+  /// The outcome of rendering an attributed string asynchronously.
+  private final class RenderingOutcome: @unchecked Sendable {
+    private let lock = NSLock()
+    private let semaphore = DispatchSemaphore(value: 0)
+    private var result: Result<NSAttributedString, AttributedStringGenerator.RenderingError>?
+    
+    func store(_ result: Result<NSAttributedString, AttributedStringGenerator.RenderingError>) {
+      self.lock.lock()
+      self.result = result
+      self.lock.unlock()
+      self.semaphore.signal()
+    }
+    
+    var current: Result<NSAttributedString, AttributedStringGenerator.RenderingError>? {
+      self.lock.lock()
+      defer { self.lock.unlock() }
+      return self.result
+    }
+    
+    func wait(upTo seconds: TimeInterval) {
+      _ = self.semaphore.wait(timeout: .now() + seconds)
     }
   }
   
-  private func asSizeFontColor(_ expr: Expr,
-                               defaultSize: Float,
-                               defaultFont: String,
-                               defaultColor: String) throws -> (Float, String, String) {
-    guard !expr.isFalse else {
-      return (defaultSize, defaultFont, defaultColor)
+  /// Renders a Markdown document asynchronously into an attributed string and waits for the
+  /// result. The HTML importer delivers its result on the main thread. If this is the main
+  /// thread, the run loop gets executed while waiting; otherwise, the calling thread just waits.
+  private func renderAttributedString(_ doc: Block,
+                                      with generator: AttributedStringGenerator) throws
+                                      -> NSAttributedString {
+    let outcome = RenderingOutcome()
+    generator.generateAsync(doc: doc) { result in
+      outcome.store(result)
     }
-    switch expr {
-      case .pair(let size, .pair(let font, .pair(let color, .null))):
-        return (size.isFalse ? defaultSize : Float(try size.asDouble(coerce: true)),
-                font.isFalse ? defaultFont : try font.asString(),
-                color.isFalse ? defaultColor : try color.asString())
-      case .pair(let size, .pair(let font, .null)):
-        return (size.isFalse ? defaultSize : Float(try size.asDouble(coerce: true)),
-                font.isFalse ? defaultFont : try font.asString(),
-                defaultColor)
-      case .pair(let size, .null):
-        return (size.isFalse ? defaultSize : Float(try size.asDouble(coerce: true)),
-                defaultFont,
-                defaultColor)
-      case .null:
-        return (defaultSize, defaultFont, defaultColor)
-      default:
-        throw RuntimeError.custom("type error", "triple (float, font, color) needs to be " +
-                                  "represented by a list of up to three elements", [])
+    // MarkdownKit reports a timeout after `timeout` plus a grace period of five seconds, but it
+    // does so on the main thread. If that thread is blocked, e.g. because it waits for this
+    // thread, the result never arrives; the deadline makes sure this thread does not wait forever.
+    let deadline = generator.renderingOptions.timeout.map { Date(timeIntervalSinceNow: $0 + 10.0) }
+    while outcome.current == nil {
+      if self.context.evaluator.threads.current?.value.machine?.abortionRequested ?? false {
+        throw RuntimeError.abortion()
+      }
+      if let deadline, Date() > deadline {
+        throw RuntimeError.eval(
+          .cannotRenderMarkdown,
+          .makeString(AttributedStringGenerator.RenderingError.timedOut.localizedDescription))
+      }
+      if Thread.isMainThread {
+        if !RunLoop.current.run(mode: .default, before: Date(timeIntervalSinceNow: 0.05)) {
+          Thread.sleep(forTimeInterval: 0.005)
+        }
+      } else {
+        outcome.wait(upTo: 0.05)
+      }
     }
+    switch outcome.current! {
+      case .success(let astr):
+        return astr
+      case .failure(let error):
+        throw RuntimeError.eval(.cannotRenderMarkdown, .makeString(error.localizedDescription))
+    }
+  }
+  
+  private func markdownToStyledText(md: Expr, config: Expr?) throws -> Expr {
+    let attribStrGen = try self.attributedStringGenerator(config: config)
+    let astr = try self.renderAttributedString(try self.internMarkdown(block: md),
+                                               with: attribStrGen)
+    return .object(StyledText(NSMutableAttributedString(attributedString: astr)))
   }
   
   private func markdownToHtml(_ md: Expr) throws -> Expr {

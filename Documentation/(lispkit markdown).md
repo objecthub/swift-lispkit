@@ -228,15 +228,68 @@ Converts a Markdown block or list of blocks _bs_ into HTML, represented in form 
 Converts Markdown inline text or list of inline texts _txt_ into HTML, represented in form of a string.
 
 **(markdown-\>html-doc _md_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
-**(markdown-\>html-doc _md style_)**  
-**(markdown-\>html-doc _md style codestyle_)**  
-**(markdown-\>html-doc _md style codestyle cblockstyle_)**  
-**(markdown-\>html-doc _md style codestyle cblockstyle colors_)**  
-**(markdown-\>html-doc _md style codestyle cblockstyle colors syntax_)**  
+**(markdown-\>html-doc _md config_)**  
 
-Converts a Markdown document _md_ into a styled HTML document, represented in form of a string. _md_ needs to satisfy the _markdown?_ predicate. _style_ is a list with up to three elements: _(size font color)_. It specifies the default text style of the document. _size_ is the point size of the font, _font_ is a font name, and _color_ is a HTML color specification (e.g. `"#FF6789"`). _codestyle_ specifies the style of inline code in the same format. _colors_ is a list of HTML color specifications for the following document elements in this order: the border color of code blocks, the color of  blockquote "bars", the color of H1, H2, H3 and H4 headers. Any of _style_, _codestyle_, _cblockstyle_, and _colors_ can be set to `#f` to use the default for that argument.
+Converts a Markdown document _md_ into a styled HTML document, represented in form of a string. _md_ needs to satisfy the _markdown?_ predicate. _config_ is an association list that configures the style of the document, as well as how images and raw HTML get handled; see "Configuring styled documents" below. If _config_ is omitted or `#f`, the default configuration is used. The options for fonts, colors, syntax highlighting, images, and custom styles apply to the generated HTML. The options `timeout` and `text-size-multiplier` only matter for `markdown->styled-text`.
 
-_syntax_ configures syntax highlighting for code blocks and is a list with up to four elements: _(theme ignore-syntax-errors? ignored-languages highlight-indented-code-blocks?)_. _theme_ is the name of a syntax highlighting theme (a string), or `#f` to use the default theme. _ignore-syntax-errors?_ is a boolean determining whether syntactic issues in the code being highlighted should be ignored (default: `#t`). _ignored-languages_ is a list of language name strings for which syntax highlighting is skipped. _highlight-indented-code-blocks?_ is a boolean determining whether indented (as opposed to fenced) code blocks are syntax-highlighted (default: `#t`). If _syntax_ is omitted or `#f`, default syntax highlighting is used. If _syntax_ is `#t` or `'()`, syntax highlighting is disabled entirely.
+**(markdown-style-config)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+**(markdown-style-config _style_)**  
+**(markdown-style-config _style codestyle_)**  
+**(markdown-style-config _style codestyle cblockstyle_)**  
+**(markdown-style-config _style codestyle cblockstyle colors_)**  
+**(markdown-style-config _style codestyle cblockstyle colors syntax_)**  
+
+Returns a configuration (see "Configuring styled documents" below) for `markdown->html-doc` and `markdown->styled-text` built from positional arguments. This procedure eases porting code from earlier versions of this library, where `markdown->html-doc` and `markdown->styled-text` had these positional arguments. A call `(markdown->styled-text md style codestyle cblockstyle colors syntax)` is replaced by `(markdown->styled-text md (markdown-style-config style codestyle cblockstyle colors syntax))`. Any argument can be omitted or set to `#f` to use the default for that argument.
+
+- _style_ is a list with up to three elements: _(size font color)_. It specifies the default text style of the document. _size_ is the point size of the font, _font_ is a font name, and _color_ is a HTML color specification (e.g. `"#FF6789"`).
+- _codestyle_ specifies the style of inline code in the same format.
+- _cblockstyle_ specifies the style of code blocks as a list _(size color background)_ of up to three elements: the point size of the font, the text color, and the background color.
+- _colors_ is a list of HTML color specifications for the following document elements in this order: the border color of code blocks, the color of blockquote "bars", the color of H1, H2, H3 and H4 headers.
+- _syntax_ configures syntax highlighting for code blocks and is a list with up to four elements: _(theme ignore-syntax-errors? ignored-languages highlight-indented-code-blocks?)_. If _syntax_ is `#f`, default syntax highlighting is used. If _syntax_ is `#t` or `()`, syntax highlighting is disabled entirely.
+
+```scheme
+(markdown-style-config '(16 "Helvetica" "#222222") #f #f #f '("xcode"))
+⇒  ((font-size . 16) (font-family . "Helvetica") (font-color . "#222222")
+    (syntax-highlighting (theme . "xcode")))
+```
+
+### Configuring styled documents
+
+The style of the documents generated by `markdown->html-doc` and `markdown->styled-text` is configured by an association list _config_ with symbol keys. All entries are optional. `#f` and `()` stand for the default configuration, and if a key appears more than once, the first entry for the key is used. This makes it possible to override entries of a base configuration by adding entries in front of it, e.g. `(cons '(safe-mode . #t) base-config)`. Unknown keys and values of the wrong type result in an error. The following keys are supported; for keys with `#f` as a possible value, the value `#f` selects the default:
+
+| Key | Value | Default |
+|---|---|---|
+| `font-size`, `font-family`, `font-color` | point size (a number), font name (a string), and HTML color (a string) of the text | `14`, `"\"Times New Roman\",Times,serif"`, the system's text color |
+| `code-font-size`, `code-font-family`, `code-font-color` | the same for inline code | `13`, `"\"Consolas\",\"Andale Mono\",\"Courier New\",Courier,monospace"`, the system's text color |
+| `code-block-font-size`, `code-block-font-color`, `code-block-background` | point size, text color and background color of code blocks | `12`, the system's text color, the system's background color |
+| `border-color`, `blockquote-color` | HTML colors of the border of code blocks and of the bars of blockquotes | `"#bbb"`, `"#99c"` |
+| `h1-color`, `h2-color`, `h3-color`, `h4-color` | HTML colors of headings | the system's text color |
+| `syntax-highlighting` | `#f` disables syntax highlighting, `#t` enables it with default settings, an association list with the optional keys `theme` (a theme name or CSS), `ignore-syntax-errors` (boolean), `ignored-languages` (list of strings), and `highlight-indented-code-blocks` (boolean) configures it; see `markdown->string` | enabled |
+| `tight-lists` | boolean; if `#t`, the paragraphs of the items of loose lists are shown without paragraph spacing, too | `#f` |
+| `version` | `os26` or `pre-os26`; the latter generates lists with HTML list elements and is meant for systems before macOS 26 and iOS 26 | `os26` |
+| `max-image-width`, `max-image-height` | a CSS length (e.g. `"100%"` or `"300px"`) limiting the size of images, or `#f` | no limit |
+| `custom-style` | a string with CSS rules that get added to the style sheet of the document | `""` |
+| `image-base-url` | a URL or the path of a directory that relative image paths of the Markdown text are resolved against, or `#f` | the value of `base-url` |
+| `preset` | `trusted` or `untrusted`; defines the default for the following options. `untrusted` is meant for Markdown that does not come from a trusted source: raw HTML is omitted, links are limited to `http`, `https` and `mailto`, and no images are loaded | `trusted` |
+| `base-url` | a URL or the path of a directory that relative URLs are resolved against, or `#f` | `#f` |
+| `local-images` | `none`, `any`, or the path of a directory. Controls which images stored in the local file system are loaded. Images that are not loaded are replaced by their alternative text. A directory restricts images to files inside of this directory. | `any` |
+| `remote-images` | `none`, `any`, or an `http` or `https` URL. Controls which images are loaded from the web. A URL restricts images to the web site and path of the URL. | `any` |
+| `image-extensions` | a list of path extensions (without dot) that the URLs of loaded images need to have | png, jpg, jpeg, gif, tif, tiff, bmp, ico, heic, heif, webp |
+| `safe-mode` | boolean; if `#t`, raw HTML is omitted and links are limited to `http`, `https` and `mailto` | `#f` |
+| `timeout` | the maximum time in seconds that `markdown->styled-text` may take for rendering a document (including loading images), or `#f` for no limit | `30` |
+| `text-size-multiplier` | a number scaling font sizes, or `#f` | `#f` |
+
+Paths are interpreted relative to the current directory, and strings starting with `http:`, `https:` or `file:` are URLs. The restrictions on images do not apply to images referred to by raw HTML or by `custom-style`.
+
+```scheme
+(markdown->styled-text
+  (markdown "# Title\n\n![Logo](logo.png)")
+  '((font-family . "Helvetica")
+    (h1-color . "#cc3300")
+    (max-image-width . "50%")
+    (image-base-url . "images")
+    (remote-images . none)))
+```
 
 **(markdown-\>string _md_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 **(markdown-\>string _md width_)**  
@@ -271,13 +324,36 @@ Each _properties_ argument above is a "text properties" value in one of the foll
 _text-color_ can be `#f` (default color), a color name symbol (`default`, `black`, `maroon`, `green`, `olive`, `navy`, `purple`, `teal`, `silver`, `grey`, `red`, `lime`, `yellow`, `blue`, `fuchsia`, `aqua`, or `white`), a hex color string (e.g. `"#F67"` or `"#FF6677"`), a color object as created by library `(lispkit draw)`, or a fixnum between 0 and 255 referring to a color of the extended ANSI 256-color palette. _background-color_ uses the same formats, except that its color name symbols are `default`, `black`, `white`, `red`, `green`, `yellow`, `blue`, `magenta`, `cyan`, `light-black`, `light-red`, `light-green`, `light-yellow`, `light-blue`, `light-magenta`, `light-cyan`, and `light-white`.
 
 **(markdown-\>styled-text _md_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
-**(markdown-\>styled-text _md style_)**  
-**(markdown-\>styled-text _md style codestyle_)**  
-**(markdown-\>styled-text _md style codestyle cblockstyle_)**  
-**(markdown-\>styled-text _md style codestyle cblockstyle colors_)**  
-**(markdown-\>styled-text _md style codestyle cblockstyle colors syntax_)**  
+**(markdown-\>styled-text _md config_)**  
 
-Converts a Markdown document _md_ into a `styled-text` object (see library `(lispkit draw)`), e.g. for rendering it with `draw-styled-text`. _md_ needs to satisfy the _markdown?_ predicate. The arguments _style_, _codestyle_, _cblockstyle_, _colors_, and _syntax_ have the same meaning as for `markdown->html-doc`. Returns `#f` if the styled text object could not be created.
+Converts a Markdown document _md_ into a `styled-text` object (see library `(lispkit draw)`), e.g. for rendering it with `draw-styled-text`. _md_ needs to satisfy the _markdown?_ predicate. _config_ is an association list with the same meaning as for `markdown->html-doc`; see "Configuring styled documents" above.
+
+The following style keys are supported by _config_ (for a full list, see above). Defaults are in parentheses; all keys are optional, and `#f` selects the default for keys that do not list `#f` as a value:
+
+- `font-size`: point size of the text (`14`)
+- `font-family`: font family of the text, a font name or a CSS font list (`"\"Times New Roman\",Times,serif"`)
+- `font-color`: HTML color of the text (the system's text color)
+- `code-font-size`: point size of inline code (`13`)
+- `code-font-family`: font family of inline code (`"\"Consolas\",\"Andale Mono\",\"Courier New\",Courier,monospace"`)
+- `code-font-color`: HTML color of inline code (the system's text color)
+- `code-block-font-size`: point size of code blocks (`12`)
+- `code-block-font-color`: HTML color of the text of code blocks (the system's text color)
+- `code-block-background`: HTML color of the background of code blocks (the system's background color)
+- `border-color`: HTML color of the border around code blocks (`"#bbb"`)
+- `blockquote-color`: HTML color of the bars next to block quotes (`"#99c"`)
+- `h1-color`, `h2-color`, `h3-color`, `h4-color`: HTML colors of headings of levels 1 to 4 (the system's text color)
+- `syntax-highlighting`: `#f` disables syntax highlighting of code blocks, `#t` enables it with default settings; an association list with the optional keys `theme` (theme name or CSS), `ignore-syntax-errors` (boolean), `ignored-languages` (list of strings), and `highlight-indented-code-blocks` (boolean) configures it (enabled with default settings)
+- `tight-lists`: if `#t`, the paragraphs of list items are shown without paragraph spacing, also in loose lists (`#f`)
+- `max-image-width`: CSS length (e.g. `"100%"` or `"300px"`) limiting the width of images, or `#f` (no limit)
+- `max-image-height`: CSS length limiting the height of images, or `#f` (no limit)
+- `image-base-url`: URL or path of a directory against which relative image paths of the Markdown text are resolved, or `#f` (the value of `base-url`)
+- `base-url`: URL or path of a directory against which relative URLs are resolved, or `#f` (`#f`)
+- `local-images`: `none`, `any`, or the path of a directory; controls which images from the local file system are loaded, images that are not loaded are replaced by their alternative text (`any`)
+- `remote-images`: `none`, `any`, or an `http` or `https` URL; controls which images from the web are loaded, a URL restricts images to its web site and path (`any`)
+- `timeout`: maximum time in seconds for rendering the document, including loading images, or `#f` for no limit (`30`)
+- `text-size-multiplier`: number by which font sizes are scaled, or `#f` (`#f`)
+
+The styled text is generated asynchronously by the HTML rendering engine of the operating system, and `markdown->styled-text` waits for the result. Rendering a document therefore takes a moment, and images from the web are loaded unless `remote-images` is set to `none` (or a restricting URL). If the document cannot be rendered within the time given by `timeout`, or if rendering fails, an error is signaled. If this procedure is called by a thread other than the main thread of the application, the main thread needs to execute its run loop and must not wait for the calling thread. Otherwise, the procedure signals an error after the `timeout` has expired.
 
 **(markdown-\>sxml _md_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 
