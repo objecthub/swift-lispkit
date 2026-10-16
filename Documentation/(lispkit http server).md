@@ -96,7 +96,9 @@ Every response includes a `Date` header.
 
 The path and the query of a request are available as sent by the client, i.e. percent-encoded (e.g. `/caf%C3%A9`), and decoded (`/café`). Decoding loses information: after decoding, `%2F` can no longer be distinguished from a path separator. Furthermore, a value that gets decoded twice can turn into something different than the client sent, e.g. `%252e%252e` first turns into `%2e%2e` and then into `..`, which is dangerous for values used as file paths.
 
-For this reason, procedures `srv-request-path`, `srv-request-query`, `srv-request-query-param` and `srv-request-query-params` return values as sent by the client by default. Procedures `srv-request-path`, `srv-request-query-param` and `srv-request-query-params` have an optional argument for returning decoded values. Path parameters (see `srv-request-path-param`) and the attributes of a form (see `srv-request-form-attributes`) are always decoded exactly once.
+For this reason, procedures `srv-request-path`, `srv-request-query`, `srv-request-query-param`, `srv-request-query-params`, `srv-request-path-param` and `srv-request-path-params` return values as sent by the client by default. Procedures `srv-request-path`, `srv-request-query-param`, `srv-request-query-params`, `srv-request-path-param` and `srv-request-path-params` have an optional argument `decode?` for returning decoded values.
+
+A path variable such as `::path` stands for all its path segments. Its value as sent by the client consists of the path segments joined with `/`, whereas its decoded value consists of the decoded path segments joined with `/`. Procedure `srv-request-path-param-set!` expects the new value of a path parameter in its encoded form, because it is not possible to derive an encoded value from a decoded one. The attributes of a form (see `srv-request-form-attributes`) are always decoded exactly once.
 
 ## HTTP servers
 
@@ -249,18 +251,27 @@ Returns all query parameters for the given HTTP server request _req_ as an assoc
 
 **(srv-request-path-param _req name_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(srv-request-path-param _req name default_)**  
+**(srv-request-path-param _req name default decode?_)**  
 
 Returns the value of the path parameter _name_ (a string) for the given HTTP server request _req_ as a string. If the path parameter _name_ is undefined in _req_, _default_ is returned instead if provided. Otherwise, `#f` is returned.
 
-Path parameters are determined when a request path gets matched with the available routes of an HTTP server. For details, see documentation for procedure `http-server-register!`. The values of path parameters are percent-decoded. A value can therefore contain a `/` if the path of the request contained `%2F`.
+Path parameters are determined when a request path gets matched with the available routes of an HTTP server. For details, see documentation for procedure `http-server-register!`. By default, i.e. if _decode?_ is not provided or set to `#f`, the value of a path parameter is returned as sent by the client, i.e. percent-encoded; the value of a path variable (`::pvar`) consists of the path segments joined with `/`. If _decode?_ is set to `#t`, the value is decoded. A decoded value can contain a `/` if the path of the request contained `%2F`; the decoded value of a path variable consists of the decoded path segments joined with `/`, so it cannot tell `%2F` from a path separator:
+
+```scheme
+;; Route "/files/::path", request path "/files/caf%C3%A9/a%2Fb"
+(srv-request-path-param request "path")            ⇒  "caf%C3%A9/a%2Fb"
+(srv-request-path-param request "path" #f #f)      ⇒  "caf%C3%A9/a%2Fb"
+(srv-request-path-param request "path" #f #t)      ⇒  "café/a/b"
+```
 
 **(srv-request-path-params _req_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(srv-request-path-params _req decode?_)**  
 
-Returns all path parameters for the given HTTP server request _req_ as an association list consisting of string pairs, mapping path parameter names to path parameter values. Path parameters are determined when a request path gets matched with the available routes of an HTTP server. For details, see documentation for procedure `http-server-register!`. The values of path parameters are percent-decoded.
+Returns all path parameters for the given HTTP server request _req_ as an association list consisting of string pairs, mapping path parameter names to path parameter values. Path parameters are determined when a request path gets matched with the available routes of an HTTP server. For details, see documentation for procedure `http-server-register!`. By default, i.e. if _decode?_ is not provided or set to `#f`, the values are returned as sent by the client, i.e. percent-encoded. If _decode?_ is set to `#t`, the values of path parameters are decoded. See `srv-request-path-param` for details.
 
 **(srv-request-path-param-set! _req name value_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Sets the value of the path parameter _name_ (a string) for the given HTTP server request _req_ to string _value_.
+Sets the value of the path parameter _name_ (a string) for the given HTTP server request _req_ to string _value_. _value_ needs to be percent-encoded, like the values returned by `srv-request-path-param` by default. It is not possible to derive an encoded value from a decoded one, because a `/` and `%2F` have the same decoded value. The decoded value of the parameter, returned with _decode?_ set to `#t`, is derived from _value_. An error is signaled if _value_ is not a valid percent-encoded string; for example, a literal `%` needs to be encoded as `%25`.
 
 **(srv-request-path-param-remove! _req name_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 

@@ -81,13 +81,20 @@
     (make-srv-response 200 #f
       `((h3 "Address: " ,(or (srv-request-address req) "unknown"))
         (h3 "URL: " ,(srv-request-path req))
+        (h3 "URL (decoded): " ,(srv-request-path req #t))
         (h3 "Method: " ,(srv-request-method req))
         (h3 "Query params:")
         (table
           ,(map (lambda (x) `(tr (td ,(car x)) (td ,(cdr x)))) (srv-request-query-params req)))
+        (h3 "Query params (decoded):")
+        (table
+          ,(map (lambda (x) `(tr (td ,(car x)) (td ,(cdr x)))) (srv-request-query-params req #t)))
         (h3 "Path params:")
         (table
           ,(map (lambda (x) `(tr (td ,(car x)) (td ,(cdr x)))) (srv-request-path-params req)))
+        (h3 "Path params (decoded):")
+        (table
+          ,(map (lambda (x) `(tr (td ,(car x)) (td ,(cdr x)))) (srv-request-path-params req #t)))
         (h3 "Headers:")
         (table
           ,(map (lambda (x) `(tr (td ,(car x)) (td ,(cdr x)))) (srv-request-headers req)))))))

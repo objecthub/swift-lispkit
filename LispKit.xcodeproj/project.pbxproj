@@ -6974,7 +6974,7 @@
 			repositoryURL = "https://github.com/objecthub/swift-nanohttp";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 2.1.1;
+				minimumVersion = 2.1.2;
 			};
 		};
 		CCD5B6182C3BC57A002BF2F0 /* XCRemoteSwiftPackageReference "OAuth2" */ = {

@@ -104,8 +104,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/objecthub/swift-nanohttp.git",
       "state" : {
-        "revision" : "d8c6d6690ff2c4575db37c7cd4443c658ed3af76",
-        "version" : "2.1.1"
+        "revision" : "a8cb617fcc333e1aa3ca31d5bf794a9c6db73c74",
+        "version" : "2.1.2"
       }
     },
     {

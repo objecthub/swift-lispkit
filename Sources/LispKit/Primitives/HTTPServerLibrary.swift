@@ -572,28 +572,52 @@ public final class HTTPServerLibrary: NativeLibrary {
     }
   }
   
-  private func serverRequestPathParam(expr: Expr, name: Expr, default: Expr?) throws -> Expr {
+  /// Returns the path parameters of a request. By default, the values are returned as sent by
+  /// the client, i.e. still percent-encoded, which keeps `%2F` and `/` apart in the value of a
+  /// path variable. If `decode` is true, the values are decoded, i.e. a path variable stands
+  /// for its decoded segments joined with `/`.
+  private func pathParams(of request: NanoHTTPRequest, decode: Expr?) -> [String : String] {
+    return decode?.isTrue ?? false ? request.params : request.rawParams
+  }
+
+  private func serverRequestPathParam(expr: Expr,
+                                      name: Expr,
+                                      default: Expr?,
+                                      decode: Expr?) throws -> Expr {
     let name = try name.asString()
-    guard let res = try self.httpServerRequest(from: expr).connection.request.params[name] else {
+    let request = try self.httpServerRequest(from: expr).connection.request
+    guard let res = self.pathParams(of: request, decode: decode)[name] else {
       return `default` ?? .false
     }
     return .makeString(res)
   }
-  
+
+  /// Setting a path parameter expects the new value in its percent-encoded form, like it is
+  /// returned by default. The decoded value is derived from it. It is not possible to go the
+  /// other way: a decoded value cannot tell `%2F` from a `/`.
   private func serverRequestPathParamSet(expr: Expr, name: Expr, value: Expr) throws -> Expr {
     let name = try name.asString()
-    try self.httpServerRequest(from: expr).connection.request.params[name] = value.asString()
+    let encoded = try value.asString()
+    guard let decoded = encoded.removingPercentEncoding else {
+      throw RuntimeError.custom("error", "not a valid percent-encoded string", [value])
+    }
+    let request = try self.httpServerRequest(from: expr).connection.request
+    request.rawParams[name] = encoded
+    request.params[name] = decoded
     return .void
   }
-  
+
   private func serverRequestPathParamRemove(expr: Expr, name: Expr) throws -> Expr {
     let name = try name.asString()
-    try self.httpServerRequest(from: expr).connection.request.params.removeValue(forKey: name)
+    let request = try self.httpServerRequest(from: expr).connection.request
+    request.params.removeValue(forKey: name)
+    request.rawParams.removeValue(forKey: name)
     return .void
   }
-  
-  private func serverRequestPathParams(expr: Expr) throws -> Expr {
-    let params = try self.httpServerRequest(from: expr).connection.request.params
+
+  private func serverRequestPathParams(expr: Expr, decode: Expr?) throws -> Expr {
+    let params = self.pathParams(of: try self.httpServerRequest(from: expr).connection.request,
+                                 decode: decode)
     var res = Expr.null
     for (name, value) in params {
       res = .pair(.pair(.makeString(name), .makeString(value)), res)
