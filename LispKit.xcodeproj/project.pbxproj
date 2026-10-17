@@ -343,6 +343,220 @@
 		CC5E53032355AAD400C72CE2 /* NumberKit in Frameworks */ = {isa = PBXBuildFile; productRef = CC5E53022355AAD400C72CE2 /* NumberKit */; };
 		CC5E53082357A2FA00C72CE2 /* 174.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC5E530723579CF200C72CE2 /* 174.sld */; };
 		CC5E530A235836A900C72CE2 /* SRFI-174.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC5E53092358359900C72CE2 /* SRFI-174.scm */; };
+		CC60E9DB308391EF000EE746 /* LICENSE.txt in Copy JavaScript highlight assets */ = {isa = PBXBuildFile; fileRef = CC60E9D930838FAB000EE746 /* LICENSE.txt */; };
+		CC60E9DC308391FB000EE746 /* highlight.min.js in Copy JavaScript highlight assets */ = {isa = PBXBuildFile; fileRef = CC60E9D830838F9F000EE746 /* highlight.min.js */; };
+		CC60E9DE30839253000EE746 /* LICENSE.txt in Copy JavaScript highlight assets */ = {isa = PBXBuildFile; fileRef = CC60E9D930838FAB000EE746 /* LICENSE.txt */; };
+		CC60E9DF3083925D000EE746 /* highlight.min.js in Copy JavaScript highlight assets */ = {isa = PBXBuildFile; fileRef = CC60E9D830838F9F000EE746 /* highlight.min.js */; };
+		CC60EA4B3083994D000EE746 /* a11y-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9E1308398FC000EE746 /* a11y-dark.css */; };
+		CC60EA4C3083994D000EE746 /* a11y-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9E2308398FC000EE746 /* a11y-light.css */; };
+		CC60EA4D3083994D000EE746 /* agate.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9E3308398FC000EE746 /* agate.css */; };
+		CC60EA4E3083994D000EE746 /* an-old-hope.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9E4308398FC000EE746 /* an-old-hope.css */; };
+		CC60EA4F3083994D000EE746 /* androidstudio.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9E5308398FC000EE746 /* androidstudio.css */; };
+		CC60EA503083994D000EE746 /* arduino-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9E6308398FC000EE746 /* arduino-light.css */; };
+		CC60EA513083994D000EE746 /* arta.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9E7308398FC000EE746 /* arta.css */; };
+		CC60EA523083994D000EE746 /* ascetic.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9E8308398FC000EE746 /* ascetic.css */; };
+		CC60EA533083994D000EE746 /* atelier-cave-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9E9308398FC000EE746 /* atelier-cave-dark.css */; };
+		CC60EA543083994D000EE746 /* atelier-cave-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9EA308398FC000EE746 /* atelier-cave-light.css */; };
+		CC60EA553083994D000EE746 /* atelier-dune-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9EB308398FC000EE746 /* atelier-dune-dark.css */; };
+		CC60EA563083994D000EE746 /* atelier-dune-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9EC308398FC000EE746 /* atelier-dune-light.css */; };
+		CC60EA573083994D000EE746 /* atelier-estuary-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9ED308398FC000EE746 /* atelier-estuary-dark.css */; };
+		CC60EA583083994D000EE746 /* atelier-estuary-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9EE308398FC000EE746 /* atelier-estuary-light.css */; };
+		CC60EA593083994D000EE746 /* atelier-forest-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9EF308398FC000EE746 /* atelier-forest-dark.css */; };
+		CC60EA5A3083994D000EE746 /* atelier-forest-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9F0308398FC000EE746 /* atelier-forest-light.css */; };
+		CC60EA5B3083994D000EE746 /* atelier-heath-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9F1308398FC000EE746 /* atelier-heath-dark.css */; };
+		CC60EA5C3083994D000EE746 /* atelier-heath-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9F2308398FC000EE746 /* atelier-heath-light.css */; };
+		CC60EA5D3083994D000EE746 /* atelier-lakeside-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9F3308398FC000EE746 /* atelier-lakeside-dark.css */; };
+		CC60EA5E3083994D000EE746 /* atelier-lakeside-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9F4308398FC000EE746 /* atelier-lakeside-light.css */; };
+		CC60EA5F3083994D000EE746 /* atelier-plateau-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9F5308398FC000EE746 /* atelier-plateau-dark.css */; };
+		CC60EA603083994D000EE746 /* atelier-plateau-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9F6308398FC000EE746 /* atelier-plateau-light.css */; };
+		CC60EA613083994D000EE746 /* atelier-savanna-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9F7308398FC000EE746 /* atelier-savanna-dark.css */; };
+		CC60EA623083994D000EE746 /* atelier-savanna-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9F8308398FC000EE746 /* atelier-savanna-light.css */; };
+		CC60EA633083994D000EE746 /* atelier-seaside-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9F9308398FC000EE746 /* atelier-seaside-dark.css */; };
+		CC60EA643083994D000EE746 /* atelier-seaside-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9FA308398FC000EE746 /* atelier-seaside-light.css */; };
+		CC60EA653083994D000EE746 /* atelier-sulphurpool-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9FB308398FC000EE746 /* atelier-sulphurpool-dark.css */; };
+		CC60EA663083994D000EE746 /* atelier-sulphurpool-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9FC308398FC000EE746 /* atelier-sulphurpool-light.css */; };
+		CC60EA673083994D000EE746 /* atom-one-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9FD308398FC000EE746 /* atom-one-dark.css */; };
+		CC60EA683083994D000EE746 /* atom-one-dark-reasonable.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9FE308398FC000EE746 /* atom-one-dark-reasonable.css */; };
+		CC60EA693083994D000EE746 /* atom-one-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9FF308398FC000EE746 /* atom-one-light.css */; };
+		CC60EA6A3083994D000EE746 /* brown-paper.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA00308398FC000EE746 /* brown-paper.css */; };
+		CC60EA6B3083994D000EE746 /* codepen-embed.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA01308398FC000EE746 /* codepen-embed.css */; };
+		CC60EA6C3083994D000EE746 /* color-brewer.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA02308398FC000EE746 /* color-brewer.css */; };
+		CC60EA6D3083994D000EE746 /* darcula.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA03308398FC000EE746 /* darcula.css */; };
+		CC60EA6E3083994D000EE746 /* dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA04308398FC000EE746 /* dark.css */; };
+		CC60EA6F3083994D000EE746 /* default.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA05308398FC000EE746 /* default.css */; };
+		CC60EA703083994D000EE746 /* docco.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA06308398FC000EE746 /* docco.css */; };
+		CC60EA713083994D000EE746 /* dracula.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA07308398FC000EE746 /* dracula.css */; };
+		CC60EA723083994D000EE746 /* far.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA08308398FC000EE746 /* far.css */; };
+		CC60EA733083994D000EE746 /* foundation.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA09308398FC000EE746 /* foundation.css */; };
+		CC60EA743083994D000EE746 /* github.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA0A308398FC000EE746 /* github.css */; };
+		CC60EA753083994D000EE746 /* github-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA0B308398FC000EE746 /* github-dark.css */; };
+		CC60EA763083994D000EE746 /* github-gist.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA0C308398FC000EE746 /* github-gist.css */; };
+		CC60EA773083994D000EE746 /* gml.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA0D308398FC000EE746 /* gml.css */; };
+		CC60EA783083994D000EE746 /* googlecode.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA0E308398FC000EE746 /* googlecode.css */; };
+		CC60EA793083994D000EE746 /* gradient-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA0F308398FC000EE746 /* gradient-dark.css */; };
+		CC60EA7A3083994D000EE746 /* gradient-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA10308398FC000EE746 /* gradient-light.css */; };
+		CC60EA7B3083994D000EE746 /* grayscale.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA11308398FC000EE746 /* grayscale.css */; };
+		CC60EA7C3083994D000EE746 /* gruvbox-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA12308398FC000EE746 /* gruvbox-dark.css */; };
+		CC60EA7D3083994D000EE746 /* gruvbox-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA13308398FC000EE746 /* gruvbox-light.css */; };
+		CC60EA7E3083994D000EE746 /* hopscotch.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA14308398FC000EE746 /* hopscotch.css */; };
+		CC60EA7F3083994D000EE746 /* hybrid.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA15308398FC000EE746 /* hybrid.css */; };
+		CC60EA803083994D000EE746 /* idea.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA16308398FC000EE746 /* idea.css */; };
+		CC60EA813083994D000EE746 /* ir-black.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA17308398FC000EE746 /* ir-black.css */; };
+		CC60EA823083994D000EE746 /* isbl-editor-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA18308398FC000EE746 /* isbl-editor-dark.css */; };
+		CC60EA833083994D000EE746 /* isbl-editor-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA19308398FC000EE746 /* isbl-editor-light.css */; };
+		CC60EA843083994D000EE746 /* kimbie-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA1A308398FC000EE746 /* kimbie-dark.css */; };
+		CC60EA853083994D000EE746 /* kimbie-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA1B308398FC000EE746 /* kimbie-light.css */; };
+		CC60EA863083994D000EE746 /* lightfair.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA1C308398FC000EE746 /* lightfair.css */; };
+		CC60EA873083994D000EE746 /* lioshi.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA1D308398FC000EE746 /* lioshi.css */; };
+		CC60EA883083994D000EE746 /* magula.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA1E308398FC000EE746 /* magula.css */; };
+		CC60EA893083994D000EE746 /* markdownkit.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA1F308398FC000EE746 /* markdownkit.css */; };
+		CC60EA8A3083994D000EE746 /* markdownkit-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA20308398FC000EE746 /* markdownkit-dark.css */; };
+		CC60EA8B3083994D000EE746 /* mono-blue.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA21308398FC000EE746 /* mono-blue.css */; };
+		CC60EA8C3083994D000EE746 /* monokai.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA22308398FC000EE746 /* monokai.css */; };
+		CC60EA8D3083994D000EE746 /* monokai-sublime.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA23308398FC000EE746 /* monokai-sublime.css */; };
+		CC60EA8E3083994D000EE746 /* night-owl.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA24308398FC000EE746 /* night-owl.css */; };
+		CC60EA8F3083994D000EE746 /* nnfx-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA25308398FC000EE746 /* nnfx-dark.css */; };
+		CC60EA903083994D000EE746 /* nnfx-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA26308398FC000EE746 /* nnfx-light.css */; };
+		CC60EA913083994D000EE746 /* nord.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA27308398FC000EE746 /* nord.css */; };
+		CC60EA923083994D000EE746 /* obsidian.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA28308398FC000EE746 /* obsidian.css */; };
+		CC60EA933083994D000EE746 /* ocean.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA29308398FC000EE746 /* ocean.css */; };
+		CC60EA943083994D000EE746 /* paraiso-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA2A308398FC000EE746 /* paraiso-dark.css */; };
+		CC60EA953083994D000EE746 /* paraiso-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA2B308398FC000EE746 /* paraiso-light.css */; };
+		CC60EA963083994D000EE746 /* pojoaque.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA2C308398FC000EE746 /* pojoaque.css */; };
+		CC60EA973083994D000EE746 /* purebasic.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA2D308398FC000EE746 /* purebasic.css */; };
+		CC60EA983083994D000EE746 /* qtcreator_dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA2E308398FC000EE746 /* qtcreator_dark.css */; };
+		CC60EA993083994D000EE746 /* qtcreator_light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA2F308398FC000EE746 /* qtcreator_light.css */; };
+		CC60EA9A3083994D000EE746 /* railscasts.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA30308398FC000EE746 /* railscasts.css */; };
+		CC60EA9B3083994D000EE746 /* rainbow.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA31308398FC000EE746 /* rainbow.css */; };
+		CC60EA9C3083994D000EE746 /* routeros.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA32308398FC000EE746 /* routeros.css */; };
+		CC60EA9D3083994D000EE746 /* school-book.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA33308398FC000EE746 /* school-book.css */; };
+		CC60EA9E3083994D000EE746 /* shades-of-purple.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA34308398FC000EE746 /* shades-of-purple.css */; };
+		CC60EA9F3083994D000EE746 /* silk-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA35308398FC000EE746 /* silk-dark.css */; };
+		CC60EAA03083994D000EE746 /* silk-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA36308398FC000EE746 /* silk-light.css */; };
+		CC60EAA13083994D000EE746 /* snazzy.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA37308398FC000EE746 /* snazzy.css */; };
+		CC60EAA23083994D000EE746 /* solarized-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA38308398FC000EE746 /* solarized-dark.css */; };
+		CC60EAA33083994D000EE746 /* solarized-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA39308398FC000EE746 /* solarized-light.css */; };
+		CC60EAA43083994D000EE746 /* srcery.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA3A308398FC000EE746 /* srcery.css */; };
+		CC60EAA53083994D000EE746 /* stackoverflow-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA3B308398FC000EE746 /* stackoverflow-dark.css */; };
+		CC60EAA63083994D000EE746 /* stackoverflow-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA3C308398FC000EE746 /* stackoverflow-light.css */; };
+		CC60EAA73083994D000EE746 /* sunburst.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA3D308398FC000EE746 /* sunburst.css */; };
+		CC60EAA83083994D000EE746 /* tomorrow.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA3E308398FC000EE746 /* tomorrow.css */; };
+		CC60EAA93083994D000EE746 /* tomorrow-night.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA3F308398FC000EE746 /* tomorrow-night.css */; };
+		CC60EAAA3083994D000EE746 /* tomorrow-night-blue.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA40308398FC000EE746 /* tomorrow-night-blue.css */; };
+		CC60EAAB3083994D000EE746 /* tomorrow-night-bright.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA41308398FC000EE746 /* tomorrow-night-bright.css */; };
+		CC60EAAC3083994D000EE746 /* tomorrow-night-eighties.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA42308398FC000EE746 /* tomorrow-night-eighties.css */; };
+		CC60EAAD3083994D000EE746 /* vs.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA43308398FC000EE746 /* vs.css */; };
+		CC60EAAE3083994D000EE746 /* vs2015.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA44308398FC000EE746 /* vs2015.css */; };
+		CC60EAAF3083994D000EE746 /* vulcan.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA45308398FC000EE746 /* vulcan.css */; };
+		CC60EAB03083994D000EE746 /* xcode.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA46308398FC000EE746 /* xcode.css */; };
+		CC60EAB13083994D000EE746 /* xcode-dusk.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA47308398FC000EE746 /* xcode-dusk.css */; };
+		CC60EAB23083994D000EE746 /* xt256.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA48308398FC000EE746 /* xt256.css */; };
+		CC60EAB33083994D000EE746 /* zenburn.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA49308398FC000EE746 /* zenburn.css */; };
+		CC60EAB530839976000EE746 /* a11y-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9E1308398FC000EE746 /* a11y-dark.css */; };
+		CC60EAB630839976000EE746 /* a11y-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9E2308398FC000EE746 /* a11y-light.css */; };
+		CC60EAB730839976000EE746 /* agate.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9E3308398FC000EE746 /* agate.css */; };
+		CC60EAB830839976000EE746 /* an-old-hope.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9E4308398FC000EE746 /* an-old-hope.css */; };
+		CC60EAB930839976000EE746 /* androidstudio.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9E5308398FC000EE746 /* androidstudio.css */; };
+		CC60EABA30839976000EE746 /* arduino-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9E6308398FC000EE746 /* arduino-light.css */; };
+		CC60EABB30839976000EE746 /* arta.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9E7308398FC000EE746 /* arta.css */; };
+		CC60EABC30839976000EE746 /* ascetic.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9E8308398FC000EE746 /* ascetic.css */; };
+		CC60EABD30839976000EE746 /* atelier-cave-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9E9308398FC000EE746 /* atelier-cave-dark.css */; };
+		CC60EABE30839976000EE746 /* atelier-cave-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9EA308398FC000EE746 /* atelier-cave-light.css */; };
+		CC60EABF30839976000EE746 /* atelier-dune-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9EB308398FC000EE746 /* atelier-dune-dark.css */; };
+		CC60EAC030839976000EE746 /* atelier-dune-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9EC308398FC000EE746 /* atelier-dune-light.css */; };
+		CC60EAC130839976000EE746 /* atelier-estuary-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9ED308398FC000EE746 /* atelier-estuary-dark.css */; };
+		CC60EAC230839976000EE746 /* atelier-estuary-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9EE308398FC000EE746 /* atelier-estuary-light.css */; };
+		CC60EAC330839976000EE746 /* atelier-forest-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9EF308398FC000EE746 /* atelier-forest-dark.css */; };
+		CC60EAC430839976000EE746 /* atelier-forest-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9F0308398FC000EE746 /* atelier-forest-light.css */; };
+		CC60EAC530839976000EE746 /* atelier-heath-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9F1308398FC000EE746 /* atelier-heath-dark.css */; };
+		CC60EAC630839976000EE746 /* atelier-heath-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9F2308398FC000EE746 /* atelier-heath-light.css */; };
+		CC60EAC730839976000EE746 /* atelier-lakeside-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9F3308398FC000EE746 /* atelier-lakeside-dark.css */; };
+		CC60EAC830839976000EE746 /* atelier-lakeside-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9F4308398FC000EE746 /* atelier-lakeside-light.css */; };
+		CC60EAC930839976000EE746 /* atelier-plateau-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9F5308398FC000EE746 /* atelier-plateau-dark.css */; };
+		CC60EACA30839976000EE746 /* atelier-plateau-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9F6308398FC000EE746 /* atelier-plateau-light.css */; };
+		CC60EACB30839976000EE746 /* atelier-savanna-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9F7308398FC000EE746 /* atelier-savanna-dark.css */; };
+		CC60EACC30839976000EE746 /* atelier-savanna-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9F8308398FC000EE746 /* atelier-savanna-light.css */; };
+		CC60EACD30839976000EE746 /* atelier-seaside-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9F9308398FC000EE746 /* atelier-seaside-dark.css */; };
+		CC60EACE30839976000EE746 /* atelier-seaside-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9FA308398FC000EE746 /* atelier-seaside-light.css */; };
+		CC60EACF30839976000EE746 /* atelier-sulphurpool-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9FB308398FC000EE746 /* atelier-sulphurpool-dark.css */; };
+		CC60EAD030839976000EE746 /* atelier-sulphurpool-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9FC308398FC000EE746 /* atelier-sulphurpool-light.css */; };
+		CC60EAD130839976000EE746 /* atom-one-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9FD308398FC000EE746 /* atom-one-dark.css */; };
+		CC60EAD230839976000EE746 /* atom-one-dark-reasonable.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9FE308398FC000EE746 /* atom-one-dark-reasonable.css */; };
+		CC60EAD330839976000EE746 /* atom-one-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60E9FF308398FC000EE746 /* atom-one-light.css */; };
+		CC60EAD430839976000EE746 /* brown-paper.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA00308398FC000EE746 /* brown-paper.css */; };
+		CC60EAD530839976000EE746 /* codepen-embed.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA01308398FC000EE746 /* codepen-embed.css */; };
+		CC60EAD630839976000EE746 /* color-brewer.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA02308398FC000EE746 /* color-brewer.css */; };
+		CC60EAD730839976000EE746 /* darcula.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA03308398FC000EE746 /* darcula.css */; };
+		CC60EAD830839976000EE746 /* dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA04308398FC000EE746 /* dark.css */; };
+		CC60EAD930839976000EE746 /* default.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA05308398FC000EE746 /* default.css */; };
+		CC60EADA30839976000EE746 /* docco.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA06308398FC000EE746 /* docco.css */; };
+		CC60EADB30839976000EE746 /* dracula.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA07308398FC000EE746 /* dracula.css */; };
+		CC60EADC30839976000EE746 /* far.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA08308398FC000EE746 /* far.css */; };
+		CC60EADD30839976000EE746 /* foundation.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA09308398FC000EE746 /* foundation.css */; };
+		CC60EADE30839976000EE746 /* github.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA0A308398FC000EE746 /* github.css */; };
+		CC60EADF30839976000EE746 /* github-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA0B308398FC000EE746 /* github-dark.css */; };
+		CC60EAE030839976000EE746 /* github-gist.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA0C308398FC000EE746 /* github-gist.css */; };
+		CC60EAE130839976000EE746 /* gml.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA0D308398FC000EE746 /* gml.css */; };
+		CC60EAE230839976000EE746 /* googlecode.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA0E308398FC000EE746 /* googlecode.css */; };
+		CC60EAE330839976000EE746 /* gradient-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA0F308398FC000EE746 /* gradient-dark.css */; };
+		CC60EAE430839976000EE746 /* gradient-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA10308398FC000EE746 /* gradient-light.css */; };
+		CC60EAE530839976000EE746 /* grayscale.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA11308398FC000EE746 /* grayscale.css */; };
+		CC60EAE630839976000EE746 /* gruvbox-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA12308398FC000EE746 /* gruvbox-dark.css */; };
+		CC60EAE730839976000EE746 /* gruvbox-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA13308398FC000EE746 /* gruvbox-light.css */; };
+		CC60EAE830839976000EE746 /* hopscotch.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA14308398FC000EE746 /* hopscotch.css */; };
+		CC60EAE930839976000EE746 /* hybrid.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA15308398FC000EE746 /* hybrid.css */; };
+		CC60EAEA30839976000EE746 /* idea.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA16308398FC000EE746 /* idea.css */; };
+		CC60EAEB30839976000EE746 /* ir-black.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA17308398FC000EE746 /* ir-black.css */; };
+		CC60EAEC30839976000EE746 /* isbl-editor-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA18308398FC000EE746 /* isbl-editor-dark.css */; };
+		CC60EAED30839976000EE746 /* isbl-editor-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA19308398FC000EE746 /* isbl-editor-light.css */; };
+		CC60EAEE30839976000EE746 /* kimbie-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA1A308398FC000EE746 /* kimbie-dark.css */; };
+		CC60EAEF30839976000EE746 /* kimbie-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA1B308398FC000EE746 /* kimbie-light.css */; };
+		CC60EAF030839976000EE746 /* lightfair.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA1C308398FC000EE746 /* lightfair.css */; };
+		CC60EAF130839976000EE746 /* lioshi.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA1D308398FC000EE746 /* lioshi.css */; };
+		CC60EAF230839976000EE746 /* magula.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA1E308398FC000EE746 /* magula.css */; };
+		CC60EAF330839976000EE746 /* markdownkit.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA1F308398FC000EE746 /* markdownkit.css */; };
+		CC60EAF430839976000EE746 /* markdownkit-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA20308398FC000EE746 /* markdownkit-dark.css */; };
+		CC60EAF530839976000EE746 /* mono-blue.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA21308398FC000EE746 /* mono-blue.css */; };
+		CC60EAF630839976000EE746 /* monokai.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA22308398FC000EE746 /* monokai.css */; };
+		CC60EAF730839976000EE746 /* monokai-sublime.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA23308398FC000EE746 /* monokai-sublime.css */; };
+		CC60EAF830839976000EE746 /* night-owl.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA24308398FC000EE746 /* night-owl.css */; };
+		CC60EAF930839976000EE746 /* nnfx-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA25308398FC000EE746 /* nnfx-dark.css */; };
+		CC60EAFA30839976000EE746 /* nnfx-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA26308398FC000EE746 /* nnfx-light.css */; };
+		CC60EAFB30839976000EE746 /* nord.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA27308398FC000EE746 /* nord.css */; };
+		CC60EAFC30839976000EE746 /* obsidian.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA28308398FC000EE746 /* obsidian.css */; };
+		CC60EAFD30839976000EE746 /* ocean.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA29308398FC000EE746 /* ocean.css */; };
+		CC60EAFE30839976000EE746 /* paraiso-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA2A308398FC000EE746 /* paraiso-dark.css */; };
+		CC60EAFF30839976000EE746 /* paraiso-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA2B308398FC000EE746 /* paraiso-light.css */; };
+		CC60EB0030839976000EE746 /* pojoaque.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA2C308398FC000EE746 /* pojoaque.css */; };
+		CC60EB0130839976000EE746 /* purebasic.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA2D308398FC000EE746 /* purebasic.css */; };
+		CC60EB0230839976000EE746 /* qtcreator_dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA2E308398FC000EE746 /* qtcreator_dark.css */; };
+		CC60EB0330839976000EE746 /* qtcreator_light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA2F308398FC000EE746 /* qtcreator_light.css */; };
+		CC60EB0430839976000EE746 /* railscasts.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA30308398FC000EE746 /* railscasts.css */; };
+		CC60EB0530839976000EE746 /* rainbow.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA31308398FC000EE746 /* rainbow.css */; };
+		CC60EB0630839976000EE746 /* routeros.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA32308398FC000EE746 /* routeros.css */; };
+		CC60EB0730839976000EE746 /* school-book.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA33308398FC000EE746 /* school-book.css */; };
+		CC60EB0830839976000EE746 /* shades-of-purple.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA34308398FC000EE746 /* shades-of-purple.css */; };
+		CC60EB0930839976000EE746 /* silk-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA35308398FC000EE746 /* silk-dark.css */; };
+		CC60EB0A30839976000EE746 /* silk-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA36308398FC000EE746 /* silk-light.css */; };
+		CC60EB0B30839976000EE746 /* snazzy.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA37308398FC000EE746 /* snazzy.css */; };
+		CC60EB0C30839976000EE746 /* solarized-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA38308398FC000EE746 /* solarized-dark.css */; };
+		CC60EB0D30839976000EE746 /* solarized-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA39308398FC000EE746 /* solarized-light.css */; };
+		CC60EB0E30839976000EE746 /* srcery.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA3A308398FC000EE746 /* srcery.css */; };
+		CC60EB0F30839976000EE746 /* stackoverflow-dark.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA3B308398FC000EE746 /* stackoverflow-dark.css */; };
+		CC60EB1030839976000EE746 /* stackoverflow-light.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA3C308398FC000EE746 /* stackoverflow-light.css */; };
+		CC60EB1130839976000EE746 /* sunburst.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA3D308398FC000EE746 /* sunburst.css */; };
+		CC60EB1230839976000EE746 /* tomorrow.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA3E308398FC000EE746 /* tomorrow.css */; };
+		CC60EB1330839976000EE746 /* tomorrow-night.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA3F308398FC000EE746 /* tomorrow-night.css */; };
+		CC60EB1430839976000EE746 /* tomorrow-night-blue.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA40308398FC000EE746 /* tomorrow-night-blue.css */; };
+		CC60EB1530839976000EE746 /* tomorrow-night-bright.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA41308398FC000EE746 /* tomorrow-night-bright.css */; };
+		CC60EB1630839976000EE746 /* tomorrow-night-eighties.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA42308398FC000EE746 /* tomorrow-night-eighties.css */; };
+		CC60EB1730839976000EE746 /* vs.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA43308398FC000EE746 /* vs.css */; };
+		CC60EB1830839976000EE746 /* vs2015.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA44308398FC000EE746 /* vs2015.css */; };
+		CC60EB1930839976000EE746 /* vulcan.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA45308398FC000EE746 /* vulcan.css */; };
+		CC60EB1A30839976000EE746 /* xcode.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA46308398FC000EE746 /* xcode.css */; };
+		CC60EB1B30839976000EE746 /* xcode-dusk.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA47308398FC000EE746 /* xcode-dusk.css */; };
+		CC60EB1C30839976000EE746 /* xt256.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA48308398FC000EE746 /* xt256.css */; };
+		CC60EB1D30839976000EE746 /* zenburn.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA49308398FC000EE746 /* zenburn.css */; };
 		CC61CB382ACA116500C5A032 /* SWCompression in Frameworks */ = {isa = PBXBuildFile; productRef = CC61CB372ACA116500C5A032 /* SWCompression */; };
 		CC624CD827374DA8005F15B3 /* util.sld in Copy pre-installed LispKit library: LispKit Math */ = {isa = PBXBuildFile; fileRef = CC624CD627374BF4005F15B3 /* util.sld */; };
 		CC624CDA27374E8E005F15B3 /* util.sld in Copy pre-installed LispKit library: LispKit Math */ = {isa = PBXBuildFile; fileRef = CC624CD627374BF4005F15B3 /* util.sld */; };
@@ -1864,6 +2078,260 @@
 				CC5848031E56920600BE6497 /* set.sld in Copy pre-installed LispKit libraries */,
 			);
 			name = "Copy pre-installed LispKit libraries";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC60E9DA308391C2000EE746 /* Copy JavaScript highlight assets */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Root/LispKit/Assets/JavaScript/Highlight;
+			dstSubfolderSpec = 7;
+			files = (
+				CC60E9DC308391FB000EE746 /* highlight.min.js in Copy JavaScript highlight assets */,
+				CC60E9DB308391EF000EE746 /* LICENSE.txt in Copy JavaScript highlight assets */,
+			);
+			name = "Copy JavaScript highlight assets";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC60E9DD30839232000EE746 /* Copy JavaScript highlight assets */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Root/LispKit/Assets/JavaScript/Highlight;
+			dstSubfolderSpec = 7;
+			files = (
+				CC60E9DF3083925D000EE746 /* highlight.min.js in Copy JavaScript highlight assets */,
+				CC60E9DE30839253000EE746 /* LICENSE.txt in Copy JavaScript highlight assets */,
+			);
+			name = "Copy JavaScript highlight assets";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC60EA4A3083991F000EE746 /* Copy JavaScript highlight themes */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Root/LispKit/Assets/JavaScript/Highlight/Themes;
+			dstSubfolderSpec = 7;
+			files = (
+				CC60EA4B3083994D000EE746 /* a11y-dark.css in Copy JavaScript highlight themes */,
+				CC60EA4C3083994D000EE746 /* a11y-light.css in Copy JavaScript highlight themes */,
+				CC60EA4D3083994D000EE746 /* agate.css in Copy JavaScript highlight themes */,
+				CC60EA4E3083994D000EE746 /* an-old-hope.css in Copy JavaScript highlight themes */,
+				CC60EA4F3083994D000EE746 /* androidstudio.css in Copy JavaScript highlight themes */,
+				CC60EA503083994D000EE746 /* arduino-light.css in Copy JavaScript highlight themes */,
+				CC60EA513083994D000EE746 /* arta.css in Copy JavaScript highlight themes */,
+				CC60EA523083994D000EE746 /* ascetic.css in Copy JavaScript highlight themes */,
+				CC60EA533083994D000EE746 /* atelier-cave-dark.css in Copy JavaScript highlight themes */,
+				CC60EA543083994D000EE746 /* atelier-cave-light.css in Copy JavaScript highlight themes */,
+				CC60EA553083994D000EE746 /* atelier-dune-dark.css in Copy JavaScript highlight themes */,
+				CC60EA563083994D000EE746 /* atelier-dune-light.css in Copy JavaScript highlight themes */,
+				CC60EA573083994D000EE746 /* atelier-estuary-dark.css in Copy JavaScript highlight themes */,
+				CC60EA583083994D000EE746 /* atelier-estuary-light.css in Copy JavaScript highlight themes */,
+				CC60EA593083994D000EE746 /* atelier-forest-dark.css in Copy JavaScript highlight themes */,
+				CC60EA5A3083994D000EE746 /* atelier-forest-light.css in Copy JavaScript highlight themes */,
+				CC60EA5B3083994D000EE746 /* atelier-heath-dark.css in Copy JavaScript highlight themes */,
+				CC60EA5C3083994D000EE746 /* atelier-heath-light.css in Copy JavaScript highlight themes */,
+				CC60EA5D3083994D000EE746 /* atelier-lakeside-dark.css in Copy JavaScript highlight themes */,
+				CC60EA5E3083994D000EE746 /* atelier-lakeside-light.css in Copy JavaScript highlight themes */,
+				CC60EA5F3083994D000EE746 /* atelier-plateau-dark.css in Copy JavaScript highlight themes */,
+				CC60EA603083994D000EE746 /* atelier-plateau-light.css in Copy JavaScript highlight themes */,
+				CC60EA613083994D000EE746 /* atelier-savanna-dark.css in Copy JavaScript highlight themes */,
+				CC60EA623083994D000EE746 /* atelier-savanna-light.css in Copy JavaScript highlight themes */,
+				CC60EA633083994D000EE746 /* atelier-seaside-dark.css in Copy JavaScript highlight themes */,
+				CC60EA643083994D000EE746 /* atelier-seaside-light.css in Copy JavaScript highlight themes */,
+				CC60EA653083994D000EE746 /* atelier-sulphurpool-dark.css in Copy JavaScript highlight themes */,
+				CC60EA663083994D000EE746 /* atelier-sulphurpool-light.css in Copy JavaScript highlight themes */,
+				CC60EA673083994D000EE746 /* atom-one-dark.css in Copy JavaScript highlight themes */,
+				CC60EA683083994D000EE746 /* atom-one-dark-reasonable.css in Copy JavaScript highlight themes */,
+				CC60EA693083994D000EE746 /* atom-one-light.css in Copy JavaScript highlight themes */,
+				CC60EA6A3083994D000EE746 /* brown-paper.css in Copy JavaScript highlight themes */,
+				CC60EA6B3083994D000EE746 /* codepen-embed.css in Copy JavaScript highlight themes */,
+				CC60EA6C3083994D000EE746 /* color-brewer.css in Copy JavaScript highlight themes */,
+				CC60EA6D3083994D000EE746 /* darcula.css in Copy JavaScript highlight themes */,
+				CC60EA6E3083994D000EE746 /* dark.css in Copy JavaScript highlight themes */,
+				CC60EA6F3083994D000EE746 /* default.css in Copy JavaScript highlight themes */,
+				CC60EA703083994D000EE746 /* docco.css in Copy JavaScript highlight themes */,
+				CC60EA713083994D000EE746 /* dracula.css in Copy JavaScript highlight themes */,
+				CC60EA723083994D000EE746 /* far.css in Copy JavaScript highlight themes */,
+				CC60EA733083994D000EE746 /* foundation.css in Copy JavaScript highlight themes */,
+				CC60EA743083994D000EE746 /* github.css in Copy JavaScript highlight themes */,
+				CC60EA753083994D000EE746 /* github-dark.css in Copy JavaScript highlight themes */,
+				CC60EA763083994D000EE746 /* github-gist.css in Copy JavaScript highlight themes */,
+				CC60EA773083994D000EE746 /* gml.css in Copy JavaScript highlight themes */,
+				CC60EA783083994D000EE746 /* googlecode.css in Copy JavaScript highlight themes */,
+				CC60EA793083994D000EE746 /* gradient-dark.css in Copy JavaScript highlight themes */,
+				CC60EA7A3083994D000EE746 /* gradient-light.css in Copy JavaScript highlight themes */,
+				CC60EA7B3083994D000EE746 /* grayscale.css in Copy JavaScript highlight themes */,
+				CC60EA7C3083994D000EE746 /* gruvbox-dark.css in Copy JavaScript highlight themes */,
+				CC60EA7D3083994D000EE746 /* gruvbox-light.css in Copy JavaScript highlight themes */,
+				CC60EA7E3083994D000EE746 /* hopscotch.css in Copy JavaScript highlight themes */,
+				CC60EA7F3083994D000EE746 /* hybrid.css in Copy JavaScript highlight themes */,
+				CC60EA803083994D000EE746 /* idea.css in Copy JavaScript highlight themes */,
+				CC60EA813083994D000EE746 /* ir-black.css in Copy JavaScript highlight themes */,
+				CC60EA823083994D000EE746 /* isbl-editor-dark.css in Copy JavaScript highlight themes */,
+				CC60EA833083994D000EE746 /* isbl-editor-light.css in Copy JavaScript highlight themes */,
+				CC60EA843083994D000EE746 /* kimbie-dark.css in Copy JavaScript highlight themes */,
+				CC60EA853083994D000EE746 /* kimbie-light.css in Copy JavaScript highlight themes */,
+				CC60EA863083994D000EE746 /* lightfair.css in Copy JavaScript highlight themes */,
+				CC60EA873083994D000EE746 /* lioshi.css in Copy JavaScript highlight themes */,
+				CC60EA883083994D000EE746 /* magula.css in Copy JavaScript highlight themes */,
+				CC60EA893083994D000EE746 /* markdownkit.css in Copy JavaScript highlight themes */,
+				CC60EA8A3083994D000EE746 /* markdownkit-dark.css in Copy JavaScript highlight themes */,
+				CC60EA8B3083994D000EE746 /* mono-blue.css in Copy JavaScript highlight themes */,
+				CC60EA8C3083994D000EE746 /* monokai.css in Copy JavaScript highlight themes */,
+				CC60EA8D3083994D000EE746 /* monokai-sublime.css in Copy JavaScript highlight themes */,
+				CC60EA8E3083994D000EE746 /* night-owl.css in Copy JavaScript highlight themes */,
+				CC60EA8F3083994D000EE746 /* nnfx-dark.css in Copy JavaScript highlight themes */,
+				CC60EA903083994D000EE746 /* nnfx-light.css in Copy JavaScript highlight themes */,
+				CC60EA913083994D000EE746 /* nord.css in Copy JavaScript highlight themes */,
+				CC60EA923083994D000EE746 /* obsidian.css in Copy JavaScript highlight themes */,
+				CC60EA933083994D000EE746 /* ocean.css in Copy JavaScript highlight themes */,
+				CC60EA943083994D000EE746 /* paraiso-dark.css in Copy JavaScript highlight themes */,
+				CC60EA953083994D000EE746 /* paraiso-light.css in Copy JavaScript highlight themes */,
+				CC60EA963083994D000EE746 /* pojoaque.css in Copy JavaScript highlight themes */,
+				CC60EA973083994D000EE746 /* purebasic.css in Copy JavaScript highlight themes */,
+				CC60EA983083994D000EE746 /* qtcreator_dark.css in Copy JavaScript highlight themes */,
+				CC60EA993083994D000EE746 /* qtcreator_light.css in Copy JavaScript highlight themes */,
+				CC60EA9A3083994D000EE746 /* railscasts.css in Copy JavaScript highlight themes */,
+				CC60EA9B3083994D000EE746 /* rainbow.css in Copy JavaScript highlight themes */,
+				CC60EA9C3083994D000EE746 /* routeros.css in Copy JavaScript highlight themes */,
+				CC60EA9D3083994D000EE746 /* school-book.css in Copy JavaScript highlight themes */,
+				CC60EA9E3083994D000EE746 /* shades-of-purple.css in Copy JavaScript highlight themes */,
+				CC60EA9F3083994D000EE746 /* silk-dark.css in Copy JavaScript highlight themes */,
+				CC60EAA03083994D000EE746 /* silk-light.css in Copy JavaScript highlight themes */,
+				CC60EAA13083994D000EE746 /* snazzy.css in Copy JavaScript highlight themes */,
+				CC60EAA23083994D000EE746 /* solarized-dark.css in Copy JavaScript highlight themes */,
+				CC60EAA33083994D000EE746 /* solarized-light.css in Copy JavaScript highlight themes */,
+				CC60EAA43083994D000EE746 /* srcery.css in Copy JavaScript highlight themes */,
+				CC60EAA53083994D000EE746 /* stackoverflow-dark.css in Copy JavaScript highlight themes */,
+				CC60EAA63083994D000EE746 /* stackoverflow-light.css in Copy JavaScript highlight themes */,
+				CC60EAA73083994D000EE746 /* sunburst.css in Copy JavaScript highlight themes */,
+				CC60EAA83083994D000EE746 /* tomorrow.css in Copy JavaScript highlight themes */,
+				CC60EAA93083994D000EE746 /* tomorrow-night.css in Copy JavaScript highlight themes */,
+				CC60EAAA3083994D000EE746 /* tomorrow-night-blue.css in Copy JavaScript highlight themes */,
+				CC60EAAB3083994D000EE746 /* tomorrow-night-bright.css in Copy JavaScript highlight themes */,
+				CC60EAAC3083994D000EE746 /* tomorrow-night-eighties.css in Copy JavaScript highlight themes */,
+				CC60EAAD3083994D000EE746 /* vs.css in Copy JavaScript highlight themes */,
+				CC60EAAE3083994D000EE746 /* vs2015.css in Copy JavaScript highlight themes */,
+				CC60EAAF3083994D000EE746 /* vulcan.css in Copy JavaScript highlight themes */,
+				CC60EAB03083994D000EE746 /* xcode.css in Copy JavaScript highlight themes */,
+				CC60EAB13083994D000EE746 /* xcode-dusk.css in Copy JavaScript highlight themes */,
+				CC60EAB23083994D000EE746 /* xt256.css in Copy JavaScript highlight themes */,
+				CC60EAB33083994D000EE746 /* zenburn.css in Copy JavaScript highlight themes */,
+			);
+			name = "Copy JavaScript highlight themes";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC60EAB43083995D000EE746 /* Copy JavaScript highlight themes */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Root/LispKit/Assets/JavaScript/Highlight/Themes;
+			dstSubfolderSpec = 7;
+			files = (
+				CC60EAB530839976000EE746 /* a11y-dark.css in Copy JavaScript highlight themes */,
+				CC60EAB630839976000EE746 /* a11y-light.css in Copy JavaScript highlight themes */,
+				CC60EAB730839976000EE746 /* agate.css in Copy JavaScript highlight themes */,
+				CC60EAB830839976000EE746 /* an-old-hope.css in Copy JavaScript highlight themes */,
+				CC60EAB930839976000EE746 /* androidstudio.css in Copy JavaScript highlight themes */,
+				CC60EABA30839976000EE746 /* arduino-light.css in Copy JavaScript highlight themes */,
+				CC60EABB30839976000EE746 /* arta.css in Copy JavaScript highlight themes */,
+				CC60EABC30839976000EE746 /* ascetic.css in Copy JavaScript highlight themes */,
+				CC60EABD30839976000EE746 /* atelier-cave-dark.css in Copy JavaScript highlight themes */,
+				CC60EABE30839976000EE746 /* atelier-cave-light.css in Copy JavaScript highlight themes */,
+				CC60EABF30839976000EE746 /* atelier-dune-dark.css in Copy JavaScript highlight themes */,
+				CC60EAC030839976000EE746 /* atelier-dune-light.css in Copy JavaScript highlight themes */,
+				CC60EAC130839976000EE746 /* atelier-estuary-dark.css in Copy JavaScript highlight themes */,
+				CC60EAC230839976000EE746 /* atelier-estuary-light.css in Copy JavaScript highlight themes */,
+				CC60EAC330839976000EE746 /* atelier-forest-dark.css in Copy JavaScript highlight themes */,
+				CC60EAC430839976000EE746 /* atelier-forest-light.css in Copy JavaScript highlight themes */,
+				CC60EAC530839976000EE746 /* atelier-heath-dark.css in Copy JavaScript highlight themes */,
+				CC60EAC630839976000EE746 /* atelier-heath-light.css in Copy JavaScript highlight themes */,
+				CC60EAC730839976000EE746 /* atelier-lakeside-dark.css in Copy JavaScript highlight themes */,
+				CC60EAC830839976000EE746 /* atelier-lakeside-light.css in Copy JavaScript highlight themes */,
+				CC60EAC930839976000EE746 /* atelier-plateau-dark.css in Copy JavaScript highlight themes */,
+				CC60EACA30839976000EE746 /* atelier-plateau-light.css in Copy JavaScript highlight themes */,
+				CC60EACB30839976000EE746 /* atelier-savanna-dark.css in Copy JavaScript highlight themes */,
+				CC60EACC30839976000EE746 /* atelier-savanna-light.css in Copy JavaScript highlight themes */,
+				CC60EACD30839976000EE746 /* atelier-seaside-dark.css in Copy JavaScript highlight themes */,
+				CC60EACE30839976000EE746 /* atelier-seaside-light.css in Copy JavaScript highlight themes */,
+				CC60EACF30839976000EE746 /* atelier-sulphurpool-dark.css in Copy JavaScript highlight themes */,
+				CC60EAD030839976000EE746 /* atelier-sulphurpool-light.css in Copy JavaScript highlight themes */,
+				CC60EAD130839976000EE746 /* atom-one-dark.css in Copy JavaScript highlight themes */,
+				CC60EAD230839976000EE746 /* atom-one-dark-reasonable.css in Copy JavaScript highlight themes */,
+				CC60EAD330839976000EE746 /* atom-one-light.css in Copy JavaScript highlight themes */,
+				CC60EAD430839976000EE746 /* brown-paper.css in Copy JavaScript highlight themes */,
+				CC60EAD530839976000EE746 /* codepen-embed.css in Copy JavaScript highlight themes */,
+				CC60EAD630839976000EE746 /* color-brewer.css in Copy JavaScript highlight themes */,
+				CC60EAD730839976000EE746 /* darcula.css in Copy JavaScript highlight themes */,
+				CC60EAD830839976000EE746 /* dark.css in Copy JavaScript highlight themes */,
+				CC60EAD930839976000EE746 /* default.css in Copy JavaScript highlight themes */,
+				CC60EADA30839976000EE746 /* docco.css in Copy JavaScript highlight themes */,
+				CC60EADB30839976000EE746 /* dracula.css in Copy JavaScript highlight themes */,
+				CC60EADC30839976000EE746 /* far.css in Copy JavaScript highlight themes */,
+				CC60EADD30839976000EE746 /* foundation.css in Copy JavaScript highlight themes */,
+				CC60EADE30839976000EE746 /* github.css in Copy JavaScript highlight themes */,
+				CC60EADF30839976000EE746 /* github-dark.css in Copy JavaScript highlight themes */,
+				CC60EAE030839976000EE746 /* github-gist.css in Copy JavaScript highlight themes */,
+				CC60EAE130839976000EE746 /* gml.css in Copy JavaScript highlight themes */,
+				CC60EAE230839976000EE746 /* googlecode.css in Copy JavaScript highlight themes */,
+				CC60EAE330839976000EE746 /* gradient-dark.css in Copy JavaScript highlight themes */,
+				CC60EAE430839976000EE746 /* gradient-light.css in Copy JavaScript highlight themes */,
+				CC60EAE530839976000EE746 /* grayscale.css in Copy JavaScript highlight themes */,
+				CC60EAE630839976000EE746 /* gruvbox-dark.css in Copy JavaScript highlight themes */,
+				CC60EAE730839976000EE746 /* gruvbox-light.css in Copy JavaScript highlight themes */,
+				CC60EAE830839976000EE746 /* hopscotch.css in Copy JavaScript highlight themes */,
+				CC60EAE930839976000EE746 /* hybrid.css in Copy JavaScript highlight themes */,
+				CC60EAEA30839976000EE746 /* idea.css in Copy JavaScript highlight themes */,
+				CC60EAEB30839976000EE746 /* ir-black.css in Copy JavaScript highlight themes */,
+				CC60EAEC30839976000EE746 /* isbl-editor-dark.css in Copy JavaScript highlight themes */,
+				CC60EAED30839976000EE746 /* isbl-editor-light.css in Copy JavaScript highlight themes */,
+				CC60EAEE30839976000EE746 /* kimbie-dark.css in Copy JavaScript highlight themes */,
+				CC60EAEF30839976000EE746 /* kimbie-light.css in Copy JavaScript highlight themes */,
+				CC60EAF030839976000EE746 /* lightfair.css in Copy JavaScript highlight themes */,
+				CC60EAF130839976000EE746 /* lioshi.css in Copy JavaScript highlight themes */,
+				CC60EAF230839976000EE746 /* magula.css in Copy JavaScript highlight themes */,
+				CC60EAF330839976000EE746 /* markdownkit.css in Copy JavaScript highlight themes */,
+				CC60EAF430839976000EE746 /* markdownkit-dark.css in Copy JavaScript highlight themes */,
+				CC60EAF530839976000EE746 /* mono-blue.css in Copy JavaScript highlight themes */,
+				CC60EAF630839976000EE746 /* monokai.css in Copy JavaScript highlight themes */,
+				CC60EAF730839976000EE746 /* monokai-sublime.css in Copy JavaScript highlight themes */,
+				CC60EAF830839976000EE746 /* night-owl.css in Copy JavaScript highlight themes */,
+				CC60EAF930839976000EE746 /* nnfx-dark.css in Copy JavaScript highlight themes */,
+				CC60EAFA30839976000EE746 /* nnfx-light.css in Copy JavaScript highlight themes */,
+				CC60EAFB30839976000EE746 /* nord.css in Copy JavaScript highlight themes */,
+				CC60EAFC30839976000EE746 /* obsidian.css in Copy JavaScript highlight themes */,
+				CC60EAFD30839976000EE746 /* ocean.css in Copy JavaScript highlight themes */,
+				CC60EAFE30839976000EE746 /* paraiso-dark.css in Copy JavaScript highlight themes */,
+				CC60EAFF30839976000EE746 /* paraiso-light.css in Copy JavaScript highlight themes */,
+				CC60EB0030839976000EE746 /* pojoaque.css in Copy JavaScript highlight themes */,
+				CC60EB0130839976000EE746 /* purebasic.css in Copy JavaScript highlight themes */,
+				CC60EB0230839976000EE746 /* qtcreator_dark.css in Copy JavaScript highlight themes */,
+				CC60EB0330839976000EE746 /* qtcreator_light.css in Copy JavaScript highlight themes */,
+				CC60EB0430839976000EE746 /* railscasts.css in Copy JavaScript highlight themes */,
+				CC60EB0530839976000EE746 /* rainbow.css in Copy JavaScript highlight themes */,
+				CC60EB0630839976000EE746 /* routeros.css in Copy JavaScript highlight themes */,
+				CC60EB0730839976000EE746 /* school-book.css in Copy JavaScript highlight themes */,
+				CC60EB0830839976000EE746 /* shades-of-purple.css in Copy JavaScript highlight themes */,
+				CC60EB0930839976000EE746 /* silk-dark.css in Copy JavaScript highlight themes */,
+				CC60EB0A30839976000EE746 /* silk-light.css in Copy JavaScript highlight themes */,
+				CC60EB0B30839976000EE746 /* snazzy.css in Copy JavaScript highlight themes */,
+				CC60EB0C30839976000EE746 /* solarized-dark.css in Copy JavaScript highlight themes */,
+				CC60EB0D30839976000EE746 /* solarized-light.css in Copy JavaScript highlight themes */,
+				CC60EB0E30839976000EE746 /* srcery.css in Copy JavaScript highlight themes */,
+				CC60EB0F30839976000EE746 /* stackoverflow-dark.css in Copy JavaScript highlight themes */,
+				CC60EB1030839976000EE746 /* stackoverflow-light.css in Copy JavaScript highlight themes */,
+				CC60EB1130839976000EE746 /* sunburst.css in Copy JavaScript highlight themes */,
+				CC60EB1230839976000EE746 /* tomorrow.css in Copy JavaScript highlight themes */,
+				CC60EB1330839976000EE746 /* tomorrow-night.css in Copy JavaScript highlight themes */,
+				CC60EB1430839976000EE746 /* tomorrow-night-blue.css in Copy JavaScript highlight themes */,
+				CC60EB1530839976000EE746 /* tomorrow-night-bright.css in Copy JavaScript highlight themes */,
+				CC60EB1630839976000EE746 /* tomorrow-night-eighties.css in Copy JavaScript highlight themes */,
+				CC60EB1730839976000EE746 /* vs.css in Copy JavaScript highlight themes */,
+				CC60EB1830839976000EE746 /* vs2015.css in Copy JavaScript highlight themes */,
+				CC60EB1930839976000EE746 /* vulcan.css in Copy JavaScript highlight themes */,
+				CC60EB1A30839976000EE746 /* xcode.css in Copy JavaScript highlight themes */,
+				CC60EB1B30839976000EE746 /* xcode-dusk.css in Copy JavaScript highlight themes */,
+				CC60EB1C30839976000EE746 /* xt256.css in Copy JavaScript highlight themes */,
+				CC60EB1D30839976000EE746 /* zenburn.css in Copy JavaScript highlight themes */,
+			);
+			name = "Copy JavaScript highlight themes";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		CC624CD727374D71005F15B3 /* Copy pre-installed LispKit library: LispKit Math */ = {
@@ -3513,6 +3981,113 @@
 		CC5E474220D45A8900F21B03 /* Coroutines.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Coroutines.scm; sourceTree = "<group>"; };
 		CC5E530723579CF200C72CE2 /* 174.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 174.sld; sourceTree = "<group>"; };
 		CC5E53092358359900C72CE2 /* SRFI-174.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-174.scm"; sourceTree = "<group>"; };
+		CC60E9D830838F9F000EE746 /* highlight.min.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = highlight.min.js; sourceTree = "<group>"; };
+		CC60E9D930838FAB000EE746 /* LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
+		CC60E9E1308398FC000EE746 /* a11y-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "a11y-dark.css"; sourceTree = "<group>"; };
+		CC60E9E2308398FC000EE746 /* a11y-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "a11y-light.css"; sourceTree = "<group>"; };
+		CC60E9E3308398FC000EE746 /* agate.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = agate.css; sourceTree = "<group>"; };
+		CC60E9E4308398FC000EE746 /* an-old-hope.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "an-old-hope.css"; sourceTree = "<group>"; };
+		CC60E9E5308398FC000EE746 /* androidstudio.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = androidstudio.css; sourceTree = "<group>"; };
+		CC60E9E6308398FC000EE746 /* arduino-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "arduino-light.css"; sourceTree = "<group>"; };
+		CC60E9E7308398FC000EE746 /* arta.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = arta.css; sourceTree = "<group>"; };
+		CC60E9E8308398FC000EE746 /* ascetic.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = ascetic.css; sourceTree = "<group>"; };
+		CC60E9E9308398FC000EE746 /* atelier-cave-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atelier-cave-dark.css"; sourceTree = "<group>"; };
+		CC60E9EA308398FC000EE746 /* atelier-cave-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atelier-cave-light.css"; sourceTree = "<group>"; };
+		CC60E9EB308398FC000EE746 /* atelier-dune-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atelier-dune-dark.css"; sourceTree = "<group>"; };
+		CC60E9EC308398FC000EE746 /* atelier-dune-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atelier-dune-light.css"; sourceTree = "<group>"; };
+		CC60E9ED308398FC000EE746 /* atelier-estuary-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atelier-estuary-dark.css"; sourceTree = "<group>"; };
+		CC60E9EE308398FC000EE746 /* atelier-estuary-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atelier-estuary-light.css"; sourceTree = "<group>"; };
+		CC60E9EF308398FC000EE746 /* atelier-forest-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atelier-forest-dark.css"; sourceTree = "<group>"; };
+		CC60E9F0308398FC000EE746 /* atelier-forest-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atelier-forest-light.css"; sourceTree = "<group>"; };
+		CC60E9F1308398FC000EE746 /* atelier-heath-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atelier-heath-dark.css"; sourceTree = "<group>"; };
+		CC60E9F2308398FC000EE746 /* atelier-heath-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atelier-heath-light.css"; sourceTree = "<group>"; };
+		CC60E9F3308398FC000EE746 /* atelier-lakeside-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atelier-lakeside-dark.css"; sourceTree = "<group>"; };
+		CC60E9F4308398FC000EE746 /* atelier-lakeside-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atelier-lakeside-light.css"; sourceTree = "<group>"; };
+		CC60E9F5308398FC000EE746 /* atelier-plateau-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atelier-plateau-dark.css"; sourceTree = "<group>"; };
+		CC60E9F6308398FC000EE746 /* atelier-plateau-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atelier-plateau-light.css"; sourceTree = "<group>"; };
+		CC60E9F7308398FC000EE746 /* atelier-savanna-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atelier-savanna-dark.css"; sourceTree = "<group>"; };
+		CC60E9F8308398FC000EE746 /* atelier-savanna-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atelier-savanna-light.css"; sourceTree = "<group>"; };
+		CC60E9F9308398FC000EE746 /* atelier-seaside-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atelier-seaside-dark.css"; sourceTree = "<group>"; };
+		CC60E9FA308398FC000EE746 /* atelier-seaside-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atelier-seaside-light.css"; sourceTree = "<group>"; };
+		CC60E9FB308398FC000EE746 /* atelier-sulphurpool-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atelier-sulphurpool-dark.css"; sourceTree = "<group>"; };
+		CC60E9FC308398FC000EE746 /* atelier-sulphurpool-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atelier-sulphurpool-light.css"; sourceTree = "<group>"; };
+		CC60E9FD308398FC000EE746 /* atom-one-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atom-one-dark.css"; sourceTree = "<group>"; };
+		CC60E9FE308398FC000EE746 /* atom-one-dark-reasonable.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atom-one-dark-reasonable.css"; sourceTree = "<group>"; };
+		CC60E9FF308398FC000EE746 /* atom-one-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "atom-one-light.css"; sourceTree = "<group>"; };
+		CC60EA00308398FC000EE746 /* brown-paper.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "brown-paper.css"; sourceTree = "<group>"; };
+		CC60EA01308398FC000EE746 /* codepen-embed.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "codepen-embed.css"; sourceTree = "<group>"; };
+		CC60EA02308398FC000EE746 /* color-brewer.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "color-brewer.css"; sourceTree = "<group>"; };
+		CC60EA03308398FC000EE746 /* darcula.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = darcula.css; sourceTree = "<group>"; };
+		CC60EA04308398FC000EE746 /* dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = dark.css; sourceTree = "<group>"; };
+		CC60EA05308398FC000EE746 /* default.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = default.css; sourceTree = "<group>"; };
+		CC60EA06308398FC000EE746 /* docco.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = docco.css; sourceTree = "<group>"; };
+		CC60EA07308398FC000EE746 /* dracula.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = dracula.css; sourceTree = "<group>"; };
+		CC60EA08308398FC000EE746 /* far.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = far.css; sourceTree = "<group>"; };
+		CC60EA09308398FC000EE746 /* foundation.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = foundation.css; sourceTree = "<group>"; };
+		CC60EA0A308398FC000EE746 /* github.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = github.css; sourceTree = "<group>"; };
+		CC60EA0B308398FC000EE746 /* github-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "github-dark.css"; sourceTree = "<group>"; };
+		CC60EA0C308398FC000EE746 /* github-gist.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "github-gist.css"; sourceTree = "<group>"; };
+		CC60EA0D308398FC000EE746 /* gml.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = gml.css; sourceTree = "<group>"; };
+		CC60EA0E308398FC000EE746 /* googlecode.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = googlecode.css; sourceTree = "<group>"; };
+		CC60EA0F308398FC000EE746 /* gradient-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "gradient-dark.css"; sourceTree = "<group>"; };
+		CC60EA10308398FC000EE746 /* gradient-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "gradient-light.css"; sourceTree = "<group>"; };
+		CC60EA11308398FC000EE746 /* grayscale.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = grayscale.css; sourceTree = "<group>"; };
+		CC60EA12308398FC000EE746 /* gruvbox-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "gruvbox-dark.css"; sourceTree = "<group>"; };
+		CC60EA13308398FC000EE746 /* gruvbox-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "gruvbox-light.css"; sourceTree = "<group>"; };
+		CC60EA14308398FC000EE746 /* hopscotch.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = hopscotch.css; sourceTree = "<group>"; };
+		CC60EA15308398FC000EE746 /* hybrid.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = hybrid.css; sourceTree = "<group>"; };
+		CC60EA16308398FC000EE746 /* idea.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = idea.css; sourceTree = "<group>"; };
+		CC60EA17308398FC000EE746 /* ir-black.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "ir-black.css"; sourceTree = "<group>"; };
+		CC60EA18308398FC000EE746 /* isbl-editor-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "isbl-editor-dark.css"; sourceTree = "<group>"; };
+		CC60EA19308398FC000EE746 /* isbl-editor-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "isbl-editor-light.css"; sourceTree = "<group>"; };
+		CC60EA1A308398FC000EE746 /* kimbie-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "kimbie-dark.css"; sourceTree = "<group>"; };
+		CC60EA1B308398FC000EE746 /* kimbie-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "kimbie-light.css"; sourceTree = "<group>"; };
+		CC60EA1C308398FC000EE746 /* lightfair.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = lightfair.css; sourceTree = "<group>"; };
+		CC60EA1D308398FC000EE746 /* lioshi.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = lioshi.css; sourceTree = "<group>"; };
+		CC60EA1E308398FC000EE746 /* magula.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = magula.css; sourceTree = "<group>"; };
+		CC60EA1F308398FC000EE746 /* markdownkit.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = markdownkit.css; sourceTree = "<group>"; };
+		CC60EA20308398FC000EE746 /* markdownkit-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "markdownkit-dark.css"; sourceTree = "<group>"; };
+		CC60EA21308398FC000EE746 /* mono-blue.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "mono-blue.css"; sourceTree = "<group>"; };
+		CC60EA22308398FC000EE746 /* monokai.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = monokai.css; sourceTree = "<group>"; };
+		CC60EA23308398FC000EE746 /* monokai-sublime.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "monokai-sublime.css"; sourceTree = "<group>"; };
+		CC60EA24308398FC000EE746 /* night-owl.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "night-owl.css"; sourceTree = "<group>"; };
+		CC60EA25308398FC000EE746 /* nnfx-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "nnfx-dark.css"; sourceTree = "<group>"; };
+		CC60EA26308398FC000EE746 /* nnfx-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "nnfx-light.css"; sourceTree = "<group>"; };
+		CC60EA27308398FC000EE746 /* nord.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = nord.css; sourceTree = "<group>"; };
+		CC60EA28308398FC000EE746 /* obsidian.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = obsidian.css; sourceTree = "<group>"; };
+		CC60EA29308398FC000EE746 /* ocean.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = ocean.css; sourceTree = "<group>"; };
+		CC60EA2A308398FC000EE746 /* paraiso-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "paraiso-dark.css"; sourceTree = "<group>"; };
+		CC60EA2B308398FC000EE746 /* paraiso-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "paraiso-light.css"; sourceTree = "<group>"; };
+		CC60EA2C308398FC000EE746 /* pojoaque.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = pojoaque.css; sourceTree = "<group>"; };
+		CC60EA2D308398FC000EE746 /* purebasic.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = purebasic.css; sourceTree = "<group>"; };
+		CC60EA2E308398FC000EE746 /* qtcreator_dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = qtcreator_dark.css; sourceTree = "<group>"; };
+		CC60EA2F308398FC000EE746 /* qtcreator_light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = qtcreator_light.css; sourceTree = "<group>"; };
+		CC60EA30308398FC000EE746 /* railscasts.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = railscasts.css; sourceTree = "<group>"; };
+		CC60EA31308398FC000EE746 /* rainbow.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = rainbow.css; sourceTree = "<group>"; };
+		CC60EA32308398FC000EE746 /* routeros.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = routeros.css; sourceTree = "<group>"; };
+		CC60EA33308398FC000EE746 /* school-book.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "school-book.css"; sourceTree = "<group>"; };
+		CC60EA34308398FC000EE746 /* shades-of-purple.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "shades-of-purple.css"; sourceTree = "<group>"; };
+		CC60EA35308398FC000EE746 /* silk-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "silk-dark.css"; sourceTree = "<group>"; };
+		CC60EA36308398FC000EE746 /* silk-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "silk-light.css"; sourceTree = "<group>"; };
+		CC60EA37308398FC000EE746 /* snazzy.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = snazzy.css; sourceTree = "<group>"; };
+		CC60EA38308398FC000EE746 /* solarized-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "solarized-dark.css"; sourceTree = "<group>"; };
+		CC60EA39308398FC000EE746 /* solarized-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "solarized-light.css"; sourceTree = "<group>"; };
+		CC60EA3A308398FC000EE746 /* srcery.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = srcery.css; sourceTree = "<group>"; };
+		CC60EA3B308398FC000EE746 /* stackoverflow-dark.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "stackoverflow-dark.css"; sourceTree = "<group>"; };
+		CC60EA3C308398FC000EE746 /* stackoverflow-light.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "stackoverflow-light.css"; sourceTree = "<group>"; };
+		CC60EA3D308398FC000EE746 /* sunburst.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = sunburst.css; sourceTree = "<group>"; };
+		CC60EA3E308398FC000EE746 /* tomorrow.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = tomorrow.css; sourceTree = "<group>"; };
+		CC60EA3F308398FC000EE746 /* tomorrow-night.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "tomorrow-night.css"; sourceTree = "<group>"; };
+		CC60EA40308398FC000EE746 /* tomorrow-night-blue.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "tomorrow-night-blue.css"; sourceTree = "<group>"; };
+		CC60EA41308398FC000EE746 /* tomorrow-night-bright.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "tomorrow-night-bright.css"; sourceTree = "<group>"; };
+		CC60EA42308398FC000EE746 /* tomorrow-night-eighties.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "tomorrow-night-eighties.css"; sourceTree = "<group>"; };
+		CC60EA43308398FC000EE746 /* vs.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = vs.css; sourceTree = "<group>"; };
+		CC60EA44308398FC000EE746 /* vs2015.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = vs2015.css; sourceTree = "<group>"; };
+		CC60EA45308398FC000EE746 /* vulcan.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = vulcan.css; sourceTree = "<group>"; };
+		CC60EA46308398FC000EE746 /* xcode.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = xcode.css; sourceTree = "<group>"; };
+		CC60EA47308398FC000EE746 /* xcode-dusk.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "xcode-dusk.css"; sourceTree = "<group>"; };
+		CC60EA48308398FC000EE746 /* xt256.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = xt256.css; sourceTree = "<group>"; };
+		CC60EA49308398FC000EE746 /* zenburn.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = zenburn.css; sourceTree = "<group>"; };
 		CC624CD627374BF4005F15B3 /* util.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = util.sld; sourceTree = "<group>"; };
 		CC624CDB2737D16E005F15B3 /* stats.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = stats.sld; sourceTree = "<group>"; };
 		CC6598CE27248DC8004C9B89 /* LispKitContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LispKitContext.swift; sourceTree = "<group>"; };
@@ -4417,6 +4992,7 @@
 		CC4132362DF6FE8C00D77CF6 /* JavaScript */ = {
 			isa = PBXGroup;
 			children = (
+				CC60E9D730838F6C000EE746 /* Highlight */,
 				CC4132372DF700C500D77CF6 /* Mermaid */,
 			);
 			path = JavaScript;
@@ -4642,6 +5218,128 @@
 				CCF37FFE2DAB90B2000936CA /* 258.sld */,
 			);
 			path = srfi;
+			sourceTree = "<group>";
+		};
+		CC60E9D730838F6C000EE746 /* Highlight */ = {
+			isa = PBXGroup;
+			children = (
+				CC60E9E0308398D4000EE746 /* Themes */,
+				CC60E9D830838F9F000EE746 /* highlight.min.js */,
+				CC60E9D930838FAB000EE746 /* LICENSE.txt */,
+			);
+			path = Highlight;
+			sourceTree = "<group>";
+		};
+		CC60E9E0308398D4000EE746 /* Themes */ = {
+			isa = PBXGroup;
+			children = (
+				CC60E9E1308398FC000EE746 /* a11y-dark.css */,
+				CC60E9E2308398FC000EE746 /* a11y-light.css */,
+				CC60E9E3308398FC000EE746 /* agate.css */,
+				CC60E9E4308398FC000EE746 /* an-old-hope.css */,
+				CC60E9E5308398FC000EE746 /* androidstudio.css */,
+				CC60E9E6308398FC000EE746 /* arduino-light.css */,
+				CC60E9E7308398FC000EE746 /* arta.css */,
+				CC60E9E8308398FC000EE746 /* ascetic.css */,
+				CC60E9E9308398FC000EE746 /* atelier-cave-dark.css */,
+				CC60E9EA308398FC000EE746 /* atelier-cave-light.css */,
+				CC60E9EB308398FC000EE746 /* atelier-dune-dark.css */,
+				CC60E9EC308398FC000EE746 /* atelier-dune-light.css */,
+				CC60E9ED308398FC000EE746 /* atelier-estuary-dark.css */,
+				CC60E9EE308398FC000EE746 /* atelier-estuary-light.css */,
+				CC60E9EF308398FC000EE746 /* atelier-forest-dark.css */,
+				CC60E9F0308398FC000EE746 /* atelier-forest-light.css */,
+				CC60E9F1308398FC000EE746 /* atelier-heath-dark.css */,
+				CC60E9F2308398FC000EE746 /* atelier-heath-light.css */,
+				CC60E9F3308398FC000EE746 /* atelier-lakeside-dark.css */,
+				CC60E9F4308398FC000EE746 /* atelier-lakeside-light.css */,
+				CC60E9F5308398FC000EE746 /* atelier-plateau-dark.css */,
+				CC60E9F6308398FC000EE746 /* atelier-plateau-light.css */,
+				CC60E9F7308398FC000EE746 /* atelier-savanna-dark.css */,
+				CC60E9F8308398FC000EE746 /* atelier-savanna-light.css */,
+				CC60E9F9308398FC000EE746 /* atelier-seaside-dark.css */,
+				CC60E9FA308398FC000EE746 /* atelier-seaside-light.css */,
+				CC60E9FB308398FC000EE746 /* atelier-sulphurpool-dark.css */,
+				CC60E9FC308398FC000EE746 /* atelier-sulphurpool-light.css */,
+				CC60E9FD308398FC000EE746 /* atom-one-dark.css */,
+				CC60E9FE308398FC000EE746 /* atom-one-dark-reasonable.css */,
+				CC60E9FF308398FC000EE746 /* atom-one-light.css */,
+				CC60EA00308398FC000EE746 /* brown-paper.css */,
+				CC60EA01308398FC000EE746 /* codepen-embed.css */,
+				CC60EA02308398FC000EE746 /* color-brewer.css */,
+				CC60EA03308398FC000EE746 /* darcula.css */,
+				CC60EA04308398FC000EE746 /* dark.css */,
+				CC60EA05308398FC000EE746 /* default.css */,
+				CC60EA06308398FC000EE746 /* docco.css */,
+				CC60EA07308398FC000EE746 /* dracula.css */,
+				CC60EA08308398FC000EE746 /* far.css */,
+				CC60EA09308398FC000EE746 /* foundation.css */,
+				CC60EA0A308398FC000EE746 /* github.css */,
+				CC60EA0B308398FC000EE746 /* github-dark.css */,
+				CC60EA0C308398FC000EE746 /* github-gist.css */,
+				CC60EA0D308398FC000EE746 /* gml.css */,
+				CC60EA0E308398FC000EE746 /* googlecode.css */,
+				CC60EA0F308398FC000EE746 /* gradient-dark.css */,
+				CC60EA10308398FC000EE746 /* gradient-light.css */,
+				CC60EA11308398FC000EE746 /* grayscale.css */,
+				CC60EA12308398FC000EE746 /* gruvbox-dark.css */,
+				CC60EA13308398FC000EE746 /* gruvbox-light.css */,
+				CC60EA14308398FC000EE746 /* hopscotch.css */,
+				CC60EA15308398FC000EE746 /* hybrid.css */,
+				CC60EA16308398FC000EE746 /* idea.css */,
+				CC60EA17308398FC000EE746 /* ir-black.css */,
+				CC60EA18308398FC000EE746 /* isbl-editor-dark.css */,
+				CC60EA19308398FC000EE746 /* isbl-editor-light.css */,
+				CC60EA1A308398FC000EE746 /* kimbie-dark.css */,
+				CC60EA1B308398FC000EE746 /* kimbie-light.css */,
+				CC60EA1C308398FC000EE746 /* lightfair.css */,
+				CC60EA1D308398FC000EE746 /* lioshi.css */,
+				CC60EA1E308398FC000EE746 /* magula.css */,
+				CC60EA1F308398FC000EE746 /* markdownkit.css */,
+				CC60EA20308398FC000EE746 /* markdownkit-dark.css */,
+				CC60EA21308398FC000EE746 /* mono-blue.css */,
+				CC60EA22308398FC000EE746 /* monokai.css */,
+				CC60EA23308398FC000EE746 /* monokai-sublime.css */,
+				CC60EA24308398FC000EE746 /* night-owl.css */,
+				CC60EA25308398FC000EE746 /* nnfx-dark.css */,
+				CC60EA26308398FC000EE746 /* nnfx-light.css */,
+				CC60EA27308398FC000EE746 /* nord.css */,
+				CC60EA28308398FC000EE746 /* obsidian.css */,
+				CC60EA29308398FC000EE746 /* ocean.css */,
+				CC60EA2A308398FC000EE746 /* paraiso-dark.css */,
+				CC60EA2B308398FC000EE746 /* paraiso-light.css */,
+				CC60EA2C308398FC000EE746 /* pojoaque.css */,
+				CC60EA2D308398FC000EE746 /* purebasic.css */,
+				CC60EA2E308398FC000EE746 /* qtcreator_dark.css */,
+				CC60EA2F308398FC000EE746 /* qtcreator_light.css */,
+				CC60EA30308398FC000EE746 /* railscasts.css */,
+				CC60EA31308398FC000EE746 /* rainbow.css */,
+				CC60EA32308398FC000EE746 /* routeros.css */,
+				CC60EA33308398FC000EE746 /* school-book.css */,
+				CC60EA34308398FC000EE746 /* shades-of-purple.css */,
+				CC60EA35308398FC000EE746 /* silk-dark.css */,
+				CC60EA36308398FC000EE746 /* silk-light.css */,
+				CC60EA37308398FC000EE746 /* snazzy.css */,
+				CC60EA38308398FC000EE746 /* solarized-dark.css */,
+				CC60EA39308398FC000EE746 /* solarized-light.css */,
+				CC60EA3A308398FC000EE746 /* srcery.css */,
+				CC60EA3B308398FC000EE746 /* stackoverflow-dark.css */,
+				CC60EA3C308398FC000EE746 /* stackoverflow-light.css */,
+				CC60EA3D308398FC000EE746 /* sunburst.css */,
+				CC60EA3E308398FC000EE746 /* tomorrow.css */,
+				CC60EA3F308398FC000EE746 /* tomorrow-night.css */,
+				CC60EA40308398FC000EE746 /* tomorrow-night-blue.css */,
+				CC60EA41308398FC000EE746 /* tomorrow-night-bright.css */,
+				CC60EA42308398FC000EE746 /* tomorrow-night-eighties.css */,
+				CC60EA43308398FC000EE746 /* vs.css */,
+				CC60EA44308398FC000EE746 /* vs2015.css */,
+				CC60EA45308398FC000EE746 /* vulcan.css */,
+				CC60EA46308398FC000EE746 /* xcode.css */,
+				CC60EA47308398FC000EE746 /* xcode-dusk.css */,
+				CC60EA48308398FC000EE746 /* xt256.css */,
+				CC60EA49308398FC000EE746 /* zenburn.css */,
+			);
+			path = Themes;
 			sourceTree = "<group>";
 		};
 		CC624CD527374BC7005F15B3 /* math */ = {
@@ -5628,6 +6326,8 @@
 				CCD5B5E72C15F0CC002BF2F0 /* Copy JSON custom schema assets */,
 				CC41323A2DF701A800D77CF6 /* Copy JavaScript mermaid assets */,
 				CCAC49222FD360EC00D85F2A /* Copy assets/documents */,
+				CC60E9DA308391C2000EE746 /* Copy JavaScript highlight assets */,
+				CC60EA4A3083991F000EE746 /* Copy JavaScript highlight themes */,
 			);
 			buildRules = (
 			);
@@ -5714,6 +6414,8 @@
 				CCD5B5E92C15F120002BF2F0 /* Copy JSON custom schema assets */,
 				CC41323D2DF701F700D77CF6 /* Copy JavaScript mermaid assets */,
 				CCAC49242FD3612B00D85F2A /* Copy assets/documents */,
+				CC60E9DD30839232000EE746 /* Copy JavaScript highlight assets */,
+				CC60EAB43083995D000EE746 /* Copy JavaScript highlight themes */,
 			);
 			buildRules = (
 			);

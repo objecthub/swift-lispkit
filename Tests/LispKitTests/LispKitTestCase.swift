@@ -69,6 +69,8 @@ open class LispKitTestCase: XCTestCase {
     if context.fileHandler.isDirectory(atPath: "Sources/LispKit/Resources") {
       let root = URL(fileURLWithPath: "Sources/LispKit/Resources", isDirectory: true)
       _ = self.context?.fileHandler.prependSearchPath(root.path)
+      _ = self.context?.fileHandler.prependAssetSearchPath(root
+                                     .appendingPathComponent("Assets", isDirectory: true).path)
       _ = self.context?.fileHandler.prependLibrarySearchPath(root
                                      .appendingPathComponent("Libraries", isDirectory: true).path)
     }

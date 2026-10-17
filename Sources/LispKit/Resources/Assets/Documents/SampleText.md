@@ -21,12 +21,46 @@ ipsum primis in faucibus.
 2. This is the second item
 3. This is the third item
 
-Cras laoreet tellus dolor, ac `suscipit augue` molestie a.
+Cras laoreet ~tellus dolor~, ac `suscipit augue` molestie a.
 Integer efficitur odio massa, in dictum arcu dictum in.
 Aliquam dapibus congue malesuada. Vestibulum dignissim
-mauris id ipsum volutpat, in dignissim nisi luctus.
+mauris ~~id ipsum volutpat~~, in dignissim nisi luctus.
 Praesent scelerisque nisi non porttitor dictum. Etiam
 finibus ac libero at rhoncus.
+    
+* This is the first item
+* This is the second item
+* This is the third item
+
+Lorem ipsum dolor sit amet, **consectetur adipiscing** elit.
+Aliquam non risus in massa ornare lacinia. Etiam at ullamcorper
+ligula. Mauris et orci ut lectus convallis euismod.
+
+```mermaid
+graph LR
+  A[Markdown] --> B(Parser)
+  B --> C{Generator}
+  C -->|attributed string| D[Text view]
+  C -->|HTML| E[Web page]
+```
+
+## Left To Do
+
+Some items are already done, others are still open:
+    
+- [x] Review the **summary** of the document
+- [x] ~~Remove~~ the duplicate section about `options` and verify the outcome.
+- [ ] Check all links, in particular [objecthub.com](https://objecthub.com).
+      Nullam gravida `suscipit placerat`. Vivamus gravida fermentum magna vitae condimentum.
+- [ ] Ask for a second opinion
+
+The final steps have to be completed in this order:
+
+1. [x] Collect the feedback of the reviewers
+2. [x] Merge the changes into the final text and proof-read is one more time.
+      Nullam gravida `suscipit placerat`. Vivamus gravida fermentum magna vitae condimentum.
+3. [ ] Publish the document
+4. [ ] Archive the _previous_ versions
 
 ## Final Remarks
 
@@ -121,4 +155,16 @@ ligula. Mauris et orci ut lectus convallis euismod.
 
 ***
 
-This is the end.
+> ```mermaid
+> sequenceDiagram
+>     autonumber
+>     actor User
+>     participant Frontend
+>     participant Database
+>     User->>Frontend: Request Data
+>     Frontend->>Database: Query Records
+>     Database-->>Frontend: Return Data
+>     Frontend-->>User: Show Results
+> ```
+>
+> This is the end.

@@ -373,3 +373,65 @@
   <error>
   (markdown-style-config '(12 "Menlo" "#112233" "too many"))
 )
+
+(
+  "Markdown styled text with Mermaid diagrams"
+  (#t #t #t #t #t #t)
+  (import (lispkit styled-text) (lispkit string))
+  (define (has? str sub) (and (string-contains str sub) #t))
+  (define md (markdown (string-append "Before\n\n```mermaid\ngraph LR\n  A[Start] --> B{Choice}\n"
+                                      "  B --> C[Done]\n```\n\nAfter\n")))
+  (define plain (styled-text-string (markdown->styled-text md)))
+  (define diagram (styled-text-string (markdown->styled-text md '((mermaid . #t)))))
+  (define themed
+    (styled-text-string
+      (markdown->styled-text md '((mermaid . ((theme . forest) (scale . 1) (margin . #f)
+                                              (spacing . 4) (timeout . 20)
+                                              (theme-variables . ((primaryColor . "#ffcc00")))))))))
+  (define invalid
+    (styled-text-string
+      (markdown->styled-text (markdown "```mermaid\nthis is not a diagram ->->\n```\n")
+                             '((mermaid . #t)))))
+  (list
+    (has? plain "graph LR")
+    (not (has? diagram "graph LR"))
+    (< (string-length diagram) (string-length plain))
+    (not (has? themed "graph LR"))
+    (has? invalid "Diagram could not be rendered")
+    (has? (markdown->html-doc md '((mermaid . #t))) "graph LR"))
+)
+
+(
+  "Markdown configuration with invalid Mermaid theme"
+  <error>
+  (markdown->styled-text (markdown "text") '((mermaid . ((theme . pink)))))
+)
+
+(
+  "Markdown configuration with invalid Mermaid scale"
+  <error>
+  (markdown->styled-text (markdown "text") '((mermaid . ((scale . 0)))))
+)
+
+(
+  "Markdown configuration with unknown Mermaid key"
+  <error>
+  (markdown->styled-text (markdown "text") '((mermaid . ((colour . red)))))
+)
+
+(
+  "Markdown syntax highlighting themes"
+  (#t #t #t #t #t)
+  (define md (markdown "```scheme\n(define x 1)\n```\n"))
+  (define themes (syntax-highlighting-themes))
+  (define (ansi theme)
+    (markdown->string md 40 (list #f #f #f #f #f #f #f #f #f #f #f (list theme))))
+  (define unhighlighted
+    (markdown->string md 40 (list #f #f #f #f #f #f #f #f #f #f #f #f)))
+  (list
+    (and (member "xcode" themes) (member "markdownkit" themes) #t)
+    (string? (syntax-highlighting-theme "xcode"))
+    (not (syntax-highlighting-theme "no-such-theme"))
+    (not (equal? (ansi "xcode") unhighlighted))
+    (not (equal? (ansi "xcode") (ansi "github"))))
+)

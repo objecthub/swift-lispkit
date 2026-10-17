@@ -24,6 +24,133 @@ import CommandLineKit
 
 public final class MarkdownLibrary: NativeLibrary {
   
+  // Global configuration defaults for all `MarkdownLibrary` instances
+  
+  /// Specification of the global library configuration; these define defaults for all
+  /// library instantiation.
+  public struct Config: Equatable, Sendable {
+    
+    // Default syntax highlighter configuration
+    
+    /// The URL of the JavaScript source code; if this is `nil`, the `themeDirectory`
+    /// URL won't be used.
+    public let highlightJSURL: URL?
+    public let themeDirectory: URL?
+    
+    // Default Mermaid renderer configuration
+    
+    /// The URL of the Mermaid source code; if this is `nil`, the other Mermaid-related
+    /// options are being ignored.
+    public let mermaidJSURL: URL?
+    public let cachesScript: Bool?
+    public let idleTime: TimeInterval?
+    public let maxCachedDiagrams: Int?
+    public let maxCacheBytes: Int?
+    
+    /// Initializer
+    public init(highlightJSURL: URL? = nil,
+                themeDirectory: URL? = nil,
+                mermaidJSURL: URL? = nil,
+                cachesScript: Bool? = nil,
+                idleTime: TimeInterval? = nil,
+                maxCachedDiagrams: Int? = nil,
+                maxCacheBytes: Int? = nil) {
+      self.highlightJSURL = highlightJSURL
+      self.themeDirectory = themeDirectory
+      self.mermaidJSURL = mermaidJSURL
+      self.cachesScript = cachesScript
+      self.idleTime = idleTime
+      self.maxCachedDiagrams = maxCachedDiagrams
+      self.maxCacheBytes = maxCacheBytes
+    }
+    
+    /// Returns the URL of `highlight.min.js` if available
+    private func highlightURL(in context: Context) -> URL? {
+      if let highlightJSURL {
+        return highlightJSURL
+      } else if let path = context.fileHandler.assetFilePath(forFile: "highlight.min",
+                                                             ofType: "js",
+                                                             inFolder: "JavaScript/Highlight") {
+        return URL(fileURLWithPath: path)
+      } else {
+        return nil
+      }
+    }
+    
+    /// Returns the URL of the themes directory for the syntax highlighter if available;
+    /// it requires that theme `MarkdownKit` is present. This is the default.
+    private func highlightThemesURL(in context: Context) -> URL? {
+      if let themeDirectory {
+        return themeDirectory
+      } else if let c = context.fileHandler.assetFilePath(forFile: "markdownkit",
+                                                          ofType: "css",
+                                                          inFolder: "JavaScript/Highlight/Themes") {
+        return URL(fileURLWithPath: c).deletingLastPathComponent()
+      } else {
+        return nil
+      }
+    }
+    
+    /// Returns the URL of `mermaid.min.js` if available
+    private func mermaidURL(in context: Context) -> URL? {
+      if let mermaidJSURL {
+        return mermaidJSURL
+      } else if let path = context.fileHandler.assetFilePath(forFile: "mermaid.min",
+                                                             ofType: "js",
+                                                             inFolder: "JavaScript/Mermaid") {
+        return URL(fileURLWithPath: path)
+      } else {
+        return nil
+      }
+    }
+    
+    public func apply(in context: Context) -> (SyntaxHighlighter?, MermaidRenderer?) {
+      var highlighter: SyntaxHighlighter? = nil
+      if let highlightURL = self.highlightURL(in: context) {
+        highlighter = SyntaxHighlighter(highlightJSURL: highlightURL,
+                                        themeDirectory: self.highlightThemesURL(in: context))
+      }
+      var renderer: MermaidRenderer? = nil
+      if let mermaidURL = self.mermaidURL(in: context) {
+        renderer = MermaidRenderer(
+                     mermaidJSURL: mermaidURL,
+                     cachesScript: self.cachesScript ?? true,
+                     idleTime: self.idleTime ?? MermaidRenderer.defaultIdleTime,
+                     maxCachedDiagrams: self.maxCachedDiagrams ??
+                                        MermaidRenderer.defaultMaxCachedDiagrams,
+                     maxCacheBytes: self.maxCacheBytes ?? MermaidRenderer.defaultMaxCacheBytes)
+      }
+      return (highlighter, renderer)
+    }
+  }
+  
+  /// Lock protecting global configuration changes
+  private static let configLock = NSLock()
+
+  /// Current default configuration
+  private static var configStorage: Config = Config(
+    highlightJSURL: nil,
+    themeDirectory: nil,
+    mermaidJSURL: nil,
+    cachesScript: true,
+    idleTime: MermaidRenderer.defaultIdleTime,
+    maxCachedDiagrams: MermaidRenderer.defaultMaxCachedDiagrams,
+    maxCacheBytes: MermaidRenderer.defaultMaxCacheBytes)
+  
+  /// Access current default configuration
+  public static var config: Config {
+    get {
+      self.configLock.lock()
+      defer { self.configLock.unlock() }
+      return MarkdownLibrary.configStorage
+    }
+    set {
+      self.configLock.lock()
+      defer { self.configLock.unlock() }
+      MarkdownLibrary.configStorage = newValue
+    }
+  }
+  
   // Type tags
   
   private let blockTypeTag = Symbol(uninterned: "block")
@@ -69,14 +196,13 @@ public final class MarkdownLibrary: NativeLibrary {
   private let right: Symbol
   private let center: Symbol
   
-  /// Support a custom `SyntaxHighlighter`
-  public static var syntaxHighlighter: SyntaxHighlighter? = nil
+  /// Syntax highlighter used by this library instance (no synchronization needed; the
+  /// protocol ensures that this variable is set once)
+  private var syntaxHighlighter: SyntaxHighlighter? = nil
   
-  /// Configure the syntax highlighter
-  public static func configure(highlightJSURL: URL, themeDirectory: URL? = nil) {
-    MarkdownLibrary.syntaxHighlighter = SyntaxHighlighter(highlightJSURL: highlightJSURL,
-                                                          themeDirectory: themeDirectory)
-  }
+  /// Mermaid renderer used by this library instance (no synchronization needed; the
+  /// protocol ensures that this variable is set once)
+  private var mermaidRenderer: MermaidRenderer? = nil
   
   /// Initialize symbols
   public required init(in context: Context) throws {
@@ -123,6 +249,9 @@ public final class MarkdownLibrary: NativeLibrary {
   
   /// Dependencies of the library.
   public override func dependencies() {
+    let (syntaxHighlighter, mermaidRenderer) = MarkdownLibrary.config.apply(in: self.context)
+    self.syntaxHighlighter = syntaxHighlighter ?? SyntaxHighlighter.proxy
+    self.mermaidRenderer = mermaidRenderer ?? MermaidRenderer.shared
   }
   
   /// Declarations of the library.
@@ -1139,7 +1268,7 @@ public final class MarkdownLibrary: NativeLibrary {
              blockquoteProperties: blockquoteProperties,
              breakProperties: breakProperties,
              syntaxHighlighting: syntaxHighlighting,
-             syntaxHighlighter: MarkdownLibrary.syntaxHighlighter)
+             syntaxHighlighter: self.syntaxHighlighter)
   }
   
   private func markdownToString(_ md: Expr, _ width: Expr?, _ ansi: Expr?) throws -> Expr {
@@ -1155,7 +1284,7 @@ public final class MarkdownLibrary: NativeLibrary {
     if let ansi, ansi.isTrue {
       if case .true = ansi {
         return .makeString(TerminalGenerator(numColumns: maxCols,
-                                             syntaxHighlighter: MarkdownLibrary.syntaxHighlighter)
+                                             syntaxHighlighter: self.syntaxHighlighter)
                              .generate(doc: md).encodedString)
       } else {
         let generator = try self.terminalGenerator(numColumns: maxCols, ansi: ansi)
@@ -1181,7 +1310,13 @@ public final class MarkdownLibrary: NativeLibrary {
     "syntax-highlighting", "tight-lists", "version",
     "max-image-width", "max-image-height", "custom-style", "image-base-url",
     "preset", "base-url", "timeout", "local-images", "remote-images", "image-extensions",
-    "safe-mode", "text-size-multiplier"
+    "safe-mode", "text-size-multiplier", "mermaid"
+  ]
+  
+  /// Keys of the association lists configuring the rendering of Mermaid diagrams
+  private static let mermaidKeys: Set<String> = [
+    "theme", "theme-variables", "font-family", "scale", "width", "margin", "max-width",
+    "spacing", "timeout"
   ]
   
   /// Keys of the association lists configuring syntax highlighting
@@ -1356,10 +1491,88 @@ public final class MarkdownLibrary: NativeLibrary {
     }
   }
   
+  /// Returns a positive number (or a non-negative one if `zero` is true) for `key` of `entries`.
+  private func configLength(_ entries: ConfigEntries, _ key: String, zero: Bool = false) throws -> CGFloat? {
+    guard let x = try self.configDouble(entries, key) else {
+      return nil
+    }
+    guard x > 0.0 || (zero && x == 0.0) else {
+      throw RuntimeError.eval(.notAValidMarkdownConfig, entries[key]!.entry)
+    }
+    return CGFloat(x)
+  }
+  
+  /// Maps the value of the entry `mermaid` of a configuration to the configuration of the
+  /// renderer of Mermaid diagrams. `#f` stands for no diagrams, `#t` and `()` for the default
+  /// configuration, and an association list with the keys in `MarkdownLibrary.mermaidKeys`
+  /// refines the default configuration.
+  private func mermaidConfig(_ value: Expr) throws -> MermaidConfig? {
+    switch value {
+      case .false:
+        return nil
+      case .true, .null:
+        return MermaidConfig.default
+      default:
+        let entries = try self.configEntries(value, allowed: MarkdownLibrary.mermaidKeys)
+        var config = MermaidConfig.default
+        if let name = try self.configSymbol(entries, "theme",
+                                            in: ["default", "neutral", "dark", "forest", "base"]),
+           let theme = MermaidConfig.Theme(rawValue: name) {
+          config.theme = theme
+        }
+        if let (entry, value) = entries["theme-variables"], !value.isFalse {
+          var variables: [String : String] = [:]
+          var list = value
+          while case .pair(.pair(let key, .string(let str)), let rest) = list {
+            switch key {
+              case .symbol(let sym):
+                variables[sym.identifier] = str as String
+              case .string(let name):
+                variables[name as String] = str as String
+              default:
+                throw RuntimeError.eval(.notAValidMarkdownConfig, entry)
+            }
+            list = rest
+          }
+          guard list.isNull else {
+            throw RuntimeError.eval(.notAValidMarkdownConfig, entry)
+          }
+          config.themeVariables = variables
+        }
+        if let fontFamily = try self.configString(entries, "font-family") {
+          config.fontFamily = fontFamily
+        }
+        if let scale = try self.configLength(entries, "scale") {
+          config.scale = scale
+        }
+        if let width = try self.configLength(entries, "width") {
+          config.width = width
+        }
+        if let (_, margin) = entries["margin"] {
+          // `#f` keeps the margins that Mermaid adds around its diagrams
+          config.margin = margin.isFalse ? nil : try self.configLength(entries, "margin", zero: true)
+        }
+        if let maxWidth = try self.configLength(entries, "max-width") {
+          config.maxWidth = maxWidth
+        }
+        if let spacing = try self.configLength(entries, "spacing", zero: true) {
+          config.spacing = spacing
+        }
+        if let timeout = try self.configLength(entries, "timeout") {
+          config.timeout = TimeInterval(timeout)
+        }
+        return config
+    }
+  }
+  
   /// Creates an attributed string generator from a configuration, i.e. an association list with
   /// symbol keys (see `MarkdownLibrary.configKeys`). The first entry for a key is used. All
   /// entries are optional; `#f` and `()` stand for the default configuration.
-  private func attributedStringGenerator(config: Expr?) throws -> AttributedStringGenerator {
+  ///
+  /// Diagrams (entry `mermaid`) are only enabled if `diagrams` is true; they are drawn when
+  /// rendering attributed strings, but cannot be included in HTML documents.
+  private func attributedStringGenerator(config: Expr?,
+                                         diagrams: Bool) throws -> AttributedStringGenerator {
     let entries = try self.configEntries(config, allowed: MarkdownLibrary.configKeys)
     // Fonts and colors
     let defaultColor = MarkdownKit.mdDefaultColor
@@ -1404,6 +1617,11 @@ public final class MarkdownLibrary: NativeLibrary {
     let maxImageHeight = try self.configString(entries, "max-image-height")
     let customStyle = try self.configString(entries, "custom-style") ?? ""
     let imageBaseUrl = try self.configURL(entries, "image-base-url")
+    // Mermaid diagrams
+    var mermaid: MermaidConfig? = nil
+    if let (_, value) = entries["mermaid"] {
+      mermaid = try self.mermaidConfig(value)
+    }
     // Rendering options
     let preset: RenderingOptions
     switch try self.configSymbol(entries, "preset", in: ["trusted", "untrusted"]) {
@@ -1452,7 +1670,9 @@ public final class MarkdownLibrary: NativeLibrary {
                                      codeBlockFontColor: codeBlockFontColor,
                                      codeBlockBackground: codeBlockBackground,
                                      syntaxHighlighting: syntaxHighlighting,
-                                     syntaxHighlighter: MarkdownLibrary.syntaxHighlighter,
+                                     syntaxHighlighter: self.syntaxHighlighter,
+                                     mermaid: diagrams ? mermaid : nil,
+                                     mermaidRenderer: self.mermaidRenderer,
                                      borderColor: borderColor,
                                      blockquoteColor: blockquoteColor,
                                      h1Color: h1Color,
@@ -1612,7 +1832,7 @@ public final class MarkdownLibrary: NativeLibrary {
   // MARK: - Generating HTML documents and styled text
   
   private func markdownToHtmlDoc(md: Expr, config: Expr?) throws -> Expr {
-    let attribStrGen = try self.attributedStringGenerator(config: config)
+    let attribStrGen = try self.attributedStringGenerator(config: config, diagrams: false)
     return .makeString(
       attribStrGen.generateHtml(
         attribStrGen.htmlGenerator().generate(doc: try self.internMarkdown(block: md))))
@@ -1642,6 +1862,32 @@ public final class MarkdownLibrary: NativeLibrary {
     }
   }
   
+  /// Collects the sources of the Mermaid diagrams in a block, i.e. the content of fenced code
+  /// blocks whose info string starts with the word `mermaid`.
+  private func collectMermaidSources(in block: Block, into sources: inout Set<String>) {
+    switch block {
+      case .document(let blocks),
+           .blockquote(let blocks),
+           .list(_, _, let blocks),
+           .listItem(_, _, let blocks):
+        for block in blocks {
+          self.collectMermaidSources(in: block, into: &sources)
+        }
+      case .definitionList(let definitions):
+        for definition in definitions {
+          for block in definition.descriptions {
+            self.collectMermaidSources(in: block, into: &sources)
+          }
+        }
+      case .fencedCode(let info, let lines):
+        if info?.split(whereSeparator: \.isWhitespace).first == "mermaid" {
+          sources.insert(lines.joined())
+        }
+      default:
+        break
+    }
+  }
+  
   /// Renders a Markdown document asynchronously into an attributed string and waits for the
   /// result. The HTML importer delivers its result on the main thread. If this is the main
   /// thread, the run loop gets executed while waiting; otherwise, the calling thread just waits.
@@ -1655,7 +1901,15 @@ public final class MarkdownLibrary: NativeLibrary {
     // MarkdownKit reports a timeout after `timeout` plus a grace period of five seconds, but it
     // does so on the main thread. If that thread is blocked, e.g. because it waits for this
     // thread, the result never arrives; the deadline makes sure this thread does not wait forever.
-    let deadline = generator.renderingOptions.timeout.map { Date(timeIntervalSinceNow: $0 + 10.0) }
+    // Diagrams get rendered first, which takes up to the timeout of the diagrams each.
+    var diagrams = Set<String>()
+    if generator.mermaidConfig != nil {
+      self.collectMermaidSources(in: doc, into: &diagrams)
+    }
+    let diagramTime = Double(diagrams.count) * ((generator.mermaidConfig?.timeout ?? 0.0) + 5.0)
+    let deadline = generator.renderingOptions.timeout.map {
+      Date(timeIntervalSinceNow: $0 + 10.0 + diagramTime)
+    }
     while outcome.current == nil {
       if self.context.evaluator.threads.current?.value.machine?.abortionRequested ?? false {
         throw RuntimeError.abortion()
@@ -1682,7 +1936,7 @@ public final class MarkdownLibrary: NativeLibrary {
   }
   
   private func markdownToStyledText(md: Expr, config: Expr?) throws -> Expr {
-    let attribStrGen = try self.attributedStringGenerator(config: config)
+    let attribStrGen = try self.attributedStringGenerator(config: config, diagrams: true)
     let astr = try self.renderAttributedString(try self.internMarkdown(block: md),
                                                with: attribStrGen)
     return .object(StyledText(NSMutableAttributedString(attributedString: astr)))
@@ -2330,7 +2584,7 @@ public final class MarkdownLibrary: NativeLibrary {
   private func syntaxHighlightingTheme(expr: Expr) throws -> Expr {
     let nameOrContent = try expr.asString()
     // Try to load the theme
-    if let highlighter = MarkdownLibrary.syntaxHighlighter ?? SyntaxHighlighter.proxy,
+    if let highlighter = self.syntaxHighlighter,
        let themeDirectoryURL = highlighter.themeDirectoryURL {
       let themeURL = themeDirectoryURL.appendingPathComponent(nameOrContent)
                                       .appendingPathExtension("css")
@@ -2343,7 +2597,7 @@ public final class MarkdownLibrary: NativeLibrary {
   }
   
   private func syntaxHighlightingThemes() -> Expr {
-    if let highlighter = MarkdownLibrary.syntaxHighlighter ?? SyntaxHighlighter.proxy {
+    if let highlighter = self.syntaxHighlighter {
       var res = Expr.null
       for theme in highlighter.availableThemes {
         res = .pair(.makeString(theme), res)

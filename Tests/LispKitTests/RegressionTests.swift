@@ -19,6 +19,7 @@
 //
 
 import XCTest
+import LispKit
 
 ///
 /// This test case class implements all regression tests stored in group
@@ -101,6 +102,51 @@ class RegressionTests: LispKitTestCase {
 
   func testMarkdown() {
     self.execute(file: "Markdown")
+  }
+  
+  func testMarkdownLibraryConfigDefaults() {
+    // The default configuration finds the scripts and themes that come with LispKit
+    let (highlighter, renderer) = MarkdownLibrary.Config().apply(in: self.context!)
+    XCTAssertNotNil(highlighter)
+    XCTAssertGreaterThan(highlighter?.availableThemes.count ?? 0, 0)
+    XCTAssertNotNil(renderer)
+  }
+  
+  func testMarkdownLibraryConfigOverride() throws {
+    // A configured theme directory replaces the default one
+    let dir = FileManager.default.temporaryDirectory
+                .appendingPathComponent("LispKitThemes-\(UUID().uuidString)", isDirectory: true)
+    try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+    defer { try? FileManager.default.removeItem(at: dir) }
+    try ".hljs { color: #333; }".write(to: dir.appendingPathComponent("custom.css"),
+                                       atomically: true,
+                                       encoding: .utf8)
+    let original = MarkdownLibrary.config
+    MarkdownLibrary.config = MarkdownLibrary.Config(themeDirectory: dir)
+    defer { MarkdownLibrary.config = original }
+    XCTAssertEqual(self.eval("(import (lispkit markdown)) (syntax-highlighting-themes)"),
+                   self.value("(\"custom\")"))
+    XCTAssertEqual(self.eval("(syntax-highlighting-theme \"custom\")"),
+                   self.value("\".hljs { color: #333; }\""))
+  }
+  
+  func testMarkdownLibraryConfigFallbacks() {
+    // If configured scripts cannot be loaded, the built-in scripts of MarkdownKit are used
+    let original = MarkdownLibrary.config
+    let missing = URL(fileURLWithPath: "/nonexistent/script.js")
+    MarkdownLibrary.config = MarkdownLibrary.Config(highlightJSURL: missing,
+                                                    mermaidJSURL: missing)
+    defer { MarkdownLibrary.config = original }
+    XCTAssertEqual(self.eval("(import (lispkit markdown)) (> (length (syntax-highlighting-themes)) 0)"),
+                   .true)
+    XCTAssertEqual(self.eval("""
+      (import (lispkit styled-text) (lispkit string))
+      (not (string-contains
+             (styled-text-string
+               (markdown->styled-text (markdown "```mermaid\\ngraph LR\\n  A --> B\\n```\\n")
+                                      '((mermaid . #t))))
+             "graph LR"))
+      """), .true)
   }
   
   func testSQLite() {
