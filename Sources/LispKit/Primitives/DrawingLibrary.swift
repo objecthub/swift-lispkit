@@ -167,6 +167,7 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("set-bitmap-exif-data!", setBitmapExifData))
     self.define(Procedure("make-bitmap", makeBitmap))
     self.define(Procedure("bitmap-crop", bitmapCrop))
+    self.define(Procedure("bitmap-trim", bitmapTrim))
     self.define(Procedure("bitmap-blur", bitmapBlur))
     self.define(Procedure("save-bitmap", saveBitmap))
     self.define(Procedure("bitmap->bytevector", bitmapToBytevector))
@@ -1081,23 +1082,70 @@ public final class DrawingLibrary: NativeLibrary {
     }
   }
   
-  private func makeBitmap(expr: Expr, size: Expr, dpi: Expr?, ipol: Expr?) throws -> Expr {
-    guard case .pair(.flonum(let w), .flonum(let h)) = size, w > 0.0 && h > 0.0 else {
-      throw RuntimeError.eval(.invalidSize, size)
+  /// The resolution of an image in pixels per inch, or 72 if the image is not a bitmap.
+  private func ppi(of image: NSImage) -> Double {
+    for repr in image.representations {
+      if let bm = repr as? NSBitmapImageRep, bm.size.width > 0.0 {
+        return Double(bm.pixelsWide) * 72.0 / Double(bm.size.width)
+      }
     }
-    let scale = (try dpi?.asDouble(coerce: true) ?? 72.0)/72.0
-    guard scale > 0.0 && scale <= 10.0 else {
-      throw RuntimeError.range(parameter: 3,
-                               of: "make-bitmap",
-                               dpi ?? .fixnum(72),
-                               min: 0,
-                               max: 720,
-                               at: SourcePosition.unknown)
+    return 72.0
+  }
+  
+  private func makeBitmap(expr: Expr, args: Arguments) throws -> Expr {
+    guard let (sizeArg, dpiArg, ipol) = args.optional(Expr.false, Expr.false, Expr.false) else {
+      throw RuntimeError.argumentCount(of: "make-bitmap",
+                                       min: 1,
+                                       max: 4,
+                                       args: .pair(expr, .makeList(args)))
     }
+    // The object to draw is either an image or a drawing
+    var source: NSImage? = nil
+    var drawing: Drawing? = nil
+    if case .object(let obj) = expr, let imageBox = obj as? NativeImage {
+      source = imageBox.value
+    } else {
+      drawing = try self.drawing(from: expr)
+    }
+    // Determine the size in points; by default, an image keeps its size
+    let w, h: Double
+    if sizeArg.isTrue {
+      guard case .pair(.flonum(let width), .flonum(let height)) = sizeArg,
+            width > 0.0 && height > 0.0 else {
+        throw RuntimeError.eval(.invalidSize, sizeArg)
+      }
+      (w, h) = (width, height)
+    } else if let source, source.size.width > 0.0 && source.size.height > 0.0 {
+      (w, h) = (Double(source.size.width), Double(source.size.height))
+    } else {
+      throw RuntimeError.eval(.invalidSize, sizeArg)
+    }
+    // Determine the scale factor; by default, an image keeps its resolution
+    let scale: Double
+    if dpiArg.isTrue {
+      scale = try dpiArg.asDouble(coerce: true)/72.0
+      guard scale > 0.0 && scale <= 10.0 else {
+        throw RuntimeError.range(parameter: 3,
+                                 of: "make-bitmap",
+                                 dpiArg,
+                                 min: 0,
+                                 max: 720,
+                                 at: SourcePosition.unknown)
+      }
+    } else if let source {
+      scale = min(self.ppi(of: source)/72.0, 10.0)
+    } else {
+      scale = 1.0
+    }
+    // Without an explicit size, the size in pixels is rounded to avoid losing a pixel
+    let pixelsWide = sizeArg.isTrue ? Int(w * scale) : Int((w * scale).rounded())
+    let pixelsHigh = sizeArg.isTrue ? Int(h * scale) : Int((h * scale).rounded())
+    let irritants: Expr = .pair(expr, .pair(.pair(.flonum(w), .flonum(h)),
+                                            .pair(.flonum(scale * 72.0), .null)))
     // Create a bitmap suitable for storing the image in a PNG
     guard let bitmap = NSBitmapImageRep(bitmapDataPlanes: nil,
-                                        pixelsWide: Int(w * scale),
-                                        pixelsHigh: Int(h * scale),
+                                        pixelsWide: pixelsWide,
+                                        pixelsHigh: pixelsHigh,
                                         bitsPerSample: 8,
                                         samplesPerPixel: 4,
                                         hasAlpha: true,
@@ -1105,15 +1153,13 @@ public final class DrawingLibrary: NativeLibrary {
                                         colorSpaceName: NSColorSpaceName.deviceRGB,
                                         bytesPerRow: 0,
                                         bitsPerPixel: 0) else {
-      throw RuntimeError.eval(.cannotCreateBitmap,
-                              .pair(expr, .pair(size, .pair(dpi ?? .fixnum(72), .null))))
+      throw RuntimeError.eval(.cannotCreateBitmap, irritants)
     }
     // Set the intended size of the image (vs. size of the bitmap above)
     bitmap.size = NSSize(width: w, height: h)
     // Create a graphics context for drawing into the bitmap
     guard let context = NSGraphicsContext(bitmapImageRep: bitmap) else {
-      throw RuntimeError.eval(.cannotCreateBitmap,
-                              .pair(expr, .pair(size, .pair(dpi ?? .fixnum(72), .null))))
+      throw RuntimeError.eval(.cannotCreateBitmap, irritants)
     }
     let previous = NSGraphicsContext.current
     // Create a flipped graphics context if required
@@ -1122,27 +1168,22 @@ public final class DrawingLibrary: NativeLibrary {
       NSGraphicsContext.current = previous
     }
     // Set interpolation quality
-    if let ipol,
+    if ipol.isTrue,
        let quality = CGInterpolationQuality(rawValue: Int32(try ipol.asInt(above: 0, below: 5))) {
       NSGraphicsContext.current?.cgContext.interpolationQuality = quality
     }
     // Draw into the bitmap
-    switch expr {
-      case .object(let obj):
-        if let imageBox = obj as? NativeImage {
-          imageBox.value.draw(in: NSRect(origin: .zero, size: bitmap.size),
-                              from: .zero,
-                              operation: .copy,
-                              fraction: 1.0)
-          break
-        }
-        fallthrough
-      default:
-        let transform = NSAffineTransform()
-        transform.translateX(by: 0.0, yBy: CGFloat(h))
-        transform.scaleX(by: 1.0, yBy: -1.0)
-        transform.concat()
-        try self.drawing(from: expr).draw()
+    if let source {
+      source.draw(in: NSRect(origin: .zero, size: bitmap.size),
+                  from: .zero,
+                  operation: .copy,
+                  fraction: 1.0)
+    } else if let drawing {
+      let transform = NSAffineTransform()
+      transform.translateX(by: 0.0, yBy: CGFloat(h))
+      transform.scaleX(by: 1.0, yBy: -1.0)
+      transform.concat()
+      drawing.draw()
     }
     // Create an image and add the bitmap as a representation
     let nsimage = NSImage(size: bitmap.size)
@@ -1175,6 +1216,45 @@ public final class DrawingLibrary: NativeLibrary {
     }
     let res = NSImage(size: size)
     res.addRepresentation(NSBitmapImageRep(ciImage: CIImage(cgImage: cgImage).cropped(to: bounds)))
+    return .object(NativeImage(res))
+  }
+  
+  private func bitmapTrim(bitmap: Expr, threshold: Expr?, inset: Expr?) throws -> Expr {
+    let image = try self.image(from: bitmap)
+    let threshold = try threshold?.asUInt8() ?? 2
+    let padding: MarkdownUtil.Insets
+    switch inset {
+      case .none, .null, .false:
+        padding = .init(0.0)
+      case .pair(.pair(let top, let bottom), .pair(let left, let right)):
+        padding = .init(top: try top.asDouble(coerce: true),
+                        left: try left.asDouble(coerce: true),
+                        bottom: try bottom.asDouble(coerce: true),
+                        right: try right.asDouble(coerce: true))
+      case .pair(let horizontal, .pair(let vertical, .null)):
+        padding = .init(horizontal: try horizontal.asDouble(coerce: true),
+                        vertical: try vertical.asDouble(coerce: true))
+      case .pair(let top, .pair(let left, .pair(let bottom, .pair(let right, .null)))):
+        padding = .init(top: try top.asDouble(coerce: true),
+                        left: try left.asDouble(coerce: true),
+                        bottom: try bottom.asDouble(coerce: true),
+                        right: try right.asDouble(coerce: true))
+      case .pair(let horizontal, let vertical):
+        padding = .init(horizontal: try horizontal.asDouble(coerce: true),
+                        vertical: try vertical.asDouble(coerce: true))
+      default:
+        padding = .init(try inset?.asDouble(coerce: true) ?? 0.0)
+    }
+    guard let trimmed = MarkdownUtil.image(image, withInsets: padding, transparentAlpha: threshold),
+          let cgImage = trimmed.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
+      return .false
+    }
+    // The trimmed image is backed by a `CGImage`; wrap it into a bitmap representation so that
+    // the result is a bitmap
+    let rep = NSBitmapImageRep(cgImage: cgImage)
+    rep.size = trimmed.size
+    let res = NSImage(size: trimmed.size)
+    res.addRepresentation(rep)
     return .object(NativeImage(res))
   }
   

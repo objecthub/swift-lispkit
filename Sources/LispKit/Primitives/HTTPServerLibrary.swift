@@ -900,7 +900,7 @@ public final class HTTPServerLibrary: NativeLibrary {
       default:
         return nil
     }
-    return type.data(for: image.value, qualityFactor: nil)
+    return type.data(for: image.value, qualityFactor: nil, exif: image.exifData)
   }
   #elseif os(macOS)
   private func image(_ image: NativeImage, to mimeType: String) -> Data? {

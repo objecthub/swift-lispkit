@@ -557,6 +557,8 @@
 		CC60EB1B30839976000EE746 /* xcode-dusk.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA47308398FC000EE746 /* xcode-dusk.css */; };
 		CC60EB1C30839976000EE746 /* xt256.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA48308398FC000EE746 /* xt256.css */; };
 		CC60EB1D30839976000EE746 /* zenburn.css in Copy JavaScript highlight themes */ = {isa = PBXBuildFile; fileRef = CC60EA49308398FC000EE746 /* zenburn.css */; };
+		CC60EB1F3083B89A000EE746 /* StyledMarkdown.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC60EB1E3083B875000EE746 /* StyledMarkdown.scm */; };
+		CC60EB203083B8AC000EE746 /* StyledMarkdown.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC60EB1E3083B875000EE746 /* StyledMarkdown.scm */; };
 		CC61CB382ACA116500C5A032 /* SWCompression in Frameworks */ = {isa = PBXBuildFile; productRef = CC61CB372ACA116500C5A032 /* SWCompression */; };
 		CC624CD827374DA8005F15B3 /* util.sld in Copy pre-installed LispKit library: LispKit Math */ = {isa = PBXBuildFile; fileRef = CC624CD627374BF4005F15B3 /* util.sld */; };
 		CC624CDA27374E8E005F15B3 /* util.sld in Copy pre-installed LispKit library: LispKit Math */ = {isa = PBXBuildFile; fileRef = CC624CD627374BF4005F15B3 /* util.sld */; };
@@ -1947,6 +1949,7 @@
 			dstPath = Root/LispKit/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC60EB1F3083B89A000EE746 /* StyledMarkdown.scm in Copy examples */,
 				CCAC49272FD36F9B00D85F2A /* AnsiMarkdown.scm in Copy examples */,
 				CC8F277B2FBBBF30000AF851 /* Connect4.scm in Copy examples */,
 				CC7CCB7E2FA5771F00C05C77 /* DrawFunctionCharts.scm in Copy examples */,
@@ -3198,6 +3201,7 @@
 			dstPath = Root/LispKit/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC60EB203083B8AC000EE746 /* StyledMarkdown.scm in Copy examples */,
 				CCAC49282FD36FA900D85F2A /* AnsiMarkdown.scm in Copy examples */,
 				CC8F277C2FBBBF41000AF851 /* Connect4.scm in Copy examples */,
 				CC7CCB7D2FA5770600C05C77 /* DrawFunctionCharts.scm in Copy examples */,
@@ -4088,6 +4092,7 @@
 		CC60EA47308398FC000EE746 /* xcode-dusk.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = "xcode-dusk.css"; sourceTree = "<group>"; };
 		CC60EA48308398FC000EE746 /* xt256.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = xt256.css; sourceTree = "<group>"; };
 		CC60EA49308398FC000EE746 /* zenburn.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = zenburn.css; sourceTree = "<group>"; };
+		CC60EB1E3083B875000EE746 /* StyledMarkdown.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = StyledMarkdown.scm; sourceTree = "<group>"; };
 		CC624CD627374BF4005F15B3 /* util.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = util.sld; sourceTree = "<group>"; };
 		CC624CDB2737D16E005F15B3 /* stats.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = stats.sld; sourceTree = "<group>"; };
 		CC6598CE27248DC8004C9B89 /* LispKitContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LispKitContext.swift; sourceTree = "<group>"; };
@@ -6195,6 +6200,7 @@
 				CC35C01D2C8527A800DF6E9D /* Keychain.scm */,
 				CC9FF30B2E2E926E00D4C445 /* Pinterest.scm */,
 				CCAC49262FD3625400D85F2A /* AnsiMarkdown.scm */,
+				CC60EB1E3083B875000EE746 /* StyledMarkdown.scm */,
 				CC9ED3FB2710E6DB004B1E29 /* paip */,
 			);
 			path = Examples;
@@ -7672,7 +7678,7 @@
 			repositoryURL = "https://github.com/objecthub/swift-markdownkit.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 2.1.0;
+				minimumVersion = 2.2.0;
 			};
 		};
 		CCCCEC862C504AF400509902 /* XCRemoteSwiftPackageReference "swift-nanohttp" */ = {

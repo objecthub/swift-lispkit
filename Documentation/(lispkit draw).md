@@ -497,14 +497,59 @@ Sets the EXIF metadata for the given bitmap _bmap_ to _exif_. _exif_ is an assoc
       (DateTimeDigitized . "2019:10:27 14:21:39")))
 ```
 
-**(make-bitmap _drawing size_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
-**(make-bitmap _drawing size ppi_)**  
+**(make-bitmap _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(make-bitmap _obj size_)**  
+**(make-bitmap _obj size ppi_)**  
+**(make-bitmap _obj size ppi ipol_)**  
 
-Creates a new bitmap-based image by drawing the object _drawing_ into an empty bitmap of size _size_ in points. _ppi_ determines the number of pixels per inch. By default, _ppi_ is set to 72. In this case, the number of pixels of the bitmap corresponds to the number of points (since 1 pixel corresponds to 1/72 of an inch). For a _ppi_ value of 144, the horizontal and vertial number of pixels is doubled, etc.
+Creates a new bitmap-based image by drawing the object _obj_ into an empty bitmap of size _size_ in points. _obj_ is either a drawing or an image. Images do not have to be bitmaps; for instance, a vector image loaded from a PDF file is converted into a bitmap by `make-bitmap`. An image is scaled to fill the bitmap; its aspect ratio is not preserved.
+
+_size_ is optional for images: if it is omitted or `#f`, the new bitmap has the same size as the image. For drawings, _size_ is required.
+
+_ppi_ determines the number of pixels per inch. For drawings, _ppi_ is set to 72 by default. In this case, the number of pixels of the bitmap corresponds to the number of points (since 1 pixel corresponds to 1/72 of an inch). For a _ppi_ value of 144, the horizontal and vertical number of pixels is doubled, etc. For images, _ppi_ is set to the resolution of the image by default (72 for images without a fixed resolution), so that converting a bitmap keeps all its pixels. `#f` selects the default.
+
+_ipol_ determines the interpolation quality used if an image is scaled. It is an integer between 0 and 4: 0 is the default, 1 turns interpolation off, 2 is low, 3 is high, and 4 is medium quality. `#f` selects the default.
+
+```scheme
+(define photo (load-image (asset-file-path "Inga" "jpg" "Images")))
+(bitmap-pixels (make-bitmap photo))
+  ⇒  (1200 . 1200)
+(bitmap-pixels (make-bitmap photo (size 300 150) 144))
+  ⇒  (600 . 300)
+```
 
 **(bitmap-crop _bitmap rect_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Crops a rectangle from the given bitmap and returns the result in a new bitmap. _rect_ is a rectangle in pixels. Its intersection with the dimensions of _bitmap_ (in pixels) are used for cropping.
+
+**(bitmap-trim _bitmap_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(bitmap-trim _bitmap threshold_)**  
+**(bitmap-trim _bitmap threshold inset_)**  
+
+Removes the transparent area around the content of _bitmap_ and returns the result in a new image. The content of a bitmap is the smallest rectangle that contains all pixels that are not transparent. _threshold_ is an integer between 0 and 255 that determines which pixels count as transparent: all pixels whose alpha value is at most _threshold_ are considered to be transparent. By default, _threshold_ is 2, which ignores the faint edges created by antialiasing. With a _threshold_ of 0, every pixel that is not completely transparent belongs to the content.
+
+_inset_ specifies the width of the transparent space, in points, that is left between the content and the edges of the resulting image. By default, there is no such space. Wherever the transparent area around the content of _bitmap_ is wider than requested by _inset_, it is cut off. Wherever it is narrower, transparent space is added. The widths are rounded to whole pixels; negative widths are treated like 0. _inset_ can be specified in the following ways:
+
+   * `#f`: no space on any edge (the default),
+   * a number: space of this width on all four edges,
+   * `(`_horizontal vertical_`)` or `(`_horizontal_ `.` _vertical_`)`: space of width _horizontal_ on the left and right edge, and space of width _vertical_ on the top and bottom edge,
+   * `(`_top left bottom right_`)`: space for each edge individually, or
+   * `((`_top_ `.` _bottom_`)` `.` `(`_left_ `.` _right_`))`: space for each edge individually, with the two vertical and the two horizontal widths paired up.
+
+The resolution of _bitmap_ is preserved, i.e. the size of the new image in points is the size of the content plus the insets.  `bitmap-trim` returns `#f` if trimming could not be performed.(b)
+
+```scheme
+(define bmp
+  (make-bitmap
+    (drawing (fill (rectangle (point 20 30) (size 40 10))))
+             (size 100 80)))
+(image-size bmp)
+  ⇒  (100.0 . 80.0)
+(image-size (bitmap-trim bmp))
+  ⇒  (40.0 . 10.0)
+(image-size (bitmap-trim bmp 2 '(4 8)))
+  ⇒  (48.0 . 26.0)
+```
 
 **(bitmap-blur _bitmap radius_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 

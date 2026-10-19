@@ -640,7 +640,12 @@ public enum BitmapImageFileType {
   
   // qualityFactor = 0: maximum compression
   // qualityFactor = 1: no compression
-  public func data(for image: UIImage, qualityFactor: Double?) -> Data? {
+  // exif: EXIF metadata that is embedded into the data. Only the formats TIFF, JPEG and PNG
+  //       support EXIF metadata; it is ignored for the other formats.
+  public func data(for image: UIImage,
+                   qualityFactor: Double?,
+                   exif: [String: Any]? = nil) -> Data? {
+    let exif = (exif?.isEmpty ?? true) ? nil : exif
     switch self {
       case .tiff:
         guard let cgImage = image.cgImage else {
@@ -657,6 +662,9 @@ public enum BitmapImageFileType {
           kCGImagePropertyColorModel as String : kCGImagePropertyColorModelRGB as String,
           kCGImagePropertyOrientation as String : NSNumber(value: image.cgOrientation.rawValue)
         ]
+        if let exif {
+          options[kCGImagePropertyExifDictionary as String] = exif
+        }
         if let qualityFactor {
           options[kCGImageDestinationLossyCompressionQuality as String] = qualityFactor as NSNumber
         }
@@ -712,10 +720,45 @@ public enum BitmapImageFileType {
         CGImageDestinationFinalize(dest)
         return md as Data
       case .jpeg:
+        if let exif {
+          return Self.data(for: image, as: .jpeg, qualityFactor: qualityFactor ?? 0.8, exif: exif)
+        }
         return image.jpegData(compressionQuality: qualityFactor ?? 0.8)
       case .png:
+        if let exif {
+          return Self.data(for: image, as: .png, qualityFactor: nil, exif: exif)
+        }
         return image.pngData()
     }
+  }
+
+  /// `UIImage.jpegData(compressionQuality:)` and `UIImage.pngData()` do not allow adding
+  /// metadata. Thus, images with EXIF metadata are encoded via `CGImageDestination`.
+  private static func data(for image: UIImage,
+                           as type: UTType,
+                           qualityFactor: Double?,
+                           exif: [String: Any]) -> Data? {
+    guard let cgImage = image.cgImage, image.size.width > 0.0, image.size.height > 0.0 else {
+      return nil
+    }
+    let options: NSMutableDictionary = [
+      kCGImagePropertyExifDictionary as String : exif,
+      kCGImagePropertyDPIWidth as String : Int(CGFloat(cgImage.width)*72.0/image.size.width),
+      kCGImagePropertyDPIHeight as String : Int(CGFloat(cgImage.height)*72.0/image.size.height),
+      kCGImagePropertyOrientation as String : NSNumber(value: image.cgOrientation.rawValue)
+    ]
+    if let qualityFactor {
+      options[kCGImageDestinationLossyCompressionQuality as String] = qualityFactor as NSNumber
+    }
+    let md = NSMutableData()
+    guard let dest = CGImageDestinationCreateWithData(md, type.identifier as CFString, 1, nil) else {
+      return nil
+    }
+    CGImageDestinationAddImage(dest, cgImage, options)
+    guard CGImageDestinationFinalize(dest) else {
+      return nil
+    }
+    return md as Data
   }
 }
 

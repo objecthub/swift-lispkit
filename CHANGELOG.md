@@ -2,7 +2,7 @@
 
 ## 2.6.3 (unreleased)
 
-- LispKit is now based on version 2.1 of the MarkdownKit framework (before: the `master` branch). This affects library `(lispkit markdown)` in a number of ways:
+- LispKit is now based on version 2.2 of the MarkdownKit framework. This affects library `(lispkit markdown)` in a number of ways:
   - The Markdown parser follows CommonMark 0.31.2 more closely (e.g. for list looseness, tab stops, backslash escapes, entities, link reference definitions and HTML blocks), so some documents are parsed into different syntax trees than before. Info strings of fenced code blocks are returned with escapes and entities resolved.
   - The nesting of block quotes, list items, links and emphasis is limited to a depth of 24; deeper markup is treated as text.
   - HTML output escapes `&` in URLs as `&amp;`, and `markdown->string` replaces control and bidirectional formatting characters with U+FFFD.
@@ -29,6 +29,9 @@
 - `Examples/Webserver.scm` stops the server from a separate thread so that the request which stops the server is answered.
 - Fixed data races in the thread runtime that could crash the interpreter when threads blocked on a mutex or a shared queue were aborted, or when threads were started while other threads were being registered or removed. This could happen, for instance, when an HTTP server was stopped and started again while serving requests.
 - Completed and corrected the documentation of library `(lispkit http server)`.
+- New procedure `bitmap-trim` in library `(lispkit draw)` removes the transparent area around the content of a bitmap. It has an optional alpha _threshold_ (default 2) and an optional _inset_, the width of the transparent space left around the content, given as a single number or for the individual edges.
+- `make-bitmap` accepts images in addition to drawings on macOS and iOS and converts them into bitmaps, e.g. to rasterize vector images. The _size_ argument is optional for images (`#f` stands for the default), and there is a new optional argument _ipol_ for the interpolation quality. **Behavior change:** for images, _ppi_ defaults to the resolution of the image instead of 72, so converting a bitmap does not lose pixels. On macOS, `make-bitmap` already accepted images, but this was not documented.
+- EXIF metadata on iOS: `set-bitmap-exif-data!` is available now, and `load-image`, `load-image-asset` and `bytevector->image` read the EXIF data of an image. As on macOS, `bitmap-exif-data` returns the EXIF tags (before: generic image properties such as `PixelWidth`) and `#f` for images without EXIF data. `save-bitmap`, `bitmap->bytevector`, `save-image` and `image->bytevector` embed the EXIF data in `jpg`, `png` and `tiff` output; before, it was dropped.
 
 ## 2.6.2 (2026-08-08)
 

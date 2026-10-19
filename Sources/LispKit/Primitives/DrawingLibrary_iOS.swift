@@ -159,9 +159,10 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("bitmap-pixels", bitmapPixels))
     self.define(Procedure("bitmap-ppi", bitmapPpi))
     self.define(Procedure("bitmap-exif-data", bitmapExifData))
-    // self.define(Procedure("set-bitmap-exif-data!", setBitmapExifData))
+    self.define(Procedure("set-bitmap-exif-data!", setBitmapExifData))
     self.define(Procedure("make-bitmap", makeBitmap))
     self.define(Procedure("bitmap-crop", bitmapCrop))
+    self.define(Procedure("bitmap-trim", bitmapTrim))
     self.define(Procedure("bitmap-blur", bitmapBlur))
     self.define(Procedure("save-bitmap", saveBitmap))
     self.define(Procedure("bitmap->bytevector", bitmapToBytevector))
@@ -392,12 +393,16 @@ public final class DrawingLibrary: NativeLibrary {
     return (shape, false)
   }
   
-  private func image(from expr: Expr) throws -> UIImage {
+  private func nativeImage(from expr: Expr) throws -> NativeImage {
     guard case .object(let obj) = expr,
           let imageBox = obj as? NativeImage else {
       throw RuntimeError.type(expr, expected: [NativeImage.type])
     }
-    return imageBox.value
+    return imageBox
+  }
+
+  private func image(from expr: Expr) throws -> UIImage {
+    return try self.nativeImage(from: expr).value
   }
   
   // Drawings
@@ -786,7 +791,10 @@ public final class DrawingLibrary: NativeLibrary {
   
   private func loadImage(path: String, forceBM: Expr?) throws -> Expr {
     if let image = UIImage(contentsOfFile: path) {
-      return .object(NativeImage(image))
+      let res = NativeImage(image)
+      res.exifData = self.exifData(from:
+                       CGImageSourceCreateWithURL(URL(fileURLWithPath: path) as CFURL, nil))
+      return .object(res)
     } else {
       let url = URL(fileURLWithPath: path)
       if let document = CGPDFDocument(url as CFURL),
@@ -811,7 +819,9 @@ public final class DrawingLibrary: NativeLibrary {
   }
   
   private func saveImage(filename: Expr, expr: Expr, format: Expr, quality: Expr?) throws -> Expr {
-    guard let data = try self.imageData(image: try self.image(from: expr),
+    let imageBox = try self.nativeImage(from: expr)
+    guard let data = try self.imageData(image: imageBox.value,
+                                        exif: imageBox.exifData,
                                         format: format,
                                         quality: quality) else {
       return .false
@@ -830,7 +840,9 @@ public final class DrawingLibrary: NativeLibrary {
   private func bytevectorToImage(expr: Expr, args: Arguments) throws -> Expr {
     let data = Data(try BytevectorLibrary.subVector("bytevector->image", expr, args))
     if let image = UIImage(data: data) {
-      return .object(NativeImage(image))
+      let res = NativeImage(image)
+      res.exifData = self.exifData(from: CGImageSourceCreateWithData(data as CFData, nil))
+      return .object(res)
     }
     if let dataProvider = CGDataProvider(data: data as CFData),
        let document = CGPDFDocument(dataProvider),
@@ -848,8 +860,11 @@ public final class DrawingLibrary: NativeLibrary {
   }
   
   private func imageToBytevector(expr: Expr, format: Expr, quality: Expr?) throws -> Expr {
-    let image = try self.image(from: expr)
-    guard let data = try self.imageData(image: image, format: format, quality: quality) else {
+    let imageBox = try self.nativeImage(from: expr)
+    guard let data = try self.imageData(image: imageBox.value,
+                                        exif: imageBox.exifData,
+                                        format: format,
+                                        quality: quality) else {
       return .false
     }
     let count = data.count
@@ -858,7 +873,10 @@ public final class DrawingLibrary: NativeLibrary {
     return .bytes(MutableBox(res))
   }
   
-  private func imageData(image: UIImage, format: Expr, quality: Expr?) throws -> Data? {
+  private func imageData(image: UIImage,
+                         exif: [String: Any]?,
+                         format: Expr,
+                         quality: Expr?) throws -> Data? {
     guard case .symbol(let sym) = format else {
       throw RuntimeError.eval(.invalidImageFileType, format)
     }
@@ -907,7 +925,7 @@ public final class DrawingLibrary: NativeLibrary {
       } else {
         qualityFactor = nil
       }
-      return fileType.data(for: image, qualityFactor: qualityFactor)
+      return fileType.data(for: image, qualityFactor: qualityFactor, exif: exif)
     }
   }
   
@@ -966,28 +984,24 @@ public final class DrawingLibrary: NativeLibrary {
     return .false
   }
   
-  /*
   private func setBitmapExifData(image: Expr, expr: Expr) throws -> Expr {
-    for repr in try self.image(from: image).representations {
-      if let bitmapRepr = repr as? NSBitmapImageRep,
-         bitmapRepr.size.width > 0.0 {
-        var exifDict: [AnyHashable : Any] = [:]
-        var lst = expr
-        while case .pair(let binding, let rest) = lst {
-          if case .pair(.symbol(let sym), let value) = binding,
-             let v = self.exifValue(from: value) {
-            exifDict[sym.rawIdentifier] = v
-          }
-          lst = rest
-        }
-        bitmapRepr.setProperty(.exifData, withValue: NSDictionary(dictionary: exifDict))
-        return .void
-      }
+    let imageBox = try self.nativeImage(from: image)
+    guard imageBox.value.cgImage != nil else {
+      throw RuntimeError.eval(.cannotInsertExif, image)
     }
-    throw RuntimeError.eval(.cannotInsertExif, image)
+    var exifDict: [String: Any] = [:]
+    var lst = expr
+    while case .pair(let binding, let rest) = lst {
+      if case .pair(.symbol(let sym), let value) = binding,
+         let v = self.exifValue(from: value) {
+        exifDict[sym.rawIdentifier] = v
+      }
+      lst = rest
+    }
+    imageBox.exifData = exifDict.isEmpty ? nil : exifDict
+    return .void
   }
-  */
-  
+
   private func exifValue(from expr: Expr) -> Any? {
     switch expr {
       case .fixnum(let num):
@@ -1013,20 +1027,31 @@ public final class DrawingLibrary: NativeLibrary {
     }
   }
 
-  private func bitmapExifData(image: Expr) throws -> Expr {
-    let image = try self.image(from: image)
-    if image.cgImage != nil,
-       let exifDict: NSDictionary = image.getExifData() {
-      var res: Expr = .null
-      for (key, value) in exifDict {
-        if let k = key as? String,
-           let v = self.expr(from: value) {
-          res = .pair(.pair(.symbol(self.context.symbols.intern(k)), v), res)
-        }
-      }
-      return res
+  /// Returns the EXIF metadata (the `{Exif}` property dictionary) of the first image in the
+  /// given image source, or `nil` if there is none. A `UIImage` does not retain the metadata of
+  /// the file or data it was created from, so it needs to be read from the source.
+  private func exifData(from source: CGImageSource?) -> [String: Any]? {
+    guard let source,
+          let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [String: Any],
+          let exif = properties[kCGImagePropertyExifDictionary as String] as? [String: Any],
+          !exif.isEmpty else {
+      return nil
     }
-    return .false
+    return exif
+  }
+
+  private func bitmapExifData(image: Expr) throws -> Expr {
+    let imageBox = try self.nativeImage(from: image)
+    guard imageBox.value.cgImage != nil, let exifData = imageBox.exifData else {
+      return .false
+    }
+    var res: Expr = .null
+    for (key, value) in exifData {
+      if let v = self.expr(from: value) {
+        res = .pair(.pair(.symbol(self.context.symbols.intern(key)), v), res)
+      }
+    }
+    return res
   }
 
   private func expr(from value: Any) -> Expr? {
@@ -1051,46 +1076,90 @@ public final class DrawingLibrary: NativeLibrary {
     }
   }
   
-  private func makeBitmap(drawing: Expr, size: Expr, dpi: Expr?) throws -> Expr {
-    guard case .pair(.flonum(let w), .flonum(let h)) = size, w > 0.0 && h > 0.0 else {
-      throw RuntimeError.eval(.invalidSize, size)
+  private func makeBitmap(expr: Expr, args: Arguments) throws -> Expr {
+    guard let (sizeArg, dpiArg, ipol) = args.optional(Expr.false, Expr.false, Expr.false) else {
+      throw RuntimeError.argumentCount(of: "make-bitmap",
+                                       min: 1,
+                                       max: 4,
+                                       args: .pair(expr, .makeList(args)))
     }
-    let scale = (try dpi?.asDouble(coerce: true) ?? 72.0)/72.0
-    guard scale > 0.0 && scale <= 10.0 else {
-      throw RuntimeError.range(parameter: 3,
-                               of: "make-bitmap",
-                               dpi ?? .fixnum(72),
-                               min: 0,
-                               max: 720,
-                               at: SourcePosition.unknown)
+    // The object to draw is either an image or a drawing
+    var source: UIImage? = nil
+    var drawing: Drawing? = nil
+    if case .object(let obj) = expr, let imageBox = obj as? NativeImage {
+      source = imageBox.value
+    } else {
+      drawing = try self.drawing(from: expr)
     }
+    // Determine the size in points; by default, an image keeps its size
+    let w, h: Double
+    if sizeArg.isTrue {
+      guard case .pair(.flonum(let width), .flonum(let height)) = sizeArg,
+            width > 0.0 && height > 0.0 else {
+        throw RuntimeError.eval(.invalidSize, sizeArg)
+      }
+      (w, h) = (width, height)
+    } else if let source, source.size.width > 0.0 && source.size.height > 0.0 {
+      (w, h) = (Double(source.size.width), Double(source.size.height))
+    } else {
+      throw RuntimeError.eval(.invalidSize, sizeArg)
+    }
+    // Determine the scale factor; by default, an image keeps its resolution
+    let scale: Double
+    if dpiArg.isTrue {
+      scale = try dpiArg.asDouble(coerce: true)/72.0
+      guard scale > 0.0 && scale <= 10.0 else {
+        throw RuntimeError.range(parameter: 3,
+                                 of: "make-bitmap",
+                                 dpiArg,
+                                 min: 0,
+                                 max: 720,
+                                 at: SourcePosition.unknown)
+      }
+    } else if let source {
+      scale = min(Double(source.scale), 10.0)
+    } else {
+      scale = 1.0
+    }
+    // Without an explicit size, the size in pixels is rounded to avoid losing a pixel
+    let pixelsWide = sizeArg.isTrue ? Int(w * scale) : Int((w * scale).rounded())
+    let pixelsHigh = sizeArg.isTrue ? Int(h * scale) : Int((h * scale).rounded())
+    let irritants: Expr = .pair(expr, .pair(.pair(.flonum(w), .flonum(h)),
+                                            .pair(.flonum(scale * 72.0), .null)))
     // Create a bitmap suitable for storing the image
     guard let context = CGContext(data: nil,
-                                  width: Int(w * scale),
-                                  height: Int(h * scale),
+                                  width: pixelsWide,
+                                  height: pixelsHigh,
                                   bitsPerComponent: 8,
                                   bytesPerRow: 0,
                                   space: Color.colorSpaceName,
                                   bitmapInfo: CGBitmapInfo(rawValue:
                                                 CGImageAlphaInfo.premultipliedFirst.rawValue)
                                               .union(.byteOrder32Little).rawValue) else {
-      throw RuntimeError.eval(.cannotCreateBitmap,
-                                .pair(drawing, .pair(size, .pair(dpi ?? .fixnum(72), .null))))
+      throw RuntimeError.eval(.cannotCreateBitmap, irritants)
     }
     // Configure the graphics context
     context.translateBy(x: 0.0, y: CGFloat(h * scale))
     context.scaleBy(x: CGFloat(scale), y: CGFloat(-scale))
+    // Set interpolation quality
+    if ipol.isTrue,
+       let quality = CGInterpolationQuality(rawValue: Int32(try ipol.asInt(above: 0, below: 5))) {
+      context.interpolationQuality = quality
+    }
     // Push the context
     UIGraphicsPushContext(context)
     defer {
       UIGraphicsPopContext()
     }
     // Draw into the bitmap
-    try self.drawing(from: drawing).draw()
+    if let source {
+      source.draw(in: CGRect(x: 0.0, y: 0.0, width: w, height: h), blendMode: .copy, alpha: 1.0)
+    } else if let drawing {
+      drawing.draw()
+    }
     // Create an image
     guard let cgImage = context.makeImage() else {
-      throw RuntimeError.eval(.cannotCreateBitmap,
-                                .pair(drawing, .pair(size, .pair(dpi ?? .fixnum(72), .null))))
+      throw RuntimeError.eval(.cannotCreateBitmap, irritants)
     }
     let uiImage = UIImage(cgImage: cgImage, scale: CGFloat(scale), orientation: .up)
     return .object(NativeImage(uiImage))
@@ -1120,6 +1189,39 @@ public final class DrawingLibrary: NativeLibrary {
       return .false
     }
     return .object(NativeImage(UIImage(cgImage: res, scale: image.scale, orientation: .up)))
+  }
+  
+  private func bitmapTrim(bitmap: Expr, threshold: Expr?, inset: Expr?) throws -> Expr {
+    let image = try self.image(from: bitmap)
+    let threshold = try threshold?.asUInt8() ?? 2
+    let padding: MarkdownUtil.Insets
+    switch inset {
+      case .none, .null, .false:
+        padding = .init(0.0)
+      case .pair(.pair(let top, let bottom), .pair(let left, let right)):
+        padding = .init(top: try top.asDouble(coerce: true),
+                        left: try left.asDouble(coerce: true),
+                        bottom: try bottom.asDouble(coerce: true),
+                        right: try right.asDouble(coerce: true))
+      case .pair(let horizontal, .pair(let vertical, .null)):
+        padding = .init(horizontal: try horizontal.asDouble(coerce: true),
+                        vertical: try vertical.asDouble(coerce: true))
+      case .pair(let top, .pair(let left, .pair(let bottom, .pair(let right, .null)))):
+        padding = .init(top: try top.asDouble(coerce: true),
+                        left: try left.asDouble(coerce: true),
+                        bottom: try bottom.asDouble(coerce: true),
+                        right: try right.asDouble(coerce: true))
+      case .pair(let horizontal, let vertical):
+        padding = .init(horizontal: try horizontal.asDouble(coerce: true),
+                        vertical: try vertical.asDouble(coerce: true))
+      default:
+        padding = .init(try inset?.asDouble(coerce: true) ?? 0.0)
+    }
+    if let res = MarkdownUtil.image(image, withInsets: padding, transparentAlpha: threshold) {
+      return .object(NativeImage(res))
+    } else {
+      return .false
+    }
   }
   
   private func bitmapBlur(bitmap: Expr, radius: Expr) throws -> Expr {
@@ -1177,16 +1279,19 @@ public final class DrawingLibrary: NativeLibrary {
     } else {
       qualityFactor = nil
     }
-    return self.saveInFile(try self.image(from: bitmap),
+    let imageBox = try self.nativeImage(from: bitmap)
+    return self.saveInFile(imageBox.value,
                            try filename.asPath(),
                            fileType,
-                           qualityFactor) ? .true : .false
+                           qualityFactor,
+                           imageBox.exifData) ? .true : .false
   }
   
   private func saveInFile(_ image: UIImage,
                           _ filename: String,
                           _ filetype: BitmapImageFileType,
-                          _ qf: Double?) -> Bool {
+                          _ qf: Double?,
+                          _ exif: [String: Any]? = nil) -> Bool {
     let qualityFactor: Double?
     if let qf = qf {
       if qf < 0.0 {
@@ -1202,7 +1307,7 @@ public final class DrawingLibrary: NativeLibrary {
     let url = URL(fileURLWithPath:
       self.context.fileHandler.path(filename,
                                     relativeTo: self.context.evaluator.currentDirectoryPath))
-    guard let data = filetype.data(for: image, qualityFactor: qualityFactor) else {
+    guard let data = filetype.data(for: image, qualityFactor: qualityFactor, exif: exif) else {
       return false
     }
     do {
@@ -1214,7 +1319,7 @@ public final class DrawingLibrary: NativeLibrary {
   }
   
   private func bitmapToBytevector(bitmap: Expr, format: Expr, quality: Expr?) throws -> Expr {
-    let image = try self.image(from: bitmap)
+    let imageBox = try self.nativeImage(from: bitmap)
     guard case .symbol(let sym) = format else {
       throw RuntimeError.eval(.invalidImageFileType, format)
     }
@@ -1245,7 +1350,9 @@ public final class DrawingLibrary: NativeLibrary {
     } else {
       qualityFactor = nil
     }
-    guard let data = fileType.data(for: image, qualityFactor: qualityFactor) else {
+    guard let data = fileType.data(for: imageBox.value,
+                                   qualityFactor: qualityFactor,
+                                   exif: imageBox.exifData) else {
       return .false
     }
     let count = data.count
@@ -2475,7 +2582,13 @@ public final class NativeImage: AnyMutableNativeObject<UIImage> {
   public override var type: Type {
     return NativeImage.type
   }
-  
+
+  /// EXIF metadata of the image: either read from the file or data the image was loaded from,
+  /// or set via `set-bitmap-exif-data!`. A `UIImage` cannot carry metadata, so it is kept here
+  /// and embedded when the image gets encoded. The keys are the names of the EXIF properties
+  /// (e.g. `ExposureTime`).
+  public var exifData: [String: Any]? = nil
+
   public override var string: String {
     if let width = Int64(exactly: floor(self.value.size.width)),
        let height = Int64(exactly: floor(self.value.size.height)) {
@@ -2638,20 +2751,6 @@ extension UIImage {
       @unknown default:
         return .up
     }
-  }
-  
-  func getExifData() -> CFDictionary? {
-    var exifData: CFDictionary? = nil
-    if let data = self.jpegData(compressionQuality: 1.0) {
-      data.withUnsafeBytes {
-        let bytes = $0.baseAddress?.assumingMemoryBound(to: UInt8.self)
-        if let cfData = CFDataCreate(kCFAllocatorDefault, bytes, data.count), 
-           let source = CGImageSourceCreateWithData(cfData, nil) {
-          exifData = CGImageSourceCopyPropertiesAtIndex(source, 0, nil)
-        }
-      }
-    }
-    return exifData
   }
 }
 
