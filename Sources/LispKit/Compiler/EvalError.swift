@@ -223,6 +223,10 @@ public enum EvalError: Int, Hashable, Codable {
   case notAValidListItem
   case notAValidMarkdownConfig
   case cannotRenderMarkdown
+  case notAValidMermaidConfig
+  case notAValidMathConfig
+  case cannotRenderMermaidDiagram
+  case cannotRenderLatexMath
   
   public var message: String {
     switch self {
@@ -622,6 +626,14 @@ public enum EvalError: Int, Hashable, Codable {
         return "invalid Markdown configuration: $0"
       case .cannotRenderMarkdown:
         return "cannot render Markdown: $0"
+      case .notAValidMermaidConfig:
+        return "invalid Mermaid configuration: $0"
+      case .notAValidMathConfig:
+        return "invalid LaTeX math configuration: $0"
+      case .cannotRenderMermaidDiagram:
+        return "cannot render Mermaid diagram: $0"
+      case .cannotRenderLatexMath:
+        return "cannot render LaTeX math: $0"
     }
   }
   

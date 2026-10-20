@@ -166,6 +166,8 @@ public final class DrawingLibrary: NativeLibrary {
     self.define(Procedure("bitmap-blur", bitmapBlur))
     self.define(Procedure("save-bitmap", saveBitmap))
     self.define(Procedure("bitmap->bytevector", bitmapToBytevector))
+    self.define(Procedure("mermaid->image", mermaidToImage))
+    self.define(Procedure("latex-math->image", latexMathToImage))
     
     // Shapes
     self.define("shape-type-tag", as: Shape.type.objectTypeTag())
@@ -1163,6 +1165,17 @@ public final class DrawingLibrary: NativeLibrary {
     }
     let uiImage = UIImage(cgImage: cgImage, scale: CGFloat(scale), orientation: .up)
     return .object(NativeImage(uiImage))
+  }
+  
+  /// Implements procedures `mermaid->image` and `latex-math->image`
+  private lazy var imageGenAddOn = ImageGenLibraryAddOn(context: self.context)
+  
+  private func mermaidToImage(source: Expr, config: Expr?) throws -> Expr {
+    return try self.imageGenAddOn.mermaidImage(source: source, config: config)
+  }
+  
+  private func latexMathToImage(tex: Expr, args: Arguments) throws -> Expr {
+    return try self.imageGenAddOn.mathImage(tex: tex, args: args)
   }
   
   private lazy var coreImageContext = CIContext()

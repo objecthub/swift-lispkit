@@ -28,6 +28,40 @@ import Foundation
 ///
 open class Context {
   
+  /// A lock for controlling access to `globalConfigsStorage` array.
+  private static let lock = NSLock()
+  
+  /// A static list of library configurations that are applicable to every
+  /// context instantiation.
+  private static var globalConfigsStorage: [any LibraryConfig] = [
+    MarkdownLibrary.Config()
+  ]
+  
+  /// Accessor to the static list of library configurations that are applicable to
+  /// every context instantiation.
+  public static var globalConfigs: [any LibraryConfig] {
+    Context.lock.lock()
+    defer {
+      Context.lock.unlock()
+    }
+    return Context.globalConfigsStorage
+  }
+  
+  /// Register a global configuration object.
+  public static func registerGlobalConfig<C: LibraryConfig>(_ config: C) {
+    Context.lock.lock()
+    defer {
+      Context.lock.unlock()
+    }
+    for i in Context.globalConfigsStorage.indices {
+      if Context.globalConfigsStorage[i] is C {
+        Context.globalConfigsStorage[i] = config
+        return
+      }
+    }
+    Context.globalConfigsStorage.append(config)
+  }
+  
   /// The name of the LispKit interpreter which is defined by this context.
   public let implementationName: String?
   
@@ -59,6 +93,9 @@ open class Context {
   
   /// The symbol table for managing interned symbols.
   public let symbols: SymbolTable
+  
+  /// External library configurations
+  public private(set) var configs: LibraryConfigRegistry! = nil
   
   /// The library manager of this context.
   public private(set) var libraries: LibraryManager! = nil
@@ -118,6 +155,7 @@ open class Context {
       supported.insert(feature)
     }
     self.features = supported
+    self.configs = LibraryConfigRegistry(for: self, including: Context.globalConfigs)
     self.libraries = LibraryManager(for: self)
     self.environment = Environment(in: self)
     self.evaluator = Evaluator(for: self, limitStack: limitStack)

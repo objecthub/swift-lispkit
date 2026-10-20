@@ -383,6 +383,57 @@ Loads an image from the file at the given relative file _path_ and returns the c
 
 where _dir_ is `"Images"` if it is not provided as a parameter. It then searches the asset paths in their given order for a file matching this relative file path. Once the first matching file is found, the file is loaded as an image file and the image gets returned by `load-image-asset`. It is an error if no matching image was found.
 
+**(mermaid-\>image _source_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(mermaid-\>image _source config_)**  
+
+Draws the diagram described by the string _source_ in the [Mermaid](https://mermaid.js.org) syntax and returns it as an image on a transparent background. Drawn diagrams are cached. An error is signaled if Mermaid rejects the diagram, if drawing it takes longer than the timeout, or if the image cannot be created. _config_ is an optional association list with symbol keys that configure the diagram; defaults are in parentheses:
+
+- `theme`: Mermaid theme, one of `default`, `neutral`, `dark`, `forest`, and `base` (`default`); diagrams are drawn on a transparent background, so use `dark` for dark backgrounds
+- `theme-variables`: association list overriding variables of the theme, e.g. `((primaryColor . "#ffcc00"))`; names are symbols or strings, values are strings (`()`)
+- `font-family`: font family of the text in the diagram, or `#f` for the font of Mermaid's theme (`#f`)
+- `scale`: factor by which the resolution of the image is higher than its size in points (`2`)
+- `width`: width in points of the page that the diagram is laid out on; wider diagrams are scaled down (`800`)
+- `margin`: margin in points around the diagram; `#f` keeps the margins that Mermaid adds, which depend on the diagram type (`8`)
+- `timeout`: maximum time in seconds for drawing the diagram (`5`)
+
+The keys `max-width` and `spacing` are accepted, too, but they have no effect on the image.
+
+```scheme
+(define diagram
+  (mermaid->image "graph LR\n  A[Start] --> B{Choice}\n  B -->|yes| C[Done]"
+                  '((theme . forest) (scale . 3))))
+(save-bitmap "diagram.png" diagram 'png)
+```
+
+**(latex-math-\>image _tex_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(latex-math-\>image _tex display?_)**  
+**(latex-math-\>image _tex display? size_)**  
+**(latex-math-\>image _tex display? size color_)**  
+**(latex-math-\>image _tex display? size color config_)**  
+
+Typesets the LaTeX formula _tex_, a string without dollar signs, with [KaTeX](https://katex.org) and returns it as an image on a transparent background. The formula is drawn by a headless web view using the KaTeX resources that come with LispKit, so no network connection is needed. Drawn formulas are cached. An error is signaled if KaTeX rejects the formula (the message of KaTeX is part of the error), if it is too long, if drawing it takes longer than the timeout, or if the image cannot be created. All arguments except _tex_ are optional, and `#f` selects the default:
+
+- _display?_ is `#t` for display math, which is centered and uses larger operators, and `#f` for a formula within a line of text (`#f`).
+- _size_ is the font size in points, between 1 and 1000, of the text that the formula is meant to be shown in. It determines the size of the image (`14`).
+- _color_ is the color of the formula, a color object (black).
+- _config_ is an association list with symbol keys; defaults are in parentheses:
+    - `scale`: factor by which the resolution of the image is higher than its size in points (`3`)
+    - `macros`: association list defining commands which formulas can use; names (e.g. `"\\half"`) and expansions (e.g. `"\\frac{1}{2}"`) are strings, and names can also be symbols (`()`)
+    - `max-expand`: maximum number of macro expansions in a formula (`1000`)
+    - `max-size`: maximum size in `em` that a formula can specify, e.g. for `\rule`, or `#f` for no limit (`#f`)
+    - `min-rule-thickness`: minimum thickness in `em` of fraction lines and similar items, or `#f` for the default of KaTeX (`#f`)
+    - `max-length`: maximum length of the formula in bytes (`10000`)
+    - `timeout`: maximum time in seconds for drawing the formula; 0 means no limit (`15`)
+
+The keys `max-width` and `spacing` are accepted, too, but they are not used.
+
+```scheme
+(define formula
+  (latex-math->image "\\int_0^1 x^2\\,dx = \\frac{1}{3}" #t 24 (color 0.8 0.1 0.1)))
+(image-size formula)
+  ⇒  (178.0 . 78.0)
+```
+
 **(bytevector-\>image _bvec_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(bytevector-\>image _bvec start_)**  
 **(bytevector-\>image _bvec start end_)**  

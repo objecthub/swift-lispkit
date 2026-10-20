@@ -28,7 +28,14 @@ public final class MarkdownLibrary: NativeLibrary {
   
   /// Specification of the global library configuration; these define defaults for all
   /// library instantiation.
-  public struct Config: Equatable, Sendable {
+  public struct Config: LibraryConfig, Equatable, Sendable {
+    
+    /// This is what the config creates in the current context
+    public struct Resource {
+      public let syntaxHighlighter: SyntaxHighlighter?
+      public let mermaidRenderer: MermaidRenderer?
+      public let mathRenderer: MathRenderer?
+    }
     
     // Default syntax highlighter configuration
     
@@ -47,6 +54,13 @@ public final class MarkdownLibrary: NativeLibrary {
     public let maxCachedDiagrams: Int?
     public let maxCacheBytes: Int?
     
+    /// The URL of the KaTeX foler; if this is `nil`, the other KaTeX-related
+    /// options are being ignored
+    public let katexURL: URL?
+    public let katexIdleTime: TimeInterval?
+    public let maxCachedFormulas: Int?
+    public let maxKatexCacheBytes: Int?
+    
     /// Initializer
     public init(highlightJSURL: URL? = nil,
                 themeDirectory: URL? = nil,
@@ -54,7 +68,11 @@ public final class MarkdownLibrary: NativeLibrary {
                 cachesScript: Bool? = nil,
                 idleTime: TimeInterval? = nil,
                 maxCachedDiagrams: Int? = nil,
-                maxCacheBytes: Int? = nil) {
+                maxCacheBytes: Int? = nil,
+                katexURL: URL? = nil,
+                katexIdleTime: TimeInterval? = nil,
+                maxCachedFormulas: Int? = nil,
+                maxKatexCacheBytes: Int? = nil) {
       self.highlightJSURL = highlightJSURL
       self.themeDirectory = themeDirectory
       self.mermaidJSURL = mermaidJSURL
@@ -62,6 +80,10 @@ public final class MarkdownLibrary: NativeLibrary {
       self.idleTime = idleTime
       self.maxCachedDiagrams = maxCachedDiagrams
       self.maxCacheBytes = maxCacheBytes
+      self.katexURL = katexURL
+      self.katexIdleTime = katexIdleTime
+      self.maxCachedFormulas = maxCachedFormulas
+      self.maxKatexCacheBytes = maxKatexCacheBytes
     }
     
     /// Returns the URL of `highlight.min.js` if available
@@ -104,50 +126,46 @@ public final class MarkdownLibrary: NativeLibrary {
       }
     }
     
-    public func apply(in context: Context) -> (SyntaxHighlighter?, MermaidRenderer?) {
+    /// Returns the URL of `katex.min.js` if available
+    private func katexURL(in context: Context) -> URL? {
+      if let katexURL {
+        return katexURL
+      } else if let path = context.fileHandler.assetFilePath(forFile: "katex.min",
+                                                             ofType: "js",
+                                                             inFolder: "JavaScript/KaTeX") {
+        return URL(fileURLWithPath: path).deletingLastPathComponent()
+      } else {
+        return nil
+      }
+    }
+    
+    /// Turns this configuration into a resource for the current context
+    public func evaluate(in context: Context) -> Resource {
       var highlighter: SyntaxHighlighter? = nil
       if let highlightURL = self.highlightURL(in: context) {
         highlighter = SyntaxHighlighter(highlightJSURL: highlightURL,
                                         themeDirectory: self.highlightThemesURL(in: context))
       }
-      var renderer: MermaidRenderer? = nil
+      var mermaidRenderer: MermaidRenderer? = nil
       if let mermaidURL = self.mermaidURL(in: context) {
-        renderer = MermaidRenderer(
-                     mermaidJSURL: mermaidURL,
-                     cachesScript: self.cachesScript ?? true,
-                     idleTime: self.idleTime ?? MermaidRenderer.defaultIdleTime,
-                     maxCachedDiagrams: self.maxCachedDiagrams ??
-                                        MermaidRenderer.defaultMaxCachedDiagrams,
-                     maxCacheBytes: self.maxCacheBytes ?? MermaidRenderer.defaultMaxCacheBytes)
+        mermaidRenderer = MermaidRenderer(
+          mermaidJSURL: mermaidURL,
+          cachesScript: self.cachesScript ?? true,
+          idleTime: self.idleTime ?? MermaidRenderer.defaultIdleTime,
+          maxCachedDiagrams: self.maxCachedDiagrams ?? MermaidRenderer.defaultMaxCachedDiagrams,
+          maxCacheBytes: self.maxCacheBytes ?? MermaidRenderer.defaultMaxCacheBytes)
       }
-      return (highlighter, renderer)
-    }
-  }
-  
-  /// Lock protecting global configuration changes
-  private static let configLock = NSLock()
-
-  /// Current default configuration
-  private static var configStorage: Config = Config(
-    highlightJSURL: nil,
-    themeDirectory: nil,
-    mermaidJSURL: nil,
-    cachesScript: true,
-    idleTime: MermaidRenderer.defaultIdleTime,
-    maxCachedDiagrams: MermaidRenderer.defaultMaxCachedDiagrams,
-    maxCacheBytes: MermaidRenderer.defaultMaxCacheBytes)
-  
-  /// Access current default configuration
-  public static var config: Config {
-    get {
-      self.configLock.lock()
-      defer { self.configLock.unlock() }
-      return MarkdownLibrary.configStorage
-    }
-    set {
-      self.configLock.lock()
-      defer { self.configLock.unlock() }
-      MarkdownLibrary.configStorage = newValue
+      var mathRenderer: MathRenderer? = nil
+      if let katexURL = self.katexURL(in: context) {
+        mathRenderer = MathRenderer(
+          katexFolder: katexURL,
+          idleTime: self.katexIdleTime ?? MathRenderer.defaultIdleTime,
+          maxCachedFormulas: self.maxCachedFormulas ?? MathRenderer.defaultMaxCachedFormulas,
+          maxCacheBytes: self.maxKatexCacheBytes ?? MathRenderer.defaultMaxCacheBytes)
+      }
+      return Resource(syntaxHighlighter: highlighter ?? SyntaxHighlighter.proxy,
+                      mermaidRenderer: mermaidRenderer ?? MermaidRenderer.shared,
+                      mathRenderer: mathRenderer ?? MathRenderer.shared)
     }
   }
   
@@ -198,11 +216,15 @@ public final class MarkdownLibrary: NativeLibrary {
   
   /// Syntax highlighter used by this library instance (no synchronization needed; the
   /// protocol ensures that this variable is set once)
-  private var syntaxHighlighter: SyntaxHighlighter? = nil
+  private var syntaxHighlighter: SyntaxHighlighter? = SyntaxHighlighter.proxy
   
   /// Mermaid renderer used by this library instance (no synchronization needed; the
   /// protocol ensures that this variable is set once)
-  private var mermaidRenderer: MermaidRenderer? = nil
+  private var mermaidRenderer: MermaidRenderer? = MermaidRenderer.shared
+  
+  /// Math renderer used by this library instance (no synchronization needed; the
+  /// protocol ensures that this variable is set once)
+  private var mathRenderer: MathRenderer? = MathRenderer.shared
   
   /// Initialize symbols
   public required init(in context: Context) throws {
@@ -249,9 +271,12 @@ public final class MarkdownLibrary: NativeLibrary {
   
   /// Dependencies of the library.
   public override func dependencies() {
-    let (syntaxHighlighter, mermaidRenderer) = MarkdownLibrary.config.apply(in: self.context)
-    self.syntaxHighlighter = syntaxHighlighter ?? SyntaxHighlighter.proxy
-    self.mermaidRenderer = mermaidRenderer ?? MermaidRenderer.shared
+    // Look up resource for the configuration of this library
+    if let resource = self.context.configs.resource(for: Config.self) {
+      self.syntaxHighlighter = resource.syntaxHighlighter
+      self.mermaidRenderer = resource.mermaidRenderer
+      self.mathRenderer = resource.mathRenderer
+    }
   }
   
   /// Declarations of the library.

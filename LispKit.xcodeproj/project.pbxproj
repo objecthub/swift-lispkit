@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0B8783AFD0E56325C442D114 /* ImageGenLibraryAddOn.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7219A705A419EB69F8643175 /* ImageGenLibraryAddOn.swift */; };
+		217AB8F3521DA5D82C87F125 /* ImageGenLibraryAddOn.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7219A705A419EB69F8643175 /* ImageGenLibraryAddOn.swift */; };
 		CC01903B1C89D02200DB8BF9 /* CaptureGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC01903A1C89D02200DB8BF9 /* CaptureGroup.swift */; };
 		CC01903D1C8C7D8600DB8BF9 /* Reference.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC01903C1C8C7D8600DB8BF9 /* Reference.swift */; };
 		CC028EAA249E3F5E00C5761C /* 2020-05-23.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC028EA0249E3EF800C5761C /* 2020-05-23.data */; };
@@ -308,6 +310,56 @@
 		CC517E6229A971E50096FC72 /* LispKit-List-Set.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC517E6029A970520096FC72 /* LispKit-List-Set.scm */; };
 		CC517E6629AC2DE70096FC72 /* Blockchain.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC517E6529AC2DA60096FC72 /* Blockchain.scm */; };
 		CC517E6729AC2DF90096FC72 /* Blockchain.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC517E6529AC2DA60096FC72 /* Blockchain.scm */; };
+		CC51941D3086590600008261 /* katex.min.css in Copy JavaScript KaTeX assets */ = {isa = PBXBuildFile; fileRef = CC51941830864DFA00008261 /* katex.min.css */; };
+		CC51941E3086590600008261 /* katex.min.js in Copy JavaScript KaTeX assets */ = {isa = PBXBuildFile; fileRef = CC51941930864DFA00008261 /* katex.min.js */; };
+		CC51941F3086591A00008261 /* LICENSE (fonts) in Copy JavaScript KaTeX assets */ = {isa = PBXBuildFile; fileRef = CC51941A30864DFA00008261 /* LICENSE (fonts) */; };
+		CC5194203086591A00008261 /* LICENSE in Copy JavaScript KaTeX assets */ = {isa = PBXBuildFile; fileRef = CC51941B30864DFA00008261 /* LICENSE */; };
+		CC5194223086595600008261 /* KaTeX_AMS-Regular.woff2 in Copy JavaScript KaTeX fonts */ = {isa = PBXBuildFile; fileRef = CC51940330864DFA00008261 /* KaTeX_AMS-Regular.woff2 */; };
+		CC5194233086595600008261 /* KaTeX_Caligraphic-Bold.woff2 in Copy JavaScript KaTeX fonts */ = {isa = PBXBuildFile; fileRef = CC51940430864DFA00008261 /* KaTeX_Caligraphic-Bold.woff2 */; };
+		CC5194243086595600008261 /* KaTeX_Caligraphic-Regular.woff2 in Copy JavaScript KaTeX fonts */ = {isa = PBXBuildFile; fileRef = CC51940530864DFA00008261 /* KaTeX_Caligraphic-Regular.woff2 */; };
+		CC5194253086595600008261 /* KaTeX_Fraktur-Bold.woff2 in Copy JavaScript KaTeX fonts */ = {isa = PBXBuildFile; fileRef = CC51940630864DFA00008261 /* KaTeX_Fraktur-Bold.woff2 */; };
+		CC5194263086595600008261 /* KaTeX_Fraktur-Regular.woff2 in Copy JavaScript KaTeX fonts */ = {isa = PBXBuildFile; fileRef = CC51940730864DFA00008261 /* KaTeX_Fraktur-Regular.woff2 */; };
+		CC5194273086595600008261 /* KaTeX_Main-Bold.woff2 in Copy JavaScript KaTeX fonts */ = {isa = PBXBuildFile; fileRef = CC51940830864DFA00008261 /* KaTeX_Main-Bold.woff2 */; };
+		CC5194283086595600008261 /* KaTeX_Main-BoldItalic.woff2 in Copy JavaScript KaTeX fonts */ = {isa = PBXBuildFile; fileRef = CC51940930864DFA00008261 /* KaTeX_Main-BoldItalic.woff2 */; };
+		CC5194293086595600008261 /* KaTeX_Main-Italic.woff2 in Copy JavaScript KaTeX fonts */ = {isa = PBXBuildFile; fileRef = CC51940A30864DFA00008261 /* KaTeX_Main-Italic.woff2 */; };
+		CC51942A3086595600008261 /* KaTeX_Main-Regular.woff2 in Copy JavaScript KaTeX fonts */ = {isa = PBXBuildFile; fileRef = CC51940B30864DFA00008261 /* KaTeX_Main-Regular.woff2 */; };
+		CC51942B3086595600008261 /* KaTeX_Math-BoldItalic.woff2 in Copy JavaScript KaTeX fonts */ = {isa = PBXBuildFile; fileRef = CC51940C30864DFA00008261 /* KaTeX_Math-BoldItalic.woff2 */; };
+		CC51942C3086595600008261 /* KaTeX_Math-Italic.woff2 in Copy JavaScript KaTeX fonts */ = {isa = PBXBuildFile; fileRef = CC51940D30864DFA00008261 /* KaTeX_Math-Italic.woff2 */; };
+		CC51942D3086595600008261 /* KaTeX_SansSerif-Bold.woff2 in Copy JavaScript KaTeX fonts */ = {isa = PBXBuildFile; fileRef = CC51940E30864DFA00008261 /* KaTeX_SansSerif-Bold.woff2 */; };
+		CC51942E3086595600008261 /* KaTeX_SansSerif-Italic.woff2 in Copy JavaScript KaTeX fonts */ = {isa = PBXBuildFile; fileRef = CC51940F30864DFA00008261 /* KaTeX_SansSerif-Italic.woff2 */; };
+		CC51942F3086595600008261 /* KaTeX_SansSerif-Regular.woff2 in Copy JavaScript KaTeX fonts */ = {isa = PBXBuildFile; fileRef = CC51941030864DFA00008261 /* KaTeX_SansSerif-Regular.woff2 */; };
+		CC5194303086595600008261 /* KaTeX_Script-Regular.woff2 in Copy JavaScript KaTeX fonts */ = {isa = PBXBuildFile; fileRef = CC51941130864DFA00008261 /* KaTeX_Script-Regular.woff2 */; };
+		CC5194313086595600008261 /* KaTeX_Size1-Regular.woff2 in Copy JavaScript KaTeX fonts */ = {isa = PBXBuildFile; fileRef = CC51941230864DFA00008261 /* KaTeX_Size1-Regular.woff2 */; };
+		CC5194323086595600008261 /* KaTeX_Size2-Regular.woff2 in Copy JavaScript KaTeX fonts */ = {isa = PBXBuildFile; fileRef = CC51941330864DFA00008261 /* KaTeX_Size2-Regular.woff2 */; };
+		CC5194333086595600008261 /* KaTeX_Size3-Regular.woff2 in Copy JavaScript KaTeX fonts */ = {isa = PBXBuildFile; fileRef = CC51941430864DFA00008261 /* KaTeX_Size3-Regular.woff2 */; };
+		CC5194343086595600008261 /* KaTeX_Size4-Regular.woff2 in Copy JavaScript KaTeX fonts */ = {isa = PBXBuildFile; fileRef = CC51941530864DFA00008261 /* KaTeX_Size4-Regular.woff2 */; };
+		CC5194353086595600008261 /* KaTeX_Typewriter-Regular.woff2 in Copy JavaScript KaTeX fonts */ = {isa = PBXBuildFile; fileRef = CC51941630864DFA00008261 /* KaTeX_Typewriter-Regular.woff2 */; };
+		CC5194373086597B00008261 /* katex.min.css in Copy JavaScript KaTeX assets */ = {isa = PBXBuildFile; fileRef = CC51941830864DFA00008261 /* katex.min.css */; };
+		CC5194383086597B00008261 /* katex.min.js in Copy JavaScript KaTeX assets */ = {isa = PBXBuildFile; fileRef = CC51941930864DFA00008261 /* katex.min.js */; };
+		CC5194393086598200008261 /* LICENSE (fonts) in Copy JavaScript KaTeX assets */ = {isa = PBXBuildFile; fileRef = CC51941A30864DFA00008261 /* LICENSE (fonts) */; };
+		CC51943A3086598200008261 /* LICENSE in Copy JavaScript KaTeX assets */ = {isa = PBXBuildFile; fileRef = CC51941B30864DFA00008261 /* LICENSE */; };
+		CC51943C3086599C00008261 /* KaTeX_AMS-Regular.woff2 in Copy JavaScript KaTeX fonts */ = {isa = PBXBuildFile; fileRef = CC51940330864DFA00008261 /* KaTeX_AMS-Regular.woff2 */; };
+		CC51943D3086599C00008261 /* KaTeX_Caligraphic-Bold.woff2 in Copy JavaScript KaTeX fonts */ = {isa = PBXBuildFile; fileRef = CC51940430864DFA00008261 /* KaTeX_Caligraphic-Bold.woff2 */; };
+		CC51943E3086599C00008261 /* KaTeX_Caligraphic-Regular.woff2 in Copy JavaScript KaTeX fonts */ = {isa = PBXBuildFile; fileRef = CC51940530864DFA00008261 /* KaTeX_Caligraphic-Regular.woff2 */; };
+		CC51943F3086599C00008261 /* KaTeX_Fraktur-Bold.woff2 in Copy JavaScript KaTeX fonts */ = {isa = PBXBuildFile; fileRef = CC51940630864DFA00008261 /* KaTeX_Fraktur-Bold.woff2 */; };
+		CC5194403086599C00008261 /* KaTeX_Fraktur-Regular.woff2 in Copy JavaScript KaTeX fonts */ = {isa = PBXBuildFile; fileRef = CC51940730864DFA00008261 /* KaTeX_Fraktur-Regular.woff2 */; };
+		CC5194413086599C00008261 /* KaTeX_Main-Bold.woff2 in Copy JavaScript KaTeX fonts */ = {isa = PBXBuildFile; fileRef = CC51940830864DFA00008261 /* KaTeX_Main-Bold.woff2 */; };
+		CC5194423086599C00008261 /* KaTeX_Main-BoldItalic.woff2 in Copy JavaScript KaTeX fonts */ = {isa = PBXBuildFile; fileRef = CC51940930864DFA00008261 /* KaTeX_Main-BoldItalic.woff2 */; };
+		CC5194433086599C00008261 /* KaTeX_Main-Italic.woff2 in Copy JavaScript KaTeX fonts */ = {isa = PBXBuildFile; fileRef = CC51940A30864DFA00008261 /* KaTeX_Main-Italic.woff2 */; };
+		CC5194443086599C00008261 /* KaTeX_Main-Regular.woff2 in Copy JavaScript KaTeX fonts */ = {isa = PBXBuildFile; fileRef = CC51940B30864DFA00008261 /* KaTeX_Main-Regular.woff2 */; };
+		CC5194453086599C00008261 /* KaTeX_Math-BoldItalic.woff2 in Copy JavaScript KaTeX fonts */ = {isa = PBXBuildFile; fileRef = CC51940C30864DFA00008261 /* KaTeX_Math-BoldItalic.woff2 */; };
+		CC5194463086599C00008261 /* KaTeX_Math-Italic.woff2 in Copy JavaScript KaTeX fonts */ = {isa = PBXBuildFile; fileRef = CC51940D30864DFA00008261 /* KaTeX_Math-Italic.woff2 */; };
+		CC5194473086599C00008261 /* KaTeX_SansSerif-Bold.woff2 in Copy JavaScript KaTeX fonts */ = {isa = PBXBuildFile; fileRef = CC51940E30864DFA00008261 /* KaTeX_SansSerif-Bold.woff2 */; };
+		CC5194483086599C00008261 /* KaTeX_SansSerif-Italic.woff2 in Copy JavaScript KaTeX fonts */ = {isa = PBXBuildFile; fileRef = CC51940F30864DFA00008261 /* KaTeX_SansSerif-Italic.woff2 */; };
+		CC5194493086599C00008261 /* KaTeX_SansSerif-Regular.woff2 in Copy JavaScript KaTeX fonts */ = {isa = PBXBuildFile; fileRef = CC51941030864DFA00008261 /* KaTeX_SansSerif-Regular.woff2 */; };
+		CC51944A3086599C00008261 /* KaTeX_Script-Regular.woff2 in Copy JavaScript KaTeX fonts */ = {isa = PBXBuildFile; fileRef = CC51941130864DFA00008261 /* KaTeX_Script-Regular.woff2 */; };
+		CC51944B3086599C00008261 /* KaTeX_Size1-Regular.woff2 in Copy JavaScript KaTeX fonts */ = {isa = PBXBuildFile; fileRef = CC51941230864DFA00008261 /* KaTeX_Size1-Regular.woff2 */; };
+		CC51944C3086599C00008261 /* KaTeX_Size2-Regular.woff2 in Copy JavaScript KaTeX fonts */ = {isa = PBXBuildFile; fileRef = CC51941330864DFA00008261 /* KaTeX_Size2-Regular.woff2 */; };
+		CC51944D3086599C00008261 /* KaTeX_Size3-Regular.woff2 in Copy JavaScript KaTeX fonts */ = {isa = PBXBuildFile; fileRef = CC51941430864DFA00008261 /* KaTeX_Size3-Regular.woff2 */; };
+		CC51944E3086599C00008261 /* KaTeX_Size4-Regular.woff2 in Copy JavaScript KaTeX fonts */ = {isa = PBXBuildFile; fileRef = CC51941530864DFA00008261 /* KaTeX_Size4-Regular.woff2 */; };
+		CC51944F3086599C00008261 /* KaTeX_Typewriter-Regular.woff2 in Copy JavaScript KaTeX fonts */ = {isa = PBXBuildFile; fileRef = CC51941630864DFA00008261 /* KaTeX_Typewriter-Regular.woff2 */; };
+		CC5194543087DBC200008261 /* LibraryConfigRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5194533087DBB600008261 /* LibraryConfigRegistry.swift */; };
+		CC5194553087DBC200008261 /* LibraryConfigRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5194533087DBB600008261 /* LibraryConfigRegistry.swift */; };
 		CC54923921D97FB7004A0652 /* 101.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC54923821D97F53004A0652 /* 101.sld */; };
 		CC54923B21D9828B004A0652 /* SRFI-101.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC54923A21D9823B004A0652 /* SRFI-101.scm */; };
 		CC54923D21D98F81004A0652 /* rlist.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC54923C21D98E3E004A0652 /* rlist.sld */; };
@@ -2039,6 +2091,94 @@
 			name = "Copy pre-installed LispKit library: LispKit List";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CC51941C308658F200008261 /* Copy JavaScript KaTeX assets */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Root/LispKit/Assets/JavaScript/KaTeX;
+			dstSubfolderSpec = 7;
+			files = (
+				CC51941F3086591A00008261 /* LICENSE (fonts) in Copy JavaScript KaTeX assets */,
+				CC5194203086591A00008261 /* LICENSE in Copy JavaScript KaTeX assets */,
+				CC51941D3086590600008261 /* katex.min.css in Copy JavaScript KaTeX assets */,
+				CC51941E3086590600008261 /* katex.min.js in Copy JavaScript KaTeX assets */,
+			);
+			name = "Copy JavaScript KaTeX assets";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC5194213086593500008261 /* Copy JavaScript KaTeX fonts */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Root/LispKit/Assets/JavaScript/KaTeX/fonts;
+			dstSubfolderSpec = 7;
+			files = (
+				CC5194223086595600008261 /* KaTeX_AMS-Regular.woff2 in Copy JavaScript KaTeX fonts */,
+				CC5194233086595600008261 /* KaTeX_Caligraphic-Bold.woff2 in Copy JavaScript KaTeX fonts */,
+				CC5194243086595600008261 /* KaTeX_Caligraphic-Regular.woff2 in Copy JavaScript KaTeX fonts */,
+				CC5194253086595600008261 /* KaTeX_Fraktur-Bold.woff2 in Copy JavaScript KaTeX fonts */,
+				CC5194263086595600008261 /* KaTeX_Fraktur-Regular.woff2 in Copy JavaScript KaTeX fonts */,
+				CC5194273086595600008261 /* KaTeX_Main-Bold.woff2 in Copy JavaScript KaTeX fonts */,
+				CC5194283086595600008261 /* KaTeX_Main-BoldItalic.woff2 in Copy JavaScript KaTeX fonts */,
+				CC5194293086595600008261 /* KaTeX_Main-Italic.woff2 in Copy JavaScript KaTeX fonts */,
+				CC51942A3086595600008261 /* KaTeX_Main-Regular.woff2 in Copy JavaScript KaTeX fonts */,
+				CC51942B3086595600008261 /* KaTeX_Math-BoldItalic.woff2 in Copy JavaScript KaTeX fonts */,
+				CC51942C3086595600008261 /* KaTeX_Math-Italic.woff2 in Copy JavaScript KaTeX fonts */,
+				CC51942D3086595600008261 /* KaTeX_SansSerif-Bold.woff2 in Copy JavaScript KaTeX fonts */,
+				CC51942E3086595600008261 /* KaTeX_SansSerif-Italic.woff2 in Copy JavaScript KaTeX fonts */,
+				CC51942F3086595600008261 /* KaTeX_SansSerif-Regular.woff2 in Copy JavaScript KaTeX fonts */,
+				CC5194303086595600008261 /* KaTeX_Script-Regular.woff2 in Copy JavaScript KaTeX fonts */,
+				CC5194313086595600008261 /* KaTeX_Size1-Regular.woff2 in Copy JavaScript KaTeX fonts */,
+				CC5194323086595600008261 /* KaTeX_Size2-Regular.woff2 in Copy JavaScript KaTeX fonts */,
+				CC5194333086595600008261 /* KaTeX_Size3-Regular.woff2 in Copy JavaScript KaTeX fonts */,
+				CC5194343086595600008261 /* KaTeX_Size4-Regular.woff2 in Copy JavaScript KaTeX fonts */,
+				CC5194353086595600008261 /* KaTeX_Typewriter-Regular.woff2 in Copy JavaScript KaTeX fonts */,
+			);
+			name = "Copy JavaScript KaTeX fonts";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC5194363086596500008261 /* Copy JavaScript KaTeX assets */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Root/LispKit/Assets/JavaScript/KaTeX;
+			dstSubfolderSpec = 7;
+			files = (
+				CC5194393086598200008261 /* LICENSE (fonts) in Copy JavaScript KaTeX assets */,
+				CC51943A3086598200008261 /* LICENSE in Copy JavaScript KaTeX assets */,
+				CC5194373086597B00008261 /* katex.min.css in Copy JavaScript KaTeX assets */,
+				CC5194383086597B00008261 /* katex.min.js in Copy JavaScript KaTeX assets */,
+			);
+			name = "Copy JavaScript KaTeX assets";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC51943B3086599100008261 /* Copy JavaScript KaTeX fonts */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Root/LispKit/Assets/JavaScript/KaTeX/fonts;
+			dstSubfolderSpec = 7;
+			files = (
+				CC51943C3086599C00008261 /* KaTeX_AMS-Regular.woff2 in Copy JavaScript KaTeX fonts */,
+				CC51943D3086599C00008261 /* KaTeX_Caligraphic-Bold.woff2 in Copy JavaScript KaTeX fonts */,
+				CC51943E3086599C00008261 /* KaTeX_Caligraphic-Regular.woff2 in Copy JavaScript KaTeX fonts */,
+				CC51943F3086599C00008261 /* KaTeX_Fraktur-Bold.woff2 in Copy JavaScript KaTeX fonts */,
+				CC5194403086599C00008261 /* KaTeX_Fraktur-Regular.woff2 in Copy JavaScript KaTeX fonts */,
+				CC5194413086599C00008261 /* KaTeX_Main-Bold.woff2 in Copy JavaScript KaTeX fonts */,
+				CC5194423086599C00008261 /* KaTeX_Main-BoldItalic.woff2 in Copy JavaScript KaTeX fonts */,
+				CC5194433086599C00008261 /* KaTeX_Main-Italic.woff2 in Copy JavaScript KaTeX fonts */,
+				CC5194443086599C00008261 /* KaTeX_Main-Regular.woff2 in Copy JavaScript KaTeX fonts */,
+				CC5194453086599C00008261 /* KaTeX_Math-BoldItalic.woff2 in Copy JavaScript KaTeX fonts */,
+				CC5194463086599C00008261 /* KaTeX_Math-Italic.woff2 in Copy JavaScript KaTeX fonts */,
+				CC5194473086599C00008261 /* KaTeX_SansSerif-Bold.woff2 in Copy JavaScript KaTeX fonts */,
+				CC5194483086599C00008261 /* KaTeX_SansSerif-Italic.woff2 in Copy JavaScript KaTeX fonts */,
+				CC5194493086599C00008261 /* KaTeX_SansSerif-Regular.woff2 in Copy JavaScript KaTeX fonts */,
+				CC51944A3086599C00008261 /* KaTeX_Script-Regular.woff2 in Copy JavaScript KaTeX fonts */,
+				CC51944B3086599C00008261 /* KaTeX_Size1-Regular.woff2 in Copy JavaScript KaTeX fonts */,
+				CC51944C3086599C00008261 /* KaTeX_Size2-Regular.woff2 in Copy JavaScript KaTeX fonts */,
+				CC51944D3086599C00008261 /* KaTeX_Size3-Regular.woff2 in Copy JavaScript KaTeX fonts */,
+				CC51944E3086599C00008261 /* KaTeX_Size4-Regular.woff2 in Copy JavaScript KaTeX fonts */,
+				CC51944F3086599C00008261 /* KaTeX_Typewriter-Regular.woff2 in Copy JavaScript KaTeX fonts */,
+			);
+			name = "Copy JavaScript KaTeX fonts";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CC54924521DCDF4F004A0652 /* Copy pre-installed LispKit library: SRFI 14 */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -3722,6 +3862,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		7219A705A419EB69F8643175 /* ImageGenLibraryAddOn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageGenLibraryAddOn.swift; sourceTree = "<group>"; };
 		CC01903A1C89D02200DB8BF9 /* CaptureGroup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptureGroup.swift; sourceTree = "<group>"; };
 		CC01903C1C8C7D8600DB8BF9 /* Reference.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reference.swift; sourceTree = "<group>"; };
 		CC028E8E249E3EF600C5761C /* 2020-05-27.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-05-27.data"; sourceTree = "<group>"; };
@@ -3951,6 +4092,31 @@
 		CC517E6329AC00990096FC72 /* sample-graph.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "sample-graph.png"; sourceTree = "<group>"; };
 		CC517E6429AC00D50096FC72 /* thread-states.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "thread-states.png"; sourceTree = "<group>"; };
 		CC517E6529AC2DA60096FC72 /* Blockchain.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Blockchain.scm; sourceTree = "<group>"; };
+		CC51940330864DFA00008261 /* KaTeX_AMS-Regular.woff2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KaTeX_AMS-Regular.woff2"; sourceTree = "<group>"; };
+		CC51940430864DFA00008261 /* KaTeX_Caligraphic-Bold.woff2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KaTeX_Caligraphic-Bold.woff2"; sourceTree = "<group>"; };
+		CC51940530864DFA00008261 /* KaTeX_Caligraphic-Regular.woff2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KaTeX_Caligraphic-Regular.woff2"; sourceTree = "<group>"; };
+		CC51940630864DFA00008261 /* KaTeX_Fraktur-Bold.woff2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KaTeX_Fraktur-Bold.woff2"; sourceTree = "<group>"; };
+		CC51940730864DFA00008261 /* KaTeX_Fraktur-Regular.woff2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KaTeX_Fraktur-Regular.woff2"; sourceTree = "<group>"; };
+		CC51940830864DFA00008261 /* KaTeX_Main-Bold.woff2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KaTeX_Main-Bold.woff2"; sourceTree = "<group>"; };
+		CC51940930864DFA00008261 /* KaTeX_Main-BoldItalic.woff2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KaTeX_Main-BoldItalic.woff2"; sourceTree = "<group>"; };
+		CC51940A30864DFA00008261 /* KaTeX_Main-Italic.woff2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KaTeX_Main-Italic.woff2"; sourceTree = "<group>"; };
+		CC51940B30864DFA00008261 /* KaTeX_Main-Regular.woff2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KaTeX_Main-Regular.woff2"; sourceTree = "<group>"; };
+		CC51940C30864DFA00008261 /* KaTeX_Math-BoldItalic.woff2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KaTeX_Math-BoldItalic.woff2"; sourceTree = "<group>"; };
+		CC51940D30864DFA00008261 /* KaTeX_Math-Italic.woff2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KaTeX_Math-Italic.woff2"; sourceTree = "<group>"; };
+		CC51940E30864DFA00008261 /* KaTeX_SansSerif-Bold.woff2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KaTeX_SansSerif-Bold.woff2"; sourceTree = "<group>"; };
+		CC51940F30864DFA00008261 /* KaTeX_SansSerif-Italic.woff2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KaTeX_SansSerif-Italic.woff2"; sourceTree = "<group>"; };
+		CC51941030864DFA00008261 /* KaTeX_SansSerif-Regular.woff2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KaTeX_SansSerif-Regular.woff2"; sourceTree = "<group>"; };
+		CC51941130864DFA00008261 /* KaTeX_Script-Regular.woff2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KaTeX_Script-Regular.woff2"; sourceTree = "<group>"; };
+		CC51941230864DFA00008261 /* KaTeX_Size1-Regular.woff2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KaTeX_Size1-Regular.woff2"; sourceTree = "<group>"; };
+		CC51941330864DFA00008261 /* KaTeX_Size2-Regular.woff2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KaTeX_Size2-Regular.woff2"; sourceTree = "<group>"; };
+		CC51941430864DFA00008261 /* KaTeX_Size3-Regular.woff2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KaTeX_Size3-Regular.woff2"; sourceTree = "<group>"; };
+		CC51941530864DFA00008261 /* KaTeX_Size4-Regular.woff2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KaTeX_Size4-Regular.woff2"; sourceTree = "<group>"; };
+		CC51941630864DFA00008261 /* KaTeX_Typewriter-Regular.woff2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KaTeX_Typewriter-Regular.woff2"; sourceTree = "<group>"; };
+		CC51941830864DFA00008261 /* katex.min.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = katex.min.css; sourceTree = "<group>"; };
+		CC51941930864DFA00008261 /* katex.min.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = katex.min.js; sourceTree = "<group>"; };
+		CC51941A30864DFA00008261 /* LICENSE (fonts) */ = {isa = PBXFileReference; lastKnownFileType = text; path = "LICENSE (fonts)"; sourceTree = "<group>"; };
+		CC51941B30864DFA00008261 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		CC5194533087DBB600008261 /* LibraryConfigRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryConfigRegistry.swift; sourceTree = "<group>"; };
 		CC54923821D97F53004A0652 /* 101.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 101.sld; sourceTree = "<group>"; };
 		CC54923A21D9823B004A0652 /* SRFI-101.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-101.scm"; sourceTree = "<group>"; };
 		CC54923C21D98E3E004A0652 /* rlist.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = rlist.sld; sourceTree = "<group>"; };
@@ -4997,6 +5163,7 @@
 		CC4132362DF6FE8C00D77CF6 /* JavaScript */ = {
 			isa = PBXGroup;
 			children = (
+				CC51940230864ABB00008261 /* KaTeX */,
 				CC60E9D730838F6C000EE746 /* Highlight */,
 				CC4132372DF700C500D77CF6 /* Mermaid */,
 			);
@@ -5063,6 +5230,45 @@
 				CC517E5B29A96E200096FC72 /* set.sld */,
 			);
 			path = list;
+			sourceTree = "<group>";
+		};
+		CC51940230864ABB00008261 /* KaTeX */ = {
+			isa = PBXGroup;
+			children = (
+				CC51941730864DFA00008261 /* fonts */,
+				CC51941830864DFA00008261 /* katex.min.css */,
+				CC51941930864DFA00008261 /* katex.min.js */,
+				CC51941A30864DFA00008261 /* LICENSE (fonts) */,
+				CC51941B30864DFA00008261 /* LICENSE */,
+			);
+			path = KaTeX;
+			sourceTree = "<group>";
+		};
+		CC51941730864DFA00008261 /* fonts */ = {
+			isa = PBXGroup;
+			children = (
+				CC51940330864DFA00008261 /* KaTeX_AMS-Regular.woff2 */,
+				CC51940430864DFA00008261 /* KaTeX_Caligraphic-Bold.woff2 */,
+				CC51940530864DFA00008261 /* KaTeX_Caligraphic-Regular.woff2 */,
+				CC51940630864DFA00008261 /* KaTeX_Fraktur-Bold.woff2 */,
+				CC51940730864DFA00008261 /* KaTeX_Fraktur-Regular.woff2 */,
+				CC51940830864DFA00008261 /* KaTeX_Main-Bold.woff2 */,
+				CC51940930864DFA00008261 /* KaTeX_Main-BoldItalic.woff2 */,
+				CC51940A30864DFA00008261 /* KaTeX_Main-Italic.woff2 */,
+				CC51940B30864DFA00008261 /* KaTeX_Main-Regular.woff2 */,
+				CC51940C30864DFA00008261 /* KaTeX_Math-BoldItalic.woff2 */,
+				CC51940D30864DFA00008261 /* KaTeX_Math-Italic.woff2 */,
+				CC51940E30864DFA00008261 /* KaTeX_SansSerif-Bold.woff2 */,
+				CC51940F30864DFA00008261 /* KaTeX_SansSerif-Italic.woff2 */,
+				CC51941030864DFA00008261 /* KaTeX_SansSerif-Regular.woff2 */,
+				CC51941130864DFA00008261 /* KaTeX_Script-Regular.woff2 */,
+				CC51941230864DFA00008261 /* KaTeX_Size1-Regular.woff2 */,
+				CC51941330864DFA00008261 /* KaTeX_Size2-Regular.woff2 */,
+				CC51941430864DFA00008261 /* KaTeX_Size3-Regular.woff2 */,
+				CC51941530864DFA00008261 /* KaTeX_Size4-Regular.woff2 */,
+				CC51941630864DFA00008261 /* KaTeX_Typewriter-Regular.woff2 */,
+			);
+			path = fonts;
 			sourceTree = "<group>";
 		};
 		CC54924221DCDC52004A0652 /* 14 */ = {
@@ -5910,6 +6116,7 @@
 				CCCACB5B248D753800F012AC /* SystemCallLibrary.swift */,
 				CC4575C520F00C4400116F0F /* DrawingLibrary.swift */,
 				CCD5E5972633405900C45EA0 /* DrawingLibrary_iOS.swift */,
+				7219A705A419EB69F8643175 /* ImageGenLibraryAddOn.swift */,
 				CC37A16B2C9E145100DF6C24 /* DrawBarcodeLibrary.swift */,
 				CC4132272DF593BA00D77CF6 /* DrawMapLibrary.swift */,
 				CC4132332DF653F000D77CF6 /* DrawWebLibrary.swift */,
@@ -6122,6 +6329,7 @@
 				CCAD52F71C48474500DBD8EE /* Context.swift */,
 				CCB585B71E15A6E70064BB18 /* ContextDelegate.swift */,
 				CC6598CE27248DC8004C9B89 /* LispKitContext.swift */,
+				CC5194533087DBB600008261 /* LibraryConfigRegistry.swift */,
 				CCB585BA1E15AA4D0064BB18 /* Heap.swift */,
 				CCCEB3FE1DF2DAA9009BF66B /* FileHandler.swift */,
 				CC3C92431D84C0D800016C28 /* Library.swift */,
@@ -6334,6 +6542,8 @@
 				CCAC49222FD360EC00D85F2A /* Copy assets/documents */,
 				CC60E9DA308391C2000EE746 /* Copy JavaScript highlight assets */,
 				CC60EA4A3083991F000EE746 /* Copy JavaScript highlight themes */,
+				CC51941C308658F200008261 /* Copy JavaScript KaTeX assets */,
+				CC5194213086593500008261 /* Copy JavaScript KaTeX fonts */,
 			);
 			buildRules = (
 			);
@@ -6422,6 +6632,8 @@
 				CCAC49242FD3612B00D85F2A /* Copy assets/documents */,
 				CC60E9DD30839232000EE746 /* Copy JavaScript highlight assets */,
 				CC60EAB43083995D000EE746 /* Copy JavaScript highlight themes */,
+				CC5194363086596500008261 /* Copy JavaScript KaTeX assets */,
+				CC51943B3086599100008261 /* Copy JavaScript KaTeX fonts */,
 			);
 			buildRules = (
 			);
@@ -6473,7 +6685,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1500;
-				LastUpgradeCheck = 2700;
+				LastUpgradeCheck = 2710;
 				ORGANIZATIONNAME = ObjectHub;
 				TargetAttributes = {
 					CC3B64262386025500807476 = {
@@ -6659,6 +6871,7 @@
 				CC8EDE6E1D07263D004E0636 /* BinaryInput.swift in Sources */,
 				CC1348E92D26AB38002DBF0D /* VisionLibrary.swift in Sources */,
 				CC37A1692C9E0CDE00DF6C24 /* Barcode.swift in Sources */,
+				217AB8F3521DA5D82C87F125 /* ImageGenLibraryAddOn.swift in Sources */,
 				CC0980AB1C67E84C006B7FB1 /* Cell.swift in Sources */,
 				CC41322F2DF5B74700D77CF6 /* TimezoneLookup.swift in Sources */,
 				CC1D533D2BF1709E00EE1A24 /* JSONLibrary.swift in Sources */,
@@ -6701,6 +6914,7 @@
 				CCAD52E51C48468F00DBD8EE /* Symbol.swift in Sources */,
 				CC4D2C9F1D5EDA2A00A02256 /* RecordLibrary.swift in Sources */,
 				CCF982F71D998B8A00B22A1D /* ImportSet.swift in Sources */,
+				CC5194543087DBC200008261 /* LibraryConfigRegistry.swift in Sources */,
 				CC26069C1C61760C0047A3D3 /* Boxes.swift in Sources */,
 				CCC41DC61D2851FB003CB4D0 /* VirtualMachineState.swift in Sources */,
 				CCAD52E41C48468F00DBD8EE /* Scanner.swift in Sources */,
@@ -6862,6 +7076,7 @@
 				CCC48C6425E5B94300D082AD /* ManagedObject.swift in Sources */,
 				CC2DA74B27747A8B00DE69CF /* EvalThread.swift in Sources */,
 				CCC48C8E25E5B95B00D082AD /* Promise.swift in Sources */,
+				CC5194553087DBC200008261 /* LibraryConfigRegistry.swift in Sources */,
 				CC7D4B7F2A2A49B50066BA94 /* Formatter.swift in Sources */,
 				CCC48C9425E5B95B00D082AD /* Type.swift in Sources */,
 				CCC48CAA25E5B97100D082AD /* FeatureRequirement.swift in Sources */,
@@ -6896,6 +7111,7 @@
 				CCC48C9125E5B95B00D082AD /* Equality.swift in Sources */,
 				CCC48C9E25E5B96800D082AD /* BindingGroup.swift in Sources */,
 				CC37A16A2C9E0CDE00DF6C24 /* Barcode.swift in Sources */,
+				0B8783AFD0E56325C442D114 /* ImageGenLibraryAddOn.swift in Sources */,
 				CCD5E5992633405900C45EA0 /* DrawingLibrary_iOS.swift in Sources */,
 				CCC48CB625E5B97100D082AD /* VirtualMachine.swift in Sources */,
 				CC6598D027248DC8004C9B89 /* LispKitContext.swift in Sources */,

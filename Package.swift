@@ -107,7 +107,8 @@ let package = Package(
                       ]),
     .testTarget(name: "LispKitTests",
                 dependencies: [
-                  .target(name: "LispKit")
+                  .target(name: "LispKit"),
+                  .product(name: "MarkdownKit", package: "swift-markdownkit")
                 ],
                 exclude: [
                   "Info.plist",
