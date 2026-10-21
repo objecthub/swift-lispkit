@@ -188,6 +188,7 @@ public final class MarkdownLibrary: NativeLibrary {
   private let htmlBlock: Symbol
   private let referenceDef: Symbol
   private let thematicBreak: Symbol
+  private let mathBlock: Symbol
   private let table: Symbol
   private let definitionList: Symbol
   
@@ -208,6 +209,7 @@ public final class MarkdownLibrary: NativeLibrary {
   private let emailAutoLink: Symbol
   private let image: Symbol
   private let html: Symbol
+  private let math: Symbol
   private let lineBreak: Symbol
   
   private let left: Symbol
@@ -239,6 +241,7 @@ public final class MarkdownLibrary: NativeLibrary {
     self.htmlBlock = context.symbols.intern("html-block")
     self.referenceDef = context.symbols.intern("reference-def")
     self.thematicBreak = context.symbols.intern("thematic-break")
+    self.mathBlock = context.symbols.intern("math-block")
     self.table = context.symbols.intern("table")
     self.definitionList = context.symbols.intern("definition-list")
     self.listItemType = .pair(.symbol(self.listItemTypeTag), .null)
@@ -257,6 +260,7 @@ public final class MarkdownLibrary: NativeLibrary {
     self.emailAutoLink = context.symbols.intern("email-auto-link")
     self.image = context.symbols.intern("image")
     self.html = context.symbols.intern("html")
+    self.math = context.symbols.intern("math")
     self.lineBreak = context.symbols.intern("line-break")
     self.left = context.symbols.intern("l")
     self.right = context.symbols.intern("r")
@@ -297,6 +301,7 @@ public final class MarkdownLibrary: NativeLibrary {
     self.define(Procedure("html-block", htmlBlock))
     self.define(Procedure("reference-def", referenceDef))
     self.define(Procedure("thematic-break", thematicBreak))
+    self.define(Procedure("math-block", mathBlock))
     self.define(Procedure("table", table))
     self.define(Procedure("definition-list", definitionList))
     self.define(Procedure("markdown-list?", isMarkdownList))
@@ -319,6 +324,7 @@ public final class MarkdownLibrary: NativeLibrary {
     self.define(Procedure("email-auto-link", emailAutoLink))
     self.define(Procedure("image", image))
     self.define(Procedure("html", html))
+    self.define(Procedure("math", math))
     self.define(Procedure("line-break", lineBreak))
     self.define(Procedure("markdown", markdown))
     self.define(Procedure("markdown?", isMarkdown))
@@ -824,14 +830,50 @@ public final class MarkdownLibrary: NativeLibrary {
     return try self.makeCase(self.inlineType, self.lineBreak, 1, args)
   }
   
-  private func markdown(_ str: Expr, _ extended: Expr?) throws -> Expr {
+  private func mathBlock(_ args: Arguments) throws -> Expr {
+    let res = try self.makeCase(self.blockType, self.mathBlock, 1, args)
+    guard case .tagged(_, _) = res else {
+      return res
+    }
+    _ = try args.first?.asString()
+    return res
+  }
+  
+  private func math(_ args: Arguments) throws -> Expr {
+    let res = try self.makeCase(self.inlineType, self.math, 3, args)
+    guard case .tagged(_, _) = res else {
+      return res
+    }
+    _ = try args.first?.asString()
+    let source = args[args.index(args.startIndex, offsetBy: 2)]
+    if source.isTrue {
+      _ = try source.asString()
+    }
+    return res
+  }
+  
+  private func markdown(_ str: Expr, _ dialect: Expr?) throws -> Expr {
     let parser: MarkdownParser
-    if case .symbol(let sym) = extended, sym.identifier == "full" {
-      parser = FullMarkdownParser.standard
-    } else if extended?.isTrue ?? false {
-      parser = ExtendedMarkdownParser.standard
-    } else {
-      parser = MarkdownParser.standard
+    switch dialect {
+      case .none, .false:
+        parser = MarkdownParser.standard
+      case .symbol(let sym):
+        switch sym.identifier {
+          case "standard":
+            parser = MarkdownParser.standard
+          case "extended":
+            parser = ExtendedMarkdownParser.standard
+          case "full":
+            parser = FullMarkdownParser.standard
+          case "math":
+            parser = MathMarkdownParser.standard
+          case "latex":
+            parser = LaTeXMarkdownParser.standard
+          default:
+            throw RuntimeError.eval(.notAValidMarkdownDialect, .symbol(sym))
+        }
+      case .some(let expr):
+        parser = LaTeXMarkdownParser.standard
     }
     guard let res = self.externMarkdown(parser.parse(try str.asString())) else {
       return .false
@@ -1337,7 +1379,7 @@ public final class MarkdownLibrary: NativeLibrary {
     "syntax-highlighting", "tight-lists", "align-list-markers",
     "max-image-width", "max-image-height", "custom-style", "image-base-url",
     "preset", "base-url", "timeout", "local-images", "remote-images", "image-extensions",
-    "safe-mode", "text-size-multiplier", "mermaid"
+    "safe-mode", "text-size-multiplier", "mermaid", "math"
   ]
   
   /// Keys of the association lists configuring the rendering of Mermaid diagrams
@@ -1597,12 +1639,28 @@ public final class MarkdownLibrary: NativeLibrary {
     }
   }
   
+  /// Maps the value of the entry `math` of a configuration to the configuration of the
+  /// renderer of formulas. `#f` stands for formulas shown as code, `#t` and `()` for the default
+  /// configuration, and an association list refines the default configuration (see
+  /// `ImageGenLibraryAddOn.mathConfig`).
+  private func mathConfig(_ value: Expr) throws -> MathConfig? {
+    switch value {
+      case .false:
+        return nil
+      case .true, .null:
+        return MathConfig()
+      default:
+        return try ImageGenLibraryAddOn.mathConfig(value, error: .notAValidMarkdownConfig)
+    }
+  }
+  
   /// Creates an attributed string generator from a configuration, i.e. an association list with
   /// symbol keys (see `MarkdownLibrary.configKeys`). The first entry for a key is used. All
   /// entries are optional; `#f` and `()` stand for the default configuration.
   ///
-  /// Diagrams (entry `mermaid`) are only enabled if `diagrams` is true; they are drawn when
-  /// rendering attributed strings, but cannot be included in HTML documents.
+  /// Diagrams (entry `mermaid`) and formulas (entry `math`, enabled by default) are only
+  /// enabled if `diagrams` is true; they are drawn when rendering attributed strings, but cannot
+  /// be included in HTML documents.
   private func attributedStringGenerator(config: Expr?,
                                          diagrams: Bool) throws -> AttributedStringGenerator {
     let entries = try self.configEntries(config, allowed: MarkdownLibrary.configKeys)
@@ -1709,6 +1767,11 @@ public final class MarkdownLibrary: NativeLibrary {
     if let (_, value) = entries["mermaid"] {
       mermaid = try self.mermaidConfig(value)
     }
+    // Formulas, which are typeset unless the configuration says otherwise
+    var math: MathConfig? = MathConfig()
+    if let (_, value) = entries["math"] {
+      math = try self.mathConfig(value)
+    }
     // Rendering options
     let preset: RenderingOptions
     switch try self.configSymbol(entries, "preset", in: ["trusted", "untrusted"]) {
@@ -1745,15 +1808,29 @@ public final class MarkdownLibrary: NativeLibrary {
                        preset.imageExtensions,
       safeMode: try self.configBool(entries, "safe-mode") ?? preset.safeMode,
       textSizeMultiplier: textSizeMultiplier)
-    return AttributedStringGenerator(version: .OS26,
-                                     options: options,
-                                     style: style,
-                                     syntaxHighlighter: self.syntaxHighlighter,
-                                     mermaid: diagrams ? mermaid : nil,
-                                     mermaidRenderer: self.mermaidRenderer,
-                                     imageBaseUrl: imageBaseUrl,
-                                     alignListMarkers: alignListMarkers,
-                                     renderingOptions: renderingOptions)
+    if diagrams, let math {
+      return MathAttributedStringGenerator(version: .OS26,
+                                           options: options,
+                                           style: style,
+                                           syntaxHighlighter: self.syntaxHighlighter,
+                                           mermaid: mermaid,
+                                           mermaidRenderer: self.mermaidRenderer,
+                                           math: math,
+                                           mathRenderer: self.mathRenderer,
+                                           imageBaseUrl: imageBaseUrl,
+                                           alignListMarkers: alignListMarkers,
+                                           renderingOptions: renderingOptions)
+    } else {
+      return AttributedStringGenerator(version: .OS26,
+                                       options: options,
+                                       style: style,
+                                       syntaxHighlighter: self.syntaxHighlighter,
+                                       mermaid: diagrams ? mermaid : nil,
+                                       mermaidRenderer: self.mermaidRenderer,
+                                       imageBaseUrl: imageBaseUrl,
+                                       alignListMarkers: alignListMarkers,
+                                       renderingOptions: renderingOptions)
+    }
   }
   
   // MARK: - Converting positional style arguments into configurations
@@ -1977,8 +2054,11 @@ public final class MarkdownLibrary: NativeLibrary {
       self.collectMermaidSources(in: doc, into: &diagrams)
     }
     let diagramTime = Double(diagrams.count) * ((generator.mermaidConfig?.timeout ?? 0.0) + 5.0)
+    // Formulas are rendered in one batch, which takes up to the timeout of the formulas (if any)
+    let formulaTimeout = (generator as? MathAttributedStringGenerator)?.mathConfig.timeout ?? 0.0
+    let formulaTime = formulaTimeout > 0.0 ? formulaTimeout + 5.0 : 0.0
     let deadline = generator.renderingOptions.timeout.map {
-      Date(timeIntervalSinceNow: $0 + 10.0 + diagramTime)
+      Date(timeIntervalSinceNow: $0 + 10.0 + diagramTime + formulaTime)
     }
     while outcome.current == nil {
       if self.context.evaluator.threads.current?.value.machine?.abortionRequested ?? false {
@@ -2208,6 +2288,10 @@ public final class MarkdownLibrary: NativeLibrary {
         if case .pair(let definitions, .null) = args {
           return .definitionList(try self.internMarkdown(definitions: definitions))
         }
+      case self.mathBlock:
+        if case .pair(let tex, .null) = args {
+          return .custom(MathBlock(tex: try tex.asString()))
+        }
       default:
         break
     }
@@ -2397,6 +2481,12 @@ public final class MarkdownLibrary: NativeLibrary {
         }
       case self.html:
         return .html(Substring(try fst.asString()))
+      case self.math:
+        if case .pair(let display, .pair(let source, .null)) = args {
+          return .custom(MathFragment(tex: try fst.asString(),
+                                      display: display.isTrue,
+                                      source: source.isFalse ? nil : try source.asString()))
+        }
       case self.lineBreak:
         return fst.isFalse ? .softLineBreak : .hardLineBreak
       default:
@@ -2506,8 +2596,11 @@ public final class MarkdownLibrary: NativeLibrary {
         return self.makeCase(self.blockType,
                              self.definitionList,
                              self.externMarkdown(definitions))
-      default:
-        return nil
+      case .custom(let custom):
+        guard let math = custom as? MathBlock else {
+          return nil
+        }
+        return self.makeCase(self.blockType, self.mathBlock, .makeString(math.tex))
     }
   }
   
@@ -2630,8 +2723,15 @@ public final class MarkdownLibrary: NativeLibrary {
         return self.makeCase(self.inlineType, self.lineBreak, .false)
       case .hardLineBreak:
         return self.makeCase(self.inlineType, self.lineBreak, .true)
-      case .custom(_):
-        return nil
+      case .custom(let custom):
+        guard let math = custom as? MathFragment else {
+          return nil
+        }
+        return self.makeCase(self.inlineType,
+                             self.math,
+                             .makeString(math.tex),
+                             .makeBoolean(math.display),
+                             .makeString(math.source))
     }
   }
   

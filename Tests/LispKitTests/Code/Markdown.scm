@@ -165,7 +165,7 @@
     (markdown=? md1 (markdown "~one~ two" 'full))
     (markdown=? md2 (markdown "~~one~~ two" 'full))
     (markdown=? md3 (markdown "**a ~~b~~** c" 'full))
-    (not (markdown=? md1 (markdown "~one~ two" #t)))
+    (not (markdown=? md1 (markdown "~one~ two" 'extended)))
     (and (markdown-inline? (underline '())) (markdown-inline? (strikethrough '())))
     (equal? (markdown->html md1) "<p><u>one</u> two</p>\n")
     (equal? (markdown->html md2) "<p><del>one</del> two</p>\n")
@@ -187,7 +187,7 @@
   (list
     (markdown=? doc1 (markdown "- [ ] open\n- [x] done" 'full))
     (markdown=? doc2 (markdown "1. [x] one\n2. [ ] two" 'full))
-    (not (markdown=? doc1 (markdown "- [ ] open\n- [x] done" #t)))
+    (not (markdown=? doc1 (markdown "- [ ] open\n- [x] done" 'extended)))
     (and (markdown-list-item? t1) (markdown-list-item? t3))
     (markdown-list-item=? t1 (task #f (bullet #\- '() (list (paragraph (list (text "open")))))))
     (not (markdown-list-item=? t1 t2))
@@ -463,6 +463,173 @@
   "Markdown configuration with unknown Mermaid key"
   <error>
   (markdown->styled-text (markdown "text") '((mermaid . ((colour . red)))))
+)
+
+(
+  "Markdown dialects"
+  (#t #t #t #t #t #t #t #t #t #t)
+  (import (lispkit string))
+  (define (html str dialect) (markdown->html (markdown str dialect)))
+  (define (has? str sub) (and (string-contains str sub) #t))
+  (define tab "a | b\n--|--\n1 | 2")
+  (list
+    (equal? (html tab #f) (html tab 'standard))
+    (not (has? (html tab 'standard) "<table>"))
+    (has? (html tab 'extended) "<table>")
+    (not (has? (html "~u~" 'extended) "<u>"))
+    (has? (html "~u~" 'full) "<u>")
+    (not (has? (html "$x$" 'full) "math"))
+    (has? (html "$x$" 'math) "math inline")
+    (not (has? (html "\\(x\\)" 'math) "math inline"))
+    (has? (html "\\(x\\)" 'latex) "math inline")
+    (equal? (html "~u~ \\(x\\)" #t) (html "~u~ \\(x\\)" 'latex)))
+)
+
+(
+  "Markdown with unknown dialect"
+  <error>
+  (markdown "text" 'github)
+)
+
+(
+  "Markdown with misspelled dialect"
+  <error>
+  (markdown "text" 'latext)
+)
+
+(
+  "Markdown with dialect as string"
+  <error>
+  (markdown "text" "full")
+)
+
+(
+  "Markdown with dialect as number"
+  <error>
+  (markdown "text" 1)
+)
+
+(
+  "Markdown math formulas"
+  (#t #t #t #t #t #t #t #t #t #t #t #t)
+  (import (lispkit datatype))
+  (define (inline-math? md)
+    (match md
+      ((document (list (paragraph (list (math tex display? source))))) (list tex display? source))
+      (else #f)))
+  (define (math-then-text? md)
+    (match md
+      ((document (list (paragraph (list (math tex display? source) (text rest))))) (list tex display? rest))
+      (else #f)))
+  (define (block-math? md)
+    (match md
+      ((document (list (math-block tex))) tex)
+      (else #f)))
+  (define doc (document (list (paragraph (list (text "Area ") (math "\\pi r^2" #f #f)))
+                              (math-block "\\int_0^1 x\\,dx"))))
+  (list
+    (markdown? doc)
+    (markdown=? doc (markdown "Area $\\pi r^2$\n\n$$\n\\int_0^1 x\\,dx\n$$\n" 'math))
+    (equal? (inline-math? (markdown "$x$" 'math)) '("x" #f "$x$"))
+    (equal? (math-then-text? (markdown "$$x$$ and" 'math)) '("x" #t " and"))
+    (equal? (inline-math? (markdown "\\(x\\)" 'latex)) '("x" #f "\\(x\\)"))
+    (equal? (math-then-text? (markdown "\\[x\\] and" 'latex)) '("x" #t " and"))
+    (equal? (block-math? (markdown "$$\nx^2\n$$" 'math)) "x^2")
+    (equal? (block-math? (markdown "```math\nx^2\n```" 'math)) "x^2")
+    (equal? (block-math? (markdown "\\[\nx^2\n\\]" 'latex)) "x^2")
+    (not (block-math? (markdown "```math\nx^2\n```" 'full)))
+    (equal? (inline-math? (markdown "\\(x\\)" 'math)) #f)
+    (equal? (inline-math? (markdown "costs $5 and $6" 'math)) #f))
+)
+
+(
+  "Markdown math formula generators"
+  (#t #t #t #t #t #t #t)
+  (import (lispkit string))
+  (define (has? str sub) (and (string-contains str sub) #t))
+  (define md (markdown "Area $\\pi r^2$ and \\[E<m\\]\n\n$$\n\\int_0^1 x\\,dx\n$$\n" 'latex))
+  (define markup (markdown->html md))
+  (define plain (markdown->string md))
+  (list
+    (has? markup "<span class=\"math inline\">\\(\\pi r^2\\)</span>")
+    (has? markup "<span class=\"math display\">\\[E&lt;m\\]</span>")
+    (has? markup "<div class=\"math display\">\\[\\int_0^1 x\\,dx\\]</div>")
+    (has? plain "Area $\\pi r^2$ and \\[E<m\\]")
+    (has? plain "$$\n\\int_0^1 x\\,dx\n$$")
+    (has? (markdown->html (document (list (paragraph (list (math "a" #t #f)))))) "math display")
+    (pair? (markdown->sxml md)))
+)
+
+(
+  "Markdown math formulas in styled text"
+  (#t #t #t #t #t #t #t #t #t)
+  (import (lispkit styled-text) (lispkit string))
+  (define (has? str sub) (and (string-contains str sub) #t))
+  (define md (markdown "Before $\\pi r^2$ after\n\n$$\n\\int_0^1 x\\,dx\n$$\n\nEnd\n" 'math))
+  (define typeset (styled-text-string (markdown->styled-text md)))
+  (define code (styled-text-string (markdown->styled-text md '((math . #f)))))
+  (define explicit (styled-text-string (markdown->styled-text md '((math . #t)))))
+  (define configured
+    (styled-text-string
+      (markdown->styled-text md '((math . ((scale . 2) (spacing . 4) (max-width . 100)
+                                           (timeout . 20)
+                                           (macros . (("\\half" . "\\frac{1}{2}")))))))))
+  (define invalid-block
+    (styled-text-string (markdown->styled-text (markdown "$$\n\\notacommand{\n$$\n" 'math))))
+  (define invalid-inline
+    (styled-text-string (markdown->styled-text (markdown "x $\\notacommand{$ y" 'math))))
+  (list
+    (not (has? typeset "pi r^2"))
+    (not (has? typeset "int_0^1"))
+    (has? code "$\\pi r^2$")
+    (has? code "\\int_0^1 x\\,dx")
+    (string=? typeset explicit)
+    (string=? typeset configured)
+    (has? invalid-block "Formula could not be rendered")
+    (has? invalid-inline "$\\notacommand{$")
+    (has? (markdown->html-doc md) "pi r^2"))
+)
+
+(
+  "Markdown configuration with invalid math value"
+  <error>
+  (markdown->styled-text (markdown "text") '((math . 5)))
+)
+
+(
+  "Markdown configuration with invalid math scale"
+  <error>
+  (markdown->styled-text (markdown "text") '((math . ((scale . 0)))))
+)
+
+(
+  "Markdown configuration with unknown math key"
+  <error>
+  (markdown->styled-text (markdown "text") '((math . ((colour . red)))))
+)
+
+(
+  "Markdown math constructor with invalid formula"
+  <error>
+  (math 1 #f #f)
+)
+
+(
+  "Markdown math constructor with invalid source"
+  <error>
+  (math "x" #f 5)
+)
+
+(
+  "Markdown math constructor with missing arguments"
+  <error>
+  (math "x" #f)
+)
+
+(
+  "Markdown math block constructor with invalid formula"
+  <error>
+  (math-block 1)
 )
 
 (

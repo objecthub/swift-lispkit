@@ -38,6 +38,8 @@ At the top-level, a Markdown document consist of a list of _blocks_. The followi
       where (every? (lambda (x)
                       (and (markdown-text? (car x))
                            (markdown-list? (cdr x)))) defs)
+  (math-block tex)
+      where (string? tex)
   (thematic-break))
 ```
 
@@ -53,9 +55,9 @@ At the top-level, a Markdown document consist of a list of _blocks_. The followi
       where (and (boolean? checked?) (markdown-list-item? item)))
 ```
 
-`(bullet ch tight? blocks)` is an item of a bullet list with bullet character _ch_ and `(ordered num ch tight? blocks)` is an item of an ordered list with number _num_ and delimiter character _ch_ (`.` or `)`). `(task checked? item)` turns a `bullet` or `ordered` list item _item_ into a _task list item_ (written `- [ ] to do` or `- [x] done` in Markdown) with a checkbox that is checked if _checked?_ is true. A task list item is never nested in another one. Task list items are only created when parsing Markdown with the _full_ parser (see `markdown` below).
+`(bullet ch tight? blocks)` is an item of a bullet list with bullet character _ch_ and `(ordered num ch tight? blocks)` is an item of an ordered list with number _num_ and delimiter character _ch_ (`.` or `)`). `(task checked? item)` turns a `bullet` or `ordered` list item _item_ into a _task list item_ (written `- [ ] to do` or `- [x] done` in Markdown) with a checkbox that is checked if _checked?_ is true. A task list item is never nested in another one. Task list items are only created when parsing Markdown with the dialects `full`, `math`, or `latex` (see `markdown` below).
 
-The most frequent Markdown block type is a paragraph. `(paragraph text)` represents a single paragraph of text where _text_ refers to a list of inline text fragments of type `inline` (see below). `(heading level text)` defines a heading block for a heading of a given level, where _level_ is a number starting with 1 (up to 6). `(indented-code lines)` represents a code block consisting of a list of text lines each represented by a string. `(fenced-code lang lines)` is similar: it defines a code block with code expressed in the given language _lang_. `(html lines)` defines a HTML block consisting of the given lines of text. `(reference-def label dest title)` introduces a reference definition consisting of a given _label_, a destination URI _dest_, as well as a _title_ string. `(table header alignments rows)` defines a table consisting of _headers_, a list of markdown text describing the header of each column, _alignments_, a list of symbols `l` (= left), `c` (= center), and `r` (= right), and _rows_, a list of lists of markdown text. `(definition-list defs)` represents a definition list where _defs_ refers to a list of definitions. A definition has the form `(name def ...)` where _name_ is markdown text defining a name, and _def_ is a bullet item using `:` as bullet character. Finally, `(thematic-break)` introduces a thematic break block separating the previous and following blocks visually, often via a line.
+The most frequent Markdown block type is a paragraph. `(paragraph text)` represents a single paragraph of text where _text_ refers to a list of inline text fragments of type `inline` (see below). `(heading level text)` defines a heading block for a heading of a given level, where _level_ is a number starting with 1 (up to 6). `(indented-code lines)` represents a code block consisting of a list of text lines each represented by a string. `(fenced-code lang lines)` is similar: it defines a code block with code expressed in the given language _lang_. `(html lines)` defines a HTML block consisting of the given lines of text. `(reference-def label dest title)` introduces a reference definition consisting of a given _label_, a destination URI _dest_, as well as a _title_ string. `(table header alignments rows)` defines a table consisting of _headers_, a list of markdown text describing the header of each column, _alignments_, a list of symbols `l` (= left), `c` (= center), and `r` (= right), and _rows_, a list of lists of markdown text. `(definition-list defs)` represents a definition list where _defs_ refers to a list of definitions. A definition has the form `(name def ...)` where _name_ is markdown text defining a name, and _def_ is a bullet item using `:` as bullet character. Tables and definition lists are only created when parsing Markdown with the dialects `extended`, `full`, `math`, or `latex` (see `markdown` below). `(math-block tex)` represents a formula that is a block of its own, where _tex_ is the LaTeX of the formula; such blocks are only created when parsing Markdown with the dialects `math` or `latex` (see `markdown` below). Finally, `(thematic-break)` introduces a thematic break block separating the previous and following blocks visually, often via a line.
 
 ### Inline Text
 
@@ -85,10 +87,12 @@ Markdown text is represented as lists of inline text segments, each represented 
       where (and (markdown-text? text) (string? uri) (string? title))
   (html tag)
       where (string? tag)
+  (math tex display? source)
+      where (and (string? tex) (boolean? display?) (opt string? source))
   (line-break hard?))
 ```
 
-`(text str)` refers to a text segment consisting of string _str_. `(code str)` refers to a code string _str_ (often displayed as verbatim text). `(emph text)` represents emphasized _text_ (often displayed as italics). `(strong text)` represents _text_ in boldface. `(underline text)` represents underlined _text_ and `(strikethrough text)` represents _text_ that is struck through; both are only created when parsing Markdown with the _full_ parser (see `markdown` below). `(link text uri title)` represents a hyperlink with _text_ linking to _uri_ and _title_ representing a title for the link. `(auto-link uri)` is a link where _uri_ is both the text and the destination URI. `(email-auto-link email)` is a "mailto:" link to the given email address _email_. `(image text uri title)` inserts an image at _uri_ with image description _text_ and image link title _title_. `(html tag)` represents a single HTML tag of the form `<`_tag_`>`. Finally, `(line-break #f)` introduces a "soft line break", whereas `(line-break #t)` inserts a "hard line break".
+`(text str)` refers to a text segment consisting of string _str_. `(code str)` refers to a code string _str_ (often displayed as verbatim text). `(emph text)` represents emphasized _text_ (often displayed as italics). `(strong text)` represents _text_ in boldface. `(underline text)` represents underlined _text_ and `(strikethrough text)` represents _text_ that is struck through; both are only created when parsing Markdown with the dialects `full`, `math`, or `latex` (see `markdown` below). `(link text uri title)` represents a hyperlink with _text_ linking to _uri_ and _title_ representing a title for the link. `(auto-link uri)` is a link where _uri_ is both the text and the destination URI. `(email-auto-link email)` is a "mailto:" link to the given email address _email_. `(image text uri title)` inserts an image at _uri_ with image description _text_ and image link title _title_. `(html tag)` represents a single HTML tag of the form `<`_tag_`>`. `(math tex display? source)` represents a formula within a line of text, where _tex_ is its LaTeX and _display?_ is `#t` for display math. _source_ is the formula as it was written, including its delimiters (e.g. `"$x^2$"` or `"\\(x^2\\)"`); `#f` stands for the LaTeX between dollar signs (`$`_tex_`$`, or `$$`_tex_`$$` for display math). Finally, `(line-break #f)` introduces a "soft line break", whereas `(line-break #t)` inserts a "hard line break".
 
 ## Creating Markdown documents
 
@@ -204,19 +208,29 @@ Returns `#t` if _obj_ is a valid markdown document, i.e. an instance of the `doc
 Returns `#t` if markdown documents _lhs_ and _rhs_ are equals; otherwise it returns `#f`.
 
 **(markdown _str_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
-**(markdown _str extended_)**   
+**(markdown _str dialect_)**   
 
 Parses the text in Markdown format in _str_ and returns a representation of the abstract syntax using the algebraic datatypes `block`, `list-item`, and `inline`.
 
-The optional argument _extended_ selects the Markdown dialect that is parsed:
+The optional argument _dialect_ is a symbol that selects the Markdown dialect, and thus the parser, that is used. Each dialect supports everything that the dialect listed before it supports:
 
-- `#f` (the default) parses standard [CommonMark](https://commonmark.org).
-- `#t` additionally supports tables and definition lists.
-- The symbol `full` supports everything supported by `#t`, and in addition underlined text (`~text~`), text that is struck through (`~~text~~`), and task lists (`- [ ] to do` and `- [x] done`). The resulting document may contain `underline` and `strikethrough` inline elements as well as `task` list items.
+- `standard` (the default, also selected by `#f`) parses standard [CommonMark](https://commonmark.org).
+- `extended` additionally supports tables and definition lists.
+- `full` additionally supports underlined text (`~text~`), text that is struck through (`~~text~~`), and task lists (`- [ ] to do` and `- [x] done`). The resulting document may contain `underline` and `strikethrough` inline elements as well as `task` list items.
+- `math` additionally supports LaTeX formulas: `$x^2$` is a formula within a line of text, `$$x^2$$` a display formula within a line of text. A formula that is a block of its own is enclosed by `$$` on separate lines, written as the only content of a line (e.g. `$$x^2$$`), or written as a fenced code block with the info string `math`. The resulting document may contain `math` inline elements and `math-block` blocks. The other dialects leave dollar signs alone, so a text such as `costs $5 and $6` is the same for them.
+- `latex` additionally supports the delimiters of LaTeX for formulas: `\(x^2\)` is a formula within a line of text, `\[x^2\]` a display formula within a line of text. A formula that is a block of its own is enclosed by `\[` and `\]` on separate lines, or written as the only content of a line (e.g. `\[x^2\]`). For all other dialects, a backslash in front of a parenthesis or bracket makes it an ordinary character.
+
+The value `#t` selects `latex`, the most comprehensive dialect. Note that `#t` selected `extended` in earlier versions of LispKit; use `extended` for parsing tables and definition lists without underlined text, task lists, and formulas. All other values, e.g. unknown symbols, signal an error.
+
+```scheme
+(markdown "| a | b |\n|---|---|\n| 1 | 2 |" 'extended)
+(markdown "Some ~~old~~ text" 'full)
+(markdown "The area is $\\pi r^2$." 'math)
+```
 
 **(markdown-\>html _md_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 
-Converts a Markdown document _md_ into HTML, represented in form of a string. _md_ needs to satisfy the _markdown?_ predicate. 
+Converts a Markdown document _md_ into HTML, represented in form of a string. _md_ needs to satisfy the _markdown?_ predicate. Formulas are written as `<span class="math inline">\(`_tex_`\)</span>`, `<span class="math display">\[`_tex_`\]</span>` or, for blocks, `<div class="math display">\[`_tex_`\]</div>`, with the LaTeX escaped, so that libraries like KaTeX or MathJax can typeset them in a web page.
 
 **(blocks-\>html _bs_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 **(blocks-\>html _bs tight_)**   
@@ -284,6 +298,7 @@ The style of the documents generated by `markdown->html-doc` and `markdown->styl
 | `timeout` | the maximum time in seconds that `markdown->styled-text` may take for rendering a document (including loading images), or `#f` for no limit | `30` |
 | `text-size-multiplier` | a number scaling font sizes, or `#f` | `#f` |
 | `mermaid` | `#f`, `#t`, or an association list configuring Mermaid diagrams; only used by `markdown->styled-text` (see "Mermaid diagrams") | `#f` |
+| `math` | `#f`, `#t`, or an association list configuring formulas; only used by `markdown->styled-text` (see "Math formulas") | `#t` |
 
 Paths are interpreted relative to the current directory, and strings starting with `http:`, `https:` or `file:` are URLs. The restrictions on images do not apply to images referred to by raw HTML or by `custom-style`.
 
@@ -301,7 +316,7 @@ Paths are interpreted relative to the current directory, and strings starting wi
 **(markdown-\>string _md width_)**  
 **(markdown-\>string _md width ansi_)**  
 
-Converts a Markdown document _md_ into a plain-text string suitable for display on a terminal. _md_ needs to satisfy the _markdown?_ predicate. _width_ specifies the number of columns available for typesetting; if _width_ is omitted or `#f`, the current terminal size (as determined by `terminal-size`) is used if available, falling back to 80 columns otherwise.
+Converts a Markdown document _md_ into a plain-text string suitable for display on a terminal. _md_ needs to satisfy the _markdown?_ predicate. _width_ specifies the number of columns available for typesetting; if _width_ is omitted or `#f`, the current terminal size (as determined by `terminal-size`) is used if available, falling back to 80 columns otherwise. Formulas are shown as they were written, e.g. `$x^2$`; formulas that are blocks are shown between lines with `$$`.
 
 If _ansi_ is omitted or `#f`, the output is plain text without ANSI escape sequences. If _ansi_ is `#t`, the output uses ANSI escape sequences with default styling for headers, links, code, emphasis, etc. so that the result can be printed to an ANSI-compatible terminal with visual markup. Alternatively, _ansi_ can be a list configuring the styling and colors used for each document element, as well as syntax highlighting for code blocks. This configuration list has up to fourteen elements, all of which are optional and can be omitted from the end of the list, or set to `#f` individually to fall back to the corresponding default:
 
@@ -317,8 +332,8 @@ If _ansi_ is omitted or `#f`, the output is plain text without ANSI escape seque
 10. _blockquote-properties_: text properties used for typesetting block quotes.
 11. _break-properties_: text properties used for typesetting thematic breaks (horizontal rules).
 12. _syntax-highlighting_: configuration for syntax-highlighting the content of code blocks. `#f` disables syntax highlighting entirely; omitting this element (or ending the list before it) enables syntax highlighting with default settings. Otherwise, this is a list with up to five elements _(theme ignore-syntax-errors? ignored-languages highlight-indented-code-blocks? full-color?)_, all of which are optional: _theme_ is the name of a syntax highlighting theme (a string), or `#f` for the default theme; _ignore-syntax-errors?_ is a boolean determining whether syntactic issues in the code being highlighted should be ignored (default: `#t`); _ignored-languages_ is a list of language name strings for which syntax highlighting is skipped; _highlight-indented-code-blocks?_ is a boolean determining whether indented (as opposed to fenced) code blocks are syntax-highlighted (default: `#t`); _full-color?_ is a boolean determining whether full RGB colors are used for highlighting as opposed to the limited, extended ANSI color palette (default: `#t`).
-13. _underline-properties_: text properties used for underlined text (e.g. `~this~`, supported by the _full_ Markdown parser). The default is `underline`. Since this element follows _syntax-highlighting_, specify `#t` for the latter to keep syntax highlighting enabled with default settings.
-14. _strikethrough-properties_: text properties used for text that is struck through (e.g. `~~this~~`, supported by the _full_ Markdown parser). The default is `strikethrough`.
+13. _underline-properties_: text properties used for underlined text (e.g. `~this~`, supported by the Markdown dialects `full`, `math`, and `latex`). The default is `underline`. Since this element follows _syntax-highlighting_, specify `#t` for the latter to keep syntax highlighting enabled with default settings.
+14. _strikethrough-properties_: text properties used for text that is struck through (e.g. `~~this~~`, supported by the Markdown dialects `full`, `math`, and `latex`). The default is `strikethrough`.
 
 Each _properties_ argument above is a "text properties" value in one of the following formats:
 
@@ -365,6 +380,7 @@ The following style keys are supported by _config_ (for a full list, see above).
 - `timeout`: maximum time in seconds for rendering the document, including loading images, or `#f` for no limit (`30`)
 - `text-size-multiplier`: number by which font sizes are scaled, or `#f` (`#f`)
 - `mermaid`: draws fenced code blocks with the language `mermaid` as diagrams; `#f` shows them as code, `#t` draws them with default settings, and an association list with the optional keys `theme`, `theme-variables`, `font-family`, `scale`, `width`, `margin`, `max-width`, `spacing`, and `timeout` configures the diagrams; see below (`#f`)
+- `math`: typesets formulas, i.e. `math` and `math-block` elements; `#f` shows them as code, `#t` typesets them with default settings, and an association list with the optional keys `scale`, `spacing`, `max-width`, `timeout`, `macros`, `max-expand`, `max-size`, `min-rule-thickness`, and `max-length` configures them; see below (`#t`)
 
 The styled text is generated asynchronously by the HTML rendering engine of the operating system, and `markdown->styled-text` waits for the result. Rendering a document therefore takes a moment, and images from the web are loaded unless `remote-images` is set to `none` (or a restricting URL). If the document cannot be rendered within the time given by `timeout`, or if rendering fails, an error is signaled. If this procedure is called by a thread other than the main thread of the application, the main thread needs to execute its run loop and must not wait for the calling thread. Otherwise, the procedure signals an error after the `timeout` has expired.
 
@@ -390,9 +406,27 @@ The value of `mermaid` is `#f`, `#t` (default settings), or an association list 
   '((mermaid . ((theme . forest) (max-width . 400)))))
 ```
 
+#### Math formulas
+
+If a Markdown document contains formulas (see the dialects `math` and `latex` of `markdown` for parsing them, and `math` and `math-block` for creating them), `markdown->styled-text` typesets them with [KaTeX](https://katex.org): a formula within a line of text sits on the baseline of the text, has the color of the text around it and is as large as the text; a formula that is a block of its own is centered. The formulas are rendered to images by a headless web view using the KaTeX script, style sheet and fonts that come with LispKit; no network connection is needed. Rendered formulas are cached. A formula that KaTeX does not understand stays code (a block formula is preceded by a note with the reason). Documents without formulas are not affected. Formulas are not supported by `markdown->html-doc`, which ignores `math` and shows them as code.
+
+The value of `math` is `#t` (default settings), `#f` (formulas are shown as code), or an association list with the following optional keys; defaults are in parentheses:
+
+- `scale`: factor by which the resolution of the images is higher than their size in points (`3`)
+- `spacing`: minimum distance in points between a formula that is a block of its own and the text above and below it (`8`)
+- `max-width`: width in points that wider formulas are scaled down to, or `#f` for no limit (`#f`)
+- `timeout`: maximum time in seconds for rendering the formulas of a document; `0` means no limit (`15`)
+- `macros`, `max-expand`, `max-size`, `min-rule-thickness`, `max-length`: macros for formulas, limits for macro expansion, sizes, rules and the length of formulas; these keys are described with procedure `latex-math->image` of library `(lispkit draw)`
+
+```scheme
+(markdown->styled-text
+  (markdown "The area is $\\pi r^2$." 'math)
+  '((math . ((scale . 2)))))
+```
+
 **(markdown-\>sxml _md_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 
-Converts a Markdown document _md_ into SXML representation. _md_ needs to satisfy the _markdown?_ predicate.
+Converts a Markdown document _md_ into SXML representation. _md_ needs to satisfy the _markdown?_ predicate. Formulas are represented by raw HTML, in the same form as for `markdown->html`.
 
 **(blocks-\>sxml _bs_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 **(blocks-\>sxml _bs tight_)**   

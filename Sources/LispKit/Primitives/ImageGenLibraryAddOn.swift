@@ -148,7 +148,7 @@ final class ImageGenLibraryAddOn {
       }
       color = col.nsColor
     }
-    let config = try self.mathConfig(configArg)
+    let config = try ImageGenLibraryAddOn.mathConfig(configArg, error: .notAValidMathConfig)
     let outcome = Outcome<HRImage, MathError>()
     self.util.mathImage(tex,
                         display: display,
@@ -171,9 +171,11 @@ final class ImageGenLibraryAddOn {
     }
   }
 
-  private func mathConfig(_ expr: Expr?) throws -> MathConfig {
-    let entries = try ConfigEntries(expr, allowed: ImageGenLibraryAddOn.mathKeys,
-                                    error: .notAValidMathConfig)
+  /// Maps a configuration of formulas, i.e. an association list with the keys in `mathKeys`, to
+  /// a `MathConfig`. `error` is the error that is signaled for an invalid configuration. This
+  /// function is also used by library `(lispkit markdown)` for key `math` of its configurations.
+  static func mathConfig(_ expr: Expr?, error: EvalError) throws -> MathConfig {
+    let entries = try ConfigEntries(expr, allowed: ImageGenLibraryAddOn.mathKeys, error: error)
     var config = MathConfig()
     if let scale = try entries.length("scale") {
       config.scale = scale

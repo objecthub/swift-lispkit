@@ -221,6 +221,7 @@ public enum EvalError: Int, Hashable, Codable {
   case notAValidTextProperty
   case notAValidTask
   case notAValidListItem
+  case notAValidMarkdownDialect
   case notAValidMarkdownConfig
   case cannotRenderMarkdown
   case notAValidMermaidConfig
@@ -622,6 +623,8 @@ public enum EvalError: Int, Hashable, Codable {
         return "task expects a bullet or ordered list-item but received $0"
       case .notAValidListItem:
         return "malformed expression of type list-item: $0"
+      case .notAValidMarkdownDialect:
+        return "invalid Markdown dialect: $0"
       case .notAValidMarkdownConfig:
         return "invalid Markdown configuration: $0"
       case .cannotRenderMarkdown:
