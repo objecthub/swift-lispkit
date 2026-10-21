@@ -270,7 +270,7 @@
 
 (
   "Markdown HTML documents with configurations"
-  (#t #t #t #t #t #t #t #t #t #t #t #t #t #t)
+  (#t #t #t #t #t #t #t #t #t #t #t #t #t #t #t #t #t #t #t #t #t)
   (import (lispkit string))
   (define md (markdown (string-append "# Head\n\nText ![img](http://example.org/a.png) "
                                       "<b>raw</b>\n\n```scheme\n(+ 1 2)\n```\n")))
@@ -284,6 +284,14 @@
   (define first-wins (markdown->html-doc md '((font-family . "First") (font-family . "Second"))))
   (define ported (markdown->html-doc md (markdown-style-config '(30 "Verdana" "#654321"))))
   (define untrusted (markdown->html-doc md '((preset . untrusted) (remote-images . any))))
+  (define headers (markdown->html-doc md '((header-font . "Georgia, serif") (h1-font-size . 31)
+                                           (h2-font-size . 22) (h3-font-size . 17)
+                                           (h4-font-size . 19))))
+  (define dark (markdown->html-doc md '((style . dark))))
+  (define light (markdown->html-doc md '((style . light))))
+  (define plain (markdown->html-doc md '((style . default))))
+  (define refined (markdown->html-doc md '((style . dark) (font-color . "#123456")
+                                           (h1-color . "#abcdef"))))
   (list
     (has? default "example.org/a.png")
     (has? default "<b>raw</b>")
@@ -297,14 +305,34 @@
     (and (has? ported "Verdana") (has? ported "#654321"))
     (has? untrusted "example.org/a.png")
     (not (has? untrusted "<b>raw</b>"))
+    ; without a preset, preset light is used
+    (and (equal? default light) (has? default "system-ui") (has? default "#aa1111")
+         (has? default "#DDD") (has? default "#BBE") (has? default "#EEE")
+         (not (has? default "Georgia")))
+    (and (has? headers "Georgia, serif") (has? headers "31.0px") (has? headers "22.0px")
+         (has? headers "17.0px") (has? headers "19.0px"))
+    (and (has? dark "#C55") (has? dark "#4AF") (has? dark "#333") (has? dark "system-ui")
+         (not (has? dark "Times New Roman")))
+    (and (has? light "#aa1111") (has? light "#EEE") (has? light "system-ui"))
+    (and (has? plain "system-ui") (has? plain "#cccccc") (has? plain "#abe")
+         (not (has? plain "Times New Roman")))
+    ; keys refine a preset
+    (and (has? refined "#123456") (has? refined "#abcdef") (has? refined "#4AF"))
+    ; the preset determines the theme for syntax highlighting, which can be refined or disabled
+    (and (has? dark "569cd6") (not (has? light "569cd6")) (not (has? default "569cd6"))
+         (has? refined "569cd6")
+         (has? (markdown->html-doc md '((style . dark)
+                                        (syntax-highlighting . ((ignore-syntax-errors . #f)))))
+               "569cd6")
+         (not (has? (markdown->html-doc md '((style . dark) (syntax-highlighting . #f)))
+                    "569cd6")))
     (string? (markdown->html-doc md #f))
-    (string? (markdown->html-doc md '((syntax-highlighting . #f) (tight-lists . #t)
-                                      (version . pre-os26)))))
+    (string? (markdown->html-doc md '((syntax-highlighting . #f) (tight-lists . #t)))))
 )
 
 (
   "Markdown styled text"
-  (#t #t #t #t #t #t)
+  (#t #t #t #t #t #t #t #t)
   (import (lispkit styled-text))
   (define md (markdown "# Title\n\nSome *text* and `code`.\n\n- [x] done\n- [ ] open\n" 'full))
   (list
@@ -317,7 +345,13 @@
                                               (syntax-highlighting . #f))))
     (styled-text? (markdown->styled-text md (markdown-style-config '(12 "Menlo" "#112233")
                                                                    #f #f #f #t)))
-    (styled-text? (markdown->styled-text md '((version . pre-os26) (tight-lists . #t)))))
+    (styled-text? (markdown->styled-text md '((tight-lists . #t))))
+    (styled-text? (markdown->styled-text md '((style . dark) (line-spacing . 1.5)
+                                              (code-block-line-spacing . 1.2)
+                                              (header-font . "Georgia")
+                                              (h1-font-size . 30) (h2-font-size . 24)
+                                              (h3-font-size . 20) (h4-font-size . 16))))
+    (styled-text? (markdown->styled-text md '((align-list-markers . #t) (tight-lists . #t)))))
 )
 
 (
@@ -330,6 +364,24 @@
   "Markdown configuration with wrongly typed value"
   <error>
   (markdown->html-doc (markdown "text") '((font-size . "big")))
+)
+
+(
+  "Markdown configuration with unknown style"
+  <error>
+  (markdown->html-doc (markdown "text") '((style . neon)))
+)
+
+(
+  "Markdown configuration with wrongly typed heading size"
+  <error>
+  (markdown->html-doc (markdown "text") '((h1-font-size . "big")))
+)
+
+(
+  "Markdown configuration with wrongly typed option for aligning list markers"
+  <error>
+  (markdown->styled-text (markdown "text") '((align-list-markers . "yes")))
 )
 
 (
@@ -348,12 +400,6 @@
   "Markdown configuration with invalid image access"
   <error>
   (markdown->html-doc (markdown "text") '((local-images . 5)))
-)
-
-(
-  "Markdown configuration with invalid version"
-  <error>
-  (markdown->styled-text (markdown "text") '((version . future)))
 )
 
 (

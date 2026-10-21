@@ -1328,11 +1328,13 @@ public final class MarkdownLibrary: NativeLibrary {
   
   /// Keys of the association lists configuring attributed string generators
   private static let configKeys: Set<String> = [
-    "font-size", "font-family", "font-color",
+    "style", "font-size", "font-family", "font-color", "line-spacing",
     "code-font-size", "code-font-family", "code-font-color",
-    "code-block-font-size", "code-block-font-color", "code-block-background",
-    "border-color", "blockquote-color", "h1-color", "h2-color", "h3-color", "h4-color",
-    "syntax-highlighting", "tight-lists", "version",
+    "code-block-font-size", "code-block-font-color", "code-block-line-spacing",
+    "code-block-background", "border-color", "blockquote-color", "header-font",
+    "h1-color", "h2-color", "h3-color", "h4-color",
+    "h1-font-size", "h2-font-size", "h3-font-size", "h4-font-size",
+    "syntax-highlighting", "tight-lists", "align-list-markers",
     "max-image-width", "max-image-height", "custom-style", "image-base-url",
     "preset", "base-url", "timeout", "local-images", "remote-images", "image-extensions",
     "safe-mode", "text-size-multiplier", "mermaid"
@@ -1492,18 +1494,23 @@ public final class MarkdownLibrary: NativeLibrary {
     }
   }
   
+  /// Maps the value of the entry `syntax-highlighting` of a configuration to a configuration of
+  /// syntax highlighting. `#t` and `()` stand for the configuration `style` has, or the default
+  /// configuration if `style` does not highlight code; an association list refines it.
   private func syntaxHighlightingConfig(
                  _ entry: Expr,
-                 _ value: Expr) throws -> AttributedStringGenerator.SyntaxHighlightingConfig? {
+                 _ value: Expr,
+                 style: AttributedStringGenerator.Style) throws
+                 -> AttributedStringGenerator.SyntaxHighlightingConfig? {
+    let hl = style.syntaxHighlighting ?? AttributedStringGenerator.SyntaxHighlightingConfig.default
     switch value {
       case .false:
         return nil
       case .true, .null:
-        return .default
+        return hl
       default:
         let entries = try self.configEntries(value,
                                              allowed: MarkdownLibrary.syntaxHighlightingKeys)
-        let hl = AttributedStringGenerator.SyntaxHighlightingConfig.default
         return .init(
           theme: try self.configString(entries, "theme") ?? hl.theme,
           ignoreSyntacticIssues: try self.configBool(entries, "ignore-syntax-errors") ??
@@ -1599,48 +1606,103 @@ public final class MarkdownLibrary: NativeLibrary {
   private func attributedStringGenerator(config: Expr?,
                                          diagrams: Bool) throws -> AttributedStringGenerator {
     let entries = try self.configEntries(config, allowed: MarkdownLibrary.configKeys)
-    // Fonts and colors
-    let defaultColor = MarkdownKit.mdDefaultColor
-    let fontSize = try self.configDouble(entries, "font-size").map { Float($0) } ?? 14.0
-    let fontFamily = try self.configString(entries, "font-family") ??
-                     "\"Times New Roman\",Times,serif"
-    let fontColor = try self.configString(entries, "font-color") ?? defaultColor
-    let codeFontSize = try self.configDouble(entries, "code-font-size").map { Float($0) } ?? 13.0
-    let codeFontFamily = try self.configString(entries, "code-font-family") ??
-      "\"Consolas\",\"Andale Mono\",\"Courier New\",Courier,monospace"
-    let codeFontColor = try self.configString(entries, "code-font-color") ?? defaultColor
-    let codeBlockFontSize = try self.configDouble(entries, "code-block-font-size")
-                                .map { Float($0) } ?? 12.0
-    let codeBlockFontColor = try self.configString(entries, "code-block-font-color") ??
-                             defaultColor
-    let codeBlockBackground = try self.configString(entries, "code-block-background") ??
-                              MarkdownKit.mdDefaultBackgroundColor
-    let borderColor = try self.configString(entries, "border-color") ?? "#bbb"
-    let blockquoteColor = try self.configString(entries, "blockquote-color") ?? "#99c"
-    let h1Color = try self.configString(entries, "h1-color") ?? defaultColor
-    let h2Color = try self.configString(entries, "h2-color") ?? defaultColor
-    let h3Color = try self.configString(entries, "h3-color") ?? defaultColor
-    let h4Color = try self.configString(entries, "h4-color") ?? defaultColor
-    // Syntax highlighting
-    var syntaxHighlighting: AttributedStringGenerator.SyntaxHighlightingConfig? = .default
-    if let (entry, value) = entries["syntax-highlighting"] {
-      syntaxHighlighting = try self.syntaxHighlightingConfig(entry, value)
-    }
-    // Generator options
-    let version: AttributedStringGenerator.Version
-    switch try self.configSymbol(entries, "version", in: ["os26", "pre-os26"]) {
-      case .some("pre-os26"):
-        version = .preOS26
+    // Appearance: a preset, which the entries of the configuration refine
+    var style: AttributedStringGenerator.Style
+    switch try self.configSymbol(entries, "style", in: ["default", "light", "dark"]) {
+      case .some("default"):
+        style = .default
+      case .some("dark"):
+        style = .dark
       default:
-        version = .OS26
+        // Preset `light` is used if there is no preset
+        style = .light
+    }
+    func float(_ key: String) throws -> Float? {
+      return try self.configDouble(entries, key).map { Float($0) }
+    }
+    if let size = try float("font-size") {
+      style.fontSize = size
+    }
+    if let family = try self.configString(entries, "font-family") {
+      style.fontFamily = family
+    }
+    if let color = try self.configString(entries, "font-color") {
+      style.fontColor = color
+    }
+    if let spacing = try float("line-spacing") {
+      style.lineSpacing = spacing
+    }
+    if let size = try float("code-font-size") {
+      style.codeFontSize = size
+    }
+    if let family = try self.configString(entries, "code-font-family") {
+      style.codeFontFamily = family
+    }
+    if let color = try self.configString(entries, "code-font-color") {
+      style.codeFontColor = color
+    }
+    if let size = try float("code-block-font-size") {
+      style.codeBlockFontSize = size
+    }
+    if let color = try self.configString(entries, "code-block-font-color") {
+      style.codeBlockFontColor = color
+    }
+    if let spacing = try float("code-block-line-spacing") {
+      style.codeBlockLineSpacing = spacing
+    }
+    if let color = try self.configString(entries, "code-block-background") {
+      style.codeBlockBackground = color
+    }
+    if let color = try self.configString(entries, "border-color") {
+      style.borderColor = color
+    }
+    if let color = try self.configString(entries, "blockquote-color") {
+      style.blockquoteColor = color
+    }
+    if let font = try self.configString(entries, "header-font") {
+      style.headerFont = font
+    }
+    if let color = try self.configString(entries, "h1-color") {
+      style.h1Color = color
+    }
+    if let size = try float("h1-font-size") {
+      style.h1FontSize = size
+    }
+    if let color = try self.configString(entries, "h2-color") {
+      style.h2Color = color
+    }
+    if let size = try float("h2-font-size") {
+      style.h2FontSize = size
+    }
+    if let color = try self.configString(entries, "h3-color") {
+      style.h3Color = color
+    }
+    if let size = try float("h3-font-size") {
+      style.h3FontSize = size
+    }
+    if let color = try self.configString(entries, "h4-color") {
+      style.h4Color = color
+    }
+    if let size = try float("h4-font-size") {
+      style.h4FontSize = size
+    }
+    if let (entry, value) = entries["syntax-highlighting"] {
+      style.syntaxHighlighting = try self.syntaxHighlightingConfig(entry, value, style: style)
+    }
+    if let width = try self.configString(entries, "max-image-width") {
+      style.maxImageWidth = width
+    }
+    if let height = try self.configString(entries, "max-image-height") {
+      style.maxImageHeight = height
+    }
+    if let css = try self.configString(entries, "custom-style") {
+      style.customStyle = css
     }
     var options: AttributedStringGenerator.Options = []
     if try self.configBool(entries, "tight-lists") ?? false {
       options.insert(.tightLists)
     }
-    let maxImageWidth = try self.configString(entries, "max-image-width")
-    let maxImageHeight = try self.configString(entries, "max-image-height")
-    let customStyle = try self.configString(entries, "custom-style") ?? ""
+    let alignListMarkers = try self.configBool(entries, "align-list-markers") ?? false
     let imageBaseUrl = try self.configURL(entries, "image-base-url")
     // Mermaid diagrams
     var mermaid: MermaidConfig? = nil
@@ -1683,31 +1745,14 @@ public final class MarkdownLibrary: NativeLibrary {
                        preset.imageExtensions,
       safeMode: try self.configBool(entries, "safe-mode") ?? preset.safeMode,
       textSizeMultiplier: textSizeMultiplier)
-    return AttributedStringGenerator(version: version,
+    return AttributedStringGenerator(version: .OS26,
                                      options: options,
-                                     fontSize: fontSize,
-                                     fontFamily: fontFamily,
-                                     fontColor: fontColor,
-                                     codeFontSize: codeFontSize,
-                                     codeFontFamily: codeFontFamily,
-                                     codeFontColor: codeFontColor,
-                                     codeBlockFontSize: codeBlockFontSize,
-                                     codeBlockFontColor: codeBlockFontColor,
-                                     codeBlockBackground: codeBlockBackground,
-                                     syntaxHighlighting: syntaxHighlighting,
+                                     style: style,
                                      syntaxHighlighter: self.syntaxHighlighter,
                                      mermaid: diagrams ? mermaid : nil,
                                      mermaidRenderer: self.mermaidRenderer,
-                                     borderColor: borderColor,
-                                     blockquoteColor: blockquoteColor,
-                                     h1Color: h1Color,
-                                     h2Color: h2Color,
-                                     h3Color: h3Color,
-                                     h4Color: h4Color,
-                                     maxImageWidth: maxImageWidth,
-                                     maxImageHeight: maxImageHeight,
-                                     customStyle: customStyle,
                                      imageBaseUrl: imageBaseUrl,
+                                     alignListMarkers: alignListMarkers,
                                      renderingOptions: renderingOptions)
   }
   
