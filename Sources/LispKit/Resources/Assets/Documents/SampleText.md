@@ -73,6 +73,10 @@ lorem vel faucibus.
 > in auctor tristique, felis risus sodales nibh, eu sodales
 > nunc diam ut sapien.
 
+Lorem ipsum dolor sit amet, ~consectetur adipiscing elit~.
+Aliquam non risus in massa ornare lacinia. Etiam at ullamcorper
+ligula. Mauris et orci ut lectus convallis euismod.
+
 ## Last But Not Least
 
 Pellentesque ac lectus aliquam, efficitur lacus eu, efficitur justo.
