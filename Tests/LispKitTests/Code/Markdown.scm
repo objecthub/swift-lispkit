@@ -172,7 +172,7 @@
     (equal? (markdown->html md4) "<p><strong>a <del><u>b</u></del></strong> c</p>\n")
     (equal? (markdown->sxml md1) '((p (u ("one")) " two")))
     (equal? (markdown->sxml md2) '((p (del ("one")) " two")))
-    (equal? (markdown->raw-string md4) "a b c"))
+    (equal? (markdown->string md4) "a b c"))
 )
 
 (
@@ -204,7 +204,7 @@
     (equal? (markdown->sxml doc1)
             '((ul (li (input (@ (disabled "") (type "checkbox"))) " " "open")
                   (li (input (@ (checked "") (disabled "") (type "checkbox"))) " " "done"))))
-    (equal? (markdown->string doc1 40) "  [ ] open\n  [x] done"))
+    (equal? (markdown->formatted-string doc1 40) "  [ ] open\n  [x] done"))
 )
 
 (
@@ -239,9 +239,9 @@
   ("~u~ ~~s~~" "\x1b;[4mu\x1b;[0m \x1b;[9ms\x1b;[0m" "\x1b;[91mu\x1b;[0m \x1b;[96ms\x1b;[0m")
   (define md (markdown "~u~ ~~s~~" 'full))
   (list
-    (markdown->string md 40)
-    (markdown->string md 40 #t)
-    (markdown->string md 40 (list #f #f #f #f #f #f #f #f #f #f #f #t 'red 'aqua)))
+    (markdown->formatted-string md 40)
+    (markdown->formatted-string md 40 #t)
+    (markdown->formatted-string md 40 (list #f #f #f #f #f #f #f #f #f #f #f #t 'red 'aqua)))
 )
 
 (
@@ -469,20 +469,20 @@
   "Markdown dialects"
   (#t #t #t #t #t #t #t #t #t #t)
   (import (lispkit string))
-  (define (html str dialect) (markdown->html (markdown str dialect)))
+  (define (to-html str dialect) (markdown->html (markdown str dialect)))
   (define (has? str sub) (and (string-contains str sub) #t))
   (define tab "a | b\n--|--\n1 | 2")
   (list
-    (equal? (html tab #f) (html tab 'standard))
-    (not (has? (html tab 'standard) "<table>"))
-    (has? (html tab 'extended) "<table>")
-    (not (has? (html "~u~" 'extended) "<u>"))
-    (has? (html "~u~" 'full) "<u>")
-    (not (has? (html "$x$" 'full) "math"))
-    (has? (html "$x$" 'math) "math inline")
-    (not (has? (html "\\(x\\)" 'math) "math inline"))
-    (has? (html "\\(x\\)" 'latex) "math inline")
-    (equal? (html "~u~ \\(x\\)" #t) (html "~u~ \\(x\\)" 'latex)))
+    (equal? (to-html tab #f) (to-html tab 'standard))
+    (not (has? (to-html tab 'standard) "<table>"))
+    (has? (to-html tab 'extended) "<table>")
+    (not (has? (to-html "~u~" 'extended) "<u>"))
+    (has? (to-html "~u~" 'full) "<u>")
+    (not (has? (to-html "$x$" 'full) "math"))
+    (has? (to-html "$x$" 'math) "math inline")
+    (not (has? (to-html "\\(x\\)" 'math) "math inline"))
+    (has? (to-html "\\(x\\)" 'latex) "math inline")
+    (equal? (to-html "~u~ \\(x\\)" #t) (to-html "~u~ \\(x\\)" 'latex)))
 )
 
 (
@@ -507,6 +507,281 @@
   "Markdown with dialect as number"
   <error>
   (markdown "text" 1)
+)
+
+(
+  "Markdown with dialect #t"
+  (#t #t)
+  (import (lispkit string))
+  (define (to-html str dialect) (markdown->html (markdown str dialect)))
+  (list
+    (and (string-contains (to-html "$x$" #t) "math inline") #t)
+    (and (string-contains (to-html "~u~" #t) "<u>") #t))
+)
+
+(
+  "Markdown without dialect is standard"
+  (#t #t #t)
+  (import (lispkit string))
+  (define tab "a | b\n--|--\n1 | 2")
+  (list
+    (equal? (markdown->html (markdown tab)) (markdown->html (markdown tab 'standard)))
+    (not (string-contains (markdown->html (markdown tab)) "<table>"))
+    (equal? (markdown->html (markdown "\\(x\\) ~u~")) "<p>(x) ~u~</p>\n"))
+)
+
+(
+  "Markdown plain and formatted strings"
+  ("T\nsome emph and code\na\nb"
+   "some *emph* and `code`"
+   "T\n▔\n\nsome *emph* and `code`\n\n  – a\n  – b")
+  (define md (markdown "# T\n\nsome *emph* and `code`\n\n- a\n- b"))
+  (list
+    (markdown->string md)
+    (markdown->formatted-string (markdown "some *emph* and `code`") 40)
+    (markdown->formatted-string md 40))
+)
+
+(
+  "Markdown plain string of document without markdown"
+  <error>
+  (markdown->string "# T")
+)
+
+(
+  "Markdown source strings"
+  ("# Setext Title\n\n* one\n* **two**\n"
+   "Costs $5 *only*\n"
+   "Costs \\$5 *only*\n"
+   "Costs \\$5 *only*\n"
+   "Costs \\$5 *only*\n"
+   "# x\n")
+  (define costs (markdown "Costs $5 *only*"))
+  (list
+    (markdown->source-string (markdown "Setext Title\n===\n\n* one\n* __two__\n"))
+    (markdown->source-string costs 'standard)
+    (markdown->source-string costs 'math)
+    (markdown->source-string costs 'latex)
+    (markdown->source-string costs)
+    (markdown->source-string (document (list (heading 1 (list (text "x")))))))
+)
+
+(
+  "Markdown source strings depend on the dialect"
+  ("a | b\n\n1 | 2\n"
+   "| a | b |\n| --- | --- |\n| 1 | 2 |\n"
+   "a u s b\n"
+   "a ~u~ ~~s~~ b\n"
+   "- \\[ ] t\n- \\[x] d\n"
+   "- [ ] t\n- [x] d\n"
+   "$x^2$ and $y$\n\n$$\nz\n$$\n"
+   "$x^2$ and \\(y\\)\n\n$$\nz\n$$\n")
+  (define tab (markdown "a | b\n--|--\n1 | 2" 'extended))
+  (define fmt (markdown "a ~u~ ~~s~~ b" 'full))
+  (define tasks (markdown "- [ ] t\n- [x] d" 'full))
+  (define formulas (markdown "$x^2$ and \\(y\\)\n\n$$\nz\n$$\n" 'latex))
+  (list
+    (markdown->source-string tab 'standard)
+    (markdown->source-string tab 'extended)
+    (markdown->source-string fmt #f)
+    (markdown->source-string fmt 'full)
+    (markdown->source-string tasks 'extended)
+    (markdown->source-string tasks 'full)
+    (markdown->source-string formulas 'math)
+    (markdown->source-string formulas #t))
+)
+
+(
+  "Markdown source strings with special characters"
+  ("a1b #c\n" "a\\1b #c\n" "a\\1b #c\n")
+  (import (lispkit char-set))
+  (define md (markdown "a1b #c"))
+  (list
+    (markdown->source-string md 'standard)
+    (markdown->source-string md 'standard char-set:digit)
+    (markdown->source-string md #f (char-set #\1)))
+)
+
+(
+  "Markdown source strings are parsed into the same document"
+  (#t #t #t #t #t)
+  (define src "Title\n=====\n\nA *paragraph* with **strong**, `code`, and a [link](a.html \"t\").\n\n> quote\n\n1. one\n2. two\n\n```scheme\n(define x 1)\n```\n\n---\n")
+  (define md (markdown src))
+  (define ext-doc (markdown "a | b\n--|--\n1 | 2\n\nterm\n: definition\n" 'extended))
+  (define full-doc (markdown "~u~ and ~~s~~\n\n- [ ] t\n- [x] d\n" 'full))
+  (define latex-doc (markdown "$x^2$ and \\(y\\)\n\n\\[\nz\n\\]\n" 'latex))
+  (list
+    (markdown=? md (markdown (markdown->source-string md)))
+    (markdown=? md (markdown (markdown->source-string md 'standard) 'standard))
+    (markdown=? ext-doc (markdown (markdown->source-string ext-doc 'extended) 'extended))
+    (markdown=? full-doc (markdown (markdown->source-string full-doc 'full) 'full))
+    (equal? (markdown->html latex-doc)
+            (markdown->html (markdown (markdown->source-string latex-doc 'latex) 'latex))))
+)
+
+(
+  "Markdown equality normalizes text fragments"
+  (#t #f #t #t #f #t #f)
+  (define split (markdown "2 * 3 and (x) [y]"))
+  (define merged (markdown "2 \\* 3 and \\(x\\) \\[y\\]" 'standard))
+  (define other (markdown "2 * 4 and (x) [y]"))
+  (list
+    (markdown=? split merged)
+    (markdown-equals? split merged)
+    (markdown=? split (markdown (markdown->source-string split)))
+    (markdown=? merged (document (list (paragraph (list (text "2 * 3 and (x) [y]"))))))
+    (markdown=? split other)
+    (markdown=? (document (list (paragraph (list (emph (list (text "a ") (text "b"))))))) 
+                (document (list (paragraph (list (emph (list (text "a b"))))))))
+    (markdown=? (document (list (paragraph (list (text "a") (emph (list (text "b")))))))
+                (document (list (paragraph (list (text "ab")))))))
+)
+
+(
+  "Markdown structural equality"
+  (#t #t #f #f #t #f)
+  (define doc (document (list (paragraph (list (text "a ") (text "b"))))))
+  (list
+    (markdown-equals? doc doc)
+    (markdown-equals? doc (document (list (paragraph (list (text "a ") (text "b")))))) 
+    (markdown-equals? doc (document (list (paragraph (list (text "a b"))))))
+    (markdown-equals? (markdown "*a*") (markdown "_b_"))
+    (markdown-equals? (markdown "*a*") (markdown "_a_"))
+    (markdown-equals? (markdown "a") (document '())))
+)
+
+(
+  "Markdown structural equality requires documents"
+  <error>
+  (markdown-equals? (markdown "a") "a")
+)
+
+(
+  "Markdown block, list item, and inline equality"
+  (#t #t #f #f #t #t #f #f #t #t #f #f)
+  (define (par . frags) (paragraph frags))
+  (define split-par (par (text "a ") (text "(") (text "b") (text ")")))
+  (define whole-par (par (text "a (b)")))
+  (define (item blk) (bullet #\- '() (list blk)))
+  (define split-em (emph (list (text "a ") (text "b"))))
+  (define whole-em (emph (list (text "a b"))))
+  (list
+    (markdown-block=? split-par whole-par)
+    (markdown-block=? split-par split-par)
+    (markdown-block-equals? split-par whole-par)
+    (markdown-block=? split-par (par (text "a (c)")))
+    (markdown-block-equals? split-par split-par)
+    (markdown-list-item=? (item split-par) (item whole-par))
+    (markdown-list-item-equals? (item split-par) (item whole-par))
+    (markdown-list-item=? (item split-par) (item (par (text "a (c)"))))
+    (markdown-inline=? split-em whole-em)
+    (markdown-inline-equals? split-em split-em)
+    (markdown-inline-equals? split-em whole-em)
+    (markdown-inline=? split-em (emph (list (text "a c")))))
+)
+
+(
+  "Markdown block equality requires blocks"
+  <error>
+  (markdown-block-equals? (paragraph '()) (text "a"))
+)
+
+(
+  "Markdown list item equality requires list items"
+  <error>
+  (markdown-list-item-equals? (bullet #\- '() '()) (paragraph '()))
+)
+
+(
+  "Markdown inline equality requires inline text"
+  <error>
+  (markdown-inline-equals? (text "a") (paragraph '()))
+)
+
+(
+  "Markdown equality requires documents"
+  <error>
+  (markdown=? (markdown "a") (text "a"))
+)
+
+(
+  "Markdown plain strings of blocks and text"
+  ("abc d" "abc d" "b" "x y" "abc d" "a b\nc")
+  (define inl (list (text "a") (emph (list (text "b"))) (code "c") (html "br") (line-break #f)
+                    (text "d")))
+  (list
+    (text->string inl)
+    (blocks->string (paragraph inl))
+    (text->string (emph (list (text "b"))))
+    (blocks->string (list (paragraph (list (text "x") (line-break #f) (text "y")))))
+    (markdown->string (document (list (paragraph inl))))
+    (blocks->string (list (paragraph (list (text "a") (line-break #t) (text "b")))
+                          (paragraph (list (text "c"))))))
+)
+
+(
+  "Markdown debug strings of text"
+  ("a*b*`c`<br>\nd" "*b*")
+  (define inl (list (text "a") (emph (list (text "b"))) (code "c") (html "br") (line-break #f)
+                    (text "d")))
+  (list
+    (text->debug-string inl)
+    (text->debug-string (emph (list (text "b")))))
+)
+
+(
+  "Markdown plain string of text with wrong argument"
+  <error>
+  (text->string "text")
+)
+
+(
+  "Markdown plain string of blocks with wrong argument"
+  <error>
+  (blocks->string 1)
+)
+
+(
+  "Markdown debug string of text with wrong argument"
+  <error>
+  (text->debug-string "text")
+)
+
+(
+  "Markdown text in SXML plain text"
+  "ab\n"
+  (import (lispkit sxml))
+  (sxml->text (list 'p (list (text "a") (emph (list (text "b"))))))
+)
+
+(
+  "Markdown source string with unknown dialect"
+  <error>
+  (markdown->source-string (markdown "text") 'github)
+)
+
+(
+  "Markdown source string with dialect as string"
+  <error>
+  (markdown->source-string (markdown "text") "full")
+)
+
+(
+  "Markdown source string with dialect as number"
+  <error>
+  (markdown->source-string (markdown "text") 1)
+)
+
+(
+  "Markdown source string with special characters as string"
+  <error>
+  (markdown->source-string (markdown "text") 'standard "*")
+)
+
+(
+  "Markdown source string of an invalid document"
+  <error>
+  (markdown->source-string "text")
 )
 
 (
@@ -549,7 +824,7 @@
   (define (has? str sub) (and (string-contains str sub) #t))
   (define md (markdown "Area $\\pi r^2$ and \\[E<m\\]\n\n$$\n\\int_0^1 x\\,dx\n$$\n" 'latex))
   (define markup (markdown->html md))
-  (define plain (markdown->string md))
+  (define plain (markdown->formatted-string md))
   (list
     (has? markup "<span class=\"math inline\">\\(\\pi r^2\\)</span>")
     (has? markup "<span class=\"math display\">\\[E&lt;m\\]</span>")
@@ -638,9 +913,9 @@
   (define md (markdown "```scheme\n(define x 1)\n```\n"))
   (define themes (syntax-highlighting-themes))
   (define (ansi theme)
-    (markdown->string md 40 (list #f #f #f #f #f #f #f #f #f #f #f (list theme))))
+    (markdown->formatted-string md 40 (list #f #f #f #f #f #f #f #f #f #f #f (list theme))))
   (define unhighlighted
-    (markdown->string md 40 (list #f #f #f #f #f #f #f #f #f #f #f #f)))
+    (markdown->formatted-string md 40 (list #f #f #f #f #f #f #f #f #f #f #f #f)))
   (list
     (and (member "xcode" themes) (member "markdownkit" themes) #t)
     (string? (syntax-highlighting-theme "xcode"))

@@ -291,6 +291,7 @@ public final class MarkdownLibrary: NativeLibrary {
     self.define(Procedure("markdown-blocks?", isMarkdownBlocks))
     self.define(Procedure("markdown-block?", isMarkdownBlock))
     self.define(Procedure("markdown-block=?", markdownBlockEquals))
+    self.define(Procedure("markdown-block-equals?", markdownBlockStructurallyEquals))
     self.define(Procedure("document", document))
     self.define(Procedure("blockquote", blockquote))
     self.define(Procedure("list-items", listItems))
@@ -307,12 +308,14 @@ public final class MarkdownLibrary: NativeLibrary {
     self.define(Procedure("markdown-list?", isMarkdownList))
     self.define(Procedure("markdown-list-item?", isMarkdownListItem))
     self.define(Procedure("markdown-list-item=?", markdownListItemEquals))
+    self.define(Procedure("markdown-list-item-equals?", markdownListItemStructurallyEquals))
     self.define(Procedure("bullet", bullet))
     self.define(Procedure("ordered", ordered))
     self.define(Procedure("task", task))
     self.define(Procedure("markdown-text?", isMarkdownText))
     self.define(Procedure("markdown-inline?", isMarkdownInline))
-    self.define(Procedure("markdown-inline=?",markdownInlineEquals))
+    self.define(Procedure("markdown-inline=?", markdownInlineEquals))
+    self.define(Procedure("markdown-inline-equals?", markdownInlineStructurallyEquals))
     self.define(Procedure("text", text))
     self.define(Procedure("code", code))
     self.define(Procedure("emph", emph))
@@ -329,21 +332,23 @@ public final class MarkdownLibrary: NativeLibrary {
     self.define(Procedure("markdown", markdown))
     self.define(Procedure("markdown?", isMarkdown))
     self.define(Procedure("markdown=?", markdownEquals))
+    self.define(Procedure("markdown-equals?", markdownStructurallyEquals))
     self.define(Procedure("markdown->string", markdownToString))
+    self.define(Procedure("markdown->formatted-string", markdownToFormattedString))
+    self.define(Procedure("markdown->source-string", markdownToSourceString))
+    self.define(Procedure("markdown->debug-string", markdownToDebugString))
     self.define(Procedure("markdown-style-config", markdownStyleConfig))
     self.define(Procedure("markdown->styled-text", markdownToStyledText))
     self.define(Procedure("markdown->html-doc", markdownToHtmlDoc))
     self.define(Procedure("markdown->html", markdownToHtml))
     self.define(Procedure("markdown->sxml", markdownToSxml))
-    self.define(Procedure("markdown->debug-string", markdownToDebugString))
-    self.define(Procedure("markdown->raw-string", markdownToRawString))
     self.define(Procedure("blocks->html", blocksToHtml))
     self.define(Procedure("blocks->sxml", blocksToSxml))
-    self.define(Procedure("blocks->raw-string", blocksToRawString))
+    self.define(Procedure("blocks->string", blocksToString))
     self.define(Procedure("text->html", textToHtml))
     self.define(Procedure("text->sxml", textToSxml))
     self.define(Procedure("text->string", textToString))
-    self.define(Procedure("text->raw-string", textToRawString))
+    self.define(Procedure("text->debug-string", textToDebugString))
     self.define(Procedure("syntax-highlighting-theme", syntaxHighlightingTheme))
     self.define(Procedure("syntax-highlighting-themes", syntaxHighlightingThemes))
   }
@@ -518,6 +523,12 @@ public final class MarkdownLibrary: NativeLibrary {
   private func markdownBlockEquals(_ lhs: Expr, _ rhs: Expr) throws -> Expr {
     let lhsMd = try self.internMarkdown(block: lhs)
     let rhsMd = try self.internMarkdown(block: rhs)
+    return .makeBoolean(lhsMd.normalized == rhsMd.normalized)
+  }
+  
+  private func markdownBlockStructurallyEquals(_ lhs: Expr, _ rhs: Expr) throws -> Expr {
+    let lhsMd = try self.internMarkdown(block: lhs)
+    let rhsMd = try self.internMarkdown(block: rhs)
     return .makeBoolean(lhsMd == rhsMd)
   }
   
@@ -653,6 +664,12 @@ public final class MarkdownLibrary: NativeLibrary {
   private func markdownListItemEquals(_ lhs: Expr, _ rhs: Expr) throws -> Expr {
     let lhsMd = try self.internMarkdown(item: lhs)
     let rhsMd = try self.internMarkdown(item: rhs)
+    return .makeBoolean(lhsMd.normalized == rhsMd.normalized)
+  }
+  
+  private func markdownListItemStructurallyEquals(_ lhs: Expr, _ rhs: Expr) throws -> Expr {
+    let lhsMd = try self.internMarkdown(item: lhs)
+    let rhsMd = try self.internMarkdown(item: rhs)
     return .makeBoolean(lhsMd == rhsMd)
   }
   
@@ -706,6 +723,12 @@ public final class MarkdownLibrary: NativeLibrary {
   }
   
   private func markdownInlineEquals(_ lhs: Expr, _ rhs: Expr) throws -> Expr {
+    let lhsMd = try self.internMarkdown(fragment: lhs)
+    let rhsMd = try self.internMarkdown(fragment: rhs)
+    return .makeBoolean(Text(lhsMd).normalized == Text(rhsMd).normalized)
+  }
+  
+  private func markdownInlineStructurallyEquals(_ lhs: Expr, _ rhs: Expr) throws -> Expr {
     let lhsMd = try self.internMarkdown(fragment: lhs)
     let rhsMd = try self.internMarkdown(fragment: rhs)
     return .makeBoolean(lhsMd == rhsMd)
@@ -852,28 +875,38 @@ public final class MarkdownLibrary: NativeLibrary {
     return res
   }
   
-  private func markdown(_ str: Expr, _ dialect: Expr?) throws -> Expr {
-    let parser: MarkdownParser
-    switch dialect {
-      case .none, .false:
-        parser = MarkdownParser.standard
+  private func dialect(from expr: Expr) throws -> MarkdownDialect {
+    switch expr {
+      case .false:
+        return .commonMark
+      case .true:
+        return .fullLaTeX
       case .symbol(let sym):
         switch sym.identifier {
           case "standard":
-            parser = MarkdownParser.standard
+            return .commonMark
           case "extended":
-            parser = ExtendedMarkdownParser.standard
+            return .extendedCommonMark
           case "full":
-            parser = FullMarkdownParser.standard
+            return .full
           case "math":
-            parser = MathMarkdownParser.standard
+            return .fullMath
           case "latex":
-            parser = LaTeXMarkdownParser.standard
+            return .fullLaTeX
           default:
             throw RuntimeError.eval(.notAValidMarkdownDialect, .symbol(sym))
         }
-      case .some(let expr):
-        parser = LaTeXMarkdownParser.standard
+      default:
+        throw RuntimeError.eval(.notAValidMarkdownDialect, expr)
+    }
+  }
+  
+  private func markdown(_ str: Expr, _ dialect: Expr?) throws -> Expr {
+    let parser: MarkdownParser
+    if let dialect {
+      parser = try self.dialect(from: dialect).parser
+    } else {
+      parser = MarkdownDialect.commonMark.parser
     }
     guard let res = self.externMarkdown(parser.parse(try str.asString())) else {
       return .false
@@ -889,6 +922,12 @@ public final class MarkdownLibrary: NativeLibrary {
   }
   
   private func markdownEquals(_ lhs: Expr, _ rhs: Expr) throws -> Expr {
+    let lhsMd = try self.internMarkdown(block: lhs)
+    let rhsMd = try self.internMarkdown(block: rhs)
+    return .makeBoolean(lhsMd.normalized == rhsMd.normalized)
+  }
+  
+  private func markdownStructurallyEquals(_ lhs: Expr, _ rhs: Expr) throws -> Expr {
     let lhsMd = try self.internMarkdown(block: lhs)
     let rhsMd = try self.internMarkdown(block: rhs)
     return .makeBoolean(lhsMd == rhsMd)
@@ -1338,7 +1377,11 @@ public final class MarkdownLibrary: NativeLibrary {
              syntaxHighlighter: self.syntaxHighlighter)
   }
   
-  private func markdownToString(_ md: Expr, _ width: Expr?, _ ansi: Expr?) throws -> Expr {
+  private func markdownToString(_ md: Expr) throws -> Expr {
+    return .makeString(try self.internMarkdown(block: md).string)
+  }
+  
+  private func markdownToFormattedString(_ md: Expr, _ width: Expr?, _ ansi: Expr?) throws -> Expr {
     let md = try self.internMarkdown(block: md)
     let maxCols: Int
     if let width, width.isTrue {
@@ -1360,6 +1403,37 @@ public final class MarkdownLibrary: NativeLibrary {
     } else {
       return .makeString(StringGenerator(numColumns: maxCols).generate(doc: md))
     }
+  }
+  
+  private func markdownToSourceString(_ md: Expr,
+                                      _ dialect: Expr?,
+                                      _ specials: Expr?) throws -> Expr {
+    let markdown = try self.internMarkdown(block: md)
+    let targetDialect: MarkdownDialect
+    if let dialect {
+      targetDialect = try self.dialect(from: dialect)
+    } else {
+      targetDialect = MarkdownDialect.fullLaTeX
+    }
+    var specialChars = Set<Character>()
+    if let specials {
+      guard case .object(let obj) = specials, let res = obj as? CharSet else {
+        throw RuntimeError.type(specials, expected: [CharSet.type])
+      }
+      for char in res.chars {
+        if let scalar = Unicode.Scalar(char) {
+          specialChars.insert(Character(scalar))
+        }
+      }
+    }
+    let generator = SourceGenerator(syntax: targetDialect.syntax,
+                                    parser: targetDialect.parser,
+                                    specialCharacters: specialChars)
+    return .makeString(generator.generate(doc: markdown))
+  }
+  
+  private func markdownToDebugString(_ md: Expr) throws -> Expr {
+    return .makeString(try self.internMarkdown(block: md).description)
   }
   
   // MARK: - Configuration of attributed string generators
@@ -2101,14 +2175,6 @@ public final class MarkdownLibrary: NativeLibrary {
     return gen.generate(block: try self.internMarkdown(block: md))
   }
   
-  private func markdownToDebugString(_ md: Expr) throws -> Expr {
-    return .makeString(try self.internMarkdown(block: md).description)
-  }
-  
-  private func markdownToRawString(_ md: Expr) throws -> Expr {
-    return .makeString(try self.internMarkdown(block: md).string)
-  }
-  
   private func blocksToHtml(_ expr: Expr, tight: Expr?) throws -> Expr {
     let tight = tight?.isTrue ?? false
     switch expr {
@@ -2144,7 +2210,7 @@ public final class MarkdownLibrary: NativeLibrary {
     }
   }
   
-  private func blocksToRawString(_ expr: Expr) throws -> Expr {
+  private func blocksToString(_ expr: Expr) throws -> Expr {
     switch expr {
       case .pair(_ , _):
         return .makeString(try self.internMarkdown(blocks: expr).string)
@@ -2152,7 +2218,7 @@ public final class MarkdownLibrary: NativeLibrary {
         return .makeString(try self.internMarkdown(block: expr).string)
       default:
         throw RuntimeError.custom(
-          "type error", "blocks->raw-string expects argument of type block or list of block; " +
+          "type error", "blocks->string expects argument of type block or list of block; " +
           "received \(expr)", [])
     }
   }
@@ -2189,25 +2255,25 @@ public final class MarkdownLibrary: NativeLibrary {
   private func textToString(_ expr: Expr) throws -> Expr {
     switch expr {
       case .pair(_ , _):
+        return .makeString(try self.internMarkdown(text: expr).string)
+      case .tagged(self.inlineType, _):
+        return .makeString(try self.internMarkdown(fragment: expr).string)
+      default:
+        throw RuntimeError.custom(
+          "type error", "text->string expects argument of type inline or list of inline; " +
+          "received \(expr)", [])
+    }
+  }
+
+  private func textToDebugString(_ expr: Expr) throws -> Expr {
+    switch expr {
+      case .pair(_ , _):
         return .makeString(try self.internMarkdown(text: expr).description)
       case .tagged(self.inlineType, _):
         return .makeString(try self.internMarkdown(fragment: expr).description)
       default:
         throw RuntimeError.custom(
-          "type error", "inline->string expects argument of type inline or list of inlines; " +
-          "received \(expr)", [])
-    }
-  }
-
-  private func textToRawString(_ expr: Expr) throws -> Expr {
-    switch expr {
-      case .pair(_ , _):
-        return .makeString(try self.internMarkdown(text: expr).rawDescription)
-      case .tagged(self.inlineType, _):
-        return .makeString(try self.internMarkdown(fragment: expr).rawDescription)
-      default:
-        throw RuntimeError.custom(
-          "type error", "inline->raw-string expects argument of type inline or list of inlines; " +
+          "type error", "text->debug-string expects argument of type inline or list of inline; " +
           "received \(expr)", [])
     }
   }

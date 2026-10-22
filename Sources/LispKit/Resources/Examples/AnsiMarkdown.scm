@@ -63,7 +63,7 @@
     (newline)
     ;; Display the marked up Markdown document
     (display
-      (markdown->string doc (car term-size) ansi-config)))
+      (markdown->formatted-string doc (car term-size) ansi-config)))
   ;; Notify user this is not an ANSI terminal
   (display "Not an ANSI terminal."))
 (newline)
