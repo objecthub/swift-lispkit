@@ -244,9 +244,19 @@ public final class VirtualMachine: ManagedObject {
       return .error(RuntimeError.uncaught(.error(exception!)))
     }
     // Raise thrown exceptions
-    while let obj = exception {
+    return self.raise(thrown: exception!, with: raiseProc)
+  }
+
+  /// Raises an error that was thrown by the virtual machine, i.e. an error that was not raised
+  /// by the Scheme procedures `raise` or `error`. The error gets raised in the dynamic
+  /// environment of the code that threw it, which is still in place. This makes it possible
+  /// for handlers to deal with it. The result is either the result of the evaluation that
+  /// continues after a handler has dealt with the error, or an uncaught exception.
+  private func raise(thrown error: RuntimeError, with raiseProc: Procedure) -> Expr {
+    var exception = error
+    while true {
       do {
-        return try self.apply(.procedure(raiseProc), to: .pair(.error(obj), .null))
+        return try self.apply(.procedure(raiseProc), to: .pair(.error(exception), .null))
       } catch let error as RuntimeError { // handle Lisp-related issues
         guard !self.abortionRequested else { // abortions bypass the raise mechanism
           return .error(RuntimeError.uncaught(.error(error)))
@@ -256,8 +266,6 @@ public final class VirtualMachine: ManagedObject {
         exception = RuntimeError.os(error)
       }
     }
-    // Never happens
-    return .void
   }
   
   /// Loads the file at file patch `path`, compiles it in the interaction environment, and
@@ -338,10 +346,27 @@ public final class VirtualMachine: ManagedObject {
                                       optimize: optimize,
                                       inDirectory: inDirectory)
       // log(code.description)
-      if let name = name {
-        res = try self.execute(code, as: name)
-      } else {
-        res = try self.execute(code)
+      do {
+        if let name = name {
+          res = try self.execute(code, as: name)
+        } else {
+          res = try self.execute(code)
+        }
+      } catch let error as RuntimeError {
+        // Errors thrown by the virtual machine are raised by `onTopLevelDo` once all Swift
+        // frames are gone, including this loop. Thus, expressions following the one that
+        // got handled would never be evaluated. At the top level, i.e. if the virtual machine
+        // does not execute any code yet, errors are therefore raised right here.
+        guard !self.registers.isInitialized,
+              !self.abortionRequested,
+              let raiseProc = self.context.evaluator.raiseProc else {
+          throw error
+        }
+        res = self.raise(thrown: error, with: raiseProc)
+        // An uncaught exception ends the evaluation
+        if case .error(let err) = res, err.descriptor == .uncaught {
+          return res
+        }
       }
       exprlist = rest
     }

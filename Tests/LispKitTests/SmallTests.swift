@@ -80,4 +80,82 @@ class SmallTests: LispKitTestCase {
                 "'done"), self.value("done"))
   }
 
+  /// Bootstraps the context the way the context of a REPL is bootstrapped. Without this,
+  /// errors thrown by native procedures cannot be caught by Scheme code.
+  private func bootstrapContext() {
+    do {
+      try self.context?.bootstrap()
+    } catch {
+      preconditionFailure("cannot bootstrap test context: \(error)")
+    }
+  }
+
+  /// Errors thrown by the virtual machine and by native procedures were raised only after
+  /// all frames of the evaluation were gone. A handler that dealt with such an error at the
+  /// top level thus ended the evaluation of all expressions that followed. They need to be
+  /// evaluated, just like after errors raised by `error` and `raise`.
+  func testHandlingThrownErrorsAtTopLevel() {
+    self.bootstrapContext()
+    XCTAssertEqual(
+      self.eval("(define log '()) " +
+                "(define (note x) (set! log (cons x log))) " +
+                "(note (guard (e (#t 'type-error)) (car 5))) " +
+                "(note (guard (e (#t 'arity-error)) ((lambda (a) a) 1 2))) " +
+                "(note (guard (e (#t 'unbound-variable)) undefined-variable)) " +
+                "(note (guard (e (#t 'range-error)) (vector-ref (vector 1 2) 7))) " +
+                "(note (guard (e (#t 'error)) (error \"error\"))) " +
+                "(note (guard (e (#t 'raise)) (raise 'x))) " +
+                "(reverse log)"),
+      self.value("(type-error arity-error unbound-variable range-error error raise)"))
+    assertStackEmpty()
+  }
+
+  /// A handler that deals with an error thrown by the virtual machine at the top level needs
+  /// to see the same dynamic environment as before: it runs after the `after` thunks of
+  /// `dynamic-wind` that are exited by the handler, and a handler that returns for such an
+  /// error leads to a secondary error that the outer handler gets.
+  func testHandlingThrownErrorsInDynamicContext() {
+    self.bootstrapContext()
+    XCTAssertEqual(
+      self.eval("(define log '()) " +
+                "(define (note x) (set! log (cons x log))) " +
+                "(guard (e (#t (note 'handler))) " +
+                "  (dynamic-wind " +
+                "    (lambda () (note 'in)) " +
+                "    (lambda () (car 5)) " +
+                "    (lambda () (note 'out)))) " +
+                "(note (guard (e (#t 'outer)) " +
+                "        (with-exception-handler " +
+                "          (lambda (e) (note 'inner) 42) " +
+                "          (lambda () (+ 1 (car 5)))))) " +
+                "(reverse log)"),
+      self.value("(in out handler inner outer)"))
+    assertStackEmpty()
+  }
+
+  /// An error that is not handled at the top level still ends the evaluation. This also holds
+  /// for errors that follow a handled error, and for errors in nested evaluations, which are
+  /// handled by handlers outside of the nested evaluation.
+  func testUncaughtThrownErrorsEndEvaluation() {
+    self.bootstrapContext()
+    let res = self.eval("(define n 0) " +
+                        "(guard (e (#t #f)) (car 5)) " +
+                        "(set! n 1) " +
+                        "(car 9) " +
+                        "(set! n 2)")
+    guard case .error(_) = res else {
+      XCTFail("uncaught error did not end the evaluation: \(res)")
+      return
+    }
+    assertStackEmpty()
+    XCTAssertEqual(self.eval("n"), self.value("1"))
+    XCTAssertEqual(
+      self.eval("(define m 0) " +
+                "(define r (guard (e (#t 'caught)) " +
+                "           (eval '(begin (set! m 1) (car 5) (set! m 2)) (interaction-environment)))) " +
+                "(list r m)"),
+      self.value("(caught 1)"))
+    assertStackEmpty()
+  }
+
 }
