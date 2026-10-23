@@ -415,8 +415,9 @@ Returns the number of allocated threads, i.e. threads in any state that are not 
 Aborts all threads except for the primordial thread and waits until all threads are terminated. This procedure must only be invoked from the primordial thread.
 
 **(wait-threads-terminated)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(wait-threads-terminated _timeout_)**  
 
-Waits until all threads except for the primordial thread are terminated. This procedure must only be invoked from the primordial thread.
+Waits until all threads except for the primordial thread are terminated. If _timeout_ is provided, it is the maximum time in seconds `wait-threads-terminated` waits. The procedure returns `#t` if all threads have terminated, and `#f` if _timeout_ has elapsed before. This procedure must only be invoked from the primordial thread.
 
 ***
 

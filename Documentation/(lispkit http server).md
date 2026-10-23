@@ -493,7 +493,7 @@ Returns a HTTP server response for status code 301 (= `Moved Permanently`). This
 **(srv-response-moved-temporarily _redirect_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(srv-response-moved-temporarily _redirect headers_)**  
 
-Returns a HTTP server response for status code 302 (= `Moved Temporarily`). This is quivalent to `(make-srv-response 302 (cons (cons "Location" redirect) headers) #f)`.
+Returns a HTTP server response for status code 307 (= `Temporary Redirect`). The client is asked to repeat the request, with the same method and body, at the new location. This is equivalent to `(make-srv-response 307 (cons (cons "Location" redirect) headers) #f)`.
 
 
 ## Utilities

@@ -149,7 +149,7 @@ public final class HTTPServerLibrary: NativeLibrary {
       "          ((or (markdown-inline? body) (markdown-text? body))",
       "            (srv-response-body-html-set! resp (text->html body) #t))",
       "          ((pair? body)",
-      "            (srv-response-body-html-set! resp (sxml->html body) (or last (eq? (car body) 'html))))",
+      "            (srv-response-body-html-set! resp (sxml->html body) (or last (not (eq? (car body) 'html)))))",
       "          (else",
       "            (_srv-response-body-set! resp body last)))))")
     self.define("make-srv-response", via:

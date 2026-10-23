@@ -12,7 +12,7 @@
 ;;; Kołakowski. See: https://github.com/httpswift/swifter
 ;;;
 ;;; Author: Matthias Zenger
-;;; Copyright © 2024 Matthias Zenger. All rights reserved.
+;;; Copyright © 2024-2026 Matthias Zenger. All rights reserved.
 ;;;
 ;;; Licensed under the Apache License, Version 2.0 (the "License"); you may
 ;;; not use this file except in compliance with the License. You may obtain
@@ -126,7 +126,8 @@
       `(html
          (head
            (script (@ (src "http://cdn.staticfile.org/jquery/2.1.4/jquery.min.js")))
-           (stylesheet (@ (href "http://cdn.staticfile.org/twitter-bootstrap/3.3.0/css/bootstrap.min.css"))))
+           (link (@ (rel "stylesheet")
+                    (href "http://cdn.staticfile.org/twitter-bootstrap/3.3.0/css/bootstrap.min.css"))))
          (body
            (h3 "Sign In")
            (form (@ (method "POST")
@@ -136,7 +137,7 @@
                (input (@ (name "password")(type "password")(placeholder "Password")(autofocus "")))
                (a (@ (href "/login"))
                   (button (@ (type "submit")) "Login"))))
-          (javascript (@ (src "http://cdn.staticfile.org/twitter-bootstrap/3.3.0/js/bootstrap.min.js"))))))))
+          (script (@ (src "http://cdn.staticfile.org/twitter-bootstrap/3.3.0/js/bootstrap.min.js"))))))))
 
 (http-server-register! server "POST" "/login"
   (lambda (req)
@@ -153,10 +154,10 @@
     (srv-response-moved-temporarily "http://www.google.com")))
 
 (http-server-register! server "/public/::path"
-  (share-directory-handler "/Users/zenger/Downloads"))
+  (share-directory-handler (car (system-directory 'downloads))))
   
 (http-server-register! server "/files/::path"
-  (browse-directory-handler "/Users/zenger/Downloads"))
+  (browse-directory-handler (car (system-directory 'downloads))))
 
 (http-server-register! server "/long"
   (lambda (request)

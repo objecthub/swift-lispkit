@@ -654,6 +654,55 @@ class HTTPServerTests: LispKitTestCase {
     }
   }
 
+  func testHTMLResponses() {
+    self.inEvaluator {
+      let port = try self.startServer(#"""
+        (import (lispkit markdown))
+        (define (respond body) (lambda (r) (make-srv-response 200 #f body)))
+        (http-server-register! server "GET" "/html/document"
+          (respond '(html (head (title "Title")) (body (p "text")))))
+        (http-server-register! server "GET" "/html/fragment" (respond '(p "text " (b "bold"))))
+        (http-server-register! server "GET" "/html/nodes" (respond '((h3 "one") (h3 "two"))))
+        (http-server-register! server "GET" "/html/forced"
+          (lambda (r)
+            (let ((response (make-srv-response 200)))
+              (srv-response-body-set! response '(html (body (p "text"))) #t)
+              response)))
+        (http-server-register! server "GET" "/html/markdown" (respond (markdown "*text*")))
+        """#)
+      defer {
+        self.stopServer()
+      }
+      func fetchHTML(_ path: String, line: UInt = #line) throws -> String {
+        let response = try XCTUnwrap(Client.fetch(port: port, path: path), line: line)
+        XCTAssertEqual(response.status, 200, path, line: line)
+        XCTAssertTrue(response.header("Content-Type")?.hasPrefix("text/html") ?? false, path,
+                      line: line)
+        return response.text
+      }
+      func countOfHTMLElements(in html: String) -> Int {
+        return html.components(separatedBy: "<html").count - 1
+      }
+      // A complete document is sent as it is
+      let document = try fetchHTML("/html/document")
+      XCTAssertEqual(document, "<html><head><title>Title</title></head><body><p>text</p></body></html>")
+      // Everything else, i.e. fragments and markdown, is wrapped into a document...
+      let fragment = try fetchHTML("/html/fragment")
+      XCTAssertTrue(fragment.hasPrefix("<html>"), fragment)
+      XCTAssertTrue(fragment.contains("<body><p>text <b>bold</b></p></body>"), fragment)
+      XCTAssertEqual(countOfHTMLElements(in: fragment), 1, fragment)
+      let nodes = try fetchHTML("/html/nodes")
+      XCTAssertTrue(nodes.contains("<body><h3>one</h3><h3>two</h3></body>"), nodes)
+      XCTAssertEqual(countOfHTMLElements(in: nodes), 1, nodes)
+      let markdown = try fetchHTML("/html/markdown")
+      XCTAssertTrue(markdown.contains("<body><p><em>text</em></p>"), markdown)
+      XCTAssertEqual(countOfHTMLElements(in: markdown), 1, markdown)
+      // ...as is a document if the last argument of `srv-response-body-set!` is `#t`
+      let forced = try fetchHTML("/html/forced")
+      XCTAssertTrue(forced.contains("<body><html><body><p>text</p></body></html></body>"), forced)
+    }
+  }
+
   func testSharingFilesAndDirectories() {
     self.inEvaluator {
       let fileManager = FileManager.default
