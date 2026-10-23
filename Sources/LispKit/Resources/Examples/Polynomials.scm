@@ -117,7 +117,7 @@
 ;;
 ;; Example: Polynomial `5*x^3 + 4*x + 1` can be defined as follows:
 ;; `(prefix->canon '(+ (* 5 (^ x 3)) (+ (* 4 x) 1)))`. This expression returns
-;; `#poly:#(x 1 4 0 5)`.
+;; `#<poly #(x 1 4 0 5)>`.
 (define-type poly
   poly?
   ((new-poly vec)
@@ -246,13 +246,13 @@
                  (else
                    (cut-poly p i)))))))
 
-;; Raise polynomial p to the n-th power where needs to be >=0.
+;; Raise polynomial p to the n-th power. Exponent n has to be an integer. It also has to be
+;; >= 0, unless p is a number.
 (define (poly^n p n)
-  (if (fixnum? n)
-      (cond ((zero? n)    1)
-            ((number? p)  (expt p n))
-            (else         (poly*poly p (poly^n p (- n 1)))))
-      (error "not valid polynomial: #0" '(^ p n))))
+  (cond ((and (fixnum? n) (zero? n))   1)
+        ((and (fixnum? n) (number? p)) (expt p n))
+        ((and (fixnum? n) (> n 0))     (poly*poly p (poly^n p (- n 1))))
+        (else (error "not a valid exponent: $0" (prefix->infix (canon->prefix n))))))
 
 ;; Convert a canonical polynomial to a prefix expression.
 (define (canon->prefix p)

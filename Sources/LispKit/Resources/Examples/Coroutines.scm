@@ -3,7 +3,8 @@
 ;;; This is a simple example explaining how to implement coroutines in Scheme using
 ;;; call/cc. The code is based on Matt Might's blog post on "Continuations by example:
 ;;; Exceptions, time-traveling search, generators, threads, and coroutines" at his
-;;; site http://matt.might.net/. The article can be found here: https://goo.gl/pyCHCu .
+;;; site http://matt.might.net/. The article can be found here:
+;;; https://matt.might.net/articles/programming-with-continuations--exceptions-backtracking-search-threads-generators-coroutines/
 ;;;
 ;;; The code below introduces the following API for implementing simple coroutine-based
 ;;; applications:

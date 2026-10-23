@@ -1,6 +1,6 @@
 ;;; Turtle graphics
 ;;;
-;;; This is a demo of library (lispkit draw turtle). Three differerent
+;;; This is a demo of library (lispkit draw turtle). Three different
 ;;; fractal curves are drawn and saved as individual pages in a PDF
 ;;; document. These examples are based on the sample code for LILA,
 ;;; a historic Lisp interpreter for Mac OS 8.
@@ -9,7 +9,7 @@
 ;;; Usage: (save-graphics "turtle-demo.pdf")
 ;;;
 ;;; Author: Matthias Zenger
-;;; Copyright © 2018 Matthias Zenger. All rights reserved.
+;;; Copyright © 2018-2026 Matthias Zenger. All rights reserved.
 ;;; Original copyright © 1994-03-06, Matthias Zenger.
 ;;;
 ;;; Licensed under the Apache License, Version 2.0 (the "License"); you may

@@ -39,11 +39,7 @@ Returns the y coordinate of the position of the given _turtle_.
 
 **(turtle-angle _turtle_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Returns the current angle of the given _turtle_.
-
-**(turtle-angle _turtle_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
-
-Returns the current angle of the given _turtle_.
+Returns the current angle of the given _turtle_. As opposed to the angles passed to `heading`, `turn`, `left`, `right`, and `arc`, which are expressed in degrees, the result is expressed in radians.
 
 **(turtle-pen-down? _turtle_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
@@ -112,4 +108,4 @@ Moves _turtle_ backward by _distance_ units drawing a line if the pen is down. I
 **(arc _angle radius_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(arc _angle radius turtle_)**  
 
-Turns the turtle by the given _angle_ (in radians) and draws an arc with _radius_ around the current turtle position if the pen is down. If _turtle_ is not provided, the turtle defined by `current-turtle` is used.
+Turns the turtle by the given _angle_ (in degrees) and draws an arc with _radius_ around the current turtle position if the pen is down. If _turtle_ is not provided, the turtle defined by `current-turtle` is used.

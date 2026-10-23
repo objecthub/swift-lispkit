@@ -25,7 +25,7 @@ Returns a new channel with a buffer size of _capacity_. If  _capacity_ is 0, the
 
 **(channel-send! _channel msg_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Sends message _msg_ to _channel_. `channel-send!` blocks if the capacity of _channel_ is exhausted. `channel-send!` returns the fail flag of the send operation, i.e. `#f` is returned if the send operation succeeded.
+Sends message _msg_ to _channel_. `channel-send!` blocks if the capacity of _channel_ is exhausted. `channel-send!` returns the fail flag of the send operation, i.e. `#f` is returned if the send operation succeeded. If _channel_ is closed, `channel-send!` does not block and returns a non-`#f` value.
 
 **(channel-receive! _channel_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(channel-receive! _channel none_)**  
@@ -75,7 +75,7 @@ This is a channel switch that will send or receive on at most one channel, picki
 
 Receive clauses have the form `((chan -> msg [fail]) body ...)`. They execute _body_ with _msg_ bound to the message object and _fail_ bound to a boolean flag indicating failure. Receiving from a closed channel immediately completes with this _fail_ flag set to non-`#f`.
 
-Send clauses have the form `((chan <- msg [fail]) body ...)`. They execute _body_ after _msg_ has been sent to a receiver, successfully buffered onto the channel, or if channel was closed. Sending to a closed channel immediately completes with the _fail_ flag set to `#f`.
+Send clauses have the form `((chan <- msg [fail]) body ...)`. They execute _body_ after _msg_ has been sent to a receiver, successfully buffered onto the channel, or if channel was closed. Sending to a closed channel immediately completes with the _fail_ flag set to non-`#f`.
 
 A send or receive clause on a closed channel with no _fail_-flag binding specified will immediately return void without executing _body_. This can be combined with recursion like this:  
 
@@ -133,7 +133,7 @@ Or like this:
 **(channel-close _channel_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(channel-close _channel fail_)**  
 
-Closes _channel_. This will unblock existing receivers and senders waiting for an operation on _channel_ with thir fail flag set to a non-`\#f` value. All future receivers and senders will also immdiately unblock in this way, so there is a risk to run into busy-loops.
+Closes _channel_. This will unblock existing receivers and senders waiting for an operation on _channel_ with their fail flag set to a non-`\#f` value. All future receivers and senders will also immediately unblock in this way, so there is a risk to run into busy-loops.
 
 The optional _fail_ flag of `channel-close` can be used to specify an alternative to the default `#t`. As this value is given to all receivers and senders of _channel_, the _fail_ flag can be used as a "broadcast" mechanism. _fail_ flag must not be set to `#f` though, as that would indicate a successful message transaction.
 
@@ -150,7 +150,7 @@ Returns `#t` if _obj_ is a channel timer as provided by this library. Otherwise 
 
 _next_ is a thunk returning three values: _when-next_, _data_, and _fail_. _when-next_ is when to trigger the next time, expressed in seconds since January 1, 1970 TAI (e.g. computed via `(current-second)`), _data_ is the payload returned when the triggers (it's usually the time in seconds when it triggers), and _fail_ refers to a fail flag, which is usually `#f` for timers.
 
-`next` will be called exaclty once on every timeout and once at "startup" and can thus mutate its own private state. `next` is called within a timer mutex lock and thus does not need to be synchronized.
+`next` will be called exactly once on every timeout and once at "startup" and can thus mutate its own private state. `next` is called within a timer mutex lock and thus does not need to be synchronized.
 
 **(timer _duration_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 

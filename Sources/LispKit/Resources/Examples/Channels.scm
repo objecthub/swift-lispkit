@@ -1,6 +1,6 @@
 ;;; LispKit Channel Tutorial
 ;;; 
-;;; LispKit supports muli-threading via library `(lispkit thread)`.
+;;; LispKit supports multi-threading via library `(lispkit thread)`.
 ;;; The library provides access to threads and low-level synchronization
 ;;; abstractions such as mutexes and condition variables. Library
 ;;; `(lispkit thread channel)` implements synchronous and asynchronous
