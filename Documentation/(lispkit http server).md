@@ -92,7 +92,7 @@ The following requests are answered by the server itself, without invoking a req
 
 Every response includes a `Date` header.
 
-### Paths and query values
+## Paths and query values
 
 The path and the query of a request are available as sent by the client, i.e. percent-encoded (e.g. `/caf%C3%A9`), and decoded (`/café`). Decoding loses information: after decoding, `%2F` can no longer be distinguished from a path separator. Furthermore, a value that gets decoded twice can turn into something different than the client sent, e.g. `%252e%252e` first turns into `%2e%2e` and then into `..`, which is dangerous for values used as file paths.
 
@@ -223,7 +223,7 @@ Returns `#t` if _obj_ is a HTTP server request object; `#f` otherwise.
 
 **(srv-request-server _req_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Returns the HTTP server which issued this HTTP server request object. `srv-request-server` returns `#f` if _req_ was persisted and the corresponding HTTP server object was garbage collected. 
+Returns the HTTP server which issued this HTTP server request object _req_. `srv-request-server` returns `#f` if _req_ was persisted and the corresponding HTTP server object was garbage collected. 
 
 **(srv-request-method _req_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
@@ -317,7 +317,7 @@ Returns the IP address of the client issueing the HTTP server request `req` as a
 
 ### HTTP multi-part requests
 
-_HTTP multipart_, specifically _multipart/form-data_, is a media type that allows the encoding of information as a series of parts in a single message as defined by [RFC 2388](https://www.rfc-editor.org/rfc/rfc2388). This format is commonly used for forms that are expressed in HTML and where the form values are sent via HTTP.
+_HTTP multipart_, specifically _multipart/form-data_, is a media type that allows the encoding of information as a series of parts in a single message as defined by RFC 2388. This format is commonly used for forms that are expressed in HTML and where the form values are sent via HTTP.
 
 **srv-multipart-type-tag** <span style="float:right;text-align:rigth;">[constant]</span>  
 
