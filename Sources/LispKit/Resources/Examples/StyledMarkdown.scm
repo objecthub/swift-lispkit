@@ -131,11 +131,12 @@
     (read-file (asset-file-path "SampleText" "md" "Documents"))
     'latex))
 
-;; Convert the Markdown document into styled text. This renders the document
-;; with the help of the operating system, which takes a moment.
-(define text (markdown->styled-text doc config))
+;; Convert the Markdown document into styled text ready to be exported as RTFD.
+;; This renders the document with the help of the operating system, which takes
+;; a moment.
+(define text (markdown->styled-text doc config #t))
 
-;; Save the styled text as RTFD document
+;; Save the styled text as RTFD document.
 (save-styled-text rtfd-file-path text 'rtfd)
 
 ;; The following code splits the styled text into chunks of paragraphs which fit

@@ -228,6 +228,8 @@ public enum EvalError: Int, Hashable, Codable {
   case notAValidMathConfig
   case cannotRenderMermaidDiagram
   case cannotRenderLatexMath
+  case notAValidPdfPageSize
+  case notAValidPdfMargins
   
   public var message: String {
     switch self {
@@ -637,6 +639,10 @@ public enum EvalError: Int, Hashable, Codable {
         return "cannot render Mermaid diagram: $0"
       case .cannotRenderLatexMath:
         return "cannot render LaTeX math: $0"
+      case .notAValidPdfPageSize:
+        return "invalid page size for PDF document: $0"
+      case .notAValidPdfMargins:
+        return "invalid margins for PDF document: $0"
     }
   }
   

@@ -355,6 +355,423 @@
 )
 
 (
+  "Markdown PDF data"
+  (#t #t #t #t #t #t #t)
+  (import (lispkit bytevector))
+  (define pdf-md (markdown (string-append "# Title\n\nSome *text* and `code` with a "
+                                          "[link](https://lisppad.app).\n\n- one\n- two\n\n"
+                                          "The area is $\\pi r^2$.\n\n"
+                                          "| a | b |\n|---|---|\n| 1 | 2 |\n")
+                           'latex))
+  (define (pdf-header data) (utf8->string (bytevector-copy data 0 5)))
+  (list
+    (bytevector? (markdown->pdf-data pdf-md))
+    (equal? (pdf-header (markdown->pdf-data pdf-md)) "%PDF-")
+    (equal? (pdf-header (markdown->pdf-data pdf-md #f)) "%PDF-")
+    (equal? (pdf-header (markdown->pdf-data pdf-md '())) "%PDF-")
+    (equal? (pdf-header (markdown->pdf-data pdf-md #f #f #f #f #f)) "%PDF-")
+    (equal? (pdf-header (markdown->pdf-data (document '()))) "%PDF-")
+    (> (bytevector-length (markdown->pdf-data pdf-md #f 'a4 "10mm" "T" "A"))
+       (bytevector-length (markdown->pdf-data (document '())))))
+)
+
+(
+  "Markdown PDF documents"
+  (#t 1 "My Title" "Me" (595.0 842.0) (612.0 792.0) (300.0 400.5) (612.0 792.0) #t #t #t #t)
+  (import (only (lispkit pdf) pdf? pdf-page-count pdf-page pdf-page-bounds pdf-attributes)
+          (only (lispkit draw) rect-size size-width size-height))
+  (define pdf-md (markdown "Hello *world*, this is a PDF document.\n"))
+  (define (page-size doc)
+    (let ((size (rect-size (pdf-page-bounds (pdf-page doc 0) 'media-box))))
+      (list (size-width size) (size-height size))))
+  (define titled (markdown->pdf pdf-md #f #f #f "My Title" "Me"))
+  (list
+    (pdf? (markdown->pdf pdf-md))
+    (pdf-page-count (markdown->pdf pdf-md))
+    (cdr (assq 'Title (pdf-attributes titled)))
+    (cdr (assq 'Author (pdf-attributes titled)))
+    (page-size (markdown->pdf pdf-md #f 'a4))
+    (page-size (markdown->pdf pdf-md #f "8.5x11in"))
+    (page-size (markdown->pdf pdf-md #f '(300 400.5)))
+    (page-size (markdown->pdf pdf-md #f 'letter))
+    (pdf? (markdown->pdf pdf-md #f "210x297mm" "20mm, 15mm"))
+    (pdf? (markdown->pdf pdf-md #f #f 36 #f #f))
+    (pdf? (markdown->pdf pdf-md '((font-size . 20)) "a4" '(10 20 30 40) "Title"))
+    (equal? (page-size (markdown->pdf pdf-md '((preset . untrusted)) '(200 300) '(10 20) #f "Me"))
+            '(200.0 300.0)))
+)
+
+(
+  "Markdown PDF documents with several pages"
+  (#t #t #t)
+  (import (only (lispkit pdf) pdf-page-count))
+  (define many-md
+    (markdown (apply string-append
+                     (map (lambda (i) (string-append "Paragraph " (number->string i) ".\n\n"))
+                          (iota 60)))))
+  (list
+    (>= (pdf-page-count (markdown->pdf many-md)) 2)
+    (> (pdf-page-count (markdown->pdf many-md #f '(200 300) 20)) 3)
+    (> (pdf-page-count (markdown->pdf many-md #f '(200 300) '(20 20 20 20)))
+       (pdf-page-count (markdown->pdf many-md #f 'a4))))
+)
+
+(
+  "Markdown PDF documents with configurations"
+  (#t #t #t #t #t #t #t #t)
+  (import (only (lispkit pdf) pdf?))
+  (define pdf-md (markdown "# Title\n\nSome *text* and `code`.\n\n```scheme\n(define x 1)\n```\n\n- [x] done\n- [ ] open\n"
+                           'full))
+  (list
+    (pdf? (markdown->pdf pdf-md))
+    (pdf? (markdown->pdf pdf-md #f))
+    (pdf? (markdown->pdf pdf-md '()))
+    (pdf? (markdown->pdf pdf-md '((font-size . 20) (font-family . "Helvetica")
+                                  (preset . untrusted) (timeout . 20)
+                                  (text-size-multiplier . 1.5) (syntax-highlighting . #f))))
+    (pdf? (markdown->pdf pdf-md '((style . dark) (line-spacing . 1.5) (header-font . "Georgia")
+                                  (h1-font-size . 30) (h2-font-size . 24))))
+    (pdf? (markdown->pdf pdf-md (markdown-style-config '(12 "Menlo" "#112233") #f #f #f #t)))
+    (pdf? (markdown->pdf pdf-md '((tight-lists . #t) (align-list-markers . #t) (mermaid . #t)
+                                  (math . #t))))
+    (pdf? (markdown->pdf pdf-md '((safe-mode . #t) (timeout . #f)) 'a4 #f "Doc")))
+)
+
+(
+  "Markdown PDF documents with diagrams and formulas"
+  (#t #t)
+  (define plain-md (markdown "Before\n\nAfter\n"))
+  (define diagram-md
+    (markdown (string-append "Before\n\n```mermaid\ngraph LR\n  A[Start] --> B{Choice}\n"
+                             "  B --> C[Done]\n```\n\nAfter\n")))
+  (define formula-md (markdown "Before $x^2$\n\n$$\n\\int_0^1 x\\,dx\n$$\n\nAfter\n" 'math))
+  (list
+    (> (bytevector-length (markdown->pdf-data diagram-md))
+       (bytevector-length (markdown->pdf-data plain-md)))
+    (> (bytevector-length (markdown->pdf-data formula-md))
+       (bytevector-length (markdown->pdf-data plain-md))))
+)
+
+(
+  "Markdown PDF documents with configurations of diagrams and formulas"
+  (#t #t #t #t #t #t #t #t #t #t #t)
+  (define (pdf-size md . args) (bytevector-length (apply markdown->pdf-data md args)))
+  (define diagram-md
+    (markdown (string-append "Before\n\n```mermaid\ngraph LR\n  A[Start] --> B{Choice}\n"
+                             "  B --> C[Done]\n```\n\nAfter\n")))
+  (define formula-md (markdown "Before $x^2$ and $$\\int_0^1 x\\,dx$$ After" 'math))
+  (list
+    (< (pdf-size diagram-md '((mermaid . ((scale . 1))))) (pdf-size diagram-md))
+    (> (pdf-size diagram-md '((mermaid . ((scale . 4))))) (pdf-size diagram-md))
+    (= (pdf-size diagram-md '((mermaid . #t))) (pdf-size diagram-md))
+    (= (pdf-size diagram-md '((mermaid . ()))) (pdf-size diagram-md))
+    (bytevector? (markdown->pdf-data diagram-md '((mermaid . ((theme . forest) (width . 600)
+                                                              (margin . 4) (max-width . 300)
+                                                              (spacing . 4) (timeout . 20)
+                                                              (theme-variables .
+                                                                ((primaryColor . "#ffcc00"))))))))
+    (< (pdf-size formula-md '((math . ((scale . 1))))) (pdf-size formula-md))
+    (> (pdf-size formula-md '((math . ((scale . 6))))) (pdf-size formula-md))
+    (= (pdf-size formula-md '((math . #t))) (pdf-size formula-md))
+    (bytevector? (markdown->pdf-data formula-md '((math . ((spacing . 4) (max-width . 100)
+                                                           (timeout . 20)
+                                                           (max-expand . 500))))))
+    (bytevector? (markdown->pdf-data formula-md '((image-base-url . "/tmp/images/"))))
+    (bytevector? (markdown->pdf-data formula-md '((image-base-url . #f) (base-url . "/tmp")))))
+)
+
+(
+  "Markdown PDF documents with disabled diagrams and formulas"
+  ("Before\nAfter"
+   "Before\ngraph LR\nA[Start] --> B{Choice}\nAfter"
+   "Before and After"
+   "Before $x^2$ and After"
+   "Before\ngraph LR\nA[Start] --> B{Choice}\nAfter"
+   "Before $x^2$ and After")
+  (import (only (lispkit pdf) pdf->string))
+  (define diagram-md
+    (markdown (string-append "Before\n\n```mermaid\ngraph LR\n  A[Start] --> B{Choice}\n```\n\n"
+                             "After\n")))
+  (define formula-md (markdown "Before $x^2$ and After" 'math))
+  (list
+    (pdf->string (markdown->pdf diagram-md))
+    (pdf->string (markdown->pdf diagram-md '((mermaid . #f))))
+    (pdf->string (markdown->pdf formula-md))
+    (pdf->string (markdown->pdf formula-md '((math . #f))))
+    (pdf->string (markdown->pdf diagram-md '((mermaid . #f) (math . #f))))
+    (pdf->string (markdown->pdf formula-md '((mermaid . #f) (math . #f)))))
+)
+
+(
+  "Markdown saved as PDF, RTF and RTFD documents"
+  (#t #t "Title" #t #t #t #t #t #t #t #t #t #t #t #t)
+  (import (only (lispkit system) system-directory path file-exists? directory-exists?
+                                 delete-file-or-directory)
+          (only (lispkit pdf) load-pdf pdf-page-count pdf-attributes))
+  (define save-dir (car (system-directory 'temporary)))
+  (define pdf-file (path save-dir "lispkit-markdown-save-test.pdf"))
+  (define rtf-file (path save-dir "lispkit-markdown-save-test.rtf"))
+  (define rtfd-file (path save-dir "lispkit-markdown-save-test.rtfd"))
+  (define plain-rtfd-file (path save-dir "lispkit-markdown-save-test-plain.rtfd"))
+  (define (cleanup)
+    (for-each (lambda (file)
+                (if (or (file-exists? file) (directory-exists? file))
+                    (delete-file-or-directory file)))
+              (list pdf-file rtf-file rtfd-file plain-rtfd-file)))
+  (define save-md
+    (markdown "# Title\n\nSome *text* and $x^2$.\n\n```mermaid\ngraph LR\n  A --> B\n```\n" 'math))
+  (cleanup)
+  (save-markdown pdf-file save-md 'pdf '((font-size . 16)) 'a4 "20mm" "Title" "Me")
+  (save-markdown pdf-file save-md 'pdf)
+  (save-markdown pdf-file save-md 'pdf '((font-size . 16)) 'a4 "20mm" "Title" "Me")
+  (save-markdown rtf-file save-md 'rtf #f #f #f "Title" "Me")
+  (save-markdown rtfd-file save-md 'rtfd '((mermaid . #t)) #f #f "Title" "Me")
+  (save-markdown rtfd-file save-md 'rtfd '((mermaid . #t)) #f #f "Title" "Me")
+  (save-markdown plain-rtfd-file save-md 'rtfd '((mermaid . #f) (math . #f)))
+  (define saved
+    (list
+      (file-exists? pdf-file)
+      (= (pdf-page-count (load-pdf pdf-file)) 1)
+      (cdr (assq 'Title (pdf-attributes (load-pdf pdf-file))))
+      (file-exists? rtf-file)
+      (equal? (call-with-input-file rtf-file (lambda (port) (read-string 5 port))) "{\\rtf")
+      (not (directory-exists? rtf-file))
+      (directory-exists? rtfd-file)
+      (file-exists? (path rtfd-file "TXT.rtf"))
+      (file-exists? (path rtfd-file "Image 1.png"))
+      (file-exists? (path rtfd-file "Formula 1.png"))
+      (directory-exists? plain-rtfd-file)
+      (file-exists? (path plain-rtfd-file "TXT.rtf"))
+      (not (file-exists? (path plain-rtfd-file "Image 1.png")))
+      (not (file-exists? (path plain-rtfd-file "Formula 1.png")))
+      (not (directory-exists? pdf-file))))
+  (cleanup)
+  saved
+)
+
+(
+  "Markdown saved with unsupported format"
+  <error>
+  (save-markdown "lispkit-markdown-unsupported.docx" (markdown "text") 'docx)
+)
+
+(
+  "Markdown saved with format as string"
+  <error>
+  (save-markdown "lispkit-markdown-unsupported.pdf" (markdown "text") "pdf")
+)
+
+(
+  "Markdown saved with too few arguments"
+  <error>
+  (save-markdown "lispkit-markdown-unsupported.pdf" (markdown "text"))
+)
+
+(
+  "Markdown saved with too many arguments"
+  <error>
+  (save-markdown "lispkit-markdown-unsupported.pdf" (markdown "text") 'pdf #f #f #f #f #f #f)
+)
+
+(
+  "Markdown saved with invalid document"
+  <error>
+  (save-markdown "lispkit-markdown-unsupported.pdf" "text" 'pdf)
+)
+
+(
+  "Markdown saved with invalid file name"
+  <error>
+  (save-markdown 42 (markdown "text") 'pdf)
+)
+
+(
+  "Markdown saved with invalid page size"
+  <error>
+  (save-markdown "lispkit-markdown-unsupported.pdf" (markdown "text") 'pdf #f 'b5)
+)
+
+(
+  "Markdown saved with invalid margins"
+  <error>
+  (save-markdown "lispkit-markdown-unsupported.rtf" (markdown "text") 'rtf #f #f "wide")
+)
+
+(
+  "Markdown saved with unknown configuration key"
+  <error>
+  (save-markdown "lispkit-markdown-unsupported.rtfd" (markdown "text") 'rtfd '((colour . red)))
+)
+
+(
+  "Markdown saved into missing directory"
+  <error>
+  (save-markdown "/lispkit-markdown-missing-directory/test.pdf" (markdown "text") 'pdf)
+)
+
+(
+  "Markdown saved as PDF with margins larger than the page"
+  <error>
+  (save-markdown "lispkit-markdown-unsupported.pdf" (markdown "text") 'pdf #f #f 400)
+)
+
+(
+  "Markdown PDF with unknown key"
+  <error>
+  (markdown->pdf (markdown "text") '((colour . red)))
+)
+
+(
+  "Markdown PDF data with unknown key"
+  <error>
+  (markdown->pdf-data (markdown "text") '((colour . red)))
+)
+
+(
+  "Markdown PDF with unknown Mermaid key"
+  <error>
+  (markdown->pdf (markdown "text") '((mermaid . ((colour . red)))))
+)
+
+(
+  "Markdown PDF with invalid Mermaid scale"
+  <error>
+  (markdown->pdf-data (markdown "text") '((mermaid . ((scale . 0)))))
+)
+
+(
+  "Markdown PDF with unknown math key"
+  <error>
+  (markdown->pdf (markdown "text") '((math . ((colour . red)))))
+)
+
+(
+  "Markdown PDF data with invalid math scale"
+  <error>
+  (markdown->pdf-data (markdown "text") '((math . ((scale . -1)))))
+)
+
+(
+  "Markdown PDF with wrongly typed image base URL"
+  <error>
+  (markdown->pdf (markdown "text") '((image-base-url . 5)))
+)
+
+(
+  "Markdown PDF with title in configuration"
+  <error>
+  (markdown->pdf (markdown "text") '((title . "Title")))
+)
+
+(
+  "Markdown PDF data with page size in configuration"
+  <error>
+  (markdown->pdf-data (markdown "text") '((page-size . a4)))
+)
+
+(
+  "Markdown PDF with too many arguments"
+  <error>
+  (markdown->pdf (markdown "text") #f #f #f #f #f #f)
+)
+
+(
+  "Markdown PDF data with too many arguments"
+  <error>
+  (markdown->pdf-data (markdown "text") #f #f #f #f #f #f)
+)
+
+(
+  "Markdown PDF with wrongly typed title"
+  <error>
+  (markdown->pdf (markdown "text") #f #f #f 1)
+)
+
+(
+  "Markdown PDF with wrongly typed author"
+  <error>
+  (markdown->pdf-data (markdown "text") #f #f #f "Title" 'x)
+)
+
+(
+  "Markdown PDF with unknown page format"
+  <error>
+  (markdown->pdf (markdown "text") #f 'b5)
+)
+
+(
+  "Markdown PDF with invalid page size"
+  <error>
+  (markdown->pdf (markdown "text") #f "wide")
+)
+
+(
+  "Markdown PDF with page size of wrong length"
+  <error>
+  (markdown->pdf (markdown "text") #f '(100))
+)
+
+(
+  "Markdown PDF with negative page size"
+  <error>
+  (markdown->pdf (markdown "text") #f '(100 -200))
+)
+
+(
+  "Markdown PDF with page size as number"
+  <error>
+  (markdown->pdf-data (markdown "text") #f 100)
+)
+
+(
+  "Markdown PDF with invalid margins"
+  <error>
+  (markdown->pdf (markdown "text") #f #f "wide")
+)
+
+(
+  "Markdown PDF with negative margins"
+  <error>
+  (markdown->pdf (markdown "text") #f #f -1)
+)
+
+(
+  "Markdown PDF with margins list of wrong length"
+  <error>
+  (markdown->pdf (markdown "text") #f #f '(1 2 3))
+)
+
+(
+  "Markdown PDF with margins as symbol"
+  <error>
+  (markdown->pdf-data (markdown "text") #f #f 'wide)
+)
+
+(
+  "Markdown PDF with margins larger than the page"
+  <error>
+  (markdown->pdf (markdown "text") #f #f 400)
+)
+
+(
+  "Markdown PDF data with margins larger than the page"
+  <error>
+  (markdown->pdf-data (markdown "text") #f '(100 100) '(60 10))
+)
+
+(
+  "Markdown PDF of an invalid document"
+  <error>
+  (markdown->pdf "text")
+)
+
+(
+  "Markdown PDF data of an invalid document"
+  <error>
+  (markdown->pdf-data 1)
+)
+
+(
   "Markdown configuration with unknown key"
   <error>
   (markdown->html-doc (markdown "text") '((no-such-key . 1)))

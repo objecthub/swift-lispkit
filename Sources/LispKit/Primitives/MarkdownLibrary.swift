@@ -228,6 +228,10 @@ public final class MarkdownLibrary: NativeLibrary {
   /// protocol ensures that this variable is set once)
   private var mathRenderer: MathRenderer? = MathRenderer.shared
   
+  /// Delegate creating the pages of PDF documents; only used if library `(lispkit pdf)` cannot
+  /// be looked up
+  private let pdfDocumentDelegate = LispKitPDFDocumentDelegate()
+  
   /// Initialize symbols
   public required init(in context: Context) throws {
     self.blockType = .pair(.symbol(self.blockTypeTag), .null)
@@ -338,6 +342,8 @@ public final class MarkdownLibrary: NativeLibrary {
     self.define(Procedure("markdown->source-string", markdownToSourceString))
     self.define(Procedure("markdown->debug-string", markdownToDebugString))
     self.define(Procedure("markdown-style-config", markdownStyleConfig))
+    self.define(Procedure("markdown->pdf", markdownToPdf))
+    self.define(Procedure("markdown->pdf-data", markdownToPdfData))
     self.define(Procedure("markdown->styled-text", markdownToStyledText))
     self.define(Procedure("markdown->html-doc", markdownToHtmlDoc))
     self.define(Procedure("markdown->html", markdownToHtml))
@@ -351,6 +357,7 @@ public final class MarkdownLibrary: NativeLibrary {
     self.define(Procedure("text->debug-string", textToDebugString))
     self.define(Procedure("syntax-highlighting-theme", syntaxHighlightingTheme))
     self.define(Procedure("syntax-highlighting-themes", syntaxHighlightingThemes))
+    self.define(Procedure("save-markdown", saveMarkdown))
   }
   
   private func makeCase(_ type: Expr, _ sym: Symbol, _ exprs: Expr...) -> Expr {
@@ -1728,17 +1735,9 @@ public final class MarkdownLibrary: NativeLibrary {
     }
   }
   
-  /// Creates an attributed string generator from a configuration, i.e. an association list with
-  /// symbol keys (see `MarkdownLibrary.configKeys`). The first entry for a key is used. All
-  /// entries are optional; `#f` and `()` stand for the default configuration.
-  ///
-  /// Diagrams (entry `mermaid`) and formulas (entry `math`, enabled by default) are only
-  /// enabled if `diagrams` is true; they are drawn when rendering attributed strings, but cannot
-  /// be included in HTML documents.
-  private func attributedStringGenerator(config: Expr?,
-                                         diagrams: Bool) throws -> AttributedStringGenerator {
-    let entries = try self.configEntries(config, allowed: MarkdownLibrary.configKeys)
-    // Appearance: a preset, which the entries of the configuration refine
+  /// Creates the style of documents from a configuration: a preset, which the entries of the
+  /// configuration refine.
+  private func style(from entries: ConfigEntries) throws -> AttributedStringGenerator.Style {
     var style: AttributedStringGenerator.Style
     switch try self.configSymbol(entries, "style", in: ["default", "light", "dark"]) {
       case .some("default"):
@@ -1830,23 +1829,12 @@ public final class MarkdownLibrary: NativeLibrary {
     if let css = try self.configString(entries, "custom-style") {
       style.customStyle = css
     }
-    var options: AttributedStringGenerator.Options = []
-    if try self.configBool(entries, "tight-lists") ?? false {
-      options.insert(.tightLists)
-    }
-    let alignListMarkers = try self.configBool(entries, "align-list-markers") ?? false
-    let imageBaseUrl = try self.configURL(entries, "image-base-url")
-    // Mermaid diagrams
-    var mermaid: MermaidConfig? = nil
-    if let (_, value) = entries["mermaid"] {
-      mermaid = try self.mermaidConfig(value)
-    }
-    // Formulas, which are typeset unless the configuration says otherwise
-    var math: MathConfig? = MathConfig()
-    if let (_, value) = entries["math"] {
-      math = try self.mathConfig(value)
-    }
-    // Rendering options
+    return style
+  }
+  
+  /// Creates the options for rendering documents from a configuration: a preset, which the
+  /// entries of the configuration refine.
+  private func renderingOptions(from entries: ConfigEntries) throws -> RenderingOptions {
     let preset: RenderingOptions
     switch try self.configSymbol(entries, "preset", in: ["trusted", "untrusted"]) {
       case .some("untrusted"):
@@ -1871,7 +1859,7 @@ public final class MarkdownLibrary: NativeLibrary {
       }
       textSizeMultiplier = multiplier
     }
-    let renderingOptions = RenderingOptions(
+    return RenderingOptions(
       baseUrl: try self.configURL(entries, "base-url") ?? preset.baseUrl,
       timeout: timeout,
       localImages: try self.configImageAccess(entries, "local-images", remote: false) ??
@@ -1882,6 +1870,36 @@ public final class MarkdownLibrary: NativeLibrary {
                        preset.imageExtensions,
       safeMode: try self.configBool(entries, "safe-mode") ?? preset.safeMode,
       textSizeMultiplier: textSizeMultiplier)
+  }
+  
+  /// Creates an attributed string generator from a configuration, i.e. an association list with
+  /// symbol keys (see `MarkdownLibrary.configKeys`). The first entry for a key is used. All
+  /// entries are optional; `#f` and `()` stand for the default configuration.
+  ///
+  /// Diagrams (entry `mermaid`) and formulas (entry `math`, enabled by default) are only
+  /// enabled if `diagrams` is true; they are drawn when rendering attributed strings, but cannot
+  /// be included in HTML documents.
+  private func attributedStringGenerator(config: Expr?,
+                                         diagrams: Bool) throws -> AttributedStringGenerator {
+    let entries = try self.configEntries(config, allowed: MarkdownLibrary.configKeys)
+    let style = try self.style(from: entries)
+    var options: AttributedStringGenerator.Options = []
+    if try self.configBool(entries, "tight-lists") ?? false {
+      options.insert(.tightLists)
+    }
+    let alignListMarkers = try self.configBool(entries, "align-list-markers") ?? false
+    let imageBaseUrl = try self.configURL(entries, "image-base-url")
+    // Mermaid diagrams
+    var mermaid: MermaidConfig? = nil
+    if let (_, value) = entries["mermaid"] {
+      mermaid = try self.mermaidConfig(value)
+    }
+    // Formulas, which are typeset unless the configuration says otherwise
+    var math: MathConfig? = MathConfig()
+    if let (_, value) = entries["math"] {
+      math = try self.mathConfig(value)
+    }
+    let renderingOptions = try self.renderingOptions(from: entries)
     if diagrams, let math {
       return MathAttributedStringGenerator(version: .OS26,
                                            options: options,
@@ -2059,20 +2077,20 @@ public final class MarkdownLibrary: NativeLibrary {
         attribStrGen.htmlGenerator().generate(doc: try self.internMarkdown(block: md))))
   }
   
-  /// The outcome of rendering an attributed string asynchronously.
-  private final class RenderingOutcome: @unchecked Sendable {
+  /// The outcome of rendering a document, e.g. into an attributed string, asynchronously.
+  private final class RenderingOutcome<Value, Failure: Error>: @unchecked Sendable {
     private let lock = NSLock()
     private let semaphore = DispatchSemaphore(value: 0)
-    private var result: Result<NSAttributedString, AttributedStringGenerator.RenderingError>?
+    private var result: Result<Value, Failure>?
     
-    func store(_ result: Result<NSAttributedString, AttributedStringGenerator.RenderingError>) {
+    func store(_ result: Result<Value, Failure>) {
       self.lock.lock()
       self.result = result
       self.lock.unlock()
       self.semaphore.signal()
     }
     
-    var current: Result<NSAttributedString, AttributedStringGenerator.RenderingError>? {
+    var current: Result<Value, Failure>? {
       self.lock.lock()
       defer { self.lock.unlock() }
       return self.result
@@ -2109,31 +2127,37 @@ public final class MarkdownLibrary: NativeLibrary {
     }
   }
   
-  /// Renders a Markdown document asynchronously into an attributed string and waits for the
-  /// result. The HTML importer delivers its result on the main thread. If this is the main
-  /// thread, the run loop gets executed while waiting; otherwise, the calling thread just waits.
-  private func renderAttributedString(_ doc: Block,
-                                      with generator: AttributedStringGenerator) throws
-                                      -> NSAttributedString {
-    let outcome = RenderingOutcome()
-    generator.generateAsync(doc: doc) { result in
-      outcome.store(result)
-    }
-    // MarkdownKit reports a timeout after `timeout` plus a grace period of five seconds, but it
-    // does so on the main thread. If that thread is blocked, e.g. because it waits for this
-    // thread, the result never arrives; the deadline makes sure this thread does not wait forever.
-    // Diagrams get rendered first, which takes up to the timeout of the diagrams each.
+  /// Returns the time by which rendering `doc` with the given options should be finished, or `nil`
+  /// if there is no time limit. MarkdownKit reports a timeout after `timeout` plus a grace period
+  /// of five seconds, but it does so on the main thread. If that thread is blocked, e.g. because
+  /// it waits for this thread, the result never arrives; the deadline makes sure that this thread
+  /// does not wait forever. Diagrams get rendered first, which takes up to the timeout of the
+  /// diagrams each, if there are any (`mermaid`). Formulas are rendered in one batch, which takes
+  /// up to the timeout of the formulas (`math`), if there is any.
+  private func renderingDeadline(for doc: Block,
+                                 options: RenderingOptions,
+                                 mermaid: MermaidConfig?,
+                                 math: MathConfig?) -> Date? {
     var diagrams = Set<String>()
-    if generator.mermaidConfig != nil {
+    if mermaid != nil {
       self.collectMermaidSources(in: doc, into: &diagrams)
     }
-    let diagramTime = Double(diagrams.count) * ((generator.mermaidConfig?.timeout ?? 0.0) + 5.0)
-    // Formulas are rendered in one batch, which takes up to the timeout of the formulas (if any)
-    let formulaTimeout = (generator as? MathAttributedStringGenerator)?.mathConfig.timeout ?? 0.0
+    let diagramTime = Double(diagrams.count) * ((mermaid?.timeout ?? 0.0) + 5.0)
+    let formulaTimeout = math?.timeout ?? 0.0
     let formulaTime = formulaTimeout > 0.0 ? formulaTimeout + 5.0 : 0.0
-    let deadline = generator.renderingOptions.timeout.map {
+    return options.timeout.map {
       Date(timeIntervalSinceNow: $0 + 10.0 + diagramTime + formulaTime)
     }
+  }
+  
+  /// Waits for the outcome of rendering a document asynchronously and returns its value. The
+  /// HTML importer delivers its result on the main thread. If this is the main thread, the run
+  /// loop gets executed while waiting; otherwise, the calling thread just waits. Waiting ends
+  /// when the outcome is available, the evaluation is aborted (an error is thrown), or the
+  /// `deadline` has passed (an error is thrown). There is no time limit if `deadline` is `nil`.
+  private func awaitRendering<Value, Failure: Error>(
+                 _ outcome: RenderingOutcome<Value, Failure>,
+                 until deadline: Date?) throws -> Value {
     while outcome.current == nil {
       if self.context.evaluator.threads.current?.value.machine?.abortionRequested ?? false {
         throw RuntimeError.abortion()
@@ -2152,17 +2176,261 @@ public final class MarkdownLibrary: NativeLibrary {
       }
     }
     switch outcome.current! {
-      case .success(let astr):
-        return astr
+      case .success(let value):
+        return value
       case .failure(let error):
         throw RuntimeError.eval(.cannotRenderMarkdown, .makeString(error.localizedDescription))
     }
   }
   
-  private func markdownToStyledText(md: Expr, config: Expr?) throws -> Expr {
+  /// Renders a Markdown document asynchronously into an attributed string and waits for the
+  /// result.
+  private func renderAttributedString(_ doc: Block,
+                                      with generator: AttributedStringGenerator) throws
+                                      -> NSAttributedString {
+    let outcome = RenderingOutcome<NSAttributedString, AttributedStringGenerator.RenderingError>()
+    generator.generateAsync(doc: doc) { result in
+      outcome.store(result)
+    }
+    return try self.awaitRendering(
+      outcome,
+      until: self.renderingDeadline(for: doc,
+                                    options: generator.renderingOptions,
+                                    mermaid: generator.mermaidConfig,
+                                    math: (generator as? MathAttributedStringGenerator)?.mathConfig))
+  }
+  
+  // MARK: - Generating PDF documents
+  
+  /// Returns the size of the pages of a PDF document for the argument `value`; `nil` if the
+  /// value is `#f`. The value is the name of a page format (`a4` or `letter`) as a symbol or a
+  /// string, a string with a width and a height such as `"210x297mm"` (see
+  /// `MarkdownUtil.pageSize(_:)`), or a list of two positive numbers, the width and the height
+  /// in points.
+  private func pageSize(from value: Expr) throws -> CGSize? {
+    let size: CGSize?
+    switch value {
+      case .false:
+        return nil
+      case .symbol(let sym):
+        size = MarkdownUtil.pageSize(sym.identifier)
+      case .string(let str):
+        size = MarkdownUtil.pageSize(str as String)
+      case .pair(let width, .pair(let height, .null)):
+        if let w = try? width.asDouble(coerce: true), let h = try? height.asDouble(coerce: true),
+           w.isFinite, h.isFinite, w > 0.0, h > 0.0 {
+          size = CGSize(width: w, height: h)
+        } else {
+          size = nil
+        }
+      default:
+        size = nil
+    }
+    guard let size else {
+      throw RuntimeError.eval(.notAValidPdfPageSize, value)
+    }
+    return size
+  }
+  
+  /// Returns the margins of the pages of a PDF document for the argument `value`; `nil` if the
+  /// value is `#f`. The value is a width in points for all edges, a string such as
+  /// `"20mm, 15mm"` (see `MarkdownUtil.Insets.init(_:)`), or a list of one, two or four widths
+  /// in points, as the margins of a page are written in CSS: one width is the width of all
+  /// edges, two are the widths of the upper and the lower edge, and of the left and the right
+  /// edge, and four are the widths of the upper, the right, the lower and the left edge.
+  private func margins(from value: Expr) throws -> MarkdownUtil.Insets? {
+    func width(_ expr: Expr) throws -> CGFloat {
+      guard let x = try? expr.asDouble(coerce: true), x.isFinite, x >= 0.0 else {
+        throw RuntimeError.eval(.notAValidPdfMargins, value)
+      }
+      return CGFloat(x)
+    }
+    switch value {
+      case .false:
+        return nil
+      case .string(let str):
+        guard let insets = MarkdownUtil.Insets(str as String) else {
+          throw RuntimeError.eval(.notAValidPdfMargins, value)
+        }
+        return insets
+      case .pair(_, _):
+        var widths: [CGFloat] = []
+        var list = value
+        while case .pair(let next, let rest) = list {
+          widths.append(try width(next))
+          list = rest
+        }
+        guard list.isNull else {
+          throw RuntimeError.eval(.notAValidPdfMargins, value)
+        }
+        switch widths.count {
+          case 1:
+            return MarkdownUtil.Insets(widths[0])
+          case 2:
+            return MarkdownUtil.Insets(horizontal: widths[1], vertical: widths[0])
+          case 4:
+            return MarkdownUtil.Insets(top: widths[0], left: widths[3],
+                                       bottom: widths[2], right: widths[1])
+          default:
+            throw RuntimeError.eval(.notAValidPdfMargins, value)
+        }
+      default:
+        return MarkdownUtil.Insets(try width(value))
+    }
+  }
+  
+  /// Arguments of the procedures generating documents: the `leading` arguments of procedure
+  /// `name`, followed by the optional arguments `config`, `page-size`, `margins`, `title`, and
+  /// `author`; `#f` stands for the default. Throws an argument count error for `name` if there
+  /// are too many arguments.
+  private func documentArguments(_ name: String,
+                                 _ leading: Exprs,
+                                 _ args: Arguments) throws -> (Expr, Expr, Expr, Expr, Expr) {
+    guard let res = args.optional(Expr.false, Expr.false, Expr.false, Expr.false, Expr.false) else {
+      throw RuntimeError.argumentCount(of: name,
+                                       min: leading.count,
+                                       max: leading.count + 5,
+                                       args: .makeList(leading + args))
+    }
+    return res
+  }
+  
+  /// Returns the configuration of diagrams for PDF documents from the entries of a configuration:
+  /// `nil` if the entry `mermaid` is `#f`, i.e. if diagrams are shown as code. Unlike for styled
+  /// text, diagrams are drawn by default, i.e. if there is no entry `mermaid`.
+  private func pdfMermaidConfig(_ entries: ConfigEntries) throws -> MermaidConfig? {
+    guard let (_, value) = entries["mermaid"] else {
+      return MermaidConfig.default
+    }
+    return try self.mermaidConfig(value)
+  }
+  
+  /// Returns the configuration of formulas for PDF documents from the entries of a configuration:
+  /// `nil` if the entry `math` is `#f`, i.e. if formulas are shown as they were written. Like for
+  /// styled text, formulas are typeset by default, i.e. if there is no entry `math`.
+  private func pdfMathConfig(_ entries: ConfigEntries) throws -> MathConfig? {
+    guard let (_, value) = entries["math"] else {
+      return MathConfig()
+    }
+    return try self.mathConfig(value)
+  }
+  
+  /// The options for creating documents with `MarkdownUtil`.
+  private struct DocumentOptions {
+    let style: AttributedStringGenerator.Style
+    let renderingOptions: RenderingOptions
+    let mermaid: MermaidConfig?
+    let math: MathConfig?
+    let imageBaseUrl: URL?
+    let pageSize: CGSize
+    let margins: MarkdownUtil.Insets
+    let title: String?
+    let author: String?
+  }
+  
+  /// Creates the options for creating documents with `MarkdownUtil` from the arguments of the
+  /// procedures generating documents, see `documentArguments`. The entries `tight-lists` and
+  /// `align-list-markers` of the configuration are not supported by `MarkdownUtil`. Page size
+  /// and margins are only used for PDF documents.
+  private func documentOptions(config: Expr,
+                               pageSize: Expr,
+                               margins: Expr,
+                               title: Expr,
+                               author: Expr) throws -> DocumentOptions {
+    let entries = try self.configEntries(config, allowed: MarkdownLibrary.configKeys)
+    return DocumentOptions(
+      style: try self.style(from: entries),
+      renderingOptions: try self.renderingOptions(from: entries),
+      mermaid: try self.pdfMermaidConfig(entries),
+      math: try self.pdfMathConfig(entries),
+      imageBaseUrl: try self.configURL(entries, "image-base-url"),
+      pageSize: try self.pageSize(from: pageSize) ?? MarkdownUtil.usLetter,
+      margins: try self.margins(from: margins) ?? MarkdownUtil.Insets(72.0),
+      title: title.isFalse ? nil : try title.asString(),
+      author: author.isFalse ? nil : try author.asString())
+  }
+  
+  /// Creates a document from the Markdown document `doc` with `MarkdownUtil`: `body` gets the
+  /// utility, which has the style of `options`, and the document is available when `body` is
+  /// done. This function waits for the result. `images` is true if the document contains the
+  /// images of diagrams and formulas, which takes more time.
+  private func createDocument<Value>(_ doc: Block,
+                                     options: DocumentOptions,
+                                     images: Bool,
+                                     _ body: @escaping (MarkdownUtil) async throws -> Value) throws
+                                     -> Value {
+    let util = MarkdownUtil(mermaidRenderer: self.mermaidRenderer,
+                            mathRenderer: self.mathRenderer,
+                            syntaxHighlighter: self.syntaxHighlighter,
+                            style: options.style)
+    let outcome = RenderingOutcome<Value, Error>()
+    Task {
+      do {
+        outcome.store(.success(try await body(util)))
+      } catch {
+        outcome.store(.failure(error))
+      }
+    }
+    return try self.awaitRendering(
+      outcome,
+      until: self.renderingDeadline(for: doc,
+                                    options: options.renderingOptions,
+                                    mermaid: images ? options.mermaid : nil,
+                                    math: images ? options.math : nil))
+  }
+  
+  /// Renders a Markdown document as PDF document and returns its data.
+  private func pdfData(md: Expr, options: DocumentOptions) throws -> Data {
+    let doc = try self.internMarkdown(block: md)
+    return try self.createDocument(doc, options: options, images: true) { util in
+      try await util.pdf(doc,
+                         title: options.title,
+                         author: options.author,
+                         pageSize: options.pageSize,
+                         margins: options.margins,
+                         mermaid: options.mermaid,
+                         math: options.math,
+                         imageBaseUrl: options.imageBaseUrl,
+                         renderingOptions: options.renderingOptions)
+    }
+  }
+  
+  private func markdownToPdf(md: Expr, args: Arguments) throws -> Expr {
+    let (config, pageSize, margins, title, author) =
+           try self.documentArguments("markdown->pdf", [md], args)
+    let data = try self.pdfData(md: md,
+                                options: try self.documentOptions(config: config,
+                                                                  pageSize: pageSize,
+                                                                  margins: margins,
+                                                                  title: title,
+                                                                  author: author))
+    guard let document = LispKitPDFDocument(data: data, delegate: self.pdfDocumentDelegate) else {
+      throw RuntimeError.eval(.cannotRenderMarkdown,
+                              .makeString(MarkdownUtil.PDFError.cannotCreateDocument
+                                            .localizedDescription))
+    }
+    return .object(NativePDFDocument(document: document))
+  }
+  
+  private func markdownToPdfData(md: Expr, args: Arguments) throws -> Expr {
+    let (config, pageSize, margins, title, author) =
+          try self.documentArguments("markdown->pdf-data", [md], args)
+    let data = try self.pdfData(md: md,
+                                options: try self.documentOptions(config: config,
+                                                                  pageSize: pageSize,
+                                                                  margins: margins,
+                                                                  title: title,
+                                                                  author: author))
+    return .bytes(MutableBox([UInt8](data)))
+  }
+  
+  private func markdownToStyledText(md: Expr, config: Expr?, rtfd: Expr?) throws -> Expr {
     let attribStrGen = try self.attributedStringGenerator(config: config, diagrams: true)
-    let astr = try self.renderAttributedString(try self.internMarkdown(block: md),
+    var astr = try self.renderAttributedString(try self.internMarkdown(block: md),
                                                with: attribStrGen)
+    if rtfd?.isTrue ?? false {
+      astr = astr.preparedForRTFD()
+    }
     return .object(StyledText(NSMutableAttributedString(attributedString: astr)))
   }
   
@@ -2842,6 +3110,60 @@ public final class MarkdownLibrary: NativeLibrary {
     } else {
       return .false
     }
+  }
+  
+  /// Implements `save-markdown`, which saves a Markdown document in an RTF, RTFD or PDF file.
+  private func saveMarkdown(filename: Expr,
+                            md: Expr,
+                            format: Expr,
+                            args: Arguments) throws -> Expr {
+    let (config, pageSize, margins, title, author) =
+           try self.documentArguments("save-markdown", [filename, md, format], args)
+    let path = self.context.fileHandler.path(try filename.asPath(),
+                                             relativeTo: self.context.evaluator.currentDirectoryPath)
+    let type = try format.asSymbol().identifier
+    guard type == "rtf" || type == "rtfd" || type == "pdf" else {
+      throw RuntimeError.eval(.unsupportedDocType, format)
+    }
+    let options = try self.documentOptions(config: config,
+                                           pageSize: pageSize,
+                                           margins: margins,
+                                           title: title,
+                                           author: author)
+    let url = URL(fileURLWithPath: path)
+    do {
+      switch type {
+        case "pdf":
+          try self.pdfData(md: md, options: options).write(to: url, options: .atomic)
+        case "rtf":
+          let doc = try self.internMarkdown(block: md)
+          let data = try self.createDocument(doc, options: options, images: false) { util in
+            try await util.rtf(doc,
+                               title: options.title,
+                               author: options.author,
+                               imageBaseUrl: options.imageBaseUrl,
+                               renderingOptions: options.renderingOptions)
+          }
+          try data.write(to: url, options: .atomic)
+        default:
+          let doc = try self.internMarkdown(block: md)
+          let document = try self.createDocument(doc, options: options, images: true) { util in
+            try await util.rtfd(doc,
+                                title: options.title,
+                                author: options.author,
+                                mermaid: options.mermaid,
+                                math: options.math,
+                                imageBaseUrl: options.imageBaseUrl,
+                                renderingOptions: options.renderingOptions)
+          }
+          try document.write(to: url, options: .atomic, originalContentsURL: nil)
+      }
+    } catch let error as RuntimeError {
+      throw error
+    } catch {
+      throw RuntimeError.os(error)
+    }
+    return .void
   }
 }
 
