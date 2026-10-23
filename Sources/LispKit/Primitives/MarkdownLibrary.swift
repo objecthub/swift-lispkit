@@ -337,6 +337,7 @@ public final class MarkdownLibrary: NativeLibrary {
     self.define(Procedure("markdown?", isMarkdown))
     self.define(Procedure("markdown=?", markdownEquals))
     self.define(Procedure("markdown-equals?", markdownStructurallyEquals))
+    self.define(Procedure("normalize-markdown", normalizeMarkdown))
     self.define(Procedure("markdown->string", markdownToString))
     self.define(Procedure("markdown->formatted-string", markdownToFormattedString))
     self.define(Procedure("markdown->source-string", markdownToSourceString))
@@ -932,6 +933,39 @@ public final class MarkdownLibrary: NativeLibrary {
     let lhsMd = try self.internMarkdown(block: lhs)
     let rhsMd = try self.internMarkdown(block: rhs)
     return .makeBoolean(lhsMd.normalized == rhsMd.normalized)
+  }
+  
+  /// Implements `normalize-markdown`, which returns the normal form of Markdown objects, i.e.
+  /// blocks (including documents), list items, inline text, and lists of these.
+  private func normalizeMarkdown(_ expr: Expr) throws -> Expr {
+    switch expr {
+      case .null:
+        return .null
+      case .tagged(self.blockType, _):
+        return self.externMarkdown(try self.internMarkdown(block: expr).normalized) ?? expr
+      case .tagged(self.listItemType, _):
+        return self.externMarkdown(try self.internMarkdown(item: expr).normalized) ?? expr
+      case .tagged(self.inlineType, _):
+        // Normalizing a single fragment merges nothing; an empty text fragment is removed
+        // by normalization, but an inline object stays an inline object
+        let text = Text(try self.internMarkdown(fragment: expr)).normalized
+        if let fragment = text.first, let res = self.externMarkdown(fragment) {
+          return res
+        }
+        return self.makeCase(self.inlineType, self.text, .makeString(""))
+      case .pair(.tagged(self.blockType, _), _):
+        return self.externMarkdown(
+                 Blocks(try self.internMarkdown(blocks: expr).map { $0.normalized }))
+      case .pair(.tagged(self.listItemType, _), _):
+        return self.externMarkdown(
+                 Blocks(try self.internMarkdown(items: expr).map { $0.normalized }))
+      case .pair(.tagged(self.inlineType, _), _):
+        return self.externMarkdown(try self.internMarkdown(text: expr).normalized)
+      default:
+        throw RuntimeError.custom(
+          "type error", "normalize-markdown expects a block, list item, or inline object, " +
+          "or a list of such objects; received \(expr)", [])
+    }
   }
   
   private func markdownStructurallyEquals(_ lhs: Expr, _ rhs: Expr) throws -> Expr {
@@ -2768,6 +2802,18 @@ public final class MarkdownLibrary: NativeLibrary {
     return text
   }
 
+  /// Returns the title of a link or image for the Scheme value `expr`, which is a string or `#f`
+  /// if there is no title. Like the Markdown parser, which reads `[a](b "")` as a link without
+  /// title, this function treats an empty title as no title; this way, documents written by
+  /// `markdown->source-string` are parsed into equal documents.
+  private func linkTitle(_ expr: Expr) throws -> String? {
+    guard !expr.isFalse else {
+      return nil
+    }
+    let title = try expr.asString()
+    return title.isEmpty ? nil : title
+  }
+
   private func internMarkdown(fragment expr: Expr) throws -> TextFragment {
     guard case .tagged(self.inlineType,
                        .pair(.symbol(let sym), .pair(let fst, let args))) = expr else {
@@ -2792,7 +2838,7 @@ public final class MarkdownLibrary: NativeLibrary {
         if case .pair(let uri, .pair(let title, .null)) = args {
           return .link(try self.internMarkdown(text: fst),
                        uri.isFalse ? nil : try uri.asString(),
-                       title.isFalse ? nil : try title.asString())
+                       try self.linkTitle(title))
         }
       case self.autoLink:
         return .autolink(.uri, Substring(try fst.asString()))
@@ -2808,7 +2854,7 @@ public final class MarkdownLibrary: NativeLibrary {
             case .string(let str), .pair(.string(let str), _):
               return .image(try self.internMarkdown(text: fst),
                             uri.isFalse ? nil : try uri.asString(),
-                            str as String)
+                            (str as String).isEmpty ? nil : str as String)
             default:
               break
           }

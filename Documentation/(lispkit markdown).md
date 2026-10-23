@@ -78,13 +78,13 @@ Markdown text is represented as lists of inline text segments, each represented 
   (strikethrough text)
       where (markdown-text? text)
   (link text uri title)
-      where (and (markdown-text? text) (string? uri) (string? title))
+      where (and (markdown-text? text) (opt string? uri) (opt string? title))
   (auto-link uri)
       where (string? uri)
   (email-auto-link email)
       where (string? uri)
   (image text uri title)
-      where (and (markdown-text? text) (string? uri) (string? title))
+      where (and (markdown-text? text) (opt string? uri) (opt string? title))
   (html tag)
       where (string? tag)
   (math tex display? source)
@@ -92,7 +92,7 @@ Markdown text is represented as lists of inline text segments, each represented 
   (line-break hard?))
 ```
 
-`(text str)` refers to a text segment consisting of string _str_. `(code str)` refers to a code string _str_ (often displayed as verbatim text). `(emph text)` represents emphasized _text_ (often displayed as italics). `(strong text)` represents _text_ in boldface. `(underline text)` represents underlined _text_ and `(strikethrough text)` represents _text_ that is struck through; both are only created when parsing Markdown with the dialects `full`, `math`, or `latex` (see `markdown` below). `(link text uri title)` represents a hyperlink with _text_ linking to _uri_ and _title_ representing a title for the link. `(auto-link uri)` is a link where _uri_ is both the text and the destination URI. `(email-auto-link email)` is a "mailto:" link to the given email address _email_. `(image text uri title)` inserts an image at _uri_ with image description _text_ and image link title _title_. `(html tag)` represents a single HTML tag of the form `<`_tag_`>`. `(math tex display? source)` represents a formula within a line of text, where _tex_ is its LaTeX and _display?_ is `#t` for display math. _source_ is the formula as it was written, including its delimiters (e.g. `"$x^2$"` or `"\\(x^2\\)"`); `#f` stands for the LaTeX between dollar signs (`$`_tex_`$`, or `$$`_tex_`$$` for display math). Finally, `(line-break #f)` introduces a "soft line break", whereas `(line-break #t)` inserts a "hard line break".
+`(text str)` refers to a text segment consisting of string _str_. `(code str)` refers to a code string _str_ (often displayed as verbatim text). `(emph text)` represents emphasized _text_ (often displayed as italics). `(strong text)` represents _text_ in boldface. `(underline text)` represents underlined _text_ and `(strikethrough text)` represents _text_ that is struck through; both are only created when parsing Markdown with the dialects `full`, `math`, or `latex` (see `markdown` below). `(link text uri title)` represents a hyperlink with _text_ linking to _uri_ and _title_ representing a title for the link. _uri_ and _title_ are optional: they are `#f` if the link has no destination or no title, which is what the parser returns for `[text](uri)`. An empty title is the same as no title, as it is for the Markdown parser. `(auto-link uri)` is a link where _uri_ is both the text and the destination URI. `(email-auto-link email)` is a "mailto:" link to the given email address _email_. `(image text uri title)` inserts an image at _uri_ with image description _text_ and image link title _title_; _uri_ and _title_ are optional like for `link`. `(html tag)` represents a single HTML tag of the form `<`_tag_`>`. `(math tex display? source)` represents a formula within a line of text, where _tex_ is its LaTeX and _display?_ is `#t` for display math. _source_ is the formula as it was written, including its delimiters (e.g. `"$x^2$"` or `"\\(x^2\\)"`); `#f` stands for the LaTeX between dollar signs (`$`_tex_`$`, or `$$`_tex_`$$` for display math). Finally, `(line-break #f)` introduces a "soft line break", whereas `(line-break #t)` inserts a "hard line break".
 
 ## Creating Markdown documents
 
@@ -222,6 +222,22 @@ Returns `#t` if markdown documents _lhs_ and _rhs_ are equal after normalizing t
 **(markdown-equals? _lhs rhs_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 
 Returns `#t` if markdown documents _lhs_ and _rhs_ have the same structure; otherwise it returns `#f`. In contrast to `markdown=?`, the documents are not normalized before they get compared. Thus, two documents with the same text split into different `text` fragments are not equal.
+
+**(normalize-markdown _obj_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
+
+Returns the normal form of the Markdown object _obj_. _obj_ is a block (such as a document), a list item, an inline object, or a list of blocks, list items, or inline objects (i.e. inline text); the result is an object of the same kind. The normal form of `()` is `()`. The following changes are made:
+
+- The parser splits text into several `text` fragments at characters that may start markup, such as `(`, `[`, or `*`, and does so differently for escaped characters. In the normal form, adjacent `text` fragments are merged into one fragment, and empty `text` fragments are removed. This holds for the text of paragraphs, headings, table cells, and definition lists, as well as for the text within emphasis, links, and images.
+- The line terminators of the lines of code blocks, HTML blocks, and formulas that are blocks are `\n`.
+
+Texts that mean the same, such as `a (b)` and `a \(b\)`, are parsed into documents with the same normal form. Procedures `markdown=?`, `markdown-block=?`, `markdown-list-item=?`, and `markdown-inline=?` compare normal forms: `(markdown=? lhs rhs)` is the same as `(markdown-equals? (normalize-markdown lhs) (normalize-markdown rhs))`. An inline object remains an inline object when it is normalized; an empty `text` fragment becomes `(text "")`.
+
+```scheme
+(markdown->debug-string (markdown "2 * 3"))
+⇒  "document(paragraph(text(\"2 \"), text(\"*\"), text(\" 3\")))"
+(markdown->debug-string (normalize-markdown (markdown "2 * 3")))
+⇒  "document(paragraph(text(\"2 * 3\")))"
+```
 
 **(markdown _str_)** <span style="float:right;text-align:rigth;">[procedure]</span>   
 **(markdown _str dialect_)**   

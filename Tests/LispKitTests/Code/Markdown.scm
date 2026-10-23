@@ -355,6 +355,45 @@
 )
 
 (
+  "Markdown links and images with empty titles"
+  (#t #t #t #t #t #t #t #t #t #t #t #t #t #t)
+  (import (lispkit string))
+  (define (has? str sub) (and (string-contains str sub) #t))
+  (define (inline-doc make title)
+    (document (list (paragraph (list (make (list (text "a")) "b" title))))))
+  (define parsed-link (markdown "[a](b)"))
+  (define parsed-image (markdown "![a](b)"))
+  (define titled-link (markdown "[a](b \"t\")"))
+  (list
+    (markdown-equals? (inline-doc link "") (inline-doc link #f))
+    (markdown-equals? (inline-doc image "") (inline-doc image #f))
+    (markdown-inline=? (link (list (text "a")) "b" "") (link (list (text "a")) "b" #f))
+    (markdown-inline-equals? (image (list (text "a")) "b" "") (image (list (text "a")) "b" #f))
+    (markdown=? (inline-doc link "") parsed-link)
+    (markdown=? (inline-doc image "") parsed-image)
+    (not (markdown-equals? (inline-doc link "t") parsed-link))
+    (markdown-equals? (inline-doc link "t") titled-link)
+    (equal? (markdown->source-string (inline-doc link "")) "[a](b)\n")
+    (equal? (markdown->source-string (inline-doc image "")) "![a](b)\n")
+    (equal? (markdown->source-string (inline-doc link "t")) "[a](b \"t\")\n")
+    (markdown=? (inline-doc link "") (markdown (markdown->source-string (inline-doc link ""))))
+    (not (has? (markdown->html (inline-doc link "")) "title"))
+    (has? (markdown->html (inline-doc image "t")) "title=\"t\""))
+)
+
+(
+  "Markdown link with a title that is no string"
+  <error>
+  (link (list (text "a")) "b" 1)
+)
+
+(
+  "Markdown image with a title that is no string"
+  <error>
+  (image (list (text "a")) "b" 'title)
+)
+
+(
   "Markdown PDF data"
   (#t #t #t #t #t #t #t)
   (import (lispkit bytevector))
@@ -1113,6 +1152,80 @@
   "Markdown inline equality requires inline text"
   <error>
   (markdown-inline-equals? (text "a") (paragraph '()))
+)
+
+(
+  "Markdown normalization"
+  (#t #t #t #t #t #t #t #t #t #t #t #t #t #t)
+  (define split-doc (markdown "2 * 3 and (x) *a (b)* [c (d)](e \"f\")"))
+  (define whole-doc (markdown "2 \\* 3 and \\(x\\) *a \\(b\\)* [c \\(d\\)](e \"f\")" 'standard))
+  (define frag-text (list (text "a") (text " ") (emph (list (text "b") (text "c"))) (text "")))
+  (define frag-item (bullet #\- #t (list (paragraph (list (text "a") (text "b"))))))
+  (define merged-item (bullet #\- #t (list (paragraph (list (text "ab"))))))
+  (list
+    (equal? (markdown->debug-string (normalize-markdown split-doc))
+            "document(paragraph(text(\"2 * 3 and (x) \"), emph(text(\"a (b)\")), text(\" \"), link(text(\"c (d)\"), \"e\", \"f\")))")
+    (not (markdown-equals? split-doc whole-doc))
+    (markdown-equals? (normalize-markdown split-doc) (normalize-markdown whole-doc))
+    (markdown-equals? (normalize-markdown split-doc) (normalize-markdown (normalize-markdown split-doc)))
+    (eq? (markdown=? split-doc whole-doc)
+         (markdown-equals? (normalize-markdown split-doc) (normalize-markdown whole-doc)))
+    (markdown? (normalize-markdown split-doc))
+    (markdown-inline-equals? (car (normalize-markdown (list (emph (list (text "b") (text "c"))))))
+                             (emph (list (text "bc"))))
+    (equal? (map markdown->debug-string
+                 (list (document (list (paragraph (normalize-markdown frag-text))))))
+            '("document(paragraph(text(\"a \"), emph(text(\"bc\"))))"))
+    (markdown-list-item-equals? (normalize-markdown frag-item) merged-item)
+    (every? (lambda (item) (markdown-list-item-equals? item merged-item))
+            (normalize-markdown (list frag-item frag-item)))
+    (markdown-block-equals? (normalize-markdown (paragraph (list (text "a") (text "b"))))
+                            (paragraph (list (text "ab"))))
+    (and (markdown-inline-equals? (normalize-markdown (text "")) (text ""))
+         (markdown-inline-equals? (normalize-markdown (emph (list (text "b") (text "c"))))
+                                  (emph (list (text "bc")))))
+    (markdown-block-equals? (normalize-markdown (fenced-code "x" (list "a\r\n" "b\r")))
+                            (fenced-code "x" (list "a\n" "b\n")))
+    (null? (normalize-markdown '())))
+)
+
+(
+  "Markdown normalization of lists of objects"
+  (#t #t #t)
+  (define frag-pars (list (paragraph (list (text "a") (text "b"))) (thematic-break)))
+  (define frag-text (list (text "a") (text "b") (code "c") (text "d") (text "e")))
+  (list
+    (equal? (map markdown->debug-string
+                 (map (lambda (block) (document (list block))) (normalize-markdown frag-pars)))
+            '("document(paragraph(text(\"ab\")))" "document(thematicBreak)"))
+    (equal? (map markdown->debug-string
+                 (list (document (list (paragraph (normalize-markdown frag-text))))))
+            '("document(paragraph(text(\"ab\"), code(\"c\"), text(\"de\")))"))
+    (markdown-text? (normalize-markdown frag-text)))
+)
+
+(
+  "Markdown normalization of a string"
+  <error>
+  (normalize-markdown "text")
+)
+
+(
+  "Markdown normalization of a number"
+  <error>
+  (normalize-markdown 42)
+)
+
+(
+  "Markdown normalization of a mixed list"
+  <error>
+  (normalize-markdown (list (paragraph '()) (text "a")))
+)
+
+(
+  "Markdown normalization of a list of strings"
+  <error>
+  (normalize-markdown '("a" "b"))
 )
 
 (
