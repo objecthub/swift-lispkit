@@ -14,6 +14,23 @@ Creates an image processor for a list of configured filters that are being appli
 
 Creates an _image filter pipeline_ from the given image processors _proc ..._. An image filter pipeline is a composite image processor that executes the encapsulated image processors in sequence, piping the output of a processor into the input of the next processor. The result of the final processor is returned by an image filter pipeline.
 
+**(process-image _image proc ..._)** <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Converts _image_ into an abstract image and applies the image processors _proc ..._ to it in sequence, like an image filter pipeline would. The resulting abstract image is returned. _image_ is an image as defined by library `(lispkit draw)`.
+
+**(process-abstract-image _aimage proc ..._)** <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Applies the image processors _proc ..._ to the abstract image _aimage_ in sequence, like an image filter pipeline would, and returns the resulting abstract image. `(process-abstract-image aimage proc ...)` is equivalent to `((filter-pipeline proc ...) aimage)`. If no image processors are provided, _aimage_ is returned.
+
+```scheme
+(define photo (load-image (asset-file-path "Inga" "jpg" "Images")))
+(define result
+  (process-image photo
+                 (gaussian-blur 4.0)
+                 (color-monochrome (color 0.82 0.74 0.59) 0.5)))
+(save-bitmap "blurred.jpg" (abstract-image->image result) 'jpg)
+```
+
 
 ## Image generator implementations
 

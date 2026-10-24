@@ -77,6 +77,22 @@ public final class VisionLibrary: NativeLibrary {
     return (image, cgImage)
   }
   
+  /// Performs `request` in the background. The request handler runs the request synchronously
+  /// and calls the completion handler of the request, which resolves future `result`. If the
+  /// request cannot be performed, the failure is delivered via the future as well.
+  private func perform(_ request: VNRequest,
+                       with handler: VNImageRequestHandler,
+                       result: Future) {
+    let context = self.context
+    DispatchQueue.global(qos: .userInitiated).async {
+      do {
+        try handler.perform([request])
+      } catch let error {
+        _ = try? result.setResult(in: context, to: .error(RuntimeError.os(error)), raise: true)
+      }
+    }
+  }
+  
   private func imageRect(forNormalizedRect rect: CGRect, width: Double, height: Double) -> CGRect {
     return CGRect(x: rect.minX * width,
                   y: (1.0 - rect.maxY) * height,
@@ -197,7 +213,7 @@ public final class VisionLibrary: NativeLibrary {
       }
     }
     // try request.supportedRecognitionLanguages()
-    try requestHandler.perform([request])
+    self.perform(request, with: requestHandler, result: result)
     return .object(result)
   }
   
@@ -395,7 +411,7 @@ public final class VisionLibrary: NativeLibrary {
     } else {
       request.maximumObservations = 0
     }
-    try requestHandler.perform([request])
+    self.perform(request, with: requestHandler, result: result)
     return .object(result)
   }
   
@@ -605,7 +621,7 @@ public final class VisionLibrary: NativeLibrary {
     // if let coalesce {
     //  request.coalesceCompositeSymbologies = coalesce.isTrue
     // }
-    try requestHandler.perform([request])
+    self.perform(request, with: requestHandler, result: result)
     return .object(result)
   }
   
@@ -657,7 +673,7 @@ public final class VisionLibrary: NativeLibrary {
       }
       request.regionOfInterest = CGRect(x: x, y: y, width: w, height: h)
     }
-    try requestHandler.perform([request])
+    self.perform(request, with: requestHandler, result: result)
     return .object(result)
   }
 }

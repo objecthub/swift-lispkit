@@ -61,15 +61,23 @@
 (display "loaded cat image")
 (newline)
 
-;; Wait for the billboard surface to be determined
-(define polygon (car (map caddr (future-get detection-result))))
+;; Returns the area of the bounding box of a detected rectangle
+(define (detection-area detection)
+  (let ((size (cdar detection)))
+    (* (car size) (cdr size))))
+
+;; Wait for the billboard surface to be determined. The detector finds the outline of
+;; the whole sign as well as the display within it. Use the smaller one, the display.
+(define polygon
+  (caddr (car (sort (lambda (d1 d2) (< (detection-area d1) (detection-area d2)))
+                    (future-get detection-result)))))
 (display "detected billboard polygon: ")
 (write polygon)
 (newline)
 
 ;; Determine the boundary of the perspective corrected polygon
 ;; representing the billboard 
-(define rect
+(define billboard-rect
   (abstract-image-bounds
     (process-abstract-image
       (image->abstract-image billboard-image)
@@ -86,10 +94,10 @@
 (define output
   ; Put the perspective corrected cat image on top of a billboard image
   (process-abstract-image
-    ; Change the perspective of the cat image
+    ; Start with the cat image
     cat-input
     ; Crop the cat image to a rect that has the needed aspect ratio
-    (crop (fit-rect (abstract-image-bounds cat-input) (size-ratio (rect-size rect))))
+    (crop (fit-rect (abstract-image-bounds cat-input) (size-ratio (rect-size billboard-rect))))
     ; Turn the image into a bit more monochrome image
     (color-monochrome (color 0.82 0.74 0.59) 0.5)
     ; Transform the image into the given perspective moving it into the right spot
@@ -108,7 +116,7 @@
 (define jpg-file-path
   (path (car (system-directory 'documents)) "cat-on-billboard.jpg"))
 
-;; Save all drawings in a JPG file
+;; Save the output image in a JPG file
 (save-bitmap jpg-file-path (abstract-image->image output) 'jpg)
 
 ;; Open the generated JPG file
