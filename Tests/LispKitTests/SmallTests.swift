@@ -158,4 +158,57 @@ class SmallTests: LispKitTestCase {
     assertStackEmpty()
   }
 
+  /// `exit` ends the evaluation of all expressions that follow it, including the ones
+  /// following the expression that calls `exit` in a program. The result of the evaluation
+  /// is the value that was passed to `exit`.
+  func testExitEndsEvaluation() {
+    self.bootstrapContext()
+    XCTAssertEqual(
+      self.eval("(define n 0) (set! n 1) (exit 5) (set! n 2) 'unreachable"), self.value("5"))
+    XCTAssertTrue(self.context!.evaluator.exitTriggered)
+    assertStackEmpty()
+    XCTAssertEqual(self.eval("n"), self.value("1"))
+    XCTAssertFalse(self.context!.evaluator.exitTriggered)
+    // Without argument, `exit` stands for success
+    XCTAssertEqual(self.eval("(define n 0) (begin (set! n 1) (exit) (set! n 2)) (set! n 3)"),
+                   .true)
+    XCTAssertEqual(self.eval("n"), self.value("1"))
+    // Calling `exit` in a procedure or in a handler works as well
+    XCTAssertEqual(
+      self.eval("(define (stop) (set! n 4) (exit 6) (set! n 5)) " +
+                "(guard (e (#t (stop))) (car 'x)) (set! n 7)"), self.value("6"))
+    XCTAssertEqual(self.eval("n"), self.value("4"))
+    assertStackEmpty()
+  }
+
+  /// `exit` runs the `after` procedures of all outstanding calls of `dynamic-wind`.
+  func testExitRunsDynamicWindAfterProcedures() {
+    XCTAssertEqual(
+      self.eval("(define log '()) " +
+                "(define (note x) (set! log (cons x log))) " +
+                "(dynamic-wind " +
+                "  (lambda () (note 'in)) " +
+                "  (lambda () (dynamic-wind " +
+                "               (lambda () (note 'in2)) " +
+                "               (lambda () (exit 3)) " +
+                "               (lambda () (note 'out2)))) " +
+                "  (lambda () (note 'out))) " +
+                "(note 'after)"), self.value("3"))
+    XCTAssertEqual(self.eval("(reverse log)"), self.value("(in in2 out2 out)"))
+    assertStackEmpty()
+  }
+
+  /// The exit status for the argument of `exit` and `emergency-exit` follows R7RS.
+  func testExitStatus() {
+    XCTAssertEqual(Evaluator.exitStatus(of: nil), 0)
+    XCTAssertEqual(Evaluator.exitStatus(of: .true), 0)
+    XCTAssertEqual(Evaluator.exitStatus(of: .false), 1)
+    XCTAssertEqual(Evaluator.exitStatus(of: .fixnum(0)), 0)
+    XCTAssertEqual(Evaluator.exitStatus(of: .fixnum(3)), 3)
+    XCTAssertEqual(Evaluator.exitStatus(of: .fixnum(-1)), -1)
+    XCTAssertNil(Evaluator.exitStatus(of: self.value("foo")))
+    XCTAssertNil(Evaluator.exitStatus(of: .makeString("done")))
+    XCTAssertNil(Evaluator.exitStatus(of: .flonum(1.5)))
+  }
+
 }

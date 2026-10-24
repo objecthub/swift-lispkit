@@ -264,6 +264,8 @@ This error type predicate returns `#t` if _obj_ is an error object raised by the
 Runs all outstanding `dynamic-wind` after procedures, terminates the running program, and communicates an exit value to the operating system. If no argument is supplied, or if _obj_ is `#t`, the `exit` procedure should communicate to the operating system that the program exited normally. If _obj_ is `#f`, the `exit` procedure will communicate to the operating system that the program exited abnormally. Otherwise, `exit` should translate _obj_ into an appropriate exit value for the operating system, if possible.
 The `exit` procedure must not signal an exception or return to its continuation.
 
+A command-line read-eval-print loop terminates the process with exit status 0 if no argument is supplied or if _obj_ is `#t`, with exit status 1 if _obj_ is `#f`, and with exit status _obj_ if _obj_ is an integer. For all other objects, it prints a message and terminates with exit status 1. This also holds for `emergency-exit`.
+
 **(emergency-exit)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(emergency-exit _obj_)**  
 

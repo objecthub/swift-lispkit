@@ -63,6 +63,10 @@ open class LispKitRepl {
   public let terminal: CommandLineDelegate
   public var context: Context?
 
+  /// The exit status of the tool. It is 0 unless a program or the read-eval-print loop
+  /// terminated with an error, or by calling `exit` with an argument that stands for failure.
+  public private(set) var exitStatus: Int32 = 0
+
   /// Initializer of the read-eval-print loop
   public init(name: String,
               version: String,
@@ -431,17 +435,29 @@ open class LispKitRepl {
       return try machine.eval(file: filename, in: context.global)
     }
     if context.evaluator.exitTriggered {
-      if res != .true {
-        print("abnormal exit: \(res.description)\n")
-        return false
-      }
+      return self.handleExit(with: res)
     } else {
       self.printResult(res)
       if case .error(_) = res {
+        self.exitStatus = 1
         return false
       }
     }
     return true
+  }
+
+  /// Sets the exit status of the tool for a call of `exit` with argument `obj`, as defined by
+  /// R7RS: `#t` stands for success, `#f` for failure, and an integer is the exit status. For
+  /// all other objects, a message is printed and the exit status is 1. Returns `true` if the
+  /// tool terminates successfully.
+  open func handleExit(with obj: Expr) -> Bool {
+    if let status = Evaluator.exitStatus(of: obj) {
+      self.exitStatus = status
+    } else {
+      print("abnormal exit: \(obj.description)\n")
+      self.exitStatus = 1
+    }
+    return self.exitStatus == 0
   }
 
   open func printHeader() {
@@ -464,11 +480,7 @@ open class LispKitRepl {
       let res = self.execute(command: buffer)
       // Exit loop if the machine has executed the `exit` function
       if context.evaluator.exitTriggered {
-        if res != .true {
-          print("abnormal exit: \(res.description)\n")
-          return false
-        }
-        break
+        return self.handleExit(with: res)
       // If closing parenthesis are missing, keep on reading
       } else if case .error(let err) = res,
             context.sources.consoleIsSource(sourceId: err.pos.sourceId),
@@ -488,16 +500,24 @@ open class LispKitRepl {
     return true
   }
 
+  /// Executes the program given on the command line, or runs the read-eval-print loop if there
+  /// is none. Returns `true` if the tool terminated successfully. In any case, property
+  /// `exitStatus` contains the exit status the tool is supposed to terminate the process with.
   open func run() -> Bool {
+    let succeeded: Bool
     // Distinguish interactive usage (via REPL) from non-interactive usage
     if let program = flags.parameters.first {
-      return self.execute(file: program)
+      succeeded = self.execute(file: program)
     } else {
       // Print the read-eval-print loop header
       self.printHeader()
       // Enter read-eval-print loop
-      return self.runRepl()
+      succeeded = self.runRepl()
     }
+    if !succeeded && self.exitStatus == 0 {
+      self.exitStatus = 1
+    }
+    return succeeded
   }
   
   open func release() {

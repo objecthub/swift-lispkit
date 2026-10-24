@@ -368,6 +368,11 @@ public final class VirtualMachine: ManagedObject {
           return res
         }
       }
+      // `exit` ends the evaluation of all the expressions that follow. Its result is the value
+      // that was passed to `exit`.
+      if self.context.evaluator.exitTriggered {
+        return res
+      }
       exprlist = rest
     }
     guard exprlist.isNull else {

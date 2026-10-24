@@ -47,6 +47,27 @@ public final class Evaluator: TrackedObject {
   
   /// Will be set to true if the `exit` function was invoked
   public internal(set) var exitTriggered: Bool = false
+
+  /// Returns the exit status of a program that terminates because `exit` or `emergency-exit`
+  /// was called with argument `obj` (`nil` if there was no argument), as defined by R7RS: no
+  /// argument and `#t` stand for success (status 0), `#f` stands for failure (status 1), and
+  /// an integer is the exit status itself. For all other objects, there is no defined exit
+  /// status; `nil` is returned for them.
+  public static func exitStatus(of obj: Expr?) -> Int32? {
+    guard let obj = obj else {
+      return 0
+    }
+    switch obj {
+      case .true:
+        return 0
+      case .false:
+        return 1
+      case .fixnum(let n):
+        return Int32(truncatingIfNeeded: n)
+      default:
+        return nil
+    }
+  }
   
   /// When set to true, will print call and return traces
   public var traceCalls: CallTracingMode = .off

@@ -55,9 +55,9 @@ struct LispKitRepl {
       if repl.runloop.wasSet {
         repl.toolMessage = "[enabled run loop]"
         let main = Thread {
-          let succeeded = repl.run()
+          _ = repl.run()
           repl.release()
-          exit(succeeded ? 0 : 1)
+          exit(repl.exitStatus)
         }
         // Set stack size of interpreter thread (12 MByte by default)
         main.stackSize = (repl.systemStackSize.value ?? (12 * 1024)) * 1024
@@ -65,9 +65,9 @@ struct LispKitRepl {
         main.start()
         RunLoop.current.run()
       } else {
-        let succeeded = repl.run()
+        _ = repl.run()
         repl.release()
-        exit(succeeded ? 0 : 1)
+        exit(repl.exitStatus)
       }
     }
   }

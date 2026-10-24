@@ -201,4 +201,13 @@ public class CommandLineDelegate: ContextDelegate {
     }
     return Swift.readLine(strippingNewline: false)
   }
+
+  /// Terminates the process immediately. Argument `obj` defines the exit status the same way
+  /// as it does for `exit`: no argument and `#t` stand for success, `#f` stands for failure,
+  /// and an integer is the exit status itself.
+  public func emergencyExit(obj: Expr?) {
+    #if os(macOS)
+    exit(Evaluator.exitStatus(of: obj) ?? 1)
+    #endif
+  }
 }
