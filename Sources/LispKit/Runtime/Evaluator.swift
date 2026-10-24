@@ -48,6 +48,9 @@ public final class Evaluator: TrackedObject {
   /// Will be set to true if the `exit` function was invoked
   public internal(set) var exitTriggered: Bool = false
 
+  /// The object that was passed to the `exit` function, if `exitTriggered` is true
+  public internal(set) var exitObject: Expr? = nil
+
   /// Returns the exit status of a program that terminates because `exit` or `emergency-exit`
   /// was called with argument `obj` (`nil` if there was no argument), as defined by R7RS: no
   /// argument and `#t` stand for success (status 0), `#f` stands for failure (status 1), and
@@ -114,6 +117,7 @@ public final class Evaluator: TrackedObject {
     }
     self.threads.register(thread: Thread.current, as: self.mainThread)
     self.exitTriggered = false
+    self.exitObject = nil
     self.mainThread.value.mutex.unlock()
     var result = self.main.onTopLevelDo {
       return try eval(self.main)
@@ -121,6 +125,12 @@ public final class Evaluator: TrackedObject {
     self.mainThread.value.mutex.lock()
     if case .error(let err) = result, err.descriptor == .uncaught {
       result = err.irritants[0]
+    }
+    // A program that called `exit` terminates with the object passed to `exit`. If this
+    // happened on a thread other than the main thread, the evaluation of the main thread got
+    // aborted and the result of the evaluation is not related to the exit.
+    if self.exitTriggered, let obj = self.exitObject {
+      result = obj
     }
     self.mainThread.value.abandonLocks()
     self.mainThread.value.mutex.unlock()
@@ -294,6 +304,7 @@ public final class Evaluator: TrackedObject {
     self.defineValuesSpecial = nil
     self.setParameterProc = nil
     self.exitTriggered = false
+    self.exitObject = nil
     self.traceCalls = .off
   }
 }

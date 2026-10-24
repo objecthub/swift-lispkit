@@ -211,4 +211,30 @@ class SmallTests: LispKitTestCase {
     XCTAssertNil(Evaluator.exitStatus(of: .flonum(1.5)))
   }
 
+  /// `exit` terminates the whole program, also if it is called on a thread other than the main
+  /// thread: the evaluation of the main thread gets aborted, even if the main thread is
+  /// blocked, and the result of the evaluation is the object that was passed to `exit`.
+  func testExitOnThreadEndsEvaluation() {
+    let start = Date()
+    XCTAssertEqual(
+      self.eval("(import (lispkit thread)) (define n 0) " +
+                "(define t (go (thread-sleep! 0.1) (set! n 1) (exit 7) (set! n 2))) " +
+                "(thread-sleep! 20) (set! n 3) 'unreachable"), self.value("7"))
+    XCTAssertLessThan(Date().timeIntervalSince(start), 10.0, "main thread was not woken up")
+    XCTAssertTrue(self.context!.evaluator.exitTriggered)
+    assertStackEmpty()
+    XCTAssertEqual(self.eval("n"), self.value("1"))
+    // `exit` on a thread runs the `after` procedures of the thread, and it ends a main thread
+    // that is joining the thread
+    XCTAssertEqual(
+      self.eval("(define log '()) " +
+                "(define t (go (dynamic-wind " +
+                "                (lambda () (set! log (cons 'in log))) " +
+                "                (lambda () (exit)) " +
+                "                (lambda () (set! log (cons 'out log)))))) " +
+                "(thread-join! t) (set! log (cons 'after log))"), .true)
+    XCTAssertEqual(self.eval("(reverse log)"), self.value("(in out)"))
+    assertStackEmpty()
+  }
+
 }

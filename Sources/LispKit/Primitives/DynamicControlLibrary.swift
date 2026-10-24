@@ -505,7 +505,15 @@ public final class DynamicControlLibrary: NativeLibrary {
       default:
         throw RuntimeError.argumentCount(min: 1, max: 1, args: args[args.startIndex + 1])
     }
-    self.context.evaluator.exitTriggered = true
+    let evaluator: Evaluator = self.context.evaluator
+    evaluator.exitObject = obj
+    evaluator.exitTriggered = true
+    // `exit` terminates the whole program. If it gets called on a thread other than the main
+    // thread, the evaluation on the main thread needs to be aborted. This thread is terminated
+    // by the call of the continuation that is returned below.
+    if let current = evaluator.threads.current, current.value !== evaluator.mainThread.value {
+      evaluator.abort()
+    }
     return (exit, [obj])
   }
   
