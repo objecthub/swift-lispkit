@@ -19,5 +19,5 @@
 
   (export load)
 
-  (import (lispkit system))
+  (import (lispkit core))
 )
