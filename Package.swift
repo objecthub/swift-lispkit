@@ -51,7 +51,7 @@ let package = Package(
   dependencies: [
     .package(url: "https://github.com/objecthub/swift-numberkit.git", from: "3.0.0"),
     .package(url: "https://github.com/objecthub/swift-markdownkit.git", from: "2.3.2"),
-    .package(url: "https://github.com/objecthub/swift-commandlinekit.git", from: "1.1.2"),
+    .package(url: "https://github.com/objecthub/swift-commandlinekit.git", from: "1.1.3"),
     .package(url: "https://github.com/objecthub/swift-sqliteexpress.git", from: "1.0.3"),
     .package(url: "https://github.com/objecthub/swift-clformat.git", from: "1.4.0"),
     .package(url: "https://github.com/objecthub/swift-dynamicjson.git", from: "2.0.0"),

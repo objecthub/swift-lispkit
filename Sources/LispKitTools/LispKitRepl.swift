@@ -79,18 +79,23 @@ open class LispKitRepl {
     self.toolCopyright = copyright
     let f = Flags()
     self.flags = f
-    // Declare flags
+    // Declare flags. Flags that can be repeated take one value per occurrence. Otherwise, they
+    // would consume the program path following them, as in `LispKitRepl -r <dir> <program>`.
     self.filePaths  = f.strings("f", "filepath",
-                                description: "Adds file paths in which programs are searched for.")
+                                description: "Adds file paths in which programs are searched for.",
+                                greedy: false)
     self.libPaths   = f.strings("l", "libpath",
-                                description: "Adds file paths in which libraries are searched for.")
+                                description: "Adds file paths in which libraries are searched for.",
+                                greedy: false)
     self.assetPaths = f.strings("a", "assetpath",
-                                description: "Adds file paths in which assets are searched for.")
+                                description: "Adds file paths in which assets are searched for.",
+                                greedy: false)
     self.searchDocs = f.string("d", "documents",
                                description: "Search for files and libraries in folder " +
                                             "~/Documents/<value>.")
     self.roots = f.strings("r", "root",
-                           description: "Directories in which to search for files and libraries.")
+                           description: "Directories in which to search for files and libraries.",
+                           greedy: false)
     self.heapSize   = f.int("m", "memsize",
                             description: "Initial capacity of the heap memory.",
                             value: 1000)
@@ -98,7 +103,8 @@ open class LispKitRepl {
                               description: "Maximum stack size",
                               value: 10000)
     self.importLibs = f.strings("i", "import",
-                                description: "Imports library automatically after startup.")
+                                description: "Imports library automatically after startup.",
+                                greedy: false)
     self.r7rs       = f.option(nil, "r7rs",
                                description: "Imports library (scheme base).")
     self.lispkit    = f.option(nil, "lispkit",

@@ -7876,7 +7876,7 @@
 			repositoryURL = "https://github.com/objecthub/swift-commandlinekit.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.1.2;
+				minimumVersion = 1.1.3;
 			};
 		};
 		CC6290822C7DBBFB005AF800 /* XCRemoteSwiftPackageReference "KeychainAccess" */ = {
