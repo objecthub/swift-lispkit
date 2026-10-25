@@ -360,6 +360,8 @@
 		CC51944F3086599C00008261 /* KaTeX_Typewriter-Regular.woff2 in Copy JavaScript KaTeX fonts */ = {isa = PBXBuildFile; fileRef = CC51941630864DFA00008261 /* KaTeX_Typewriter-Regular.woff2 */; };
 		CC5194543087DBC200008261 /* LibraryConfigRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5194533087DBB600008261 /* LibraryConfigRegistry.swift */; };
 		CC5194553087DBC200008261 /* LibraryConfigRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5194533087DBB600008261 /* LibraryConfigRegistry.swift */; };
+		CC519483308E0E7C00008261 /* Movies.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC519482308E09F900008261 /* Movies.scm */; };
+		CC519484308E0E9500008261 /* Movies.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC519482308E09F900008261 /* Movies.scm */; };
 		CC54923921D97FB7004A0652 /* 101.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC54923821D97F53004A0652 /* 101.sld */; };
 		CC54923B21D9828B004A0652 /* SRFI-101.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC54923A21D9823B004A0652 /* SRFI-101.scm */; };
 		CC54923D21D98F81004A0652 /* rlist.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = CC54923C21D98E3E004A0652 /* rlist.sld */; };
@@ -2003,6 +2005,7 @@
 			dstPath = Root/LispKit/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC519483308E0E7C00008261 /* Movies.scm in Copy examples */,
 				CC60EB1F3083B89A000EE746 /* StyledMarkdown.scm in Copy examples */,
 				CC60EB223083C102000EE746 /* MarkdownTOC.scm in Copy examples */,
 				CCAC49272FD36F9B00D85F2A /* AnsiMarkdown.scm in Copy examples */,
@@ -3344,6 +3347,7 @@
 			dstPath = Root/LispKit/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CC519484308E0E9500008261 /* Movies.scm in Copy examples */,
 				CC60EB203083B8AC000EE746 /* StyledMarkdown.scm in Copy examples */,
 				CC60EB233083C103000EE746 /* MarkdownTOC.scm in Copy examples */,
 				CCAC49282FD36FA900D85F2A /* AnsiMarkdown.scm in Copy examples */,
@@ -4121,6 +4125,7 @@
 		CC51941A30864DFA00008261 /* LICENSE (fonts) */ = {isa = PBXFileReference; lastKnownFileType = text; path = "LICENSE (fonts)"; sourceTree = "<group>"; };
 		CC51941B30864DFA00008261 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		CC5194533087DBB600008261 /* LibraryConfigRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryConfigRegistry.swift; sourceTree = "<group>"; };
+		CC519482308E09F900008261 /* Movies.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Movies.scm; sourceTree = "<group>"; };
 		CC54923821D97F53004A0652 /* 101.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 101.sld; sourceTree = "<group>"; };
 		CC54923A21D9823B004A0652 /* SRFI-101.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-101.scm"; sourceTree = "<group>"; };
 		CC54923C21D98E3E004A0652 /* rlist.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = rlist.sld; sourceTree = "<group>"; };
@@ -6415,6 +6420,7 @@
 				CCAC49262FD3625400D85F2A /* AnsiMarkdown.scm */,
 				CC60EB1E3083B875000EE746 /* StyledMarkdown.scm */,
 				CC60EB213083C101000EE746 /* MarkdownTOC.scm */,
+				CC519482308E09F900008261 /* Movies.scm */,
 				CC9ED3FB2710E6DB004B1E29 /* paip */,
 			);
 			path = Examples;
