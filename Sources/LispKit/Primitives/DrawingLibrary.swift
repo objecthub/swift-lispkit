@@ -1758,10 +1758,10 @@ public final class DrawingLibrary: NativeLibrary {
         var list = points
         if all {
           while case .pair(let pnt, let rest) = list {
-            guard case .pair(.flonum(let x), .flonum(_)) = pnt else {
+            guard case .pair(.flonum(let x), .flonum(let y)) = pnt else {
               throw RuntimeError.eval(.invalidPoint, pnt)
             }
-            guard shape.contains(CGPoint(x: x, y: 0)) else {
+            guard shape.contains(CGPoint(x: x, y: y)) else {
               return .false
             }
             list = rest
@@ -1772,10 +1772,10 @@ public final class DrawingLibrary: NativeLibrary {
           return .true
         } else {
           while case .pair(let pnt, let rest) = list {
-            guard case .pair(.flonum(let x), .flonum(_)) = pnt else {
+            guard case .pair(.flonum(let x), .flonum(let y)) = pnt else {
               throw RuntimeError.eval(.invalidPoint, pnt)
             }
-            if shape.contains(CGPoint(x: x, y: 0)) {
+            if shape.contains(CGPoint(x: x, y: y)) {
               return .true
             }
             list = rest

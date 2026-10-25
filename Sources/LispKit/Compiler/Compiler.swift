@@ -1415,9 +1415,29 @@ public final class Compiler {
     return Code(self.instructions, self.constants, self.fragments)
   }
   
+  /// Returns the set of instruction positions that are the target of a branch instruction.
+  private func branchTargets() -> Set<Int> {
+    var targets = Set<Int>()
+    for (ip, instr) in self.instructions.enumerated() {
+      switch instr {
+        case .branch(let offset), .branchIf(let offset), .branchIfNot(let offset),
+             .keepOrBranchIfNot(let offset), .branchIfArgMismatch(_, let offset),
+             .branchIfMinArgMismatch(_, let offset), .or(let offset), .and(let offset):
+          targets.insert(ip + offset)
+        default:
+          break
+      }
+    }
+    return targets
+  }
+
   /// This is a simple peephole optimizer. For now, it eliminates NOOPs and combinations
   /// of PUSH/POP.
   private func optimize() {
+    // A PUSH/POP combination can only be eliminated if control flow cannot enter in between
+    // the two instructions. Otherwise, a branch targeting the POP would skip it while
+    // the value pushed on another path would remain on the stack.
+    let targets = self.branchTargets()
     var instrIndex: [Int] = []
     var numInstr = 0
     var ip = 0
@@ -1430,7 +1450,9 @@ public final class Compiler {
              .pushFlonum(_), .pushChar(_), .pushBignum(_), .pushBigrat(_), .pushComplex(_),
              .pushCaptured(_), .pushConstant(_), .pushProcedure(_), .pushLocalValue(_),
              .pushCapturedValue(_):
-          if ip + 1 < self.instructions.count, case .pop = self.instructions[ip + 1] {
+          if ip + 1 < self.instructions.count,
+             case .pop = self.instructions[ip + 1],
+             !targets.contains(ip + 1) {
             instrIndex.append(numInstr)
             self.instructions[ip] = .noOp
             self.instructions[ip + 1] = .noOp

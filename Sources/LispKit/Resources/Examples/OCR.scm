@@ -45,7 +45,7 @@
               (outer-polygon current (cdr points))
               (let ((poly (closed-polygon (car points))))
                 (if (shape-contains? poly (cdr current))
-                    (outer-polygons (cons poly (car points)) (cdr points))
+                    (outer-polygon (cons poly (car points)) (cdr points))
                     #f))))
       current))
 

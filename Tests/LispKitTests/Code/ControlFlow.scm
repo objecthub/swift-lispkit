@@ -86,3 +86,64 @@
          (sum 0 (+ sum (car x))))
         ((null? x) sum)))
 )
+
+(
+  "Do with one-armed if in argument"
+  (1 5)
+  (list 1 (do ((i 0 (+ i 1))) ((= i 3) 5) (if (= i 1) 7)))
+)
+
+(
+  "Do with one-armed if and assignment in argument"
+  2
+  (+ 1 (let ((res 0))
+         (do ((i 0 (+ i 1))) ((= i 3))
+           (if (odd? i) (set! res (+ res i))))
+         res))
+)
+
+(
+  "Do with one-armed cond in argument"
+  (1 5)
+  (list 1 (do ((i 0 (+ i 1))) ((= i 3) 5) (cond ((= i 1) 7))))
+)
+
+(
+  "Do with one-armed case, and, or, when, and unless in argument"
+  (1 5)
+  (list 1 (do ((i 0 (+ i 1))) ((= i 4) 5)
+            (case i ((1) 7))
+            (and (= i 1) 7)
+            (or (= i 1) 7)
+            (when (= i 1) 7)
+            (unless (= i 1) 7)))
+)
+
+(
+  "Do with two-armed if returning constants in argument"
+  (1 5)
+  (list 1 (do ((i 0 (+ i 1))) ((= i 3) 5) (if (= i 1) 7 8)))
+)
+
+(
+  "Do with nested one-armed ifs in argument"
+  (1 5 2)
+  (list 1 (do ((i 0 (+ i 1))) ((= i 3) 5) (if (< i 2) (if (= i 1) i))) 2)
+)
+
+(
+  "Do with one-armed if in nested arguments"
+  #(1 (2 5) 3)
+  (vector 1 (list 2 (do ((i 0 (+ i 1))) ((= i 3) 5) (if (= i 1) 'x))) 3)
+)
+
+(
+  "For loop with where clause in argument"
+  (1 (5 3 1))
+  (begin
+    (import (lispkit iterate))
+    (let ((lst '(1 2 3 4 5)))
+      (list 1 (let ((res '()))
+                (for x in lst where (odd? x) (set! res (cons x res)))
+                res))))
+)

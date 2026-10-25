@@ -237,4 +237,28 @@ class SmallTests: LispKitTestCase {
     assertStackEmpty()
   }
 
+  /// `shape-contains?` takes both coordinates of the points of a list into account, just like
+  /// it does for a single point. For lists of points, it used to ignore the y-coordinates.
+  func testShapeContainsListOfPoints() {
+    XCTAssertEqual(
+      self.eval("(import (lispkit draw)) " +
+                "(define square (closed-polygon '((50.0 . 50.0) (300.0 . 50.0) " +
+                "                                 (300.0 . 300.0) (50.0 . 300.0)))) " +
+                "(define low (closed-polygon '((50.0 . -50.0) (300.0 . -50.0) " +
+                "                              (300.0 . 50.0) (50.0 . 50.0)))) " +
+                "(define inside '((100.0 . 100.0) (200.0 . 100.0) (200.0 . 200.0) (100.0 . 200.0))) " +
+                "(define partly '((100.0 . 100.0) (400.0 . 100.0))) " +
+                "(define outside '((400.0 . 400.0) (500.0 . 500.0))) " +
+                "(list (shape-contains? square '(100.0 . 100.0)) " +
+                "      (shape-contains? square '(100.0 . 400.0)) " +
+                "      (shape-contains? square inside) " +
+                "      (shape-contains? square partly) " +
+                "      (shape-contains? square partly #t) " +
+                "      (shape-contains? square outside #t) " +
+                "      (shape-contains? low '((100.0 . 200.0))) " +
+                "      (shape-contains? low '((100.0 . 0.0))) " +
+                "      (shape-contains? square '()))"),
+      self.value("(#t #f #t #f #t #f #f #t #t)"))
+  }
+
 }
