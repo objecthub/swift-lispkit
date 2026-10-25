@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.6.4 (2026-10-25)
+
+- Same code as 2.6.3. The tag of release 2.6.3 was moved after package managers (Homebrew) had picked up the original source archive, so its checksum changed. Please use 2.6.4 instead of 2.6.3.
+
 ## 2.6.3 (2026-10-25)
 
 - Library `(lispkit markdown)` is now based on MarkdownKit 2.3.2, which follows CommonMark 0.31.2 more closely (some documents are parsed into different syntax trees) and limits the nesting of markup to a depth of 24. New features:
