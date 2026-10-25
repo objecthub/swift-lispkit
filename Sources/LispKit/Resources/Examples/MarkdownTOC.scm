@@ -205,7 +205,7 @@
 (save-markdown rtfd-file-path plain-doc 'rtfd
                '((mermaid . ((theme . neutral) (width . 400)))
                  (remote-images . none))
-               #f #f "Sample Document" "LispKit")
+               #f #f document-title "LispKit")
 (save-markdown pdf-file-path plain-doc 'pdf
                '((font-family . "Times")
                  (font-size . 15)
@@ -219,7 +219,7 @@
                  (h3-font-size . 17)
                  (mermaid . ((theme . neutral) (width . 300)))
                  (remote-images . none))
-               'a4 "20mm" "Sample Document" "LispKit")
+               'a4 "20mm" document-title "LispKit")
 (display "Generated ")
 (display rtfd-file-path)
 (newline)
