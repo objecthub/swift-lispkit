@@ -7844,7 +7844,7 @@
 			repositoryURL = "https://github.com/objecthub/swift-dynamicjson";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 2.0.0;
+				minimumVersion = 2.0.1;
 			};
 		};
 		CC2DA7382770012300DE69CF /* XCRemoteSwiftPackageReference "swift-atomics" */ = {

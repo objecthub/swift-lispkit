@@ -261,4 +261,19 @@ class SmallTests: LispKitTestCase {
       self.value("(#t #f #t #f #t #f #f #t #t)"))
   }
 
+  /// Argument errors of `cbor->json` name the procedure `cbor->json`. They used to name
+  /// `bytevector->json`.
+  func testCborToJsonErrors() {
+    self.bootstrapContext()
+    XCTAssertEqual(
+      self.eval("(import (lispkit json) (lispkit bytevector)) " +
+                "(guard (e (#t (error-object-message e))) (cbor->json (bytevector 1 2) 5))"),
+      .makeString("expected argument 2 of function cbor->json to be an integer value " +
+                  "within the range [0, 2]; is 5 instead"))
+    XCTAssertEqual(
+      self.eval("(guard (e (#t (error-object-message e))) (bytevector->json (bytevector 1 2) 5))"),
+      .makeString("expected argument 2 of function bytevector->json to be an integer value " +
+                  "within the range [0, 2]; is 5 instead"))
+  }
+
 }

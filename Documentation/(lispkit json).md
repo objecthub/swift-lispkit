@@ -149,7 +149,7 @@ Returns `#t` if the JSON value _obj_ is an object and has a member with the give
 **(json-member _json members_)**  
 **(json-member _json members default_)**  
 
-Returns the value of the given _member_ (a string or symbol) in JSON object _json_. If _member_ is a list of member names, follows the path through nested JSON objects. If the member is not found, returns _default_, or `#f` if _default_ is not provided.
+Returns the value of the given _member_ (a string or symbol) in JSON object _json_. If _member_ is a list of member names, follows the path through nested JSON objects. If the member is not found, returns _default_, or `#f` if _default_ is not provided. The value is returned as a Scheme value, like `json->value` returns it (e.g. a string, a number, a vector, or an association list), and not as a JSON value. Use `json-ref` to get a JSON value.
 
 ```scheme
 (define x (string->json "{ \"a\": { \"b\": 42 } }"))
@@ -168,7 +168,16 @@ For JSON objects, `json-children-count` returns the number of members. For JSON 
 
 **(json-ref _json ref ..._)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Applies JSON references _ref ..._ sequentially to _json_ and returns the result of the last application. `(json-ref x r1 ... rn)` is equivalent to `(json-ref ... (json-ref (json-ref x r1) r2) ... rn)`.
+Applies JSON references _ref ..._ sequentially to _json_ and returns the result of the last application. `(json-ref x r1 ... rn)` is equivalent to `(json-ref ... (json-ref (json-ref x r1) r2) ... rn)`. The result is a JSON value, or `#f` if one of the references does not refer to a value.
+
+```scheme
+(define x (string->json "{ \"a\": { \"b\": [10, 20, 30] } }"))
+(json-ref x "/a/b/1")      ⇒  #<json 20>
+(json-ref x "$.a.b[-1]")   ⇒  #<json 30>
+(json-ref x '(a b 0))      ⇒  #<json 10>
+(json-ref x 'a 'b 2)       ⇒  #<json 30>
+(json-ref x '(a c))        ⇒  #f
+```
 
 **(json-replace _json ref1 v1 ref2 v2..._)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
@@ -212,7 +221,7 @@ Applies procedure _f_ to every member of JSON object _obj_. _f_ is a procedure a
 
 **mutable-json-type-tag** <span style="float:right;text-align:rigth;">[constant]</span>  
 
-Symbol representing the `json` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all JSON values.
+Symbol representing the `mutable-json` type. The `type-for` procedure of library `(lispkit type)` returns this symbol for all mutable JSON values.
 
 **(mutable-json? _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
@@ -361,12 +370,12 @@ The full _JSON Path_ standard as defined by [RFC 9535](https://datatracker.ietf.
   "}")))
 ```
 
-Now a JSON Path query `$.store.book[?@.price < 10].title` can be applied to `jval` via procedure `json-query` to extract pairs of matching JSON values and the corresponding JSON references:
+Now a JSON Path query `$.store.book[?@.price < 10].title` can be applied to `jval` via procedure `json-query` to extract the matching JSON values together with their locations. Each result consists of the matching JSON value followed by the segments of its location. The results are listed in the order in which the matching values occur in the document:
 
 ```scheme
 (json-query jval "$.store.book[?@.price < 10].title")
-⇒  ((#<json "Moby Dick"> "store" "book" 2 "title")
-    (#<json "Sayings of the Century"> "store" "book" 0 "title"))
+⇒  ((#<json "Sayings of the Century"> "store" "book" 0 "title")
+    (#<json "Moby Dick"> "store" "book" 2 "title"))
 ```
 
 **(json-path? _str_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
@@ -381,27 +390,27 @@ Returns `#t` if string _str_ constitutes a valid singular JSON query string; `#f
 
 **(json-query _json query_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Applies JSON Path _query_ to _json_ returning the values matching the query together with the corresponding locations of the matching values. `json-query` returns a list of pairs of JSON values and JSON locations.
+Applies JSON Path _query_ to _json_ returning the values matching the query together with the corresponding locations of the matching values. `json-query` returns a list of results in document order. Each result is a list consisting of the matching JSON value followed by the segments of its location: strings for the members of objects and integers for the indices of arrays.
 
 **(json-query-results _json query_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Applies JSON Path _query_ to _json_ returning the values matching the query in a list.
+Applies JSON Path _query_ to _json_ returning the values matching the query in a list. The values are listed in document order.
 
 **(json-query-locations _json query_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Applies JSON Path _query_ to _json_ returning the locations of matching values in a list.
+Applies JSON Path _query_ to _json_ returning the locations of matching values in a list. The locations are listed in document order. Each location is a list of segments (strings for the members of objects and integers for the indices of arrays), which is a valid JSON reference.
 
 
 ## JSON Patch
 
-_JSON Patch_ defines a JSON document structure for expressing a sequence of operations to apply to a JSON document. Each operation mutates parts of the JSON document. The supported operations specified by [RFC 6902](https://datatracker.ietf.org/doc/html/rfc6902/) are represented by the following 6 shapes of lists:
+_JSON Patch_ defines a JSON document structure for expressing a sequence of operations to apply to a JSON document. Each operation mutates parts of the JSON document. The supported operations specified by [RFC 6902](https://datatracker.ietf.org/doc/html/rfc6902/) are represented by the following 6 shapes of lists. _path_ and _from_ are JSON pointers. In each operation, the location _path_ that is changed or tested comes first; for `move` and `copy`, it is followed by the source location _from_. In the JSON representation of JSON patch operations, these are the members `path` and `from`.
 
-  - **(add _ref json_)**: Add _json_ to the JSON value the JSON pointer _ref_ is referring to
-  - **(remove _ref_)**:  Remove the JSON value at the location the JSON pointer _ref_ is referring to
-  - **(replace _ref json_)**: Replace the value at the location the JSON pointer _ref_ is referring to with `json`
-  - **(move _from to_)**: Move the value at the location at which the JSON pointer `to` is referring to with the value at `from`. This is equivalent to first removing the value at `from` and then adding it to `path`.
-  - **(copy _from to_)**: Copy the value at the location at which the JSON pointer `to` is referring to with the value at `from`. This is equivalent to first looking up the value at `from` and then adding it to `path`.
-  - **(test _ref json_)**: Compares value at `ref` with `json` and fails if the two are different.
+  - **(add _path json_)**: Add _json_ at the location the JSON pointer _path_ is referring to
+  - **(remove _path_)**:  Remove the JSON value at the location the JSON pointer _path_ is referring to
+  - **(replace _path json_)**: Replace the value at the location the JSON pointer _path_ is referring to with _json_
+  - **(move _path from_)**: Move the value at the location the JSON pointer _from_ is referring to to the location _path_. This is equivalent to first removing the value at _from_ and then adding it at _path_.
+  - **(copy _path from_)**: Copy the value at the location the JSON pointer _from_ is referring to to the location _path_. This is equivalent to first looking up the value at _from_ and then adding it at _path_.
+  - **(test _path json_)**: Compares the value at _path_ with _json_ and fails if the two are different.
 
 From lists of operations it is possible to construct JSON patch objects, which are mutable containers for sequences of operations. They are created with procedure `json-patch`:
 
@@ -446,12 +455,12 @@ Returns `#t` if _obj_ is a JSON patch object; `#f` otherwise.
 
 Returns a new JSON patch object. JSON patch objects are mutable containers for lists of operations. If no argument is provided to `json-patch`, then an empty JSON patch object is returned which can be extended via procedure `json-patch-append!`. If _expr_ is provided, it is either an already existing JSON patch object and a copy is returned, or a JSON value representing the JSON patch operation list according to [RFC 6902](https://datatracker.ietf.org/doc/html/rfc6902/), or it is a list of operations. Each operation has one of the following 6 shapes:
 
-  - **(add _ref json_)**: Add _json_ to the JSON value at _ref_
-  - **(remove _ref_)**:  Remove the JSON value at _ref_
-  - **(replace _ref json_)**: Replace the value at _ref_ with `json`
-  - **(move _from to_)**: Move the value at `from` to `to`
-  - **(copy _from to_)**: Copy the value at `from` to `to`
-  - **(test _ref json_)**: Compares value at `ref` with `json` and fails if the two are different.
+  - **(add _path json_)**: Add _json_ at the location _path_
+  - **(remove _path_)**:  Remove the JSON value at the location _path_
+  - **(replace _path json_)**: Replace the value at the location _path_ with _json_
+  - **(move _path from_)**: Move the value at the location _from_ to the location _path_
+  - **(copy _path from_)**: Copy the value at the location _from_ to the location _path_
+  - **(test _path json_)**: Compares the value at the location _path_ with _json_ and fails if the two are different.
 
 JSON pointer is used for specifying references to values within a larger JSON document.
 
@@ -461,7 +470,7 @@ Removes all operations from the JSON patch object _patch_.
 
 **(json-patch-append! _patch oper ..._)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Appends operations _oper_ to the JSON patch object _patch_. Each operation has one of the following 6 shapes: (add _ref json_), (remove _ref_), (replace _ref json_), (move _from to_), (copy _from to_), and (test _ref json_).
+Appends operations _oper_ to the JSON patch object _patch_. Each operation has one of the following 6 shapes: (add _path json_), (remove _path_), (replace _path json_), (move _path from_), (copy _path from_), and (test _path json_).
 
 **(json-patch=? _patch ..._)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
@@ -473,11 +482,11 @@ Returns the list of operations for JSON patch object _patch_.
 
 **(json-patch->json _patch_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Returns a JSON value representing the operations of the JSON patch object _patch_ as defined by [RFC 7396](https://datatracker.ietf.org/doc/html/rfc7396/).
+Returns a JSON value representing the operations of the JSON patch object _patch_ as defined by [RFC 6902](https://datatracker.ietf.org/doc/html/rfc6902/).
 
 **(json-apply! _json patch_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Applies a JSON patch object _patch_ to mutable JSON value _json_ using application rules as defined by [RFC 7396](https://datatracker.ietf.org/doc/html/rfc7396/).
+Applies a JSON patch object _patch_ to mutable JSON value _json_ using application rules as defined by [RFC 6902](https://datatracker.ietf.org/doc/html/rfc6902/). The operations of _patch_ are applied in order. If an operation fails, for instance a `test` operation or the removal of a value that does not exist, an error is signaled and _json_ is not changed.
 
 
 ## Merging JSON values

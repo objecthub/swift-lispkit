@@ -136,3 +136,108 @@
         (json-array? (json #(1 2 3 4)))
         (json-object? (json '((a . 0)))))
 )
+
+(
+  "JSON conversion of hash tables"
+  (((a . 1) (b . "two") (c . #(1 2))) #t)
+  (import (lispkit hashtable))
+  (define ht (make-equal-hashtable))
+  (hashtable-set! ht "a" 1)
+  (hashtable-set! ht 'b "two")
+  (hashtable-set! ht 'c (vector 1 2))
+  (list (sort (lambda (x y) (string<? (symbol->string (car x)) (symbol->string (car y))))
+              (json->value (json ht)))
+        (json=? (json ht) (json '((a . 1) (b . "two") (c . #(1 2))))))
+)
+
+(
+  "JSON path queries return results in document order"
+  ((10 20 30 40) (("items" 1 "n") ("items" 2 "n") ("items" 3 "n")) (10 20 30 40) (("items" 0 "n") ("items" 3 "n")))
+  (define doc
+    (string->json "{\"items\":[{\"n\":10},{\"n\":20},{\"n\":30},{\"n\":40}]}"))
+  (list (map json->value (json-query-results doc "$.items[*].n"))
+        (json-query-locations doc "$.items[?@.n > 10].n")
+        (map (lambda (r) (json->value (car r))) (json-query doc "$..n"))
+        (json-query-locations doc "$.items[0,3].n"))
+)
+
+(
+  "JSON references with negative array indices"
+  (3 1 #f 3 3 #f)
+  (define arr (json #(1 2 3)))
+  (define obj (json '((l . #(1 2 3)))))
+  (list (json->value (json-ref arr -1))
+        (json->value (json-ref arr -3))
+        (json-ref arr -4)
+        (json->value (json-ref obj 'l -1))
+        (json->value (json-ref obj '(l -1)))
+        (json-ref obj 'l -5))
+)
+
+(
+  "JSON merge of conflicting values"
+  (#f #f #f #f #f #t #t #t)
+  (define (merge a b) (json-merge (json a) (json b)))
+  (list (merge 1 2)
+        (merge "a" "b")
+        (merge #(1 2) #(1 3))
+        (merge 1 "1")
+        (merge '((a . 1) (b . #(1 2))) '((a . 1) (b . #(1 3))))
+        (json=? (merge 1 1) (json 1))
+        (json=? (merge #(1 2) #(1 2)) (json #(1 2)))
+        (json=? (merge '((a . 1)) '((b . 2))) (json '((a . 1) (b . 2)))))
+)
+
+(
+  "CBOR conversion of null values"
+  (#t #t #t #t)
+  (define (roundtrip x) (json=? (cbor->json (json->cbor x)) x))
+  (list (roundtrip (json 'null))
+        (roundtrip (json #(1 null "a")))
+        (roundtrip (json '((a . null) (b . #(null 1 null)) (c . ((d . null))))))
+        (roundtrip (json #(#(null) #() ((e . null))))))
+)
+
+(
+  "JSON schema validation results contain nested tags"
+  (5 (("$['id']" read-only)
+      ("$['list'][0]" deprecated)
+      ("$['list'][1]" deprecated)
+      ("$['old']" deprecated)
+      ("$['secret']" write-only)))
+  (import (lispkit json schema))
+  (define schema
+    (json-schema
+      (string->json
+        (string-append
+          "{\"type\":\"object\",\"properties\":{"
+          "\"old\":{\"deprecated\":true},"
+          "\"id\":{\"readOnly\":true},"
+          "\"secret\":{\"writeOnly\":true},"
+          "\"list\":{\"items\":{\"deprecated\":true}},"
+          "\"plain\":{}}}"))))
+  (define res
+    (json-validate
+      (string->json "{\"old\":1,\"id\":2,\"secret\":3,\"list\":[1,2],\"plain\":4}")
+      schema))
+  (list (length (validation-result-tags res))
+        (sort (lambda (x y) (string<? (car x) (car y)))
+              (map (lambda (tag) (cons (cdar tag) (caddr tag)))
+                   (validation-result-tags res))))
+)
+
+(
+  "JSON schema validation results report failing oneOf and anyOf"
+  ("$['oneOf']" "$['anyOf']" "$['oneOf']" #t)
+  (import (lispkit json schema))
+  (define (rule-locations schema-text value)
+    (map (lambda (err) (cdadr err))
+         (validation-result-errors
+           (json-validate (json value) (json-schema (string->json schema-text))))))
+  (define one-of "{\"oneOf\":[{\"type\":\"string\"},{\"type\":\"integer\"}]}")
+  (define any-of "{\"anyOf\":[{\"type\":\"string\"},{\"type\":\"integer\"}]}")
+  (list (car (rule-locations one-of #t))
+        (car (rule-locations any-of #t))
+        (car (rule-locations "{\"oneOf\":[{\"type\":\"integer\"},{\"minimum\":0}]}" 5))
+        (null? (rule-locations one-of 5)))
+)

@@ -255,14 +255,22 @@ Returns a JSON object representing _schema_.
 **(json-valid? _json schema registry_)**  
 **(json-valid? _json schema dialect registry_)**  
 
-Returns `#t` if value _json_ conforms to _schema_. _dialect_ specifies, if provided, a default dialect overriding the default from _registry_ specifically for _schema_. If argument _registry_ is not provided, the current value of parameter object `current-schema-registry` is used instead.
+Returns `#t` if value _json_ conforms to _schema_. _dialect_ specifies, if provided, a default dialect overriding the default from _registry_ specifically for _schema_. It only applies to schemas that do not declare their dialect themselves via `$schema`. Instead of a dialect specifier, `#t` can be provided, which stands for the default dialect `json-draft2020-default`. If argument _registry_ is not provided, the current value of parameter object `current-schema-registry` is used instead.
 
 **(json-validate _json schema_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(json-validate _json schema dialect_)**  
 **(json-validate _json schema registry_)**  
 **(json-validate _json schema dialect registry_)**  
 
-Returns an object encapsulating validation results from the process of validating _json_ against _schema_. _dialect_ specifies, if provided, a default dialect overriding the default from _registry_ specifically for _schema_. If argument _registry_ is not provided, the current value of parameter object `current-schema-registry` is used instead.
+Returns an object encapsulating validation results from the process of validating _json_ against _schema_. _dialect_ specifies, if provided, a default dialect overriding the default from _registry_ specifically for _schema_. It only applies to schemas that do not declare their dialect themselves via `$schema`. Instead of a dialect specifier, `#t` can be provided, which stands for the default dialect `json-draft2020-default`. If argument _registry_ is not provided, the current value of parameter object `current-schema-registry` is used instead.
+
+Format constraints are only asserted, i.e. they turn into validation errors, if the dialect enables the format assertion vocabulary, as `json-draft2020-all` does:
+
+```scheme
+(define email (json-schema '((type . "string") (format . "email"))))
+(json-valid? (json "nope") email)                    ⇒  #t
+(json-valid? (json "nope") email json-draft2020-all)  ⇒  #f
+```
 
 ## JSON validation results
 

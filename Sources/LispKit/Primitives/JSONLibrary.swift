@@ -724,7 +724,7 @@ public final class JSONLibrary: NativeLibrary {
       case .table(let table):
         var dict: [String : JSON] = [:]
         for (key, value) in table.entries {
-          guard case .void = value else {
+          if case .void = value {
             continue
           }
           switch key {
@@ -785,7 +785,7 @@ public final class JSONLibrary: NativeLibrary {
   }
   
   private func cborToJson(expr: Expr, args: Arguments) throws -> Expr {
-    let subvec = try BytevectorLibrary.subVector("bytevector->json", expr, args)
+    let subvec = try BytevectorLibrary.subVector("cbor->json", expr, args)
     let decoder = CBORDecoder()
     return .object(try decoder.decode(JSON.self, from: Data(subvec)))
   }
@@ -868,7 +868,8 @@ public final class JSONLibrary: NativeLibrary {
         case .null:
           break
         case .fixnum(let num):
-          if let index = Int(exactly: num), let res = json[index] {
+          if let index = Int(exactly: num),
+             let res = json[ref: JSONLocation.root.select(index: index)] {
             json = res
           } else {
             return .false
@@ -1202,7 +1203,7 @@ public final class JSONLibrary: NativeLibrary {
   private func jsonQuery(expr: Expr, path: Expr) throws -> Expr {
     let results = try self.json(from: expr).query(path.asString())
     var res = Expr.null
-    for result in results {
+    for result in results.reversed() {
       res = .pair(.pair(.object(result.value), self.expr(from: result.location)), res)
     }
     return res
@@ -1211,7 +1212,7 @@ public final class JSONLibrary: NativeLibrary {
   private func jsonQueryResults(expr: Expr, path: Expr) throws -> Expr {
     let results = try self.json(from: expr).query(values: path.asString())
     var res = Expr.null
-    for result in results {
+    for result in results.reversed() {
       res = .pair(.object(result), res)
     }
     return res
@@ -1220,7 +1221,7 @@ public final class JSONLibrary: NativeLibrary {
   private func jsonQueryLocations(expr: Expr, path: Expr) throws -> Expr {
     let results = try self.json(from: expr).query(locations: path.asString())
     var res = Expr.null
-    for result in results {
+    for result in results.reversed() {
       res = .pair(self.expr(from: result), res)
     }
     return res
