@@ -160,7 +160,8 @@
                 ((= x e) (cond ((avl-empty? r) l)
                                ((avl-empty? l) r)
                                (else           (match (avl-delete-leftmost r)
-                                                 ((node lme _ lmr _)  (make-tree lme l lmr))))))))))
+                                                 ((node lme _ lmr _)
+                                                   (avl-balance (make-tree lme l lmr)))))))))))
  
     (define (avl-delete-leftmost tree)
       (match tree
