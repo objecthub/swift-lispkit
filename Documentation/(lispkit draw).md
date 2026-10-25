@@ -587,7 +587,7 @@ _inset_ specifies the width of the transparent space, in points, that is left be
    * `(`_top left bottom right_`)`: space for each edge individually, or
    * `((`_top_ `.` _bottom_`)` `.` `(`_left_ `.` _right_`))`: space for each edge individually, with the two vertical and the two horizontal widths paired up.
 
-The resolution of _bitmap_ is preserved, i.e. the size of the new image in points is the size of the content plus the insets.  `bitmap-trim` returns `#f` if trimming could not be performed.(b)
+The resolution of _bitmap_ is preserved, i.e. the size of the new image in points is the size of the content plus the insets.  `bitmap-trim` returns `#f` if trimming could not be performed.
 
 ```scheme
 (define bmp
