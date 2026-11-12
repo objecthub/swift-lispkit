@@ -27,6 +27,12 @@
           degrees->radians
           radians->degrees
           prime?
+          sinh
+          cosh
+          tanh
+          asinh
+          acosh
+          atanh
           make-nan
           nan-negative?
           nan-quiet?
@@ -128,6 +134,43 @@
             (else      (do ((d 3 (+ d 2)))
                            ((or (> (square d) n) (zero? (remainder n d))) (> (square d) n))))))
     
+    ;; Hyperbolic sine
+    (define (sinh x)
+      (if (eqv? x 0)
+          0
+          (/ (- (exp x) (exp (- x))) 2)))
+
+    ;; Hyperbolic cosine
+    (define (cosh x)
+      (if (eqv? x 0)
+          1
+          (/ (+ (exp x) (exp (- x))) 2)))
+
+    ;; Hyperbolic tangent
+    (define (tanh x)
+      (cond ((eqv? x 0)                0)
+            ((and (real? x) (> x 20))  1.0)
+            ((and (real? x) (< x -20)) -1.0)
+            (else (let ((a (exp x))
+                        (b (exp (- x))))
+                    (/ (- a b) (+ a b))))))
+
+    ;; Inverse hyperbolic sine
+    (define (asinh x)
+      (cond ((eqv? x 0)                  0)
+            ((and (real? x) (negative? x)) (- (asinh (- x))))
+            (else (log (+ x (sqrt (+ (* x x) 1)))))))
+
+    ;; Inverse hyperbolic cosine
+    (define (acosh x)
+      (log (+ x (* (sqrt (- x 1)) (sqrt (+ x 1))))))
+
+    ;; Inverse hyperbolic tangent
+    (define (atanh x)
+      (if (eqv? x 0)
+          0
+          (/ (log (/ (+ 1 x) (- 1 x))) 2)))
+
     ;; Returns `#t` if both `n1` and `n2` are NaNs and their representation is equal.
     (define (nan=? n1 n2)
       (and (nan? n1) (flbits=? n1 n2)))

@@ -86,6 +86,8 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit math stats)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Math-Stats), 
     [`(lispkit list)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-List),
     [`(lispkit list set)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-List-Set),
+    `(lispkit list util)`,
+    `(lispkit sequence)`,
     [`(lispkit hashtable)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Hashtable),
     [`(lispkit dynamic)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Dynamic),
     [`(lispkit type)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Type),
@@ -142,6 +144,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit test)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Test),
     `(lispkit prettify)`,
     [`(lispkit text-table)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Text-Table),
+    `(lispkit cmdline)`,
     [`(lispkit csv)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-CSV),
     [`(lispkit markdown)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Markdown),
     [`(lispkit sqlite)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-SQLite),
@@ -188,6 +191,7 @@ framework:
   - [SRFI 33: Integer Bitwise-operation Library](https://srfi.schemers.org/srfi-33/srfi-33.html)
   - [SRFI 34: Exception Handling for Programs](https://srfi.schemers.org/srfi-34/srfi-34.html)
   - [SRFI 35: Conditions](https://srfi.schemers.org/srfi-35/srfi-35.html)
+  - [SRFI 37: args-fold: a program argument processor](https://srfi.schemers.org/srfi-37/srfi-37.html)
   - [SRFI 39: Parameter objects](https://srfi.schemers.org/srfi-39/srfi-39.html)
   - [SRFI 41: Streams](https://srfi.schemers.org/srfi-41/srfi-41.html)
   - [SRFI 46: Basic Syntax-rules Extensions](https://srfi.schemers.org/srfi-46/srfi-46.html)

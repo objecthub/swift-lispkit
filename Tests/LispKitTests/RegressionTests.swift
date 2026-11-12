@@ -73,6 +73,22 @@ class RegressionTests: LispKitTestCase {
     self.execute(file: "Math")
   }
   
+  func testMathUtil() {
+    self.execute(file: "MathUtil")
+  }
+  
+  func testListUtil() {
+    self.execute(file: "ListUtil")
+  }
+  
+  func testSequence() {
+    self.execute(file: "Sequence")
+  }
+  
+  func testCommandLine() {
+    self.execute(file: "CommandLine")
+  }
+  
   func testVectors() {
     self.execute(file: "Vectors")
   }

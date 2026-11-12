@@ -45,6 +45,18 @@ Converts radians into degrees.
 
 Returns `#t` if integer _n_ is a prime number, `#f` otherwise.
 
+**(sinh _x_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(cosh _x_)**  
+**(tanh _x_)**  
+
+Hyperbolic sine, cosine and tangent of number _x_. For an exact argument 0, `sinh` and `tanh` return the exact result 0, and `cosh` returns 1. For arguments with an absolute value greater than 20, `tanh` returns `1.0` or `-1.0`.
+
+**(asinh _x_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(acosh _x_)**  
+**(atanh _x_)**  
+
+Inverse hyperbolic sine, cosine and tangent of number _x_. For an exact argument 0, `asinh` and `atanh` return the exact result 0. Like for `acos` and `log`, real arguments outside of the domain of a function (e.g. `(acosh 0.5)` or `(atanh 2.0)`) result in complex numbers.
+
 **(make-nan _neg quiet payload_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns a NaN whose sign bit is equal to _neg_ (`#t` for negative, `#f` for positive), whose quiet bit is equal to _quiet_ (`#t` for quiet, `#f` for signaling), and whose payload is the positive exact integer _payload_. It is an error if _payload_ is larger than a NaN can hold.

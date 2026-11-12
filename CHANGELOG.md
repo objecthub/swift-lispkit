@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- New library `(lispkit sequence)`: a uniform way to iterate over lists, vectors, strings, hash tables, streams, ranges of numbers, and other sequences, together with comprehension forms that collect the results. It provides the iteration forms `for`, `for*`, `for/list`, `for/vector`, `for/fold`, `for/sum`, `for/product`, `for/and`, `for/or`, `for/first`, `for/last`, `for/hash` (and the `*` variants), the sequence constructors `in-range`, `in-list`, `in-vector`, `in-string`, `in-hash`, `in-stream`, `in-indexed`, `in-parallel`, `in-producer`, ... and sequence operations such as `sequence->list`, `sequence->stream` and `sequence-map`. Clauses use parentheses, and guards are written `:when`, `:unless`, `:break`, and `:final`. Since library `(lispkit iterate)` also exports a form called `for`, the two libraries cannot be imported together without excluding or renaming one of the bindings.
+- New library `(lispkit list util)` with `flatten`, `add-between`, `shuffle`, `list-set`, `list-update`, `argmin`, `argmax`, `group-by`, `check-duplicates`, `permutations`, `combinations`, and `cartesian-product`. The library also exports `take` and `drop`.
+- New library `(lispkit cmdline)` with `parse-command-line`: table-driven command-line parsing with automatically generated help text. The library also re-exports the procedures of SRFI 37.
+- New library `(srfi 37)` (args-fold: a program argument processor).
+- New procedures in library `(lispkit math util)`: `sinh`, `cosh`, `tanh`, `asinh`, `acosh`, and `atanh`
+
 ## 2.6.4 (2026-10-25)
 
 - Same code as 2.6.3. The tag of release 2.6.3 was moved after package managers (Homebrew) had picked up the original source archive, so its checksum changed. Please use 2.6.4 instead of 2.6.3.

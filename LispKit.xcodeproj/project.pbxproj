@@ -918,6 +918,18 @@
 		CCA3127F204CB7900026FF13 /* LexicalError.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA3127E204CB7900026FF13 /* LexicalError.swift */; };
 		CCA31281204CB7A60026FF13 /* SyntaxError.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA31280204CB7A60026FF13 /* SyntaxError.swift */; };
 		CCA31283204CB7CB0026FF13 /* EvalError.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA31282204CB7CB0026FF13 /* EvalError.swift */; };
+		CCA5E016C403B77A2A69AD0A /* ListUtil.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCA5E0BCCE3EC67E61808B6A /* ListUtil.scm */; };
+		CCA5E021A0C6BC84431F8604 /* 37.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCA5E057341A79B7ADC56F56 /* 37.sld */; };
+		CCA5E02AD87974037FEF1D48 /* sequence.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCA5E066C737DB5F67FDD092 /* sequence.sld */; };
+		CCA5E03998187CD0D02D238E /* CommandLine.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCA5E0B2372732456D61929E /* CommandLine.scm */; };
+		CCA5E06FBD7C81211C82B804 /* 37.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCA5E057341A79B7ADC56F56 /* 37.sld */; };
+		CCA5E073A03A6DC911D85D26 /* sequence.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCA5E066C737DB5F67FDD092 /* sequence.sld */; };
+		CCA5E073DFE367DE1F1445F0 /* util.sld in Copy pre-installed LispKit library: LispKit List */ = {isa = PBXBuildFile; fileRef = CCA5E0B6EFDDAA9B8A851AB8 /* util.sld */; };
+		CCA5E0B4D1F77142ADE9AE12 /* cmdline.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCA5E032D4F47F5432407A9E /* cmdline.sld */; };
+		CCA5E0C52CC8EA310AEFA5BA /* MathUtil.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCA5E017FB1E6088070AB810 /* MathUtil.scm */; };
+		CCA5E0EA5F00E2F3E04ABB70 /* util.sld in Copy pre-installed LispKit library: LispKit List */ = {isa = PBXBuildFile; fileRef = CCA5E0B6EFDDAA9B8A851AB8 /* util.sld */; };
+		CCA5E0EE614AF16733370276 /* Sequence.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCA5E0F1C17F20488109A41B /* Sequence.scm */; };
+		CCA5E0F4068F9BBA41F9513F /* cmdline.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCA5E032D4F47F5432407A9E /* cmdline.sld */; };
 		CCA6C3D123610674007D2AF0 /* MarkdownLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA6C3D023610674007D2AF0 /* MarkdownLibrary.swift */; };
 		CCA6C3D42361149D007D2AF0 /* MarkdownKit in Frameworks */ = {isa = PBXBuildFile; productRef = CCA6C3D32361149D007D2AF0 /* MarkdownKit */; };
 		CCA752F41DEF9E410098C34A /* Prelude.scm in Copy default prelude */ = {isa = PBXBuildFile; fileRef = CCAD52D51C48467D00DBD8EE /* Prelude.scm */; };
@@ -2082,6 +2094,7 @@
 			dstSubfolderSpec = 7;
 			files = (
 				CC517E5D29A96E940096FC72 /* set.sld in Copy pre-installed LispKit library: LispKit List */,
+				CCA5E073DFE367DE1F1445F0 /* util.sld in Copy pre-installed LispKit library: LispKit List */,
 			);
 			name = "Copy pre-installed LispKit library: LispKit List";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2093,6 +2106,7 @@
 			dstSubfolderSpec = 7;
 			files = (
 				CC517E5F29A96EF80096FC72 /* set.sld in Copy pre-installed LispKit library: LispKit List */,
+				CCA5E0EA5F00E2F3E04ABB70 /* util.sld in Copy pre-installed LispKit library: LispKit List */,
 			);
 			name = "Copy pre-installed LispKit library: LispKit List";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2221,6 +2235,8 @@
 				CC68B3A91FCCCDEE00EB4AF9 /* object.sld in Copy pre-installed LispKit libraries */,
 				CCEEF3931FB3CB50006C4581 /* wt-tree.sld in Copy pre-installed LispKit libraries */,
 				CCE7CA461F8EC07000FD7ECA /* iterate.sld in Copy pre-installed LispKit libraries */,
+				CCA5E073A03A6DC911D85D26 /* sequence.sld in Copy pre-installed LispKit libraries */,
+				CCA5E0B4D1F77142ADE9AE12 /* cmdline.sld in Copy pre-installed LispKit libraries */,
 				CC2345411F655BD800C38817 /* datatype.sld in Copy pre-installed LispKit libraries */,
 				CC750BDA1F5B776700CD82A2 /* prettify.sld in Copy pre-installed LispKit libraries */,
 				CC72862D1F52B32C00EEBC58 /* heap.sld in Copy pre-installed LispKit libraries */,
@@ -2898,6 +2914,7 @@
 				CC2C73DD21A2190D00B18661 /* 125.sld in Copy pre-installed SRFI libraries */,
 				CC703A21218D123F00E71EA9 /* 95.sld in Copy pre-installed SRFI libraries */,
 				CC703A19218BC8E400E71EA9 /* 39.sld in Copy pre-installed SRFI libraries */,
+				CCA5E06FBD7C81211C82B804 /* 37.sld in Copy pre-installed SRFI libraries */,
 				CC703A18218BC8D800E71EA9 /* 34.sld in Copy pre-installed SRFI libraries */,
 				CC703A15218BC54800E71EA9 /* 16.sld in Copy pre-installed SRFI libraries */,
 				CC703A14218BC53600E71EA9 /* 14.sld in Copy pre-installed SRFI libraries */,
@@ -3071,6 +3088,7 @@
 				CCC48D3525E97E3800D082AD /* 34.sld in Copy pre-installed SRFI libraries */,
 				CCC48D3625E97E3800D082AD /* 35.sld in Copy pre-installed SRFI libraries */,
 				CCC48D3725E97E3800D082AD /* 39.sld in Copy pre-installed SRFI libraries */,
+				CCA5E021A0C6BC84431F8604 /* 37.sld in Copy pre-installed SRFI libraries */,
 				CCC48D3825E97E3800D082AD /* 41.sld in Copy pre-installed SRFI libraries */,
 				CCC48D3925E97E3800D082AD /* 46.sld in Copy pre-installed SRFI libraries */,
 				CCC48D3A25E97E3800D082AD /* 48.sld in Copy pre-installed SRFI libraries */,
@@ -3207,6 +3225,8 @@
 				CCC48D9325E9806600D082AD /* comparator.sld in Copy pre-installed LispKit libraries */,
 				CCC48D9425E9806600D082AD /* combinator.sld in Copy pre-installed LispKit libraries */,
 				CCC48D9525E9806600D082AD /* iterate.sld in Copy pre-installed LispKit libraries */,
+				CCA5E02AD87974037FEF1D48 /* sequence.sld in Copy pre-installed LispKit libraries */,
+				CCA5E0F4068F9BBA41F9513F /* cmdline.sld in Copy pre-installed LispKit libraries */,
 				CCC48D9625E9806600D082AD /* set.sld in Copy pre-installed LispKit libraries */,
 				CCC48D9725E9806600D082AD /* stack.sld in Copy pre-installed LispKit libraries */,
 				CCC48D9825E9806600D082AD /* queue.sld in Copy pre-installed LispKit libraries */,
@@ -4584,6 +4604,17 @@
 		CCA3127E204CB7900026FF13 /* LexicalError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexicalError.swift; sourceTree = "<group>"; };
 		CCA31280204CB7A60026FF13 /* SyntaxError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyntaxError.swift; sourceTree = "<group>"; };
 		CCA31282204CB7CB0026FF13 /* EvalError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvalError.swift; sourceTree = "<group>"; };
+		CCA5E00D176A7F35CA0FE2AC /* (lispkit sequence).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit sequence).md"; sourceTree = "<group>"; };
+		CCA5E017FB1E6088070AB810 /* MathUtil.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = MathUtil.scm; sourceTree = "<group>"; };
+		CCA5E032D4F47F5432407A9E /* cmdline.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = cmdline.sld; sourceTree = "<group>"; };
+		CCA5E04C9C13ABB2BC6CA25E /* (lispkit list util).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit list util).md"; sourceTree = "<group>"; };
+		CCA5E057341A79B7ADC56F56 /* 37.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 37.sld; sourceTree = "<group>"; };
+		CCA5E066C737DB5F67FDD092 /* sequence.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = sequence.sld; sourceTree = "<group>"; };
+		CCA5E06C0AED5807460FEFC5 /* (lispkit cmdline).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit cmdline).md"; sourceTree = "<group>"; };
+		CCA5E0B2372732456D61929E /* CommandLine.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = CommandLine.scm; sourceTree = "<group>"; };
+		CCA5E0B6EFDDAA9B8A851AB8 /* util.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = util.sld; sourceTree = "<group>"; };
+		CCA5E0BCCE3EC67E61808B6A /* ListUtil.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = ListUtil.scm; sourceTree = "<group>"; };
+		CCA5E0F1C17F20488109A41B /* Sequence.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Sequence.scm; sourceTree = "<group>"; };
 		CCA6C3D023610674007D2AF0 /* MarkdownLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownLibrary.swift; sourceTree = "<group>"; };
 		CCA7DC2D23875FE500785FBE /* SRFI-175.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-175.scm"; sourceTree = "<group>"; };
 		CCA8017023D4AC91005F2323 /* 98.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 98.sld; sourceTree = "<group>"; };
@@ -4981,6 +5012,10 @@
 				CC79DE071F8993EE00CE7A5D /* LightweightTypes.scm */,
 				CC5157B826E42B370056B05B /* Procedures.scm */,
 				CCB5B0F4278A21F700B7E32C /* Math.scm */,
+				CCA5E017FB1E6088070AB810 /* MathUtil.scm */,
+				CCA5E0BCCE3EC67E61808B6A /* ListUtil.scm */,
+				CCA5E0F1C17F20488109A41B /* Sequence.scm */,
+				CCA5E0B2372732456D61929E /* CommandLine.scm */,
 				CC09CC5221F2974B00C16864 /* Vectors.scm */,
 				CCDAD5511D4813E900A7EE4F /* HashTables.scm */,
 				CC8169261D1FADE2003FADEA /* Ports.scm */,
@@ -5238,6 +5273,7 @@
 			isa = PBXGroup;
 			children = (
 				CC517E5B29A96E200096FC72 /* set.sld */,
+				CCA5E0B6EFDDAA9B8A851AB8 /* util.sld */,
 			);
 			path = list;
 			sourceTree = "<group>";
@@ -5300,6 +5336,8 @@
 				CC47F5F02349129B008B0303 /* comparator.sld */,
 				CCC4A3AA245CFFB800DE63E1 /* combinator.sld */,
 				CCE7CA451F8D819600FD7ECA /* iterate.sld */,
+				CCA5E066C737DB5F67FDD092 /* sequence.sld */,
+				CCA5E032D4F47F5432407A9E /* cmdline.sld */,
 				CC5848021E5691B300BE6497 /* set.sld */,
 				CC90B2331FE55DFE0044F724 /* stack.sld */,
 				CC90B2351FE5D7940044F724 /* queue.sld */,
@@ -5353,6 +5391,7 @@
 				CC7C3E9C2246F1E40082DF7C /* 33.sld */,
 				CC703A16218BC61D00E71EA9 /* 34.sld */,
 				CC48EBC21F3A6BFF00233FA9 /* 35.sld */,
+				CCA5E057341A79B7ADC56F56 /* 37.sld */,
 				CC703A17218BC7D000E71EA9 /* 39.sld */,
 				CC48EBCD1F3E5AC700233FA9 /* 41 */,
 				CC58480B1E56BD1800BE6497 /* 41.sld */,
@@ -5627,6 +5666,9 @@
 				CC6F369B2EEF7F6200666DE2 /* (lispkit json schema).md */,
 				CC6F369C2EEF7F6200666DE2 /* (lispkit json).md */,
 				CC6F369D2EEF7F6200666DE2 /* (lispkit list set).md */,
+				CCA5E06C0AED5807460FEFC5 /* (lispkit cmdline).md */,
+				CCA5E04C9C13ABB2BC6CA25E /* (lispkit list util).md */,
+				CCA5E00D176A7F35CA0FE2AC /* (lispkit sequence).md */,
 				CC6F369E2EEF7F6200666DE2 /* (lispkit list).md */,
 				CC6F369F2EEF7F6200666DE2 /* (lispkit location).md */,
 				CC6F36A02EEF7F6200666DE2 /* (lispkit log).md */,
@@ -6805,6 +6847,10 @@
 				CC8218911E3FFFAB009CA653 /* SRFI19.scm in Resources */,
 				CCC41DCA1D330439003CB4D0 /* DynamicWind.scm in Resources */,
 				CCB5B0F5278A21F700B7E32C /* Math.scm in Resources */,
+				CCA5E0C52CC8EA310AEFA5BA /* MathUtil.scm in Resources */,
+				CCA5E016C403B77A2A69AD0A /* ListUtil.scm in Resources */,
+				CCA5E0EE614AF16733370276 /* Sequence.scm in Resources */,
+				CCA5E03998187CD0D02D238E /* CommandLine.scm in Resources */,
 				CCDAD5521D4813E900A7EE4F /* HashTables.scm in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
