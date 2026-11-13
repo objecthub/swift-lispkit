@@ -3,6 +3,53 @@
 Library `(lispkit draw chart function)` supports drawing function plots based on a data-driven API in which _function charts_ are being described declaratively. A drawing procedure is then able to render one or more mathematical functions into a given drawing.
 
 
+## Overview
+
+A function chart is set up and drawn in a few steps: the functions are described by _function graphs_, the appearance of the chart by a function chart configuration, and an optional legend by a function legend configuration. Procedure `draw-function-chart` then renders everything into a drawing, which can be saved, e.g. as a PDF file. The following code draws two functions into a chart with a legend:
+
+```scheme
+(import (lispkit base)
+        (lispkit draw)
+        (lispkit draw chart function))
+(define d (make-drawing))
+(draw-function-chart
+  (list (function-graph sin "sin(x)" blue)
+        (function-graph cos "cos(x)" red))
+  -6.3 6.3                                   ; x range
+  -1.5 1.5                                   ; y range
+   2.0 0.5                                   ; x and y-axis tick step
+  "x" "y"                                    ; x and y-axis description
+  (point 50 30)                              ; location
+  (make-function-chart-config
+    'size: (size 500 300)
+    'samples: 200)                           ; chart configuration
+  (make-function-legend-config)              ; legend configuration
+  d)                                         ; target drawing
+(save-drawing "functions.pdf" d (size 600 380))
+```
+
+A single function can also be plotted without a legend:
+
+```scheme
+(define d (make-drawing))
+(draw-function-chart
+  (function-graph (lambda (x) (* x x)) "x²" red)
+  -5.0 5.0                                   ; x range
+  -2.0 25.0                                  ; y range
+  1.0                                        ; x-axis tick step
+  5.0                                        ; y-axis tick step
+  "x"                                        ; x-axis description
+  "f(x)"                                     ; y-axis description
+  (point 10 15)                              ; location
+  (make-function-chart-config
+    'box-color: #f
+    'size: (size 400 250))                   ; chart configuration
+  #f                                         ; no legend
+  d)                                         ; target drawing
+(save-drawing "parabola.pdf" d (size 420 270))
+```
+
+
 ## Function Chart Model
 
 The function chart model on which library `(lispkit draw chart function)` is based on consists of the following components:
@@ -318,49 +365,6 @@ Sets the axis overhead for the given function chart configuration _fconf_ to _va
 Draws a function chart into the drawing _drawing_. If _drawing_ is not provided, the drawing provided by the `current-drawing` parameter object of library `(lispkit draw)` is used.
 
 _funcs_ is either a single function graph (as created by `function-graph`) or a list of function graphs. Each function is sampled across the domain and rendered as a curve in its associated color, clipped to the plot area. _xmin_ and _xmax_ define the domain (x-axis range) of the chart. _ymin_ and _ymax_ define the visible range (y-axis range). _xstep_ defines the increment between tick marks on the x-axis. _ystep_ defines the increment between tick marks on the y-axis. Tick labels are generated automatically for each tick position. _xdescr_ is a string describing the x-axis, or `#f` to omit the description. _ydescr_ is a string describing the y-axis, or `#f` to omit the description. _loc_ is a point specifying the top-left corner at which the chart is placed within the drawing. _config_ is a function chart configuration object as created by `make-function-chart-config`. _legend_ is either a function legend configuration (as created by `make-function-legend-config`) or `#f`. If `#f`, no legend is drawn. If a legend configuration is provided, a legend box is drawn showing the label and color for each function graph that has a non-`#f` label.
-
-Here is an example showcasing the usage of `draw-function-chart`:
-
-```scheme
-(define d (make-drawing))
-(draw-function-chart
-  (list (function-graph sin "sin(x)" blue)
-        (function-graph cos "cos(x)" red))
-  -6.3 6.3                                   ; x range
-  -1.5 1.5                                   ; y range
-  2.0                                        ; x-axis tick step
-  0.5                                        ; y-axis tick step
-  "x"                                        ; x-axis description
-  "y"                                        ; y-axis description
-  (point 50 30)                              ; location
-  (make-function-chart-config
-    'size: (size 500 300)
-    'samples: 200)                           ; chart configuration
-  (make-function-legend-config)              ; legend configuration
-  d)                                         ; target drawing
-(save-drawing "functions.pdf" d (size 600 380))
-```
-
-A single function can also be plotted without a legend:
-
-```scheme
-(define d (make-drawing))
-(draw-function-chart
-  (function-graph (lambda (x) (* x x)) "x²" red)
-  -5.0 5.0                                   ; x range
-  -2.0 25.0                                  ; y range
-  1.0                                        ; x-axis tick step
-  5.0                                        ; y-axis tick step
-  "x"                                        ; x-axis description
-  "f(x)"                                     ; y-axis description
-  (point 10 15)                              ; location
-  (make-function-chart-config
-    'box-color: #f
-    'size: (size 400 250))                   ; chart configuration
-  #f                                         ; no legend
-  d)                                         ; target drawing
-(save-drawing "parabola.pdf" d (size 420 270))
-```
 
 The `draw-function-chart` procedure can also be used within the `drawing` syntax form, in which case the _drawing_ argument can be omitted and the chart is drawn into the `current-drawing`:
 

@@ -3,6 +3,52 @@
 Library `(lispkit draw chart pie)` supports drawing pie charts and donut charts based on a data-driven API in which _pie charts_ are being described declaratively. A drawing procedure is then able to render a pie chart into a given drawing as defined by library `(lispkit draw)`.
 
 
+## Overview
+
+A pie chart is set up and drawn in a few steps: the slices are described by _slice_ objects, the appearance of the chart by a pie chart configuration, and an optional legend by a legend configuration. Procedure `draw-pie-chart` then renders everything into a drawing, which can be saved, e.g. as a PDF file. The following code draws a pie chart with four slices and a legend:
+
+```scheme
+(import (lispkit base)
+        (lispkit draw)
+        (lispkit draw chart pie))
+
+(define d (make-drawing))
+(draw-pie-chart
+  (list (slice "Apples" 40)
+        (slice "Pears" 25)
+        (slice "Cherries" 20)
+        (slice "Plums" 15))
+  (point 50 30)                              ; location
+  (make-pie-chart-config
+    'size: (size 500 300))                   ; chart configuration
+  (make-pie-legend-config)                   ; legend configuration
+  d)                                         ; target drawing
+(save-drawing "fruits.pdf" d (size 600 380))
+```
+
+A donut chart without labels next to the slices, an exploded slice, and a custom value format:
+
+```scheme
+(define d (make-drawing))
+(draw-pie-chart
+  (list (slice "Americas" 1840)
+        (slice "EMEA" 1290 #f 14)
+        (slice "Asia Pacific" 960)
+        (slice "Other" 215))
+  (point 50 30)
+  (make-pie-chart-config
+    'hole: 0.5
+    'label-font: #f
+    'value-format: (lambda (value share)
+                     (string-append "$" (number->string value) "k")))
+  (make-pie-legend-config
+    'horizontal-offset: 12
+    'vertical-offset: -12)
+  d)
+(save-drawing "revenue.pdf" d (size 600 380))
+```
+
+
 ## Pie Chart Model
 
 The pie chart model on which library `(lispkit draw chart pie)` is based on consists of the following components:
@@ -301,45 +347,6 @@ Draws a pie chart into the drawing _drawing_. If _drawing_ is not provided, the 
 _slices_ is a non-empty list of slices as created by `slice`, in the order in which they are arranged. At least one slice needs to have a value greater than zero. _loc_ is either a point specifying the top-left corner at which the chart is placed within the drawing, in which case the size of the chart is defined by the configuration, or a rectangle defining the bounds of the chart. _config_ is a pie chart configuration object as created by `make-pie-chart-config`. _legend_ is either a legend configuration (as created by `make-pie-legend-config`) or `#f`. If `#f`, no legend is drawn. If a legend configuration is provided, a legend box is drawn showing the label and color for each slice that has a label, including slices with value `0`.
 
 An error is signaled if the chart is too small for showing the pie together with its labels.
-
-Here is an example showcasing the usage of `draw-pie-chart`:
-
-```scheme
-(define d (make-drawing))
-(draw-pie-chart
-  (list (slice "Apples" 40)
-        (slice "Pears" 25)
-        (slice "Cherries" 20)
-        (slice "Plums" 15))
-  (point 50 30)                              ; location
-  (make-pie-chart-config
-    'size: (size 500 300))                   ; chart configuration
-  (make-pie-legend-config)                   ; legend configuration
-  d)                                         ; target drawing
-(save-drawing "fruits.pdf" d (size 600 380))
-```
-
-A donut chart without labels next to the slices, an exploded slice, and a custom value format:
-
-```scheme
-(define d (make-drawing))
-(draw-pie-chart
-  (list (slice "Americas" 1840)
-        (slice "EMEA" 1290 #f 14)
-        (slice "Asia Pacific" 960)
-        (slice "Other" 215))
-  (point 50 30)
-  (make-pie-chart-config
-    'hole: 0.5
-    'label-font: #f
-    'value-format: (lambda (value share)
-                     (string-append "$" (number->string value) "k")))
-  (make-pie-legend-config
-    'horizontal-offset: 12
-    'vertical-offset: -12)
-  d)
-(save-drawing "revenue.pdf" d (size 600 380))
-```
 
 The `draw-pie-chart` procedure can also be used within the `drawing` syntax form, in which case the _drawing_ argument can be omitted and the chart is drawn into the `current-drawing`:
 

@@ -2,11 +2,9 @@
 
 Library `(lispkit list util)` provides list utilities that are neither part of R7RS nor of the SRFIs supported by LispKit (e.g. SRFI 1), such as `flatten`, `group-by`, and the combinatorial procedures `permutations`, `combinations` and `cartesian-product`. The library also exports the basic procedures `take` and `drop`, so that it does not depend on any other list library. The procedures only use the standard list operations; all lists are treated as immutable and new lists are returned.
 
-With the exception of `take` and `drop`, procedures for which SRFI 1 (`(srfi 1)`), SRFI 133 (`(srfi 133)`) or SRFI 152 (`(srfi 152)`) already provide an equivalent, such as `delete-duplicates`, `partition`, `append-map`, `last`, `iota`, `vector-count` or `string-join`, are not duplicated by this library.
-
 ```scheme
-(import (lispkit base) (lispkit list util))
-
+(import (lispkit base)
+        (lispkit list util))
 (flatten '(1 (2 (3 . 4)) () 5))              ⇒  (1 2 3 4 5)
 (group-by even? '(1 2 3 4 5))                ⇒  ((1 3 5) (2 4))
 (combinations '(a b c) 2)                    ⇒  ((a b) (a c) (b c))
@@ -49,7 +47,7 @@ Returns a list with the elements of _lst_ in random order. The result is based o
 Returns a new list that is like _lst_ but where the element at index _k_ (starting with 0) is replaced by _obj_ (`list-set`) or by the result of applying _proc_ to the element (`list-update`). The original list is not changed. It is an error if _k_ is not a valid index of _lst_.
 
 ```scheme
-(list-set '(a b c) 1 'x)                     ⇒  (a x c)
+(list-set '(a b c) 1 'x)                        ⇒  (a x c)
 (list-update '(1 2 3) 2 (lambda (x) (* x 10)))  ⇒  (1 2 30)
 ```
 
@@ -69,7 +67,7 @@ Returns the first element of the non-empty list _lst_ for which _proc_ returns t
 Partitions _lst_ into groups of elements for which procedure _key_ returns equivalent values with respect to equivalence predicate _same?_ (default: `equal?`). The groups are ordered by the first appearance of their key in _lst_, and the elements in each group are ordered like in _lst_.
 
 ```scheme
-(group-by (lambda (x) (modulo x 3)) '(1 2 3 4 5 6 7))   ⇒  ((1 4 7) (2 5) (3 6))
+(group-by (lambda (x) (modulo x 3)) '(1 2 3 4 5 6 7))  ⇒  ((1 4 7) (2 5) (3 6))
 ```
 
 **(check-duplicates _lst_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
@@ -78,7 +76,7 @@ Partitions _lst_ into groups of elements for which procedure _key_ returns equiv
 Returns the first element of _lst_ which is equivalent, with respect to equivalence predicate _same?_ (default: `equal?`), to an element before it. Returns `#f` if there is no such element.
 
 ```scheme
-(check-duplicates '(1 2 3 2 1))              ⇒  2
+(check-duplicates '(1 2 3 2 1))                 ⇒  2
 (check-duplicates '("a" "b" "A") string-ci=?)   ⇒  "A"
 ```
 
@@ -105,5 +103,5 @@ Returns a list of all combinations of _k_ elements of _lst_. A combination prese
 Returns the cartesian product of the lists _lst ..._ as a list of lists. Without arguments, the result is a list with the empty list as its only element.
 
 ```scheme
-(cartesian-product '(1 2) '(a b))   ⇒  ((1 a) (1 b) (2 a) (2 b))
+(cartesian-product '(1 2) '(a b))  ⇒  ((1 a) (1 b) (2 a) (2 b))
 ```

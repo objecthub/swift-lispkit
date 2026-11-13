@@ -3,6 +3,77 @@
 Library `(lispkit draw chart bar)` supports drawing bar charts based on a data-driven API in which _bar charts_ are being described declaratively. A drawing function is then able to draw a bar chart into a given drawing as defined by library `(lispkit draw)`.
 
 
+## Overview
+
+A bar chart is set up and drawn in a few steps: the bars are described by _bar_ objects, the appearance of the chart by a bar chart configuration, and an optional legend by a legend configuration. Procedure `draw-bar-chart` then renders everything into a drawing, which can be saved, e.g. as a PDF file. The following code draws a bar chart with twelve bars:
+
+```scheme
+(import (lispkit base)
+        (lispkit draw)
+        (lispkit draw chart bar))
+
+(define d (make-drawing))
+(draw-bar-chart
+  (list (bar "Jan" 0) (bar "Feb" 2) (bar "Mar" 6)
+        (bar "Apr" 9) (bar "May" 14) (bar "Jun" 16)
+        (bar "Jul" 19) (bar "Aug" 18) (bar "Sep" 15)
+        (bar "Oct" 11) (bar "Nov" 5) (bar "Dec" 2))
+  gray                                       ; bar color
+  5                                          ; y axis step
+  "Temperature [C°]"                         ; y axis label
+  "Month"                                    ; x axis label
+  (point 50 30)                              ; location
+  (make-bar-chart-config
+    'size: (size 495 200))                   ; chart configuration
+  #f                                         ; legend configuration
+  d)                                         ; target drawing
+
+(save-drawing "temperature.pdf" d (size 600 260))
+```
+
+Bars can be organized in groups, and a bar can be divided into stacked segments by providing multiple values. Each segment is described by a _bar segment_ object, which also defines the colors that are used by the legend. The following code draws four groups of two bars with three segments each, together with a legend that is placed in the area reserved by the right padding of the chart:
+
+```scheme
+(import (lispkit base)
+        (lispkit draw)
+        (lispkit draw chart))
+
+(define d (make-drawing))
+
+(draw-bar-chart
+  (list
+    (bar-group "Q1 2021"
+      (bar "Male" 3.3 2.2 2.6)
+      (bar "Female" 4.0 3.0 2.0))
+    (bar-group "Q2 2021"
+      (bar "Male" 1.0 3.5 1.8)
+      (bar "Female" 2.0 4.1 4.0))
+    (bar-group "Q3 2021"
+      (bar "Male" 2.1 3.3 1.3)
+      (bar "Female" 3.2 2.9 2.2))
+    (bar-group "Q4 2021"
+      (bar "Male" 2.7 4.1 3.0)
+      (bar "Female" 2.0 4.6 4.5)))
+  (list
+    (bar-segment "Facebook" red black)     ; one segment per value of a bar
+    (bar-segment "Instagram" green black)
+    (bar-segment "Twitter" blue white))
+  2.0
+  "Engagements [Thousands]"
+  #f
+  (point 50 30)
+  (make-bar-chart-config
+    'size: (size 540 240)
+    'right-pad: 90)                        ; make room for the legend
+  (make-legend-config
+    'horizontal-offset: -10
+    'vertical-offset: 10)
+  d)
+
+(save-drawing "engagements.pdf" d (size 640 300))
+```
+
+
 ## Bar Chart Model
 
 The following diagram shows a generic bar chart model including the various elements that make up bar charts and parameters that can be configured:
@@ -335,7 +406,7 @@ Returns the overhead on the y axis of the coordinate system defined by the given
 
 **(bar-chart-yaxis-overhead-set! _bconf val_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Sets the overhead on the y axis of the coordinate system for the given bar chart configuration _bconf_ to _val_.
+Sets the overhead on the y axis of the coordinate system for the bar chart configuration _bconf_ to _val_.
 
 
 ## Constructing Bar Charts
@@ -351,7 +422,7 @@ Returns `#t` if _obj_ is a bar object, otherwise `#f` is returned.
 **(bar _label value ..._)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(bar _label color value ..._)**  
 
-Creates a new bar object. A bar without bar segments consists of a single value and an optional label string (`#f` disables the label) and color. A segmented bar has a value for all segments (i.e. all bars of a bar diagram should have the same number of segments). A segment is disabled by setting its value to 0.
+Creates a new bar object. A bar without bar segments consists of a single value and an optional label string (`#f` disables the label) and color. A segmented bar has a value for all segments (all bars of a bar diagram should have the same number of segments). A segment is disabled by setting its value to 0.
 
 **(bar-label _bar_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
