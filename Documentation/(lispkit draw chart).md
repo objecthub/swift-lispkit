@@ -1,13 +1,13 @@
 # LispKit Draw Chart
 
-Library `(lispkit draw chart)` provides abstractions that are shared between the various chart libraries of LispKit, such as `(lispkit draw chart bar)` and `(lispkit draw chart function)`. Currently, this library defines a single record type, `legend-config`, which encapsulates the parameters needed for drawing a legend within a chart. A legend links labels (e.g. names of bar segments or function graphs) to the colors used to visually distinguish them in a chart.
+Library `(lispkit draw chart)` provides abstractions that are shared between the various chart libraries of LispKit, such as `(lispkit draw chart bar)`, `(lispkit draw chart pie)`, and `(lispkit draw chart function)`. Currently, this library defines a single record type, `legend-config`, which encapsulates the parameters needed for drawing a legend within a chart, and a procedure `draw-legend` for drawing legends. A legend links labels (e.g. names of bar segments, slices of a pie chart, or function graphs) to the colors used to visually distinguish them in a chart.
 
-Chart-specific libraries typically provide their own constructor for legend configurations (e.g. `make-bar-chart-config` from `(lispkit draw chart bar)` or `make-function-legend-config` from `(lispkit draw chart function)`) that come with defaults tailored to the corresponding chart type. The accessor and mutator procedures for legend configuration objects, however, are defined once, centrally, by this library and are used by all chart libraries.
+Chart-specific libraries typically provide their own constructor for legend configurations (e.g. `make-pie-legend-config` from `(lispkit draw chart pie)` or `make-function-legend-config` from `(lispkit draw chart function)`) that come with defaults tailored to the corresponding chart type. The accessor and mutator procedures for legend configuration objects, however, are defined once, centrally, by this library and are used by all chart libraries.
 
 
 ## Legends
 
-A _legend configuration_ is a record encapsulating all parameters needed for drawing a legend. Legend configurations are mutable objects that are created via procedure `make-legend-config` (or via a chart-specific constructor such as `make-bar-chart-config` or `make-function-legend-config`). For every parameter, there is an accessor and a setter procedure.
+A _legend configuration_ is a record encapsulating all parameters needed for drawing a legend. Legend configurations are mutable objects that are created via procedure `make-legend-config` (or via a chart-specific constructor such as `make-pie-legend-config` or `make-function-legend-config`). For every parameter, there is an accessor and a setter procedure.
 
 **(make-legend-config _key val ..._)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
@@ -126,3 +126,23 @@ Returns the entry padding defined by the given legend configuration _lconf_, i.e
 **(legend-entry-pad-set! _lconf val_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Sets the entry padding for the given legend configuration _lconf_ to _val_.
+
+
+## Drawing Legends
+
+**(draw-legend _entries bounds lconf color bgcolor_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(draw-legend _entries bounds lconf color bgcolor drawing_)**  
+
+Draws a legend into the drawing _drawing_. If _drawing_ is not provided, the drawing provided by the `current-drawing` parameter object of library `(lispkit draw)` is used. The legend consists of a bounding box with one line for each entry. Each line shows a box in the color of the entry followed by the entry's label. This procedure is used by the bar chart and pie chart libraries.
+
+_entries_ is a list of legend entries. Each entry is a list whose first element is a label (a string) and whose second element is a color. Further elements are ignored. _bounds_ is a rectangle, in the coordinate system of the drawing, defining the bounds of the chart for which the legend is drawn. The position of the legend is defined by the horizontal and vertical offsets of the legend configuration _lconf_ relative to _bounds_: a non-negative offset is measured from the left/top edge of _bounds_, a negative offset is measured from the right/bottom edge. _lconf_ is a legend configuration object. _color_ is the color used for labels and _bgcolor_ is the color used for filling the bounding box. They are used if _lconf_ does not define a color or a background color, i.e. if `legend-color` or `legend-bg-color` return `#f`. The border of the bounding box is drawn in gray.
+
+```scheme
+(define d (make-drawing))
+(draw-legend (list (list "Low" blue) (list "High" red))
+             (rect 0 0 400 250)
+             (make-legend-config 'horizontal-offset: -10 'vertical-offset: 10)
+             black
+             white
+             d)
+```

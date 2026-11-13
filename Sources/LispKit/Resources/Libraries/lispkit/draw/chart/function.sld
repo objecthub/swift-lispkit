@@ -374,7 +374,7 @@
     
     ;; Draw the legend within the plot area.
     ;; ox, oy, plot-w, plot-h define the plot area rectangle.
-    (define (draw-legend funcs ox oy plot-w plot-h lconf drw)
+    (define (draw-function-legend funcs ox oy plot-w plot-h lconf drw)
       (let* ((lfont       (legend-font lconf))
              (lcol        (legend-color lconf))
              (lsw         (legend-stroke-width lconf))
@@ -682,7 +682,7 @@
             (draw (rectangle (point ox oy) (size plot-w plot-h)) sw drw))
         ; Legend
         (if (legend-config? legend)
-            (draw-legend funcs (point-x loc) (point-y loc) total-w total-h legend drw)))))
+            (draw-function-legend funcs (point-x loc) (point-y loc) total-w total-h legend drw)))))
             ; (draw-legend funcs ox oy plot-w plot-h legend drw)))))
   )
 )

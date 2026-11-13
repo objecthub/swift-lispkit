@@ -681,11 +681,15 @@
 		CC7C3EA02246F8BD0082DF7C /* 46.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC7C3E9B2246F0A30082DF7C /* 46.sld */; };
 		CC7C3EA12246F8BD0082DF7C /* 55.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC7C3E9A2246EF6D0082DF7C /* 55.sld */; };
 		CC7CCB792FA576A900C05C77 /* function.sld in Copy pre-installed LispKit library: LispKit Draw Chart */ = {isa = PBXBuildFile; fileRef = CC7CCB762FA5709100C05C77 /* function.sld */; };
+		FFAF09D4912CB653D77E2D2B /* pie.sld in Copy pre-installed LispKit library: LispKit Draw Chart */ = {isa = PBXBuildFile; fileRef = A08B1568FFEC589681DD7A47 /* pie.sld */; };
 		CC7CCB7A2FA576C100C05C77 /* chart.sld in Copy pre-installed LispKit library: LispKit Draw */ = {isa = PBXBuildFile; fileRef = CC7CCB772FA5710100C05C77 /* chart.sld */; };
 		CC7CCB7B2FA576E100C05C77 /* chart.sld in Copy pre-installed LispKit library: LispKit Draw */ = {isa = PBXBuildFile; fileRef = CC7CCB772FA5710100C05C77 /* chart.sld */; };
 		CC7CCB7C2FA576F200C05C77 /* function.sld in Copy pre-installed LispKit library: LispKit Draw Chart */ = {isa = PBXBuildFile; fileRef = CC7CCB762FA5709100C05C77 /* function.sld */; };
+		FEF9FE1272A658B42ED1E0A5 /* pie.sld in Copy pre-installed LispKit library: LispKit Draw Chart */ = {isa = PBXBuildFile; fileRef = A08B1568FFEC589681DD7A47 /* pie.sld */; };
 		CC7CCB7D2FA5770600C05C77 /* DrawFunctionCharts.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC7CCB782FA5750900C05C77 /* DrawFunctionCharts.scm */; };
+		ABB20D3ADC3DC5A9613DCF37 /* DrawPieCharts.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = 02FA424CDA9AEE24BC34D611 /* DrawPieCharts.scm */; };
 		CC7CCB7E2FA5771F00C05C77 /* DrawFunctionCharts.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC7CCB782FA5750900C05C77 /* DrawFunctionCharts.scm */; };
+		CACCD92DCC68712296EAAC6A /* DrawPieCharts.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = 02FA424CDA9AEE24BC34D611 /* DrawPieCharts.scm */; };
 		CC7D4B1A2A084FA50066BA94 /* 2020-01-22.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B0C2A084F160066BA94 /* 2020-01-22.data */; };
 		CC7D4B1B2A084FA50066BA94 /* 2020-01-23.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B042A084F160066BA94 /* 2020-01-23.data */; };
 		CC7D4B1C2A084FA50066BA94 /* 2020-01-24.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B052A084F160066BA94 /* 2020-01-24.data */; };
@@ -929,6 +933,7 @@
 		CCA5E0C52CC8EA310AEFA5BA /* MathUtil.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCA5E017FB1E6088070AB810 /* MathUtil.scm */; };
 		CCA5E0EA5F00E2F3E04ABB70 /* util.sld in Copy pre-installed LispKit library: LispKit List */ = {isa = PBXBuildFile; fileRef = CCA5E0B6EFDDAA9B8A851AB8 /* util.sld */; };
 		CCA5E0EE614AF16733370276 /* Sequence.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCA5E0F1C17F20488109A41B /* Sequence.scm */; };
+		CF2B59D966156C3ECD3CD44C /* ChartPie.scm in Resources */ = {isa = PBXBuildFile; fileRef = 0B1B8F9C424380180AF06CA4 /* ChartPie.scm */; };
 		CCA5E0F4068F9BBA41F9513F /* cmdline.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCA5E032D4F47F5432407A9E /* cmdline.sld */; };
 		CCA6C3D123610674007D2AF0 /* MarkdownLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA6C3D023610674007D2AF0 /* MarkdownLibrary.swift */; };
 		CCA6C3D42361149D007D2AF0 /* MarkdownKit in Frameworks */ = {isa = PBXBuildFile; productRef = CCA6C3D32361149D007D2AF0 /* MarkdownKit */; };
@@ -2023,6 +2028,7 @@
 				CCAC49272FD36F9B00D85F2A /* AnsiMarkdown.scm in Copy examples */,
 				CC8F277B2FBBBF30000AF851 /* Connect4.scm in Copy examples */,
 				CC7CCB7E2FA5771F00C05C77 /* DrawFunctionCharts.scm in Copy examples */,
+				CACCD92DCC68712296EAAC6A /* DrawPieCharts.scm in Copy examples */,
 				CC9FF30C2E2E92BC00D4C445 /* Pinterest.scm in Copy examples */,
 				CC4132432DF9BB0A00D77CF6 /* MermaidDiagrams.scm in Copy examples */,
 				CC4132312DF5CB8300D77CF6 /* DrawMaps.scm in Copy examples */,
@@ -2532,6 +2538,7 @@
 			dstSubfolderSpec = 7;
 			files = (
 				CC7CCB792FA576A900C05C77 /* function.sld in Copy pre-installed LispKit library: LispKit Draw Chart */,
+				FFAF09D4912CB653D77E2D2B /* pie.sld in Copy pre-installed LispKit library: LispKit Draw Chart */,
 				CC6E93D1281E9FDB0002C4BC /* bar.sld in Copy pre-installed LispKit library: LispKit Draw Chart */,
 			);
 			name = "Copy pre-installed LispKit library: LispKit Draw Chart";
@@ -2544,6 +2551,7 @@
 			dstSubfolderSpec = 7;
 			files = (
 				CC7CCB7C2FA576F200C05C77 /* function.sld in Copy pre-installed LispKit library: LispKit Draw Chart */,
+				FEF9FE1272A658B42ED1E0A5 /* pie.sld in Copy pre-installed LispKit library: LispKit Draw Chart */,
 				CC6E93D3281EA05A0002C4BC /* bar.sld in Copy pre-installed LispKit library: LispKit Draw Chart */,
 			);
 			name = "Copy pre-installed LispKit library: LispKit Draw Chart";
@@ -3373,6 +3381,7 @@
 				CCAC49282FD36FA900D85F2A /* AnsiMarkdown.scm in Copy examples */,
 				CC8F277C2FBBBF41000AF851 /* Connect4.scm in Copy examples */,
 				CC7CCB7D2FA5770600C05C77 /* DrawFunctionCharts.scm in Copy examples */,
+				ABB20D3ADC3DC5A9613DCF37 /* DrawPieCharts.scm in Copy examples */,
 				CC9FF30D2E2E92CD00D4C445 /* Pinterest.scm in Copy examples */,
 				CC4132442DF9BB1E00D77CF6 /* MermaidDiagrams.scm in Copy examples */,
 				CC4132322DF5CB9500D77CF6 /* DrawMaps.scm in Copy examples */,
@@ -4420,8 +4429,10 @@
 		CC7C3E9C2246F1E40082DF7C /* 33.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 33.sld; sourceTree = "<group>"; };
 		CC7C3E9D2246F8700082DF7C /* 26.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 26.sld; sourceTree = "<group>"; };
 		CC7CCB762FA5709100C05C77 /* function.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = function.sld; sourceTree = "<group>"; };
+		A08B1568FFEC589681DD7A47 /* pie.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = pie.sld; sourceTree = "<group>"; };
 		CC7CCB772FA5710100C05C77 /* chart.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = chart.sld; sourceTree = "<group>"; };
 		CC7CCB782FA5750900C05C77 /* DrawFunctionCharts.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = DrawFunctionCharts.scm; sourceTree = "<group>"; };
+		02FA424CDA9AEE24BC34D611 /* DrawPieCharts.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = DrawPieCharts.scm; sourceTree = "<group>"; };
 		CC7D4AF22A084F150066BA94 /* 2020-02-18.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-02-18.data"; sourceTree = "<group>"; };
 		CC7D4AF32A084F150066BA94 /* 2020-02-05.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-02-05.data"; sourceTree = "<group>"; };
 		CC7D4AF42A084F150066BA94 /* 2020-02-02.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-02-02.data"; sourceTree = "<group>"; };
@@ -4615,6 +4626,7 @@
 		CCA5E0B6EFDDAA9B8A851AB8 /* util.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = util.sld; sourceTree = "<group>"; };
 		CCA5E0BCCE3EC67E61808B6A /* ListUtil.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = ListUtil.scm; sourceTree = "<group>"; };
 		CCA5E0F1C17F20488109A41B /* Sequence.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Sequence.scm; sourceTree = "<group>"; };
+		0B1B8F9C424380180AF06CA4 /* ChartPie.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = ChartPie.scm; sourceTree = "<group>"; };
 		CCA6C3D023610674007D2AF0 /* MarkdownLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownLibrary.swift; sourceTree = "<group>"; };
 		CCA7DC2D23875FE500785FBE /* SRFI-175.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-175.scm"; sourceTree = "<group>"; };
 		CCA8017023D4AC91005F2323 /* 98.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 98.sld; sourceTree = "<group>"; };
@@ -4855,6 +4867,7 @@
 		CCFB412A25B25316005B2429 /* ZipArchiveLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZipArchiveLibrary.swift; sourceTree = "<group>"; };
 		CCFBE5C31ECBA8DA0032254B /* Pi.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Pi.scm; sourceTree = "<group>"; };
 		CCFD8C77300254D3002640DE /* (lispkit draw chart function).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit draw chart function).md"; sourceTree = "<group>"; };
+		3EF540D6E5A01F18F009D1B3 /* (lispkit draw chart pie).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit draw chart pie).md"; sourceTree = "<group>"; };
 		CCFFD5802D4C53310092150E /* Billboard.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Billboard.jpg; sourceTree = "<group>"; };
 		CCFFD5812D4C53510092150E /* Inga.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Inga.jpg; sourceTree = "<group>"; };
 		CCFFD5862D4C5F4A0092150E /* ImageComposition.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = ImageComposition.scm; sourceTree = "<group>"; };
@@ -5015,6 +5028,7 @@
 				CCA5E017FB1E6088070AB810 /* MathUtil.scm */,
 				CCA5E0BCCE3EC67E61808B6A /* ListUtil.scm */,
 				CCA5E0F1C17F20488109A41B /* Sequence.scm */,
+				0B1B8F9C424380180AF06CA4 /* ChartPie.scm */,
 				CCA5E0B2372732456D61929E /* CommandLine.scm */,
 				CC09CC5221F2974B00C16864 /* Vectors.scm */,
 				CCDAD5511D4813E900A7EE4F /* HashTables.scm */,
@@ -5617,6 +5631,7 @@
 			children = (
 				CC7CCB762FA5709100C05C77 /* function.sld */,
 				CC6E93CF281E9F580002C4BC /* bar.sld */,
+				A08B1568FFEC589681DD7A47 /* pie.sld */,
 			);
 			path = chart;
 			sourceTree = "<group>";
@@ -5646,6 +5661,7 @@
 				CCA09F7F30319A0D00636D8C /* (lispkit draw chart).md */,
 				CC6F36882EEF7F6200666DE2 /* (lispkit draw chart bar).md */,
 				CCFD8C77300254D3002640DE /* (lispkit draw chart function).md */,
+				3EF540D6E5A01F18F009D1B3 /* (lispkit draw chart pie).md */,
 				CC6F36892EEF7F6200666DE2 /* (lispkit draw map).md */,
 				CC6F368A2EEF7F6200666DE2 /* (lispkit draw turtle).md */,
 				CC6F368B2EEF7F6200666DE2 /* (lispkit draw web).md */,
@@ -6442,6 +6458,7 @@
 				CC41322A2DF5989300D77CF6 /* DrawMaps.scm */,
 				CCCB66E0282DB9790004827D /* DrawBarCharts.scm */,
 				CC7CCB782FA5750900C05C77 /* DrawFunctionCharts.scm */,
+				02FA424CDA9AEE24BC34D611 /* DrawPieCharts.scm */,
 				CC202DE325AA9D70003901BE /* VisualizePointSets.scm */,
 				CCCB5C9F284224260005248D /* StyledTextDoc.scm */,
 				CCFFD5862D4C5F4A0092150E /* ImageComposition.scm */,
@@ -6850,6 +6867,7 @@
 				CCA5E0C52CC8EA310AEFA5BA /* MathUtil.scm in Resources */,
 				CCA5E016C403B77A2A69AD0A /* ListUtil.scm in Resources */,
 				CCA5E0EE614AF16733370276 /* Sequence.scm in Resources */,
+				CF2B59D966156C3ECD3CD44C /* ChartPie.scm in Resources */,
 				CCA5E03998187CD0D02D238E /* CommandLine.scm in Resources */,
 				CCDAD5521D4813E900A7EE4F /* HashTables.scm in Resources */,
 			);

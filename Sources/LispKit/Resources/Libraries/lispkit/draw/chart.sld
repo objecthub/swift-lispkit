@@ -2,8 +2,9 @@
 ;;;
 ;;; This library provides access to abstractions that are shared between
 ;;; the various chart libraries. For now, this library defines a record
-;;; encapsulating graph legend metadata.
-;;; 
+;;; encapsulating graph legend metadata, as well as a procedure for drawing
+;;; a legend consisting of colored samples with labels.
+;;;
 ;;; Author: Matthias Zenger
 ;;; Copyright © 2026 Matthias Zenger. All rights reserved.
 ;;;
@@ -47,8 +48,9 @@
     legend-line-pad
     legend-line-pad-set!
     legend-entry-pad
-    legend-entry-pad-set!)
-  
+    legend-entry-pad-set!
+    draw-legend)
+
   (import (lispkit base)
           (lispkit draw))
   
@@ -106,5 +108,83 @@
           sample-length
           line-pad
           entry-pad)))
+
+    ;; Draws a legend into drawing `drw` (default: `(current-drawing)`).
+    ;;
+    ;; entries  - list of legend entries; each entry is a list `(label color . rest)`
+    ;;            (elements after the color are ignored)
+    ;; bounds   - rectangle of the chart, in the coordinate system of the drawing; the
+    ;;            horizontal/vertical offsets of `lconf` are relative to this rectangle
+    ;; lconf    - legend configuration
+    ;; c        - color for labels, used if `lconf` does not define a color
+    ;; bgc      - background color, used if `lconf` does not define a background color
+    (define (draw-legend entries bounds lconf c bgc . args)
+      (let-optionals args ((drw (current-drawing)))
+        (let* ((lfont (legend-font lconf))
+               (color (or (legend-color lconf) c))
+               (bgcolor (or (legend-bg-color lconf) bgc))
+               (legend-size (fold-left (lambda (acc x)
+                                         (let ((s (text-size (car x) lfont)))
+                                           (size (max (size-width acc)
+                                                      (+ (size-width s)
+                                                         (legend-sample-area-width lconf)
+                                                         (* 2 (legend-entry-pad lconf))))
+                                                 (+ (size-height acc)
+                                                    (size-height s)
+                                                    (legend-line-pad lconf)))))
+                                       (size 0 (- (* 2 (legend-entry-pad lconf))
+                                                  (legend-line-pad lconf)))
+                                       entries))
+               (origin (cond ((and (>= (legend-horizontal-offset lconf) 0)
+                                   (>= (legend-vertical-offset lconf) 0))
+                               (point (+ (rect-x bounds) (legend-horizontal-offset lconf))
+                                      (+ (rect-y bounds) (legend-vertical-offset lconf))))
+                             ((>= (legend-horizontal-offset lconf) 0)
+                               (point (+ (rect-x bounds) (legend-horizontal-offset lconf))
+                                      (+ (rect-y bounds)
+                                         (- (rect-height bounds)
+                                            (size-height legend-size)
+                                            (- (legend-vertical-offset lconf))))))
+                             ((>= (legend-vertical-offset lconf) 0)
+                               (point (+ (rect-x bounds)
+                                         (- (rect-width bounds)
+                                            (size-width legend-size)
+                                            (- (legend-horizontal-offset lconf))))
+                                      (+ (rect-y bounds) (legend-vertical-offset lconf))))
+                             (else
+                               (point (+ (rect-x bounds)
+                                         (- (rect-width bounds)
+                                            (size-width legend-size)
+                                            (- (legend-horizontal-offset lconf))))
+                                      (+ (rect-y bounds)
+                                         (- (rect-height bounds)
+                                            (size-height legend-size)
+                                            (- (legend-vertical-offset lconf)))))))))
+          (with-drawing drw
+            (let ((surface (if (> (legend-corner-radius lconf) 0)
+                               (rectangle origin legend-size (legend-corner-radius lconf))
+                               (rectangle origin legend-size))))
+              (set-fill-color bgcolor)
+              (fill surface)
+              (set-color gray)
+              (draw surface (legend-stroke-width lconf)))
+            (do ((es entries (cdr es))
+                 (dy (+ (point-y origin) (legend-entry-pad lconf))))
+                ((not (pair? es)))
+              (let ((s (text-size (caar es) lfont)))
+                (set-fill-color (cadar es))
+                (fill-rect (rect (point (+ (point-x origin) (legend-entry-pad lconf))
+                                        (+ dy
+                                           (/ (size-height s) 2)
+                                           (/ (legend-sample-length lconf) -2)))
+                                 (size (legend-sample-length lconf) (legend-sample-length lconf))))
+                (draw-text (caar es)
+                           (point (+ (point-x origin)
+                                     (legend-entry-pad lconf)
+                                     (legend-sample-area-width lconf))
+                                  dy)
+                           lfont
+                           color)
+                (set! dy (+ dy (size-height s) (legend-line-pad lconf)))))))))
   )
 )
