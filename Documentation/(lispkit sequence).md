@@ -194,7 +194,7 @@ Iterates like `for` and `for*`, respectively, and returns the sum (or the produc
 
 **(for/first _(clause ...) body ..._)** <span style="float:right;text-align:rigth;">[syntax]</span>  
 **(for\*/first _(clause ...) body ..._)**  
-**(for/last _(clause ...) body ..._)** <span style="float:right;text-align:rigth;">[syntax]</span>  
+**(for/last _(clause ...) body ..._)**  
 **(for\*/last _(clause ...) body ..._)**  
 
 `for/first` and `for*/first` return the value of the body for the first iteration and stop the iteration. `for/last` and `for*/last` return the value of the body for the last iteration. All forms return `#f` if the iteration is empty.
@@ -207,9 +207,9 @@ Iterates like `for` and `for*`, respectively, and returns the sum (or the produc
 
 **(for/hash _(clause ...) body ..._)** <span style="float:right;text-align:rigth;">[syntax]</span>  
 **(for\*/hash _(clause ...) body ..._)**  
-**(for/hasheq _(clause ...) body ..._)** <span style="float:right;text-align:rigth;">[syntax]</span>  
+**(for/hasheq _(clause ...) body ..._)**  
 **(for\*/hasheq _(clause ...) body ..._)**  
-**(for/hasheqv _(clause ...) body ..._)** <span style="float:right;text-align:rigth;">[syntax]</span>  
+**(for/hasheqv _(clause ...) body ..._)**  
 **(for\*/hasheqv _(clause ...) body ..._)**  
 
 Iterates like `for` and `for*` and returns a new mutable hash table. The last body expression of each iteration has to return two values, a key and a value, which are added to the hash table. `for/hash` creates an `equal?`-based hash table, `for/hasheq` an `eq?`-based and `for/hasheqv` an `eqv?`-based hash table.
@@ -264,11 +264,11 @@ Returns a sequence of the elements of list _lst_.
 **(in-vector _vec start_)**  
 **(in-vector _vec start stop_)**  
 **(in-vector _vec start stop step_)**  
-**(in-string _str_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(in-string _str_)**  
 **(in-string _str start_)**  
 **(in-string _str start stop_)**  
 **(in-string _str start stop step_)**  
-**(in-bytevector _bvec_)** <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(in-bytevector _bvec_)**  
 **(in-bytevector _bvec start_)**  
 **(in-bytevector _bvec start stop_)**  
 **(in-bytevector _bvec start stop step_)**  
