@@ -4372,6 +4372,7 @@
 		CC6F369E2EEF7F6200666DE2 /* (lispkit list).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit list).md"; sourceTree = "<group>"; };
 		CC6F369F2EEF7F6200666DE2 /* (lispkit location).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit location).md"; sourceTree = "<group>"; };
 		CC6F36A02EEF7F6200666DE2 /* (lispkit log).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit log).md"; sourceTree = "<group>"; };
+		9C4E7B2A5D18F036A1E8C7D3 /* (lispkit logic).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit logic).md"; sourceTree = "<group>"; };
 		CC6F36A12EEF7F6200666DE2 /* (lispkit markdown).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit markdown).md"; sourceTree = "<group>"; };
 		CC6F36A22EEF7F6200666DE2 /* (lispkit match).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit match).md"; sourceTree = "<group>"; };
 		CC6F36A32EEF7F6200666DE2 /* (lispkit math matrix).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit math matrix).md"; sourceTree = "<group>"; };
@@ -5697,6 +5698,7 @@
 				CC6F369E2EEF7F6200666DE2 /* (lispkit list).md */,
 				CC6F369F2EEF7F6200666DE2 /* (lispkit location).md */,
 				CC6F36A02EEF7F6200666DE2 /* (lispkit log).md */,
+				9C4E7B2A5D18F036A1E8C7D3 /* (lispkit logic).md */,
 				CC6F36A12EEF7F6200666DE2 /* (lispkit markdown).md */,
 				CC6F36A22EEF7F6200666DE2 /* (lispkit match).md */,
 				CC6F36A32EEF7F6200666DE2 /* (lispkit math matrix).md */,
