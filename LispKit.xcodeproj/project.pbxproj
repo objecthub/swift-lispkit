@@ -3909,6 +3909,7 @@
 		3EF540D6E5A01F18F009D1B3 /* (lispkit draw chart pie).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit draw chart pie).md"; sourceTree = "<group>"; };
 		7219A705A419EB69F8643175 /* ImageGenLibraryAddOn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageGenLibraryAddOn.swift; sourceTree = "<group>"; };
 		7D1C4A3E9B5F20816C2AD4E7 /* (lispkit clos).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit clos).md"; sourceTree = "<group>"; };
+		E1B7A4C93D0F5826B4A97C3E /* (lispkit clos support).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit clos support).md"; sourceTree = "<group>"; };
 		A08B1568FFEC589681DD7A47 /* pie.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = pie.sld; sourceTree = "<group>"; };
 		CC01903A1C89D02200DB8BF9 /* CaptureGroup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptureGroup.swift; sourceTree = "<group>"; };
 		CC01903C1C8C7D8600DB8BF9 /* Reference.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reference.swift; sourceTree = "<group>"; };
@@ -5654,6 +5655,7 @@
 				CC6F367B2EEF7F6200666DE2 /* (lispkit char-set).md */,
 				CC6F367C2EEF7F6200666DE2 /* (lispkit char).md */,
 				7D1C4A3E9B5F20816C2AD4E7 /* (lispkit clos).md */,
+				E1B7A4C93D0F5826B4A97C3E /* (lispkit clos support).md */,
 				CC6F367D2EEF7F6200666DE2 /* (lispkit combinator).md */,
 				CC6F367E2EEF7F6200666DE2 /* (lispkit comparator).md */,
 				CC6F367F2EEF7F6200666DE2 /* (lispkit control).md */,
