@@ -9,6 +9,10 @@
 /* Begin PBXBuildFile section */
 		0B8783AFD0E56325C442D114 /* ImageGenLibraryAddOn.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7219A705A419EB69F8643175 /* ImageGenLibraryAddOn.swift */; };
 		217AB8F3521DA5D82C87F125 /* ImageGenLibraryAddOn.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7219A705A419EB69F8643175 /* ImageGenLibraryAddOn.swift */; };
+		5F0B8D2A6E4C91373A7D1E96 /* TinyCLOS.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = 3B8E6F1A5C9D4720E1A6B5C3 /* TinyCLOS.scm */; };
+		9A2E5C7B1D3F486A0E4C8B21 /* TinyCLOS.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = 3B8E6F1A5C9D4720E1A6B5C3 /* TinyCLOS.scm */; };
+		ABB20D3ADC3DC5A9613DCF37 /* DrawPieCharts.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = 02FA424CDA9AEE24BC34D611 /* DrawPieCharts.scm */; };
+		CACCD92DCC68712296EAAC6A /* DrawPieCharts.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = 02FA424CDA9AEE24BC34D611 /* DrawPieCharts.scm */; };
 		CC01903B1C89D02200DB8BF9 /* CaptureGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC01903A1C89D02200DB8BF9 /* CaptureGroup.swift */; };
 		CC01903D1C8C7D8600DB8BF9 /* Reference.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC01903C1C8C7D8600DB8BF9 /* Reference.swift */; };
 		CC028EAA249E3F5E00C5761C /* 2020-05-23.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC028EA0249E3EF800C5761C /* 2020-05-23.data */; };
@@ -681,15 +685,11 @@
 		CC7C3EA02246F8BD0082DF7C /* 46.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC7C3E9B2246F0A30082DF7C /* 46.sld */; };
 		CC7C3EA12246F8BD0082DF7C /* 55.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC7C3E9A2246EF6D0082DF7C /* 55.sld */; };
 		CC7CCB792FA576A900C05C77 /* function.sld in Copy pre-installed LispKit library: LispKit Draw Chart */ = {isa = PBXBuildFile; fileRef = CC7CCB762FA5709100C05C77 /* function.sld */; };
-		FFAF09D4912CB653D77E2D2B /* pie.sld in Copy pre-installed LispKit library: LispKit Draw Chart */ = {isa = PBXBuildFile; fileRef = A08B1568FFEC589681DD7A47 /* pie.sld */; };
 		CC7CCB7A2FA576C100C05C77 /* chart.sld in Copy pre-installed LispKit library: LispKit Draw */ = {isa = PBXBuildFile; fileRef = CC7CCB772FA5710100C05C77 /* chart.sld */; };
 		CC7CCB7B2FA576E100C05C77 /* chart.sld in Copy pre-installed LispKit library: LispKit Draw */ = {isa = PBXBuildFile; fileRef = CC7CCB772FA5710100C05C77 /* chart.sld */; };
 		CC7CCB7C2FA576F200C05C77 /* function.sld in Copy pre-installed LispKit library: LispKit Draw Chart */ = {isa = PBXBuildFile; fileRef = CC7CCB762FA5709100C05C77 /* function.sld */; };
-		FEF9FE1272A658B42ED1E0A5 /* pie.sld in Copy pre-installed LispKit library: LispKit Draw Chart */ = {isa = PBXBuildFile; fileRef = A08B1568FFEC589681DD7A47 /* pie.sld */; };
 		CC7CCB7D2FA5770600C05C77 /* DrawFunctionCharts.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC7CCB782FA5750900C05C77 /* DrawFunctionCharts.scm */; };
-		ABB20D3ADC3DC5A9613DCF37 /* DrawPieCharts.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = 02FA424CDA9AEE24BC34D611 /* DrawPieCharts.scm */; };
 		CC7CCB7E2FA5771F00C05C77 /* DrawFunctionCharts.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC7CCB782FA5750900C05C77 /* DrawFunctionCharts.scm */; };
-		CACCD92DCC68712296EAAC6A /* DrawPieCharts.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = 02FA424CDA9AEE24BC34D611 /* DrawPieCharts.scm */; };
 		CC7D4B1A2A084FA50066BA94 /* 2020-01-22.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B0C2A084F160066BA94 /* 2020-01-22.data */; };
 		CC7D4B1B2A084FA50066BA94 /* 2020-01-23.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B042A084F160066BA94 /* 2020-01-23.data */; };
 		CC7D4B1C2A084FA50066BA94 /* 2020-01-24.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC7D4B052A084F160066BA94 /* 2020-01-24.data */; };
@@ -933,7 +933,6 @@
 		CCA5E0C52CC8EA310AEFA5BA /* MathUtil.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCA5E017FB1E6088070AB810 /* MathUtil.scm */; };
 		CCA5E0EA5F00E2F3E04ABB70 /* util.sld in Copy pre-installed LispKit library: LispKit List */ = {isa = PBXBuildFile; fileRef = CCA5E0B6EFDDAA9B8A851AB8 /* util.sld */; };
 		CCA5E0EE614AF16733370276 /* Sequence.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCA5E0F1C17F20488109A41B /* Sequence.scm */; };
-		CF2B59D966156C3ECD3CD44C /* ChartPie.scm in Resources */ = {isa = PBXBuildFile; fileRef = 0B1B8F9C424380180AF06CA4 /* ChartPie.scm */; };
 		CCA5E0F4068F9BBA41F9513F /* cmdline.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CCA5E032D4F47F5432407A9E /* cmdline.sld */; };
 		CCA6C3D123610674007D2AF0 /* MarkdownLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA6C3D023610674007D2AF0 /* MarkdownLibrary.swift */; };
 		CCA6C3D42361149D007D2AF0 /* MarkdownKit in Frameworks */ = {isa = PBXBuildFile; productRef = CCA6C3D32361149D007D2AF0 /* MarkdownKit */; };
@@ -1691,6 +1690,9 @@
 		CCFFD5852D4C53D60092150E /* Billboard.jpg in Copy image assets */ = {isa = PBXBuildFile; fileRef = CCFFD5802D4C53310092150E /* Billboard.jpg */; };
 		CCFFD5872D4C5FC60092150E /* ImageComposition.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCFFD5862D4C5F4A0092150E /* ImageComposition.scm */; };
 		CCFFD5882D4C5FD70092150E /* ImageComposition.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCFFD5862D4C5F4A0092150E /* ImageComposition.scm */; };
+		CF2B59D966156C3ECD3CD44C /* ChartPie.scm in Resources */ = {isa = PBXBuildFile; fileRef = 0B1B8F9C424380180AF06CA4 /* ChartPie.scm */; };
+		FEF9FE1272A658B42ED1E0A5 /* pie.sld in Copy pre-installed LispKit library: LispKit Draw Chart */ = {isa = PBXBuildFile; fileRef = A08B1568FFEC589681DD7A47 /* pie.sld */; };
+		FFAF09D4912CB653D77E2D2B /* pie.sld in Copy pre-installed LispKit library: LispKit Draw Chart */ = {isa = PBXBuildFile; fileRef = A08B1568FFEC589681DD7A47 /* pie.sld */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -2029,6 +2031,7 @@
 				CC8F277B2FBBBF30000AF851 /* Connect4.scm in Copy examples */,
 				CC7CCB7E2FA5771F00C05C77 /* DrawFunctionCharts.scm in Copy examples */,
 				CACCD92DCC68712296EAAC6A /* DrawPieCharts.scm in Copy examples */,
+				9A2E5C7B1D3F486A0E4C8B21 /* TinyCLOS.scm in Copy examples */,
 				CC9FF30C2E2E92BC00D4C445 /* Pinterest.scm in Copy examples */,
 				CC4132432DF9BB0A00D77CF6 /* MermaidDiagrams.scm in Copy examples */,
 				CC4132312DF5CB8300D77CF6 /* DrawMaps.scm in Copy examples */,
@@ -3382,6 +3385,7 @@
 				CC8F277C2FBBBF41000AF851 /* Connect4.scm in Copy examples */,
 				CC7CCB7D2FA5770600C05C77 /* DrawFunctionCharts.scm in Copy examples */,
 				ABB20D3ADC3DC5A9613DCF37 /* DrawPieCharts.scm in Copy examples */,
+				5F0B8D2A6E4C91373A7D1E96 /* TinyCLOS.scm in Copy examples */,
 				CC9FF30D2E2E92CD00D4C445 /* Pinterest.scm in Copy examples */,
 				CC4132442DF9BB1E00D77CF6 /* MermaidDiagrams.scm in Copy examples */,
 				CC4132322DF5CB9500D77CF6 /* DrawMaps.scm in Copy examples */,
@@ -3899,7 +3903,13 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		02FA424CDA9AEE24BC34D611 /* DrawPieCharts.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = DrawPieCharts.scm; sourceTree = "<group>"; };
+		0B1B8F9C424380180AF06CA4 /* ChartPie.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = ChartPie.scm; sourceTree = "<group>"; };
+		3B8E6F1A5C9D4720E1A6B5C3 /* TinyCLOS.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = TinyCLOS.scm; sourceTree = "<group>"; };
+		3EF540D6E5A01F18F009D1B3 /* (lispkit draw chart pie).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit draw chart pie).md"; sourceTree = "<group>"; };
 		7219A705A419EB69F8643175 /* ImageGenLibraryAddOn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageGenLibraryAddOn.swift; sourceTree = "<group>"; };
+		7D1C4A3E9B5F20816C2AD4E7 /* (lispkit clos).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit clos).md"; sourceTree = "<group>"; };
+		A08B1568FFEC589681DD7A47 /* pie.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = pie.sld; sourceTree = "<group>"; };
 		CC01903A1C89D02200DB8BF9 /* CaptureGroup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptureGroup.swift; sourceTree = "<group>"; };
 		CC01903C1C8C7D8600DB8BF9 /* Reference.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reference.swift; sourceTree = "<group>"; };
 		CC028E8E249E3EF600C5761C /* 2020-05-27.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-05-27.data"; sourceTree = "<group>"; };
@@ -4429,10 +4439,8 @@
 		CC7C3E9C2246F1E40082DF7C /* 33.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 33.sld; sourceTree = "<group>"; };
 		CC7C3E9D2246F8700082DF7C /* 26.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 26.sld; sourceTree = "<group>"; };
 		CC7CCB762FA5709100C05C77 /* function.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = function.sld; sourceTree = "<group>"; };
-		A08B1568FFEC589681DD7A47 /* pie.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = pie.sld; sourceTree = "<group>"; };
 		CC7CCB772FA5710100C05C77 /* chart.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = chart.sld; sourceTree = "<group>"; };
 		CC7CCB782FA5750900C05C77 /* DrawFunctionCharts.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = DrawFunctionCharts.scm; sourceTree = "<group>"; };
-		02FA424CDA9AEE24BC34D611 /* DrawPieCharts.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = DrawPieCharts.scm; sourceTree = "<group>"; };
 		CC7D4AF22A084F150066BA94 /* 2020-02-18.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-02-18.data"; sourceTree = "<group>"; };
 		CC7D4AF32A084F150066BA94 /* 2020-02-05.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-02-05.data"; sourceTree = "<group>"; };
 		CC7D4AF42A084F150066BA94 /* 2020-02-02.data */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2020-02-02.data"; sourceTree = "<group>"; };
@@ -4626,7 +4634,6 @@
 		CCA5E0B6EFDDAA9B8A851AB8 /* util.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = util.sld; sourceTree = "<group>"; };
 		CCA5E0BCCE3EC67E61808B6A /* ListUtil.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = ListUtil.scm; sourceTree = "<group>"; };
 		CCA5E0F1C17F20488109A41B /* Sequence.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = Sequence.scm; sourceTree = "<group>"; };
-		0B1B8F9C424380180AF06CA4 /* ChartPie.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = ChartPie.scm; sourceTree = "<group>"; };
 		CCA6C3D023610674007D2AF0 /* MarkdownLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownLibrary.swift; sourceTree = "<group>"; };
 		CCA7DC2D23875FE500785FBE /* SRFI-175.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-175.scm"; sourceTree = "<group>"; };
 		CCA8017023D4AC91005F2323 /* 98.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 98.sld; sourceTree = "<group>"; };
@@ -4867,7 +4874,6 @@
 		CCFB412A25B25316005B2429 /* ZipArchiveLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZipArchiveLibrary.swift; sourceTree = "<group>"; };
 		CCFBE5C31ECBA8DA0032254B /* Pi.scm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Pi.scm; sourceTree = "<group>"; };
 		CCFD8C77300254D3002640DE /* (lispkit draw chart function).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit draw chart function).md"; sourceTree = "<group>"; };
-		3EF540D6E5A01F18F009D1B3 /* (lispkit draw chart pie).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit draw chart pie).md"; sourceTree = "<group>"; };
 		CCFFD5802D4C53310092150E /* Billboard.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Billboard.jpg; sourceTree = "<group>"; };
 		CCFFD5812D4C53510092150E /* Inga.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Inga.jpg; sourceTree = "<group>"; };
 		CCFFD5862D4C5F4A0092150E /* ImageComposition.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = ImageComposition.scm; sourceTree = "<group>"; };
@@ -5647,6 +5653,7 @@
 				CC6F367A2EEF7F6200666DE2 /* (lispkit bytevector).md */,
 				CC6F367B2EEF7F6200666DE2 /* (lispkit char-set).md */,
 				CC6F367C2EEF7F6200666DE2 /* (lispkit char).md */,
+				7D1C4A3E9B5F20816C2AD4E7 /* (lispkit clos).md */,
 				CC6F367D2EEF7F6200666DE2 /* (lispkit combinator).md */,
 				CC6F367E2EEF7F6200666DE2 /* (lispkit comparator).md */,
 				CC6F367F2EEF7F6200666DE2 /* (lispkit control).md */,
@@ -6469,6 +6476,7 @@
 				CC1EA5C8214E6BF3006BBE7E /* Turtle.scm */,
 				CC38529F23252217001D5E56 /* Maze.scm */,
 				CCD6413F27FABA7D0065E2BF /* ObjectOrientation.scm */,
+				3B8E6F1A5C9D4720E1A6B5C3 /* TinyCLOS.scm */,
 				CC750BD71F5AC68900CD82A2 /* PDF.scm */,
 				CCD5B5EB2C16E430002BF2F0 /* JSON.scm */,
 				CC4385BB20BAB79500055289 /* HTTP.scm */,

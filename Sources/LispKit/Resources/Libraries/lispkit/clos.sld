@@ -710,7 +710,7 @@
                                                  (compute-accessors class slot allocator)))
                                          (slot-ref class 'slots))))
             (slot-set! class 'nfields nfields)
-            (slot-set! class 'field-initializers field-initializers)
+            (slot-set! class 'field-initializers (reverse field-initializers))
             (slot-set! class 'accessors accessors)))))
 
     (add-method initialize
