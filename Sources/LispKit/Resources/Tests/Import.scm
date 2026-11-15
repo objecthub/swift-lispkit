@@ -210,6 +210,14 @@
 (import (srfi 236))
 (import (srfi 239))
 (import (srfi 258))
+(import (srfi 272))
+(import (srfi 272 basic))
+(import (srfi 272 intermediate))
+(import (srfi 272 advanced))
+(import (srfi 272 fancy))
+(import (srfi 272 colorize))
+(import (srfi 272 measure))
+(import (srfi 272 show))
 
 ; this needs to be last
 (import (srfi 101))

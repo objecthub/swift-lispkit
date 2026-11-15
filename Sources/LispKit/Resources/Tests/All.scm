@@ -65,6 +65,14 @@
 (load "Tests/SRFI-232")
 (load "Tests/SRFI-233")
 (load "Tests/SRFI-235")
+(load "Tests/SRFI-272")
+(load "Tests/SRFI-272-Basic")
+(load "Tests/SRFI-272-Intermediate")
+(load "Tests/SRFI-272-Advanced")
+(load "Tests/SRFI-272-Fancy")
+(load "Tests/SRFI-272-Colorize")
+(load "Tests/SRFI-272-Measure")
+(load "Tests/SRFI-272-Show")
 
 (test-end)
 

@@ -183,7 +183,7 @@
       (bind (with-output-generators
        (map (lambda (%col)
         (with ((col 0)
-               (width (column-width %col)))
+               (width (column-actual-width %col)))
                       (column-content %col)))
             cols))
         (lambda (gens)
