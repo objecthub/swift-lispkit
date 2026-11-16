@@ -34,6 +34,7 @@
 (load "Tests/SRFI-18")
 (load "Tests/SRFI-101")
 (load "Tests/SRFI-116")
+(load "Tests/SRFI-117")
 (load "Tests/SRFI-125")
 (load "Tests/SRFI-127")
 (load "Tests/SRFI-128")

@@ -658,28 +658,28 @@
           list-index
           list-merge
           ; list-merge!
-          ; list-queue
-          ; list-queue-add-back!
-          ; list-queue-add-front!
-          ; list-queue-append
-          ; list-queue-append!
-          ; list-queue-back
-          ; list-queue-concatenate
-          ; list-queue-copy
-          ; list-queue-empty?
-          ; list-queue-first-last
-          ; list-queue-for-each
-          ; list-queue-front
-          ; list-queue-list
-          ; list-queue-map
-          ; list-queue-map!
-          ; list-queue-remove-all!
-          ; list-queue-remove-back!
-          ; list-queue-remove-front!
-          ; list-queue-set-list!
-          ; list-queue-unfold
-          ; list-queue-unfold-right
-          ; list-queue?
+          list-queue
+          list-queue-add-back!
+          list-queue-add-front!
+          list-queue-append
+          list-queue-append!
+          list-queue-back
+          list-queue-concatenate
+          list-queue-copy
+          list-queue-empty?
+          list-queue-first-last
+          list-queue-for-each
+          list-queue-front
+          list-queue-list
+          list-queue-map
+          list-queue-map!
+          list-queue-remove-all!
+          list-queue-remove-back!
+          list-queue-remove-front!
+          list-queue-set-list!
+          list-queue-unfold
+          list-queue-unfold-right
+          list-queue?
           list-ref
           ; list-set!
           list-sort
@@ -754,7 +754,7 @@
           make-ipair-comparator
           make-list
           make-list-comparator
-          ; make-list-queue
+          make-list-queue
           make-pair-comparator
           make-parameter
           make-polar
@@ -1225,7 +1225,7 @@
           (scheme ilist)
           (scheme inexact)
           (scheme lazy)
-          ; (scheme list-queue)
+          (scheme list-queue)
           (scheme list)
           (scheme load)
           (scheme lseq)

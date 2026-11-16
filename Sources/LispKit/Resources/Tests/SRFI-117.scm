@@ -1,0 +1,570 @@
+;;; SRFI 117 REGRESSION TEST SUITE
+;;;
+;;; This is the test suite for SRFI 117 and for the library (scheme list-queue) forwarding to
+;;; it. It contains the tests of the SRFI 117 reference implementation, adapted to list queues
+;;; that do not share storage with lists, and a larger number of additional tests covering the
+;;; circular buffer, snapshots, edge cases and error handling.
+;;;
+;;; Copyright © 2017 Alex Shinn. All rights reserved.
+;;;
+;;; Redistribution and use in source and binary forms, with or without
+;;; modification, are permitted provided that the following conditions
+;;; are met:
+;;; 1. Redistributions of source code must retain the above copyright
+;;;    notice, this list of conditions and the following disclaimer.
+;;; 2. Redistributions in binary form must reproduce the above copyright
+;;;    notice, this list of conditions and the following disclaimer in the
+;;;    documentation and/or other materials provided with the distribution.
+;;; 3. The name of the author may not be used to endorse or promote products
+;;;    derived from this software without specific prior written permission.
+;;;
+;;; THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+;;; IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+;;; OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+;;; IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+;;; INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+;;; NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+;;; DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+;;; THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+;;; (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+;;; THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+;;;
+;;; LispKit Port:
+;;;   Copyright © 2026 Matthias Zenger. All rights reserved.
+
+(import (lispkit base)
+        (lispkit test)
+        (srfi 117)
+        (prefix (scheme list-queue) scheme:))
+
+(test-begin "SRFI 117: Queues based on Lists")
+
+(test-group "Library (scheme list-queue)"
+  (test-assert (eq? scheme:make-list-queue make-list-queue))
+  (test-assert (eq? scheme:list-queue list-queue))
+  (test-assert (eq? scheme:list-queue-copy list-queue-copy))
+  (test-assert (eq? scheme:list-queue-unfold list-queue-unfold))
+  (test-assert (eq? scheme:list-queue-unfold-right list-queue-unfold-right))
+  (test-assert (eq? scheme:list-queue? list-queue?))
+  (test-assert (eq? scheme:list-queue-empty? list-queue-empty?))
+  (test-assert (eq? scheme:list-queue-front list-queue-front))
+  (test-assert (eq? scheme:list-queue-back list-queue-back))
+  (test-assert (eq? scheme:list-queue-list list-queue-list))
+  (test-assert (eq? scheme:list-queue-first-last list-queue-first-last))
+  (test-assert (eq? scheme:list-queue-add-front! list-queue-add-front!))
+  (test-assert (eq? scheme:list-queue-add-back! list-queue-add-back!))
+  (test-assert (eq? scheme:list-queue-remove-front! list-queue-remove-front!))
+  (test-assert (eq? scheme:list-queue-remove-back! list-queue-remove-back!))
+  (test-assert (eq? scheme:list-queue-remove-all! list-queue-remove-all!))
+  (test-assert (eq? scheme:list-queue-set-list! list-queue-set-list!))
+  (test-assert (eq? scheme:list-queue-append list-queue-append))
+  (test-assert (eq? scheme:list-queue-append! list-queue-append!))
+  (test-assert (eq? scheme:list-queue-concatenate list-queue-concatenate))
+  (test-assert (eq? scheme:list-queue-map list-queue-map))
+  (test-assert (eq? scheme:list-queue-map! list-queue-map!))
+  (test-assert (eq? scheme:list-queue-for-each list-queue-for-each)))
+
+;; Returns the elements of a queue by repeatedly removing the front element
+(define (drain! q)
+  (let loop ((acc '()))
+    (if (list-queue-empty? q)
+        (reverse acc)
+        (loop (cons (list-queue-remove-front! q) acc)))))
+
+(define (list-head* lst n)
+  (if (= n 0) '() (cons (car lst) (list-head* (cdr lst) (- n 1)))))
+
+(define (iota* n)
+  (let loop ((i (- n 1)) (acc '()))
+    (if (< i 0) acc (loop (- i 1) (cons i acc)))))
+
+;; The tests of the SRFI 117 reference implementation. Since pairs are immutable in
+;; LispKit, list queues cannot share storage with lists; where the reference tests rely on
+;; shared storage, the expected results were adapted.
+
+(test-group "list-queues/simple"
+  (test '(1 1 1) (list-queue-list (make-list-queue '(1 1 1))))
+  (define x (list-queue 1 2 3))
+  (test '(1 2 3) (list-queue-list x))
+  (define x1 (list 1 2 3))
+  (define x2 (make-list-queue x1 (cddr x1)))
+  (test 3 (list-queue-back x2))
+  (define y (list-queue 4 5))
+  (test-assert (list-queue? y))
+  (define z (list-queue-append x y))
+  (test '(1 2 3 4 5) (list-queue-list z))
+  (define z2 (list-queue-append! x (list-queue-copy y)))
+  (test '(1 2 3 4 5) (list-queue-list z2))
+  (test 1 (list-queue-front z))
+  (test 5 (list-queue-back z))
+  (list-queue-remove-front! y)
+  (test '(5) (list-queue-list y))
+  (list-queue-remove-back! y)
+  (test-assert (list-queue-empty? y))
+  (test-error (list-queue-remove-front! y))
+  (test-error (list-queue-remove-back! y))
+  (test '(1 2 3 4 5) (list-queue-list z))
+  (test '(1 2 3 4 5) (list-queue-remove-all! z2))
+  (test-assert (list-queue-empty? z2))
+  (list-queue-remove-all! z)
+  (list-queue-add-front! z 1)
+  (list-queue-add-front! z 0)
+  (list-queue-add-back! z 2)
+  (list-queue-add-back! z 3)
+  (test '(0 1 2 3) (list-queue-list z)))
+
+(test-group "list-queues/whole"
+  (define a (list-queue 1 2 3))
+  (define b (list-queue-copy a))
+  (test '(1 2 3) (list-queue-list b))
+  (list-queue-add-front! b 0)
+  (test '(1 2 3) (list-queue-list a))
+  (test 4 (length (list-queue-list b)))
+  (define c (list-queue-concatenate (list a b)))
+  (test '(1 2 3 0 1 2 3) (list-queue-list c)))
+
+(test-group "list-queues/map"
+  (define r (list-queue 1 2 3))
+  (define s (list-queue-map (lambda (x) (* x 10)) r))
+  (test '(10 20 30) (list-queue-list s))
+  (list-queue-map! (lambda (x) (+ x 1)) r)
+  (test '(2 3 4) (list-queue-list r))
+  (define sum 0)
+  (list-queue-for-each (lambda (x) (set! sum (+ sum x))) s)
+  (test 60 sum))
+
+(test-group "list-queues/conversion"
+  (define n (list-queue 5 6))
+  (list-queue-set-list! n (list 1 2))
+  (test '(1 2) (list-queue-list n))
+  (define d (list 1 2 3))
+  (define e (cddr d))
+  (define f (make-list-queue d e))
+  (define-values (dx ex) (list-queue-first-last f))
+  (test-assert (eq? d dx))
+  (test-assert (eq? e ex))
+  (test '(1 2 3) (list-queue-list f))
+  (list-queue-add-front! f 0)
+  (list-queue-add-back! f 4)
+  (test '(0 1 2 3 4) (list-queue-list f))
+  ;; The queue does not share storage with the list `d`
+  (define g (make-list-queue d e))
+  (test '(1 2 3) (list-queue-list g))
+  (define h (list-queue 5 6))
+  (list-queue-set-list! h d e)
+  (test '(1 2 3) (list-queue-list h)))
+
+(test-group "list-queues/unfold"
+  (define (double x) (* x 2))
+  (define (done? x) (> x 3))
+  (define (add1 x) (+ x 1))
+  (define x (list-queue-unfold done? double add1 0))
+  (test '(0 2 4 6) (list-queue-list x))
+  (define y (list-queue-unfold-right done? double add1 0))
+  (test '(6 4 2 0) (list-queue-list y))
+  (define x0 (list-queue 8))
+  (define x1 (list-queue-unfold done? double add1 0 x0))
+  (test '(0 2 4 6 8) (list-queue-list x1))
+  (define y0 (list-queue 8))
+  (define y1 (list-queue-unfold-right done? double add1 0 y0))
+  (test '(8 6 4 2 0) (list-queue-list y1)))
+
+;; Additional tests
+
+(test-group "Constructors"
+  (test '() (list-queue-list (list-queue)))
+  (test '() (list-queue-list (make-list-queue '())))
+  (test '() (list-queue-list (make-list-queue '() '())))
+  (test '(1 2 3) (list-queue-list (make-list-queue '(1 2 3))))
+  (test '(1 2 3) (list-queue-list (make-list-queue '(1 2 3) '(3))))
+  (test '(1 2 3) (list-queue-list (list-queue 1 2 3)))
+  (test '((1 2) (3) () #f) (list-queue-list (list-queue '(1 2) '(3) '() #f)))
+  (test '(a) (list-queue-list (list-queue 'a)))
+  (test 100 (length (list-queue-list (make-list-queue (iota* 100)))))
+  (test-error (make-list-queue 5))
+  (test-error (make-list-queue '(1 2 . 3)))
+  (test-error (make-list-queue))
+  (test-assert (list-queue-empty? (make-list-queue '())))
+  (test-assert (not (list-queue-empty? (make-list-queue '(1))))))
+
+(test-group "Copying"
+  (let* ((a (list-queue 1 2 3))
+         (b (list-queue-copy a)))
+    (test '(1 2 3) (list-queue-list b))
+    (list-queue-add-back! a 4)
+    (list-queue-remove-front! b)
+    (test '(1 2 3 4) (list-queue-list a))
+    (test '(2 3) (list-queue-list b)))
+  (test '() (list-queue-list (list-queue-copy (list-queue))))
+  (test-error (list-queue-copy '(1 2 3)))
+  (test-error (list-queue-copy 5)))
+
+(test-group "Predicates"
+  (test-assert (list-queue? (list-queue)))
+  (test-assert (list-queue? (list-queue 1 2 3)))
+  (test-assert (list-queue? (make-list-queue '())))
+  (test-assert (not (list-queue? '())))
+  (test-assert (not (list-queue? '(1 2 3))))
+  (test-assert (not (list-queue? (vector 1 2 3))))
+  (test-assert (not (list-queue? #f)))
+  (test-assert (not (list-queue? 5)))
+  (test-assert (not (list-queue? "queue")))
+  (test-assert (not (list? (list-queue 1 2))))
+  (test-assert (not (pair? (list-queue 1 2))))
+  (test-assert (not (vector? (list-queue 1 2))))
+  (test-assert (list-queue-empty? (list-queue)))
+  (test-assert (not (list-queue-empty? (list-queue #f))))
+  (test-error (list-queue-empty? '()))
+  (test-error (list-queue-empty? 5)))
+
+(test-group "Accessors"
+  (test 1 (list-queue-front (list-queue 1)))
+  (test 1 (list-queue-back (list-queue 1)))
+  (test 1 (list-queue-front (list-queue 1 2 3)))
+  (test 3 (list-queue-back (list-queue 1 2 3)))
+  (test #f (list-queue-front (list-queue #f 2)))
+  (test #f (list-queue-back (list-queue 2 #f)))
+  (test '() (list-queue-front (list-queue '() 1)))
+  (test-error (list-queue-front (list-queue)))
+  (test-error (list-queue-back (list-queue)))
+  (test-error (list-queue-front '(1 2)))
+  (test-error (list-queue-back 5))
+  (test '(1 2 3) (list-queue-list (list-queue 1 2 3)))
+  (test-error (list-queue-list '(1 2 3)))
+  (test '(() ())
+        (call-with-values (lambda () (list-queue-first-last (list-queue))) list))
+  (test '((1) (1))
+        (call-with-values (lambda () (list-queue-first-last (list-queue 1))) list))
+  (test '((1 2 3) (3))
+        (call-with-values (lambda () (list-queue-first-last (list-queue 1 2 3))) list))
+  (test-error (list-queue-first-last 5)))
+
+(test-group "Snapshots"
+  (let* ((q (list-queue 1 2))
+         (l (list-queue-list q)))
+    (test '(1 2) l)
+    (list-queue-add-back! q 3)
+    (list-queue-add-front! q 0)
+    (test '(1 2) l)
+    (test '(0 1 2 3) (list-queue-list q))
+    (let ((l2 (list-queue-list q)))
+      (list-queue-remove-front! q)
+      (list-queue-remove-back! q)
+      (test '(0 1 2 3) l2)
+      (test '(1 2) (list-queue-list q))))
+  (let ((q (list-queue 1 2 3)))
+    (test '(1 2 3) (list-queue-list q))
+    (test '(1 2 3) (list-queue-list q))
+    (list-queue-remove-front! q)
+    (test '(2 3) (list-queue-list q))
+    (list-queue-add-back! q 4)
+    (test '(2 3 4) (list-queue-list q))
+    (list-queue-map! (lambda (x) (* x x)) q)
+    (test '(4 9 16) (list-queue-list q))
+    (list-queue-set-list! q '(7 8))
+    (test '(7 8) (list-queue-list q))
+    (list-queue-remove-all! q)
+    (test '() (list-queue-list q))
+    (list-queue-add-front! q 5)
+    (test '(5) (list-queue-list q))))
+
+(test-group "Adding and removing elements"
+  (let ((q (list-queue)))
+    (list-queue-add-back! q 1)
+    (test '(1) (list-queue-list q))
+    (list-queue-add-back! q 2)
+    (list-queue-add-front! q 0)
+    (test '(0 1 2) (list-queue-list q))
+    (test 0 (list-queue-remove-front! q))
+    (test 2 (list-queue-remove-back! q))
+    (test '(1) (list-queue-list q))
+    (test 1 (list-queue-remove-back! q))
+    (test-assert (list-queue-empty? q))
+    (test-error (list-queue-remove-front! q))
+    (test-error (list-queue-remove-back! q))
+    (list-queue-add-front! q 'a)
+    (test 'a (list-queue-remove-back! q))
+    (list-queue-add-back! q 'b)
+    (test 'b (list-queue-remove-front! q))
+    (test-assert (list-queue-empty? q)))
+  ;; Falsy and empty elements
+  (let ((q (list-queue #f '() #f)))
+    (test #f (list-queue-remove-front! q))
+    (test '() (list-queue-remove-front! q))
+    (test #f (list-queue-remove-back! q))
+    (test-assert (list-queue-empty? q)))
+  ;; Queues of queues
+  (let* ((inner (list-queue 1 2))
+         (outer (list-queue inner)))
+    (test-assert (eq? inner (list-queue-front outer)))
+    (test '(1 2) (list-queue-list (list-queue-front outer))))
+  (test-error (list-queue-add-front! '(1) 2))
+  (test-error (list-queue-add-back! 5 2))
+  (test-error (list-queue-remove-front! '(1)))
+  (test-error (list-queue-remove-back! "q")))
+
+(test-group "Growing and wrapping around"
+  ;; Elements added to the front
+  (let ((q (list-queue)))
+    (do ((i 0 (+ i 1))) ((= i 100)) (list-queue-add-front! q i))
+    (test 100 (length (list-queue-list q)))
+    (test 99 (list-queue-front q))
+    (test 0 (list-queue-back q))
+    (test (reverse (iota* 100)) (list-queue-list q)))
+  ;; Elements added to the back
+  (let ((q (list-queue)))
+    (do ((i 0 (+ i 1))) ((= i 100)) (list-queue-add-back! q i))
+    (test (iota* 100) (list-queue-list q)))
+  ;; Elements added at both ends
+  (let ((q (list-queue)))
+    (do ((i 0 (+ i 1))) ((= i 50))
+      (list-queue-add-front! q (- -1 i))
+      (list-queue-add-back! q i))
+    (test (append (reverse (map (lambda (i) (- -1 i)) (iota* 50))) (iota* 50))
+          (list-queue-list q)))
+  ;; The contents of the buffer wrap around the end of the buffer
+  (let ((q (list-queue 0 1 2 3 4 5)))
+    (do ((i 0 (+ i 1))) ((= i 5)) (list-queue-remove-front! q))
+    (test '(5) (list-queue-list q))
+    (do ((i 6 (+ i 1))) ((= i 20)) (list-queue-add-back! q i))
+    (test (map (lambda (i) (+ i 5)) (iota* 15)) (list-queue-list q))
+    (do ((i 0 (+ i 1))) ((= i 10)) (list-queue-remove-back! q))
+    (test '(5 6 7 8 9) (list-queue-list q))
+    (do ((i 4 (- i 1))) ((< i 0)) (list-queue-add-front! q i))
+    (test (iota* 10) (list-queue-list q)))
+  ;; A queue that is emptied and filled again
+  (let ((q (list-queue)))
+    (do ((round 0 (+ round 1))) ((= round 5))
+      (do ((i 0 (+ i 1))) ((= i 30)) (list-queue-add-back! q i))
+      (test (iota* 30) (drain! q))
+      (test-assert (list-queue-empty? q)))))
+
+(test-group "Random operations"
+  ;; Applies a pseudo random sequence of operations to a list queue and to a list, which is
+  ;; used as a model of the queue, and compares the results.
+  (define seed 12345)
+  (define (next-random! n)
+    (set! seed (modulo (+ (* seed 1103515245) 12345) 2147483648))
+    (modulo (quotient seed 65536) n))
+  (let loop ((i 0) (q (list-queue)) (model '()) (ok #t))
+    (if (< i 3000)
+        (let ((op (next-random! 7)))
+          (case op
+            ((0 1)
+             (list-queue-add-back! q i)
+             (loop (+ i 1) q (append model (list i)) ok))
+            ((2)
+             (list-queue-add-front! q i)
+             (loop (+ i 1) q (cons i model) ok))
+            ((3 4)
+             (if (null? model)
+                 (loop (+ i 1) q model ok)
+                 (let ((x (list-queue-remove-front! q)))
+                   (loop (+ i 1) q (cdr model) (and ok (equal? x (car model)))))))
+            ((5)
+             (if (null? model)
+                 (loop (+ i 1) q model ok)
+                 (let ((x (list-queue-remove-back! q))
+                       (n (length model)))
+                   (loop (+ i 1) q (list-head* model (- n 1))
+                         (and ok (equal? x (list-ref model (- n 1))))))))
+            (else
+             (loop (+ i 1) q model
+                   (and ok
+                        (equal? model (list-queue-list q))
+                        (or (null? model)
+                            (and (equal? (car model) (list-queue-front q))
+                                 (equal? (list-ref model (- (length model) 1))
+                                         (list-queue-back q)))))))))
+        (begin
+          (test-assert ok)
+          (test model (list-queue-list q))))))
+
+(test-group "Removing all elements and replacing the contents"
+  (let ((q (list-queue 1 2 3)))
+    (test '(1 2 3) (list-queue-remove-all! q))
+    (test-assert (list-queue-empty? q))
+    (test '() (list-queue-remove-all! q))
+    (list-queue-add-back! q 4)
+    (test '(4) (list-queue-list q)))
+  (test-error (list-queue-remove-all! '(1 2)))
+  (let ((q (list-queue 1 2 3)))
+    (list-queue-set-list! q '(a b))
+    (test '(a b) (list-queue-list q))
+    (test 'a (list-queue-front q))
+    (test 'b (list-queue-back q))
+    (list-queue-set-list! q '())
+    (test-assert (list-queue-empty? q))
+    (list-queue-set-list! q '(x y z) '(z))
+    (test '(x y z) (list-queue-list q))
+    (list-queue-add-back! q 'w)
+    (test '(x y z w) (list-queue-list q)))
+  (let ((q (list-queue 1)) (l (list 1 2 3)))
+    (list-queue-set-list! q l)
+    (list-queue-add-back! q 4)
+    (test '(1 2 3) l)
+    (test '(1 2 3 4) (list-queue-list q)))
+  (test-error (list-queue-set-list! (list-queue) 5))
+  (test-error (list-queue-set-list! (list-queue) '(1 . 2)))
+  (test-error (list-queue-set-list! '(1) '(2))))
+
+(test-group "Appending list queues"
+  (test '() (list-queue-list (list-queue-append)))
+  (test '(1 2) (list-queue-list (list-queue-append (list-queue 1 2))))
+  (test '(1 2 3 4 5)
+        (list-queue-list (list-queue-append (list-queue 1 2) (list-queue) (list-queue 3)
+                                            (list-queue 4 5))))
+  (test '() (list-queue-list (list-queue-append (list-queue) (list-queue))))
+  (let* ((a (list-queue 1))
+         (b (list-queue 2))
+         (c (list-queue-append a b)))
+    (list-queue-add-back! c 3)
+    (list-queue-add-front! a 0)
+    (test '(0 1) (list-queue-list a))
+    (test '(2) (list-queue-list b))
+    (test '(1 2 3) (list-queue-list c))
+    (test-assert (not (eq? a c))))
+  (let ((a (list-queue 1 2)))
+    (test '(1 2 1 2) (list-queue-list (list-queue-append a a))))
+  (test-error (list-queue-append (list-queue 1) '(2)))
+  (test '() (list-queue-list (list-queue-concatenate '())))
+  (test '(1 2 3) (list-queue-list (list-queue-concatenate (list (list-queue 1 2) (list-queue 3)))))
+  (test-error (list-queue-concatenate (list-queue 1 2)))
+  (test-error (list-queue-concatenate (list (list-queue 1) 2))))
+
+(test-group "Appending list queues destructively"
+  (test-assert (list-queue-empty? (list-queue-append!)))
+  (let ((a (list-queue 1 2)))
+    (test-assert (eq? a (list-queue-append! a)))
+    (test '(1 2) (list-queue-list a)))
+  (let* ((a (list-queue 1 2))
+         (b (list-queue 3))
+         (c (list-queue 4 5))
+         (r (list-queue-append! a b c)))
+    (test-assert (eq? r a))
+    (test '(1 2 3 4 5) (list-queue-list r))
+    (test 5 (list-queue-back r))
+    (list-queue-add-back! r 6)
+    (test '(1 2 3 4 5 6) (list-queue-list a)))
+  (let ((a (list-queue)))
+    (list-queue-append! a (list-queue 1) (list-queue) (list-queue 2))
+    (test '(1 2) (list-queue-list a)))
+  (let ((a (list-queue 1 2)))
+    (list-queue-append! a a)
+    (test '(1 2 1 2) (list-queue-list a)))
+  (test-error (list-queue-append! (list-queue 1) '(2)))
+  (test-error (list-queue-append! '(1) (list-queue 2))))
+
+(test-group "Mapping"
+  (test '() (list-queue-list (list-queue-map (lambda (x) x) (list-queue))))
+  (test '(2 4 6) (list-queue-list (list-queue-map (lambda (x) (* 2 x)) (list-queue 1 2 3))))
+  (let* ((a (list-queue 1 2 3))
+         (b (list-queue-map (lambda (x) x) a)))
+    (list-queue-add-back! b 4)
+    (test '(1 2 3) (list-queue-list a)))
+  ;; Map in front-to-back order
+  (let ((log '()))
+    (list-queue-map (lambda (x) (set! log (cons x log)) x) (list-queue 1 2 3 4))
+    (test '(4 3 2 1) log))
+  (let ((log '()) (q (list-queue 1 2 3 4)))
+    (list-queue-map! (lambda (x) (set! log (cons x log)) (+ x 10)) q)
+    (test '(4 3 2 1) log)
+    (test '(11 12 13 14) (list-queue-list q)))
+  (let ((q (list-queue 1 2 3)))
+    (list-queue-map! (lambda (x) (* x x)) q)
+    (test '(1 4 9) (list-queue-list q))
+    (test 9 (list-queue-back q))
+    (list-queue-add-back! q 16)
+    (test '(1 4 9 16) (list-queue-list q)))
+  (let ((q (list-queue)))
+    (list-queue-map! (lambda (x) x) q)
+    (test-assert (list-queue-empty? q)))
+  ;; Mapping and the identity of the result
+  (let ((q (list-queue 1 2)))
+    (test-assert (not (eq? q (list-queue-map (lambda (x) x) q)))))
+  (test-error (list-queue-map car '((1))))
+  (test-error (list-queue-map! car 5)))
+
+(test-group "Iterating"
+  (let ((log '()))
+    (list-queue-for-each (lambda (x) (set! log (cons x log))) (list-queue 1 2 3))
+    (test '(3 2 1) log))
+  (let ((count 0))
+    (list-queue-for-each (lambda (x) (set! count (+ count 1))) (list-queue))
+    (test 0 count))
+  ;; The iteration is not affected by changes of the queue made by the procedure
+  (let ((q (list-queue 1 2)))
+    (list-queue-for-each (lambda (x) (list-queue-add-back! q (* x 10))) q)
+    (test '(1 2 10 20) (list-queue-list q)))
+  (let ((q (list-queue 1 2 3)) (seen '()))
+    (list-queue-for-each (lambda (x)
+                           (set! seen (cons x seen))
+                           (if (= x 1) (list-queue-remove-all! q)))
+                         q)
+    (test '(3 2 1) seen)
+    (test-assert (list-queue-empty? q)))
+  (test-error (list-queue-for-each car '((1)))))
+
+(test-group "Unfolding"
+  (test '() (list-queue-list (list-queue-unfold (lambda (x) #t) values (lambda (x) x) 0)))
+  (test '() (list-queue-list (list-queue-unfold-right (lambda (x) #t) values (lambda (x) x) 0)))
+  (test '(1 2 3) (list-queue-list (list-queue-unfold (lambda (x) (> x 3)) values
+                                                      (lambda (x) (+ x 1)) 1)))
+  (test '(3 2 1) (list-queue-list (list-queue-unfold-right (lambda (x) (> x 3)) values
+                                                           (lambda (x) (+ x 1)) 1)))
+  (let* ((q (list-queue 'a 'b))
+         (r (list-queue-unfold (lambda (x) (> x 2)) values (lambda (x) (+ x 1)) 1 q)))
+    (test-assert (eq? q r))
+    (test '(1 2 a b) (list-queue-list q)))
+  (let* ((q (list-queue 'a 'b))
+         (r (list-queue-unfold-right (lambda (x) (> x 2)) values (lambda (x) (+ x 1)) 1 q)))
+    (test-assert (eq? q r))
+    (test '(a b 2 1) (list-queue-list q)))
+  ;; The mapper is applied to the seeds in order
+  (let ((log '()))
+    (list-queue-unfold (lambda (x) (> x 3)) (lambda (x) (set! log (cons x log)) x)
+                       (lambda (x) (+ x 1)) 1)
+    (test '(3 2 1) log))
+  (test 1000 (length (list-queue-list
+                       (list-queue-unfold (lambda (x) (= x 1000)) values (lambda (x) (+ x 1)) 0))))
+  (test-error (list-queue-unfold (lambda (x) #t) values values 0 '(1))))
+
+(test-group "Larger list queues"
+  (let ((n 10000)
+        (q (list-queue)))
+    (do ((i 0 (+ i 1))) ((= i n)) (list-queue-add-back! q i))
+    (test n (length (list-queue-list q)))
+    (test 0 (list-queue-front q))
+    (test (- n 1) (list-queue-back q))
+    (do ((i 0 (+ i 1))) ((= i (- n 1))) (list-queue-remove-front! q))
+    (test (- n 1) (list-queue-front q))
+    (test (- n 1) (list-queue-back q))
+    (test-assert (not (list-queue-empty? q))))
+  (let ((q (list-queue)))
+    (do ((i 0 (+ i 1))) ((= i 5000))
+      (list-queue-add-back! q i)
+      (list-queue-add-front! q i))
+    (test 10000 (length (list-queue-list q)))
+    (do ((i 0 (+ i 1))) ((= i 5000))
+      (list-queue-remove-back! q)
+      (list-queue-remove-front! q))
+    (test-assert (list-queue-empty? q)))
+  (let ((q (make-list-queue (iota* 10000))))
+    (test 9999 (list-queue-back q))
+    (list-queue-map! (lambda (x) (+ x 1)) q)
+    (test 10000 (list-queue-back q))
+    (test 20000 (length (list-queue-list (list-queue-append q (list-queue-copy q)))))
+    (test 10000 (length (list-queue-remove-all! q)))))
+
+(test-group "Printing"
+  ;; List queues are printed in a compact form that does not depend on their size
+  (let ((short (let ((p (open-output-string)))
+                 (write (list-queue) p)
+                 (string-length (get-output-string p))))
+        (long (let ((p (open-output-string)))
+                (write (make-list-queue (iota* 1000)) p)
+                (string-length (get-output-string p)))))
+    (test-assert (< short 100))
+    (test-assert (< (abs (- short long)) 10))))
+
+(test-end)
