@@ -460,6 +460,51 @@ class SmallTests: LispKitTestCase {
       self.value("(error error error)"))
   }
 
+  /// `string-pad-left`, `string-pad-right` and `string-pad-center` build their result from the
+  /// UTF-16 storage of the argument. Expected values were produced with the previous
+  /// implementation (which went through a Swift `String`).
+  func testStringPadding() {
+    self.bootstrapContext()
+    XCTAssertEqual(
+      self.eval("(list (string-pad-left \"h\\xe9;llo\" #\\- 8) " +
+                "      (string-pad-left \"h\\xe9;llo\" #\\x3bb 7) " +
+                "      (string-pad-left \"a😀b\" \"xy\" 6) " +
+                "      (string-pad-left \"e\\x301;x\" \"😀z\" 5) " +
+                "      (string-pad-left \"\" #\\- 3) " +
+                "      (string-pad-left \"abc\" #\\- 3) " +
+                "      (string-pad-left \"abcdef\" #\\- 4 #t) " +
+                "      (string-pad-left \"abc\" \"\" 5))"),
+      self.value("(\"---h\u{e9}llo\" \"\u{3bb}\u{3bb}h\u{e9}llo\" \"xxa😀b\" \"😀😀e\u{301}x\" " +
+                 "\"---\" \"abc\" \"cdef\" \"  abc\")"))
+    XCTAssertEqual(
+      self.eval("(list (string-pad-center \"h\\xe9;llo\" #\\- 8) " +
+                "      (string-pad-center \"h\\xe9;llo\" #\\- 9) " +
+                "      (string-pad-center \"a😀b\" \"xy\" 8) " +
+                "      (string-pad-center \"\\x3bb;\\x3bb;\" #\\x3bb 7) " +
+                "      (string-pad-center \"\" #\\- 3) " +
+                "      (string-pad-center \"abc\" #\\- 3) " +
+                "      (string-pad-center \"abcdef\" #\\- 4 #t) " +
+                "      (string-pad-center \"abc\" \"\" 6))"),
+      self.value("(\"-h\u{e9}llo--\" \"--h\u{e9}llo--\" \"xxa😀bxx\" " +
+                 "\"\u{3bb}\u{3bb}\u{3bb}\u{3bb}\u{3bb}\u{3bb}\u{3bb}\" " +
+                 "\"---\" \"abc\" \"abcd\" \" abc  \")"))
+    XCTAssertEqual(
+      self.eval("(list (string-pad-right \"h\\xe9;llo\" #\\- 8) " +
+                "      (string-pad-right \"a😀b\" \"xy\" 6) " +
+                "      (string-pad-right \"abcdef\" #\\- 4 #t))"),
+      self.value("(\"h\u{e9}llo---\" \"a😀bxx\" \"abcd\")"))
+    // The result is a new string; the argument is returned unchanged if it is long enough
+    XCTAssertEqual(
+      self.eval("(let* ((s (string-copy \"abc\")) " +
+                "       (l (string-pad-left s #\\- 5)) " +
+                "       (c (string-pad-center s #\\- 6)) " +
+                "       (same (string-pad-left s #\\- 2))) " +
+                "  (string-set! s 0 #\\z) " +
+                "  (string-set! l 4 #\\y) " +
+                "  (list s l c (eq? s same)))"),
+      self.value("(\"zbc\" \"--aby\" \"-abc--\" #t)"))
+  }
+
   /// Looping over a string with non-ASCII characters needs linear time. Before, each call of
   /// `string-ref` took about 200 microseconds for a string of this size (8 seconds in total).
   func testStringLoopIsLinear() {

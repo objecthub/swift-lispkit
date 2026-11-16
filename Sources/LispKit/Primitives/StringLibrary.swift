@@ -665,9 +665,14 @@ public final class StringLibrary: NativeLibrary {
     guard str.length <= len else {
       return force ? .makeString(str.substring(from: str.length - len)) : expr
     }
-    var res = String(repeating: char.first ?? " ", count: len - str.length)
-    res.append(str as String)
-    return .makeString(res)
+    // Build the result from a copy of the UTF-16 storage; going through `str as String`
+    // would transcode the whole argument, which is much slower for long strings.
+    guard let res = str.mutableCopy() as? NSMutableString else {
+      return .makeString(String(repeating: char.first ?? " ", count: len - str.length) +
+                         (str as String))
+    }
+    res.insert(String(repeating: char.first ?? " ", count: len - str.length), at: 0)
+    return .string(res)
   }
   
   private func stringPadRight(_ expr: Expr,
@@ -698,12 +703,18 @@ public final class StringLibrary: NativeLibrary {
     }
     let left = (len - str.length) / 2
     let right = len - str.length - left
-    var res = String(repeating: char.first ?? " ", count: left)
-    res.append(str as String)
+    guard let res = str.mutableCopy() as? NSMutableString else {
+      return .makeString(String(repeating: char.first ?? " ", count: left) +
+                         (str as String) +
+                         String(repeating: char.first ?? " ", count: right))
+    }
+    if left > 0 {
+      res.insert(String(repeating: char.first ?? " ", count: left), at: 0)
+    }
     if right > 0 {
       res.append(String(repeating: char.first ?? " ", count: right))
     }
-    return .makeString(res)
+    return .string(res)
   }
   
   private func charAsString(_ expr: Expr) throws -> String {
