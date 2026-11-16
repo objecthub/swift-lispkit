@@ -74,6 +74,12 @@
 (load "Tests/SRFI-272-Colorize")
 (load "Tests/SRFI-272-Measure")
 (load "Tests/SRFI-272-Show")
+(load "Tests/SRFI-275-Path")
+(load "Tests/SRFI-275-Parse")
+(load "Tests/SRFI-275-Escape")
+(load "Tests/SRFI-275-Normalize")
+(load "Tests/SRFI-275-Resolve")
+(load "Tests/SRFI-275-Setters")
 
 (test-end)
 

@@ -219,6 +219,11 @@
 (import (srfi 272 colorize))
 (import (srfi 272 measure))
 (import (srfi 272 show))
+(import (srfi 275 iri))
+(import (srfi 275 uri))
+(import (srfi 275 path))
+(import (srfi 275 normalize))
+(import (srfi 275 utils))
 
 ; this needs to be last
 (import (srfi 101))

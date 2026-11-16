@@ -272,6 +272,7 @@ framework:
   - [SRFI 239: Destructuring Lists](https://srfi.schemers.org/srfi-239/srfi-239.html)
   - [SRFI 258: Uninterned Symbols](https://srfi.schemers.org/srfi-258/srfi-258.html)
   - [SRFI 272: Pretty Printing](https://srfi.schemers.org/srfi-272/srfi-272.html)
+  - [SRFI 275: URIs, IRIs, and basic paths](https://srfi.schemers.org/srfi-275/srfi-275.html)
 
 
 ## Project
