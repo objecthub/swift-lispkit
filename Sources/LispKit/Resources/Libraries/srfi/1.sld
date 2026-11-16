@@ -67,8 +67,12 @@
 
     (define proper-list? list?)
 
+    ;; True for every finite object that is not a proper list, including atoms other than '()
     (define (dotted-list? x)
-      (and (pair? x) (not (proper-list? x))))
+      (let loop ((x x))
+        (if (pair? x)
+            (loop (cdr x))
+            (not (null? x)))))
 
     (define (null-list? x)
       (cond ((pair? x) #f)
@@ -414,10 +418,10 @@
                   ((null? (cdr ls))  (pred (car ls)))
                   (else              (or (pred (car ls)) (lp (cdr ls))))))
           (let lp ((lists (cons ls lists)))
-            (cond ((any1 null? lists)           #f)
-                  ((any1 null? (map cdr lists)) (apply pred (map car lists)))
-                  (else                         (or (apply pred (map car lists))
-                                                    (lp (map cdr lists))))))))
+            (cond ((any null? lists)           #f)
+                  ((any null? (map cdr lists)) (apply pred (map car lists)))
+                  (else                        (or (apply pred (map car lists))
+                                                   (lp (map cdr lists))))))))
 
     (define (every pred ls . lists)
       (if (null? lists)
@@ -426,10 +430,10 @@
                   ((null? (cdr ls)) (pred (car ls)))
                   (else             (and (pred (car ls)) (lp (cdr ls))))))
           (let lp ((lists (cons ls lists)))
-            (cond ((any1 null? lists)     #t)
-            ((any1 null? (map cdr lists)) (apply pred (map car lists)))
-            (else                         (and (apply pred (map car lists))
-                                               (lp (map cdr lists))))))))
+            (cond ((any null? lists)           #t)
+                  ((any null? (map cdr lists)) (apply pred (map car lists)))
+                  (else                        (and (apply pred (map car lists))
+                                                    (lp (map cdr lists))))))))
 
     (define (list-index pred clist . clists)
       (if (null? clists)
@@ -437,12 +441,14 @@
             (if (pair? clist)
                 (if (pred (car clist))
                     n
-                    (rec (cdr clist) (+ n 1)))))
+                    (rec (cdr clist) (+ n 1)))
+                #f))
           (let rec ((clists (cons clist clists)) (n 0))
             (if (every pair? clists)
                 (if (apply pred (map car clists))
                     n
-                    (rec (map cdr clists) (+ n 1))))))))
+                    (rec (map cdr clists) (+ n 1)))
+                #f)))))
 
   (export member memq memv
           find find-tail

@@ -69,7 +69,7 @@ _LispKit_ provides support for the following core features, many of which are ba
   - Some R7RS (large) libraries from Scheme Red and Scheme Tangerine editions:
     `(scheme bitwise)`, `(scheme box)`,  `(scheme charset)`, `(scheme comparator)`, `(scheme division)`,
     `(scheme fixnum)`, `(scheme flonum)`, `(scheme generator)`, `(scheme hash-table)`,
-    `(scheme ideque)`, `(scheme list)`, `(scheme lseq)`, `(scheme mapping)`, `(scheme red)`,
+    `(scheme ideque)`, `(scheme ilist)`, `(scheme list)`, `(scheme lseq)`, `(scheme mapping)`, `(scheme red)`,
     `(scheme rlist)`, `(scheme set)`, `(scheme sort)`, `(scheme stream)`, `(scheme text)`,
     `(scheme vector)`
   - LispKit-specific libraries:
@@ -214,6 +214,7 @@ framework:
   - [SRFI 111: Boxes](https://srfi.schemers.org/srfi-111/srfi-111.html)
   - [SRFI 112: Environment inquiry](https://srfi.schemers.org/srfi-112/srfi-112.html)
   - [SRFI 113: Sets and bags](https://srfi.schemers.org/srfi-113/srfi-113.html)
+  - [SRFI 116: Immutable List Library](https://srfi.schemers.org/srfi-116/srfi-116.html)
   - [SRFI 118: Simple adjustable-size strings](https://srfi.schemers.org/srfi-118/srfi-118.html)
   - [SRFI 121: Generators](https://srfi.schemers.org/srfi-121/srfi-121.html)
   - [SRFI 125: Intermediate hash tables](https://srfi.schemers.org/srfi-125/srfi-125.html)

@@ -314,6 +314,7 @@
           digit-value
           display
           do
+          dotted-ilist?
           dotted-list?
           drop
           drop-right
@@ -399,8 +400,8 @@
           gselect
           gtake
           gtake-while
-          ; gtree->itree
-          ; gtree->tree
+          gtree->itree
+          gtree->tree
           guard
           hash
           hash-bound
@@ -446,6 +447,52 @@
           hash-table-xor!
           hash-table=?
           hash-table?
+          ialist-cons
+          ialist-delete
+          iany
+          iappend
+          iappend-map
+          iappend-reverse
+          iapply
+          iassoc
+          iassq
+          iassv
+          ibreak
+          icaaaar
+          icaaadr
+          icaaar
+          icaadar
+          icaaddr
+          icaadr
+          icaar
+          icadaar
+          icadadr
+          icadar
+          icaddar
+          icadddr
+          icaddr
+          icadr
+          icar
+          icar+icdr
+          icdaaar
+          icdaadr
+          icdaar
+          icdadar
+          icdaddr
+          icdadr
+          icdar
+          icddaar
+          icddadr
+          icddar
+          icdddar
+          icddddr
+          icdddr
+          icddr
+          icdr
+          iconcatenate
+          icount
+          idelete
+          idelete-duplicates
           ideque
           ideque->generator
           ideque->list
@@ -492,29 +539,90 @@
           ideque-zip
           ideque=
           ideque?
+          idrop
+          idrop-right
+          idrop-while
+          ieighth
+          ievery
           if
-          ; ilist->list
-          ; ilist-comparator
-          ; ilist-tail
+          ififth
+          ifilter
+          ifilter-map
+          ifind
+          ifind-tail
+          ifirst
+          ifold
+          ifold-right
+          ifor-each
+          ifourth
+          iiota
+          ilast
+          ilength
+          ilist
+          ilist->list
+          ilist-comparator
+          ilist-copy
+          ilist-index
+          ilist-ref
+          ilist-tabulate
+          ilist-tail
+          ilist=
+          ilist?
           imag-part
+          imap
+          imap-in-order
+          imember
+          imemq
+          imemv
           include
           include-ci
           inexact
           inexact?
           infinite?
+          ininth
           input-port-open?
           input-port?
           integer->char
           integer?
           interaction-environment
           iota
-          ; ipair->pair
-          ; ipair-comparator
-          ; iq
-          ; itree->tree
+          ipair
+          ipair*
+          ipair->pair
+          ipair-comparator
+          ipair-fold
+          ipair-fold-right
+          ipair-for-each
+          ipair?
+          ipartition
+          iq
+          ireduce
+          ireduce-right
+          iremove
+          ireverse
+          isecond
+          iseventh
+          isixth
+          ispan
+          isplit-at
+          itake
+          itake-right
+          itake-while
+          itenth
+          ithird
+          itree->tree
+          iunfold
+          iunfold-right
+          iunzip1
+          iunzip2
+          iunzip3
+          iunzip4
+          iunzip5
+          izip
           jiffies-per-second
           lambda
           last
+          last-ipair
           last-pair
           lcm
           length
@@ -534,7 +642,7 @@
           list->char-set!
           list->generator
           list->ideque
-          ; list->ilist
+          list->ilist
           list->rlist
           list->set
           list->set
@@ -637,10 +745,13 @@
           make-eqv-comparator
           make-for-each-generator
           make-hash-table
-          ; make-icar-comparator
-          ; make-icdr-comparator
-          ; make-improper-ilist-comparator
+          make-icar-comparator
+          make-icdr-comparator
+          make-ilist
+          make-ilist-comparator
+          make-improper-ilist-comparator
           make-iota-generator
+          make-ipair-comparator
           make-list
           make-list-comparator
           ; make-list-queue
@@ -670,8 +781,9 @@
           newline
           ninth
           not
-          ; not-ipair?
+          not-ipair?
           not-pair?
+          null-ilist?
           null-list?
           null?
           number->string
@@ -690,7 +802,7 @@
           or
           output-port-open?
           output-port?
-          ; pair->ipair
+          pair->ipair
           pair-fold
           pair-fold-right
           pair-for-each
@@ -705,6 +817,7 @@
           positive?
           procedure?
           promise?
+          proper-ilist?
           proper-list?
           quasiquote
           quote
@@ -760,8 +873,8 @@
           remainder
           remove
           ; remove!
-          ; replace-icar
-          ; replace-icdr
+          replace-icar
+          replace-icdr
           reverse
           ; reverse!
           reverse-list->text
@@ -1003,7 +1116,7 @@
           textual>?
           textual?
           third
-          ; tree->itree
+          tree->itree
           truncate
           truncate-quotient
           truncate-remainder
@@ -1091,6 +1204,7 @@
           write-string
           write-u8
           xcons
+          xipair
           zero?
           zip)
 
@@ -1108,7 +1222,7 @@
           (scheme generator)
           (except (scheme hash-table) string-ci-hash string-hash)
           (scheme ideque)
-          ; (scheme ilist)
+          (scheme ilist)
           (scheme inexact)
           (scheme lazy)
           ; (scheme list-queue)
