@@ -98,6 +98,8 @@
 		CC028EC5249E3F5E00C5761C /* 2020-06-19.data in Copy dataset covid assets */ = {isa = PBXBuildFile; fileRef = CC028E98249E3EF700C5761C /* 2020-06-19.data */; };
 		CC02EA012CB7DEC900ABFC6F /* WebAPIs.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC02EA002CB75C1D00ABFC6F /* WebAPIs.scm */; };
 		CC02EA022CB7DEDC00ABFC6F /* WebAPIs.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC02EA002CB75C1D00ABFC6F /* WebAPIs.scm */; };
+		CC030C5030AB580200D01746 /* YamlKit in Frameworks */ = {isa = PBXBuildFile; productRef = CC030C4F30AB580200D01746 /* YamlKit */; };
+		CC030C5230AB582000D01746 /* YamlKit in Frameworks */ = {isa = PBXBuildFile; productRef = CC030C5130AB582000D01746 /* YamlKit */; };
 		CC050F141D017D3400D32132 /* BytevectorLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC050F131D017D3400D32132 /* BytevectorLibrary.swift */; };
 		CC08964E244090D1004503B1 /* SQLiteLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC08964D244090D1004503B1 /* SQLiteLibrary.swift */; };
 		CC089651244091E9004503B1 /* SQLiteExpress in Frameworks */ = {isa = PBXBuildFile; productRef = CC089650244091E9004503B1 /* SQLiteExpress */; };
@@ -175,7 +177,9 @@
 		CC1D53392BF16F9F00EE1A24 /* DynamicJSON in Frameworks */ = {isa = PBXBuildFile; productRef = CC1D53382BF16F9F00EE1A24 /* DynamicJSON */; };
 		CC1D533B2BF16FB900EE1A24 /* DynamicJSON in Frameworks */ = {isa = PBXBuildFile; productRef = CC1D533A2BF16FB900EE1A24 /* DynamicJSON */; };
 		CC1D533D2BF1709E00EE1A24 /* JSONLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1D533C2BF1709E00EE1A24 /* JSONLibrary.swift */; };
+		06CF56477C3526E6F0D35A9D /* YamlLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66CAA060B7DB817DCE3E6570 /* YamlLibrary.swift */; };
 		CC1D533E2BF1709E00EE1A24 /* JSONLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1D533C2BF1709E00EE1A24 /* JSONLibrary.swift */; };
+		7CC3E39CC7F7102C70507AA6 /* YamlLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66CAA060B7DB817DCE3E6570 /* YamlLibrary.swift */; };
 		CC1D6CBA258CCE1A00D36645 /* EditDistance.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC1D6CB9258CCCFF00D36645 /* EditDistance.scm */; };
 		CC1D6CBE258CDE8200D36645 /* 209.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CC1D6CBD258CDE3700D36645 /* 209.sld */; };
 		CC1D6CC2258CE0B700D36645 /* SRFI-209.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CC1D6CC1258CDF0000D36645 /* SRFI-209.scm */; };
@@ -1516,6 +1520,7 @@
 		CCD4A6F926EDFC7200BEE906 /* 217.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCD4A6F526EDFB9500BEE906 /* 217.sld */; };
 		CCD4A6FA26EDFC8300BEE906 /* SRFI-217.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCD4A6F626EDFBD100BEE906 /* SRFI-217.scm */; };
 		CCD5B51F2C0B79D7002BF2F0 /* JSON.scm in Resources */ = {isa = PBXBuildFile; fileRef = CCD5B51E2C0B79D7002BF2F0 /* JSON.scm */; };
+		1B8163E7B416F782D8BE3BFB /* YAML.scm in Resources */ = {isa = PBXBuildFile; fileRef = B1C9CD3090123C2D03DF7A2B /* YAML.scm */; };
 		CCD5B5222C0D2337002BF2F0 /* JSONSchemaLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD5B5202C0D231E002BF2F0 /* JSONSchemaLibrary.swift */; };
 		CCD5B5232C0D233B002BF2F0 /* JSONSchemaLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD5B5202C0D231E002BF2F0 /* JSONSchemaLibrary.swift */; };
 		CCD5B5652C14FCA3002BF2F0 /* schema in Copy JSON schema assets */ = {isa = PBXBuildFile; fileRef = CCD5B5272C14F166002BF2F0 /* schema */; };
@@ -1633,7 +1638,9 @@
 		CCD5B5E82C15F108002BF2F0 /* person in Copy JSON custom schema assets */ = {isa = PBXBuildFile; fileRef = CCD5B5E52C15EF9E002BF2F0 /* person */; };
 		CCD5B5EA2C15F14A002BF2F0 /* person in Copy JSON custom schema assets */ = {isa = PBXBuildFile; fileRef = CCD5B5E52C15EF9E002BF2F0 /* person */; };
 		CCD5B5ED2C16E6A6002BF2F0 /* JSON.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCD5B5EB2C16E430002BF2F0 /* JSON.scm */; };
+		FC94BA761EB979B0D7070590 /* YAML.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = 2A05910491EC31CCA774D57B /* YAML.scm */; };
 		CCD5B5EE2C16E6B8002BF2F0 /* JSON.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCD5B5EB2C16E430002BF2F0 /* JSON.scm */; };
+		18DEA6934957FDE18118D4C9 /* YAML.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = 2A05910491EC31CCA774D57B /* YAML.scm */; };
 		CCD5B6082C276696002BF2F0 /* ThreadFutureLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD5B6072C276696002BF2F0 /* ThreadFutureLibrary.swift */; };
 		CCD5B6092C276696002BF2F0 /* ThreadFutureLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD5B6072C276696002BF2F0 /* ThreadFutureLibrary.swift */; };
 		CCD5B60B2C295951002BF2F0 /* HTTPLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD5B60A2C295951002BF2F0 /* HTTPLibrary.swift */; };
@@ -2230,6 +2237,7 @@
 				CC35C01E2C8527EF00DF6E9D /* Keychain.scm in Copy examples */,
 				CCB7520E2C62417500E7C1B0 /* Webserver.scm in Copy examples */,
 				CCD5B5ED2C16E6A6002BF2F0 /* JSON.scm in Copy examples */,
+				FC94BA761EB979B0D7070590 /* YAML.scm in Copy examples */,
 				CC517E6629AC2DE70096FC72 /* Blockchain.scm in Copy examples */,
 				CCCB5CA0284225470005248D /* StyledTextDoc.scm in Copy examples */,
 				CCCB66E1282DBBC80004827D /* DrawBarCharts.scm in Copy examples */,
@@ -3588,6 +3596,7 @@
 				CC35C01F2C85280500DF6E9D /* Keychain.scm in Copy examples */,
 				CCB7520F2C62418700E7C1B0 /* Webserver.scm in Copy examples */,
 				CCD5B5EE2C16E6B8002BF2F0 /* JSON.scm in Copy examples */,
+				18DEA6934957FDE18118D4C9 /* YAML.scm in Copy examples */,
 				CC517E6729AC2DF90096FC72 /* Blockchain.scm in Copy examples */,
 				CCCB5CA12842255E0005248D /* StyledTextDoc.scm in Copy examples */,
 				CCCB66E2282DBBDB0004827D /* DrawBarCharts.scm in Copy examples */,
@@ -4256,6 +4265,7 @@
 		CC1867412750E9F900B31427 /* SRFI-166.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-166.scm"; sourceTree = "<group>"; };
 		CC1D53312BE7AB4000EE1A24 /* CustomExpr.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomExpr.swift; sourceTree = "<group>"; };
 		CC1D533C2BF1709E00EE1A24 /* JSONLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONLibrary.swift; sourceTree = "<group>"; };
+		66CAA060B7DB817DCE3E6570 /* YamlLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YamlLibrary.swift; sourceTree = "<group>"; };
 		CC1D6CB9258CCCFF00D36645 /* EditDistance.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = EditDistance.scm; sourceTree = "<group>"; };
 		CC1D6CBD258CDE3700D36645 /* 209.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 209.sld; sourceTree = "<group>"; };
 		CC1D6CC1258CDF0000D36645 /* SRFI-209.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-209.scm"; sourceTree = "<group>"; };
@@ -4628,6 +4638,7 @@
 		CC6F369A2EEF7F6200666DE2 /* (lispkit iterate).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit iterate).md"; sourceTree = "<group>"; };
 		CC6F369B2EEF7F6200666DE2 /* (lispkit json schema).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit json schema).md"; sourceTree = "<group>"; };
 		CC6F369C2EEF7F6200666DE2 /* (lispkit json).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit json).md"; sourceTree = "<group>"; };
+		FDC4B2BF0FDC036636A98ABC /* (lispkit yaml).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit yaml).md"; sourceTree = "<group>"; };
 		CC6F369D2EEF7F6200666DE2 /* (lispkit list set).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit list set).md"; sourceTree = "<group>"; };
 		CC6F369E2EEF7F6200666DE2 /* (lispkit list).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit list).md"; sourceTree = "<group>"; };
 		CC6F369F2EEF7F6200666DE2 /* (lispkit location).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit location).md"; sourceTree = "<group>"; };
@@ -4989,6 +5000,7 @@
 		CCD4A6F526EDFB9500BEE906 /* 217.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 217.sld; sourceTree = "<group>"; };
 		CCD4A6F626EDFBD100BEE906 /* SRFI-217.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-217.scm"; sourceTree = "<group>"; };
 		CCD5B51E2C0B79D7002BF2F0 /* JSON.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = JSON.scm; sourceTree = "<group>"; };
+		B1C9CD3090123C2D03DF7A2B /* YAML.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = YAML.scm; sourceTree = "<group>"; };
 		CCD5B5202C0D231E002BF2F0 /* JSONSchemaLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONSchemaLibrary.swift; sourceTree = "<group>"; };
 		CCD5B5272C14F166002BF2F0 /* schema */ = {isa = PBXFileReference; lastKnownFileType = text; path = schema; sourceTree = "<group>"; };
 		CCD5B5282C14F178002BF2F0 /* core */ = {isa = PBXFileReference; lastKnownFileType = text; path = core; sourceTree = "<group>"; };
@@ -5048,6 +5060,7 @@
 		CCD5B5DC2C150189002BF2F0 /* LispKit-JSON-Schema.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "LispKit-JSON-Schema.scm"; sourceTree = "<group>"; };
 		CCD5B5E52C15EF9E002BF2F0 /* person */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = person; path = Sources/LispKit/Resources/Assets/JSON/Schema/Custom/person; sourceTree = SOURCE_ROOT; };
 		CCD5B5EB2C16E430002BF2F0 /* JSON.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = JSON.scm; sourceTree = "<group>"; };
+		2A05910491EC31CCA774D57B /* YAML.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = YAML.scm; sourceTree = "<group>"; };
 		CCD5B6072C276696002BF2F0 /* ThreadFutureLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadFutureLibrary.swift; sourceTree = "<group>"; };
 		CCD5B60A2C295951002BF2F0 /* HTTPLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPLibrary.swift; sourceTree = "<group>"; };
 		CCD5B6152C3BC480002BF2F0 /* HTTPOAuthLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPOAuthLibrary.swift; sourceTree = "<group>"; };
@@ -5186,6 +5199,7 @@
 				CC5E53032355AAD400C72CE2 /* NumberKit in Frameworks */,
 				CC2DA73A2770012300DE69CF /* Atomics in Frameworks */,
 				CC089651244091E9004503B1 /* SQLiteExpress in Frameworks */,
+				CC030C5030AB580200D01746 /* YamlKit in Frameworks */,
 				CC6290842C7DBBFB005AF800 /* KeychainAccess in Frameworks */,
 				CC2FB07E2AA3D83E00A20C71 /* SWCompression in Frameworks */,
 				CC17F7412C793E6400DDC4F9 /* CBORCoding in Frameworks */,
@@ -5213,6 +5227,7 @@
 				CCC48D0325E5BFA300D082AD /* NumberKit in Frameworks */,
 				CC2DA73C277001A200DE69CF /* Atomics in Frameworks */,
 				CCC48D0725E5BFB300D082AD /* SQLiteExpress in Frameworks */,
+				CC030C5230AB582000D01746 /* YamlKit in Frameworks */,
 				CC6290862C7DBC1B005AF800 /* KeychainAccess in Frameworks */,
 				CC61CB382ACA116500C5A032 /* SWCompression in Frameworks */,
 				CC17F7432C793EC700DDC4F9 /* CBORCoding in Frameworks */,
@@ -5348,6 +5363,7 @@
 				CC436C411FFD94870095559E /* Logic.scm */,
 				CC7D4B752A208EF90066BA94 /* Format.scm */,
 				CCD5B51E2C0B79D7002BF2F0 /* JSON.scm */,
+				B1C9CD3090123C2D03DF7A2B /* YAML.scm */,
 				CC8218901E3FFFAB009CA653 /* SRFI19.scm */,
 				CC5E473E20D2D95E00F21B03 /* SRFI69.scm */,
 				CC48EBC51F3E437300233FA9 /* SRFI35.scm */,
@@ -5993,6 +6009,7 @@
 				CC6F369A2EEF7F6200666DE2 /* (lispkit iterate).md */,
 				CC6F369B2EEF7F6200666DE2 /* (lispkit json schema).md */,
 				CC6F369C2EEF7F6200666DE2 /* (lispkit json).md */,
+				FDC4B2BF0FDC036636A98ABC /* (lispkit yaml).md */,
 				CC6F369D2EEF7F6200666DE2 /* (lispkit list set).md */,
 				CCA5E06C0AED5807460FEFC5 /* (lispkit cmdline).md */,
 				CCA5E04C9C13ABB2BC6CA25E /* (lispkit list util).md */,
@@ -6532,6 +6549,7 @@
 				CCCCEC892C504B3C00509902 /* HTTPServerLibrary.swift */,
 				CCD5B6152C3BC480002BF2F0 /* HTTPOAuthLibrary.swift */,
 				CC1D533C2BF1709E00EE1A24 /* JSONLibrary.swift */,
+				66CAA060B7DB817DCE3E6570 /* YamlLibrary.swift */,
 				CCD5B5202C0D231E002BF2F0 /* JSONSchemaLibrary.swift */,
 				CCF964042D00D65900F85FBA /* PDFLibrary.swift */,
 				CC17F7472C7DB91000DDC4F9 /* KeychainLibrary.swift */,
@@ -6799,6 +6817,7 @@
 				3B8E6F1A5C9D4720E1A6B5C3 /* TinyCLOS.scm */,
 				CC750BD71F5AC68900CD82A2 /* PDF.scm */,
 				CCD5B5EB2C16E430002BF2F0 /* JSON.scm */,
+				2A05910491EC31CCA774D57B /* YAML.scm */,
 				CC4385BB20BAB79500055289 /* HTTP.scm */,
 				CCB7520D2C623F5800E7C1B0 /* Webserver.scm */,
 				CC02EA002CB75C1D00ABFC6F /* WebAPIs.scm */,
@@ -7006,6 +7025,7 @@
 				CCCCEC872C504AF400509902 /* NanoHTTP */,
 				CC17F7402C793E6400DDC4F9 /* CBORCoding */,
 				CC6290832C7DBBFB005AF800 /* KeychainAccess */,
+				CC030C4F30AB580200D01746 /* YamlKit */,
 			);
 			productName = LispKit;
 			productReference = CCAD52BA1C48403800DBD8EE /* LispKit.framework */;
@@ -7100,6 +7120,7 @@
 				CC17F7232C72355800DDC4F9 /* NanoHTTP */,
 				CC17F7422C793EC700DDC4F9 /* CBORCoding */,
 				CC6290852C7DBC1B005AF800 /* KeychainAccess */,
+				CC030C5130AB582000D01746 /* YamlKit */,
 			);
 			productName = "LispKit iOS";
 			productReference = CCC48C5625E5B8DC00D082AD /* LispKit.framework */;
@@ -7181,6 +7202,7 @@
 				CCCCEC862C504AF400509902 /* XCRemoteSwiftPackageReference "swift-nanohttp" */,
 				CC17F73F2C793E6400DDC4F9 /* XCRemoteSwiftPackageReference "CBORCoding" */,
 				CC6290822C7DBBFB005AF800 /* XCRemoteSwiftPackageReference "KeychainAccess" */,
+				CC030C4E30AB580200D01746 /* XCRemoteSwiftPackageReference "swift-yamlkit" */,
 			);
 			productRefGroup = CCAD52BB1C48403800DBD8EE /* Products */;
 			projectDirPath = "";
@@ -7219,6 +7241,7 @@
 				CC48EBC61F3E460900233FA9 /* SRFI35.scm in Resources */,
 				CC8C6EC81CFA65F200126BDD /* ControlFlow.scm in Resources */,
 				CCD5B51F2C0B79D7002BF2F0 /* JSON.scm in Resources */,
+				1B8163E7B416F782D8BE3BFB /* YAML.scm in Resources */,
 				CC08965324413F6E004503B1 /* SQLite.scm in Resources */,
 				CC97FA161CFA515E0008596E /* Definitions.scm in Resources */,
 				CCC41DC81D2B14AD003CB4D0 /* CallCC.scm in Resources */,
@@ -7327,6 +7350,7 @@
 				CC0980AB1C67E84C006B7FB1 /* Cell.swift in Sources */,
 				CC41322F2DF5B74700D77CF6 /* TimezoneLookup.swift in Sources */,
 				CC1D533D2BF1709E00EE1A24 /* JSONLibrary.swift in Sources */,
+				06CF56477C3526E6F0D35A9D /* YamlLibrary.swift in Sources */,
 				CC3C92441D84C0D800016C28 /* Library.swift in Sources */,
 				CC76312920E9550B005F27CE /* Owners.swift in Sources */,
 				CCAD52E61C48468F00DBD8EE /* SyntaxRules.swift in Sources */,
@@ -7518,6 +7542,7 @@
 				CCD5B5232C0D233B002BF2F0 /* JSONSchemaLibrary.swift in Sources */,
 				CCC48CAD25E5B97100D082AD /* SymbolTable.swift in Sources */,
 				CC1D533E2BF1709E00EE1A24 /* JSONLibrary.swift in Sources */,
+				7CC3E39CC7F7102C70507AA6 /* YamlLibrary.swift in Sources */,
 				CCC48C6C25E5B94300D082AD /* Owners.swift in Sources */,
 				CC2DA7482773195600DE69CF /* ThreadLibrary.swift in Sources */,
 				CC1348EB2D2E7AD4002DBF0D /* ImageLibrary.swift in Sources */,
@@ -8269,6 +8294,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		CC030C4E30AB580200D01746 /* XCRemoteSwiftPackageReference "swift-yamlkit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/objecthub/swift-yamlkit";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 		CC08964F244091E9004503B1 /* XCRemoteSwiftPackageReference "swift-sqliteexpress" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/objecthub/swift-sqliteexpress.git";
@@ -8376,6 +8409,16 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		CC030C4F30AB580200D01746 /* YamlKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CC030C4E30AB580200D01746 /* XCRemoteSwiftPackageReference "swift-yamlkit" */;
+			productName = YamlKit;
+		};
+		CC030C5130AB582000D01746 /* YamlKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CC030C4E30AB580200D01746 /* XCRemoteSwiftPackageReference "swift-yamlkit" */;
+			productName = YamlKit;
+		};
 		CC089650244091E9004503B1 /* SQLiteExpress */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = CC08964F244091E9004503B1 /* XCRemoteSwiftPackageReference "swift-sqliteexpress" */;

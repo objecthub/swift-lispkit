@@ -646,6 +646,13 @@ Open `LispKit.xcodeproj` and build using the appropriate scheme:
 - JSONPath queries
 - Implements library `(lispkit json)`
 
+**YamlLibrary.swift** - YAML operations
+- Parse YAML text (single and multi-document streams) into immutable YAML values, using YamlKit
+- Convert between Scheme data and YAML values; mutable YAML values; references and functional updates
+- Serialize YAML values with formatting options; schemas (core, JSON, failsafe, custom procedures)
+- Event-based API: pull parser and push emitter
+- Implements library `(lispkit yaml)`
+
 **Platform-specific Notes:**
 - Libraries with `_iOS.swift` suffix are iOS-specific implementations
 - **SystemCallLibrary.swift** - macOS only (not available on iOS)

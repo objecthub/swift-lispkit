@@ -318,6 +318,18 @@ class RegressionTests: LispKitTestCase {
     self.execute(file: "JSON")
   }
   
+  func testYAML() {
+    // The context is bootstrapped, as the context of a REPL is. Without this, errors thrown by
+    // native procedures cannot be caught by Scheme code, which the tests of error conditions
+    // rely on.
+    do {
+      try self.context?.bootstrap()
+    } catch {
+      preconditionFailure("cannot bootstrap test context: \(error)")
+    }
+    self.execute(file: "YAML")
+  }
+  
   func testSRFI19() {
     self.execute(file: "SRFI19")
   }

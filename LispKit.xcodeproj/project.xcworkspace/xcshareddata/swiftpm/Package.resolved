@@ -1,5 +1,5 @@
 {
-  "originHash" : "32220cec0f5a5302fc8bd40fe03e4db67829930c1ef6010465d0c113618234dd",
+  "originHash" : "56fee81370f5902310b7586c70e22ad38b23f44c6ba8f7fc7ef125ffb07d1302",
   "pins" : [
     {
       "identity" : "bitbytedata",
@@ -125,6 +125,15 @@
       "state" : {
         "revision" : "e420f6eef3b90d44d92f39b1f899a8aa662f57a7",
         "version" : "1.0.3"
+      }
+    },
+    {
+      "identity" : "swift-yamlkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/objecthub/swift-yamlkit",
+      "state" : {
+        "revision" : "76291e63e38ead33c614e2e31668287329d7f33c",
+        "version" : "1.0.0"
       }
     },
     {

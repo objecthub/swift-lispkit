@@ -155,6 +155,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit crypto)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Crypto),
     [`(lispkit json)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-JSON),
     [`(lispkit json schema)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-JSON-Schema),
+    `(lispkit yaml)`,
     [`(lispkit http)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-HTTP),
     [`(lispkit http server)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-HTTP-Server),
     [`(lispkit http oauth)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-HTTP-OAuth),
@@ -413,6 +414,7 @@ the command-line tool directly in Xcode, the Swift Package Manager is not needed
 - [Swift Atomics](https://github.com/apple/swift-atomics)
 - [CLFormat](https://github.com/objecthub/swift-clformat)
 - [DynamicJSON](https://github.com/objecthub/swift-dynamicjson)
+- [YamlKit](https://github.com/objecthub/swift-yamlkit)
 - [NanoHTTP](https://github.com/objecthub/swift-nanohttp)
 - [OAuth2](https://github.com/p2/OAuth2)
 - [CBORCoding](https://github.com/SomeRandomiOSDev/CBORCoding)

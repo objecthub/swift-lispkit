@@ -127,6 +127,15 @@
       }
     },
     {
+      "identity" : "swift-yamlkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/objecthub/swift-yamlkit.git",
+      "state" : {
+        "revision" : "76291e63e38ead33c614e2e31668287329d7f33c",
+        "version" : "1.0.0"
+      }
+    },
+    {
       "identity" : "zipfoundation",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/weichsel/ZIPFoundation.git",

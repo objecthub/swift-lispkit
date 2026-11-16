@@ -50,6 +50,7 @@
 (import (lispkit format))
 (import (lispkit json))
 (import (lispkit json schema))
+(import (lispkit yaml))
 (import (lispkit http))
 (import (lispkit http server))
 (import (lispkit http oauth))
