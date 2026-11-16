@@ -69,8 +69,9 @@ _LispKit_ provides support for the following core features, many of which are ba
   - Some R7RS (large) libraries from Scheme Red and Scheme Tangerine editions:
     `(scheme bitwise)`, `(scheme box)`,  `(scheme charset)`, `(scheme comparator)`, `(scheme division)`,
     `(scheme fixnum)`, `(scheme flonum)`, `(scheme generator)`, `(scheme hash-table)`,
-    `(scheme ideque)`, `(scheme list)`, `(scheme mapping)`, `(scheme red)`, `(scheme rlist)`,
-    `(scheme set)`, `(scheme sort)`, `(scheme stream)`, `(scheme text)`, `(scheme vector)`
+    `(scheme ideque)`, `(scheme list)`, `(scheme lseq)`, `(scheme mapping)`, `(scheme red)`,
+    `(scheme rlist)`, `(scheme set)`, `(scheme sort)`, `(scheme stream)`, `(scheme text)`,
+    `(scheme vector)`
   - LispKit-specific libraries:
     [`(lispkit base)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Base),
     [`(lispkit core)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Core),
@@ -216,6 +217,7 @@ framework:
   - [SRFI 118: Simple adjustable-size strings](https://srfi.schemers.org/srfi-118/srfi-118.html)
   - [SRFI 121: Generators](https://srfi.schemers.org/srfi-121/srfi-121.html)
   - [SRFI 125: Intermediate hash tables](https://srfi.schemers.org/srfi-125/srfi-125.html)
+  - [SRFI 127: Lazy Sequences](https://srfi.schemers.org/srfi-127/srfi-127.html)
   - [SRFI 128: Comparators](https://srfi.schemers.org/srfi-128/srfi-128.html)
   - [SRFI 129: Titlecase procedures](https://srfi.schemers.org/srfi-129/srfi-129.html)
   - [SRFI 132: Sort Libraries](https://srfi.schemers.org/srfi-132/srfi-132.html)

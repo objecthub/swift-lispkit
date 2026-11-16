@@ -377,7 +377,7 @@
           generator
           generator->ideque
           generator->list
-          ; generator->lseq
+          generator->lseq
           generator->reverse-list
           generator->string
           generator->vector
@@ -585,34 +585,34 @@
           list?
           load
           log
-          ; lseq->generator
-          ; lseq-any
-          ; lseq-append
-          ; lseq-car
-          ; lseq-cdr
-          ; lseq-drop
-          ; lseq-drop-while
-          ; lseq-every
-          ; lseq-filter
-          ; lseq-find
-          ; lseq-find-tail
-          ; lseq-first
-          ; lseq-for-each
-          ; lseq-index
-          ; lseq-length
-          ; lseq-map
-          ; lseq-member
-          ; lseq-memq
-          ; lseq-memv
-          ; lseq-realize
-          ; lseq-ref
-          ; lseq-remove
-          ; lseq-rest
-          ; lseq-take
-          ; lseq-take-while
-          ; lseq-zip
-          ; lseq=?
-          ; lseq?
+          lseq->generator
+          lseq-any
+          lseq-append
+          lseq-car
+          lseq-cdr
+          lseq-drop
+          lseq-drop-while
+          lseq-every
+          lseq-filter
+          lseq-find
+          lseq-find-tail
+          lseq-first
+          lseq-for-each
+          lseq-index
+          lseq-length
+          lseq-map
+          lseq-member
+          lseq-memq
+          lseq-memv
+          lseq-realize
+          lseq-ref
+          lseq-remove
+          lseq-rest
+          lseq-take
+          lseq-take-while
+          lseq-zip
+          lseq=?
+          lseq?
           ; lset-adjoin
           ; lset-diff+intersection
           ; lset-diff+intersection!
@@ -1114,7 +1114,7 @@
           ; (scheme list-queue)
           (scheme list)
           (scheme load)
-          ; (scheme lseq)
+          (scheme lseq)
           (scheme process-context)
           (scheme read)
           (scheme repl)
