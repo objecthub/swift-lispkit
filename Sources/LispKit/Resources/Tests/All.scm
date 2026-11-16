@@ -29,6 +29,7 @@
 (load "Tests/LispKit-Shared-Queue")
 (load "Tests/LispKit-List-Set")
 (load "Tests/LispKit-JSON-Schema")
+(load "Tests/LispKit-Pretty-Print")
 (load "Tests/SRFI-14")
 (load "Tests/SRFI-18")
 (load "Tests/SRFI-101")

@@ -2,7 +2,7 @@
 
 Library `(srfi 272 basic)` provides all the functionality of library `(srfi 272)`, adding parameter objects for controlling the right margin and the printing of shared and circular structures, as well as procedures `pprint`, `pprint-shared`, and `pprint-simple` which behave like `write`, `write-shared`, and `write-simple` with respect to shared and circular structures.
 
-Datum labels `#N=` and `#N#` are used for representing shared and circular structures. In LispKit, only mutable objects such as vectors, strings, boxes, mutable pairs, and growable vectors get labeled. Pairs are values without identity in LispKit and are therefore never labeled.
+Datum labels `#N=` and `#N#` are used for representing shared and circular structures. In LispKit, only mutable objects such as vectors, strings, boxes, mutable pairs, growable vectors, hashtables, and records get labeled. Pairs are values without identity in LispKit and are therefore never labeled.
 
 ## Procedures
 

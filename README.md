@@ -143,6 +143,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit prolog)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Prolog),
     [`(lispkit clos)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Clos),
     [`(lispkit test)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Test),
+    `(lispkit pretty-print)`,
     `(lispkit prettify)`,
     [`(lispkit text-table)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Text-Table),
     `(lispkit cmdline)`,

@@ -163,7 +163,7 @@ Holds the style registry used by the pretty printer. The registry is a functiona
 
 **pp-hooks** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[parameter object]</span>  
 
-Holds the hook registry used by the pretty printer. The registry is a functional data structure which can be modified via `add-pp-hook`. Procedure `pretty-hook` modifies the registry by changing the value of `pp-hooks`. In LispKit, the default registry contains hooks for boxes, mutable pairs, and growable vectors.
+Holds the hook registry used by the pretty printer. The registry is a functional data structure which can be modified via `add-pp-hook`. Procedure `pretty-hook` modifies the registry by changing the value of `pp-hooks`. In LispKit, the default registry contains hooks for boxes, mutable pairs, growable vectors, hashtables, and records.
 
 ## Styles
 

@@ -49,7 +49,10 @@
   ; LispKit libraries
   (import (only (lispkit box) box? box unbox set-box! mpair? mcons mcar mcdr)
           (only (lispkit gvector) gvector? gvector->list list->gvector)
-          (only (lispkit hashtable) make-eq-hashtable hashtable-ref hashtable-set!))
+          (only (lispkit hashtable) make-eq-hashtable hashtable-ref hashtable-set!
+                hashtable? hashtable-size hashtable->alist)
+          (only (lispkit record) record? record-type record-type-name
+                record-type-field-names record-ref))
 
 
   ; procedures
@@ -1509,7 +1512,8 @@
       (else))
 
     ; initialize pp hook registry with LispKit-specific data types;
-    ; the representations match the ones used by `write`
+    ; except for hashtables and records, the representations match the ones
+    ; used by `write`
 
     (pp-hooks
       (add-pp-hook (pp-hooks) box?
@@ -1521,4 +1525,36 @@
           (lambda (x) (mcons (car x) (cadr x))) ">")))
     (pp-hooks
       (add-pp-hook (pp-hooks) gvector?
-        (glst-pp-hook "#g(" gvector->list list->gvector ")")))))
+        (glst-pp-hook "#g(" gvector->list list->gvector ")")))
+    ; hashtables are presented as lists of (key value) entries, records as lists
+    ; consisting of the record type name followed by (field value) entries, such that their content is formatted and checked for
+    ; shared and circular structures. Views represent hashtables and records which were
+    ; rebuilt with datum labels; they preserve the order of the entries
+    (define-record-type pp-hashtable-view
+      (make-pp-hashtable-view entries)
+      pp-hashtable-view?
+      (entries pp-hashtable-view-entries))
+    (define-record-type pp-record-view
+      (make-pp-record-view items)
+      pp-record-view?
+      (items pp-record-view-items))
+    (define (hashtable-entry-list ht)
+      (map (lambda (p) (list (car p) (cdr p))) (hashtable->alist ht)))
+    (define (record-item-list r)
+      (let loop ((names (record-type-field-names (record-type r) #t))
+                 (i 0)
+                 (acc (list (string->symbol (record-type-name (record-type r))))))
+        (if (null? names)
+            (reverse acc)
+            (loop (cdr names) (+ i 1) (cons (list (car names) (record-ref r i)) acc)))))
+    (define (lispkit-hook x)
+      (cond ((pp-hashtable-view? x)
+             (glst-pp-hook "#<hashtable " pp-hashtable-view-entries make-pp-hashtable-view ">"))
+            ((pp-record-view? x)
+             (glst-pp-hook "#<record " pp-record-view-items make-pp-record-view ">"))
+            ((and (hashtable? x) (> (hashtable-size x) 0))
+             (glst-pp-hook "#<hashtable " hashtable-entry-list make-pp-hashtable-view ">"))
+            ((and (record? x) (pair? (record-type-field-names (record-type x) #t)))
+             (glst-pp-hook "#<record " record-item-list make-pp-record-view ">"))
+            (else #f)))
+    (pp-hooks (add-pp-hook (pp-hooks) lispkit-hook #t))))

@@ -867,6 +867,33 @@
 (test-equal "fancy shares bindings with advanced" #t
   (and (eq? pp adv:pp) (eq? pp-width adv:pp-width) (eq? pp-styles adv:pp-styles)
        (eq? pp-hooks adv:pp-hooks) (eq? make-pprint-generator adv:make-pprint-generator)
-       (not (eq? pprint-file adv:pprint-file)))))
+       (not (eq? pprint-file adv:pprint-file))))
+(define-record-type srfi-272-node (make-srfi-272-node val next) srfi-272-node?
+  (val srfi-272-node-val) (next srfi-272-node-next set-srfi-272-node-next!))
+(test-equal "hashtable" "#<hashtable (a (1 2 3))>\n"
+  (pp->string (let ((h (make-equal-hashtable))) (hashtable-set! h 'a '(1 2 3)) h)))
+(test-equal "empty hashtable" "#<hashtable>\n" (pp->string (make-equal-hashtable)))
+(test-equal "cyclic hashtable" "#0=#<hashtable (self #0#)>\n"
+  (pp->string (let ((h (make-eq-hashtable))) (hashtable-set! h 'self h) h)))
+(test-equal "cycle through vector and hashtable" "#0=#(#<hashtable (v #0#)> 1)\n"
+  (pp->string (let ((h (make-eq-hashtable)) (v (vector #f 1)))
+                (vector-set! v 0 h) (hashtable-set! h 'v v) v)))
+(test-equal "shared hashtables" "(#0=#<hashtable (a 1)> #0#)\n"
+  (pp->string (let ((h (make-eq-hashtable))) (hashtable-set! h 'a 1) (list h h)) pp-graph #t))
+(test-equal "record" "#<record srfi-272-node (val 1) (next #f)>\n"
+  (pp->string (make-srfi-272-node 1 #f)))
+(test-equal "cyclic record" "#0=#<record srfi-272-node (val 1) (next #0#)>\n"
+  (pp->string (let ((n (make-srfi-272-node 1 #f))) (set-srfi-272-node-next! n n) n)))
+(test-equal "shared records" "(#0=#<record srfi-272-node (val 1) (next #f)> #0#)\n"
+  (pp->string (let ((n (make-srfi-272-node 1 #f))) (list n n)) pp-graph #t))
+(test-equal "records, line breaks"
+  "#<record srfi-272-node\n         (val (alpha beta gamma delta))\n         (next #f)>\n"
+  (pp->string (make-srfi-272-node '(alpha beta gamma delta) #f) pp-width 40))
+(test-equal "records, length" "#<record srfi-272-node (val 1) ...>\n"
+  (pp->string (make-srfi-272-node 1 #f) pp-length 2))
+(test-equal "records, level" "#<record srfi-272-node (val 1) (next #<record ...>)>\n"
+  (pp->string (make-srfi-272-node 1 (make-srfi-272-node 2 #f)) pp-level 2))
+(test-equal "records, level 1" "(#<record ...>)\n"
+  (pp->string (list (make-srfi-272-node 1 #f)) pp-level 1)))
 
 (test-end)

@@ -37,13 +37,16 @@
           *pretty-print*)
 
   (import (lispkit base)
-          (lispkit prettify))
+          (only (lispkit pretty-print) pretty-print))
 
   (begin
 
     (define ascii-tab #\tab)
 
-    (define *pretty-print* (make-parameter pretty-print))
+    ;; LispKit: `~Y` formats its argument as code, like the previously used library
+    ;; `(lispkit prettify)` did
+    (define *pretty-print*
+      (make-parameter (lambda (obj port) (pretty-print obj port '((code . #t))))))
     
     (define (format . args)
       (cond

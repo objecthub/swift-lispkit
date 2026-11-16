@@ -96,6 +96,7 @@
 (import (lispkit wt-tree))
 (import (lispkit stream))
 (import (lispkit prettify))
+(import (lispkit pretty-print))
 (import (lispkit text-table))
 (import (lispkit csv))
 (import (lispkit json deprecated))

@@ -3,6 +3,10 @@
 ;;; Functions for pretty-printing s-expressions. This library is based on "genwrite.scm"
 ;;; by Marc Feeley and uses some extensions from SLIB written by Aubrey Jaffer. The
 ;;; signatures of the various exported functions are compatible to the original signatures.
+;;;
+;;; This library is superseded by library `(lispkit pretty-print)`, which is based on
+;;; SRFI 272, provides more control over the output, and knows how to format LispKit
+;;; code. `(lispkit prettify)` is kept for compatibility reasons.
 ;;; 
 ;;; Author: Matthias Zenger
 ;;; Copyright © 2017 Matthias Zenger. All rights reserved.
