@@ -82,10 +82,19 @@ public func equalHash(_ expr: Expr, into hasher: inout Hasher) {
         for byte in bvector.value {
           hasher.combine(byte)
         }
-      case .pair(let car, let cdr):
-        hasher.combine(15)
-        hash(car)
-        hash(cdr)
+      case .pair(var car, var cdr):
+        // Iterate along the cdr chain; recursing on the cdr would overflow the system stack
+        // for long lists. The sequence of values fed into the hasher is unchanged.
+        while true {
+          hasher.combine(15)
+          hash(car)
+          guard case .pair(let nextCar, let nextCdr) = cdr else {
+            hash(cdr)
+            break
+          }
+          car = nextCar
+          cdr = nextCdr
+        }
       case .box(let cell):
         hasher.combine(16)
         guard alreadyVisited(cell) else {
@@ -233,10 +242,19 @@ public func eqvHash(_ expr: Expr, into hasher: inout Hasher) {
     case .bytes(let bvector):
       hasher.combine(14)
       hasher.combine(bvector)
-    case .pair(let car, let cdr):
-      hasher.combine(15)
-      eqvHash(car, into: &hasher)
-      eqvHash(cdr, into: &hasher)
+    case .pair(var car, var cdr):
+      // Iterate along the cdr chain; recursing on the cdr would overflow the system stack
+      // for long lists. The sequence of values fed into the hasher is unchanged.
+      while true {
+        hasher.combine(15)
+        eqvHash(car, into: &hasher)
+        guard case .pair(let nextCar, let nextCdr) = cdr else {
+          eqvHash(cdr, into: &hasher)
+          break
+        }
+        car = nextCar
+        cdr = nextCdr
+      }
     case .box(let cell):
       hasher.combine(16)
       hasher.combine(cell)
@@ -339,10 +357,19 @@ public func eqHash(_ expr: Expr, into hasher: inout Hasher) {
     case .bytes(let bvector):
       hasher.combine(14)
       hasher.combine(bvector)
-    case .pair(let car, let cdr):
-      hasher.combine(15)
-      eqHash(car, into: &hasher)
-      eqHash(cdr, into: &hasher)
+    case .pair(var car, var cdr):
+      // Iterate along the cdr chain; recursing on the cdr would overflow the system stack
+      // for long lists. The sequence of values fed into the hasher is unchanged.
+      while true {
+        hasher.combine(15)
+        eqHash(car, into: &hasher)
+        guard case .pair(let nextCar, let nextCdr) = cdr else {
+          eqHash(cdr, into: &hasher)
+          break
+        }
+        car = nextCar
+        cdr = nextCdr
+      }
     case .box(let cell):
       hasher.combine(16)
       hasher.combine(cell)

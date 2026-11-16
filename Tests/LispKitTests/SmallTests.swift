@@ -276,4 +276,204 @@ class SmallTests: LispKitTestCase {
                   "within the range [0, 2]; is 5 instead"))
   }
 
+  /// Runs `body` on a new thread with a stack of the given size and waits until it is done.
+  private func runOnThread(stackSize: Int, _ body: @escaping () -> Void) {
+    let done = DispatchSemaphore(value: 0)
+    let thread = Thread {
+      body()
+      done.signal()
+    }
+    thread.stackSize = stackSize
+    thread.start()
+    done.wait()
+  }
+
+  /// Comparing, hashing, quoting and reading long lists must not recurse on the cdr of the
+  /// lists. Releasing a list is still recursive (ARC), which costs about 160 bytes of stack per
+  /// element, i.e. about 50 MB for the lists below. Recursing on the cdr costs between 250 and
+  /// 1000 bytes per element, which does not fit into the stack of this thread. The thread also
+  /// releases the context so that the lists do not get released on the thread of the test.
+  func testLongLists() {
+    let expected = self.value("(#t #t #t #f #f #f #t #t #t found 300000 300000)")
+    var result = Expr.undef
+    self.runOnThread(stackSize: 128 * 1024 * 1024) {
+      result = self.eval(
+        "(import (lispkit hashtable)) " +
+        "(let* ((n 300000) " +
+        "       (xs (iota n)) " +
+        "       (ys (iota n)) " +
+        "       (zs (append (iota (- n 1)) (list -1)))) " +
+        "  (list (eq? xs ys) (eqv? xs ys) (equal? xs ys) " +
+        "        (eq? xs zs) (eqv? xs zs) (equal? xs zs) " +
+        "        (= (eq-hash xs) (eq-hash ys)) " +
+        "        (= (eqv-hash xs) (eqv-hash ys)) " +
+        "        (= (equal-hash xs) (equal-hash ys)) " +
+        "        (let ((t (make-equal-hashtable))) " +
+        "          (hashtable-set! t xs 'found) " +
+        "          (hashtable-ref t ys #f)) " +
+        "        (length (eval (list 'quote xs) (environment '(lispkit base)))) " +
+        "        (length (read (open-input-string " +
+        "                        (call-with-output-string (lambda (p) (write xs p)))))))) ")
+      self.context = nil
+    }
+    XCTAssertEqual(result, expected)
+  }
+
+  /// The hash functions feed the same sequence of values into the hasher as when they were
+  /// recursive on the cdr: 15 for every pair, followed by the hash of the car, and finally the
+  /// hash of the last cdr.
+  func testPairHashesAreUnchanged() {
+    let list = self.value("(1 2 3)")
+    var reference = Hasher()
+    for i in Int64(1)...Int64(3) {
+      reference.combine(15)
+      reference.combine(7)
+      reference.combine(i)
+    }
+    reference.combine(3)
+    let hash = reference.finalize()
+    XCTAssertEqual(equalHash(list), hash)
+    XCTAssertEqual(eqvHash(list), hash)
+    XCTAssertEqual(eqHash(list), hash)
+    // Improper lists
+    var improper = Hasher()
+    improper.combine(15)
+    improper.combine(7)
+    improper.combine(Int64(1))
+    improper.combine(7)
+    improper.combine(Int64(2))
+    let improperHash = improper.finalize()
+    XCTAssertEqual(equalHash(self.value("(1 . 2)")), improperHash)
+    XCTAssertEqual(eqvHash(self.value("(1 . 2)")), improperHash)
+    XCTAssertEqual(eqHash(self.value("(1 . 2)")), improperHash)
+  }
+
+  /// Equality of lists that differ in their car, in their length, or in an improper tail.
+  func testPairEquality() {
+    XCTAssertEqual(
+      self.eval("(list (equal? '(1 2 (3 4) 5) '(1 2 (3 4) 5)) " +
+                "      (equal? '(1 2 (3 4) 5) '(1 2 (3 5) 5)) " +
+                "      (equal? '(1 2 3) '(1 2)) " +
+                "      (equal? '(1 2) '(1 2 3)) " +
+                "      (equal? '(1 2 . 3) '(1 2 . 3)) " +
+                "      (equal? '(1 2 . 3) '(1 2 . 4)) " +
+                "      (equal? '(1 2 . 3) '(1 2)) " +
+                "      (eqv? '(a (b) c . d) '(a (b) c . d)) " +
+                "      (eqv? '(a (b) c . d) '(a (b) c . e)) " +
+                "      (eqv? \"ab\" \"ab\") " +
+                "      (eqv? '(\"ab\") '(\"ab\")) " +
+                "      (equal? '(\"ab\") '(\"ab\")) " +
+                "      (eq? '(a b c) '(a b c)) " +
+                "      (eq? '(a b c) '(a b d)) " +
+                "      (eq? '(a b) '(a b c)))"),
+      self.value("(#t #f #f #f #t #f #f #t #f #f #f #t #t #f #f)"))
+  }
+
+  /// `Expr.datum` strips syntax nodes and interns symbols along the whole list, including the
+  /// last cdr of improper lists.
+  func testDatumOfLists() {
+    let syntax = Expr.syntax(SourcePosition.unknown,
+                             .pair(.fixnum(1),
+                                   .syntax(SourcePosition.unknown,
+                                           .pair(.syntax(SourcePosition.unknown, .fixnum(2)),
+                                                 .syntax(SourcePosition.unknown, .fixnum(3))))))
+    XCTAssertEqual(syntax.datum, .pair(.fixnum(1), .pair(.fixnum(2), .fixnum(3))))
+    XCTAssertEqual(Expr.null.datum, Expr.null)
+    XCTAssertEqual(self.value("(a (b c) . d)").datum, self.value("(a (b c) . d)"))
+    // Short and long lists, with and without syntax nodes, proper and improper
+    for length in [1, 2, 3, 4, 20, 32, 33, 34, 100, 1000] {
+      var plain = Expr.symbol(self.context!.symbols.intern("last"))
+      var wrapped = Expr.syntax(SourcePosition.unknown, plain)
+      for i in (0..<length).reversed() {
+        plain = .pair(.fixnum(Int64(i)), plain)
+        wrapped = .pair(.syntax(SourcePosition.unknown, .fixnum(Int64(i))),
+                        i % 2 == 0 ? wrapped : .syntax(SourcePosition.unknown, wrapped))
+      }
+      XCTAssertEqual(plain.datum, plain, "improper list of length \(length)")
+      XCTAssertEqual(wrapped.datum, plain, "improper list with syntax nodes of length \(length)")
+    }
+  }
+
+  /// `string-ref`, `string-length` and friends access the string directly. They used to copy
+  /// the whole string on every call, which made loops over strings with non-ASCII characters
+  /// quadratic (a loop over 40,000 characters took many seconds).
+  func testStringAccess() {
+    self.bootstrapContext()
+    XCTAssertEqual(
+      self.eval("(list (string-ref \"hello\" 0) (string-ref \"hello\" 4) " +
+                "      (char->integer (string-ref \"h\\xe9;llo\" 1)) " +
+                "      (char->integer (string-ref \"a😀b\" 1)) " +
+                "      (char->integer (string-ref \"a😀b\" 2)) " +
+                "      (string-length \"\") (string-length \"h\\xe9;llo\") " +
+                "      (string-length \"a😀b\") (string-length \"a😀b\" #t))"),
+      self.value("(#\\h #\\o 233 55357 56832 0 5 4 3)"))
+    XCTAssertEqual(
+      self.eval("(map (lambda (k) (guard (e (#t 'error)) (string-ref \"abc\" k))) " +
+                "     '(-1 3 4 100000))"),
+      self.value("(error error error error)"))
+    XCTAssertEqual(self.eval("(guard (e (#t 'error)) (string-ref \"\" 0))"), self.value("error"))
+    XCTAssertEqual(
+      self.eval("(list (string->list \"h\\xe9;llo\") " +
+                "      (string->list \"h\\xe9;llo\" 1) " +
+                "      (string->list \"h\\xe9;llo\" 1 3) " +
+                "      (string->list \"h\\xe9;llo\" 2 2) " +
+                "      (string->list \"\") " +
+                "      (string->list \"abc\" 3))"),
+      self.value("((#\\h #\\é #\\l #\\l #\\o) (#\\é #\\l #\\l #\\o) (#\\é #\\l) () () ())"))
+    XCTAssertEqual(
+      self.eval("(list (guard (e (#t 'error)) (string->list \"abc\" 4)) " +
+                "      (guard (e (#t 'error)) (string->list \"abc\" 2 1)) " +
+                "      (guard (e (#t 'error)) (string->list \"abc\" 0 4)))"),
+      self.value("(error error error)"))
+    XCTAssertEqual(
+      self.eval("(list (string-map char-upcase \"h\\xe9;llo\") " +
+                "      (string-map (lambda (a b) (if (char<? a b) a b)) \"h\\xe9;llo\" \"xyz\") " +
+                "      (let ((acc '())) " +
+                "        (string-for-each (lambda (a b) (set! acc (cons (list a b) acc))) " +
+                "                         \"h\\xe9;y\" \"xyzw\") " +
+                "        (reverse acc)))"),
+      self.value("(\"HÉLLO\" \"hyl\" ((#\\h #\\x) (#\\é #\\y) (#\\y #\\z)))"))
+    XCTAssertEqual(
+      self.eval("(string-for-each (lambda (c) c) \"abc\" \"\") 'done"),
+      self.value("done"))
+  }
+
+  /// `string-copy!` copies as many characters as fit into the target string.
+  func testStringCopyInto() {
+    self.bootstrapContext()
+    XCTAssertEqual(
+      self.eval("(define (copy! target at . args) (apply string-copy! target at args) target) " +
+                "(list (copy! (make-string 5 #\\-) 1 \"h\\xe9;llo\" 1 3) " +
+                "      (copy! (make-string 5 #\\-) 0 \"abc\") " +
+                "      (copy! (make-string 3 #\\-) 1 \"abcdef\") " +
+                "      (copy! (make-string 3 #\\-) 3 \"abcdef\") " +
+                "      (copy! (make-string 3 #\\-) 0 \"abcdef\" 4) " +
+                "      (copy! (make-string 3 #\\-) 1 \"\") " +
+                "      (copy! (string-copy \"abcde\") 1 \"xyz\" 1 1) " +
+                "      (let ((s (string-copy \"abcde\"))) (copy! s 1 s 0 3)) " +
+                "      (let ((s (string-copy \"abcde\"))) (copy! s 0 s 2 5)))"),
+      self.value("(\"-él--\" \"abc--\" \"-ab\" \"---\" \"ef-\" \"---\" \"abcde\" \"aabce\" \"cdede\")"))
+    XCTAssertEqual(
+      self.eval("(list (guard (e (#t 'error)) (string-copy! (make-string 3 #\\-) 4 \"abc\")) " +
+                "      (guard (e (#t 'error)) (string-copy! (make-string 3 #\\-) 0 \"abc\" 4)) " +
+                "      (guard (e (#t 'error)) (string-copy! (make-string 3 #\\-) 0 \"abc\" 2 1)))"),
+      self.value("(error error error)"))
+  }
+
+  /// Looping over a string with non-ASCII characters needs linear time. Before, each call of
+  /// `string-ref` took about 200 microseconds for a string of this size (8 seconds in total).
+  func testStringLoopIsLinear() {
+    let start = Date()
+    XCTAssertEqual(
+      self.eval("(let ((s (make-string 40000 #\\x3bb))) " +
+                "  (do ((i 0 (+ i 1)) (n 0 (if (char=? (string-ref s i) #\\x3bb) (+ n 1) n))) " +
+                "      ((= i (string-length s)) n)))"),
+      self.value("40000"))
+    XCTAssertEqual(
+      self.eval("(let ((s (make-string 40000 #\\x3bb)) (n 0)) " +
+                "  (string-for-each (lambda (c) (set! n (+ n 1))) s) n)"),
+      self.value("40000"))
+    XCTAssertLessThan(Date().timeIntervalSince(start), 2.0)
+  }
+
 }

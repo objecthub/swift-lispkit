@@ -559,17 +559,64 @@ public enum Expr: Hashable {
   
   /// Returns the given expression with all symbols getting interned and syntax nodes removed.
   public var datum: Expr {
+    return self.datum(budget: Expr.maxRecursiveDatumLength)
+  }
+  
+  /// Lists with more elements than this are processed iteratively by `datum`.
+  private static let maxRecursiveDatumLength = 32
+  
+  /// Implements `datum`. Recursing on the cdr is fast for short lists, but it would overflow
+  /// the system stack for long lists. Thus, this method recurses for at most `budget` elements
+  /// of a list before it switches to iterating along the remaining cdr chain.
+  private func datum(budget: Int) -> Expr {
+    guard budget > 0 else {
+      return self.iterativeDatum
+    }
     switch self {
       case .symbol(let sym):
         return .symbol(sym.root)
       case .pair(let car0, .pair(let car1, .pair(let car2, let cdr))):
-        return .pair(car0.datum, .pair(car1.datum, .pair(car2.datum, cdr.datum)))
+        return .pair(car0.datum,
+                     .pair(car1.datum, .pair(car2.datum, cdr.datum(budget: budget - 3))))
       case .pair(let car0, .pair(let car1, let cdr)):
-        return .pair(car0.datum, .pair(car1.datum, cdr.datum))
+        return .pair(car0.datum, .pair(car1.datum, cdr.datum(budget: budget - 2)))
       case .pair(let car, let cdr):
-        return .pair(car.datum, cdr.datum)
+        return .pair(car.datum, cdr.datum(budget: budget - 1))
       case .syntax(_, let expr):
-        return expr.datum
+        return expr.datum(budget: budget)
+      default:
+        return self
+    }
+  }
+  
+  /// Implements `datum` by iterating along the cdr chain (skipping syntax nodes) of a list.
+  private var iterativeDatum: Expr {
+    switch self {
+      case .symbol(let sym):
+        return .symbol(sym.root)
+      case .pair(let car, let cdr):
+        var cars: ContiguousArray<Expr> = [car.datum]
+        var tail = cdr
+        loop: while true {
+          switch tail {
+            case .pair(let head, let next):
+              cars.append(head.datum)
+              tail = next
+            case .syntax(_, let expr):
+              tail = expr
+            default:
+              break loop
+          }
+        }
+        var res = tail.datum
+        var i = cars.count
+        while i > 0 {
+          i -= 1
+          res = .pair(cars[i], res)
+        }
+        return res
+      case .syntax(_, let expr):
+        return expr.iterativeDatum
       default:
         return self
     }

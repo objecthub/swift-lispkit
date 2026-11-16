@@ -166,7 +166,8 @@ public final class StringLibrary: NativeLibrary {
     if chars?.isTrue ?? false {
       return .fixnum(Int64(try expr.asString().count))
     } else {
-      return .fixnum(Int64(try expr.asString().utf16.count))
+      // Access the `NSMutableString` directly; bridging it to a `String` would copy it
+      return .fixnum(Int64(try expr.asMutableStr().length))
     }
   }
   
@@ -178,9 +179,9 @@ public final class StringLibrary: NativeLibrary {
     var n = Int.max
     var list = strings
     while case .pair(let expr, let next) = list {
-      let str = try expr.asString().utf16
-      if str.count < n {
-        n = str.count
+      let length = try expr.asMutableStr().length
+      if length < n {
+        n = length
       }
       list = next
     }
@@ -191,17 +192,16 @@ public final class StringLibrary: NativeLibrary {
   }
   
   func stringRef(_ expr: Expr, _ index: Expr) throws -> Expr {
-    let str = try expr.asString().utf16
+    let str = try expr.asMutableStr()
     let k = try index.asInt()
-    let i = str.index(str.startIndex, offsetBy: k)
-    guard i < str.endIndex else {
+    guard k < str.length else {
       throw RuntimeError.range(parameter: 2,
                                of: "string-ref",
                                index,
                                min: 0,
-                               max: Int64(str.count - 1))
+                               max: Int64(str.length - 1))
     }
-    return .char(str[i])
+    return .char(str.character(at: k))
   }
   
   func stringListRef(_ index: Expr, _ strings: Expr) throws -> Expr {
@@ -209,12 +209,11 @@ public final class StringLibrary: NativeLibrary {
     var res = Exprs()
     var list = strings
     while case .pair(let expr, let next) = list {
-      let str = try expr.asString().utf16
-      let i = str.index(str.startIndex, offsetBy: k)
-      guard i < str.endIndex else {
+      let str = try expr.asMutableStr()
+      guard k < str.length else {
         return .false
       }
-      res.append(.char(str[i]))
+      res.append(.char(str.character(at: k)))
       list = next
     }
     guard list.isNull else {
@@ -435,21 +434,21 @@ public final class StringLibrary: NativeLibrary {
   }
   
   func stringToList(_ expr: Expr, args: Arguments) throws -> Expr {
-    let str = try expr.asString().utf16
-    guard let (s, e) = args.optional(Expr.makeNumber(0), Expr.makeNumber(str.count)) else {
+    let str = try expr.asMutableStr()
+    guard let (s, e) = args.optional(Expr.makeNumber(0), Expr.makeNumber(str.length)) else {
       throw RuntimeError.argumentCount(of: "string->list",
                                        min: 1,
                                        max: 3,
                                        args: .pair(expr, .makeList(args)))
     }
-    var end = try e.asInt(below: str.count + 1)
+    var end = try e.asInt(below: str.length + 1)
     let start = try s.asInt(below: end + 1)
-    var i = str.index(str.startIndex, offsetBy: end)
+    var chars = Array<UniChar>(repeating: 0, count: end - start)
+    str.getCharacters(&chars, range: NSRange(location: start, length: end - start))
     var res = Expr.null
     while end > start {
-      i = str.index(before: i)
-      res = .pair(.char(str[i]), res)
       end -= 1
+      res = .pair(.char(chars[end - start]), res)
     }
     return res
   }
@@ -586,27 +585,22 @@ public final class StringLibrary: NativeLibrary {
   
   func stringInsert(_ expr: Expr, _ index: Expr, _ from: Expr, args: Arguments) throws -> Expr {
     let target = try expr.asMutableStr()
-    let str = try from.asString().utf16
-    guard let (s, e) = args.optional(Expr.makeNumber(0), Expr.makeNumber(str.count)) else {
+    let str = try from.asMutableStr()
+    guard let (s, e) = args.optional(Expr.makeNumber(0), Expr.makeNumber(str.length)) else {
       throw RuntimeError.argumentCount(
         of: "string-copy!",
         min: 3,
         max: 5,
         args: .pair(expr, .pair(index, .pair(from, .makeList(args)))))
     }
-    let end = try e.asInt(below: str.count + 1)
-    var ei = str.index(str.startIndex, offsetBy: end)
-    let si = str.index(str.startIndex, offsetBy: try s.asInt(below: end + 1))
+    let end = try e.asInt(below: str.length + 1)
+    let start = try s.asInt(below: end + 1)
     let loc = try index.asInt(below: target.length + 1)
-    ei = min(ei, str.index(si, offsetBy: target.length - loc))
-    var uniChars: [UniChar] = []
-    var n = 0
-    for ch in str[si..<ei] {
-      uniChars.append(ch)
-      n += 1
-    }
-    target.replaceCharacters(in: NSMakeRange(loc, min(n, target.length - loc)),
-                             with: String(utf16CodeUnits: uniChars, count: uniChars.count))
+    // Copy as many characters as fit into `target`; `substring(with:)` creates a copy first,
+    // so this also works if `from` and `target` are the same string
+    let n = min(end - start, target.length - loc)
+    target.replaceCharacters(in: NSRange(location: loc, length: n),
+                             with: str.substring(with: NSRange(location: start, length: n)))
     return .void
   }
   

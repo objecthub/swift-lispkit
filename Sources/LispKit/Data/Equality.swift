@@ -92,8 +92,22 @@ public func equalExpr(_ this: Expr, _ that: Expr) -> Bool {
           }
         }
         return true
-      case (.pair(let car1, let cdr1), .pair(let car2, let cdr2)):
-        return equals(car1, car2) && equals(cdr1, cdr2)
+      case (.pair(var car1, var cdr1), .pair(var car2, var cdr2)):
+        // Iterate along the cdr chain; recursing on the cdr would overflow the system stack
+        // for long lists.
+        while true {
+          guard equals(car1, car2) else {
+            return false
+          }
+          guard case .pair(let nextCar1, let nextCdr1) = cdr1,
+                case .pair(let nextCar2, let nextCdr2) = cdr2 else {
+            return equals(cdr1, cdr2)
+          }
+          car1 = nextCar1
+          cdr1 = nextCdr1
+          car2 = nextCar2
+          cdr2 = nextCdr2
+        }
       case (.box(let cell1), .box(let cell2)):
         guard cell1 !== cell2 else {
           return true
@@ -280,8 +294,22 @@ public func eqvExpr(_ lhs: Expr, _ rhs: Expr) -> Bool {
       return str1 === str2
     case (.bytes(let bvector1), .bytes(let bvector2)):
       return bvector1 === bvector2
-    case (.pair(let car1, let cdr1), .pair(let car2, let cdr2)):
-      return eqvExpr(car1, car2) && eqvExpr(cdr1, cdr2)
+    case (.pair(var car1, var cdr1), .pair(var car2, var cdr2)):
+      // Iterate along the cdr chain; recursing on the cdr would overflow the system stack
+      // for long lists.
+      while true {
+        guard eqvExpr(car1, car2) else {
+          return false
+        }
+        guard case .pair(let nextCar1, let nextCdr1) = cdr1,
+              case .pair(let nextCar2, let nextCdr2) = cdr2 else {
+          return eqvExpr(cdr1, cdr2)
+        }
+        car1 = nextCar1
+        cdr1 = nextCdr1
+        car2 = nextCar2
+        cdr2 = nextCdr2
+      }
     case (.box(let c1), .box(let c2)):
       return c1 === c2
     case (.mpair(let t1), .mpair(let t2)):
@@ -353,8 +381,22 @@ public func eqExpr(_ lhs: Expr, _ rhs: Expr) -> Bool {
       return str1 === str2
     case (.bytes(let bvector1), .bytes(let bvector2)):
       return bvector1 === bvector2
-    case (.pair(let car1, let cdr1), .pair(let car2, let cdr2)):
-      return eqExpr(car1, car2) && eqExpr(cdr1, cdr2)
+    case (.pair(var car1, var cdr1), .pair(var car2, var cdr2)):
+      // Iterate along the cdr chain; recursing on the cdr would overflow the system stack
+      // for long lists.
+      while true {
+        guard eqExpr(car1, car2) else {
+          return false
+        }
+        guard case .pair(let nextCar1, let nextCdr1) = cdr1,
+              case .pair(let nextCar2, let nextCdr2) = cdr2 else {
+          return eqExpr(cdr1, cdr2)
+        }
+        car1 = nextCar1
+        cdr1 = nextCdr1
+        car2 = nextCar2
+        cdr2 = nextCdr2
+      }
     case (.box(let c1), .box(let c2)):
       return c1 === c2
     case (.mpair(let t1), .mpair(let t2)):
