@@ -110,6 +110,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     `(lispkit draw chart)`,
     [`(lispkit draw chart bar)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Draw-Chart-Bar),
     `(lispkit draw chart pie)`,
+    `(lispkit draw chart line)`,
     `(lispkit draw chart function)`,
     [`(lispkit image)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Image),
     [`(lispkit image process)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Image-Process),

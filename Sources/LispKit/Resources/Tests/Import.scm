@@ -74,6 +74,7 @@
 (import (lispkit draw chart))
 (import (lispkit draw chart bar))
 (import (lispkit draw chart pie))
+(import (lispkit draw chart line))
 (import (lispkit draw chart function))
 (import (lispkit log))
 (import (lispkit test))

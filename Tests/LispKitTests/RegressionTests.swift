@@ -88,6 +88,10 @@ class RegressionTests: LispKitTestCase {
   func testChartPie() {
     self.execute(file: "ChartPie")
   }
+
+  func testChartLine() {
+    self.execute(file: "ChartLine")
+  }
   
   func testCommandLine() {
     self.execute(file: "CommandLine")
