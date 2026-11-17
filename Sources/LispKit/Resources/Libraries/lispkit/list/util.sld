@@ -2,7 +2,12 @@
 ;;;
 ;;; Library providing list utilities that are not covered by R7RS or the SRFIs supported by
 ;;; LispKit, such as `flatten`, `group-by` and the combinatorial procedures `permutations`,
-;;; `combinations` and `cartesian-product`.
+;;; `combinations` and `cartesian-product`. The library also provides a selection of the most
+;;; commonly used list procedures of SRFI 1 (`take`, `drop`, `take-right`, `drop-right`,
+;;; `take-while`, `drop-while`, `split-at`, `first`, `second`, `third`, `fourth`, `fifth`,
+;;; `last`, `find`, `count`, `fold`, `reduce`, `any`, `every`, `delete-duplicates`,
+;;; `list-index`, and `zip`). They follow the semantics of SRFI 1, but are implemented
+;;; independently of it, so that this library only depends on `(lispkit base)`.
 ;;;
 ;;; Author: Matthias Zenger
 ;;; Copyright © 2026 Matthias Zenger. All rights reserved.
@@ -21,6 +26,26 @@
 
   (export take
           drop
+          take-right
+          drop-right
+          take-while
+          drop-while
+          split-at
+          (rename car first)
+          (rename cadr second)
+          (rename caddr third)
+          (rename cadddr fourth)
+          fifth
+          last
+          find
+          count
+          fold
+          reduce
+          any
+          every
+          delete-duplicates
+          list-index
+          zip
           flatten
           add-between
           shuffle
@@ -47,7 +72,184 @@
     ;; Returns the list `x` after dropping `i` elements.
     (define (drop x i)
       (if (zero? i) x (drop (cdr x) (- i 1))))
-    
+
+    ;; Returns the last `k` elements of `lst`. The result shares structure with `lst`, and `lst`
+    ;; may be an improper list, in which case the final cdr is part of the result.
+    (define (take-right lst k)
+      (let loop ((lag lst) (lead (drop lst k)))
+        (if (pair? lead)
+            (loop (cdr lag) (cdr lead))
+            lag)))
+
+    ;; Returns a new list with all elements of `lst` except for the last `k` elements. If `lst`
+    ;; is an improper list, its final cdr is ignored.
+    (define (drop-right lst k)
+      (let loop ((lag lst) (lead (drop lst k)) (acc '()))
+        (if (pair? lead)
+            (loop (cdr lag) (cdr lead) (cons (car lag) acc))
+            (reverse acc))))
+
+    ;; Returns the longest prefix of `lst` whose elements all satisfy `pred`.
+    (define (take-while pred lst)
+      (let loop ((l lst) (acc '()))
+        (cond ((null? l)       (reverse acc))
+              ((pred (car l))  (loop (cdr l) (cons (car l) acc)))
+              (else            (reverse acc)))))
+
+    ;; Returns the list that remains after dropping the longest prefix of `lst` whose elements
+    ;; all satisfy `pred`. The result shares structure with `lst`.
+    (define (drop-while pred lst)
+      (let loop ((l lst))
+        (cond ((null? l)       l)
+              ((pred (car l))  (loop (cdr l)))
+              (else            l))))
+
+    ;; Returns two values: the first `k` elements of `lst` and the list of remaining elements.
+    (define (split-at lst k)
+      (let loop ((l lst) (i k) (acc '()))
+        (if (zero? i)
+            (values (reverse acc) l)
+            (loop (cdr l) (- i 1) (cons (car l) acc)))))
+
+    ;; Returns `#t` if at least one of the lists in `lists` is empty. Used for iterating over
+    ;; several lists until the shortest list is exhausted.
+    (define (some-null? lists)
+      (and (pair? lists)
+           (or (null? (car lists))
+               (some-null? (cdr lists)))))
+
+    ;; Returns `#t` if `x` is equivalent (with respect to `same?`) to an element of `seen`,
+    ;; a list of elements that precede `x`. These elements are passed as first argument.
+    (define (seen? same? x seen)
+      (and (pair? seen)
+           (or (same? (car seen) x)
+               (seen? same? x (cdr seen)))))
+
+    ;; Returns the fifth element of list `lst`. Procedures `first`, `second`, `third` and
+    ;; `fourth` do not need a definition: they are exported as renamed versions of `car`,
+    ;; `cadr`, `caddr` and `cadddr`.
+    (define (fifth lst) (car (cddddr lst)))
+
+    ;; Returns the last element of the non-empty list `lst`.
+    (define (last lst)
+      (unless (pair? lst)
+        (error "last: expected non-empty list" lst))
+      (let loop ((l lst))
+        (if (pair? (cdr l))
+            (loop (cdr l))
+            (car l))))
+
+    ;; Returns the first element of `lst` that satisfies `pred`, or `#f` if there is none.
+    (define (find pred lst)
+      (let loop ((l lst))
+        (cond ((null? l)       #f)
+              ((pred (car l))  (car l))
+              (else            (loop (cdr l))))))
+
+    ;; Returns the number of elements of `lst` (or of the elements at the same position of
+    ;; `lst` and `lsts`, up to the length of the shortest list) that satisfy `pred`.
+    (define (count pred lst . lsts)
+      (if (null? lsts)
+          (let loop ((l lst) (n 0))
+            (cond ((null? l)       n)
+                  ((pred (car l))  (loop (cdr l) (+ n 1)))
+                  (else            (loop (cdr l) n))))
+          (let loop ((ls (cons lst lsts)) (n 0))
+            (cond ((some-null? ls)            n)
+                  ((apply pred (map car ls))  (loop (map cdr ls) (+ n 1)))
+                  (else                       (loop (map cdr ls) n))))))
+
+    ;; Left fold over `lst` (or over several lists, up to the length of the shortest list):
+    ;; combines the elements with `kons`, which is called as `(kons elem acc)`, starting with
+    ;; `knil` as the initial accumulator value.
+    (define (fold kons knil lst . lsts)
+      (if (null? lsts)
+          (let loop ((l lst) (acc knil))
+            (if (null? l)
+                acc
+                (loop (cdr l) (kons (car l) acc))))
+          (let loop ((ls (cons lst lsts)) (acc knil))
+            (if (some-null? ls)
+                acc
+                (loop (map cdr ls) (apply kons (append (map car ls) (list acc))))))))
+
+    ;; Like `fold` with a single list, but uses the first element of `lst` as initial value.
+    ;; Returns `ridentity` if `lst` is empty.
+    (define (reduce f ridentity lst)
+      (if (null? lst)
+          ridentity
+          (fold f (car lst) (cdr lst))))
+
+    ;; Returns the first true value returned by `pred` when applied to the elements of `lst`
+    ;; (or the elements at the same position of several lists), and `#f` if there is none. The
+    ;; last application of `pred` is a tail call.
+    (define (any pred lst . lsts)
+      (if (null? lsts)
+          (let loop ((l lst))
+            (cond ((null? l)        #f)
+                  ((null? (cdr l))  (pred (car l)))
+                  (else             (or (pred (car l)) (loop (cdr l))))))
+          (let loop ((ls (cons lst lsts)))
+            (if (some-null? ls)
+                #f
+                (let ((cdrs (map cdr ls)))
+                  (if (some-null? cdrs)
+                      (apply pred (map car ls))
+                      (or (apply pred (map car ls)) (loop cdrs))))))))
+
+    ;; Returns `#f` if `pred` returns `#f` for an element of `lst` (or for the elements at
+    ;; the same position of several lists). Otherwise, returns the value of the last
+    ;; application of `pred`, or `#t` if there are no elements. The last application of `pred`
+    ;; is a tail call.
+    (define (every pred lst . lsts)
+      (if (null? lsts)
+          (let loop ((l lst))
+            (cond ((null? l)        #t)
+                  ((null? (cdr l))  (pred (car l)))
+                  (else             (and (pred (car l)) (loop (cdr l))))))
+          (let loop ((ls (cons lst lsts)))
+            (if (some-null? ls)
+                #t
+                (let ((cdrs (map cdr ls)))
+                  (if (some-null? cdrs)
+                      (apply pred (map car ls))
+                      (and (apply pred (map car ls)) (loop cdrs))))))))
+
+    ;; Returns the index of the first element of `lst` (or of the first elements at the same
+    ;; position of several lists) that satisfies `pred`, or `#f` if there is none.
+    (define (list-index pred lst . lsts)
+      (if (null? lsts)
+          (let loop ((l lst) (i 0))
+            (cond ((null? l)       #f)
+                  ((pred (car l))  i)
+                  (else            (loop (cdr l) (+ i 1)))))
+          (let loop ((ls (cons lst lsts)) (i 0))
+            (cond ((some-null? ls)            #f)
+                  ((apply pred (map car ls))  i)
+                  (else                       (loop (map cdr ls) (+ i 1)))))))
+
+    ;; Returns a list that is like `lst`, but without duplicates: if several elements are
+    ;; equivalent according to `same?` (default: `equal?`), only the first of them is kept.
+    (define delete-duplicates
+      (case-lambda
+        ((lst)       (delete-duplicates lst equal?))
+        ((lst same?)
+          (let loop ((rest lst) (kept '()))
+            (cond ((null? rest)
+                    (reverse kept))
+                  ((seen? same? (car rest) kept)
+                    (loop (cdr rest) kept))
+                  (else
+                    (loop (cdr rest) (cons (car rest) kept))))))))
+
+    ;; Returns a list of lists, where the i-th list contains the i-th elements of `lst` and
+    ;; `lsts`. The result is as long as the shortest list.
+    (define (zip lst . lsts)
+      (let loop ((ls (cons lst lsts)) (acc '()))
+        (if (some-null? ls)
+            (reverse acc)
+            (loop (map cdr ls) (cons (map car ls) acc)))))
+
     ;; Returns a list with all non-list elements of tree `x` in the order in which they occur
     ;; in `x`. The empty list is ignored; improper tails are treated as elements.
     (define (flatten x)
