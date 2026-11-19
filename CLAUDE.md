@@ -653,6 +653,16 @@ Open `LispKit.xcodeproj` and build using the appropriate scheme:
 - Event-based API: pull parser and push emitter
 - Implements library `(lispkit yaml)`
 
+**FoundationModelLibrary.swift / FoundationModelSupport.swift** - Language models
+- Apple's FoundationModels framework: on-device model, Private Cloud Compute, other models
+- Sessions with text and guided generation (futures), response streams, tools as Scheme procedures (run by a Scheme worker thread per request), transcripts, model errors
+- Only available on macOS 27/iOS 27: all declarations are `@available` and the library is registered under `#available` in `LibraryRegistry.swift`
+- Implements library `(lispkit foundation-model)`
+
+**FoundationModelClaudeLibrary.swift** - Claude models
+- Claude models via ClaudeForFoundationModels (a fork whose declarations are marked `@available` for OS 27)
+- Implements library `(lispkit foundation-model claude)`
+
 **Platform-specific Notes:**
 - Libraries with `_iOS.swift` suffix are iOS-specific implementations
 - **SystemCallLibrary.swift** - macOS only (not available on iOS)

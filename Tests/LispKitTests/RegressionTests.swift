@@ -334,6 +334,19 @@ class RegressionTests: LispKitTestCase {
     self.execute(file: "YAML")
   }
   
+  func testFoundationModel() {
+    guard #available(macOS 27.0, iOS 27.0, *) else {
+      return
+    }
+    // The context is bootstrapped so that errors thrown by native procedures can be caught
+    do {
+      try self.context?.bootstrap()
+    } catch {
+      preconditionFailure("cannot bootstrap test context: \(error)")
+    }
+    self.execute(file: "FoundationModel")
+  }
+  
   func testSRFI19() {
     self.execute(file: "SRFI19")
   }

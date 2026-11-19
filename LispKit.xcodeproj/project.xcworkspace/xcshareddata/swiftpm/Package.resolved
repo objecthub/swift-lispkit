@@ -1,5 +1,5 @@
 {
-  "originHash" : "42287cc89228c132e022d8f3040f7db931365e216bcdb1c990c2e3e2a4c5de46",
+  "originHash" : "177942a8ac261f1ec3a4491d19d49f0863f065e649ecfe93aec3ea5f1d4a0f11",
   "pins" : [
     {
       "identity" : "bitbytedata",
@@ -17,6 +17,15 @@
       "state" : {
         "revision" : "6fbd643c64cf6ef7a98391820c372d05fa9ed9ab",
         "version" : "1.4.0"
+      }
+    },
+    {
+      "identity" : "claudeforfoundationmodels",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/objecthub/ClaudeForFoundationModels.git",
+      "state" : {
+        "branch" : "lispkit",
+        "revision" : "2e2e4cadd2fe3e3908cb2564a15040731332d0d1"
       }
     },
     {

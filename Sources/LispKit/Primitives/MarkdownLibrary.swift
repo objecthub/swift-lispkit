@@ -2112,28 +2112,7 @@ public final class MarkdownLibrary: NativeLibrary {
   }
   
   /// The outcome of rendering a document, e.g. into an attributed string, asynchronously.
-  private final class RenderingOutcome<Value, Failure: Error>: @unchecked Sendable {
-    private let lock = NSLock()
-    private let semaphore = DispatchSemaphore(value: 0)
-    private var result: Result<Value, Failure>?
-    
-    func store(_ result: Result<Value, Failure>) {
-      self.lock.lock()
-      self.result = result
-      self.lock.unlock()
-      self.semaphore.signal()
-    }
-    
-    var current: Result<Value, Failure>? {
-      self.lock.lock()
-      defer { self.lock.unlock() }
-      return self.result
-    }
-    
-    func wait(upTo seconds: TimeInterval) {
-      _ = self.semaphore.wait(timeout: .now() + seconds)
-    }
-  }
+  private typealias RenderingOutcome<Value, Failure: Error> = AsyncOutcome<Value, Failure>
   
   /// Collects the sources of the Mermaid diagrams in a block, i.e. the content of fenced code
   /// blocks whose info string starts with the word `mermaid`.
@@ -2192,24 +2171,12 @@ public final class MarkdownLibrary: NativeLibrary {
   private func awaitRendering<Value, Failure: Error>(
                  _ outcome: RenderingOutcome<Value, Failure>,
                  until deadline: Date?) throws -> Value {
-    while outcome.current == nil {
-      if self.context.evaluator.threads.current?.value.machine?.abortionRequested ?? false {
-        throw RuntimeError.abortion()
-      }
-      if let deadline, Date() > deadline {
-        throw RuntimeError.eval(
-          .cannotRenderMarkdown,
-          .makeString(AttributedStringGenerator.RenderingError.timedOut.localizedDescription))
-      }
-      if Thread.isMainThread {
-        if !RunLoop.current.run(mode: .default, before: Date(timeIntervalSinceNow: 0.05)) {
-          Thread.sleep(forTimeInterval: 0.005)
-        }
-      } else {
-        outcome.wait(upTo: 0.05)
-      }
+    guard let result = try outcome.waitForResult(in: self.context, until: deadline) else {
+      throw RuntimeError.eval(
+        .cannotRenderMarkdown,
+        .makeString(AttributedStringGenerator.RenderingError.timedOut.localizedDescription))
     }
-    switch outcome.current! {
+    switch result {
       case .success(let value):
         return value
       case .failure(let error):

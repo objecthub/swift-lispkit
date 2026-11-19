@@ -10,6 +10,9 @@
 		021D2E499566DABF64FB523D /* SRFI-272-Support.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = 5548CC66325B7BBB7643858F /* SRFI-272-Support.scm */; };
 		057DEAE0985778F916B2C919 /* ident.sld in Copy pre-installed LispKit library: SRFI 275 internal */ = {isa = PBXBuildFile; fileRef = CF300B24EAD4081A05BADDFB /* ident.sld */; };
 		06CF56477C3526E6F0D35A9D /* YamlLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66CAA060B7DB817DCE3E6570 /* YamlLibrary.swift */; };
+		CDA547A8812142D4AF902B19 /* FoundationModelClaudeLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF89D73015974668BB9A70FB /* FoundationModelClaudeLibrary.swift */; };
+		580A370D341C4487B3E21078 /* FoundationModelSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = A464CF666EA14AEEAF373540 /* FoundationModelSupport.swift */; };
+		EA7CB2AF0AE94D7AA0875481 /* FoundationModelLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349C575B045146FBB01E35EA /* FoundationModelLibrary.swift */; };
 		06F8476B284C97F86F2E10BF /* list-queue.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = E8A068E7E2BCA19EA7A73812 /* list-queue.sld */; };
 		0891EA08E1D51EE9C0396C93 /* 117.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = 7556C5D3ABE14BD25DCDD05D /* 117.sld */; };
 		0B8783AFD0E56325C442D114 /* ImageGenLibraryAddOn.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7219A705A419EB69F8643175 /* ImageGenLibraryAddOn.swift */; };
@@ -21,7 +24,9 @@
 		1602C80FACE788EE57950E3A /* lseq.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = C999BCE041777105AA71A880 /* lseq.sld */; };
 		168E67CCED1575D3692A377F /* path.sld in Copy pre-installed LispKit library: SRFI 275 internal */ = {isa = PBXBuildFile; fileRef = B163C436ECDEA81A963BC85F /* path.sld */; };
 		18DEA6934957FDE18118D4C9 /* YAML.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = 2A05910491EC31CCA774D57B /* YAML.scm */; };
+		3495E9587D7147D99B1739F9 /* FoundationModel.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = C4B61CCE69374EF3AFEA854F /* FoundationModel.scm */; };
 		1B8163E7B416F782D8BE3BFB /* YAML.scm in Resources */ = {isa = PBXBuildFile; fileRef = B1C9CD3090123C2D03DF7A2B /* YAML.scm */; };
+		51287BEB41DF4079AFA7F245 /* FoundationModel.scm in Resources */ = {isa = PBXBuildFile; fileRef = 31FD2DA60FF44B29B55BFC1B /* FoundationModel.scm */; };
 		1CC31915A81F148E05F7FDEC /* 116.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = 9034FF78DD2E2AAF13CE5B4F /* 116.sld */; };
 		1F566C8DA67B60E7E004445D /* iri.sld in Copy pre-installed LispKit library: SRFI 275 */ = {isa = PBXBuildFile; fileRef = EB48C4653E11735D8F4FA73A /* iri.sld */; };
 		20EF834D656FFD30B7AF200F /* resolve.sld in Copy pre-installed LispKit library: SRFI 275 internal */ = {isa = PBXBuildFile; fileRef = DDAFE0AF3D76C9FE0F080C14 /* resolve.sld */; };
@@ -60,6 +65,9 @@
 		7353E8B5F7FC29E57A5894B3 /* SRFI-272-Basic.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = 29CE3445F5246B5A07115A6D /* SRFI-272-Basic.scm */; };
 		79CD3FC9509C4897D067849D /* SRFI-272-Show.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = ABE22F53B68EFD4F6C77AFAC /* SRFI-272-Show.scm */; };
 		7CC3E39CC7F7102C70507AA6 /* YamlLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66CAA060B7DB817DCE3E6570 /* YamlLibrary.swift */; };
+		053A42B86527448D9B151743 /* FoundationModelClaudeLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF89D73015974668BB9A70FB /* FoundationModelClaudeLibrary.swift */; };
+		C9165C02064C4594B61A96A3 /* FoundationModelSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = A464CF666EA14AEEAF373540 /* FoundationModelSupport.swift */; };
+		7DECF795321B4E49BA3E46F5 /* FoundationModelLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349C575B045146FBB01E35EA /* FoundationModelLibrary.swift */; };
 		7CD8FBAA333E4C1CFD890B32 /* SRFI-272-Colorize.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = C8B9ABAF99014851A7459FCB /* SRFI-272-Colorize.scm */; };
 		7D3007F9031310F94A46DB55 /* show.sld in Copy pre-installed LispKit library: SRFI 272 */ = {isa = PBXBuildFile; fileRef = 5C30AD6B0A0C7E62EF58D7EE /* show.sld */; };
 		7D3ADFFA1EFB71CEDD88541A /* SRFI-272-Colorize.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = C8B9ABAF99014851A7459FCB /* SRFI-272-Colorize.scm */; };
@@ -124,6 +132,8 @@
 		CC02EA022CB7DEDC00ABFC6F /* WebAPIs.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CC02EA002CB75C1D00ABFC6F /* WebAPIs.scm */; };
 		CC030C5030AB580200D01746 /* YamlKit in Frameworks */ = {isa = PBXBuildFile; productRef = CC030C4F30AB580200D01746 /* YamlKit */; };
 		CC030C5230AB582000D01746 /* YamlKit in Frameworks */ = {isa = PBXBuildFile; productRef = CC030C5130AB582000D01746 /* YamlKit */; };
+		7ED2E91A030D4921BFAB31CC /* ClaudeForFoundationModels in Frameworks */ = {isa = PBXBuildFile; productRef = 462D5A7A60834BEFACC1526D /* ClaudeForFoundationModels */; };
+		72B53CB175DC4A46B1DDA56D /* ClaudeForFoundationModels in Frameworks */ = {isa = PBXBuildFile; productRef = D130EF95C85A4081A4BA81A4 /* ClaudeForFoundationModels */; };
 		CC050F141D017D3400D32132 /* BytevectorLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC050F131D017D3400D32132 /* BytevectorLibrary.swift */; };
 		CC08964E244090D1004503B1 /* SQLiteLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC08964D244090D1004503B1 /* SQLiteLibrary.swift */; };
 		CC089651244091E9004503B1 /* SQLiteExpress in Frameworks */ = {isa = PBXBuildFile; productRef = CC089650244091E9004503B1 /* SQLiteExpress */; };
@@ -260,7 +270,9 @@
 		CC2DA73A2770012300DE69CF /* Atomics in Frameworks */ = {isa = PBXBuildFile; productRef = CC2DA7392770012300DE69CF /* Atomics */; };
 		CC2DA73C277001A200DE69CF /* Atomics in Frameworks */ = {isa = PBXBuildFile; productRef = CC2DA73B277001A200DE69CF /* Atomics */; };
 		CC2DA7412770A4EE00DE69CF /* Locks.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2DA7402770A4EE00DE69CF /* Locks.swift */; };
+		BB95D567BE094C37BD728DB3 /* AsyncOutcome.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A04B75E5594FDEA10DC0E7 /* AsyncOutcome.swift */; };
 		CC2DA7422770A4EE00DE69CF /* Locks.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2DA7402770A4EE00DE69CF /* Locks.swift */; };
+		1E3956017D6B4600B8A8384A /* AsyncOutcome.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A04B75E5594FDEA10DC0E7 /* AsyncOutcome.swift */; };
 		CC2DA7442772663700DE69CF /* Evaluator.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2DA7432772663600DE69CF /* Evaluator.swift */; };
 		CC2DA7452772663700DE69CF /* Evaluator.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2DA7432772663600DE69CF /* Evaluator.swift */; };
 		CC2DA7472773195600DE69CF /* ThreadLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2DA7462773195600DE69CF /* ThreadLibrary.swift */; };
@@ -1791,6 +1803,7 @@
 		F44991049D39BF9546706AF0 /* SRFI-272.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = 2AF3C3B56B5DECC0464CDC17 /* SRFI-272.scm */; };
 		F4DDB1FB1FE33F416E81996D /* SRFI-272-Fancy.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = BF59B8A929C375C46411B080 /* SRFI-272-Fancy.scm */; };
 		FC94BA761EB979B0D7070590 /* YAML.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = 2A05910491EC31CCA774D57B /* YAML.scm */; };
+		00DD16B1565A40D1B9B3405D /* FoundationModel.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = C4B61CCE69374EF3AFEA854F /* FoundationModel.scm */; };
 		FEF9FE1272A658B42ED1E0A5 /* pie.sld in Copy pre-installed LispKit library: LispKit Draw Chart */ = {isa = PBXBuildFile; fileRef = A08B1568FFEC589681DD7A47 /* pie.sld */; };
 		04E9E23A0BD34AFDAB1D3BCF /* line.sld in Copy pre-installed LispKit library: LispKit Draw Chart */ = {isa = PBXBuildFile; fileRef = C251045619DD4C22A525A3C1 /* line.sld */; };
 		FFAF09D4912CB653D77E2D2B /* pie.sld in Copy pre-installed LispKit library: LispKit Draw Chart */ = {isa = PBXBuildFile; fileRef = A08B1568FFEC589681DD7A47 /* pie.sld */; };
@@ -2265,6 +2278,7 @@
 				CCB7520E2C62417500E7C1B0 /* Webserver.scm in Copy examples */,
 				CCD5B5ED2C16E6A6002BF2F0 /* JSON.scm in Copy examples */,
 				FC94BA761EB979B0D7070590 /* YAML.scm in Copy examples */,
+				00DD16B1565A40D1B9B3405D /* FoundationModel.scm in Copy examples */,
 				CC517E6629AC2DE70096FC72 /* Blockchain.scm in Copy examples */,
 				CCCB5CA0284225470005248D /* StyledTextDoc.scm in Copy examples */,
 				CCCB66E1282DBBC80004827D /* DrawBarCharts.scm in Copy examples */,
@@ -3639,6 +3653,7 @@
 				CCB7520F2C62418700E7C1B0 /* Webserver.scm in Copy examples */,
 				CCD5B5EE2C16E6B8002BF2F0 /* JSON.scm in Copy examples */,
 				18DEA6934957FDE18118D4C9 /* YAML.scm in Copy examples */,
+				3495E9587D7147D99B1739F9 /* FoundationModel.scm in Copy examples */,
 				CC517E6729AC2DF90096FC72 /* Blockchain.scm in Copy examples */,
 				CCCB5CA12842255E0005248D /* StyledTextDoc.scm in Copy examples */,
 				CCCB66E2282DBBDB0004827D /* DrawBarCharts.scm in Copy examples */,
@@ -4197,6 +4212,7 @@
 		27CC3D2CB93513805610BFCD /* 272.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 272.sld; sourceTree = "<group>"; };
 		29CE3445F5246B5A07115A6D /* SRFI-272-Basic.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-272-Basic.scm"; sourceTree = "<group>"; };
 		2A05910491EC31CCA774D57B /* YAML.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = YAML.scm; sourceTree = "<group>"; };
+		C4B61CCE69374EF3AFEA854F /* FoundationModel.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = FoundationModel.scm; sourceTree = "<group>"; };
 		2AF3C3B56B5DECC0464CDC17 /* SRFI-272.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-272.scm"; sourceTree = "<group>"; };
 		36057C6E5EFB0A08F266E4A7 /* (srfi 275 utils).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(srfi 275 utils).md"; sourceTree = "<group>"; };
 		36D3CC166908942836054194 /* path.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = path.sld; sourceTree = "<group>"; };
@@ -4214,6 +4230,9 @@
 		654E271DB869F80323A265CF /* fancy.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = fancy.sld; sourceTree = "<group>"; };
 		65FAD3C9E68624B036A9D47C /* (srfi 275 path).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(srfi 275 path).md"; sourceTree = "<group>"; };
 		66CAA060B7DB817DCE3E6570 /* YamlLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YamlLibrary.swift; sourceTree = "<group>"; };
+		FF89D73015974668BB9A70FB /* FoundationModelClaudeLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundationModelClaudeLibrary.swift; sourceTree = "<group>"; };
+		A464CF666EA14AEEAF373540 /* FoundationModelSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundationModelSupport.swift; sourceTree = "<group>"; };
+		349C575B045146FBB01E35EA /* FoundationModelLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundationModelLibrary.swift; sourceTree = "<group>"; };
 		7219A705A419EB69F8643175 /* ImageGenLibraryAddOn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageGenLibraryAddOn.swift; sourceTree = "<group>"; };
 		7556C5D3ABE14BD25DCDD05D /* 117.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 117.sld; sourceTree = "<group>"; };
 		7D1C4A3E9B5F20816C2AD4E7 /* (lispkit clos).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit clos).md"; sourceTree = "<group>"; };
@@ -4236,6 +4255,7 @@
 		ABE22F53B68EFD4F6C77AFAC /* SRFI-272-Show.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-272-Show.scm"; sourceTree = "<group>"; };
 		B163C436ECDEA81A963BC85F /* path.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = path.sld; sourceTree = "<group>"; };
 		B1C9CD3090123C2D03DF7A2B /* YAML.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = YAML.scm; sourceTree = "<group>"; };
+		31FD2DA60FF44B29B55BFC1B /* FoundationModel.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = FoundationModel.scm; sourceTree = "<group>"; };
 		B422894E8CEBAF232760A9B2 /* LispKit-Pretty-Print.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "LispKit-Pretty-Print.scm"; sourceTree = "<group>"; };
 		B9E9861E640C25E17C4E0F72 /* (srfi 117).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(srfi 117).md"; sourceTree = "<group>"; };
 		BF59B8A929C375C46411B080 /* SRFI-272-Fancy.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-272-Fancy.scm"; sourceTree = "<group>"; };
@@ -4375,6 +4395,7 @@
 		CC2D124E1DB40E7F009BDC72 /* LibraryManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryManager.swift; sourceTree = "<group>"; };
 		CC2DA735276FFC4200DE69CF /* Registers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Registers.swift; sourceTree = "<group>"; };
 		CC2DA7402770A4EE00DE69CF /* Locks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Locks.swift; sourceTree = "<group>"; };
+		B9A04B75E5594FDEA10DC0E7 /* AsyncOutcome.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncOutcome.swift; sourceTree = "<group>"; };
 		CC2DA7432772663600DE69CF /* Evaluator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Evaluator.swift; sourceTree = "<group>"; };
 		CC2DA7462773195600DE69CF /* ThreadLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadLibrary.swift; sourceTree = "<group>"; };
 		CC2DA74927747A8B00DE69CF /* EvalThread.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvalThread.swift; sourceTree = "<group>"; };
@@ -5226,6 +5247,8 @@
 		F60EE5B47BD7A9A3622BC692 /* advanced.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = advanced.sld; sourceTree = "<group>"; };
 		F91E33B4AB0112986055A883 /* SRFI-272-Measure.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-272-Measure.scm"; sourceTree = "<group>"; };
 		FDC4B2BF0FDC036636A98ABC /* (lispkit yaml).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit yaml).md"; sourceTree = "<group>"; };
+		C8D7DECCC1EC4012983FA53A /* (lispkit foundation-model claude).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit foundation-model claude).md"; sourceTree = "<group>"; };
+		5576A24950DB402EA85CBE3C /* (lispkit foundation-model).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit foundation-model).md"; sourceTree = "<group>"; };
 		FFE7D035450809F2D76166EF /* basic.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = basic.sld; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -5261,6 +5284,7 @@
 				CC2DA73A2770012300DE69CF /* Atomics in Frameworks */,
 				CC089651244091E9004503B1 /* SQLiteExpress in Frameworks */,
 				CC030C5030AB580200D01746 /* YamlKit in Frameworks */,
+				7ED2E91A030D4921BFAB31CC /* ClaudeForFoundationModels in Frameworks */,
 				CC6290842C7DBBFB005AF800 /* KeychainAccess in Frameworks */,
 				CC2FB07E2AA3D83E00A20C71 /* SWCompression in Frameworks */,
 				CC17F7412C793E6400DDC4F9 /* CBORCoding in Frameworks */,
@@ -5289,6 +5313,7 @@
 				CC2DA73C277001A200DE69CF /* Atomics in Frameworks */,
 				CCC48D0725E5BFB300D082AD /* SQLiteExpress in Frameworks */,
 				CC030C5230AB582000D01746 /* YamlKit in Frameworks */,
+				72B53CB175DC4A46B1DDA56D /* ClaudeForFoundationModels in Frameworks */,
 				CC6290862C7DBC1B005AF800 /* KeychainAccess in Frameworks */,
 				CC61CB382ACA116500C5A032 /* SWCompression in Frameworks */,
 				CC17F7432C793EC700DDC4F9 /* CBORCoding in Frameworks */,
@@ -5429,6 +5454,7 @@
 				CC7D4B752A208EF90066BA94 /* Format.scm */,
 				CCD5B51E2C0B79D7002BF2F0 /* JSON.scm */,
 				B1C9CD3090123C2D03DF7A2B /* YAML.scm */,
+				31FD2DA60FF44B29B55BFC1B /* FoundationModel.scm */,
 				CC8218901E3FFFAB009CA653 /* SRFI19.scm */,
 				CC5E473E20D2D95E00F21B03 /* SRFI69.scm */,
 				CC48EBC51F3E437300233FA9 /* SRFI35.scm */,
@@ -6130,6 +6156,8 @@
 				CC6F36C22EEF7F6200666DE2 /* (lispkit vision).md */,
 				CCA09F843031B5E700636D8C /* (lispkit wt-tree).md */,
 				FDC4B2BF0FDC036636A98ABC /* (lispkit yaml).md */,
+				C8D7DECCC1EC4012983FA53A /* (lispkit foundation-model claude).md */,
+				5576A24950DB402EA85CBE3C /* (lispkit foundation-model).md */,
 				874AAE201EBA859C6B48F934 /* (srfi 116).md */,
 				B9E9861E640C25E17C4E0F72 /* (srfi 117).md */,
 				8558A259DF6762B7C2B9F917 /* (srfi 127).md */,
@@ -6626,6 +6654,9 @@
 				CCD5B6152C3BC480002BF2F0 /* HTTPOAuthLibrary.swift */,
 				CC1D533C2BF1709E00EE1A24 /* JSONLibrary.swift */,
 				66CAA060B7DB817DCE3E6570 /* YamlLibrary.swift */,
+				FF89D73015974668BB9A70FB /* FoundationModelClaudeLibrary.swift */,
+				A464CF666EA14AEEAF373540 /* FoundationModelSupport.swift */,
+				349C575B045146FBB01E35EA /* FoundationModelLibrary.swift */,
 				CCD5B5202C0D231E002BF2F0 /* JSONSchemaLibrary.swift */,
 				CCF964042D00D65900F85FBA /* PDFLibrary.swift */,
 				CC17F7472C7DB91000DDC4F9 /* KeychainLibrary.swift */,
@@ -6791,6 +6822,7 @@
 				CC372CCE27D31EC30091C474 /* Bitset.swift */,
 				CC882C911C9E93A600D20039 /* Timer.swift */,
 				CC2DA7402770A4EE00DE69CF /* Locks.swift */,
+				B9A04B75E5594FDEA10DC0E7 /* AsyncOutcome.swift */,
 				CC01903C1C8C7D8600DB8BF9 /* Reference.swift */,
 				CC26069B1C61760C0047A3D3 /* Boxes.swift */,
 				CCC62D911CA9ED6A00E2C43F /* TrackedObject.swift */,
@@ -6895,6 +6927,7 @@
 				CC750BD71F5AC68900CD82A2 /* PDF.scm */,
 				CCD5B5EB2C16E430002BF2F0 /* JSON.scm */,
 				2A05910491EC31CCA774D57B /* YAML.scm */,
+				C4B61CCE69374EF3AFEA854F /* FoundationModel.scm */,
 				CC4385BB20BAB79500055289 /* HTTP.scm */,
 				CCB7520D2C623F5800E7C1B0 /* Webserver.scm */,
 				CC02EA002CB75C1D00ABFC6F /* WebAPIs.scm */,
@@ -7103,6 +7136,7 @@
 				CC17F7402C793E6400DDC4F9 /* CBORCoding */,
 				CC6290832C7DBBFB005AF800 /* KeychainAccess */,
 				CC030C4F30AB580200D01746 /* YamlKit */,
+				462D5A7A60834BEFACC1526D /* ClaudeForFoundationModels */,
 			);
 			productName = LispKit;
 			productReference = CCAD52BA1C48403800DBD8EE /* LispKit.framework */;
@@ -7198,6 +7232,7 @@
 				CC17F7422C793EC700DDC4F9 /* CBORCoding */,
 				CC6290852C7DBC1B005AF800 /* KeychainAccess */,
 				CC030C5130AB582000D01746 /* YamlKit */,
+				D130EF95C85A4081A4BA81A4 /* ClaudeForFoundationModels */,
 			);
 			productName = "LispKit iOS";
 			productReference = CCC48C5625E5B8DC00D082AD /* LispKit.framework */;
@@ -7280,6 +7315,7 @@
 				CC17F73F2C793E6400DDC4F9 /* XCRemoteSwiftPackageReference "CBORCoding" */,
 				CC6290822C7DBBFB005AF800 /* XCRemoteSwiftPackageReference "KeychainAccess" */,
 				CC030C4E30AB580200D01746 /* XCRemoteSwiftPackageReference "swift-yamlkit" */,
+				2525B8AEF1814CE084EFE89F /* XCRemoteSwiftPackageReference "ClaudeForFoundationModels" */,
 			);
 			productRefGroup = CCAD52BB1C48403800DBD8EE /* Products */;
 			projectDirPath = "";
@@ -7319,6 +7355,7 @@
 				CC8C6EC81CFA65F200126BDD /* ControlFlow.scm in Resources */,
 				CCD5B51F2C0B79D7002BF2F0 /* JSON.scm in Resources */,
 				1B8163E7B416F782D8BE3BFB /* YAML.scm in Resources */,
+				51287BEB41DF4079AFA7F245 /* FoundationModel.scm in Resources */,
 				CC08965324413F6E004503B1 /* SQLite.scm in Resources */,
 				CC97FA161CFA515E0008596E /* Definitions.scm in Resources */,
 				CCC41DC81D2B14AD003CB4D0 /* CallCC.scm in Resources */,
@@ -7410,6 +7447,7 @@
 				CC0A984E233E70C400C52573 /* GarbageCollector.swift in Sources */,
 				CC372CDD27D5532D0091C474 /* String.swift in Sources */,
 				CC2DA7412770A4EE00DE69CF /* Locks.swift in Sources */,
+				BB95D567BE094C37BD728DB3 /* AsyncOutcome.swift in Sources */,
 				CC79DE061F88D42600CE7A5D /* TypeLibrary.swift in Sources */,
 				CC372CD227D367CC0091C474 /* BitsetLibrary.swift in Sources */,
 				CC0980A71C62BDBC006B7FB1 /* Compiler.swift in Sources */,
@@ -7429,6 +7467,9 @@
 				CC41322F2DF5B74700D77CF6 /* TimezoneLookup.swift in Sources */,
 				CC1D533D2BF1709E00EE1A24 /* JSONLibrary.swift in Sources */,
 				06CF56477C3526E6F0D35A9D /* YamlLibrary.swift in Sources */,
+				CDA547A8812142D4AF902B19 /* FoundationModelClaudeLibrary.swift in Sources */,
+				580A370D341C4487B3E21078 /* FoundationModelSupport.swift in Sources */,
+				EA7CB2AF0AE94D7AA0875481 /* FoundationModelLibrary.swift in Sources */,
 				CC3C92441D84C0D800016C28 /* Library.swift in Sources */,
 				CC76312920E9550B005F27CE /* Owners.swift in Sources */,
 				CCAD52E61C48468F00DBD8EE /* SyntaxRules.swift in Sources */,
@@ -7576,6 +7617,7 @@
 				CCC48C9225E5B95B00D082AD /* Hash.swift in Sources */,
 				CCC48CCE25E5B98600D082AD /* RecordLibrary.swift in Sources */,
 				CC2DA7422770A4EE00DE69CF /* Locks.swift in Sources */,
+				1E3956017D6B4600B8A8384A /* AsyncOutcome.swift in Sources */,
 				CCC48C6925E5B94300D082AD /* ManagedObjectPool.swift in Sources */,
 				CCC48CA225E5B96800D082AD /* RuntimeError.swift in Sources */,
 				CCC48C9B25E5B96800D082AD /* EvalError.swift in Sources */,
@@ -7621,6 +7663,9 @@
 				CCC48CAD25E5B97100D082AD /* SymbolTable.swift in Sources */,
 				CC1D533E2BF1709E00EE1A24 /* JSONLibrary.swift in Sources */,
 				7CC3E39CC7F7102C70507AA6 /* YamlLibrary.swift in Sources */,
+				053A42B86527448D9B151743 /* FoundationModelClaudeLibrary.swift in Sources */,
+				C9165C02064C4594B61A96A3 /* FoundationModelSupport.swift in Sources */,
+				7DECF795321B4E49BA3E46F5 /* FoundationModelLibrary.swift in Sources */,
 				CCC48C6C25E5B94300D082AD /* Owners.swift in Sources */,
 				CC2DA7482773195600DE69CF /* ThreadLibrary.swift in Sources */,
 				CC1348EB2D2E7AD4002DBF0D /* ImageLibrary.swift in Sources */,
@@ -8380,6 +8425,14 @@
 				minimumVersion = 1.0.0;
 			};
 		};
+		2525B8AEF1814CE084EFE89F /* XCRemoteSwiftPackageReference "ClaudeForFoundationModels" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/objecthub/ClaudeForFoundationModels.git";
+			requirement = {
+				branch = lispkit;
+				kind = branch;
+			};
+		};
 		CC08964F244091E9004503B1 /* XCRemoteSwiftPackageReference "swift-sqliteexpress" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/objecthub/swift-sqliteexpress.git";
@@ -8496,6 +8549,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = CC030C4E30AB580200D01746 /* XCRemoteSwiftPackageReference "swift-yamlkit" */;
 			productName = YamlKit;
+		};
+		462D5A7A60834BEFACC1526D /* ClaudeForFoundationModels */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2525B8AEF1814CE084EFE89F /* XCRemoteSwiftPackageReference "ClaudeForFoundationModels" */;
+			productName = ClaudeForFoundationModels;
+		};
+		D130EF95C85A4081A4BA81A4 /* ClaudeForFoundationModels */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2525B8AEF1814CE084EFE89F /* XCRemoteSwiftPackageReference "ClaudeForFoundationModels" */;
+			productName = ClaudeForFoundationModels;
 		};
 		CC089650244091E9004503B1 /* SQLiteExpress */ = {
 			isa = XCSwiftPackageProductDependency;

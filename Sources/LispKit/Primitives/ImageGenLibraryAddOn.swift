@@ -210,28 +210,7 @@ final class ImageGenLibraryAddOn {
   // MARK: Waiting for results
 
   /// The outcome of an image that gets rendered asynchronously.
-  private final class Outcome<Value, Failure: Error>: @unchecked Sendable {
-    private let lock = NSLock()
-    private let semaphore = DispatchSemaphore(value: 0)
-    private var result: Result<Value, Failure>?
-
-    func store(_ result: Result<Value, Failure>) {
-      self.lock.lock()
-      self.result = result
-      self.lock.unlock()
-      self.semaphore.signal()
-    }
-
-    var current: Result<Value, Failure>? {
-      self.lock.lock()
-      defer { self.lock.unlock() }
-      return self.result
-    }
-
-    func wait(upTo seconds: TimeInterval) {
-      _ = self.semaphore.wait(timeout: .now() + seconds)
-    }
-  }
+  private typealias Outcome<Value, Failure: Error> = AsyncOutcome<Value, Failure>
 
   /// Waits for the outcome of rendering an image, until it is available (the result of the
   /// function), the evaluation gets aborted (an error is thrown), or the time `limit` in seconds
@@ -240,23 +219,8 @@ final class ImageGenLibraryAddOn {
   private func wait<Value, Failure: Error>(for outcome: Outcome<Value, Failure>,
                                             upTo limit: TimeInterval?) throws
                                             -> Result<Value, Failure>? {
-    let deadline = limit.map { Date(timeIntervalSinceNow: $0) }
-    while outcome.current == nil {
-      if self.context?.evaluator.threads.current?.value.machine?.abortionRequested ?? false {
-        throw RuntimeError.abortion()
-      }
-      if let deadline, Date() > deadline {
-        return nil
-      }
-      if Thread.isMainThread {
-        if !RunLoop.current.run(mode: .default, before: Date(timeIntervalSinceNow: 0.05)) {
-          Thread.sleep(forTimeInterval: 0.005)
-        }
-      } else {
-        outcome.wait(upTo: 0.05)
-      }
-    }
-    return outcome.current
+    return try outcome.waitForResult(in: self.context,
+                                     until: limit.map { Date(timeIntervalSinceNow: $0) })
   }
 
   // MARK: Configurations

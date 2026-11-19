@@ -62,7 +62,10 @@ let package = Package(
     .package(url: "https://github.com/p2/OAuth2.git", from: "5.3.5"),
     .package(url: "https://github.com/SomeRandomiOSDev/CBORCoding.git", from: "1.4.0"),
     .package(url: "https://github.com/kishikawakatsumi/KeychainAccess.git", branch: "master"),
-    .package(url: "https://github.com/apple/swift-atomics.git", from: "1.3.1")
+    .package(url: "https://github.com/apple/swift-atomics.git", from: "1.3.1"),
+    // Fork of anthropics/ClaudeForFoundationModels that builds for macOS 14 / iOS 17 and
+    // exposes its API only on macOS 27 / iOS 27
+    .package(url: "https://github.com/objecthub/ClaudeForFoundationModels.git", branch: "lispkit")
   ],
   targets: [
     .target(name: "LispKit",
@@ -79,7 +82,8 @@ let package = Package(
               .product(name: "OAuth2", package: "OAuth2"),
               .product(name: "CBORCoding", package: "CBORCoding"),
               .product(name: "KeychainAccess", package: "KeychainAccess"),
-              .product(name: "Atomics", package: "swift-atomics")
+              .product(name: "Atomics", package: "swift-atomics"),
+              .product(name: "ClaudeForFoundationModels", package: "ClaudeForFoundationModels")
             ],
             exclude: [
               "Info.plist",

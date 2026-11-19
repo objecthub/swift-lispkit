@@ -59,6 +59,12 @@
 (import (lispkit vision))
 (import (lispkit debug))
 
+; Libraries requiring macOS 27 or iOS 27
+(cond-expand ((library (lispkit foundation-model))
+  (import (lispkit foundation-model))))
+(cond-expand ((library (lispkit foundation-model claude))
+  (import (lispkit foundation-model claude))))
+
 ; Mac-specific
 (cond-expand (macos
   (display "LispKit Mac-specific")

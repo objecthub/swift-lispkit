@@ -26,7 +26,7 @@
 public struct LibraryRegistry {
   
   #if os(iOS) || os(watchOS) || os(tvOS)
-  public private(set) static var nativeLibraries: [NativeLibrary.Type] = [
+  public private(set) static var nativeLibraries: [NativeLibrary.Type] = Self.withOptionalLibraries([
     ControlFlowLibrary.self,
     CoreLibrary.self,
     SystemLibrary.self,
@@ -79,9 +79,9 @@ public struct LibraryRegistry {
     HTTPOAuthLibrary.self,
     HTTPServerLibrary.self,
     PDFLibrary.self
-  ]
+  ])
   #elseif os(macOS)
-  public private(set) static var nativeLibraries: [NativeLibrary.Type] = [
+  public private(set) static var nativeLibraries: [NativeLibrary.Type] = Self.withOptionalLibraries([
     ControlFlowLibrary.self,
     CoreLibrary.self,
     SystemLibrary.self,
@@ -135,8 +135,24 @@ public struct LibraryRegistry {
     HTTPOAuthLibrary.self,
     HTTPServerLibrary.self,
     PDFLibrary.self
-  ]
+  ])
   #endif
+  
+  /// Adds the libraries that are only available on newer versions of the operating system
+  /// to `libraries`.
+  private static func withOptionalLibraries(_ libraries: [NativeLibrary.Type])
+                                              -> [NativeLibrary.Type] {
+    var libraries = libraries
+    #if canImport(FoundationModels)
+    if #available(macOS 27.0, iOS 27.0, *) {
+      libraries.append(FoundationModelLibrary.self)
+      #if canImport(ClaudeForFoundationModels)
+      libraries.append(FoundationModelClaudeLibrary.self)
+      #endif
+    }
+    #endif
+    return libraries
+  }
   
   public static func register(_ nativeLibrary: NativeLibrary.Type) {
     LibraryRegistry.nativeLibraries.append(nativeLibrary)

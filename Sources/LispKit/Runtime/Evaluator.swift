@@ -151,6 +151,33 @@ public final class Evaluator: TrackedObject {
     _ = self.mainThread.value.abort()
     // Clean up
     HTTPOAuthLibrary.authRequestManager.abortAll(in: self.context)
+    self.abortHandlersLock.lock()
+    let handlers = Array(self.abortHandlers.values)
+    self.abortHandlersLock.unlock()
+    for handler in handlers {
+      handler()
+    }
+  }
+  
+  /// Handlers that are invoked when the execution is aborted
+  private var abortHandlers: [ObjectIdentifier : () -> Void] = [:]
+  private let abortHandlersLock = NSLock()
+  
+  /// Registers `handler` for `owner`. The handler gets invoked when the execution is aborted
+  /// via `abort()`. This can be used to cancel asynchronous work, e.g. Swift tasks, that was
+  /// started on behalf of the aborted execution. At most one handler can be registered per
+  /// owner object.
+  public func registerAbortHandler(for owner: AnyObject, _ handler: @escaping () -> Void) {
+    self.abortHandlersLock.lock()
+    self.abortHandlers[ObjectIdentifier(owner)] = handler
+    self.abortHandlersLock.unlock()
+  }
+  
+  /// Removes the abort handler of `owner`.
+  public func removeAbortHandler(for owner: AnyObject) {
+    self.abortHandlersLock.lock()
+    self.abortHandlers[ObjectIdentifier(owner)] = nil
+    self.abortHandlersLock.unlock()
   }
   
   // Create evaluation threads

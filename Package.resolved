@@ -19,6 +19,15 @@
       }
     },
     {
+      "identity" : "claudeforfoundationmodels",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/objecthub/ClaudeForFoundationModels.git",
+      "state" : {
+        "branch" : "lispkit",
+        "revision" : "2e2e4cadd2fe3e3908cb2564a15040731332d0d1"
+      }
+    },
+    {
       "identity" : "half",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SomeRandomiOSDev/Half",

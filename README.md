@@ -158,6 +158,8 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit json)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-JSON),
     [`(lispkit json schema)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-JSON-Schema),
     `(lispkit yaml)`,
+    `(lispkit foundation-model)`,
+    `(lispkit foundation-model claude)`,
     [`(lispkit http)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-HTTP),
     [`(lispkit http server)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-HTTP-Server),
     [`(lispkit http oauth)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-HTTP-OAuth),
@@ -424,6 +426,7 @@ the command-line tool directly in Xcode, the Swift Package Manager is not needed
 - [OAuth2](https://github.com/p2/OAuth2)
 - [CBORCoding](https://github.com/SomeRandomiOSDev/CBORCoding)
 - [KeychainAccess](https://github.com/kishikawakatsumi/KeychainAccess)
+- [ClaudeForFoundationModels](https://github.com/objecthub/ClaudeForFoundationModels) (a fork of [anthropics/ClaudeForFoundationModels](https://github.com/anthropics/ClaudeForFoundationModels) supporting older deployment targets)
 
 
 ## Copyright
