@@ -71,6 +71,19 @@
 )
 
 (
+  "Data type support"
+  (#t #t)
+  (let ((m (system-language-model)))
+    ;; Data attachments require macOS 27.2, which is reported as an unsupported request
+    (define (supported? kind)
+      (guard (x ((eq? (model-error-kind x) 'unsupported) #t))
+        (boolean? (language-model-supports-data-type? m "public.png" kind))))
+    (list (supported? 'attachment)
+          (and (supported? 'entry)
+               (raises? (language-model-supports-data-type? m "public.png" 'other)))))
+)
+
+(
   "Invalid use cases and guardrails"
   (#t #t)
   (list (raises? (system-language-model 'unknown))
@@ -125,6 +138,16 @@
         (raises? (make-generation-schema '(enum Color ())))
         (raises? (make-generation-schema '(object Person (name))))
         (raises? (make-generation-schema 42)))
+)
+
+(
+  "Schemas with explicit nil"
+  ("P" "Q" #t)
+  (list (generation-schema-name
+          (make-generation-schema '(object P explicit-nil (name string) (nick (optional string)))))
+        ;; `explicit-nil` is only special as a symbol; properties can be named like this
+        (generation-schema-name (make-generation-schema '(object Q (explicit-nil string))))
+        (raises? (make-generation-schema '(object R explicit-nil (name)))))
 )
 
 ;;; Generated content
@@ -254,6 +277,24 @@
         (raises? (json->transcript "{not json")))
 )
 
+(
+  "Transcript metadata, signatures, and asset identifiers"
+  (((k . "v")) #u8(1 2 3) ("a1" "a2") ((k . "v")) #u8(1 2 3) ("a1" "a2") #t #t)
+  (define (call-meta t) (cdr (assq 'metadata (car (cdr (assq 'calls (cdr (transcript-ref t 0))))))))
+  (define (signature t) (cdr (assq 'signature (cdr (transcript-ref t 1)))))
+  (define (assets t) (cdr (assq 'asset-ids (cdr (transcript-ref t 2)))))
+  (define t3
+    (make-transcript
+      '(tool-calls (calls ((id . "c1") (tool . "t") (arguments (a . 1)) (metadata (k . "v")))))
+      '(reasoning (segments "thinking") (signature . #u8(1 2 3)))
+      '(response (segments "done") (asset-ids "a1" "a2"))))
+  (define t4 (json->transcript (transcript->json t3)))
+  (list (call-meta t3) (signature t3) (assets t3)
+        (call-meta t4) (signature t4) (assets t4)
+        (raises? (make-transcript '(reasoning (segments "x") (signature . "no"))))
+        (raises? (make-transcript '(response (segments "x") (asset-ids 42)))))
+)
+
 ;;; Errors
 
 (
@@ -262,6 +303,23 @@
   (list (model-error? (make-error "plain" '()))
         (model-error-kind (make-error "plain" '()))
         (model-error? 42))
+)
+
+(
+  "Model error details"
+  (("A" "a") ("Missing") #f #f #f #f)
+  (define (call-model-error-details thunk)
+    (guard (x ((model-error? x) (model-error-details x)) (#t #f)) (thunk) #f))
+  (define dup (call-model-error-details
+                (lambda () (make-generation-schema '(object A (a string) (a string))))))
+  (define undefined (call-model-error-details
+                      (lambda () (make-generation-schema '(object A (x (ref Missing)))))))
+  (list (list (cdr (assq 'schema dup)) (cdr (assq 'property dup)))
+        (cdr (assq 'references undefined))
+        (model-error-details 42)
+        (model-error-details (make-error "plain" '()))
+        (model-error-explanation 42)
+        (model-error-explanation (make-error "plain" '())))
 )
 
 ;;; Claude
@@ -305,6 +363,20 @@
                              '(object Person (name string) (age (integer (range 1 99)))))))))
       (list (cdr (assq 'name p))
             (exact-integer? (cdr (assq 'age p))))))
+)
+
+(
+  "Guided generation with explicit nil"
+  (#t #t)
+  (when-live (list #t #t)
+    (let ((p (model-response-content
+               (future-get (model-session-response
+                             (make-model-session)
+                             "Describe a person named Ada, who has no nickname."
+                             '(object Person explicit-nil (name string) (nickname (optional string)))
+                             '((sampling . greedy)))))))
+      (list (string? (cdr (assq 'name p)))
+            (and (assq 'nickname p) #t))))
 )
 
 (

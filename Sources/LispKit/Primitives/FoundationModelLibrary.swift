@@ -70,6 +70,9 @@ public final class FoundationModelLibrary: NativeLibrary {
     self.define(Procedure("language-model-supports-locale?", self.languageModelSupportsLocale))
     self.define(Procedure("language-model-token-count", self.languageModelTokenCount))
     self.define(Procedure("language-model-quota-usage", self.languageModelQuotaUsage))
+    self.define(Procedure("language-model-supports-data-type?", self.languageModelSupportsDataType))
+    self.define(Procedure("limit-increase-suggestion?", self.isLimitIncreaseSuggestion))
+    self.define(Procedure("limit-increase-suggestion-show!", self.limitIncreaseSuggestionShow))
     self.define(Procedure("language-model-variant", self.languageModelVariant))
 
     // Prompts and attachments
@@ -139,6 +142,8 @@ public final class FoundationModelLibrary: NativeLibrary {
     // Errors
     self.define(Procedure("model-error?", self.isModelError))
     self.define(Procedure("model-error-kind", self.modelErrorKind))
+    self.define(Procedure("model-error-details", self.modelErrorDetails))
+    self.define(Procedure("model-error-explanation", self.modelErrorExplanation))
 
     // Tool execution
     self.define(Procedure("_model-tool-next!", self.modelToolNext))
@@ -491,8 +496,38 @@ public final class FoundationModelLibrary: NativeLibrary {
       reset = .object(NativeDateTime(DateTimeLibrary.calendar.dateComponents(in: .current,
                                                                             from: date)))
     }
+    var suggestion: Expr = .false
+    if let s = usage.limitIncreaseSuggestion {
+      suggestion = .object(NativeLimitIncreaseSuggestion(s))
+    }
     return .makeList(.pair(self.sym("status"), self.sym(status)),
-                     .pair(self.sym("reset-date"), reset))
+                     .pair(self.sym("reset-date"), reset),
+                     .pair(self.sym("limit-increase-suggestion"), suggestion))
+  }
+
+  private func languageModelSupportsDataType(expr: Expr, type: Expr, kind: Expr?) throws -> Expr {
+    guard #available(macOS 27.2, iOS 27.2, *) else {
+      throw self.error("unsupported", "data types require macOS/iOS 27.2")
+    }
+    let model = try self.model(from: expr).model
+    let type = try PromptConverter.contentType(from: type)
+    let attachment: Bool
+    if let kind, kind.isTrue {
+      switch try kind.asSymbol().identifier {
+        case "attachment":
+          attachment = true
+        case "entry":
+          attachment = false
+        default:
+          throw SchemaCompiler.invalid("unknown data type kind", kind)
+      }
+    } else {
+      attachment = true
+    }
+    return .makeBoolean(try self.wait {
+      attachment ? try await model.supportsDataAttachmentType(type)
+                 : try await model.supportsDataEntryType(type)
+    })
   }
 
   private func languageModelVariant(expr: Expr) throws -> Expr {
@@ -1011,6 +1046,57 @@ public final class FoundationModelLibrary: NativeLibrary {
     return ModelErrors.kind(of: err) ?? .false
   }
 
+  private func modelErrorDetails(expr: Expr) -> Expr {
+    guard case .error(let err) = expr else {
+      return .false
+    }
+    return ModelErrors.details(of: err) ?? .false
+  }
+
+  private func modelErrorExplanation(expr: Expr) throws -> Expr {
+    guard case .error(let err) = expr, let details = ModelErrors.details(of: err) else {
+      return .false
+    }
+    // Look for the refusal in the details of the error
+    var lst = details
+    var refusal: NativeRefusal? = nil
+    while case .pair(.pair(_, .object(let obj)), let rest) = lst {
+      if let r = obj as? NativeRefusal {
+        refusal = r
+        break
+      }
+      lst = rest
+    }
+    guard let refusal else {
+      return .false
+    }
+    let future = Future(external: false)
+    let context = self.context
+    Task {
+      do {
+        let text = try await refusal.explanation()
+        _ = try? future.setResult(in: context, to: .makeString(text))
+      } catch {
+        _ = try? future.setResult(in: context,
+                                  to: ModelErrors.raisable(error, in: context),
+                                  raise: true)
+      }
+    }
+    return .object(future)
+  }
+
+  private func isLimitIncreaseSuggestion(expr: Expr) -> Expr {
+    return self.isObject(expr, NativeLimitIncreaseSuggestion.self)
+  }
+
+  private func limitIncreaseSuggestionShow(expr: Expr) throws -> Expr {
+    let suggestion = try self.object(expr,
+                                     NativeLimitIncreaseSuggestion.self,
+                                     NativeLimitIncreaseSuggestion.type)
+    suggestion.show()
+    return .void
+  }
+
   // MARK: - Tool execution
 
   private func modelToolNext(expr: Expr) throws -> Expr {
@@ -1024,7 +1110,9 @@ public final class FoundationModelLibrary: NativeLibrary {
     if let props = shapes?.properties,
        case .structure(properties: let values, orderedKeys: _) = invocation.arguments.kind {
       for prop in props {
-        if let value = values[prop.name] {
+        // Missing optional properties, and optional properties that are explicitly `null`
+        // (see `explicit-nil` for object schemas), are passed as `#f`.
+        if let value = values[prop.name], !(prop.optional && value.kind == .null) {
           args.append(ContentConverter.expr(from: value, shape: prop.shape, shapes: shapes,
                                             in: self.context))
         } else {

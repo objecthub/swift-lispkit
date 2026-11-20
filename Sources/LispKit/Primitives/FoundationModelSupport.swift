@@ -346,7 +346,14 @@ struct SchemaCompiler {
             let (name, descr, rest) = try self.header(args, spec)
             var props: [DynamicGenerationSchema.Property] = []
             var shapes: [(name: String, shape: ContentShape, optional: Bool)] = []
+            var explicitNil = false
             for prop in try self.list(rest, spec) {
+              // The symbol `explicit-nil` makes optional properties without value explicit
+              // in generated content, i.e. they get value `null` instead of being omitted.
+              if case .symbol(let sym) = prop, sym.identifier == "explicit-nil" {
+                explicitNil = true
+                continue
+              }
               let elems = try self.list(prop, prop)
               guard elems.count >= 2 && elems.count <= 3 else {
                 throw Self.invalid("invalid property", prop)
@@ -369,7 +376,12 @@ struct SchemaCompiler {
             }
             let shape = ContentShape.object(shapes)
             self.named[name] = shape
-            return (DynamicGenerationSchema(name: name, description: descr, properties: props),
+            return (explicitNil ?
+                      DynamicGenerationSchema(name: name,
+                                              description: descr,
+                                              representNilExplicitlyInGeneratedContent: true,
+                                              properties: props) :
+                      DynamicGenerationSchema(name: name, description: descr, properties: props),
                     shape)
           case "enum":
             let (name, descr, rest) = try self.header(args, spec)
@@ -1085,10 +1097,16 @@ struct TranscriptConverter {
           ("schema", schema)])
       case .toolCalls(let calls):
         let cs = calls.map { (call: Transcript.ToolCall) -> Expr in
-          .makeList(.pair(self.sym("id"), .makeString(call.id)),
-                    .pair(self.sym("tool"), .makeString(call.toolName)),
-                    .pair(self.sym("arguments"),
-                          ContentConverter.expr(from: call.arguments, in: self.context)))
+          var props: Exprs = [.pair(self.sym("id"), .makeString(call.id)),
+                              .pair(self.sym("tool"), .makeString(call.toolName)),
+                              .pair(self.sym("arguments"),
+                                    ContentConverter.expr(from: call.arguments,
+                                                          in: self.context))]
+          if !call.metadata.isEmpty {
+            props.append(.pair(self.sym("metadata"),
+                               ContentConverter.expr(from: call.metadata, in: self.context)))
+          }
+          return .makeList(props)
         }
         return self.entry("tool-calls", [("id", .makeString(calls.id)),
                                          ("calls", .makeList(Exprs(cs)))])
@@ -1097,15 +1115,23 @@ struct TranscriptConverter {
                                           ("tool", .makeString(output.toolName)),
                                           ("segments", self.expr(from: output.segments))])
       case .response(let response):
-        return self.entry("response", [
+        var props: [(String, Expr)] = [
           ("id", .makeString(response.id)),
           ("segments", self.expr(from: response.segments)),
-          ("metadata", ContentConverter.expr(from: response.metadata, in: self.context))])
+          ("metadata", ContentConverter.expr(from: response.metadata, in: self.context))]
+        if !response.assetIDs.isEmpty {
+          props.append(("asset-ids", .makeList(Exprs(response.assetIDs.map { .makeString($0) }))))
+        }
+        return self.entry("response", props)
       case .reasoning(let reasoning):
-        return self.entry("reasoning", [
+        var props: [(String, Expr)] = [
           ("id", .makeString(reasoning.id)),
           ("segments", self.expr(from: reasoning.segments)),
-          ("metadata", ContentConverter.expr(from: reasoning.metadata, in: self.context))])
+          ("metadata", ContentConverter.expr(from: reasoning.metadata, in: self.context))]
+        if let signature = reasoning.signature {
+          props.append(("signature", self.bytes(signature)))
+        }
+        return self.entry("reasoning", props)
       default:
         if #available(macOS 27.2, iOS 27.2, *), case .data(let data) = entry {
           return self.entry("data", [
@@ -1244,6 +1270,8 @@ struct TranscriptConverter {
           let (_, cprops) = try self.properties(.pair(self.sym("call"), call))
           calls.append(Transcript.ToolCall(
                          id: try self.string(cprops["id"], default: UUID().uuidString),
+                         metadata: try ContentConverter.metadata(from: cprops["metadata"] ?? .null,
+                                                                 in: self.context),
                          toolName: try self.string(cprops["tool"]),
                          arguments: try ContentConverter.content(from: cprops["arguments"] ?? .null,
                                                                  in: self.context)))
@@ -1254,13 +1282,23 @@ struct TranscriptConverter {
                                                  toolName: try self.string(props["tool"]),
                                                  segments: try self.segments(props["segments"])))
       case "response":
-        return .response(Transcript.Response(id: id,
-                                             metadata: metadata,
-                                             segments: try self.segments(props["segments"])))
+        var response = Transcript.Response(id: id,
+                                           metadata: metadata,
+                                           segments: try self.segments(props["segments"]))
+        response.assetIDs = try self.list(props["asset-ids"]).map { try $0.asString() }
+        return .response(response)
       case "reasoning":
+        var signature: Data? = nil
+        if let sig = props["signature"], sig.isTrue {
+          guard case .bytes(let bvec) = sig else {
+            throw SchemaCompiler.invalid("signature of reasoning entry requires a bytevector", sig)
+          }
+          signature = Data(bvec.value)
+        }
         return .reasoning(Transcript.Reasoning(id: id,
                                                metadata: metadata,
-                                               segments: try self.segments(props["segments"])))
+                                               segments: try self.segments(props["segments"]),
+                                               signature: signature))
       case "data":
         guard #available(macOS 27.2, iOS 27.2, *) else {
           throw ModelErrors.error("unsupported", "data entries require macOS/iOS 27.2",
@@ -1327,12 +1365,21 @@ public enum ModelErrors {
     Self.lock.unlock()
   }
 
-  /// Returns a model error of the given kind.
-  public static func error(_ kind: String, _ message: String, in context: Context) -> RuntimeError {
+  /// Returns a model error of the given kind. `details` is an association list with
+  /// additional information about the error.
+  public static func error(_ kind: String,
+                           _ message: String,
+                           details: Expr = .null,
+                           in context: Context) -> RuntimeError {
+    // The kind is the first irritant, the details (if there are any) the second.
+    var irritants: [Expr] = [.symbol(context.symbols.intern(kind))]
+    if !details.isNull {
+      irritants.append(details)
+    }
     // `$` introduces placeholders in error message templates and thus needs to be escaped
     return RuntimeError.custom("model error",
                                message.replacingOccurrences(of: "$", with: "$$"),
-                               [.symbol(context.symbols.intern(kind))])
+                               irritants)
   }
 
   /// Returns the kind of a model error, or `nil` if `error` is not a model error.
@@ -1341,6 +1388,15 @@ public enum ModelErrors {
       return nil
     }
     return kind
+  }
+
+  /// Returns the details of a model error as an association list, or `nil` if `error` is
+  /// not a model error.
+  public static func details(of error: RuntimeError) -> Expr? {
+    guard Self.kind(of: error) != nil else {
+      return nil
+    }
+    return error.irritants.count > 1 ? error.irritants[1] : .null
   }
 
   private static func message(_ error: Error) -> String {
@@ -1452,7 +1508,10 @@ public enum ModelErrors {
         break
     }
     if let kind = Self.kind(of: error) {
-      return Self.error(kind, Self.message(error), in: context)
+      return Self.error(kind,
+                        Self.message(error),
+                        details: ModelErrorDetails.expr(for: error, in: context),
+                        in: context)
     }
     Self.lock.lock()
     let translators = Self.translators
@@ -1478,6 +1537,297 @@ public enum ModelErrors {
       return .error(error)
     }
     return .error(RuntimeError.os(error))
+  }
+}
+
+// MARK: - Error details
+
+///
+/// A refusal of a language model to respond. It can be asked to explain itself.
+///
+@available(macOS 27.0, iOS 27.0, *)
+public final class NativeRefusal: NativeObject {
+  public static let type = Type.objectType(Symbol(uninterned: "model-refusal"))
+
+  enum Source {
+    case model(LanguageModelError.Refusal)
+    case generation(LanguageModelSession.GenerationError.Refusal)
+  }
+
+  let source: Source
+
+  init(_ source: Source) {
+    self.source = source
+  }
+
+  /// Asks the language model to explain the refusal.
+  func explanation() async throws -> String {
+    switch self.source {
+      case .model(let refusal):
+        return try await refusal.explanation.content
+      case .generation(let refusal):
+        return try await refusal.explanation.content
+    }
+  }
+
+  public override var type: Type {
+    return Self.type
+  }
+
+  public override var tagString: String {
+    return "\(Self.type) \(self.identityString)"
+  }
+
+  public override var string: String {
+    return "#<\(self.tagString)>"
+  }
+}
+
+///
+/// A suggestion of the system for increasing the limit of Private Cloud Compute requests.
+///
+@available(macOS 27.0, iOS 27.0, *)
+public final class NativeLimitIncreaseSuggestion: NativeObject {
+  public static let type = Type.objectType(Symbol(uninterned: "limit-increase-suggestion"))
+
+  let suggestion: PrivateCloudComputeLanguageModel.QuotaUsage.LimitIncreaseSuggestion
+
+  init(_ suggestion: PrivateCloudComputeLanguageModel.QuotaUsage.LimitIncreaseSuggestion) {
+    self.suggestion = suggestion
+  }
+
+  /// Presents the suggestion to the user.
+  func show() {
+    let suggestion = self.suggestion
+    Task { @MainActor in
+      suggestion.show()
+    }
+  }
+
+  public override var type: Type {
+    return Self.type
+  }
+
+  public override var tagString: String {
+    return "\(Self.type) \(self.identityString)"
+  }
+
+  public override var string: String {
+    return "#<\(self.tagString)>"
+  }
+}
+
+///
+/// Extracts the details of errors of FoundationModels as association lists. The details are
+/// attached to model errors.
+///
+@available(macOS 27.0, iOS 27.0, *)
+enum ModelErrorDetails {
+
+  struct Builder {
+    let context: Context
+    var items: [(String, Expr)] = []
+
+    init(_ context: Context) {
+      self.context = context
+    }
+
+    mutating func add(_ key: String, _ value: Expr) {
+      self.items.append((key, value))
+    }
+
+    mutating func add(_ key: String, string: String?) {
+      if let string {
+        self.add(key, .makeString(string))
+      }
+    }
+
+    mutating func add(_ key: String, date: Date?) {
+      self.add(key, ModelErrorDetails.date(date))
+    }
+
+    mutating func add(metadata: [String : any Sendable]) {
+      guard !metadata.isEmpty else {
+        return
+      }
+      var res = Exprs()
+      for key in metadata.keys.sorted() {
+        res.append(.pair(.symbol(self.context.symbols.intern(key)),
+                         ModelErrorDetails.value(metadata[key]!, in: self.context)))
+      }
+      self.add("metadata", .makeList(res))
+    }
+
+    var expr: Expr {
+      return .makeList(Exprs(self.items.map {
+        .pair(.symbol(self.context.symbols.intern($0.0)), $0.1)
+      }))
+    }
+  }
+
+  static func date(_ date: Date?) -> Expr {
+    guard let date else {
+      return .false
+    }
+    return .object(NativeDateTime(DateTimeLibrary.calendar.dateComponents(in: .current,
+                                                                         from: date)))
+  }
+
+  static func value(_ value: Any, in context: Context) -> Expr {
+    switch value {
+      case let value as String:
+        return .makeString(value)
+      case let value as Bool:
+        return .makeBoolean(value)
+      case let value as Int:
+        return .makeNumber(value)
+      case let value as Double:
+        return .flonum(value)
+      case let value as Date:
+        return Self.date(value)
+      case let value as GeneratedContent:
+        return ContentConverter.expr(from: value, in: context)
+      default:
+        return .makeString(String(describing: value))
+    }
+  }
+
+  static func capabilityName(_ capability: LanguageModelCapabilities.Capability) -> String {
+    switch capability {
+      case .vision:
+        return "vision"
+      case .guidedGeneration:
+        return "guided-generation"
+      case .reasoning:
+        return "reasoning"
+      case .toolCalling:
+        return "tool-calling"
+      default:
+        return "unknown"
+    }
+  }
+
+  /// Returns the details of `error` as an association list.
+  static func expr(for error: Error, in context: Context) -> Expr {
+    var b = Builder(context)
+    var debug: String? = nil
+    var metadata: [String : any Sendable] = [:]
+    switch error {
+      case let error as LanguageModelError:
+        switch error {
+          case .contextSizeExceeded(let e):
+            b.add("context-size", .makeNumber(e.contextSize))
+            b.add("token-count", .makeNumber(e.tokenCount))
+            debug = e.debugDescription
+            metadata = e.metadata
+          case .rateLimited(let e):
+            b.add("reset-date", date: e.resetDate)
+            debug = e.debugDescription
+            metadata = e.metadata
+          case .guardrailViolation(let e):
+            debug = e.debugDescription
+            metadata = e.metadata
+          case .refusal(let e):
+            b.add("refusal", .object(NativeRefusal(.model(e))))
+            debug = e.debugDescription
+            metadata = e.metadata
+          case .unsupportedCapability(let e):
+            b.add("capability", .symbol(context.symbols.intern(Self.capabilityName(e.capability))))
+            debug = e.debugDescription
+            metadata = e.metadata
+          case .unsupportedTranscriptContent(let e):
+            b.add("content", .object(NativeTranscript(Transcript(entries: e.unsupportedContent))))
+            debug = e.debugDescription
+            metadata = e.metadata
+          case .unsupportedGenerationGuide(let e):
+            b.add("schema-name", string: e.schemaName)
+            debug = e.debugDescription
+            metadata = e.metadata
+          case .unsupportedLanguageOrLocale(let e):
+            b.add("language-code", string: e.languageCode.identifier)
+            debug = e.debugDescription
+            metadata = e.metadata
+          case .timeout(let e):
+            debug = e.debugDescription
+            metadata = e.metadata
+          @unknown default:
+            break
+        }
+      case let error as LanguageModelSession.GenerationError:
+        switch error {
+          case .exceededContextWindowSize(let c),
+               .assetsUnavailable(let c),
+               .guardrailViolation(let c),
+               .unsupportedGuide(let c),
+               .unsupportedLanguageOrLocale(let c),
+               .decodingFailure(let c),
+               .rateLimited(let c),
+               .concurrentRequests(let c):
+            debug = c.debugDescription
+          case .refusal(let refusal, let c):
+            b.add("refusal", .object(NativeRefusal(.generation(refusal))))
+            debug = c.debugDescription
+          @unknown default:
+            break
+        }
+      case let error as PrivateCloudComputeLanguageModel.Error:
+        switch error {
+          case .networkFailure(let e):
+            debug = e.debugDescription
+          case .quotaLimitReached(let e):
+            b.add("reset-date", date: e.resetDate)
+            if let suggestion = e.limitIncreaseSuggestion {
+              b.add("limit-increase-suggestion", .object(NativeLimitIncreaseSuggestion(suggestion)))
+            }
+            debug = e.debugDescription
+          case .serviceUnavailable(let e):
+            debug = e.debugDescription
+          @unknown default:
+            break
+        }
+      case let error as SystemLanguageModel.Error:
+        if case .assetsUnavailable(let e) = error {
+          debug = e.debugDescription
+        }
+      case let error as GenerationSchema.SchemaError:
+        switch error {
+          case .duplicateType(schema: let schema, type: let type, context: let c):
+            b.add("schema", string: schema)
+            b.add("type", string: type)
+            debug = c.debugDescription
+          case .duplicateProperty(schema: let schema, property: let property, context: let c):
+            b.add("schema", string: schema)
+            b.add("property", string: property)
+            debug = c.debugDescription
+          case .emptyTypeChoices(schema: let schema, context: let c):
+            b.add("schema", string: schema)
+            debug = c.debugDescription
+          case .undefinedReferences(schema: let schema, references: let refs, context: let c):
+            b.add("schema", string: schema)
+            b.add("references", .makeList(Exprs(refs.map { .makeString($0) })))
+            debug = c.debugDescription
+          @unknown default:
+            break
+        }
+      case let error as GeneratedContent.ParsingError:
+        b.add("raw-content", string: error.rawContent)
+        if let underlying = error.underlyingError {
+          b.add("underlying-error", string: underlying.localizedDescription)
+        }
+        debug = error.debugDescription
+      case let error as LanguageModelSession.ToolCallError:
+        b.add("tool", string: error.tool.name)
+        b.add("underlying-error", string: error.underlyingError.localizedDescription)
+      default:
+        break
+    }
+    b.add("debug-description", string: debug)
+    b.add(metadata: metadata)
+    if let error = error as? LocalizedError {
+      b.add("recovery-suggestion", string: error.recoverySuggestion)
+      b.add("failure-reason", string: error.failureReason)
+    }
+    return b.expr
   }
 }
 

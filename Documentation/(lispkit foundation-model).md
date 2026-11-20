@@ -92,9 +92,26 @@ Returns the number of tokens that _obj_ uses when it is passed to language model
 ⇒  7
 ```
 
+**(language-model-supports-data-type? _model type_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(language-model-supports-data-type? _model type kind_)**  
+
+Returns `#t` if language model _model_ supports data of type _type_, a string describing the type of the data either as a uniform type identifier (e.g. `"public.png"`), a MIME type, or a filename extension. _kind_ is either `attachment` (data attachments in prompts and instructions; this is the default) or `entry` (data entries in transcripts). The procedure waits for the result. It requires macOS 27.2 or iOS 27.2.
+
+```scheme
+(language-model-supports-data-type? (system-language-model) "public.png")
+```
+
 **(language-model-quota-usage _model_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Returns an association list describing the usage quota of the Private Cloud Compute language model _model_. Key `status` refers to one of the symbols `below-limit`, `approaching-limit`, or `limit-reached`. Key `reset-date` refers to a date-time object (as defined by library `(lispkit date-time)`) describing when the quota gets reset, or `#f` if this is unknown.
+Returns an association list describing the usage quota of the Private Cloud Compute language model _model_. Key `status` refers to one of the symbols `below-limit`, `approaching-limit`, or `limit-reached`. Key `reset-date` refers to a date-time object (as defined by library `(lispkit date-time)`) describing when the quota gets reset, or `#f` if this is unknown. Key `limit-increase-suggestion` refers to a limit increase suggestion object if the system suggests a way of increasing the quota, and to `#f` otherwise.
+
+**(limit-increase-suggestion? _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns `#t` if _obj_ is a limit increase suggestion; `#f` otherwise. Limit increase suggestions are returned by `language-model-quota-usage` and are part of the details of errors of kind `quota-limit-reached`.
+
+**(limit-increase-suggestion-show! _suggestion_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Presents limit increase suggestion _suggestion_ to the user. This only has an effect in applications that can display the user interface of the system.
 
 **(language-model-variant _model_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
@@ -173,6 +190,7 @@ property ::= (property-name schema)
            | (property-name schema description)
            | (property-name (optional schema))
            | (property-name (optional schema) description)
+           | explicit-nil
 strguide ::= (constant str)
            | (any-of str ...)
            | (pattern regex)
@@ -181,7 +199,7 @@ numguide ::= (minimum x)
            | (range low high)
 ```
 
-Names and property names are symbols or strings; descriptions are strings. Guides restrict the values that can be generated: `(constant str)` only allows string _str_, `(any-of str ...)` allows one of the given strings, and `(pattern regex)` allows strings matching the regular expression _regex_. `(minimum x)`, `(maximum x)`, and `(range low high)` restrict numbers. For arrays, _min-count_ and _max-count_ restrict the number of elements; they can be `#f` for "no restriction". Objects have a name and a list of properties. Optional properties do not need to be generated. Enumerations are named schemas for a fixed set of strings, and `any-of` defines a named schema whose values conform to one of the given schemas. Named schemas can be referred to via their name, either as a symbol or via `(ref name)`.
+Names and property names are symbols or strings; descriptions are strings. Guides restrict the values that can be generated: `(constant str)` only allows string _str_, `(any-of str ...)` allows one of the given strings, and `(pattern regex)` allows strings matching the regular expression _regex_. `(minimum x)`, `(maximum x)`, and `(range low high)` restrict numbers. For arrays, _min-count_ and _max-count_ restrict the number of elements; they can be `#f` for "no restriction". Objects have a name and a list of properties. Optional properties do not need to be generated; if they are not, they are omitted from the generated content. If the symbol `explicit-nil` is one of the properties of an object, optional properties without a value are generated explicitly with value `null` instead, e.g. `(object Person explicit-nil (name string) (nickname (optional string)))`. Enumerations are named schemas for a fixed set of strings, and `any-of` defines a named schema whose values conform to one of the given schemas. Named schemas can be referred to via their name, either as a symbol or via `(ref name)`.
 
 Wherever a generation schema is expected, a schema specification can be used instead; it is converted into a generation schema automatically.
 
@@ -231,7 +249,7 @@ Tools are executed by a separate thread that is created for every request of a s
 **(make-tool _name description parameters proc_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(make-tool _name description parameters proc include-schema?_)**  
 
-Returns a new tool with the given _name_ (a string or symbol) and _description_ (a string). _parameters_ is a generation schema or schema specification describing the arguments of the tool. _proc_ is the procedure implementing the tool. If _parameters_ is an object schema, _proc_ is called with one argument per property, in the order in which the properties are declared; optional properties that were not generated are passed as `#f`. For all other schemas, _proc_ is called with one argument, the generated content. If _include-schema?_ is `#f`, the parameter schema is not included in the instructions of the session. The default is `#t`.
+Returns a new tool with the given _name_ (a string or symbol) and _description_ (a string). _parameters_ is a generation schema or schema specification describing the arguments of the tool. _proc_ is the procedure implementing the tool. If _parameters_ is an object schema, _proc_ is called with one argument per property, in the order in which the properties are declared; optional properties that were not generated, or that were generated as `null`, are passed as `#f`. For all other schemas, _proc_ is called with one argument, the generated content. If _include-schema?_ is `#f`, the parameter schema is not included in the instructions of the session. The default is `#t`.
 
 The result of _proc_ is returned to the language model. A string is returned as text, a prompt object as a prompt, and every other value as generated content. If _proc_ raises an error, the request that caused the tool call fails with the same error.
 
@@ -450,12 +468,14 @@ A transcript is an immutable sequence of entries that captures the history of a 
 ```
 (instructions (id . str) (segments segment ...) (tools (name description schema) ...))
 (prompt (id . str) (segments segment ...) (options . options) (metadata . alist) (schema . schema))
-(tool-calls (id . str) (calls ((id . str) (tool . name) (arguments . content)) ...))
+(tool-calls (id . str) (calls ((id . str) (tool . name) (arguments . content) (metadata . alist)) ...))
 (tool-output (id . str) (tool . name) (segments segment ...))
-(response (id . str) (segments segment ...) (metadata . alist))
-(reasoning (id . str) (segments segment ...) (metadata . alist))
+(response (id . str) (segments segment ...) (metadata . alist) (asset-ids str ...))
+(reasoning (id . str) (segments segment ...) (metadata . alist) (signature . bytevector))
 (data (id . str) (content-type . type) (content . bytevector) (metadata . content))
 ```
+
+The properties `metadata` of tool calls, `asset-ids` of responses, and `signature` of reasoning entries are only present if they have a value.
 
 Segments are strings (text segments), lists `(structure source content)` (generated content for a schema named _source_), or lists `(attachment label image)` and `(attachment label bytevector type)` (attachments, where _label_ is a string or `#f`). When transcript entries are created from this representation, all properties are optional and missing identifiers are generated.
 
@@ -541,5 +561,43 @@ Returns the kind of model error _obj_ as a symbol, or `#f` if _obj_ is not a mod
 
 ```scheme
 (guard (e ((model-error? e) (model-error-kind e)))
+  (future-get (model-session-response session "...")))
+```
+
+**(model-error-details _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns the details of model error _obj_ as an association list, or `#f` if _obj_ is not a model error. The details provide additional information supplied by the language model framework. Which keys are available depends on the kind of the error; keys without a value are omitted, so the list can be empty.
+
+| Key | Value |
+| :--- | :--- |
+| `debug-description` | A string with a description for developers |
+| `recovery-suggestion`, `failure-reason` | Strings that explain how to recover from the error and why it occurred |
+| `metadata` | An association list with metadata provided by the language model |
+| `context-size`, `token-count` | The size of the context window and the number of tokens of the request (`context-size-exceeded`) |
+| `reset-date` | A date-time object describing when the limit gets reset (`rate-limited`, `quota-limit-reached`) |
+| `limit-increase-suggestion` | A limit increase suggestion (`quota-limit-reached`) |
+| `capability` | The unsupported capability: `vision`, `guided-generation`, `reasoning`, or `tool-calling` (`unsupported-capability`) |
+| `content` | A transcript with the entries that are not supported (`unsupported-transcript-content`) |
+| `schema-name` | The name of the schema with the unsupported guide (`unsupported-guide`) |
+| `language-code` | The unsupported language code (`unsupported-language-or-locale`) |
+| `schema`, `type`, `property`, `references` | The schema, type, property, or undefined types responsible for a `schema-error` |
+| `raw-content`, `underlying-error` | The content that could not be decoded and the reason (`decoding-failure`) |
+| `tool` | The name of the tool that failed (`tool-call-failed`) |
+| `refusal` | A refusal object that is used by `model-error-explanation` (`refusal`) |
+
+```scheme
+(guard (e ((eq? (model-error-kind e) 'exceeded-context-window-size)
+           (cdr (assq 'debug-description (model-error-details e)))))
+  (future-get (model-session-response session very-long-prompt)))
+⇒  "Content contains 40059 tokens, which exceeds the maximum allowed context size of 8192."
+```
+
+**(model-error-explanation _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+If _obj_ is a model error of kind `refusal`, this procedure asks the language model why it refused to respond and returns a future for the explanation, a string. `#f` is returned if _obj_ is not a refusal.
+
+```scheme
+(guard (e ((eq? (model-error-kind e) 'refusal)
+           (future-get (model-error-explanation e))))
   (future-get (model-session-response session "...")))
 ```
