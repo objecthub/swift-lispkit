@@ -273,7 +273,7 @@ public final class KeychainLibrary: NativeLibrary {
       }
     }
     if !sync.isNull {
-      keychain = keychain.synchronizable(acc.isTrue)
+      keychain = keychain.synchronizable(sync.isTrue)
     }
     return .object(NativeKeychain(keychain: keychain))
   }
@@ -430,7 +430,7 @@ public final class KeychainLibrary: NativeLibrary {
       }
     }
     if !sync.isNull {
-      keychain = keychain.synchronizable(acc.isTrue)
+      keychain = keychain.synchronizable(sync.isTrue)
     }
     return keychain
   }

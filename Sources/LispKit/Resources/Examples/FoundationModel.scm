@@ -6,7 +6,8 @@
 ;;; lets the model look up information via tools implemented as Scheme procedures,
 ;;; streams a response while it is being generated, and saves and restores the
 ;;; conversation via its transcript. Finally, it shows how to use a Claude model
-;;; via library `(lispkit foundation-model claude)` if an API key is available.
+;;; via library `(lispkit foundation-model claude)` if an API key is available:
+;;; a tool call, a follow-up question, guided generation, and streaming.
 ;;;
 ;;; The code requires macOS 27 or iOS 27 and a device on which Apple Intelligence
 ;;; is enabled.
@@ -29,6 +30,12 @@
 (import (lispkit base)
         (lispkit foundation-model)
         (lispkit thread future))
+
+;;; For using the Claude demo, an Anthropic API key is needed. It can be
+;;; set here or defined via environment variable "ANTHROPIC_API_KEY" or set
+;;; via `(set-api-key "...")` which stores the key in the system keychain.
+
+(define anthropic-api-key #f)
 
 ;;; Checking the model
 
@@ -84,19 +91,22 @@
 (define itinerary
   (ask assistant "Plan a short trip to Kyoto." itinerary-schema '((temperature . 0.3))))
 
-(display "Itinerary for ")
-(display (cdr (assq 'city itinerary)))
-(newline)
-(vector-for-each
-  (lambda (day)
-    (display "  ")
-    (display (cdr (assq 'title day)))
-    (display " ($")
-    (display (cdr (assq 'budget day)))
-    (display "): ")
-    (display (cdr (assq 'activities day)))
-    (newline))
-  (cdr (assq 'days itinerary)))
+(define (show-itinerary itinerary)
+  (display "Itinerary for ")
+  (display (cdr (assq 'city itinerary)))
+  (newline)
+  (vector-for-each
+    (lambda (day)
+      (display "  ")
+      (display (cdr (assq 'title day)))
+      (display " ($")
+      (display (cdr (assq 'budget day)))
+      (display "): ")
+      (display (cdr (assq 'activities day)))
+      (newline))
+    (cdr (assq 'days itinerary))))
+
+(show-itinerary itinerary)
 
 ;;; Tools
 
@@ -130,16 +140,19 @@
 ;;; Streaming
 
 ;; A response stream provides cumulative snapshots of the response while it is
-;; being generated.
+;; being generated. `stream-answer` prints the part of each snapshot that is new.
+(define (stream-answer session prompt . args)
+  (let ((stream (apply model-session-stream session prompt args))
+        (shown 0))
+    (response-stream-for-each
+      (lambda (snapshot)
+        (let ((text (model-response-content snapshot)))
+          (display (substring text shown (string-length text)))
+          (set! shown (string-length text))))
+      stream)))
+
 (display "Streaming: ")
-(let ((stream (model-session-stream assistant "Describe a morning walk through Gion in three sentences."))
-      (shown 0))
-  (response-stream-for-each
-    (lambda (snapshot)
-      (let ((text (model-response-content snapshot)))
-        (display (substring text shown (string-length text)))
-        (set! shown (string-length text))))
-    stream))
+(stream-answer assistant "Describe a morning walk through Gion in three sentences.")
 (newline)
 
 ;;; Transcripts and usage
@@ -169,16 +182,55 @@
 
 ;;; Claude
 
-;; Claude models are available via library `(lispkit foundation-model claude)`. By
-;; default, the API key is taken from the environment variable ANTHROPIC_API_KEY.
+;; Claude models are available via library `(lispkit foundation-model claude)`. A
+;; Claude session works exactly like a session for the on-device model. The code
+;; below reuses the currency tool, the itinerary schema, and the helpers from above.
 (cond-expand
   ((library (lispkit foundation-model claude))
-    (import (lispkit foundation-model claude))
-    (if (get-environment-variable "ANTHROPIC_API_KEY")
-        (let ((claude (make-model-session (make-claude-model "claude-sonnet-5-5")
-                                          (list convert-tool)
-                                          "You are a concise travel assistant.")))
-          (display "Claude: ")
-          (display (ask claude "How much is 80 US dollars in Swiss francs?"))
-          (newline))))
-  (else))
+    (import (lispkit foundation-model claude)
+            (lispkit system util))
+    (define-values (get-api-key set-api-key)
+      (manage-credential anthropic-api-key
+                         "ANTHROPIC_API_KEY"
+                         "FoundationModelsDemo"
+                         "anthropic-api-key"))
+    (if-let* ((apikey (get-api-key))
+              (claude-model (make-claude-model "claude-sonnet-5-5" apikey))
+              (claude (make-model-session
+                        claude-model
+                        (list convert-tool)
+                        (string-append "You are a concise travel assistant. "
+                                       "Use the convertCurrency tool to convert amounts."))))
+      (begin
+        ;; A tool call
+        (display "Q: How much is 80 US dollars in Swiss francs?\nClaude: ")
+        (display (ask claude "How much is 80 US dollars in Swiss francs?"))
+        (newline)
+        ;; The session remembers the conversation, here the amount from above
+        (display "Q: And how much is that in euros?\nClaude: ")
+        (display (ask claude "And how much is that in euros?"))
+        (newline)
+        ;; Guided generation with a schema, as before. A new session is used, so that
+        ;; the answer is independent of the conversation about currencies above.
+        (display "Q: Plan a short trip to Lisbon.\n")
+        (show-itinerary
+          (ask (make-model-session claude-model '() "You are a concise travel assistant.")
+               "Plan a short trip to Lisbon."
+               itinerary-schema))
+        ;; Streaming
+        (display "Q: Describe an evening in the Alfama district in three sentences.\n")
+        (display "Claude (streaming): ")
+        (stream-answer claude "Describe an evening in the Alfama district in three sentences.")
+        (newline)
+        ;; Usage
+        (let ((usage (model-session-usage claude)))
+          (display "Tokens used by Claude: ")
+          (display (cdr (assq 'input-tokens usage)))
+          (display " input, ")
+          (display (cdr (assq 'output-tokens usage)))
+          (display " output")
+          (newline)))
+      (display "Anthropic API key not available.")))
+  (else
+    (display "Claude integration unavailable.")))
+(newline)
