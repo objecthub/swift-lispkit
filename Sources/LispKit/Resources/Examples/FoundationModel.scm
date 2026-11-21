@@ -6,10 +6,11 @@
 ;;; lets the model look up information via tools implemented as Scheme procedures,
 ;;; streams a response while it is being generated, and saves and restores the
 ;;; conversation via its transcript. Finally, it shows how to use a Claude model
-;;; via library `(lispkit foundation-model claude)` and a Gemini model via library
-;;; `(lispkit foundation-model gemini)` if API keys are available: a tool call, a
+;;; via library `(lispkit foundation-model claude)`, a Gemini model via library
+;;; `(lispkit foundation-model gemini)`, and a GPT model via library
+;;; `(lispkit foundation-model gpt)` if API keys are available: a tool call, a
 ;;; follow-up question, guided generation, and streaming, plus Google Search for
-;;; Gemini.
+;;; Gemini and a stored conversation with web search for GPT.
 ;;;
 ;;; The code requires macOS 27 or iOS 27 and a device on which Apple Intelligence
 ;;; is enabled.
@@ -38,10 +39,13 @@
 ;;; via `(set-anthropic-api-key! "...")` which stores the key in the system
 ;;; keychain. Similarly, the Gemini demo needs a Gemini API key, which can
 ;;; be set here, via environment variable "GEMINI_API_KEY", or via
-;;; `(set-gemini-api-key! "...")`.
+;;; `(set-gemini-api-key! "...")`, and the GPT demo needs an OpenAI API key,
+;;; which can be set here, via environment variable "OPENAI_API_KEY", or via
+;;; `(set-openai-api-key! "...")`.
 
 (define anthropic-api-key #f)
 (define gemini-api-key #f)
+(define openai-api-key #f)
 
 ;;; Checking the model
 
@@ -330,4 +334,93 @@
       (display "Gemini API key not available.")))
   (else
     (display "Gemini integration unavailable.")))
+(newline)
+
+;;; GPT
+
+;; OpenAI's GPT models are available via library `(lispkit foundation-model gpt)`. Again,
+;; a GPT session works exactly like a session for the on-device model.
+(cond-expand
+  ((library (lispkit foundation-model gpt))
+    (import (lispkit foundation-model gpt)
+            (lispkit system util))
+    (define-values (get-openai-api-key set-openai-api-key!)
+      (manage-credential openai-api-key
+                         "OPENAI_API_KEY"
+                         "FoundationModelsDemo"
+                         "gpt-api-key"))
+    (display "===================================")
+    (newline)
+    (if-let* ((apikey (get-openai-api-key))
+              (gpt-model (make-gpt-model "gpt-5.5" apikey))
+              (gpt (make-model-session
+                     gpt-model
+                     (list convert-tool)
+                     (string-append "You are a concise travel assistant. "
+                                    "Use the convertCurrency tool to convert amounts."))))
+      (begin
+        (display "MODEL: ")
+        (display (language-model-name gpt-model))
+        (display " by ")
+        (display (language-model-family-vendor (language-model-family gpt-model)))
+        (display ", availability: ")
+        (display (language-model-availability gpt-model))
+        (newline)
+        ;; A tool call
+        (display "Q: How much is 60 US dollars in euros?\nGPT: ")
+        (display (ask gpt "How much is 60 US dollars in euros?"))
+        (newline)
+        ;; The session remembers the conversation, here the amount from above
+        (display "Q: And how much is that in Japanese yen?\nGPT: ")
+        (display (ask gpt "And how much is that in Japanese yen?"))
+        (newline)
+        ;; Guided generation with the itinerary schema, in a new session
+        (display "Q: Plan a short trip to Seville.\n")
+        (show-itinerary
+          (ask (make-model-session gpt-model '() "You are a concise travel assistant.")
+               "Plan a short trip to Seville."
+               itinerary-schema))
+        ;; Streaming
+        (display "Q: Describe an afternoon in the Alcázar of Seville in three sentences.\n")
+        (display "GPT (streaming): ")
+        (stream-answer gpt "Describe an afternoon in the Alcázar of Seville in three sentences.")
+        (newline)
+        ;; Token counts are computed by the OpenAI API
+        (display "Tokens of the conversation so far: ")
+        (display (language-model-token-count gpt-model (model-session-transcript gpt)))
+        (newline)
+        ;; A stored conversation: responses are kept by OpenAI, and each request only
+        ;; sends what is new. Web search runs on OpenAI's side; the transcript records it.
+        (let ((searcher (make-model-session
+                          (make-gpt-model "gpt-5.5" apikey
+                                          '((built-in-tools web-search) (stateful . #t)))
+                          '()
+                          "Answer in one sentence.")))
+          (display "Q: Search the web: which exhibitions are on in Seville this month?\nGPT: ")
+          (display (ask searcher "Search the web: which exhibitions are on in Seville this month?"))
+          (newline)
+          (for-each
+            (lambda (activity)
+              (display "  [")
+              (display (cdr (assq 'kind activity)))
+              (display "] ")
+              (display (cdr (assq 'queries activity)))
+              (newline))
+            (gpt-tool-activities (model-session-transcript searcher)))
+          (display "Q: Which of them is the most popular?\nGPT: ")
+          (display (ask searcher "Which of them is the most popular?"))
+          (newline))
+        ;; Usage
+        (let ((usage (model-session-usage gpt)))
+          (display "Tokens used by GPT: ")
+          (display (cdr (assq 'input-tokens usage)))
+          (display " input, ")
+          (display (cdr (assq 'output-tokens usage)))
+          (display " output, ")
+          (display (cdr (assq 'reasoning-tokens usage)))
+          (display " reasoning")
+          (newline)))
+      (display "OpenAI API key not available.")))
+  (else
+    (display "GPT integration unavailable.")))
 (newline)

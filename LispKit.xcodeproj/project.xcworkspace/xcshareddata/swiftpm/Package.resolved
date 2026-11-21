@@ -1,5 +1,5 @@
 {
-  "originHash" : "72966d197ba1297e469e172e4463639401c2d43cfccb3f627c38e56eca8bfb4a",
+  "originHash" : "6e22d62c82ec43459a9471a37fda4e469fddeff25578e2a1a467f38ef28707f7",
   "pins" : [
     {
       "identity" : "bitbytedata",
@@ -25,7 +25,7 @@
       "location" : "https://github.com/objecthub/ClaudeForFoundationModels.git",
       "state" : {
         "branch" : "lispkit",
-        "revision" : "6e24b053a75eead55dcd2090a32fa5294b0d12c6"
+        "revision" : "d3df37b0f23c249462e59d7e992fa039c071147f"
       }
     },
     {
@@ -33,8 +33,17 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/objecthub/GeminiForFoundationModels.git",
       "state" : {
-        "revision" : "a095d2f522fbdab959028cf286f6e85a72215e68",
-        "version" : "0.1.0"
+        "revision" : "931812a0ec81388b81e4e779caac37cfbed2e50c",
+        "version" : "0.1.1"
+      }
+    },
+    {
+      "identity" : "gptforfoundationmodels",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/objecthub/GPTForFoundationModels.git",
+      "state" : {
+        "revision" : "b03ea5e923677b6d020346a25bed7b6103594c72",
+        "version" : "0.1.3"
       }
     },
     {

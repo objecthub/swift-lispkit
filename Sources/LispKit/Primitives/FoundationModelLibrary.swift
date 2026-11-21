@@ -441,9 +441,11 @@ public final class FoundationModelLibrary: NativeLibrary {
     }
     switch k {
       case "prompt":
-        input = .prompt(try PromptConverter.prompt(from: value))
+        input = .prompt(try PromptConverter.prompt(from: value),
+                        segments: PromptConverter.segments(from: value))
       case "instructions":
-        input = .instructions(try PromptConverter.instructions(from: value))
+        input = .instructions(try PromptConverter.instructions(from: value),
+                              segments: PromptConverter.segments(from: value))
       case "tools":
         let hub = ToolHub()
         input = .tools(try self.list(value).map {

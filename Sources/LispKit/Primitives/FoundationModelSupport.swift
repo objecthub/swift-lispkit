@@ -37,11 +37,14 @@ import UIKit
 @available(macOS 27.0, iOS 27.0, *)
 typealias FMInstructions = FoundationModels.Instructions
 
-/// What `language-model-token-count` counts the tokens of.
+/// What `language-model-token-count` counts the tokens of. Prompts and
+/// instructions come with their transcript segments, if they can be represented
+/// as such: FoundationModels' `Prompt` and `Instructions` are opaque, and models
+/// that count tokens by transcript need the segments.
 @available(macOS 27.0, iOS 27.0, *)
 public enum LanguageModelTokenInput: Sendable {
-  case prompt(Prompt)
-  case instructions(FoundationModels.Instructions)
+  case prompt(Prompt, segments: [Transcript.Segment]?)
+  case instructions(FoundationModels.Instructions, segments: [Transcript.Segment]?)
   case tools([any Tool])
   case schema(GenerationSchema)
   case transcript(Transcript)
@@ -197,9 +200,9 @@ public struct SystemModelBackend: LanguageModelBackend {
 
   public func tokenCount(for input: LanguageModelTokenInput) async throws -> Int? {
     switch input {
-      case .prompt(let prompt):
+      case .prompt(let prompt, _):
         return try await self.system.tokenCount(for: prompt)
-      case .instructions(let instructions):
+      case .instructions(let instructions, _):
         return try await self.system.tokenCount(for: instructions)
       case .tools(let tools):
         return try await self.system.tokenCount(for: tools)
@@ -899,6 +902,8 @@ public final class NativeAttachment: NativeObject {
 
   let prompt: Prompt
   let instructions: FMInstructions
+  /// The attachment as a transcript segment, if it is available as such.
+  let segment: Transcript.Segment?
   let label: String?
   let kind: String
 
@@ -909,6 +914,9 @@ public final class NativeAttachment: NativeObject {
     }
     self.prompt = Prompt(attachment)
     self.instructions = FMInstructions(attachment)
+    self.segment = .attachment(Transcript.AttachmentSegment(
+                                 content: .image(Transcript.ImageAttachment(image)),
+                                 label: label))
     self.label = label
     self.kind = "image"
   }
@@ -920,19 +928,21 @@ public final class NativeAttachment: NativeObject {
     }
     self.prompt = Prompt(attachment)
     self.instructions = FMInstructions(attachment)
+    self.segment = nil
     self.label = label
     self.kind = "image"
   }
 
   @available(macOS 27.2, iOS 27.2, *)
   init(data: Data, contentType: UTType, label: String?) {
-    var attachment = Attachment(RawDataAttachment(
-                       Transcript.DataAttachment(contentType: contentType, content: data)))
+    let content = Transcript.DataAttachment(contentType: contentType, content: data)
+    var attachment = Attachment(RawDataAttachment(content))
     if let label {
       attachment = attachment.label(label)
     }
     self.prompt = Prompt(attachment)
     self.instructions = FMInstructions(attachment)
+    self.segment = .attachment(Transcript.AttachmentSegment(content: .data(content), label: label))
     self.label = label
     self.kind = contentType.identifier
   }
@@ -1033,6 +1043,38 @@ enum PromptConverter {
         throw RuntimeError.type(expr, expected: [.strType, NativeImage.type,
                                                  NativeAttachment.type, NativePrompt.type])
     }
+  }
+
+  /// The transcript segments of a prompt or instructions given as a Scheme value, or
+  /// `nil` if they can't be represented as segments (prompt objects and attachments
+  /// referring to image files).
+  static func segments(from expr: Expr) -> [Transcript.Segment]? {
+    var segments: [Transcript.Segment] = []
+    func collect(_ expr: Expr) -> Bool {
+      if let text = Self.text(from: expr) {
+        segments.append(.text(Transcript.TextSegment(content: text)))
+        return true
+      }
+      switch expr {
+        case .null:
+          return true
+        case .pair(let head, let tail):
+          return collect(head) && collect(tail)
+        case .object(let obj):
+          if let attachment = obj as? NativeAttachment, let segment = attachment.segment {
+            segments.append(segment)
+            return true
+          } else if let image = Self.cgImage(from: expr) {
+            segments.append(.attachment(Transcript.AttachmentSegment(
+                                          content: .image(Transcript.ImageAttachment(image)))))
+            return true
+          }
+          return false
+        default:
+          return false
+      }
+    }
+    return collect(expr) ? segments : nil
   }
 
   static func instructions(from expr: Expr) throws -> FMInstructions {

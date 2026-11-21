@@ -152,6 +152,9 @@ public struct LibraryRegistry {
       #if canImport(GeminiForFoundationModels)
       libraries.append(FoundationModelGeminiLibrary.self)
       #endif
+      #if canImport(GPTForFoundationModels)
+      libraries.append(FoundationModelGPTLibrary.self)
+      #endif
     }
     #endif
     return libraries

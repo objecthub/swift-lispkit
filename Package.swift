@@ -68,7 +68,10 @@ let package = Package(
     .package(url: "https://github.com/objecthub/ClaudeForFoundationModels.git", branch: "lispkit"),
     // Gemini models for Foundation Models; builds for macOS 14 / iOS 17 and exposes its
     // API only on macOS 27 / iOS 27
-    .package(url: "https://github.com/objecthub/GeminiForFoundationModels.git", from: "0.1.0")
+    .package(url: "https://github.com/objecthub/GeminiForFoundationModels.git", from: "0.1.1"),
+    // GPT models for Foundation Models; builds for macOS 14 / iOS 17 and exposes its
+    // API only on macOS 27 / iOS 27
+    .package(url: "https://github.com/objecthub/GPTForFoundationModels.git", from: "0.1.3")
   ],
   targets: [
     .target(name: "LispKit",
@@ -87,7 +90,8 @@ let package = Package(
               .product(name: "KeychainAccess", package: "KeychainAccess"),
               .product(name: "Atomics", package: "swift-atomics"),
               .product(name: "ClaudeForFoundationModels", package: "ClaudeForFoundationModels"),
-              .product(name: "GeminiForFoundationModels", package: "GeminiForFoundationModels")
+              .product(name: "GeminiForFoundationModels", package: "GeminiForFoundationModels"),
+              .product(name: "GPTForFoundationModels", package: "GPTForFoundationModels")
             ],
             exclude: [
               "Info.plist",

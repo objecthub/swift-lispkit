@@ -667,6 +667,11 @@ Open `LispKit.xcodeproj` and build using the appropriate scheme:
 - Gemini models via GeminiForFoundationModels (objecthub's own package; its declarations are marked `@available` for OS 27)
 - Implements library `(lispkit foundation-model gemini)`
 
+**FoundationModelGPTLibrary.swift** - GPT models
+- OpenAI's GPT models via GPTForFoundationModels (objecthub's own package on the Responses API; its declarations are marked `@available` for OS 27)
+- Stateless by default; option `stateful` stores responses at OpenAI and continues them by ID
+- Implements library `(lispkit foundation-model gpt)`
+
 **Platform-specific Notes:**
 - Libraries with `_iOS.swift` suffix are iOS-specific implementations
 - **SystemCallLibrary.swift** - macOS only (not available on iOS)

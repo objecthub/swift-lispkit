@@ -29,6 +29,10 @@
     ((library (lispkit foundation-model gemini))
       (import (lispkit foundation-model gemini)))
     (else))
+  (cond-expand
+    ((library (lispkit foundation-model gpt))
+      (import (lispkit foundation-model gpt)))
+    (else))
   ;; Returns #t if calling `thunk` raises an error
   (define (call-raises? thunk)
     (guard (x (#t #t)) (thunk) #f))
@@ -436,6 +440,57 @@
               (model-error-raised (language-model-supports-locale? m "de_CH")))))
     (else
       (list "gemini-3.8-flash" "Google" #t 'available #f #f #f 'unsupported)))
+)
+
+;;; GPT
+
+(
+  "GPT models"
+  (#t gpt (low medium high xhigh) medium unsupported-reasoning-effort #t #t #f (none high) none #t)
+  (cond-expand
+    ((library (lispkit foundation-model gpt))
+      (let ((m (make-gpt-model "gpt-6-sol" '(api-key "sk-test" "org-1" #f)
+                               '((reasoning-effort . xhigh) (reasoning-summaries . #f)
+                                 (built-in-tools web-search code-interpreter)
+                                 (stateful . #t)))))
+        (list (and (member "gpt-5.5" (gpt-models)) #t)
+              (language-model-family m)
+              (cdr (assq 'reasoning-efforts (gpt-model-capabilities "gpt-6.2-sol")))
+              (cdr (assq 'default-reasoning-effort (gpt-model-capabilities m)))
+              (model-error-raised
+                (make-gpt-model "gpt-5" "sk-test" '((reasoning-effort . xhigh))))
+              (raises? (make-gpt-model "gpt-unknown" "sk-test"))
+              (raises? (make-gpt-model "gpt-5.5" "sk-test" '((bogus . 1))))
+              (gpt-model-capabilities "gpt-unknown")
+              (cdr (assq 'reasoning-efforts
+                         (gpt-model-capabilities
+                           (make-gpt-model "gpt-custom" "sk-test"
+                             '((capabilities . ((reasoning-efforts high none) (default-reasoning-effort . none))))))))
+              (cdr (assq 'default-reasoning-effort (gpt-model-capabilities "gpt-5.4-mini")))
+              (raises? (make-gpt-model "gpt-5.5" '(proxied 42))))))
+    (else
+      (list #t 'gpt '(low medium high xhigh) 'medium 'unsupported-reasoning-effort #t #t #f '(none high) 'none #t)))
+)
+
+(
+  "GPT model queries"
+  ("gpt-5.5" "OpenAI" #t available #f #f #f unsupported ())
+  (cond-expand
+    ((library (lispkit foundation-model gpt))
+      ;; Token counts are computed by the API and not tested here
+      (let* ((m (make-gpt-model "gpt-5.5" "sk-test"))
+             (session (make-model-session m)))
+        (list (language-model-name m)
+              (language-model-family-vendor (language-model-family m))
+              (equal? (available-language-models 'gpt) (gpt-models))
+              (language-model-availability m)
+              (language-model-context-size m)
+              (language-model-supported-languages m)
+              (language-model-quota-usage m)
+              (model-error-raised (language-model-supports-locale? m "de_CH"))
+              (gpt-tool-activities (model-session-transcript session)))))
+    (else
+      (list "gpt-5.5" "OpenAI" #t 'available #f #f #f 'unsupported '())))
 )
 
 ;;; Live tests (they only run if the on-device model is available)

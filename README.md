@@ -162,6 +162,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     `(lispkit foundation-model)`,
     `(lispkit foundation-model claude)`,
     `(lispkit foundation-model gemini)`,
+    `(lispkit foundation-model gpt)`,
     [`(lispkit http)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-HTTP),
     [`(lispkit http server)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-HTTP-Server),
     [`(lispkit http oauth)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-HTTP-OAuth),
@@ -431,6 +432,7 @@ the command-line tool directly in Xcode, the Swift Package Manager is not needed
   - [KeychainAccess](https://github.com/kishikawakatsumi/KeychainAccess)
   - [ClaudeForFoundationModels](https://github.com/objecthub/ClaudeForFoundationModels)
   - [GeminiForFoundationModels](https://github.com/objecthub/GeminiForFoundationModels)
+  - [GPTForFoundationModels](https://github.com/objecthub/GPTForFoundationModels)
 
 
 ## Copyright
