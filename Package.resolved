@@ -28,6 +28,15 @@
       }
     },
     {
+      "identity" : "geminiforfoundationmodels",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/objecthub/GeminiForFoundationModels.git",
+      "state" : {
+        "revision" : "a095d2f522fbdab959028cf286f6e85a72215e68",
+        "version" : "0.1.0"
+      }
+    },
+    {
       "identity" : "half",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SomeRandomiOSDev/Half",

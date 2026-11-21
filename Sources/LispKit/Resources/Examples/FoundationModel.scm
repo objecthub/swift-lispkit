@@ -6,8 +6,10 @@
 ;;; lets the model look up information via tools implemented as Scheme procedures,
 ;;; streams a response while it is being generated, and saves and restores the
 ;;; conversation via its transcript. Finally, it shows how to use a Claude model
-;;; via library `(lispkit foundation-model claude)` if an API key is available:
-;;; a tool call, a follow-up question, guided generation, and streaming.
+;;; via library `(lispkit foundation-model claude)` and a Gemini model via library
+;;; `(lispkit foundation-model gemini)` if API keys are available: a tool call, a
+;;; follow-up question, guided generation, and streaming, plus Google Search for
+;;; Gemini.
 ;;;
 ;;; The code requires macOS 27 or iOS 27 and a device on which Apple Intelligence
 ;;; is enabled.
@@ -33,16 +35,21 @@
 
 ;;; For using the Claude demo, an Anthropic API key is needed. It can be
 ;;; set here or defined via environment variable "ANTHROPIC_API_KEY" or set
-;;; via `(set-api-key "...")` which stores the key in the system keychain.
+;;; via `(set-anthropic-api-key! "...")` which stores the key in the system
+;;; keychain. Similarly, the Gemini demo needs a Gemini API key, which can
+;;; be set here, via environment variable "GEMINI_API_KEY", or via
+;;; `(set-gemini-api-key! "...")`.
 
 (define anthropic-api-key #f)
+(define gemini-api-key #f)
 
 ;;; Checking the model
 
+(display "===================================")
+(newline)
 (define model (system-language-model))
-
-(display "Model: ")
-(display (language-model-variant model))
+(display "MODEL: ")
+(display (language-model-name model))
 (display ", availability: ")
 (display (language-model-availability model))
 (display ", context size: ")
@@ -189,12 +196,14 @@
   ((library (lispkit foundation-model claude))
     (import (lispkit foundation-model claude)
             (lispkit system util))
-    (define-values (get-api-key set-api-key)
+    (define-values (get-anthropic-api-key set-anthropic-api-key!)
       (manage-credential anthropic-api-key
                          "ANTHROPIC_API_KEY"
                          "FoundationModelsDemo"
                          "anthropic-api-key"))
-    (if-let* ((apikey (get-api-key))
+    (display "===================================")
+    (newline)
+    (if-let* ((apikey (get-anthropic-api-key))
               (claude-model (make-claude-model "claude-sonnet-5-5" apikey))
               (claude (make-model-session
                         claude-model
@@ -202,6 +211,13 @@
                         (string-append "You are a concise travel assistant. "
                                        "Use the convertCurrency tool to convert amounts."))))
       (begin
+        (display "MODEL: ")
+        (display (language-model-name claude-model))
+        (display ", availability: ")
+        (display (language-model-availability claude-model))
+        (display ", context size: ")
+        (display (language-model-context-size claude-model))
+        (newline)
         ;; A tool call
         (display "Q: How much is 80 US dollars in Swiss francs?\nClaude: ")
         (display (ask claude "How much is 80 US dollars in Swiss francs?"))
@@ -233,4 +249,85 @@
       (display "Anthropic API key not available.")))
   (else
     (display "Claude integration unavailable.")))
+(newline)
+
+;;; Gemini
+
+;; Gemini models are available via library `(lispkit foundation-model gemini)`. As with
+;; Claude, a Gemini session works exactly like a session for the on-device model.
+(cond-expand
+  ((library (lispkit foundation-model gemini))
+    (import (lispkit foundation-model gemini)
+            (lispkit system util))
+    (define-values (get-gemini-api-key set-gemini-api-key!)
+      (manage-credential gemini-api-key
+                         "GEMINI_API_KEY"
+                         "FoundationModelsDemo"
+                         "gemini-api-key"))
+    (display "===================================")
+    (newline)
+    (if-let* ((apikey (get-gemini-api-key))
+              (gemini-model (make-gemini-model "gemini-3.8-flash" apikey))
+              (gemini (make-model-session
+                        gemini-model
+                        (list convert-tool)
+                        (string-append "You are a concise travel assistant. "
+                                       "Use the convertCurrency tool to convert amounts."))))
+      (begin
+        (display "MODEL: ")
+        (display (language-model-name gemini-model))
+        (display ", availability: ")
+        (display (language-model-availability gemini-model))
+        (display ", context size: ")
+        (display (language-model-context-size gemini-model))
+        (newline)
+        ;; A tool call
+        (display "Q: How much is 120 US dollars in Japanese yen?\nGemini: ")
+        (display (ask gemini "How much is 120 US dollars in Japanese yen?"))
+        (newline)
+        ;; The session remembers the conversation, here the amount from above
+        (display "Q: And how much is that in Swiss francs?\nGemini: ")
+        (display (ask gemini "And how much is that in Swiss francs?"))
+        (newline)
+        ;; Guided generation with the itinerary schema, in a new session
+        (display "Q: Plan a short trip to Porto.\n")
+        (show-itinerary
+          (ask (make-model-session gemini-model '() "You are a concise travel assistant.")
+               "Plan a short trip to Porto."
+               itinerary-schema))
+        ;; Streaming
+        (display "Q: Describe a morning at the Ribeira in Porto in three sentences.\n")
+        (display "Gemini (streaming): ")
+        (stream-answer gemini "Describe a morning at the Ribeira in Porto in three sentences.")
+        (newline)
+        ;; Google Search runs on Google's side; the transcript records the searches
+        (let ((searcher (make-model-session
+                          (make-gemini-model "gemini-3.8-flash" apikey
+                                             '((built-in-tools google-search)))
+                          '()
+                          "Answer in one sentence.")))
+          (display "Q: Search the web: which events are planned in Porto this month?\nGemini: ")
+          (display (ask searcher "Search the web: which events are planned in Porto this month?"))
+          (newline)
+          (for-each
+            (lambda (activity)
+              (display "  [")
+              (display (cdr (assq 'kind activity)))
+              (display "] ")
+              (display (cdr (assq 'queries (cdr (assq 'arguments activity)))))
+              (newline))
+            (gemini-tool-activities (model-session-transcript searcher))))
+        ;; Usage
+        (let ((usage (model-session-usage gemini)))
+          (display "Tokens used by Gemini: ")
+          (display (cdr (assq 'input-tokens usage)))
+          (display " input, ")
+          (display (cdr (assq 'output-tokens usage)))
+          (display " output, ")
+          (display (cdr (assq 'reasoning-tokens usage)))
+          (display " reasoning")
+          (newline)))
+      (display "Gemini API key not available.")))
+  (else
+    (display "Gemini integration unavailable.")))
 (newline)

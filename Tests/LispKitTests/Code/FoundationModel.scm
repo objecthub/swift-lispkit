@@ -25,6 +25,10 @@
     ((library (lispkit foundation-model claude))
       (import (lispkit foundation-model claude)))
     (else))
+  (cond-expand
+    ((library (lispkit foundation-model gemini))
+      (import (lispkit foundation-model gemini)))
+    (else))
   ;; Returns #t if calling `thunk` raises an error
   (define (call-raises? thunk)
     (guard (x (#t #t)) (thunk) #f))
@@ -55,11 +59,11 @@
 ;;; Language models
 
 (
-  "Language model kinds"
+  "Language model families"
   (#t system private-cloud-compute #f)
   (list (language-model? (system-language-model))
-        (language-model-kind (system-language-model 'content-tagging 'default))
-        (language-model-kind (private-cloud-compute-language-model))
+        (language-model-family (system-language-model 'content-tagging 'default))
+        (language-model-family (private-cloud-compute-language-model))
         (language-model? "model"))
 )
 
@@ -68,6 +72,37 @@
   (#t #t)
   (list (symbol? (language-model-availability (system-language-model)))
         (boolean? (language-model-available? (private-cloud-compute-language-model))))
+)
+
+(
+  "Language model names"
+  (#t #t "private-cloud-compute")
+  (let ((name (language-model-name (system-language-model))))
+    (list (and (member name '("AFM 3 Core" "AFM 3 Core Advanced")) #t)
+          (equal? name (language-model-name (system-language-model 'content-tagging 'default)))
+          (language-model-name (private-cloud-compute-language-model))))
+)
+
+(
+  "Families of language models"
+  (#t #t #t #f #t "Apple" "Apple" #f)
+  (let ((families (available-language-model-families)))
+    (list (and (memq 'system families) #t)
+          (and (memq 'private-cloud-compute families) #t)
+          (and (member (available-language-models 'system)
+                      (list '() (list (language-model-name (system-language-model))))) #t)
+          (available-language-models 'unknown)
+          (raises? (available-language-models "system"))
+          (language-model-family-vendor 'system)
+          (language-model-family-vendor 'private-cloud-compute)
+          (language-model-family-vendor 'unknown)))
+)
+
+(
+  "Unsupported model queries"
+  (#f #f)
+  (list (language-model-quota-usage (system-language-model))
+        (language-model-token-count (private-cloud-compute-language-model) "Hello"))
 )
 
 (
@@ -208,7 +243,7 @@
   (#t system #t 0)
   (define session (make-model-session #f (list weather) "You are a helpful assistant."))
   (list (model-session? session)
-        (language-model-kind (model-session-model session))
+        (language-model-family (model-session-model session))
         (tool? (car (model-session-tools session)))
         (cdr (assq 'total-tokens (model-session-usage session))))
 )
@@ -331,12 +366,76 @@
     ((library (lispkit foundation-model claude))
       (let ((m (make-claude-model "claude-opus-5-5" "sk-test" '((effort . high)))))
         (list (and (member "claude-opus-5-5" (claude-models)) #t)
-              (language-model-kind m)
+              (language-model-family m)
               (cdr (assq 'effort-levels (claude-model-capabilities m)))
               (raises? (make-claude-model "claude-haiku-4-5" "sk-test" '((effort . max))))
               (raises? (make-claude-model "claude-unknown" "sk-test")))))
     (else
       (list #t 'claude '(low medium high xhigh max) #t #t)))
+)
+
+(
+  "Claude model queries"
+  ("claude-haiku-4-5" "Anthropic" #t available #f #f #f #f unsupported)
+  (cond-expand
+    ((library (lispkit foundation-model claude))
+      (let ((m (make-claude-model "claude-haiku-4-5" "sk-test")))
+        (list (language-model-name m)
+              (language-model-family-vendor (language-model-family m))
+              (equal? (available-language-models 'claude) (claude-models))
+              (language-model-availability m)
+              (language-model-context-size m)
+              (language-model-supported-languages m)
+              (language-model-token-count m "Hello")
+              (language-model-quota-usage m)
+              (model-error-raised (language-model-supports-locale? m "de_CH")))))
+    (else
+      (list "claude-haiku-4-5" "Anthropic" #t 'available #f #f #f #f 'unsupported)))
+)
+
+;;; Gemini
+
+(
+  "Gemini models"
+  (#t gemini (low medium high xhigh) unsupported-thinking-level #t #t #f (low high))
+  (cond-expand
+    ((library (lispkit foundation-model gemini))
+      (let ((m (make-gemini-model "gemini-4-neon" "test-key"
+                                  '((thinking-level . xhigh) (thought-summaries . #f)
+                                    (built-in-tools google-search code-execution)))))
+        (list (and (member "gemini-3.8-flash" (gemini-models)) #t)
+              (language-model-family m)
+              (cdr (assq 'thinking-levels (gemini-model-capabilities m)))
+              (model-error-raised
+                (make-gemini-model "gemini-3.8-flash" "test-key" '((thinking-level . xhigh))))
+              (raises? (make-gemini-model "gemini-unknown" "test-key"))
+              (raises? (make-gemini-model "gemini-3.8-flash" "test-key" '((bogus . 1))))
+              (gemini-model-capabilities "gemini-unknown")
+              (cdr (assq 'thinking-levels
+                         (gemini-model-capabilities
+                           (make-gemini-model "gemini-custom" "test-key"
+                             '((capabilities . ((thinking-levels high low)))))))))))
+    (else
+      (list #t 'gemini '(low medium high xhigh) 'unsupported-thinking-level #t #t #f '(low high))))
+)
+
+(
+  "Gemini model queries"
+  ("gemini-3.8-flash" "Google" #t available #f #f #f unsupported)
+  (cond-expand
+    ((library (lispkit foundation-model gemini))
+      ;; The context size is fetched from the API and not tested here
+      (let ((m (make-gemini-model "gemini-3.8-flash" "test-key")))
+        (list (language-model-name m)
+              (language-model-family-vendor (language-model-family m))
+              (equal? (available-language-models 'gemini) (gemini-models))
+              (language-model-availability m)
+              (language-model-supported-languages m)
+              (language-model-token-count m "Hello")
+              (language-model-quota-usage m)
+              (model-error-raised (language-model-supports-locale? m "de_CH")))))
+    (else
+      (list "gemini-3.8-flash" "Google" #t 'available #f #f #f 'unsupported)))
 )
 
 ;;; Live tests (they only run if the on-device model is available)

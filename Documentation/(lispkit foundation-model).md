@@ -32,7 +32,7 @@ Generating a response is an asynchronous operation. Procedures `model-session-re
 
 ## Language models
 
-Language models are represented by objects of type `language-model`. Library `(lispkit foundation-model)` provides two kinds of language models: Apple's on-device language model (kind `system`) and Apple's language model running on Private Cloud Compute (kind `private-cloud-compute`). Other libraries can provide additional kinds of language models, e.g. library `(lispkit foundation-model claude)` provides Claude models (kind `claude`).
+Language models are represented by objects of type `language-model`. Each language model belongs to a _family_ of models and has a _name_ which identifies it within its family. Library `(lispkit foundation-model)` provides two families of language models: Apple's on-device language model (family `system`) and Apple's language model running on Private Cloud Compute (family `private-cloud-compute`). Other libraries can provide additional families of language models, e.g. library `(lispkit foundation-model claude)` provides Claude models (family `claude`) and library `(lispkit foundation-model gemini)` provides Gemini models (family `gemini`).
 
 **(language-model? _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
@@ -42,15 +42,86 @@ Returns `#t` if _obj_ is a language model; `#f` otherwise.
 **(system-language-model _use-case_)**  
 **(system-language-model _use-case guardrails_)**  
 
-Returns Apple's on-device language model. _use-case_ is either `general` (the default) or `content-tagging`, a variant of the model that is specialized for tagging content. _guardrails_ is either `default` (the default) or `permissive-content-transformations`, which reduces the guardrails for tasks that transform user-provided content, e.g. for summarizing or rewriting text.
+Returns Apple's on-device language model. _use-case_ is either `general` (the default) or `content-tagging`, which specializes the model for tagging content. _guardrails_ is either `default` (the default) or `permissive-content-transformations`, which reduces the guardrails for tasks that transform user-provided content, e.g. for summarizing or rewriting text.
 
 **(private-cloud-compute-language-model)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns Apple's language model running on Private Cloud Compute.
 
-**(language-model-kind _model_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(language-model-family _model_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Returns the kind of language model _model_ as a symbol: `system`, `private-cloud-compute`, or a kind defined by another library, such as `claude`.
+Returns the family of language model _model_ as a symbol: `system`, `private-cloud-compute`, or a family defined by another library, such as `claude` or `gemini`.
+
+**(language-model-name _model_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns the name of language model _model_ as a string. The name identifies the model among the models of its family:
+
+| Family | Names |
+| :--- | :--- |
+| `system` | The model the device uses: `"AFM 3 Core"` or `"AFM 3 Core Advanced"` |
+| `private-cloud-compute` | `"private-cloud-compute"` |
+| `claude` | The model identifier, e.g. `"claude-opus-5-5"` |
+| `gemini` | The model identifier, e.g. `"gemini-3.8-flash"` |
+
+For Claude and Gemini models, the name is the model identifier that was passed to `make-claude-model` or `make-gemini-model`. The name of the on-device model is determined by the device, which uses either `"AFM 3 Core"` or `"AFM 3 Core Advanced"`; programs can't choose between them, and `system-language-model` always returns the model of the device. The use case and the guardrails of the on-device model are not part of its name. FoundationModels doesn't tell which model runs on Private Cloud Compute, which therefore has a single, fixed name.
+
+```scheme
+(language-model-name (system-language-model 'content-tagging))  ⇒  "AFM 3 Core Advanced"
+(language-model-name (make-gemini-model "gemini-3.8-flash"))  ⇒  "gemini-3.8-flash"
+```
+
+**(available-language-model-families)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns a list of the families of language models as symbols. Besides `system` and `private-cloud-compute`, the list contains the families provided by libraries that have been loaded, such as `claude` and `gemini`.
+
+```scheme
+(import (lispkit foundation-model claude))
+(available-language-model-families)  ⇒  (claude private-cloud-compute system)
+```
+
+**(language-model-family-vendor _family_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns the name of the vendor of the language models of family _family_, a symbol, as a string. `#f` is returned if _family_ is not a known family of language models (see `available-language-model-families`).
+
+| Family | Vendor |
+| :--- | :--- |
+| `system` | `"Apple"` |
+| `private-cloud-compute` | `"Apple"` |
+| `claude` | `"Anthropic"` |
+| `gemini` | `"Google"` |
+
+```scheme
+(language-model-family-vendor 'gemini)  ⇒  "Google"
+(language-model-family-vendor (language-model-family (system-language-model)))  ⇒  "Apple"
+```
+
+**(available-language-models _family_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+
+Returns a list of the names of the available language models of family _family_, a symbol. `#f` is returned if _family_ is not a known family of language models (see `available-language-model-families`). The library implementing a family determines what is available:
+
+- `system`: the name of the model the device uses, if it is available (see `language-model-available?`); otherwise, the list is empty.
+- `private-cloud-compute`: `"private-cloud-compute"`, if the model is available; otherwise, the list is empty.
+- `claude` and `gemini`: the models known to the library, i.e. the result of `claude-models` and `gemini-models`. Whether a model can be used with a particular API key is not checked; `gemini-available-models` lists the models offered by the Gemini API.
+
+```scheme
+(available-language-models 'system)  ⇒  ("AFM 3 Core Advanced")
+(available-language-models 'gemini)
+⇒  ("gemini-4-hydrogen" "gemini-4-neon" "gemini-4-argon" "gemini-4-carbon" "gemini-3.8-flash" ...)
+```
+
+The family and the name of a model are sufficient for creating a model of the same family and name. The following procedure creates a model from a family and a name. It can be applied to the names returned by `available-language-models`, or used to create a fresh model with the same family and name as an existing model _m_ via `(make-language-model (language-model-family m) (language-model-name m))`:
+
+```scheme
+(define (make-language-model family name)
+  (case family
+    ((system) (system-language-model))
+    ((private-cloud-compute) (private-cloud-compute-language-model))
+    ((claude) (make-claude-model name))
+    ((gemini) (make-gemini-model name))
+    (else (error "unknown family of language models" family))))
+```
+
+For the families `system` and `private-cloud-compute`, the name is not needed: there is only one model of these families on a device. Everything else that was specified when the original model was created is not carried over and needs to be passed again: the use case and guardrails of the on-device model, and the credentials and options of Claude and Gemini models (e.g. effort levels, thinking levels, and built-in tools). Without credentials, `make-claude-model` and `make-gemini-model` use the API keys in the environment variables `ANTHROPIC_API_KEY` and `GEMINI_API_KEY`.
 
 **(language-model-available? _model_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
@@ -58,7 +129,7 @@ Returns `#t` if language model _model_ is available on this device; `#f` otherwi
 
 **(language-model-availability _model_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Returns the availability of language model _model_ as a symbol. `available` is returned if the model can be used. Otherwise, a symbol describing why the model is unavailable is returned: `device-not-eligible`, `apple-intelligence-not-enabled`, `model-not-ready`, or `system-not-ready`. Language models provided by other libraries are always reported as `available`.
+Returns the availability of language model _model_ as a symbol. `available` is returned if the model can be used. Otherwise, a symbol describing why the model is unavailable is returned: `device-not-eligible`, `apple-intelligence-not-enabled`, `model-not-ready`, or `system-not-ready`. Language models provided by `(lispkit foundation-model claude)` and `(lispkit foundation-model gemini)` are always reported as `available`.
 
 **(language-model-capabilities _model_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
@@ -71,21 +142,21 @@ Returns a list of symbols describing the capabilities of language model _model_.
 
 **(language-model-context-size _model_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Returns the size of the context window of language model _model_ in tokens. This procedure is only supported for the on-device language model and the Private Cloud Compute model. It waits for the result if it has to be fetched asynchronously.
+Returns the size of the context window of language model _model_ in tokens, or `#f` if the model doesn't report it. The on-device model, the Private Cloud Compute model, and Gemini models report a context size. The procedure waits for the result if it has to be fetched asynchronously, e.g. from the Gemini API.
 
 **(language-model-supported-languages _model_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Returns a sorted list of language identifiers (strings) for the languages supported by language model _model_. This procedure is only supported for the on-device language model and the Private Cloud Compute model. It waits for the result if it has to be fetched asynchronously.
+Returns a sorted list of language identifiers (strings) for the languages supported by language model _model_, or `#f` if the model doesn't report its languages. Only the on-device model and the Private Cloud Compute model report them. The procedure waits for the result if it has to be fetched asynchronously.
 
 **(language-model-supports-locale? _model_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(language-model-supports-locale? _model locale_)**  
 
-Returns `#t` if language model _model_ supports the locale _locale_, a locale identifier string such as `"de_CH"`. If _locale_ is not provided, the current locale is used. This procedure is only supported for the on-device language model and the Private Cloud Compute model. It waits for the result if it has to be fetched asynchronously.
+Returns `#t` if language model _model_ supports the locale _locale_, a locale identifier string such as `"de_CH"`. If _locale_ is not provided, the current locale is used. Only the on-device model and the Private Cloud Compute model support this query; for other models, a model error of kind `unsupported` is raised. The procedure waits for the result if it has to be fetched asynchronously.
 
 **(language-model-token-count _model obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(language-model-token-count _model obj kind_)**  
 
-Returns the number of tokens that _obj_ uses when it is passed to language model _model_. This procedure is only supported for the on-device language model. _kind_ determines how _obj_ is interpreted: `prompt` (_obj_ is a prompt), `instructions` (_obj_ are instructions), `tools` (_obj_ is a list of tools), `schema` (_obj_ is a generation schema or schema specification), or `transcript` (_obj_ is a transcript). If _kind_ is not provided, it is derived from _obj_: transcripts, generation schemas, and lists of tools are counted as such; everything else is counted as a prompt. The procedure waits for the result.
+Returns the number of tokens that _obj_ uses when it is passed to language model _model_, or `#f` if the model can't count tokens. Only the on-device model counts tokens. _kind_ determines how _obj_ is interpreted: `prompt` (_obj_ is a prompt), `instructions` (_obj_ are instructions), `tools` (_obj_ is a list of tools), `schema` (_obj_ is a generation schema or schema specification), or `transcript` (_obj_ is a transcript). If _kind_ is not provided, it is derived from _obj_: transcripts, generation schemas, and lists of tools are counted as such; everything else is counted as a prompt. The procedure waits for the result.
 
 ```scheme
 (language-model-token-count (system-language-model) "Hello, how are you?")
@@ -103,7 +174,7 @@ Returns `#t` if language model _model_ supports data of type _type_, a string de
 
 **(language-model-quota-usage _model_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Returns an association list describing the usage quota of the Private Cloud Compute language model _model_. Key `status` refers to one of the symbols `below-limit`, `approaching-limit`, or `limit-reached`. Key `reset-date` refers to a date-time object (as defined by library `(lispkit date-time)`) describing when the quota gets reset, or `#f` if this is unknown. Key `limit-increase-suggestion` refers to a limit increase suggestion object if the system suggests a way of increasing the quota, and to `#f` otherwise.
+Returns an association list describing the usage quota of language model _model_, or `#f` if the model has no usage quota. Only the Private Cloud Compute model has a usage quota. Key `status` refers to one of the symbols `below-limit`, `approaching-limit`, or `limit-reached`. Key `reset-date` refers to a date-time object (as defined by library `(lispkit date-time)`) describing when the quota gets reset, or `#f` if this is unknown. Key `limit-increase-suggestion` refers to a limit increase suggestion object if the system suggests a way of increasing the quota, and to `#f` otherwise.
 
 **(limit-increase-suggestion? _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
@@ -112,10 +183,6 @@ Returns `#t` if _obj_ is a limit increase suggestion; `#f` otherwise. Limit incr
 **(limit-increase-suggestion-show! _suggestion_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Presents limit increase suggestion _suggestion_ to the user. This only has an effect in applications that can display the user interface of the system.
-
-**(language-model-variant _model_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
-
-Returns the display name of the variant of the on-device language model _model_, e.g. `"AFM 3 Core Advanced"`.
 
 ## Prompts and instructions
 

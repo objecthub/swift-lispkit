@@ -1,5 +1,5 @@
 {
-  "originHash" : "177942a8ac261f1ec3a4491d19d49f0863f065e649ecfe93aec3ea5f1d4a0f11",
+  "originHash" : "72966d197ba1297e469e172e4463639401c2d43cfccb3f627c38e56eca8bfb4a",
   "pins" : [
     {
       "identity" : "bitbytedata",
@@ -26,6 +26,15 @@
       "state" : {
         "branch" : "lispkit",
         "revision" : "6e24b053a75eead55dcd2090a32fa5294b0d12c6"
+      }
+    },
+    {
+      "identity" : "geminiforfoundationmodels",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/objecthub/GeminiForFoundationModels.git",
+      "state" : {
+        "revision" : "a095d2f522fbdab959028cf286f6e85a72215e68",
+        "version" : "0.1.0"
       }
     },
     {

@@ -25,6 +25,31 @@ import FoundationModels
 import ClaudeForFoundationModels
 
 ///
+/// The backend of Claude models. The name of a Claude model is its model identifier.
+/// Claude models don't report a context size, supported languages, or token counts.
+///
+@available(macOS 27.0, iOS 27.0, *)
+public struct ClaudeModelBackend: LanguageModelBackend {
+  public let claude: ClaudeLanguageModel
+
+  public init(_ claude: ClaudeLanguageModel) {
+    self.claude = claude
+  }
+
+  public var model: any LanguageModel {
+    return self.claude
+  }
+
+  public var family: String {
+    return "claude"
+  }
+
+  public var name: String {
+    return self.claude.model.id
+  }
+}
+
+///
 /// Implements library `(lispkit foundation-model claude)`. It provides Anthropic's Claude
 /// models as language models for `(lispkit foundation-model)`, based on the
 /// ClaudeForFoundationModels package.
@@ -55,6 +80,9 @@ public final class FoundationModelClaudeLibrary: NativeLibrary {
   /// Declarations of the library.
   public override func declarations() {
     Self.registerErrorTranslator()
+    LanguageModelFamilies.register(family: "claude", vendor: "Anthropic") {
+      Self.knownModels.map(\.id)
+    }
     self.define(Procedure("make-claude-model", self.makeClaudeModel))
     self.define(Procedure("claude-models", self.claudeModels))
     self.define(Procedure("claude-model-capabilities", self.claudeModelCapabilities))
@@ -351,8 +379,7 @@ public final class FoundationModelClaudeLibrary: NativeLibrary {
                                      serverTools: serverTools,
                                      baseURL: baseURL,
                                      timeout: timeout)
-    return .object(NativeLanguageModel(claude, backend: .other(kind: "claude"),
-                                       label: "claude \(model.id)"))
+    return .object(NativeLanguageModel(ClaudeModelBackend(claude), label: "claude \(model.id)"))
   }
 
   private func claudeModels() -> Expr {

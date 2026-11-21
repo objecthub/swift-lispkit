@@ -663,6 +663,10 @@ Open `LispKit.xcodeproj` and build using the appropriate scheme:
 - Claude models via ClaudeForFoundationModels (a fork whose declarations are marked `@available` for OS 27)
 - Implements library `(lispkit foundation-model claude)`
 
+**FoundationModelGeminiLibrary.swift** - Gemini models
+- Gemini models via GeminiForFoundationModels (objecthub's own package; its declarations are marked `@available` for OS 27)
+- Implements library `(lispkit foundation-model gemini)`
+
 **Platform-specific Notes:**
 - Libraries with `_iOS.swift` suffix are iOS-specific implementations
 - **SystemCallLibrary.swift** - macOS only (not available on iOS)

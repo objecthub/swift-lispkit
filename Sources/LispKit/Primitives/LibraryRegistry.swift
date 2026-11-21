@@ -149,6 +149,9 @@ public struct LibraryRegistry {
       #if canImport(ClaudeForFoundationModels)
       libraries.append(FoundationModelClaudeLibrary.self)
       #endif
+      #if canImport(GeminiForFoundationModels)
+      libraries.append(FoundationModelGeminiLibrary.self)
+      #endif
     }
     #endif
     return libraries

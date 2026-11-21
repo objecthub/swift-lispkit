@@ -20,7 +20,7 @@ The library is only available on macOS 27 and iOS 27 or newer. Requests are sent
 **(make-claude-model _model auth_)**  
 **(make-claude-model _model auth options_)**  
 
-Returns a language model of kind `claude` for the Claude model _model_, a string or symbol with the model identifier, e.g. `"claude-opus-5-5"`. The capabilities of the models listed by `claude-models` are known; for other models, the capabilities need to be provided via option `capabilities`.
+Returns a language model of family `claude` for the Claude model _model_, a string or symbol with the model identifier, e.g. `"claude-opus-5-5"`. The capabilities of the models listed by `claude-models` are known; for other models, the capabilities need to be provided via option `capabilities`.
 
 _auth_ defines how requests are authenticated. It has one of the following forms:
 
@@ -60,7 +60,7 @@ Returns a list of the identifiers of all Claude models known to the library.
 
 **(claude-model-capabilities _model_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Returns the capabilities of _model_, which is either a model identifier or a language model of kind `claude`, as an association list. `#f` is returned for unknown model identifiers. The association list has the following keys: `sampling-params` (the model accepts sampling parameters, such as the temperature), `effort-levels` (a list of supported effort levels), `adaptive-thinking` (the model supports adaptive thinking), `structured-output` (the model supports guided generation), and `image-input` (the model accepts images). The same format is used for option `capabilities` of `make-claude-model`.
+Returns the capabilities of _model_, which is either a model identifier or a language model of family `claude`, as an association list. `#f` is returned for unknown model identifiers. The association list has the following keys: `sampling-params` (the model accepts sampling parameters, such as the temperature), `effort-levels` (a list of supported effort levels), `adaptive-thinking` (the model supports adaptive thinking), `structured-output` (the model supports guided generation), and `image-input` (the model accepts images). The same format is used for option `capabilities` of `make-claude-model`.
 
 ```scheme
 (claude-model-capabilities "claude-opus-4-6")
@@ -71,6 +71,8 @@ Returns the capabilities of _model_, which is either a model identifier or a lan
 **(claude-authenticate _model_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Authenticates the installation of the app if language model _model_ uses App Attest. This happens automatically with the first request, but can take a few seconds; calling `claude-authenticate` at launch avoids this delay. Returns a future which yields `#t` once the app is authenticated, or raises an error if authentication fails.
+
+Claude models support the model-level procedures of `(lispkit foundation-model)` as follows: `language-model-name` returns the model identifier. `language-model-context-size`, `language-model-supported-languages`, `language-model-token-count`, and `language-model-quota-usage` return `#f`, and `language-model-supports-locale?` raises a model error of kind `unsupported`. `(available-language-models 'claude)` returns the identifiers of the models listed by `claude-models`.
 
 ## Transcripts
 

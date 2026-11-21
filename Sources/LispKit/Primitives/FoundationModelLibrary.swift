@@ -28,7 +28,7 @@ import FoundationModels
 /// Implements library `(lispkit foundation-model)`, an API for language models based on
 /// Apple's FoundationModels framework. It supports Apple's on-device model, the model
 /// provided via Private Cloud Compute, and models provided by other libraries, such as
-/// `(lispkit foundation-model claude)`. The library supports sessions, text and guided
+/// `(lispkit foundation-model claude)` and `(lispkit foundation-model gemini)`. The library supports sessions, text and guided
 /// generation, streaming, tool calling with Scheme procedures, and transcripts.
 ///
 /// Requests are asynchronous: `model-session-response` returns a future and
@@ -55,12 +55,26 @@ public final class FoundationModelLibrary: NativeLibrary {
 
   /// Declarations of the library.
   public override func declarations() {
+    // Families of language models: Apple's models are available if the device can use them;
+    // the name of the on-device model is the model variant the device uses
+    LanguageModelFamilies.register(family: "system", vendor: "Apple") {
+      let backend = SystemModelBackend(.default)
+      return try await backend.availability() == "available" ? [backend.name] : []
+    }
+    LanguageModelFamilies.register(family: "private-cloud-compute", vendor: "Apple") {
+      let backend = PrivateCloudComputeModelBackend(PrivateCloudComputeLanguageModel())
+      return try await backend.availability() == "available" ? [backend.name] : []
+    }
     // Language models
     self.define(Procedure("language-model?", self.isLanguageModel))
     self.define(Procedure("system-language-model", self.systemLanguageModel))
     self.define(Procedure("private-cloud-compute-language-model",
                           self.privateCloudComputeLanguageModel))
-    self.define(Procedure("language-model-kind", self.languageModelKind))
+    self.define(Procedure("language-model-family", self.languageModelFamily))
+    self.define(Procedure("language-model-name", self.languageModelName))
+    self.define(Procedure("available-language-model-families", self.availableLanguageModelFamilies))
+    self.define(Procedure("language-model-family-vendor", self.languageModelFamilyVendor))
+    self.define(Procedure("available-language-models", self.availableLanguageModels))
     self.define(Procedure("language-model-available?", self.isLanguageModelAvailable))
     self.define(Procedure("language-model-availability", self.languageModelAvailability))
     self.define(Procedure("language-model-capabilities", self.languageModelCapabilities))
@@ -73,7 +87,6 @@ public final class FoundationModelLibrary: NativeLibrary {
     self.define(Procedure("language-model-supports-data-type?", self.languageModelSupportsDataType))
     self.define(Procedure("limit-increase-suggestion?", self.isLimitIncreaseSuggestion))
     self.define(Procedure("limit-increase-suggestion-show!", self.limitIncreaseSuggestionShow))
-    self.define(Procedure("language-model-variant", self.languageModelVariant))
 
     // Prompts and attachments
     self.define(Procedure("prompt?", self.isPrompt))
@@ -320,63 +333,52 @@ public final class FoundationModelLibrary: NativeLibrary {
     let model = (useCase == nil && guardrails == nil) ? SystemLanguageModel.default
                                                       : SystemLanguageModel(useCase: uc,
                                                                             guardrails: gr)
-    return .object(NativeLanguageModel(model, backend: .system(model), label: label))
+    return .object(NativeLanguageModel(SystemModelBackend(model), label: label))
   }
 
   private func privateCloudComputeLanguageModel() -> Expr {
-    let model = PrivateCloudComputeLanguageModel()
-    return .object(NativeLanguageModel(model,
-                                       backend: .privateCloudCompute(model),
-                                       label: "private-cloud-compute"))
+    return .object(NativeLanguageModel(
+      PrivateCloudComputeModelBackend(PrivateCloudComputeLanguageModel()),
+      label: "private-cloud-compute"))
   }
 
-  private func languageModelKind(expr: Expr) throws -> Expr {
-    return self.sym(try self.model(from: expr).kind)
+  private func languageModelFamily(expr: Expr) throws -> Expr {
+    return self.sym(try self.model(from: expr).family)
   }
 
-  private func availability(_ model: NativeLanguageModel) -> String {
-    switch model.backend {
-      case .system(let m):
-        switch m.availability {
-          case .available:
-            return "available"
-          case .unavailable(let reason):
-            switch reason {
-              case .deviceNotEligible:
-                return "device-not-eligible"
-              case .appleIntelligenceNotEnabled:
-                return "apple-intelligence-not-enabled"
-              case .modelNotReady:
-                return "model-not-ready"
-              @unknown default:
-                return "unavailable"
-            }
-        }
-      case .privateCloudCompute(let m):
-        switch m.availability {
-          case .available:
-            return "available"
-          case .unavailable(let reason):
-            switch reason {
-              case .deviceNotEligible:
-                return "device-not-eligible"
-              case .systemNotReady:
-                return "system-not-ready"
-              @unknown default:
-                return "unavailable"
-            }
-        }
-      case .other(_):
-        return "available"
+  private func languageModelName(expr: Expr) throws -> Expr {
+    return .makeString(try self.model(from: expr).backend.name)
+  }
+
+  private func availableLanguageModelFamilies() -> Expr {
+    return .makeList(Exprs(LanguageModelFamilies.families.map { self.sym($0) }))
+  }
+
+  private func languageModelFamilyVendor(family: Expr) throws -> Expr {
+    guard let vendor = LanguageModelFamilies.vendor(for: try family.asSymbol().identifier) else {
+      return .false
     }
+    return .makeString(vendor)
+  }
+
+  private func availableLanguageModels(family: Expr) throws -> Expr {
+    guard let provider = LanguageModelFamilies.provider(for: try family.asSymbol().identifier) else {
+      return .false
+    }
+    return .makeList(Exprs(try self.wait(provider).map { .makeString($0) }))
+  }
+
+  private func availability(_ model: NativeLanguageModel) throws -> String {
+    let backend = model.backend
+    return try self.wait { try await backend.availability() }
   }
 
   private func isLanguageModelAvailable(expr: Expr) throws -> Expr {
-    return .makeBoolean(self.availability(try self.model(from: expr)) == "available")
+    return .makeBoolean(try self.availability(try self.model(from: expr)) == "available")
   }
 
   private func languageModelAvailability(expr: Expr) throws -> Expr {
-    return self.sym(self.availability(try self.model(from: expr)))
+    return self.sym(try self.availability(try self.model(from: expr)))
   }
 
   private func languageModelCapabilities(expr: Expr) throws -> Expr {
@@ -394,27 +396,17 @@ public final class FoundationModelLibrary: NativeLibrary {
   }
 
   private func languageModelContextSize(expr: Expr) throws -> Expr {
-    let model = try self.model(from: expr)
-    switch model.backend {
-      case .system(let m):
-        return .makeNumber(m.contextSize)
-      case .privateCloudCompute(let m):
-        return .makeNumber(try self.wait { try await m.contextSize })
-      case .other(_):
-        throw self.unsupported("context size", model)
+    let backend = try self.model(from: expr).backend
+    guard let size = try self.wait({ try await backend.contextSize() }) else {
+      return .false
     }
+    return .makeNumber(size)
   }
 
   private func languageModelSupportedLanguages(expr: Expr) throws -> Expr {
-    let model = try self.model(from: expr)
-    let languages: Set<Locale.Language>
-    switch model.backend {
-      case .system(let m):
-        languages = m.supportedLanguages
-      case .privateCloudCompute(let m):
-        languages = try self.wait { try await m.supportedLanguages }
-      case .other(_):
-        throw self.unsupported("supported languages", model)
+    let backend = try self.model(from: expr).backend
+    guard let languages = try self.wait({ try await backend.supportedLanguages() }) else {
+      return .false
     }
     return .makeList(Exprs(languages.map { $0.minimalIdentifier }.sorted().map {
       .makeString($0)
@@ -423,23 +415,18 @@ public final class FoundationModelLibrary: NativeLibrary {
 
   private func languageModelSupportsLocale(expr: Expr, locale: Expr?) throws -> Expr {
     let model = try self.model(from: expr)
+    let backend = model.backend
     let loc = (locale == nil || locale!.isFalse) ? Locale.current
                                                  : Locale(identifier: try locale!.asString())
-    switch model.backend {
-      case .system(let m):
-        return .makeBoolean(m.supportsLocale(loc))
-      case .privateCloudCompute(let m):
-        return .makeBoolean(try self.wait { try await m.supportsLocale(loc) })
-      case .other(_):
-        throw self.unsupported("locale support", model)
+    guard let res = try self.wait({ try await backend.supportsLocale(loc) }) else {
+      throw self.unsupported("locale support", model)
     }
+    return .makeBoolean(res)
   }
 
   private func languageModelTokenCount(expr: Expr, value: Expr, kind: Expr?) throws -> Expr {
-    let model = try self.model(from: expr)
-    guard case .system(let m) = model.backend else {
-      throw self.unsupported("token counting", model)
-    }
+    let backend = try self.model(from: expr).backend
+    let input: LanguageModelTokenInput
     var k: String
     if let kind, kind.isTrue {
       k = try kind.asSymbol().identifier
@@ -454,42 +441,31 @@ public final class FoundationModelLibrary: NativeLibrary {
     }
     switch k {
       case "prompt":
-        let prompt = try PromptConverter.prompt(from: value)
-        return .makeNumber(try self.wait { try await m.tokenCount(for: prompt) })
+        input = .prompt(try PromptConverter.prompt(from: value))
       case "instructions":
-        let instructions = try PromptConverter.instructions(from: value)
-        return .makeNumber(try self.wait { try await m.tokenCount(for: instructions) })
+        input = .instructions(try PromptConverter.instructions(from: value))
       case "tools":
         let hub = ToolHub()
-        let tools: [any Tool] = try self.list(value).map {
+        input = .tools(try self.list(value).map {
           SchemeTool(tool: try self.tool(from: $0), hub: hub)
-        }
-        return .makeNumber(try self.wait { try await m.tokenCount(for: tools) })
+        })
       case "schema":
-        let schema = try SchemaCompiler.schema(from: value, in: self.context).schema
-        return .makeNumber(try self.wait { try await m.tokenCount(for: schema) })
+        input = .schema(try SchemaCompiler.schema(from: value, in: self.context).schema)
       case "transcript":
-        let transcript = try self.transcript(from: value)
-        return .makeNumber(try self.wait { try await m.tokenCount(for: transcript) })
+        input = .transcript(try self.transcript(from: value))
       default:
         throw SchemaCompiler.invalid("unknown token count kind", kind ?? .false)
     }
+    guard let count = try self.wait({ try await backend.tokenCount(for: input) }) else {
+      return .false
+    }
+    return .makeNumber(count)
   }
 
   private func languageModelQuotaUsage(expr: Expr) throws -> Expr {
-    let model = try self.model(from: expr)
-    guard case .privateCloudCompute(let m) = model.backend else {
-      throw self.unsupported("quota usage", model)
-    }
-    let usage = m.quotaUsage
-    let status: String
-    switch usage.status {
-      case .belowLimit(let below):
-        status = below.isApproachingLimit ? "approaching-limit" : "below-limit"
-      case .limitReached(_):
-        status = "limit-reached"
-      @unknown default:
-        status = usage.isLimitReached ? "limit-reached" : "below-limit"
+    let backend = try self.model(from: expr).backend
+    guard let usage = try self.wait({ try await backend.quotaUsage() }) else {
+      return .false
     }
     var reset: Expr = .false
     if let date = usage.resetDate {
@@ -500,7 +476,7 @@ public final class FoundationModelLibrary: NativeLibrary {
     if let s = usage.limitIncreaseSuggestion {
       suggestion = .object(NativeLimitIncreaseSuggestion(s))
     }
-    return .makeList(.pair(self.sym("status"), self.sym(status)),
+    return .makeList(.pair(self.sym("status"), self.sym(usage.status)),
                      .pair(self.sym("reset-date"), reset),
                      .pair(self.sym("limit-increase-suggestion"), suggestion))
   }
@@ -528,14 +504,6 @@ public final class FoundationModelLibrary: NativeLibrary {
       attachment ? try await model.supportsDataAttachmentType(type)
                  : try await model.supportsDataEntryType(type)
     })
-  }
-
-  private func languageModelVariant(expr: Expr) throws -> Expr {
-    let model = try self.model(from: expr)
-    guard case .system(let m) = model.backend else {
-      throw self.unsupported("variants", model)
-    }
-    return .makeString(m.variant.displayName)
   }
 
   // MARK: - Prompts and attachments
@@ -666,8 +634,7 @@ public final class FoundationModelLibrary: NativeLibrary {
     if a.count > 0 && a[0].isTrue {
       model = try self.model(from: a[0])
     } else {
-      model = NativeLanguageModel(SystemLanguageModel.default,
-                                  backend: .system(SystemLanguageModel.default),
+      model = NativeLanguageModel(SystemModelBackend(SystemLanguageModel.default),
                                   label: "system")
     }
     var tools: [NativeTool] = []

@@ -161,6 +161,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     `(lispkit yaml)`,
     `(lispkit foundation-model)`,
     `(lispkit foundation-model claude)`,
+    `(lispkit foundation-model gemini)`,
     [`(lispkit http)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-HTTP),
     [`(lispkit http server)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-HTTP-Server),
     [`(lispkit http oauth)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-HTTP-OAuth),
@@ -413,21 +414,23 @@ the command-line tool directly in Xcode, the Swift Package Manager is not needed
 - [Swift 6](https://developer.apple.com/swift/)
 - [Xcode 26](https://developer.apple.com/xcode/)
 - [Swift Package Manager](https://swift.org/package-manager/)
-- [NumberKit](http://github.com/objecthub/swift-numberkit)
-- [MarkdownKit](http://github.com/objecthub/swift-markdownkit)
-- [CommandLineKit](http://github.com/objecthub/swift-commandlinekit)
-- [SQLiteExpress](http://github.com/objecthub/swift-sqliteexpress)
-- [ZIPFoundation](https://github.com/weichsel/ZIPFoundation)
-- [SWCompression](https://github.com/tsolomko/SWCompression)
-- [Swift Atomics](https://github.com/apple/swift-atomics)
-- [CLFormat](https://github.com/objecthub/swift-clformat)
-- [DynamicJSON](https://github.com/objecthub/swift-dynamicjson)
-- [YamlKit](https://github.com/objecthub/swift-yamlkit)
-- [NanoHTTP](https://github.com/objecthub/swift-nanohttp)
-- [OAuth2](https://github.com/p2/OAuth2)
-- [CBORCoding](https://github.com/SomeRandomiOSDev/CBORCoding)
-- [KeychainAccess](https://github.com/kishikawakatsumi/KeychainAccess)
-- [ClaudeForFoundationModels](https://github.com/objecthub/ClaudeForFoundationModels) (a fork of [anthropics/ClaudeForFoundationModels](https://github.com/anthropics/ClaudeForFoundationModels) supporting older deployment targets)
+- Frameworks:
+  - [NumberKit](http://github.com/objecthub/swift-numberkit)
+  - [MarkdownKit](http://github.com/objecthub/swift-markdownkit)
+  - [CommandLineKit](http://github.com/objecthub/swift-commandlinekit)
+  - [SQLiteExpress](http://github.com/objecthub/swift-sqliteexpress)
+  - [ZIPFoundation](https://github.com/weichsel/ZIPFoundation)
+  - [SWCompression](https://github.com/tsolomko/SWCompression)
+  - [Swift Atomics](https://github.com/apple/swift-atomics)
+  - [CLFormat](https://github.com/objecthub/swift-clformat)
+  - [DynamicJSON](https://github.com/objecthub/swift-dynamicjson)
+  - [YamlKit](https://github.com/objecthub/swift-yamlkit)
+  - [NanoHTTP](https://github.com/objecthub/swift-nanohttp)
+  - [OAuth2](https://github.com/p2/OAuth2)
+  - [CBORCoding](https://github.com/SomeRandomiOSDev/CBORCoding)
+  - [KeychainAccess](https://github.com/kishikawakatsumi/KeychainAccess)
+  - [ClaudeForFoundationModels](https://github.com/objecthub/ClaudeForFoundationModels)
+  - [GeminiForFoundationModels](https://github.com/objecthub/GeminiForFoundationModels)
 
 
 ## Copyright

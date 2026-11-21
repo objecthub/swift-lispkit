@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		00DD16B1565A40D1B9B3405D /* FoundationModel.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = C4B61CCE69374EF3AFEA854F /* FoundationModel.scm */; };
 		021D2E499566DABF64FB523D /* SRFI-272-Support.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = 5548CC66325B7BBB7643858F /* SRFI-272-Support.scm */; };
+		034F385381524A878A59A3A0 /* GeminiForFoundationModels in Frameworks */ = {isa = PBXBuildFile; productRef = DD3964AF4DF443EABA314FF1 /* GeminiForFoundationModels */; };
 		04E9E23A0BD34AFDAB1D3BCF /* line.sld in Copy pre-installed LispKit library: LispKit Draw Chart */ = {isa = PBXBuildFile; fileRef = C251045619DD4C22A525A3C1 /* line.sld */; };
 		053A42B86527448D9B151743 /* FoundationModelClaudeLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF89D73015974668BB9A70FB /* FoundationModelClaudeLibrary.swift */; };
 		057DEAE0985778F916B2C919 /* ident.sld in Copy pre-installed LispKit library: SRFI 275 internal */ = {isa = PBXBuildFile; fileRef = CF300B24EAD4081A05BADDFB /* ident.sld */; };
@@ -23,6 +24,7 @@
 		15F4889355B2E1E27F090807 /* measure.sld in Copy pre-installed LispKit library: SRFI 272 */ = {isa = PBXBuildFile; fileRef = D3D97BA0CE03D880E541C50F /* measure.sld */; };
 		1602C80FACE788EE57950E3A /* lseq.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = C999BCE041777105AA71A880 /* lseq.sld */; };
 		168E67CCED1575D3692A377F /* path.sld in Copy pre-installed LispKit library: SRFI 275 internal */ = {isa = PBXBuildFile; fileRef = B163C436ECDEA81A963BC85F /* path.sld */; };
+		170DB05CC36347F1846754C0 /* FoundationModelGeminiLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5430476D4FCA47DEAA088DCA /* FoundationModelGeminiLibrary.swift */; };
 		18DEA6934957FDE18118D4C9 /* YAML.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = 2A05910491EC31CCA774D57B /* YAML.scm */; };
 		1B8163E7B416F782D8BE3BFB /* YAML.scm in Resources */ = {isa = PBXBuildFile; fileRef = B1C9CD3090123C2D03DF7A2B /* YAML.scm */; };
 		1CC31915A81F148E05F7FDEC /* 116.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = 9034FF78DD2E2AAF13CE5B4F /* 116.sld */; };
@@ -84,6 +86,7 @@
 		9DB065FAA53927930D84BFA9 /* SRFI-117.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = 3D81FEB910B16ED006E229B1 /* SRFI-117.scm */; };
 		9E8284FC64E28195FF27D192 /* path.sld in Copy pre-installed LispKit library: SRFI 275 internal */ = {isa = PBXBuildFile; fileRef = B163C436ECDEA81A963BC85F /* path.sld */; };
 		A11FC6318DBC07129D611D74 /* SRFI-275-Setters.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = DF686A3B9BC2883D90496359 /* SRFI-275-Setters.scm */; };
+		A8A748016FE2413282FB2C2A /* GeminiForFoundationModels in Frameworks */ = {isa = PBXBuildFile; productRef = E2ACE8462A28404DADE4D62D /* GeminiForFoundationModels */; };
 		ABB20D3ADC3DC5A9613DCF37 /* DrawPieCharts.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = 02FA424CDA9AEE24BC34D611 /* DrawPieCharts.scm */; };
 		AC62562BC7BB970D106BB46E /* encoding.sld in Copy pre-installed LispKit library: SRFI 275 internal */ = {isa = PBXBuildFile; fileRef = 07C0EB8EB530E9E8DBE7D442 /* encoding.sld */; };
 		B10D5689D6D8152704C85375 /* 272.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = 27CC3D2CB93513805610BFCD /* 272.sld */; };
@@ -1803,6 +1806,7 @@
 		EA7CB2AF0AE94D7AA0875481 /* FoundationModelLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349C575B045146FBB01E35EA /* FoundationModelLibrary.swift */; };
 		EAAA6D98212DD2879BB864F0 /* ident.sld in Copy pre-installed LispKit library: SRFI 275 internal */ = {isa = PBXBuildFile; fileRef = CF300B24EAD4081A05BADDFB /* ident.sld */; };
 		EDE619DABB0290CB79B24296 /* path.sld in Copy pre-installed LispKit library: SRFI 275 */ = {isa = PBXBuildFile; fileRef = 36D3CC166908942836054194 /* path.sld */; };
+		F0043910EA1B4A279557A39D /* FoundationModelGeminiLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5430476D4FCA47DEAA088DCA /* FoundationModelGeminiLibrary.swift */; };
 		F031928D3D214114B04BFB67 /* DrawLineCharts.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = 47FBDA23FC774F9D896D8303 /* DrawLineCharts.scm */; };
 		F0F6F3E329CBE704DAB12E73 /* SRFI-275-Escape.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = 3CF4467E1E0285B00F10C06E /* SRFI-275-Escape.scm */; };
 		F44991049D39BF9546706AF0 /* SRFI-272.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = 2AF3C3B56B5DECC0464CDC17 /* SRFI-272.scm */; };
@@ -4226,6 +4230,7 @@
 		07E85A639419D20FDC4B7703 /* colorize.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = colorize.sld; sourceTree = "<group>"; };
 		09973E7D72A58AB64F725851 /* (srfi 272 intermediate).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(srfi 272 intermediate).md"; sourceTree = "<group>"; };
 		0B1B8F9C424380180AF06CA4 /* ChartPie.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = ChartPie.scm; sourceTree = "<group>"; };
+		0B73E90E7E9A99AE9E12D658 /* (lispkit system util).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit system util).md"; sourceTree = "<group>"; };
 		130086D799C1A93C32BB0F5B /* 127.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 127.sld; sourceTree = "<group>"; };
 		1EA2EC422E522D1FB4298421 /* normalize.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = normalize.sld; sourceTree = "<group>"; };
 		24B0478E419E275F5B6FB024 /* SRFI-275-Path.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-275-Path.scm"; sourceTree = "<group>"; };
@@ -4247,6 +4252,7 @@
 		47FBDA23FC774F9D896D8303 /* DrawLineCharts.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = DrawLineCharts.scm; sourceTree = "<group>"; };
 		4B0B50DCFDAD28485D6EA90F /* SRFI-275-Parse.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-275-Parse.scm"; sourceTree = "<group>"; };
 		4CD7588BB6D1BCD77B6C49CA /* (srfi 275 normalize).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(srfi 275 normalize).md"; sourceTree = "<group>"; };
+		5430476D4FCA47DEAA088DCA /* FoundationModelGeminiLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundationModelGeminiLibrary.swift; sourceTree = "<group>"; };
 		5548CC66325B7BBB7643858F /* SRFI-272-Support.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-272-Support.scm"; sourceTree = "<group>"; };
 		5576A24950DB402EA85CBE3C /* (lispkit foundation-model).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit foundation-model).md"; sourceTree = "<group>"; };
 		5ABEA73D6A43D2E9946FA27A /* support.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = support.sld; sourceTree = "<group>"; };
@@ -5056,7 +5062,6 @@
 		CCC072451F9AA8B70063974E /* 64.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 64.sld; sourceTree = "<group>"; };
 		CCC072471F9C047D0063974E /* 128.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 128.sld; sourceTree = "<group>"; };
 		CCC072491F9C11FA0063974E /* Sysctl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sysctl.swift; sourceTree = "<group>"; };
-		0B73E90E7E9A99AE9E12D658 /* (lispkit system util).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit system util).md"; sourceTree = "<group>"; };
 		CCC1860B30B0D98E00A2FD43 /* util.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = util.sld; sourceTree = "<group>"; };
 		CCC1DBFB216BA1750019A374 /* 14.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 14.sld; sourceTree = "<group>"; };
 		CCC1DBFC216BA2600019A374 /* 16.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 16.sld; sourceTree = "<group>"; };
@@ -5311,6 +5316,7 @@
 				CC089651244091E9004503B1 /* SQLiteExpress in Frameworks */,
 				CC030C5030AB580200D01746 /* YamlKit in Frameworks */,
 				7ED2E91A030D4921BFAB31CC /* ClaudeForFoundationModels in Frameworks */,
+				A8A748016FE2413282FB2C2A /* GeminiForFoundationModels in Frameworks */,
 				CC6290842C7DBBFB005AF800 /* KeychainAccess in Frameworks */,
 				CC2FB07E2AA3D83E00A20C71 /* SWCompression in Frameworks */,
 				CC17F7412C793E6400DDC4F9 /* CBORCoding in Frameworks */,
@@ -5340,6 +5346,7 @@
 				CCC48D0725E5BFB300D082AD /* SQLiteExpress in Frameworks */,
 				CC030C5230AB582000D01746 /* YamlKit in Frameworks */,
 				72B53CB175DC4A46B1DDA56D /* ClaudeForFoundationModels in Frameworks */,
+				034F385381524A878A59A3A0 /* GeminiForFoundationModels in Frameworks */,
 				CC6290862C7DBC1B005AF800 /* KeychainAccess in Frameworks */,
 				CC61CB382ACA116500C5A032 /* SWCompression in Frameworks */,
 				CC17F7432C793EC700DDC4F9 /* CBORCoding in Frameworks */,
@@ -6683,6 +6690,7 @@
 				CC1D533C2BF1709E00EE1A24 /* JSONLibrary.swift */,
 				66CAA060B7DB817DCE3E6570 /* YamlLibrary.swift */,
 				FF89D73015974668BB9A70FB /* FoundationModelClaudeLibrary.swift */,
+				5430476D4FCA47DEAA088DCA /* FoundationModelGeminiLibrary.swift */,
 				A464CF666EA14AEEAF373540 /* FoundationModelSupport.swift */,
 				349C575B045146FBB01E35EA /* FoundationModelLibrary.swift */,
 				CCD5B5202C0D231E002BF2F0 /* JSONSchemaLibrary.swift */,
@@ -7174,6 +7182,7 @@
 				CC6290832C7DBBFB005AF800 /* KeychainAccess */,
 				CC030C4F30AB580200D01746 /* YamlKit */,
 				462D5A7A60834BEFACC1526D /* ClaudeForFoundationModels */,
+				E2ACE8462A28404DADE4D62D /* GeminiForFoundationModels */,
 			);
 			productName = LispKit;
 			productReference = CCAD52BA1C48403800DBD8EE /* LispKit.framework */;
@@ -7271,6 +7280,7 @@
 				CC6290852C7DBC1B005AF800 /* KeychainAccess */,
 				CC030C5130AB582000D01746 /* YamlKit */,
 				D130EF95C85A4081A4BA81A4 /* ClaudeForFoundationModels */,
+				DD3964AF4DF443EABA314FF1 /* GeminiForFoundationModels */,
 			);
 			productName = "LispKit iOS";
 			productReference = CCC48C5625E5B8DC00D082AD /* LispKit.framework */;
@@ -7354,6 +7364,7 @@
 				CC6290822C7DBBFB005AF800 /* XCRemoteSwiftPackageReference "KeychainAccess" */,
 				CC030C4E30AB580200D01746 /* XCRemoteSwiftPackageReference "swift-yamlkit" */,
 				2525B8AEF1814CE084EFE89F /* XCRemoteSwiftPackageReference "ClaudeForFoundationModels" */,
+				96ABE6EC50FE46149B30DFE6 /* XCRemoteSwiftPackageReference "GeminiForFoundationModels" */,
 			);
 			productRefGroup = CCAD52BB1C48403800DBD8EE /* Products */;
 			projectDirPath = "";
@@ -7506,6 +7517,7 @@
 				CC1D533D2BF1709E00EE1A24 /* JSONLibrary.swift in Sources */,
 				06CF56477C3526E6F0D35A9D /* YamlLibrary.swift in Sources */,
 				CDA547A8812142D4AF902B19 /* FoundationModelClaudeLibrary.swift in Sources */,
+				F0043910EA1B4A279557A39D /* FoundationModelGeminiLibrary.swift in Sources */,
 				580A370D341C4487B3E21078 /* FoundationModelSupport.swift in Sources */,
 				EA7CB2AF0AE94D7AA0875481 /* FoundationModelLibrary.swift in Sources */,
 				CC3C92441D84C0D800016C28 /* Library.swift in Sources */,
@@ -7702,6 +7714,7 @@
 				CC1D533E2BF1709E00EE1A24 /* JSONLibrary.swift in Sources */,
 				7CC3E39CC7F7102C70507AA6 /* YamlLibrary.swift in Sources */,
 				053A42B86527448D9B151743 /* FoundationModelClaudeLibrary.swift in Sources */,
+				170DB05CC36347F1846754C0 /* FoundationModelGeminiLibrary.swift in Sources */,
 				C9165C02064C4594B61A96A3 /* FoundationModelSupport.swift in Sources */,
 				7DECF795321B4E49BA3E46F5 /* FoundationModelLibrary.swift in Sources */,
 				CCC48C6C25E5B94300D082AD /* Owners.swift in Sources */,
@@ -8463,6 +8476,14 @@
 				kind = branch;
 			};
 		};
+		96ABE6EC50FE46149B30DFE6 /* XCRemoteSwiftPackageReference "GeminiForFoundationModels" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/objecthub/GeminiForFoundationModels.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.1.0;
+			};
+		};
 		CC030C4E30AB580200D01746 /* XCRemoteSwiftPackageReference "swift-yamlkit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/objecthub/swift-yamlkit";
@@ -8722,6 +8743,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 2525B8AEF1814CE084EFE89F /* XCRemoteSwiftPackageReference "ClaudeForFoundationModels" */;
 			productName = ClaudeForFoundationModels;
+		};
+		DD3964AF4DF443EABA314FF1 /* GeminiForFoundationModels */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 96ABE6EC50FE46149B30DFE6 /* XCRemoteSwiftPackageReference "GeminiForFoundationModels" */;
+			productName = GeminiForFoundationModels;
+		};
+		E2ACE8462A28404DADE4D62D /* GeminiForFoundationModels */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 96ABE6EC50FE46149B30DFE6 /* XCRemoteSwiftPackageReference "GeminiForFoundationModels" */;
+			productName = GeminiForFoundationModels;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -37,40 +37,318 @@ import UIKit
 @available(macOS 27.0, iOS 27.0, *)
 typealias FMInstructions = FoundationModels.Instructions
 
+/// What `language-model-token-count` counts the tokens of.
+@available(macOS 27.0, iOS 27.0, *)
+public enum LanguageModelTokenInput: Sendable {
+  case prompt(Prompt)
+  case instructions(FoundationModels.Instructions)
+  case tools([any Tool])
+  case schema(GenerationSchema)
+  case transcript(Transcript)
+}
+
+/// The usage quota of a language model, as returned by `language-model-quota-usage`.
+@available(macOS 27.0, iOS 27.0, *)
+public struct LanguageModelQuotaUsage: Sendable {
+  public typealias LimitIncreaseSuggestion =
+    PrivateCloudComputeLanguageModel.QuotaUsage.LimitIncreaseSuggestion
+
+  /// One of `below-limit`, `approaching-limit`, or `limit-reached`.
+  public let status: String
+  public let resetDate: Date?
+  public let limitIncreaseSuggestion: LimitIncreaseSuggestion?
+
+  public init(status: String, resetDate: Date?, limitIncreaseSuggestion: LimitIncreaseSuggestion?) {
+    self.status = status
+    self.resetDate = resetDate
+    self.limitIncreaseSuggestion = limitIncreaseSuggestion
+  }
+}
+
+///
+/// A language model integration. Each family of language models (the on-device model,
+/// Private Cloud Compute, Claude, Gemini, ...) provides a backend, which determines the
+/// results of the model-level procedures of `(lispkit foundation-model)`, such as
+/// `language-model-name` or `language-model-context-size`.
+///
+/// All queries are asynchronous; the library waits for their results. A query returning
+/// `nil` is not supported by the model: procedures return `#f` in this case, except for
+/// predicates, which raise a model error of kind `unsupported`. The default implementations
+/// return `nil` and report the model as `available`.
+///
+@available(macOS 27.0, iOS 27.0, *)
+public protocol LanguageModelBackend: Sendable {
+
+  /// The language model used for sessions.
+  var model: any LanguageModel { get }
+
+  /// The family of the model, returned as a symbol by `language-model-family`.
+  var family: String { get }
+
+  /// The name of the model, returned by `language-model-name`. It identifies the model
+  /// among the models of its family, e.g. the model identifier for Claude and Gemini models.
+  /// The names of the available models of a family are registered via
+  /// `LanguageModelFamilies`. The default implementation returns the family.
+  var name: String { get }
+
+  /// The availability of the model: `available` or a reason why the model is unavailable.
+  func availability() async throws -> String
+
+  /// The size of the context window in tokens.
+  func contextSize() async throws -> Int?
+
+  /// The languages supported by the model.
+  func supportedLanguages() async throws -> Set<Locale.Language>?
+
+  /// Whether the model supports `locale`.
+  func supportsLocale(_ locale: Locale) async throws -> Bool?
+
+  /// The number of tokens `input` uses.
+  func tokenCount(for input: LanguageModelTokenInput) async throws -> Int?
+
+  /// The usage quota of the model.
+  func quotaUsage() async throws -> LanguageModelQuotaUsage?
+}
+
+@available(macOS 27.0, iOS 27.0, *)
+extension LanguageModelBackend {
+
+  public var name: String {
+    return self.family
+  }
+
+  public func availability() async throws -> String {
+    return "available"
+  }
+
+  public func contextSize() async throws -> Int? {
+    return nil
+  }
+
+  public func supportedLanguages() async throws -> Set<Locale.Language>? {
+    return nil
+  }
+
+  public func supportsLocale(_ locale: Locale) async throws -> Bool? {
+    return nil
+  }
+
+  public func tokenCount(for input: LanguageModelTokenInput) async throws -> Int? {
+    return nil
+  }
+
+  public func quotaUsage() async throws -> LanguageModelQuotaUsage? {
+    return nil
+  }
+}
+
+/// The backend of Apple's on-device language model.
+@available(macOS 27.0, iOS 27.0, *)
+public struct SystemModelBackend: LanguageModelBackend {
+  public let system: SystemLanguageModel
+
+  public init(_ system: SystemLanguageModel) {
+    self.system = system
+  }
+
+  public var model: any LanguageModel {
+    return self.system
+  }
+
+  public var family: String {
+    return "system"
+  }
+
+  /// The name of the model variant the device uses, e.g. "AFM 3 Core Advanced". The
+  /// variant is determined by the device; it can't be chosen.
+  public var name: String {
+    return self.system.variant.displayName
+  }
+
+  public func availability() async throws -> String {
+    switch self.system.availability {
+      case .available:
+        return "available"
+      case .unavailable(let reason):
+        switch reason {
+          case .deviceNotEligible:
+            return "device-not-eligible"
+          case .appleIntelligenceNotEnabled:
+            return "apple-intelligence-not-enabled"
+          case .modelNotReady:
+            return "model-not-ready"
+          @unknown default:
+            return "unavailable"
+        }
+    }
+  }
+
+  public func contextSize() async throws -> Int? {
+    return self.system.contextSize
+  }
+
+  public func supportedLanguages() async throws -> Set<Locale.Language>? {
+    return self.system.supportedLanguages
+  }
+
+  public func supportsLocale(_ locale: Locale) async throws -> Bool? {
+    return self.system.supportsLocale(locale)
+  }
+
+  public func tokenCount(for input: LanguageModelTokenInput) async throws -> Int? {
+    switch input {
+      case .prompt(let prompt):
+        return try await self.system.tokenCount(for: prompt)
+      case .instructions(let instructions):
+        return try await self.system.tokenCount(for: instructions)
+      case .tools(let tools):
+        return try await self.system.tokenCount(for: tools)
+      case .schema(let schema):
+        return try await self.system.tokenCount(for: schema)
+      case .transcript(let transcript):
+        return try await self.system.tokenCount(for: transcript)
+    }
+  }
+}
+
+/// The backend of Apple's language model running on Private Cloud Compute.
+@available(macOS 27.0, iOS 27.0, *)
+public struct PrivateCloudComputeModelBackend: LanguageModelBackend {
+  public let pcc: PrivateCloudComputeLanguageModel
+
+  public init(_ pcc: PrivateCloudComputeLanguageModel) {
+    self.pcc = pcc
+  }
+
+  public var model: any LanguageModel {
+    return self.pcc
+  }
+
+  public var family: String {
+    return "private-cloud-compute"
+  }
+
+  public func availability() async throws -> String {
+    switch self.pcc.availability {
+      case .available:
+        return "available"
+      case .unavailable(let reason):
+        switch reason {
+          case .deviceNotEligible:
+            return "device-not-eligible"
+          case .systemNotReady:
+            return "system-not-ready"
+          @unknown default:
+            return "unavailable"
+        }
+    }
+  }
+
+  public func contextSize() async throws -> Int? {
+    return try await self.pcc.contextSize
+  }
+
+  public func supportedLanguages() async throws -> Set<Locale.Language>? {
+    return try await self.pcc.supportedLanguages
+  }
+
+  public func supportsLocale(_ locale: Locale) async throws -> Bool? {
+    return try await self.pcc.supportsLocale(locale)
+  }
+
+  public func quotaUsage() async throws -> LanguageModelQuotaUsage? {
+    let usage = self.pcc.quotaUsage
+    let status: String
+    switch usage.status {
+      case .belowLimit(let below):
+        status = below.isApproachingLimit ? "approaching-limit" : "below-limit"
+      case .limitReached(_):
+        status = "limit-reached"
+      @unknown default:
+        status = usage.isLimitReached ? "limit-reached" : "below-limit"
+    }
+    return LanguageModelQuotaUsage(status: status,
+                                   resetDate: usage.resetDate,
+                                   limitIncreaseSuggestion: usage.limitIncreaseSuggestion)
+  }
+}
+
+///
+/// The registry of the families of language models. A library providing a family of
+/// language models registers the family together with its vendor (returned by
+/// `language-model-family-vendor`) and a procedure which returns the names of the models
+/// of this family that are available (returned by `available-language-models`).
+/// Registering a family again replaces the previous registration.
+///
+@available(macOS 27.0, iOS 27.0, *)
+public enum LanguageModelFamilies {
+  public typealias Provider = @Sendable () async throws -> [String]
+
+  private struct Registration {
+    let vendor: String
+    let provider: Provider
+  }
+
+  private static let lock = NSLock()
+  nonisolated(unsafe) private static var registrations: [String : Registration] = [:]
+
+  /// Registers family `family` of vendor `vendor` (e.g. "Apple") with `provider` returning
+  /// the names of the available models.
+  public static func register(family: String,
+                              vendor: String,
+                              models provider: @escaping Provider) {
+    Self.lock.withLock {
+      Self.registrations[family] = Registration(vendor: vendor, provider: provider)
+    }
+  }
+
+  /// Returns the provider of the available models of family `family`, if it is registered.
+  public static func provider(for family: String) -> Provider? {
+    return Self.lock.withLock {
+      Self.registrations[family]?.provider
+    }
+  }
+
+  /// Returns the vendor of family `family`, if it is registered.
+  public static func vendor(for family: String) -> String? {
+    return Self.lock.withLock {
+      Self.registrations[family]?.vendor
+    }
+  }
+
+  /// The registered families, sorted alphabetically.
+  public static var families: [String] {
+    return Self.lock.withLock {
+      Self.registrations.keys.sorted()
+    }
+  }
+}
+
 ///
 /// A language model: Apple's on-device model, Private Cloud Compute, or a model provided
-/// by another library, e.g. `(lispkit foundation-model claude)`.
+/// by another library, e.g. `(lispkit foundation-model claude)` or
+/// `(lispkit foundation-model gemini)`. The model's backend implements the model-level
+/// queries.
 ///
 @available(macOS 27.0, iOS 27.0, *)
 public final class NativeLanguageModel: NativeObject {
   public static let type = Type.objectType(Symbol(uninterned: "language-model"))
 
-  /// The concrete model, if it is provided by FoundationModels itself.
-  public enum Backend {
-    case system(SystemLanguageModel)
-    case privateCloudCompute(PrivateCloudComputeLanguageModel)
-    case other(kind: String)
-  }
-
-  public let model: any LanguageModel
-  public let backend: Backend
+  public let backend: any LanguageModelBackend
   public let label: String
 
-  public init(_ model: any LanguageModel, backend: Backend, label: String) {
-    self.model = model
+  public init(_ backend: any LanguageModelBackend, label: String) {
     self.backend = backend
     self.label = label
   }
 
-  public var kind: String {
-    switch self.backend {
-      case .system(_):
-        return "system"
-      case .privateCloudCompute(_):
-        return "private-cloud-compute"
-      case .other(kind: let kind):
-        return kind
-    }
+  /// The language model used for sessions.
+  public var model: any LanguageModel {
+    return self.backend.model
+  }
+
+  public var family: String {
+    return self.backend.family
   }
 
   public override var type: Type {

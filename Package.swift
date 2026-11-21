@@ -65,7 +65,10 @@ let package = Package(
     .package(url: "https://github.com/apple/swift-atomics.git", from: "1.3.1"),
     // Fork of anthropics/ClaudeForFoundationModels that builds for macOS 14 / iOS 17 and
     // exposes its API only on macOS 27 / iOS 27
-    .package(url: "https://github.com/objecthub/ClaudeForFoundationModels.git", branch: "lispkit")
+    .package(url: "https://github.com/objecthub/ClaudeForFoundationModels.git", branch: "lispkit"),
+    // Gemini models for Foundation Models; builds for macOS 14 / iOS 17 and exposes its
+    // API only on macOS 27 / iOS 27
+    .package(url: "https://github.com/objecthub/GeminiForFoundationModels.git", from: "0.1.0")
   ],
   targets: [
     .target(name: "LispKit",
@@ -83,7 +86,8 @@ let package = Package(
               .product(name: "CBORCoding", package: "CBORCoding"),
               .product(name: "KeychainAccess", package: "KeychainAccess"),
               .product(name: "Atomics", package: "swift-atomics"),
-              .product(name: "ClaudeForFoundationModels", package: "ClaudeForFoundationModels")
+              .product(name: "ClaudeForFoundationModels", package: "ClaudeForFoundationModels"),
+              .product(name: "GeminiForFoundationModels", package: "GeminiForFoundationModels")
             ],
             exclude: [
               "Info.plist",
