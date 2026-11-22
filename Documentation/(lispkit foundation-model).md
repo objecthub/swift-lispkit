@@ -34,6 +34,8 @@ Generating a response is an asynchronous operation. Procedures `model-session-re
 
 Language models are represented by objects of type `language-model`. Each language model belongs to a _family_ of models and has a _name_ which identifies it within its family. Library `(lispkit foundation-model)` provides two families of language models: Apple's on-device language model (family `system`) and Apple's language model running on Private Cloud Compute (family `afm-cloud`). Other libraries can provide additional families of language models, e.g. library `(lispkit foundation-model claude)` provides Claude models (family `claude`), library `(lispkit foundation-model gemini)` provides Gemini models (family `gemini`), and library `(lispkit foundation-model gpt)` provides GPT models (family `gpt`).
 
+The family `afm-cloud` is only provided if the application using LispKit enables Private Cloud Compute (see `afm-cloud-language-model`).
+
 **(language-model? _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns `#t` if _obj_ is a language model; `#f` otherwise.
@@ -46,7 +48,7 @@ Returns Apple's on-device language model. _use-case_ is either `general` (the de
 
 **(afm-cloud-language-model)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Returns Apple's language model running on Private Cloud Compute.
+Returns Apple's language model running on Private Cloud Compute. Using this model requires an entitlement. Therefore, Private Cloud Compute is disabled by default. Applications that have the entitlement enable it by setting the static property `FoundationModelLibrary.enablePrivateCloudCompute` to `true` before the first LispKit context is created. If Private Cloud Compute is disabled, the family `afm-cloud` is not available and procedures `afm-cloud-language-model`, `limit-increase-suggestion?`, and `limit-increase-suggestion-show!` are not defined. Without the entitlement, the system rejects all requests, even though the model is reported as `available`; requests then fail with a model error of kind `not-permitted`.
 
 **(language-model-family _model_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
@@ -73,11 +75,11 @@ For Claude, Gemini, and GPT models, the name is the model identifier that was pa
 
 **(available-language-model-families)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Returns a list of the families of language models as symbols. Besides `system` and `afm-cloud`, the list contains the families provided by libraries that have been loaded, such as `claude`, `gemini`, and `gpt`.
+Returns a list of the families of language models as symbols. Besides `system` and, if Private Cloud Compute is enabled, `afm-cloud`, the list contains the families provided by libraries that have been loaded, such as `claude`, `gemini`, and `gpt`.
 
 ```scheme
 (import (lispkit foundation-model claude))
-(available-language-model-families)  ⇒  (afm-cloud claude system)
+(available-language-model-families)  ⇒  (claude system)
 ```
 
 **(language-model-family-vendor _family_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
@@ -102,7 +104,7 @@ Returns the name of the vendor of the language models of family _family_, a symb
 Returns a list of the names of the available language models of family _family_, a symbol. `#f` is returned if _family_ is not a known family of language models (see `available-language-model-families`). The library implementing a family determines what is available:
 
 - `system`: the name of the model the device uses, if it is available (see `language-model-available?`); otherwise, the list is empty.
-- `afm-cloud`: `"afm-cloud"`, if the model is available; otherwise, the list is empty.
+- `afm-cloud`: `"afm-cloud"`, if the model is available; otherwise, the list is empty. This family is only known if Private Cloud Compute is enabled.
 - `claude`, `gemini`, and `gpt`: the models known to the library, i.e. the result of `claude-models`, `gemini-models`, and `gpt-models`. Whether a model can be used with a particular API key is not checked; `gemini-available-models` and `gpt-available-models` list the models offered by the Gemini and OpenAI APIs.
 
 ```scheme
@@ -181,11 +183,11 @@ Returns an association list describing the usage quota of language model _model_
 
 **(limit-increase-suggestion? _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Returns `#t` if _obj_ is a limit increase suggestion; `#f` otherwise. Limit increase suggestions are returned by `language-model-quota-usage` and are part of the details of errors of kind `quota-limit-reached`.
+Returns `#t` if _obj_ is a limit increase suggestion; `#f` otherwise. Limit increase suggestions are returned by `language-model-quota-usage` and are part of the details of errors of kind `quota-limit-reached`. This procedure is only defined if Private Cloud Compute is enabled (see `afm-cloud-language-model`).
 
 **(limit-increase-suggestion-show! _suggestion_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Presents limit increase suggestion _suggestion_ to the user. This only has an effect in applications that can display the user interface of the system.
+Presents limit increase suggestion _suggestion_ to the user. This only has an effect in applications that can display the user interface of the system. This procedure is only defined if Private Cloud Compute is enabled (see `afm-cloud-language-model`).
 
 ## Prompts and instructions
 
@@ -617,6 +619,7 @@ Errors reported by language models are represented by _model errors_. Each model
   - `decoding-failure`, `schema-error`: generated content or a schema is invalid
   - `concurrent-requests`, `transcript-mutation-while-responding`: the session is processing another request
   - `cancelled`: the request was cancelled
+  - `not-permitted`, `system-error`: the system refused or failed to process the request, e.g. because the process is not permitted to use the language model
   - `tool-call-failed`: a tool failed
 
 Errors raised by tool procedures are not wrapped in model errors; they are passed through unchanged.
@@ -653,6 +656,7 @@ Returns the details of model error _obj_ as an association list, or `#f` if _obj
 | `schema`, `type`, `property`, `references` | The schema, type, property, or undefined types responsible for a `schema-error` |
 | `raw-content`, `underlying-error` | The content that could not be decoded and the reason (`decoding-failure`) |
 | `tool` | The name of the tool that failed (`tool-call-failed`) |
+| `system-errors` | A list of strings naming the domains and codes of the underlying system errors (`not-permitted`, `system-error`) |
 | `refusal` | A refusal object that is used by `model-error-explanation` (`refusal`) |
 
 ```scheme

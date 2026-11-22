@@ -1841,8 +1841,57 @@ public enum ModelErrors {
         return Self.error(kind, message, in: context)
       }
     }
+    if let error = Self.systemError(error, in: context) {
+      return error
+    }
     return RuntimeError.os(error)
   }
+
+  /// FoundationModels passes on some errors of the system services it relies on as plain
+  /// `NSError` values, e.g. if the system refuses to create a session for a model. Such
+  /// errors are turned into model errors of kind `not-permitted` or `system-error`; the
+  /// chain of underlying errors is listed under key `system-errors` of the details.
+  private static func systemError(_ error: Error, in context: Context) -> RuntimeError? {
+    var chain: [NSError] = []
+    func collect(_ error: NSError, depth: Int) {
+      guard depth < 8 else {
+        return
+      }
+      chain.append(error)
+      if let underlying = error.userInfo[NSUnderlyingErrorKey] as? NSError {
+        collect(underlying, depth: depth + 1)
+      }
+      if let underlying = error.userInfo[NSMultipleUnderlyingErrorsKey] as? [Error] {
+        for err in underlying {
+          collect(err as NSError, depth: depth + 1)
+        }
+      }
+    }
+    collect(error as NSError, depth: 0)
+    guard chain.contains(where: { Self.systemErrorDomains.contains(where: $0.domain.hasPrefix) }),
+          let root = chain.last else {
+      return nil
+    }
+    let codes = chain.map { "\($0.domain) \($0.code)" }
+    let kind: String
+    let message: String
+    if chain.contains(where: { $0.domain == "ModelManagerServices.ModelManagerError" &&
+                               $0.code == 1046 }) {
+      kind = "not-permitted"
+      message = "the system did not permit the request to the language model (\(codes.last!))"
+    } else {
+      kind = "system-error"
+      message = "the system failed to process the request to the language model (\(codes.last!))"
+    }
+    var b = ModelErrorDetails.Builder(context)
+    b.add("system-errors", .makeList(Exprs(codes.map { .makeString($0) })))
+    b.add("failure-reason", string: root.localizedFailureReason)
+    b.add("recovery-suggestion", string: root.localizedRecoverySuggestion)
+    return Self.error(kind, message, details: b.expr, in: context)
+  }
+
+  /// Error domains of FoundationModels and the system services it uses.
+  private static let systemErrorDomains = ["FoundationModels.", "ModelManagerServices."]
 
   /// Translates a Swift error into a value that can be stored in a future and raised by
   /// `future-get`: errors raised by Scheme tool procedures are passed through unchanged.

@@ -64,10 +64,9 @@
 
 (
   "Language model families"
-  (#t system afm-cloud #f)
+  (#t system #f)
   (list (language-model? (system-language-model))
         (language-model-family (system-language-model 'content-tagging 'default))
-        (language-model-family (afm-cloud-language-model))
         (language-model? "model"))
 )
 
@@ -75,26 +74,26 @@
   "Language model availability"
   (#t #t)
   (list (symbol? (language-model-availability (system-language-model)))
-        (boolean? (language-model-available? (afm-cloud-language-model))))
+        (boolean? (language-model-available? (system-language-model))))
 )
 
 (
   "Language model names"
-  (#t #t "afm-cloud")
+  (#t #t)
   (let ((name (language-model-name (system-language-model))))
     (list (and (member name '("AFM 3 Core" "AFM 3 Core Advanced")) #t)
-          (equal? name (language-model-name (system-language-model 'content-tagging 'default)))
-          (language-model-name (afm-cloud-language-model))))
+          (equal? name (language-model-name (system-language-model 'content-tagging 'default)))))
 )
 
 (
   "Families of language models"
-  (#t #t #t #f #t "Apple" "Apple" #f)
+  (#t #f #t #f #f #t "Apple" #f #f)
   (let ((families (available-language-model-families)))
     (list (and (memq 'system families) #t)
           (and (memq 'afm-cloud families) #t)
           (and (member (available-language-models 'system)
                       (list '() (list (language-model-name (system-language-model))))) #t)
+          (available-language-models 'afm-cloud)
           (available-language-models 'unknown)
           (raises? (available-language-models "system"))
           (language-model-family-vendor 'system)
@@ -104,9 +103,16 @@
 
 (
   "Unsupported model queries"
-  (#f #f)
-  (list (language-model-quota-usage (system-language-model))
-        (language-model-token-count (afm-cloud-language-model) "Hello"))
+  (#f)
+  (list (language-model-quota-usage (system-language-model)))
+)
+
+(
+  "Private Cloud Compute is disabled by default"
+  (#t #t #t)
+  (list (raises? (afm-cloud-language-model))
+        (raises? (limit-increase-suggestion? #f))
+        (raises? (limit-increase-suggestion-show! #f)))
 )
 
 (

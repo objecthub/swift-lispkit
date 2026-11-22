@@ -38,6 +38,15 @@ import FoundationModels
 @available(macOS 27.0, iOS 27.0, *)
 public final class FoundationModelLibrary: NativeLibrary {
 
+  /// Is Apple's language model on Private Cloud Compute (family `afm-cloud`) enabled?
+  /// Using this model requires an entitlement; without it, the system rejects all requests
+  /// even though the model is reported as available. Applications that have the entitlement
+  /// set this to `true` before creating the first LispKit context; later changes are not
+  /// supported. If disabled, the family `afm-cloud` is not registered and procedures
+  /// `afm-cloud-language-model`, `limit-increase-suggestion?`, and
+  /// `limit-increase-suggestion-show!` are not defined.
+  nonisolated(unsafe) public static var enablePrivateCloudCompute = false
+
   /// Are the model families registered?
   nonisolated(unsafe) private static var modelFamiliesRegistered = false
   private static let lock = NSLock()
@@ -63,8 +72,10 @@ public final class FoundationModelLibrary: NativeLibrary {
     // Language models
     self.define(Procedure("language-model?", self.isLanguageModel))
     self.define(Procedure("system-language-model", self.systemLanguageModel))
-    self.define(Procedure("afm-cloud-language-model",
-                          self.privateCloudComputeLanguageModel))
+    if Self.enablePrivateCloudCompute {
+      self.define(Procedure("afm-cloud-language-model",
+                            self.privateCloudComputeLanguageModel))
+    }
     self.define(Procedure("language-model-family", self.languageModelFamily))
     self.define(Procedure("language-model-name", self.languageModelName))
     self.define(Procedure("available-language-model-families", self.availableLanguageModelFamilies))
@@ -80,8 +91,10 @@ public final class FoundationModelLibrary: NativeLibrary {
     self.define(Procedure("language-model-token-count", self.languageModelTokenCount))
     self.define(Procedure("language-model-quota-usage", self.languageModelQuotaUsage))
     self.define(Procedure("language-model-supports-data-type?", self.languageModelSupportsDataType))
-    self.define(Procedure("limit-increase-suggestion?", self.isLimitIncreaseSuggestion))
-    self.define(Procedure("limit-increase-suggestion-show!", self.limitIncreaseSuggestionShow))
+    if Self.enablePrivateCloudCompute {
+      self.define(Procedure("limit-increase-suggestion?", self.isLimitIncreaseSuggestion))
+      self.define(Procedure("limit-increase-suggestion-show!", self.limitIncreaseSuggestionShow))
+    }
 
     // Prompts and attachments
     self.define(Procedure("prompt?", self.isPrompt))
@@ -192,7 +205,8 @@ public final class FoundationModelLibrary: NativeLibrary {
 
   /// Registers the families of Apple's language models, once: Apple's models are
   /// available if the device can use them; the name of the on-device model is the
-  /// model variant the device uses.
+  /// model variant the device uses. The family `afm-cloud` is only registered if
+  /// Private Cloud Compute is enabled.
   private static func registerModelFamilies() {
     Self.lock.lock()
     defer {
@@ -206,9 +220,11 @@ public final class FoundationModelLibrary: NativeLibrary {
       let backend = SystemModelBackend(.default)
       return try await backend.availability() == "available" ? [backend.name] : []
     }
-    LanguageModelFamilies.register(family: "afm-cloud", vendor: "Apple") {
-      let backend = PrivateCloudComputeModelBackend(PrivateCloudComputeLanguageModel())
-      return try await backend.availability() == "available" ? [backend.name] : []
+    if Self.enablePrivateCloudCompute {
+      LanguageModelFamilies.register(family: "afm-cloud", vendor: "Apple") {
+        let backend = PrivateCloudComputeModelBackend(PrivateCloudComputeLanguageModel())
+        return try await backend.availability() == "available" ? [backend.name] : []
+      }
     }
   }
 
@@ -382,7 +398,11 @@ public final class FoundationModelLibrary: NativeLibrary {
     guard let provider = LanguageModelFamilies.provider(for: try family.asSymbol().identifier) else {
       return .false
     }
-    return .makeList(Exprs(try self.wait(provider).map { .makeString($0) }))
+    do {
+      return .makeList(Exprs(try self.wait(provider).map { .makeString($0) }))
+    } catch {
+      return .false
+    }
   }
 
   private func availability(_ model: NativeLanguageModel) throws -> String {
