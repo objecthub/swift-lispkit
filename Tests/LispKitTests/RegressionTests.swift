@@ -347,6 +347,16 @@ class RegressionTests: LispKitTestCase {
     self.execute(file: "FoundationModel")
   }
   
+  func testSystemSearch() {
+    // The context is bootstrapped so that errors thrown by native procedures can be caught
+    do {
+      try self.context?.bootstrap()
+    } catch {
+      preconditionFailure("cannot bootstrap test context: \(error)")
+    }
+    self.execute(file: "SystemSearch")
+  }
+
   func testSRFI19() {
     self.execute(file: "SRFI19")
   }

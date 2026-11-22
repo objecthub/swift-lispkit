@@ -6,6 +6,9 @@ Files and directories are referenced by _paths_. Paths are strings consisting of
 
 If a relative path is used to refer to a concrete directory or file, e.g. in the API provided by library `(lispkit port)`, typically the path is interpreted as relative to the path as defined by the parameter object `current-directory`, unless specified otherwise.
 
+Files can be searched by their metadata and content via Spotlight with library `(lispkit system search)`.
+
+
 **current-directory** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[parameter object]</span>  
 
 Defines the path referring to the _current directory_. Each LispKit virtual machine has its own current directory.

@@ -80,6 +80,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit system call)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-System-OS),
     [`(lispkit system keychain)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-System-Keychain),
     [`(lispkit system pasteboard)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-System-Pasteboard),
+    `(lispkit system search)`,
     `(lispkit system util)`,
     [`(lispkit box)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Box),
     [`(lispkit math)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Math),
