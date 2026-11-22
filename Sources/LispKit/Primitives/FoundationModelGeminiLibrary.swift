@@ -302,6 +302,8 @@ public final class FoundationModelGeminiLibrary: NativeLibrary {
     var thinkingLevel: GeminiModel.ThinkingLevel? = nil
     var thoughtSummaries = true
     var builtInTools = Set<GeminiBuiltInTool>()
+    var replaysEarlierThoughts = false
+    var retry = GeminiRetryPolicy.default
     var baseURL = GeminiLanguageModel.defaultBaseURL
     var timeout: TimeInterval = 120
     if let options, options.isTrue {
@@ -312,6 +314,13 @@ public final class FoundationModelGeminiLibrary: NativeLibrary {
         let name = try self.identifier(key)
         if name == "thought-summaries" {
           thoughtSummaries = value.isTrue
+          continue
+        } else if name == "replay-earlier-thoughts" {
+          replaysEarlierThoughts = value.isTrue
+          continue
+        } else if name == "retries" {
+          retry = value.isFalse ? .disabled
+                                : GeminiRetryPolicy(maxRetries: try value.asInt(above: 0, below: 100))
           continue
         } else if value.isFalse {
           continue
@@ -343,6 +352,8 @@ public final class FoundationModelGeminiLibrary: NativeLibrary {
                                            thinkingLevel: thinkingLevel,
                                            thoughtSummaries: thoughtSummaries,
                                            builtInTools: builtInTools,
+                                           replaysEarlierThoughts: replaysEarlierThoughts,
+                                           retry: retry,
                                            baseURL: baseURL,
                                            timeout: timeout)
       return .object(NativeLanguageModel(GeminiModelBackend(gemini, auth: auth),

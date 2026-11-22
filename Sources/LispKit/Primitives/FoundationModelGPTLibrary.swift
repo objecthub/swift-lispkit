@@ -320,6 +320,7 @@ public final class FoundationModelGPTLibrary: NativeLibrary {
     var reasoningSummaries = true
     var builtInTools = Set<GPTBuiltInTool>()
     var state = GPTConversationState.stateless
+    var retry = GPTRetryPolicy.default
     var baseURL = GPTLanguageModel.defaultBaseURL
     var timeout: TimeInterval = 120
     if let options, options.isTrue {
@@ -334,6 +335,10 @@ public final class FoundationModelGPTLibrary: NativeLibrary {
             continue
           case "stateful":
             state = value.isTrue ? .stored : .stateless
+            continue
+          case "retries":
+            retry = value.isFalse ? .disabled
+                                  : GPTRetryPolicy(maxRetries: try value.asInt(above: 0, below: 100))
             continue
           default:
             if value.isFalse {
@@ -368,6 +373,7 @@ public final class FoundationModelGPTLibrary: NativeLibrary {
                                      reasoningSummaries: reasoningSummaries,
                                      builtInTools: builtInTools,
                                      state: state,
+                                     retry: retry,
                                      baseURL: baseURL,
                                      timeout: timeout)
       return .object(NativeLanguageModel(GPTModelBackend(gpt), label: "gpt \(model.id)"))

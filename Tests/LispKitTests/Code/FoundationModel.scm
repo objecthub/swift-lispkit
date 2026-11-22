@@ -401,7 +401,7 @@
 
 (
   "Gemini models"
-  (#t gemini (low medium high xhigh) unsupported-thinking-level #t #t #f (low high))
+  (#t gemini (low medium high xhigh) unsupported-thinking-level #t #t #t #f (low high))
   (cond-expand
     ((library (lispkit foundation-model gemini))
       (let ((m (make-gemini-model "gemini-4-neon" "test-key"
@@ -414,13 +414,17 @@
                 (make-gemini-model "gemini-3.8-flash" "test-key" '((thinking-level . xhigh))))
               (raises? (make-gemini-model "gemini-unknown" "test-key"))
               (raises? (make-gemini-model "gemini-3.8-flash" "test-key" '((bogus . 1))))
+              (and (language-model? (make-gemini-model "gemini-3.8-flash" "test-key"
+                                      '((retries . 4) (replay-earlier-thoughts . #t))))
+                   (language-model? (make-gemini-model "gemini-3.8-flash" "test-key" '((retries . #f))))
+                   (raises? (make-gemini-model "gemini-3.8-flash" "test-key" '((retries . -1)))))
               (gemini-model-capabilities "gemini-unknown")
               (cdr (assq 'thinking-levels
                          (gemini-model-capabilities
                            (make-gemini-model "gemini-custom" "test-key"
                              '((capabilities . ((thinking-levels high low)))))))))))
     (else
-      (list #t 'gemini '(low medium high xhigh) 'unsupported-thinking-level #t #t #f '(low high))))
+      (list #t 'gemini '(low medium high xhigh) 'unsupported-thinking-level #t #t #t #f '(low high))))
 )
 
 (
@@ -446,7 +450,7 @@
 
 (
   "GPT models"
-  (#t gpt (low medium high xhigh) medium unsupported-reasoning-effort #t #t #f (none high) none #t)
+  (#t gpt (low medium high xhigh max) medium unsupported-reasoning-effort #t #t #f (none high) none #t #t)
   (cond-expand
     ((library (lispkit foundation-model gpt))
       (let ((m (make-gpt-model "gpt-6-sol" '(api-key "sk-test" "org-1" #f)
@@ -467,9 +471,11 @@
                            (make-gpt-model "gpt-custom" "sk-test"
                              '((capabilities . ((reasoning-efforts high none) (default-reasoning-effort . none))))))))
               (cdr (assq 'default-reasoning-effort (gpt-model-capabilities "gpt-5.4-mini")))
-              (raises? (make-gpt-model "gpt-5.5" '(proxied 42))))))
+              (raises? (make-gpt-model "gpt-5.5" '(proxied 42)))
+              (and (language-model? (make-gpt-model "gpt-6-luna" "sk-test" '((reasoning-effort . max) (retries . #f))))
+                   (raises? (make-gpt-model "gpt-5.5" "sk-test" '((retries . -1))))))))
     (else
-      (list #t 'gpt '(low medium high xhigh) 'medium 'unsupported-reasoning-effort #t #t #f '(none high) 'none #t)))
+      (list #t 'gpt '(low medium high xhigh max) 'medium 'unsupported-reasoning-effort #t #t #f '(none high) 'none #t #t)))
 )
 
 (

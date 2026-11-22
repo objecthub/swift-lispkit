@@ -33,10 +33,11 @@ _options_ is an association list with the following options:
 
 | Option | Value |
 | :--- | :--- |
-| `reasoning-effort` | The reasoning effort used for all requests: `none`, `minimal`, `low`, `medium`, `high`, or `xhigh`. The effort must be supported by the model; otherwise a model error of kind `unsupported-reasoning-effort` is raised. Without this option, the reasoning level of requests determines the effort: `light` maps to `low`, `moderate` to `medium`, and `deep` to `high`. An effort the model doesn't support is replaced by the closest one it does. Without either, the model's default effort is used. |
+| `reasoning-effort` | The reasoning effort used for all requests: `none`, `minimal`, `low`, `medium`, `high`, `xhigh`, or `max`. The effort must be supported by the model; otherwise a model error of kind `unsupported-reasoning-effort` is raised. Without this option, the reasoning level of requests determines the effort: `light` maps to `low`, `moderate` to `medium`, and `deep` to `high`. An effort the model doesn't support is replaced by the closest one it does. Without either, the model's default effort is used. |
 | `reasoning-summaries` | If `#t` (the default), the model returns summaries of its reasoning, which appear as reasoning entries in transcripts. |
 | `built-in-tools` | A list of tools executed by OpenAI's servers: `web-search` (searching the web) and `code-interpreter` (running Python code). Requests with a generation schema don't use built-in tools. |
 | `stateful` | If `#t`, responses are stored at OpenAI (by default for 30 days), and a request continues the previous response with only what is new since. The transcript remains authoritative: if it doesn't match the stored conversation anymore, e.g. because it was edited or the stored response expired, the whole conversation is sent. The default is `#f`. |
+| `retries` | How often a request is sent again after a temporary failure (rate limits, overloaded servers, lost connections), before any of its response has arrived; `#f` disables retries. The default is 2. The wait is the one the server asks for, or else an increasing backoff; if the server asks for more than 20 seconds, the request fails with a model error of kind `rate-limited` instead. Settings a model rejects (a reasoning effort or summary, a temperature) are corrected once from the API's error and the request is sent again; the correction is remembered for later requests of the model. |
 | `base-url` | The base URL of the API, e.g. the URL of a proxy. |
 | `timeout` | The timeout for requests in seconds. The default is 120. |
 | `capabilities` | The capabilities of a model that is not known to the library (see `gpt-model-capabilities`). |
@@ -45,7 +46,8 @@ _options_ is an association list with the following options:
 (make-gpt-model "gpt-6-sol" '(api-key "sk-...")
   '((reasoning-effort . xhigh)
     (built-in-tools . (web-search code-interpreter))
-    (stateful . #t)))
+    (stateful . #t)
+    (retries . 3)))
 (make-gpt-model "gpt-5.5-pro" #f
   '((capabilities . ((reasoning-efforts high) (default-reasoning-effort . high)))))
 ```

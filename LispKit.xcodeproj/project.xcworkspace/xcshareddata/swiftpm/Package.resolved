@@ -33,8 +33,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/objecthub/GeminiForFoundationModels.git",
       "state" : {
-        "revision" : "931812a0ec81388b81e4e779caac37cfbed2e50c",
-        "version" : "0.1.1"
+        "revision" : "6538d249d6f4cc2e3446c95a4a87115d626afbe2",
+        "version" : "0.1.2"
       }
     },
     {
@@ -42,8 +42,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/objecthub/GPTForFoundationModels.git",
       "state" : {
-        "revision" : "b03ea5e923677b6d020346a25bed7b6103594c72",
-        "version" : "0.1.3"
+        "revision" : "033edb9a029c0e5da02e6c78ae61530b752967d7",
+        "version" : "0.1.4"
       }
     },
     {
