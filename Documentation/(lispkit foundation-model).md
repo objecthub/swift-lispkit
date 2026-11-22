@@ -656,7 +656,7 @@ Returns the details of model error _obj_ as an association list, or `#f` if _obj
 | `schema`, `type`, `property`, `references` | The schema, type, property, or undefined types responsible for a `schema-error` |
 | `raw-content`, `underlying-error` | The content that could not be decoded and the reason (`decoding-failure`) |
 | `tool` | The name of the tool that failed (`tool-call-failed`) |
-| `system-errors` | A list of strings naming the domains and codes of the underlying system errors (`not-permitted`, `system-error`) |
+| `system-errors` | A list of strings naming the domains and codes of the underlying system errors (`not-permitted`, `system-error`, and `context-size-exceeded` if the system reported the overflow) |
 | `refusal` | A refusal object that is used by `model-error-explanation` (`refusal`) |
 
 ```scheme

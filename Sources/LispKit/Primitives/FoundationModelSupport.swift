@@ -1848,9 +1848,11 @@ public enum ModelErrors {
   }
 
   /// FoundationModels passes on some errors of the system services it relies on as plain
-  /// `NSError` values, e.g. if the system refuses to create a session for a model. Such
-  /// errors are turned into model errors of kind `not-permitted` or `system-error`; the
-  /// chain of underlying errors is listed under key `system-errors` of the details.
+  /// `NSError` values, e.g. if the system refuses to create a session for a model, or if
+  /// the context window of the on-device model overflows while tools are called. Such
+  /// errors are turned into model errors of kind `not-permitted`, `context-size-exceeded`,
+  /// or `system-error`; the chain of underlying errors is listed under key `system-errors`
+  /// of the details.
   private static func systemError(_ error: Error, in context: Context) -> RuntimeError? {
     var chain: [NSError] = []
     func collect(_ error: NSError, depth: Int) {
@@ -1873,17 +1875,22 @@ public enum ModelErrors {
       return nil
     }
     let codes = chain.map { "\($0.domain) \($0.code)" }
+    var b = ModelErrorDetails.Builder(context)
     let kind: String
     let message: String
     if chain.contains(where: { $0.domain == "ModelManagerServices.ModelManagerError" &&
                                $0.code == 1046 }) {
       kind = "not-permitted"
       message = "the system did not permit the request to the language model (\(codes.last!))"
+    } else if let (descr, tokenCount, contextSize) = Self.contextOverflow(in: chain) {
+      kind = "context-size-exceeded"
+      message = descr
+      b.add("context-size", .makeNumber(contextSize))
+      b.add("token-count", .makeNumber(tokenCount))
     } else {
       kind = "system-error"
       message = "the system failed to process the request to the language model (\(codes.last!))"
     }
-    var b = ModelErrorDetails.Builder(context)
     b.add("system-errors", .makeList(Exprs(codes.map { .makeString($0) })))
     b.add("failure-reason", string: root.localizedFailureReason)
     b.add("recovery-suggestion", string: root.localizedRecoverySuggestion)
@@ -1891,7 +1898,32 @@ public enum ModelErrors {
   }
 
   /// Error domains of FoundationModels and the system services it uses.
-  private static let systemErrorDomains = ["FoundationModels.", "ModelManagerServices."]
+  private static let systemErrorDomains = ["FoundationModels.",
+                                           "ModelManagerServices.",
+                                           "com.apple.GenerativeFunctionsFoundation."]
+
+  /// The description of errors reporting an overflow of the context window, e.g.
+  /// "Provided 8'499 tokens, but the maximum allowed is 8'192." Numbers are formatted
+  /// according to the current locale.
+  nonisolated(unsafe) private static let contextOverflowPattern =
+    #/[Pp]rovided ([0-9][^ ]*) tokens, but the maximum allowed is ([0-9][^ ]*?)\.?(?: |$)/#
+
+  /// Returns the description, the token count, and the context size of an error in
+  /// `chain` that reports an overflow of the context window.
+  private static func contextOverflow(in chain: [NSError]) -> (String, Int, Int)? {
+    func number(_ str: Substring) -> Int? {
+      return Int(str.filter(\.isNumber))
+    }
+    for error in chain {
+      let descr = error.localizedDescription
+      if let match = descr.firstMatch(of: Self.contextOverflowPattern),
+         let tokenCount = number(match.1),
+         let contextSize = number(match.2) {
+        return (descr, tokenCount, contextSize)
+      }
+    }
+    return nil
+  }
 
   /// Translates a Swift error into a value that can be stored in a future and raised by
   /// `future-get`: errors raised by Scheme tool procedures are passed through unchanged.
