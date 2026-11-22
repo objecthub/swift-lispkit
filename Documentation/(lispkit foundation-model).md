@@ -314,9 +314,9 @@ Returns a generation schema for the JSON representation _json_, which is either 
 
 ## Tools
 
-Tools are Scheme procedures that a language model can call while it generates a response, e.g. to look up information or to perform actions. Every tool has a name, a description that tells the language model what the tool does, and a generation schema for its parameters. Tools are passed to a session when it is created.
+Tools are Scheme procedures that a language model can call while it generates a response, e.g. to look up information or to perform actions. Every tool has a name, a description that tells the language model what the tool does, and a generation schema for its parameters. Tools are passed to a session when it is created. Library `(lispkit foundation-model tool)` provides tools that are implemented natively by Apple: reading text and barcodes from images, and searching the content indexed by Spotlight.
 
-Tools are executed by a separate thread that is created for every request of a session that has tools. Thus, tool procedures run concurrently with the code that made the request.
+Tools implemented in Scheme are executed by a separate thread that is created for every request of a session that has such tools. Thus, tool procedures run concurrently with the code that made the request.
 
 **(make-tool _name description parameters proc_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(make-tool _name description parameters proc include-schema?_)**  

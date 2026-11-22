@@ -33,6 +33,10 @@
     ((library (lispkit foundation-model gpt))
       (import (lispkit foundation-model gpt)))
     (else))
+  (cond-expand
+    ((library (lispkit foundation-model tool))
+      (import (lispkit foundation-model tool)))
+    (else))
   ;; Returns #t if calling `thunk` raises an error
   (define (call-raises? thunk)
     (guard (x (#t #t)) (thunk) #f))
@@ -602,4 +606,77 @@
             (begin (model-session-cancel! s)
                    (model-error-raised (future-get f)))
             (model-session-responding? s))))
+)
+
+;;; Native tools
+
+(
+  "Vision tools"
+  (#t #t "getText" "readBarcodes" "read-text" "Reads the text of an image." #f #t #t)
+  (cond-expand
+    ((library (lispkit foundation-model tool))
+      (let ((ocr (make-ocr-tool))
+            (barcodes (make-barcode-reader-tool)))
+        (list (tool? ocr)
+              (tool? barcodes)
+              (tool-name ocr)
+              (tool-name barcodes)
+              (tool-name (make-ocr-tool "read-text"))
+              (tool-description (make-ocr-tool #f "Reads the text of an image."))
+              (spotlight-search-tool? ocr)
+              (generation-schema? (tool-parameters barcodes))
+              (model-session? (make-model-session #f (list ocr barcodes))))))
+    (else
+      '(#t #t "getText" "readBarcodes" "read-text" "Reads the text of an image." #f #t #t)))
+)
+
+(
+  "Spotlight search tool"
+  (#t #t "spotlight_search" "search" () () #t #t #t)
+  (cond-expand
+    ((library (lispkit foundation-model tool))
+      (let ((spotlight (make-spotlight-search-tool)))
+        (list (tool? spotlight)
+              (spotlight-search-tool? spotlight)
+              (tool-name spotlight)
+              (tool-name (make-spotlight-search-tool '((name . "search"))))
+              (spotlight-search-results spotlight)
+              (begin (spotlight-search-results-clear! spotlight)
+                     (spotlight-search-results spotlight))
+              (and (memq 'display-name (spotlight-search-attributes))
+                   (memq 'content-modification-date (spotlight-search-attributes))
+                   #t)
+              (model-session? (make-model-session #f (list spotlight (make-ocr-tool))))
+              (raises? (spotlight-search-results (make-ocr-tool))))))
+    (else
+      '(#t #t "spotlight_search" "search" () () #t #t #t)))
+)
+
+(
+  "Spotlight search tool configurations"
+  (#t #t #t #t #t #t #t #t #t #t)
+  (cond-expand
+    ((library (lispkit foundation-model tool))
+      (list (spotlight-search-tool?
+              (make-spotlight-search-tool
+                '((sources core-spotlight
+                           (files (scopes "/tmp") (max-results . 10)
+                                  (fetch-attributes display-name "kMDItemNamedLocation")))
+                  (guide focused (documents (authors author-names) (modified content-modification-date)))
+                  (format . compact)
+                  (max-response-size . 2000)
+                  (user (display-name . "Jane Appleseed") (email-addresses "jane@example.com")))))
+            (spotlight-search-tool?
+              (make-spotlight-search-tool
+                '((guide dynamic text-match dates (attributes title)) (user . "Jane"))))
+            (spotlight-search-tool? (make-spotlight-search-tool '((guide . complete))))
+            (raises? (make-spotlight-search-tool '((colour . red))))
+            (raises? (make-spotlight-search-tool '((sources web))))
+            (raises? (make-spotlight-search-tool '((sources (files (depth . 3))))))
+            (raises? (make-spotlight-search-tool '((guide focused nowhere))))
+            (raises? (make-spotlight-search-tool '((guide focused (documents (colour title))))))
+            (raises? (make-spotlight-search-tool '((guide dynamic telepathy))))
+            (raises? (make-spotlight-search-tool '((sources (files (fetch-attributes no-such))))))))
+    (else
+      '(#t #t #t #t #t #t #t #t #t #t)))
 )

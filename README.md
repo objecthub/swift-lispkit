@@ -163,6 +163,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     `(lispkit foundation-model claude)`,
     `(lispkit foundation-model gemini)`,
     `(lispkit foundation-model gpt)`,
+    `(lispkit foundation-model tool)`,
     [`(lispkit http)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-HTTP),
     [`(lispkit http server)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-HTTP-Server),
     [`(lispkit http oauth)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-HTTP-OAuth),

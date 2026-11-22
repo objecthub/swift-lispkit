@@ -12,6 +12,12 @@
 ;;; follow-up question, guided generation, and streaming, plus Google Search for
 ;;; Gemini and a stored conversation with web search for GPT.
 ;;;
+;;; After loading this program into a REPL, API keys can be set for the various
+;;; models in the following way:
+;;;   - `(set-anthropic-api-key! "...")`
+;;;   - `(set-gemini-api-key! "...")`
+;;;   - `(set-openai-api-key! "...")`
+;;;
 ;;; The code requires macOS 27 or iOS 27 and a device on which Apple Intelligence
 ;;; is enabled.
 ;;;

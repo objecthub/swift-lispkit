@@ -672,6 +672,11 @@ Open `LispKit.xcodeproj` and build using the appropriate scheme:
 - Stateless by default; option `stateful` stores responses at OpenAI and continues them by ID
 - Implements library `(lispkit foundation-model gpt)`
 
+**FoundationModelToolLibrary.swift** - Apple's native tools
+- `OCRTool` and `BarcodeReaderTool` (Vision overlay) and `SpotlightSearchTool` (CoreSpotlight overlay), wrapped as `NativeTool(native:)`
+- Spotlight results for the app are collected from `searchResults` by `NativeSpotlightSearchTool`; attributes map via a table generated from the CoreSpotlight interface
+- Implements library `(lispkit foundation-model tool)`
+
 **Platform-specific Notes:**
 - Libraries with `_iOS.swift` suffix are iOS-specific implementations
 - **SystemCallLibrary.swift** - macOS only (not available on iOS)

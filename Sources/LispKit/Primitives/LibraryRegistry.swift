@@ -146,6 +146,9 @@ public struct LibraryRegistry {
     #if canImport(FoundationModels)
     if #available(macOS 27.0, iOS 27.0, *) {
       libraries.append(FoundationModelLibrary.self)
+      #if canImport(Vision) && canImport(CoreSpotlight)
+      libraries.append(FoundationModelToolLibrary.self)
+      #endif
       #if canImport(ClaudeForFoundationModels)
       libraries.append(FoundationModelClaudeLibrary.self)
       #endif

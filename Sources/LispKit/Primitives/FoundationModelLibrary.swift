@@ -28,8 +28,9 @@ import FoundationModels
 /// Implements library `(lispkit foundation-model)`, an API for language models based on
 /// Apple's FoundationModels framework. It supports Apple's on-device model, the model
 /// provided via Private Cloud Compute, and models provided by other libraries, such as
-/// `(lispkit foundation-model claude)` and `(lispkit foundation-model gemini)`. The library supports sessions, text and guided
-/// generation, streaming, tool calling with Scheme procedures, and transcripts.
+/// `(lispkit foundation-model claude)` and `(lispkit foundation-model gemini)`. The
+/// library supports sessions, text and guided generation, streaming, tool calling with
+/// Scheme procedures, and transcripts.
 ///
 /// Requests are asynchronous: `model-session-response` returns a future and
 /// `model-session-stream` returns a response stream. Tools are executed by a Scheme thread
@@ -486,7 +487,7 @@ public final class FoundationModelLibrary: NativeLibrary {
       case "tools":
         let hub = ToolHub()
         input = .tools(try self.list(value).map {
-          SchemeTool(tool: try self.tool(from: $0), hub: hub)
+          try self.tool(from: $0).swiftTool(hub: hub)
         })
       case "schema":
         input = .schema(try SchemaCompiler.schema(from: value, in: self.context).schema)
@@ -681,7 +682,7 @@ public final class FoundationModelLibrary: NativeLibrary {
       tools = try self.list(a[1]).map(self.tool(from:))
     }
     let hub = ToolHub()
-    let swiftTools: [any Tool] = tools.map { SchemeTool(tool: $0, hub: hub) }
+    let swiftTools: [any Tool] = tools.map { $0.swiftTool(hub: hub) }
     let session: LanguageModelSession
     if a.count > 2, case .object(let obj) = a[2], let transcript = obj as? NativeTranscript {
       session = LanguageModelSession(model: model.model,
@@ -1111,6 +1112,10 @@ public final class FoundationModelLibrary: NativeLibrary {
       return .false
     }
     let tool = invocation.tool
+    guard let procedure = tool.procedure else {
+      invocation.resume(with: .failure(CancellationError()))
+      return .false
+    }
     let shapes = tool.parameters.shapes
     var args = Exprs()
     if let props = shapes?.properties,
@@ -1129,7 +1134,7 @@ public final class FoundationModelLibrary: NativeLibrary {
       args.append(ContentConverter.expr(from: invocation.arguments, shape: shapes?.root,
                                         shapes: shapes, in: self.context))
     }
-    return .pair(.object(invocation), .pair(.procedure(tool.procedure), .makeList(args)))
+    return .pair(.object(invocation), .pair(.procedure(procedure), .makeList(args)))
   }
 
   private func modelToolReply(expr: Expr, result: Expr) throws -> Expr {

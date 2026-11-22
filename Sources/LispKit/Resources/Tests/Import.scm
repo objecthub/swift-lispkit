@@ -68,6 +68,8 @@
   (import (lispkit foundation-model gemini))))
 (cond-expand ((library (lispkit foundation-model gpt))
   (import (lispkit foundation-model gpt))))
+(cond-expand ((library (lispkit foundation-model tool))
+  (import (lispkit foundation-model tool))))
 
 ; Mac-specific
 (cond-expand (macos

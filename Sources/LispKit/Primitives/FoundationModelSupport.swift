@@ -2203,18 +2203,24 @@ enum ModelErrorDetails {
 // MARK: - Tools
 
 ///
-/// A tool, i.e. a Scheme procedure with a name, a description, and a parameter schema,
-/// that a language model can call.
+/// A tool that a language model can call. A tool has a name, a description, and a parameter
+/// schema. It is either implemented by a Scheme procedure, or natively, by a FoundationModels
+/// tool implemented in Swift (e.g. one of the tools provided by Apple).
 ///
 @available(macOS 27.0, iOS 27.0, *)
-public final class NativeTool: NativeObject {
+public class NativeTool: NativeObject {
   public static let type = Type.objectType(Symbol(uninterned: "tool"))
 
   let name: String
   let descr: String
   let parameters: NativeGenerationSchema
-  let procedure: Procedure
   let includesSchema: Bool
+
+  /// The Scheme procedure implementing the tool; `nil` for native tools.
+  let procedure: Procedure?
+
+  /// The native tool; `nil` for tools implemented by a Scheme procedure.
+  public let native: (any Tool)?
 
   init(name: String,
        description: String,
@@ -2226,6 +2232,28 @@ public final class NativeTool: NativeObject {
     self.parameters = parameters
     self.procedure = procedure
     self.includesSchema = includesSchema
+    self.native = nil
+  }
+
+  /// Creates a tool object for the native tool `tool`.
+  public init(native tool: any Tool) {
+    self.name = tool.name
+    self.descr = tool.description
+    self.parameters = NativeGenerationSchema(tool.parameters, shapes: nil)
+    self.procedure = nil
+    self.includesSchema = tool.includesSchemaInInstructions
+    self.native = tool
+  }
+
+  /// Is this tool implemented by a Scheme procedure?
+  var isSchemeTool: Bool {
+    return self.procedure != nil
+  }
+
+  /// Returns the FoundationModels tool for this tool. Calls of Scheme tools are passed on
+  /// via `hub` to the Scheme worker thread of the current request.
+  func swiftTool(hub: ToolHub) -> any Tool {
+    return self.native ?? SchemeTool(tool: self, hub: hub)
   }
 
   public override var type: Type {
@@ -2241,7 +2269,9 @@ public final class NativeTool: NativeObject {
   }
 
   public override func mark(in gc: GarbageCollector) {
-    gc.mark(self.procedure)
+    if let procedure = self.procedure {
+      gc.mark(procedure)
+    }
   }
 }
 
@@ -2497,7 +2527,7 @@ final class ModelRequest: @unchecked Sendable {
   init(session: NativeModelSession, context: Context) {
     self.session = session
     self.context = context
-    self.dispatcher = session.tools.isEmpty ? nil : ToolDispatcher()
+    self.dispatcher = session.tools.contains(where: \.isSchemeTool) ? ToolDispatcher() : nil
   }
 
   /// Starts the request; `body` is executed by a Swift task.
