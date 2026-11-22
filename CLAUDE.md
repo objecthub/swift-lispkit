@@ -675,7 +675,14 @@ Open `LispKit.xcodeproj` and build using the appropriate scheme:
 **FoundationModelToolLibrary.swift** - Apple's native tools
 - `OCRTool` and `BarcodeReaderTool` (Vision overlay) and `SpotlightSearchTool` (CoreSpotlight overlay), wrapped as `NativeTool(native:)`
 - Spotlight results for the app are collected from `searchResults` by `NativeSpotlightSearchTool`; attributes map via a table generated from the CoreSpotlight interface
+- macOS 27+ only: the file is compiled under `#if os(macOS)` and registered only on macOS
 - Implements library `(lispkit foundation-model tool)`
+
+**NaturalLanguageLibrary.swift** - Natural language processing
+- Apple's NaturalLanguage framework: language identification, tokenization, tagging (lexical classes, names, lemmas, sentiment)
+- Word, sentence, and custom embeddings (distances converted to cosine distances), contextual embeddings, gazetteers
+- Text models (Core ML text classifiers and word taggers); training text classifiers via Create ML (`#if canImport(CreateML)`, not in the iOS simulator)
+- Implements library `(lispkit natural-language)`
 
 **Platform-specific Notes:**
 - Libraries with `_iOS.swift` suffix are iOS-specific implementations

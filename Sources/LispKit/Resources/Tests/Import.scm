@@ -57,6 +57,7 @@
 (import (lispkit location))
 (import (lispkit image))
 (import (lispkit vision))
+(import (lispkit natural-language))
 (import (lispkit debug))
 
 ; Libraries requiring macOS 27 or iOS 27

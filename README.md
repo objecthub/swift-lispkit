@@ -117,6 +117,7 @@ _LispKit_ provides support for the following core features, many of which are ba
     [`(lispkit image)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Image),
     [`(lispkit image process)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Image-Process),
     [`(lispkit vision)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Vision),
+    `(lispkit natural-language)`,
     [`(lispkit location)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Location),
     [`(lispkit styled-text)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Styled-Text),
     [`(lispkit datatype)`](https://github.com/objecthub/swift-lispkit/wiki/LispKit-Datatype),

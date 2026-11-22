@@ -18,7 +18,7 @@
 //  limitations under the License.
 //
 
-#if canImport(FoundationModels) && canImport(Vision) && canImport(CoreSpotlight)
+#if os(macOS) && canImport(FoundationModels) && canImport(Vision) && canImport(CoreSpotlight)
 
 import Foundation
 import FoundationModels
@@ -32,7 +32,7 @@ import CoreSpotlight
 /// images attached to the prompt, and `SpotlightSearchTool` (from CoreSpotlight), which
 /// searches the content indexed by Spotlight.
 ///
-@available(macOS 27.0, iOS 27.0, *)
+@available(macOS 27.0, *)
 public final class FoundationModelToolLibrary: NativeLibrary {
 
   /// Name of the library.
@@ -190,9 +190,7 @@ public final class FoundationModelToolLibrary: NativeLibrary {
               source.maximumResultCount = value.isFalse ? nil
                                         : try value.asInt(above: 1, below: Int.max)
             case "allow-mail":
-              #if os(macOS)
               source.sourceOptions = value.isTrue ? .allowMail : []
-              #endif
             default:
               throw self.invalid("unknown Spotlight source option", self.sym(key))
           }
@@ -566,7 +564,7 @@ public final class FoundationModelToolLibrary: NativeLibrary {
 /// pipeline stages that output to the user). They are collected and returned by
 /// `spotlight-search-results`.
 ///
-@available(macOS 27.0, iOS 27.0, *)
+@available(macOS 27.0, *)
 final class NativeSpotlightSearchTool: NativeTool, @unchecked Sendable {
 
   /// The maximum number of replies that are kept.
@@ -620,7 +618,7 @@ final class NativeSpotlightSearchTool: NativeTool, @unchecked Sendable {
 
 /// Resolves the identity of the user for the Spotlight search tool, e.g. for finding
 /// messages sent by or to the user.
-@available(macOS 27.0, iOS 27.0, *)
+@available(macOS 27.0, *)
 struct SpotlightUser: ContactResolver {
   let contact: ResolvedContact
 
@@ -634,7 +632,7 @@ struct SpotlightUser: ContactResolver {
 /// Scheme names, the corresponding attributes, and the properties of attribute sets that
 /// provide their values.
 ///
-@available(macOS 27.0, iOS 27.0, *)
+@available(macOS 27.0, *)
 enum SpotlightAttributes {
 
   struct Attribute {

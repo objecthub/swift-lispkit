@@ -8,7 +8,7 @@ Library `(lispkit foundation-model tool)` provides tools that are implemented na
 
 The tools are created by procedures of this library and returned as tool objects (see `tool?` of library `(lispkit foundation-model)`). They are passed to `make-model-session` like every other tool, and they can be combined with tools implemented in Scheme. Procedures `tool-name`, `tool-description`, and `tool-parameters` return the name, the description, and the parameter schema that Apple defined for each tool.
 
-The library is only available on macOS 27 and iOS 27 or newer.
+The library is only available on macOS 27 or newer. It is not available on iOS; programs that run on both platforms can check for it with `(cond-expand ((library (lispkit foundation-model tool)) ...))`.
 
 ```scheme
 (import (lispkit foundation-model)
@@ -72,7 +72,7 @@ Returns a new Spotlight search tool. _config_ is an association list configuring
 
 A source is either a symbol or a list starting with a symbol followed by an association list of options:
 
-  - `core-spotlight` searches the items that apps index via the Core Spotlight framework. Options: `fetch-attributes` (a list of attributes that are fetched for the items that are found), `max-results` (the maximum number of results), and, on macOS, `allow-mail` (if `#t`, emails are included; this requires an entitlement).
+  - `core-spotlight` searches the items that apps index via the Core Spotlight framework. Options: `fetch-attributes` (a list of attributes that are fetched for the items that are found), `max-results` (the maximum number of results), and `allow-mail` (if `#t`, emails are included; this requires an entitlement).
   - `files` searches the files indexed by Spotlight. Options: `fetch-attributes`, `max-results`, and `scopes` (a list of paths of directories to which the search is restricted).
 
 A guide has one of the following forms:
