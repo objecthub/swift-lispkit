@@ -355,6 +355,16 @@ class RegressionTests: LispKitTestCase {
     self.execute(file: "SRFI25")
   }
 
+  func testSRFI231() {
+    // The context is bootstrapped so that errors thrown by native procedures can be caught
+    do {
+      try self.context?.bootstrap()
+    } catch {
+      preconditionFailure("cannot bootstrap test context: \(error)")
+    }
+    self.execute(file: "SRFI231")
+  }
+
   func testSRFI35() {
     self.execute(file: "SRFI35")
   }

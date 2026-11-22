@@ -278,6 +278,7 @@ framework:
   - [SRFI 228: Composing Comparators](https://srfi.schemers.org/srfi-228/srfi-228.html)
   - [SRFI 229: Tagged procedures](https://srfi.schemers.org/srfi-229/srfi-229.html)
   - [SRFI 230: Atomic Operations](https://srfi.schemers.org/srfi-230/srfi-230.html)
+  - [SRFI 231: Intervals and Generalized Arrays](https://srfi.schemers.org/srfi-231/srfi-231.html)
   - [SRFI 232: Flexible curried procedures](https://srfi.schemers.org/srfi-232/srfi-232.html)
   - [SRFI 233: INI files](https://srfi.schemers.org/srfi-233/srfi-233.html)
   - [SRFI 235: Combinators](https://srfi.schemers.org/srfi-235/srfi-235.html)  
