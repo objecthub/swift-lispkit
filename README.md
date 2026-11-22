@@ -284,8 +284,10 @@ framework:
   - [SRFI 235: Combinators](https://srfi.schemers.org/srfi-235/srfi-235.html)  
   - [SRFI 236: Evaluating expressions in an unspecified order](https://srfi.schemers.org/srfi-236/srfi-236.html)
   - [SRFI 239: Destructuring Lists](https://srfi.schemers.org/srfi-239/srfi-239.html)
+  - [SRFI 253: Data (Type-)Checking](https://srfi.schemers.org/srfi-253/srfi-253.html)
   - [SRFI 258: Uninterned Symbols](https://srfi.schemers.org/srfi-258/srfi-258.html)
   - [SRFI 272: Pretty Printing](https://srfi.schemers.org/srfi-272/srfi-272.html)
+  - [SRFI 273: Extensions to Data (Type-)Checking](https://srfi.schemers.org/srfi-273/srfi-273.html)
   - [SRFI 275: URIs, IRIs, and basic paths](https://srfi.schemers.org/srfi-275/srfi-275.html)
 
 

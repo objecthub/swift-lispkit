@@ -1,9 +1,10 @@
 ;;; SRFI 116 REGRESSION TEST SUITE
 ;;;
-;;; This is the test suite for SRFI 116 and for the library (scheme ilist) forwarding to it.
-;;; It contains the tests of the SRFI 116 reference implementation (as ported to Chibi Scheme)
-;;; and additional tests covering the native-pair representation of ipairs, conversions of
-;;; mutable pairs, comparators, edge cases and error handling.
+;;; This is the test suite for SRFI 116 and for the library (scheme ilist)
+;;; forwarding to it. It contains the tests of the SRFI 116 reference
+;;; implementation and additional tests covering the native-pair representation
+;;; of ipairs, conversions of mutable pairs, comparators, edge cases and
+;;; error handling.
 ;;;
 ;;; Copyright © 2014 John Cowan. All rights reserved.
 ;;;
