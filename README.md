@@ -195,6 +195,7 @@ framework:
   - [SRFI 18: Multithreading support](https://srfi.schemers.org/srfi-18/srfi-18.html)  
   - [SRFI 19: Time Data Types and Procedures](https://srfi.schemers.org/srfi-19/srfi-19.html)
   - [SRFI 23: Error reporting mechanism](https://srfi.schemers.org/srfi-23/srfi-23.html)
+  - [SRFI 25: Multi-dimensional Array Primitives](https://srfi.schemers.org/srfi-25/srfi-25.html)
   - [SRFI 26: Notation for Specializing Parameters without Currying](https://srfi.schemers.org/srfi-26/srfi-26.html)
   - [SRFI 27: Sources of Random Bits](https://srfi.schemers.org/srfi-27/srfi-27.html)
   - [SRFI 28: Basic Format Strings](https://srfi.schemers.org/srfi-28/srfi-28.html)

@@ -139,6 +139,7 @@
 (import (srfi 18))
 (import (srfi 19))
 (import (srfi 23))
+(import (srfi 25))
 (import (srfi 26))
 (import (srfi 27))
 (import (srfi 28))
