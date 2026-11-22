@@ -79,8 +79,8 @@ public struct GPTModelBackend: LanguageModelBackend {
 @available(macOS 27.0, iOS 27.0, *)
 public final class FoundationModelGPTLibrary: NativeLibrary {
 
-  /// Is the error translator registered?
-  nonisolated(unsafe) private static var translatorRegistered = false
+  /// Is the model family registered?
+  nonisolated(unsafe) private static var modelFamilyRegistered = false
   private static let lock = NSLock()
 
   /// Name of the library.
@@ -95,10 +95,7 @@ public final class FoundationModelGPTLibrary: NativeLibrary {
 
   /// Declarations of the library.
   public override func declarations() {
-    Self.registerErrorTranslator()
-    LanguageModelFamilies.register(family: "gpt", vendor: "OpenAI") {
-      GPTModel.knownModels.map(\.id)
-    }
+    Self.registerModelFamily()
     self.define(Procedure("make-gpt-model", self.makeGPTModel))
     self.define(Procedure("gpt-models", self.gptModels))
     self.define(Procedure("gpt-model-capabilities", self.gptModelCapabilities))
@@ -106,13 +103,15 @@ public final class FoundationModelGPTLibrary: NativeLibrary {
     self.define(Procedure("gpt-tool-activities", self.gptToolActivities))
   }
 
-  private static func registerErrorTranslator() {
+  private static func registerModelFamily() {
     Self.lock.lock()
-    defer { Self.lock.unlock() }
-    guard !Self.translatorRegistered else {
+    defer {
+      Self.lock.unlock()
+    }
+    guard !Self.modelFamilyRegistered else {
       return
     }
-    Self.translatorRegistered = true
+    Self.modelFamilyRegistered = true
     ModelErrors.register { error in
       if let error = error as? GPTError {
         let message = error.errorDescription ?? error.localizedDescription
@@ -132,6 +131,9 @@ public final class FoundationModelGPTLibrary: NativeLibrary {
         return (error.code.replacingOccurrences(of: "_", with: "-"), error.message)
       }
       return nil
+    }
+    LanguageModelFamilies.register(family: "gpt", vendor: "OpenAI") {
+      GPTModel.knownModels.map(\.id)
     }
   }
 

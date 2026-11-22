@@ -228,7 +228,7 @@ public struct PrivateCloudComputeModelBackend: LanguageModelBackend {
   }
 
   public var family: String {
-    return "private-cloud-compute"
+    return "afm-cloud"
   }
 
   public func availability() async throws -> String {
@@ -1793,7 +1793,7 @@ public enum ModelErrors {
           case .serviceUnavailable(_):
             return "service-unavailable"
           @unknown default:
-            return "private-cloud-compute-error"
+            return "afm-cloud-error"
         }
       case is SystemLanguageModel.Error:
         return "assets-unavailable"

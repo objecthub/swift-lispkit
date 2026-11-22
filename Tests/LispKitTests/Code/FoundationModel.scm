@@ -64,10 +64,10 @@
 
 (
   "Language model families"
-  (#t system private-cloud-compute #f)
+  (#t system afm-cloud #f)
   (list (language-model? (system-language-model))
         (language-model-family (system-language-model 'content-tagging 'default))
-        (language-model-family (private-cloud-compute-language-model))
+        (language-model-family (afm-cloud-language-model))
         (language-model? "model"))
 )
 
@@ -75,16 +75,16 @@
   "Language model availability"
   (#t #t)
   (list (symbol? (language-model-availability (system-language-model)))
-        (boolean? (language-model-available? (private-cloud-compute-language-model))))
+        (boolean? (language-model-available? (afm-cloud-language-model))))
 )
 
 (
   "Language model names"
-  (#t #t "private-cloud-compute")
+  (#t #t "afm-cloud")
   (let ((name (language-model-name (system-language-model))))
     (list (and (member name '("AFM 3 Core" "AFM 3 Core Advanced")) #t)
           (equal? name (language-model-name (system-language-model 'content-tagging 'default)))
-          (language-model-name (private-cloud-compute-language-model))))
+          (language-model-name (afm-cloud-language-model))))
 )
 
 (
@@ -92,13 +92,13 @@
   (#t #t #t #f #t "Apple" "Apple" #f)
   (let ((families (available-language-model-families)))
     (list (and (memq 'system families) #t)
-          (and (memq 'private-cloud-compute families) #t)
+          (and (memq 'afm-cloud families) #t)
           (and (member (available-language-models 'system)
                       (list '() (list (language-model-name (system-language-model))))) #t)
           (available-language-models 'unknown)
           (raises? (available-language-models "system"))
           (language-model-family-vendor 'system)
-          (language-model-family-vendor 'private-cloud-compute)
+          (language-model-family-vendor 'afm-cloud)
           (language-model-family-vendor 'unknown)))
 )
 
@@ -106,7 +106,7 @@
   "Unsupported model queries"
   (#f #f)
   (list (language-model-quota-usage (system-language-model))
-        (language-model-token-count (private-cloud-compute-language-model) "Hello"))
+        (language-model-token-count (afm-cloud-language-model) "Hello"))
 )
 
 (

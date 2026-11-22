@@ -38,6 +38,10 @@ import FoundationModels
 @available(macOS 27.0, iOS 27.0, *)
 public final class FoundationModelLibrary: NativeLibrary {
 
+  /// Are the model families registered?
+  nonisolated(unsafe) private static var modelFamiliesRegistered = false
+  private static let lock = NSLock()
+
   /// Name of the library.
   public override class var name: [String] {
     return ["lispkit", "foundation-model"]
@@ -55,20 +59,11 @@ public final class FoundationModelLibrary: NativeLibrary {
 
   /// Declarations of the library.
   public override func declarations() {
-    // Families of language models: Apple's models are available if the device can use them;
-    // the name of the on-device model is the model variant the device uses
-    LanguageModelFamilies.register(family: "system", vendor: "Apple") {
-      let backend = SystemModelBackend(.default)
-      return try await backend.availability() == "available" ? [backend.name] : []
-    }
-    LanguageModelFamilies.register(family: "private-cloud-compute", vendor: "Apple") {
-      let backend = PrivateCloudComputeModelBackend(PrivateCloudComputeLanguageModel())
-      return try await backend.availability() == "available" ? [backend.name] : []
-    }
+    Self.registerModelFamilies()
     // Language models
     self.define(Procedure("language-model?", self.isLanguageModel))
     self.define(Procedure("system-language-model", self.systemLanguageModel))
-    self.define(Procedure("private-cloud-compute-language-model",
+    self.define(Procedure("afm-cloud-language-model",
                           self.privateCloudComputeLanguageModel))
     self.define(Procedure("language-model-family", self.languageModelFamily))
     self.define(Procedure("language-model-name", self.languageModelName))
@@ -193,6 +188,28 @@ public final class FoundationModelLibrary: NativeLibrary {
             ((eof-object? next))
           (proc next)))
     """)
+  }
+
+  /// Registers the families of Apple's language models, once: Apple's models are
+  /// available if the device can use them; the name of the on-device model is the
+  /// model variant the device uses.
+  private static func registerModelFamilies() {
+    Self.lock.lock()
+    defer {
+      Self.lock.unlock()
+    }
+    guard !Self.modelFamiliesRegistered else {
+      return
+    }
+    Self.modelFamiliesRegistered = true
+    LanguageModelFamilies.register(family: "system", vendor: "Apple") {
+      let backend = SystemModelBackend(.default)
+      return try await backend.availability() == "available" ? [backend.name] : []
+    }
+    LanguageModelFamilies.register(family: "afm-cloud", vendor: "Apple") {
+      let backend = PrivateCloudComputeModelBackend(PrivateCloudComputeLanguageModel())
+      return try await backend.availability() == "available" ? [backend.name] : []
+    }
   }
 
   // MARK: - Helpers
@@ -339,7 +356,7 @@ public final class FoundationModelLibrary: NativeLibrary {
   private func privateCloudComputeLanguageModel() -> Expr {
     return .object(NativeLanguageModel(
       PrivateCloudComputeModelBackend(PrivateCloudComputeLanguageModel()),
-      label: "private-cloud-compute"))
+      label: "afm-cloud"))
   }
 
   private func languageModelFamily(expr: Expr) throws -> Expr {

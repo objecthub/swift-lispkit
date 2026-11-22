@@ -32,7 +32,7 @@ Generating a response is an asynchronous operation. Procedures `model-session-re
 
 ## Language models
 
-Language models are represented by objects of type `language-model`. Each language model belongs to a _family_ of models and has a _name_ which identifies it within its family. Library `(lispkit foundation-model)` provides two families of language models: Apple's on-device language model (family `system`) and Apple's language model running on Private Cloud Compute (family `private-cloud-compute`). Other libraries can provide additional families of language models, e.g. library `(lispkit foundation-model claude)` provides Claude models (family `claude`), library `(lispkit foundation-model gemini)` provides Gemini models (family `gemini`), and library `(lispkit foundation-model gpt)` provides GPT models (family `gpt`).
+Language models are represented by objects of type `language-model`. Each language model belongs to a _family_ of models and has a _name_ which identifies it within its family. Library `(lispkit foundation-model)` provides two families of language models: Apple's on-device language model (family `system`) and Apple's language model running on Private Cloud Compute (family `afm-cloud`). Other libraries can provide additional families of language models, e.g. library `(lispkit foundation-model claude)` provides Claude models (family `claude`), library `(lispkit foundation-model gemini)` provides Gemini models (family `gemini`), and library `(lispkit foundation-model gpt)` provides GPT models (family `gpt`).
 
 **(language-model? _obj_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
@@ -44,13 +44,13 @@ Returns `#t` if _obj_ is a language model; `#f` otherwise.
 
 Returns Apple's on-device language model. _use-case_ is either `general` (the default) or `content-tagging`, which specializes the model for tagging content. _guardrails_ is either `default` (the default) or `permissive-content-transformations`, which reduces the guardrails for tasks that transform user-provided content, e.g. for summarizing or rewriting text.
 
-**(private-cloud-compute-language-model)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(afm-cloud-language-model)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
 Returns Apple's language model running on Private Cloud Compute.
 
 **(language-model-family _model_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Returns the family of language model _model_ as a symbol: `system`, `private-cloud-compute`, or a family defined by another library, such as `claude`, `gemini`, or `gpt`.
+Returns the family of language model _model_ as a symbol: `system`, `afm-cloud`, or a family defined by another library, such as `claude`, `gemini`, or `gpt`.
 
 **(language-model-name _model_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
@@ -59,7 +59,7 @@ Returns the name of language model _model_ as a string. The name identifies the 
 | Family | Names |
 | :--- | :--- |
 | `system` | The model the device uses: `"AFM 3 Core"` or `"AFM 3 Core Advanced"` |
-| `private-cloud-compute` | `"private-cloud-compute"` |
+| `afm-cloud` | `"afm-cloud"` |
 | `claude` | The model identifier, e.g. `"claude-opus-5-5"` |
 | `gemini` | The model identifier, e.g. `"gemini-3.8-flash"` |
 | `gpt` | The model identifier, e.g. `"gpt-5.5"` |
@@ -73,11 +73,11 @@ For Claude, Gemini, and GPT models, the name is the model identifier that was pa
 
 **(available-language-model-families)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Returns a list of the families of language models as symbols. Besides `system` and `private-cloud-compute`, the list contains the families provided by libraries that have been loaded, such as `claude`, `gemini`, and `gpt`.
+Returns a list of the families of language models as symbols. Besides `system` and `afm-cloud`, the list contains the families provided by libraries that have been loaded, such as `claude`, `gemini`, and `gpt`.
 
 ```scheme
 (import (lispkit foundation-model claude))
-(available-language-model-families)  ⇒  (claude private-cloud-compute system)
+(available-language-model-families)  ⇒  (afm-cloud claude system)
 ```
 
 **(language-model-family-vendor _family_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
@@ -87,7 +87,7 @@ Returns the name of the vendor of the language models of family _family_, a symb
 | Family | Vendor |
 | :--- | :--- |
 | `system` | `"Apple"` |
-| `private-cloud-compute` | `"Apple"` |
+| `afm-cloud` | `"Apple"` |
 | `claude` | `"Anthropic"` |
 | `gemini` | `"Google"` |
 | `gpt` | `"OpenAI"` |
@@ -102,7 +102,7 @@ Returns the name of the vendor of the language models of family _family_, a symb
 Returns a list of the names of the available language models of family _family_, a symbol. `#f` is returned if _family_ is not a known family of language models (see `available-language-model-families`). The library implementing a family determines what is available:
 
 - `system`: the name of the model the device uses, if it is available (see `language-model-available?`); otherwise, the list is empty.
-- `private-cloud-compute`: `"private-cloud-compute"`, if the model is available; otherwise, the list is empty.
+- `afm-cloud`: `"afm-cloud"`, if the model is available; otherwise, the list is empty.
 - `claude`, `gemini`, and `gpt`: the models known to the library, i.e. the result of `claude-models`, `gemini-models`, and `gpt-models`. Whether a model can be used with a particular API key is not checked; `gemini-available-models` and `gpt-available-models` list the models offered by the Gemini and OpenAI APIs.
 
 ```scheme
@@ -117,14 +117,14 @@ The family and the name of a model are sufficient for creating a model of the sa
 (define (make-language-model family name)
   (case family
     ((system) (system-language-model))
-    ((private-cloud-compute) (private-cloud-compute-language-model))
+    ((afm-cloud) (afm-cloud-language-model))
     ((claude) (make-claude-model name))
     ((gemini) (make-gemini-model name))
     ((gpt) (make-gpt-model name))
     (else (error "unknown family of language models" family))))
 ```
 
-For the families `system` and `private-cloud-compute`, the name is not needed: there is only one model of these families on a device. Everything else that was specified when the original model was created is not carried over and needs to be passed again: the use case and guardrails of the on-device model, and the credentials and options of Claude, Gemini, and GPT models (e.g. effort levels, thinking levels, reasoning efforts, and built-in tools). Without credentials, `make-claude-model`, `make-gemini-model`, and `make-gpt-model` use the API keys in the environment variables `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, and `OPENAI_API_KEY`.
+For the families `system` and `afm-cloud`, the name is not needed: there is only one model of these families on a device. Everything else that was specified when the original model was created is not carried over and needs to be passed again: the use case and guardrails of the on-device model, and the credentials and options of Claude, Gemini, and GPT models (e.g. effort levels, thinking levels, reasoning efforts, and built-in tools). Without credentials, `make-claude-model`, `make-gemini-model`, and `make-gpt-model` use the API keys in the environment variables `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, and `OPENAI_API_KEY`.
 
 **(language-model-available? _model_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 

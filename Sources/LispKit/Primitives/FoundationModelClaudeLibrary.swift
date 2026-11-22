@@ -63,8 +63,8 @@ public final class FoundationModelClaudeLibrary: NativeLibrary {
     .opus4_8, .opus4_7, .opus4_6, .sonnet4_6, .haiku4_5
   ]
 
-  /// Is the error translator registered?
-  nonisolated(unsafe) private static var translatorRegistered = false
+  /// Is the model family registered?
+  nonisolated(unsafe) private static var modelFamilyRegistered = false
   private static let lock = NSLock()
 
   /// Name of the library.
@@ -79,10 +79,7 @@ public final class FoundationModelClaudeLibrary: NativeLibrary {
 
   /// Declarations of the library.
   public override func declarations() {
-    Self.registerErrorTranslator()
-    LanguageModelFamilies.register(family: "claude", vendor: "Anthropic") {
-      Self.knownModels.map(\.id)
-    }
+    Self.registerModelFamily()
     self.define(Procedure("make-claude-model", self.makeClaudeModel))
     self.define(Procedure("claude-models", self.claudeModels))
     self.define(Procedure("claude-model-capabilities", self.claudeModelCapabilities))
@@ -92,13 +89,15 @@ public final class FoundationModelClaudeLibrary: NativeLibrary {
     self.define(Procedure("claude-response-model-id", self.claudeResponseModelId))
   }
 
-  private static func registerErrorTranslator() {
+  private static func registerModelFamily() {
     Self.lock.lock()
-    defer { Self.lock.unlock() }
-    guard !Self.translatorRegistered else {
+    defer {
+      Self.lock.unlock()
+    }
+    guard !Self.modelFamilyRegistered else {
       return
     }
-    Self.translatorRegistered = true
+    Self.modelFamilyRegistered = true
     ModelErrors.register { error in
       guard let error = error as? ClaudeError else {
         return nil
@@ -114,6 +113,9 @@ public final class FoundationModelClaudeLibrary: NativeLibrary {
         @unknown default:
           return ("claude-error", message)
       }
+    }
+    LanguageModelFamilies.register(family: "claude", vendor: "Anthropic") {
+      Self.knownModels.map(\.id)
     }
   }
 
