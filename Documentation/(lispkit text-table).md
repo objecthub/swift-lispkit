@@ -79,7 +79,7 @@ Returns `#t` if _obj_ is a valid text table header. A text table header is a pro
 Returns `#t` if _obj_ is a valid text table row. A text table row is a proper list of row cells, one for each column of the text table. A row cell has one of the following forms:
 
    - _"content"_, just specifying the content of the cell.
-   - _("content" align)_ where _align_ is an alignment specifier (i.e. either `left`, `right`, `center`) that declares how the content in the row cell is aligned.
+   - _("content" align)_ or _("content" . align)_ where _align_ is an alignment specifier (i.e. either `left`, `right`, `center`) that declares how the content in the row cell is aligned.
 
 **(make-text-table _headers_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(make-text-table _headers sep_)**  
@@ -95,7 +95,7 @@ Returns a new text table with the given header row. _headers_ is a valid text ta
 
 **(add-text-table-row! _table row_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 
-Adds a new row to the given text table. _row_ is a valid text table row, i.e. it is a proper list of row cells, one for each column of the text table. A row cell is either a string or a list with two elements, a string and an alignment specifier (i.e. either `left`, `right`, `center`) which declares how the content in the row cell is aligned.
+Adds a new row to the given text table. _row_ is a valid text table row, i.e. it is a proper list of row cells, one for each column of the text table. A row cell is either a string, a list with two elements, a string and an alignment specifier (i.e. either `left`, `right`, `center`) which declares how the content in the row cell is aligned, or a pair consisting of a string and an alignment specifier.
 
 **(add-text-table-separator! _table_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(add-text-table-separator! _table sep_)**  
@@ -140,3 +140,79 @@ Corresponds to one of the seven supported text table separators.
 **(text-table-\>string _table border_)**  
 
 Returns the given text table as a string that can be displayed. _border_ is a boolean argument specifying whether a border is printed around the table.
+
+
+## Data frames
+
+**(data-frame-\>text-table _df_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
+**(data-frame-\>text-table _df options_)**  
+
+Returns a new text table showing the content of data frame _df_ as defined by library `(lispkit data-frame)`. The header row consists of the names of the columns, and there is one table row for every row of _df_. Values are converted into strings: numbers via `number->string`, booleans as `true` and `false`, date-time objects via `date-time->string`, strings as they are (strings with newlines become multi-line cells), and all other values via `write`. By default, numeric columns are right-aligned, boolean columns are centered, and all other columns are left-aligned.
+
+_options_ is an association list supporting the following options:
+
+  - `columns`: a list of the names of the columns to show, in the order in which they are shown (default: all columns)
+  - `headers`: an association list mapping column names to header cells. A header cell is either a title string or a list of the form _("title" halign calign min max)_ as accepted by `text-table-header?`. By default, the title is the column name.
+  - `align`: an association list mapping column names to alignment specifiers for the cells of the columns
+  - `format`: either an association list mapping column names to procedures which convert a value of the column into a string, or a procedure which receives a value and the name of its column and returns a string. Formatting procedures are not applied to missing values.
+  - `missing`: the string shown for missing values (default is `""`)
+  - `max-cell-width`: the maximum width of the columns (default is 100); longer content is truncated
+  - `max-rows`: the maximum number of rows shown; if _df_ has more rows, a final row consisting of `…` is added (default: all rows)
+  - `row-indices`: if `#t`, a first column shows the index of each row (default is `#f`)
+  - `header-sep`: the separator between the header row and the other rows (default is `bold-line-sep`)
+  - `row-sep`: the separator between rows (default is `no-sep`)
+  - `edges`: the edges of the table (default is `sharp-edges`)
+
+Separators and edges can be specified either by their values, e.g. `line-sep`, or by their names as symbols, e.g. `(row-sep . line-sep)`.
+
+```scheme
+(import (lispkit data-frame))
+(define df
+  (csv->data-frame
+    (string-append "name,city,age,score,member\n"
+                   "Alice,Zurich,34,88.5,true\n"
+                   "Bob,Basel,,72.0,\n"
+                   "Carol,Zurich,29,NA,true\n"
+                   "Dave,Bern,41,95.25,false\n")))
+(display (text-table->string (data-frame->text-table df)))
+```
+
+This displays the following table:
+
+```
+┌───────┬────────┬─────┬───────┬────────┐
+│ name  │  city  │ age │ score │ member │
+┝━━━━━━━┿━━━━━━━━┿━━━━━┿━━━━━━━┿━━━━━━━━┥
+│ Alice │ Zurich │  34 │  88.5 │  true  │
+│ Bob   │ Basel  │     │  72.0 │        │
+│ Carol │ Zurich │  29 │       │  true  │
+│ Dave  │ Bern   │  41 │ 95.25 │ false  │
+└───────┴────────┴─────┴───────┴────────┘
+```
+
+Options customize the columns, the separators, and the treatment of missing values:
+
+```scheme
+(display
+  (text-table->string
+    (data-frame->text-table df
+      '((columns name age member)
+        (headers (name . "Name") ("age" "Age" left right 6))
+        (missing . "–")
+        (row-sep . line-sep)
+        (edges . round-edges)
+        (header-sep . double-line-sep)
+        (max-rows . 2)
+        (row-indices . #t)))))
+```
+
+```
+╭───┬───────┬────────┬────────╮
+│   │ Name  │ Age    │ member │
+╞═══╪═══════╪════════╪════════╡
+│ 0 │ Alice │     34 │  true  │
+├───┼───────┼────────┼────────┤
+│ 1 │ Bob   │      – │   –    │
+│ … │ …     │      … │   …    │
+╰───┴───────┴────────┴────────╯
+```

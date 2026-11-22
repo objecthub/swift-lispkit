@@ -367,6 +367,26 @@ class RegressionTests: LispKitTestCase {
     self.execute(file: "NaturalLanguage")
   }
 
+  func testDataFrame() {
+    // The context is bootstrapped so that errors thrown by native procedures can be caught
+    do {
+      try self.context?.bootstrap()
+    } catch {
+      preconditionFailure("cannot bootstrap test context: \(error)")
+    }
+    self.execute(file: "DataFrame")
+  }
+  
+  func testTextTable() {
+    // The context is bootstrapped so that errors thrown by native procedures can be caught
+    do {
+      try self.context?.bootstrap()
+    } catch {
+      preconditionFailure("cannot bootstrap test context: \(error)")
+    }
+    self.execute(file: "TextTable")
+  }
+
   func testSRFI19() {
     self.execute(file: "SRFI19")
   }

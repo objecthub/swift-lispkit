@@ -684,6 +684,12 @@ Open `LispKit.xcodeproj` and build using the appropriate scheme:
 - Text models (Core ML text classifiers and word taggers); training text classifiers via Create ML (`#if canImport(CreateML)`, not in the iOS simulator)
 - Implements library `(lispkit natural-language)`
 
+**DataFrameLibrary.swift** - Data frames
+- Immutable data frames on Apple's TabularData framework; missing values are `#f`
+- Column types integer/double/boolean/string/date/data/array/object; inference from Scheme values; CSV/JSON reading and writing with option alists
+- Rows are reordered generically via `AnyColumn.prototype.makeColumn`; sorting and aggregation are implemented in Swift; filter/update/compute are Scheme code (`define(_:via:)`), so user procedures never run in a nested VM
+- Implements library `(lispkit data-frame)`
+
 **Platform-specific Notes:**
 - Libraries with `_iOS.swift` suffix are iOS-specific implementations
 - **SystemCallLibrary.swift** - macOS only (not available on iOS)

@@ -53,7 +53,7 @@
 ;;; 
 ;;; 
 ;;; Author: Matthias Zenger
-;;; Copyright © 2021 Matthias Zenger. All rights reserved.
+;;; Copyright © 2021-2026 Matthias Zenger. All rights reserved.
 ;;;
 ;;; Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 ;;; except in compliance with the License. You may obtain a copy of the License at
@@ -95,10 +95,16 @@
           dashed-line-sep
           bold-dashed-line-sep
           
-          text-table->string)
+          text-table->string
+          data-frame->text-table)
   
   (import (lispkit base)
-          (lispkit gvector))
+          (lispkit gvector)
+          (only (lispkit date-time)
+            date-time? date-time->string)
+          (only (lispkit data-frame)
+            data-frame? data-frame-column-names data-frame-column-types
+            data-frame-column data-frame-row-count data-frame-missing?))
 
   (begin
     
@@ -126,11 +132,19 @@
           (and (text-table-cell? (car row)) (text-table-row? (cdr row)))
           (null? row)))
     
+    ;; A row cell is either a string, a list ("content" align), or a pair ("content" . align)
     (define (text-table-cell? cell)
       (or (string? cell)
           (and (pair? cell)
                (string? (car cell))
-               (alignment-specifier? (cdr cell)))))
+               (or (alignment-specifier? (cdr cell))
+                   (and (pair? (cdr cell))
+                        (alignment-specifier? (cadr cell))
+                        (null? (cddr cell)))))))
+    
+    ;; Returns the alignment specifier of a cell which is not a string
+    (define (cell-alignment cell)
+      (if (pair? (cdr cell)) (cadr cell) (cdr cell)))
     
     ;; Column alignment specifiers
     
@@ -255,7 +269,8 @@
     ;; Rendering tables
     
     (define (alignment-proc cell default)
-      (case (if (string? cell) default (cdr cell))
+      (case (let ((align (if (string? cell) '() (cell-alignment cell))))
+              (if (null? align) default align))
         ((center) string-pad-center)
         ((right) string-pad-left)
         (else string-pad-right)))
@@ -368,5 +383,123 @@
                            (append (table-line (vector-ref vec (- i 1)) sizes alignments) strs)))
                     ((<= i 3) strs))
                 "\n"))))))
+    
+    ;; Data frames
+    
+    (define data-frame-options
+      '(columns headers align format missing max-cell-width max-rows row-indices
+        header-sep row-sep edges))
+    
+    (define (option options key default)
+      (let ((entry (assq key options)))
+        (if entry (cdr entry) default)))
+    
+    ;; Looks up column `name` (a string) in an association list whose keys are strings
+    ;; or symbols
+    (define (column-option alist name default)
+      (let loop ((alist alist))
+        (cond ((null? alist) default)
+              ((let ((key (caar alist)))
+                 (string=? (if (symbol? key) (symbol->string key) key) name))
+                (cdar alist))
+              (else (loop (cdr alist))))))
+    
+    (define (column-name name)
+      (if (symbol? name) (symbol->string name) name))
+    
+    (define (separator-option obj)
+      (case obj
+        ((no-sep) no-sep)
+        ((space-sep) space-sep)
+        ((line-sep) line-sep)
+        ((double-line-sep) double-line-sep)
+        ((bold-line-sep) bold-line-sep)
+        ((dashed-line-sep) dashed-line-sep)
+        ((bold-dashed-line-sep) bold-dashed-line-sep)
+        (else
+          (if (or (not obj) (text-table-separator? obj))
+              obj
+              (error "invalid text table separator" obj)))))
+    
+    (define (edges-option obj)
+      (case obj
+        ((no-edges) no-edges)
+        ((sharp-edges) sharp-edges)
+        ((round-edges) round-edges)
+        (else
+          (if (text-table-edges? obj)
+              obj
+              (error "invalid text table edges" obj)))))
+    
+    (define (default-alignment type)
+      (case type
+        ((integer double) 'right)
+        ((boolean) 'center)
+        (else 'left)))
+    
+    (define (format-value x)
+      (cond ((string? x) x)
+            ((number? x) (number->string x))
+            ((boolean? x) (if x "true" "false"))
+            ((date-time? x) (date-time->string x))
+            (else (object->string x #t))))
+    
+    (define (data-frame->text-table df . args)
+      (let-optionals args ((options '()))
+        (assert (data-frame? df))
+        (for-each (lambda (entry)
+                    (if (not (and (pair? entry) (memq (car entry) data-frame-options)))
+                        (error "invalid data frame option" entry)))
+                  options)
+        (let* ((names (map column-name (option options 'columns (data-frame-column-names df))))
+               (types (data-frame-column-types df))
+               (headers (option options 'headers '()))
+               (aligns (option options 'align '()))
+               (fmt (option options 'format '()))
+               (missing (option options 'missing ""))
+               (max-width (option options 'max-cell-width 100))
+               (count (data-frame-row-count df))
+               (max-rows (option options 'max-rows #f))
+               (rows (if (and max-rows (< max-rows count)) max-rows count))
+               (indices? (option options 'row-indices #f))
+               (row-sep (separator-option (option options 'row-sep no-sep)))
+               (columns (map (lambda (name) (data-frame-column df name)) names))
+               (column-types (map (lambda (name) (column-option types name 'other)) names))
+               (alignments (map (lambda (name type)
+                                  (column-option aligns name (default-alignment type)))
+                                names column-types))
+               (formatters (map (lambda (name)
+                                  (if (procedure? fmt)
+                                      (lambda (x) (fmt x name))
+                                      (column-option fmt name format-value)))
+                                names))
+               (header-cells (map (lambda (name align)
+                                    (let ((h (column-option headers name name)))
+                                      (if (string? h) (list h 'center align 1 max-width) h)))
+                                  names alignments))
+               (table (new-text-table
+                        (gvector (if indices? (cons '("" center right) header-cells) header-cells)
+                                 (separator-option (option options 'header-sep bold-line-sep))
+                                 (edges-option (option options 'edges sharp-edges))))))
+          (if (null? names)
+              (error "text tables require at least one column" df))
+          (assert (text-table-header? header-cells))
+          (do ((i 0 (+ i 1)))
+              ((>= i rows))
+            (if (and row-sep (> i 0))
+                (add-text-table-separator! table row-sep))
+            (let ((cells (map (lambda (name column type formatter)
+                                (let ((x (vector-ref column i)))
+                                  ;; In boolean columns, #f is either false or missing
+                                  (if (if (eq? type 'boolean)
+                                          (data-frame-missing? df i name)
+                                          (not x))
+                                      missing
+                                      (formatter x))))
+                              names columns column-types formatters)))
+              (add-text-table-row! table (if indices? (cons (number->string i) cells) cells))))
+          (if (< rows count)
+              (add-text-table-row! table (make-list (+ (length names) (if indices? 1 0)) "…")))
+          table)))
   )
 )

@@ -81,6 +81,7 @@
 		7353E8B5F7FC29E57A5894B3 /* SRFI-272-Basic.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = 29CE3445F5246B5A07115A6D /* SRFI-272-Basic.scm */; };
 		7646AE34EE9152F65F574430 /* SpotlightSearchLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51AFCB4A3760B2E10DAC22D0 /* SpotlightSearchLibrary.swift */; };
 		EF544861C374DAC5CFD3454E /* NaturalLanguageLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5452893B916721BBE5AB4506 /* NaturalLanguageLibrary.swift */; };
+		BA344764BBFD7D657A7B1D53 /* DataFrameLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7EE4233522C602B7F3EAF66 /* DataFrameLibrary.swift */; };
 		79CD3FC9509C4897D067849D /* SRFI-272-Show.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = ABE22F53B68EFD4F6C77AFAC /* SRFI-272-Show.scm */; };
 		7CC3E39CC7F7102C70507AA6 /* YamlLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66CAA060B7DB817DCE3E6570 /* YamlLibrary.swift */; };
 		7CD8FBAA333E4C1CFD890B32 /* SRFI-272-Colorize.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = C8B9ABAF99014851A7459FCB /* SRFI-272-Colorize.scm */; };
@@ -115,8 +116,11 @@
 		BF3F1041F14C41E9B30BA38B /* GPTForFoundationModels in Frameworks */ = {isa = PBXBuildFile; productRef = 9D32BAAED0C24C19954A81DD /* GPTForFoundationModels */; };
 		BF5B3D8A9E9052282B3BB00B /* SRFI-127.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = AB215DF90B9D928F6A42B04E /* SRFI-127.scm */; };
 		BF8BB9AEE13D400E960EEF5B /* DrawLineCharts.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = 47FBDA23FC774F9D896D8303 /* DrawLineCharts.scm */; };
+		AD9FCD7A535D8A0B93919729 /* DataFrames.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = 558883D005E9EC64D140209D /* DataFrames.scm */; };
 		C582A409FF4F2DEBC16BB95E /* SystemSearch.scm in Resources */ = {isa = PBXBuildFile; fileRef = 57574E2BCDA3FDCDAE16B8CF /* SystemSearch.scm */; };
 		A1A2AB65EAFD3F889AB694DD /* NaturalLanguage.scm in Resources */ = {isa = PBXBuildFile; fileRef = 69487B8B8B7EF0E18DBFE21A /* NaturalLanguage.scm */; };
+		C9A0E59E25FCA29DF2690A14 /* DataFrame.scm in Resources */ = {isa = PBXBuildFile; fileRef = BAB66A961D48F34A63F589D8 /* DataFrame.scm */; };
+		B1EEB939CD11FAA82D5E98CC /* TextTable.scm in Resources */ = {isa = PBXBuildFile; fileRef = 434C17166D18368563573F83 /* TextTable.scm */; };
 		C78F759926AE93A817DBE07C /* basic.sld in Copy pre-installed LispKit library: SRFI 272 */ = {isa = PBXBuildFile; fileRef = FFE7D035450809F2D76166EF /* basic.sld */; };
 		C8C14193FF8E3942B88A5342 /* show.sld in Copy pre-installed LispKit library: SRFI 272 */ = {isa = PBXBuildFile; fileRef = 5C30AD6B0A0C7E62EF58D7EE /* show.sld */; };
 		C8EC11836348FB8B4909D61A /* utils.sld in Copy pre-installed LispKit library: SRFI 275 */ = {isa = PBXBuildFile; fileRef = C1DA6F30901DDDE3486E27DE /* utils.sld */; };
@@ -1831,10 +1835,12 @@
 		EFCC98E0280F49D09AA95B08 /* FoundationModelGPTLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = C41B90160D2547EB9444F83F /* FoundationModelGPTLibrary.swift */; };
 		F0043910EA1B4A279557A39D /* FoundationModelGeminiLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5430476D4FCA47DEAA088DCA /* FoundationModelGeminiLibrary.swift */; };
 		F031928D3D214114B04BFB67 /* DrawLineCharts.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = 47FBDA23FC774F9D896D8303 /* DrawLineCharts.scm */; };
+		6EB64068E6546652F846F9E8 /* DataFrames.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = 558883D005E9EC64D140209D /* DataFrames.scm */; };
 		F0F6F3E329CBE704DAB12E73 /* SRFI-275-Escape.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = 3CF4467E1E0285B00F10C06E /* SRFI-275-Escape.scm */; };
 		F44991049D39BF9546706AF0 /* SRFI-272.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = 2AF3C3B56B5DECC0464CDC17 /* SRFI-272.scm */; };
 		F48660C69AA0DEBBD732A55B /* SpotlightSearchLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51AFCB4A3760B2E10DAC22D0 /* SpotlightSearchLibrary.swift */; };
 		1F362EFA57705D5FE5E68F37 /* NaturalLanguageLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5452893B916721BBE5AB4506 /* NaturalLanguageLibrary.swift */; };
+		AC897BA2431166C9D153B408 /* DataFrameLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7EE4233522C602B7F3EAF66 /* DataFrameLibrary.swift */; };
 		F4DDB1FB1FE33F416E81996D /* SRFI-272-Fancy.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = BF59B8A929C375C46411B080 /* SRFI-272-Fancy.scm */; };
 		F4EFB24C66B0AA2EEF89763A /* 25.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = 72250876223857CC38DDD885 /* 25.sld */; };
 		FC94BA761EB979B0D7070590 /* YAML.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = 2A05910491EC31CCA774D57B /* YAML.scm */; };
@@ -2299,6 +2305,7 @@
 				CC7CCB7E2FA5771F00C05C77 /* DrawFunctionCharts.scm in Copy examples */,
 				CACCD92DCC68712296EAAC6A /* DrawPieCharts.scm in Copy examples */,
 				F031928D3D214114B04BFB67 /* DrawLineCharts.scm in Copy examples */,
+				6EB64068E6546652F846F9E8 /* DataFrames.scm in Copy examples */,
 				9A2E5C7B1D3F486A0E4C8B21 /* TinyCLOS.scm in Copy examples */,
 				CC9FF30C2E2E92BC00D4C445 /* Pinterest.scm in Copy examples */,
 				CC4132432DF9BB0A00D77CF6 /* MermaidDiagrams.scm in Copy examples */,
@@ -3705,6 +3712,7 @@
 				CC7CCB7D2FA5770600C05C77 /* DrawFunctionCharts.scm in Copy examples */,
 				ABB20D3ADC3DC5A9613DCF37 /* DrawPieCharts.scm in Copy examples */,
 				BF8BB9AEE13D400E960EEF5B /* DrawLineCharts.scm in Copy examples */,
+				AD9FCD7A535D8A0B93919729 /* DataFrames.scm in Copy examples */,
 				5F0B8D2A6E4C91373A7D1E96 /* TinyCLOS.scm in Copy examples */,
 				CC9FF30D2E2E92CD00D4C445 /* Pinterest.scm in Copy examples */,
 				CC4132442DF9BB1E00D77CF6 /* MermaidDiagrams.scm in Copy examples */,
@@ -4292,15 +4300,19 @@
 		3EF540D6E5A01F18F009D1B3 /* (lispkit draw chart pie).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit draw chart pie).md"; sourceTree = "<group>"; };
 		4288BEFDCF0F298F9708E2E4 /* (srfi 275 uri).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(srfi 275 uri).md"; sourceTree = "<group>"; };
 		47FBDA23FC774F9D896D8303 /* DrawLineCharts.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = DrawLineCharts.scm; sourceTree = "<group>"; };
+		558883D005E9EC64D140209D /* DataFrames.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = DataFrames.scm; sourceTree = "<group>"; };
 		4B0B50DCFDAD28485D6EA90F /* SRFI-275-Parse.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-275-Parse.scm"; sourceTree = "<group>"; };
 		4CD7588BB6D1BCD77B6C49CA /* (srfi 275 normalize).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(srfi 275 normalize).md"; sourceTree = "<group>"; };
 		51AFCB4A3760B2E10DAC22D0 /* SpotlightSearchLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotlightSearchLibrary.swift; sourceTree = "<group>"; };
 		5452893B916721BBE5AB4506 /* NaturalLanguageLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NaturalLanguageLibrary.swift; sourceTree = "<group>"; };
+		A7EE4233522C602B7F3EAF66 /* DataFrameLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataFrameLibrary.swift; sourceTree = "<group>"; };
 		5430476D4FCA47DEAA088DCA /* FoundationModelGeminiLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundationModelGeminiLibrary.swift; sourceTree = "<group>"; };
 		5548CC66325B7BBB7643858F /* SRFI-272-Support.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-272-Support.scm"; sourceTree = "<group>"; };
 		5576A24950DB402EA85CBE3C /* (lispkit foundation-model).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit foundation-model).md"; sourceTree = "<group>"; };
 		57574E2BCDA3FDCDAE16B8CF /* SystemSearch.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = SystemSearch.scm; sourceTree = "<group>"; };
 		69487B8B8B7EF0E18DBFE21A /* NaturalLanguage.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = NaturalLanguage.scm; sourceTree = "<group>"; };
+		BAB66A961D48F34A63F589D8 /* DataFrame.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = DataFrame.scm; sourceTree = "<group>"; };
+		434C17166D18368563573F83 /* TextTable.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = TextTable.scm; sourceTree = "<group>"; };
 		5ABEA73D6A43D2E9946FA27A /* support.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = support.sld; sourceTree = "<group>"; };
 		5C30AD6B0A0C7E62EF58D7EE /* show.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = show.sld; sourceTree = "<group>"; };
 		654E271DB869F80323A265CF /* fancy.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = fancy.sld; sourceTree = "<group>"; };
@@ -4319,6 +4331,7 @@
 		8558A259DF6762B7C2B9F917 /* (srfi 127).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(srfi 127).md"; sourceTree = "<group>"; };
 		863E1901304E51D605FC540F /* (lispkit system search).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit system search).md"; sourceTree = "<group>"; };
 		D8C575F2583D21B169BD2847 /* (lispkit natural-language).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit natural-language).md"; sourceTree = "<group>"; };
+		26315705FC1DC77E183E53EF /* (lispkit data-frame).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit data-frame).md"; sourceTree = "<group>"; };
 		86F5DB88FB2DDC18987A3C30 /* SRFI-272-Intermediate.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-272-Intermediate.scm"; sourceTree = "<group>"; };
 		874AAE201EBA859C6B48F934 /* (srfi 116).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(srfi 116).md"; sourceTree = "<group>"; };
 		8C7B04A13822EA42DFD16359 /* uri.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = uri.sld; sourceTree = "<group>"; };
@@ -5556,6 +5569,8 @@
 				A8161EAB22439FA41B7C851A /* SRFI253.scm */,
 				57574E2BCDA3FDCDAE16B8CF /* SystemSearch.scm */,
 				69487B8B8B7EF0E18DBFE21A /* NaturalLanguage.scm */,
+				BAB66A961D48F34A63F589D8 /* DataFrame.scm */,
+				434C17166D18368563573F83 /* TextTable.scm */,
 				F12E0AB0C733CC54FC1ECAD3 /* SRFI273.scm */,
 				CC5E473E20D2D95E00F21B03 /* SRFI69.scm */,
 				CC48EBC51F3E437300233FA9 /* SRFI35.scm */,
@@ -6256,6 +6271,7 @@
 				CC6F36B72EEF7F6200666DE2 /* (lispkit system pasteboard).md */,
 				863E1901304E51D605FC540F /* (lispkit system search).md */,
 				D8C575F2583D21B169BD2847 /* (lispkit natural-language).md */,
+				26315705FC1DC77E183E53EF /* (lispkit data-frame).md */,
 				0B73E90E7E9A99AE9E12D658 /* (lispkit system util).md */,
 				CC6F36B82EEF7F6200666DE2 /* (lispkit system).md */,
 				CC6F36B92EEF7F6200666DE2 /* (lispkit test).md */,
@@ -6783,6 +6799,7 @@
 				CC894F222CC3B08100896B1D /* PasteboardLibrary_iOS.swift */,
 				51AFCB4A3760B2E10DAC22D0 /* SpotlightSearchLibrary.swift */,
 				5452893B916721BBE5AB4506 /* NaturalLanguageLibrary.swift */,
+				A7EE4233522C602B7F3EAF66 /* DataFrameLibrary.swift */,
 				CC38528A23126F7A001D5E56 /* InternalLibrary.swift */,
 			);
 			path = Primitives;
@@ -7042,6 +7059,7 @@
 				CC7CCB782FA5750900C05C77 /* DrawFunctionCharts.scm */,
 				02FA424CDA9AEE24BC34D611 /* DrawPieCharts.scm */,
 				47FBDA23FC774F9D896D8303 /* DrawLineCharts.scm */,
+				558883D005E9EC64D140209D /* DataFrames.scm */,
 				CC202DE325AA9D70003901BE /* VisualizePointSets.scm */,
 				CCCB5C9F284224260005248D /* StyledTextDoc.scm */,
 				CCFFD5862D4C5F4A0092150E /* ImageComposition.scm */,
@@ -7495,6 +7513,8 @@
 				5C809BC94B0488DEADEF9BAB /* SRFI253.scm in Resources */,
 				C582A409FF4F2DEBC16BB95E /* SystemSearch.scm in Resources */,
 				A1A2AB65EAFD3F889AB694DD /* NaturalLanguage.scm in Resources */,
+				C9A0E59E25FCA29DF2690A14 /* DataFrame.scm in Resources */,
+				B1EEB939CD11FAA82D5E98CC /* TextTable.scm in Resources */,
 				10B6297401CF4B3489F06BA6 /* SRFI273.scm in Resources */,
 				CC8C6EC81CFA65F200126BDD /* ControlFlow.scm in Resources */,
 				CCD5B51F2C0B79D7002BF2F0 /* JSON.scm in Resources */,
@@ -7616,6 +7636,7 @@
 				9E0403C8FC8D15D21C59D91E /* FoundationModelToolLibrary.swift in Sources */,
 				F48660C69AA0DEBBD732A55B /* SpotlightSearchLibrary.swift in Sources */,
 				1F362EFA57705D5FE5E68F37 /* NaturalLanguageLibrary.swift in Sources */,
+				AC897BA2431166C9D153B408 /* DataFrameLibrary.swift in Sources */,
 				29270A6AC2A2449DA0ACD0DF /* FoundationModelGPTLibrary.swift in Sources */,
 				580A370D341C4487B3E21078 /* FoundationModelSupport.swift in Sources */,
 				EA7CB2AF0AE94D7AA0875481 /* FoundationModelLibrary.swift in Sources */,
@@ -7817,6 +7838,7 @@
 				EB127C686C7F802E17B1F524 /* FoundationModelToolLibrary.swift in Sources */,
 				7646AE34EE9152F65F574430 /* SpotlightSearchLibrary.swift in Sources */,
 				EF544861C374DAC5CFD3454E /* NaturalLanguageLibrary.swift in Sources */,
+				BA344764BBFD7D657A7B1D53 /* DataFrameLibrary.swift in Sources */,
 				EFCC98E0280F49D09AA95B08 /* FoundationModelGPTLibrary.swift in Sources */,
 				C9165C02064C4594B61A96A3 /* FoundationModelSupport.swift in Sources */,
 				7DECF795321B4E49BA3E46F5 /* FoundationModelLibrary.swift in Sources */,
