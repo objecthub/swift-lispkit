@@ -1,4 +1,4 @@
-# LispKit Natural Language
+# LispKit Natural-Language
 
 Library `(lispkit natural-language)` provides natural language processing capabilities through Apple's _NaturalLanguage_ framework. All functionality is executed on the device. The library supports:
 
@@ -426,12 +426,18 @@ Requests the download of the assets of contextual embedding _cembedding_ if they
 **(contextual-embedding-vectors _cembedding str_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  
 **(contextual-embedding-vectors _cembedding str lang_)**  
 
-Returns an association list mapping the ranges `(start . end)` of the tokens of string _str_ to their vectors in contextual embedding _cembedding_. _lang_ is the language of _str_; if _lang_ is `#f` (the default), the language is determined automatically.
+Splits string _str_ into the tokens of contextual embedding _cembedding_ and returns one vector per token. The result is a list of pairs `(range . vector)`. _range_ is a pair `(start . end)` of indices which determines the token: it consists of the characters of _str_ from index _start_ (inclusive) to index _end_ (exclusive), i.e. the token is `(substring str start end)`. _vector_ is the vector of the token, which depends on the token and its context in _str_. _lang_ is the language of _str_; if _lang_ is `#f` (the default), the language is determined automatically.
+
+The tokens are determined by the model of the contextual embedding. They are not necessarily words: rare and long words are split into several subword tokens. Whitespace is not part of any token.
 
 ```scheme
-(map (lambda (x) (cons (car x) (vector-length (cdr x))))
-     (contextual-embedding-vectors ce "The cat sat."))
-  ⇒  (((0 . 3) . 512) ((4 . 7) . 512) ((8 . 11) . 512) ((11 . 12) . 512))
+(define ce (contextual-embedding 'en))
+(define str "The cat sat unbelievably.")
+(map (lambda (x)
+       (list (car x) (substring str (caar x) (cdar x)) (vector-length (cdr x))))
+     (contextual-embedding-vectors ce str))
+  ⇒  (((0 . 3) "The" 512) ((4 . 7) "cat" 512) ((8 . 11) "sat" 512)
+      ((12 . 16) "unbe" 512) ((16 . 20) "liev" 512) ((20 . 24) "ably" 512) ((24 . 25) "." 512))
 ```
 
 **(contextual-embedding-vector _cembedding str_)** &nbsp;&nbsp;&nbsp; <span style="float:right;text-align:rigth;">[procedure]</span>  

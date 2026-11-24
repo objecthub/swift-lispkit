@@ -1,4 +1,4 @@
-# LispKit Foundation Model Gemini
+# LispKit Foundation-Model Gemini
 
 Library `(lispkit foundation-model gemini)` provides Google's [Gemini](https://deepmind.google/models/gemini/) models as language models for library `(lispkit foundation-model)`. It is based on the Swift package [GeminiForFoundationModels](https://github.com/objecthub/GeminiForFoundationModels), which implements the language model protocol of Apple's FoundationModels framework for Gemini. Gemini models are used exactly like the other language models supported by `(lispkit foundation-model)`: sessions, guided generation, tools, streaming, and transcripts all work the same way.
 

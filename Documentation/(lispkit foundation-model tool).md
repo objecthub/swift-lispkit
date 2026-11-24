@@ -1,4 +1,4 @@
-# LispKit Foundation Model Tool
+# LispKit Foundation-Model Tool
 
 Library `(lispkit foundation-model tool)` provides tools that are implemented natively by Apple for library `(lispkit foundation-model)`. Language models can call these tools in the same way as tools that are implemented in Scheme via `make-tool`:
 

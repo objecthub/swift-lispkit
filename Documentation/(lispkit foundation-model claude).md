@@ -1,4 +1,4 @@
-# LispKit Foundation Model Claude
+# LispKit Foundation-Model Claude
 
 Library `(lispkit foundation-model claude)` provides Anthropic's [Claude](https://www.anthropic.com/claude) models as language models for library `(lispkit foundation-model)`. It is based on the Swift package [ClaudeForFoundationModels](https://github.com/anthropics/ClaudeForFoundationModels), which implements the language model protocol of Apple's FoundationModels framework for Claude. Claude models are used exactly like the other language models supported by `(lispkit foundation-model)`: sessions, guided generation, tools, streaming, and transcripts all work the same way.
 

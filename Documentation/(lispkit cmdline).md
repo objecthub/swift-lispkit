@@ -11,7 +11,8 @@ A lower-level API is provided by procedure `args-fold`. `args-fold` is a _fold_ 
 The following program provides an example for how to use procedure `parse-command-line`:
 
 ```scheme
-(import (lispkit base) (lispkit cmdline))
+(import (lispkit base)
+        (lispkit cmdline))
 
 (define verbose #f)
 (define level 0)
@@ -39,7 +40,7 @@ The following program provides an example for how to use procedure `parse-comman
 
 Running this program with the argument `--help` displays the following help text:
 
-```
+```bash
 compile [ <option> ... ] <file> <...>
  where <option> is one of
   -v, --verbose : Compile with verbose messages
@@ -196,7 +197,7 @@ The following table uses all kinds of entries. The first element of the help lis
 
 This program displays the following help text:
 
-```
+```bash
 tool [ <option> ... ] <file> <...>
  Converts files from one format to another.
  where <option> is one of

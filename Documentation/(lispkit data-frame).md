@@ -1,10 +1,8 @@
-# LispKit Data Frame
+# LispKit Data-Frame
 
 Library `(lispkit data-frame)` provides _data frames_, i.e. tables of data organized in named, typed columns, based on Apple's _TabularData_ framework. Data frames are typically read from CSV or JSON files, analyzed (e.g. by filtering, sorting, grouping and aggregating rows, joining data frames, or computing summary statistics), and written back as CSV or JSON.
 
 Data frames are immutable. All procedures that transform data frames return new data frames and leave their arguments unchanged.
-
-The example program `DataFrames.scm`, which is included in the LispKit distribution, provides a guided tour through the library: it analyzes the orders of a small online bookshop.
 
 The following code shows a few examples:
 
@@ -23,7 +21,7 @@ The following code shows a few examples:
 
 This displays the following table:
 
-```
+```scheme
 ┏━━━┳━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━┳━━━━━━━━━━┳━━━━━━━━┓
 ┃   ┃ name     ┃ city     ┃ age   ┃ score    ┃ member ┃
 ┃   ┃ <String> ┃ <String> ┃ <Int> ┃ <Double> ┃ <Bool> ┃

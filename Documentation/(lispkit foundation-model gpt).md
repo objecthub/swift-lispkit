@@ -1,4 +1,4 @@
-# LispKit Foundation Model GPT
+# LispKit Foundation-Model GPT
 
 Library `(lispkit foundation-model gpt)` provides OpenAI's GPT models as language models for library `(lispkit foundation-model)`. It is based on the Swift package [GPTForFoundationModels](https://github.com/objecthub/GPTForFoundationModels), which implements the language model protocol of Apple's FoundationModels framework for GPT models using OpenAI's Responses API. GPT models are used exactly like the other language models supported by `(lispkit foundation-model)`: sessions, guided generation, tools, streaming, and transcripts all work the same way.
 

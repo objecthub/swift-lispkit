@@ -1,4 +1,4 @@
-# LispKit Foundation Model
+# LispKit Foundation-Model
 
 Library `(lispkit foundation-model)` provides access to large language models via Apple's [FoundationModels](https://developer.apple.com/documentation/foundationmodels) framework. It supports Apple's on-device language model, Apple's language model running on Private Cloud Compute, and language models provided by other libraries, such as `(lispkit foundation-model claude)`, `(lispkit foundation-model gemini)`, and `(lispkit foundation-model gpt)`, which give access to Anthropic's Claude models, Google's Gemini models, and OpenAI's GPT models. The library includes:
 
@@ -238,7 +238,7 @@ When Scheme values are converted into generated content, e.g. for the results of
 
 Generation schemas describe the structure of generated content. They are used for guided generation, i.e. for generating content that conforms to the schema, and for describing the parameters of tools. Generation schemas are created from _schema specifications_, s-expressions that follow this grammar:
 
-```
+```ebnf
 schema   ::= null
            | boolean
            | integer
@@ -537,14 +537,32 @@ Calls _proc_ for every snapshot of _stream_ until the response is complete.
 
 A transcript is an immutable sequence of entries that captures the history of a session. There are seven kinds of entries: `instructions`, `prompt`, `tool-calls`, `tool-output`, `response`, `reasoning`, and `data`. Transcript entries are represented as lists that start with the kind of the entry, followed by an association list of properties:
 
-```
-(instructions (id . str) (segments segment ...) (tools (name description schema) ...))
-(prompt (id . str) (segments segment ...) (options . options) (metadata . alist) (schema . schema))
-(tool-calls (id . str) (calls ((id . str) (tool . name) (arguments . content) (metadata . alist)) ...))
-(tool-output (id . str) (tool . name) (segments segment ...))
-(response (id . str) (segments segment ...) (metadata . alist) (asset-ids str ...))
-(reasoning (id . str) (segments segment ...) (metadata . alist) (signature . bytevector))
-(data (id . str) (content-type . type) (content . bytevector) (metadata . content))
+```scheme
+(instructions (id . str)
+              (segments segment ...)
+              (tools (name description schema) ...))
+(prompt (id . str)
+        (segments segment ...)
+        (options . options)
+        (metadata . alist)
+        (schema . schema))
+(tool-calls (id . str)
+            (calls ((id . str) (tool . name) (arguments . content) (metadata . alist)) ...))
+(tool-output (id . str)
+             (tool . name)
+             (segments segment ...))
+(response (id . str)
+          (segments segment ...)
+          (metadata . alist)
+          (asset-ids str ...))
+(reasoning (id . str)
+           (segments segment ...)
+           (metadata . alist)
+           (signature . bytevector))
+(data (id . str)
+      (content-type . type)
+      (content . bytevector)
+      (metadata . content))
 ```
 
 The properties `metadata` of tool calls, `asset-ids` of responses, and `signature` of reasoning entries are only present if they have a value.
