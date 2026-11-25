@@ -1112,6 +1112,8 @@
 		CCC0724A1F9C11FA0063974E /* Sysctl.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC072491F9C11FA0063974E /* Sysctl.swift */; };
 		CCC1860D30B0DEEA00A2FD43 /* util.sld in Copy pre-installed LispKit library: LispKit System Util */ = {isa = PBXBuildFile; fileRef = CCC1860B30B0D98E00A2FD43 /* util.sld */; };
 		CCC1860F30B0DF9400A2FD43 /* util.sld in Copy pre-installed LispKit library: LispKit System Util */ = {isa = PBXBuildFile; fileRef = CCC1860B30B0D98E00A2FD43 /* util.sld */; };
+		CCC1862C30B7896C00A2FD43 /* TailCallTests.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCC1862B30B788AA00A2FD43 /* TailCallTests.scm */; };
+		CCC1862D30B7898400A2FD43 /* TailCallTests.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = CCC1862B30B788AA00A2FD43 /* TailCallTests.scm */; };
 		CCC1E8B2251F6796008B8AAA /* SRFI-204.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = CCC1E8B1251F668D008B8AAA /* SRFI-204.scm */; };
 		CCC1E8B6251F68BD008B8AAA /* 204.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCC1E8B5251F67B8008B8AAA /* 204.sld */; };
 		CCC1E8BB251FECA6008B8AAA /* 194.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = CCC1E8B9251FEC05008B8AAA /* 194.sld */; };
@@ -2297,6 +2299,7 @@
 			dstPath = Root/LispKit/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CCC1862C30B7896C00A2FD43 /* TailCallTests.scm in Copy examples */,
 				CC519483308E0E7C00008261 /* Movies.scm in Copy examples */,
 				CC60EB1F3083B89A000EE746 /* StyledMarkdown.scm in Copy examples */,
 				CC60EB223083C102000EE746 /* MarkdownTOC.scm in Copy examples */,
@@ -3704,6 +3707,7 @@
 			dstPath = Root/LispKit/Examples;
 			dstSubfolderSpec = 7;
 			files = (
+				CCC1862D30B7898400A2FD43 /* TailCallTests.scm in Copy examples */,
 				CC519484308E0E9500008261 /* Movies.scm in Copy examples */,
 				CC60EB203083B8AC000EE746 /* StyledMarkdown.scm in Copy examples */,
 				CC60EB233083C103000EE746 /* MarkdownTOC.scm in Copy examples */,
@@ -5154,6 +5158,7 @@
 		CCC1862730B72DC200A2FD43 /* sieve.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = sieve.scm; sourceTree = "<group>"; };
 		CCC1862830B72DC200A2FD43 /* strings.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = strings.scm; sourceTree = "<group>"; };
 		CCC1862930B72DC200A2FD43 /* tak.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = tak.scm; sourceTree = "<group>"; };
+		CCC1862B30B788AA00A2FD43 /* TailCallTests.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = TailCallTests.scm; sourceTree = "<group>"; };
 		CCC1DBFB216BA1750019A374 /* 14.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 14.sld; sourceTree = "<group>"; };
 		CCC1DBFC216BA2600019A374 /* 16.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 16.sld; sourceTree = "<group>"; };
 		CCC1E8B1251F668D008B8AAA /* SRFI-204.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-204.scm"; sourceTree = "<group>"; };
@@ -7145,6 +7150,7 @@
 				CC60EB1E3083B875000EE746 /* StyledMarkdown.scm */,
 				CC60EB213083C101000EE746 /* MarkdownTOC.scm */,
 				CC519482308E09F900008261 /* Movies.scm */,
+				CCC1862B30B788AA00A2FD43 /* TailCallTests.scm */,
 				CC9ED3FB2710E6DB004B1E29 /* paip */,
 			);
 			path = Examples;

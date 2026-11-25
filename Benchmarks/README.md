@@ -16,8 +16,8 @@ release build from November 2026 (commit `d3dc8ae`) on an Apple M4, each takes b
 |---|---|
 | `fib` | Non-tail calls of a global procedure, generic arithmetic (fib 27) |
 | `tak` | Call-heavy recursion with three arguments and comparisons |
-| `loop` | Named-let loop (closure in a box, invoked via tail calls) |
-| `doloop` | `do` loop with `set!` of a local variable (boxed locals, branches) |
+| `loop` | Named-let loop |
+| `doloop` | `do` loop with `set!` of a local variable (mutable locals, branches) |
 | `global` | Reading and writing a global variable (`push_global`/`set_global`) |
 | `closures` | Closure creation, captured mutable variables, composition |
 | `records` | Record allocation, accessors, and modifiers |
@@ -102,3 +102,9 @@ generic arithmetic is as fast as the fixnum/flonum-specific operations. `listrec
 slower in this step: garbage collection is triggered after a fixed number of instructions, so
 it runs more often relative to the work done when fewer instructions are needed (68% of the
 time of `listrec` is spent in the garbage collector).
+`step3-loops-2026-11-25.tsv` is the state after compiling named `let` forms in tail position
+into loops and storing mutable local variables on the stack if no closure captures them and
+no procedure call within their scope can capture a continuation. The suite is now 72% faster
+than the baseline on average (21% faster than after step 2). `listrec` gained the most
+(-72%): its loops no longer allocate a closure and a box, so the garbage collector hardly
+runs anymore.

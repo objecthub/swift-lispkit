@@ -50,6 +50,10 @@ public final class Compiler {
   /// Current number of local values/variables
   internal var numLocals: Int = 0
   
+  /// Indices of the local values/variables of the procedure being compiled which are
+  /// referenced by the code compiled so far (in the order of their references)
+  internal private(set) var localReferences: [Int] = []
+  
   /// Maximum number of local values/variables
   private var maxLocals: Int = 0
   
@@ -172,7 +176,7 @@ public final class Compiler {
       // Turn arguments into local variables
       if let arguments = self.arguments {
         for sym in arguments.symbols {
-          if let sym = sym, let binding = arguments.bindingFor(sym) , !binding.isValue {
+          if let sym = sym, let binding = arguments.bindingFor(sym) , !binding.isUnboxed {
             self.emit(.makeVariableArgument(binding.index))
           }
         }
@@ -216,6 +220,29 @@ public final class Compiler {
       self.maxLocals = self.numLocals
     }
     return self.numLocals - 1
+  }
+  
+  /// Returns the number of instructions emitted so far.
+  public var instructionCount: Int {
+    return self.instructions.count
+  }
+  
+  /// Returns true if the instructions starting at index `start` contain a procedure call
+  /// that returns to the procedure being compiled, i.e. a call that is not a tail call.
+  /// Such calls can capture a continuation which includes the current stack frame.
+  internal func containsCalls(from start: Int) -> Bool {
+    guard start < self.instructions.count else {
+      return false
+    }
+    for instr in self.instructions[start...] {
+      switch instr {
+        case .call(_), .apply(_), .force:
+          return true
+        default:
+          break
+      }
+    }
+    return false
   }
   
   /// Removes the last instruction from the instruction sequence.
@@ -394,17 +421,23 @@ public final class Compiler {
     // Iterate through the local binding groups until `sym` is found
     while case .local(let group) = env {
       if let binding = group.bindingFor(sym) {
+        binding.loopCandidate?.references += 1
         if case .macro(let proc) = binding.kind {
           return .macroExpansionRequired(proc)
+        } else if case .loop(_) = binding.kind {
+          // The first compilation phase only compiles named `let` forms into loops if their
+          // name is only used for calls in tail position
+          preconditionFailure("loop \(sym) used as a value")
         } else if group.owner === self {
-          if binding.isValue {
+          self.localReferences.append(binding.index)
+          if binding.isUnboxed {
             self.emit(.pushLocal(binding.index))
           } else {
             self.emit(.pushLocalValue(binding.index))
           }
         } else {
           let capturedIndex = self.captures.capture(binding, from: group)
-          if binding.isValue {
+          if binding.isUnboxed {
             self.emit(.pushCaptured(capturedIndex))
           } else {
             self.emit(.pushCapturedValue(capturedIndex))
@@ -429,6 +462,25 @@ public final class Compiler {
     }
     // Return global scope
     return .globalLookupRequired(sym, env.environment!)
+  }
+  
+  /// Returns the local definition of `sym` in `env` together with the binding group which
+  /// contains it, or `nil` if `sym` is not bound locally.
+  private func localDefinition(of sym: Symbol, in env: Env) -> (Definition, BindingGroup)? {
+    var env = env
+    while case .local(let group) = env {
+      if let binding = group.bindingFor(sym) {
+        return (binding, group)
+      }
+      env = group.parent
+    }
+    if let (lexicalSym, lexicalEnv) = sym.lexical {
+      if case .global(_) = lexicalEnv {
+        return nil
+      }
+      return self.localDefinition(of: lexicalSym, in: lexicalEnv)
+    }
+    return nil
   }
   
   /// Returns true if `sym` refers to the auxiliary syntax `aux` (e.g. `else` or `=>`) in
@@ -561,8 +613,10 @@ public final class Compiler {
     // Iterate through the local binding groups until `sym` is found
     while case .local(let group) = env {
       if let binding = group.bindingFor(sym) {
+        binding.loopCandidate?.references += 1
         if group.owner === self {
-          self.emit(.setLocalValue(binding.index))
+          self.localReferences.append(binding.index)
+          self.emit(binding.isUnboxed ? .setLocal(binding.index) : .setLocalValue(binding.index))
         } else {
           self.emit(.setCapturedValue(self.captures.capture(binding, from: group)))
         }
@@ -734,6 +788,17 @@ public final class Compiler {
       case .symbol(let sym):
         try self.pushValueOf(sym, in: env)
       case .pair(.symbol(let sym), let cdr):
+        // Handle calls of named `let` forms that are (or might be) compiled into loops
+        if let (binding, _) = self.localDefinition(of: sym, in: env) {
+          if case .loop(let loop) = binding.kind {
+            return try self.compileLoopCall(loop, args: cdr, in: env, inTailPos: tail)
+          } else if let candidate = binding.loopCandidate,
+                    tail,
+                    self.parent === candidate.owner,
+                    Compiler.properListLength(cdr) == candidate.arity {
+            candidate.loopCalls += 1
+          }
+        }
         let pushFrameIp = self.emit(.makeFrame)
         // Try to push the function if locally defined
         switch self.pushLocalValueOf(sym, in: env) {
@@ -825,6 +890,40 @@ public final class Compiler {
         try self.pushValue(expr)
     }
     return false
+  }
+  
+  /// Returns the length of `expr` if it is a proper list, or `nil` otherwise.
+  private static func properListLength(_ expr: Expr) -> Int? {
+    var expr = expr
+    var n = 0
+    while case .pair(_, let cdr) = expr {
+      n += 1
+      expr = cdr
+    }
+    return expr.isNull ? n : nil
+  }
+  
+  /// Compiles a call of a named `let` that is compiled into a loop: the arguments are assigned
+  /// to the parameters of the loop and the code jumps to the beginning of the loop body.
+  private func compileLoopCall(_ loop: Definition.Loop,
+                               args: Expr,
+                               in env: Env,
+                               inTailPos tail: Bool) throws -> Bool {
+    // The first compilation phase only compiles named `let` forms into loops if all calls
+    // are in tail position of the loop body and have the right number of arguments
+    guard tail && loop.owner === self else {
+      preconditionFailure("illegal call of loop")
+    }
+    let n = try self.compileExprs(args, in: env)
+    guard n == loop.params.count else {
+      preconditionFailure("wrong number of arguments for loop")
+    }
+    // Each iteration binds the parameters anew, so boxed parameters get a new box
+    for param in loop.params.reversed() {
+      self.emit(param.isUnboxed ? .setLocal(param.index) : .makeLocalVariable(param.index))
+    }
+    self.emit(.branch(-self.offsetToNext(loop.entryIp)))
+    return true
   }
   
   /// Compile the given list of expressions `expr` in environment `env` and push each result
@@ -1015,7 +1114,7 @@ public final class Compiler {
         // are predefined.
         binding.wasMutated()
         self.emit(.pushUndef)
-        self.emit(binding.isValue ? .setLocal(binding.index) : .makeLocalVariable(binding.index))
+        self.emit(binding.isUnboxed ? .setLocal(binding.index) : .makeLocalVariable(binding.index))
         bindings = rest
       }
       bindings = bindingList
@@ -1034,7 +1133,7 @@ public final class Compiler {
       }
       if postset {
         definitions.append(binding)
-      } else if binding.isValue {
+      } else if binding.isUnboxed {
         self.emit(.setLocal(binding.index))
       } else if predef {
         self.emit(.setLocalValue(binding.index))
@@ -1048,7 +1147,7 @@ public final class Compiler {
       throw RuntimeError.eval(.malformedBindings, bindingList)
     }
     for binding in definitions.reversed() {
-      if binding.isValue {
+      if binding.isUnboxed {
         self.emit(.setLocal(binding.index))
       } else {
         self.emit(.setLocalValue(binding.index))
@@ -1077,7 +1176,7 @@ public final class Compiler {
           // are predefined.
           binding.wasMutated()
           self.emit(.pushUndef)
-          self.emit(binding.isValue ? .setLocal(binding.index) : .makeLocalVariable(binding.index))
+          self.emit(binding.isUnboxed ? .setLocal(binding.index) : .makeLocalVariable(binding.index))
           vars = more
         }
         bindings = rest
@@ -1106,7 +1205,7 @@ public final class Compiler {
         case .symbol(let sym):
           self.emit(.unpack(syms.count, true))
           let binding = group.allocBindingFor(sym)
-          if binding.isValue {
+          if binding.isUnboxed {
             self.emit(.setLocal(binding.index))
           } else if predef {
             self.emit(.setLocalValue(binding.index))
@@ -1122,7 +1221,7 @@ public final class Compiler {
         guard predef || binding.index > prevIndex else {
           throw RuntimeError.eval(.duplicateBinding, .symbol(sym), bindingList)
         }
-        if binding.isValue {
+        if binding.isUnboxed {
           self.emit(.setLocal(binding.index))
         } else if predef {
           self.emit(.setLocalValue(binding.index))
@@ -1152,7 +1251,7 @@ public final class Compiler {
       guard binding.index > prevIndex else {
         throw RuntimeError.eval(.duplicateBinding, .symbol(sym), bindingList)
       }
-      if binding.isValue {
+      if binding.isUnboxed {
         self.emit(.setLocal(binding.index))
       } else {
         self.emit(.makeLocalVariable(binding.index))
@@ -1176,7 +1275,7 @@ public final class Compiler {
       guard binding.index > prevIndex else {
         throw RuntimeError.eval(.duplicateBinding, .symbol(sym), bindingList)
       }
-      if binding.isValue {
+      if binding.isUnboxed {
         self.emit(.setLocal(binding.index))
       } else {
         self.emit(.makeLocalVariable(binding.index))
@@ -1192,7 +1291,7 @@ public final class Compiler {
         guard binding.index > prevIndex else {
           throw RuntimeError.eval(.duplicateBinding, .symbol(sym), bindingList)
         }
-        if binding.isValue {
+        if binding.isUnboxed {
           self.emit(.setLocal(binding.index))
         } else {
           self.emit(.makeLocalVariable(binding.index))
@@ -1326,6 +1425,7 @@ public final class Compiler {
       for def in closureCompiler.captures.definitions {
         if let def = def, let capture = closureCompiler.captures.captureFor(def) {
           if capture.origin.owner === self {
+            self.localReferences.append(def.index)
             self.emit(.pushLocal(def.index))
           } else {
             self.emit(.pushCaptured(self.captures.capture(def, from: capture.origin)))
@@ -1426,6 +1526,7 @@ public final class Compiler {
       for def in closureCompiler.captures.definitions {
         if let def = def, let capture = closureCompiler.captures.captureFor(def) {
           if capture.origin.owner === self {
+            self.localReferences.append(def.index)
             self.emit(.pushLocal(def.index))
           } else {
             self.emit(.pushCaptured(self.captures.capture(def, from: capture.origin)))

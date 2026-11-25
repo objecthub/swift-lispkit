@@ -1,0 +1,22 @@
+# LispKit benchmark results
+# date: 2026-11-25
+# commit: 6b489ba
+# machine: Apple M4, macOS 27.2.1
+# binary: .build/release/LispKitRepl
+# repeat: 3 (fastest run)
+fib	161	196418
+tak	740	9
+loop	445	4499998500000
+doloop	443	4499998500000
+global	586	2000000
+closures	876	1000001000001
+records	1369	250000500000
+apply	666	90001500000
+lists	1528	5000000000
+listrec	1086	1500000
+sieve	598	78498
+mandel	139	249516
+strings	146	6377775
+hashtable	463	2666646666700000
+callcc	579	150000
+nqueens	70	352

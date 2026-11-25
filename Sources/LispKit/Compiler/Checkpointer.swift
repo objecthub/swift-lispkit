@@ -89,6 +89,24 @@ public final class Checkpointer: CustomStringConvertible {
     return false
   }
   
+  public func isUnboxedBinding(_ sym: Symbol, at address: UInt) -> Bool {
+    for assoc in self.associations(address) {
+      if case .unboxedBinding(let s) = assoc , s == sym {
+        return true
+      }
+    }
+    return false
+  }
+  
+  public func isLoop(_ address: UInt) -> Bool {
+    for assoc in self.associations(address) {
+      if assoc == .loop {
+        return true
+      }
+    }
+    return false
+  }
+  
   public func expansion(_ address: UInt) -> Expr? {
     for assoc in self.associations(address) {
       if case .expansion(let expr) = assoc {
@@ -108,6 +126,8 @@ public enum CheckpointData: Equatable, Hashable, CustomStringConvertible {
   case imported
   case fromGlobalEnv(Expr)
   case valueBinding(Symbol)
+  case unboxedBinding(Symbol)
+  case loop
   case expansion(Expr)
   
   public var description: String {
@@ -120,6 +140,10 @@ public enum CheckpointData: Equatable, Hashable, CustomStringConvertible {
         return "FromGlobalEnv(\(expr.description))"
       case .valueBinding(let sym):
         return "ValueBinding(\(sym.description))"
+      case .unboxedBinding(let sym):
+        return "UnboxedBinding(\(sym.description))"
+      case .loop:
+        return "Loop"
       case .expansion(let expr):
         return "Expansion(\(expr.description))"
     }
@@ -135,6 +159,10 @@ public enum CheckpointData: Equatable, Hashable, CustomStringConvertible {
         return eqExpr(rexpr, lexpr)
       case (.valueBinding(let lsym), .valueBinding(let rsym)):
         return lsym == rsym
+      case (.unboxedBinding(let lsym), .unboxedBinding(let rsym)):
+        return lsym == rsym
+      case (.loop, .loop):
+        return true
       case (.expansion(let lexpr), .expansion(let rexpr)):
         return lexpr == rexpr
       default:

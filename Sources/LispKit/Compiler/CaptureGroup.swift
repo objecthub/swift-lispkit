@@ -41,6 +41,14 @@ public final class CaptureGroup: CustomStringConvertible {
   }
   
   public func capture(_ def: Definition, from: BindingGroup) -> Int {
+    switch def.kind {
+      case .unboxedVariable, .loop(_):
+        // The first compilation phase only stores variables unboxed and compiles named `let`
+        // forms into loops if they are not captured
+        preconditionFailure("cannot capture \(def)")
+      default:
+        def.isCaptured = true
+    }
     if let capture = self.captures[def] {
       return capture.index
     } else {

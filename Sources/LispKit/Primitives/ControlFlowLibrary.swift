@@ -161,7 +161,25 @@ public final class ControlFlowLibrary: NativeLibrary {
         }
         let (params, exprs) = try splitBindings(bindings)
         let group = BindingGroup(owner: compiler, parent: env)
-        let index = group.allocBindingFor(sym).index
+        // Compile named `let` into a loop if the first compilation phase found out that
+        // this is possible
+        if tail && compiler.checkpointer.isLoop(group.checkpoint) {
+          res = try self.compileLoop(compiler,
+                                     name: sym,
+                                     params: params,
+                                     body: rest,
+                                     exprs: exprs,
+                                     group: group,
+                                     env: env)
+          break
+        }
+        let binding = group.allocBindingFor(sym)
+        let index = binding.index
+        // Named `let` forms in tail position are compiled into loops if all references
+        // to their name are calls in tail position of the body
+        if tail, let arity = self.distinctSymbolCount(params) {
+          binding.loopCandidate = Definition.LoopCandidate(owner: compiler, arity: arity)
+        }
         compiler.emit(.pushUndef)
         compiler.emit(.makeLocalVariable(index))
         let nameIdx = compiler.registerConstant(first)
@@ -170,9 +188,9 @@ public final class ControlFlowLibrary: NativeLibrary {
                                    rest,
                                    Env(group))
         compiler.emit(.setLocalValue(index))
-        // res = try compiler.compile(.pair(first, exprs),
-        //                             in: Env(group),
-        //                            inTailPos: tail)
+        if let candidate = binding.loopCandidate, candidate.isLoop {
+          compiler.checkpointer.associate(.loop, with: group.checkpoint)
+        }
         // Make frame for closure invocation
         let pushFrameIp = compiler.emit(.makeFrame)
         compiler.emit(.pushLocalValue(index))
@@ -194,6 +212,87 @@ public final class ControlFlowLibrary: NativeLibrary {
     return res
   }
 
+  /// Returns the number of symbols in list `params` if they are all distinct, or `nil`
+  /// otherwise.
+  private func distinctSymbolCount(_ params: Expr) -> Int? {
+    var symbols = Set<Symbol>()
+    var next = params
+    while case .pair(.symbol(let sym), let rest) = next {
+      guard !symbols.contains(sym) else {
+        return nil
+      }
+      symbols.insert(sym)
+      next = rest
+    }
+    return next.isNull ? symbols.count : nil
+  }
+  
+  /// Compiles a named `let` in tail position into a loop. The parts of the named `let` are
+  /// compiled in the same order as for the closure-based compilation of the first compilation
+  /// phase (parameters, body, initial values), so that the checkpoints match:
+  ///
+  ///          branch init
+  ///    body: <body>         ; calls of the loop assign the parameters and jump to `body`
+  ///          return
+  ///    init: <initial values of the parameters>
+  ///          <assign the parameters>
+  ///          <reset the locals of the enclosing code which are not used by the loop>
+  ///          branch body
+  ///
+  /// Entering the loop resets the locals of the enclosing code which are not referenced by
+  /// the body, since their values are not needed anymore. This makes loops as space-efficient
+  /// as the tail call to the closure in the first compilation phase, which replaces the
+  /// stack frame of the enclosing procedure. E.g. a loop that consumes a lazy sequence
+  /// mustn't keep the head of the sequence alive via a parameter of the enclosing procedure.
+  private func compileLoop(_ compiler: Compiler,
+                           name: Symbol,
+                           params: Expr,
+                           body: Expr,
+                           exprs: Expr,
+                           group: BindingGroup,
+                           env: Env) throws -> Bool {
+    // Allocate the parameters; this corresponds to the arguments of the closure in the
+    // first compilation phase
+    let enclosingLocals = compiler.numLocals
+    let paramGroup = BindingGroup(owner: compiler, parent: Env(group))
+    var defs = [Definition]()
+    var next = params
+    while case .pair(.symbol(let sym), let rest) = next {
+      defs.append(paramGroup.allocBindingFor(sym))
+      next = rest
+    }
+    let initJumpIp = compiler.emitPlaceholder()
+    let loop = Definition.Loop(owner: compiler, params: defs, entryIp: compiler.instructionCount)
+    group.defineLoop(name, loop: loop)
+    // Compile the body
+    let firstReference = compiler.localReferences.count
+    if !(try compiler.compileSeq(body, in: Env(paramGroup), inTailPos: true, localDefine: true)) {
+      compiler.emit(.return)
+    }
+    paramGroup.finalize()
+    let referenced = Set(compiler.localReferences[firstReference...])
+    // Compile the initial values and enter the loop
+    compiler.patch(.branch(compiler.offsetToNext(initJumpIp)), at: initJumpIp)
+    _ = try compiler.compileExprs(exprs, in: env)
+    for def in defs.reversed() {
+      compiler.emit(def.isUnboxed ? .setLocal(def.index) : .makeLocalVariable(def.index))
+    }
+    var index = 0
+    while index < enclosingLocals {
+      if referenced.contains(index) {
+        index += 1
+      } else {
+        let start = index
+        while index < enclosingLocals && !referenced.contains(index) {
+          index += 1
+        }
+        compiler.emit(.reset(start, index - start))
+      }
+    }
+    compiler.emit(.branch(-compiler.offsetToNext(loop.entryIp)))
+    return true
+  }
+  
   private func compileLetStar(_ compiler: Compiler,
                               expr: Expr,
                               env: Env,
@@ -455,8 +554,8 @@ public final class ControlFlowLibrary: NativeLibrary {
       guard binding.index > prevIndex else {
         throw RuntimeError.eval(.duplicateBinding, .symbol(sym), bindingList)
       }
-      compiler.emit(binding.isValue ? .setLocal(binding.index) : .setLocalValue(binding.index))
-      compiler.patch(binding.isValue ? .pushLocal(binding.index) : .pushLocalValue(binding.index),
+      compiler.emit(binding.isUnboxed ? .setLocal(binding.index) : .setLocalValue(binding.index))
+      compiler.patch(binding.isUnboxed ? .pushLocal(binding.index) : .pushLocalValue(binding.index),
                      at: pushValueIp)
       compiler.patch(.branchIfNot(compiler.offsetToNext(alreadySetIp)), at: alreadySetIp)
       prevIndex = binding.index
@@ -472,7 +571,7 @@ public final class ControlFlowLibrary: NativeLibrary {
     while case .pair(.pair(.symbol(let sym), _), let rest) = bindings {
       let binding = group.allocBindingFor(sym)
       compiler.emit(.pushUndef)
-      compiler.emit(binding.isValue ? .setLocal(binding.index) : .makeLocalVariable(binding.index))
+      compiler.emit(binding.isUnboxed ? .setLocal(binding.index) : .makeLocalVariable(binding.index))
       bindings = rest
     }
     // Process keyword list
@@ -492,7 +591,7 @@ public final class ControlFlowLibrary: NativeLibrary {
       compiler.emit(.eq)
       let keywordCompIp = compiler.emitPlaceholder()
       compiler.emit(.pop)
-      compiler.emit(binding.isValue ? .setLocal(binding.index) : .makeLocalVariable(binding.index))
+      compiler.emit(binding.isUnboxed ? .setLocal(binding.index) : .makeLocalVariable(binding.index))
       compiler.emit(.branch(-compiler.offsetToNext(loopIp)))
       compiler.patch(.branchIfNot(compiler.offsetToNext(keywordCompIp)), at: keywordCompIp)
       bindings = rest
@@ -567,7 +666,7 @@ public final class ControlFlowLibrary: NativeLibrary {
     let group = BindingGroup(owner: compiler, parent: env)
     var bindings = bindingList
     var prevIndex = -1
-    var doBindings = [Int]()
+    var doBindings = [Definition]()
     var stepExprs = Exprs()
     // Compile initial bindings
     while case .pair(let binding, let rest) = bindings {
@@ -575,14 +674,15 @@ public final class ControlFlowLibrary: NativeLibrary {
         throw RuntimeError.eval(.malformedBinding, binding, bindingList)
       }
       try compiler.compile(start, in: env, inTailPos: false)
-      let index = group.allocBindingFor(sym).index
+      let def = group.allocBindingFor(sym)
+      let index = def.index
       guard index > prevIndex else {
         throw RuntimeError.eval(.duplicateBinding, .symbol(sym), bindingList)
       }
-      compiler.emit(.makeLocalVariable(index))
+      compiler.emit(def.isUnboxed ? .setLocal(index) : .makeLocalVariable(index))
       switch optStep {
         case .pair(let step, .null):
-          doBindings.append(index)
+          doBindings.append(def)
           stepExprs.append(step)
         case .null:
           break;
@@ -606,8 +706,9 @@ public final class ControlFlowLibrary: NativeLibrary {
     for step in stepExprs {
       try compiler.compile(step, in: Env(group), inTailPos: false)
     }
-    for index in doBindings.reversed() {
-      compiler.emit(.setLocalValue(index))
+    // Each iteration binds the variables anew, so boxed variables get a new box
+    for def in doBindings.reversed() {
+      compiler.emit(def.isUnboxed ? .setLocal(def.index) : .makeLocalVariable(def.index))
     }
     // Loop
     compiler.emit(.branch(-compiler.offsetToNext(testIp)))
@@ -617,6 +718,7 @@ public final class ControlFlowLibrary: NativeLibrary {
     let res = try compiler.compileSeq(terminal,
                                       in: Env(group),
                                       inTailPos: tail)
+    group.finalize()
     // Remove bindings from stack
     if !res && compiler.numLocals > initialLocals {
       compiler.emit(.reset(initialLocals, compiler.numLocals - initialLocals))
