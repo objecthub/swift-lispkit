@@ -1,0 +1,33 @@
+# LispKit benchmark results
+# date: 2026-11-25
+# commit: d7bb75a
+# machine: Apple M4, macOS 27.2.1
+# binary: .build/release/LispKitRepl
+# repeat: 3 (fastest run)
+fib	168	196418
+tak	762	9
+loop	713	4499998500000
+doloop	509	4499998500000
+global	602	2000000
+closures	1007	1000001000001
+records	1460	250000500000
+apply	1275	90001500000
+lists	1677	5000000000
+listrec	3913	1500000
+sieve	739	78498
+mandel	182	249516
+strings	161	6377775
+hashtable	534	2666646666700000
+callcc	602	150000
+nqueens	70	352
+fib/generic	171	196418
+fib/fx	185	196418
+tak/generic	248	9
+tak/fx	260	9
+named-let/generic	233	499999500000
+named-let/fx	252	499999500000
+do-loop/fx	188	499999500000
+sieve/generic	672	78498
+sieve/fx	729	78498
+mandel/generic	123	173482
+mandel/fl	158	173482

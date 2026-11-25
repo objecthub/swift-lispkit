@@ -95,3 +95,10 @@ performance work: commit `d3dc8ae`, release build, Apple M4. `step1-runtime-2026
 is the state after removing runtime overheads in the virtual machine (exclusivity checks,
 reference counting of cached context objects, the object pool's free list, and instructions
 that need reference counting): 38% faster on average (geometric mean).
+`step2-intrinsics-2026-11-25.tsv` is the state after compiling calls of generic arithmetic
+procedures, numeric comparisons, `vector-ref`, and `vector-set!` into instructions with fast
+paths for fixnums and flonums. The suite is now 64% faster than the baseline on average, and
+generic arithmetic is as fast as the fixnum/flonum-specific operations. `listrec` got slightly
+slower in this step: garbage collection is triggered after a fixed number of instructions, so
+it runs more often relative to the work done when fewer instructions are needed (68% of the
+time of `listrec` is spent in the garbage collector).

@@ -306,6 +306,31 @@ public final class Compiler {
     self.emit(.pushConstant(self.registerConstant(expr)))
   }
   
+  /// Registers the value at global location `location` (typically a native procedure) in the
+  /// constant pool and returns its index. This is used by form compilers that emit
+  /// instructions which fall back to calling the procedure they implement.
+  public func registerConstant(at location: Int) -> Int {
+    return self.registerConstant(self.context.heap.locations[location])
+  }
+
+  /// Compiles a regular call of the procedure at global location `location` with arguments
+  /// `args`. This is used by form compilers for calls that they don't compile themselves
+  /// (e.g. calls with an unusual number of arguments). Returns true if a tail call was
+  /// emitted.
+  public func compileCall(ofProcedureAt location: Int,
+                          args: Expr,
+                          in env: Env,
+                          inTailPos tail: Bool) throws -> Bool {
+    let pushFrameIp = self.emit(.makeFrame)
+    try self.pushValue(self.context.heap.locations[location])
+    if self.call(try self.compileExprs(args, in: env), inTailPos: tail) {
+      // Remove MakeFrame if this was a tail call
+      self.patch(.noOp, at: pushFrameIp)
+      return true
+    }
+    return false
+  }
+
   /// Pushes the given procedure onto the stack.
   public func pushProcedure(_ proc: Procedure) {
     self.emit(.pushProcedure(self.registerConstant(.procedure(proc))))

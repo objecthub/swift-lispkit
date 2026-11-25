@@ -133,3 +133,18 @@
         (vector= string=? #("one" "two") #("one" "two"))
         (vector= string=? #("one" "two") #("one" "two") #("one" "two")))
 )
+
+(
+  "Vector access with fast paths"
+  (1 3 c error error error error error (x 2 (y)) 3 error)
+  (let ((v (vector 1 2 3)) (iv #(1 2 3)) (gv (gvector 'a 'b 'c)) (i 2))
+    (list (vector-ref v 0) (vector-ref iv i) (vector-ref gv i)
+          (guard (e (#t 'error)) (vector-ref v 3))
+          (guard (e (#t 'error)) (vector-ref v -1))
+          (guard (e (#t 'error)) (vector-ref v 1.0))
+          (guard (e (#t 'error)) (vector-ref "abc" 0))
+          (guard (e (#t 'error)) (vector-set! iv 0 'x))
+          (begin (vector-set! v 0 'x) (vector-set! v i (list 'y)) (vector->list v))
+          (vector-ref iv i)
+          (guard (e (#t 'error)) (vector-set! v 3 'z))))
+)

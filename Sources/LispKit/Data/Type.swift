@@ -248,6 +248,9 @@ private let exactNumberSubtypes: Set<Type> = [.exactNumberType,
                                               .bignumType]
 private let realSubtypes       : Set<Type> = [.realType,
                                               .integerType,
+                                              .exactIntegerType,
+                                              .fixnumType,
+                                              .bignumType,
                                               .rationalType,
                                               .floatType]
 private let integerSubtypes    : Set<Type> = [.integerType,

@@ -53,6 +53,26 @@ class SmallTests: LispKitTestCase {
     assertStackEmpty()
   }
 
+  /// Calls of generic arithmetic procedures and of `vector-ref`/`vector-set!` are compiled into
+  /// instructions with fast paths.
+  func testGenericProceduresAreCompiledIntoInstructions() {
+    _ = self.eval("(define (gen x y v) (vector-set! v 0 (vector-ref v (- (* x y) (/ y y)))) " +
+                  "  (list (+ x y) (< x y) (> x y) (= x y) (<= x y) (>= x y)))")
+    guard case .procedure(let proc) = self.eval("gen"),
+          case .closure(_, _, _, let code) = proc.kind else {
+      XCTFail("gen is not a closure")
+      return
+    }
+    let instrs = code.instructions.map { instr in instr.description.split(separator: " ")[0] }
+    for name in ["num_add", "num_sub", "num_mul", "num_div", "num_lt", "num_gt", "num_eq",
+                 "num_lt_eq", "num_gt_eq", "vector_ref", "vector_set"] {
+      XCTAssertTrue(instrs.contains(Substring(name)), "missing instruction \(name)")
+    }
+    XCTAssertEqual(self.eval("(let ((v (vector 0 1 2))) (list (gen 2 1 v) v))"),
+                   self.value("((3 #f #t #f #f #t) #(1 1 2))"))
+    assertStackEmpty()
+  }
+
   /// Aborting threads while they are blocked on (or just waking up from) a shared queue
   /// reads `EvalThread.waitingOn` concurrently with the threads updating it.
   func testAbortThreadsBlockedOnSharedQueue() {

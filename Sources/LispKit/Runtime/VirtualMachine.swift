@@ -500,7 +500,7 @@ public final class VirtualMachine: ManagedObject {
     self.sp = self.sp &- n
     while i > self.sp {
       i = i &- 1
-      self.stack[self.sp] = .undef
+      self.stack[i] = .undef
     }
   }
   
@@ -527,6 +527,92 @@ public final class VirtualMachine: ManagedObject {
   @inline(__always) private func drop() {
     self.sp = self.sp &- 1
     self.stack[self.sp] = .undef
+  }
+  
+  /// Slow path of instructions that implement calls of native procedures with fast paths
+  /// (e.g. `num_add`): calls the native procedure at index `index` of the constant pool with
+  /// the `n` topmost values of the stack as arguments, and replaces them with the result. This
+  /// is equivalent to a regular call of the procedure, including error reporting.
+  @inline(never) private func invokeNative(_ index: Int, _ n: Int) throws {
+    // Insert the procedure below its arguments
+    try self.push(.undef)
+    let base = self.sp &- n &- 1
+    var i = self.sp &- 1
+    while i > base {
+      self.stack[i] = self.stack[i &- 1]
+      i = i &- 1
+    }
+    self.stack[base] = self.registers.code.constants[index]
+    var m = n
+    _ = try self.invoke(&m, 1)
+  }
+  
+  /// Fast path for arithmetic operations on the two topmost values of the stack: returns the
+  /// result if both are fixnums or flonums and `fx` returns a result for fixnums; returns
+  /// `nil` otherwise. Mixed fixnum/flonum arguments are converted to flonums, like in the
+  /// implementation of the corresponding native procedures.
+  @inline(__always) private func arithmetic(_ fx: (Int64, Int64) -> Expr?,
+                                            _ fl: (Double, Double) -> Double) -> Expr? {
+    let i = self.sp &- 2
+    switch self.stack[i] {
+      case .fixnum(let x):
+        switch self.stack[i &+ 1] {
+          case .fixnum(let y):
+            return fx(x, y)
+          case .flonum(let y):
+            return .flonum(fl(Double(x), y))
+          default:
+            return nil
+        }
+      case .flonum(let x):
+        switch self.stack[i &+ 1] {
+          case .fixnum(let y):
+            return .flonum(fl(x, Double(y)))
+          case .flonum(let y):
+            return .flonum(fl(x, y))
+          default:
+            return nil
+        }
+      default:
+        return nil
+    }
+  }
+  
+  /// Fast path for comparisons of the two topmost values of the stack: returns the result if
+  /// both are fixnums or flonums; returns `nil` otherwise. Mixed fixnum/flonum arguments are
+  /// compared as flonums only if the fixnum can be represented exactly as a flonum.
+  @inline(__always) private func comparison(_ fx: (Int64, Int64) -> Bool,
+                                            _ fl: (Double, Double) -> Bool) -> Bool? {
+    let i = self.sp &- 2
+    switch self.stack[i] {
+      case .fixnum(let x):
+        switch self.stack[i &+ 1] {
+          case .fixnum(let y):
+            return fx(x, y)
+          case .flonum(let y) where x.magnitude <= (UInt64(1) << 53):
+            return fl(Double(x), y)
+          default:
+            return nil
+        }
+      case .flonum(let x):
+        switch self.stack[i &+ 1] {
+          case .fixnum(let y) where y.magnitude <= (UInt64(1) << 53):
+            return fl(x, Double(y))
+          case .flonum(let y):
+            return fl(x, y)
+          default:
+            return nil
+        }
+      default:
+        return nil
+    }
+  }
+  
+  /// Replaces the two topmost values of the stack with `res`. This must only be used if the
+  /// topmost value is an atom (otherwise it would be retained).
+  @inline(__always) private func replaceTopTwo(with res: Expr) {
+    self.sp = self.sp &- 1
+    self.stack[self.sp &- 1] = res
   }
   
   @inline(__always) private func popAsList(_ n: Int) -> Expr {
@@ -1777,7 +1863,9 @@ public final class VirtualMachine: ManagedObject {
           guard rhs != 0 else {
             throw RuntimeError.eval(.divisionByZero)
           }
-          try self.push(.fixnum(try self.popUnsafe().asInt64() / rhs))
+          // Like other fixnum operations, this wraps around for `Int64.min / -1`
+          try self.push(.fixnum(try self.popUnsafe().asInt64().dividedReportingOverflow(by: rhs)
+                                                              .partialValue))
         case .fxInc:
           let idx = self.sp &- 1
           switch self.stack[idx] {
@@ -1919,6 +2007,101 @@ public final class VirtualMachine: ManagedObject {
         case .flAssert:
           guard case .flonum(_) = self.stack[self.sp &- 1] else {
             throw RuntimeError.type(self.stack[self.sp &- 1], expected: [.floatType])
+          }
+        case .numAdd(let index):
+          if let res = self.arithmetic({ x, y in
+                                         let (res, overflow) = x.addingReportingOverflow(y)
+                                         return overflow ? nil : .fixnum(res)
+                                       }, +) {
+            self.replaceTopTwo(with: res)
+          } else {
+            try self.invokeNative(index, 2)
+          }
+        case .numSub(let index):
+          if let res = self.arithmetic({ x, y in
+                                         let (res, overflow) = x.subtractingReportingOverflow(y)
+                                         return overflow ? nil : .fixnum(res)
+                                       }, -) {
+            self.replaceTopTwo(with: res)
+          } else {
+            try self.invokeNative(index, 2)
+          }
+        case .numMul(let index):
+          if let res = self.arithmetic({ x, y in
+                                         let (res, overflow) = x.multipliedReportingOverflow(by: y)
+                                         return overflow ? nil : .fixnum(res)
+                                       }, *) {
+            self.replaceTopTwo(with: res)
+          } else {
+            try self.invokeNative(index, 2)
+          }
+        case .numDiv(let index):
+          // The fixnum fast path only covers divisions without remainder
+          if let res = self.arithmetic({ x, y in
+                                         guard y != 0 && !(x == Int64.min && y == -1) &&
+                                               x % y == 0 else {
+                                           return nil
+                                         }
+                                         return .fixnum(x / y)
+                                       }, /) {
+            self.replaceTopTwo(with: res)
+          } else {
+            try self.invokeNative(index, 2)
+          }
+        case .numEq(let index):
+          if let res = self.comparison(==, ==) {
+            self.replaceTopTwo(with: res ? .true : .false)
+          } else {
+            try self.invokeNative(index, 2)
+          }
+        case .numLt(let index):
+          if let res = self.comparison(<, <) {
+            self.replaceTopTwo(with: res ? .true : .false)
+          } else {
+            try self.invokeNative(index, 2)
+          }
+        case .numGt(let index):
+          if let res = self.comparison(>, >) {
+            self.replaceTopTwo(with: res ? .true : .false)
+          } else {
+            try self.invokeNative(index, 2)
+          }
+        case .numLtEq(let index):
+          if let res = self.comparison(<=, <=) {
+            self.replaceTopTwo(with: res ? .true : .false)
+          } else {
+            try self.invokeNative(index, 2)
+          }
+        case .numGtEq(let index):
+          if let res = self.comparison(>=, >=) {
+            self.replaceTopTwo(with: res ? .true : .false)
+          } else {
+            try self.invokeNative(index, 2)
+          }
+        case .vectorRef(let index):
+          let i = self.sp &- 2
+          if case .vector(let vector) = self.stack[i],
+             case .fixnum(let k) = self.stack[i &+ 1],
+             k >= 0 && k < Int64(vector.exprs.count) {
+            self.stack[i] = vector.exprs[Int(k)]
+            self.sp = i &+ 1
+          } else {
+            try self.invokeNative(index, 2)
+          }
+        case .vectorSet(let index):
+          let i = self.sp &- 3
+          // The fast path requires that vectors referring to non-atomic values are managed
+          if case .vector(let vector) = self.stack[i],
+             case .fixnum(let k) = self.stack[i &+ 1],
+             k >= 0 && k < Int64(vector.exprs.count),
+             vector.isMutableVector,
+             vector.managed || self.stack[i &+ 2].isAtom {
+            vector.exprs[Int(k)] = self.stack[i &+ 2]
+            self.stack[i] = .void
+            self.stack[i &+ 2] = .undef
+            self.sp = i &+ 1
+          } else {
+            try self.invokeNative(index, 3)
           }
       }
     }

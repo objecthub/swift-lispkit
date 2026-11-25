@@ -25,6 +25,10 @@ import Foundation
 ///
 public final class VectorLibrary: NativeLibrary {
   
+  /// Global locations of procedures whose calls are compiled into VM instructions
+  private var vectorRefLoc = 0
+  private var vectorSetLoc = 0
+  
   /// Name of the library.
   public override class var name: [String] {
     return ["lispkit", "vector"]
@@ -50,8 +54,8 @@ public final class VectorLibrary: NativeLibrary {
     self.define(Procedure("vector-length", vectorLength))
     self.define(Procedure("vector-append", vectorAppend))
     self.define(Procedure("vector-concatenate", vectorConcatenate))
-    self.define(Procedure("vector-ref", vectorRef))
-    self.define(Procedure("vector-set!", vectorSet))
+    self.vectorRefLoc = self.define(Procedure("vector-ref", vectorRef, compileVectorRef))
+    self.vectorSetLoc = self.define(Procedure("vector-set!", vectorSet, compileVectorSet))
     self.define(Procedure("vector-swap!", vectorSwap))
     self.define(Procedure("list->vector", listToVector))
     self.define(Procedure("list->immutable-vector", listToImmutableVector))
@@ -207,6 +211,51 @@ public final class VectorLibrary: NativeLibrary {
       preconditionFailure()
     }
     compiler.emit(.vector(try compiler.compileExprs(cdr, in: env)))
+    return false
+  }
+  
+  /// Compiles calls of `vector-ref` with two arguments into instruction `vector_ref`; all other
+  /// calls are compiled into regular calls.
+  private func compileVectorRef(_ compiler: Compiler,
+                                expr: Expr,
+                                env: Env,
+                                tail: Bool) throws -> Bool {
+    guard case .pair(_, let args) = expr else {
+      preconditionFailure()
+    }
+    guard case .pair(let vec, .pair(let index, .null)) = args else {
+      return try compiler.compileCall(ofProcedureAt: self.vectorRefLoc,
+                                      args: args,
+                                      in: env,
+                                      inTailPos: tail)
+    }
+    let c = compiler.registerConstant(at: self.vectorRefLoc)
+    try compiler.compile(vec, in: env, inTailPos: false)
+    try compiler.compile(index, in: env, inTailPos: false)
+    compiler.emit(.vectorRef(c))
+    return false
+  }
+  
+  /// Compiles calls of `vector-set!` with three arguments into instruction `vector_set`; all
+  /// other calls are compiled into regular calls.
+  private func compileVectorSet(_ compiler: Compiler,
+                                expr: Expr,
+                                env: Env,
+                                tail: Bool) throws -> Bool {
+    guard case .pair(_, let args) = expr else {
+      preconditionFailure()
+    }
+    guard case .pair(let vec, .pair(let index, .pair(let value, .null))) = args else {
+      return try compiler.compileCall(ofProcedureAt: self.vectorSetLoc,
+                                      args: args,
+                                      in: env,
+                                      inTailPos: tail)
+    }
+    let c = compiler.registerConstant(at: self.vectorSetLoc)
+    try compiler.compile(vec, in: env, inTailPos: false)
+    try compiler.compile(index, in: env, inTailPos: false)
+    try compiler.compile(value, in: env, inTailPos: false)
+    compiler.emit(.vectorSet(c))
     return false
   }
   

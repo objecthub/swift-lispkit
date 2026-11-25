@@ -70,6 +70,12 @@ class RegressionTests: LispKitTestCase {
   }
   
   func testMath() {
+    // The context is bootstrapped so that errors thrown by native procedures can be caught
+    do {
+      try self.context?.bootstrap()
+    } catch {
+      preconditionFailure("cannot bootstrap test context: \(error)")
+    }
     self.execute(file: "Math")
   }
   
@@ -98,6 +104,12 @@ class RegressionTests: LispKitTestCase {
   }
   
   func testVectors() {
+    // The context is bootstrapped so that errors thrown by native procedures can be caught
+    do {
+      try self.context?.bootstrap()
+    } catch {
+      preconditionFailure("cannot bootstrap test context: \(error)")
+    }
     self.execute(file: "Vectors")
   }
   

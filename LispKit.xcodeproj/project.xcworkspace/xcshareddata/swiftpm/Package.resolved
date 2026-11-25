@@ -141,8 +141,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/objecthub/swift-numberkit.git",
       "state" : {
-        "revision" : "ac0762770fcfda2d88c34857ce8954cd31c4aac9",
-        "version" : "3.0.0"
+        "revision" : "78520c531bf7ddd664cd1c32e203b363d5724de5",
+        "version" : "3.0.1"
       }
     },
     {

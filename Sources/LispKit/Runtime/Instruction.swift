@@ -457,6 +457,59 @@ public enum Instruction: CustomStringConvertible {
   /// number. This instruction does not change the stack.
   case flAssert
   
+  // Generic procedures with fast paths -------------------------------------------------------
+  //
+  // The following instructions implement calls of native procedures with a fixed number of
+  // arguments on top of the stack. They compute the result directly for the most common
+  // argument types (e.g. fixnums and flonums for arithmetic). For all other arguments, they
+  // call the native procedure _p_ at index _c_ of the constant pool, which implements the
+  // general case and reports errors. The result replaces the arguments on the stack.
+  
+  /// **`num_add` _c_**: Adds the two numbers on top of the stack. Corresponds to `(p x y)`
+  /// where _p_ is `+`.
+  case numAdd(Int)
+  
+  /// **`num_sub` _c_**: Subtracts the number on top of the stack from the number below it.
+  /// Corresponds to `(p x y)` where _p_ is `-`.
+  case numSub(Int)
+  
+  /// **`num_mul` _c_**: Multiplies the two numbers on top of the stack. Corresponds to
+  /// `(p x y)` where _p_ is `*`.
+  case numMul(Int)
+  
+  /// **`num_div` _c_**: Divides the number below the top of the stack by the number on top
+  /// of the stack. Corresponds to `(p x y)` where _p_ is `/`.
+  case numDiv(Int)
+  
+  /// **`num_eq` _c_**: Compares the two numbers on top of the stack for equality.
+  /// Corresponds to `(p x y)` where _p_ is `=`.
+  case numEq(Int)
+  
+  /// **`num_lt` _c_**: Compares the two numbers on top of the stack for "less than".
+  /// Corresponds to `(p x y)` where _p_ is `<`.
+  case numLt(Int)
+  
+  /// **`num_gt` _c_**: Compares the two numbers on top of the stack for "greater than".
+  /// Corresponds to `(p x y)` where _p_ is `>`.
+  case numGt(Int)
+  
+  /// **`num_lt_eq` _c_**: Compares the two numbers on top of the stack for "less than or
+  /// equal". Corresponds to `(p x y)` where _p_ is `<=`.
+  case numLtEq(Int)
+  
+  /// **`num_gt_eq` _c_**: Compares the two numbers on top of the stack for "greater than or
+  /// equal". Corresponds to `(p x y)` where _p_ is `>=`.
+  case numGtEq(Int)
+  
+  /// **`vector_ref` _c_**: Returns the element of a vector at a given index; the vector is
+  /// below the index on the stack. Corresponds to `(p vec i)` where _p_ is `vector-ref`.
+  case vectorRef(Int)
+  
+  /// **`vector_set` _c_**: Sets the element of a vector at a given index to a value; the
+  /// value is on top of the stack, the index below it, and the vector below the index.
+  /// Corresponds to `(p vec i x)` where _p_ is `vector-set!`.
+  case vectorSet(Int)
+  
   // Miscellaneous ----------------------------------------------------------------------------
 
   /// **`make_thread` _s_**: Creates a new thread from the thunk on top of the stack
@@ -521,6 +574,10 @@ public enum Instruction: CustomStringConvertible {
         return i >= 0 ? code.constants[i].description : (i == -2 ? "continuation" : nil)
       case .makeSyntax(let i):
         return i >= 0 ? code.constants[i].description : nil
+      case .numAdd(let i), .numSub(let i), .numMul(let i), .numDiv(let i), .numEq(let i),
+           .numLt(let i), .numGt(let i), .numLtEq(let i), .numGtEq(let i), .vectorRef(let i),
+           .vectorSet(let i):
+        return code.constants[i].description
       case .makeVariableArgument(_):
         return nil
       case .pushChar(let char):
@@ -772,6 +829,28 @@ public enum Instruction: CustomStringConvertible {
         return "fl_gt_eq \(n)"
       case .flAssert:
         return "fl_assert"
+      case .numAdd(let i):
+        return "num_add \(i)"
+      case .numSub(let i):
+        return "num_sub \(i)"
+      case .numMul(let i):
+        return "num_mul \(i)"
+      case .numDiv(let i):
+        return "num_div \(i)"
+      case .numEq(let i):
+        return "num_eq \(i)"
+      case .numLt(let i):
+        return "num_lt \(i)"
+      case .numGt(let i):
+        return "num_gt \(i)"
+      case .numLtEq(let i):
+        return "num_lt_eq \(i)"
+      case .numGtEq(let i):
+        return "num_gt_eq \(i)"
+      case .vectorRef(let i):
+        return "vector_ref \(i)"
+      case .vectorSet(let i):
+        return "vector_set \(i)"
     }
   }
 }

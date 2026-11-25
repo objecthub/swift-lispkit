@@ -26,6 +26,17 @@ import NumberKit
 ///
 public final class MathLibrary: NativeLibrary {
   
+  /// Global locations of procedures whose calls are compiled into VM instructions
+  private var plusLoc = 0
+  private var minusLoc = 0
+  private var multLoc = 0
+  private var divLoc = 0
+  private var equalsLoc = 0
+  private var lessThanLoc = 0
+  private var biggerThanLoc = 0
+  private var lessThanEqualsLoc = 0
+  private var biggerThanEqualsLoc = 0
+  
   /// Name of the library.
   public override class var name: [String] {
     return ["lispkit", "math"]
@@ -82,15 +93,17 @@ public final class MathLibrary: NativeLibrary {
     self.define(Procedure("truncate", self.truncate))
     self.define(Procedure("round", self.round))
     self.define(Procedure("random", self.random))
-    self.define(Procedure("+", self.plus))
-    self.define(Procedure("-", self.minus))
-    self.define(Procedure("*", self.mult))
-    self.define(Procedure("/", self.div))
-    self.define(Procedure("=", self.equals))
-    self.define(Procedure("<", self.lessThan))
-    self.define(Procedure(">", self.biggerThan))
-    self.define(Procedure("<=", self.lessThanEquals))
-    self.define(Procedure(">=", self.biggerThanEquals))
+    self.plusLoc = self.define(Procedure("+", self.plus, self.compilePlus))
+    self.minusLoc = self.define(Procedure("-", self.minus, self.compileMinus))
+    self.multLoc = self.define(Procedure("*", self.mult, self.compileMult))
+    self.divLoc = self.define(Procedure("/", self.div, self.compileDiv))
+    self.equalsLoc = self.define(Procedure("=", self.equals, self.compileEquals))
+    self.lessThanLoc = self.define(Procedure("<", self.lessThan, self.compileLessThan))
+    self.biggerThanLoc = self.define(Procedure(">", self.biggerThan, self.compileBiggerThan))
+    self.lessThanEqualsLoc = self.define(Procedure("<=", self.lessThanEquals,
+                                                   self.compileLessThanEquals))
+    self.biggerThanEqualsLoc = self.define(Procedure(">=", self.biggerThanEquals,
+                                                     self.compileBiggerThanEquals))
     self.define(Procedure("max", self.max))
     self.define(Procedure("min", self.min))
     self.define(Procedure("abs", self.absolute))
@@ -750,8 +763,14 @@ public final class MathLibrary: NativeLibrary {
   //-------- MARK: - Arithmetic primitives
 
   private func plus(_ exprs: Arguments) throws -> Expr {
-    var acc = Expr.fixnum(0)
-    for expr in exprs {
+    // Start with the first argument (instead of 0) so that, e.g., `(+ -0.0 -0.0)` returns
+    // -0.0, like the `num_add` instruction which implements `+` for two arguments
+    guard let first = exprs.first else {
+      return .fixnum(0)
+    }
+    try first.assertType(.numberType)
+    var acc = first.normalized
+    for expr in exprs.dropFirst() {
       switch try NumberPair(acc, expr) {
         case .fixnumPair(let lhs, let rhs):
           let (res, overflow) = lhs.addingReportingOverflow(rhs)
@@ -760,9 +779,7 @@ public final class MathLibrary: NativeLibrary {
           acc = .makeNumber(lhs + rhs)
         case .rationalPair(let lhs, let rhs):
           let (res, overflow) = lhs.addingReportingOverflow(rhs)
-          acc = overflow ? .makeNumber(Rational(BigInt(lhs.numerator), BigInt(lhs.denominator)) +
-                                   Rational(BigInt(rhs.numerator), BigInt(rhs.denominator)))
-                         : .makeNumber(res)
+          acc = overflow ? .makeNumber(MathLibrary.big(lhs) + MathLibrary.big(rhs)) : .makeNumber(res)
         case .bigRationalPair(let lhs, let rhs):
           acc = .makeNumber(lhs + rhs)
         case .flonumPair(let lhs, let rhs):
@@ -779,11 +796,12 @@ public final class MathLibrary: NativeLibrary {
     if exprs.isEmpty {
       switch acc {
         case .fixnum(let res):
-          return .makeNumber(-res)
+          return res == Int64.min ? .makeNumber(BigInt(res).negate) : .makeNumber(-res)
         case .bignum(let res):
           return .makeNumber(res.negate)
-        case .rational(.fixnum(let n), let d):
-          return .rational(.fixnum(-n), d)
+        case .rational(.fixnum(let n), .fixnum(let d)):
+          return n == Int64.min ? .makeNumber(Rational(BigInt(n).negate, BigInt(d)))
+                                : .rational(.fixnum(-n), .fixnum(d))
         case .rational(.bignum(let n), let d):
           return .rational(.bignum(-n), d)
         case .flonum(let res):
@@ -807,9 +825,7 @@ public final class MathLibrary: NativeLibrary {
           acc = .makeNumber(lhs - rhs)
         case .rationalPair(let lhs, let rhs):
           let (res, overflow) = lhs.subtractingReportingOverflow(rhs)
-          acc = overflow ? .makeNumber(Rational(BigInt(lhs.numerator), BigInt(lhs.denominator)) -
-                                   Rational(BigInt(rhs.numerator), BigInt(rhs.denominator)))
-                         : .makeNumber(res)
+          acc = overflow ? .makeNumber(MathLibrary.big(lhs) - MathLibrary.big(rhs)) : .makeNumber(res)
         case .bigRationalPair(let lhs, let rhs):
           acc = .makeNumber(lhs - rhs)
         case .flonumPair(let lhs, let rhs):
@@ -832,9 +848,7 @@ public final class MathLibrary: NativeLibrary {
           acc = .makeNumber(lhs * rhs)
         case .rationalPair(let lhs, let rhs):
           let (res, overflow) = lhs.multipliedReportingOverflow(by: rhs)
-          acc = overflow ? .makeNumber(Rational(BigInt(lhs.numerator), BigInt(lhs.denominator)) *
-                                   Rational(BigInt(rhs.numerator), BigInt(rhs.denominator)))
-                         : .makeNumber(res)
+          acc = overflow ? .makeNumber(MathLibrary.big(lhs) * MathLibrary.big(rhs)) : .makeNumber(res)
         case .bigRationalPair(let lhs, let rhs):
           acc = .makeNumber(lhs * rhs)
         case .flonumPair(let lhs, let rhs):
@@ -854,7 +868,8 @@ public final class MathLibrary: NativeLibrary {
           guard res != 0 else {
             throw RuntimeError.eval(.divisionByZero)
           }
-          return .makeNumber(Rational(1, res))
+          let (inv, overflow) = Rational.rationalWithOverflow(1, res)
+          return overflow ? .makeNumber(Rational(BigInt(1), BigInt(res))) : .makeNumber(inv)
         case .bignum(let res):
           guard !res.isZero else {
             throw RuntimeError.eval(.divisionByZero)
@@ -864,7 +879,8 @@ public final class MathLibrary: NativeLibrary {
           guard n != 0 else {
             throw RuntimeError.eval(.divisionByZero)
           }
-          return .makeNumber(Rational(d, n))
+          let (inv, overflow) = Rational.rationalWithOverflow(d, n)
+          return overflow ? .makeNumber(Rational(BigInt(d), BigInt(n))) : .makeNumber(inv)
         case .rational(.bignum(let n), .bignum(let d)):
           guard !n.isZero else {
             throw RuntimeError.eval(.divisionByZero)
@@ -887,13 +903,20 @@ public final class MathLibrary: NativeLibrary {
           let (res, overflow) = Rational.rationalWithOverflow(lhs, rhs)
           acc = overflow ? .makeNumber(Rational(BigInt(lhs), BigInt(rhs))) : .makeNumber(res)
         case .bignumPair(let lhs, let rhs):
+          guard !rhs.isZero else {
+            throw RuntimeError.eval(.divisionByZero)
+          }
           acc = .makeNumber(Rational(lhs, rhs))
         case .rationalPair(let lhs, let rhs):
+          guard !rhs.isZero else {
+            throw RuntimeError.eval(.divisionByZero)
+          }
           let (res, overflow) = lhs.dividedReportingOverflow(by: rhs)
-          acc = overflow ? .makeNumber(Rational(BigInt(lhs.numerator), BigInt(lhs.denominator)) /
-                                   Rational(BigInt(rhs.numerator), BigInt(rhs.denominator)))
-                         : .makeNumber(res)
+          acc = overflow ? .makeNumber(MathLibrary.big(lhs) / MathLibrary.big(rhs)) : .makeNumber(res)
         case .bigRationalPair(let lhs, let rhs):
+          guard !rhs.isZero else {
+            throw RuntimeError.eval(.divisionByZero)
+          }
           acc = .makeNumber(lhs / rhs)
         case .flonumPair(let lhs, let rhs):
           acc = .makeNumber(lhs / rhs)
@@ -902,6 +925,146 @@ public final class MathLibrary: NativeLibrary {
       }
     }
     return acc
+  }
+  
+  
+  /// Converts `x` into a rational number based on bignums.
+  private static func big(_ x: Rational<Int64>) -> Rational<BigInt> {
+    return Rational(BigInt(x.numerator), BigInt(x.denominator))
+  }
+  
+  
+  //-------- MARK: - Compilation of arithmetic and comparison primitives
+  
+  /// Compiles calls of the arithmetic procedure at global location `location` with two or more
+  /// arguments into a sequence of instructions created by `instr`, each combining the two
+  /// topmost values of the stack. The arguments are combined from left to right. Calls with
+  /// fewer arguments are compiled into regular calls. Calls with more than two arguments are
+  /// only compiled into instructions if the arguments after the second one are constants or
+  /// variables; otherwise, an error raised by the first instruction would precede the
+  /// evaluation of the remaining arguments, which differs from a regular call.
+  private func compileArithmetic(_ compiler: Compiler,
+                                 expr: Expr,
+                                 env: Env,
+                                 tail: Bool,
+                                 location: Int,
+                                 instr: (Int) -> Instruction) throws -> Bool {
+    guard case .pair(_, let args) = expr else {
+      preconditionFailure("compiling a call without arguments")
+    }
+    guard case .pair(let x, .pair(let y, let rest)) = args,
+          MathLibrary.isConstantsOrVariables(rest) else {
+      return try compiler.compileCall(ofProcedureAt: location, args: args, in: env, inTailPos: tail)
+    }
+    let index = compiler.registerConstant(at: location)
+    try compiler.compile(x, in: env, inTailPos: false)
+    try compiler.compile(y, in: env, inTailPos: false)
+    compiler.emit(instr(index))
+    var next = rest
+    while case .pair(let z, let zs) = next {
+      try compiler.compile(z, in: env, inTailPos: false)
+      compiler.emit(instr(index))
+      next = zs
+    }
+    return false
+  }
+  
+  /// Compiles calls of the comparison procedure at global location `location` with two
+  /// arguments into the instruction created by `instr`. All other calls are compiled into
+  /// regular calls.
+  private func compileComparison(_ compiler: Compiler,
+                                 expr: Expr,
+                                 env: Env,
+                                 tail: Bool,
+                                 location: Int,
+                                 instr: (Int) -> Instruction) throws -> Bool {
+    guard case .pair(_, let args) = expr else {
+      preconditionFailure("compiling a call without arguments")
+    }
+    guard case .pair(let x, .pair(let y, .null)) = args else {
+      return try compiler.compileCall(ofProcedureAt: location, args: args, in: env, inTailPos: tail)
+    }
+    let index = compiler.registerConstant(at: location)
+    try compiler.compile(x, in: env, inTailPos: false)
+    try compiler.compile(y, in: env, inTailPos: false)
+    compiler.emit(instr(index))
+    return false
+  }
+  
+  /// Returns true if `exprs` is a proper list of constants and symbols.
+  private static func isConstantsOrVariables(_ exprs: Expr) -> Bool {
+    var next = exprs
+    while case .pair(let expr, let rest) = next {
+      switch expr {
+        case .pair(_, _):
+          return false
+        default:
+          break
+      }
+      next = rest
+    }
+    return next.isNull
+  }
+  
+  private func compilePlus(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    return try self.compileArithmetic(compiler, expr: expr, env: env, tail: tail,
+                                      location: self.plusLoc, instr: Instruction.numAdd)
+  }
+  
+  private func compileMinus(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    return try self.compileArithmetic(compiler, expr: expr, env: env, tail: tail,
+                                      location: self.minusLoc, instr: Instruction.numSub)
+  }
+  
+  private func compileMult(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    return try self.compileArithmetic(compiler, expr: expr, env: env, tail: tail,
+                                      location: self.multLoc, instr: Instruction.numMul)
+  }
+  
+  private func compileDiv(_ compiler: Compiler, expr: Expr, env: Env, tail: Bool) throws -> Bool {
+    return try self.compileArithmetic(compiler, expr: expr, env: env, tail: tail,
+                                      location: self.divLoc, instr: Instruction.numDiv)
+  }
+  
+  private func compileEquals(_ compiler: Compiler,
+                             expr: Expr,
+                             env: Env,
+                             tail: Bool) throws -> Bool {
+    return try self.compileComparison(compiler, expr: expr, env: env, tail: tail,
+                                      location: self.equalsLoc, instr: Instruction.numEq)
+  }
+  
+  private func compileLessThan(_ compiler: Compiler,
+                               expr: Expr,
+                               env: Env,
+                               tail: Bool) throws -> Bool {
+    return try self.compileComparison(compiler, expr: expr, env: env, tail: tail,
+                                      location: self.lessThanLoc, instr: Instruction.numLt)
+  }
+  
+  private func compileBiggerThan(_ compiler: Compiler,
+                                 expr: Expr,
+                                 env: Env,
+                                 tail: Bool) throws -> Bool {
+    return try self.compileComparison(compiler, expr: expr, env: env, tail: tail,
+                                      location: self.biggerThanLoc, instr: Instruction.numGt)
+  }
+  
+  private func compileLessThanEquals(_ compiler: Compiler,
+                                     expr: Expr,
+                                     env: Env,
+                                     tail: Bool) throws -> Bool {
+    return try self.compileComparison(compiler, expr: expr, env: env, tail: tail,
+                                      location: self.lessThanEqualsLoc, instr: Instruction.numLtEq)
+  }
+  
+  private func compileBiggerThanEquals(_ compiler: Compiler,
+                                       expr: Expr,
+                                       env: Env,
+                                       tail: Bool) throws -> Bool {
+    return try self.compileComparison(compiler, expr: expr, env: env, tail: tail,
+                                      location: self.biggerThanEqualsLoc,
+                                      instr: Instruction.numGtEq)
   }
   
   
@@ -1001,10 +1164,13 @@ public final class MathLibrary: NativeLibrary {
   private func absolute(_ expr: Expr) throws -> Expr {
     switch expr {
       case .fixnum(let num):
-        return .makeNumber(abs(num))
+        return num == Int64.min ? .makeNumber(BigInt(num).negate) : .makeNumber(abs(num))
       case .bignum(let num):
         return .makeNumber(num.isNegative ? -num : num)
       case .rational(.fixnum(let n), .fixnum(let d)):
+        if n == Int64.min {
+          return .makeNumber(Rational(BigInt(n).negate, BigInt(d)))
+        }
         return n < 0 ? .rational(.fixnum(-n), .fixnum(d)) : expr
       case .rational(.bignum(let n), .bignum(let d)):
         return n.isNegative ? .rational(.bignum(-n), .bignum(d)) : expr
@@ -1391,10 +1557,13 @@ public final class MathLibrary: NativeLibrary {
   private func magnitude(_ expr: Expr) throws -> Expr {
     switch expr {
       case .fixnum(let num):
-        return .makeNumber(abs(num))
+        return num == Int64.min ? .makeNumber(BigInt(num).negate) : .makeNumber(abs(num))
       case .bignum(let num):
         return .makeNumber(num.isNegative ? -num : num)
       case .rational(.fixnum(let n), .fixnum(let d)):
+        if n == Int64.min {
+          return .makeNumber(Rational(BigInt(n).negate, BigInt(d)))
+        }
         return n < 0 ? .rational(.fixnum(-n), .fixnum(d)) : expr
       case .rational(.bignum(let n), .bignum(let d)):
         return n.isNegative ? .rational(.bignum(-n), .bignum(d)) : expr
@@ -1495,25 +1664,77 @@ public final class MathLibrary: NativeLibrary {
     return inexact ? try self.inexact(acc) : acc
   }
   
+  /// Returns the truncated quotient and the remainder of dividing fixnum `lhs` by fixnum `rhs`
+  /// (which must not be zero), or `nil` if the quotient is not a fixnum. This is only the case
+  /// for `Int64.min / -1`.
+  private static func truncateDivMod(_ lhs: Int64, _ rhs: Int64) -> (Int64, Int64)? {
+    let (quotient, overflow) = lhs.dividedReportingOverflow(by: rhs)
+    return overflow ? nil : (quotient, lhs &- quotient &* rhs)
+  }
+  
+  /// Returns the floored quotient and the remainder of dividing fixnum `lhs` by fixnum `rhs`
+  /// (which must not be zero), or `nil` if the quotient is not a fixnum. This is only the case
+  /// for `Int64.min / -1`.
+  private static func floorDivMod(_ lhs: Int64, _ rhs: Int64) -> (Int64, Int64)? {
+    guard let (quotient, remainder) = MathLibrary.truncateDivMod(lhs, rhs) else {
+      return nil
+    }
+    // Round towards negative infinity if the remainder is non-zero and its sign differs from
+    // the sign of `rhs`; this does not overflow since |quotient| < 2^62 in this case
+    if remainder != 0 && (remainder < 0) != (rhs < 0) {
+      return (quotient &- 1, remainder &+ rhs)
+    }
+    return (quotient, remainder)
+  }
+  
+  /// Returns the floored quotient and the remainder of dividing bignum `lhs` by bignum `rhs`
+  /// (which must not be zero).
+  private static func floorDivMod(_ lhs: BigInt, _ rhs: BigInt) -> (BigInt, BigInt) {
+    let quotient = lhs / rhs
+    let remainder = lhs % rhs
+    if !remainder.isZero && remainder.isNegative != rhs.isNegative {
+      return (quotient - 1, remainder + rhs)
+    }
+    return (quotient, remainder)
+  }
+  
+  /// Returns the floored quotient and the remainder of dividing integer flonum `lhs` by integer
+  /// flonum `rhs`.
+  private static func floorDivMod(_ lhs: Double, _ rhs: Double) -> (Double, Double) {
+    let remainder = lhs.truncatingRemainder(dividingBy: rhs)
+    if remainder != 0.0 && (remainder < 0.0) != (rhs < 0.0) {
+      return ((lhs - remainder - rhs) / rhs, remainder + rhs)
+    }
+    return ((lhs - remainder) / rhs, remainder)
+  }
+  
+  /// Checks that `x` and `y` are integer flonums.
+  private static func assertIntegers(_ x: Expr, _ lhs: Double, _ y: Expr, _ rhs: Double) throws {
+    guard Foundation.trunc(lhs) == lhs else {
+      throw RuntimeError.type(x, expected: [.integerType])
+    }
+    guard Foundation.trunc(rhs) == rhs else {
+      throw RuntimeError.type(y, expected: [.integerType])
+    }
+  }
+  
   private func truncateDiv(_ x: Expr, _ y: Expr) throws -> Expr {
     switch try NumberPair(x, y) {
       case .fixnumPair(let lhs, let rhs):
         guard rhs != 0 else {
           throw RuntimeError.eval(.divisionByZero)
         }
-        return .values(.pair(.makeNumber(lhs / rhs), .pair(.makeNumber(lhs % rhs), .null)))
+        guard let (quotient, remainder) = MathLibrary.truncateDivMod(lhs, rhs) else {
+          return .values(.pair(.makeNumber(BigInt(lhs) / BigInt(rhs)), .pair(.fixnum(0), .null)))
+        }
+        return .values(.pair(.makeNumber(quotient), .pair(.makeNumber(remainder), .null)))
       case .bignumPair(let lhs, let rhs):
         guard !rhs.isZero else {
           throw RuntimeError.eval(.divisionByZero)
         }
         return .values(.pair(.makeNumber(lhs / rhs), .pair(.makeNumber(lhs % rhs), .null)))
       case .flonumPair(let lhs, let rhs):
-        guard Foundation.trunc(lhs) == lhs else {
-          throw RuntimeError.type(x, expected: [.integerType])
-        }
-        guard Foundation.trunc(rhs) == rhs else {
-          throw RuntimeError.type(y, expected: [.integerType])
-        }
+        try MathLibrary.assertIntegers(x, lhs, y, rhs)
         return .values(.pair(.makeNumber(Foundation.trunc(lhs / rhs)),
                              .pair(.makeNumber(lhs.truncatingRemainder(dividingBy: rhs)), .null)))
       default:
@@ -1529,19 +1750,17 @@ public final class MathLibrary: NativeLibrary {
         guard rhs != 0 else {
           throw RuntimeError.eval(.divisionByZero)
         }
-        return .makeNumber(lhs / rhs)
+        guard let (quotient, _) = MathLibrary.truncateDivMod(lhs, rhs) else {
+          return .makeNumber(BigInt(lhs) / BigInt(rhs))
+        }
+        return .makeNumber(quotient)
       case .bignumPair(let lhs, let rhs):
         guard !rhs.isZero else {
           throw RuntimeError.eval(.divisionByZero)
         }
         return .makeNumber(lhs / rhs)
       case .flonumPair(let lhs, let rhs):
-        guard Foundation.trunc(lhs) == lhs else {
-          throw RuntimeError.type(x, expected: [.integerType])
-        }
-        guard Foundation.trunc(rhs) == rhs else {
-          throw RuntimeError.type(y, expected: [.integerType])
-        }
+        try MathLibrary.assertIntegers(x, lhs, y, rhs)
         return .makeNumber(Foundation.trunc(lhs / rhs))
       default:
         try x.assertType(.integerType)
@@ -1556,19 +1775,14 @@ public final class MathLibrary: NativeLibrary {
         guard rhs != 0 else {
           throw RuntimeError.eval(.divisionByZero)
         }
-        return .makeNumber(lhs % rhs)
+        return .makeNumber(MathLibrary.truncateDivMod(lhs, rhs)?.1 ?? 0)
       case .bignumPair(let lhs, let rhs):
         guard !rhs.isZero else {
           throw RuntimeError.eval(.divisionByZero)
         }
         return .makeNumber(lhs % rhs)
       case .flonumPair(let lhs, let rhs):
-        guard Foundation.trunc(lhs) == lhs else {
-          throw RuntimeError.type(x, expected: [.integerType])
-        }
-        guard Foundation.trunc(rhs) == rhs else {
-          throw RuntimeError.type(y, expected: [.integerType])
-        }
+        try MathLibrary.assertIntegers(x, lhs, y, rhs)
         return .makeNumber(lhs.truncatingRemainder(dividingBy: rhs))
       default:
         try x.assertType(.integerType)
@@ -1583,38 +1797,20 @@ public final class MathLibrary: NativeLibrary {
         guard rhs != 0 else {
           throw RuntimeError.eval(.divisionByZero)
         }
-        let res = lhs % rhs
-        if (res < 0) == (rhs < 0) {
-          return .values(.pair(.makeNumber((lhs - res) / rhs), .pair(.makeNumber(res), .null)))
-        } else {
-          return .values(.pair(.makeNumber((lhs - res - rhs) / rhs),
-                               .pair(.makeNumber(res + rhs), .null)))
+        guard let (quotient, remainder) = MathLibrary.floorDivMod(lhs, rhs) else {
+          return .values(.pair(.makeNumber(BigInt(lhs) / BigInt(rhs)), .pair(.fixnum(0), .null)))
         }
+        return .values(.pair(.makeNumber(quotient), .pair(.makeNumber(remainder), .null)))
       case .bignumPair(let lhs, let rhs):
         guard !rhs.isZero else {
           throw RuntimeError.eval(.divisionByZero)
         }
-        let res = lhs % rhs
-        if res.isNegative == rhs.isNegative {
-          return .values(.pair(.makeNumber((lhs - res) / rhs), .pair(.makeNumber(res), .null)))
-        } else {
-          return .values(.pair(.makeNumber((lhs - res - rhs) / rhs),
-                               .pair(.makeNumber(res + rhs), .null)))
-        }
+        let (quotient, remainder) = MathLibrary.floorDivMod(lhs, rhs)
+        return .values(.pair(.makeNumber(quotient), .pair(.makeNumber(remainder), .null)))
       case .flonumPair(let lhs, let rhs):
-        guard Foundation.trunc(lhs) == lhs else {
-          throw RuntimeError.type(x, expected: [.integerType])
-        }
-        guard Foundation.trunc(rhs) == rhs else {
-          throw RuntimeError.type(y, expected: [.integerType])
-        }
-        let res = lhs.truncatingRemainder(dividingBy: rhs)
-        if (res < 0.0) == (rhs < 0.0) {
-          return .values(.pair(.makeNumber((lhs - res) / rhs), .pair(.makeNumber(res), .null)))
-        } else {
-          return .values(.pair(.makeNumber((lhs - res - rhs) / rhs),
-                               .pair(.makeNumber(res + rhs), .null)))
-        }
+        try MathLibrary.assertIntegers(x, lhs, y, rhs)
+        let (quotient, remainder) = MathLibrary.floorDivMod(lhs, rhs)
+        return .values(.pair(.makeNumber(quotient), .pair(.makeNumber(remainder), .null)))
       default:
         try x.assertType(.integerType)
         try y.assertType(.integerType)
@@ -1628,28 +1824,18 @@ public final class MathLibrary: NativeLibrary {
         guard rhs != 0 else {
           throw RuntimeError.eval(.divisionByZero)
         }
-        let res = lhs % rhs
-        return .makeNumber(((res < 0) == (rhs < 0) ? (lhs - res) : (lhs - res - rhs)) / rhs)
+        guard let (quotient, _) = MathLibrary.floorDivMod(lhs, rhs) else {
+          return .makeNumber(BigInt(lhs) / BigInt(rhs))
+        }
+        return .makeNumber(quotient)
       case .bignumPair(let lhs, let rhs):
         guard !rhs.isZero else {
           throw RuntimeError.eval(.divisionByZero)
         }
-        let res = lhs % rhs
-        return .makeNumber((res.isNegative == rhs.isNegative ? (lhs - res)
-                                                             : (lhs - res - rhs)) / rhs)
+        return .makeNumber(MathLibrary.floorDivMod(lhs, rhs).0)
       case .flonumPair(let lhs, let rhs):
-        guard Foundation.trunc(lhs) == lhs else {
-          throw RuntimeError.type(x, expected: [.integerType])
-        }
-        guard Foundation.trunc(rhs) == rhs else {
-          throw RuntimeError.type(y, expected: [.integerType])
-        }
-        let res = lhs.truncatingRemainder(dividingBy: rhs)
-        if (res < 0.0) == (rhs < 0.0) {
-          return .makeNumber((lhs - res) / rhs)
-        } else {
-          return .makeNumber((lhs - res - rhs) / rhs)
-        }
+        try MathLibrary.assertIntegers(x, lhs, y, rhs)
+        return .makeNumber(MathLibrary.floorDivMod(lhs, rhs).0)
       default:
         try x.assertType(.integerType)
         try y.assertType(.integerType)
@@ -1663,27 +1849,15 @@ public final class MathLibrary: NativeLibrary {
         guard rhs != 0 else {
           throw RuntimeError.eval(.divisionByZero)
         }
-        let res = lhs % rhs
-        return .makeNumber((res < 0) == (rhs < 0) ? res : res + rhs)
+        return .makeNumber(MathLibrary.floorDivMod(lhs, rhs)?.1 ?? 0)
       case .bignumPair(let lhs, let rhs):
         guard !rhs.isZero else {
           throw RuntimeError.eval(.divisionByZero)
         }
-        let res = lhs % rhs
-        return .makeNumber(res.isNegative == rhs.isNegative ? res : res + rhs)
+        return .makeNumber(MathLibrary.floorDivMod(lhs, rhs).1)
       case .flonumPair(let lhs, let rhs):
-        guard Foundation.trunc(lhs) == lhs else {
-          throw RuntimeError.type(x, expected: [.integerType])
-        }
-        guard Foundation.trunc(rhs) == rhs else {
-          throw RuntimeError.type(y, expected: [.integerType])
-        }
-        let res = lhs.truncatingRemainder(dividingBy: rhs)
-        if (res < 0.0) == (rhs < 0.0) {
-          return .makeNumber(res)
-        } else {
-          return .makeNumber(res + rhs)
-        }
+        try MathLibrary.assertIntegers(x, lhs, y, rhs)
+        return .makeNumber(MathLibrary.floorDivMod(lhs, rhs).1)
       default:
         try x.assertType(.integerType)
         try y.assertType(.integerType)
@@ -1849,7 +2023,8 @@ public final class MathLibrary: NativeLibrary {
         guard rhs != 0 else {
           throw RuntimeError.eval(.divisionByZero)
         }
-        res = res / rhs
+        // Like other fixnum operations, this wraps around for `Int64.min / -1`
+        res = res.dividedReportingOverflow(by: rhs).partialValue
       }
       return .fixnum(res)
     }
@@ -2058,16 +2233,29 @@ public final class MathLibrary: NativeLibrary {
   }
   
   private func fxRemainder(_ x: Expr, _ y: Expr) throws -> Expr {
-    return .fixnum(try x.asInt64() % y.asInt64())
+    let lhs = try x.asInt64()
+    let rhs = try y.asInt64()
+    guard rhs != 0 else {
+      throw RuntimeError.eval(.divisionByZero)
+    }
+    // The remainder of `Int64.min` divided by -1 is 0 (reported as overflow)
+    return .fixnum(lhs.remainderReportingOverflow(dividingBy: rhs).partialValue)
   }
   
   private func fxModulo(_ x: Expr, _ y: Expr) throws -> Expr {
-    return .fixnum(try x.asInt64() %% y.asInt64())
+    let lhs = try x.asInt64()
+    let rhs = try y.asInt64()
+    guard rhs != 0 else {
+      throw RuntimeError.eval(.divisionByZero)
+    }
+    let rem = lhs.remainderReportingOverflow(dividingBy: rhs).partialValue
+    return .fixnum(rem == 0 || (rem < 0) == (rhs < 0) ? rem : rem &+ rhs)
   }
   
   private func fxAbs(_ x: Expr) throws -> Expr {
     let res = try x.asInt64()
-    return .fixnum(res < 0 ? -res : res)
+    // Like other fixnum operations, this wraps around: the result for `Int64.min` is `Int64.min`
+    return .fixnum(res < 0 ? 0 &- res : res)
   }
   
   private func fxAnd(_ x: Expr, _ y: Expr) throws -> Expr {
