@@ -86,4 +86,4 @@
 
 (test-end)
 
-;; Current number of failures: 6 (all from R7RS-Tests)
+;; Current number of failures: 0

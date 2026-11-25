@@ -118,15 +118,19 @@
 
 (test-group "timers: each ticker gets consumed by only one recv"
   (define reply (make-channel 1024))
-  (define tick  (ticker 0.01))
+  (define start (current-second))
+  (define tick  (ticker 0.02))
   (go (let loop () (channel-select ((tick -> _) (channel-select ((reply <- 1) (loop)))))))
   (go (let loop () (channel-select ((tick -> _) (channel-select ((reply <- 2) (loop)))))))
   (go (let loop () (channel-select ((tick -> _) (channel-select ((reply <- 3) (loop)))))))
   (go (let loop () (channel-select ((tick -> _) (channel-select ((reply <- 4) (loop)))))))
-  (thread-sleep! .107)   ; just a little past the last tick
+  ; Sleep until 210ms after the ticker was created, i.e. between the 10th tick (200ms)
+  ; and the 11th tick (220ms). Sleeping tends to overshoot by a few milliseconds, so
+  ; the target is slightly before the middle of this window.
+  (thread-sleep! (- (+ start 0.21) (current-second)))
   (channel-close reply) ; allow goroutines to exit (this is an antipattern in golang,
                         ; hopefully ok here!)
-  ; So, we've ticked every 100ms in 1 second. That should give us exactly 10 results,
+  ; So, we've ticked every 20ms for 210ms. That should give us exactly 10 results,
   ; from a random selection of threads above.
   (define results
     (let loop ((res '()))
@@ -134,7 +138,7 @@
                       (if fail
                           (reverse res)
                           (loop (cons msg res)))))))
-  (test "10ms messages for 105ms means 10 messages" 10 (length results)))
+  (test "20ms messages for 210ms means 10 messages" 10 (length results)))
 
 (test-group "closing channels"
   (define chan1 (make-channel 1))

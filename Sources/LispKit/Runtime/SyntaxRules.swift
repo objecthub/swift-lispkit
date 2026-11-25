@@ -76,7 +76,7 @@ public final class SyntaxRules {
     //       "MATCH: \(pattern) WITH: \(input) MATCHING: \(matches)") //DEBUG
     switch pattern {
       case .symbol(let sym):
-        if self.literals.contains(sym.root) {
+        if self.literals.contains(sym) {
           if case .symbol(let inputSym) = input {
             return sym.root == inputSym.root
           } else {
@@ -257,7 +257,7 @@ public final class SyntaxRules {
     func traverse(_ pattern: Expr) {
       switch pattern {
         case .symbol(let sym):
-          if !self.literals.contains(sym.root) && !self.reserved.contains(sym.root) {
+          if !self.literals.contains(sym) && !self.reserved.contains(sym.root) {
             vars.insert(sym)
           }
         case .pair(let car, let cdr):

@@ -368,7 +368,13 @@ public final class CoreLibrary: NativeLibrary {
                 break
             }
           }
-          try compiler.pushValue(expr)
+          switch expr {
+            case .pair(_, _), .vector(_):
+              // Nested lists and vectors may contain `unquote` forms, too
+              try compiler.compile(reduceQQ(expr, in: env), in: env, inTailPos: false)
+            default:
+              try compiler.pushValue(expr)
+          }
           nelem += 1
         }
         if nvec == 0 {
@@ -385,7 +391,11 @@ public final class CoreLibrary: NativeLibrary {
     return false
   }
   
-  private func reduceQQ(_ expr: Expr, in env: Env) throws -> Expr {
+  /// Returns an expression constructing the quasiquoted template `expr`. `depth` is the
+  /// quasiquotation nesting level: only `unquote` and `unquote-splicing` forms at level 0
+  /// get evaluated; nested `quasiquote` forms increase the level, and nested `unquote` and
+  /// `unquote-splicing` forms decrease it (R7RS 4.2.8).
+  private func reduceQQ(_ expr: Expr, depth: Int = 0, in env: Env) throws -> Expr {
     switch expr {
       case .pair(let car, let cdr):
         switch car {
@@ -395,19 +405,32 @@ public final class CoreLibrary: NativeLibrary {
                                       .symbol(self.context.symbols.unquote),
                                       car)
             }
-            return cadr
+            if depth == 0 {
+              return cadr
+            }
+            return Expr.makeList(.symbol(Symbol(self.context.symbols.cons, env.global)),
+                                 try reduceQQ(car, depth: depth, in: env),
+                                 try reduceQQ(cdr, depth: depth - 1, in: env))
           case .symbol(let s) where s.root == self.context.symbols.quasiquote:
-            guard case .pair(let cadr, .null) = cdr else {
+            guard case .pair(_, .null) = cdr else {
               throw RuntimeError.eval(.invalidContextInQuasiquote,
                                       .symbol(self.context.symbols.quasiquote),
                                       car)
             }
-            return try reduceQQ(reduceQQ(cadr, in: env), in: env)
+            return Expr.makeList(.symbol(Symbol(self.context.symbols.cons, env.global)),
+                                 try reduceQQ(car, depth: depth, in: env),
+                                 try reduceQQ(cdr, depth: depth + 1, in: env))
           case .symbol(let s) where s.root == self.context.symbols.unquoteSplicing:
-            throw RuntimeError.eval(.invalidContextInQuasiquote,
-                                    .symbol(self.context.symbols.unquoteSplicing),
-                                    car)
-          case .pair(.symbol(let s), let cdar) where s.root == self.context.symbols.unquoteSplicing:
+            guard depth > 0, case .pair(_, .null) = cdr else {
+              throw RuntimeError.eval(.invalidContextInQuasiquote,
+                                      .symbol(self.context.symbols.unquoteSplicing),
+                                      car)
+            }
+            return Expr.makeList(.symbol(Symbol(self.context.symbols.cons, env.global)),
+                                 try reduceQQ(car, depth: depth, in: env),
+                                 try reduceQQ(cdr, depth: depth - 1, in: env))
+          case .pair(.symbol(let s), let cdar) where depth == 0 &&
+                                                     s.root == self.context.symbols.unquoteSplicing:
             guard case .pair(let cadar, .null) = cdar else {
               throw RuntimeError.eval(.invalidContextInQuasiquote,
                                       .symbol(self.context.symbols.unquoteSplicing),
@@ -415,18 +438,19 @@ public final class CoreLibrary: NativeLibrary {
             }
             return Expr.makeList(.symbol(Symbol(self.context.symbols.append, env.global)),
                                  cadar,
-                                 try reduceQQ(cdr, in: env))
+                                 try reduceQQ(cdr, depth: depth, in: env))
           default:
             return Expr.makeList(.symbol(Symbol(self.context.symbols.cons, env.global)),
-                                 try reduceQQ(car, in: env),
-                                 try reduceQQ(cdr, in: env))
+                                 try reduceQQ(car, depth: depth, in: env),
+                                 try reduceQQ(cdr, depth: depth, in: env))
         }
       case .vector(let col):
         var segments = Expr.null
         var current = Expr.null
         for expr in col.exprs.reversed() {
           switch expr {
-            case .pair(.symbol(let s), let rest) where s.root == self.context.symbols.unquoteSplicing:
+            case .pair(.symbol(let s), let rest) where depth == 0 &&
+                                                       s.root == self.context.symbols.unquoteSplicing:
               let segment = Expr.pair(.symbol(Symbol(self.context.symbols.listToVector, env.global)),
                                       rest)
               if current.isNull {
@@ -439,7 +463,7 @@ public final class CoreLibrary: NativeLibrary {
                 current = .null
               }
             default:
-              current = .pair(try reduceQQ(expr, in: env), current)
+              current = .pair(try reduceQQ(expr, depth: depth, in: env), current)
           }
         }
         if segments.isNull {
@@ -871,7 +895,7 @@ public final class CoreLibrary: NativeLibrary {
     var literalSet = Set<Symbol>()
     var expr = lit
     while case .pair(.symbol(let sym), let cdr) = expr {
-      literalSet.insert(sym.root)
+      literalSet.insert(sym)
       expr = cdr
     }
     guard expr == .null else {

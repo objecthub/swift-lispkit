@@ -406,6 +406,19 @@ public final class Compiler {
     return .globalLookupRequired(sym, env.environment!)
   }
   
+  /// Returns true if `sym` refers to the auxiliary syntax `aux` (e.g. `else` or `=>`) in
+  /// environment `env`, i.e. `sym` has the same name as `aux` and it is not shadowed by a
+  /// local binding.
+  public func isAuxiliary(_ sym: Symbol, _ aux: Symbol, in env: Env) -> Bool {
+    guard sym.root == aux else {
+      return false
+    }
+    if case .globalLookupRequired(_, _) = self.lookupLocalValueOf(sym, in: env) {
+      return true
+    }
+    return false
+  }
+
   /// Checks if the symbol `sym` is bound in the local environment `env`.
   private func lookupLocalValueOf(_ sym: Symbol, in env: Env) -> LocalLookupResult {
     var env = env

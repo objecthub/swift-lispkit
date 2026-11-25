@@ -611,11 +611,11 @@ public final class PortLibrary: NativeLibrary {
     return .void
   }
   
-  /// TODO: Implement this function correctly; i.e. force usage of datum labels for shared
-  /// structures.
+  /// Writes `expr` using datum labels for all objects that are referenced more than once.
+  /// Note that pairs do not have an identity in LispKit and are therefore never labeled.
   func writeShared(_ expr: Expr, port: Expr?) throws -> Expr {
     let output = try self.textOutputFrom(port, open: true)
-    guard output.writeString(expr.description) else {
+    guard output.writeString(expr.toString(shared: true)) else {
       let outPort = try port ?? .port(self.defaultPort(self.outputPortParam))
       throw RuntimeError.eval(.cannotWriteToPort, outPort)
     }

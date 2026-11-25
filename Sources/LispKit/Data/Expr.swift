@@ -1055,10 +1055,15 @@ extension Expr: CustomStringConvertible, CLFormatConvertible {
     return self.toString(escape: false)
   }
   
-  public func toString(escape: Bool = true) -> String {
+  /// Returns a textual representation of this expression. If `escape` is false, strings,
+  /// characters, and symbols are not escaped. Cyclic structures are always written using
+  /// datum labels. If `shared` is true, datum labels are used for all objects that are
+  /// referenced more than once (this is how `write-shared` works).
+  public func toString(escape: Bool = true, shared: Bool = false) -> String {
     var enclObjs = Set<Reference>()
     var objId = [Reference: Int]()
-    
+    let sharedObjs = shared ? self.sharedReferences() : []
+
     func objIdString(_ ref: Reference) -> String? {
       if let id = objId[ref] {
         return "#\(id)#"
@@ -1066,6 +1071,9 @@ extension Expr: CustomStringConvertible, CLFormatConvertible {
         objId[ref] = objId.count
         return "#\(objId.count - 1)#"
       } else {
+        if sharedObjs.contains(ref) {
+          objId[ref] = objId.count
+        }
         return nil
       }
     }
@@ -1397,7 +1405,89 @@ extension Expr: CustomStringConvertible, CLFormatConvertible {
     
     return stringReprOf(self)
   }
-  
+
+  /// Returns the objects which are reachable from this expression via more than one path
+  /// (considering only the objects that `toString` prints with datum labels).
+  private func sharedReferences() -> Set<Reference> {
+    var visited = Set<Reference>()
+    var shared = Set<Reference>()
+    func firstVisit(_ ref: Reference) -> Bool {
+      if visited.contains(ref) {
+        shared.insert(ref)
+        return false
+      }
+      visited.insert(ref)
+      return true
+    }
+    func traverse(_ expr: Expr) {
+      var expr = expr
+      while true {
+        switch expr {
+          case .pair(let car, let cdr):
+            traverse(car)
+            expr = cdr
+            continue
+          case .values(let list):
+            expr = list
+            continue
+          case .syntax(_, let e):
+            expr = e
+            continue
+          case .tagged(let tag, let e):
+            traverse(tag)
+            expr = e
+            continue
+          case .box(let cell):
+            if firstVisit(cell) {
+              expr = cell.value
+              continue
+            }
+          case .mpair(let tuple):
+            if firstVisit(tuple) {
+              traverse(tuple.fst)
+              expr = tuple.snd
+              continue
+            }
+          case .array(let array):
+            if firstVisit(array) {
+              for e in array.exprs {
+                traverse(e)
+              }
+            }
+          case .vector(let vector):
+            if firstVisit(vector) {
+              for e in vector.exprs {
+                traverse(e)
+              }
+            }
+          case .record(let record):
+            if case .record(_) = record.kind, firstVisit(record) {
+              for e in record.exprs {
+                traverse(e)
+              }
+            }
+          case .table(let map):
+            if firstVisit(map) {
+              for (key, value) in map.mappings {
+                traverse(key)
+                traverse(value)
+              }
+            }
+          case .procedure(let proc):
+            if case .parameter(let tuple) = proc.kind, firstVisit(proc) {
+              expr = tuple.snd
+              continue
+            }
+          default:
+            break
+        }
+        return
+      }
+    }
+    traverse(self)
+    return shared
+  }
+
   internal static func escapeStr(_ str: String) -> String {
     var res = ""
     for c in str {

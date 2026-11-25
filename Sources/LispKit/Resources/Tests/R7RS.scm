@@ -2116,12 +2116,13 @@
       (write-simple (list x x) out)
       (get-output-string out)))
 
+;; LispKit: pairs do not have an identity, so sharing is demonstrated with vectors
 (test #t
     (and (member (let ((out (open-output-string))
-                       (x (list 1 2 3)))
+                       (x (vector 1 2 3)))
                    (write-shared (list x x) out)
                    (get-output-string out))
-                 '("(#0=(1 2 3) #0#)" "(#1=(1 2 3) #1#)"))
+                 '("(#0=#(1 2 3) #0#)" "(#1=#(1 2 3) #1#)"))
          #t))
 
 (test-end)

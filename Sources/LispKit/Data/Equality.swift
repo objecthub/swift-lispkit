@@ -555,6 +555,26 @@ public func compareNumber(_ lhs: Expr, with rhs: Expr) throws -> CompareResult {
 }
 
 public func compare(_ lhs: Expr, with rhs: Expr) -> CompareResult? {
+  // Comparisons between exact and inexact real numbers are done exactly so that
+  // the comparison predicates are transitive (R7RS 6.2.6)
+  switch (lhs, rhs) {
+    case (.fixnum(_), .flonum(let y)), (.bignum(_), .flonum(let y)), (.rational(_, _), .flonum(let y)):
+      return compare(exact: lhs, withFlonum: y)
+    case (.flonum(let x), .fixnum(_)), (.flonum(let x), .bignum(_)), (.flonum(let x), .rational(_, _)):
+      guard let res = compare(exact: rhs, withFlonum: x) else {
+        return nil
+      }
+      switch res {
+        case .less:
+          return .greater
+        case .greater:
+          return .less
+        default:
+          return res
+      }
+    default:
+      break
+  }
   guard let pair = NumberPair(lhs, and: rhs) else {
     return nil
   }
@@ -576,4 +596,45 @@ public func compare(_ lhs: Expr, with rhs: Expr) -> CompareResult? {
     case .complexPair(let lnum, let rnum):
       return lnum == rnum ? .equal : .incomparable
   }
+}
+
+/// Compares the exact real number `exact` with the flonum `y` without converting `exact`
+/// into a flonum (which might lose precision).
+private func compare(exact: Expr, withFlonum y: Double) -> CompareResult? {
+  if y.isNaN {
+    return .incomparable
+  } else if y.isInfinite {
+    return y < 0.0 ? .greater : .less
+  }
+  // Fast path: fixnums with at most 53 significant bits are exactly representable as flonums
+  if case .fixnum(let x) = exact, x.magnitude <= (UInt64(1) << 53) {
+    let dx = Double(x)
+    return dx < y ? .less : (dx > y ? .greater : .equal)
+  }
+  let lnum: Rational<BigInt>
+  switch exact {
+    case .fixnum(let x):
+      lnum = Rational(BigInt(x))
+    case .bignum(let x):
+      lnum = Rational(x)
+    case .rational(.fixnum(let n), .fixnum(let d)):
+      lnum = Rational(BigInt(n), BigInt(d))
+    case .rational(.bignum(let n), .bignum(let d)):
+      lnum = Rational(n, d)
+    default:
+      return nil
+  }
+  let rnum = exactRational(y)
+  return lnum < rnum ? .less : (lnum > rnum ? .greater : .equal)
+}
+
+/// Returns the exact rational number that is equal to the finite flonum `x`.
+private func exactRational(_ x: Double) -> Rational<BigInt> {
+  if x.rounded(.towardZero) == x {
+    return Rational(BigInt(x))
+  }
+  // `x` is not integral, so |x| < 2^52 and the scaled significand below is an integer
+  let shift = 52 - Int(x.exponent)
+  let numerator = Int64(Double(sign: x.sign, exponent: 52, significand: x.significand))
+  return Rational(BigInt(numerator), BigInt(2).toPower(of: BigInt(shift)))
 }
