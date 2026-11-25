@@ -34,6 +34,7 @@
 		1CC31915A81F148E05F7FDEC /* 116.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = 9034FF78DD2E2AAF13CE5B4F /* 116.sld */; };
 		1DC3EC21E5FD4ADC0709EC15 /* 253.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = 2AEEC01A1AC2945229202154 /* 253.sld */; };
 		1E3956017D6B4600B8A8384A /* AsyncOutcome.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A04B75E5594FDEA10DC0E7 /* AsyncOutcome.swift */; };
+		1F362EFA57705D5FE5E68F37 /* NaturalLanguageLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5452893B916721BBE5AB4506 /* NaturalLanguageLibrary.swift */; };
 		1F566C8DA67B60E7E004445D /* iri.sld in Copy pre-installed LispKit library: SRFI 275 */ = {isa = PBXBuildFile; fileRef = EB48C4653E11735D8F4FA73A /* iri.sld */; };
 		20EF834D656FFD30B7AF200F /* resolve.sld in Copy pre-installed LispKit library: SRFI 275 internal */ = {isa = PBXBuildFile; fileRef = DDAFE0AF3D76C9FE0F080C14 /* resolve.sld */; };
 		217AB8F3521DA5D82C87F125 /* ImageGenLibraryAddOn.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7219A705A419EB69F8643175 /* ImageGenLibraryAddOn.swift */; };
@@ -76,12 +77,11 @@
 		654312B5F2C70CDBEB22F7B3 /* SRFI-275-Normalize.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = 0013156CBF7D203F212EC3ED /* SRFI-275-Normalize.scm */; };
 		68D86A6C4ED40BD6E4D13866 /* lseq.sld in Copy pre-installed Scheme libraries */ = {isa = PBXBuildFile; fileRef = C999BCE041777105AA71A880 /* lseq.sld */; };
 		6BCEE0732AE6DEF0C6B05003 /* 273.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = AB2343481A42170DB5018E70 /* 273.sld */; };
+		6EB64068E6546652F846F9E8 /* DataFrames.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = 558883D005E9EC64D140209D /* DataFrames.scm */; };
 		6F1CDC4458C64AB2326EEBF1 /* SRFI-272-Advanced.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = D741968424B4810A1798A47C /* SRFI-272-Advanced.scm */; };
 		72B53CB175DC4A46B1DDA56D /* ClaudeForFoundationModels in Frameworks */ = {isa = PBXBuildFile; productRef = D130EF95C85A4081A4BA81A4 /* ClaudeForFoundationModels */; };
 		7353E8B5F7FC29E57A5894B3 /* SRFI-272-Basic.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = 29CE3445F5246B5A07115A6D /* SRFI-272-Basic.scm */; };
 		7646AE34EE9152F65F574430 /* SpotlightSearchLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51AFCB4A3760B2E10DAC22D0 /* SpotlightSearchLibrary.swift */; };
-		EF544861C374DAC5CFD3454E /* NaturalLanguageLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5452893B916721BBE5AB4506 /* NaturalLanguageLibrary.swift */; };
-		BA344764BBFD7D657A7B1D53 /* DataFrameLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7EE4233522C602B7F3EAF66 /* DataFrameLibrary.swift */; };
 		79CD3FC9509C4897D067849D /* SRFI-272-Show.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = ABE22F53B68EFD4F6C77AFAC /* SRFI-272-Show.scm */; };
 		7CC3E39CC7F7102C70507AA6 /* YamlLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66CAA060B7DB817DCE3E6570 /* YamlLibrary.swift */; };
 		7CD8FBAA333E4C1CFD890B32 /* SRFI-272-Colorize.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = C8B9ABAF99014851A7459FCB /* SRFI-272-Colorize.scm */; };
@@ -102,30 +102,32 @@
 		9E0403C8FC8D15D21C59D91E /* FoundationModelToolLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C99027B5951478BC77C183E /* FoundationModelToolLibrary.swift */; };
 		9E8284FC64E28195FF27D192 /* path.sld in Copy pre-installed LispKit library: SRFI 275 internal */ = {isa = PBXBuildFile; fileRef = B163C436ECDEA81A963BC85F /* path.sld */; };
 		A11FC6318DBC07129D611D74 /* SRFI-275-Setters.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = DF686A3B9BC2883D90496359 /* SRFI-275-Setters.scm */; };
+		A1A2AB65EAFD3F889AB694DD /* NaturalLanguage.scm in Resources */ = {isa = PBXBuildFile; fileRef = 69487B8B8B7EF0E18DBFE21A /* NaturalLanguage.scm */; };
 		A8A748016FE2413282FB2C2A /* GeminiForFoundationModels in Frameworks */ = {isa = PBXBuildFile; productRef = E2ACE8462A28404DADE4D62D /* GeminiForFoundationModels */; };
 		ABB20D3ADC3DC5A9613DCF37 /* DrawPieCharts.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = 02FA424CDA9AEE24BC34D611 /* DrawPieCharts.scm */; };
 		AC62562BC7BB970D106BB46E /* encoding.sld in Copy pre-installed LispKit library: SRFI 275 internal */ = {isa = PBXBuildFile; fileRef = 07C0EB8EB530E9E8DBE7D442 /* encoding.sld */; };
+		AC897BA2431166C9D153B408 /* DataFrameLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7EE4233522C602B7F3EAF66 /* DataFrameLibrary.swift */; };
+		AD9FCD7A535D8A0B93919729 /* DataFrames.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = 558883D005E9EC64D140209D /* DataFrames.scm */; };
 		B10D5689D6D8152704C85375 /* 272.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = 27CC3D2CB93513805610BFCD /* 272.sld */; };
+		B1EEB939CD11FAA82D5E98CC /* TextTable.scm in Resources */ = {isa = PBXBuildFile; fileRef = 434C17166D18368563573F83 /* TextTable.scm */; };
 		B2EFEEBE329E400AB530F5A8 /* ChartLine.scm in Resources */ = {isa = PBXBuildFile; fileRef = 7527FDCB74484A9580E51672 /* ChartLine.scm */; };
 		B2FC13849DD0F8ED8DDB0A3F /* SRFI-272-Fancy.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = BF59B8A929C375C46411B080 /* SRFI-272-Fancy.scm */; };
 		B6A0E75EFDB59B506E5C5353 /* SRFI-275-Resolve.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = EA474175A4025BCEF7BCE760 /* SRFI-275-Resolve.scm */; };
 		B73DE1EEC0B4DF34D4E147C7 /* advanced.sld in Copy pre-installed LispKit library: SRFI 272 */ = {isa = PBXBuildFile; fileRef = F60EE5B47BD7A9A3622BC692 /* advanced.sld */; };
 		BA2FF1D3B7AC9BB56A13CF7A /* normalize.sld in Copy pre-installed LispKit library: SRFI 275 */ = {isa = PBXBuildFile; fileRef = 1EA2EC422E522D1FB4298421 /* normalize.sld */; };
+		BA344764BBFD7D657A7B1D53 /* DataFrameLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7EE4233522C602B7F3EAF66 /* DataFrameLibrary.swift */; };
 		BB95D567BE094C37BD728DB3 /* AsyncOutcome.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A04B75E5594FDEA10DC0E7 /* AsyncOutcome.swift */; };
 		BCA88ACB1DF5E1F336883075 /* pretty-print.sld in Copy pre-installed LispKit libraries */ = {isa = PBXBuildFile; fileRef = CD0DD8F128B29DF7AEA7E7EA /* pretty-print.sld */; };
 		BF3F1041F14C41E9B30BA38B /* GPTForFoundationModels in Frameworks */ = {isa = PBXBuildFile; productRef = 9D32BAAED0C24C19954A81DD /* GPTForFoundationModels */; };
 		BF5B3D8A9E9052282B3BB00B /* SRFI-127.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = AB215DF90B9D928F6A42B04E /* SRFI-127.scm */; };
 		BF8BB9AEE13D400E960EEF5B /* DrawLineCharts.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = 47FBDA23FC774F9D896D8303 /* DrawLineCharts.scm */; };
-		AD9FCD7A535D8A0B93919729 /* DataFrames.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = 558883D005E9EC64D140209D /* DataFrames.scm */; };
 		C582A409FF4F2DEBC16BB95E /* SystemSearch.scm in Resources */ = {isa = PBXBuildFile; fileRef = 57574E2BCDA3FDCDAE16B8CF /* SystemSearch.scm */; };
-		A1A2AB65EAFD3F889AB694DD /* NaturalLanguage.scm in Resources */ = {isa = PBXBuildFile; fileRef = 69487B8B8B7EF0E18DBFE21A /* NaturalLanguage.scm */; };
-		C9A0E59E25FCA29DF2690A14 /* DataFrame.scm in Resources */ = {isa = PBXBuildFile; fileRef = BAB66A961D48F34A63F589D8 /* DataFrame.scm */; };
-		B1EEB939CD11FAA82D5E98CC /* TextTable.scm in Resources */ = {isa = PBXBuildFile; fileRef = 434C17166D18368563573F83 /* TextTable.scm */; };
 		C78F759926AE93A817DBE07C /* basic.sld in Copy pre-installed LispKit library: SRFI 272 */ = {isa = PBXBuildFile; fileRef = FFE7D035450809F2D76166EF /* basic.sld */; };
 		C8C14193FF8E3942B88A5342 /* show.sld in Copy pre-installed LispKit library: SRFI 272 */ = {isa = PBXBuildFile; fileRef = 5C30AD6B0A0C7E62EF58D7EE /* show.sld */; };
 		C8EC11836348FB8B4909D61A /* utils.sld in Copy pre-installed LispKit library: SRFI 275 */ = {isa = PBXBuildFile; fileRef = C1DA6F30901DDDE3486E27DE /* utils.sld */; };
 		C9165C02064C4594B61A96A3 /* FoundationModelSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = A464CF666EA14AEEAF373540 /* FoundationModelSupport.swift */; };
 		C933838B186D9D618577E6C4 /* 127.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = 130086D799C1A93C32BB0F5B /* 127.sld */; };
+		C9A0E59E25FCA29DF2690A14 /* DataFrame.scm in Resources */ = {isa = PBXBuildFile; fileRef = BAB66A961D48F34A63F589D8 /* DataFrame.scm */; };
 		C9E77184928A074E6BDE0BA9 /* ImageUnderstanding.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = 1D93685EDBB32BEB23DA8895 /* ImageUnderstanding.scm */; };
 		CACCD92DCC68712296EAAC6A /* DrawPieCharts.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = 02FA424CDA9AEE24BC34D611 /* DrawPieCharts.scm */; };
 		CC01903B1C89D02200DB8BF9 /* CaptureGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC01903A1C89D02200DB8BF9 /* CaptureGroup.swift */; };
@@ -1832,15 +1834,13 @@
 		EAAA6D98212DD2879BB864F0 /* ident.sld in Copy pre-installed LispKit library: SRFI 275 internal */ = {isa = PBXBuildFile; fileRef = CF300B24EAD4081A05BADDFB /* ident.sld */; };
 		EB127C686C7F802E17B1F524 /* FoundationModelToolLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C99027B5951478BC77C183E /* FoundationModelToolLibrary.swift */; };
 		EDE619DABB0290CB79B24296 /* path.sld in Copy pre-installed LispKit library: SRFI 275 */ = {isa = PBXBuildFile; fileRef = 36D3CC166908942836054194 /* path.sld */; };
+		EF544861C374DAC5CFD3454E /* NaturalLanguageLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5452893B916721BBE5AB4506 /* NaturalLanguageLibrary.swift */; };
 		EFCC98E0280F49D09AA95B08 /* FoundationModelGPTLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = C41B90160D2547EB9444F83F /* FoundationModelGPTLibrary.swift */; };
 		F0043910EA1B4A279557A39D /* FoundationModelGeminiLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5430476D4FCA47DEAA088DCA /* FoundationModelGeminiLibrary.swift */; };
 		F031928D3D214114B04BFB67 /* DrawLineCharts.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = 47FBDA23FC774F9D896D8303 /* DrawLineCharts.scm */; };
-		6EB64068E6546652F846F9E8 /* DataFrames.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = 558883D005E9EC64D140209D /* DataFrames.scm */; };
 		F0F6F3E329CBE704DAB12E73 /* SRFI-275-Escape.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = 3CF4467E1E0285B00F10C06E /* SRFI-275-Escape.scm */; };
 		F44991049D39BF9546706AF0 /* SRFI-272.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = 2AF3C3B56B5DECC0464CDC17 /* SRFI-272.scm */; };
 		F48660C69AA0DEBBD732A55B /* SpotlightSearchLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51AFCB4A3760B2E10DAC22D0 /* SpotlightSearchLibrary.swift */; };
-		1F362EFA57705D5FE5E68F37 /* NaturalLanguageLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5452893B916721BBE5AB4506 /* NaturalLanguageLibrary.swift */; };
-		AC897BA2431166C9D153B408 /* DataFrameLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7EE4233522C602B7F3EAF66 /* DataFrameLibrary.swift */; };
 		F4DDB1FB1FE33F416E81996D /* SRFI-272-Fancy.scm in Copy tests */ = {isa = PBXBuildFile; fileRef = BF59B8A929C375C46411B080 /* SRFI-272-Fancy.scm */; };
 		F4EFB24C66B0AA2EEF89763A /* 25.sld in Copy pre-installed SRFI libraries */ = {isa = PBXBuildFile; fileRef = 72250876223857CC38DDD885 /* 25.sld */; };
 		FC94BA761EB979B0D7070590 /* YAML.scm in Copy examples */ = {isa = PBXBuildFile; fileRef = 2A05910491EC31CCA774D57B /* YAML.scm */; };
@@ -4282,6 +4282,7 @@
 		1EA2EC422E522D1FB4298421 /* normalize.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = normalize.sld; sourceTree = "<group>"; };
 		24B0478E419E275F5B6FB024 /* SRFI-275-Path.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-275-Path.scm"; sourceTree = "<group>"; };
 		252A3E403D9BD957D93E9AB1 /* (srfi 275 iri).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(srfi 275 iri).md"; sourceTree = "<group>"; };
+		26315705FC1DC77E183E53EF /* (lispkit data-frame).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit data-frame).md"; sourceTree = "<group>"; };
 		26D84419998232BAB739F871 /* (srfi 272).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(srfi 272).md"; sourceTree = "<group>"; };
 		27CC3D2CB93513805610BFCD /* 272.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 272.sld; sourceTree = "<group>"; };
 		29CE3445F5246B5A07115A6D /* SRFI-272-Basic.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-272-Basic.scm"; sourceTree = "<group>"; };
@@ -4299,26 +4300,24 @@
 		3D81FEB910B16ED006E229B1 /* SRFI-117.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-117.scm"; sourceTree = "<group>"; };
 		3EF540D6E5A01F18F009D1B3 /* (lispkit draw chart pie).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit draw chart pie).md"; sourceTree = "<group>"; };
 		4288BEFDCF0F298F9708E2E4 /* (srfi 275 uri).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(srfi 275 uri).md"; sourceTree = "<group>"; };
+		434C17166D18368563573F83 /* TextTable.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = TextTable.scm; sourceTree = "<group>"; };
 		47FBDA23FC774F9D896D8303 /* DrawLineCharts.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = DrawLineCharts.scm; sourceTree = "<group>"; };
-		558883D005E9EC64D140209D /* DataFrames.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = DataFrames.scm; sourceTree = "<group>"; };
 		4B0B50DCFDAD28485D6EA90F /* SRFI-275-Parse.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-275-Parse.scm"; sourceTree = "<group>"; };
 		4CD7588BB6D1BCD77B6C49CA /* (srfi 275 normalize).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(srfi 275 normalize).md"; sourceTree = "<group>"; };
 		51AFCB4A3760B2E10DAC22D0 /* SpotlightSearchLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotlightSearchLibrary.swift; sourceTree = "<group>"; };
-		5452893B916721BBE5AB4506 /* NaturalLanguageLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NaturalLanguageLibrary.swift; sourceTree = "<group>"; };
-		A7EE4233522C602B7F3EAF66 /* DataFrameLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataFrameLibrary.swift; sourceTree = "<group>"; };
 		5430476D4FCA47DEAA088DCA /* FoundationModelGeminiLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundationModelGeminiLibrary.swift; sourceTree = "<group>"; };
+		5452893B916721BBE5AB4506 /* NaturalLanguageLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NaturalLanguageLibrary.swift; sourceTree = "<group>"; };
 		5548CC66325B7BBB7643858F /* SRFI-272-Support.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-272-Support.scm"; sourceTree = "<group>"; };
 		5576A24950DB402EA85CBE3C /* (lispkit foundation-model).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit foundation-model).md"; sourceTree = "<group>"; };
+		558883D005E9EC64D140209D /* DataFrames.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = DataFrames.scm; sourceTree = "<group>"; };
 		57574E2BCDA3FDCDAE16B8CF /* SystemSearch.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = SystemSearch.scm; sourceTree = "<group>"; };
-		69487B8B8B7EF0E18DBFE21A /* NaturalLanguage.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = NaturalLanguage.scm; sourceTree = "<group>"; };
-		BAB66A961D48F34A63F589D8 /* DataFrame.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = DataFrame.scm; sourceTree = "<group>"; };
-		434C17166D18368563573F83 /* TextTable.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = TextTable.scm; sourceTree = "<group>"; };
 		5ABEA73D6A43D2E9946FA27A /* support.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = support.sld; sourceTree = "<group>"; };
 		5C30AD6B0A0C7E62EF58D7EE /* show.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = show.sld; sourceTree = "<group>"; };
 		654E271DB869F80323A265CF /* fancy.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = fancy.sld; sourceTree = "<group>"; };
 		65FAD3C9E68624B036A9D47C /* (srfi 275 path).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(srfi 275 path).md"; sourceTree = "<group>"; };
 		664E3950BC0B37B92CB37FF0 /* (srfi 253).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(srfi 253).md"; sourceTree = "<group>"; };
 		66CAA060B7DB817DCE3E6570 /* YamlLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YamlLibrary.swift; sourceTree = "<group>"; };
+		69487B8B8B7EF0E18DBFE21A /* NaturalLanguage.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = NaturalLanguage.scm; sourceTree = "<group>"; };
 		7219A705A419EB69F8643175 /* ImageGenLibraryAddOn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageGenLibraryAddOn.swift; sourceTree = "<group>"; };
 		72250876223857CC38DDD885 /* 25.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 25.sld; sourceTree = "<group>"; };
 		7527FDCB74484A9580E51672 /* ChartLine.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = ChartLine.scm; sourceTree = "<group>"; };
@@ -4330,8 +4329,6 @@
 		826AA9667A893A67F6830F0A /* (srfi 272 measure).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(srfi 272 measure).md"; sourceTree = "<group>"; };
 		8558A259DF6762B7C2B9F917 /* (srfi 127).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(srfi 127).md"; sourceTree = "<group>"; };
 		863E1901304E51D605FC540F /* (lispkit system search).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit system search).md"; sourceTree = "<group>"; };
-		D8C575F2583D21B169BD2847 /* (lispkit natural-language).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit natural-language).md"; sourceTree = "<group>"; };
-		26315705FC1DC77E183E53EF /* (lispkit data-frame).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit data-frame).md"; sourceTree = "<group>"; };
 		86F5DB88FB2DDC18987A3C30 /* SRFI-272-Intermediate.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-272-Intermediate.scm"; sourceTree = "<group>"; };
 		874AAE201EBA859C6B48F934 /* (srfi 116).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(srfi 116).md"; sourceTree = "<group>"; };
 		8C7B04A13822EA42DFD16359 /* uri.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = uri.sld; sourceTree = "<group>"; };
@@ -4344,6 +4341,7 @@
 		A08B1568FFEC589681DD7A47 /* pie.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = pie.sld; sourceTree = "<group>"; };
 		A2CB69C912EEC2DD682E45A6 /* (srfi 272 colorize).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(srfi 272 colorize).md"; sourceTree = "<group>"; };
 		A464CF666EA14AEEAF373540 /* FoundationModelSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundationModelSupport.swift; sourceTree = "<group>"; };
+		A7EE4233522C602B7F3EAF66 /* DataFrameLibrary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataFrameLibrary.swift; sourceTree = "<group>"; };
 		A8161EAB22439FA41B7C851A /* SRFI253.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = SRFI253.scm; sourceTree = "<group>"; };
 		AB215DF90B9D928F6A42B04E /* SRFI-127.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-127.scm"; sourceTree = "<group>"; };
 		AB2343481A42170DB5018E70 /* 273.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 273.sld; sourceTree = "<group>"; };
@@ -4353,6 +4351,7 @@
 		B422894E8CEBAF232760A9B2 /* LispKit-Pretty-Print.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "LispKit-Pretty-Print.scm"; sourceTree = "<group>"; };
 		B9A04B75E5594FDEA10DC0E7 /* AsyncOutcome.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncOutcome.swift; sourceTree = "<group>"; };
 		B9E9861E640C25E17C4E0F72 /* (srfi 117).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(srfi 117).md"; sourceTree = "<group>"; };
+		BAB66A961D48F34A63F589D8 /* DataFrame.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = DataFrame.scm; sourceTree = "<group>"; };
 		BAEFBBF95A794E609552971E /* (lispkit draw chart line).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit draw chart line).md"; sourceTree = "<group>"; };
 		BF59B8A929C375C46411B080 /* SRFI-272-Fancy.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-272-Fancy.scm"; sourceTree = "<group>"; };
 		C1DA6F30901DDDE3486E27DE /* utils.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = utils.sld; sourceTree = "<group>"; };
@@ -5133,6 +5132,28 @@
 		CCC1860B30B0D98E00A2FD43 /* util.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = util.sld; sourceTree = "<group>"; };
 		CCC1861130B2BF2900A2FD43 /* (lispkit foundation-model gemini).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit foundation-model gemini).md"; sourceTree = "<group>"; };
 		CCC1861230B2BF3500A2FD43 /* (lispkit foundation-model gpt).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit foundation-model gpt).md"; sourceTree = "<group>"; };
+		CCC1861330B72DC200A2FD43 /* baseline-2026-11-25.tsv */ = {isa = PBXFileReference; lastKnownFileType = text; path = "baseline-2026-11-25.tsv"; sourceTree = "<group>"; };
+		CCC1861530B72DC200A2FD43 /* apply.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = apply.scm; sourceTree = "<group>"; };
+		CCC1861630B72DC200A2FD43 /* callcc.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = callcc.scm; sourceTree = "<group>"; };
+		CCC1861730B72DC200A2FD43 /* closures.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = closures.scm; sourceTree = "<group>"; };
+		CCC1861830B72DC200A2FD43 /* doloop.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = doloop.scm; sourceTree = "<group>"; };
+		CCC1861930B72DC200A2FD43 /* fib.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = fib.scm; sourceTree = "<group>"; };
+		CCC1861A30B72DC200A2FD43 /* generic-vs-fx.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "generic-vs-fx.scm"; sourceTree = "<group>"; };
+		CCC1861B30B72DC200A2FD43 /* global.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = global.scm; sourceTree = "<group>"; };
+		CCC1861C30B72DC200A2FD43 /* harness.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = harness.scm; sourceTree = "<group>"; };
+		CCC1861D30B72DC200A2FD43 /* hashtable.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = hashtable.scm; sourceTree = "<group>"; };
+		CCC1861E30B72DC200A2FD43 /* listrec.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = listrec.scm; sourceTree = "<group>"; };
+		CCC1861F30B72DC200A2FD43 /* lists.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = lists.scm; sourceTree = "<group>"; };
+		CCC1862030B72DC200A2FD43 /* loop.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = loop.scm; sourceTree = "<group>"; };
+		CCC1862130B72DC200A2FD43 /* mandel.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = mandel.scm; sourceTree = "<group>"; };
+		CCC1862230B72DC200A2FD43 /* nqueens.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = nqueens.scm; sourceTree = "<group>"; };
+		CCC1862330B72DC200A2FD43 /* profile.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = profile.py; sourceTree = "<group>"; };
+		CCC1862430B72DC200A2FD43 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		CCC1862530B72DC200A2FD43 /* records.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = records.scm; sourceTree = "<group>"; };
+		CCC1862630B72DC200A2FD43 /* run.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = run.py; sourceTree = "<group>"; };
+		CCC1862730B72DC200A2FD43 /* sieve.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = sieve.scm; sourceTree = "<group>"; };
+		CCC1862830B72DC200A2FD43 /* strings.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = strings.scm; sourceTree = "<group>"; };
+		CCC1862930B72DC200A2FD43 /* tak.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = tak.scm; sourceTree = "<group>"; };
 		CCC1DBFB216BA1750019A374 /* 14.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 14.sld; sourceTree = "<group>"; };
 		CCC1DBFC216BA2600019A374 /* 16.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = 16.sld; sourceTree = "<group>"; };
 		CCC1E8B1251F668D008B8AAA /* SRFI-204.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-204.scm"; sourceTree = "<group>"; };
@@ -5337,6 +5358,7 @@
 		CF300B24EAD4081A05BADDFB /* ident.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = ident.sld; sourceTree = "<group>"; };
 		D3D97BA0CE03D880E541C50F /* measure.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = measure.sld; sourceTree = "<group>"; };
 		D741968424B4810A1798A47C /* SRFI-272-Advanced.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-272-Advanced.scm"; sourceTree = "<group>"; };
+		D8C575F2583D21B169BD2847 /* (lispkit natural-language).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(lispkit natural-language).md"; sourceTree = "<group>"; };
 		DDAFE0AF3D76C9FE0F080C14 /* resolve.sld */ = {isa = PBXFileReference; lastKnownFileType = text; path = resolve.sld; sourceTree = "<group>"; };
 		DE018DA2A13C06E28D3DCAD8 /* (srfi 272 fancy).md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "(srfi 272 fancy).md"; sourceTree = "<group>"; };
 		DF686A3B9BC2883D90496359 /* SRFI-275-Setters.scm */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SRFI-275-Setters.scm"; sourceTree = "<group>"; };
@@ -6650,6 +6672,7 @@
 				CC74D33C2AEA47420054CC5A /* LispKitRepl */,
 				CCD5E5B72634B62100C45EA0 /* LispKitRepl iOS */,
 				CCAD52C81C48403900DBD8EE /* LispKitTests */,
+				CCC1862A30B72DC200A2FD43 /* Benchmarks */,
 				CC6F36C32EEF7F6200666DE2 /* Documentation */,
 				CCAD52BB1C48403800DBD8EE /* Products */,
 				CC069FB71D7B7CFD004644B1 /* Frameworks */,
@@ -6811,6 +6834,43 @@
 				CCC1860B30B0D98E00A2FD43 /* util.sld */,
 			);
 			path = system;
+			sourceTree = "<group>";
+		};
+		CCC1861430B72DC200A2FD43 /* results */ = {
+			isa = PBXGroup;
+			children = (
+				CCC1861330B72DC200A2FD43 /* baseline-2026-11-25.tsv */,
+			);
+			path = results;
+			sourceTree = "<group>";
+		};
+		CCC1862A30B72DC200A2FD43 /* Benchmarks */ = {
+			isa = PBXGroup;
+			children = (
+				CCC1861430B72DC200A2FD43 /* results */,
+				CCC1861530B72DC200A2FD43 /* apply.scm */,
+				CCC1861630B72DC200A2FD43 /* callcc.scm */,
+				CCC1861730B72DC200A2FD43 /* closures.scm */,
+				CCC1861830B72DC200A2FD43 /* doloop.scm */,
+				CCC1861930B72DC200A2FD43 /* fib.scm */,
+				CCC1861A30B72DC200A2FD43 /* generic-vs-fx.scm */,
+				CCC1861B30B72DC200A2FD43 /* global.scm */,
+				CCC1861C30B72DC200A2FD43 /* harness.scm */,
+				CCC1861D30B72DC200A2FD43 /* hashtable.scm */,
+				CCC1861E30B72DC200A2FD43 /* listrec.scm */,
+				CCC1861F30B72DC200A2FD43 /* lists.scm */,
+				CCC1862030B72DC200A2FD43 /* loop.scm */,
+				CCC1862130B72DC200A2FD43 /* mandel.scm */,
+				CCC1862230B72DC200A2FD43 /* nqueens.scm */,
+				CCC1862330B72DC200A2FD43 /* profile.py */,
+				CCC1862430B72DC200A2FD43 /* README.md */,
+				CCC1862530B72DC200A2FD43 /* records.scm */,
+				CCC1862630B72DC200A2FD43 /* run.py */,
+				CCC1862730B72DC200A2FD43 /* sieve.scm */,
+				CCC1862830B72DC200A2FD43 /* strings.scm */,
+				CCC1862930B72DC200A2FD43 /* tak.scm */,
+			);
+			path = Benchmarks;
 			sourceTree = "<group>";
 		};
 		CCC48C5725E5B8DC00D082AD /* LispKit iOS */ = {

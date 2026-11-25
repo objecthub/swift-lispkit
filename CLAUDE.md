@@ -111,6 +111,12 @@ Open `LispKit.xcodeproj` and build using the appropriate scheme:
 - Contains documentation in Markdown format for all LispKit libraries
 - The libraries are typically implemented in Sources/LispKit/Primitives
 
+**Benchmarks/**
+- Benchmark suite for the compiler and virtual machine (Scheme programs + `harness.scm`)
+- `run.py` times the suite with a release build and compares against saved TSV results in `results/`
+- `profile.py` profiles a benchmark with `sample` and breaks down self time by category
+- Not part of the Swift package or the Xcode project; see `Benchmarks/README.md`
+
 **Tests/**
 - Contains the code for all unit tests
 
