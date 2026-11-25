@@ -1,12 +1,12 @@
 # Todo
 
-Last update: 2020-05-01
+Last update: 2026-11-25
 
 
 ## Compiler
 
 - [ ] Manage source locations in compiler and generated code and include source locations in error messages
-- [ ] Optimize letrec; only use variables if bindings are mutable or if there is a forward reference.
+- [X] Optimize letrec; only use variables if bindings are mutable or if there is a forward reference.
 - [ ] Figure out that references to `define`, `define-values`, `unquote`, etc. are referring to the right
       syntax/definitions; right now, there are checks only for the definition to happen at the top-level in an
       immutable fashion
@@ -32,7 +32,7 @@ Last update: 2020-05-01
 - [ ] Go through procedures that call back into the VM to check that all expressions are
       tracked by the managed object pool
 - [X] Redesign error data model
-- [ ] Profile virtual machine
+- [X] Profile virtual machine
 - [X] Implement new primitive procedure type that returns closures for execution instead
       of results
 - [X] Evaluate what it takes to support `call/cc`
