@@ -91,4 +91,7 @@ Benchmarks/profile.py --analyze /path/to/fib.sample --callers doDecrementSlow
 ## Results
 
 `results/` holds saved runs. `baseline-2026-11-25.tsv` is the state before any
-performance work: commit `d3dc8ae`, release build, Apple M4.
+performance work: commit `d3dc8ae`, release build, Apple M4. `step1-runtime-2026-11-25.tsv`
+is the state after removing runtime overheads in the virtual machine (exclusivity checks,
+reference counting of cached context objects, the object pool's free list, and instructions
+that need reference counting): 38% faster on average (geometric mean).

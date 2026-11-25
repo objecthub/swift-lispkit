@@ -110,49 +110,73 @@ public final class VirtualMachine: ManagedObject {
     }
   }
   
+  // Performance notes:
+  //   - The stored properties used by `execute` are marked `@exclusivity(unchecked)`. Dynamic
+  //     exclusivity checks on these properties would otherwise account for 20-30% of the
+  //     execution time. They only detect overlapping accesses within a single thread (never
+  //     races between threads), and a virtual machine is only ever run by a single thread.
+  //     Without the checks, passing one of these properties as an `inout` argument, or
+  //     mutating it in place, while code that is called during this access (e.g. a native
+  //     procedure) accesses the same property becomes undefined behavior instead of a runtime
+  //     trap. Don't do this. The same applies to `Cell.value`, `Heap.locations`, and the
+  //     internal state of `ObjectPool`.
+  //   - `heap`, `objects`, and `evaluatorRef` cache references to objects owned by the context.
+  //     They are unsafe references since accessing `context` (an `unowned` reference) and the
+  //     objects it refers to requires costly reference counting operations (a context is never
+  //     deallocated before its virtual machines).
+  
   /// The context of this virtual machine
   public unowned let context: Context
   
+  /// The heap of the context of this virtual machine
+  private unowned(unsafe) let heap: Heap
+  
+  /// The managed object pool of the context of this virtual machine
+  private unowned(unsafe) let objects: ManagedObjectPool
+  
+  /// The evaluator of the context of this virtual machine; this is initialized lazily since
+  /// the main virtual machine is created before the evaluator of the context is available.
+  /// `Unmanaged` is used so that accessing the evaluator does not retain it (the evaluator is
+  /// tracked via a weak reference and thus uses slow-path reference counting).
+  private var evaluatorRef: Unmanaged<Evaluator>? = nil
+  
   /// The stack used by this virtual machine
-  private var stack: Exprs
+  @exclusivity(unchecked) private var stack: Exprs
   
   /// The stack pointer (pointing at the next available position on the stack); this variable
   /// should be private, but since it's needed in tests, it remains internal.
-  internal var sp: Int {
-    didSet {
-      if sp > self.maxSp {
-        self.maxSp = self.sp
-      }
-    }
-  }
+  @exclusivity(unchecked) internal var sp: Int
   
   /// The stack pointer never grows beyond `limitSp`
-  public private(set) var limitSp: Int
+  @exclusivity(unchecked) public private(set) var limitSp: Int
   
-  /// The maximum value of the stack pointer so far (used for debugging)
-  public private(set) var maxSp: Int = 0
+  /// The maximum size of the stack so far (used for debugging); this is updated only when the
+  /// stack grows.
+  @exclusivity(unchecked) public private(set) var maxSp: Int = 0
   
   /// Registers
-  private var registers: Registers
+  @exclusivity(unchecked) private var registers: Registers
   
   /// Winders
-  internal private(set) var winders: Winder?
+  @exclusivity(unchecked) internal private(set) var winders: Winder?
   
   /// Parameters
   internal var parameters: HashTable
   
   /// Internal counter used for triggering the garbage collector.
-  private var execInstr: UInt64
+  @exclusivity(unchecked) private var execInstr: UInt64
   
   /// Set to true while `onTopLevelDo` is executing
   internal private(set) var executing: Bool = false
   
   /// When set to true, it will trigger an abortion of the machine evaluator as soon as possible.
-  internal private(set) var abortionRequested: Bool = false
+  @exclusivity(unchecked) internal private(set) var abortionRequested: Bool = false
   
   /// Initializes a new virtual machine for the given context.
   public init(for context: Context, limitStack: Int = 10000000) {
     self.context = context
+    self.heap = context.heap
+    self.objects = context.objects
     self.stack = Exprs(repeating: .undef, count: 1024)
     self.sp = 0
     self.limitSp = limitStack <= Int.max - 100 ? limitStack : Int.max - 100
@@ -167,6 +191,9 @@ public final class VirtualMachine: ManagedObject {
   /// Initializes a new virtual machine for the given context.
   public init(parent machine: VirtualMachine) {
     self.context = machine.context
+    self.heap = machine.heap
+    self.objects = machine.objects
+    self.evaluatorRef = machine.evaluatorRef
     self.stack = Exprs(repeating: .undef, count: 1024)
     self.sp = 0
     self.limitSp = machine.limitSp
@@ -441,6 +468,7 @@ public final class VirtualMachine: ManagedObject {
         self.stack.reserveCapacity(self.sp * 2)
       }
       self.stack.append(expr)
+      self.maxSp = self.stack.count
       if self.sp >= self.limitSp {
         // We need to bypass exception handling for stack overflows
         self.abortionRequested = true
@@ -667,10 +695,20 @@ public final class VirtualMachine: ManagedObject {
     return self.getCallTrace(current: current, cap: cap)?.map { expr in expr.description }
   }
   
+  /// The call tracing mode of the evaluator.
+  @inline(__always) private var traceCalls: Evaluator.CallTracingMode {
+    if let evaluatorRef = self.evaluatorRef {
+      return evaluatorRef._withUnsafeGuaranteedRef { $0.traceCalls }
+    }
+    let evaluator = self.context.evaluator!
+    self.evaluatorRef = Unmanaged.passUnretained(evaluator)
+    return evaluator.traceCalls
+  }
+  
   @inline(__always) private func printCallTrace(_ n: Int, tailCall: Bool = false) -> Procedure? {
-    if self.context.evaluator.traceCalls != .off && self.sp > (n &+ 1) {
+    if self.traceCalls != .off && self.sp > (n &+ 1) {
       if case .procedure(let proc) = self.stack[self.sp &- n &- 1],
-         self.context.evaluator.traceCalls == .on || proc.traced {
+         self.traceCalls == .on || proc.traced {
         var args = Exprs()
         for i in 0..<n {
           args.append(self.stack[self.sp &- n &+ i])
@@ -686,8 +724,8 @@ public final class VirtualMachine: ManagedObject {
   }
   
   @inline(__always) private func printReturnTrace(_ proc: Procedure, tailCall: Bool = false) {
-    if (self.context.evaluator.traceCalls == .on ||
-        (self.context.evaluator.traceCalls == .byProc && proc.traced)) && self.sp > 0 {
+    let traceCalls = self.traceCalls
+    if (traceCalls == .on || (traceCalls == .byProc && proc.traced)) && self.sp > 0 {
       self.context.delegate?.trace(return: proc,
                                    result: self.stack[self.sp &- 1],
                                    tailCall: tailCall,
@@ -1012,7 +1050,7 @@ public final class VirtualMachine: ManagedObject {
     self.execInstr = self.execInstr &+ 1
     if self.execInstr % 0b011111111111111111111 == 0 {
       // let res =
-      _ = self.context.objects.collectGarbage()
+      _ = self.objects.collectGarbage()
       // log("[collect garbage; freed up objects: \(res)]")
     }
   }
@@ -1089,11 +1127,11 @@ public final class VirtualMachine: ManagedObject {
           self.stack[self.sp &- 2] = top
         case .pushGlobal(let index):
           do {
-            self.context.objects.lock.lock()
+            self.objects.lock.lock()
             defer {
-              self.context.objects.lock.unlock()
+              self.objects.lock.unlock()
             }
-            let value = self.context.heap.locations[index]
+            let value = self.heap.locations[index]
             switch value {
               case .undef:
                 throw RuntimeError.eval(.variableUndefined, .undef)
@@ -1107,24 +1145,24 @@ public final class VirtualMachine: ManagedObject {
           }
         case .setGlobal(let index):
           do {
-            self.context.objects.lock.lock()
+            self.objects.lock.lock()
             defer {
-              self.context.objects.lock.unlock()
+              self.objects.lock.unlock()
             }
-            let value = self.context.heap.locations[index]
+            let value = self.heap.locations[index]
             switch value {
               case .undef:
                 throw RuntimeError.eval(.variableNotYetInitialized, .undef)
               case .uninit(let sym):
                 throw RuntimeError.eval(.unboundVariable, .symbol(sym))
               default:
-                self.context.heap.locations[index] = self.pop()
+                self.heap.locations[index] = self.pop()
             }
           }
         case .defineGlobal(let index):
-          self.context.objects.lock.lock()
-          self.context.heap.locations[index] = self.pop()
-          self.context.objects.lock.unlock()
+          self.objects.lock.lock()
+          self.heap.locations[index] = self.pop()
+          self.objects.lock.unlock()
         case .pushCaptured(let index):
           try self.push(self.registers.captured[index])
         case .pushCapturedValue(let index):
@@ -1141,7 +1179,7 @@ public final class VirtualMachine: ManagedObject {
           }
           cell.value = self.pop()
           if !cell.managed && !cell.value.isAtom {
-            self.context.objects.manage(cell)
+            self.objects.manage(cell)
           }
         case .pushLocal(let index):
           try self.push(self.stack[self.registers.fp &+ index])
@@ -1154,7 +1192,7 @@ public final class VirtualMachine: ManagedObject {
           }
           cell.value = self.pop()
           if !cell.managed && !cell.value.isAtom {
-            self.context.objects.manage(cell)
+            self.objects.manage(cell)
           }
         case .makeLocalVariable(let index):
           let cell = Cell(self.pop())
@@ -1195,12 +1233,8 @@ public final class VirtualMachine: ManagedObject {
           try self.push(.false)
         case .pushFixnum(let num):
           try self.push(.fixnum(num))
-        case .pushBignum(let num):
-          try self.push(.bignum(num))
         case .pushRat(let num):
           try self.push(.rational(.fixnum(num.numerator), .fixnum(num.denominator)))
-        case .pushBigrat(let num):
-          try self.push(.rational(.bignum(num.numerator), .bignum(num.denominator)))
         case .pushFlonum(let num):
           try self.push(.flonum(num))
         case .pushComplex(let num):
@@ -1455,6 +1489,9 @@ public final class VirtualMachine: ManagedObject {
             for _ in 0..<(self.sp &+ n &- self.stack.count) {
               self.stack.append(.undef)
             }
+            if self.stack.count > self.maxSp {
+              self.maxSp = self.stack.count
+            }
           }
           self.sp &+= n
         case .allocBelow(let n):
@@ -1470,6 +1507,9 @@ public final class VirtualMachine: ManagedObject {
             }
             for _ in 0..<(self.sp &+ n &- self.stack.count) {
               self.stack.append(.undef)
+            }
+            if self.stack.count > self.maxSp {
+              self.maxSp = self.stack.count
             }
           }
           self.sp &+= n

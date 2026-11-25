@@ -37,6 +37,22 @@ class SmallTests: LispKitTestCase {
     assertStackEmpty()
   }
 
+  /// Instructions must not have payloads that need reference counting; copying them would
+  /// otherwise slow down the virtual machine considerably.
+  func testInstructionsAreTriviallyCopyable() {
+    XCTAssertTrue(_isPOD(Instruction.self))
+  }
+
+  /// Big numbers in code are stored in the constant pool.
+  func testBigNumberLiterals() {
+    XCTAssertEqual(
+      self.eval("(define (big) (list 123456789012345678901234567890 " +
+                "                     -98765432109876543210/12345678901234567891 7/3))" +
+                "(big)"),
+      self.value("(123456789012345678901234567890 -98765432109876543210/12345678901234567891 7/3)"))
+    assertStackEmpty()
+  }
+
   /// Aborting threads while they are blocked on (or just waking up from) a shared queue
   /// reads `EvalThread.waitingOn` concurrently with the threads updating it.
   func testAbortThreadsBlockedOnSharedQueue() {

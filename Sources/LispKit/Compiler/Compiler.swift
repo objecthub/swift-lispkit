@@ -467,12 +467,12 @@ public final class Compiler {
         self.emit(.pushFalse)
       case .fixnum(let num):
         self.emit(.pushFixnum(num))
-      case .bignum(let num):
-        self.emit(.pushBignum(num))
       case .rational(.fixnum(let n), .fixnum(let d)):
         self.emit(.pushRat(Rational(n, d)))
-      case .rational(.bignum(let n), .bignum(let d)):
-        self.emit(.pushBigrat(Rational(n, d)))
+      case .bignum(_), .rational(.bignum(_), .bignum(_)):
+        // Big numbers are stored in the constant pool, so that instructions don't refer to
+        // values that need to be reference counted
+        self.pushConstant(expr)
       case .rational(_, _):
         preconditionFailure("incorrectly encoded rational number")
       case .flonum(let num):
@@ -1460,7 +1460,7 @@ public final class Compiler {
         case .noOp:
           ip += 1
         case .pushNull, .pushVoid, .pushTrue,  .pushFalse, .pushUndef, .pushEof, .pushFixnum(_),
-             .pushFlonum(_), .pushChar(_), .pushBignum(_), .pushBigrat(_), .pushComplex(_),
+             .pushFlonum(_), .pushChar(_), .pushComplex(_),
              .pushCaptured(_), .pushConstant(_), .pushProcedure(_), .pushLocalValue(_),
              .pushCapturedValue(_):
           if ip + 1 < self.instructions.count,

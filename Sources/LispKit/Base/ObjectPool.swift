@@ -31,14 +31,20 @@ public final class ObjectPool<T: AnyObject>: Sequence, CustomStringConvertible {
     weak var obj: T?
   }
   
+  // Dynamic exclusivity checks are disabled for the following properties since objects are
+  // added to pools frequently (e.g. whenever a mutable variable refers to a non-atomic value).
+  // This is safe since all accesses are private and short: no access to these properties
+  // calls code outside of this class while the access is ongoing. Exclusivity checks never
+  // detected races between threads; an `ObjectPool` needs to be synchronized externally.
+  
   /// Weak references to objects in the pool
-  private var references: ContiguousArray<WeakVariable>
+  @exclusivity(unchecked) private var references: ContiguousArray<WeakVariable>
   
   /// A set of indices of free weak references
-  private var free: ContiguousArray<Int>
+  @exclusivity(unchecked) private var free: ContiguousArray<Int>
   
   /// How many references have been added after the last collection of free references
-  private var added: Int
+  @exclusivity(unchecked) private var added: Int
   
   /// Initializes an empty object pool
   public init() {
@@ -66,18 +72,18 @@ public final class ObjectPool<T: AnyObject>: Sequence, CustomStringConvertible {
   
   /// Adds the given object to the object pool.
   @discardableResult public func add(_ obj: T) -> Int {
+    // Reuse the most recently freed reference; removing the last element of `free` takes
+    // constant time, whereas removing the first element is linear in the size of `free`.
     // Collect free references on a regular basis; frequency is based on the capacity
-    if let i = free.first {
+    if let i = self.free.popLast() {
       self.added += 1
-      self.free.removeFirst()
       self.references[i].recycled = false
       self.references[i].obj = obj
       return i
     } else if self.added > (100 + self.capacity / 10) {
       self.added = 1
       self.collectFreeReferences()
-      if let i = free.first {
-        self.free.removeFirst()
+      if let i = self.free.popLast() {
         self.references[i].recycled = false
         self.references[i].obj = obj
         return i

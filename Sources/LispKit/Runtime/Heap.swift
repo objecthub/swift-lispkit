@@ -25,7 +25,15 @@
 public final class Heap: TrackedObject {
   
   /// Global locations.
-  public var locations: Exprs
+  ///
+  /// Dynamic exclusivity checks are disabled for `locations` since the virtual machine
+  /// accesses global variables constantly. These checks only detect overlapping accesses
+  /// within a single thread; they never detected races between threads, so this attribute does
+  /// not change thread safety: the virtual machine accesses `locations` while holding the
+  /// lock of the context's `ManagedObjectPool`. Without the checks, passing `locations` as an
+  /// `inout` argument, or mutating it in place, while code that is called during this access
+  /// accesses `locations` becomes undefined behavior instead of a runtime trap. Don't do this.
+  @exclusivity(unchecked) public var locations: Exprs
   
   /// Global documentation
   public var documentation: [Int : String]

@@ -23,7 +23,10 @@ import NumberKit
 
 ///
 /// Enumeration `Instruction` defines the bytecode instruction set supported by the LispKit
-/// compiler and virtual machine.
+/// compiler and virtual machine. Instructions only have trivial payloads (no references, no
+/// values that need to be reference counted). This makes copying them cheap, which is
+/// important for the performance of the virtual machine. Constants that would require
+/// reference counting are stored in the constant pool of `Code` objects.
 ///
 public enum Instruction: CustomStringConvertible {
   
@@ -72,14 +75,8 @@ public enum Instruction: CustomStringConvertible {
   /// **`push_fixnum` _n_**: Pushes the fixnum _n_ onto the stack.
   case pushFixnum(Int64)
   
-  /// **`push_bignum` _bn_**: Pushes the bignum _bn_ onto the stack.
-  case pushBignum(BigInt)
-  
   /// **`push_rat` _r_**: Pushes the rational number _r_ onto the stack.
   case pushRat(Rational<Int64>)
-  
-  /// **`push_bigrat` _br_**: Pushes the given bigrat number _br_ onto the stack.
-  case pushBigrat(Rational<BigInt>)
   
   /// **`push_flonum` _x_**: Pushes the flonum _x_ onto the stack.
   case pushFlonum(Double)
@@ -607,12 +604,8 @@ public enum Instruction: CustomStringConvertible {
         return "push_false"
       case .pushFixnum(let num):
         return "push_fixnum \(num)"
-      case .pushBignum(let num):
-        return "push_bignum \(num)"
       case .pushRat(let num):
         return "push_rat \(num)"
-      case .pushBigrat(let num):
-        return "push_bigrat \(num)"
       case .pushFlonum(let num):
         return "push_flonum \(num)"
       case .pushComplex(let num):

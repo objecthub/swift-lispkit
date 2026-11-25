@@ -24,7 +24,16 @@
 public class Cell: ManagedObject, CustomStringConvertible {
   
   /// The current value of the cell.
-  public var value: Expr
+  ///
+  /// Dynamic exclusivity checks are disabled for `value` since the virtual machine accesses
+  /// cells constantly (e.g. for mutable local variables). These checks only detect overlapping
+  /// accesses within a single thread; they never detected races between threads, so this
+  /// attribute does not change thread safety: concurrent accesses must be synchronized
+  /// explicitly, as `AtomicBox` does. Without the checks, the following becomes undefined
+  /// behavior instead of a runtime trap: passing `value` as an `inout` argument, or mutating it
+  /// in place, while code that is called during this access (e.g. a Scheme procedure)
+  /// accesses the same cell. Don't do this; copy `value` first and assign the result.
+  @exclusivity(unchecked) public var value: Expr
 
   /// Create a new cell with a given initial value.
   public init(_ value: Expr) {
