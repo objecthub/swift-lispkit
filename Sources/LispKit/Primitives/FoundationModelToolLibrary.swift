@@ -18,7 +18,7 @@
 //  limitations under the License.
 //
 
-#if os(macOS) && canImport(FoundationModels) && canImport(Vision) && canImport(CoreSpotlight)
+#if os(macOS) && arch(arm64) && canImport(FoundationModels) && canImport(Vision) && canImport(CoreSpotlight)
 
 import Foundation
 import FoundationModels
